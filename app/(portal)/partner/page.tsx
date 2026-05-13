@@ -7,7 +7,6 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
-import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import CopyReferralLink from '@/components/partner/CopyReferralLink';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
@@ -24,6 +23,10 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import DataTable from '@/components/portal/ui/DataTable';
+import type { DataTableColumn } from '@/components/portal/ui/DataTable';
+import PartnerReferralResourcesSection from '@/components/partner/PartnerReferralResourcesSection';
+import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -34,7 +37,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'placed'] as const;
-const ACTIVE_STAGES = ['applied', 'enrolled', 'in_training', 'certified'] as const;
 
 export default async function PartnerDashboardPage() {
   const user = await getUser();
@@ -107,11 +109,73 @@ export default async function PartnerDashboardPage() {
 
   const placements = members.filter((m) => m.placementRecord).length;
   const inTraining = pipelineMembers.filter((p) => p.stage === 'in_training' || p.stage === 'certified').length;
-  const completions = pipelineMembers.filter((p) => {
-    return memberProgramCompleted(p.member.enrolledProgram, null, p.member.memberProgramProgress);
-  }).length;
 
   const total = members.length;
+
+  const payoutPerPlacement = getPartnerPlacementPayoutUsd();
+  const enrolledCount = members.filter((m) => m.enrolledAt != null).length;
+  const estimatedPayout = placements * payoutPerPlacement;
+  const fmtMoney = (n: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+  const pendingUserIds = new Set(pendingPlacements.map((p) => p.userId));
+  const referralTableRows = pipelineMembers.map((p) => {
+    const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
+    const enrollmentDate = p.member.enrolledAt ? p.member.enrolledAt.toLocaleDateString() : '—';
+    const placementDate = p.member.placementRecord?.placedAt ? p.member.placementRecord.placedAt.toLocaleDateString() : '—';
+    let payoutStatus = 'Not placed';
+    if (p.member.placementRecord) payoutStatus = 'Included in estimate';
+    else if (pendingUserIds.has(p.member.id)) payoutStatus = 'Pending verification';
+    return {
+      id: p.member.id,
+      fullName: p.member.fullName ?? 'Member',
+      stage: p.stage,
+      stageLabel,
+      enrollmentDate,
+      placementDate,
+      payoutStatus,
+    };
+  });
+
+  type ReferralDashRow = (typeof referralTableRows)[number];
+  const referralColumns: DataTableColumn<ReferralDashRow>[] = [
+    {
+      key: 'name',
+      header: 'Name',
+      rowHeader: true,
+      cell: (row) => (
+        <Link
+          href={`/partner/referred-members/${row.id}`}
+          style={{ fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
+        >
+          {row.fullName}
+        </Link>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      cell: (row) => (
+        <StatusBadge label={row.stageLabel} variant={row.stage === 'placed' ? 'success' : 'accent'} />
+      ),
+    },
+    {
+      key: 'enrolled',
+      header: 'Enrollment date',
+      hideOnMobile: true,
+      cell: (row) => row.enrollmentDate,
+    },
+    {
+      key: 'placed',
+      header: 'Placement date',
+      hideOnMobile: true,
+      cell: (row) => row.placementDate,
+    },
+    {
+      key: 'payout',
+      header: 'Payout status',
+      cell: (row) => row.payoutStatus,
+    },
+  ];
 
   const nextAction = total === 0
     ? { label: 'Share workforceap.org/apply with your community', href: '/partner/guide', tip: 'Ask applicants to list your organization when asked how they heard about us.' }
@@ -135,25 +199,7 @@ export default async function PartnerDashboardPage() {
   const referralLinkUsagePct =
     total > 0 ? Math.min(100, Math.round((referredMembersAppliedViaLink / total) * 100)) : 0;
 
-  // "Active members" = referred members currently in an active stage (not placed / not closed).
-  const activeMembersCount = pipelineMembers.filter((p) =>
-    (ACTIVE_STAGES as readonly string[]).includes(p.stage)
-  ).length;
-
-  // "Needs review" = a real, reviewable outreach queue based on current signals:
-  // - early stages (applied/enrolled): likely need follow-up to move forward
-  // - stalled training: in_training but progress still near-zero
-  const needsReviewMembers = pipelineMembers.filter((p) => {
-    if (p.stage === 'applied' || p.stage === 'enrolled') return true;
-    if (p.stage === 'in_training' && (p.progress ?? 0) < 10) return true;
-    return false;
-  });
-  const needsReviewCount = needsReviewMembers.length;
-
   const inTrainingCount = stageCounts['in_training'] ?? 0;
-
-  // Recent members for mobile (top 4)
-  const recentMembers = pipelineMembers.slice(0, 4);
 
   return (
     <PortalEntryClient
@@ -193,27 +239,85 @@ export default async function PartnerDashboardPage() {
         </p>
       </div>
 
-      {/* Primary KPI strip */}
-      <div className="portal-kpi-grid portal-pad-x" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <PortalKpiCard accent="accent" label="Referrals" value={total} hint="Referred members" />
-        <PortalKpiCard accent="neutral" label="Members in Progress" value={activeMembersCount} hint="Active stages" />
-        <PortalKpiCard accent="gold" label="Payouts" value={placements} hint="Verified hires" href="/partner/outcomes" />
+      {/* Estimated payout + KPI strip */}
+      <div className="portal-pad-x" style={{ paddingTop: '0.5rem', paddingBottom: '0.75rem' }}>
+        <div
+          className="portal-card portal-card--flat portal-card--padded"
+          style={{ borderLeft: '4px solid var(--color-gold)', marginBottom: '1rem' }}
+        >
+          <p
+            className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-bold wa-mb-1"
+            style={{ color: 'var(--color-on-surface-variant)' }}
+          >
+            Estimated payout
+          </p>
+          <p className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
+            {fmtMoney(estimatedPayout)}
+          </p>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.45 }}>
+            {placements} verified placement{placements !== 1 ? 's' : ''} × {fmtMoney(payoutPerPlacement)} each. Final amounts follow your partner agreement.
+          </p>
+        </div>
+
+        <div
+          className="portal-kpi-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            gap: '0.625rem',
+          }}
+        >
+          <PortalKpiCard accent="accent" label="Members referred" value={total} hint="In your portal" />
+          <PortalKpiCard accent="neutral" label="Members enrolled" value={enrolledCount} hint="Started a program" />
+          <PortalKpiCard accent="green" label="Members placed" value={placements} hint="Verified hires" href="/partner/outcomes" />
+          <PortalKpiCard accent="gold" label="Est. payout" value={fmtMoney(estimatedPayout)} hint="Placement estimate" />
+        </div>
       </div>
 
-      <div className="portal-kpi-grid portal-pad-x" style={{ paddingBottom: '1rem' }}>
-        <PortalKpiCard accent="neutral" label="Certificates" value={completions} hint="Earned by members" />
-        <PortalKpiCard accent="gold" label="Pending Review" value={pendingPlacementCount} hint="Member-reported offers" />
+      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }} data-tour="tour-referral-link">
+        <PortalCard
+          title="Referral link"
+          subtitle={`Applied via your link: ${referredMembersAppliedViaLink}`}
+        >
+          <p style={{ margin: '0 0 0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
+            {referralApplyUrl}
+          </p>
+          <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
+        </PortalCard>
       </div>
 
-      <div style={{ padding: '0 1.5rem 1rem' }}>
-        <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>Referral link</p>
-        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
-          Applied via your link: <strong>{referredMembersAppliedViaLink}</strong>
-        </p>
-        <p style={{ margin: '0.5rem 0 0', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
-          Share: <strong>{referralApplyUrl}</strong>
-        </p>
-        <CopyReferralLink url={referralApplyUrl} />
+      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
+        <PortalCard
+          title="Referred members"
+          subtitle="Enrollment and placement dates reflect WorkforceAP records."
+          action={
+            <Link href="/partner/referred-members" className="portal-section-action wa-text-[11px]">
+              View all
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
+                arrow_forward
+              </span>
+            </Link>
+          }
+        >
+          <DataTable
+            columns={referralColumns}
+            rows={referralTableRows}
+            rowKey={(row) => row.id}
+            density="compact"
+            emptyState={
+              <PortalEmptyState
+                title="No referred members yet"
+                description="Share your referral link so applicants can enroll with your organization attributed."
+                icon={<span className="material-symbols-outlined">group_add</span>}
+                primaryAction={{ label: 'Referral guide', href: '/partner/guide' }}
+              />
+            }
+          />
+        </PortalCard>
+      </div>
+
+      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
+        <PartnerReferralResourcesSection partnerName={partnerRow.name} referralApplyUrl={referralApplyUrl} />
       </div>
 
       {/* Next Step Guidance */}
@@ -261,47 +365,6 @@ export default async function PartnerDashboardPage() {
             </VoiceAgentSurface>
           </div>
         </details>
-      </div>
-
-      {/* Recent Members */}
-      <div style={{ padding: '0 1.5rem 1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-          <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)' }}>Recent Members</p>
-          <Link href="/partner/referred-members" className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>View All</Link>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {recentMembers.length === 0 ? (
-            <PortalEmptyState
-              title="No members yet"
-              description="Share your referral link to start connecting applicants with WorkforceAP."
-              icon={<span className="material-symbols-outlined">group_add</span>}
-              primaryAction={{ label: 'Referral guide', href: '/partner/guide' }}
-            />
-          ) : (
-            recentMembers.map((p) => {
-              const initials = (p.member.fullName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
-              const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
-              const isPlaced = p.stage === 'placed';
-              return (
-                <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none' }}>
-                  <div className="portal-kpi-card" style={{ borderRadius: '0.75rem', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
-                      {initials}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>{p.member.fullName}</p>
-                      <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{p.programTitle}</p>
-                    </div>
-                    <StatusBadge
-                      label={stageLabel}
-                      variant={isPlaced ? 'success' : 'accent'}
-                    />
-                  </div>
-                </Link>
-              );
-            })
-          )}
-        </div>
       </div>
 
       {/* Quick Actions */}
@@ -393,20 +456,81 @@ export default async function PartnerDashboardPage() {
         }
       />
 
+      <section style={{ marginBottom: '1.25rem' }}>
+        <div
+          className="portal-card portal-card--flat portal-card--padded"
+          style={{ borderLeft: '4px solid var(--color-gold)' }}
+        >
+          <p className="partner-section-eyebrow" style={{ marginBottom: '0.35rem' }}>
+            Estimated payout
+          </p>
+          <p style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.1 }}>
+            {fmtMoney(estimatedPayout)}
+          </p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', maxWidth: '42rem', lineHeight: 1.5 }}>
+            {placements} verified placement{placements !== 1 ? 's' : ''} × {fmtMoney(payoutPerPlacement)} each. Estimates are illustrative; actual payouts follow your partner agreement.
+          </p>
+        </div>
+      </section>
+
       <section style={{ marginBottom: '1.5rem' }}>
         <div
           className="portal-grid-metrics"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(11rem, 1fr))',
             gap: '1rem',
           }}
         >
-          <PortalKpiCard accent="accent" label="Referrals" value={total} hint="Referred members" />
-          <PortalKpiCard accent="neutral" label="Members in Progress" value={activeMembersCount} hint="Active stages" />
-          <PortalKpiCard accent="gold" label="Payouts" value={placements} hint="Verified hires" href="/partner/outcomes" />
+          <PortalKpiCard accent="accent" label="Members referred" value={total} hint="In your portal" />
+          <PortalKpiCard accent="neutral" label="Members enrolled" value={enrolledCount} hint="Started a program" />
+          <PortalKpiCard accent="green" label="Members placed" value={placements} hint="Verified hires" href="/partner/outcomes" />
+          <PortalKpiCard accent="gold" label="Est. payout" value={fmtMoney(estimatedPayout)} hint="Placement estimate" />
         </div>
       </section>
+
+      <section style={{ marginBottom: '1.5rem' }} data-tour="tour-referral-link">
+        <PortalCard
+          title="Referral link"
+          subtitle={`Applied via your link: ${referredMembersAppliedViaLink}`}
+        >
+          <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
+            {referralApplyUrl}
+          </p>
+          <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
+        </PortalCard>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <PortalCard
+          title="Referred members"
+          subtitle="Name, journey status, enrollment and placement dates, and how each member contributes to your payout estimate."
+          action={
+            <Link href="/partner/referred-members" className="portal-section-action">
+              View all
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
+                arrow_forward
+              </span>
+            </Link>
+          }
+        >
+          <DataTable
+            columns={referralColumns}
+            rows={referralTableRows}
+            rowKey={(row) => row.id}
+            emptyState={
+              <PortalEmptyState
+                icon={<span className="material-symbols-outlined">group_add</span>}
+                title="No referred members yet"
+                description={`Send applicants to workforceap.org/apply and have them list ${ctx.partner.name} when asked how they heard about WorkforceAP.`}
+                primaryAction={{ label: 'Open referral guide', href: '/partner/guide' }}
+              />
+            }
+          />
+        </PortalCard>
+      </section>
+
+      <PartnerReferralResourcesSection partnerName={partnerRow.name} referralApplyUrl={referralApplyUrl} />
 
       <section style={{ marginBottom: '2rem' }}>
         <VoiceAgentSurface {...partnerVoiceSurface}>
@@ -420,23 +544,6 @@ export default async function PartnerDashboardPage() {
             listeningLabel="Listening — ask your question"
           />
         </VoiceAgentSurface>
-      </section>
-
-      {/* ── Referral Link Attribution ── */}
-      <section
-        className="partner-panel"
-        aria-label="Referral link applications"
-        data-tour="tour-referral-link"
-        style={{ marginBottom: '2rem' }}
-      >
-        <p className="partner-section-eyebrow">Referral link</p>
-        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>
-          Applied via your referral link: <strong>{referredMembersAppliedViaLink}</strong>
-        </p>
-        <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-          Share: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>
-        </p>
-        <CopyReferralLink url={referralApplyUrl} />
       </section>
 
       {/* ── Next Step ── */}
@@ -473,15 +580,7 @@ export default async function PartnerDashboardPage() {
         </div>
       </section>
 
-      {total === 0 ? (
-        <PortalEmptyState
-          icon={<span className="material-symbols-outlined">group_add</span>}
-          title="No referred members yet"
-          description={`Send applicants to workforceap.org/apply and have them list ${ctx.partner.name} when asked how they heard about WorkforceAP.`}
-          primaryAction={{ label: 'Open referral guide', href: '/partner/guide' }}
-        />
-      ) : (
-        <>
+      <>
           {/* ── Main Bento: Member Pipeline + Sidebar ── */}
           <div className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
 
@@ -567,23 +666,6 @@ export default async function PartnerDashboardPage() {
                 </div>
               </div>
 
-              {/* Resource Center */}
-              <div style={{
-                padding: '1.5rem',
-                borderRadius: '0.75rem',
-                background: 'linear-gradient(135deg, rgba(173,44,77,0.15) 0%, rgba(173,44,77,0.05) 100%)',
-                border: '1px solid rgba(173,44,77,0.15)',
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>menu_book</span>
-                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Resource Center</h3>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
-                  Guides, templates, and tools to maximize your referral impact.
-                </p>
-                <Link href="/partner/guide" className="btn btn-primary" style={{ fontSize: '0.75rem' }}>
-                  Explore Resources
-                </Link>
-              </div>
-
               {/* Near Completion */}
               {nearCompletion.length > 0 && (
                 <div className="portal-card portal-card--flat portal-card--padded">
@@ -628,8 +710,7 @@ export default async function PartnerDashboardPage() {
               )}
             </details>
           </section>
-        </>
-      )}
+      </>
     </div>
     </div>
     </PortalPageFrame>

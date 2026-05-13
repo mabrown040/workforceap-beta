@@ -40,6 +40,7 @@ import RequestHelpButton from '@/components/portal/RequestHelpButton';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 import PointsWidget from '@/components/portal/PointsWidget';
+import PWAInstallPrompt from '@/components/pwa/PWAInstallPrompt';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 import { getTranslations } from 'next-intl/server';
@@ -606,6 +607,8 @@ async function renderMemberDashboard(
   return (
     <>
       <h1 className="wa-sr-only">{noApplicationOnFile ? `Welcome to WorkforceAP, ${firstName}` : `Welcome back, ${firstName}`}</h1>
+
+      <PWAInstallPrompt />
 
       {staffViewer && (
         <div style={{ padding: '0.75rem 1rem 0' }}>

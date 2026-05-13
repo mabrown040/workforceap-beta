@@ -21,22 +21,45 @@ const getOutcomes = unstable_cache(
         _count: { programSlug: true },
       });
 
-      const programStats = await Promise.all(
-        programBreakdown.map(async (p) => {
-          const completedCount = await db.courseProgress.count({
-            where: { programSlug: p.programSlug, status: 'COMPLETED' },
-          });
-          const placedCount = await db.placementRecord.count({
-            where: { user: { courseEnrollments: { some: { programSlug: p.programSlug } } } },
-          });
-          return {
-            program: p.programSlug,
-            enrolled: p._count.programSlug,
-            completed: completedCount,
-            placed: placedCount,
-          };
-        })
-      );
+      const programSlugs = programBreakdown.map((p) => p.programSlug);
+
+      const [completedByProgram, placementUsers, enrollments] = await Promise.all([
+        db.courseProgress.groupBy({
+          by: ['programSlug'],
+          where: { programSlug: { in: programSlugs }, status: 'COMPLETED' },
+          _count: { programSlug: true },
+        }),
+        db.placementRecord.findMany({
+          where: {},
+          select: { userId: true },
+          take: 5000,
+        }),
+        db.courseEnrollment.findMany({
+          where: { programSlug: { in: programSlugs } },
+          select: { userId: true, programSlug: true },
+          take: 5000,
+        }),
+      ]);
+
+      const completedMap = new Map(completedByProgram.map((c) => [c.programSlug, c._count.programSlug]));
+
+      const placementUserIds = [...new Set(placementUsers.map((p) => p.userId))];
+      const placedMap = new Map<string, number>();
+      const seenPairs = new Set<string>();
+      for (const e of enrollments) {
+        if (!placementUserIds.includes(e.userId)) continue;
+        const key = `${e.userId}-${e.programSlug}`;
+        if (seenPairs.has(key)) continue;
+        seenPairs.add(key);
+        placedMap.set(e.programSlug, (placedMap.get(e.programSlug) ?? 0) + 1);
+      }
+
+      const programStats = programBreakdown.map((p) => ({
+        program: p.programSlug,
+        enrolled: p._count.programSlug,
+        completed: completedMap.get(p.programSlug) ?? 0,
+        placed: placedMap.get(p.programSlug) ?? 0,
+      }));
 
       const monthlyTrend = await db.user.groupBy({
         by: ['createdAt'],

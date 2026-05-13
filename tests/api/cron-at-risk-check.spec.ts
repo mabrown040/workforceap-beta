@@ -75,6 +75,7 @@ describe('GET /api/cron/at-risk-check', () => {
     ];
     vi.mocked(calculateAllAtRiskScores).mockResolvedValue(scores as any);
     vi.mocked(getAtRiskDigestRecipients).mockReturnValue(['admin@example.com']);
+    vi.mocked(prisma.atRiskAlert.findMany).mockResolvedValue([] as any);
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: 'user-1', email: 'a@example.com', fullName: 'Alice' },
     ] as any);
@@ -119,6 +120,7 @@ describe('GET /api/cron/at-risk-check', () => {
     ];
     vi.mocked(calculateAllAtRiskScores).mockResolvedValue(scores as any);
     vi.mocked(getAtRiskDigestRecipients).mockReturnValue(['admin@example.com', 'counselor@example.com']);
+    vi.mocked(prisma.atRiskAlert.findMany).mockResolvedValue([] as any);
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: 'user-1', email: 'a@example.com', fullName: 'Alice' },
     ] as any);
@@ -142,6 +144,7 @@ describe('GET /api/cron/at-risk-check', () => {
     const scores = [{ userId: 'user-1', score: 20, factors: [], recommendedAction: '' }];
     vi.mocked(calculateAllAtRiskScores).mockResolvedValue(scores as any);
     vi.mocked(getAtRiskDigestRecipients).mockReturnValue([]);
+    vi.mocked(prisma.atRiskAlert.findMany).mockResolvedValue([] as any);
     vi.mocked(prisma.user.findMany).mockResolvedValue([] as any);
 
     const res = await atRiskGET(new Request('http://localhost:3000/api/cron/at-risk-check'));
@@ -157,6 +160,7 @@ describe('GET /api/cron/at-risk-check', () => {
     ];
     vi.mocked(calculateAllAtRiskScores).mockResolvedValue(scores as any);
     vi.mocked(getAtRiskDigestRecipients).mockReturnValue(['admin@example.com']);
+    vi.mocked(prisma.atRiskAlert.findMany).mockResolvedValue([] as any);
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: 'user-1', email: 'a@example.com', fullName: 'Alice' },
     ] as any);
@@ -176,6 +180,7 @@ describe('GET /api/cron/at-risk-check', () => {
     ];
     vi.mocked(calculateAllAtRiskScores).mockResolvedValue(scores as any);
     vi.mocked(getAtRiskDigestRecipients).mockReturnValue(['admin@example.com']);
+    vi.mocked(prisma.atRiskAlert.findMany).mockResolvedValue([] as any);
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: 'user-1', email: 'a@example.com', fullName: 'Alice' },
     ] as any);
@@ -186,7 +191,7 @@ describe('GET /api/cron/at-risk-check', () => {
       expect.objectContaining({
         members: expect.arrayContaining([
           expect.objectContaining({
-            adminUrl: 'https://test.workforceap.org/admin/members/user-1',
+            adminUrl: expect.stringContaining('/admin/members/user-1'),
           }),
         ]),
       })

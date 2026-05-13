@@ -102,12 +102,13 @@ describe('GET /api/member/resume', () => {
       resumeEnhancedPath: 'user-123/enhanced.pdf',
     } as any);
 
-    const mockFrom = vi.fn(() => ({
+    const sharedMock = {
       createSignedUrl: vi.fn()
         .mockResolvedValueOnce({ data: { signedUrl: 'https://signed/original' }, error: null })
         .mockResolvedValueOnce({ data: { signedUrl: 'https://signed/enhanced' }, error: null }),
       download: vi.fn().mockResolvedValue({ data: { text: vi.fn().mockResolvedValue('enhanced text') }, error: null }),
-    }));
+    };
+    const mockFrom = vi.fn(() => sharedMock);
     vi.mocked(getSupabaseAdmin).mockReturnValue({ storage: { from: mockFrom } } as any);
 
     const res = await resumeGET(makeReq('http://localhost:3000/api/member/resume') as any);

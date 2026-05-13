@@ -29,15 +29,19 @@ export async function getPublicPlacementOutcomes(prisma: PrismaClient): Promise<
   }
 
   try {
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+    const timeBound = { placedAt: { gte: twoYearsAgo } };
+
     const [totalPlaced, withRetentionNote, last, byProgramRaw, byFundingRaw, byRetentionRaw] = await Promise.all([
-      prisma.placementRecord.count(),
+      prisma.placementRecord.count({ where: timeBound }),
       prisma.placementRecord.count({
-        where: { OR: [{ retentionStatus: { not: null } }, { retentionDecision: { not: null } }] },
+        where: { AND: [timeBound, { OR: [{ retentionStatus: { not: null } }, { retentionDecision: { not: null } }] }] },
       }),
-      prisma.placementRecord.findFirst({ orderBy: { placedAt: 'desc' }, select: { placedAt: true } }),
-      prisma.placementRecord.groupBy({ by: ['programSlug'], _count: { _all: true } }),
-      prisma.placementRecord.groupBy({ by: ['fundingSource'], _count: { _all: true } }),
-      prisma.placementRecord.groupBy({ by: ['retentionStatus'], _count: { _all: true } }),
+      prisma.placementRecord.findFirst({ where: timeBound, orderBy: { placedAt: 'desc' }, select: { placedAt: true } }),
+      prisma.placementRecord.groupBy({ by: ['programSlug'], where: timeBound, _count: { _all: true } }),
+      prisma.placementRecord.groupBy({ by: ['fundingSource'], where: timeBound, _count: { _all: true } }),
+      prisma.placementRecord.groupBy({ by: ['retentionStatus'], where: timeBound, _count: { _all: true } }),
     ]);
 
     const lastPlacedAt = last?.placedAt ?? null;

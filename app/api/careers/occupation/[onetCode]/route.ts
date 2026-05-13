@@ -76,19 +76,21 @@ export async function GET(request: NextRequest, { params }: Params) {
           level: s.level,
         })),
         tasks: occ.tasks.map((t) => translateTaskLine(t.taskText)),
-        relatedOccupations: await Promise.all(
-          occ.relatedFrom.map(async (r) => {
-            const rel = await prisma.onetOccupation.findUnique({
-              where: { onetCode: r.relatedOnetCode },
-              select: { onetCode: true, title: true },
-            });
-            return {
-              onetCode: r.relatedOnetCode,
-              title: rel?.title ?? r.relatedOnetCode,
-              relationshipType: r.relationshipType,
-            };
-          })
-        ),
+        relatedOccupations: (await (async () => {
+          const relatedCodes = occ.relatedFrom.map((r) => r.relatedOnetCode);
+          const relatedOccs = relatedCodes.length
+            ? await prisma.onetOccupation.findMany({
+                where: { onetCode: { in: relatedCodes } },
+                select: { onetCode: true, title: true },
+              })
+            : [];
+          const titleMap = new Map(relatedOccs.map((o) => [o.onetCode, o.title]));
+          return occ.relatedFrom.map((r) => ({
+            onetCode: r.relatedOnetCode,
+            title: titleMap.get(r.relatedOnetCode) ?? r.relatedOnetCode,
+            relationshipType: r.relationshipType,
+          }));
+        })()),
         mappedPrograms,
       });
     } catch (error) {

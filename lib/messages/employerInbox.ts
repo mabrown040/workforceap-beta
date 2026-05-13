@@ -64,31 +64,34 @@ export async function buildEmployerInbox(
     take: 50,
   });
 
-  const candidatesNested = await Promise.all(
-    applications.map(async (app) => {
-      const last = app.messages[0];
-      const unreadApplicant = await prisma.applicationMessage.count({
+  const applicationIds = applications.map((app) => app.id);
+  const unreadAgg = applicationIds.length
+    ? await prisma.applicationMessage.groupBy({
+        by: ['applicationId'],
         where: {
-          applicationId: app.id,
-          authorId: app.studentId,
+          applicationId: { in: applicationIds },
           readAt: null,
         },
-      });
+        _count: { applicationId: true },
+      })
+    : [];
+  const unreadMap = new Map(unreadAgg.map((a) => [a.applicationId, a._count.applicationId]));
 
-      const sortAt = last?.createdAt ?? app.appliedAt;
-      const preview = last?.body?.slice(0, 100) ?? 'No messages yet';
+  const candidatesNested = applications.map((app) => {
+    const last = app.messages[0];
+    const sortAt = last?.createdAt ?? app.appliedAt;
+    const preview = last?.body?.slice(0, 100) ?? 'No messages yet';
 
-      return {
-        kind: 'candidate' as const,
-        applicationId: app.id,
-        studentName: app.student.fullName ?? 'Member',
-        jobTitle: app.job.title,
-        preview,
-        sortAt: sortAt.toISOString(),
-        unreadCount: unreadApplicant,
-      };
-    })
-  );
+    return {
+      kind: 'candidate' as const,
+      applicationId: app.id,
+      studentName: app.student.fullName ?? 'Member',
+      jobTitle: app.job.title,
+      preview,
+      sortAt: sortAt.toISOString(),
+      unreadCount: unreadMap.get(app.id) ?? 0,
+    };
+  });
 
   const candidates = candidatesNested.sort((a, b) =>
     a.sortAt < b.sortAt ? 1 : a.sortAt > b.sortAt ? -1 : 0

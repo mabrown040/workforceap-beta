@@ -185,7 +185,7 @@ model User {
   courseraSkillsetProgress CourseraSkillsetProgress[]
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
   atRiskAlerts             AtRiskAlert[]
-  placementSurvey          PlacementSurvey?
+  placementSurveys       PlacementSurvey[]
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -2038,16 +2038,18 @@ model CourseraBadgeProgress {
 // --- At-Risk Alert System ---
 
 model AtRiskAlert {
-  id             String    @id @default(uuid())
-  userId         String    @map("user_id")
-  score          Int
-  factors        Json      // array of {name, weight, description}
-  status         String    // "open" | "acknowledged" | "resolved"
-  counselorId    String?   @map("counselor_id")
-  acknowledgedAt DateTime? @map("acknowledged_at")
-  resolvedAt     DateTime? @map("resolved_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  id                  String    @id @default(uuid())
+  userId              String    @map("user_id")
+  score               Int
+  factors             Json      // array of {name, weight, description}
+  status              String    // "open" | "acknowledged" | "resolved"
+  counselorId         String?   @map("counselor_id")
+  acknowledgedAt      DateTime? @map("acknowledged_at")
+  resolvedAt          DateTime? @map("resolved_at")
+  notifiedCounselorAt DateTime? @map("notified_counselor_at")
+  escalatedAt         DateTime? @map("escalated_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2057,31 +2059,39 @@ model AtRiskAlert {
   @@map("at_risk_alerts")
 }
 
+enum PlacementSurveyWave {
+  thirty_day
+  sixty_day
+  ninety_day
+}
+
 model PlacementSurvey {
   id              String   @id @default(uuid())
-  userId          String   @unique @map("user_id")
+  userId          String   @map("user_id")
   placementId     String   @map("placement_id")
+  wave            PlacementSurveyWave @default(thirty_day) @map("wave")
   sentAt          DateTime @default(now()) @map("sent_at")
   completedAt     DateTime? @map("completed_at")
-  
+
   // Core questions (1-5 scale)
   jobSatisfaction   Int? @map("job_satisfaction")     // "How satisfied are you with your job?"
   trainingRelevance Int? @map("training_relevance")   // "How relevant was your training?"
   supportQuality    Int? @map("support_quality")      // "How was the counselor support?"
-  
+
   // Open feedback
   whatHelpedMost    String? @map("what_helped_most") @db.Text
   whatCouldImprove  String? @map("what_could_improve") @db.Text
-  
+
   // Outcome tracking
   stillEmployed     Boolean? @map("still_employed")
   currentSalary     Int? @map("current_salary")       // annual, updated if changed
-  
+
   // Consent for testimonial use
   allowTestimonial  Boolean @default(false) @map("allow_testimonial")
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  @@unique([userId, wave])
   @@index([userId])
   @@index([sentAt])
   @@index([placementId])

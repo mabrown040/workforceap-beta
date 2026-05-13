@@ -32,6 +32,7 @@ import {
   partnerReferralInviteHtml,
   atRiskDigestHtml,
   placementSurveyHtml,
+  employerWelcomeHtml,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -1338,6 +1339,41 @@ export async function sendPartnerWeeklyDigestEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendPartnerWeeklyDigestEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send welcome email to newly self-registered employer */
+export async function sendEmployerWelcomeEmail(params: {
+  to: string;
+  companyName: string;
+  contactName: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEmployerWelcomeEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'Welcome to WorkforceAP — Your Employer Portal',
+    bodyHtml: employerWelcomeHtml({
+      companyName: params.companyName,
+      contactName: params.contactName,
+      loginUrl: `${SITE_URL}/login`,
+    }),
+    ctaText: 'Log in to Employer Portal',
+    ctaUrl: `${SITE_URL}/login`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`Welcome to WorkforceAP — ${params.companyName}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEmployerWelcomeEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

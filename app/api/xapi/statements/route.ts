@@ -114,7 +114,7 @@ export async function POST(request: Request) {
   
     const rawStatements = flattenXapiStatementPayload(body);
     if (rawStatements.length === 0) {
-      return NextResponse.json({ received: true, processed: 0, completions: [] });
+      return NextResponse.json({ received: true, processed: 0, completions: [] }, { status: 201 });
     }
   
     const completions: Array<Record<string, unknown>> = [];
@@ -206,7 +206,7 @@ export async function POST(request: Request) {
       processed: statementsHandled,
       completions,
       ...(ingestErrors.length > 0 ? { errors: ingestErrors } : {}),
-    });
+    }, { status: 201 });
   } catch (error) {
     console.error('/xapi/statements:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

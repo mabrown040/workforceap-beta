@@ -1,0 +1,41 @@
+import { NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { getPartnerForUser } from '@/lib/auth/roles';
+import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
+
+/** GET /api/partner/members
+ *  Returns members referred by the partner.
+ */
+export async function GET() {
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const ctx = await getPartnerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const { pipelineMembers } = await loadPartnerReferralBundle(
+      ctx.partnerId,
+      ctx.partner.organizationId,
+    );
+
+    const members = pipelineMembers.map((p) => ({
+      id: p.member.id,
+      fullName: p.member.fullName,
+      stage: p.stage,
+      progress: p.progress,
+      programTitle: p.programTitle,
+      allProgramTitles: p.allProgramTitles,
+      referredAt: p.referredAt.toISOString(),
+      enrolledAt: p.member.enrolledAt?.toISOString() ?? null,
+      placedAt: p.member.placementRecord?.placedAt?.toISOString() ?? null,
+      employerName: p.member.placementRecord?.employerName ?? null,
+      jobTitle: p.member.placementRecord?.jobTitle ?? null,
+    }));
+
+    return NextResponse.json({ members });
+  } catch (error) {
+    console.error('/partner/members error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

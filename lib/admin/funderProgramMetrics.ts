@@ -6,6 +6,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { THRESHOLDS } from '@/lib/member/atRiskScoring';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
 const EXPORT_LIMIT = 10_000;
 
@@ -23,10 +24,10 @@ export type FunderProgramSummaryRow = {
 
 /**
  * Aggregates enrollment, engagement, completion, placement, and at-risk counts per
- * enrolled program for grant / funder reporting. Uses the same member-only filter
- * as cohort exports (`MEMBER_ONLY_WHERE`).
+ * enrolled program for grant / funder reporting. Scoped to `orgId` (actor tenant).
+ * Uses the same member-only filter as cohort exports (`MEMBER_ONLY_WHERE`).
  */
-export async function getFunderProgramSummaryRows(): Promise<{
+export async function getFunderProgramSummaryRows(orgId: string): Promise<{
   rows: FunderProgramSummaryRow[];
   truncated: boolean;
 }> {
@@ -34,25 +35,30 @@ export async function getFunderProgramSummaryRows(): Promise<{
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const [users, activeMembers, atRiskAlerts] = await Promise.all([
-    prisma.user.findMany({
-      where: {
-        deletedAt: null,
-        enrolledProgram: { not: null },
-        ...MEMBER_ONLY_WHERE,
-      },
-      orderBy: { enrolledAt: 'desc' },
-      take: EXPORT_LIMIT,
-      select: {
-        id: true,
-        enrolledProgram: true,
-        memberProgramProgress: {
-          select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+    withTenantScope(orgId, (db) =>
+      db.user.findMany({
+        where: {
+          deletedAt: null,
+          enrolledProgram: { not: null },
+          ...MEMBER_ONLY_WHERE,
         },
-        placementRecord: { select: { id: true } },
-      },
-    }),
+        orderBy: { enrolledAt: 'desc' },
+        take: EXPORT_LIMIT,
+        select: {
+          id: true,
+          enrolledProgram: true,
+          memberProgramProgress: {
+            select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+          },
+          placementRecord: { select: { id: true } },
+        },
+      }),
+    ),
     prisma.memberEvent.findMany({
-      where: { createdAt: { gte: thirtyDaysAgo } },
+      where: {
+        createdAt: { gte: thirtyDaysAgo },
+        user: { organizationId: orgId },
+      },
       distinct: ['userId'],
       select: { userId: true },
     }),
@@ -63,6 +69,7 @@ export async function getFunderProgramSummaryRows(): Promise<{
         user: {
           deletedAt: null,
           enrolledProgram: { not: null },
+          organizationId: orgId,
           ...MEMBER_ONLY_WHERE,
         },
       },

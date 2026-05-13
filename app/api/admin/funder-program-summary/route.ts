@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { buildFunderProgramSummaryCsv, getFunderProgramSummaryRows } from '@/lib/admin/funderProgramMetrics';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 /**
  * GET /api/admin/funder-program-summary
@@ -18,7 +19,8 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   
     try {
-      const { rows, truncated } = await getFunderProgramSummaryRows();
+      const orgId = await getActorOrganizationId(user.id);
+      const { rows, truncated } = await getFunderProgramSummaryRows(orgId);
       const csv = buildFunderProgramSummaryCsv(rows);
   
       const date = new Date().toISOString().slice(0, 10);

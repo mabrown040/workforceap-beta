@@ -32,6 +32,7 @@ import {
   partnerReferralInviteHtml,
   atRiskDigestHtml,
   placementSurveyHtml,
+  placementSurveyEscalationHtml,
   employerWelcomeHtml,
 } from '@/emails';
 
@@ -733,12 +734,13 @@ export async function sendCourseEnrolledEmail(params: {
   }
 }
 
-/** Send the post-placement survey invite to a member ~30 days after placement */
+/** Send the post-placement survey invite to a member at 30/60/90 days */
 export async function sendPlacementSurveyEmail(params: {
   to: string;
   fullName: string;
   programName: string | null;
   surveyUrl: string;
+  wave?: 'thirty_day' | 'sixty_day' | 'ninety_day';
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {
@@ -746,10 +748,16 @@ export async function sendPlacementSurveyEmail(params: {
     return { ok: false, error: 'Email not configured' };
   }
   const first = params.fullName.trim().split(/\s+/)[0] || 'there';
-  const subject = "How's the new job going? — quick 3-minute survey";
+  const wave = params.wave ?? 'thirty_day';
+  const subject =
+    wave === 'sixty_day'
+      ? '60-day check-in — are you still employed?'
+      : wave === 'ninety_day'
+        ? 'Final 90-day check-in — salary confirmation'
+        : "How's the new job going? — quick 3-minute survey";
   const html = brandedEmailLayout({
     title: subject,
-    bodyHtml: placementSurveyHtml({ firstName: first, programName: params.programName }),
+    bodyHtml: placementSurveyHtml({ firstName: first, programName: params.programName, wave }),
     ctaText: 'Open the survey',
     ctaUrl: params.surveyUrl,
   });
@@ -763,6 +771,42 @@ export async function sendPlacementSurveyEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendPlacementSurveyEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send escalation alert to counselor when member hasn't responded to 30-day survey after 7 days */
+export async function sendPlacementSurveyEscalationEmail(params: {
+  to: string;
+  counselorName: string;
+  memberName: string;
+  memberEmail: string;
+  employerName: string;
+  jobTitle: string;
+  daysSincePlacement: number | null;
+  surveyUrl: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendPlacementSurveyEscalationEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'Placement survey non-responder — follow-up needed',
+    bodyHtml: placementSurveyEscalationHtml(params),
+    ctaText: 'View survey link',
+    ctaUrl: params.surveyUrl,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`Follow-up needed: ${params.memberName} — placement survey not completed`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendPlacementSurveyEscalationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

@@ -83,10 +83,10 @@ export function withAnonymousGuc<T>(fn: () => Promise<T>): Promise<T> {
  * Use this in App Router API route files:
  *   export const GET = withApiGuc(async (request) => { ... });
  */
-export function withApiGuc<T>(
-  handler: (request: Request) => Promise<T>,
-): (request: Request) => Promise<T> {
-  return async (request: Request) => {
+export function withApiGuc<T, R extends Request = Request>(
+  handler: (request: R) => Promise<T>,
+): (request: R) => Promise<T> {
+  return async (request: R) => {
     const ctx = await resolveAuthGucContext();
     return runWithGucContext(ctx, () => handler(request));
   };
@@ -96,10 +96,10 @@ export function withApiGuc<T>(
  * API-route wrapper that enforces authentication.
  * Returns 401 if no user is present; otherwise runs with the user's GUC context.
  */
-export function withAuthenticatedApiGuc<T>(
-  handler: (request: Request, userId: string) => Promise<T>,
-): (request: Request) => Promise<T> {
-  return async (request: Request) => {
+export function withAuthenticatedApiGuc<T, R extends Request = Request>(
+  handler: (request: R, userId: string) => Promise<T>,
+): (request: R) => Promise<T> {
+  return async (request: R) => {
     const ctx = await resolveAuthGucContext();
     if (ctx.role === 'anonymous') {
       return Response.json({ error: 'Unauthorized' }, { status: 401 }) as unknown as T;

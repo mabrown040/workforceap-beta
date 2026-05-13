@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { syncCuratedJobToTracker } from '@/lib/jobs/syncCuratedJobToTracker';
 import { awardPoints } from '@/lib/member/points';
+import { handleApiError, ApiError } from '@/lib/api/errors';
 
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
@@ -20,8 +21,8 @@ export async function POST(
 ) {
   try {
     const authUser = await getUser();
-    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
+    if (!authUser) throw ApiError.unauthorized();
+
     const [dbUser, profile] = await Promise.all([
       prisma.user.findUnique({
         where: { id: authUser.id },
@@ -32,32 +33,32 @@ export async function POST(
         select: { resumeOriginalPath: true, resumeEnhancedPath: true },
       }),
     ]);
-    if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 401 });
-  
+    if (!dbUser) throw ApiError.unauthorized('User not found');
+
     const { id } = await params;
     const job = await prisma.job.findFirst({
       where: { id, status: 'live' },
       include: { employer: { select: { contactEmail: true, companyName: true } } },
     });
-  
-    if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-  
+
+    if (!job) throw ApiError.notFound('Job not found');
+
     const body = await request.json().catch(() => null);
     const parsed = applySchema.safeParse(body ?? {});
-    
+
     if (!parsed.success || !parsed.data.shareProfile) {
-      return NextResponse.json({ error: 'Profile sharing consent required' }, { status: 400 });
+      throw ApiError.badRequest('Profile sharing consent required');
     }
-  
+
     const existing = await prisma.jobPostingApplication.findUnique({
       where: { jobId_studentId: { jobId: id, studentId: authUser.id } },
     });
-    if (existing) return NextResponse.json({ error: 'Already applied' }, { status: 400 });
-  
-    const resumePath = parsed.data.shareResume 
+    if (existing) throw ApiError.conflict('Already applied');
+
+    const resumePath = parsed.data.shareResume
       ? (profile?.resumeEnhancedPath || profile?.resumeOriginalPath)
       : undefined;
-  
+
     const app = await prisma.jobPostingApplication.create({
       data: {
         jobId: id,
@@ -68,12 +69,12 @@ export async function POST(
         profileShared: true,
       },
     });
-  
+
     await prisma.job.update({
       where: { id },
       data: { applicationsCount: { increment: 1 } },
     });
-  
+
     await sendNewJobApplicationEmail({
       to: job.employer.contactEmail,
       jobTitle: job.title,
@@ -81,7 +82,7 @@ export async function POST(
       applicantEmail: dbUser.email,
       applicationId: app.id,
     });
-  
+
     await trackEvent({
       userId: authUser.id,
       eventName: 'application_added',
@@ -90,10 +91,10 @@ export async function POST(
       metadata: { jobId: id, jobTitle: job.title },
       sourcePage: `/dashboard/jobs/${id}`,
     });
-  
+
     // Award points (idempotent on application id)
     awardPoints(authUser.id, 'job_application', app.id).catch(() => {});
-  
+
     try {
       await syncCuratedJobToTracker(
         authUser.id,
@@ -103,10 +104,9 @@ export async function POST(
     } catch (e) {
       console.error('[apply] tracker sync:', e);
     }
-  
+
     return NextResponse.json({ ok: true, applicationId: app.id });
   } catch (error) {
-    console.error('/(portal)/dashboard/jobs/[id]/apply:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleApiError(error, 'POST /api/jobs/[id]/apply');
   }
 }

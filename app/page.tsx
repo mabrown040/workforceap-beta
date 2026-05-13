@@ -6,6 +6,7 @@ import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE, FUNDING_SOURCES, FUNDING_COLORS } from '@/lib/content/programs';
 import { MARKETING_JOURNEY_STEPS, type MarketingJourneyStep } from '@/lib/content/marketingJourneySteps';
 import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
+import ErrorBoundary from '@/components/error/ErrorBoundary';
 
 import { getTranslations } from 'next-intl/server';
 import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
@@ -729,8 +730,24 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <DynamicMobileBottomNav />
-      <DynamicFooter variant="home" />
+      <ErrorBoundary
+        fallback={
+          <footer style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
+            <p>Footer could not load.</p>
+          </footer>
+        }
+      >
+        <DynamicMobileBottomNav />
+      </ErrorBoundary>
+      <ErrorBoundary
+        fallback={
+          <footer style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
+            <p>Footer could not load.</p>
+          </footer>
+        }
+      >
+        <DynamicFooter variant="home" />
+      </ErrorBoundary>
     </div>
   );
 }

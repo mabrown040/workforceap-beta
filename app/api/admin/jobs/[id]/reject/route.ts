@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendJobRejectedEmail } from '@/lib/email';
+import { invalidateJobListings } from '@/app/api/(portal)/dashboard/jobs/route';
 import { z } from 'zod';
 
 /**
@@ -63,6 +64,8 @@ export async function POST(
       reason: parsed.data.reason,
       orgId,
     });
+
+    await invalidateJobListings();
 
     return NextResponse.json({ ok: true });
   } catch (error) {

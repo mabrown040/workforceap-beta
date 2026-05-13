@@ -24,7 +24,7 @@ export async function POST() {
       unreadCount,
     });
   } catch (error) {
-    console.error('/member/notifications/dismiss-all error:', error);
+    console.error('/member/notifications/read-all error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

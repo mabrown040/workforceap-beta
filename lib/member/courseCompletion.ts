@@ -5,6 +5,7 @@ import { getProgramBySlug, getDiscoveredProgram } from '@/lib/content/programs';
 import { markCourseProgressCompleted } from '@/lib/member/courseProgress';
 import { resolveProgramCourseWithCatalogFallback } from '@/lib/member/programCourseMatch';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
+import { createNotification } from '@/lib/notifications/create';
 import { sendCourseCompletedEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
 import { handleLearningCompletion } from '@/lib/workflows/careerOS';
@@ -122,6 +123,14 @@ export async function completeMemberCourse(args: {
       fullName: dbUser.fullName,
       courseName: matchedCourse.name,
     }).catch((error) => console.error('Course completed email failed:', error));
+
+    void createNotification({
+      userId: args.userId,
+      type: 'course_complete',
+      title: 'Course completed!',
+      body: `You completed ${matchedCourse.name}. Great work!`,
+      data: { courseSlug: matchedCourse.slug, courseName: matchedCourse.name },
+    });
 
     handleLearningCompletion(args.userId, matchedCourse.name).catch((error) =>
       console.error('[career-os] learning completion workflow failed:', error)

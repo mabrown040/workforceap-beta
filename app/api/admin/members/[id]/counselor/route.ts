@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { sendCounselorAssignedEmail } from '@/lib/email';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
+import { createNotification } from '@/lib/notifications/create';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -84,6 +85,14 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     memberFullName: member.fullName,
     counselorFullName: counselor.user.fullName,
     orgId: member.organizationId,
+  });
+
+  void createNotification({
+    userId: memberId,
+    type: 'task_assigned',
+    title: 'You have a new advisor',
+    body: `${counselor.user.fullName} has been assigned as your career advisor.`,
+    data: { counselorId: counselor.id, counselorUserId: counselor.userId, threadId: thread.id },
   });
 
   return NextResponse.json({

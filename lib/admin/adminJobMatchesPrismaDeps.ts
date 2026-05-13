@@ -4,6 +4,7 @@ import {
   markAiJobMatchEmptyCooldown,
   clearAiJobMatchEmptyCooldown,
 } from '@/lib/admin/aiJobMatchCompute';
+import { createNotification } from '@/lib/notifications/create';
 import type { RunAdminJobMatchesDeps } from '@/lib/admin/runAdminJobMatchesGet';
 
 const jobSelectForMatch = {
@@ -52,16 +53,41 @@ export function createAdminJobMatchesPrismaDeps(
       }),
     findCachedRows: findAiJobMatchRowsForAdmin,
     computeMatches: (jid, job) => getOrComputeAiJobMatches(jid, job),
-    persistMatches: (jid, matches) =>
-      prisma.aIJobMatch.createMany({
-        data: matches.map((m) => ({
-          jobId: jid,
-          studentId: m.studentId,
-          matchScore: m.matchScore,
-          matchReasons: m.matchReasons,
-        })),
-        skipDuplicates: true,
-      }),
+    persistMatches: async (jid, matches) => {
+      if (matches.length === 0) return;
+      const existing = await prisma.aIJobMatch.findMany({
+        where: { jobId: jid },
+        select: { studentId: true },
+      });
+      const existingIds = new Set(existing.map((e) => e.studentId));
+      const newMatches = matches.filter((m) => !existingIds.has(m.studentId));
+
+      if (newMatches.length > 0) {
+        await prisma.aIJobMatch.createMany({
+          data: newMatches.map((m) => ({
+            jobId: jid,
+            studentId: m.studentId,
+            matchScore: m.matchScore,
+            matchReasons: m.matchReasons,
+          })),
+        });
+
+        const job = await prisma.job.findUnique({
+          where: { id: jid },
+          select: { title: true },
+        });
+
+        for (const m of newMatches) {
+          void createNotification({
+            userId: m.studentId,
+            type: 'job_match',
+            title: 'New job match',
+            body: `We found a match: ${job?.title ?? 'a new position'}`,
+            data: { jobId: jid, matchScore: m.matchScore },
+          });
+        }
+      }
+    },
     markMatchesComputedAt: (jid) =>
       prisma.job.update({
         where: { id: jid },

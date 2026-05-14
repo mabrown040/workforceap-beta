@@ -68,6 +68,25 @@ export async function POST(
       );
     }
 
+    // TTL guard. The expire cron runs daily, so there's a window of up to
+    // 24h where a cascade is past its expiresAt but still
+    // status='awaiting_approval'. Sending in that window would violate the
+    // "stale celebrations are worse than no celebration" rule. The cron
+    // toggle can also be flipped off independently, which would let stale
+    // cascades sit indefinitely — defense in depth here means the route
+    // refuses on its own.
+    const now = new Date();
+    if (cascade.expiresAt <= now) {
+      return NextResponse.json(
+        {
+          error: 'Cascade has expired (past 72h TTL) — stale celebrations should not be sent',
+          expiredAt: cascade.expiresAt,
+          code: 'expired',
+        },
+        { status: 409 },
+      );
+    }
+
     // Validate the existing drafts (defense-in-depth — they were validated
     // on the way into the DB, but the column type is Json so we can't trust
     // it without re-validation).
@@ -98,10 +117,13 @@ export async function POST(
       };
     });
 
-    // Atomic transition: only flip if still awaiting_approval. Persist the
+    // Atomic transition: only flip if still awaiting_approval AND not yet
+    // expired. The expiresAt filter closes the precheck→update race window
+    // (counselor opens at 70h, takes 3h to edit, clicks approve at 73h —
+    // we want this to fail rather than send a stale cascade). Persist the
     // edited drafts so the audit trail reflects what was actually sent.
     const updateResult = await prisma.milestoneCascade.updateMany({
-      where: { id, status: 'awaiting_approval' },
+      where: { id, status: 'awaiting_approval', expiresAt: { gt: now } },
       data: {
         status: 'approved',
         approvedByUserId: user.id,

@@ -9180,6 +9180,11 @@ html.dark .portal-nav {
             var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem) + 0.5rem
         );
     }
+    html[data-portal-role="member"] .workspace-shell-main [id] {
+        scroll-margin-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem) + 0.75rem
+        );
+    }
     html[data-portal-role]:not([data-portal-role="member"]) {
         scroll-padding-top: calc(
             var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px) + 0.5rem
@@ -9188,6 +9193,11 @@ html.dark .portal-nav {
     html[data-portal-role]:not([data-portal-role="member"]) body {
         scroll-padding-top: calc(
             var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px) + 0.5rem
+        );
+    }
+    html[data-portal-role]:not([data-portal-role="member"]) .workspace-shell-main [id] {
+        scroll-margin-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px) + 0.75rem
         );
     }
 
@@ -9199,6 +9209,9 @@ html.dark .portal-nav {
     html[data-portal-role]:not([data-portal-role="member"]).wap-reserve-mobile-bottom-nav body,
     html[data-portal-role]:not([data-portal-role="member"]):has(nav#mobile-bottom-nav.mobile-bottom-nav-root) body {
         scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+    }
+    html[data-portal-role]:not([data-portal-role="member"]) .workspace-shell-main [id] {
+        scroll-margin-bottom: var(--wap-mobile-bottom-nav-clearance);
     }
 }
 .workspace-shell-header {
@@ -9248,7 +9261,7 @@ html.dark .portal-nav {
 }
 @media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
     .workspace-shell-header {
-        transition: padding 0.2s ease, box-shadow 0.2s ease;
+        transition: padding 0.2s ease, box-shadow 0.2s ease, gap 0.2s ease;
     }
 }
 /* Scroll-compacted chrome (see useWorkspaceMobileScrollChrome) */

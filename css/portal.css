@@ -3086,6 +3086,7 @@ html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
     -ms-overflow-style: none; /* IE/edge legacy */
     /* Last item gets extra trailing space so the fade doesn't cut the active state. */
     padding-right: 2.75rem;
+    transition: padding 0.18s ease, gap 0.18s ease;
   }
   .member-portal-top-nav__list::-webkit-scrollbar {
     display: none;
@@ -3111,6 +3112,8 @@ html:not(.dark) .portal-kpi-card [style*="var(--color-gold)"] {
     min-height: 44px;
     box-sizing: border-box;
     transition:
+      padding var(--transition-fast, 150ms ease),
+      gap var(--transition-fast, 150ms ease),
       background var(--transition-fast, 150ms ease),
       color var(--transition-fast, 150ms ease);
     position: relative;

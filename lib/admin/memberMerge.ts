@@ -331,8 +331,8 @@ export async function executeMemberMerge(
   await repoint('memberSubgroup', 'assignerId');
   await repoint('subgroupLeader', 'userId');
   await repoint('messageThread', 'memberId');
-  await repoint('messageThread', 'counselorId');
-  await repoint('messageThread', 'staffId');
+  await repoint('messageThread', 'counselorUserId');
+  await repoint('messageThread', 'staffUserId');
   await repoint('application', 'userId');
   await repoint('learningProgress', 'userId');
   await repoint('userCertification', 'userId');

@@ -51,7 +51,10 @@
  */
 @media (max-width: 768px) {
   .btn,
-  a.btn {
+  a.btn,
+  .portal-shell-root button:not(.sr-only),
+  .portal-shell-root [role="button"],
+  .job-filter-clear {
     min-height: 44px;
     box-sizing: border-box;
   }
@@ -99,11 +102,14 @@
     box-sizing: border-box;
   }
 
-  /* Native buttons in workspace shells; keep dense tables compact for non-.btn controls */
+  /* Native buttons in portal/workspace shells; keep dense tables compact for non-.btn controls */
   .workspace-shell-root button:not(.sr-only) {
     min-height: 44px;
     box-sizing: border-box;
   }
+  .portal-shell-root table button:not(.btn),
+  .portal-shell-root .admin-table button:not(.btn),
+  .portal-shell-root .dashboard-table button:not(.btn),
   .workspace-shell-root table button:not(.btn),
   .workspace-shell-root .admin-table button:not(.btn),
   .workspace-shell-root .dashboard-table button:not(.btn) {

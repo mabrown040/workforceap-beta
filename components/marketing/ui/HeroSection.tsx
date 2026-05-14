@@ -44,7 +44,7 @@ export function HeroSection({
           fill
           priority={priority}
           fetchPriority={priority ? 'high' : 'low'}
-          sizes="100vw"
+          sizes="(min-width: 1921px) 1920px, 100vw"
           style={{ objectFit: 'cover', objectPosition: 'center' }}
           aria-hidden="true"
         />

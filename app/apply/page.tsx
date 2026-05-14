@@ -351,10 +351,10 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           }
           .apply-sidebar {
             position: static !important;
-            order: 1;
+            order: 0;
           }
           .apply-main-form {
-            order: 0;
+            order: 1;
           }
           .apply-supp-row {
             grid-template-columns: 1fr !important;

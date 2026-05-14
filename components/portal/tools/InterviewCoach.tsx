@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Conversation } from '@elevenlabs/client';
+import type { Conversation } from '@elevenlabs/client';
 import {
   appendVoiceTranscriptTurn,
   buildInterviewQaFromVoiceTurns,
@@ -133,6 +133,7 @@ export default function InterviewCoach() {
     setVoiceError('');
     setWsStatus('connecting');
     try {
+      const { Conversation } = await import('@elevenlabs/client');
       const conv = await Conversation.startSession({
         signedUrl: url,
         onConnect: () => setWsStatus('connected'),

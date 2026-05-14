@@ -4,6 +4,7 @@ import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { checkXapiConfigGetRateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: Request) {
+  try {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkXapiConfigGetRateLimit(ip);
   if (!withinLimit) {
@@ -19,11 +20,24 @@ export async function GET(request: Request) {
     oauthServerUrl: readiness.oauthServerUrl,
     tenantServerUrl: readiness.tenantServerUrl,
   });
+
+  } catch (error) {
+    console.error('/xapi/config error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST() {
+  try {
   return NextResponse.json(
     { error: 'Method not allowed' },
     { status: 405, headers: { Allow: 'GET' } },
   );
+
+  } catch (error) {
+    console.error('/xapi/config error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

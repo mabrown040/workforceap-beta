@@ -18,6 +18,7 @@ function storageErrorMessage(error: { message?: string } | null): string {
  * GET /api/member/resume/preview?variant=original|enhanced
  */
 export async function GET(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -61,4 +62,10 @@ export async function GET(req: NextRequest) {
       'Content-Security-Policy': "frame-ancestors 'self'",
     },
   });
+
+  } catch (error) {
+    console.error('/member/resume/preview error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

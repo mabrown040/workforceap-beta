@@ -10,6 +10,8 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import CounselorNotesPanel from './CounselorNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
@@ -102,6 +104,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const [applications, aiMatches, memberPts, recentTx, pitchDeployments] = await Promise.all([
     prisma.jobPostingApplication.findMany({
+      take: 5000,
       where: { studentId: memberId },
       orderBy: { appliedAt: 'desc' },
       include: {
@@ -109,6 +112,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       },
     }),
     prisma.aIJobMatch.findMany({
+      take: 5000,
       where: { studentId: memberId },
       orderBy: { matchScore: 'desc' },
       include: {
@@ -132,13 +136,14 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
   const messages = await prisma.message.findMany({
+    take: 5000,
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
   });
-  const authorIds = [...new Set(messages.map((m) => m.authorId))];
+  const authorIds = [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))];
   const authors =
     authorIds.length > 0
-      ? await prisma.user.findMany({ where: { id: { in: authorIds } }, select: { id: true, fullName: true } })
+      ? await prisma.user.findMany({ take: 5000, where: { id: { in: authorIds } }, select: { id: true, fullName: true } })
       : [];
   const nameById = new Map(authors.map((a) => [a.id, a.fullName]));
 
@@ -156,10 +161,25 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   // Program progress — real data from enrolled program courses
   const programMeta = member.enrolledProgram ? getProgramBySlug(member.enrolledProgram) : null;
   const programCourses = programMeta?.courses ?? [];
+  const courseraProgramId =
+    member.enrolledProgram != null
+      ? DISCOVERED_COURSERA_PROGRAMS[member.enrolledProgram]?.courseraProgramId
+      : undefined;
+  const b4bProgress =
+    member.email?.trim() && member.enrolledProgram
+      ? await fetchLearnerProgressFromB4B(member.email, {
+          programId: courseraProgramId,
+        }).catch((err: unknown) => {
+          console.warn('[counselor/students] B4B learner progress unavailable:', err);
+          return new Map();
+        })
+      : new Map();
+
   const trainingView = member.enrolledProgram
     ? await loadMemberProgramTrainingView({
         userId: member.id,
         programSlug: member.enrolledProgram,
+        b4bProgress,
       })
     : null;
   const completedSlugs = new Set(trainingView?.completedSlugsAuthoritative ?? []);
@@ -839,7 +859,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 },
                 messages: messages.map((m) => ({
                   ...serializeMessage(m),
-                  authorName: nameById.get(m.authorId) ?? 'User',
+                  authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
                 })),
               }}
             />

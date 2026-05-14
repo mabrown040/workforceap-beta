@@ -37,6 +37,33 @@ export const getDefaultOrgBranding = unstable_cache(
   { revalidate: 3600 },
 );
 
+/**
+ * Resolve org branding for the current request. Honors the `x-wap-org-id`
+ * header set by middleware on custom-domain / subdomain hits; falls back to
+ * the default org branding for canonical hosts.
+ */
+export async function getRequestOrgBranding(
+  headers: { get(name: string): string | null },
+): Promise<OrgBranding> {
+  const orgId = headers.get('x-wap-org-id');
+  if (!orgId) return getDefaultOrgBranding();
+  if (process.env.__PRISMA_PLACEHOLDER_DB === '1' || shouldSkipOptionalDbQueriesAtBuild()) {
+    return { primaryColor: null, logo: null };
+  }
+  try {
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { primaryColor: true, logo: true },
+    });
+    return {
+      primaryColor: org?.primaryColor ?? null,
+      logo: resolveSupabasePublicAssetUrl('organization-branding', org?.logo ?? null),
+    };
+  } catch {
+    return { primaryColor: null, logo: null };
+  }
+}
+
 /** Validated custom accent only; callers that need CSS vars should use OrgBrandingStyle. */
 export function orgAccentCss(branding: OrgBranding): string | null {
   const c = branding.primaryColor?.trim();

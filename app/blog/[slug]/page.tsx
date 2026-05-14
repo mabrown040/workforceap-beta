@@ -15,6 +15,7 @@ import { PROGRAMS } from '@/lib/content/programs';
 import { ArrowRight } from 'lucide-react';
 import { getDefaultImage } from '@/lib/blog/defaultImages';
 import { resolveBlogHeroImage } from '@/lib/blog/blogHeroImage';
+import JsonLdArticle from '@/components/JsonLdArticle';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -107,6 +108,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <div className="inner-page blog-post-page">
+      <JsonLdArticle post={post} />
       <PageHero
         title={post.title}
         subtitle={[
@@ -237,9 +239,15 @@ export default async function BlogPostPage({ params }: Props) {
             <h3>Ready to take the next step?</h3>
             <p>WorkforceAP offers no-cost career training paths for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link> — with guided tools, counselor support, and employer-aligned credentials.</p>
             <div className="blog-cta-buttons">
-              <Link href="/find-your-path" className="btn btn-accent">Find Your Path</Link>
-              <Link href="/programs" className="btn btn-ghost">Explore Programs</Link>
-              <Link href="/apply" className="btn btn-ghost">Apply Now</Link>
+              <Link href="/find-your-path" className="btn btn-primary btn-radius-md">
+                Find Your Path
+              </Link>
+              <Link href="/programs" className="btn btn-secondary btn-radius-md">
+                Explore Programs
+              </Link>
+              <Link href="/apply" className="btn btn-ghost btn-radius-md">
+                Apply Now
+              </Link>
             </div>
           </div>
         </section>

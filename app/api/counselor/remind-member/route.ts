@@ -23,6 +23,7 @@ import { sendInactiveNudgeEmail } from '@/lib/email';
  * Body: { userId, daysInactive }
  */
 export async function POST(request: Request) {
+  try {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -85,4 +86,10 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ ok: true, message: 'Reminder email sent.' });
+
+  } catch (error) {
+    console.error('/counselor/remind-member error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

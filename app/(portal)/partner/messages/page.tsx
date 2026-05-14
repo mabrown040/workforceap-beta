@@ -32,6 +32,7 @@ export default async function PartnerMessagesPage() {
   const thread = await getOrCreatePartnerMessageThread(ctx.partnerId);
 
   const messages = await prisma.message.findMany({
+    take: 200,
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
   });

@@ -62,6 +62,7 @@ export default async function AdminJobsPage({
 
   try {
     jobs = await prisma.job.findMany({
+      take: 5000,
       where,
       orderBy: { updatedAt: 'desc' },
       include: {

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
@@ -102,16 +103,6 @@ const s = {
     background: 'linear-gradient(135deg, var(--color-primary) 0%, #2a0a14 50%, var(--color-accent-dark) 100%)',
     overflow: 'hidden',
     color: 'var(--color-white)',
-  } as React.CSSProperties,
-
-  brandBgOverlay: {
-    position: 'absolute' as const,
-    inset: 0,
-    backgroundImage: 'url(/images/hero-people.webp)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    opacity: 0.12,
-    pointerEvents: 'none' as const,
   } as React.CSSProperties,
 
   brandContent: {
@@ -423,7 +414,16 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
     <div style={s.wrapper}>
       {/* ── Left branding panel (hidden on mobile via CSS media query below) ── */}
       <div className="login-brand-panel" style={s.brandPanel}>
-        <div style={s.brandBgOverlay} />
+        <Image
+          src="/images/hero-people.webp"
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          sizes="50vw"
+          style={{ objectFit: 'cover', objectPosition: 'center', opacity: 0.12 }}
+          aria-hidden="true"
+        />
         <div style={s.brandContent}>
           <div style={s.brandBadge}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">verified_user</span>
@@ -551,6 +551,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 id="email"
                 type="email"
                 autoComplete="email"
+                inputMode="email"
                 autoFocus
                 placeholder="you@example.com"
                 value={email}
@@ -608,13 +609,13 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             </div>
 
             {/* Maintain session checkbox */}
-            <div style={s.checkboxRow}>
+            <div style={{ ...s.checkboxRow, minHeight: 44 }}>
               <input
                 id="remember"
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                style={{ accentColor: 'var(--color-accent)' }}
+                style={{ accentColor: 'var(--color-accent)', width: 20, height: 20 }}
               />
               <label htmlFor="remember" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
                 Stay signed in for 7 days

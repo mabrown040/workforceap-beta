@@ -66,59 +66,64 @@ async function ensurePartnerInviteUser(params: {
   });
 }
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const adminUser = await getUser();
-  if (!adminUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    await requireAdmin(adminUser.id);
-  } catch {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const { id: partnerId } = await params;
-  const partner = await prisma.partner.findUnique({ where: { id: partnerId } });
-  if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
-
-  const body = await request.json().catch(() => null);
-  const parsed = bodySchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid email' }, { status: 400 });
-  }
-
-  const email = parsed.data.email.toLowerCase().trim();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-  const displayName = partner.contactName?.trim() || 'Partner User';
-
-  let authUserId: string | null = null;
-  const supabase = getSupabaseAdmin();
-
-  const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${siteUrl}/partner`,
-    data: { full_name: displayName },
-  });
-
-  if (!inviteError && inviteData.user?.id) {
-    authUserId = inviteData.user.id;
-  } else {
-    authUserId = (await findSupabaseAuthUserByEmail(supabase, email, { perPage: 200, maxPages: 25 }))?.id ?? null;
-    if (!authUserId) {
-      const msg = inviteError?.message ?? 'Could not invite or find this user';
-      return NextResponse.json({ error: msg }, { status: 400 });
+    const adminUser = await getUser();
+    if (!adminUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    try {
+      await requireAdmin(adminUser.id);
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  }
-
-  try {
-    await ensurePartnerInviteUser({
-      userId: authUserId,
-      organizationId: partner.organizationId,
-      email,
-      fullName: displayName,
+  
+    const { id: partnerId } = await params;
+    const partner = await prisma.partner.findUnique({ where: { id: partnerId } });
+    if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+  
+    const body = await request.json().catch(() => null);
+    const parsed = bodySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid email' }, { status: 400 });
+    }
+  
+    const email = parsed.data.email.toLowerCase().trim();
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+    const displayName = partner.contactName?.trim() || 'Partner User';
+  
+    let authUserId: string | null = null;
+    const supabase = getSupabaseAdmin();
+  
+    const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${siteUrl}/partner`,
+      data: { full_name: displayName },
     });
-
-    await ensurePartnerUserLink(authUserId, partnerId);
-  } catch (e) {
-    console.error('Partner invite DB error:', e);
-    return NextResponse.json({ error: 'Failed to link partner user' }, { status: 500 });
+  
+    if (!inviteError && inviteData.user?.id) {
+      authUserId = inviteData.user.id;
+    } else {
+      authUserId = (await findSupabaseAuthUserByEmail(supabase, email, { perPage: 200, maxPages: 25 }))?.id ?? null;
+      if (!authUserId) {
+        const msg = inviteError?.message ?? 'Could not invite or find this user';
+        return NextResponse.json({ error: msg }, { status: 400 });
+      }
+    }
+  
+    try {
+      await ensurePartnerInviteUser({
+        userId: authUserId,
+        organizationId: partner.organizationId,
+        email,
+        fullName: displayName,
+      });
+  
+      await ensurePartnerUserLink(authUserId, partnerId);
+    } catch (e) {
+      console.error('Partner invite DB error:', e);
+      return NextResponse.json({ error: 'Failed to link partner user' }, { status: 500 });
+    }
+  
+    return NextResponse.json({ ok: true, userId: authUserId });
+  } catch (error) {
+    console.error('/admin/partners/[id]/invite:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true, userId: authUserId });
 }

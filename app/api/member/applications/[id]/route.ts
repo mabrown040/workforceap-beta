@@ -18,62 +18,67 @@ export async function PATCH(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const { id } = await params;
-
   try {
-    await ensureUserInDb(user);
-
-    const existing = await prisma.jobApplication.findFirst({
-      where: { id, userId: user.id },
-    });
-    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-
-    let body: unknown;
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    const { id } = await params;
+  
     try {
-      body = await _request.json();
-    } catch {
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+      await ensureUserInDb(user);
+  
+      const existing = await prisma.jobApplication.findFirst({
+        where: { id, userId: user.id },
+      });
+      if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  
+      let body: unknown;
+      try {
+        body = await _request.json();
+      } catch {
+        return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+      }
+  
+      const parsed = updateSchema.safeParse(body);
+      if (!parsed.success) {
+        return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
+      }
+  
+      const data: Record<string, unknown> = {};
+      if (parsed.data.company !== undefined) data.company = parsed.data.company;
+      if (parsed.data.role !== undefined) data.role = parsed.data.role;
+      if (parsed.data.status !== undefined) data.status = parsed.data.status;
+      if (parsed.data.appliedAt !== undefined) data.appliedAt = parsed.data.appliedAt?.trim() ? new Date(parsed.data.appliedAt) : null;
+      if (parsed.data.notes !== undefined) data.notes = parsed.data.notes || null;
+      if (parsed.data.url !== undefined) data.url = parsed.data.url || null;
+  
+      const app = await prisma.jobApplication.update({
+        where: { id },
+        data,
+      });
+  
+      // Award points on the SAVED → real-application transition. Codex P2 catch
+      // on PR #1061 — POST awards only for non-SAVED creates, so a row created
+      // as SAVED and later transitioned should award here. Idempotent on app id
+      // (`@@unique([userId, event, entityId])` in pointsConfig) so re-PATCHing
+      // an already-applied row never double-awards.
+      if (
+        parsed.data.status !== undefined &&
+        parsed.data.status !== 'SAVED' &&
+        existing.status === 'SAVED'
+      ) {
+        awardPoints(user.id, 'job_application', app.id).catch(() => {});
+      }
+  
+      return NextResponse.json({ application: app });
+    } catch (err) {
+      console.error('[PATCH /api/member/applications/:id]', err);
+      const message = err instanceof Error ? err.message : 'Database error';
+      return NextResponse.json({ error: message }, { status: 500 });
     }
-
-    const parsed = updateSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
-    }
-
-    const data: Record<string, unknown> = {};
-    if (parsed.data.company !== undefined) data.company = parsed.data.company;
-    if (parsed.data.role !== undefined) data.role = parsed.data.role;
-    if (parsed.data.status !== undefined) data.status = parsed.data.status;
-    if (parsed.data.appliedAt !== undefined) data.appliedAt = parsed.data.appliedAt?.trim() ? new Date(parsed.data.appliedAt) : null;
-    if (parsed.data.notes !== undefined) data.notes = parsed.data.notes || null;
-    if (parsed.data.url !== undefined) data.url = parsed.data.url || null;
-
-    const app = await prisma.jobApplication.update({
-      where: { id },
-      data,
-    });
-
-    // Award points on the SAVED → real-application transition. Codex P2 catch
-    // on PR #1061 — POST awards only for non-SAVED creates, so a row created
-    // as SAVED and later transitioned should award here. Idempotent on app id
-    // (`@@unique([userId, event, entityId])` in pointsConfig) so re-PATCHing
-    // an already-applied row never double-awards.
-    if (
-      parsed.data.status !== undefined &&
-      parsed.data.status !== 'SAVED' &&
-      existing.status === 'SAVED'
-    ) {
-      awardPoints(user.id, 'job_application', app.id).catch(() => {});
-    }
-
-    return NextResponse.json({ application: app });
-  } catch (err) {
-    console.error('[PATCH /api/member/applications/:id]', err);
-    const message = err instanceof Error ? err.message : 'Database error';
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch (error) {
+    console.error('/member/applications/[id]:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -81,23 +86,28 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const { id } = await params;
-
   try {
-    await ensureUserInDb(user);
-    const existing = await prisma.jobApplication.findFirst({
-      where: { id, userId: user.id },
-    });
-    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-
-    await prisma.jobApplication.delete({ where: { id } });
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error('[DELETE /api/member/applications/:id]', err);
-    const message = err instanceof Error ? err.message : 'Database error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    const { id } = await params;
+  
+    try {
+      await ensureUserInDb(user);
+      const existing = await prisma.jobApplication.findFirst({
+        where: { id, userId: user.id },
+      });
+      if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  
+      await prisma.jobApplication.delete({ where: { id } });
+      return NextResponse.json({ success: true });
+    } catch (err) {
+      console.error('[DELETE /api/member/applications/:id]', err);
+      const message = err instanceof Error ? err.message : 'Database error';
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/member/applications/[id]:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

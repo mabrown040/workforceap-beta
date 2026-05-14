@@ -12,172 +12,177 @@ import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '
 const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';
 
 export async function POST(request: Request) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const parsed = parseBody(body);
-  if (!parsed) {
-    return NextResponse.json({ error: 'Invalid submission data' }, { status: 400 });
-  }
-
-  const { firstName, lastName, phone, programInterest, answers } = parsed;
-
-  const answersTyped: Record<number, QuestionChoice> = {};
-  for (const [k, v] of Object.entries(answers)) {
-    const id = parseInt(k, 10);
-    if (Number.isNaN(id) || !['A', 'B', 'C', 'D'].includes(v as string)) continue;
-    answersTyped[id] = v as QuestionChoice;
-  }
-
-  const { raw, pct } = scoreAssessment(answersTyped);
-
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      assessmentCompleted: true,
-      email: true,
-      phone: true,
-      // Multi-program: counselor-created flag lives on the primary enrollment.
-      courseEnrollments: {
-        where: { isPrimary: true },
-        select: { enrolledByAdminId: true },
-        take: 1,
-      },
-      profile: {
-        select: {
-          profilePhone: true,
-          profileAddress: true,
-          city: true,
-          state: true,
-          zip: true,
-          referralSource: true,
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+  
+    const parsed = parseBody(body);
+    if (!parsed) {
+      return NextResponse.json({ error: 'Invalid submission data' }, { status: 400 });
+    }
+  
+    const { firstName, lastName, phone, programInterest, answers } = parsed;
+  
+    const answersTyped: Record<number, QuestionChoice> = {};
+    for (const [k, v] of Object.entries(answers)) {
+      const id = parseInt(k, 10);
+      if (Number.isNaN(id) || !['A', 'B', 'C', 'D'].includes(v as string)) continue;
+      answersTyped[id] = v as QuestionChoice;
+    }
+  
+    const { raw, pct } = scoreAssessment(answersTyped);
+  
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        assessmentCompleted: true,
+        email: true,
+        phone: true,
+        // Multi-program: counselor-created flag lives on the primary enrollment.
+        courseEnrollments: {
+          where: { isPrimary: true },
+          select: { enrolledByAdminId: true },
+          take: 1,
+        },
+        profile: {
+          select: {
+            profilePhone: true,
+            profileAddress: true,
+            city: true,
+            state: true,
+            zip: true,
+            referralSource: true,
+          },
         },
       },
-    },
-  });
-
-  if (!dbUser) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
-  }
-  if (dbUser.assessmentCompleted) {
-    return NextResponse.json({ error: 'Assessment already completed' }, { status: 400 });
-  }
-
-  const starterProfileReview = getCounselorStarterProfileReview({
-    wasCounselorCreated: !!dbUser.courseEnrollments[0]?.enrolledByAdminId,
-    phone: dbUser.phone,
-    profilePhone: dbUser.profile?.profilePhone,
-    profileAddress: dbUser.profile?.profileAddress,
-    city: dbUser.profile?.city,
-    state: dbUser.profile?.state,
-    zip: dbUser.profile?.zip,
-    referralSource: dbUser.profile?.referralSource,
-  });
-  if (starterProfileReview.required) {
-    return NextResponse.json(
-      {
-        error: 'Review your profile details before starting the assessment.',
-        code: 'STARTER_PROFILE_REVIEW_REQUIRED',
-        missing: getStarterProfileFieldLabels(starterProfileReview.missing),
+    });
+  
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    if (dbUser.assessmentCompleted) {
+      return NextResponse.json({ error: 'Assessment already completed' }, { status: 400 });
+    }
+  
+    const starterProfileReview = getCounselorStarterProfileReview({
+      wasCounselorCreated: !!dbUser.courseEnrollments[0]?.enrolledByAdminId,
+      phone: dbUser.phone,
+      profilePhone: dbUser.profile?.profilePhone,
+      profileAddress: dbUser.profile?.profileAddress,
+      city: dbUser.profile?.city,
+      state: dbUser.profile?.state,
+      zip: dbUser.profile?.zip,
+      referralSource: dbUser.profile?.referralSource,
+    });
+    if (starterProfileReview.required) {
+      return NextResponse.json(
+        {
+          error: 'Review your profile details before starting the assessment.',
+          code: 'STARTER_PROFILE_REVIEW_REQUIRED',
+          missing: getStarterProfileFieldLabels(starterProfileReview.missing),
+        },
+        { status: 400 }
+      );
+    }
+  
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        assessmentCompleted: true,
+        assessmentCompletedAt: new Date(),
+        assessmentScore: raw,
+        assessmentScorePct: pct,
+        programInterest,
+        assessmentAnswers: answersTyped as unknown as object,
       },
-      { status: 400 }
-    );
-  }
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      assessmentCompleted: true,
-      assessmentCompletedAt: new Date(),
-      assessmentScore: raw,
-      assessmentScorePct: pct,
-      programInterest,
-      assessmentAnswers: answersTyped as unknown as object,
-    },
-  });
-
-  awardPoints(user.id, 'assessment_completed').catch(() => {});
-
-  // Track assessment completion for funnel analytics
-  await trackEvent({
-    userId: user.id,
-    eventName: 'apply_signup_completed',
-    entityType: 'assessment',
-    metadata: { rawScore: raw, scorePct: pct, programInterest },
-    sourcePage: '/dashboard/assessment',
-  });
-
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.workforceap.org');
-  const adminLink = `${siteUrl}/admin/assessments?userId=${user.id}`;
-
-  const resendKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
-  const dashboardUrl = `${siteUrl}/dashboard`;
-
-  let memberEmailSent = false;
-  let adminEmailSent = false;
-  if (resendKey) {
-    const resend = new Resend(resendKey);
-
-    try {
-      await resend.emails.send({
-        from: emailFrom,
-        to: ASSESSMENT_EMAIL_TO,
-        subject: `New Assessment Submitted — ${firstName} ${lastName}`,
-        text: [
-          `Name: ${firstName} ${lastName}`,
-          `Email: ${dbUser.email}`,
-          `Phone: ${phone}`,
-          `Program Interest: ${programInterest}`,
-          `Score: ${raw}/${TOTAL_POINTS} (${pct}%)`,
-          `Submitted: ${new Date().toISOString()}`,
-          '',
-          `View full results: ${adminLink}`,
-        ].join('\n'),
-      });
-      adminEmailSent = true;
-    } catch (err) {
-      console.error('Assessment admin email failed:', err);
+    });
+  
+    awardPoints(user.id, 'assessment_completed').catch(() => {});
+  
+    // Track assessment completion for funnel analytics
+    await trackEvent({
+      userId: user.id,
+      eventName: 'apply_signup_completed',
+      entityType: 'assessment',
+      metadata: { rawScore: raw, scorePct: pct, programInterest },
+      sourcePage: '/dashboard/assessment',
+    });
+  
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://www.workforceap.org');
+    const adminLink = `${siteUrl}/admin/assessments?userId=${user.id}`;
+  
+    const resendKey = process.env.RESEND_API_KEY;
+    const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
+    const dashboardUrl = `${siteUrl}/dashboard`;
+  
+    let memberEmailSent = false;
+    let adminEmailSent = false;
+    if (resendKey) {
+      const resend = new Resend(resendKey);
+  
+      try {
+        await resend.emails.send({
+          from: emailFrom,
+          to: ASSESSMENT_EMAIL_TO,
+          subject: `New Assessment Submitted — ${firstName} ${lastName}`,
+          text: [
+            `Name: ${firstName} ${lastName}`,
+            `Email: ${dbUser.email}`,
+            `Phone: ${phone}`,
+            `Program Interest: ${programInterest}`,
+            `Score: ${raw}/${TOTAL_POINTS} (${pct}%)`,
+            `Submitted: ${new Date().toISOString()}`,
+            '',
+            `View full results: ${adminLink}`,
+          ].join('\n'),
+        });
+        adminEmailSent = true;
+      } catch (err) {
+        console.error('Assessment admin email failed:', err);
+      }
+  
+      try {
+        const memberHtml = brandedEmailLayout({
+          title: 'Assessment Complete',
+          bodyHtml: `
+            <p>Hi ${firstName},</p>
+            <p>You've completed your readiness assessment. Your score: <strong>${raw}/${TOTAL_POINTS} (${pct}%)</strong>.</p>
+            <p>You're all set to continue to your training. Log in to your dashboard to access your Coursera courses.</p>
+          `,
+          ctaText: 'Go to Dashboard',
+          ctaUrl: dashboardUrl,
+        });
+        await resend.emails.send({
+          from: emailFrom,
+          to: dbUser.email,
+          subject: 'Assessment Complete — Workforce Advancement Project',
+          html: memberHtml,
+        });
+        memberEmailSent = true;
+      } catch (err) {
+        console.error('Assessment member email failed:', err);
+      }
     }
-
-    try {
-      const memberHtml = brandedEmailLayout({
-        title: 'Assessment Complete',
-        bodyHtml: `
-          <p>Hi ${firstName},</p>
-          <p>You've completed your readiness assessment. Your score: <strong>${raw}/${TOTAL_POINTS} (${pct}%)</strong>.</p>
-          <p>You're all set to continue to your training. Log in to your dashboard to access your Coursera courses.</p>
-        `,
-        ctaText: 'Go to Dashboard',
-        ctaUrl: dashboardUrl,
-      });
-      await resend.emails.send({
-        from: emailFrom,
-        to: dbUser.email,
-        subject: 'Assessment Complete — Workforce Advancement Project',
-        html: memberHtml,
-      });
-      memberEmailSent = true;
-    } catch (err) {
-      console.error('Assessment member email failed:', err);
-    }
+  
+    return NextResponse.json({
+      ok: true,
+      rawScore: raw,
+      scorePct: pct,
+      emailsSent: memberEmailSent,
+      adminEmailSent,
+    });
+  } catch (error) {
+    console.error('/member/assessment/submit:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  return NextResponse.json({
-    ok: true,
-    rawScore: raw,
-    scorePct: pct,
-    emailsSent: memberEmailSent,
-    adminEmailSent,
-  });
 }
 
 function parseBody(body: unknown): {

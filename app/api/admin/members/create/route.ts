@@ -26,231 +26,236 @@ const ETHNICITY_OPTIONS = [
 ];
 
 export async function POST(request: Request) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id)))
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const o = body as Record<string, unknown>;
-
-  const firstName = typeof o.firstName === 'string' ? o.firstName.trim() : '';
-  const lastName = typeof o.lastName === 'string' ? o.lastName.trim() : '';
-  const email = typeof o.email === 'string' ? o.email.toLowerCase().trim() : '';
-  const phone = typeof o.phone === 'string' ? o.phone.trim() : '';
-  const address = typeof o.address === 'string' ? o.address.trim() : undefined;
-  const dob = typeof o.dob === 'string' ? o.dob.trim() || undefined : undefined;
-  const employmentStatus = typeof o.employmentStatus === 'string' && EMPLOYMENT_OPTIONS.includes(o.employmentStatus) ? o.employmentStatus : undefined;
-  const veteranStatus = typeof o.veteranStatus === 'string' && VETERAN_OPTIONS.includes(o.veteranStatus) ? o.veteranStatus : undefined;
-  const householdIncome = typeof o.householdIncome === 'string' && INCOME_OPTIONS.includes(o.householdIncome) ? o.householdIncome : undefined;
-  const educationLevel = typeof o.educationLevel === 'string' && EDUCATION_OPTIONS.includes(o.educationLevel) ? o.educationLevel : undefined;
-  const referralSource = typeof o.referralSource === 'string' && REFERRAL_OPTIONS.includes(o.referralSource) ? o.referralSource : undefined;
-  const notes = typeof o.notes === 'string' ? o.notes.trim() : undefined;
-  const usCitizen = o.usCitizen === true || o.usCitizen === 'true';
-  const authorizedToWork = o.authorizedToWork === true || o.authorizedToWork === 'true';
-  const hasDisability = o.hasDisability === true || o.hasDisability === 'true';
-  const ethnicity = typeof o.ethnicity === 'string' && ETHNICITY_OPTIONS.includes(o.ethnicity) ? o.ethnicity : undefined;
-  const programSlug = typeof o.programSlug === 'string' ? o.programSlug.trim() : '';
-  const programNotes = typeof o.programNotes === 'string' ? o.programNotes.trim() : undefined;
-  const resumeOriginalPath = typeof o.resumeOriginalPath === 'string' ? o.resumeOriginalPath : undefined;
-  const resumeEnhancedPath = typeof o.resumeEnhancedPath === 'string' ? o.resumeEnhancedPath : undefined;
-  const partnerId =
-    typeof o.partnerId === 'string' && /^[0-9a-f-]{36}$/i.test(o.partnerId.trim()) ? o.partnerId.trim() : undefined;
-  const subgroupId =
-    typeof o.subgroupId === 'string' && /^[0-9a-f-]{36}$/i.test(o.subgroupId.trim()) ? o.subgroupId.trim() : undefined;
-
-  if (!firstName || !email) {
-    return NextResponse.json({ error: 'First name and email are required' }, { status: 400 });
-  }
-  if (!usCitizen || !authorizedToWork) {
-    return NextResponse.json({ error: 'US Citizen and Authorized to Work must be Yes' }, { status: 400 });
-  }
-  if (!programSlug) {
-    return NextResponse.json({ error: 'Program selection is required' }, { status: 400 });
-  }
-
-  const program = getProgramBySlug(programSlug);
-  if (!program) {
-    return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
-  }
-
-  if (partnerId) {
-    const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
-    if (!partner) {
-      return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id)))
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
-  }
-  if (subgroupId) {
-    const subgroup = await prisma.subgroup.findUnique({ where: { id: subgroupId } });
-    if (!subgroup) {
-      return NextResponse.json({ error: 'Invalid subgroup' }, { status: 400 });
+  
+    const o = body as Record<string, unknown>;
+  
+    const firstName = typeof o.firstName === 'string' ? o.firstName.trim() : '';
+    const lastName = typeof o.lastName === 'string' ? o.lastName.trim() : '';
+    const email = typeof o.email === 'string' ? o.email.toLowerCase().trim() : '';
+    const phone = typeof o.phone === 'string' ? o.phone.trim() : '';
+    const address = typeof o.address === 'string' ? o.address.trim() : undefined;
+    const dob = typeof o.dob === 'string' ? o.dob.trim() || undefined : undefined;
+    const employmentStatus = typeof o.employmentStatus === 'string' && EMPLOYMENT_OPTIONS.includes(o.employmentStatus) ? o.employmentStatus : undefined;
+    const veteranStatus = typeof o.veteranStatus === 'string' && VETERAN_OPTIONS.includes(o.veteranStatus) ? o.veteranStatus : undefined;
+    const householdIncome = typeof o.householdIncome === 'string' && INCOME_OPTIONS.includes(o.householdIncome) ? o.householdIncome : undefined;
+    const educationLevel = typeof o.educationLevel === 'string' && EDUCATION_OPTIONS.includes(o.educationLevel) ? o.educationLevel : undefined;
+    const referralSource = typeof o.referralSource === 'string' && REFERRAL_OPTIONS.includes(o.referralSource) ? o.referralSource : undefined;
+    const notes = typeof o.notes === 'string' ? o.notes.trim() : undefined;
+    const usCitizen = o.usCitizen === true || o.usCitizen === 'true';
+    const authorizedToWork = o.authorizedToWork === true || o.authorizedToWork === 'true';
+    const hasDisability = o.hasDisability === true || o.hasDisability === 'true';
+    const ethnicity = typeof o.ethnicity === 'string' && ETHNICITY_OPTIONS.includes(o.ethnicity) ? o.ethnicity : undefined;
+    const programSlug = typeof o.programSlug === 'string' ? o.programSlug.trim() : '';
+    const programNotes = typeof o.programNotes === 'string' ? o.programNotes.trim() : undefined;
+    const resumeOriginalPath = typeof o.resumeOriginalPath === 'string' ? o.resumeOriginalPath : undefined;
+    const resumeEnhancedPath = typeof o.resumeEnhancedPath === 'string' ? o.resumeEnhancedPath : undefined;
+    const partnerId =
+      typeof o.partnerId === 'string' && /^[0-9a-f-]{36}$/i.test(o.partnerId.trim()) ? o.partnerId.trim() : undefined;
+    const subgroupId =
+      typeof o.subgroupId === 'string' && /^[0-9a-f-]{36}$/i.test(o.subgroupId.trim()) ? o.subgroupId.trim() : undefined;
+  
+    if (!firstName || !email) {
+      return NextResponse.json({ error: 'First name and email are required' }, { status: 400 });
     }
-  }
-
-  const fullName = `${firstName} ${lastName}`.trim() || firstName;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-
-  const supabase = getSupabaseAdmin();
-
-  // Try invite first (sends set-password email). Fall back to createUser if invite not supported.
-  let authUser: { id: string; email?: string } | null = null;
-
-  const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${siteUrl}/dashboard`,
-    data: { full_name: fullName, phone },
-  });
-
-  if (!inviteError && inviteData.user) {
-    authUser = inviteData.user;
-  } else if (inviteError?.message?.includes('already') || inviteError?.code === 'user_already_exists') {
-    return NextResponse.json({ error: 'An account with this email already exists.' }, { status: 400 });
-  } else {
-    // Fallback: createUser with temp password (no email)
-    const tempPassword = `WfAP${Date.now().toString(36)}!`;
-    const { data: createData, error: createError } = await supabase.auth.admin.createUser({
+    if (!usCitizen || !authorizedToWork) {
+      return NextResponse.json({ error: 'US Citizen and Authorized to Work must be Yes' }, { status: 400 });
+    }
+    if (!programSlug) {
+      return NextResponse.json({ error: 'Program selection is required' }, { status: 400 });
+    }
+  
+    const program = getProgramBySlug(programSlug);
+    if (!program) {
+      return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
+    }
+  
+    if (partnerId) {
+      const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
+      if (!partner) {
+        return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
+      }
+    }
+    if (subgroupId) {
+      const subgroup = await prisma.subgroup.findUnique({ where: { id: subgroupId } });
+      if (!subgroup) {
+        return NextResponse.json({ error: 'Invalid subgroup' }, { status: 400 });
+      }
+    }
+  
+    const fullName = `${firstName} ${lastName}`.trim() || firstName;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+  
+    const supabase = getSupabaseAdmin();
+  
+    // Try invite first (sends set-password email). Fall back to createUser if invite not supported.
+    let authUser: { id: string; email?: string } | null = null;
+  
+    const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${siteUrl}/dashboard`,
+      data: { full_name: fullName, phone },
+    });
+  
+    if (!inviteError && inviteData.user) {
+      authUser = inviteData.user;
+    } else if (inviteError?.message?.includes('already') || inviteError?.code === 'user_already_exists') {
+      return NextResponse.json({ error: 'An account with this email already exists.' }, { status: 400 });
+    } else {
+      // Fallback: createUser with temp password (no email)
+      const tempPassword = `WfAP${Date.now().toString(36)}!`;
+      const { data: createData, error: createError } = await supabase.auth.admin.createUser({
+        email,
+        password: tempPassword,
+        email_confirm: true,
+        user_metadata: { full_name: fullName, phone },
+      });
+      if (createError) {
+        if (createError.message.includes('already')) {
+          return NextResponse.json({ error: 'An account with this email already exists.' }, { status: 400 });
+        }
+        console.error('Admin create user error:', createError);
+        return NextResponse.json({ error: createError.message }, { status: 400 });
+      }
+      authUser = createData.user;
+      // Optionally trigger password reset so user can set their own.
+      // Track E (Sprint E.1 PR 2) — pass orgId so the reset link uses the
+      // member's tenant domain instead of the platform default.
+      const orgIdForReset = await getDefaultOrganizationId();
+      await sendPasswordResetEmail(email, '/reset-password', { orgId: orgIdForReset });
+    }
+  
+    if (!authUser) {
+      return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
+    }
+  
+    const organizationId = await getDefaultOrganizationId();
+  
+    try {
+      await prisma.$transaction(async (tx) => {
+        const enrolledAt = new Date();
+        await tx.user.create({
+          data: {
+            id: authUser.id,
+            organizationId,
+            email: authUser.email!,
+            fullName,
+            phone: phone || null,
+            enrolledProgram: programSlug,
+            enrolledAt,
+          },
+        });
+  
+        // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
+        // The member self-enrollment flow (POST /api/member/enroll) does this in a
+        // transaction. Admin creation must do the same.
+        // Multi-program: admin-created member's first row is primary.
+        await tx.courseEnrollment.create({
+          data: {
+            organizationId,
+            userId: authUser.id,
+            programSlug,
+            isPrimary: true,
+            enrolledAt,
+            enrolledByAdminId: user.id,
+          },
+        });
+  
+        await tx.profile.create({
+          data: {
+            userId: authUser.id,
+            profilePhone: phone || null,
+            profileAddress: address || null,
+            dob: dob ? new Date(dob) : null,
+            veteranStatus: veteranStatus || null,
+            employmentStatus: employmentStatus || null,
+            educationLevel: educationLevel || null,
+            householdIncome: householdIncome || null,
+            referralSource: referralSource || null,
+            usCitizen,
+            authorizedToWork,
+            hasDisability,
+            ethnicity: ethnicity || null,
+            counselorNotes: notes || null,
+            resumeOriginalPath: resumeOriginalPath || null,
+            resumeEnhancedPath: resumeEnhancedPath || null,
+            role: 'member',
+          },
+        });
+  
+        if (partnerId) {
+          await tx.partnerReferral.create({
+            data: { partnerId, memberId: authUser.id },
+          });
+          // Auto-assign to subgroup if one exists for this partner
+          const subgroup = await tx.subgroup.findFirst({
+            where: { type: 'partner', partnerId },
+            select: { id: true },
+          });
+          if (subgroup) {
+            await tx.memberSubgroup.create({
+              data: {
+                memberId: authUser.id,
+                subgroupId: subgroup.id,
+                assignedBy: user.id,
+                assignmentType: 'auto_referral',
+              },
+            });
+          }
+        }
+        // Manual subgroup assignment if provided (and not already auto-assigned)
+        if (subgroupId) {
+          const existing = await tx.memberSubgroup.findUnique({
+            where: { memberId_subgroupId: { memberId: authUser.id, subgroupId } },
+          });
+          if (!existing) {
+            await tx.memberSubgroup.create({
+              data: {
+                memberId: authUser.id,
+                subgroupId,
+                assignedBy: user.id,
+                assignmentType: 'manual_admin',
+              },
+            });
+          }
+        }
+      });
+    } catch (dbError) {
+      console.error('Admin create member DB error:', dbError);
+      return NextResponse.json({ error: 'Failed to create member. Please try again.' }, { status: 500 });
+    }
+  
+    sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
+      Program: program.title,
+    }).catch((err) => console.error('Partner milestone email failed:', err));
+  
+    // Track enrollment for funnel analytics
+    await trackEvent({
+      userId: authUser.id,
+      eventName: 'program_enrolled',
+      entityType: 'course_enrollment',
+      metadata: { programSlug, enrolledBy: 'admin', source: 'admin_create' },
+      sourcePage: '/admin/members/create',
+    });
+  
+    return NextResponse.json({
+      ok: true,
+      userId: authUser.id,
       email,
-      password: tempPassword,
-      email_confirm: true,
-      user_metadata: { full_name: fullName, phone },
+      message: `Member created. Welcome email sent to ${email}.`,
     });
-    if (createError) {
-      if (createError.message.includes('already')) {
-        return NextResponse.json({ error: 'An account with this email already exists.' }, { status: 400 });
-      }
-      console.error('Admin create user error:', createError);
-      return NextResponse.json({ error: createError.message }, { status: 400 });
-    }
-    authUser = createData.user;
-    // Optionally trigger password reset so user can set their own.
-    // Track E (Sprint E.1 PR 2) — pass orgId so the reset link uses the
-    // member's tenant domain instead of the platform default.
-    const orgIdForReset = await getDefaultOrganizationId();
-    await sendPasswordResetEmail(email, '/reset-password', { orgId: orgIdForReset });
+  } catch (error) {
+    console.error('/admin/members/create:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  if (!authUser) {
-    return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
-  }
-
-  const organizationId = await getDefaultOrganizationId();
-
-  try {
-    await prisma.$transaction(async (tx) => {
-      const enrolledAt = new Date();
-      await tx.user.create({
-        data: {
-          id: authUser.id,
-          organizationId,
-          email: authUser.email!,
-          fullName,
-          phone: phone || null,
-          enrolledProgram: programSlug,
-          enrolledAt,
-        },
-      });
-
-      // INVARIANT: CourseEnrollment must stay in sync with User.enrolledProgram.
-      // The member self-enrollment flow (POST /api/member/enroll) does this in a
-      // transaction. Admin creation must do the same.
-      // Multi-program: admin-created member's first row is primary.
-      await tx.courseEnrollment.create({
-        data: {
-          organizationId,
-          userId: authUser.id,
-          programSlug,
-          isPrimary: true,
-          enrolledAt,
-          enrolledByAdminId: user.id,
-        },
-      });
-
-      await tx.profile.create({
-        data: {
-          userId: authUser.id,
-          profilePhone: phone || null,
-          profileAddress: address || null,
-          dob: dob ? new Date(dob) : null,
-          veteranStatus: veteranStatus || null,
-          employmentStatus: employmentStatus || null,
-          educationLevel: educationLevel || null,
-          householdIncome: householdIncome || null,
-          referralSource: referralSource || null,
-          usCitizen,
-          authorizedToWork,
-          hasDisability,
-          ethnicity: ethnicity || null,
-          counselorNotes: notes || null,
-          resumeOriginalPath: resumeOriginalPath || null,
-          resumeEnhancedPath: resumeEnhancedPath || null,
-          role: 'member',
-        },
-      });
-
-      if (partnerId) {
-        await tx.partnerReferral.create({
-          data: { partnerId, memberId: authUser.id },
-        });
-        // Auto-assign to subgroup if one exists for this partner
-        const subgroup = await tx.subgroup.findFirst({
-          where: { type: 'partner', partnerId },
-          select: { id: true },
-        });
-        if (subgroup) {
-          await tx.memberSubgroup.create({
-            data: {
-              memberId: authUser.id,
-              subgroupId: subgroup.id,
-              assignedBy: user.id,
-              assignmentType: 'auto_referral',
-            },
-          });
-        }
-      }
-      // Manual subgroup assignment if provided (and not already auto-assigned)
-      if (subgroupId) {
-        const existing = await tx.memberSubgroup.findUnique({
-          where: { memberId_subgroupId: { memberId: authUser.id, subgroupId } },
-        });
-        if (!existing) {
-          await tx.memberSubgroup.create({
-            data: {
-              memberId: authUser.id,
-              subgroupId,
-              assignedBy: user.id,
-              assignmentType: 'manual_admin',
-            },
-          });
-        }
-      }
-    });
-  } catch (dbError) {
-    console.error('Admin create member DB error:', dbError);
-    return NextResponse.json({ error: 'Failed to create member. Please try again.' }, { status: 500 });
-  }
-
-  sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
-    Program: program.title,
-  }).catch((err) => console.error('Partner milestone email failed:', err));
-
-  // Track enrollment for funnel analytics
-  await trackEvent({
-    userId: authUser.id,
-    eventName: 'program_enrolled',
-    entityType: 'course_enrollment',
-    metadata: { programSlug, enrolledBy: 'admin', source: 'admin_create' },
-    sourcePage: '/admin/members/create',
-  });
-
-  return NextResponse.json({
-    ok: true,
-    userId: authUser.id,
-    email,
-    message: `Member created. Welcome email sent to ${email}.`,
-  });
 }

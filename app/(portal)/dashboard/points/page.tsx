@@ -65,7 +65,7 @@ const EARN_ACTIONS: Array<{
   },
   {
     event: 'course_completed',
-    href: '/dashboard/training',
+    href: '/dashboard',
     blurb: 'Mark a course complete in your training plan.',
   },
   {
@@ -85,7 +85,7 @@ const EARN_ACTIONS: Array<{
   },
   {
     event: 'pathway_step_completed',
-    href: '/dashboard/training',
+    href: '/dashboard',
     blurb: 'Finish a learning step inside your pathway.',
   },
 ];
@@ -458,7 +458,7 @@ export default async function DashboardPointsPage() {
           <div style={{ marginTop: '1.25rem' }}>
             <Link
               href="/dashboard"
-              className="btn btn-secondary"
+              className="btn btn-muted"
               style={{ fontSize: '0.875rem' }}
             >
               Back to dashboard

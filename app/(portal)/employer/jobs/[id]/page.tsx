@@ -8,6 +8,7 @@ import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import JobForm from '@/components/employer/JobForm';
+import JobApplicantsClient from '@/components/employer/JobApplicantsClient';
 import JobReadinessIssueList from '@/components/employer/JobReadinessIssueList';
 import { assessJobPostingReadiness, readinessLabel } from '@/lib/employer/jobReadiness';
 import PageHeader from '@/components/portal/PageHeader';
@@ -63,6 +64,23 @@ export default async function EmployerJobDetailPage({ params }: Props) {
 
   const active = await getActivePrograms();
   const programSlugs = active.map((p) => p.slug);
+
+  const applicants = await prisma.jobPostingApplication.findMany({
+    where: { jobId: id },
+    orderBy: { appliedAt: 'desc' },
+    include: {
+      student: { select: { id: true, fullName: true, email: true } },
+    },
+    take: 200,
+  });
+
+  const applicantData = applicants.map((app) => ({
+    id: app.id,
+    status: app.status,
+    appliedAt: app.appliedAt.toISOString(),
+    employerNotes: app.employerNotes ?? null,
+    student: app.student,
+  }));
 
   const editReadiness = assessJobPostingReadiness({
     location: job.location?.trim() || '—',
@@ -161,7 +179,12 @@ export default async function EmployerJobDetailPage({ params }: Props) {
               </section>
 
               <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
-                <h2 style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.85rem' }}>Edit posting</h2>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                  <h2 style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Edit posting</h2>
+                  <Link href={`/employer/jobs/${id}/edit`} className="btn btn-outline btn-sm">
+                    Full edit
+                  </Link>
+                </div>
                 <JobForm
                   job={{
                     id: job.id,
@@ -183,6 +206,18 @@ export default async function EmployerJobDetailPage({ params }: Props) {
                   companyName={employer?.companyName ?? ''}
                   programSlugs={programSlugs}
                 />
+              </section>
+
+              <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                  <h2 style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
+                    Applicants ({applicants.length})
+                  </h2>
+                  <Link href="/employer/applications" className="btn btn-ghost btn-sm">
+                    All applicants →
+                  </Link>
+                </div>
+                <JobApplicantsClient jobId={id} initialApplicants={applicantData} />
               </section>
             </div>
 

@@ -10,6 +10,7 @@ const messageSchema = z.object({
 type Props = { params: Promise<{ id: string }> };
 
 export async function GET(_request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -53,9 +54,16 @@ export async function GET(_request: NextRequest, { params }: Props) {
       readAt: m.readAt?.toISOString() ?? null,
     })),
   });
+
+  } catch (error) {
+    console.error('/member/applications/[id]/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -109,4 +117,10 @@ export async function POST(request: NextRequest, { params }: Props) {
       isFromEmployer: false,
     },
   });
+
+  } catch (error) {
+    console.error('/member/applications/[id]/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

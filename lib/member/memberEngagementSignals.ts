@@ -5,6 +5,7 @@ export type MemberEngagementSignals = {
   jobApplicationCount: number;
   counselorUnreadCount: number;
   weeklyRecapUnopened: boolean;
+  lastLoginAt: Date | null;
 };
 
 /**
@@ -14,7 +15,7 @@ export async function getMemberEngagementSignals(userId: string): Promise<Member
   const { getWeekBounds } = await import('@/lib/recap/generate');
   const { start: thisWeekStart } = getWeekBounds(new Date());
 
-  const [jobApplicationCount, profile, thread, weekRecap] = await Promise.all([
+  const [jobApplicationCount, profile, thread, weekRecap, user] = await Promise.all([
     prisma.jobApplication.count({ where: { userId } }),
     prisma.profile.findUnique({
       where: { userId },
@@ -27,6 +28,10 @@ export async function getMemberEngagementSignals(userId: string): Promise<Member
     prisma.weeklyRecap.findUnique({
       where: { userId_weekStartDate: { userId, weekStartDate: thisWeekStart } },
       select: { openedAt: true },
+    }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { lastLoginAt: true },
     }),
   ]);
 
@@ -50,5 +55,6 @@ export async function getMemberEngagementSignals(userId: string): Promise<Member
     jobApplicationCount,
     counselorUnreadCount,
     weeklyRecapUnopened,
+    lastLoginAt: user?.lastLoginAt ?? null,
   };
 }

@@ -384,7 +384,7 @@ export default function AdminJobReview({ job }: { job: Job }) {
         {!matches ? (
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-muted"
             onClick={loadMatches}
             disabled={loadingMatches}
           >

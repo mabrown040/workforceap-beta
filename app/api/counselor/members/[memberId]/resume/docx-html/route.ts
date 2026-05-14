@@ -14,6 +14,7 @@ type Props = { params: Promise<{ memberId: string }> };
  * POST /api/counselor/members/:memberId/resume/docx-html?variant=original|enhanced
  */
 export async function POST(req: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -59,4 +60,10 @@ export async function POST(req: NextRequest, { params }: Props) {
       { status: 422 }
     );
   }
+
+  } catch (error) {
+    console.error('/counselor/members/[memberId]/resume/docx-html error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

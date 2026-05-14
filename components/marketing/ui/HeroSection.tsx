@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { ReactNode } from 'react';
 
 interface HeroSectionProps {
@@ -9,6 +10,8 @@ interface HeroSectionProps {
   minHeight?: string;
   overlayGradient?: string;
   className?: string;
+  /** When true, eagerly load the background image (LCP). Default false for below-fold heroes. */
+  priority?: boolean;
 }
 
 export function HeroSection({
@@ -20,6 +23,7 @@ export function HeroSection({
   minHeight = '90vh',
   overlayGradient = 'linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.78) 50%, rgba(173,44,77,0.2) 100%)',
   className,
+  priority = false,
 }: HeroSectionProps) {
   return (
     <section
@@ -34,14 +38,15 @@ export function HeroSection({
       }}
     >
       {backgroundImage && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
+        <Image
+          src={backgroundImage}
+          alt=""
+          fill
+          priority={priority}
+          fetchPriority={priority ? 'high' : 'low'}
+          sizes="100vw"
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          aria-hidden="true"
         />
       )}
       <div
@@ -49,13 +54,14 @@ export function HeroSection({
           position: 'absolute',
           inset: 0,
           background: overlayGradient,
+          zIndex: 1,
         }}
       />
       <div
         className="container"
         style={{
           position: 'relative',
-          zIndex: 1,
+          zIndex: 2,
           maxWidth: 'var(--max-width, 80rem)',
           margin: '0 auto',
           padding: '6rem 1.5rem 3rem',

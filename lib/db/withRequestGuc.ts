@@ -1,0 +1,109 @@
+import type { User } from '@supabase/supabase-js';
+import {
+  runWithGucContext,
+  buildGucContext,
+  ANONYMOUS_GUC_CONTEXT,
+  SYSTEM_GUC_CONTEXT,
+} from './gucContext';
+import type { GucContext } from './gucContext';
+import { resolveAuthGucContext } from '@/lib/auth/server';
+
+/**
+ * Resolve the minimal GucContext from a Supabase User object.
+ *
+ * This is a lightweight helper for request handlers that already have the
+ * user in hand.  It does NOT hit the database — callers that need the
+ * profile role, orgId, employerId, or partnerId must resolve those first
+ * (e.g. via `getProfileRole`, `getActorOrganizationId`, `getEmployerForUser`,
+ * `getPartnerForUser`).
+ */
+export function buildGucContextFromUser(user: User | null): GucContext {
+  if (!user) return ANONYMOUS_GUC_CONTEXT;
+  return buildGucContext({
+    userId: user.id,
+    orgId: null, // caller should fill if known
+    profileRole: null, // caller should fill if known
+  });
+}
+
+/**
+ * Run `fn` with a GUC context derived from an authenticated user.
+ *
+ * Use this in API routes, server actions, or server components after
+ * resolving the user's identity.
+ *
+ * Example (API route):
+ *   const user = await getUser();
+ *   return withUserGuc(user, async () => {
+ *     const data = await prisma.user.findMany();
+ *     return Response.json(data);
+ *   });
+ */
+export function withUserGuc<T>(
+  user: User | null,
+  fn: () => Promise<T>,
+  options?: { orgId?: string | null; profileRole?: string | null; employerId?: string | null; partnerId?: string | null },
+): Promise<T> {
+  const ctx = user
+    ? buildGucContext({
+        userId: user.id,
+        orgId: options?.orgId ?? null,
+        profileRole: options?.profileRole ?? null,
+        employerId: options?.employerId ?? null,
+        partnerId: options?.partnerId ?? null,
+      })
+    : ANONYMOUS_GUC_CONTEXT;
+  return runWithGucContext(ctx, fn);
+}
+
+/**
+ * Run `fn` with the system/service-account GUC context.
+ *
+ * Use this for cron jobs, webhooks, and background workers that bypass
+ * normal user authentication but still need a defined RLS role.
+ */
+export function withSystemGuc<T>(fn: () => Promise<T>): Promise<T> {
+  return runWithGucContext(SYSTEM_GUC_CONTEXT, fn);
+}
+
+/**
+ * Run `fn` with the anonymous GUC context.
+ *
+ * Use this for public endpoints that must explicitly opt out of any
+ * user-scoped RLS context.
+ */
+export function withAnonymousGuc<T>(fn: () => Promise<T>): Promise<T> {
+  return runWithGucContext(ANONYMOUS_GUC_CONTEXT, fn);
+}
+
+/**
+ * API-route wrapper: resolves the current user's GUC context and runs the
+ * handler with it. Falls back to anonymous for unauthenticated requests.
+ *
+ * Use this in App Router API route files:
+ *   export const GET = withApiGuc(async (request) => { ... });
+ */
+export function withApiGuc<T>(
+  handler: (request: Request) => Promise<T>,
+): (request: Request) => Promise<T> {
+  return async (request: Request) => {
+    const ctx = await resolveAuthGucContext();
+    return runWithGucContext(ctx, () => handler(request));
+  };
+}
+
+/**
+ * API-route wrapper that enforces authentication.
+ * Returns 401 if no user is present; otherwise runs with the user's GUC context.
+ */
+export function withAuthenticatedApiGuc<T>(
+  handler: (request: Request, userId: string) => Promise<T>,
+): (request: Request) => Promise<T> {
+  return async (request: Request) => {
+    const ctx = await resolveAuthGucContext();
+    if (ctx.role === 'anonymous') {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 }) as unknown as T;
+    }
+    return runWithGucContext(ctx, () => handler(request, ctx.userId!));
+  };
+}

@@ -25,11 +25,13 @@ export default async function AddMemberPage() {
 
   const [partners, subgroups] = await Promise.all([
     prisma.partner.findMany({
+      take: 5000,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
     prisma.subgroup.findMany({
+      take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true },
     }),

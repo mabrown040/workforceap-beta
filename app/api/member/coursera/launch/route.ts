@@ -13,10 +13,11 @@ import { getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgre
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
 
 export async function GET(request: Request) {
+  try {
   const user = await getUser();
   if (!user) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirectTo', '/dashboard/training');
+    loginUrl.searchParams.set('redirectTo', '/dashboard');
     return NextResponse.redirect(loginUrl);
   }
 
@@ -182,10 +183,16 @@ export async function GET(request: Request) {
   }
 
   if (!safeUrl) {
-    const errorUrl = new URL('/dashboard/training', request.url);
+    const errorUrl = new URL('/dashboard', request.url);
     errorUrl.searchParams.set('error', 'launch_failed');
     return NextResponse.redirect(errorUrl);
   }
 
   return NextResponse.redirect(safeUrl);
+
+  } catch (error) {
+    console.error('/member/coursera/launch error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

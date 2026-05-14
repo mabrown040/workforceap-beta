@@ -31,37 +31,42 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  */
 
 export async function POST(_request: NextRequest) {
-  const actor = await getUser();
-  if (!actor) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let orgId: string;
   try {
-    orgId = await getActorOrganizationId(actor.id);
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-catalog' });
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const superAdmin = await isSuperAdmin(actor.id);
-  if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  try {
-    const summary = await seedCanonicalMappingsFromCatalog({ actorUserId: actor.id });
-    return NextResponse.json(summary);
-  } catch (err) {
-    captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-catalog' });
-    return NextResponse.json(
-      {
-        error:
-          err instanceof Error
-            ? err.message
-            : 'Seed canonical mappings failed',
-      },
-      { status: 500 },
-    );
+    const actor = await getUser();
+    if (!actor) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    let orgId: string;
+    try {
+      orgId = await getActorOrganizationId(actor.id);
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-catalog' });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const superAdmin = await isSuperAdmin(actor.id);
+    if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    try {
+      const summary = await seedCanonicalMappingsFromCatalog({ actorUserId: actor.id });
+      return NextResponse.json(summary);
+    } catch (err) {
+      captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-catalog' });
+      return NextResponse.json(
+        {
+          error:
+            err instanceof Error
+              ? err.message
+              : 'Seed canonical mappings failed',
+        },
+        { status: 500 },
+      );
+    }
+  } catch (error) {
+    console.error('/admin/coursera/seed-canonical-mappings-from-catalog:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

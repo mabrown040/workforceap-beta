@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendWeeklyRecapEmail } from '@/lib/email';
-import { generateWeeklyRecap } from '@/lib/recap/generate';
+import { buildWeeklyRecapEmailSummary } from '@/lib/recap/buildWeeklyRecapEmailSummary';
+import { generateWeeklyRecaps } from '@/lib/recap/generate';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * GET /api/cron/weekly-recap
@@ -12,7 +14,8 @@ import { withCronLogging } from '@/lib/cron/withCronLogging';
  * Sends weekly recap emails to all active members who have not
  * received one this week. Secured by CRON_SECRET header.
  *
- * Deploy with Vercel Cron: schedule "0 18 * * 0" (Sunday 6PM UTC)
+ * Deploy with Vercel Cron: schedule "0 18 * * 0" (Sunday 6PM UTC). Requires
+ * `CRON_SECRET` in project env (Vercel invokes the route with that bearer token).
  *
  * Or trigger manually from admin at /admin/weekly-recap.
  */
@@ -43,25 +46,16 @@ async function handle(_request: Request) {
   let sent = 0;
   let failed = 0;
 
+  // Batch-generate recaps to eliminate read-side N+1 (~10 queries total vs 10×N)
+  const recaps = await generateWeeklyRecaps(members, weekStart);
+  const recapByUserId = new Map(recaps.map((r) => [r.userId, r.recapData]));
+
   for (const member of members) {
     try {
-      const recap = await generateWeeklyRecap(member.id, weekStart);
-      if (!recap) { failed++; continue; }
+      const recapData = recapByUserId.get(member.id) as Parameters<typeof buildWeeklyRecapEmailSummary>[0] | undefined;
+      if (!recapData) { failed++; continue; }
 
-      const recapData = recap.recapJson as {
-        weekInReview?: { applicationsAdded?: number; resourcesCompleted?: number; aiToolsUsed?: number; pathwayStepsCompleted?: number };
-        recommendedActions?: string[];
-        readinessScoreSnapshot?: number;
-      } | null;
-
-      const review = recapData?.weekInReview ?? {};
-      const actions = (recapData?.recommendedActions ?? []).slice(0, 3).map(a => `• ${a}`).join('\n');
-      const recapSummary = [
-        `Applications added: ${review.applicationsAdded ?? 0}`,
-        `Resources completed: ${review.resourcesCompleted ?? 0}`,
-        `AI tools used: ${review.aiToolsUsed ?? 0}`,
-        actions ? `\nRecommended this week:\n${actions}` : '',
-      ].filter(Boolean).join('\n');
+      const recapSummary = buildWeeklyRecapEmailSummary(recapData);
 
       await sendWeeklyRecapEmail({
         to: member.email,
@@ -69,10 +63,7 @@ async function handle(_request: Request) {
         recapSummary,
       });
 
-      // Mark as opened (closest proxy for "sent" in schema)
-      if (!recap.openedAt) {
-        await prisma.weeklyRecap.update({ where: { id: recap.id }, data: { openedAt: new Date() } }).catch(() => {});
-      }
+      // Do not set openedAt here — that field means the member opened the recap in the portal.
       sent++;
     } catch (e) {
       captureApiError(e, { route: 'cron/weekly-recap', extra: { userId: member.id } });
@@ -81,6 +72,7 @@ async function handle(_request: Request) {
   }
 
   const runResult = { sent, failed, total: members.length };
+  await setCronRecordsProcessed(sent);
   await logCronRun('cron_weekly_recap', runResult, failed === members.length && members.length > 0 ? 'error' : 'ok');
   return NextResponse.json(runResult);
 }

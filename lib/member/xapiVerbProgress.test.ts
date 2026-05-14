@@ -1,5 +1,4 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, expect, test } from 'vitest';
 import { CourseProgressStatus } from '@prisma/client';
 import { inferCourseProgressStatusFromXapiVerb } from './xapiVerbProgress';
 import type { ParsedXapiStatement } from '@/lib/xapi/statementModel';
@@ -11,23 +10,25 @@ function minimalParsed(overrides: Partial<ParsedXapiStatement>): ParsedXapiState
   };
 }
 
-test('inferCourseProgressStatusFromXapiVerb: completion verb → COMPLETED', () => {
-  const s = minimalParsed({
-    verbId: 'http://adlnet.gov/expapi/verbs/completed',
+describe('inferCourseProgressStatusFromXapiVerb', () => {
+  test('completion verb → COMPLETED', () => {
+    const s = minimalParsed({
+      verbId: 'http://adlnet.gov/expapi/verbs/completed',
+    });
+    expect(inferCourseProgressStatusFromXapiVerb(s)).toBe(CourseProgressStatus.COMPLETED);
   });
-  assert.equal(inferCourseProgressStatusFromXapiVerb(s), CourseProgressStatus.COMPLETED);
-});
 
-test('inferCourseProgressStatusFromXapiVerb: progressed → IN_PROGRESS', () => {
-  const s = minimalParsed({
-    verbId: 'http://adlnet.gov/expapi/verbs/progressed',
+  test('progressed → IN_PROGRESS', () => {
+    const s = minimalParsed({
+      verbId: 'http://adlnet.gov/expapi/verbs/progressed',
+    });
+    expect(inferCourseProgressStatusFromXapiVerb(s)).toBe(CourseProgressStatus.IN_PROGRESS);
   });
-  assert.equal(inferCourseProgressStatusFromXapiVerb(s), CourseProgressStatus.IN_PROGRESS);
-});
 
-test('inferCourseProgressStatusFromXapiVerb: non-progress verb → null', () => {
-  const s = minimalParsed({
-    verbId: 'http://adlnet.gov/expapi/verbs/experienced',
+  test('non-progress verb → null', () => {
+    const s = minimalParsed({
+      verbId: 'http://adlnet.gov/expapi/verbs/experienced',
+    });
+    expect(inferCourseProgressStatusFromXapiVerb(s)).toBeNull();
   });
-  assert.equal(inferCourseProgressStatusFromXapiVerb(s), null);
 });

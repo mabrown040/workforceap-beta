@@ -95,9 +95,23 @@ export type PipelineRow = {
   allProgramTitles: string[];
 };
 
-export async function loadPartnerReferralBundle(partnerId: string) {
+/**
+ * @param tenantOrganizationId — Partner portal tenant boundary: partner row
+ *   and referred members must belong to this org (defense against orphaned /
+ *   cross-tenant referral rows).
+ */
+export async function loadPartnerReferralBundle(partnerId: string, tenantOrganizationId: string) {
   const referrals = await prisma.partnerReferral.findMany({
-    where: { partnerId, member: { deletedAt: null, ...MEMBER_ONLY_WHERE } },
+    take: 5000,
+    where: {
+      partnerId,
+      partner: { organizationId: tenantOrganizationId },
+      member: {
+        deletedAt: null,
+        organizationId: tenantOrganizationId,
+        ...MEMBER_ONLY_WHERE,
+      },
+    },
     include: {
       member: { select: referralMemberSelect },
     },
@@ -106,14 +120,18 @@ export async function loadPartnerReferralBundle(partnerId: string) {
 
   const memberIds = referrals.map((r) => r.member.id);
 
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+
   // Load pending placement confirmations (self-reported by members, not yet reviewed)
   const pendingPlacements =
     memberIds.length === 0
       ? []
       : await prisma.memberEvent.findMany({
+        take: 500,
           where: {
             userId: { in: memberIds },
             eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED',
+            createdAt: { gte: ninetyDaysAgo },
           },
           orderBy: { createdAt: 'desc' },
           select: {

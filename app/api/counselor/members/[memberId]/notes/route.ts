@@ -28,6 +28,7 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ memberId: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
@@ -45,12 +46,19 @@ export async function GET(
     include: { author: { select: { fullName: true, email: true } } },
   });
   return NextResponse.json(notes);
+
+  } catch (error) {
+    console.error('/counselor/members/[memberId]/notes error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ memberId: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
@@ -76,12 +84,19 @@ export async function POST(
     include: { author: { select: { fullName: true, email: true } } },
   });
   return NextResponse.json(note, { status: 201 });
+
+  } catch (error) {
+    console.error('/counselor/members/[memberId]/notes error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ memberId: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
@@ -102,4 +117,10 @@ export async function DELETE(
 
   await prisma.counselorNote.delete({ where: { id: noteId } });
   return NextResponse.json({ ok: true });
+
+  } catch (error) {
+    console.error('/counselor/members/[memberId]/notes error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

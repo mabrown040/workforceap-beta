@@ -55,7 +55,7 @@ function getPriorityAction(breakdown: Awaited<ReturnType<typeof getScoreBreakdow
     { key: 'buildResume', label: 'Build or upload your resume to boost your score.', href: '/dashboard/profile#resume', weight: 20 },
     { key: 'practiceInterview', label: 'Practice a mock interview to sharpen your skills.', href: '/dashboard/ai-tools/interview-practice', weight: 15 },
     { key: 'addApplications', label: 'Apply to at least 3 jobs to show employer readiness.', href: '/dashboard/jobs', weight: 15 },
-    { key: 'completePathwaySteps', label: 'Complete more pathway steps in your training program.', href: '/dashboard/training', weight: 15 },
+    { key: 'completePathwaySteps', label: 'Complete more pathway steps in your training program.', href: '/dashboard', weight: 15 },
     { key: 'setGoals', label: 'Set career goals to stay on track.', href: '/dashboard/career-brief', weight: 10 },
     { key: 'complete2Resources', label: 'Complete 2+ learning resources.', href: '/dashboard/resources', weight: 10 },
     { key: 'completeProfile', label: 'Fill in your profile details for employer visibility.', href: '/dashboard/profile', weight: 5 },

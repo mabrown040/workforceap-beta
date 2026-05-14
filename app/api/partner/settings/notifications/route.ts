@@ -21,6 +21,7 @@ const patchSchema = z.object({
  * before sending milestone emails. See lib/notifications/partner-notify.ts.
  */
 export async function PATCH(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -49,4 +50,10 @@ export async function PATCH(req: NextRequest) {
   });
 
   return NextResponse.json({ ok: true, preferences: updated });
+
+  } catch (error) {
+    console.error('/partner/settings/notifications error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

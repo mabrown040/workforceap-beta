@@ -12,6 +12,7 @@ const schema = z.object({
 });
 
 export async function PATCH(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -43,4 +44,10 @@ export async function PATCH(request: NextRequest) {
   });
 
   return NextResponse.json({ ok: true });
+
+  } catch (error) {
+    console.error('/partner/onboarding-profile error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

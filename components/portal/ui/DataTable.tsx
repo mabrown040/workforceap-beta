@@ -154,6 +154,7 @@ export default function DataTable<TRow>({
           {columns.map((col) => (
             <th
               key={col.key}
+              scope="col"
               style={
                 {
                   ...(usePortalChrome

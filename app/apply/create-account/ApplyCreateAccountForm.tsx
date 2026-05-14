@@ -3,14 +3,17 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 import {
+  APPLY_FLOW_DRAFT_KEY,
   APPLY_PROGRAM_RANKED_KEY,
   APPLY_PROGRAM_SLUG_KEY,
   getCareerQuizPayloadFromStorage,
 } from '@/lib/apply/applyProgramStorage';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
+import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 
 // Persists in-progress account form fields so back-button / refresh / accidental
 // navigation does not wipe what the user already typed. Cleared on successful
@@ -52,6 +55,8 @@ const US_STATES: { abbr: string; name: string }[] = [
 ];
 
 export default function ApplyCreateAccountForm() {
+  const t = useTranslations('apply');
+  const tForm = useTranslations('form');
   const searchParams = useSearchParams();
   const [init, setInit] = useState<'loading' | 'missing' | 'ready'>('loading');
   const [programRankedSlugs, setProgramRankedSlugs] = useState<string[] | null>(null);
@@ -108,25 +113,71 @@ export default function ApplyCreateAccountForm() {
     if (typeof window === 'undefined') return;
     try {
       const raw = sessionStorage.getItem(APPLY_ACCOUNT_DRAFT_KEY);
-      if (!raw) return;
-      const draft = JSON.parse(raw) as AccountDraft;
-      if (draft.firstName) setFirstName(draft.firstName);
-      if (draft.lastName) setLastName(draft.lastName);
-      if (draft.email) setEmail(draft.email);
-      if (draft.phone) setPhone(draft.phone);
-      if (draft.addressLine1) {
-        setAddressLine1(draft.addressLine1);
-        setOptionalAddressOpen(true);
+      type EligStored = {
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        phone?: string;
+      };
+      let elig: EligStored | null = null;
+      try {
+        const er = sessionStorage.getItem('apply_eligibility');
+        if (er) elig = JSON.parse(er) as EligStored;
+      } catch {
+        elig = null;
       }
-      if (draft.addressLine2) setAddressLine2(draft.addressLine2);
-      if (draft.city) {
-        setCity(draft.city);
-        setOptionalAddressOpen(true);
+
+      if (raw) {
+        const draft = JSON.parse(raw) as AccountDraft;
+        if (draft.firstName) {
+          setFirstName(draft.firstName);
+        } else if (elig?.firstName) {
+          setFirstName(elig.firstName);
+        }
+        if (draft.lastName) {
+          setLastName(draft.lastName);
+        } else if (elig?.lastName) {
+          setLastName(elig.lastName);
+        }
+        if (draft.email) {
+          setEmail(draft.email);
+        } else if (elig?.email) {
+          setEmail(elig.email);
+        }
+        if (draft.phone) {
+          setPhone(draft.phone);
+        } else if (elig?.phone) {
+          setPhone(elig.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3') || elig.phone);
+        }
+        if (draft.addressLine1) {
+          setAddressLine1(draft.addressLine1);
+          setOptionalAddressOpen(true);
+        }
+        if (draft.addressLine2) setAddressLine2(draft.addressLine2);
+        if (draft.city) {
+          setCity(draft.city);
+          setOptionalAddressOpen(true);
+        }
+        if (draft.state) setStateVal(draft.state);
+        if (draft.zip) setZip(draft.zip);
+        if (typeof draft.smsOptIn === 'boolean') setSmsOptIn(draft.smsOptIn);
+        if (typeof draft.contactConsent === 'boolean') setContactConsent(draft.contactConsent);
+        return;
       }
-      if (draft.state) setStateVal(draft.state);
-      if (draft.zip) setZip(draft.zip);
-      if (typeof draft.smsOptIn === 'boolean') setSmsOptIn(draft.smsOptIn);
-      if (typeof draft.contactConsent === 'boolean') setContactConsent(draft.contactConsent);
+
+      if (elig) {
+        if (elig.firstName) setFirstName(elig.firstName);
+        if (elig.lastName) setLastName(elig.lastName);
+        if (elig.email) setEmail(elig.email);
+        if (elig.phone) {
+          const d = elig.phone.replace(/\D/g, '');
+          if (d.length === 10) {
+            setPhone(`(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`);
+          } else {
+            setPhone(elig.phone);
+          }
+        }
+      }
     } catch {
       /* ignore corrupt draft */
     }
@@ -220,44 +271,39 @@ export default function ApplyCreateAccountForm() {
 
     const nextFieldErrors: typeof fieldErrors = {};
     if (!firstName.trim()) {
-      nextFieldErrors.firstName = 'Enter your first name.';
+      nextFieldErrors.firstName = t('errFirstName');
     }
     if (!lastName.trim()) {
-      nextFieldErrors.lastName = 'Enter your last name.';
+      nextFieldErrors.lastName = t('errLastName');
     }
     if (!email.trim()) {
-      nextFieldErrors.email = 'Enter an email address.';
+      nextFieldErrors.email = t('errEmailRequired');
     } else if (!emailLooksValid(email)) {
-      nextFieldErrors.email = 'Use a valid email address (include @ and a domain like .com).';
+      nextFieldErrors.email = t('errEmailInvalid');
     }
     const phoneDigits = phone.replace(/\D/g, '');
     if (!phone.trim()) {
-      nextFieldErrors.phone = 'Enter a phone number.';
+      nextFieldErrors.phone = t('errPhoneRequired');
     } else if (phoneDigits.length < 10) {
-      nextFieldErrors.phone = 'Use a phone number with at least 10 digits.';
+      nextFieldErrors.phone = t('errPhoneDigits');
     }
     if (zip.trim() && !/^\d{5}(-\d{4})?$/.test(zip.trim())) {
-      nextFieldErrors.zip = 'Please enter a valid 5-digit ZIP code';
+      nextFieldErrors.zip = t('errZipFormat');
     }
     if (password.length < 8) {
-      nextFieldErrors.password = 'Use at least 8 characters.';
+      nextFieldErrors.password = t('errPasswordShort');
     }
     if (password.length >= 8 && confirmPassword !== password) {
-      nextFieldErrors.confirmPassword = 'Passwords do not match.';
+      nextFieldErrors.confirmPassword = t('errPasswordMismatch');
     }
     if (!contactConsent) {
-      nextFieldErrors.contactConsent =
-        'Please confirm you agree to be contacted about your application so a counselor can follow up.';
+      nextFieldErrors.contactConsent = t('errContactConsent');
     }
 
     if (Object.keys(nextFieldErrors).length > 0) {
       setFieldErrors(nextFieldErrors);
       const needsContact = nextFieldErrors.phone;
-      setError(
-        needsContact
-          ? 'Please add a phone number to continue.'
-          : 'Please fix the highlighted fields and try again.'
-      );
+      setError(needsContact ? t('errSummaryPhone') : t('errSummaryGeneric'));
       // Move focus to the error summary so screen readers announce the issue
       // and keyboard users can find it without scrolling.
       requestAnimationFrame(() => {
@@ -268,7 +314,7 @@ export default function ApplyCreateAccountForm() {
     }
 
     if (!programRankedSlugs?.length) {
-      setError('Your program selections weren\'t saved — please go back to step 2 and choose at least one program.');
+      setError(t('errProgramsNotSaved'));
       return;
     }
 
@@ -335,10 +381,7 @@ export default function ApplyCreateAccountForm() {
         if (Object.keys(serverFieldErrors).length > 0) {
           setFieldErrors((prev) => ({ ...prev, ...serverFieldErrors }));
         }
-        setError(
-          serverMessage ||
-            'We could not finish creating your account. Please review your information and try again, or call (512) 777-1808.'
-        );
+        setError(serverMessage || t('errAccountGeneric'));
         trackApplyFunnel(3, 'account_create_error', {
           program_slugs: programRankedSlugs,
           error_message: serverMessage || 'unknown_error',
@@ -355,6 +398,11 @@ export default function ApplyCreateAccountForm() {
       sessionStorage.removeItem(APPLY_PROGRAM_RANKED_KEY);
       sessionStorage.removeItem('apply_eligibility');
       sessionStorage.removeItem(APPLY_ACCOUNT_DRAFT_KEY);
+      try {
+        localStorage.removeItem(APPLY_FLOW_DRAFT_KEY);
+      } catch {
+        /* ignore */
+      }
       try {
         sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
       } catch {
@@ -374,9 +422,7 @@ export default function ApplyCreateAccountForm() {
       const dest = typeof data.redirectTo === 'string' && data.redirectTo.startsWith('/') ? data.redirectTo : '/dashboard';
       window.location.href = dest;
     } catch {
-      setError(
-        'We could not reach the server to finish creating your account. Check your internet connection and try again, or call (512) 777-1808 if it keeps failing.'
-      );
+      setError(t('errNetwork'));
       trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: 'network_or_unknown' });
       setLoading(false);
       requestAnimationFrame(() => {
@@ -390,25 +436,25 @@ export default function ApplyCreateAccountForm() {
     return (
       <div className="apply-form" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
         <span className="material-symbols-outlined" style={{ fontSize: 56, color: '#ad2c4d', display: 'block', marginBottom: '1rem' }} aria-hidden="true">mark_email_unread</span>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: '#1c1b1b' }}>Check your email</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', color: '#1c1b1b' }}>{t('accountVerifyTitle')}</h2>
         <p style={{ fontSize: '1rem', color: '#584144', lineHeight: 1.6, marginBottom: '0.5rem' }}>
-          We sent a verification link to:
+          {t('accountVerifySentTo')}
         </p>
         <p style={{ fontSize: '1.05rem', fontWeight: 700, color: '#ad2c4d', marginBottom: '1.25rem', wordBreak: 'break-all' }}>
           {verifyEmail}
         </p>
         <p style={{ fontSize: '0.9rem', color: '#584144', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-          Click the link in that email to verify your account, then come back and log in to view your dashboard and next steps.
+          {t('accountVerifyInstructions')}
         </p>
         <Link href="/login" className="btn btn-primary" style={{ display: 'inline-block', marginBottom: '1rem' }}>
-          Go to login
+          {t('accountVerifyLogin')}
         </Link>
         <p style={{ fontSize: '0.85rem', color: '#584144', marginTop: '1rem' }}>
-          Didn&rsquo;t get it? Check your spam folder, then call{' '}
+          {t('accountVerifySpam')}{' '}
           <a href="tel:+15127771808" style={{ color: '#ad2c4d', fontWeight: 600 }}>
             (512) 777-1808
           </a>{' '}
-          if you need help finishing your account.
+          {t('accountVerifySpamSuffix')}
         </p>
       </div>
     );
@@ -417,7 +463,7 @@ export default function ApplyCreateAccountForm() {
   if (init === 'loading') {
     return (
       <p role="status" aria-live="polite">
-        Loading your saved program choices…
+        {t('accountLoadingChoices')}
       </p>
     );
   }
@@ -426,16 +472,15 @@ export default function ApplyCreateAccountForm() {
     return (
       <div className="apply-form-missing-session">
         <p role="alert" style={{ marginBottom: '1rem', lineHeight: 1.5 }}>
-          We couldn&rsquo;t find your saved program choices. This usually happens if you skipped step 2, opened this page in a new tab or device,
-          or your browser cleared site data.
+          {t('accountMissingSessionP1')}
         </p>
         <p style={{ marginBottom: '0.75rem' }}>
           <Link href="/apply/results" className="btn btn-primary">
-            Back to step 2 — choose your programs
+            {t('accountMissingSessionCta')}
           </Link>
         </p>
         <p>
-          <Link href="/apply">Start again from step 1</Link>
+          <Link href="/apply">{t('accountMissingSessionRestart')}</Link>
         </p>
       </div>
     );
@@ -445,25 +490,26 @@ export default function ApplyCreateAccountForm() {
     <form onSubmit={handleSubmit} className="apply-form" noValidate>
       <div className="apply-progress-bar" style={{ marginBottom: '1.25rem' }}>
         <div className="apply-progress-fill" style={{ width: '100%' }} />
+        <p className="apply-progress-label">Step 3 of 3 — save your spot and create your login</p>
       </div>
 
       <p className="apply-step-back-nav" style={{ marginBottom: '1rem' }}>
-        <Link href="/apply/results">← Back to step 2 — program selection</Link>
+        <Link href="/apply/results">{t('accountBackResults')}</Link>
       </p>
 
-      <div className="apply-transition-card" role="note" aria-label="Why account creation matters">
-        <strong>Why we ask for this now:</strong>
-        <span> your account saves the program choices you ranked, lets you log back in to check progress, and connects you with training and counselor support. It is not a final enrollment decision by itself.</span>
+      <div className="apply-transition-card" role="note" aria-label={t('accountAriaWhyNow')}>
+        <strong>{t('accountWhyNowStrong')}</strong>
+        <span>{t('accountWhyNowRest')}</span>
       </div>
 
-      <div className="apply-transition-card" role="note" aria-label="What you can finish later" style={{ marginTop: '0.75rem' }}>
-        <strong>Keep this part light:</strong>
-        <span> only your name, email, phone, and password are required to start. Mailing address details can be added later from your profile if we need them.</span>
+      <div className="apply-transition-card" role="note" aria-label={t('accountAriaKeepLight')} style={{ marginTop: '0.75rem' }}>
+        <strong>{t('accountKeepLightStrong')}</strong>
+        <span>{t('accountKeepLightRest')}</span>
       </div>
 
       {rankedProgramLabels.length > 0 ? (
-        <div className="apply-transition-card" role="note" aria-label="Saved program choices" style={{ marginTop: '0.75rem' }}>
-          <strong>Your saved choices:</strong>
+        <div className="apply-transition-card" role="note" aria-label={t('accountAriaSavedChoices')} style={{ marginTop: '0.75rem' }}>
+          <strong>{t('accountSavedChoicesStrong')}</strong>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
             {rankedProgramLabels.map((label, index) => (
               <span
@@ -489,12 +535,12 @@ export default function ApplyCreateAccountForm() {
       ) : null}
 
       <p className="apply-step-desc" style={{ marginTop: '1rem' }}>
-        After you create your account, you can view your dashboard and next steps. Some applicants are asked to verify their email first — check your inbox if so.
+        {t('accountAfterCreateNote')}
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+      <div className="apply-account-field-row" style={{ display: 'grid', gap: '0.75rem' }}>
         <div className="form-group" style={{ marginBottom: 0 }}>
-          <label htmlFor="firstName">First Name *</label>
+          <label htmlFor="firstName">{tForm('firstNameRequired')}</label>
           <input
             id="firstName"
             type="text"
@@ -511,7 +557,7 @@ export default function ApplyCreateAccountForm() {
           {fieldErrors.firstName ? <p className="form-error" role="alert">{fieldErrors.firstName}</p> : null}
         </div>
         <div className="form-group" style={{ marginBottom: 0 }}>
-          <label htmlFor="lastName">Last Name *</label>
+          <label htmlFor="lastName">{tForm('lastNameRequired')}</label>
           <input
             id="lastName"
             type="text"
@@ -528,9 +574,9 @@ export default function ApplyCreateAccountForm() {
           {fieldErrors.lastName ? <p className="form-error" role="alert">{fieldErrors.lastName}</p> : null}
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+      <div className="apply-account-field-row" style={{ display: 'grid', gap: '0.75rem' }}>
         <div className="form-group" style={{ marginBottom: 0 }}>
-          <label htmlFor="email">Email *</label>
+          <label htmlFor="email">{tForm('emailRequired')}</label>
           <input
             id="email"
             type="email"
@@ -545,14 +591,15 @@ export default function ApplyCreateAccountForm() {
             aria-invalid={!!fieldErrors.email}
             aria-describedby={fieldErrors.email ? 'email-error' : 'email-hint'}
           />
-          <p id="email-hint" className="apply-field-hint">Use an email you can check today in case we need verification.</p>
+          <p id="email-hint" className="apply-field-hint">{t('accountEmailFieldHint')}</p>
           {fieldErrors.email ? <p id="email-error" className="form-error" role="alert">{fieldErrors.email}</p> : null}
         </div>
         <div className="form-group" style={{ marginBottom: 0 }}>
-          <label htmlFor="phone">Phone *</label>
+          <label htmlFor="phone">{tForm('phoneNumber')} *</label>
           <input
             id="phone"
             type="tel"
+            inputMode="tel"
             value={phone}
             onChange={(e) => {
               setPhone(e.target.value);
@@ -564,7 +611,7 @@ export default function ApplyCreateAccountForm() {
             aria-invalid={!!fieldErrors.phone}
             aria-describedby={fieldErrors.phone ? 'phone-error' : 'phone-hint'}
           />
-          <p id="phone-hint" className="apply-field-hint">We use this for counselor follow-up and application updates.</p>
+          <p id="phone-hint" className="apply-field-hint">{t('accountPhoneFieldHint')}</p>
           {fieldErrors.phone ? <p id="phone-error" className="form-error" role="alert">{fieldErrors.phone}</p> : null}
         </div>
       </div>
@@ -580,13 +627,13 @@ export default function ApplyCreateAccountForm() {
         }}
       >
         <summary style={{ cursor: 'pointer', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-          Add mailing address now (optional)
+          {t('accountOptionalAddressSummary')}
         </summary>
         <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0.9rem' }}>
-          Skip this if you want to move faster. You can add it later from your profile.
+          {t('accountOptionalAddressHint')}
         </p>
         <div className="form-group">
-          <label htmlFor="addressLine1">Street address (optional)</label>
+          <label htmlFor="addressLine1">{t('accountStreetOptional')}</label>
           <input
             id="addressLine1"
             type="text"
@@ -596,23 +643,25 @@ export default function ApplyCreateAccountForm() {
               if (fieldErrors.addressLine1) setFieldErrors((f) => ({ ...f, addressLine1: undefined }));
             }}
             autoComplete="address-line1"
+            inputMode="text"
             aria-invalid={!!fieldErrors.addressLine1}
           />
           {fieldErrors.addressLine1 ? <p className="form-error">{fieldErrors.addressLine1}</p> : null}
         </div>
         <div className="form-group">
-          <label htmlFor="addressLine2">Apt / suite (optional)</label>
+          <label htmlFor="addressLine2">{t('accountAptOptional')}</label>
           <input
             id="addressLine2"
             type="text"
             value={addressLine2}
             onChange={(e) => setAddressLine2(e.target.value)}
             autoComplete="address-line2"
+            inputMode="text"
           />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="city">City (optional)</label>
+            <label htmlFor="city">{t('accountCityOptional')}</label>
             <input
               id="city"
               type="text"
@@ -622,12 +671,13 @@ export default function ApplyCreateAccountForm() {
                 if (fieldErrors.city) setFieldErrors((f) => ({ ...f, city: undefined }));
               }}
               autoComplete="address-level2"
+              inputMode="text"
               aria-invalid={!!fieldErrors.city}
             />
             {fieldErrors.city ? <p className="form-error">{fieldErrors.city}</p> : null}
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="state">State (optional)</label>
+            <label htmlFor="state">{t('accountStateOptional')}</label>
             <select
               id="state"
               value={stateVal}
@@ -638,7 +688,7 @@ export default function ApplyCreateAccountForm() {
               autoComplete="address-level1"
               aria-invalid={!!fieldErrors.state}
             >
-              <option value="">Select…</option>
+              <option value="">{t('accountStateSelect')}</option>
               {US_STATES.map((s) => (
                 <option key={s.abbr} value={s.abbr}>{s.name}</option>
               ))}
@@ -646,10 +696,11 @@ export default function ApplyCreateAccountForm() {
             {fieldErrors.state ? <p className="form-error">{fieldErrors.state}</p> : null}
           </div>
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label htmlFor="zip">ZIP (optional)</label>
+            <label htmlFor="zip">{t('accountZipOptional')}</label>
             <input
               id="zip"
               type="text"
+              inputMode="numeric"
               value={zip}
               onChange={(e) => {
                 setZip(e.target.value);
@@ -663,23 +714,23 @@ export default function ApplyCreateAccountForm() {
         </div>
       </details>
       <div className="form-group">
-        <label htmlFor="smsOptIn" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
+        <label htmlFor="smsOptIn" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', minHeight: 44 }}>
           <input
             id="smsOptIn"
             type="checkbox"
             checked={smsOptIn}
             onChange={(e) => setSmsOptIn(e.target.checked)}
             aria-describedby="sms-opt-in-hint"
-            style={{ marginTop: '0.2rem' }}
+            style={{ width: 20, height: 20, flexShrink: 0 }}
           />
           <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
-            <strong>Text me updates</strong> about my application (optional). Separate from email follow-up — you can opt in or out independently.
+            <strong>{t('accountSmsLabel')}</strong> {t('accountSmsBody')}
           </span>
         </label>
-        <p id="sms-opt-in-hint" style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>Message frequency varies. Reply STOP to cancel, HELP for help. Msg &amp; data rates may apply.</p>
+        <p id="sms-opt-in-hint" style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>{t('accountSmsFinePrint')}</p>
       </div>
       <div className="form-group">
-        <label htmlFor="password">Password *</label>
+        <label htmlFor="password">{t('accountPasswordLabel')}</label>
         <div style={{ position: 'relative' }}>
           <input
             id="password"
@@ -699,19 +750,19 @@ export default function ApplyCreateAccountForm() {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
+            aria-label={showPassword ? t('accountHidePassword') : t('accountShowPassword')}
+            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showPassword ? 'visibility_off' : 'visibility'}
             </span>
           </button>
         </div>
-        <p id="password-hint" className="apply-field-hint">Use at least 8 characters. You&rsquo;ll use this password to come back and check your status.</p>
+        <p id="password-hint" className="apply-field-hint">{t('accountPasswordHint')}</p>
         {fieldErrors.password ? <p id="password-error" className="form-error" role="alert">{fieldErrors.password}</p> : null}
       </div>
       <div className="form-group">
-        <label htmlFor="confirmPassword">Confirm Password *</label>
+        <label htmlFor="confirmPassword">{t('accountConfirmPasswordLabel')}</label>
         <div style={{ position: 'relative' }}>
           <input
             id="confirmPassword"
@@ -731,8 +782,8 @@ export default function ApplyCreateAccountForm() {
           <button
             type="button"
             onClick={() => setShowConfirmPassword((v) => !v)}
-            aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1 }}
+            aria-label={showConfirmPassword ? t('accountHidePassword') : t('accountShowPassword')}
+            style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0.25rem', lineHeight: 1, minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">
               {showConfirmPassword ? 'visibility_off' : 'visibility'}
@@ -749,9 +800,9 @@ export default function ApplyCreateAccountForm() {
         style={{ border: '1px solid var(--outline-variant)', borderRadius: '0.75rem', padding: '0.875rem 1rem' }}
       >
         <legend style={{ padding: '0 0.4rem', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-          Consent
+          {t('accountConsentLegend')}
         </legend>
-        <label htmlFor="contactConsent" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem' }}>
+        <label htmlFor="contactConsent" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.75rem', minHeight: 44 }}>
           <input
             id="contactConsent"
             type="checkbox"
@@ -764,15 +815,15 @@ export default function ApplyCreateAccountForm() {
             aria-required="true"
             aria-invalid={!!fieldErrors.contactConsent}
             aria-describedby={fieldErrors.contactConsent ? 'contact-consent-error' : 'contact-consent-hint'}
-            style={{ marginTop: '0.2rem' }}
+            style={{ width: 20, height: 20, flexShrink: 0 }}
           />
           <span style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
-            <strong>I agree to be contacted</strong> by WorkforceAP about my application by email or phone. *
+            <strong>{t('accountContactConsent')}</strong> {t('accountContactConsentRest')}
           </span>
         </label>
         <p id="contact-consent-hint" className="apply-field-hint" style={{ margin: '0 0 0.5rem 0' }}>
-          Required so a counselor can follow up about your next step. See our{' '}
-          <Link href="/privacy" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>Privacy Policy</Link>.
+          {t('accountConsentHint')}{' '}
+          <Link href="/privacy" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{t('privacyPolicy')}</Link>.
         </p>
         {fieldErrors.contactConsent ? (
           <p id="contact-consent-error" className="form-error" role="alert" style={{ marginBottom: '0.5rem' }}>
@@ -801,7 +852,7 @@ export default function ApplyCreateAccountForm() {
       )}
       <button
         type="submit"
-        className="btn btn-primary btn-submit-full"
+        className={marketingButtonClasses({ variant: 'primary', radius: 'md', className: 'btn-submit-full' })}
         disabled={loading}
         aria-busy={loading}
       >
@@ -819,15 +870,15 @@ export default function ApplyCreateAccountForm() {
                 animation: 'apply-spin 0.7s linear infinite',
               }}
             />
-            Creating your account…
+            {t('accountCreating')}
           </span>
         ) : (
-          'Save my spot and create login'
+          t('accountSubmitCta')
         )}
       </button>
       <style>{`@keyframes apply-spin { to { transform: rotate(360deg); } }`}</style>
       <p style={{ marginTop: '0.75rem', marginBottom: 0, fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', lineHeight: 1.5 }}>
-        You can come back later to finish your profile.
+        {t('accountProfileLater')}
       </p>
     </form>
   );

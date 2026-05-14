@@ -26,9 +26,9 @@ export default function Error({
         <Link href="/" className="app-system-page__logo-link" aria-label="Workforce Advancement Project home">
           <Image
             src="/images/wap_logo.png"
-            alt=""
-            width={1930}
-            height={985}
+            alt="WorkforceAP logo"
+            width={180}
+            height={92}
             className="app-system-page__logo"
             sizes="180px"
             quality={85}

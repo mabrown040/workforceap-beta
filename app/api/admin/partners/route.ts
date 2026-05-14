@@ -43,81 +43,91 @@ const partnerSchema = z.object({
 });
 
 export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  const orgId = await getDefaultOrganizationId();
-  const partners = await withTenantScope(orgId, (db) =>
-    db.partner.findMany({
-      take: 500,
-      orderBy: { name: 'asc' },
-      include: { _count: { select: { counselors: true, referrals: true } } },
-    }),
-  );
-  return NextResponse.json(partners);
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    const orgId = await getDefaultOrganizationId();
+    const partners = await withTenantScope(orgId, (db) =>
+      db.partner.findMany({
+        take: 500,
+        orderBy: { name: 'asc' },
+        include: { _count: { select: { counselors: true, referrals: true } } },
+      }),
+    );
+    return NextResponse.json(partners);
+  } catch (error) {
+    console.error('/admin/partners:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  const body = await request.json().catch(() => null);
-  const parsed = partnerSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
-
-  const orgId = await getDefaultOrganizationId();
-  const referralCode = parsed.data.referralCode ?? parsed.data.slug;
-
-  // Global uniqueness pre-check — slug and referralCode are @unique across
-  // ALL orgs in the current schema. crossTenantOK marks the intentional
-  // bypass for the audit script.
-  const existingSlug = await crossTenantOK(() =>
-    prisma.partner.findUnique({ where: { slug: parsed.data.slug }, select: { id: true } }),
-  );
-  if (existingSlug) {
-    return NextResponse.json({ error: 'A partner with this slug already exists' }, { status: 400 });
-  }
-
-  const codeTaken = await crossTenantOK(() =>
-    prisma.partner.findFirst({
-      where: { OR: [{ referralCode }, { slug: referralCode }] },
-      select: { id: true },
-    }),
-  );
-  if (codeTaken) {
-    return NextResponse.json(
-      { error: 'Referral code must be unique and different from other partners slugs' },
-      { status: 400 },
-    );
-  }
-
-  const { referralCode: _rc, ...rest } = parsed.data;
-
   try {
-    const partner = await withTenantScope(orgId, (db) =>
-      db.partner.create({ data: { ...rest, referralCode, organizationId: orgId } }),
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    const body = await request.json().catch(() => null);
+    const parsed = partnerSchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
+  
+    const orgId = await getDefaultOrganizationId();
+    const referralCode = parsed.data.referralCode ?? parsed.data.slug;
+  
+    // Global uniqueness pre-check — slug and referralCode are @unique across
+    // ALL orgs in the current schema. crossTenantOK marks the intentional
+    // bypass for the audit script.
+    const existingSlug = await crossTenantOK(() =>
+      prisma.partner.findUnique({ where: { slug: parsed.data.slug }, select: { id: true } }),
     );
-    return NextResponse.json(partner, { status: 201 });
-  } catch (error) {
-    // Belt-and-braces: catch the unique-constraint race that the
-    // global pre-check might miss between check and insert.
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      const target = (error.meta?.target as string[] | undefined) ?? [];
-      const targetField = target.join(',');
-      if (targetField.includes('slug')) {
-        return NextResponse.json({ error: 'A partner with this slug already exists' }, { status: 400 });
-      }
-      if (targetField.includes('referralCode') || targetField.includes('referral_code')) {
-        return NextResponse.json(
-          { error: 'Referral code must be unique and different from other partners slugs' },
-          { status: 400 },
-        );
-      }
-      return NextResponse.json({ error: 'A partner with these details already exists' }, { status: 400 });
+    if (existingSlug) {
+      return NextResponse.json({ error: 'A partner with this slug already exists' }, { status: 400 });
     }
-    console.error('[admin/partners POST] error:', error);
+  
+    const codeTaken = await crossTenantOK(() =>
+      prisma.partner.findFirst({
+        where: { OR: [{ referralCode }, { slug: referralCode }] },
+        select: { id: true },
+      }),
+    );
+    if (codeTaken) {
+      return NextResponse.json(
+        { error: 'Referral code must be unique and different from other partners slugs' },
+        { status: 400 },
+      );
+    }
+  
+    const { referralCode: _rc, ...rest } = parsed.data;
+  
+    try {
+      const partner = await withTenantScope(orgId, (db) =>
+        db.partner.create({ data: { ...rest, referralCode, organizationId: orgId } }),
+      );
+      return NextResponse.json(partner, { status: 201 });
+    } catch (error) {
+      // Belt-and-braces: catch the unique-constraint race that the
+      // global pre-check might miss between check and insert.
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const target = (error.meta?.target as string[] | undefined) ?? [];
+        const targetField = target.join(',');
+        if (targetField.includes('slug')) {
+          return NextResponse.json({ error: 'A partner with this slug already exists' }, { status: 400 });
+        }
+        if (targetField.includes('referralCode') || targetField.includes('referral_code')) {
+          return NextResponse.json(
+            { error: 'Referral code must be unique and different from other partners slugs' },
+            { status: 400 },
+          );
+        }
+        return NextResponse.json({ error: 'A partner with these details already exists' }, { status: 400 });
+      }
+      console.error('[admin/partners POST] error:', error);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/admin/partners:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

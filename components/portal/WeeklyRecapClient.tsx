@@ -27,7 +27,7 @@ const ACTION_HREF_MAP: Array<{ keywords: string[]; href: string; icon: string }>
   { keywords: ['resource', 'learning'], href: '/dashboard/resources', icon: 'menu_book' },
   { keywords: ['career', 'brief'], href: '/dashboard/career-brief', icon: 'insights' },
   { keywords: ['goal'], href: '/dashboard/career-brief', icon: 'flag' },
-  { keywords: ['training', 'course'], href: '/dashboard/training', icon: 'school' },
+  { keywords: ['training', 'course'], href: '/dashboard', icon: 'school' },
 ];
 
 function actionHref(action: string): { href: string; icon: string } {

@@ -122,74 +122,79 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
 }
 
 export async function POST(req: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  let body: FeedbackBody;
   try {
-    body = await req.json() as FeedbackBody;
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const transcript = normalizeTranscript(Array.isArray(body.transcript) ? body.transcript : []);
-
-  if (transcript.length === 0) {
-    return NextResponse.json({
-      steps: FALLBACK_STEPS,
-    });
-  }
-
-  try {
-    let steps = FALLBACK_STEPS;
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    let body: FeedbackBody;
     try {
-      const generatedSteps = await generateActionPlan(transcript);
-      if (generatedSteps.length > 0) {
-        steps = generatedSteps;
-      }
-    } catch (planErr) {
-      console.error('Career counselor action-plan generation failed, using fallback steps:', planErr);
+      body = await req.json() as FeedbackBody;
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
-
-    const output = buildHistoryOutput(transcript, steps);
-
-    await ensureUserInDb(user);
-    const resultId = await saveAIToolResult(
-      user.id,
-      'career_counselor',
-      'Career readiness voice coach session',
-      output
-    );
-
-    awardPoints(user.id, 'counselor_session', resultId).catch(() => {});
-
+  
+    const transcript = normalizeTranscript(Array.isArray(body.transcript) ? body.transcript : []);
+  
+    if (transcript.length === 0) {
+      return NextResponse.json({
+        steps: FALLBACK_STEPS,
+      });
+    }
+  
     try {
-      const orgId = await getActorOrganizationId(user.id);
-      const dbUser = await withTenantScope(orgId, (db) =>
-        db.user.findFirst({
-          where: { id: user.id },
-          select: { fullName: true, email: true },
-        }),
+      let steps = FALLBACK_STEPS;
+      try {
+        const generatedSteps = await generateActionPlan(transcript);
+        if (generatedSteps.length > 0) {
+          steps = generatedSteps;
+        }
+      } catch (planErr) {
+        console.error('Career counselor action-plan generation failed, using fallback steps:', planErr);
+      }
+  
+      const output = buildHistoryOutput(transcript, steps);
+  
+      await ensureUserInDb(user);
+      const resultId = await saveAIToolResult(
+        user.id,
+        'career_counselor',
+        'Career readiness voice coach session',
+        output
       );
-
-      const recipients = getVoiceCoachTranscriptRecipients();
-      if (recipients.length > 0) {
-        await sendVoiceCoachTranscriptEmail({
-          to: recipients,
-          memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
-          memberEmail: dbUser?.email?.trim() || user.email || null,
-          coachLabel: 'Career Readiness Coach',
-          transcriptTurns: transcript,
-          highlights: steps,
-        });
+  
+      awardPoints(user.id, 'counselor_session', resultId).catch(() => {});
+  
+      try {
+        const orgId = await getActorOrganizationId(user.id);
+        const dbUser = await withTenantScope(orgId, (db) =>
+          db.user.findFirst({
+            where: { id: user.id },
+            select: { fullName: true, email: true },
+          }),
+        );
+  
+        const recipients = getVoiceCoachTranscriptRecipients();
+        if (recipients.length > 0) {
+          await sendVoiceCoachTranscriptEmail({
+            to: recipients,
+            memberName: dbUser?.fullName?.trim() || user.email || 'WorkforceAP member',
+            memberEmail: dbUser?.email?.trim() || user.email || null,
+            coachLabel: 'Career Readiness Coach',
+            transcriptTurns: transcript,
+            highlights: steps,
+          });
+        }
+      } catch (emailErr) {
+        console.error('Career counselor transcript email error:', emailErr);
       }
-    } catch (emailErr) {
-      console.error('Career counselor transcript email error:', emailErr);
+  
+      return NextResponse.json({ steps });
+    } catch (err) {
+      console.error('Career counselor feedback persistence error:', err);
+      return NextResponse.json({ error: 'Failed to save transcript' }, { status: 500 });
     }
-
-    return NextResponse.json({ steps });
-  } catch (err) {
-    console.error('Career counselor feedback persistence error:', err);
-    return NextResponse.json({ error: 'Failed to save transcript' }, { status: 500 });
+  } catch (error) {
+    console.error('/counselor/feedback:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

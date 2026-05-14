@@ -1,0 +1,253 @@
+/**
+ * Placement survey automation core.
+ *
+ * Handles 30/60/90-day survey scheduling, sending, and escalation.
+ * Called by the /api/cron/placement-survey route.
+ */
+
+import { prisma } from '@/lib/db/prisma';
+import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
+import { sendPlacementSurveyEmail, sendPlacementSurveyEscalationEmail } from '@/lib/email';
+import type { PlacementSurveyWave } from '@prisma/client';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+
+const WAVES: { wave: PlacementSurveyWave; days: number; windowHours: number }[] = [
+  { wave: 'thirty_day', days: 30, windowHours: 24 },
+  { wave: 'sixty_day', days: 60, windowHours: 24 },
+  { wave: 'ninety_day', days: 90, windowHours: 24 },
+];
+
+export type SurveySendResult = {
+  wave: PlacementSurveyWave;
+  sent: Array<{ userId: string; email: string; surveyId: string }>;
+  skipped: Array<{ userId: string; reason: string }>;
+  emailFailures: Array<{ userId: string; error: string }>;
+};
+
+export type EscalationResult = {
+  alerted: Array<{ userId: string; counselorEmail: string }>;
+  skipped: Array<{ userId: string; reason: string }>;
+  emailFailures: Array<{ userId: string; error: string }>;
+};
+
+export type DailySurveyRunResult = {
+  success: boolean;
+  waves: SurveySendResult[];
+  escalations: EscalationResult;
+};
+
+function getSurveyDueDate(placedAt: Date, days: number): Date {
+  const d = new Date(placedAt);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+function inWindow(target: Date, windowHours: number): { gte: Date; lte: Date } {
+  const half = (windowHours * 60 * 60 * 1000) / 2;
+  return {
+    gte: new Date(target.getTime() - half),
+    lte: new Date(target.getTime() + half),
+  };
+}
+
+/**
+ * Send surveys for placements that hit their 30/60/90-day mark today.
+ */
+export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
+  const results: SurveySendResult[] = [];
+
+  for (const { wave, days, windowHours } of WAVES) {
+    const now = new Date();
+    const target = new Date();
+    target.setDate(target.getDate() - days);
+    const { gte, lte } = inWindow(target, windowHours);
+
+    const placements = await prisma.placementRecord.findMany({
+      where: {
+        placedAt: { gte, lte },
+        // Placement must exist; we send one survey per wave per placement
+        placementSurveys: { none: { wave } },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            enrolledProgram: true,
+          },
+        },
+      },
+      take: 200,
+    });
+
+    const sent: SurveySendResult['sent'] = [];
+    const skipped: SurveySendResult['skipped'] = [];
+    const emailFailures: SurveySendResult['emailFailures'] = [];
+
+    // Batch idempotency check: load all existing surveys for this wave + placement set
+    const existingSurveys = await prisma.placementSurvey.findMany({
+      take: 5000,
+      where: {
+        placementId: { in: placements.map((p) => p.id) },
+        wave,
+      },
+      select: { placementId: true },
+    });
+    const existingPlacementIds = new Set(existingSurveys.map((s) => s.placementId));
+
+    for (const placement of placements) {
+      const user = placement.user;
+      if (!user?.email) {
+        skipped.push({ userId: placement.userId, reason: 'No email on user' });
+        continue;
+      }
+
+      // Idempotency check (in-memory)
+      if (existingPlacementIds.has(placement.id)) {
+        skipped.push({ userId: placement.userId, reason: `Survey already exists for ${wave}` });
+        continue;
+      }
+
+      const survey = await prisma.placementSurvey.create({
+        data: {
+          userId: placement.userId,
+          placementId: placement.id,
+          wave,
+          sentAt: new Date(),
+        },
+        select: { id: true },
+      });
+
+      const token = await issuePlacementSurveyToken({ surveyId: survey.id });
+      const surveyUrl = `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`;
+
+      const result = await sendPlacementSurveyEmail({
+        to: user.email,
+        fullName: user.fullName ?? '',
+        programName: user.enrolledProgram,
+        surveyUrl,
+        wave,
+      });
+
+      if (result.ok) {
+        sent.push({ userId: placement.userId, email: user.email, surveyId: survey.id });
+      } else {
+        emailFailures.push({ userId: placement.userId, error: result.error ?? 'Unknown send error' });
+      }
+    }
+
+    results.push({ wave, sent, skipped, emailFailures });
+  }
+
+  return results;
+}
+
+/**
+ * Escalate 30-day surveys with no response after 7 days.
+ * Alerts the assigned counselor (or admin fallback).
+ */
+export async function escalateStalePlacementSurveys(): Promise<EscalationResult> {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const staleSurveys = await prisma.placementSurvey.findMany({
+    where: {
+      wave: 'thirty_day',
+      completedAt: null,
+      sentAt: { lte: sevenDaysAgo },
+      escalatedAt: null,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          counselorAssignments: {
+            where: { active: true },
+            select: {
+              counselor: {
+                select: {
+                  user: { select: { email: true, fullName: true } },
+                },
+              },
+            },
+            take: 1,
+          },
+        },
+      },
+      placement: {
+        select: {
+          employerName: true,
+          jobTitle: true,
+          startDate: true,
+        },
+      },
+    },
+    take: 100,
+  });
+
+  const alerted: EscalationResult['alerted'] = [];
+  const skipped: EscalationResult['skipped'] = [];
+  const emailFailures: EscalationResult['emailFailures'] = [];
+  const skippedSurveyIds: string[] = [];
+
+  for (const survey of staleSurveys) {
+    const user = survey.user;
+    const counselor = user.counselorAssignments[0]?.counselor;
+    const counselorEmail = counselor?.user?.email;
+
+    if (!counselorEmail) {
+      skipped.push({ userId: user.id, reason: 'No active counselor email' });
+      skippedSurveyIds.push(survey.id);
+      continue;
+    }
+
+    const token = await issuePlacementSurveyToken({ surveyId: survey.id, ttlSeconds: 14 * 24 * 60 * 60 });
+    const surveyUrl = `${SITE_URL}/survey/placement/${encodeURIComponent(token)}`;
+
+    const result = await sendPlacementSurveyEscalationEmail({
+      to: counselorEmail,
+      counselorName: counselor.user.fullName ?? 'Counselor',
+      memberName: user.fullName ?? 'Member',
+      memberEmail: user.email ?? '',
+      employerName: survey.placement.employerName,
+      jobTitle: survey.placement.jobTitle,
+      daysSincePlacement: survey.placement.startDate
+        ? Math.floor((Date.now() - new Date(survey.placement.startDate).getTime()) / (1000 * 60 * 60 * 24))
+        : null,
+      surveyUrl,
+    });
+
+    if (result.ok) {
+      alerted.push({ userId: user.id, counselorEmail });
+      await prisma.placementSurvey.update({
+        where: { id: survey.id },
+        data: { escalatedAt: new Date() },
+      });
+    } else {
+      emailFailures.push({ userId: user.id, error: result.error ?? 'Unknown send error' });
+    }
+  }
+
+  // Batch-update skipped surveys so we don't keep retrying them
+  if (skippedSurveyIds.length > 0) {
+    await prisma.placementSurvey.updateMany({
+      where: { id: { in: skippedSurveyIds } },
+      data: { escalatedAt: new Date() },
+    });
+  }
+
+  return { alerted, skipped, emailFailures };
+}
+
+/**
+ * Full daily run: send due surveys + escalate stale ones.
+ */
+export async function runDailyPlacementSurveyCron(): Promise<DailySurveyRunResult> {
+  const waves = await sendDuePlacementSurveys();
+  const escalations = await escalateStalePlacementSurveys();
+  return { success: true, waves, escalations };
+}

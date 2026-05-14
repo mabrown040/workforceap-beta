@@ -16,65 +16,75 @@ const createSchema = z.object({
 });
 
 export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
   try {
-    await ensureUserInDb(user);
-    const goals = await prisma.goal.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: 'desc' },
-      take: 200,
-    });
-    return NextResponse.json({ goals });
-  } catch (err) {
-    captureApiError(err, { route: 'member/goals GET' });
-    return NextResponse.json({ error: 'Failed to load goals' }, { status: 500 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    try {
+      await ensureUserInDb(user);
+      const goals = await prisma.goal.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' },
+        take: 200,
+      });
+      return NextResponse.json({ goals });
+    } catch (err) {
+      captureApiError(err, { route: 'member/goals GET' });
+      return NextResponse.json({ error: 'Failed to load goals' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/member/goals:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const parsed = createSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
-  }
-
-  const { goalType, title, description, targetMetricType, targetMetricValue, targetDate } = parsed.data;
-
-  const existingCount = await prisma.goal.count({
-    where: { userId: user.id, status: 'ACTIVE' },
-  });
-  if (existingCount >= 3) {
-    return NextResponse.json({ error: 'You can have at most 3 active goals' }, { status: 400 });
-  }
-
-  try {
-    await ensureUserInDb(user);
-    const goal = await prisma.goal.create({
-      data: {
-        userId: user.id,
-        goalType,
-        title,
-        description: description ?? null,
-        targetMetricType: targetMetricType ?? null,
-        targetMetricValue: targetMetricValue ?? null,
-        targetDate: targetDate ? new Date(targetDate) : null,
-      },
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+  
+    const parsed = createSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
+    }
+  
+    const { goalType, title, description, targetMetricType, targetMetricValue, targetDate } = parsed.data;
+  
+    const existingCount = await prisma.goal.count({
+      where: { userId: user.id, status: 'ACTIVE' },
     });
-    await trackEvent({ userId: user.id, eventName: 'goal_created', entityType: 'goal', entityId: goal.id });
-    return NextResponse.json({ goal });
-  } catch (err) {
-    captureApiError(err, { route: 'member/goals POST' });
-    return NextResponse.json({ error: 'Failed to create goal' }, { status: 500 });
+    if (existingCount >= 3) {
+      return NextResponse.json({ error: 'You can have at most 3 active goals' }, { status: 400 });
+    }
+  
+    try {
+      await ensureUserInDb(user);
+      const goal = await prisma.goal.create({
+        data: {
+          userId: user.id,
+          goalType,
+          title,
+          description: description ?? null,
+          targetMetricType: targetMetricType ?? null,
+          targetMetricValue: targetMetricValue ?? null,
+          targetDate: targetDate ? new Date(targetDate) : null,
+        },
+      });
+      await trackEvent({ userId: user.id, eventName: 'goal_created', entityType: 'goal', entityId: goal.id });
+      return NextResponse.json({ goal });
+    } catch (err) {
+      captureApiError(err, { route: 'member/goals POST' });
+      return NextResponse.json({ error: 'Failed to create goal' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/member/goals:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

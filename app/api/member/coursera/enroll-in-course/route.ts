@@ -54,221 +54,226 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  * trail of whatever did succeed before the failure.
  */
 export async function POST(request: Request) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!user.email) {
-    return NextResponse.json(
-      { error: 'No email on file. Contact your counselor.' },
-      { status: 400 },
-    );
-  }
-
-  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-  const o = body as Record<string, unknown>;
-  const courseraCourseId =
-    typeof o.courseraCourseId === 'string' ? o.courseraCourseId.trim() : '';
-  if (!courseraCourseId) {
-    return NextResponse.json({ error: 'courseraCourseId required' }, { status: 400 });
-  }
-
-  let orgId: string;
-  try {
-    orgId = await getActorOrganizationId(user.id);
-  } catch (err) {
-    captureApiError(err, { route: 'member/coursera/enroll-in-course', extra: { stage: 'getActorOrganizationId' } });
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  // Read the user's eligibility + program through the tenant-scoped proxy.
-  // Self-only: there is no `memberId` in the body, by design.
-  const dbUser = await withTenantScope(orgId, (db) =>
-    db.user.findUnique({
-      where: { id: user.id },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        enrolledProgram: true,
-        courseraEnrollmentApproved: true,
-      },
-    }),
-  );
-  if (!dbUser) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // Gate 1: eligibility flag.
-  if (!dbUser.courseraEnrollmentApproved) {
-    return NextResponse.json(
-      {
-        error: 'Enrollment locked',
-        code: 'NOT_APPROVED',
-        message:
-          "Enrollment is locked. Your counselor will enable this when funding is confirmed.",
-      },
-      { status: 403 },
-    );
-  }
-
-  // Gate 2: enrolled program.
-  if (!dbUser.enrolledProgram) {
-    return NextResponse.json(
-      {
-        error: 'Choose a program first',
-        code: 'NO_PROGRAM',
-      },
-      { status: 400 },
-    );
-  }
-
-  // Gate 3: course belongs to the user's program.
-  const discoveredProgram = DISCOVERED_COURSERA_PROGRAMS[dbUser.enrolledProgram];
-  if (!discoveredProgram) {
-    return NextResponse.json(
-      { error: 'Program not in Coursera catalog', code: 'PROGRAM_NOT_MAPPED' },
-      { status: 400 },
-    );
-  }
-  const courseInProgram = discoveredProgram.courses.find(
-    (c) => c.courseId === courseraCourseId,
-  );
-  if (!courseInProgram) {
-    return NextResponse.json(
-      {
-        error: 'Course not in your program',
-        code: 'COURSE_NOT_IN_PROGRAM',
-      },
-      { status: 400 },
-    );
-  }
-
-  // Build the B4B port. `listUsersByEmail` walks the roster pages until it
-  // finds the email or runs out — the roster is < 10k for WAP today, but
-  // we cap at 50 pages of 200 (10k users) to keep the worst-case bounded.
-  const b4bOrgId = getB4BOrgId();
-  const programId = discoveredProgram.courseraProgramId;
-
-  const port: B4BPort = {
-    listUsersByEmail: async (email: string) => {
-      const target = email.trim().toLowerCase();
-      const PAGE_LIMIT = 200;
-      const SAFETY_PAGES = 50;
-      let start = 0;
-      for (let pages = 0; pages < SAFETY_PAGES; pages += 1) {
-        const result = await listUsers({ start, limit: PAGE_LIMIT });
-        const hit = result.elements.find(
-          (u: B4BUser) => (u.email ?? '').trim().toLowerCase() === target,
-        );
-        if (hit) return hit;
-        if (result.elements.length === 0) return null;
-        const total = result.paging.total ?? 0;
-        if (total > 0 && start + result.elements.length >= total) return null;
-        if (result.elements.length < PAGE_LIMIT) return null;
-        start += result.elements.length;
-      }
-      return null;
-    },
-    invite: async (args) =>
-      inviteUserToProgram(args.orgId, args.programId, {
-        externalId: args.externalId,
-        fullName: args.fullName,
-        email: args.email,
-        sendEmail: true,
-      }),
-    createMembership: async (args) =>
-      createProgramMembership(args.orgId, args.programId, {
-        externalId: args.externalId,
-        fullName: args.fullName,
-        email: args.email,
-      }),
-    enroll: async (args) =>
-      enrollUserInCourse(args.orgId, args.programId, {
-        externalId: args.externalId,
-        contentType: 'Course',
-        contentId: args.contentId,
-        action: 'ENROLL',
-      }),
-  };
-
-  const externalId = user.email.trim().toLowerCase();
-  let result;
-  try {
-    result = await runEnrollStateMachine(port, {
-      orgId: b4bOrgId,
-      programId,
-      courseraCourseId,
-      externalId,
-      email: user.email,
-      fullName: dbUser.fullName ?? user.email,
-    });
-  } catch (err) {
-    if (err instanceof EnrollStateError) {
-      // Audit-log every step that DID happen before the failure. We swallow
-      // audit errors so a logging-table outage can't mask the original error.
-      await Promise.allSettled(
-        err.events.map((event) => writeEnrollAudit(user.id, event)),
-      );
-      captureApiError(err, {
-        route: 'member/coursera/enroll-in-course',
-        extra: { userId: user.id, step: err.step, httpStatus: err.httpStatus },
-      });
-      const userFacing =
-        err.httpStatus >= 500
-          ? 'Coursera is temporarily unavailable. Please try again in a moment.'
-          : err.message;
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user.email) {
       return NextResponse.json(
-        { error: userFacing, step: err.step, code: 'B4B_FAILURE' },
-        { status: 502 },
+        { error: 'No email on file. Contact your counselor.' },
+        { status: 400 },
       );
     }
-    captureApiError(err, { route: 'member/coursera/enroll-in-course', extra: { userId: user.id } });
-    return NextResponse.json(
-      { error: 'Unexpected error during enrollment.' },
-      { status: 500 },
+  
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+    const o = body as Record<string, unknown>;
+    const courseraCourseId =
+      typeof o.courseraCourseId === 'string' ? o.courseraCourseId.trim() : '';
+    if (!courseraCourseId) {
+      return NextResponse.json({ error: 'courseraCourseId required' }, { status: 400 });
+    }
+  
+    let orgId: string;
+    try {
+      orgId = await getActorOrganizationId(user.id);
+    } catch (err) {
+      captureApiError(err, { route: 'member/coursera/enroll-in-course', extra: { stage: 'getActorOrganizationId' } });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    // Read the user's eligibility + program through the tenant-scoped proxy.
+    // Self-only: there is no `memberId` in the body, by design.
+    const dbUser = await withTenantScope(orgId, (db) =>
+      db.user.findUnique({
+        where: { id: user.id },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          enrolledProgram: true,
+          courseraEnrollmentApproved: true,
+        },
+      }),
     );
-  }
-
-  // Success path: audit each event sequentially. Sequential writes — not
-  // parallel — because the audit_logs table has an index on (target_type,
-  // target_id) and we want them to land in the same order as the B4B
-  // calls so a downstream observer reading the audit trail sees the
-  // state-graph order, not whatever Postgres scheduled.
-  for (const event of result.events) {
-    await writeEnrollAudit(user.id, event).catch((auditErr) => {
-      // A failure to audit must NOT undo the enrollment — the seat is
-      // already spent. We surface the failure for triage but keep the
-      // success response the user sees.
-      captureApiError(auditErr, {
-        route: 'member/coursera/enroll-in-course',
-        extra: { userId: user.id, step: event.step, note: 'audit-write-failed' },
+    if (!dbUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    // Gate 1: eligibility flag.
+    if (!dbUser.courseraEnrollmentApproved) {
+      return NextResponse.json(
+        {
+          error: 'Enrollment locked',
+          code: 'NOT_APPROVED',
+          message:
+            "Enrollment is locked. Your counselor will enable this when funding is confirmed.",
+        },
+        { status: 403 },
+      );
+    }
+  
+    // Gate 2: enrolled program.
+    if (!dbUser.enrolledProgram) {
+      return NextResponse.json(
+        {
+          error: 'Choose a program first',
+          code: 'NO_PROGRAM',
+        },
+        { status: 400 },
+      );
+    }
+  
+    // Gate 3: course belongs to the user's program.
+    const discoveredProgram = DISCOVERED_COURSERA_PROGRAMS[dbUser.enrolledProgram];
+    if (!discoveredProgram) {
+      return NextResponse.json(
+        { error: 'Program not in Coursera catalog', code: 'PROGRAM_NOT_MAPPED' },
+        { status: 400 },
+      );
+    }
+    const courseInProgram = discoveredProgram.courses.find(
+      (c) => c.courseId === courseraCourseId,
+    );
+    if (!courseInProgram) {
+      return NextResponse.json(
+        {
+          error: 'Course not in your program',
+          code: 'COURSE_NOT_IN_PROGRAM',
+        },
+        { status: 400 },
+      );
+    }
+  
+    // Build the B4B port. `listUsersByEmail` walks the roster pages until it
+    // finds the email or runs out — the roster is < 10k for WAP today, but
+    // we cap at 50 pages of 200 (10k users) to keep the worst-case bounded.
+    const b4bOrgId = getB4BOrgId();
+    const programId = discoveredProgram.courseraProgramId;
+  
+    const port: B4BPort = {
+      listUsersByEmail: async (email: string) => {
+        const target = email.trim().toLowerCase();
+        const PAGE_LIMIT = 200;
+        const SAFETY_PAGES = 50;
+        let start = 0;
+        for (let pages = 0; pages < SAFETY_PAGES; pages += 1) {
+          const result = await listUsers({ start, limit: PAGE_LIMIT });
+          const hit = result.elements.find(
+            (u: B4BUser) => (u.email ?? '').trim().toLowerCase() === target,
+          );
+          if (hit) return hit;
+          if (result.elements.length === 0) return null;
+          const total = result.paging.total ?? 0;
+          if (total > 0 && start + result.elements.length >= total) return null;
+          if (result.elements.length < PAGE_LIMIT) return null;
+          start += result.elements.length;
+        }
+        return null;
+      },
+      invite: async (args) =>
+        inviteUserToProgram(args.orgId, args.programId, {
+          externalId: args.externalId,
+          fullName: args.fullName,
+          email: args.email,
+          sendEmail: true,
+        }),
+      createMembership: async (args) =>
+        createProgramMembership(args.orgId, args.programId, {
+          externalId: args.externalId,
+          fullName: args.fullName,
+          email: args.email,
+        }),
+      enroll: async (args) =>
+        enrollUserInCourse(args.orgId, args.programId, {
+          externalId: args.externalId,
+          contentType: 'Course',
+          contentId: args.contentId,
+          action: 'ENROLL',
+        }),
+    };
+  
+    const externalId = user.email.trim().toLowerCase();
+    let result;
+    try {
+      result = await runEnrollStateMachine(port, {
+        orgId: b4bOrgId,
+        programId,
+        courseraCourseId,
+        externalId,
+        email: user.email,
+        fullName: dbUser.fullName ?? user.email,
       });
+    } catch (err) {
+      if (err instanceof EnrollStateError) {
+        // Audit-log every step that DID happen before the failure. We swallow
+        // audit errors so a logging-table outage can't mask the original error.
+        await Promise.allSettled(
+          err.events.map((event) => writeEnrollAudit(user.id, event)),
+        );
+        captureApiError(err, {
+          route: 'member/coursera/enroll-in-course',
+          extra: { userId: user.id, step: err.step, httpStatus: err.httpStatus },
+        });
+        const userFacing =
+          err.httpStatus >= 500
+            ? 'Coursera is temporarily unavailable. Please try again in a moment.'
+            : err.message;
+        return NextResponse.json(
+          { error: userFacing, step: err.step, code: 'B4B_FAILURE' },
+          { status: 502 },
+        );
+      }
+      captureApiError(err, { route: 'member/coursera/enroll-in-course', extra: { userId: user.id } });
+      return NextResponse.json(
+        { error: 'Unexpected error during enrollment.' },
+        { status: 500 },
+      );
+    }
+  
+    // Success path: audit each event sequentially. Sequential writes — not
+    // parallel — because the audit_logs table has an index on (target_type,
+    // target_id) and we want them to land in the same order as the B4B
+    // calls so a downstream observer reading the audit trail sees the
+    // state-graph order, not whatever Postgres scheduled.
+    for (const event of result.events) {
+      await writeEnrollAudit(user.id, event).catch((auditErr) => {
+        // A failure to audit must NOT undo the enrollment — the seat is
+        // already spent. We surface the failure for triage but keep the
+        // success response the user sees.
+        captureApiError(auditErr, {
+          route: 'member/coursera/enroll-in-course',
+          extra: { userId: user.id, step: event.step, note: 'audit-write-failed' },
+        });
+      });
+    }
+  
+    // After a successful enroll, kick off the existing auto-sync so that
+    // local CourseProgress rows seed quickly. We run it best-effort and
+    // don't await — the UI's `router.refresh()` will pick up the seeded
+    // rows on the next render or whenever the cron / xAPI replay catches up.
+    if (result.status === 'enrolled' || result.status === 'membership-created-and-enrolled') {
+      triggerAutoSyncBestEffort({
+        wapUserId: user.id,
+        orgId,
+        email: user.email,
+        enrolledProgram: dbUser.enrolledProgram,
+      }).catch(() => {
+        /* swallow — auto-sync is fire-and-forget */
+      });
+    }
+  
+    return NextResponse.json({
+      status: result.status,
+      message: result.message,
     });
+  } catch (error) {
+    console.error('/member/coursera/enroll-in-course:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  // After a successful enroll, kick off the existing auto-sync so that
-  // local CourseProgress rows seed quickly. We run it best-effort and
-  // don't await — the UI's `router.refresh()` will pick up the seeded
-  // rows on the next render or whenever the cron / xAPI replay catches up.
-  if (result.status === 'enrolled' || result.status === 'membership-created-and-enrolled') {
-    triggerAutoSyncBestEffort({
-      wapUserId: user.id,
-      orgId,
-      email: user.email,
-      enrolledProgram: dbUser.enrolledProgram,
-    }).catch(() => {
-      /* swallow — auto-sync is fire-and-forget */
-    });
-  }
-
-  return NextResponse.json({
-    status: result.status,
-    message: result.message,
-  });
 }
 
 /**

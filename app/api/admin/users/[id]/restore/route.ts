@@ -31,68 +31,73 @@ export async function POST(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const actor = await getUser();
-  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(actor.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  const { id } = await params;
-  const orgId = await getActorOrganizationId(actor.id);
-
-  const target = await withTenantScope(orgId, (db) =>
-    db.user.findFirst({
-      where: { id },
-      select: { id: true, email: true, deletedAt: true },
-    }),
-  );
-  if (!target) return NextResponse.json({ error: 'User not found' }, { status: 404 });
-  if (!target.deletedAt) {
-    return NextResponse.json({ error: 'User is not soft-deleted; nothing to restore.' }, { status: 400 });
-  }
-
-  // If the email was rewritten, try to restore the original.
-  let restoredEmail: string | null = null;
-  let emailToWrite = target.email;
-
-  const sentinelMatch = target.email.match(/^deleted_[0-9a-f-]{36}_\d+_(.+)@deleted\.invalid$/i);
-  if (sentinelMatch) {
-    const candidate = sentinelMatch[1];
-    // User.email is @unique GLOBALLY — collisions in other tenants would
-    // still trigger P2002 on the update below. Use crossTenantOK so the
-    // pre-check sees them and surfaces a clean 409.
-    const colliding = await crossTenantOK(() =>
-      prisma.user.findFirst({
-        where: { email: candidate, NOT: { id } },
-        select: { id: true },
-      }),
-    );
-    if (colliding) {
-      return NextResponse.json(
-        {
-          error: `Cannot restore: another user (${colliding.id.slice(0, 8)}…) is currently using ${candidate}. Free or delete that account first.`,
-        },
-        { status: 409 },
-      );
-    }
-    emailToWrite = candidate;
-    restoredEmail = candidate;
-  }
-
   try {
-    await withTenantScope(orgId, (db) =>
-      db.user.updateMany({
+    const actor = await getUser();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(actor.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    const { id } = await params;
+    const orgId = await getActorOrganizationId(actor.id);
+  
+    const target = await withTenantScope(orgId, (db) =>
+      db.user.findFirst({
         where: { id },
-        data: { deletedAt: null, email: emailToWrite },
+        select: { id: true, email: true, deletedAt: true },
       }),
     );
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-      return NextResponse.json(
-        { error: 'Email collision on restore. Another active user has this address.' },
-        { status: 409 },
-      );
+    if (!target) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (!target.deletedAt) {
+      return NextResponse.json({ error: 'User is not soft-deleted; nothing to restore.' }, { status: 400 });
     }
-    throw err;
+  
+    // If the email was rewritten, try to restore the original.
+    let restoredEmail: string | null = null;
+    let emailToWrite = target.email;
+  
+    const sentinelMatch = target.email.match(/^deleted_[0-9a-f-]{36}_\d+_(.+)@deleted\.invalid$/i);
+    if (sentinelMatch) {
+      const candidate = sentinelMatch[1];
+      // User.email is @unique GLOBALLY — collisions in other tenants would
+      // still trigger P2002 on the update below. Use crossTenantOK so the
+      // pre-check sees them and surfaces a clean 409.
+      const colliding = await crossTenantOK(() =>
+        prisma.user.findFirst({
+          where: { email: candidate, NOT: { id } },
+          select: { id: true },
+        }),
+      );
+      if (colliding) {
+        return NextResponse.json(
+          {
+            error: `Cannot restore: another user (${colliding.id.slice(0, 8)}…) is currently using ${candidate}. Free or delete that account first.`,
+          },
+          { status: 409 },
+        );
+      }
+      emailToWrite = candidate;
+      restoredEmail = candidate;
+    }
+  
+    try {
+      await withTenantScope(orgId, (db) =>
+        db.user.updateMany({
+          where: { id },
+          data: { deletedAt: null, email: emailToWrite },
+        }),
+      );
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'Email collision on restore. Another active user has this address.' },
+          { status: 409 },
+        );
+      }
+      throw err;
+    }
+  
+    return NextResponse.json({ ok: true, restoredEmail });
+  } catch (error) {
+    console.error('/admin/users/[id]/restore:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true, restoredEmail });
 }

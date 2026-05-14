@@ -8,9 +8,6 @@ import type { AppLocale } from '@/lib/i18n/config';
 import { isAppLocale, splitLocalePrefix, withLocalePrefix } from '@/lib/i18n/config';
 import { setLocaleCookie } from '@/lib/i18n/client';
 
-// Shown locales match `messages/*.json` coverage (parity with English; French and
-// Portuguese strings still needing human polish are prefixed `[TODO translate] `).
-
 const languages: { code: AppLocale; label: string }[] = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
@@ -25,13 +22,19 @@ export default function LanguageToggle() {
   const { locale, pathnameWithoutLocale } = splitLocalePrefix(pathname);
 
   const currentLocale: AppLocale = locale ?? 'en';
+  const isPrefixedPath = !!locale;
 
   const handleChange = (code: string) => {
     if (!isAppLocale(code)) return;
     setLocaleCookie(code);
-    const target =
-      pathnameWithoutLocale === '/' ? withLocalePrefix('/', code) : withLocalePrefix(pathnameWithoutLocale, code);
-    router.replace(target);
+    if (isPrefixedPath) {
+      const target =
+        pathnameWithoutLocale === '/' ? withLocalePrefix('/', code) : withLocalePrefix(pathnameWithoutLocale, code);
+      router.replace(target);
+    } else {
+      // Portal paths have no locale prefix — reload so middleware picks up the new cookie
+      window.location.reload();
+    }
   };
 
   return (

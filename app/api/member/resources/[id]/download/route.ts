@@ -8,6 +8,7 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -35,4 +36,10 @@ export async function GET(
       'Content-Disposition': `attachment; filename="${filename}"`,
     },
   });
+
+  } catch (error) {
+    console.error('/member/resources/[id]/download error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

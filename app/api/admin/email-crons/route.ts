@@ -15,6 +15,7 @@ import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
  * - enabled: from WorkflowDiagnostic metadata (soft-toggle stored there)
  */
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try { await requireAdmin(user.id); } catch {
@@ -67,4 +68,10 @@ export async function GET() {
   });
 
   return NextResponse.json({ crons: enriched });
+
+  } catch (error) {
+    console.error('/admin/email-crons error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

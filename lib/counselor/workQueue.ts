@@ -47,6 +47,7 @@ export async function getCounselorWorkQueue(
     });
     if (counselor) {
       const assignments = await prisma.counselorAssignment.findMany({
+        take: 5000,
         where: { counselorId: counselor.id, active: true },
         select: { memberId: true },
       });
@@ -66,6 +67,7 @@ export async function getCounselorWorkQueue(
     });
     if (!counselor) return [];
     const assignments = await prisma.counselorAssignment.findMany({
+      take: 5000,
       where: { counselorId: counselor.id, active: true },
       select: { memberId: true },
     });
@@ -74,6 +76,7 @@ export async function getCounselorWorkQueue(
   if (memberIds.length === 0) return [];
 
   const threads = await prisma.messageThread.findMany({
+    take: 5000,
     where: { memberId: { in: memberIds }, kind: 'member' },
     select: { id: true, memberId: true },
   });
@@ -84,6 +87,7 @@ export async function getCounselorWorkQueue(
   // index already declared in schema.prisma.
   // Use Prisma's findMany with orderBy to get last message per thread instead of raw SQL
   const messages = await prisma.message.findMany({
+    take: 5000,
     where: { threadId: { in: threadIds } },
     orderBy: { createdAt: 'desc' },
     select: {
@@ -106,6 +110,7 @@ export async function getCounselorWorkQueue(
 
   const memberLookup = new Map<string, { id: string; fullName: string | null; email: string }>();
   const users = await prisma.user.findMany({
+    take: 5000,
     where: { id: { in: memberIds } },
     select: { id: true, fullName: true, email: true },
   });

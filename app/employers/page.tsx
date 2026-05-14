@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -32,13 +33,9 @@ export default async function EmployersPage() {
 
   return (
     <div className="inner-page">
-      {/* ── Pre-launch hiring partner banner ──
-          Per /plan-ceo-review (2026-04-26): WorkforceAP has 12 cohort
-          members in mid-training, not 1,000+ certified job-ready candidates.
-          The marketing content below was written for the 1,000-member state.
-          This banner sets honest expectations until cohort 3+. */}
+      {/* ── Hiring partner banner ── */}
       <section
-        aria-label="Hiring partner waitlist"
+        aria-label="Hiring partner invitation"
         style={{
           background: 'var(--surface-container-high)',
           borderBottom: '1px solid var(--outline-variant)',
@@ -75,14 +72,15 @@ export default async function EmployersPage() {
           overflow: 'hidden',
         }}
       >
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'url(/images/hero-people.webp)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center 35%',
-          }}
+        <Image
+          src="/images/hero-people.webp"
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          sizes="100vw"
+          style={{ objectFit: 'cover', objectPosition: 'center 35%' }}
+          aria-hidden="true"
         />
         <div
           style={{
@@ -90,10 +88,11 @@ export default async function EmployersPage() {
             inset: 0,
             background:
               'linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.78) 50%, rgba(173,44,77,0.2) 100%)',
+            zIndex: 1,
           }}
         />
 
-        <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 'var(--max-width)', padding: '6rem 1.5rem 3rem' }}>
+        <div className="container" style={{ position: 'relative', zIndex: 2, maxWidth: 'var(--max-width)', padding: '6rem 1.5rem 3rem' }}>
           <span
             style={{
               display: 'inline-block',
@@ -145,6 +144,24 @@ export default async function EmployersPage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             <Link
+              href="/employer/jobs/post"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: 'rgba(255,255,255,0.12)',
+                color: '#fff',
+                padding: '1rem 2rem',
+                borderRadius: 'var(--radius-md)',
+                fontWeight: 700,
+                textDecoration: 'none',
+                border: '1px solid rgba(255,255,255,0.28)',
+              }}
+            >
+              {t('postJobCta')}
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>post_add</span>
+            </Link>
+            <Link
               href="#employer-contact-form"
               style={{
                 display: 'inline-flex',
@@ -187,7 +204,7 @@ export default async function EmployersPage() {
         <div
           style={{
             position: 'relative',
-            zIndex: 1,
+            zIndex: 2,
             padding: '1.5rem 0',
             borderTop: '1px solid rgba(255,255,255,0.08)',
             marginTop: 'auto',
@@ -611,16 +628,21 @@ export default async function EmployersPage() {
         headline={t('ctaTitle')}
         subheadline={t('ctaCopy')}
         primaryAction={
-          <a href="#employer-contact-form" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
-            {t('ctaCta')}
+          <a href="/employer/jobs/post" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+            {t('postJobCta')}
           </a>
         }
         secondaryAction={
-          !user ? (
-            <Link href="/login?redirectTo=/employer" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
-              {t('heroSignIn')}
-            </Link>
-          ) : null
+          <>
+            <a href="#employer-contact-form" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+              {t('ctaCta')}
+            </a>
+            {!user ? (
+              <Link href="/login?redirectTo=/employer" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+                {t('heroSignIn')}
+              </Link>
+            ) : null}
+          </>
         }
       />
 

@@ -54,6 +54,7 @@ export async function refreshMemberProgramProgressRollup(userId: string, program
         ?? 0);
 
   const rows = await prisma.courseProgress.findMany({
+    take: 5000,
     where: { userId, programSlug },
     select: { status: true, percentComplete: true, courseSlug: true },
   });

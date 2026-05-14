@@ -7,116 +7,122 @@ import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 /** Public jobs listing - only live jobs for students */
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const keyword = searchParams.get('q')?.trim() || undefined;
-  const locationType = searchParams.get('locationType') || undefined;
-  const jobType = searchParams.get('jobType') || undefined;
-  const program = searchParams.get('program') || undefined;
-  const salaryMinParam = searchParams.get('salaryMin');
-  const salaryMaxParam = searchParams.get('salaryMax');
-  const sort = searchParams.get('sort') || 'newest';
-  const ageGroup = searchParams.get('ageGroup') as 'under14' | 'youth14to17' | 'adult18plus' | null;
-
-  const andConditions: Prisma.JobWhereInput[] = [];
-  
-  // Age-based filtering
-  if (ageGroup === 'under14') {
-    // No jobs for under 14 (COPPA compliance)
-    andConditions.push({ id: 'impossible-match' });
-  } else if (ageGroup === 'youth14to17') {
-    // Only youth-appropriate jobs for 14-17 year olds
-    andConditions.push({ 
-      youthAppropriate: true,
-      OR: [
-        { minimumAge: null },
-        { minimumAge: { lte: 17 } },
-      ],
-    });
-  } else {
-    // Adults: exclude youth-only jobs if they have high minimum age
-    // (Most jobs are available, but some might be 21+ like alcohol service)
-  }
-
-  if (locationType && ['remote', 'hybrid', 'onsite'].includes(locationType)) {
-    andConditions.push({ locationType: locationType as 'remote' | 'hybrid' | 'onsite' });
-  }
-
-  if (jobType && ['fulltime', 'parttime', 'contract'].includes(jobType)) {
-    andConditions.push({ jobType: jobType as 'fulltime' | 'parttime' | 'contract' });
-  }
-
-  if (program) {
-    andConditions.push({ suggestedPrograms: { has: program } });
-  }
-
-  const salaryMinNum = salaryMinParam ? parseInt(salaryMinParam, 10) : undefined;
-  const salaryMaxNum = salaryMaxParam ? parseInt(salaryMaxParam, 10) : undefined;
-  if (salaryMinNum !== undefined && !Number.isNaN(salaryMinNum)) {
-    // Job range overlaps [salaryMin, ∞]: job.salaryMax >= salaryMin OR (no max and job.salaryMin >= salaryMin)
-    andConditions.push({
-      OR: [
-        { salaryMax: { gte: salaryMinNum } },
-        { salaryMax: null, salaryMin: { gte: salaryMinNum } },
-      ],
-    });
-  }
-  if (salaryMaxNum !== undefined && !Number.isNaN(salaryMaxNum)) {
-    // Job range overlaps (-∞, salaryMax]: job.salaryMin <= salaryMax OR (no min and job.salaryMax <= salaryMax)
-    andConditions.push({
-      OR: [
-        { salaryMin: { lte: salaryMaxNum } },
-        { salaryMin: null, salaryMax: { lte: salaryMaxNum } },
-      ],
-    });
-  }
-
-  if (keyword) {
-    const k = keyword.toLowerCase();
-    andConditions.push({
-      OR: [
-        { title: { contains: k, mode: 'insensitive' } },
-        { description: { contains: k, mode: 'insensitive' } },
-        { employer: { companyName: { contains: k, mode: 'insensitive' } } },
-      ],
-    });
-  }
-
-  const where: Prisma.JobWhereInput = {
-    status: 'live',
-    ...(andConditions.length > 0 && { AND: andConditions }),
-  };
-
-  const orderBy: Prisma.JobOrderByWithRelationInput[] =
-    sort === 'salary-desc'
-      ? [{ salaryMax: 'desc' }, { salaryMin: 'desc' }]
-      : sort === 'salary-asc'
-        ? [{ salaryMin: 'asc' }, { salaryMax: 'asc' }]
-        : sort === 'title'
-          ? [{ title: 'asc' }]
-          : [{ updatedAt: 'desc' }];
-
   try {
-    const jobs = await prisma.job.findMany({
-      where,
-      orderBy,
-      include: {
-        employer: { select: { companyName: true, logoUrl: true } },
-      },
-    });
-    const visible = jobs
-      .filter(
-        (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
-      )
-      .map((job) => ({
-        ...job,
-        employer: {
-          ...job.employer,
-          logoUrl: resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl),
+    const { searchParams } = new URL(request.url);
+    const keyword = searchParams.get('q')?.trim() || undefined;
+    const locationType = searchParams.get('locationType') || undefined;
+    const jobType = searchParams.get('jobType') || undefined;
+    const program = searchParams.get('program') || undefined;
+    const salaryMinParam = searchParams.get('salaryMin');
+    const salaryMaxParam = searchParams.get('salaryMax');
+    const sort = searchParams.get('sort') || 'newest';
+    const ageGroup = searchParams.get('ageGroup') as 'under14' | 'youth14to17' | 'adult18plus' | null;
+  
+    const andConditions: Prisma.JobWhereInput[] = [];
+    
+    // Age-based filtering
+    if (ageGroup === 'under14') {
+      // No jobs for under 14 (COPPA compliance)
+      andConditions.push({ id: 'impossible-match' });
+    } else if (ageGroup === 'youth14to17') {
+      // Only youth-appropriate jobs for 14-17 year olds
+      andConditions.push({ 
+        youthAppropriate: true,
+        OR: [
+          { minimumAge: null },
+          { minimumAge: { lte: 17 } },
+        ],
+      });
+    } else {
+      // Adults: exclude youth-only jobs if they have high minimum age
+      // (Most jobs are available, but some might be 21+ like alcohol service)
+    }
+  
+    if (locationType && ['remote', 'hybrid', 'onsite'].includes(locationType)) {
+      andConditions.push({ locationType: locationType as 'remote' | 'hybrid' | 'onsite' });
+    }
+  
+    if (jobType && ['fulltime', 'parttime', 'contract'].includes(jobType)) {
+      andConditions.push({ jobType: jobType as 'fulltime' | 'parttime' | 'contract' });
+    }
+  
+    if (program) {
+      andConditions.push({ suggestedPrograms: { has: program } });
+    }
+  
+    const salaryMinNum = salaryMinParam ? parseInt(salaryMinParam, 10) : undefined;
+    const salaryMaxNum = salaryMaxParam ? parseInt(salaryMaxParam, 10) : undefined;
+    if (salaryMinNum !== undefined && !Number.isNaN(salaryMinNum)) {
+      // Job range overlaps [salaryMin, ∞]: job.salaryMax >= salaryMin OR (no max and job.salaryMin >= salaryMin)
+      andConditions.push({
+        OR: [
+          { salaryMax: { gte: salaryMinNum } },
+          { salaryMax: null, salaryMin: { gte: salaryMinNum } },
+        ],
+      });
+    }
+    if (salaryMaxNum !== undefined && !Number.isNaN(salaryMaxNum)) {
+      // Job range overlaps (-∞, salaryMax]: job.salaryMin <= salaryMax OR (no min and job.salaryMax <= salaryMax)
+      andConditions.push({
+        OR: [
+          { salaryMin: { lte: salaryMaxNum } },
+          { salaryMin: null, salaryMax: { lte: salaryMaxNum } },
+        ],
+      });
+    }
+  
+    if (keyword) {
+      const k = keyword.toLowerCase();
+      andConditions.push({
+        OR: [
+          { title: { contains: k, mode: 'insensitive' } },
+          { description: { contains: k, mode: 'insensitive' } },
+          { employer: { companyName: { contains: k, mode: 'insensitive' } } },
+        ],
+      });
+    }
+  
+    const where: Prisma.JobWhereInput = {
+      status: 'live',
+      ...(andConditions.length > 0 && { AND: andConditions }),
+    };
+  
+    const orderBy: Prisma.JobOrderByWithRelationInput[] =
+      sort === 'salary-desc'
+        ? [{ salaryMax: 'desc' }, { salaryMin: 'desc' }]
+        : sort === 'salary-asc'
+          ? [{ salaryMin: 'asc' }, { salaryMax: 'asc' }]
+          : sort === 'title'
+            ? [{ title: 'asc' }]
+            : [{ updatedAt: 'desc' }];
+  
+    try {
+      const jobs = await prisma.job.findMany({
+        where,
+        orderBy,
+        include: {
+          employer: { select: { companyName: true, logoUrl: true } },
         },
-      }));
-    return NextResponse.json(visible);
-  } catch (err) {
-    captureApiError(err, { route: 'GET /api/jobs' });
+        take: 100,
+      });
+      const visible = jobs
+        .filter(
+          (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+        )
+        .map((job) => ({
+          ...job,
+          employer: {
+            ...job.employer,
+            logoUrl: resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl),
+          },
+        }));
+      return NextResponse.json(visible);
+    } catch (err) {
+      captureApiError(err, { route: 'GET /api/jobs' });
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/(portal)/dashboard/jobs:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -31,6 +31,7 @@ export default async function EmployerMessagesPage() {
 
   const thread = await getOrCreateEmployerMessageThread(ctx.employerId);
   const messages = await prisma.message.findMany({
+    take: 200,
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
   });

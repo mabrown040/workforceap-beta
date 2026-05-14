@@ -152,7 +152,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
         key: 'next',
         criteriaLabel: 'Next step',
         bySlug: cellFor((t) => (
-          <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary btn-sm">
+          <Link href={`/apply?program=${t.slug}`} className="btn btn-muted btn-sm">
             Apply
           </Link>
         )),
@@ -255,7 +255,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
         cellDataLabel: 'Apply',
         cell: (row) =>
           row.kind === 'track' ? (
-            <Link href={`/apply?program=${row.track.slug}`} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+            <Link href={`/apply?program=${row.track.slug}`} className="btn btn-muted" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
               Apply
             </Link>
           ) : null,
@@ -417,7 +417,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                   <Link id={`program-card-title-${t.slug}`} href={`/programs/${t.slug}`} className="program-comparison-card__title">
                     {t.shortName}
                   </Link>
-                  <Link href={`/apply?program=${t.slug}`} className="btn btn-secondary program-comparison-card__apply" aria-label={`Apply to ${t.shortName}`}>
+                  <Link href={`/apply?program=${t.slug}`} className="btn btn-muted program-comparison-card__apply" aria-label={`Apply to ${t.shortName}`}>
                     Apply
                   </Link>
                 </div>

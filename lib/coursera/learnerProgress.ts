@@ -1,12 +1,10 @@
 /**
- * Coursera-authoritative learner progress.
+ * Coursera-authoritative learner progress (B4B enrollmentReports).
  *
- * The training dashboard's % values were historically derived from local
- * `CourseProgress` rows fed by xAPI. xAPI lags hours-to-days; the B4B
- * `enrollmentReports` endpoint returns the same `overallProgress` that
- * Coursera shows the learner inside their own UI, refreshed within
- * minutes of activity. This module is the single source of truth used by
- * the dashboard to enrich (NOT replace) local rows.
+ * Member-facing UI treats `GET …/enrollmentReports` as the primary source for
+ * completion % (`overallProgress`, `isCompleted`). Local `CourseProgress`
+ * rows remain populated from xAPI (and sync jobs) for audit, diagnostics,
+ * grades, and fallback when B4B is unreachable — see `loadMemberProgramTrainingView`.
  *
  * Design constraints (per #1077):
  *   - Don't import 'server-only': makes the module unit-testable under
@@ -155,8 +153,7 @@ async function resolveProgramIds(opts: { programId?: string }): Promise<string[]
  *
  * Returns a map keyed by `contentId` (Coursera course/specialization id).
  * Empty map = either the learner has no enrollments OR the API was
- * unreachable. Callers should treat both cases identically: prefer local
- * `CourseProgress` rows.
+ * unreachable — callers fall back to local `CourseProgress` / rollup for display.
  *
  * @param email     The learner's externalId in Coursera (their email).
  * @param opts.programId  Scope the lookup to a single program. Strongly

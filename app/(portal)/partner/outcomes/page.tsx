@@ -10,11 +10,13 @@ import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: 'Outcomes snapshot',
-  description: 'High-level outcomes for your referrals.',
+  title: t('outcomesSnapshotTitle'),
+  description: t('outcomesSnapshotDescription'),
   path: '/partner/outcomes',
 });
 }
@@ -26,7 +28,12 @@ export default async function PartnerOutcomesPage() {
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
-  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(ctx.partnerId);
+  const t = await getTranslations('partner');
+
+  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(
+    ctx.partnerId,
+    ctx.partner.organizationId,
+  );
 
   const placements = members.filter((m) => m.placementRecord).length;
   const pendingPlacementCount = pendingPlacements.length;
@@ -43,11 +50,11 @@ export default async function PartnerOutcomesPage() {
     <PortalPageFrame>
       <div style={{ paddingBottom: '6rem' }} className="md:wa-pb-8">
         <PageHeader
-          title="Outcomes Snapshot"
-          subtitle={`Quick counts for ${ctx.partner.name}. See the overview for journey detail.`}
+          title={t('outcomesSnapshotTitle')}
+          subtitle={t('quickCountsFor', { partnerName: ctx.partner.name })}
           action={
-            <Link href="/partner" className="btn btn-secondary btn-sm">
-              Partner overview
+            <Link href="/partner" className="btn btn-muted btn-sm">
+              {t('partnerOverviewBtn')}
             </Link>
           }
         />
@@ -60,27 +67,27 @@ export default async function PartnerOutcomesPage() {
         >
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-accent)' }}>{members.length}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Total referrals</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('totalReferrals')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '2rem', fontWeight: 800 }}>{placements}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Placed</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('placed')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-warning)' }}>{pendingPlacementCount}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Pending review</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('pendingReview')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '2rem', fontWeight: 800 }}>{certified}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>With certificate</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('withCertificate')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '2rem', fontWeight: 800 }}>{inTraining}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>In training / certified stage</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('inTrainingCertifiedStage')}</div>
           </div>
           <div className="partner-panel" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '2rem', fontWeight: 800 }}>{completions}</div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Program completions</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{t('programCompletions')}</div>
           </div>
         </div>
         {pendingPlacementCount > 0 && (
@@ -95,10 +102,10 @@ export default async function PartnerOutcomesPage() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-warning)' }}>info</span>
-              <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>Pending Placement Reviews</span>
+              <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>{t('pendingPlacementReviews')}</span>
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-              {pendingPlacementCount} member{pendingPlacementCount !== 1 ? 's' : ''} self-reported accepting a job offer. WorkforceAP staff are reviewing these reports before marking them as verified placements. You will see them move to "Placed" once confirmed.
+              {t('pendingPlacementDesc', { count: pendingPlacementCount })}
             </p>
           </div>
         )}

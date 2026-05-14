@@ -68,6 +68,7 @@ function shortVerb(verbId: string | null): string | null {
 }
 
 export async function GET(request: Request) {
+  try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -108,6 +109,7 @@ export async function GET(request: Request) {
       createdAt: true,
     },
     orderBy: { createdAt: 'asc' },
+    take: 100,
   });
 
   type Acc = {
@@ -163,4 +165,10 @@ export async function GET(request: Request) {
     courseraCourseId,
     items,
   });
+
+  } catch (error) {
+    console.error('/admin/training-progress/items error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

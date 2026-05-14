@@ -1,23 +1,36 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
+import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
-import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale } from '@/lib/i18n/config';
+import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale, isRtlLocale } from '@/lib/i18n/config';
 import type { AbstractIntlMessages } from 'next-intl';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
-import SafeVercelMetrics from '@/components/SafeVercelMetrics';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
-import ConversionMetrics from '@/components/analytics/ConversionMetrics';
-import PortalMetrics from '@/components/analytics/PortalMetrics';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
-import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
+import { getRequestOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import { WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER } from '@/lib/nav/mobileBottomNavLayout';
+import {
+  gucContextStorage,
+  buildGucContext,
+  ANONYMOUS_GUC_CONTEXT,
+} from '@/lib/db/gucContext';
+import { getProfileRole } from '@/lib/auth/roles';
 import '@/css/main.css';
 import '@/css/marketing.css';
-import '@/css/portal.css';
 import '@/css/language-toggle.css';
+import DeferredAnalytics from '@/components/DeferredAnalytics';
+
+const WAP_USER_ID_HEADER = 'x-wap-user-id';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
@@ -79,15 +92,28 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const orgBranding = await getDefaultOrgBranding();
   const h = await headers();
+
+  // Build GUC context from the verified user ID forwarded by middleware.
+  // Middleware strips any client-supplied x-wap-user-id and only re-adds it
+  // after cryptographically verifying the Supabase session.
+  const forwardedUserId = h.get(WAP_USER_ID_HEADER);
+  let gucCtx = ANONYMOUS_GUC_CONTEXT;
+  if (forwardedUserId) {
+    const profileRole = await getProfileRole(forwardedUserId);
+    gucCtx = buildGucContext({ userId: forwardedUserId, orgId: null, profileRole });
+  }
+
+  const orgBranding = await getRequestOrgBranding(h);
   const rawLang = h.get(WAP_LOCALE_HEADER);
   const htmlLang = rawLang && isAppLocale(rawLang) ? rawLang : DEFAULT_LOCALE;
+  const htmlDir = isRtlLocale(htmlLang) ? 'rtl' : 'ltr';
   const messages = pickRootClientMessages(await getMessages());
   const reserveMobileBottomNav = h.get(WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER) === '1';
   const htmlClassName = reserveMobileBottomNav ? 'wap-reserve-mobile-bottom-nav' : undefined;
-  return (
-    <html lang={htmlLang} suppressHydrationWarning className={htmlClassName}>
+
+  return await gucContextStorage.run(gucCtx, async () => (
+    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${inter.variable}${htmlClassName ? ' ' + htmlClassName : ''}`}>
       <head>
         <ThemeInitScript />
         <script
@@ -102,9 +128,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="theme-color" content="#ad2c4d" />
         <link rel="apple-touch-icon" href="/images/wap_logo.png" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         {/* Material Symbols Outlined is self-hosted via @font-face in main.css */}
         {/* Register service worker — updateViaCache:'none' ensures browser always fetches fresh sw.js */}
-        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){})}` }} />
+        <Script id="sw-register" strategy="lazyOnload">
+          {`if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){})}`}
+        </Script>
       </head>
       <body>
         <OrgBrandingStyle branding={orgBranding} />
@@ -127,7 +157,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 style={{ display: 'none', visibility: 'hidden' }}
               />
             </noscript>
-            <script
+            <Script
+              id="gtm"
+              strategy="afterInteractive"
               dangerouslySetInnerHTML={{
                 __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -144,10 +176,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <main id="main-content">{children}</main>
         </NextIntlClientProvider>
         <ScrollAnimationsWrapper />
-        <ConversionMetrics />
-        <PortalMetrics />
-        <SafeVercelMetrics />
+        <DeferredAnalytics />
       </body>
     </html>
-  );
+  ));
 }

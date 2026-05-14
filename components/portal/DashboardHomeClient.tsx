@@ -221,14 +221,18 @@ export default function DashboardHomeClient({
 
   /* ── Metric cards data ── */
   const metricCards = [
-    {
-      label: t('trainingProgress'),
-      value: `${progressPct}%`,
-      hint: t('coursesHint', { completed: completedCount, total: totalCourses }),
-      icon: 'menu_book',
-      accent: 'accent' as const,
-      href: '/dashboard/training',
-    },
+    ...(state === 'C' || state === 'D'
+      ? [
+          {
+            label: t('myTrainingMetricLabel'),
+            value: t('myTrainingMetricValue'),
+            hint: t('myTrainingMetricHint'),
+            icon: 'menu_book',
+            accent: 'accent' as const,
+            href: '/dashboard',
+          },
+        ]
+      : []),
     ...(showPreassessmentScore
       ? [{
           label: t('preassessmentScore'),
@@ -264,7 +268,7 @@ export default function DashboardHomeClient({
         <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem', lineHeight: 1.65, fontSize: '0.9375rem', marginBottom: '0.875rem' }}>
           {state === 'A' && (isMinor && age ? t('exploreCareerPaths') : t('letsBuildYourCareerPath'))}
           {state === 'B' && t('enrolledCompletePreassessment', { program: programTitle ?? 'your program' })}
-          {state === 'C' && t('percentThroughTraining', { pct: progressPct, program: programTitle ?? 'your training plan' })}
+          {state === 'C' && t('homeOverviewTrainingTeaser')}
           {state === 'D' && t('trainingPlanComplete')}
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -274,7 +278,7 @@ export default function DashboardHomeClient({
             </span>
           ) : null}
           <span style={{ padding: '0.4rem 0.7rem', borderRadius: '999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', fontSize: '0.75rem', fontWeight: 700 }}>
-            {state === 'A' ? 'Getting started' : state === 'B' ? 'Ready for preassessment' : state === 'C' ? `${progressPct}% through training` : 'Training complete'}
+            {state === 'A' ? 'Getting started' : state === 'B' ? 'Ready for preassessment' : state === 'C' ? t('myTrainingMetricLabel') : 'Training complete'}
           </span>
           {(state === 'C' || state === 'D') && (
             <span style={{ padding: '0.4rem 0.7rem', borderRadius: '999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', fontWeight: 700 }}>
@@ -402,7 +406,7 @@ export default function DashboardHomeClient({
         </span>
         <Link
           href="/dashboard/messages"
-          className="btn btn-secondary"
+          className="btn btn-muted"
           style={{ fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
           onClick={() => handleDashboardAction('help_counselor_clicked')}
         >
@@ -438,8 +442,8 @@ export default function DashboardHomeClient({
       {/* ── 5. Main content grid ── */}
       <div className="portal-bento-grid">
 
-        {/* ── Main Progress Card (full-width) ── */}
-        {(state === 'B' || state === 'C' || state === 'D') && programTitle && (
+        {/* ── Main Progress Card (state B: onboarding milestones) ── */}
+        {state === 'B' && programTitle && (
           <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
             <div className="portal-card__body">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', gap: '1rem' }}>
@@ -490,6 +494,44 @@ export default function DashboardHomeClient({
           </section>
         )}
 
+        {/* ── Training hub teaser (states C/D — detail lives on /dashboard) ── */}
+        {(state === 'C' || state === 'D') && programTitle && (
+          <section
+            className="portal-card portal-card--flat"
+            style={{ gridColumn: 'span 12', borderLeft: '4px solid var(--color-accent)' }}
+          >
+            <div className="portal-card__body">
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem', flexShrink: 0, '--ms-fill': 1 } as object}>
+                  school
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em', margin: '0 0 0.35rem', color: 'var(--color-on-surface)' }}>
+                    {t('myTrainingHubCardTitle')}
+                  </h2>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.55 }}>
+                    {t('myTrainingHubCardBody')}
+                  </p>
+                  {state === 'C' && nextMilestone ? (
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: '0.75rem 0 0' }}>
+                      {t('myTrainingHubNextUp', { course: nextMilestone })}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+              <Link
+                href="/dashboard"
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                onClick={() => handleDashboardAction('open_training_hub_clicked')}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>open_in_new</span>
+                {t('openMyTraining')}
+              </Link>
+            </div>
+          </section>
+        )}
+
         {/* ── Pre-Screening ── */}
         {assessmentDone && !preScreeningDone && (
           <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
@@ -530,7 +572,7 @@ export default function DashboardHomeClient({
               {state === 'D' ? 'Career next steps' : 'Keep moving'}
             </h3>
             <Link
-              href={state === 'A' ? '/dashboard/program' : '/dashboard/training'}
+              href={state === 'A' ? '/dashboard/program' : '/dashboard'}
               className="portal-dash-section-header__action"
               onClick={() => handleDashboardAction('view_all_tracks_clicked')}
             >
@@ -572,7 +614,7 @@ export default function DashboardHomeClient({
                     : state === 'B'
                       ? (starterProfileReviewRequired ? '/dashboard/profile' : '/dashboard/assessment')
                       : state === 'C'
-                        ? '/dashboard/training'
+                        ? '/dashboard'
                         : '/dashboard/readiness'}
                   className="btn btn-primary"
                   onClick={() => handleDashboardAction(
@@ -605,7 +647,7 @@ export default function DashboardHomeClient({
                 Ask questions, get unstuck, or check what happens next in your program.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.9rem' }}>
-                <Link href="/dashboard/messages" className="btn btn-secondary" onClick={() => handleDashboardAction('help_counselor_clicked')}>
+                <Link href="/dashboard/messages" className="btn btn-muted" onClick={() => handleDashboardAction('help_counselor_clicked')}>
                   Message counselor
                 </Link>
                 <Link href="/dashboard/resources" style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', alignSelf: 'center' }} onClick={() => handleDashboardAction('help_resources_clicked')}>
@@ -625,7 +667,7 @@ export default function DashboardHomeClient({
                 Use voice tools for mock interviews, spoken answers, and confidence-building — without turning the homepage into a tool catalog.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.9rem' }}>
-                <Link href="/dashboard/ai-tools/voice-interview" className="btn btn-secondary" onClick={() => handleDashboardAction('ai_tools_clicked')}>
+                <Link href="/dashboard/ai-tools/voice-interview" className="btn btn-muted" onClick={() => handleDashboardAction('ai_tools_clicked')}>
                   Open voice coach
                 </Link>
                 <Link href={primaryAction?.href ?? '/dashboard/ai-tools'} style={{ color: 'var(--color-accent)', fontSize: '0.8125rem', fontWeight: 700, textDecoration: 'none', alignSelf: 'center' }} onClick={() => handleDashboardAction(primaryAction ? 'primary_recommended_action_clicked' : 'ai_tools_clicked')}>
@@ -646,7 +688,7 @@ export default function DashboardHomeClient({
               {[
                 { href: '/dashboard/weekly-recap', label: 'Weekly recap', desc: 'Milestones and reminders', icon: 'event_note', action: 'weekly_recap_clicked' },
                 { href: '/dashboard/ai-tools', label: 'Career tools', desc: 'Resume, cover letters, interviews', icon: 'auto_awesome', action: 'ai_tools_clicked' },
-                { href: '/dashboard/learning', label: 'Learning hub', desc: 'Pathways and resources', icon: 'school', action: 'learning_hub_clicked' },
+                { href: '/dashboard', label: t('myTrainingMetricLabel'), desc: t('myTrainingHubCardBody'), icon: 'school', action: 'training_hub_clicked' },
                 { href: '/dashboard/messages', label: 'Messages', desc: 'Counselor and team threads', icon: 'forum', action: 'quicklink_messages_clicked' },
                 { href: '/dashboard/skills-assessment', label: showPreassessmentPhase ? 'Training preassessment' : 'Assessment results', desc: showPreassessmentPhase ? 'Program readiness' : 'View your readiness results', icon: 'history_edu', action: 'quicklink_assessments_clicked' },
                 { href: '/dashboard/resources', label: 'Resources', desc: 'Program materials', icon: 'terminal', action: 'quicklink_resources_clicked' },

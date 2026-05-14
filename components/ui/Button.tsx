@@ -3,10 +3,17 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'dark' | 'outline';
+  /** `outline`/`tertiary` map onto secondary/ghost for backwards compatibility */
+  variant?: 'primary' | 'secondary' | 'ghost' | 'dark' | 'muted' | 'outline' | 'tertiary';
   size?: 'small' | 'default' | 'large';
   fullWidth?: boolean;
   loading?: boolean;
+}
+
+function buttonVariantClasses(variant: NonNullable<ButtonProps['variant']>): string {
+  if (variant === 'outline') return 'btn-secondary';
+  if (variant === 'tertiary') return 'btn-ghost';
+  return `btn-${variant}`;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -21,7 +28,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ...props 
   }, ref) => {
     const baseClasses = 'btn';
-    const variantClasses = `btn-${variant}`;
+    const variantClasses = buttonVariantClasses(variant);
     const sizeClasses = size === 'large' ? 'btn-large' : size === 'small' ? 'btn-small' : '';
     const widthClasses = fullWidth ? 'btn-full-width' : '';
     const loadingClasses = loading ? 'btn-loading' : '';

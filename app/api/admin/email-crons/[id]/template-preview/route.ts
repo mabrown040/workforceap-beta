@@ -19,6 +19,7 @@ export type TemplatePreviewResponse = {
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(req: NextRequest, ctx: RouteContext) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try { await requireAdmin(user.id); } catch { return NextResponse.json({ error: 'Forbidden' }, { status: 403 }); }
@@ -29,7 +30,13 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
   if (!preview) return NextResponse.json({ error: 'Unknown cron id' }, { status: 404 });
 
   return NextResponse.json(preview);
+
+  } catch (error) {
+    console.error('/admin/email-crons/[id]/template-preview error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 function buildPreview(id: string): TemplatePreviewResponse | null {
   switch (id) {

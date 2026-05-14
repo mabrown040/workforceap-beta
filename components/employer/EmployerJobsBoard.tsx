@@ -13,6 +13,7 @@ import {
   type EmployerJobListFilter,
 } from '@/lib/employer/employerJobsListQuery';
 import { EMPLOYER_JOB_SUBMIT_REVIEW_DRAFT_FLASH } from '@/lib/employer/employerJobFormFlash';
+import { employerJobPortalStatusLabel } from '@/lib/employer/jobStatusDisplay';
 
 function chunkIds<T>(items: T[], size: number): T[][] {
   const chunks: T[][] = [];
@@ -128,6 +129,7 @@ export default function EmployerJobsBoard({
   const modalPendingNoteId = useId();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [pausingId, setPausingId] = useState<string | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -329,6 +331,27 @@ export default function EmployerJobsBoard({
     }
   }
 
+  async function pauseJob(id: string, jobStatus: string) {
+    setPausingId(id);
+    setReviewActionError(null);
+    trackEmployerJobAction('pause_job', id, { status: jobStatus });
+    try {
+      const res = await fetch(`/api/employer/jobs/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'approved' }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setReviewActionError(typeof data.error === 'string' ? data.error : 'Could not pause job.');
+        return;
+      }
+      router.refresh();
+    } finally {
+      setPausingId(null);
+    }
+  }
+
   const confirmCloseJob = async () => {
     if (!closeModal) return;
     const { id, status } = closeModal;
@@ -339,13 +362,13 @@ export default function EmployerJobsBoard({
       const res = await fetch(`/api/employer/jobs/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'filled' }),
+        body: JSON.stringify({ status: 'closed' }),
       });
       if (res.ok) {
         setCloseModal(null);
         router.refresh();
       } else {
-        setReviewActionError('Could not mark this posting as filled. Try again.');
+        setReviewActionError('Could not close this posting. Try again.');
       }
     } finally {
       setClosingId(null);
@@ -706,7 +729,7 @@ export default function EmployerJobsBoard({
       {totalInFilter === 0 ? (
         <div className="employer-jobs-board__filtered-empty">
           <p className="employer-jobs-board__empty">Nothing in this stage right now.</p>
-          <Link href={employerJobsListHref('all', 1)} className="btn btn-secondary btn-sm">
+          <Link href={employerJobsListHref('all', 1)} className="btn btn-muted btn-sm">
             Show all postings
           </Link>
         </div>
@@ -738,7 +761,9 @@ export default function EmployerJobsBoard({
                       </label>
                     )}
                     <div className="employer-job-card__lane">
-                      <span className={`employer-job-card__status ${statusModifier(j.status)}`}>{j.statusLabel}</span>
+                      <span className={`employer-job-card__status ${statusModifier(j.status)}`}>
+                        {employerJobPortalStatusLabel(j.status)}
+                      </span>
                       {next && <span className="employer-job-card__next">{next}</span>}
                     </div>
                     <time className="employer-job-card__time" dateTime={j.updatedAt}>
@@ -784,11 +809,9 @@ export default function EmployerJobsBoard({
 
                     <p className="employer-job-card__preview">{j.descriptionPreview}</p>
 
-                    {j.status !== 'draft' && (
-                      <p className="employer-job-card__apps">
-                        <strong>{j.applicationsCount}</strong> application{j.applicationsCount === 1 ? '' : 's'}
-                      </p>
-                    )}
+                    <p className="employer-job-card__apps">
+                      <strong>{j.applicationsCount}</strong> application{j.applicationsCount === 1 ? '' : 's'}
+                    </p>
 
                     <div className="employer-job-card__actions">
                       <Link
@@ -818,6 +841,16 @@ export default function EmployerJobsBoard({
                           {publishingId === j.id ? 'Publishing…' : 'Go live'}
                         </button>
                       )}
+                      {j.status === 'live' && (
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          disabled={!!pausingId || !!closingId}
+                          onClick={() => pauseJob(j.id, j.status)}
+                        >
+                          {pausingId === j.id ? 'Pausing…' : 'Pause'}
+                        </button>
+                      )}
                       {(j.status === 'live' || j.status === 'approved') && (
                         <button
                           type="button"
@@ -825,7 +858,7 @@ export default function EmployerJobsBoard({
                           disabled={!!closingId}
                           onClick={() => setCloseModal({ id: j.id, title: j.title, status: j.status })}
                         >
-                          {closingId === j.id ? 'Updating…' : 'Mark filled'}
+                          {closingId === j.id ? 'Updating…' : 'Close'}
                         </button>
                       )}
                       {j.status !== 'draft' && (
@@ -901,11 +934,11 @@ export default function EmployerJobsBoard({
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id={closeModalTitleId} className="employer-bulk-modal__title">
-              Mark filled?
+              Close posting?
             </h2>
             <p id={closeModalDescId} className="employer-bulk-modal__desc">
-              This moves <strong>{closeModal.title}</strong> out of active hiring. You can still view past applicants from
-              the applicants list.
+              This closes <strong>{closeModal.title}</strong>. Candidates will no longer see it. You can still view past
+              applicants from the applicants list.
             </p>
             <div className="employer-bulk-modal__actions">
               <button type="button" className="btn btn-ghost" disabled={!!closingId} onClick={() => setCloseModal(null)}>
@@ -917,7 +950,7 @@ export default function EmployerJobsBoard({
                 disabled={!!closingId}
                 onClick={() => void confirmCloseJob()}
               >
-                {closingId ? 'Updating…' : 'Yes, mark filled'}
+                {closingId ? 'Updating…' : 'Yes, close posting'}
               </button>
             </div>
           </div>

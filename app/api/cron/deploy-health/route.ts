@@ -1,5 +1,6 @@
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Hourly Vercel deploy health check.
@@ -23,6 +24,7 @@ async function fallbackSiteHealth(reason: string, status?: number) {
     checkedAt: new Date().toISOString(),
   };
 
+  await setCronRecordsProcessed(1);
   await logCronRun('cron_deploy_health', result, result.ok ? 'ok' : 'error');
   return Response.json(result, { status: result.ok ? 200 : 502 });
 }
@@ -66,6 +68,7 @@ async function handle(_request: Request) {
   };
 
   console.log(JSON.stringify(result));
+  await setCronRecordsProcessed(1);
   await logCronRun('cron_deploy_health', result, result.ok ? 'ok' : 'error');
   return Response.json(result);
 }

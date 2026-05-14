@@ -5,19 +5,24 @@ import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 
 /** Lightweight list for outreach logging dropdowns. */
 export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const ctx = await getPartnerForUser(user.id);
-  if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
   try {
-    const { members } = await loadPartnerReferralBundle(ctx.partnerId);
-    return NextResponse.json({
-      members: members.map((m) => ({ id: m.id, fullName: m.fullName })),
-    });
-  } catch (err) {
-    console.error('[partner/referral-members] error:', err);
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    const ctx = await getPartnerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    try {
+      const { members } = await loadPartnerReferralBundle(ctx.partnerId, ctx.partner.organizationId);
+      return NextResponse.json({
+        members: members.map((m) => ({ id: m.id, fullName: m.fullName })),
+      });
+    } catch (err) {
+      console.error('[partner/referral-members] error:', err);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/partner/referral-members:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

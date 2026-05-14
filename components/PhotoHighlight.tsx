@@ -36,7 +36,7 @@ export default function PhotoHighlight({
           <h2>{title}</h2>
           <p>{description}</p>
           {buttonText && buttonHref && (
-            <Link href={buttonHref} className="btn btn-ghost">{buttonText}</Link>
+            <Link href={buttonHref} className="btn btn-secondary btn-radius-md">{buttonText}</Link>
           )}
         </div>
       </div>

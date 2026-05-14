@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage } from '@/lib/pipeline/stage';
 import { buildCsv, csvDate } from '@/lib/csv';
@@ -18,6 +20,7 @@ import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
  * WIOA qualification, certifications, and placement outcomes.
  */
 export async function GET(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id)))
@@ -48,77 +51,81 @@ export async function GET(req: NextRequest) {
     where.createdAt = createdAt;
   }
 
+  const orgId = await getActorOrganizationId(user.id);
+
   const EXPORT_LIMIT = 10_000;
-  const users = await prisma.user.findMany({
-    where,
-    orderBy: { createdAt: 'desc' },
-    take: EXPORT_LIMIT,
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-      phone: true,
-      enrolledProgram: true,
-      enrolledAt: true,
-      assessmentCompleted: true,
-      memberProgramProgress: {
-        select: { programSlug: true, averagePercent: true, coursesCompleted: true },
-      },
-      courseProgress: {
-        where: { status: 'COMPLETED' },
-        select: { programSlug: true, courseSlug: true },
-      },
-      assessmentScorePct: true,
-      pipelineBoardStage: true,
-      wioaQualificationJson: true,
-      wioaReviewStatus: true,
-      deletedAt: true,
-      createdAt: true,
-      profile: {
-        select: {
-          state: true,
-          city: true,
-          zip: true,
-          educationLevel: true,
-          employmentStatus: true,
-          veteranStatus: true,
-          householdIncome: true,
-          dob: true,
-          ethnicity: true,
+  const users = await withTenantScope(orgId, (db) =>
+    db.user.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: EXPORT_LIMIT,
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        assessmentCompleted: true,
+        memberProgramProgress: {
+          select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+        },
+        courseProgress: {
+          where: { status: 'COMPLETED' },
+          select: { programSlug: true, courseSlug: true },
+        },
+        assessmentScorePct: true,
+        pipelineBoardStage: true,
+        wioaQualificationJson: true,
+        wioaReviewStatus: true,
+        deletedAt: true,
+        createdAt: true,
+        profile: {
+          select: {
+            state: true,
+            city: true,
+            zip: true,
+            educationLevel: true,
+            employmentStatus: true,
+            veteranStatus: true,
+            householdIncome: true,
+            dob: true,
+            ethnicity: true,
+          },
+        },
+        placementRecord: {
+          select: {
+            employerName: true,
+            jobTitle: true,
+            salaryOffered: true,
+            placedAt: true,
+          },
+        },
+        userCertifications: {
+          select: { certName: true, earnedAt: true },
+        },
+        applications: {
+          select: { status: true, submittedAt: true },
+        },
+        // Multi-program: export uses the primary enrollment for the funding
+        // / programSlug column. Secondary enrollments are intentionally not
+        // exported here (a separate report would list all enrollments).
+        courseEnrollments: {
+          where: { isPrimary: true },
+          select: {
+            programSlug: true,
+            fundingSource: true,
+            fundingNotes: true,
+            enrolledAt: true,
+          },
+          take: 1,
+        },
+        trainingAccessRequests: {
+          select: { providerKey: true, status: true, activatedAt: true },
         },
       },
-      placementRecord: {
-        select: {
-          employerName: true,
-          jobTitle: true,
-          salaryOffered: true,
-          placedAt: true,
-        },
-      },
-      userCertifications: {
-        select: { certName: true, earnedAt: true },
-      },
-      applications: {
-        select: { status: true, submittedAt: true },
-      },
-      // Multi-program: export uses the primary enrollment for the funding
-      // / programSlug column. Secondary enrollments are intentionally not
-      // exported here (a separate report would list all enrollments).
-      courseEnrollments: {
-        where: { isPrimary: true },
-        select: {
-          programSlug: true,
-          fundingSource: true,
-          fundingNotes: true,
-          enrolledAt: true,
-        },
-        take: 1,
-      },
-      trainingAccessRequests: {
-        select: { providerKey: true, status: true, activatedAt: true },
-      },
-    },
-  });
+    }),
+  );
 
   // Apply post-query filters that need computed fields
   const rows: typeof users = [];
@@ -267,4 +274,10 @@ export async function GET(req: NextRequest) {
   }
 
   return new NextResponse(csv, { status: 200, headers });
+
+  } catch (error) {
+    console.error('/admin/export/members error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

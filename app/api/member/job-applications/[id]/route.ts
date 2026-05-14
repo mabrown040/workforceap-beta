@@ -38,135 +38,140 @@ function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
 }
 
 export async function PATCH(request: Request, { params }: Props) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const { id } = await params;
-  const body = await request.json().catch(() => null);
-  const maybeBody = body as Record<string, unknown> | null;
-  const hasLegacyFields = Boolean(
-    maybeBody &&
-      ('jobTitle' in maybeBody ||
-        'applicationDate' in maybeBody ||
-        'nextInterviewDate' in maybeBody),
-  );
-  const legacyParsed = hasLegacyFields
-    ? updateJobApplicationSchema.safeParse(body)
-    : null;
-  if (hasLegacyFields && legacyParsed && !legacyParsed.success) {
-    return NextResponse.json(
-      { error: legacyParsed.error.errors[0]?.message ?? 'Validation failed' },
-      { status: 400 },
-    );
-  }
-
   try {
-    await ensureUserInDb(user);
-
-    const existing = await prisma.jobApplication.findFirst({
-      where: { id, userId: user.id },
-      select: { id: true, status: true },
-    });
-
-    if (!existing) {
-      return NextResponse.json({ error: 'Application not found' }, { status: 404 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    const { id } = await params;
+    const body = await request.json().catch(() => null);
+    const maybeBody = body as Record<string, unknown> | null;
+    const hasLegacyFields = Boolean(
+      maybeBody &&
+        ('jobTitle' in maybeBody ||
+          'applicationDate' in maybeBody ||
+          'nextInterviewDate' in maybeBody),
+    );
+    const legacyParsed = hasLegacyFields
+      ? updateJobApplicationSchema.safeParse(body)
+      : null;
+    if (hasLegacyFields && legacyParsed && !legacyParsed.success) {
+      return NextResponse.json(
+        { error: legacyParsed.error.errors[0]?.message ?? 'Validation failed' },
+        { status: 400 },
+      );
     }
-
-    const data: {
-      role?: string;
-      company?: string;
-      appliedAt?: Date | null;
-      source?: JobApplicationSource;
-      status?: ReturnType<typeof getDbStatusForStage>;
-      nextInterviewDate?: Date | null;
-      notes?: string | null;
-    } = {};
-
-    if (hasLegacyFields && legacyParsed?.success) {
-      const legacyData = legacyParsed.data;
-      if (legacyData.jobTitle !== undefined) data.role = legacyData.jobTitle;
-      if (legacyData.company !== undefined) data.company = legacyData.company;
-      if (legacyData.applicationDate !== undefined) {
-        data.appliedAt = legacyData.applicationDate
-          ? new Date(legacyData.applicationDate)
-          : null;
-      }
-      if (legacyData.source !== undefined) data.source = legacyData.source;
-      if (legacyData.status !== undefined) {
-        data.status = getDbStatusForStage(legacyData.status);
-      }
-      if (legacyData.nextInterviewDate !== undefined) {
-        data.nextInterviewDate = legacyData.nextInterviewDate
-          ? new Date(legacyData.nextInterviewDate)
-          : null;
-      }
-      if (legacyData.notes !== undefined) data.notes = legacyData.notes || null;
-    } else {
-      if (typeof maybeBody?.role === 'string' && maybeBody.role.trim().length > 0) {
-        data.role = maybeBody.role.trim();
-      }
-      if (typeof maybeBody?.company === 'string' && maybeBody.company.trim().length > 0) {
-        data.company = maybeBody.company.trim();
-      }
-      if ('appliedAt' in (maybeBody ?? {})) {
-        if (maybeBody?.appliedAt === null) {
-          data.appliedAt = null;
-        } else if (typeof maybeBody?.appliedAt === 'string') {
-          data.appliedAt = new Date(maybeBody.appliedAt);
-        }
-      }
-      if (typeof maybeBody?.source === 'string') {
-        data.source = maybeBody.source as JobApplicationSource;
-      }
-      const dbStatus = parseStatus(maybeBody?.status);
-      if (dbStatus) data.status = dbStatus;
-      if ('nextInterviewDate' in (maybeBody ?? {})) {
-        if (maybeBody?.nextInterviewDate === null) {
-          data.nextInterviewDate = null;
-        } else if (typeof maybeBody?.nextInterviewDate === 'string') {
-          data.nextInterviewDate = new Date(maybeBody.nextInterviewDate);
-        }
-      }
-      if ('notes' in (maybeBody ?? {})) {
-        if (typeof maybeBody?.notes === 'string') {
-          data.notes = maybeBody.notes;
-        } else if (maybeBody?.notes === null) {
-          data.notes = null;
-        }
-      }
-    }
-
-    const application = await prisma.jobApplication.update({
-      where: { id },
-      data,
-    });
-
-    if (data.status && data.status !== existing.status) {
-      await trackEvent({
-        userId: user.id,
-        eventName: 'application_status_changed',
-        entityType: 'job_application',
-        entityId: application.id,
-        sourcePage: '/dashboard/job-applications',
-        metadata: {
-          previousStatus: getJobApplicationStage(existing.status),
-          nextStatus: getJobApplicationStage(data.status),
-        },
+  
+    try {
+      await ensureUserInDb(user);
+  
+      const existing = await prisma.jobApplication.findFirst({
+        where: { id, userId: user.id },
+        select: { id: true, status: true },
       });
-    } else {
-      await trackEvent({
-        userId: user.id,
-        eventName: 'application_updated',
-        entityType: 'job_application',
-        entityId: application.id,
-        sourcePage: '/dashboard/job-applications',
+  
+      if (!existing) {
+        return NextResponse.json({ error: 'Application not found' }, { status: 404 });
+      }
+  
+      const data: {
+        role?: string;
+        company?: string;
+        appliedAt?: Date | null;
+        source?: JobApplicationSource;
+        status?: ReturnType<typeof getDbStatusForStage>;
+        nextInterviewDate?: Date | null;
+        notes?: string | null;
+      } = {};
+  
+      if (hasLegacyFields && legacyParsed?.success) {
+        const legacyData = legacyParsed.data;
+        if (legacyData.jobTitle !== undefined) data.role = legacyData.jobTitle;
+        if (legacyData.company !== undefined) data.company = legacyData.company;
+        if (legacyData.applicationDate !== undefined) {
+          data.appliedAt = legacyData.applicationDate
+            ? new Date(legacyData.applicationDate)
+            : null;
+        }
+        if (legacyData.source !== undefined) data.source = legacyData.source;
+        if (legacyData.status !== undefined) {
+          data.status = getDbStatusForStage(legacyData.status);
+        }
+        if (legacyData.nextInterviewDate !== undefined) {
+          data.nextInterviewDate = legacyData.nextInterviewDate
+            ? new Date(legacyData.nextInterviewDate)
+            : null;
+        }
+        if (legacyData.notes !== undefined) data.notes = legacyData.notes || null;
+      } else {
+        if (typeof maybeBody?.role === 'string' && maybeBody.role.trim().length > 0) {
+          data.role = maybeBody.role.trim();
+        }
+        if (typeof maybeBody?.company === 'string' && maybeBody.company.trim().length > 0) {
+          data.company = maybeBody.company.trim();
+        }
+        if ('appliedAt' in (maybeBody ?? {})) {
+          if (maybeBody?.appliedAt === null) {
+            data.appliedAt = null;
+          } else if (typeof maybeBody?.appliedAt === 'string') {
+            data.appliedAt = new Date(maybeBody.appliedAt);
+          }
+        }
+        if (typeof maybeBody?.source === 'string') {
+          data.source = maybeBody.source as JobApplicationSource;
+        }
+        const dbStatus = parseStatus(maybeBody?.status);
+        if (dbStatus) data.status = dbStatus;
+        if ('nextInterviewDate' in (maybeBody ?? {})) {
+          if (maybeBody?.nextInterviewDate === null) {
+            data.nextInterviewDate = null;
+          } else if (typeof maybeBody?.nextInterviewDate === 'string') {
+            data.nextInterviewDate = new Date(maybeBody.nextInterviewDate);
+          }
+        }
+        if ('notes' in (maybeBody ?? {})) {
+          if (typeof maybeBody?.notes === 'string') {
+            data.notes = maybeBody.notes;
+          } else if (maybeBody?.notes === null) {
+            data.notes = null;
+          }
+        }
+      }
+  
+      const application = await prisma.jobApplication.update({
+        where: { id },
+        data,
       });
+  
+      if (data.status && data.status !== existing.status) {
+        await trackEvent({
+          userId: user.id,
+          eventName: 'application_status_changed',
+          entityType: 'job_application',
+          entityId: application.id,
+          sourcePage: '/dashboard/job-applications',
+          metadata: {
+            previousStatus: getJobApplicationStage(existing.status),
+            nextStatus: getJobApplicationStage(data.status),
+          },
+        });
+      } else {
+        await trackEvent({
+          userId: user.id,
+          eventName: 'application_updated',
+          entityType: 'job_application',
+          entityId: application.id,
+          sourcePage: '/dashboard/job-applications',
+        });
+      }
+  
+      return NextResponse.json(application);
+    } catch (error) {
+      console.error('[PATCH /api/member/job-applications/:id]', error);
+      const message = error instanceof Error ? error.message : 'Database error';
+      return NextResponse.json({ error: message }, { status: 500 });
     }
-
-    return NextResponse.json(application);
   } catch (error) {
-    console.error('[PATCH /api/member/job-applications/:id]', error);
-    const message = error instanceof Error ? error.message : 'Database error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('/member/job-applications/[id]:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

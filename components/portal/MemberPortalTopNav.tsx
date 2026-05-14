@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
 
 export default function MemberPortalTopNav({
@@ -13,6 +14,22 @@ export default function MemberPortalTopNav({
 }) {
   const pathname = usePathname() ?? '/dashboard';
   const t = useTranslations('nav');
+  const navRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const el = navRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const setVar = () => {
+      document.documentElement.style.setProperty('--member-portal-top-nav-h', `${el.offsetHeight}px`);
+    };
+    setVar();
+    const ro = new ResizeObserver(setVar);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.removeProperty('--member-portal-top-nav-h');
+    };
+  }, []);
 
   const tabs = [
     { href: '/dashboard', label: t('dashboard'), icon: 'home', matches: (p: string) => p === '/dashboard' || p === '/dashboard/' },
@@ -24,7 +41,7 @@ export default function MemberPortalTopNav({
   ];
 
   return (
-    <nav className="member-portal-top-nav" aria-label={t('memberPortal')}>
+    <nav ref={navRef} className="member-portal-top-nav" aria-label={t('memberPortal')}>
       <ul className="member-portal-top-nav__list">
         {tabs.map((tab) => {
           const active = tab.matches(pathname);

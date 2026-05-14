@@ -21,6 +21,7 @@ export async function POST(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  try {
   const actor = await getUser();
   if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(actor.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -51,4 +52,10 @@ export async function POST(
   );
 
   return NextResponse.json({ ok: true, originalEmail: target.email, currentEmail: newEmail });
+
+  } catch (error) {
+    console.error('/admin/users/[id]/free-email error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

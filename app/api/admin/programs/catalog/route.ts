@@ -44,90 +44,102 @@ const catalogRowSchema = z.object({
 });
 
 export async function GET() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  const organizationId = await getDefaultOrganizationId();
-  let rows = await withTenantScope(organizationId, (db) =>
-    db.organizationProgramCatalog.findMany({
-      orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
-    }),
-  );
-  // Auto-seed from static PROGRAMS list if catalog is empty (first load).
-  // The seed helper writes via the regular Prisma client (it tags rows
-  // with `organizationId` itself); we re-read via the scoped client.
-  if (rows.length === 0) {
-    await seedOrganizationProgramCatalog(organizationId);
-    rows = await withTenantScope(organizationId, (db) =>
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    const organizationId = await getDefaultOrganizationId();
+    let rows = await withTenantScope(organizationId, (db) =>
       db.organizationProgramCatalog.findMany({
         orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+        take: 100,
       }),
     );
+    // Auto-seed from static PROGRAMS list if catalog is empty (first load).
+    // The seed helper writes via the regular Prisma client (it tags rows
+    // with `organizationId` itself); we re-read via the scoped client.
+    if (rows.length === 0) {
+      await seedOrganizationProgramCatalog(organizationId);
+      rows = await withTenantScope(organizationId, (db) =>
+        db.organizationProgramCatalog.findMany({
+          orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+          take: 100,
+        }),
+      );
+    }
+    return NextResponse.json({ programs: rows });
+  } catch (error) {
+    console.error('/admin/programs/catalog:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-  return NextResponse.json({ programs: rows });
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  const body = await request.json().catch(() => null);
-  const parsed = catalogRowSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
-  }
-
-  const staticRef = getProgramBySlug(parsed.data.programSlug);
-  if (!staticRef) {
-    return NextResponse.json(
-      { error: 'programSlug must match an existing static program slug (see /programs).' },
-      { status: 400 }
-    );
-  }
-
-  const organizationId = await getDefaultOrganizationId();
   try {
-    const row = await withTenantScope(organizationId, (db) =>
-      db.organizationProgramCatalog.create({
-        data: {
-          organizationId,
-          programSlug: parsed.data.programSlug,
-          name: parsed.data.name,
-          description: parsed.data.description ?? null,
-          category: parsed.data.category,
-          deliveryType: parsed.data.deliveryType,
-          deliveryUrl: parsed.data.deliveryUrl ?? null,
-          deliveryDetails: parsed.data.deliveryDetails ?? null,
-          certifications: parsed.data.certifications ?? [],
-          duration: parsed.data.duration ?? null,
-          cost: parsed.data.cost ?? null,
-          certCost: parsed.data.certCost ?? null,
-          bookCost: parsed.data.bookCost ?? null,
-          miscCost: parsed.data.miscCost ?? null,
-          status: parsed.data.status ?? 'active',
-          displayOrder: parsed.data.displayOrder ?? 0,
-          featured: parsed.data.featured ?? false,
-          programStartDate: parsed.data.programStartDate
-            ? new Date(`${parsed.data.programStartDate}T12:00:00.000Z`)
-            : null,
-          programEndDate: parsed.data.programEndDate
-            ? new Date(`${parsed.data.programEndDate}T12:00:00.000Z`)
-            : null,
-        },
-      }),
-    );
-    return NextResponse.json(row, { status: 201 });
-  } catch (e: unknown) {
-    const code = typeof e === 'object' && e && 'code' in e ? (e as { code: string }).code : '';
-    if (code === 'P2002') {
-      // The unique key on OrganizationProgramCatalog is (organizationId,
-      // programSlug) — already per-tenant — so this only fires when the
-      // same admin tries to add a duplicate slug to their own org.
-      return NextResponse.json({ error: 'A catalog row for this program slug already exists.' }, { status: 400 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    const body = await request.json().catch(() => null);
+    const parsed = catalogRowSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
     }
-    throw e;
+  
+    const staticRef = getProgramBySlug(parsed.data.programSlug);
+    if (!staticRef) {
+      return NextResponse.json(
+        { error: 'programSlug must match an existing static program slug (see /programs).' },
+        { status: 400 }
+      );
+    }
+  
+    const organizationId = await getDefaultOrganizationId();
+    try {
+      const row = await withTenantScope(organizationId, (db) =>
+        db.organizationProgramCatalog.create({
+          data: {
+            organizationId,
+            programSlug: parsed.data.programSlug,
+            name: parsed.data.name,
+            description: parsed.data.description ?? null,
+            category: parsed.data.category,
+            deliveryType: parsed.data.deliveryType,
+            deliveryUrl: parsed.data.deliveryUrl ?? null,
+            deliveryDetails: parsed.data.deliveryDetails ?? null,
+            certifications: parsed.data.certifications ?? [],
+            duration: parsed.data.duration ?? null,
+            cost: parsed.data.cost ?? null,
+            certCost: parsed.data.certCost ?? null,
+            bookCost: parsed.data.bookCost ?? null,
+            miscCost: parsed.data.miscCost ?? null,
+            status: parsed.data.status ?? 'active',
+            displayOrder: parsed.data.displayOrder ?? 0,
+            featured: parsed.data.featured ?? false,
+            programStartDate: parsed.data.programStartDate
+              ? new Date(`${parsed.data.programStartDate}T12:00:00.000Z`)
+              : null,
+            programEndDate: parsed.data.programEndDate
+              ? new Date(`${parsed.data.programEndDate}T12:00:00.000Z`)
+              : null,
+          },
+        }),
+      );
+      return NextResponse.json(row, { status: 201 });
+    } catch (e: unknown) {
+      const code = typeof e === 'object' && e && 'code' in e ? (e as { code: string }).code : '';
+      if (code === 'P2002') {
+        // The unique key on OrganizationProgramCatalog is (organizationId,
+        // programSlug) — already per-tenant — so this only fires when the
+        // same admin tries to add a duplicate slug to their own org.
+        return NextResponse.json({ error: 'A catalog row for this program slug already exists.' }, { status: 400 });
+      }
+      throw e;
+    }
+  } catch (error) {
+    console.error('/admin/programs/catalog:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -136,66 +148,71 @@ const patchSchema = catalogRowSchema.partial().extend({
 });
 
 export async function PATCH(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  const body = await request.json().catch(() => null);
-  const parsed = patchSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    const body = await request.json().catch(() => null);
+    const parsed = patchSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
+    }
+  
+    const organizationId = await getDefaultOrganizationId();
+    const { id, ...rest } = parsed.data;
+  
+    const existing = await withTenantScope(organizationId, (db) =>
+      db.organizationProgramCatalog.findFirst({
+        where: { id },
+      }),
+    );
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  
+    if (rest.programSlug && rest.programSlug !== existing.programSlug) {
+      return NextResponse.json({ error: 'programSlug cannot be changed; create a new row instead.' }, { status: 400 });
+    }
+  
+    const row = await withTenantScope(organizationId, (db) =>
+      db.organizationProgramCatalog.update({
+        where: { id },
+        data: {
+          ...(rest.name !== undefined ? { name: rest.name } : {}),
+          ...(rest.description !== undefined ? { description: rest.description } : {}),
+          ...(rest.category !== undefined ? { category: rest.category } : {}),
+          ...(rest.deliveryType !== undefined ? { deliveryType: rest.deliveryType } : {}),
+          ...(rest.deliveryUrl !== undefined ? { deliveryUrl: rest.deliveryUrl } : {}),
+          ...(rest.deliveryDetails !== undefined ? { deliveryDetails: rest.deliveryDetails } : {}),
+          ...(rest.certifications !== undefined ? { certifications: rest.certifications } : {}),
+          ...(rest.duration !== undefined ? { duration: rest.duration } : {}),
+          ...(rest.cost !== undefined ? { cost: rest.cost } : {}),
+          ...(rest.certCost !== undefined ? { certCost: rest.certCost } : {}),
+          ...(rest.bookCost !== undefined ? { bookCost: rest.bookCost } : {}),
+          ...(rest.miscCost !== undefined ? { miscCost: rest.miscCost } : {}),
+          ...(rest.status !== undefined ? { status: rest.status } : {}),
+          ...(rest.displayOrder !== undefined ? { displayOrder: rest.displayOrder } : {}),
+          ...(rest.featured !== undefined ? { featured: rest.featured } : {}),
+          ...(rest.programStartDate !== undefined
+            ? {
+                programStartDate: rest.programStartDate
+                  ? new Date(`${rest.programStartDate}T12:00:00.000Z`)
+                  : null,
+              }
+            : {}),
+          ...(rest.programEndDate !== undefined
+            ? {
+                programEndDate: rest.programEndDate
+                  ? new Date(`${rest.programEndDate}T12:00:00.000Z`)
+                  : null,
+              }
+            : {}),
+        },
+      }),
+    );
+  
+    return NextResponse.json(row);
+  } catch (error) {
+    console.error('/admin/programs/catalog:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const organizationId = await getDefaultOrganizationId();
-  const { id, ...rest } = parsed.data;
-
-  const existing = await withTenantScope(organizationId, (db) =>
-    db.organizationProgramCatalog.findFirst({
-      where: { id },
-    }),
-  );
-  if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-
-  if (rest.programSlug && rest.programSlug !== existing.programSlug) {
-    return NextResponse.json({ error: 'programSlug cannot be changed; create a new row instead.' }, { status: 400 });
-  }
-
-  const row = await withTenantScope(organizationId, (db) =>
-    db.organizationProgramCatalog.update({
-      where: { id },
-      data: {
-        ...(rest.name !== undefined ? { name: rest.name } : {}),
-        ...(rest.description !== undefined ? { description: rest.description } : {}),
-        ...(rest.category !== undefined ? { category: rest.category } : {}),
-        ...(rest.deliveryType !== undefined ? { deliveryType: rest.deliveryType } : {}),
-        ...(rest.deliveryUrl !== undefined ? { deliveryUrl: rest.deliveryUrl } : {}),
-        ...(rest.deliveryDetails !== undefined ? { deliveryDetails: rest.deliveryDetails } : {}),
-        ...(rest.certifications !== undefined ? { certifications: rest.certifications } : {}),
-        ...(rest.duration !== undefined ? { duration: rest.duration } : {}),
-        ...(rest.cost !== undefined ? { cost: rest.cost } : {}),
-        ...(rest.certCost !== undefined ? { certCost: rest.certCost } : {}),
-        ...(rest.bookCost !== undefined ? { bookCost: rest.bookCost } : {}),
-        ...(rest.miscCost !== undefined ? { miscCost: rest.miscCost } : {}),
-        ...(rest.status !== undefined ? { status: rest.status } : {}),
-        ...(rest.displayOrder !== undefined ? { displayOrder: rest.displayOrder } : {}),
-        ...(rest.featured !== undefined ? { featured: rest.featured } : {}),
-        ...(rest.programStartDate !== undefined
-          ? {
-              programStartDate: rest.programStartDate
-                ? new Date(`${rest.programStartDate}T12:00:00.000Z`)
-                : null,
-            }
-          : {}),
-        ...(rest.programEndDate !== undefined
-          ? {
-              programEndDate: rest.programEndDate
-                ? new Date(`${rest.programEndDate}T12:00:00.000Z`)
-                : null,
-            }
-          : {}),
-      },
-    }),
-  );
-
-  return NextResponse.json(row);
 }

@@ -4,6 +4,7 @@ import { sendInactiveNudgeEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * POST /api/cron/inactivity-nudge
@@ -22,6 +23,7 @@ async function handle(_req: NextRequest) {
     where: { createdAt: { gte: fourteenDaysAgo } },
     select: { userId: true },
     distinct: ['userId'],
+    take: 100,
   });
   const activeSet = new Set(recentActiveUserIds.map(r => r.userId));
 
@@ -61,6 +63,7 @@ async function handle(_req: NextRequest) {
   }
 
   const runResult = { sent, failed, total: members.length };
+  await setCronRecordsProcessed(sent);
   await logCronRun('cron_inactivity_nudge', runResult, failed === members.length && members.length > 0 ? 'error' : 'ok');
   return NextResponse.json(runResult);
 }

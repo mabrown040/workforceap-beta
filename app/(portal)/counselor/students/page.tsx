@@ -7,17 +7,18 @@ import PageHeader from '@/components/portal/PageHeader';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 import CounselorStudentsRosterClient from '@/components/portal/counselor/CounselorStudentsRosterClient';
 import { loadCounselorRosterRiskAndActivity } from '@/lib/counselor/counselorStudentsRoster';
 
 const HOT_QUEUE_LOOKBACK_DAYS = 7;
 
-function formatHotQueueTime(date: Date): string {
+function formatHotQueueTime(date: Date, translate: (key: string, values?: { count: number }) => string): string {
   const diffMs = Date.now() - date.getTime();
   const diffHours = Math.max(1, Math.round(diffMs / (1000 * 60 * 60)));
-  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffHours < 24) return translate('hotQueueHoursAgo', { count: diffHours });
   const diffDays = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
-  return `${diffDays}d ago`;
+  return translate('hotQueueDaysAgo', { count: diffDays });
 }
 
 export default async function CounselorStudentsPage() {
@@ -31,8 +32,11 @@ export default async function CounselorStudentsPage() {
   });
   if (!counselor && !(await isAdmin(user.id))) redirect('/dashboard');
 
+  const t = await getTranslations('counselor');
+
   const assignments = counselor
     ? await prisma.counselorAssignment.findMany({
+      take: 500,
         where: { counselor: { userId: user.id, active: true }, active: true },
         include: {
           member: {
@@ -89,6 +93,7 @@ export default async function CounselorStudentsPage() {
 
   const hotQueue = memberIds.length
     ? await prisma.memberNextBestAction.findMany({
+      take: 500,
         where: {
           memberId: { in: memberIds },
           status: 'PENDING',
@@ -118,7 +123,7 @@ export default async function CounselorStudentsPage() {
 
   return (
     <PortalPageFrame>
-      <PageHeader title="My Members" subtitle="Members assigned to you for coaching and messaging." />
+      <PageHeader title={t('myMembersTitle')} subtitle={t('membersAssignedForCoaching')} />
       {/* ── Mobile ─────────────────────────────────────────── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {/* Stats row */}
@@ -132,9 +137,9 @@ export default async function CounselorStudentsPage() {
           }}
         >
           {[
-            { label: 'Active Members', value: activeCount, accent: 'var(--color-accent)' },
-            { label: 'Enrolled', value: enrolledCount, accent: 'var(--color-gold)' },
-            { label: 'Hot Queue', value: hotQueue.length, accent: 'var(--color-amber)' },
+            { label: t('activeMembers'), value: activeCount, accent: 'var(--color-accent)' },
+            { label: t('enrolled'), value: enrolledCount, accent: 'var(--color-gold)' },
+            { label: t('hotMemberQueue'), value: hotQueue.length, accent: 'var(--color-amber)' },
           ].map(({ label, value, accent }) => (
             <div
               key={label}
@@ -181,10 +186,10 @@ export default async function CounselorStudentsPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem' }}>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-amber)' }}>
-                    Hot member queue
+                    {t('hotMemberQueue')}
                   </p>
                   <h2 style={{ margin: '0.2rem 0 0', fontSize: '1rem', fontWeight: 800, color: 'var(--color-amber)' }}>
-                    Fresh completions that need counselor follow-up
+                    {t('freshCompletionsNeedFollowup')}
                   </h2>
                 </div>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-amber)', fontSize: 24 }} aria-hidden="true">local_fire_department</span>
@@ -206,10 +211,10 @@ export default async function CounselorStudentsPage() {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.35rem' }}>
                         <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                          {action.member.fullName ?? 'Member'}
+                          {action.member.fullName ?? t('member')}
                         </p>
                         <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)', whiteSpace: 'nowrap' }}>
-                          {formatHotQueueTime(action.createdAt)}
+                          {formatHotQueueTime(action.createdAt, t)}
                         </span>
                       </div>
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-amber)' }}>{action.title}</p>
@@ -225,11 +230,11 @@ export default async function CounselorStudentsPage() {
         {assignments.length === 0 ? (
           <div style={{ padding: '0 1rem' }}>
             <PortalEmptyState
-              title="No members assigned yet"
-              description="Members will appear here once assigned by an administrator."
+              title={t('noMembersAssignedYet')}
+              description={t('membersAppearOnceAssigned')}
               icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-              primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-              secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
+              primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+              secondaryAction={{ label: t('counselorGuide'), href: '/counselor/guide' }}
             />
           </div>
         ) : (
@@ -252,10 +257,10 @@ export default async function CounselorStudentsPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.875rem' }}>
                 <div>
                   <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-amber)' }}>
-                    Hot member queue
+                    {t('hotMemberQueue')}
                   </p>
                   <h2 style={{ margin: '0.25rem 0 0', fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-amber)' }}>
-                    Members who just became actionable
+                    {t('membersWhoJustBecameActionable')}
                   </h2>
                 </div>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-amber)', fontSize: 28 }} aria-hidden="true">local_fire_department</span>
@@ -280,16 +285,16 @@ export default async function CounselorStudentsPage() {
                   >
                     <div style={{ minWidth: 0 }}>
                       <p style={{ margin: '0 0 0.2rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
-                        {action.member.fullName ?? 'Member'}
+                        {action.member.fullName ?? t('member')}
                       </p>
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-amber)' }}>{action.title}</p>
                       <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)' }}>
-                        {formatHotQueueTime(action.createdAt)}
+                        {formatHotQueueTime(action.createdAt, t)}
                       </p>
-                      <span className="btn btn-primary btn-sm">Open member</span>
+                      <span className="btn btn-primary btn-sm">{t('openMember')}</span>
                     </div>
                   </Link>
                 ))}
@@ -300,11 +305,11 @@ export default async function CounselorStudentsPage() {
 
         {assignments.length === 0 ? (
           <PortalEmptyState
-            title="No members assigned yet"
-            description="Members will appear here once assigned by an administrator."
+            title={t('noMembersAssignedYet')}
+            description={t('membersAppearOnceAssigned')}
             icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-            primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-            secondaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
+            primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+            secondaryAction={{ label: t('counselorGuide'), href: '/counselor/guide' }}
           />
         ) : (
           <CounselorStudentsRosterClient rows={rosterRows} />

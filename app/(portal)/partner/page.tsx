@@ -7,7 +7,6 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
-import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import CopyReferralLink from '@/components/partner/CopyReferralLink';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
@@ -20,21 +19,26 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voice';
+import { getTranslations } from 'next-intl/server';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import DataTable from '@/components/portal/ui/DataTable';
+import type { DataTableColumn } from '@/components/portal/ui/DataTable';
+import PartnerReferralResourcesSection from '@/components/partner/PartnerReferralResourcesSection';
+import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: 'Partner Portal',
-  description: 'Referral outcomes, training progress, and placements for your organization.',
+  title: t('partnerPortal'),
+  description: t('referralOutcomes'),
   path: '/partner',
 });
 }
 
 const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'placed'] as const;
-const ACTIVE_STAGES = ['applied', 'enrolled', 'in_training', 'certified'] as const;
 
 export default async function PartnerDashboardPage() {
   const user = await getUser();
@@ -56,16 +60,23 @@ export default async function PartnerDashboardPage() {
       contactName: true,
       contactPhone: true,
       tourCompletedAt: true,
+      stripeConnectId: true,
+      stripeConnectStatus: true,
     },
   });
 
   if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 
+  const t = await getTranslations('partner');
+
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
   const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
 
-  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(ctx.partnerId);
+  const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(
+    ctx.partnerId,
+    ctx.partner.organizationId,
+  );
   const memberIds = members.map((m) => m.id);
   const pendingPlacementCount = pendingPlacements.length;
 
@@ -75,6 +86,7 @@ export default async function PartnerDashboardPage() {
       ? 0
       : (
           await prisma.application.findMany({
+            take: 5000,
             where: { referralPartnerId: ctx.partnerId, userId: { in: memberIds } },
             select: { userId: true },
             distinct: ['userId'],
@@ -104,21 +116,83 @@ export default async function PartnerDashboardPage() {
 
   const placements = members.filter((m) => m.placementRecord).length;
   const inTraining = pipelineMembers.filter((p) => p.stage === 'in_training' || p.stage === 'certified').length;
-  const completions = pipelineMembers.filter((p) => {
-    return memberProgramCompleted(p.member.enrolledProgram, null, p.member.memberProgramProgress);
-  }).length;
 
   const total = members.length;
 
+  const payoutPerPlacement = getPartnerPlacementPayoutUsd();
+  const enrolledCount = members.filter((m) => m.enrolledAt != null).length;
+  const estimatedPayout = placements * payoutPerPlacement;
+  const fmtMoney = (n: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+  const pendingUserIds = new Set(pendingPlacements.map((p) => p.userId));
+  const referralTableRows = pipelineMembers.map((p) => {
+    const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
+    const enrollmentDate = p.member.enrolledAt ? p.member.enrolledAt.toLocaleDateString() : '—';
+    const placementDate = p.member.placementRecord?.placedAt ? p.member.placementRecord.placedAt.toLocaleDateString() : '—';
+    let payoutStatus = t('notPlaced');
+    if (p.member.placementRecord) payoutStatus = t('includedInEstimate');
+    else if (pendingUserIds.has(p.member.id)) payoutStatus = t('pendingVerification');
+    return {
+      id: p.member.id,
+      fullName: p.member.fullName ?? t('memberFallback'),
+      stage: p.stage,
+      stageLabel,
+      enrollmentDate,
+      placementDate,
+      payoutStatus,
+    };
+  });
+
+  type ReferralDashRow = (typeof referralTableRows)[number];
+  const referralColumns: DataTableColumn<ReferralDashRow>[] = [
+    {
+      key: 'name',
+      header: t('name'),
+      rowHeader: true,
+      cell: (row) => (
+        <Link
+          href={`/partner/referred-members/${row.id}`}
+          style={{ fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
+        >
+          {row.fullName}
+        </Link>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('status'),
+      cell: (row) => (
+        <StatusBadge label={row.stageLabel} variant={row.stage === 'placed' ? 'success' : 'accent'} />
+      ),
+    },
+    {
+      key: 'enrolled',
+      header: t('enrollmentDate'),
+      hideOnMobile: true,
+      cell: (row) => row.enrollmentDate,
+    },
+    {
+      key: 'placed',
+      header: t('placementDate'),
+      hideOnMobile: true,
+      cell: (row) => row.placementDate,
+    },
+    {
+      key: 'payout',
+      header: t('payoutStatus'),
+      cell: (row) => row.payoutStatus,
+    },
+  ];
+
   const nextAction = total === 0
-    ? { label: 'Share workforceap.org/apply with your community', href: '/partner/guide', tip: 'Ask applicants to list your organization when asked how they heard about us.' }
+    ? { label: t('nextActionShareLink'), href: '/partner/guide', tip: t('nextActionShareLinkTip') }
     : pendingPlacementCount > 0
-      ? { label: `${pendingPlacementCount} member${pendingPlacementCount !== 1 ? 's' : ''} reported a job offer — review needed`, href: '/partner/outcomes', tip: 'WorkforceAP is reviewing these offers. You will see verified placements once confirmed.' }
+      ? { label: t('nextActionReviewPlacements', { count: pendingPlacementCount }), href: '/partner/outcomes', tip: t('nextActionReviewPlacementsTip') }
       : placements === 0 && inTraining > 0
-        ? { label: `${inTraining} member${inTraining !== 1 ? 's' : ''} in training — encourage completion`, href: '/partner', tip: 'Check in with members who are close to finishing their program.' }
+        ? { label: t('nextActionEncourageTraining', { count: inTraining }), href: '/partner', tip: t('nextActionEncourageTrainingTip') }
         : placements > 0
-          ? { label: 'Celebrate placements, share more referrals', href: '/partner/guide', tip: 'Your referrals are landing jobs. Keep the pipeline full.' }
-          : { label: 'Review member progress', href: '/partner', tip: 'Members are moving through the journey — track their outcomes.' };
+          ? { label: t('nextActionCelebrate'), href: '/partner/guide', tip: t('nextActionCelebrateTip') }
+          : { label: t('nextActionReviewProgress'), href: '/partner', tip: t('nextActionReviewProgressTip') };
 
   const nearCompletion = pipelineMembers.filter((p) => p.stage === 'in_training' && p.progress >= 70);
 
@@ -132,25 +206,7 @@ export default async function PartnerDashboardPage() {
   const referralLinkUsagePct =
     total > 0 ? Math.min(100, Math.round((referredMembersAppliedViaLink / total) * 100)) : 0;
 
-  // "Active members" = referred members currently in an active stage (not placed / not closed).
-  const activeMembersCount = pipelineMembers.filter((p) =>
-    (ACTIVE_STAGES as readonly string[]).includes(p.stage)
-  ).length;
-
-  // "Needs review" = a real, reviewable outreach queue based on current signals:
-  // - early stages (applied/enrolled): likely need follow-up to move forward
-  // - stalled training: in_training but progress still near-zero
-  const needsReviewMembers = pipelineMembers.filter((p) => {
-    if (p.stage === 'applied' || p.stage === 'enrolled') return true;
-    if (p.stage === 'in_training' && (p.progress ?? 0) < 10) return true;
-    return false;
-  });
-  const needsReviewCount = needsReviewMembers.length;
-
   const inTrainingCount = stageCounts['in_training'] ?? 0;
-
-  // Recent members for mobile (top 4)
-  const recentMembers = pipelineMembers.slice(0, 4);
 
   return (
     <PortalEntryClient
@@ -170,7 +226,7 @@ export default async function PartnerDashboardPage() {
     >
     <PortalPageFrame maxWidth="80rem">
       <h1 className="wa-sr-only">
-        Partner Overview — {ctx.partner.name}
+        {t('partnerOverview')} — {ctx.partner.name}
       </h1>
     {/* ── MOBILE SECTION ── */}
     <div className="wa-block md:wa-hidden portal-mobile-content">
@@ -180,37 +236,134 @@ export default async function PartnerDashboardPage() {
           className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-mb-1"
           style={{ color: 'var(--color-accent)' }}
         >
-          Partner Dashboard
+          {t('partnerDashboard')}
         </p>
         <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
           {ctx.partner.name}
         </h2>
         <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-          {partnerRow.organizationType || 'Partner Organization'}
+          {partnerRow.organizationType || t('partnerOrganization')}
         </p>
       </div>
 
-      {/* Primary KPI strip */}
-      <div className="portal-kpi-grid portal-pad-x" style={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
-        <PortalKpiCard accent="accent" label="Referrals" value={total} hint="Referred members" />
-        <PortalKpiCard accent="neutral" label="Members in Progress" value={activeMembersCount} hint="Active stages" />
-        <PortalKpiCard accent="gold" label="Payouts" value={placements} hint="Verified hires" href="/partner/outcomes" />
+      {/* Estimated payout + KPI strip */}
+      <div className="portal-pad-x" style={{ paddingTop: '0.5rem', paddingBottom: '0.75rem' }}>
+        <div
+          className="portal-card portal-card--flat portal-card--padded"
+          style={{ borderLeft: '4px solid var(--color-gold)', marginBottom: '1rem' }}
+        >
+          <p
+            className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-bold wa-mb-1"
+            style={{ color: 'var(--color-on-surface-variant)' }}
+          >
+            {t('estimatedPayout')}
+          </p>
+          <p className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
+            {fmtMoney(estimatedPayout)}
+          </p>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.45 }}>
+            {t('verifiedPlacements', { count: placements, amount: fmtMoney(payoutPerPlacement) })}
+          </p>
+        </div>
+
+        <div
+          className="portal-kpi-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            gap: '0.625rem',
+          }}
+        >
+          <PortalKpiCard accent="accent" label={t('membersReferred')} value={total} hint={t('inYourPortal')} />
+          <PortalKpiCard accent="neutral" label={t('membersEnrolled')} value={enrolledCount} hint={t('startedAProgram')} />
+          <PortalKpiCard accent="green" label={t('membersPlaced')} value={placements} hint={t('verifiedHires')} href="/partner/outcomes" />
+          <PortalKpiCard accent="gold" label={t('estPayout')} value={fmtMoney(estimatedPayout)} hint={t('placementEstimate')} />
+        </div>
       </div>
 
-      <div className="portal-kpi-grid portal-pad-x" style={{ paddingBottom: '1rem' }}>
-        <PortalKpiCard accent="neutral" label="Certificates" value={completions} hint="Earned by members" />
-        <PortalKpiCard accent="gold" label="Pending Review" value={pendingPlacementCount} hint="Member-reported offers" />
+      {/* Mobile Connect payout section */}
+      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
+        <PortalCard title={t('payouts')} subtitle={t('getPaidToBank')}>
+          {partnerRow.stripeConnectStatus === 'active' ? (
+            <div>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
+                {t('bankAccountConnected')}
+              </p>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
+                {t('readyForPayouts')}
+              </span>
+            </div>
+          ) : (
+            <div>
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
+                {t('connectBankToReceive')}
+              </p>
+              <form
+                action="/api/partner/connect"
+                method="POST"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const res = await fetch('/api/partner/connect', { method: 'POST' });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                  else alert(data.error || 'Something went wrong');
+                }}
+              >
+                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '0.375rem' }}>account_balance</span>
+                  {t('connectBankAccount')}
+                </button>
+              </form>
+            </div>
+          )}
+        </PortalCard>
       </div>
 
-      <div style={{ padding: '0 1.5rem 1rem' }}>
-        <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>Referral link</p>
-        <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>
-          Applied via your link: <strong>{referredMembersAppliedViaLink}</strong>
-        </p>
-        <p style={{ margin: '0.5rem 0 0', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
-          Share: <strong>{referralApplyUrl}</strong>
-        </p>
-        <CopyReferralLink url={referralApplyUrl} />
+      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }} data-tour="tour-referral-link">
+        <PortalCard
+          title={t('referralLink')}
+          subtitle={t('appliedViaYourLink', { count: referredMembersAppliedViaLink })}
+        >
+          <p style={{ margin: '0 0 0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
+            {referralApplyUrl}
+          </p>
+          <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
+        </PortalCard>
+      </div>
+
+      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
+        <PortalCard
+          title={t('referredMembers')}
+          subtitle={t('enrollmentAndPlacementDates')}
+          action={
+            <Link href="/partner/referred-members" className="portal-section-action wa-text-[11px]">
+              {t('viewAll')}
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
+                arrow_forward
+              </span>
+            </Link>
+          }
+        >
+          <DataTable
+            columns={referralColumns}
+            rows={referralTableRows}
+            rowKey={(row) => row.id}
+            density="compact"
+            emptyState={
+              <PortalEmptyState
+                title={t('noReferredMembersYet')}
+                description={t('shareReferralLink')}
+                icon={<span className="material-symbols-outlined">group_add</span>}
+                primaryAction={{ label: t('referralGuide'), href: '/partner/guide' }}
+              />
+            }
+          />
+        </PortalCard>
+      </div>
+
+      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
+        <PartnerReferralResourcesSection partnerName={partnerRow.name} referralApplyUrl={referralApplyUrl} />
       </div>
 
       {/* Next Step Guidance */}
@@ -252,58 +405,17 @@ export default async function PartnerDashboardPage() {
                 description="Ask about referrals, member progress, or using the partner portal."
                 accent="var(--color-amber)"
                 accentDark="var(--color-amber)"
-                speakingLabel="Assistant is speaking…"
-                listeningLabel="Listening — ask your question"
+                speakingLabel={t('assistantSpeaking')}
+                listeningLabel={t('assistantListening')}
               />
             </VoiceAgentSurface>
           </div>
         </details>
       </div>
 
-      {/* Recent Members */}
-      <div style={{ padding: '0 1.5rem 1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-          <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)' }}>Recent Members</p>
-          <Link href="/partner/referred-members" className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider" style={{ color: 'var(--color-accent)', textDecoration: 'none' }}>View All</Link>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {recentMembers.length === 0 ? (
-            <PortalEmptyState
-              title="No members yet"
-              description="Share your referral link to start connecting applicants with WorkforceAP."
-              icon={<span className="material-symbols-outlined">group_add</span>}
-              primaryAction={{ label: 'Referral guide', href: '/partner/guide' }}
-            />
-          ) : (
-            recentMembers.map((p) => {
-              const initials = (p.member.fullName ?? '?').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
-              const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
-              const isPlaced = p.stage === 'placed';
-              return (
-                <Link key={p.member.id} href={`/partner/referred-members/${p.member.id}`} style={{ textDecoration: 'none' }}>
-                  <div className="portal-kpi-card" style={{ borderRadius: '0.75rem', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem', flexShrink: 0 }}>
-                      {initials}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p className="wa-text-sm wa-font-semibold" style={{ color: 'var(--color-on-surface)', margin: 0 }}>{p.member.fullName}</p>
-                      <p className="wa-text-xs" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>{p.programTitle}</p>
-                    </div>
-                    <StatusBadge
-                      label={stageLabel}
-                      variant={isPlaced ? 'success' : 'accent'}
-                    />
-                  </div>
-                </Link>
-              );
-            })
-          )}
-        </div>
-      </div>
-
       {/* Quick Actions */}
       <div style={{ padding: '0 1.5rem 1rem' }}>
-        <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Quick Actions</p>
+        <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>{t('quickActions')}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <Link href="/partner/milestones" className="wa-no-underline active:scale-[0.98] wa-transition-all">
             <PortalCard className="portal-card--compact">
@@ -313,9 +425,9 @@ export default async function PartnerDashboardPage() {
                 </div>
                 <div className="portal-inbox-row__main">
                   <div className="portal-inbox-row__top">
-                    <div className="portal-inbox-row__title">Milestones & Updates</div>
+                    <div className="portal-inbox-row__title">{t('milestonesAndUpdates')}</div>
                   </div>
-                  <div className="portal-inbox-row__preview">{inTrainingCount} currently in training</div>
+                  <div className="portal-inbox-row__preview">{t('currentlyInTraining', { count: inTrainingCount })}</div>
                 </div>
                 <div className="portal-inbox-row__badge" aria-hidden>
                   <span className="material-symbols-outlined" style={{ opacity: 0.7 }}>arrow_forward_ios</span>
@@ -332,9 +444,9 @@ export default async function PartnerDashboardPage() {
                 </div>
                 <div className="portal-inbox-row__main">
                   <div className="portal-inbox-row__top">
-                    <div className="portal-inbox-row__title">Outcomes</div>
+                    <div className="portal-inbox-row__title">{t('outcomes')}</div>
                   </div>
-                  <div className="portal-inbox-row__preview">View placement reports</div>
+                  <div className="portal-inbox-row__preview">{t('viewPlacementReports')}</div>
                 </div>
                 <div className="portal-inbox-row__badge" aria-hidden>
                   <span className="material-symbols-outlined" style={{ opacity: 0.7 }}>arrow_forward_ios</span>
@@ -351,9 +463,9 @@ export default async function PartnerDashboardPage() {
                 </div>
                 <div className="portal-inbox-row__main">
                   <div className="portal-inbox-row__top">
-                    <div className="portal-inbox-row__title">Export Data</div>
+                    <div className="portal-inbox-row__title">{t('exportData')}</div>
                   </div>
-                  <div className="portal-inbox-row__preview">CSV, PDF reports</div>
+                  <div className="portal-inbox-row__preview">{t('csvPdfReports')}</div>
                 </div>
                 <div className="portal-inbox-row__badge" aria-hidden>
                   <span className="material-symbols-outlined" style={{ opacity: 0.7 }}>arrow_forward_ios</span>
@@ -373,67 +485,152 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Header ── */}
       <PageHeader
-        title="Partner Overview"
+        title={t('partnerOverview')}
         titleHeadingLevel={2}
-        subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
+        subtitle={t('referralsProgressOutcomes', { partnerName: ctx.partner.name })}
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <Link href="/partner/outcomes" className="btn btn-outline">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
-              Outcomes snapshot
+              {t('outcomesSnapshotBtn')}
             </Link>
             <Link href={referralApplyUrl} className="btn btn-primary">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
-              New Referral
+              {t('newReferral')}
             </Link>
           </div>
         }
       />
+
+      <section style={{ marginBottom: '1.25rem' }}>
+        <div
+          className="portal-card portal-card--flat portal-card--padded"
+          style={{ borderLeft: '4px solid var(--color-gold)' }}
+        >
+          <p className="partner-section-eyebrow" style={{ marginBottom: '0.35rem' }}>
+            {t('estimatedPayout')}
+          </p>
+          <p style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.1 }}>
+            {fmtMoney(estimatedPayout)}
+          </p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', maxWidth: '42rem', lineHeight: 1.5 }}>
+            {t('verifiedPlacements', { count: placements, amount: fmtMoney(payoutPerPlacement) })}
+          </p>
+        </div>
+      </section>
 
       <section style={{ marginBottom: '1.5rem' }}>
         <div
           className="portal-grid-metrics"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(11rem, 1fr))',
             gap: '1rem',
           }}
         >
-          <PortalKpiCard accent="accent" label="Referrals" value={total} hint="Referred members" />
-          <PortalKpiCard accent="neutral" label="Members in Progress" value={activeMembersCount} hint="Active stages" />
-          <PortalKpiCard accent="gold" label="Payouts" value={placements} hint="Verified hires" href="/partner/outcomes" />
+          <PortalKpiCard accent="accent" label={t('membersReferred')} value={total} hint={t('inYourPortal')} />
+          <PortalKpiCard accent="neutral" label={t('membersEnrolled')} value={enrolledCount} hint={t('startedAProgram')} />
+          <PortalKpiCard accent="green" label={t('membersPlaced')} value={placements} hint={t('verifiedHires')} href="/partner/outcomes" />
+          <PortalKpiCard accent="gold" label={t('estPayout')} value={fmtMoney(estimatedPayout)} hint={t('placementEstimate')} />
         </div>
       </section>
+
+      {/* Desktop Connect payout section */}
+      <section style={{ marginBottom: '1.5rem' }}>
+        <PortalCard title={t('payouts')} subtitle={t('getPaidToBankWhenVerified')}>
+          {partnerRow.stripeConnectStatus === 'active' ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
+                  {t('bankAccountConnected')}
+                </p>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
+                  {t('readyForPayouts')}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                {t('connectBankToReceive')}
+              </p>
+              <form
+                action="/api/partner/connect"
+                method="POST"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const res = await fetch('/api/partner/connect', { method: 'POST' });
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                  else alert(data.error || 'Something went wrong');
+                }}
+              >
+                <button type="submit" className="btn btn-primary">
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '0.375rem' }}>account_balance</span>
+                  {t('connectBankAccount')}
+                </button>
+              </form>
+            </div>
+          )}
+        </PortalCard>
+      </section>
+
+      <section style={{ marginBottom: '1.5rem' }} data-tour="tour-referral-link">
+        <PortalCard
+          title={t('referralLink')}
+          subtitle={t('appliedViaYourLink', { count: referredMembersAppliedViaLink })}
+        >
+          <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
+            {referralApplyUrl}
+          </p>
+          <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
+        </PortalCard>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <PortalCard
+          title={t('referredMembers')}
+          subtitle={t('referredMembersTableSubtitle')}
+          action={
+            <Link href="/partner/referred-members" className="portal-section-action">
+              {t('viewAll')}
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
+                arrow_forward
+              </span>
+            </Link>
+          }
+        >
+          <DataTable
+            columns={referralColumns}
+            rows={referralTableRows}
+            rowKey={(row) => row.id}
+            emptyState={
+              <PortalEmptyState
+                icon={<span className="material-symbols-outlined">group_add</span>}
+                title={t('noReferredMembersYet')}
+                description={t('sendApplicantsTo', { partnerName: ctx.partner.name })}
+                primaryAction={{ label: t('openReferralGuide'), href: '/partner/guide' }}
+              />
+            }
+          />
+        </PortalCard>
+      </section>
+
+      <PartnerReferralResourcesSection partnerName={partnerRow.name} referralApplyUrl={referralApplyUrl} />
 
       <section style={{ marginBottom: '2rem' }}>
         <VoiceAgentSurface {...partnerVoiceSurface}>
           <PortalVoiceSessionLazy
             sessionEndpoint="/api/partner/voice-session"
-            title="Partner Assistant"
-            description="Ask about referrals, member progress, or using the partner portal."
+            title={t('partnerAssistant')}
+            description={t('askAboutReferrals')}
             accent="var(--color-amber)"
             accentDark="var(--color-amber)"
-            speakingLabel="Assistant is speaking…"
-            listeningLabel="Listening — ask your question"
+            speakingLabel={t('assistantSpeaking')}
+            listeningLabel={t('assistantListening')}
           />
         </VoiceAgentSurface>
-      </section>
-
-      {/* ── Referral Link Attribution ── */}
-      <section
-        className="partner-panel"
-        aria-label="Referral link applications"
-        data-tour="tour-referral-link"
-        style={{ marginBottom: '2rem' }}
-      >
-        <p className="partner-section-eyebrow">Referral link</p>
-        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-on-surface)' }}>
-          Applied via your referral link: <strong>{referredMembersAppliedViaLink}</strong>
-        </p>
-        <p style={{ margin: '0.75rem 0 0', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
-          Share: <strong style={{ wordBreak: 'break-all' }}>{referralApplyUrl}</strong>
-        </p>
-        <CopyReferralLink url={referralApplyUrl} />
       </section>
 
       {/* ── Next Step ── */}
@@ -452,7 +649,7 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Journey Snapshot (5-col metric strip) ── */}
       <section style={{ marginBottom: '2rem' }}>
-        <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Journey Snapshot</p>
+        <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>{t('journeySnapshot')}</p>
         <div className="portal-grid-metrics">
           {JOURNEY_STAGES.map((s, i) => (
             <div
@@ -470,22 +667,14 @@ export default async function PartnerDashboardPage() {
         </div>
       </section>
 
-      {total === 0 ? (
-        <PortalEmptyState
-          icon={<span className="material-symbols-outlined">group_add</span>}
-          title="No referred members yet"
-          description={`Send applicants to workforceap.org/apply and have them list ${ctx.partner.name} when asked how they heard about WorkforceAP.`}
-          primaryAction={{ label: 'Open referral guide', href: '/partner/guide' }}
-        />
-      ) : (
-        <>
+      <>
           {/* ── Main Bento: Member Pipeline + Sidebar ── */}
           <div className="portal-grid-metrics" style={{ marginBottom: '2rem' }}>
 
             {/* Member Pipeline */}
             <section>
               <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
-                <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Member Pipeline</h2>
+                <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>{t('memberPipeline')}</h2>
                 <Link href="/partner/referred-members" className="portal-section-action">
                   View all
                   <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
@@ -540,10 +729,10 @@ export default async function PartnerDashboardPage() {
 
               {/* Placement rate + referral link usage */}
               <div className="portal-card portal-card--flat portal-card--padded">
-                <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Partner Insights</h3>
+                <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>{t('partnerInsights')}</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                    <span style={{ color: 'var(--color-on-surface)' }}>Placement rate</span>
+                    <span style={{ color: 'var(--color-on-surface)' }}>{t('placementRate')}</span>
                     <span style={{ color: 'var(--color-accent)', fontSize: '1rem' }}>{conversionRate}%</span>
                   </div>
                   <div className="portal-progress-bar">
@@ -552,41 +741,24 @@ export default async function PartnerDashboardPage() {
                 </div>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                    <span style={{ color: 'var(--color-on-surface)' }}>Referral link usage</span>
+                    <span style={{ color: 'var(--color-on-surface)' }}>{t('referralLinkUsage')}</span>
                     <span style={{ color: 'var(--color-green)', fontSize: '1rem' }}>{referralLinkUsagePct}%</span>
                   </div>
                   <div className="portal-progress-bar portal-progress-bar--gold">
                     <div className="portal-progress-bar__fill" style={{ width: `${referralLinkUsagePct}%`, background: 'var(--color-green)' }} />
                   </div>
                   <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
-                    Members who applied using your referral link.
+                    {t('membersWhoAppliedUsingLink')}
                   </p>
                 </div>
-              </div>
-
-              {/* Resource Center */}
-              <div style={{
-                padding: '1.5rem',
-                borderRadius: '0.75rem',
-                background: 'linear-gradient(135deg, rgba(173,44,77,0.15) 0%, rgba(173,44,77,0.05) 100%)',
-                border: '1px solid rgba(173,44,77,0.15)',
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }}>menu_book</span>
-                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Resource Center</h3>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
-                  Guides, templates, and tools to maximize your referral impact.
-                </p>
-                <Link href="/partner/guide" className="btn btn-primary" style={{ fontSize: '0.75rem' }}>
-                  Explore Resources
-                </Link>
               </div>
 
               {/* Near Completion */}
               {nearCompletion.length > 0 && (
                 <div className="portal-card portal-card--flat portal-card--padded">
-                  <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Near completion</p>
+                  <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>{t('nearCompletion')}</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-                    {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a check-in could help them finish.
+                    {t('membersAt70Percent', { count: nearCompletion.length })}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {nearCompletion.slice(0, 3).map((p) => (
@@ -606,9 +778,9 @@ export default async function PartnerDashboardPage() {
           {/* ── Activity ── */}
           <section className="partner-activity partner-panel">
             <details className="partner-activity-collapsed">
-              <summary>Recent activity</summary>
+              <summary>{t('recentActivity')}</summary>
               {events.length === 0 ? (
-                <p className="partner-activity-empty">No milestone events yet.</p>
+                <p className="partner-activity-empty">{t('noMilestoneEventsYet')}</p>
               ) : (
                 <ul>
                   {events.map((ev) => (
@@ -625,8 +797,7 @@ export default async function PartnerDashboardPage() {
               )}
             </details>
           </section>
-        </>
-      )}
+      </>
     </div>
     </div>
     </PortalPageFrame>

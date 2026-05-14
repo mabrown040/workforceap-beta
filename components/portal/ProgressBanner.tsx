@@ -24,7 +24,7 @@ export default function ProgressBanner({ programTitle, completedCount, totalCoun
           {completedCount} of {totalCount} courses
         </span>
       </div>
-      <Link href="/dashboard/training" className="btn btn-primary progress-banner-cta">
+      <Link href="/dashboard" className="btn btn-primary progress-banner-cta">
         <span className="progress-banner-cta-text">Continue Training →</span>
       </Link>
     </div>

@@ -195,6 +195,7 @@ function measureCourseraIngestion(): SloReport {
 }
 
 export async function GET() {
+  try {
   // Auth: admin-only. Mirrors the pattern used by every /api/admin/* route.
   // We deliberately do NOT mirror /api/health's public posture — see the
   // header comment and docs/SLO-AND-STATUS.md for the rationale.
@@ -227,4 +228,10 @@ export async function GET() {
     status: 200,
     headers: { 'Cache-Control': 'no-store' },
   });
+
+  } catch (error) {
+    console.error('/health/slo error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

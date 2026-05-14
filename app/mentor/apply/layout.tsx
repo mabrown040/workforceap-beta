@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
-import { buildPageMetadataAsync } from '@/app/seo';
+import { buildPageMetadata } from '@/app/seo';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadataAsync({
-  title: 'Mentor Application',
-  description: 'Apply to mentor WorkforceAP members — share your expertise and help someone advance their career.',
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Become a Mentor · Workforce Advancement Project',
+  description:
+    'Apply to mentor members of Workforce Advancement Project. Share your expertise in Technology, Healthcare, Finance, Manufacturing, and more.',
   path: '/mentor/apply',
 });
-}
 
 export default function MentorApplyLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <>{children}</>;
 }

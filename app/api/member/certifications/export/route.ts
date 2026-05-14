@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { withCsvBranding } from '@/lib/export/brandingHeader';
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -11,6 +12,7 @@ export async function GET() {
     where: { userId: user.id },
     orderBy: { earnedAt: 'desc' },
     select: { certName: true, earnedAt: true },
+    take: 100,
   });
 
   const rows = [
@@ -26,4 +28,10 @@ export async function GET() {
       'Content-Disposition': 'attachment; filename="workforceap-certificates.csv"',
     },
   });
+
+  } catch (error) {
+    console.error('/member/certifications/export error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

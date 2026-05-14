@@ -7,11 +7,13 @@ import { prisma } from '@/lib/db/prisma';
 import CounselorPortalShell from '@/components/portal/CounselorPortalShell';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import { buildPageMetadataAsync } from '@/app/seo';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('counselor');
   const base = await buildPageMetadataAsync({
-    title: 'Counselor Portal',
-    description: 'Support your members from enrollment through employment.',
+    title: t('counselorPortal'),
+    description: t('supportYourMembers'),
     path: '/counselor',
   });
   /** PWA install from counselor pages captures this manifest so start_url opens the counselor portal (not `/dashboard`). */

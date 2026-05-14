@@ -126,7 +126,7 @@ export default function CreateEmployerAccountClient() {
               disabled={saving}
               style={{ flex: '1 1 200px' }}
             />
-            <button type="button" className="btn btn-secondary" onClick={search} disabled={searching || saving}>
+            <button type="button" className="btn btn-muted" onClick={search} disabled={searching || saving}>
               {searching ? 'Searching…' : 'Search'}
             </button>
           </div>

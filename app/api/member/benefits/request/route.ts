@@ -6,6 +6,7 @@ import { benefitRequestSchema } from '@/lib/validation/benefitRequest';
 const BENEFIT_COOLDOWN_DAYS = 30;
 
 export async function POST(request: Request) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -73,4 +74,10 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json({ request: req, status: 'pending' });
+
+  } catch (error) {
+    console.error('/member/benefits/request error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

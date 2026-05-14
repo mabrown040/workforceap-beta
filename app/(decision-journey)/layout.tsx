@@ -1,5 +1,4 @@
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
+import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 import ProgramsDecisionJourneyNav from '@/components/ProgramsDecisionJourneyNav';
 import ScrollToTopButton from '@/components/ScrollToTopButton';
 
@@ -17,8 +16,8 @@ export default function DecisionJourneyLayout({ children }: { children: React.Re
       <ProgramsDecisionJourneyNav />
       {children}
       <ScrollToTopButton />
-      <Footer />
-      <MobileBottomNav variant="marketing" />
+      <DynamicFooter />
+      <DynamicMobileBottomNav variant="marketing" />
     </>
   );
 }

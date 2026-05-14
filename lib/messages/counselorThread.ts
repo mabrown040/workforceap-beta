@@ -6,7 +6,7 @@ const MAX_BODY = 8000;
 export type ThreadMessageRow = {
   id: string;
   threadId: string;
-  authorId: string;
+  authorId: string | null;
   body: string;
   createdAt: Date;
 };
@@ -112,7 +112,7 @@ export function serializeMessage(m: ThreadMessageRow) {
   return {
     id: m.id,
     threadId: m.threadId,
-    authorId: m.authorId,
+    authorId: m.authorId ?? '',
     body: m.body,
     createdAt: m.createdAt.toISOString(),
   };

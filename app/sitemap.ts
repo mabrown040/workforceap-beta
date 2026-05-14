@@ -54,6 +54,8 @@ const routes = [
   '/wioa-qualification',
   '/privacy',
   '/mentor',
+  '/mentor/apply',
+  '/accessibility',
   '/outcomes',
 ] as const;
 
@@ -82,6 +84,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const blogPosts = await prisma.blogPost.findMany({
         where: { published: true },
         select: { slug: true, updatedAt: true },
+        take: 1000,
       });
       blogPages = blogPosts.map((p) => ({
         url: `${SITE_URL}/blog/${p.slug}`,

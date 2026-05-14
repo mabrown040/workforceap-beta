@@ -24,6 +24,7 @@ export async function POST(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  try {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -83,4 +84,10 @@ export async function POST(
     programSlug: enrollment.programSlug,
     changed: true,
   });
+
+  } catch (error) {
+    console.error('/member/enrollments/[id]/set-primary error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

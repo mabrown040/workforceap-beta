@@ -15,6 +15,7 @@ const createSchema = z.object({
 });
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -33,9 +34,16 @@ export async function GET() {
     },
   });
   return NextResponse.json(subgroups);
+
+  } catch (error) {
+    console.error('/admin/subgroups error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -80,4 +88,10 @@ export async function POST(request: NextRequest) {
     },
   });
   return NextResponse.json(subgroup, { status: 201 });
+
+  } catch (error) {
+    console.error('/admin/subgroups error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

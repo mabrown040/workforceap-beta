@@ -48,6 +48,7 @@ export default async function AdminEmployersPage() {
   const [superAdmin, employers] = await Promise.all([
     isSuperAdmin(user.id),
     prisma.employer.findMany({
+      take: 5000,
       orderBy: { companyName: 'asc' },
       include: {
         user: { select: { email: true, fullName: true } },

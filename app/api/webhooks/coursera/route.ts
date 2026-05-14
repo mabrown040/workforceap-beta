@@ -1,6 +1,8 @@
 import { createHash } from 'crypto';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { checkWebhookRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 import { getCourseraConfig, getCourseraReadiness } from '@/lib/coursera/config';
 import { verifyCourseraRestWebhookAuth } from '@/lib/coursera/webhookAuth';
@@ -86,161 +88,199 @@ function buildSyntheticParsed(
 }
 
 export async function POST(request: Request) {
-  const readiness = getCourseraReadiness(null);
-  if (!readiness.canReceiveWebhooks) {
-    return NextResponse.json({ error: 'Coursera webhook is not configured' }, { status: 503 });
-  }
-
-  const expectedSecret = getCourseraConfig().webhookSecret;
-
-  let rawBody: string;
   try {
-    rawBody = await request.text();
-  } catch {
-    return NextResponse.json({ error: 'Unable to read body' }, { status: 400 });
-  }
-
-  let body: unknown;
-  try {
-    body = rawBody ? JSON.parse(rawBody) : null;
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const parsed = webhookSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten() }, { status: 400 });
-  }
-
-  const auth = verifyCourseraRestWebhookAuth({
-    request,
-    rawBody,
-    expectedSecret,
-    bodySecret: parsed.data.secret,
-  });
-  if (!auth.ok) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const data = parsed.data;
-  const rawAudit = redactBodyForAudit(body as Record<string, unknown>);
-  const dedupeKey = buildDedupeStatementId(data, rawBody);
-
-  let memberId: string | null = null;
-  let mappingMethod: string | undefined;
-  let resolvedEmail: string | undefined;
-
-  if (data.externalUserId) {
-    const byId = await prisma.user.findUnique({
-      where: { id: data.externalUserId },
-      select: { id: true, email: true },
-    });
-    if (byId) {
-      memberId = byId.id;
-      mappingMethod = 'external_user_id';
-      resolvedEmail = byId.email.trim().toLowerCase();
+    const ip = getClientIpFromRequest(request);
+    const { success: withinLimit } = await checkWebhookRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      );
     }
-  }
 
-  if (!memberId) {
-    const resolved = await resolveXapiUser({
-      email: data.email ?? undefined,
+    const readiness = getCourseraReadiness(null);
+    if (!readiness.canReceiveWebhooks) {
+      return NextResponse.json({ error: 'Coursera webhook is not configured' }, { status: 503 });
+    }
+  
+    const expectedSecret = getCourseraConfig().webhookSecret;
+  
+    let rawBody: string;
+    try {
+      rawBody = await request.text();
+    } catch {
+      return NextResponse.json({ error: 'Unable to read body' }, { status: 400 });
+    }
+  
+    let body: unknown;
+    try {
+      body = rawBody ? JSON.parse(rawBody) : null;
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+  
+    const parsed = webhookSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten() }, { status: 400 });
+    }
+  
+    const auth = verifyCourseraRestWebhookAuth({
+      request,
+      rawBody,
+      expectedSecret,
+      bodySecret: parsed.data.secret,
+    });
+    if (!auth.ok) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    const data = parsed.data;
+    const rawAudit = redactBodyForAudit(body as Record<string, unknown>);
+    const dedupeKey = buildDedupeStatementId(data, rawBody);
+  
+    let memberId: string | null = null;
+    let mappingMethod: string | undefined;
+    let resolvedEmail: string | undefined;
+  
+    if (data.externalUserId) {
+      const byId = await prisma.user.findUnique({
+        where: { id: data.externalUserId },
+        select: { id: true, email: true },
+      });
+      if (byId) {
+        memberId = byId.id;
+        mappingMethod = 'external_user_id';
+        resolvedEmail = byId.email.trim().toLowerCase();
+      }
+    }
+  
+    if (!memberId) {
+      const resolved = await resolveXapiUser({
+        email: data.email ?? undefined,
+        actorIdentifier: data.actorIdentifier,
+        actorHomePage: data.actorHomePage,
+      });
+      if (resolved) {
+        memberId = resolved.userId;
+        mappingMethod = resolved.mappingMethod;
+        resolvedEmail = resolved.email.trim().toLowerCase();
+      }
+    }
+  
+    const identity = {
+      email: data.email ?? resolvedEmail,
       actorIdentifier: data.actorIdentifier,
       actorHomePage: data.actorHomePage,
-    });
-    if (resolved) {
-      memberId = resolved.userId;
-      mappingMethod = resolved.mappingMethod;
-      resolvedEmail = resolved.email.trim().toLowerCase();
-    }
-  }
-
-  const identity = {
-    email: data.email ?? resolvedEmail,
-    actorIdentifier: data.actorIdentifier,
-    actorHomePage: data.actorHomePage,
-  };
-
-  if (!memberId) {
-    await recordXapiEvent({
-      statementId: dedupeKey,
-      identity,
-      courseSlug: data.courseSlug,
-      courseName: data.courseName,
-      completionStatus: 'unmatched',
-      error: 'No matching member identity found',
-      rawPayload: rawAudit,
-    });
-    // 200: avoid endless partner retries for permanently unknown learners (same rationale as xAPI batch ack).
-    return NextResponse.json({
-      received: true,
-      matched: false,
-      dedupeKey,
-    });
-  }
-
-  const claim = await claimCourseraRestWebhookStatement(dedupeKey);
-  if (claim === 'already_processed') {
-    return NextResponse.json({
-      received: true,
-      duplicate: true,
-      dedupeKey,
-      userId: memberId,
-    });
-  }
-
-  const dbUser = await prisma.user.findUnique({
-    where: { id: memberId },
-    select: { enrolledProgram: true },
-  });
-  const enrolledProgram = dbUser?.enrolledProgram ?? null;
-
-  const synthetic = buildSyntheticParsed(data, resolvedEmail, rawAudit);
-  const shouldComplete = isXapiCompletionVerb(synthetic);
-
-  try {
-    if (!enrolledProgram) {
+    };
+  
+    if (!memberId) {
       await recordXapiEvent({
         statementId: dedupeKey,
         identity,
         courseSlug: data.courseSlug,
         courseName: data.courseName,
-        matchedUserId: memberId,
-        mappingMethod,
-        completionStatus: shouldComplete ? 'error' : 'ignored',
-        error: shouldComplete ? 'No program enrolled' : undefined,
+        completionStatus: 'unmatched',
+        error: 'No matching member identity found',
         rawPayload: rawAudit,
       });
-      await markXapiStatementProcessed(dedupeKey);
-      if (shouldComplete) {
-        return NextResponse.json(
-          {
-            received: true,
-            matched: true,
-            userId: memberId,
-            ok: false,
-            error: 'No program enrolled',
-            dedupeKey,
-          },
-          { status: 422 }
-        );
+      // 200: avoid endless partner retries for permanently unknown learners (same rationale as xAPI batch ack).
+      return NextResponse.json({
+        received: true,
+        matched: false,
+        dedupeKey,
+      });
+    }
+  
+    const claim = await claimCourseraRestWebhookStatement(dedupeKey);
+    if (claim === 'already_processed') {
+      return NextResponse.json({
+        received: true,
+        duplicate: true,
+        dedupeKey,
+        userId: memberId,
+      });
+    }
+  
+    const dbUser = await prisma.user.findUnique({
+      where: { id: memberId },
+      select: { enrolledProgram: true },
+    });
+    const enrolledProgram = dbUser?.enrolledProgram ?? null;
+  
+    const synthetic = buildSyntheticParsed(data, resolvedEmail, rawAudit);
+    const shouldComplete = isXapiCompletionVerb(synthetic);
+  
+    try {
+      if (!enrolledProgram) {
+        await recordXapiEvent({
+          statementId: dedupeKey,
+          identity,
+          courseSlug: data.courseSlug,
+          courseName: data.courseName,
+          matchedUserId: memberId,
+          mappingMethod,
+          completionStatus: shouldComplete ? 'error' : 'ignored',
+          error: shouldComplete ? 'No program enrolled' : undefined,
+          rawPayload: rawAudit,
+        });
+        await markXapiStatementProcessed(dedupeKey);
+        if (shouldComplete) {
+          return NextResponse.json(
+            {
+              received: true,
+              matched: true,
+              userId: memberId,
+              ok: false,
+              error: 'No program enrolled',
+              dedupeKey,
+            },
+            { status: 422 }
+          );
+        }
+        return NextResponse.json({
+          received: true,
+          matched: true,
+          userId: memberId,
+          progressRecorded: false,
+          dedupeKey,
+        });
       }
-      return NextResponse.json({
-        received: true,
-        matched: true,
+  
+      await upsertCourseProgressFromXapiStatement({
         userId: memberId,
-        progressRecorded: false,
-        dedupeKey,
+        enrolledProgramSlug: enrolledProgram,
+        parsed: synthetic,
       });
-    }
-
-    await upsertCourseProgressFromXapiStatement({
-      userId: memberId,
-      enrolledProgramSlug: enrolledProgram,
-      parsed: synthetic,
-    });
-
-    if (!shouldComplete) {
+  
+      if (!shouldComplete) {
+        await recordXapiEvent({
+          statementId: dedupeKey,
+          identity,
+          courseSlug: data.courseSlug,
+          courseName: data.courseName,
+          matchedUserId: memberId,
+          mappingMethod,
+          completionStatus: 'ignored',
+          rawPayload: rawAudit,
+        });
+        await markXapiStatementProcessed(dedupeKey);
+        return NextResponse.json({
+          received: true,
+          matched: true,
+          userId: memberId,
+          progressRecorded: true,
+          completed: false,
+          dedupeKey,
+        });
+      }
+  
+      const result = await completeMemberCourse({
+        userId: memberId,
+        courseSlug: data.courseSlug,
+        courseName: data.courseName,
+        source: 'coursera-webhook',
+      });
+  
       await recordXapiEvent({
         statementId: dedupeKey,
         identity,
@@ -248,73 +288,49 @@ export async function POST(request: Request) {
         courseName: data.courseName,
         matchedUserId: memberId,
         mappingMethod,
-        completionStatus: 'ignored',
+        completionStatus: 'completed',
         rawPayload: rawAudit,
       });
       await markXapiStatementProcessed(dedupeKey);
+  
       return NextResponse.json({
         received: true,
         matched: true,
         userId: memberId,
-        progressRecorded: true,
-        completed: false,
+        completed: true,
+        authMethod: auth.method,
         dedupeKey,
+        ...result,
       });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to process Coursera webhook';
+      await recordXapiEvent({
+        statementId: dedupeKey,
+        identity,
+        courseSlug: data.courseSlug,
+        courseName: data.courseName,
+        matchedUserId: memberId,
+        mappingMethod,
+        completionStatus: 'error',
+        error: message,
+        rawPayload: rawAudit,
+      });
+  
+      const permanentClientFailure =
+        message.includes('Course not found in member program')
+        || message.includes('Invalid program')
+        || message.includes('No program enrolled');
+  
+      if (permanentClientFailure) {
+        await markXapiStatementProcessed(dedupeKey);
+        return NextResponse.json({ received: true, matched: true, userId: memberId, ok: false, error: message, dedupeKey }, { status: 422 });
+      }
+  
+      // Leave `processed` false so Coursera retries can replay after a transient failure (5xx).
+      return NextResponse.json({ error: message, dedupeKey }, { status: 500 });
     }
-
-    const result = await completeMemberCourse({
-      userId: memberId,
-      courseSlug: data.courseSlug,
-      courseName: data.courseName,
-      source: 'coursera-webhook',
-    });
-
-    await recordXapiEvent({
-      statementId: dedupeKey,
-      identity,
-      courseSlug: data.courseSlug,
-      courseName: data.courseName,
-      matchedUserId: memberId,
-      mappingMethod,
-      completionStatus: 'completed',
-      rawPayload: rawAudit,
-    });
-    await markXapiStatementProcessed(dedupeKey);
-
-    return NextResponse.json({
-      received: true,
-      matched: true,
-      userId: memberId,
-      completed: true,
-      authMethod: auth.method,
-      dedupeKey,
-      ...result,
-    });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unable to process Coursera webhook';
-    await recordXapiEvent({
-      statementId: dedupeKey,
-      identity,
-      courseSlug: data.courseSlug,
-      courseName: data.courseName,
-      matchedUserId: memberId,
-      mappingMethod,
-      completionStatus: 'error',
-      error: message,
-      rawPayload: rawAudit,
-    });
-
-    const permanentClientFailure =
-      message.includes('Course not found in member program')
-      || message.includes('Invalid program')
-      || message.includes('No program enrolled');
-
-    if (permanentClientFailure) {
-      await markXapiStatementProcessed(dedupeKey);
-      return NextResponse.json({ received: true, matched: true, userId: memberId, ok: false, error: message, dedupeKey }, { status: 422 });
-    }
-
-    // Leave `processed` false so Coursera retries can replay after a transient failure (5xx).
-    return NextResponse.json({ error: message, dedupeKey }, { status: 500 });
+    console.error('/webhooks/coursera:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

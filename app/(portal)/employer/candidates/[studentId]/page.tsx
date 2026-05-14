@@ -65,6 +65,7 @@ export default async function EmployerCandidateProfilePage({
 
   const [matches, applications] = await Promise.all([
     prisma.aIJobMatch.findMany({
+      take: 5000,
       where: { studentId, job: { employerId: ctx.employerId, status: 'live' } },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -72,6 +73,7 @@ export default async function EmployerCandidateProfilePage({
       },
     }),
     prisma.jobPostingApplication.findMany({
+      take: 5000,
       where: { studentId, job: { employerId: ctx.employerId } },
       orderBy: { appliedAt: 'desc' },
       include: {

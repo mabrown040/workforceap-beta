@@ -5,10 +5,10 @@ import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE, FUNDING_SOURCES, FUNDING_COLORS } from '@/lib/content/programs';
 import { MARKETING_JOURNEY_STEPS, type MarketingJourneyStep } from '@/lib/content/marketingJourneySteps';
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
+import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 
 import { getTranslations } from 'next-intl/server';
+import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 
 // Product stake: if the homepage uses the brand line "Empowering People. Advancing Futures.",
 // keep the supporting copy immediately concrete, member-safe, and operational.
@@ -23,9 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const HERO_IMAGE_SRC = '/images/hero-people.webp';
 const HOMEPAGE_PROGRAM_CARD_IMAGES = {
-  community: '/images/austin-skyline.jpg',
+  community: '/images/austin-skyline.webp',
   technology: '/images/hero-people.webp',
-  handsOn: '/images/AdobeStock_78118914.jpeg',
+  handsOn: '/images/AdobeStock_78118914.webp',
 } as const;
 
 const HOMEPAGE_PROGRAM_ORDER = [
@@ -41,10 +41,10 @@ function getHomepageProgramCardImage(
 ) {
   // Ensure we don't repeat the same image 4 times on the homepage
   const images = [
-    '/images/AdobeStock_78118914.jpeg',
-    '/images/austin-skyline.jpg',
+    '/images/AdobeStock_78118914.webp',
+    '/images/austin-skyline.webp',
     '/images/hero-people.webp',
-    '/images/image-asset.jpeg'
+    '/images/image-asset.webp'
   ];
   return images[index % images.length];
 }
@@ -130,7 +130,9 @@ export default async function HomePage() {
           alt="Collaborative workspace"
           fill
           priority
-          sizes="(max-width: 768px) 100vw, 50vw"
+          fetchPriority="high"
+          sizes="(max-width: 1920px) 100vw, 1920px"
+          quality={85}
           placeholder="blur"
           blurDataURL={HERO_IMAGE_BLUR}
           style={{ objectFit: 'cover', objectPosition: 'center' }}
@@ -190,37 +192,52 @@ export default async function HomePage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '2rem', maxWidth: '720px' }}>
             {([t('heroStep1'), t('heroStep2'), t('heroStep3')] as const).map((step, index) => (
-              <div
-                key={index}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.625rem',
-                  padding: '0.75rem 0.95rem',
-                  borderRadius: '9999px',
-                  background: 'rgba(15, 18, 24, 0.46)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  color: 'var(--home-hero-fg, #f2f2f5)',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                }}
-              >
-                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.35rem', height: '1.35rem', borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', fontSize: '0.78rem', fontWeight: 700 }}>
-                  {index + 1}
-                </span>
+              <div key={index} className="marketing-hero-step-pill">
+                <span className="marketing-hero-step-pill__index">{index + 1}</span>
                 <span>{step}</span>
               </div>
             ))}
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-            <Link href="/find-your-path" className="btn btn-primary btn-large" style={{ fontSize: 'clamp(1.05rem, 1vw + 0.9rem, 1.25rem)' }}>
+            <Link
+              href="/apply"
+              className={marketingButtonClasses({
+                variant: 'primary',
+                radius: 'lg',
+                large: true,
+                className: 'home-hero__cta-primary',
+              })}
+            >
+              {t('heroCtaPrimary')}
+            </Link>
+            <Link
+              href="/find-your-path"
+              className={marketingButtonClasses({
+                variant: 'secondary',
+                radius: 'lg',
+                large: true,
+                onDarkSecondary: true,
+                className: 'home-hero__cta-secondary home-hero-secondary-cta',
+              })}
+            >
               {t('heroCta')}
             </Link>
-            <Link href="/programs" className="home-hero-outline-cta" style={{ fontSize: '0.95rem', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.88))', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
+            <Link
+              href="/programs"
+              className={marketingButtonClasses({
+                variant: 'ghost',
+                radius: 'md',
+                large: true,
+                className: 'home-hero__cta-ghost',
+              })}
+            >
               {t('browsePrograms')}
             </Link>
           </div>
+          <p style={{ marginTop: '0.65rem', marginBottom: 0, fontSize: 'clamp(0.95rem, 0.5vw + 0.88rem, 1.05rem)', fontWeight: 600, color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.92))' }}>
+            {t('heroSocialProof')}
+          </p>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
               <span>✓ {t('trustGrant')}</span>
@@ -366,7 +383,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Social Proof / Credibility Bar ===== */}
-      <section className="home-credibility-bar" style={{ padding: '2rem 0', background: 'var(--surface-container-lowest)' }}>
+      <section className="home-credibility-bar" aria-label="Partner logos" style={{ padding: '2rem 0', background: 'var(--surface-container-lowest)' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <p className="text-label-upper" style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '1.5rem', fontSize: '0.625rem', letterSpacing: '0.2em' }}>
             {t('credBarLabel')}
@@ -375,14 +392,14 @@ export default async function HomePage() {
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Google</span>
             <span style={{ fontSize: "1.25rem", fontWeight: 700 }}>AT&T</span>
             <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>Coursera</span>
-            <Image className="home-cred-logo" src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} />
-            <Image className="home-cred-logo" src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} />
+            <Image className="home-cred-logo" src="/images/microsoft-logo.svg" alt="Microsoft" width={100} height={24} loading="lazy" />
+            <Image className="home-cred-logo" src="/images/ibm-logo.svg" alt="IBM" width={60} height={24} loading="lazy" />
           </div>
         </div>
       </section>
 
       {/* ===== A Network Built for Success — Stakeholder Cards (Partnerships) ===== */}
-      <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
+      <section aria-label="Partnerships" style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
@@ -485,7 +502,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Built on Workforce Experience — Bento: 2/3 text + 1/3 stats grid ===== */}
-      <section style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
+      <section aria-label="Impact statistics" style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
         <div id="impact" className="home-impact-bento">
           {/* Text block (2/3) */}
           <div>
@@ -536,7 +553,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Milestone Journey — Horizontal Scrolling Cards ===== */}
-      <section style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
+      <section aria-label="Career journey" style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem', textAlign: 'center' }}>{t('journeyTitle')}</h2>
           <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
@@ -582,7 +599,7 @@ export default async function HomePage() {
             }}>
               <div style={{ position: 'relative', zIndex: 1 }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', letterSpacing: '0.02em' }}>{journeyPhaseLabel(step.homePhase)}</span>
-                <h4 style={{ fontWeight: 700, marginTop: '0.5rem', marginBottom: '0.5rem', fontSize: '1.125rem' }}>{step.title}</h4>
+                <h3 style={{ fontWeight: 700, marginTop: '0.5rem', marginBottom: '0.5rem', fontSize: '1.125rem' }}>{step.title}</h3>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{step.shortDesc}</p>
               </div>
             </div>
@@ -594,7 +611,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Available Programs — prioritized homepage cards with images, category labels, duration + cert badges ===== */}
-      <section style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
+      <section aria-label="Available programs" style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ marginBottom: '3rem' }}>
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
             {t('programsEyebrow')}
@@ -630,6 +647,7 @@ export default async function HomePage() {
                   src={getHomepageProgramCardImage(p, index)}
                   alt={p.static?.title ?? p.name}
                   fill
+                  loading="lazy"
                   sizes="(max-width: 768px) 100vw, 33vw"
                   style={{ objectFit: 'cover', opacity: 0.7 }}
                 />
@@ -643,7 +661,7 @@ export default async function HomePage() {
                 }}>{p.category}</span>
               </div>
               <div style={{ padding: '1.25rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <h4 style={{ fontWeight: 700, fontSize: '1.125rem', lineHeight: 1.3 }}>{p.static?.title ?? p.name}</h4>
+                <h3 style={{ fontWeight: 700, fontSize: '1.125rem', lineHeight: 1.3 }}>{p.static?.title ?? p.name}</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: 'auto' }}>
                   {/* Duration badge */}
                   <span style={{
@@ -672,7 +690,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== AI-Powered Career Support ===== */}
-      <section style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
+      <section aria-label="AI career support" style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
         <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
           {t('aiEyebrow')}
         </span>
@@ -691,7 +709,7 @@ export default async function HomePage() {
       </section>
 
       {/* ===== Final CTA ===== */}
-      <section className="footer-cta" style={{ background: 'var(--color-accent)', padding: 'clamp(3rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
+      <section className="footer-cta" aria-label="Get started" style={{ background: 'var(--color-accent)', padding: 'clamp(3rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem)', textAlign: 'center' }}>
         <div style={{ maxWidth: '720px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: 'white', marginBottom: '1rem' }}>{t('ctaTitle')}</h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>
@@ -711,8 +729,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <MobileBottomNav />
-      <Footer variant="home" />
+      <DynamicMobileBottomNav />
+      <DynamicFooter variant="home" />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import GoogleDocsStyleResumeEditor from '@/components/portal/GoogleDocsStyleResumeEditor';
 import type { ResumeSuggestion, VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
@@ -400,7 +400,7 @@ export default function ResumeCoachWorkspace() {
           {...resumeCoachVoiceSurface}
           subtext="Voice feedback on bullets and framing. Your draft stays editable — suggested deletions and rewrites appear inline (like Google Docs) with Accept or Reject."
         >
-          <PortalVoiceSession
+          <PortalVoiceSessionLazy
             sessionEndpoint="/api/member/resume-coach/session"
             sessionPayload={sessionPayload}
             retryWithoutDynamicVariables={false}

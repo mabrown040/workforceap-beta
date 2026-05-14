@@ -11,6 +11,7 @@ import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
  * admin console and cron soft-guards treat all jobs as active.
  */
 export async function POST() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -41,4 +42,10 @@ export async function POST() {
     activated: records.length,
     workflows: CRON_REGISTRY.map((c) => c.workflowKey),
   });
+
+  } catch (error) {
+    console.error('/admin/email-crons/activate-all error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

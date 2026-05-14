@@ -182,14 +182,10 @@ function deriveStateLetter(args: {
 export async function getMemberState(
   userId: string,
   opts: {
-    /** Optional Coursera B4B progress map keyed by Coursera contentId. When
-     *  supplied, `trainingView.progressPercentDisplay` reflects the B4B
-     *  authoritative average for the user's enrolledProgram (all-or-nothing
-     *  — see `averageProgramProgressFromB4B`). The dashboard home page
-     *  fetches this in parallel with the rest of the page data so the hero
-     *  ring matches what Coursera shows the learner internally. Other
-     *  callers (resume / profile pages) can omit it; the local rollup is
-     *  used as today. */
+    /** Optional Coursera B4B enrollmentReports map keyed by Coursera `contentId`.
+     *  When supplied, `trainingView.progressPercentDisplay` prefers B4B
+     *  `overallProgress` per course (mean across the catalog); otherwise local
+     *  `CourseProgress` / rollup are used — see `loadMemberProgramTrainingView`. */
     b4bProgress?: LearnerProgressByContent;
     /** Multi-program override for the program slug used to compute the
      *  `trainingView` (and thus the hero progress + completed count). The
@@ -402,7 +398,10 @@ async function loadMemberFullContext(userId: string): Promise<Omit<MemberStateFu
       },
     }),
     prisma.memberEvent.findMany({
-      where: { userId },
+      where: {
+        userId,
+        createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
+      },
       orderBy: { createdAt: 'desc' },
       take: 20,
       select: {

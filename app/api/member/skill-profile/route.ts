@@ -243,6 +243,7 @@ function mergeProfiles(
 }
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -251,6 +252,7 @@ export async function GET() {
     prisma.userCertification.findMany({
       where: { userId: user.id },
       select: { certName: true },
+      take: 100,
     }),
     prisma.profile.findUnique({
       where: { userId: user.id },
@@ -423,4 +425,10 @@ export async function GET() {
     hasInterestProfiler,
     hasAiResumeExtraction,
   });
+
+  } catch (error) {
+    console.error('/member/skill-profile error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

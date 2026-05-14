@@ -39,136 +39,141 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 const AUTO_SYNC_BACKOFF_MS = 60 * 60 * 1000;
 
 export async function POST() {
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  if (!user.email) {
-    return NextResponse.json(
-      { ok: true, didSync: false, message: 'No email on file; cannot auto-sync.' },
-      { status: 200 },
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!user.email) {
+      return NextResponse.json(
+        { ok: true, didSync: false, message: 'No email on file; cannot auto-sync.' },
+        { status: 200 },
+      );
+    }
+  
+    let orgId: string;
+    try {
+      orgId = await getActorOrganizationId(user.id);
+    } catch (err) {
+      captureApiError(err, { route: 'member/coursera/auto-sync' });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    // Self-only: load the authenticated user's row directly through
+    // withTenantScope so a stale auth session that points to a different org
+    // can never resolve a row in this org. There is no `email` body — we
+    // never let the member sync someone else's account.
+    const dbUser = await withTenantScope(orgId, (db) =>
+      db.user.findUnique({
+        where: { id: user.id },
+        select: {
+          id: true,
+          email: true,
+          enrolledProgram: true,
+          lastCourseraAutoSyncAt: true,
+          organizationId: true,
+          _count: { select: { courseProgress: true } },
+        },
+      }),
     );
-  }
-
-  let orgId: string;
-  try {
-    orgId = await getActorOrganizationId(user.id);
-  } catch (err) {
-    captureApiError(err, { route: 'member/coursera/auto-sync' });
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  // Self-only: load the authenticated user's row directly through
-  // withTenantScope so a stale auth session that points to a different org
-  // can never resolve a row in this org. There is no `email` body — we
-  // never let the member sync someone else's account.
-  const dbUser = await withTenantScope(orgId, (db) =>
-    db.user.findUnique({
-      where: { id: user.id },
-      select: {
-        id: true,
-        email: true,
-        enrolledProgram: true,
-        lastCourseraAutoSyncAt: true,
-        organizationId: true,
-        _count: { select: { courseProgress: true } },
-      },
-    }),
-  );
-  if (!dbUser) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // Idempotency gate #1: backoff window. If we synced this user recently,
-  // skip — the data is fresh enough.
-  if (
-    dbUser.lastCourseraAutoSyncAt &&
-    Date.now() - dbUser.lastCourseraAutoSyncAt.getTime() < AUTO_SYNC_BACKOFF_MS
-  ) {
-    return NextResponse.json({
-      ok: true,
-      didSync: false,
-      message: 'Auto-sync skipped — last sync was within the backoff window.',
-    });
-  }
-
-  // Idempotency gate #2: any local CourseProgress row means this user has
-  // already been synced (by an admin click, the cron, or a prior auto-sync).
-  // The auto-sync trigger is for never-synced users only; once rows exist the
-  // background xAPI / cron pipeline keeps them current.
-  if (dbUser._count.courseProgress > 0) {
-    // Stamp the timestamp anyway so we don't recheck this on every render.
-    await markUserAutoSynced({ userId: dbUser.id, orgId });
-    return NextResponse.json({
-      ok: true,
-      didSync: false,
-      message: 'Auto-sync skipped — local CourseProgress rows already exist.',
-    });
-  }
-
-  // Gate #3: must have a Coursera identity mapping. Without one the xAPI
-  // pipeline doesn't know who this learner is on Coursera's side, so a B4B
-  // pull would return nothing useful. (The mapping is created either by an
-  // admin in /admin/integrations/xapi or auto-created when the user's first
-  // xAPI statement arrives — see resolveXapiUser auto-mapping.)
-  const mappings = await listCourseraIdentityMappingsForUser(dbUser.id).catch(
-    (err) => {
-      console.warn('[auto-sync] mapping lookup failed:', err);
-      return [] as Array<{ courseraEmail: string | null }>;
-    },
-  );
-  const courseraEmail =
-    mappings.find((m) => m.courseraEmail)?.courseraEmail ?? dbUser.email;
-  if (!courseraEmail) {
-    return NextResponse.json({
-      ok: true,
-      didSync: false,
-      message: 'Auto-sync skipped — no Coursera identity mapping on file.',
-    });
-  }
-
-  // ── Run the sync ──
-  try {
-    const result = await syncUserFromB4B({
-      email: courseraEmail.toLowerCase(),
-      wapUserId: dbUser.id,
-      orgId,
-      // Self-sync: not admin-driven; CourseEnrollment.enrolledByAdminId
-      // stays null on freshly seeded rows so audit logs make it clear this
-      // wasn't a manual admin action.
-      enrolledByAdmin: null,
-      existingEnrolledProgram: dbUser.enrolledProgram,
-    });
-
-    // Stamp the dedupe timestamp regardless of how much was synced — even a
-    // "no enrollments matched" run has paid the B4B quota cost and we don't
-    // want to re-fire on every render.
-    await markUserAutoSynced({ userId: dbUser.id, orgId });
-
-    return NextResponse.json({
-      ok: true,
-      didSync:
-        result.mapped.seededEnrollments > 0 ||
-        result.mapped.updatedEnrollments > 0,
-      message: result.message,
-    });
-  } catch (err) {
-    captureApiError(err, { route: 'member/coursera/auto-sync' });
-    // Fail-soft: even on B4B outage we stamp the timestamp so we don't
-    // re-hammer a failing upstream — caller will retry next backoff window.
-    await markUserAutoSynced({ userId: dbUser.id, orgId }).catch(() => {
-      // Stamp failure is non-fatal; the dashboard render still succeeded.
-    });
-    return NextResponse.json(
-      {
-        ok: false,
+    if (!dbUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    // Idempotency gate #1: backoff window. If we synced this user recently,
+    // skip — the data is fresh enough.
+    if (
+      dbUser.lastCourseraAutoSyncAt &&
+      Date.now() - dbUser.lastCourseraAutoSyncAt.getTime() < AUTO_SYNC_BACKOFF_MS
+    ) {
+      return NextResponse.json({
+        ok: true,
         didSync: false,
-        message:
-          err instanceof Error
-            ? `Auto-sync failed: ${err.message}`
-            : 'Auto-sync failed',
+        message: 'Auto-sync skipped — last sync was within the backoff window.',
+      });
+    }
+  
+    // Idempotency gate #2: any local CourseProgress row means this user has
+    // already been synced (by an admin click, the cron, or a prior auto-sync).
+    // The auto-sync trigger is for never-synced users only; once rows exist the
+    // background xAPI / cron pipeline keeps them current.
+    if (dbUser._count.courseProgress > 0) {
+      // Stamp the timestamp anyway so we don't recheck this on every render.
+      await markUserAutoSynced({ userId: dbUser.id, orgId });
+      return NextResponse.json({
+        ok: true,
+        didSync: false,
+        message: 'Auto-sync skipped — local CourseProgress rows already exist.',
+      });
+    }
+  
+    // Gate #3: must have a Coursera identity mapping. Without one the xAPI
+    // pipeline doesn't know who this learner is on Coursera's side, so a B4B
+    // pull would return nothing useful. (The mapping is created either by an
+    // admin in /admin/integrations/xapi or auto-created when the user's first
+    // xAPI statement arrives — see resolveXapiUser auto-mapping.)
+    const mappings = await listCourseraIdentityMappingsForUser(dbUser.id).catch(
+      (err) => {
+        console.warn('[auto-sync] mapping lookup failed:', err);
+        return [] as Array<{ courseraEmail: string | null }>;
       },
-      { status: 502 },
     );
+    const courseraEmail =
+      mappings.find((m) => m.courseraEmail)?.courseraEmail ?? dbUser.email;
+    if (!courseraEmail) {
+      return NextResponse.json({
+        ok: true,
+        didSync: false,
+        message: 'Auto-sync skipped — no Coursera identity mapping on file.',
+      });
+    }
+  
+    // ── Run the sync ──
+    try {
+      const result = await syncUserFromB4B({
+        email: courseraEmail.toLowerCase(),
+        wapUserId: dbUser.id,
+        orgId,
+        // Self-sync: not admin-driven; CourseEnrollment.enrolledByAdminId
+        // stays null on freshly seeded rows so audit logs make it clear this
+        // wasn't a manual admin action.
+        enrolledByAdmin: null,
+        existingEnrolledProgram: dbUser.enrolledProgram,
+      });
+  
+      // Stamp the dedupe timestamp regardless of how much was synced — even a
+      // "no enrollments matched" run has paid the B4B quota cost and we don't
+      // want to re-fire on every render.
+      await markUserAutoSynced({ userId: dbUser.id, orgId });
+  
+      return NextResponse.json({
+        ok: true,
+        didSync:
+          result.mapped.seededEnrollments > 0 ||
+          result.mapped.updatedEnrollments > 0,
+        message: result.message,
+      });
+    } catch (err) {
+      captureApiError(err, { route: 'member/coursera/auto-sync' });
+      // Fail-soft: even on B4B outage we stamp the timestamp so we don't
+      // re-hammer a failing upstream — caller will retry next backoff window.
+      await markUserAutoSynced({ userId: dbUser.id, orgId }).catch(() => {
+        // Stamp failure is non-fatal; the dashboard render still succeeded.
+      });
+      return NextResponse.json(
+        {
+          ok: false,
+          didSync: false,
+          message:
+            err instanceof Error
+              ? `Auto-sync failed: ${err.message}`
+              : 'Auto-sync failed',
+        },
+        { status: 502 },
+      );
+    }
+  } catch (error) {
+    console.error('/member/coursera/auto-sync:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

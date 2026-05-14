@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
 import { prisma } from '@/lib/db/prisma';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { checkAuthRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 /**
  * GET /api/auth/check-mfa-required
@@ -12,6 +14,16 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
  * Used by the verify-mfa page to guard access.
  */
 export async function GET(request: Request) {
+  try {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkAuthRateLimit(`check-mfa-required:${ip}`);
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': '60' } }
+    );
+  }
+
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({
       mfaRequired: false,
@@ -82,4 +94,10 @@ export async function GET(request: Request) {
     { mfaRequired, mfaEnforcement: true, currentAal: aalData.currentLevel, nextAal: aalData.nextLevel },
     { headers: { 'Cache-Control': 'no-store' } }
   );
+
+  } catch (error) {
+    console.error('/auth/check-mfa-required error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

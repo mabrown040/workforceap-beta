@@ -59,92 +59,97 @@ async function readCsvFromRequest(request: NextRequest): Promise<{ content: stri
 }
 
 export async function POST(request: NextRequest) {
-  const user = await requireAdminUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const read = await readCsvFromRequest(request);
-  if ('error' in read) {
-    return NextResponse.json({ error: read.error }, { status: read.status });
-  }
-
-  // Auto-detect CSV type from the header row so admins don't have to pick.
-  // Existing CourseActivity behaviour is preserved (was the only supported
-  // format before this PR); LearningPathActivity is the new sibling.
-  const kind = detectCourseraCsvKind(read.content);
-  if (!kind) {
-    return NextResponse.json(
-      {
-        error:
-          'Could not detect CSV type. Expected a CourseActivity or LearningPathActivity export from the Coursera enterprise ZIP.',
-      },
-      { status: 400 }
-    );
-  }
-
-  if (kind === 'course-activity') {
-    let parsedRows;
-    try {
-      parsedRows = parseCourseActivityCsv(read.content);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to parse CSV';
-      return NextResponse.json({ error: message }, { status: 400 });
+  try {
+    const user = await requireAdminUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    const read = await readCsvFromRequest(request);
+    if ('error' in read) {
+      return NextResponse.json({ error: read.error }, { status: read.status });
     }
-
-    if (parsedRows.length === 0) {
+  
+    // Auto-detect CSV type from the header row so admins don't have to pick.
+    // Existing CourseActivity behaviour is preserved (was the only supported
+    // format before this PR); LearningPathActivity is the new sibling.
+    const kind = detectCourseraCsvKind(read.content);
+    if (!kind) {
       return NextResponse.json(
         {
           error:
-            'No valid rows found in CSV (expected at least one row with email + course id + program slug).',
+            'Could not detect CSV type. Expected a CourseActivity or LearningPathActivity export from the Coursera enterprise ZIP.',
         },
         { status: 400 }
       );
     }
-
+  
+    if (kind === 'course-activity') {
+      let parsedRows;
+      try {
+        parsedRows = parseCourseActivityCsv(read.content);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to parse CSV';
+        return NextResponse.json({ error: message }, { status: 400 });
+      }
+  
+      if (parsedRows.length === 0) {
+        return NextResponse.json(
+          {
+            error:
+              'No valid rows found in CSV (expected at least one row with email + course id + program slug).',
+          },
+          { status: 400 }
+        );
+      }
+  
+      try {
+        const result = await ingestCourseActivityRows(parsedRows, { source: 'csv_import' });
+        return NextResponse.json({
+          ok: true,
+          kind,
+          filename: read.filename,
+          parsed: parsedRows.length,
+          ...result,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Ingest failed';
+        return NextResponse.json({ error: message }, { status: 500 });
+      }
+    }
+  
+    // kind === 'learning-path-activity'
+    let parsedBadgeRows;
     try {
-      const result = await ingestCourseActivityRows(parsedRows, { source: 'csv_import' });
+      parsedBadgeRows = parseLearningPathActivityCsv(read.content);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to parse CSV';
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+  
+    if (parsedBadgeRows.length === 0) {
+      return NextResponse.json(
+        {
+          error:
+            'No valid rows found in CSV (expected at least one row with email + badge slug + badge title).',
+        },
+        { status: 400 }
+      );
+    }
+  
+    try {
+      const result = await ingestLearningPathActivityRows(parsedBadgeRows, { source: 'csv_import' });
       return NextResponse.json({
         ok: true,
         kind,
         filename: read.filename,
-        parsed: parsedRows.length,
+        parsed: parsedBadgeRows.length,
         ...result,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Ingest failed';
       return NextResponse.json({ error: message }, { status: 500 });
     }
-  }
-
-  // kind === 'learning-path-activity'
-  let parsedBadgeRows;
-  try {
-    parsedBadgeRows = parseLearningPathActivityCsv(read.content);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to parse CSV';
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
-
-  if (parsedBadgeRows.length === 0) {
-    return NextResponse.json(
-      {
-        error:
-          'No valid rows found in CSV (expected at least one row with email + badge slug + badge title).',
-      },
-      { status: 400 }
-    );
-  }
-
-  try {
-    const result = await ingestLearningPathActivityRows(parsedBadgeRows, { source: 'csv_import' });
-    return NextResponse.json({
-      ok: true,
-      kind,
-      filename: read.filename,
-      parsed: parsedBadgeRows.length,
-      ...result,
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Ingest failed';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('/admin/coursera/csv-import:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

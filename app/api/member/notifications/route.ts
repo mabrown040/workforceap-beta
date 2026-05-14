@@ -1,0 +1,56 @@
+import { NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+
+export async function GET(request: Request) {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10));
+    const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') ?? '20', 10)));
+    const skip = (page - 1) * limit;
+
+    const notificationDb = (prisma as any).notification;
+    if (!notificationDb) {
+      return NextResponse.json({ notifications: [], unreadCount: 0, total: 0, page, limit });
+    }
+
+    const [notifications, unreadCount, total] = await Promise.all([
+      notificationDb.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      notificationDb.count({
+        where: { userId: user.id, readAt: null },
+      }),
+      notificationDb.count({
+        where: { userId: user.id },
+      }),
+    ]);
+
+    return NextResponse.json({
+      notifications: notifications.map((n: any) => ({
+        id: n.id,
+        type: n.type,
+        title: n.title,
+        body: n.body,
+        data: n.data ?? null,
+        readAt: n.readAt?.toISOString() ?? null,
+        createdAt: n.createdAt.toISOString(),
+      })),
+      unreadCount,
+      total,
+      page,
+      limit,
+    });
+  } catch (error) {
+    console.error('/member/notifications error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

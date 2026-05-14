@@ -10,111 +10,72 @@ import ShareButtons from '@/components/apply/ShareButtons';
 import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import { getUser } from '@/lib/auth/server';
 
+import { getTranslations } from 'next-intl/server';
+
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('apply');
   return buildPageMetadataAsync({
-  title: 'You’re in the WorkforceAP system',
-  description:
-    'Your application is on file. See your timeline, what happens next in 1–2 business days, and what you can do now.',
-  path: '/apply/confirmation',
-});
+    title: t('confirmationMetaTitle'),
+    description: t('confirmationMetaDescription'),
+    path: '/apply/confirmation',
+  });
 }
-
-const NEXT_STEPS = [
-  {
-    num: '1',
-    title: 'You applied',
-    desc: 'Your application is saved in the WorkforceAP system. Your goals, contact information, and program interest are on file for our team.',
-  },
-  {
-    num: '2',
-    title: 'Counselor review (about 1–2 business days)',
-    desc: 'A WorkforceAP counselor reviews your application, checks fit with your chosen path, and lines up the right next conversation or paperwork.',
-  },
-  {
-    num: '3',
-    title: 'Program assignment',
-    desc: 'We confirm or adjust your program so training, funding steps, and support match your situation. You will get clear instructions by email.',
-  },
-  {
-    num: '4',
-    title: 'Training start',
-    desc: 'Once enrolled, you begin coursework and milestones with counselor support—so you always know where you are in the process.',
-  },
-];
-
-/**
- * Two next-step lists: one for users who already have an account (e.g. the
- * applicant just finished signup and has a session), one for users who only
- * completed the eligibility quiz and don't have an account yet.
- *
- * Without this split, a logged-in user lands here and is told to "Create
- * your member account" — they just did. Likewise the "Open your dashboard"
- * link routes through `/login` instead of going straight to `/dashboard`.
- */
-const WHAT_YOU_CAN_DO_NOW_SIGNED_IN = [
-  {
-    label: 'Open your dashboard',
-    href: '/dashboard',
-    desc: 'Your AI career tools, messages, training progress, and counselor inbox all live here.',
-  },
-  {
-    label: 'Browse programs and prep materials',
-    href: '/programs',
-    desc: 'Review program tracks and get oriented before your counselor follow-up.',
-  },
-  {
-    label: 'Check application status',
-    href: '/apply/status',
-    desc: 'See where your application is in review at any time.',
-  },
-] as const;
-
-const WHAT_YOU_CAN_DO_NOW_GUEST = [
-  {
-    label: 'Create your member account',
-    href: '/apply/create-account',
-    desc: 'Check application status anytime and pick up faster when our team reaches out.',
-  },
-  {
-    label: 'Open your dashboard for tools',
-    href: '/login',
-    desc: 'After you sign in, your dashboard is where AI career tools, messages, and learning live.',
-  },
-  {
-    label: 'Browse programs and prep materials',
-    href: '/programs',
-    desc: 'Review program tracks and get oriented before your counselor follow-up.',
-  },
-] as const;
-
-const TRUST_SIGNALS = [
-  {
-    icon: 'badge',
-    title: 'Reviewed by a real team',
-    desc: 'Your application is reviewed by WorkforceAP staff, not dropped into an invisible queue.',
-  },
-  {
-    icon: 'volunteer_activism',
-    title: 'Nonprofit, member-first access',
-    desc: 'WorkforceAP is a 501(c)(3) nonprofit in Austin. A counselor will follow up with eligibility and next-step guidance.',
-  },
-  {
-    icon: 'support_agent',
-    title: 'Clear follow-up if you need help',
-    desc: 'If you do not hear from us after 5 business days, call or email and our team will check your application with you.',
-  },
-] as const;
-
-const WHILE_YOU_WAIT: readonly string[] = [
-  'Check your inbox (and spam folder) for follow-up instructions.',
-  'Gather any documents you may need for eligibility verification.',
-  'Create your member account so you can track status and messages.',
-];
 
 export default async function ApplyConfirmationPage() {
   const user = await getUser();
   const isAuthenticated = !!user;
-  const whatYouCanDoNow = isAuthenticated ? WHAT_YOU_CAN_DO_NOW_SIGNED_IN : WHAT_YOU_CAN_DO_NOW_GUEST;
+  const t = await getTranslations('apply');
+
+  const nextSteps = [
+    { num: '1', title: t('confirmationStep1Title'), desc: t('confirmationStep1Desc') },
+    { num: '2', title: t('confirmationStep2Title'), desc: t('confirmationStep2Desc') },
+    { num: '3', title: t('confirmationStep3Title'), desc: t('confirmationStep3Desc') },
+    { num: '4', title: t('confirmationStep4Title'), desc: t('confirmationStep4Desc') },
+  ] as const;
+
+  const whatYouCanDoSignedIn = [
+    {
+      label: t('confirmationDoDashboardLabel'),
+      href: '/dashboard',
+      desc: t('confirmationDoDashboardDesc'),
+    },
+    {
+      label: t('confirmationDoProgramsLabel'),
+      href: '/programs',
+      desc: t('confirmationDoProgramsDesc'),
+    },
+    {
+      label: t('confirmationDoStatusLabel'),
+      href: '/apply/status',
+      desc: t('confirmationDoStatusDesc'),
+    },
+  ] as const;
+
+  const whatYouCanDoGuest = [
+    {
+      label: t('confirmationGuestAccountLabel'),
+      href: '/apply/create-account',
+      desc: t('confirmationGuestAccountDesc'),
+    },
+    {
+      label: t('confirmationGuestDashboardLabel'),
+      href: '/login',
+      desc: t('confirmationGuestDashboardDesc'),
+    },
+    {
+      label: t('confirmationDoProgramsLabel'),
+      href: '/programs',
+      desc: t('confirmationDoProgramsDesc'),
+    },
+  ] as const;
+
+  const trustSignals = [
+    { icon: 'badge', title: t('confirmationTrust1Title'), desc: t('confirmationTrust1Desc') },
+    { icon: 'volunteer_activism', title: t('confirmationTrust2Title'), desc: t('confirmationTrust2Desc') },
+    { icon: 'support_agent', title: t('confirmationTrust3Title'), desc: t('confirmationTrust3Desc') },
+  ] as const;
+
+  const whatYouCanDoNow = isAuthenticated ? whatYouCanDoSignedIn : whatYouCanDoGuest;
 
   return (
     <div className="inner-page">
@@ -140,18 +101,18 @@ export default async function ApplyConfirmationPage() {
                 </span>
               </div>
               <h1 className="text-display-sm" style={{ marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>
-                You’re in the WorkforceAP system.
+                {t('confirmationHeroTitle')}
               </h1>
               <p style={{ color: 'var(--color-on-surface)', fontSize: '1.05rem', lineHeight: 1.65, maxWidth: '36rem', margin: '0 auto 0.75rem', fontWeight: 600 }}>
-                Here’s exactly what happens next:
+                {t('confirmationHeroLead')}
               </p>
               <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1rem', lineHeight: 1.7, maxWidth: '34rem', margin: '0 auto 1rem' }}>
-                Your application is received and on file. A counselor will review it and email you within about 1–2 business days with the next concrete step for your path.
+                {t('confirmationHeroBody')}
               </p>
               <div style={{ display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem 1rem', borderRadius: '9999px', background: 'var(--surface-container-low)', color: 'var(--color-on-surface)', fontSize: '0.9rem', fontWeight: 600 }}>
-                <span>On file with WorkforceAP</span>
+                <span>{t('confirmationChipOnFile')}</span>
                 <span aria-hidden="true" style={{ opacity: 0.45 }}>•</span>
-                <span>Counselor review in ~1–2 business days</span>
+                <span>{t('confirmationChipReview')}</span>
               </div>
             </div>
 
@@ -166,18 +127,18 @@ export default async function ApplyConfirmationPage() {
                 }}
               >
                 <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
-                  Recommended next step
+                  {t('confirmationRecommendedEyebrow')}
                 </p>
-                <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem' }}>Open your dashboard</h2>
+                <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem' }}>{t('confirmationSignedInTitle')}</h2>
                 <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface)', fontSize: '0.95rem', lineHeight: 1.5 }}>
-                  Your application is on file and your account is ready. Your dashboard is where you check application status, message your counselor, and pick up training when you&rsquo;re assigned.
+                  {t('confirmationSignedInBody')}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
                   <Link href="/dashboard" className="btn btn-primary">
-                    Open dashboard
+                    {t('confirmationOpenDashboard')}
                   </Link>
                   <Link href="/apply/status" className="btn btn-outline">
-                    Check application status
+                    {t('confirmationCheckStatusShort')}
                   </Link>
                 </div>
               </div>
@@ -194,7 +155,7 @@ export default async function ApplyConfirmationPage() {
                   >
                     <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.55 }} />
                     <div style={{ height: '2.75rem', borderRadius: '0.625rem', background: 'var(--surface-container-high)', opacity: 0.35 }} />
-                    <span style={{ position: 'absolute', clip: 'rect(0 0 0 0)' }}>Loading next steps…</span>
+                    <span style={{ position: 'absolute', clip: 'rect(0 0 0 0)' }}>{t('confirmationLoadingNext')}</span>
                   </div>
                 }
               >
@@ -204,10 +165,10 @@ export default async function ApplyConfirmationPage() {
 
             <section style={{ background: 'var(--surface-container-low)', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '0.875rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 1.25rem' }}>
-                What happens next
+                {t('confirmationTimelineHeading')}
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                {NEXT_STEPS.map((step) => (
+                {nextSteps.map((step) => (
                   <div key={step.num} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                     <div style={{ flexShrink: 0, width: '2rem', height: '2rem', borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem' }}>
                       {step.num}
@@ -223,10 +184,10 @@ export default async function ApplyConfirmationPage() {
 
             <section style={{ background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '0.875rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 1rem' }}>
-                What you can count on
+                {t('confirmationTrustHeading')}
               </h2>
               <div className="apply-confirmation-trust-grid" style={{ display: 'grid', gap: '1rem' }}>
-                {TRUST_SIGNALS.map((item) => (
+                {trustSignals.map((item) => (
                   <div key={item.title} style={{ background: 'var(--surface-container-low)', borderRadius: '0.875rem', padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem' }}>
                       <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }}>
@@ -246,7 +207,7 @@ export default async function ApplyConfirmationPage() {
 
             <div className="apply-confirmation-info-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
               <div style={{ background: 'var(--surface-container)', borderRadius: '0.875rem', padding: '1.25rem' }}>
-                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>What you can do now</h2>
+                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>{t('confirmationWhatNowHeading')}</h2>
                 <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
                   {whatYouCanDoNow.map((item) => (
                     <li key={item.label} style={{ marginBottom: '0.75rem' }}>
@@ -260,33 +221,33 @@ export default async function ApplyConfirmationPage() {
               </div>
 
               <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.875rem', padding: '1.25rem' }}>
-                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>Need help or no email after 5 business days?</h2>
+                <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>{t('confirmationHelpHeading')}</h2>
                 <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.7 }}>
-                  Call{' '}
+                  {t('confirmationHelpBody')}{' '}
                   <a href="tel:+15127771808" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>(512) 777-1808</a>
-                  {' '}or email{' '}
+                  {' '}{t('confirmationHelpOr')}{' '}
                   <a href="mailto:info@workforceap.org" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>info@workforceap.org</a>
-                  . We can check your application with you.
+                  {t('confirmationHelpSuffix')}
                 </p>
               </div>
             </div>
 
             <section style={{ marginBottom: '2rem', textAlign: 'center' }}>
               <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#584144', margin: '0 0 1rem' }}>
-                Spread the word
+                {t('confirmationSpreadWord')}
               </p>
               <ShareButtons />
             </section>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
               <Link href="/apply/status" className="btn btn-primary">
-                Check Application Status
+                {t('confirmationCtaStatus')}
               </Link>
               <Link href="/programs" className="btn btn-outline">
-                Explore Programs
+                {t('confirmationCtaPrograms')}
               </Link>
-              <Link href="/" className="btn btn-secondary">
-                Return Home
+              <Link href="/" className="btn btn-muted">
+                {t('confirmationCtaHome')}
               </Link>
             </div>
           </div>

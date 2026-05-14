@@ -477,7 +477,7 @@ export default function SessionRunClient({
         headerAction={
           <button
             type="button"
-            className="btn btn-secondary btn-small"
+            className="btn btn-muted btn-small"
             onClick={() => toggleVoice('walkthrough')}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
@@ -523,7 +523,7 @@ export default function SessionRunClient({
             </div>
             <button
               type="button"
-              className="btn btn-secondary btn-small"
+              className="btn btn-muted btn-small"
               onClick={() => useTranscriptAsResume('walkthrough')}
               disabled={walkthroughText.length < 30}
             >
@@ -559,7 +559,7 @@ export default function SessionRunClient({
             href={editProfileHref}
             target="_blank"
             rel="noopener"
-            className="btn btn-secondary btn-small"
+            className="btn btn-muted btn-small"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
           >
             <PenLine size={16} aria-hidden /> Edit full profile
@@ -588,7 +588,7 @@ export default function SessionRunClient({
         headerAction={
           <button
             type="button"
-            className="btn btn-secondary btn-small"
+            className="btn btn-muted btn-small"
             onClick={() => toggleVoice('resume')}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
@@ -625,7 +625,7 @@ export default function SessionRunClient({
                 </span>
                 <button
                   type="button"
-                  className="btn btn-secondary btn-small"
+                  className="btn btn-muted btn-small"
                   onClick={() => useTranscriptAsResume('resume')}
                   disabled={transcripts.resume.join('\n').length < 30}
                 >
@@ -738,7 +738,7 @@ export default function SessionRunClient({
         headerAction={
           <button
             type="button"
-            className="btn btn-secondary btn-small"
+            className="btn btn-muted btn-small"
             onClick={() => toggleVoice('cover')}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
@@ -775,7 +775,7 @@ export default function SessionRunClient({
                 </span>
                 <button
                   type="button"
-                  className="btn btn-secondary btn-small"
+                  className="btn btn-muted btn-small"
                   onClick={useTranscriptAsCoverContext}
                   disabled={transcripts.cover.join('\n').length < 30}
                 >
@@ -857,7 +857,7 @@ export default function SessionRunClient({
         headerAction={
           <button
             type="button"
-            className="btn btn-secondary btn-small"
+            className="btn btn-muted btn-small"
             onClick={() => toggleVoice('interview')}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
@@ -1170,7 +1170,7 @@ export default function SessionRunClient({
       {packetSent ? (
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-muted"
           onClick={() => router.push(backToSessionsHref)}
           style={{ alignSelf: 'flex-start' }}
         >

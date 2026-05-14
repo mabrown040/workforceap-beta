@@ -19,6 +19,7 @@ function storageErrorMessage(error: { message?: string } | null): string {
  * POST /api/member/resume/docx-html?variant=original|enhanced
  */
 export async function POST(req: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -59,4 +60,10 @@ export async function POST(req: NextRequest) {
       { status: 422 }
     );
   }
+
+  } catch (error) {
+    console.error('/member/resume/docx-html error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

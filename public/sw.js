@@ -1,15 +1,20 @@
 /**
- * WorkforceAP Service Worker v4 — PWA offline support + push notifications.
+ * WorkforceAP Service Worker v5 — PWA offline support + push notifications.
  * Caches shell assets and Google Fonts; push events show branded notifications.
  *
+ * v5: added offline fallback page, new icon assets, and navigation caching.
  * v4: stop intercepting Next.js hashed assets so deploys do not keep serving
  *     stale JS/CSS bundles from the service worker cache on mobile clients.
  */
 
-const CACHE_NAME = 'workforceap-v4';
+const CACHE_NAME = 'workforceap-v5';
 const FONT_CACHE = 'workforceap-fonts-v2';
+const OFFLINE_PAGE = '/offline.html';
 const STATIC_ASSETS = [
   '/images/wap_logo.png',
+  '/images/icon-192x192.png',
+  '/images/icon-512x512.png',
+  OFFLINE_PAGE,
 ];
 
 // Google Fonts origins that should be cached for offline icon support
@@ -45,8 +50,21 @@ self.addEventListener('fetch', (event) => {
   // to an older cached JS/CSS asset.
   if (url.pathname.startsWith('/_next/')) return;
 
-  // Navigation requests (HTML pages): always network, never serve stale HTML
-  if (event.request.mode === 'navigate') return;
+  // Navigation requests (HTML pages): network-first with offline fallback
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          if (res.status === 200) {
+            const resClone = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
+          }
+          return res;
+        })
+        .catch(() => caches.match(OFFLINE_PAGE))
+    );
+    return;
+  }
 
   // Google Fonts: stale-while-revalidate — serve cached if available but always refresh
   if (FONT_ORIGINS.includes(url.hostname)) {

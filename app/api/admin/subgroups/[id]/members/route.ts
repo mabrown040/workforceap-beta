@@ -10,6 +10,7 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
@@ -51,6 +52,7 @@ export async function GET(
       assigner: { select: { fullName: true } },
     },
     orderBy: { assignedAt: 'desc' },
+    take: 100,
   });
 
   const members = memberSubgroups
@@ -97,4 +99,10 @@ export async function GET(
     },
     members,
   });
+
+  } catch (error) {
+    console.error('/admin/subgroups/[id]/members error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

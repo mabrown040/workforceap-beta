@@ -41,6 +41,10 @@ const QUICK_ACTIONS = [
 
 const FAQS = [
   {
+    q: 'Where should members check Coursera or course progress?',
+    a: 'Send them to My Training (portal menu). That is the single training hub — course list, Coursera launches, and progress %. The Dashboard home page is an overview and links there; it does not replace My Training.',
+  },
+  {
     q: 'How do I get assigned new members?',
     a: 'New assignments are made by the WorkforceAP admin team. When a new member is assigned to you, you\'ll see them appear in your member roster. Reach out to program staff if you need to adjust your caseload.',
   },

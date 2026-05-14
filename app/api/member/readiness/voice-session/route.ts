@@ -6,31 +6,36 @@ import { trackEvent } from '@/lib/events/track';
 
 /** POST — signed URL for career readiness voice coach. */
 export async function POST() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
   try {
-    void trackEvent({
-      userId: user.id,
-      eventName: 'ai_tool_run_started',
-      entityType: 'ai_tool',
-      metadata: { tool: 'readiness_voice_session', provider: 'elevenlabs' },
-      sourcePage: '/dashboard/readiness',
-    }).catch(() => {});
-
-    const memberDynamicVariables = await fetchMemberPortalDynamicVariables(user.id);
-    const { member_name: _memberName, ...dynamicVariables } = memberDynamicVariables;
-    const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('readiness', {
-      dynamicVariables,
-    });
-    return NextResponse.json({
-      signedUrl,
-      expiresAt,
-      dynamicVariables: returned ?? dynamicVariables,
-    });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Failed to start session';
-    console.error('[member/readiness/voice-session]', msg);
-    return NextResponse.json({ error: msg }, { status: 503 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    try {
+      void trackEvent({
+        userId: user.id,
+        eventName: 'ai_tool_run_started',
+        entityType: 'ai_tool',
+        metadata: { tool: 'readiness_voice_session', provider: 'elevenlabs' },
+        sourcePage: '/dashboard/readiness',
+      }).catch(() => {});
+  
+      const memberDynamicVariables = await fetchMemberPortalDynamicVariables(user.id);
+      const { member_name: _memberName, ...dynamicVariables } = memberDynamicVariables;
+      const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('readiness', {
+        dynamicVariables,
+      });
+      return NextResponse.json({
+        signedUrl,
+        expiresAt,
+        dynamicVariables: returned ?? dynamicVariables,
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to start session';
+      console.error('[member/readiness/voice-session]', msg);
+      return NextResponse.json({ error: msg }, { status: 503 });
+    }
+  } catch (error) {
+    console.error('/member/readiness/voice-session:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

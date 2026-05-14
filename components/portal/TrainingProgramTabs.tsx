@@ -42,7 +42,7 @@ export default function TrainingProgramTabs({
   function selectTab(slug: string) {
     if (slug === activeProgramSlug) return;
     startTransition(() => {
-      router.push(`/dashboard/training?program=${encodeURIComponent(slug)}`);
+      router.push(`/dashboard?program=${encodeURIComponent(slug)}`);
     });
   }
 

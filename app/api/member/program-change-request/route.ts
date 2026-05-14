@@ -28,6 +28,7 @@ export async function GET() {
         createdAt: true,
         reviewedAt: true,
       },
+      take: 100,
     });
 
     return NextResponse.json({ requests: rows });

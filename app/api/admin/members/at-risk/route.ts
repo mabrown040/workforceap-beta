@@ -9,74 +9,103 @@ import { getRiskLevel, THRESHOLDS } from '@/lib/member/atRiskScoring';
  * Requires admin or counselor role.
  */
 export async function GET(req: Request) {
-  const auth = await requireAdminOrCounselor(req);
-  if (!auth.ok) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
-
-  const { searchParams } = new URL(req.url);
-  const threshold = parseInt(searchParams.get('threshold') ?? String(THRESHOLDS.HIGH), 10);
-  const limit = Math.min(parseInt(searchParams.get('limit') ?? '20', 10), 100);
-  const status = searchParams.get('status') ?? undefined;
-
   try {
-    const alerts = await prisma.atRiskAlert.findMany({
-      where: {
-        score: { gte: threshold },
-        ...(status ? { status } : { status: { in: ['open', 'acknowledged'] } }),
-      },
-      orderBy: [{ score: 'desc' }, { createdAt: 'desc' }],
-      take: limit,
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            enrolledProgram: true,
-            enrolledAt: true,
-            createdAt: true,
-            phone: true,
-            profile: {
-              select: {
-                employmentStatus: true,
-                educationLevel: true,
+    const auth = await requireAdminOrCounselor(req);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+  
+    const { searchParams } = new URL(req.url);
+    const threshold = parseInt(searchParams.get('threshold') ?? String(THRESHOLDS.HIGH), 10);
+    const limit = Math.min(parseInt(searchParams.get('limit') ?? '20', 10), 100);
+    const status = searchParams.get('status') ?? undefined;
+  
+    try {
+      const alerts = await prisma.atRiskAlert.findMany({
+        where: {
+          score: { gte: threshold },
+          ...(status ? { status } : { status: { in: ['open', 'acknowledged', 'escalated'] } }),
+        },
+        orderBy: [{ score: 'desc' }, { createdAt: 'desc' }],
+        take: limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              enrolledProgram: true,
+              enrolledAt: true,
+              createdAt: true,
+              lastCourseraAutoSyncAt: true,
+              phone: true,
+              profile: {
+                select: {
+                  employmentStatus: true,
+                  educationLevel: true,
+                },
               },
             },
           },
         },
-      },
-    });
-
-    const results = alerts.map((alert) => ({
-      alertId: alert.id,
-      userId: alert.userId,
-      name: alert.user.fullName ?? 'Unknown',
-      email: alert.user.email,
-      phone: alert.user.phone,
-      score: alert.score,
-      riskLevel: getRiskLevel(alert.score),
-      status: alert.status,
-      factors: alert.factors as Array<{ name: string; weight: number; description: string }>,
-      enrolledProgram: alert.user.enrolledProgram,
-      enrolledAt: alert.user.enrolledAt,
-      memberSince: alert.user.createdAt,
-      profile: alert.user.profile,
-      alertCreatedAt: alert.createdAt,
-      alertUpdatedAt: alert.updatedAt,
-    }));
-
-    return NextResponse.json({
-      count: results.length,
-      threshold,
-      results,
-    });
+      });
+  
+      const userIds = [...new Set(alerts.map((a) => a.userId))];
+      const activityAgg =
+        userIds.length === 0
+          ? []
+          : await prisma.memberEvent.groupBy({
+              by: ['userId'],
+              where: { userId: { in: userIds } },
+              _max: { createdAt: true },
+            });
+      const lastActivityByUser = new Map(activityAgg.map((r) => [r.userId, r._max.createdAt]));
+  
+      const results = alerts.map((alert) => {
+        const ev = lastActivityByUser.get(alert.userId);
+        const coursera = alert.user.lastCourseraAutoSyncAt;
+        const joined = alert.user.createdAt;
+        const lastActivityAt = [ev, coursera, joined].reduce<Date | undefined>((best, d) => {
+          if (!d) return best;
+          if (!best || d.getTime() > best.getTime()) return d;
+          return best;
+        }, undefined) ?? joined;
+        return {
+          alertId: alert.id,
+          userId: alert.userId,
+          name: alert.user.fullName ?? 'Unknown',
+          email: alert.user.email,
+          phone: alert.user.phone,
+          score: alert.score,
+          riskLevel: getRiskLevel(alert.score),
+          status: alert.status,
+          factors: alert.factors as Array<{ name: string; weight: number; description: string }>,
+          enrolledProgram: alert.user.enrolledProgram,
+          enrolledAt: alert.user.enrolledAt,
+          memberSince: alert.user.createdAt,
+          profile: alert.user.profile,
+          alertCreatedAt: alert.createdAt,
+          alertUpdatedAt: alert.updatedAt,
+          /** Best proxy for “last login”: latest member_activity event, else Coursera sync, else account created. */
+          lastActivityAt: lastActivityAt.toISOString(),
+        };
+      });
+  
+      return NextResponse.json({
+        count: results.length,
+        threshold,
+        results,
+      });
+    } catch (error) {
+      console.error('[admin/members/at-risk] Failed:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch at-risk members', details: error instanceof Error ? error.message : String(error) },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error('[admin/members/at-risk] Failed:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch at-risk members', details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
-    );
+    console.error('/admin/members/at-risk:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -85,33 +114,40 @@ export async function GET(req: Request) {
  * Acknowledge an at-risk alert.
  */
 export async function PATCH(req: Request) {
-  const auth = await requireAdminOrCounselor(req);
-  if (!auth.ok) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status });
-  }
-
   try {
-    const { alertId, status } = await req.json();
-    if (!alertId || !['acknowledged', 'resolved'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid alertId or status' }, { status: 400 });
+    const auth = await requireAdminOrCounselor(req);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    const alert = await prisma.atRiskAlert.update({
-      where: { id: alertId },
-      data: {
-        status,
-        ...(status === 'acknowledged'
-          ? { acknowledgedAt: new Date(), counselorId: auth.userId }
-          : { resolvedAt: new Date() }),
-      },
-    });
-
-    return NextResponse.json({ success: true, alert });
+  
+    try {
+      const { alertId, status } = await req.json();
+      if (!alertId || !['acknowledged', 'resolved', 'escalated'].includes(status)) {
+        return NextResponse.json({ error: 'Invalid alertId or status' }, { status: 400 });
+      }
+  
+      const alert = await prisma.atRiskAlert.update({
+        where: { id: alertId },
+        data: {
+          status,
+          ...(status === 'acknowledged'
+            ? { acknowledgedAt: new Date(), counselorId: auth.userId }
+            : status === 'resolved'
+              ? { resolvedAt: new Date() }
+              : { escalatedAt: new Date(), counselorId: auth.userId }),
+        },
+      });
+  
+      return NextResponse.json({ success: true, alert });
+    } catch (error) {
+      console.error('[admin/members/at-risk] Patch failed:', error);
+      return NextResponse.json(
+        { error: 'Failed to update alert', details: error instanceof Error ? error.message : String(error) },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error('[admin/members/at-risk] Patch failed:', error);
-    return NextResponse.json(
-      { error: 'Failed to update alert', details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
-    );
+    console.error('/admin/members/at-risk:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

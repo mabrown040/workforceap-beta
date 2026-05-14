@@ -62,10 +62,11 @@ export async function GET(_request: NextRequest, { params }: Props) {
     take: 500,
   });
 
-  const authorIds = [...new Set(messages.map((m) => m.authorId))];
+  const authorIds = [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))];
   const authors = await prisma.user.findMany({
     where: { id: { in: authorIds } },
     select: { id: true, fullName: true },
+    take: 100,
   });
   const nameById = new Map(authors.map((a) => [a.id, a.fullName]));
 
@@ -95,7 +96,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
       currentCounselorUserId: activeCounselorAssignment?.counselor.userId ?? thread.counselorUserId,
       messages: messages.map((m) => ({
         ...serializeMessage(m),
-        authorName: nameById.get(m.authorId) ?? 'User',
+        authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
         isFromMember: m.authorId === thread.memberId,
       })),
       sla: sla
@@ -130,7 +131,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
       },
       messages: messages.map((m) => ({
         ...serializeMessage(m),
-        authorName: nameById.get(m.authorId) ?? 'User',
+        authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
         isFromPortalUser: m.authorId === portalUid,
       })),
       sla: null,
@@ -156,8 +157,8 @@ export async function GET(_request: NextRequest, { params }: Props) {
       },
       messages: messages.map((m) => ({
         ...serializeMessage(m),
-        authorName: nameById.get(m.authorId) ?? 'User',
-        isFromPortalUser: partnerUserIds.has(m.authorId),
+        authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
+        isFromPortalUser: m.authorId != null && partnerUserIds.has(m.authorId),
       })),
       sla: null,
       readOnlyNote: 'Reply below. Messages sync to the partner portal in real time.',

@@ -32,6 +32,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   await requireAdmin(user.id);
@@ -89,4 +90,10 @@ export async function PATCH(
   });
 
   return NextResponse.json({ ok: true, approved });
+
+  } catch (error) {
+    console.error('/admin/members/[id]/coursera-enrollment-approval error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

@@ -189,6 +189,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           {t('heroLabel')}
         </div>
         <h1 style={sPage.heroHeading}>{t('heroHeading')}</h1>
+        <p style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{t('applySocialProof')}</p>
         <p style={sPage.heroDesc}>
           {t('heroDesc')}
           <strong> {t('heroDescHighlight')}</strong>
@@ -213,12 +214,12 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       {/* ── 12-col grid: sidebar + form ── */}
       <div className="apply-grid-layout" style={sPage.grid}>
         {/* Sidebar (4-col) */}
-        <aside className="apply-sidebar" style={sPage.sidebar}>
+        <aside className="apply-sidebar" aria-label="Application steps" style={sPage.sidebar}>
           {/* Progress steps */}
           <div style={sPage.sidebarSteps}>
-            <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}>
+            <h2 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}>
               {t('applicationProgress')}
-            </h3>
+            </h2>
             <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {[
                 { labelKey: 'stepPersonalInfo', icon: 'person' },
@@ -252,7 +253,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
           {/* Info card */}
           <div style={sPage.infoCard}>
-            <h4 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>{t('whatHappensNext')}</h4>
+            <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>{t('whatHappensNext')}</h3>
             <ol style={{ margin: 0, paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-sm)', lineHeight: 'var(--line-height-normal)' }}>
               <li>{t('nextStep1')}</li>
               <li>{t('nextStep2')}</li>
@@ -267,7 +268,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         </aside>
 
         {/* Main form area (8-col) */}
-        <div className="apply-main-form" style={sPage.mainCard}>
+        <div className="apply-main-form" role="region" aria-label="Application form" style={sPage.mainCard}>
           {program ? <ApplyProgramIntro programSlug={program.slug} /> : null}
 
           <Suspense fallback={<ApplyPageSkeleton />}>
@@ -275,9 +276,9 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           </Suspense>
 
           <div className="apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">
-            <h3 id="apply-docs-checklist-heading" className="apply-foundational-support__title">
+            <h2 id="apply-docs-checklist-heading" className="apply-foundational-support__title">
               {t('docsChecklistTitle')}
-            </h3>
+            </h2>
             <p
               style={{
                 fontSize: '0.9rem',
@@ -306,7 +307,11 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             </p>
           </div>
 
-          <noscript dangerouslySetInnerHTML={{ __html: `<div><h2>Start your application</h2><p>If the form doesn’t load, call <a href="tel:+15127771808">(512) 777-1808</a> or email <a href="mailto:info@workforceap.org">info@workforceap.org</a>.</p></div>` }} />
+          <noscript
+            dangerouslySetInnerHTML={{
+              __html: `<div><h2>${t('startYourApplication')}</h2><p>${t('ifFormDoesntLoad')} <a href="tel:+15127771808">(512) 777-1808</a> ${t('orEmail')} <a href="mailto:info@workforceap.org">info@workforceap.org</a>.</p></div>`,
+            }}
+          />
 
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />
@@ -315,11 +320,11 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       </div>
 
       {/* ── Supplemental cards ── */}
-      <div className="apply-supp-row" style={sPage.suppRow}>
+      <div className="apply-supp-row" role="region" aria-label="Program information" style={sPage.suppRow}>
         <div style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-green)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">lock</span>
           <div>
-            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard1Title')}</h4>
+            <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard1Title')}</h3>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
               {t('suppCard1Body')} <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>{t('privacyPolicy')}</Link>.
             </p>
@@ -328,7 +333,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         <div style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-blue)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">bolt</span>
           <div>
-            <h4 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard2Title')}</h4>
+            <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard2Title')}</h3>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)', margin: 0 }}>
               {t('suppCard2Body')}
             </p>

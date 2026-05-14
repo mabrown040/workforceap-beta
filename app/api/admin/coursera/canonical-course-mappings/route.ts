@@ -12,6 +12,7 @@ async function requireAdminUser() {
 }
 
 export async function POST(request: Request) {
+  try {
   const user = await requireAdminUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -94,6 +95,7 @@ export async function POST(request: Request) {
     where: { courseraCourseId, userId: { not: null } },
     select: { userId: true },
     distinct: ['userId'],
+    take: 100,
   });
   let promoted = 0;
   for (const { userId } of affectedUsers) {
@@ -108,9 +110,16 @@ export async function POST(request: Request) {
     promotedRows: promoted,
     affectedUsers: affectedUsers.length,
   });
+
+  } catch (error) {
+    console.error('/admin/coursera/canonical-course-mappings error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function DELETE(request: Request) {
+  try {
   const user = await requireAdminUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -127,4 +136,10 @@ export async function DELETE(request: Request) {
   });
 
   return NextResponse.json({ ok: true });
+
+  } catch (error) {
+    console.error('/admin/coursera/canonical-course-mappings error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

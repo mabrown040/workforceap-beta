@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 export async function PATCH(request: Request) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -31,4 +32,10 @@ export async function PATCH(request: Request) {
   });
 
   return NextResponse.json({ ok: true });
+
+  } catch (error) {
+    console.error('/member/settings error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

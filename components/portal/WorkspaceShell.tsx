@@ -31,6 +31,7 @@ import GlobalSearch from './GlobalSearch';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 import LanguageToggle from '@/components/portal/LanguageToggle';
 import { useTranslations } from 'next-intl';
+import { useWorkspaceMobileScrollChrome } from '@/hooks/useWorkspaceMobileScrollChrome';
 
 // Map non-member portal roles to MobileBottomNav variants. Member uses
 // MemberPortalTopNav (sticky-top horizontal-scroll) per /plan-design-review
@@ -171,6 +172,7 @@ export default function WorkspaceShell({
   const mainRef = useRef<HTMLDivElement>(null);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
   const trapRef = useFocusTrap(isMobileDrawer, closeDrawer);
+  useWorkspaceMobileScrollChrome();
 
   useEffect(() => {
     setDrawerOpen(false);

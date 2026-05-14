@@ -6,6 +6,21 @@ export const APPLY_PROGRAM_RANKED_KEY = 'apply_program_ranked_slugs';
 /** localStorage key — shared with Find Your Path (v1 payload with careerMatch). */
 export const FYP_RESULTS_STORAGE_KEY = 'find_your_path_results';
 
+/** localStorage: in-progress apply step 1 (contact + eligibility answers). */
+export const APPLY_FLOW_DRAFT_KEY = 'apply_flow_draft_v1';
+
+export type ApplyFlowDraftV1 = {
+  version: 1;
+  updatedAt: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  q1: 'yes' | 'no' | null;
+  q2: 'yes' | 'no' | null;
+  q3: 'yes' | 'no' | null;
+};
+
 export type CareerQuizSignupPayload = {
   recommendedOnetCode?: string;
   recommendedCareerTitle?: string;

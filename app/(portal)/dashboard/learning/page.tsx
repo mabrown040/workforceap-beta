@@ -37,6 +37,7 @@ export default async function LearningPage() {
 
   const [allProgress, dbUser] = await Promise.all([
     prisma.pathwayStepProgress.findMany({
+      take: 500,
       where: { userId: user.id },
     }),
     prisma.user.findUnique({
@@ -140,7 +141,7 @@ export default async function LearningPage() {
           <h4 className="wa-text-xl wa-font-bold wa-leading-snug" style={{ marginBottom: '1.25rem' }}>{ACTIVE_PATHWAY.title}</h4>
           <p className="text-white/80 wa-text-sm" style={{ marginBottom: '1rem' }}>{ACTIVE_PATHWAY.description}</p>
           <Link
-            href="/dashboard/training"
+            href="/dashboard"
             className="wa-bg-white wa-text-[var(--color-accent)] wa-font-bold active:wa-scale-95 wa-transition-transform"
             style={{
               width: '100%',
@@ -351,7 +352,7 @@ export default async function LearningPage() {
           </div>
           <div>
             <Link
-              href="/dashboard/training"
+              href="/dashboard"
               className="btn btn-primary"
               style={{
                 display: 'inline-flex',

@@ -140,6 +140,7 @@ export async function GET(request: NextRequest) {
       const matching = await prisma.messageThread.findMany({
         where: { id: { in: breachIds }, ...baseWhereForInbox() },
         select: { id: true },
+        take: 100,
       });
       const allow = new Set(matching.map((m) => m.id));
       breachIds = breachIds.filter((id) => allow.has(id));
@@ -158,6 +159,7 @@ export async function GET(request: NextRequest) {
     const threads = await prisma.messageThread.findMany({
       where: { id: { in: pageIds } },
       select: selectList,
+      take: 100,
     });
     const order = new Map(pageIds.map((id, i) => [id, i]));
     threads.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
@@ -214,7 +216,7 @@ function mapThreadRow(
     employer: { id: string; companyName: string; contactEmail: string; userId: string } | null;
     partner: { id: string; name: string; partnerUsers: { userId: string }[] } | null;
     counselor: { id: string; fullName: string } | null;
-    messages: Array<{ id: string; body: string; createdAt: Date; authorId: string }>;
+    messages: Array<{ id: string; body: string; createdAt: Date; authorId: string | null }>;
   },
   slaMap: Map<string, import('@/lib/messages/superAdminMessageQueries').ThreadSlaRow>
 ) {
@@ -269,7 +271,7 @@ function mapThreadRow(
 
   if (t.kind === 'partner' && t.partner) {
     const partnerUserIds = t.partner.partnerUsers.map((p) => p.userId);
-    const needsStaffReply = last ? partnerUserIds.includes(last.authorId) : false;
+    const needsStaffReply = last ? last.authorId != null && partnerUserIds.includes(last.authorId) : false;
     return {
       ...base,
       partnerId: t.partnerId,
@@ -300,31 +302,36 @@ function mapThreadRow(
  * Creates or retrieves the member's counselor thread so admin can message them.
  */
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isSuperAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  let body: unknown;
-  try { body = await request.json(); } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isSuperAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  
+    let body: unknown;
+    try { body = await request.json(); } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+  
+    const memberId = typeof (body as { memberId?: unknown }).memberId === 'string'
+      ? (body as { memberId: string }).memberId
+      : '';
+    if (!memberId) return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
+  
+    const member = await prisma.user.findFirst({
+      where: {
+        id: memberId,
+        deletedAt: null,
+        profile: { role: 'member' },
+      },
+      select: { id: true, fullName: true },
+    });
+    if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  
+    const thread = await getOrCreateMemberCounselorThread(memberId);
+  
+    return NextResponse.json({ threadId: thread.id, memberName: member.fullName });
+  } catch (error) {
+    console.error('/admin/messages/threads:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const memberId = typeof (body as { memberId?: unknown }).memberId === 'string'
-    ? (body as { memberId: string }).memberId
-    : '';
-  if (!memberId) return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
-
-  const member = await prisma.user.findFirst({
-    where: {
-      id: memberId,
-      deletedAt: null,
-      profile: { role: 'member' },
-    },
-    select: { id: true, fullName: true },
-  });
-  if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
-
-  const thread = await getOrCreateMemberCounselorThread(memberId);
-
-  return NextResponse.json({ threadId: thread.id, memberName: member.fullName });
 }

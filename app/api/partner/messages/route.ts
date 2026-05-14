@@ -10,6 +10,7 @@ import { normalizeMessageBody, serializeMessage } from '@/lib/messages/counselor
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -35,9 +36,16 @@ export async function GET() {
     },
     messages: messages.map(serializeMessage),
   });
+
+  } catch (error) {
+    console.error('/partner/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -85,9 +93,16 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({ message: serializeMessage(msg) });
+
+  } catch (error) {
+    console.error('/partner/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function PATCH() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -105,4 +120,10 @@ export async function PATCH() {
   });
 
   return NextResponse.json({ ok: true, portalUserLastReadAt: now.toISOString() });
+
+  } catch (error) {
+    console.error('/partner/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

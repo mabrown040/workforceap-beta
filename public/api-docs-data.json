@@ -1,0 +1,3557 @@
+{
+  "categories": [
+    {
+      "name": "Auth",
+      "count": 7,
+      "routes": [
+        {
+          "route": "/api/auth/check-mfa-required",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "GET /api/auth/check-mfa-required Returns whether the current session needs MFA verification. Used by the verify-mfa page to guard access.",
+          "category": "Auth"
+        },
+        {
+          "route": "/api/auth/forgot-password",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "Return the same uniform message — don't confirm the email exists",
+          "category": "Auth"
+        },
+        {
+          "route": "/api/auth/login",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "Rate limit by email to prevent brute-force",
+          "category": "Auth"
+        },
+        {
+          "route": "/api/auth/logout",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "Clear the session-only preference flag on logout",
+          "category": "Auth"
+        },
+        {
+          "route": "/api/auth/me",
+          "methods": [
+            "GET"
+          ],
+          "auth": "super_admin",
+          "description": "",
+          "category": "Auth"
+        },
+        {
+          "route": "/api/auth/setup-mfa",
+          "methods": [
+            "POST",
+            "PATCH"
+          ],
+          "auth": "public",
+          "description": "POST /api/auth/setup-mfa Enrolls a new TOTP factor for the current user. Returns: { qr, secret, factorId } — client shows QR, user confirms",
+          "category": "Auth"
+        },
+        {
+          "route": "/api/auth/verify-mfa",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "POST /api/auth/verify-mfa Verifies TOTP code after initial password login. Expects: { code: string } in body. Requires active session with a",
+          "category": "Auth"
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "count": 6,
+      "routes": [
+        {
+          "route": "/api/dashboard/jobs/[id]/apply",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Award points (idempotent on application id)",
+          "category": "Public"
+        },
+        {
+          "route": "/api/dashboard/jobs/[id]",
+          "methods": [
+            "GET"
+          ],
+          "auth": "public",
+          "description": "Public job detail - only live jobs */",
+          "category": "Public"
+        },
+        {
+          "route": "/api/dashboard/jobs",
+          "methods": [
+            "GET"
+          ],
+          "auth": "public",
+          "description": "Public jobs listing - only live jobs for students */",
+          "category": "Public"
+        },
+        {
+          "route": "/api/public/wioa-qualification",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Public"
+        },
+        {
+          "route": "/api/public/wioa-qualification/voice-session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Public"
+        },
+        {
+          "route": "/api/xapi",
+          "methods": [],
+          "auth": "public",
+          "description": "xAPI tenant server endpoint. Coursera's \"Standard xAPI format\" client posts",
+          "category": "Public"
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "count": 2,
+      "routes": [
+        {
+          "route": "/api/health",
+          "methods": [
+            "GET",
+            "OPTIONS"
+          ],
+          "auth": "public",
+          "description": "GET /api/health Public health endpoint. Reports the reachability and configuration status of every external dependency the platform relies o",
+          "category": "Health"
+        },
+        {
+          "route": "/api/health/slo",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/health/slo Internal SLO snapshot endpoint. Returns the current value, target, and within/breaching status for each committed SLO ov",
+          "category": "Health"
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "count": 1,
+      "routes": [
+        {
+          "route": "/api/contact",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Contact"
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "count": 1,
+      "routes": [
+        {
+          "route": "/api/events",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Events"
+        }
+      ]
+    },
+    {
+      "name": "Careers",
+      "count": 3,
+      "routes": [
+        {
+          "route": "/api/careers/occupation/[onetCode]",
+          "methods": [
+            "GET"
+          ],
+          "auth": "public",
+          "description": "If the DB title is missing or just the raw SOC code, fall back to the",
+          "category": "Careers"
+        },
+        {
+          "route": "/api/careers/program-matches/[programSlug]",
+          "methods": [
+            "GET"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Careers"
+        },
+        {
+          "route": "/api/careers/recommend",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Careers"
+        }
+      ]
+    },
+    {
+      "name": "Referral Sources",
+      "count": 1,
+      "routes": [
+        {
+          "route": "/api/referral-sources",
+          "methods": [
+            "GET"
+          ],
+          "auth": "public",
+          "description": "Partners first, then static sources",
+          "category": "Referral Sources"
+        }
+      ]
+    },
+    {
+      "name": "Onboarding",
+      "count": 3,
+      "routes": [
+        {
+          "route": "/api/onboarding/complete",
+          "methods": [
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Onboarding"
+        },
+        {
+          "route": "/api/onboarding/reset",
+          "methods": [
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "",
+          "category": "Onboarding"
+        },
+        {
+          "route": "/api/onboarding/tour-complete",
+          "methods": [
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Onboarding"
+        }
+      ]
+    },
+    {
+      "name": "Organization",
+      "count": 2,
+      "routes": [
+        {
+          "route": "/api/org/[slug]/settings",
+          "methods": [
+            "GET",
+            "PUT"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Organization"
+        },
+        {
+          "route": "/api/org/onboard",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "Validate domain is not already claimed",
+          "category": "Organization"
+        }
+      ]
+    },
+    {
+      "name": "GDPR",
+      "count": 3,
+      "routes": [
+        {
+          "route": "/api/gdpr/consent",
+          "methods": [
+            "GET",
+            "PATCH"
+          ],
+          "auth": "member",
+          "description": "GET /api/gdpr/consent Returns the user's current consent preferences. PATCH /api/gdpr/consent Updates consent preferences. Body: { consentCo",
+          "category": "GDPR"
+        },
+        {
+          "route": "/api/gdpr/delete",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/gdpr/delete Initiates account deletion for the authenticated user. Implements GDPR Article 17 — Right to erasure (right to be forg",
+          "category": "GDPR"
+        },
+        {
+          "route": "/api/gdpr/export",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "GET /api/gdpr/export Returns all personal data for the authenticated user. Implements GDPR Article 20 — Right to data portability.",
+          "category": "GDPR"
+        }
+      ]
+    },
+    {
+      "name": "Invites",
+      "count": 2,
+      "routes": [
+        {
+          "route": "/api/invite/accept",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "Debug breadcrumbs for preview/Vercel logs (no PII). */",
+          "category": "Invites"
+        },
+        {
+          "route": "/api/invite/validate",
+          "methods": [
+            "GET"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Invites"
+        }
+      ]
+    },
+    {
+      "name": "Apply",
+      "count": 3,
+      "routes": [
+        {
+          "route": "/api/apply/confirmation-email",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Apply"
+        },
+        {
+          "route": "/api/apply/signup",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "Primary = [0]; up to 3 preferences in order */",
+          "category": "Apply"
+        },
+        {
+          "route": "/api/apply/status-lookup",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Apply"
+        }
+      ]
+    },
+    {
+      "name": "Member",
+      "count": 80,
+      "routes": [
+        {
+          "route": "/api/member/ai-history",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/application-ai-feedback",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/application-onboarding",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "member",
+          "description": "Upserts program interest for onboarding (latest application or new draft row).",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/applications/[id]/messages",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/applications/[id]",
+          "methods": [
+            "PATCH",
+            "DELETE"
+          ],
+          "auth": "member",
+          "description": "Award points on the SAVED → real-application transition. Codex P2 catch",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/applications",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Award points only when the row represents a REAL application, not a",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/assessment/reset",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/member/assessment/reset Allows a member to request a re-take of their skills assessment. - Records the reset request in Assessment",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/assessment/submit",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Multi-program: counselor-created flag lives on the primary enrollment.",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/benefits/request",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/career-business-coach/completion",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/career-business-coach/voice-session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST — signed URL for career and business coach voice session. */",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/certifications/export",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/certifications",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Use the user-provided date if supplied and valid, otherwise default to now",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/certifications/upload",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/member/certifications/upload Accepts a multipart/form-data upload with: - file: the certificate file (PDF/image) - certName: the c",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/coursera/auto-sync",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/member/coursera/auto-sync Self-sync trigger fired from the `/dashboard` server render so a returning member with a valid Coursera",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/coursera/enroll-in-course",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/member/coursera/enroll-in-course Body: `{ courseraCourseId: string }` — that's all the client sends. The server resolves the activ",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/coursera/identity",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/coursera/launch",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "Use the same active-program resolution as `/dashboard/training` and",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/coursera/refresh-progress",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Manual cache-bust for `/dashboard/training`. The page render path uses a 60s memo on per-learner B4B progress; this endpoint re-pulls with `",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/coursera",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/courses/complete",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/dashboard-profile",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/delete-account",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Soft-delete in app DB AND release the email from the unique",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/enroll",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Multi-program: read enrolledByAdminId from the primary enrollment row",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/enrollments/[id]",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/enrollments/[id]/set-primary",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/member/enrollments/{id}/set-primary Marks the given CourseEnrollment row as `isPrimary = true` for the calling user. The partial u",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/enrollments",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/goals/[id]",
+          "methods": [
+            "PATCH",
+            "DELETE"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/goals",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/interest-profiler/questions",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/interest-profiler/score",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Persist to AIToolResult so /api/member/skill-profile can read it",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/interview-request",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Award points (idempotent — fixed entityId means only the first request awards)",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/job-applications/[id]",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/job-applications/log-external",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Log an external job application — Member Apply Loop. Per /plan-ceo-review (2026-04-26): the curated Job Board already has a working apply fl",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/job-applications",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "GET: List user's job applications",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/job-applications/track-curated",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Add a live curated job to the member Application Tracker without submitting an employer application. */",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/learning-progress",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/linkedin-enrich",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/member/linkedin-enrich Body: { linkedinUrl: string } Enriches the member's skill profile from their LinkedIn public URL. IMPLEMENT",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/matched-jobs",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "GET /api/member/matched-jobs Returns top 5 active jobs matched to the current student's profile.",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/messages",
+          "methods": [
+            "GET",
+            "POST",
+            "PATCH"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/nba/[id]",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "member",
+          "description": "PATCH /api/member/nba/:id — update a DB-sourced next best action */",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/notifications/[id]/read",
+          "methods": [
+            "PUT"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/notifications/dismiss-all",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/notifications",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/pathway-steps/[pathwayId]/[stepIndex]/complete",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Award points (idempotent per (pathway, step))",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/pathway-steps/progress",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/pitch-deployments",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/pre-screening/draft",
+          "methods": [
+            "GET",
+            "PUT"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/pre-screening",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/prep-bundle",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "GET /api/member/prep-bundle Returns the prep bundle data for display (no email sent).",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/prep-bundle/send",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/member/prep-bundle/send Body: { memberEmail?: string, selectedToolTypes?: string[] } Sends selected AI tool results as a pre-inter",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/profile/completeness",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/profile",
+          "methods": [
+            "GET",
+            "PATCH"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/program-change-request",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/readiness",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/readiness/voice-session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST — signed URL for career readiness voice coach. */",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/request-help",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Find assigned counselor",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resources/[id]/download",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resources/[id]/progress",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "empty body ok",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resources/progress",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resume-coach/live-suggestions",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST — parse the in-progress voice transcript into live resume suggestions. Input: { transcript: Array<{ speaker: 'agent' \\|'user'; text: st",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resume-coach/parse-suggestions",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST — parse voice coach transcript into structured resume suggestions. Input: { transcript: Array<{ speaker: 'agent' \\|'user'; text: string",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resume-coach/session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Align with `getMemberResumePlainText` (substantive extract). Below this, treat as no usable resume text for voice branching. */",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resume/docx-html",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Converts stored DOC/DOCX to HTML for same-origin inline preview (iframe srcDoc + sandbox). POST /api/member/resume/docx-html?variant=origina",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resume/generate",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "optional body",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resume/plain-text",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Persists the member's live resume draft as plain text (coach workspace, tooling). Stored alongside generated resumes as `resume-enhanced.txt",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resume/preview",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "Same-origin PDF/DOC binary for inline preview (avoids cross-origin iframe issues with signed Supabase URLs). GET /api/member/resume/preview?",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resume",
+          "methods": [
+            "GET"
+          ],
+          "auth": "counselor",
+          "description": "Plain text extracted from stored resume (PDF/DOCX/TXT). Use for tools; omit unless `includePlainText`. */",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/resume/upload",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Create bucket `member-resumes` in Supabase Dashboard → Storage if it does not exist (private bucket is fine). */",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/settings",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/signup",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "Route handler - cookies set by middleware on redirect",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/skill-assessment",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/skill-profile",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "GET /api/member/skill-profile Returns the member's skill profile as radar axes, sourced from: 1. Certifications → mapped to skill axes via c",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/voice-interview/recording",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Same private bucket as resumes; path prefix isolates mock interview videos. */",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/voice-interview/session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST — signed URL for voice mock interview with role / style context. */",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/voice-interview/transcript",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/voice-session/checkpoint",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Lightweight checkpoint endpoint for voice sessions. Saves transcript without AI processing (no action-plan generation, no emails). Used for",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/weekly-recap",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/wioa-qualification",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Member"
+        },
+        {
+          "route": "/api/member/wioa-qualification/voice-session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST — signed URL for WIOA pre-qualification voice guide. */",
+          "category": "Member"
+        }
+      ]
+    },
+    {
+      "name": "Counselor",
+      "count": 19,
+      "routes": [
+        {
+          "route": "/api/counselor/dashboard",
+          "methods": [
+            "GET"
+          ],
+          "auth": "counselor",
+          "description": "GET /api/counselor/dashboard Returns the counselor's dashboard data in a single batched query. Optimizations vs page-level fetching: - Membe",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/feedback",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Try Anthropic first",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/inactive-members",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/counselor/inactive-members?days=7\\|14\\|30 Returns members (role='member') who haven't had a dashboard_viewed event in N days. Counsel",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/members/[memberId]/activity-timeline",
+          "methods": [
+            "GET"
+          ],
+          "auth": "counselor",
+          "description": "GET /api/counselor/members/:memberId/activity-timeline?limit=20 Returns recent member events for the activity timeline in the at-risk detail",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/members/[memberId]/award-points",
+          "methods": [
+            "POST"
+          ],
+          "auth": "counselor",
+          "description": "",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/members/[memberId]/messages",
+          "methods": [
+            "GET",
+            "POST",
+            "PATCH"
+          ],
+          "auth": "counselor",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Every memb",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/members/[memberId]/notes",
+          "methods": [
+            "GET",
+            "POST",
+            "DELETE"
+          ],
+          "auth": "counselor",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 3). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/members/[memberId]/resume/docx-html",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "DOC/DOCX → HTML for same-origin iframe preview. POST /api/counselor/members/:memberId/resume/docx-html?variant=original\\|enhanced",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/members/[memberId]/resume/preview",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "Same-origin PDF/DOC binary for inline preview (counselor / admin viewing assigned member). GET /api/counselor/members/:memberId/resume/previ",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/members/[memberId]/resume",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "GET — resume metadata + signed URLs for assigned counselor / admin (same shape as `/api/member/resume`). */",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/members/[memberId]",
+          "methods": [
+            "GET"
+          ],
+          "auth": "counselor",
+          "description": "GET /api/counselor/members/[memberId] Returns a single member's full detail view for the counselor portal. Optimization: all related records",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/nudge",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/placements",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "counselor",
+          "description": "GET /api/counselor/placements Returns all placement records. Counselor/admin only. Query params: memberId, employerName, days (recent N days",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/remind-member",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "counselor",
+          "description": "",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/sessions/email-packet",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Track A - Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Member exi",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/sessions/upload-resume",
+          "methods": [
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/sessions/voice-walkthrough",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The member",
+          "category": "Counselor"
+        },
+        {
+          "route": "/api/counselor/sessions/walk-in",
+          "methods": [
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 5). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The new wa",
+          "category": "Counselor"
+        }
+      ]
+    },
+    {
+      "name": "Employer",
+      "count": 20,
+      "routes": [
+        {
+          "route": "/api/employer/applications/[id]/messages",
+          "methods": [
+            "GET",
+            "POST",
+            "PATCH"
+          ],
+          "auth": "employer",
+          "description": "Mark applicant messages as read for the employer viewer. */",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/applications/[id]",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "super_admin",
+          "description": "PATCH /api/employer/applications/[id] Employer updates an applicant's status and notes.",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/applications",
+          "methods": [
+            "GET"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/checkout",
+          "methods": [
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/hiring-intents",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/jobs/[id]/applicants",
+          "methods": [
+            "GET",
+            "PATCH"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/jobs/[id]/matches/[studentId]",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/jobs/[id]/matches",
+          "methods": [
+            "GET"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/jobs/[id]",
+          "methods": [
+            "GET",
+            "PATCH",
+            "DELETE"
+          ],
+          "auth": "employer",
+          "description": "Notify admin when job is submitted for review (draft/closed → pending)",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/jobs/bulk-delete",
+          "methods": [
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "Jobs employers may remove in bulk (not visible on the public board). */",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/jobs/import-bulk",
+          "methods": [
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/jobs/import",
+          "methods": [
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "Fall through to error",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/jobs",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/logo",
+          "methods": [
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/messages",
+          "methods": [
+            "GET",
+            "POST",
+            "PATCH"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/onboarding-profile",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/settings",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "employer",
+          "description": "",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/signup",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "Route handler - cookies set by middleware on redirect",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/voice-session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "employer",
+          "description": "POST — signed URL for employer ElevenLabs agent (hiring / portal help). */",
+          "category": "Employer"
+        },
+        {
+          "route": "/api/employer/webhook",
+          "methods": [
+            "POST"
+          ],
+          "auth": "webhook",
+          "description": "",
+          "category": "Employer"
+        }
+      ]
+    },
+    {
+      "name": "Partner",
+      "count": 19,
+      "routes": [
+        {
+          "route": "/api/partner/connect",
+          "methods": [
+            "POST"
+          ],
+          "auth": "partner",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/dashboard",
+          "methods": [
+            "GET"
+          ],
+          "auth": "partner",
+          "description": "GET /api/partner/dashboard Returns partner stats, referrals, and earnings summary.",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/earnings",
+          "methods": [
+            "GET"
+          ],
+          "auth": "partner",
+          "description": "GET /api/partner/earnings Returns earnings / payout data for the partner.",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/export/referrals",
+          "methods": [
+            "GET"
+          ],
+          "auth": "partner",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/invitations",
+          "methods": [
+            "POST"
+          ],
+          "auth": "partner",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/members/needs-attention",
+          "methods": [
+            "GET"
+          ],
+          "auth": "partner",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/members",
+          "methods": [
+            "GET"
+          ],
+          "auth": "partner",
+          "description": "GET /api/partner/members Returns members referred by the partner.",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/messages",
+          "methods": [
+            "GET",
+            "POST",
+            "PATCH"
+          ],
+          "auth": "partner",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/milestones",
+          "methods": [
+            "GET"
+          ],
+          "auth": "partner",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/onboarding-profile",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "partner",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/outreach",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "partner",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/payout",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/referral-members",
+          "methods": [
+            "GET"
+          ],
+          "auth": "partner",
+          "description": "Lightweight list for outreach logging dropdowns. */",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/referrals/[memberId]",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "partner",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/referrals",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "partner",
+          "description": "GET /api/partner/referrals Returns referral list with status.",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/settings/notifications",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "partner",
+          "description": "PATCH /api/partner/settings/notifications Updates partner notification preferences. Only the fields provided in the request body are updated",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/signup",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/team-assign",
+          "methods": [
+            "GET"
+          ],
+          "auth": "partner",
+          "description": "Partner portal users eligible as referral owners (same partner). */",
+          "category": "Partner"
+        },
+        {
+          "route": "/api/partner/voice-session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "partner",
+          "description": "POST — signed URL for partner-facing voice assistant. Requires `ELEVENLABS_PARTNER_AGENT_ID`. */",
+          "category": "Partner"
+        }
+      ]
+    },
+    {
+      "name": "Mentor",
+      "count": 4,
+      "routes": [
+        {
+          "route": "/api/mentor/letter",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "GET /api/mentor/letter?mentorId=xxx Returns a simple HTML volunteer hour letter for the mentor to print/save as PDF. The mentor must be the",
+          "category": "Mentor"
+        },
+        {
+          "route": "/api/mentors/[id]/sessions",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Mentor"
+        },
+        {
+          "route": "/api/mentors/apply",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "If logged in, create mentor record linked to user; otherwise store anonymous application",
+          "category": "Mentor"
+        },
+        {
+          "route": "/api/mentors",
+          "methods": [
+            "GET"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Mentor"
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "count": 136,
+      "routes": [
+        {
+          "route": "/api/admin/analytics/ai-efficacy",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "Only zero-out time for computed defaults; leave parsed dates as-is",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/analytics/dashboard",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/analytics/members",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/analytics/placements",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/analytics/programs",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/blog/[id]",
+          "methods": [
+            "GET",
+            "PATCH",
+            "DELETE"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/blog/ai/draft",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/blog/ai/from-ideas",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "mode === 'draft'",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/blog/ai/review",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/blog/ai/suggest-topics",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/blog/generate",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/blog",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/cohort-export",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/cohort-export?program=<slug> Cohort CSV for grant reporting (e.g. WIOA). Lists every member in a given program with placement",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/counselors",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/auto-heal",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Surface a flat number the admin UI can show in the success toast.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/b4b-bindings-suggestions",
+          "methods": [
+            "GET"
+          ],
+          "auth": "super_admin",
+          "description": "GET /api/admin/coursera/b4b-bindings-suggestions Returns name-match suggestions between the static `PROGRAMS` catalog and the live B4B progr",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/b4b-programs",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/coursera/b4b-programs Returns every Coursera B4B program known to our org via `listPrograms()`. This is what an admin needs t",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/backfill-xapi",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/canonical-course-mappings",
+          "methods": [
+            "POST",
+            "DELETE"
+          ],
+          "auth": "admin",
+          "description": "Validate the canonical pair actually exists in the program defs so admins",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/csv-import",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Cheap pre-flight on Content-Length when present.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/ignored-xapi-summary",
+          "methods": [
+            "GET"
+          ],
+          "auth": "super_admin",
+          "description": "GET /api/admin/coursera/ignored-xapi-summary Diagnostic for the most common cause of a stuck Coursera pipeline: inbound xAPI events whose `c",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/inspect-by-email",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/coursera/inspect-by-email?email=<email> Admin-only \"deep inspect\" by email. Joins, in one response, every system that knows a",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/map-unmatched",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Inline \"Map to WAP user\" action used from the Coursera-only learners list. Combines two side effects in one round-trip: 1. Upsert a coursera",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/mappings",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Re-process unmatched xAPI events that might now match this mapping.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/reconcile/add-to-wap",
+          "methods": [
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "POST /api/admin/coursera/reconcile/add-to-wap Body: { email: string; fullName?: string; courseraExternalId: string; programId: string; // Co",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/reconcile",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/coursera/reconcile?programId=<courseraProgramId>&limit=<n> Reconciliation report between Coursera For Business roster and the",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/seed-canonical-mappings-from-b4b",
+          "methods": [
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "POST /api/admin/coursera/seed-canonical-mappings-from-b4b Companion to `seed-canonical-mappings-from-catalog` that pulls the live B4B progra",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/seed-canonical-mappings-from-catalog",
+          "methods": [
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "POST /api/admin/coursera/seed-canonical-mappings-from-catalog One-click action that walks the program catalog (`courses` table) and upserts",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/self-test",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "A short payload preview if the call succeeded. */",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/sync-b4b",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "POST /api/admin/coursera/sync-b4b One-time admin trigger: pulls all enrollment reports from Coursera B4B API and writes/upserts them into Co",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/sync-progress",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "POST /api/admin/coursera/sync-progress Two-phase admin-triggered training sync: 1. Replay any pending xAPI statements that haven't been proc",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/coursera/sync-user-from-b4b",
+          "methods": [
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "POST /api/admin/coursera/sync-user-from-b4b Body: { email: string } Pulls authoritative enrollment data for a single learner from Coursera F",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/email-crons/[id]/dry-run",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "POST /api/admin/email-crons/[id]/dry-run Simulates a cron job execution without sending real emails. Returns: recipient count, sample recipi",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/email-crons/[id]/preview",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/email-crons/[id]/preview Returns the would-receive recipient list for a cron job without sending anything. Uses the same DB q",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/email-crons/[id]/template-preview",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/email-crons/[id]/toggle",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "POST /api/admin/email-crons/[id]/toggle Body: { enabled: boolean } Soft-enables or disables a cron by writing a WorkflowDiagnostic entry wit",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/email-crons/[id]/trigger",
+          "methods": [
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "POST /api/admin/email-crons/[id]/trigger Manually triggers a cron job by forwarding the request to its API path with the CRON_SECRET header.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/email-crons/activate-all",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "POST /api/admin/email-crons/activate-all Writes an \"enabled: true\" toggle record for every registered cron so the admin console and cron sof",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/email-crons",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/email-crons Returns all cron definitions enriched with: - lastRunAt: timestamp of most recent WorkflowDiagnostic entry - last",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/employer-context",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "Super-admin only: choose which employer portal company to view (or clear). */",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/employer-screening-packs/[id]",
+          "methods": [
+            "PATCH",
+            "DELETE"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/employer-screening-packs",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/employers/[id]/deactivate",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 2). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Both the l",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/employers/[id]/reactivate",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 2). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Both the l",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/employers/[id]/tier",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 2). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Both the l",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/employers",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 1). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Migrated t",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/export/members",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/export/members State-agnostic member training export for workforce reporting. Supports query-param filters: state, stage, pro",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/funder-program-summary",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/funder-program-summary Program-level CSV for grant / funder reporting (enrollment, 30-day activity, training completion, plac",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/invites/[id]/resend",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Persist new token before emailing so the message never contains a token that is not in the DB.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/invites/[id]/revoke",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/invites",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Invitation row already exists — return 200 so admins can copy/share the link",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/jobs/[id]/approve",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 3). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The `job.f",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/jobs/[id]/matches",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/jobs/[id]/reject",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 3). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The `job.f",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/jobs/[id]",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 2). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The `job.f",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/jobs/[id]/suggest-matches",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/jobs",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "Reference migration for Track A — Tenant Isolation Hardening (Sprint A.1). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/lifecycle/drift",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "Admin drift detection endpoint. Returns members where User.enrolledProgram and CourseEnrollment.programSlug are out of sync. Two categories:",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/lifecycle/member/[id]",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "Admin lifecycle timeline for a single member. Returns: - User enrollment state (enrolledProgram, enrolledAt) and canonical training progress",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/award-points",
+          "methods": [
+            "POST"
+          ],
+          "auth": "counselor",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/counselor",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/coursera-enrollment-approval",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "PATCH /api/admin/members/[id]/coursera-enrollment-approval Body: `{ approved: boolean }` Admin-only toggle for the Coursera enrollment eligi",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/delete",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Soft-delete the Prisma row AND release the email from the unique",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/edit-profile",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "PATCH /api/admin/members/[id]/edit-profile Admin can update basic member profile fields.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/enrollment-funding",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Multi-program: funding/workspace metadata lives on the primary",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/interview",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/messages",
+          "methods": [
+            "GET",
+            "POST",
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/notes",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 3). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The pre-wr",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/partner",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "Clear with null; empty string from forms coerces to null */",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/pipeline-stage",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 3). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. The findFi",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/placed-outcome",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "POST /api/admin/members/[id]/placed-outcome Unified placement write — updates PlacementRecord (canonical) AND PlacedOutcome (legacy, kept in",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/program",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "Multi-program: admin \"set program\" picks the user's primary",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/readiness",
+          "methods": [
+            "GET",
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/reset-assessment",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 3). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Switched t",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/reset-password",
+          "methods": [
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "POST /api/admin/members/[id]/reset-password Sends a password-reset email to the member via Supabase Auth. Super-admin only. Track A — Tenant",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/resume-urls",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/status",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "Best-effort: send enrollment confirmation / rejection emails to member",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/subgroup",
+          "methods": [
+            "POST",
+            "DELETE"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/upload-resume",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Create bucket \"member-resumes\" in Supabase Dashboard → Storage if it does not exist",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/wioa-review",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 3). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Both the l",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/[id]/workspace-email",
+          "methods": [
+            "POST",
+            "DELETE"
+          ],
+          "auth": "admin",
+          "description": "tolerate empty/invalid body — requestedLocalPart is optional",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/at-risk",
+          "methods": [
+            "GET",
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/members/at-risk?threshold=50&limit=20 Returns at-risk members sorted by score descending. Requires admin or counselor role.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/create",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Try invite first (sends set-password email). Fall back to createUser if invite not supported.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/duplicates",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/members/duplicates Returns groups of active (non-deleted) members who share the same lower-case email. Each group sorted by c",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/enhance-resume",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/merge",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "POST /api/admin/members/merge Body: { primaryId: string, secondaryId: string } Merges secondary member into primary: 1. Repoints foreign-key",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members/parse-resume",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/members",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "List members for admin (e.g. subgroup add-member search). Supports ?q= for search, ?limit= for max results. */",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/mentors/[id]",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/messages/stats",
+          "methods": [
+            "GET"
+          ],
+          "auth": "super_admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/messages/thread/[threadId]",
+          "methods": [
+            "GET"
+          ],
+          "auth": "super_admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/messages/thread/[threadId]/staff",
+          "methods": [
+            "POST",
+            "PATCH"
+          ],
+          "auth": "super_admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/messages/threads",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "POST /api/admin/messages/threads Body: { memberId: string } Creates or retrieves the member's counselor thread so admin can message them.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/metrics",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/onet/auto-match",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/onet/auto-match?onetCode=xx-xxxx.xx Returns a scored list of WorkforceAP program matches for the given O*NET occupation code,",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/onet/mappings",
+          "methods": [
+            "GET",
+            "POST",
+            "DELETE"
+          ],
+          "auth": "admin",
+          "description": "Subset of CareerProgramMapping serialized into AuditLog metadata for compliance / before-after comparisons. Stays small and stable on purpos",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/onet/search",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/onet/sync",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/organization/logo",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/outcomes",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/outcomes/snapshot",
+          "methods": [
+            "GET"
+          ],
+          "auth": "super_admin",
+          "description": "GET /api/admin/outcomes/snapshot?period=all-time\\|ytd\\|q-current\\|q-prev Single-page Markdown summary of every external-facing outcome metric.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/partner-context",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "super_admin",
+          "description": "Super-admin only: choose which partner portal to view (or clear). */",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/partner-payouts",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/partners/[id]/deactivate",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/partners/[id]/invite",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/partners/[id]/reactivate",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/partners/[id]",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 2). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Reads/writ",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/partners/invite",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/partners",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 1). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Reads agai",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/pipeline/at-risk-stats",
+          "methods": [
+            "GET"
+          ],
+          "auth": "counselor",
+          "description": "GET /api/admin/pipeline/at-risk-stats Returns at-risk alert stats for the admin pipeline dashboard: - criticalCount: number of CRITICAL at-r",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/pipeline",
+          "methods": [
+            "GET"
+          ],
+          "auth": "counselor",
+          "description": "Stage 7: Placed",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/pipeline/surveys",
+          "methods": [
+            "GET"
+          ],
+          "auth": "counselor",
+          "description": "GET /api/admin/pipeline/surveys Returns placement survey response stats and at-risk placements (no response after 7 days past survey send).",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/placement-surveys/resend",
+          "methods": [
+            "POST"
+          ],
+          "auth": "counselor",
+          "description": "POST /api/admin/placement-surveys/resend Manually re-send a placement survey for a given placementId. Finds the most recent pending survey f",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/placement-surveys",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/placement-surveys Admin API: view all placement survey results. Query params: ?status=completed\\|pending&limit=50&offset=0",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/placements",
+          "methods": [
+            "GET",
+            "POST",
+            "PATCH"
+          ],
+          "auth": "counselor",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/program-change-requests/[id]",
+          "methods": [
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "Approving a counselor-initiated program-change request is a strong",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/program-change-requests",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/programs/catalog",
+          "methods": [
+            "GET",
+            "POST",
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 2). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. All Prisma",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/programs/export-twc",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 4). The TWC catalog export goes through `withTenantScope` so an admin from Org A only",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/reports/quarterly-outcomes",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/reports/wioa/generate",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "In-memory store for the last generated WIOA report. MVP — no DB table needed. Survives as long as the lambda is warm.",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/reports/wioa",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/search",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "GET /api/admin/search?q=keyword&limit=8 Fast cross-entity search for admin global search (Cmd+K). Searches members (name/email), employers (",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/settings/organization",
+          "methods": [
+            "GET",
+            "PATCH"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/subgroups/[id]/members",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/subgroups/[id]",
+          "methods": [
+            "PATCH",
+            "DELETE"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/subgroups",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/testimonials/[id]",
+          "methods": [
+            "PATCH",
+            "DELETE"
+          ],
+          "auth": "admin",
+          "description": "PATCH /api/admin/testimonials/[id] Admin API: update testimonial status (approve/reject/publish), content, rating, etc. Body: { status?, con",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/testimonials",
+          "methods": [
+            "GET"
+          ],
+          "auth": "counselor",
+          "description": "GET /api/admin/testimonials Admin/counselor API: list testimonials with filtering by status. Query params: ?status=pending\\|approved\\|rejected",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/training-progress/items",
+          "methods": [
+            "GET"
+          ],
+          "auth": "admin",
+          "description": "Per-item Coursera progress drill-down for /admin/training-progress. Returns one row per `(course_item_id)` for a given (learner, course) pai",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/users/[id]/free-email",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Rewrite a soft-deleted user's email to the sentinel form so the original address is freed for re-signup. Idempotent — does nothing if the em",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/users/[id]/reset-password",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 3). The `user.findUnique` goes through `withTenantScope` so an admin from Org A canno",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/users/[id]/restore",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Restore a soft-deleted user. Clears `deletedAt` and, if the email was rewritten to the sentinel form by the delete route or the \"free email\"",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/users/[id]",
+          "methods": [
+            "PATCH",
+            "DELETE"
+          ],
+          "auth": "super_admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 4). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. Both DELET",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/users/free-deleted-emails",
+          "methods": [
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Batch-rewrite every soft-deleted user's email to the sentinel form if it isn't already. Backfills the deletes that happened before #757 adde",
+          "category": "Admin"
+        },
+        {
+          "route": "/api/admin/users",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "admin",
+          "description": "Track A — Tenant Isolation Hardening (Sprint A.2 batch 4). See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`. GET/POST m",
+          "category": "Admin"
+        }
+      ]
+    },
+    {
+      "name": "AI Tools",
+      "count": 18,
+      "routes": [
+        {
+          "route": "/api/ai/cover-letter",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Resolve subject (counselor/admin In-Office Session — see actAsSubject).",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/elevator-pitch",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/ai/elevator-pitch Body: { name, targetRole, strengths, certifications, industry, language } Returns: { pitch: string, emailSent?:",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/export-pdf",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/ai/export-pdf Body: { text: string, title?: string, toolName?: string, chartImage?: string, chartData?: RadarChartData } Returns:",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/extract-resume-skills",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/ai/extract-resume-skills Uses AI to extract skills from the member's resume and score them across the 6 radar axes: Analytics, Eng",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/extract-resume-text",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/gap-analyzer",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/interview-practice",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Resolve subject FIRST so we know who to prefill for",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/interview-voice",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/ai/interview-voice Generate AI interviewer voice audio using ElevenLabs. Used by the Interview Simulator for text-to-speech. Body:",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/interview/response",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/interview/results",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "Fallback when AI is unavailable",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/interview/start",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "In-memory session store (replace with Redis/DB for production)",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/job-match-scorer",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Extract job description from URL using provider-aware logic. Tier 1: Use ATS provider APIs (Greenhouse, Lever, Ashby) for known job URLs Tie",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/linkedin-about",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/linkedin-headline",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/resume-rewriter",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Resolve subject FIRST so we know who to prefill for",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/resume-strength",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/salary-negotiation",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "AI Tools"
+        },
+        {
+          "route": "/api/ai/skill-mapper",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "GET /api/ai/skill-mapper?occupation=software+developer Search O*NET occupations and return skill data for the Skill Mapper radar chart. GET",
+          "category": "AI Tools"
+        }
+      ]
+    },
+    {
+      "name": "Interview",
+      "count": 2,
+      "routes": [
+        {
+          "route": "/api/interview/history",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "member",
+          "description": "Try Anthropic first",
+          "category": "Interview"
+        },
+        {
+          "route": "/api/interview/session",
+          "methods": [
+            "POST"
+          ],
+          "auth": "member",
+          "description": "POST /api/interview/session Two modes: 1. ElevenLabs voice: returns a signed conversation URL when ELEVENLABS_API_KEY is set 2. Groq text fa",
+          "category": "Interview"
+        }
+      ]
+    },
+    {
+      "name": "Subgroup",
+      "count": 3,
+      "routes": [
+        {
+          "route": "/api/subgroup/dashboard",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Subgroup"
+        },
+        {
+          "route": "/api/subgroup/members/[id]",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Subgroup"
+        },
+        {
+          "route": "/api/subgroup/members",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "",
+          "category": "Subgroup"
+        }
+      ]
+    },
+    {
+      "name": "Portal",
+      "count": 1,
+      "routes": [
+        {
+          "route": "/api/portal/nav-badges",
+          "methods": [
+            "GET"
+          ],
+          "auth": "member",
+          "description": "Private per-user counts; short TTL reduces duplicate work when tab refetches.",
+          "category": "Portal"
+        }
+      ]
+    },
+    {
+      "name": "Placement Survey",
+      "count": 1,
+      "routes": [
+        {
+          "route": "/api/placement-survey",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "public",
+          "description": "POST /api/placement-survey Member submits their post-placement survey. Auth is by signed token delivered in the email link (NOT body userId",
+          "category": "Placement Survey"
+        }
+      ]
+    },
+    {
+      "name": "Cron Jobs",
+      "count": 20,
+      "routes": [
+        {
+          "route": "/api/cron/applicant-followup",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "Cron endpoint to send Day 3 follow-up emails to applicants. Finds applications submitted 3+ days ago with status still PENDING. Also pings a",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/at-risk-alerts",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "POST /api/cron/at-risk-alerts Daily counselor alert batcher. Runs after the main at-risk-check cron (which scores members and persists alert",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/at-risk-check",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "Nightly at-risk check — run via cron at 6 AM UTC. Scores active members, persists alerts, sends counselor/admin digest email. Vercel Cron us",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/coursera-auto-heal",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "GET / POST /api/cron/coursera-auto-heal Hourly maintenance pass that does two things: 1. Heal unmatched `coursera_xapi_events` rows: looks u",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/coursera-b4b-sync",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "GET /api/cron/coursera-b4b-sync Recurring cron that: 1. Pulls Coursera B4B enrollment reports → CourseProgress 2. Refreshes canonical course",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/coursera-sync",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "GET/POST /api/cron/coursera-sync Active-pull cron that polls Coursera Enterprise for each WAP member's skillset progress and persists a snap",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/coursera-training-sync",
+          "methods": [
+            "GET"
+          ],
+          "auth": "cron",
+          "description": "GET /api/cron/coursera-training-sync Hourly: replay pending xAPI rows into `CourseProgress`. Skillset progress is pulled by `/api/cron/cours",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/deploy-health",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "Hourly Vercel deploy health check. Queries the Vercel API to verify the latest production deployment is in READY state. If the Vercel API to",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/inactive-nudge",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "Cron endpoint to send inactive member nudge emails. Run daily (e.g. via Vercel Cron: \"0 10 * * *\" for 10 AM). Sends to members inactive for",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/inactivity-nudge",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "POST /api/cron/inactivity-nudge Sends a re-engagement nudge to members who have been inactive for 14+ days. Capped at 100/run to avoid spam.",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/interview-reminders",
+          "methods": [
+            "GET"
+          ],
+          "auth": "cron",
+          "description": "Daily: (1) ~24h before nextInterviewDate — prep reminder; (2) ~24h after — debrief prompt. Uses JobApplication.nextInterviewDate. Protected",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/milestone-celebration",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "GET /api/cron/milestone-celebration Sends a celebration email when a member completes all courses in their program. Runs daily to catch comp",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/partner-outcome-digest",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "Weekly digest for referral partners: referral counts by stage + weekly wins. Protected with CRON_SECRET. Vercel schedule: Monday 8am CT (see",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/placement-survey",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "POST /api/cron/placement-survey Daily cron: sends 30/60/90-day placement surveys and escalates non-responders to counselors. Idempotent per",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/smoke-test",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "Hourly public endpoint smoke test. HTTP checks on critical public paths to catch 500s/404s from bad deploys.",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/stale-training-check",
+          "methods": [
+            "GET"
+          ],
+          "auth": "cron",
+          "description": "GET /api/cron/stale-training-check Daily: members with `CourseEnrollment` but no fresh `CourseProgress` (7d) get `User.staleTrainingDetected",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/verification",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "Daily verification that member-facing cron jobs actually executed. Checks cron run logs against schedule-aware freshness windows. Daily cron",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/weekly-recap-email",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "Cron endpoint to send weekly admin recap email. Runs Friday 4 PM CT (10 PM UTC: \"0 22 * * 5\"). Gathers: new applicants, placements, at-risk",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/weekly-recap",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "GET /api/cron/weekly-recap Sends weekly recap emails to all active members who have not received one this week. Secured by CRON_SECRET heade",
+          "category": "Cron Jobs"
+        },
+        {
+          "route": "/api/cron/wioa-report",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "cron",
+          "description": "GET /api/cron/wioa-report Monthly WIOA grant reporting cron. Runs 1st of every month at 9:00 AM CT (14:00 UTC). Generates the previous month",
+          "category": "Cron Jobs"
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "count": 2,
+      "routes": [
+        {
+          "route": "/api/webhooks/coursera",
+          "methods": [
+            "POST"
+          ],
+          "auth": "webhook",
+          "description": "Coursera REST completion / progress webhook. **Retry semantics:** Coursera may retry on non-2xx responses. Return 2xx only after durable wor",
+          "category": "Webhooks"
+        },
+        {
+          "route": "/api/webhooks/learning-completion",
+          "methods": [
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "Webhooks"
+        }
+      ]
+    },
+    {
+      "name": "xAPI",
+      "count": 4,
+      "routes": [
+        {
+          "route": "/api/xapi/about",
+          "methods": [
+            "GET"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "xAPI"
+        },
+        {
+          "route": "/api/xapi/config",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "xAPI"
+        },
+        {
+          "route": "/api/xapi/oauth/token",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "public",
+          "description": "",
+          "category": "xAPI"
+        },
+        {
+          "route": "/api/xapi/statements",
+          "methods": [
+            "GET",
+            "POST"
+          ],
+          "auth": "public",
+          "description": "xAPI ingest (Coursera → WorkforceAP) Ops quick ref (set `ENABLE_ANALYTICS_LOGS=true` for batch console lines from `trackXapiBatchProcessed`)",
+          "category": "xAPI"
+        }
+      ]
+    },
+    {
+      "name": "Stripe",
+      "count": 1,
+      "routes": [
+        {
+          "route": "/api/stripe/webhook",
+          "methods": [
+            "POST"
+          ],
+          "auth": "webhook",
+          "description": "",
+          "category": "Stripe"
+        }
+      ]
+    },
+    {
+      "name": "Test",
+      "count": 1,
+      "routes": [
+        {
+          "route": "/api/test/xapi-access-token",
+          "methods": [
+            "GET"
+          ],
+          "auth": "public",
+          "description": "Issues a short-lived HS256 xAPI access token using the same secret as `/api/xapi/oauth/token`. **Never enable in production.** Enabled when",
+          "category": "Test"
+        }
+      ]
+    }
+  ],
+  "totalRoutes": 365,
+  "generatedAt": "2026-05-13T20:06:02.072Z"
+}

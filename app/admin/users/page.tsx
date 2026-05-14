@@ -25,6 +25,7 @@ export default async function AdminUsersPage() {
 
   const [users, canManageRoles, deletedCount] = await Promise.all([
     prisma.user.findMany({
+      take: 5000,
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
       select: {
@@ -47,7 +48,7 @@ export default async function AdminUsersPage() {
         action={
           <Link
             href="/admin/users/deleted"
-            className="btn btn-secondary btn-small"
+            className="btn btn-muted btn-small"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
           >
             <Trash2 size={14} aria-hidden />

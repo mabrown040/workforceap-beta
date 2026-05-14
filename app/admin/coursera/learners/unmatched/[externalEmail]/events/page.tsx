@@ -200,26 +200,26 @@ export default async function AdminCourseraUnmatchedEventsPage({
                 </p>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   {page > 1 ? (
-                    <Link href={pageHref(page - 1)} className="btn btn-secondary" style={{ fontSize: '0.85rem' }}>
+                    <Link href={pageHref(page - 1)} className="btn btn-muted" style={{ fontSize: '0.85rem' }}>
                       ← Previous
                     </Link>
                   ) : (
                     <span
                       aria-disabled
-                      className="btn btn-secondary"
+                      className="btn btn-muted"
                       style={{ fontSize: '0.85rem', opacity: 0.4, pointerEvents: 'none' }}
                     >
                       ← Previous
                     </span>
                   )}
                   {page < totalPages ? (
-                    <Link href={pageHref(page + 1)} className="btn btn-secondary" style={{ fontSize: '0.85rem' }}>
+                    <Link href={pageHref(page + 1)} className="btn btn-muted" style={{ fontSize: '0.85rem' }}>
                       Next →
                     </Link>
                   ) : (
                     <span
                       aria-disabled
-                      className="btn btn-secondary"
+                      className="btn btn-muted"
                       style={{ fontSize: '0.85rem', opacity: 0.4, pointerEvents: 'none' }}
                     >
                       Next →

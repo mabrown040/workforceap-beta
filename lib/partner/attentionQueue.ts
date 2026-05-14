@@ -43,6 +43,7 @@ export type PartnerAttentionRow = {
 
 export async function buildPartnerAttentionQueue(partnerId: string): Promise<PartnerAttentionRow[]> {
   const referrals = await prisma.partnerReferral.findMany({
+    take: 5000,
     where: { partnerId, member: { deletedAt: null } },
     include: {
       assignedPartnerUser: { select: { fullName: true } },
@@ -81,7 +82,7 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
         });
   const lastTouchByMember = new Map<string, string>();
   for (const l of recentLogs) {
-    if (!lastTouchByMember.has(l.memberId)) lastTouchByMember.set(l.memberId, l.createdBy.fullName);
+    if (!lastTouchByMember.has(l.memberId)) lastTouchByMember.set(l.memberId, l.createdBy?.fullName ?? 'Unknown');
   }
 
   const rows: PartnerAttentionRow[] = [];

@@ -7,33 +7,38 @@ function normalizeEmail(value: unknown) {
 }
 
 export async function POST(request: Request) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const courseraEmail = normalizeEmail((body as Record<string, unknown>)?.courseraEmail);
-  if (!courseraEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(courseraEmail)) {
-    return NextResponse.json({ error: 'Enter a valid Coursera email address.' }, { status: 400 });
-  }
-
-  try {
-    const mapping = await upsertCourseraIdentityMapping({
-      userId: user.id,
-      courseraEmail,
-      createdByUserId: user.id,
-      source: 'member_self_link',
-      notes: 'Saved by member from Training page',
-    });
-
-    return NextResponse.json({ ok: true, courseraEmail: mapping?.courseraEmail ?? courseraEmail });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+  
+    const courseraEmail = normalizeEmail((body as Record<string, unknown>)?.courseraEmail);
+    if (!courseraEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(courseraEmail)) {
+      return NextResponse.json({ error: 'Enter a valid Coursera email address.' }, { status: 400 });
+    }
+  
+    try {
+      const mapping = await upsertCourseraIdentityMapping({
+        userId: user.id,
+        courseraEmail,
+        createdByUserId: user.id,
+        source: 'member_self_link',
+        notes: 'Saved by member from Training page',
+      });
+  
+      return NextResponse.json({ ok: true, courseraEmail: mapping?.courseraEmail ?? courseraEmail });
+    } catch (error) {
+      console.error('[member/coursera/identity] failed to save Coursera email:', error);
+      return NextResponse.json({ error: 'Unable to save your Coursera email right now.' }, { status: 500 });
+    }
   } catch (error) {
-    console.error('[member/coursera/identity] failed to save Coursera email:', error);
-    return NextResponse.json({ error: 'Unable to save your Coursera email right now.' }, { status: 500 });
+    console.error('/member/coursera/identity:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

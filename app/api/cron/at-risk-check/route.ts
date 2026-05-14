@@ -12,6 +12,7 @@ import {
 } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
@@ -45,6 +46,7 @@ async function handle(_request: Request) {
       userId: { notIn: Array.from(activeAlertUserIds) },
     },
     select: { id: true },
+    take: 100,
   });
 
   if (staleAlerts.length > 0) {
@@ -65,6 +67,7 @@ async function handle(_request: Request) {
       ? await prisma.user.findMany({
           where: { id: { in: digestScores.map((s) => s.userId) } },
           select: { id: true, email: true, fullName: true },
+          take: 100,
         })
       : [];
   const userById = new Map(userRows.map((u) => [u.id, u]));
@@ -124,6 +127,7 @@ async function handle(_request: Request) {
     digestRecipientCount: recipients.length,
     digestListedMembers: digestMembers.length,
   };
+  await setCronRecordsProcessed(runResult.alertsCreated);
   await logCronRun(
     'cron_at_risk_check',
     runResult,

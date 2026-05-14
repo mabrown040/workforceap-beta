@@ -165,7 +165,7 @@ export default async function CareerBriefPage() {
   if (!breakdown.buildResume.done) actionItems.push({ label: 'Build or upload your resume', href: '/dashboard/ai-tools/resume-rewriter', icon: 'description', priority: 'high' });
   if (!breakdown.practiceInterview.done) actionItems.push({ label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice', icon: 'record_voice_over', priority: 'high' });
   if (!breakdown.addApplications.done) actionItems.push({ label: 'Log 3+ job applications', href: '/dashboard/job-applications', icon: 'work', priority: 'high' });
-  if (!breakdown.completePathwaySteps.done) actionItems.push({ label: 'Continue your training pathway', href: '/dashboard/training', icon: 'school', priority: 'medium' });
+  if (!breakdown.completePathwaySteps.done) actionItems.push({ label: 'Continue your training pathway', href: '/dashboard', icon: 'school', priority: 'medium' });
   if (!breakdown.trackCertifications.done) actionItems.push({ label: 'Add earned certifications', href: '/dashboard/certifications', icon: 'workspace_premium', priority: 'medium' });
   if (!breakdown.setGoals.done) actionItems.push({ label: 'Set your career goals', href: '/dashboard/ai-tools/skill-mapper', icon: 'flag', priority: 'low' });
   if (context.jobSearchUrl && breakdown.addApplications.done) {

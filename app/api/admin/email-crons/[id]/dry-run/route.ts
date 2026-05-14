@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 import { prisma } from '@/lib/db/prisma';
+import { buildWeeklyRecapEmailSummary } from '@/lib/recap/buildWeeklyRecapEmailSummary';
 import {
   weeklyRecapHtml,
   inactiveNudgeHtml,
@@ -23,21 +24,26 @@ export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  try { await requireAdmin(user.id); } catch {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const { id } = await params;
-  const cron = CRON_REGISTRY.find(c => c.id === id);
-  if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
-
   try {
-    const result = await simulateCron(id);
-    return NextResponse.json(result);
-  } catch (e) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : 'Dry-run failed' }, { status: 500 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    try { await requireAdmin(user.id); } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  
+    const { id } = await params;
+    const cron = CRON_REGISTRY.find(c => c.id === id);
+    if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
+  
+    try {
+      const result = await simulateCron(id);
+      return NextResponse.json(result);
+    } catch (e) {
+      return NextResponse.json({ error: e instanceof Error ? e.message : 'Dry-run failed' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('/admin/email-crons/[id]/dry-run:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -77,7 +83,22 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       });
       const sample = members[0] ?? null;
       const firstName = sample?.fullName?.split(' ')[0] ?? 'Alex';
-      const body = weeklyRecapHtml({ firstName, recapSummary: 'You completed 2 lessons this week. Your next step is Module 3: Networking Fundamentals.' });
+      const sampleSummary = buildWeeklyRecapEmailSummary({
+        weekInReview: {
+          applicationsAdded: 2,
+          resourcesCompleted: 1,
+          aiToolsUsed: 2,
+          pathwayStepsCompleted: 0,
+          newLiveJobsThisWeek: 3,
+        },
+        readinessScoreSnapshot: 72,
+        goalsSnapshot: [
+          { title: 'Complete Module 3', status: 'in_progress', currentMetricValue: 2, targetMetricValue: 5 },
+        ],
+        upcomingCounselorSessions: [{ at: 'Mon, Jun 9, 2:00 PM EDT', topic: 'Resume review' }],
+        recommendedActions: ['Build your resume with the Resume Rewriter', 'Practice interview questions'],
+      });
+      const body = weeklyRecapHtml({ firstName, recapSummary: sampleSummary });
       const html = brandedEmailLayout({ title: 'Your Weekly Recap', bodyHtml: body, ctaText: 'View Dashboard', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,
@@ -114,7 +135,7 @@ async function simulateCron(id: string): Promise<DryRunResult> {
     case 'inactivity-nudge': {
       const fourteenDaysAgo = new Date();
       fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-      const recentActiveIds = await prisma.memberEvent.findMany({ where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'] });
+      const recentActiveIds = await prisma.memberEvent.findMany({ take: 5000, where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'] });
       const activeSet = new Set(recentActiveIds.map(r => r.userId));
       // Mirror the production inactivity-nudge recipient filter: a user
       // is eligible if they have ANY course_enrollments row OR the legacy

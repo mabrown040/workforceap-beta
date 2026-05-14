@@ -58,132 +58,137 @@ const patchSchema = z.object({
 });
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    await requireAdmin(user.id);
-  } catch {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const { id: partnerId } = await params;
-  const orgId = await getDefaultOrganizationId();
-
-  const partner = await withTenantScope(orgId, (db) =>
-    db.partner.findFirst({ where: { id: partnerId } }),
-  );
-  if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
-
-  const body = await request.json().catch(() => null);
-  const parsed = patchSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
-  }
-
-  const data = parsed.data;
-
-  if (data.referralCode !== undefined) {
-    const code = data.referralCode.trim().toLowerCase();
-    // Global uniqueness pre-check — `slug` and `referralCode` are
-    // `@unique` across ALL orgs in the current schema, so this check
-    // must cross tenants. crossTenantOK marks the intentional bypass
-    // for the audit script.
-    const slugConflict = await crossTenantOK(() =>
-      prisma.partner.findFirst({
-        where: { slug: code, id: { not: partnerId } },
-        select: { id: true },
-      }),
-    );
-    const codeConflict = await crossTenantOK(() =>
-      prisma.partner.findFirst({
-        where: { referralCode: code, id: { not: partnerId } },
-        select: { id: true },
-      }),
-    );
-    if (slugConflict || codeConflict) {
-      return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    try {
+      await requireAdmin(user.id);
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  }
-
-  // Check for duplicate contact email if changing — scoped to tenant.
-  if (data.contactEmail !== undefined && data.contactEmail) {
-    const existing = await withTenantScope(orgId, (db) =>
-      db.partner.findFirst({
-        where: {
-          contactEmail: data.contactEmail!.trim().toLowerCase(),
-          id: { not: partnerId },
-        },
-        select: { id: true },
-      }),
+  
+    const { id: partnerId } = await params;
+    const orgId = await getDefaultOrganizationId();
+  
+    const partner = await withTenantScope(orgId, (db) =>
+      db.partner.findFirst({ where: { id: partnerId } }),
     );
-    if (existing) {
-      return NextResponse.json({ error: 'Another partner already uses this contact email' }, { status: 400 });
+    if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+  
+    const body = await request.json().catch(() => null);
+    const parsed = patchSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
     }
-  }
-
-  const updateData: Record<string, unknown> = {};
-  if (data.name !== undefined) updateData.name = data.name.trim();
-  if (data.referralCode !== undefined) updateData.referralCode = data.referralCode.trim().toLowerCase();
-  if (data.contactName !== undefined) updateData.contactName = data.contactName?.trim() || null;
-  if (data.contactEmail !== undefined) updateData.contactEmail = data.contactEmail?.trim().toLowerCase() || null;
-  if (data.contactPhone !== undefined) updateData.contactPhone = data.contactPhone?.trim() || null;
-  if (data.active !== undefined) updateData.active = data.active;
-  if (data.notes !== undefined) updateData.notes = data.notes?.trim() || null;
-  if (data.logoUrl !== undefined) updateData.logoUrl = data.logoUrl?.trim() || null;
-  if (data.brandColor !== undefined) updateData.brandColor = data.brandColor?.trim() || null;
-
-  try {
-    if (Object.keys(updateData).length > 0) {
-      await withTenantScope(orgId, (db) =>
-        db.partner.update({
-          where: { id: partnerId },
-          data: updateData,
+  
+    const data = parsed.data;
+  
+    if (data.referralCode !== undefined) {
+      const code = data.referralCode.trim().toLowerCase();
+      // Global uniqueness pre-check — `slug` and `referralCode` are
+      // `@unique` across ALL orgs in the current schema, so this check
+      // must cross tenants. crossTenantOK marks the intentional bypass
+      // for the audit script.
+      const slugConflict = await crossTenantOK(() =>
+        prisma.partner.findFirst({
+          where: { slug: code, id: { not: partnerId } },
+          select: { id: true },
         }),
       );
+      const codeConflict = await crossTenantOK(() =>
+        prisma.partner.findFirst({
+          where: { referralCode: code, id: { not: partnerId } },
+          select: { id: true },
+        }),
+      );
+      if (slugConflict || codeConflict) {
+        return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
+      }
     }
-
-    if (data.subgroupIds !== undefined) {
-      // Subgroup is NOT tenant-scoped (inherits via FK to Partner).
-      // Run the clear+assign inside its own transaction.
-      await prisma.$transaction(async (tx) => {
-        await tx.subgroup.updateMany({
-          where: { partnerId, type: 'partner' },
-          data: { partnerId: null },
-        });
-        if (data.subgroupIds && data.subgroupIds.length > 0) {
+  
+    // Check for duplicate contact email if changing — scoped to tenant.
+    if (data.contactEmail !== undefined && data.contactEmail) {
+      const existing = await withTenantScope(orgId, (db) =>
+        db.partner.findFirst({
+          where: {
+            contactEmail: data.contactEmail!.trim().toLowerCase(),
+            id: { not: partnerId },
+          },
+          select: { id: true },
+        }),
+      );
+      if (existing) {
+        return NextResponse.json({ error: 'Another partner already uses this contact email' }, { status: 400 });
+      }
+    }
+  
+    const updateData: Record<string, unknown> = {};
+    if (data.name !== undefined) updateData.name = data.name.trim();
+    if (data.referralCode !== undefined) updateData.referralCode = data.referralCode.trim().toLowerCase();
+    if (data.contactName !== undefined) updateData.contactName = data.contactName?.trim() || null;
+    if (data.contactEmail !== undefined) updateData.contactEmail = data.contactEmail?.trim().toLowerCase() || null;
+    if (data.contactPhone !== undefined) updateData.contactPhone = data.contactPhone?.trim() || null;
+    if (data.active !== undefined) updateData.active = data.active;
+    if (data.notes !== undefined) updateData.notes = data.notes?.trim() || null;
+    if (data.logoUrl !== undefined) updateData.logoUrl = data.logoUrl?.trim() || null;
+    if (data.brandColor !== undefined) updateData.brandColor = data.brandColor?.trim() || null;
+  
+    try {
+      if (Object.keys(updateData).length > 0) {
+        await withTenantScope(orgId, (db) =>
+          db.partner.update({
+            where: { id: partnerId },
+            data: updateData,
+          }),
+        );
+      }
+  
+      if (data.subgroupIds !== undefined) {
+        // Subgroup is NOT tenant-scoped (inherits via FK to Partner).
+        // Run the clear+assign inside its own transaction.
+        await prisma.$transaction(async (tx) => {
           await tx.subgroup.updateMany({
-            where: {
-              id: { in: data.subgroupIds },
-              type: 'partner',
-            },
-            data: { partnerId },
+            where: { partnerId, type: 'partner' },
+            data: { partnerId: null },
           });
+          if (data.subgroupIds && data.subgroupIds.length > 0) {
+            await tx.subgroup.updateMany({
+              where: {
+                id: { in: data.subgroupIds },
+                type: 'partner',
+              },
+              data: { partnerId },
+            });
+          }
+        });
+      }
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const target = (error.meta?.target as string[] | undefined) ?? [];
+        const targetField = target.join(',');
+        if (targetField.includes('referralCode') || targetField.includes('referral_code')) {
+          return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
         }
-      });
+        if (targetField.includes('slug')) {
+          return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
+        }
+        return NextResponse.json({ error: 'A partner with these details already exists' }, { status: 400 });
+      }
+      throw error;
     }
+  
+    const updated = await withTenantScope(orgId, (db) =>
+      db.partner.findFirst({
+        where: { id: partnerId },
+        include: {
+          subgroups: { select: { id: true, name: true } },
+          _count: { select: { counselors: true, referrals: true } },
+        },
+      }),
+    );
+    return NextResponse.json(updated);
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      const target = (error.meta?.target as string[] | undefined) ?? [];
-      const targetField = target.join(',');
-      if (targetField.includes('referralCode') || targetField.includes('referral_code')) {
-        return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
-      }
-      if (targetField.includes('slug')) {
-        return NextResponse.json({ error: 'Referral code conflicts with another partner slug or code' }, { status: 400 });
-      }
-      return NextResponse.json({ error: 'A partner with these details already exists' }, { status: 400 });
-    }
-    throw error;
+    console.error('/admin/partners/[id]:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const updated = await withTenantScope(orgId, (db) =>
-    db.partner.findFirst({
-      where: { id: partnerId },
-      include: {
-        subgroups: { select: { id: true, name: true } },
-        _count: { select: { counselors: true, referrals: true } },
-      },
-    }),
-  );
-  return NextResponse.json(updated);
 }

@@ -14,7 +14,7 @@ export type JobCreateFields = {
   requirements?: string[];
   preferredCertifications?: string[];
   suggestedPrograms?: string[];
-  status?: 'draft' | 'pending';
+  status?: 'draft' | 'pending' | 'live';
 };
 
 function cleanStringArray(values?: string[]): string[] | undefined {

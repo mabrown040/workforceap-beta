@@ -60,28 +60,33 @@ async function getResumeCoachDynamicVariables(
  * `resume_file_on_profile` (stored path exists), plus member/program fields.
  */
 export async function POST(req: NextRequest) {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  let liveResumeDraft = '';
   try {
-    const body = (await req.json()) as { liveResumeDraft?: unknown };
-    if (typeof body?.liveResumeDraft === 'string') {
-      liveResumeDraft = body.liveResumeDraft;
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+    let liveResumeDraft = '';
+    try {
+      const body = (await req.json()) as { liveResumeDraft?: unknown };
+      if (typeof body?.liveResumeDraft === 'string') {
+        liveResumeDraft = body.liveResumeDraft;
+      }
+    } catch {
+      /* empty body */
     }
-  } catch {
-    /* empty body */
-  }
-
-  try {
-    const dynamicVariables = await getResumeCoachDynamicVariables(user.id, { liveResumeDraft });
-    const { signedUrl, expiresAt } = await startElevenLabsPortalSession('resume_coach', {
-      dynamicVariables,
-    });
-    return NextResponse.json({ signedUrl, expiresAt, dynamicVariables });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Failed to start session';
-    console.error('[member/resume-coach/session]', msg);
-    return NextResponse.json({ error: msg }, { status: 503 });
+  
+    try {
+      const dynamicVariables = await getResumeCoachDynamicVariables(user.id, { liveResumeDraft });
+      const { signedUrl, expiresAt } = await startElevenLabsPortalSession('resume_coach', {
+        dynamicVariables,
+      });
+      return NextResponse.json({ signedUrl, expiresAt, dynamicVariables });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to start session';
+      console.error('[member/resume-coach/session]', msg);
+      return NextResponse.json({ error: msg }, { status: 503 });
+    }
+  } catch (error) {
+    console.error('/member/resume-coach/session:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

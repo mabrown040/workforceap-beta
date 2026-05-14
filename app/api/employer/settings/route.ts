@@ -6,6 +6,7 @@ import { employerSettingsPatchSchema } from '@/lib/employer/employerSettingsSche
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 export async function PATCH(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -54,4 +55,10 @@ export async function PATCH(request: NextRequest) {
     contactEmail: updated.contactEmail,
     contactPhone: updated.contactPhone,
   });
+
+  } catch (error) {
+    console.error('/employer/settings error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

@@ -23,10 +23,13 @@ model Organization {
   slug             String   @unique
   customDomain     String?  @unique @map("custom_domain")
   logo             String?
-  primaryColor     String?  @map("primary_color")
-  billingType      String   @default("flat") @map("billing_type")
-  plan             String   @default("nonprofit")
-  active           Boolean  @default(true)
+  primaryColor       String?  @map("primary_color")
+  accentColor        String?  @map("accent_color")
+  billingType        String   @default("flat") @map("billing_type")
+  plan               String   @default("nonprofit")
+  subscriptionTier   String   @default("starter") @map("subscription_tier")
+  subscriptionStatus String   @default("trial") @map("subscription_status")
+  active             Boolean  @default(true)
   overviewVideoUrl String?  @map("overview_video_url")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
@@ -84,6 +87,8 @@ model User {
   /// xAPI for this user from B4B; the dashboard home auto-sync trigger reads
   /// this to dedupe and skip the call when fresh (≤1h). NULL = never auto-synced.
   lastCourseraAutoSyncAt       DateTime?           @map("last_coursera_auto_sync_at")
+  /// Last time the member logged into the portal. Updated by auth layer.
+  lastLoginAt                  DateTime?           @map("last_login_at")
   /// Eligibility gate for self-service Coursera For Business enrollment via the
   /// "Enroll in this course" button on /dashboard/training. Default false; never
   /// flipped by DB defaults — only by explicit code paths (counselor program-
@@ -185,7 +190,9 @@ model User {
   courseraSkillsetProgress CourseraSkillsetProgress[]
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
   atRiskAlerts             AtRiskAlert[]
-  placementSurvey          PlacementSurvey?
+  placementSurveys       PlacementSurvey[]
+  testimonials           Testimonial[]
+  reviewedTestimonials   Testimonial[] @relation("TestimonialReviewer")
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -384,6 +391,8 @@ model JobApplication {
   @@index([status])
   @@index([curatedJobId])
   @@index([nextInterviewDate])
+  @@index([userId, createdAt])
+  @@index([userId, status, createdAt])
   @@map("job_applications")
 }
 
@@ -503,6 +512,7 @@ model Goal {
 
   @@index([userId])
   @@index([status])
+  @@index([userId, createdAt])
   @@map("goals")
 }
 
@@ -575,6 +585,23 @@ model WorkflowDiagnostic {
   @@index([status, createdAt])
   @@index([actorUserId])
   @@map("workflow_diagnostics")
+}
+
+model CronExecution {
+  id               String   @id @default(uuid())
+  jobName          String   @map("job_name")
+  status           String   // RUNNING | SUCCESS | FAILED | SKIPPED
+  startedAt        DateTime @default(now()) @map("started_at")
+  completedAt      DateTime? @map("completed_at")
+  errorMessage     String?  @map("error_message")
+  recordsProcessed Int?     @map("records_processed")
+  durationMs       Int?     @map("duration_ms")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([jobName, createdAt])
+  @@index([status, createdAt])
+  @@index([startedAt])
+  @@map("cron_executions")
 }
 
 model WeeklyRecap {
@@ -674,6 +701,7 @@ model AIToolResult {
 
   @@index([userId])
   @@index([userId, toolType])
+  @@index([userId, createdAt])
   @@map("ai_tool_results")
 }
 
@@ -780,6 +808,8 @@ model Partner {
   onboardingCompletedAt DateTime? @map("onboarding_completed_at")
   tourCompletedAt       DateTime? @map("tour_completed_at")
   organizationType      String?   @map("organization_type")
+  stripeConnectId       String?   @map("stripe_connect_id")
+  stripeConnectStatus   String?   @map("stripe_connect_status")
 
   counselors           Counselor[]
   referrals            PartnerReferral[]
@@ -844,6 +874,7 @@ model CounselorAssignment {
   @@index([memberId])
   @@index([memberId, active])
   @@index([counselorId, active])
+  @@index([memberId, active, assignedAt(sort: Desc)])
   @@map("counselor_assignments")
 }
 
@@ -896,6 +927,7 @@ model Message {
   author User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([threadId, createdAt])
+  @@index([authorId, createdAt(sort: Desc)])
   @@map("messages")
 }
 
@@ -1025,6 +1057,7 @@ model PlacementRecord {
   grantReportingNotes String? @map("grant_reporting_notes") @db.Text
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  placementSurveys PlacementSurvey[]
 
   @@index([placedAt])
   @@map("placement_records")
@@ -1174,6 +1207,9 @@ model Employer {
   updatedAt                DateTime  @updatedAt @map("updated_at")
   onboardingCompletedAt    DateTime? @map("onboarding_completed_at")
   tourCompletedAt          DateTime? @map("tour_completed_at")
+  stripeCustomerId         String?   @map("stripe_customer_id")
+  stripeSubscriptionId     String?   @map("stripe_subscription_id")
+  stripeSubscriptionStatus String?   @map("stripe_subscription_status")
 
   user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
@@ -1425,6 +1461,7 @@ model XapiStatement {
   @@index([createdAt])
   @@index([courseId, courseItemId])
   @@index([actorEmail, courseId])
+  @@index([processed, createdAt])
   @@map("xapi_statements")
 }
 
@@ -1465,6 +1502,7 @@ model CourseProgress {
   // descending sort lets Postgres satisfy ORDER BY last_activity_at DESC LIMIT N
   // for a single user without a sort step.
   @@index([userId, lastActivityAt(sort: Desc)])
+  @@index([userId, courseId, completedAt])
   @@map("course_progress")
 }
 
@@ -2038,16 +2076,18 @@ model CourseraBadgeProgress {
 // --- At-Risk Alert System ---
 
 model AtRiskAlert {
-  id             String    @id @default(uuid())
-  userId         String    @map("user_id")
-  score          Int
-  factors        Json      // array of {name, weight, description}
-  status         String    // "open" | "acknowledged" | "resolved"
-  counselorId    String?   @map("counselor_id")
-  acknowledgedAt DateTime? @map("acknowledged_at")
-  resolvedAt     DateTime? @map("resolved_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  id                  String    @id @default(uuid())
+  userId              String    @map("user_id")
+  score               Int
+  factors             Json      // array of {name, weight, description}
+  status              String    // "open" | "acknowledged" | "resolved"
+  counselorId         String?   @map("counselor_id")
+  acknowledgedAt      DateTime? @map("acknowledged_at")
+  resolvedAt          DateTime? @map("resolved_at")
+  notifiedCounselorAt DateTime? @map("notified_counselor_at")
+  escalatedAt         DateTime? @map("escalated_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2057,35 +2097,94 @@ model AtRiskAlert {
   @@map("at_risk_alerts")
 }
 
+enum PlacementSurveyWave {
+  thirty_day
+  sixty_day
+  ninety_day
+}
+
 model PlacementSurvey {
   id              String   @id @default(uuid())
-  userId          String   @unique @map("user_id")
+  userId          String   @map("user_id")
   placementId     String   @map("placement_id")
+  wave            PlacementSurveyWave @default(thirty_day) @map("wave")
   sentAt          DateTime @default(now()) @map("sent_at")
   completedAt     DateTime? @map("completed_at")
-  
+  escalatedAt     DateTime? @map("escalated_at")
+
   // Core questions (1-5 scale)
   jobSatisfaction   Int? @map("job_satisfaction")     // "How satisfied are you with your job?"
   trainingRelevance Int? @map("training_relevance")   // "How relevant was your training?"
   supportQuality    Int? @map("support_quality")      // "How was the counselor support?"
-  
+
   // Open feedback
   whatHelpedMost    String? @map("what_helped_most") @db.Text
   whatCouldImprove  String? @map("what_could_improve") @db.Text
-  
+
   // Outcome tracking
   stillEmployed     Boolean? @map("still_employed")
   currentSalary     Int? @map("current_salary")       // annual, updated if changed
-  
+
   // Consent for testimonial use
   allowTestimonial  Boolean @default(false) @map("allow_testimonial")
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  placement  PlacementRecord @relation(fields: [placementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, wave])
   @@index([userId])
   @@index([sentAt])
   @@index([placementId])
   @@map("placement_surveys")
+}
+
+// --- Testimonials ---
+
+enum TestimonialSource {
+  SURVEY
+  MANUAL
+  INTERVIEW
+
+  @@map("testimonial_source")
+}
+
+enum TestimonialStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PUBLISHED
+
+  @@map("testimonial_status")
+}
+
+model Testimonial {
+  id              String            @id @default(uuid())
+  memberId        String            @map("member_id")
+  content         String            @db.Text
+  rating          Int?
+  programId       String?           @map("program_id")
+  placementId     String?           @map("placement_id")
+  source          TestimonialSource @default(SURVEY)
+  status          TestimonialStatus @default(PENDING)
+  photoUrl        String?           @map("photo_url")
+  consentGiven    Boolean           @default(false) @map("consent_given")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  reviewedBy      String?           @map("reviewed_by")
+  reviewedAt      DateTime?         @map("reviewed_at")
+  rejectionReason String?           @map("rejection_reason") @db.Text
+  deletedAt       DateTime?         @map("deleted_at")
+
+  member   User  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("TestimonialReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([memberId])
+  @@index([status])
+  @@index([source])
+  @@index([reviewedBy])
+  @@index([deletedAt])
+  @@index([createdAt])
+  @@map("testimonials")
 }
 
 // --- Coursera Active-Pull Sync ---
@@ -2107,4 +2206,22 @@ model CourseraSkillsetProgress {
   @@unique([userId, skillsetId])
   @@index([programId])
   @@map("coursera_skillset_progress")
+}
+
+// --- Feature Flags ---
+
+model FeatureFlag {
+  id                  String   @id @default(uuid())
+  key                 String   @unique
+  name                String
+  description         String?
+  enabled             Boolean  @default(false)
+  rolloutPercentage   Int      @default(0) @map("rollout_percentage") // 0-100
+  allowedRoles        String[] @default([]) @map("allowed_roles") // which roles can see this
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled])
+  @@index([key])
+  @@map("feature_flags")
 }

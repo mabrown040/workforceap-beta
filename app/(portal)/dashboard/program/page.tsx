@@ -5,6 +5,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import ProgramPicker from '@/components/portal/ProgramPicker';
@@ -77,9 +79,21 @@ export default async function ProgramPage() {
     );
   }
 
+  const courseraProgramId = DISCOVERED_COURSERA_PROGRAMS[enrolledSlug]?.courseraProgramId;
+  const b4bProgress =
+    user.email && enrolledSlug
+      ? await fetchLearnerProgressFromB4B(user.email, {
+          programId: courseraProgramId,
+        }).catch((err: unknown) => {
+          console.warn('[dashboard/program] B4B learner progress unavailable:', err);
+          return new Map();
+        })
+      : new Map();
+
   const trainingView = await loadMemberProgramTrainingView({
     userId: user.id,
     programSlug: enrolledSlug,
+    b4bProgress,
   });
   const completedSet = new Set(trainingView?.completedSlugsAuthoritative ?? []);
   const completedCount = trainingView?.completedCount ?? 0;
@@ -117,7 +131,7 @@ export default async function ProgramPage() {
               <Link href="/dashboard/program/start" className="btn btn-outline btn-small">
                 Path to certification
               </Link>
-              <Link href="/dashboard/training" className="btn btn-primary btn-small">
+              <Link href="/dashboard" className="btn btn-primary btn-small">
                 Open Training
               </Link>
             </div>
@@ -205,7 +219,7 @@ export default async function ProgramPage() {
               })}
             </ul>
             <div style={{ marginTop: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-              <Link href="/dashboard/training" className="btn btn-primary">
+              <Link href="/dashboard" className="btn btn-primary">
                 Go to Training
               </Link>
               <Link

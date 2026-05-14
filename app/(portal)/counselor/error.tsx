@@ -25,7 +25,7 @@ export default function CounselorPortalError({
         <button type="button" className="btn btn-primary" onClick={() => reset()}>
           Try again
         </button>
-        <Link href="/counselor" className="btn btn-secondary">
+        <Link href="/counselor" className="btn btn-muted">
           Back to overview
         </Link>
         <Link href="/" className="btn btn-ghost">

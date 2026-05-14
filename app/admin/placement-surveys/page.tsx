@@ -6,6 +6,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
+import PlacementSurveysWhatsThis from '@/components/admin/PlacementSurveysWhatsThis';
 import { ClipboardCheck, Star, Users, MessageSquare, TrendingUp, Clock } from 'lucide-react';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -90,6 +91,8 @@ export default async function PlacementSurveysPage() {
     <PortalPageFrame>
       <PageHeader title="Placement Surveys" subtitle="Post-placement member feedback and outcomes" />
 
+      <PlacementSurveysWhatsThis />
+
       {/* Stats cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         <StatCard
@@ -138,14 +141,14 @@ export default async function PlacementSurveysPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Member</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Program</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-600">Satisfaction</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-600">Training</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-600">Support</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-600">Employed</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-600">Testimonial</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-600">Completed</th>
+                  <th scope="col" className="px-4 py-3 text-left font-medium text-gray-600">Member</th>
+                  <th scope="col" className="px-4 py-3 text-left font-medium text-gray-600">Program</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Satisfaction</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Training</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Support</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Employed</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium text-gray-600">Testimonial</th>
+                  <th scope="col" className="px-4 py-3 text-left font-medium text-gray-600">Completed</th>
                 </tr>
               </thead>
               <tbody className="divide-y">

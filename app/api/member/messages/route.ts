@@ -10,6 +10,7 @@ import {
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -40,9 +41,16 @@ export async function GET() {
     counselorName: counselor?.fullName ?? null,
     messages: messages.map(serializeMessage),
   });
+
+  } catch (error) {
+    console.error('/member/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -87,9 +95,16 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({ message: serializeMessage(msg) });
+
+  } catch (error) {
+    console.error('/member/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function PATCH() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -104,4 +119,10 @@ export async function PATCH() {
   });
 
   return NextResponse.json({ ok: true, memberLastReadAt: now.toISOString() });
+
+  } catch (error) {
+    console.error('/member/messages error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

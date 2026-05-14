@@ -13,6 +13,7 @@ const patchSchema = z.object({
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, ctx: RouteContext) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -32,9 +33,16 @@ export async function PATCH(request: Request, ctx: RouteContext) {
     data: parsed.data,
   });
   return NextResponse.json({ pack });
+
+  } catch (error) {
+    console.error('/admin/employer-screening-packs/[id] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function DELETE(_request: Request, ctx: RouteContext) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -42,4 +50,10 @@ export async function DELETE(_request: Request, ctx: RouteContext) {
   const { id } = await ctx.params;
   await prisma.employerScreeningPack.delete({ where: { id } });
   return NextResponse.json({ ok: true });
+
+  } catch (error) {
+    console.error('/admin/employer-screening-packs/[id] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

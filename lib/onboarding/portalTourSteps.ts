@@ -4,7 +4,7 @@ export const MEMBER_PORTAL_TOUR_STEPS: TourStep[] = [
   {
     targetId: 'tour-dashboard',
     title: 'Dashboard',
-    body: 'Your home base. Track your application status, program progress, and next steps all in one place.',
+    body: 'Your overview: applications, interviews, and shortcuts. Use My Training in the menu for your course list, Coursera, and live training progress.',
     placement: 'right',
   },
   {

@@ -13,6 +13,7 @@ type Props = { params: Promise<{ memberId: string }> };
  * GET /api/counselor/members/:memberId/resume/preview?variant=original|enhanced
  */
 export async function GET(req: NextRequest, { params }: Props) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -59,4 +60,10 @@ export async function GET(req: NextRequest, { params }: Props) {
       'X-Content-Type-Options': 'nosniff',
     },
   });
+
+  } catch (error) {
+    console.error('/counselor/members/[memberId]/resume/preview error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

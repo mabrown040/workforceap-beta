@@ -44,12 +44,14 @@ export async function getWeeklyRecapCohortStats(): Promise<WeeklyRecapCohortRow[
   const sevenDaysAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7));
 
   const users = await prisma.user.findMany({
+    take: 5000,
     where: { deletedAt: null },
     select: { id: true, enrolledProgram: true },
   });
   const byCohort = userIdsByCohort(users);
 
   const recaps = await prisma.weeklyRecap.findMany({
+    take: 5000,
     select: {
       userId: true,
       generatedAt: true,
@@ -101,6 +103,7 @@ export async function getAiToolsCohortStats(): Promise<AiToolsCohortRow[]> {
   const sevenDaysAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7));
 
   const users = await prisma.user.findMany({
+    take: 5000,
     where: { deletedAt: null },
     select: { id: true, enrolledProgram: true },
   });
@@ -108,6 +111,7 @@ export async function getAiToolsCohortStats(): Promise<AiToolsCohortRow[]> {
 
   const [savedRuns, voiceEvents] = await Promise.all([
     prisma.aIToolResult.findMany({
+      take: 5000,
       select: { userId: true, createdAt: true },
     }),
     prisma.$queryRaw<Array<{ user_id: string; created_at: Date }>>`
@@ -157,12 +161,14 @@ export type CertificationsCohortRow = {
 
 export async function getCertificationsCohortStats(): Promise<CertificationsCohortRow[]> {
   const users = await prisma.user.findMany({
+    take: 5000,
     where: { deletedAt: null },
     select: { id: true, enrolledProgram: true },
   });
   const byCohort = userIdsByCohort(users);
 
   const certs = await prisma.userCertification.findMany({
+    take: 5000,
     select: { userId: true },
   });
 

@@ -132,6 +132,7 @@ export async function syncOccupationBundle(onetCode: string): Promise<void> {
 
 export async function syncTopMappedOccupations(): Promise<{ synced: number; errors: string[] }> {
   const rows = await prisma.careerProgramMapping.findMany({
+    take: 5000,
     where: { isActive: true },
     select: { onetCode: true },
     distinct: ['onetCode'],

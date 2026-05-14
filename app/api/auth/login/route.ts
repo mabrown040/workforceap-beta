@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { normalizePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
+import { normalizePostLoginRedirect, resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/db/prisma';
@@ -9,6 +9,7 @@ import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 
 export async function POST(request: Request) {
+  try {
   let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
   try {
     body = await request.json();
@@ -119,12 +120,7 @@ export async function POST(request: Request) {
     : null;
   const needsMfa = staffMfaEnabled && aalData?.currentLevel === 'aal1' && aalData?.nextLevel === 'aal2';
   const isStaff = profile?.role === 'super_admin' || profile?.role === 'admin' || profile?.role === 'counselor';
-  const roleAwareRedirect =
-    profile?.role === 'super_admin'
-      ? '/admin'
-      : redirectTo === '/dashboard' && profile?.role === 'admin'
-        ? '/admin'
-        : redirectTo;
+  const roleAwareRedirect = resolveRoleAwarePostLoginRedirect(redirectTo, profile?.role);
 
   // If staff and no MFA enrolled yet, redirect to setup
   if (staffMfaEnabled && isStaff && !needsMfa) {
@@ -159,4 +155,10 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);
+
+  } catch (error) {
+    console.error('/auth/login error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

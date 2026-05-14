@@ -20,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 async function loadAdminPartnersData() {
   return Promise.all([
     prisma.partner.findMany({
+      take: 5000,
       orderBy: { name: 'asc' },
       include: {
         _count: {
@@ -31,6 +32,7 @@ async function loadAdminPartnersData() {
       },
     }),
     prisma.subgroup.findMany({
+      take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true, partnerId: true },
     }),

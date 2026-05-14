@@ -37,7 +37,7 @@ const JOURNEY_STEPS = [
     num: 3,
     title: 'Start Coursera training',
     desc: 'Open your assigned Coursera courses and finish them in order. Certificates from Coursera sync automatically to your profile as you complete each course — and those certificates are what employers see on your WorkforceAP record. Your cert progress is directly tied to job eligibility in the employer pipeline.',
-    href: '/dashboard/training',
+    href: '/dashboard',
     cta: 'Open Training',
     icon: 'school',
   },

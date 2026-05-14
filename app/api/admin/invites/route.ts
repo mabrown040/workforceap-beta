@@ -17,6 +17,7 @@ function generateToken(): string {
 }
 
 export async function GET(request: NextRequest) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id)))
@@ -44,9 +45,16 @@ export async function GET(request: NextRequest) {
   });
 
   return NextResponse.json({ invites });
+
+  } catch (error) {
+    console.error('/admin/invites error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: NextRequest) {
+  try {
   const contentType = request.headers.get('content-type') ?? '';
   const isFormSubmission =
     contentType.includes('application/x-www-form-urlencoded') ||
@@ -232,4 +240,10 @@ export async function POST(request: NextRequest) {
       expiresAt: invitation.expiresAt,
     },
   });
+
+  } catch (error) {
+    console.error('/admin/invites error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

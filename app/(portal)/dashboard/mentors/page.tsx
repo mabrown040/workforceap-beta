@@ -19,6 +19,7 @@ export default async function MentorsBrowsePage() {
   if (!user) redirect('/login?redirectTo=/dashboard/mentors');
 
   const mentors = await prisma.mentor.findMany({
+    take: 500,
     where: { isActive: true, approvedAt: { not: null } },
     orderBy: { fullName: 'asc' },
     select: { id: true, fullName: true, title: true, company: true, industry: true },
@@ -44,7 +45,7 @@ export default async function MentorsBrowsePage() {
               <div style={{ fontWeight: 700 }}>{mentor.fullName}</div>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{mentor.title}</div>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{mentor.company} · {mentor.industry}</div>
-              <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-block', marginTop: '0.6rem', textDecoration: 'none', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', fontWeight: 600 }}>
+              <Link href={`/dashboard/mentors/${mentor.id}`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginTop: '0.6rem', textDecoration: 'none', background: 'var(--color-accent)', color: 'var(--color-white, #fff)', padding: '0.75rem 1rem', borderRadius: '0.5rem', fontWeight: 600, minHeight: '44px' }}>
                 Request Session
               </Link>
             </div>

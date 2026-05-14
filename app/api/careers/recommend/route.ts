@@ -12,6 +12,7 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
+  try {
   const ip = getClientIp(request);
   const { success: rateOk } = await checkCareersRecommendRateLimit(ip);
   if (!rateOk) {
@@ -36,4 +37,10 @@ export async function POST(request: NextRequest) {
   const { ipRiasec, ...answers } = parsed.data;
   const result = await buildCareerMatchResult(answers, { ipRiasec: ipRiasec ?? null });
   return NextResponse.json(result);
+
+  } catch (error) {
+    console.error('/careers/recommend error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

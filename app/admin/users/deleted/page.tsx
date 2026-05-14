@@ -39,6 +39,7 @@ export default async function AdminDeletedUsersPage() {
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const rows = await prisma.user.findMany({
+    take: 5000,
     where: { deletedAt: { not: null } },
     orderBy: { deletedAt: 'desc' },
     select: {

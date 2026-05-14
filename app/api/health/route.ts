@@ -141,10 +141,16 @@ function checkSentry(): DepReport {
 }
 
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: HEALTH_CORS });
+  try {
+    return new NextResponse(null, { status: 204, headers: HEALTH_CORS });
+  } catch (error) {
+    console.error('/health:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
 export async function GET(request: Request) {
+  try {
   const ip = getClientIpFromRequest(request);
   const { success: withinHealthLimit } = await checkPublicHealthRateLimit(ip);
   if (!withinHealthLimit) {
@@ -190,4 +196,10 @@ export async function GET(request: Request) {
       headers: { ...HEALTH_CORS, 'Cache-Control': 'no-store' },
     },
   );
+
+  } catch (error) {
+    console.error('/health error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

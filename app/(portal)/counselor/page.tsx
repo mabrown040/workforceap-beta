@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -6,6 +7,7 @@ import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import { getCounselorCommandCenter } from '@/lib/counselor/commandCenter';
 import CounselorCommandCenter from '@/components/portal/counselor/CounselorCommandCenter';
+import AtRiskSummaryWidget from '@/components/portal/counselor/AtRiskSummaryWidget';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorPortalVoiceBlock from '@/components/portal/CounselorPortalVoiceBlock';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
@@ -34,6 +36,7 @@ export default async function CounselorPortalPage() {
 
   const assignments = counselor
     ? await prisma.counselorAssignment.findMany({
+      take: 5000,
         where: {
           counselor: { userId: user.id, active: true },
           active: true,
@@ -61,6 +64,7 @@ export default async function CounselorPortalPage() {
   if (counselor && assignments.length > 0) {
     const memberIds = assignments.map((a) => a.memberId);
     const threads = await prisma.messageThread.findMany({
+      take: 5000,
       where: { memberId: { in: memberIds }, kind: 'member' },
       select: { id: true, memberId: true },
     });
@@ -77,6 +81,7 @@ export default async function CounselorPortalPage() {
         .filter((p): p is { threadId: string; createdAt: Date } => p.createdAt !== null);
       const latestMessages = latestPairs.length > 0
         ? await prisma.message.findMany({
+          take: 5000,
             where: {
               OR: latestPairs.map((p) => ({ threadId: p.threadId, createdAt: p.createdAt })),
             },
@@ -104,12 +109,14 @@ export default async function CounselorPortalPage() {
   });
   if (!dbUser) redirect('/dashboard');
 
+  const t = await getTranslations('counselor');
+
   const affiliation = counselor ? counselorAffiliationLabel(counselor.partner?.name) : 'WorkforceAP';
 
   const enrolledCount = assignments.filter((a) => a.member.enrolledProgram).length;
   const needsAttentionCount = assignments.filter((a) => !a.member.enrolledProgram && !a.member.programInterest).length;
 
-  const firstName = (dbUser.fullName ?? 'Counselor').split(' ')[0];
+  const firstName = (dbUser.fullName ?? t('counselorNameFallback')).split(' ')[0];
   const goodTimePhrase = getGoodTimeOfDayPhrase();
 
   // Today's priorities — needs-reply, at-risk, and interviewing rows.
@@ -126,16 +133,16 @@ export default async function CounselorPortalPage() {
   }
 
   const statCards = [
-    { icon: 'groups', label: 'Your Members', value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
-    { icon: 'mark_email_unread', label: 'Awaiting Reply', value: messagesNeedingReply, bg: 'color-mix(in srgb, var(--color-blue) 12%, transparent)', iconColor: 'var(--color-blue)' },
-    { icon: 'school', label: 'In a Program', value: enrolledCount, bg: 'color-mix(in srgb, var(--color-green) 12%, transparent)', iconColor: 'var(--color-green)' },
-    { icon: 'warning', label: 'No Program Yet', value: needsAttentionCount, bg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)', iconColor: 'var(--color-gold)' },
+    { icon: 'groups', label: t('yourMembers'), value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
+    { icon: 'mark_email_unread', label: t('awaitingReply'), value: messagesNeedingReply, bg: 'color-mix(in srgb, var(--color-blue) 12%, transparent)', iconColor: 'var(--color-blue)' },
+    { icon: 'school', label: t('inAProgram'), value: enrolledCount, bg: 'color-mix(in srgb, var(--color-green) 12%, transparent)', iconColor: 'var(--color-green)' },
+    { icon: 'warning', label: t('noProgramYet'), value: needsAttentionCount, bg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)', iconColor: 'var(--color-gold)' },
   ];
 
   return (
     <PortalPageFrame maxWidth="76rem">
       <h1 className="wa-sr-only">
-        Counselor dashboard — welcome back, {firstName}
+        {t('counselorDashboard')} — {firstName}
       </h1>
 
       {/* ── Today's priorities — Counselor Command Center.
@@ -145,11 +152,16 @@ export default async function CounselorPortalPage() {
         <CounselorCommandCenter data={commandCenter} />
       </div>
 
+      {/* ── At-Risk Summary Widget ── */}
+      <div style={{ padding: '0 clamp(1rem, 4vw, 1.5rem)', marginTop: '1.5rem' }}>
+        <AtRiskSummaryWidget />
+      </div>
+
       {/* ── Mobile Counselor View (≤640px) ── */}
       <div className="wa-block md:wa-hidden portal-mobile-content">
         {/* Hero */}
         <div className="portal-pad-x" style={{ paddingTop:"1.5rem", paddingBottom:"0.5rem" }}>
-          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom:"0.5rem" }}>Counselor Dashboard</p>
+          <p className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-semibold" style={{ color: 'var(--color-accent)', marginBottom:"0.5rem" }}>{t('counselorDashboard')}</p>
           <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight text-on-surface wa-leading-tight">
             {goodTimePhrase},{' '}
             <span style={{ color: 'var(--color-accent)' }}>{firstName}</span>
@@ -158,8 +170,8 @@ export default async function CounselorPortalPage() {
         <div className="portal-pad-x" style={{ marginBottom: '1rem' }}>
           <details className="portal-card portal-card--compact">
             <summary className="portal-card__summary">
-              Counselor assistant
-              <span className="portal-card__summary-hint">(tap to open)</span>
+              {t('counselorAssistant')}
+              <span className="portal-card__summary-hint">{t('tapToOpen')}</span>
             </summary>
             <div className="portal-card__body">
               <CounselorPortalVoiceBlock />
@@ -170,7 +182,7 @@ export default async function CounselorPortalPage() {
         <div className="portal-pad-x" style={{ marginTop:"1rem", display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:"1rem", marginBottom:"1.5rem" }}>
           <div className="wa-text-white" style={{gridColumn:"span 2", borderRadius:"0.75rem", padding:"1.25rem", position:"relative", overflow:"hidden", background: 'var(--color-accent)'}}>
             <div style={{ position:"relative", zIndex:10 }}>
-              <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>Your Members</p>
+              <p className="wa-text-[11px] wa-uppercase wa-tracking-widest" style={{ opacity:0.85, marginBottom:"0.25rem" }}>{t('yourMembers')}</p>
               <p className="wa-text-4xl wa-font-bold wa-tracking-tighter">{assignments.length}</p>
             </div>
             <span className="material-symbols-outlined" style={{ position: 'absolute', bottom: '-1rem', right: '-1rem', fontSize: '8rem', opacity: 0.07, color: '#fff', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">group</span>
@@ -180,34 +192,34 @@ export default async function CounselorPortalPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">school</span>
             </div>
             <p className="portal-metric-card__value" style={{ fontSize: '1.5rem' }}>{enrolledCount}</p>
-            <p className="portal-metric-card__label">In a Program</p>
+            <p className="portal-metric-card__label">{t('inAProgram')}</p>
           </div>
           <div className="portal-metric-card">
             <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--accent">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">mark_email_unread</span>
             </div>
             <p className="portal-metric-card__value" style={{ fontSize: '1.5rem', color: messagesNeedingReply > 0 ? 'var(--color-accent)' : undefined }}>{messagesNeedingReply}</p>
-            <p className="portal-metric-card__label">Awaiting Reply</p>
+            <p className="portal-metric-card__label">{t('awaitingReply')}</p>
           </div>
         </div>
         {/* Student roster */}
         <div className="portal-pad-x">
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
-            <h3 className="wa-text-lg wa-font-bold wa-tracking-tight">Active Roster</h3>
+            <h3 className="wa-text-lg wa-font-bold wa-tracking-tight">{t('activeRoster')}</h3>
             <span className="material-symbols-outlined text-on-surface-variant wa-text-xl" aria-hidden="true">sort</span>
           </div>
           <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             {assignments.length === 0 ? (
               <PortalEmptyState
-                title="No members assigned yet"
-                description="Members will appear here once assigned by an administrator. In the meantime, explore the counselor guide."
+                title={t('noMembersAssignedYet')}
+                description={t('membersAppearOnceAssignedMobile')}
                 icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-                primaryAction={{ label: 'Counselor Guide', href: '/counselor/guide' }}
-                secondaryAction={{ label: 'Resources', href: '/counselor/resources' }}
+                primaryAction={{ label: t('counselorGuide'), href: '/counselor/guide' }}
+                secondaryAction={{ label: t('resources'), href: '/counselor/resources' }}
               />
             ) : (
               assignments.map((a) => {
-                const prog = a.member.enrolledProgram ?? a.member.programInterest ?? 'Unknown Program';
+                const prog = a.member.enrolledProgram ?? a.member.programInterest ?? t('unknownProgram');
                 const enrolledSlug = a.member.enrolledProgram ?? null;
                 const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
                 const progress = computeTrainingProgress(enrolledSlug, null, a.member.memberProgramProgress);
@@ -243,7 +255,7 @@ export default async function CounselorPortalPage() {
                       <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-wider wa-truncate" style={{marginBottom:"0.25rem", color: 'var(--color-accent)'}}>{prog}</p>
                       {trainingProgressPct === null ? (
                         <p className="wa-text-[11px] wa-font-semibold text-on-surface-variant" style={{ margin: 0 }}>
-                          {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
+                          {enrolledSlug ? t('trainingProgressUnavailable') : t('notEnrolled')}
                         </p>
                       ) : (
                         <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
@@ -270,9 +282,9 @@ export default async function CounselorPortalPage() {
       <div className="wa-hidden md:wa-block">
       {/* ── Welcome Header ── */}
       <PageHeader
-        title={`Welcome back, ${firstName}.`}
+        title={t('welcomeBack', { firstName })}
         titleHeadingLevel={2}
-        subtitle="See your assigned members, track their progress, and respond to messages."
+        subtitle={t('seeAssignedMembers')}
       />
 
       <section style={{ marginBottom: '2rem' }}>
@@ -286,7 +298,7 @@ export default async function CounselorPortalPage() {
             <div className="portal-metric-card__icon-wrap" style={{ background: card.bg }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: card.iconColor, fontVariationSettings: "'FILL' 1" }} aria-hidden="true">{card.icon}</span>
             </div>
-            <p className="portal-metric-card__value" style={{ color: card.value > 0 && card.label === 'Awaiting Reply' ? 'var(--color-accent)' : undefined }}>{card.value}</p>
+            <p className="portal-metric-card__value" style={{ color: card.value > 0 && card.label === t('awaitingReply') ? 'var(--color-accent)' : undefined }}>{card.value}</p>
             <p className="portal-metric-card__label">{card.label}</p>
           </div>
         ))}
@@ -302,20 +314,20 @@ export default async function CounselorPortalPage() {
           <section>
             <div style={{ marginBottom: '1rem' }}>
               <h3 className="portal-section-heading" style={{ margin: 0 }}>
-                Your Members
+                {t('yourMembers')}
               </h3>
               <p className="portal-page-subtitle" style={{ margin: '0.35rem 0 0', fontSize: '0.85rem' }}>
-                Sorted by most recently assigned.
+                {t('sortedByRecentlyAssigned')}
               </p>
             </div>
 
             {assignments.length === 0 ? (
               <PortalEmptyState
-                title="No members assigned yet"
-                description="Members will appear here once assigned by an administrator."
+                title={t('noMembersAssignedYet')}
+                description={t('membersAppearOnceAssigned')}
                 icon={<span className="material-symbols-outlined" aria-hidden="true">person_search</span>}
-                primaryAction={{ label: 'Contact Admin for Assignments', href: 'mailto:info@workforceap.org?subject=Member%20assignments%20for%20counselor%20portal' }}
-                secondaryAction={{ label: 'Counselor Resources', href: '/counselor/resources' }}
+                primaryAction={{ label: t('contactAdminForAssignments'), href: 'mailto:info@workforceap.org?subject=Member%20assignments%20for%20counselor%20portal' }}
+                secondaryAction={{ label: t('counselorResources'), href: '/counselor/resources' }}
               />
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
@@ -343,14 +355,14 @@ export default async function CounselorPortalPage() {
                               {assignment.member.fullName}
                             </h4>
                             <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {assignment.member.enrolledProgram ?? assignment.member.programInterest ?? 'No program'} · {assignment.member.email}
+                              {assignment.member.enrolledProgram ?? assignment.member.programInterest ?? t('noProgram')} · {assignment.member.email}
                             </p>
                           </div>
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flexShrink: 0 }}>
                           <StatusBadge
-                            label={isEnrolled ? 'Enrolled' : 'Not enrolled'}
+                            label={isEnrolled ? t('enrolled') : t('notEnrolled')}
                             variant={isEnrolled ? 'success' : 'accent'}
                           />
                           <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', opacity: 0.35, fontSize: '1rem' }} aria-hidden="true">chevron_right</span>
@@ -366,25 +378,25 @@ export default async function CounselorPortalPage() {
           {/* System Status */}
           <section>
             <h3 className="portal-section-heading">
-              System Status
+              {t('systemStatus')}
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Data Sync</p>
+                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>{t('dataSync')}</p>
                     <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{affiliation}</p>
                   </div>
-                  <StatusBadge label="Healthy" variant="success" />
+                  <StatusBadge label={t('healthy')} variant="success" />
                 </div>
               </div>
               <div className="portal-card portal-card--flat portal-card--padded-sm">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>Assistant</p>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>Available</p>
+                    <p className="portal-section-title" style={{ marginBottom: '0.25rem' }}>{t('assistant')}</p>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{t('available')}</p>
                   </div>
-                  <StatusBadge label="Online" variant="success" />
+                  <StatusBadge label={t('online')} variant="success" />
                 </div>
               </div>
             </div>
@@ -396,23 +408,23 @@ export default async function CounselorPortalPage() {
 
           {/* Quick Insights */}
           <section className="portal-card portal-card--flat portal-card--padded">
-            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Quick Insights</h3>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>{t('quickInsights')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Active members</span>
+                <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{t('activeMembers')}</span>
                 <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{assignments.length}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Enrolled in modules</span>
+                <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{t('enrolledInModules')}</span>
                 <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-green)' }}>{enrolledCount}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>Awaiting reply</span>
+                <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)' }}>{t('awaitingReply')}</span>
                 <span style={{ fontSize: '0.875rem', fontWeight: 700, color: messagesNeedingReply > 0 ? 'var(--color-accent)' : 'var(--color-on-surface)' }}>{messagesNeedingReply}</span>
               </div>
               <div style={{ borderTop: '1px solid rgba(226,226,229,0.08)', paddingTop: '1rem', marginTop: '0.25rem' }}>
                 <Link href="/counselor/messages" className="btn btn-primary btn-full-width" style={{ fontSize: '0.75rem' }}>
-                  Open Messages
+                  {t('openMessages')}
                 </Link>
               </div>
             </div>
@@ -423,14 +435,14 @@ export default async function CounselorPortalPage() {
             <h3 className="portal-section-title" style={{ marginBottom: '1rem' }}>Quick Links</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
-                { href: '/counselor/at-risk', icon: 'notification_important', title: 'At-Risk Members', desc: 'Members flagged by the risk scoring system', accent: 'error' },
-                { href: '/counselor/triage', icon: 'priority_high', title: 'Triage Queue', desc: 'Members the system flags for action today', accent: 'accent' },
-                { href: '/counselor/queue', icon: 'pending_actions', title: 'Work Queue', desc: 'Members waiting >24h for a reply', accent: 'accent' },
-                { href: '/counselor/students', icon: 'groups', title: 'My Members', desc: 'View roster and member details', accent: 'accent' },
-                { href: '/counselor/placements', icon: 'work', title: 'Placements', desc: 'Track job placements', accent: 'green' },
-                { href: '/counselor/inactive-members', icon: 'notifications_paused', title: 'Inactive Members', desc: 'Members who need re-engagement', accent: 'error' },
-                { href: '/counselor/messages', icon: 'forum', title: 'Messages', desc: 'Reply to member threads', accent: 'blue' },
-                { href: '/counselor/resources', icon: 'menu_book', title: 'Resources', desc: 'Guides and reference links', accent: 'gold' },
+                { href: '/counselor/at-risk', icon: 'notification_important', title: t('atRiskMembers'), desc: t('membersFlaggedByRisk'), accent: 'error' },
+                { href: '/counselor/triage', icon: 'priority_high', title: t('triageQueue'), desc: t('membersFlaggedForAction'), accent: 'accent' },
+                { href: '/counselor/queue', icon: 'pending_actions', title: t('workQueue'), desc: t('membersWaiting24h'), accent: 'accent' },
+                { href: '/counselor/students', icon: 'groups', title: t('myMembersTitle'), desc: t('viewRoster'), accent: 'accent' },
+                { href: '/counselor/placements', icon: 'work', title: t('placements'), desc: t('trackJobPlacements'), accent: 'green' },
+                { href: '/counselor/inactive-members', icon: 'notifications_paused', title: t('inactiveMembers'), desc: t('membersNeedReengagement'), accent: 'error' },
+                { href: '/counselor/messages', icon: 'forum', title: t('messages'), desc: t('replyToMemberThreads'), accent: 'blue' },
+                { href: '/counselor/resources', icon: 'menu_book', title: t('resources'), desc: t('guidesAndReference'), accent: 'gold' },
               ].map((link) => (
                 <Link key={link.href} href={link.href} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div className="portal-card portal-card--flat portal-card--padded-sm" style={{ display: 'flex', alignItems: 'center', gap: '1rem', transition: 'background-color 0.15s' }}>
@@ -453,16 +465,16 @@ export default async function CounselorPortalPage() {
 
           {/* Counselor Actions */}
           <section>
-            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Counselor Actions</h3>
+            <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>{t('counselorActions')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {needsAttentionCount > 0 && (
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                   <div style={{ width: '8px', height: '8px', marginTop: '0.375rem', borderRadius: '50%', background: 'var(--color-accent)', flexShrink: 0 }} />
                   <div>
                     <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                      <strong>{needsAttentionCount} member{needsAttentionCount === 1 ? '' : 's'}</strong> need{needsAttentionCount === 1 ? 's' : ''} program guidance
+                      {t('needsProgramGuidance', { count: needsAttentionCount })}
                     </p>
-                    <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', fontWeight: 700, marginTop: '0.25rem' }}>ACTION REQUIRED</p>
+                    <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', fontWeight: 700, marginTop: '0.25rem' }}>{t('actionRequired')}</p>
                   </div>
                 </div>
               )}
@@ -471,9 +483,9 @@ export default async function CounselorPortalPage() {
                   <div style={{ width: '8px', height: '8px', marginTop: '0.375rem', borderRadius: '50%', background: 'var(--color-green)', flexShrink: 0 }} />
                   <div>
                     <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                      <strong>{messagesNeedingReply} message thread{messagesNeedingReply === 1 ? '' : 's'}</strong> waiting for your reply
+                      {t('threadsWaitingForReply', { count: messagesNeedingReply })}
                     </p>
-                    <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', fontWeight: 700, marginTop: '0.25rem' }}>RESPOND SOON</p>
+                    <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', fontWeight: 700, marginTop: '0.25rem' }}>{t('respondSoon')}</p>
                   </div>
                 </div>
               )}
@@ -482,7 +494,7 @@ export default async function CounselorPortalPage() {
                   <div style={{ width: '8px', height: '8px', marginTop: '0.375rem', borderRadius: '50%', background: 'var(--outline-variant)', flexShrink: 0 }} />
                   <div>
                     <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                      All caught up. No actions pending.
+                      {t('allCaughtUp')}
                     </p>
                   </div>
                 </div>

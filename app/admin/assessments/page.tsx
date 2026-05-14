@@ -53,6 +53,7 @@ export default async function AdminAssessmentsPage({
   let users;
   try {
     users = await prisma.user.findMany({
+      take: 5000,
       where,
       orderBy: { assessmentCompletedAt: 'desc' },
       select: {

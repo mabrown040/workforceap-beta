@@ -15,6 +15,7 @@ import { prisma } from '@/lib/db/prisma';
  * Limited to 100 results. Used by admin lifecycle audit dashboard.
  */
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -81,4 +82,10 @@ export async function GET() {
     records: driftRecords.slice(0, 100),
     checkedAt: new Date().toISOString(),
   });
+
+  } catch (error) {
+    console.error('/admin/lifecycle/drift error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

@@ -27,6 +27,7 @@ export default async function EmployerMatchesPage() {
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const matches = await prisma.aIJobMatch.findMany({
+    take: 5000,
     where: { job: { employerId: ctx.employerId, status: 'live' } },
     orderBy: { createdAt: 'desc' },
     include: {
@@ -40,6 +41,7 @@ export default async function EmployerMatchesPage() {
     keys.length === 0
       ? []
       : await prisma.jobPostingApplication.findMany({
+        take: 5000,
           where: { OR: keys.map((k) => ({ jobId: k.jobId, studentId: k.studentId })) },
           select: { id: true, jobId: true, studentId: true },
         });
@@ -138,8 +140,8 @@ export default async function EmployerMatchesPage() {
                     </div>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.5rem' }}>
-                    <Link href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`} style={{ textAlign: 'center', padding: '0.625rem 0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }} className="active:wa-scale-95 wa-transition-transform">View Profile</Link>
-                    <Link href="/employer/messages" style={{ textAlign: 'center', padding: '0.625rem 0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }} className="active:wa-scale-95 wa-transition-transform">Contact</Link>
+                    <Link href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`} style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} className="active:wa-scale-95 wa-transition-transform">View Profile</Link>
+                    <Link href="/employer/messages" style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} className="active:wa-scale-95 wa-transition-transform">Contact</Link>
                   </div>
                 </div>
               );

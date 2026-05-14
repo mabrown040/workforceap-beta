@@ -1,5 +1,6 @@
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Hourly public endpoint smoke test.
@@ -53,6 +54,7 @@ async function handle(_request: Request) {
   };
 
   console.log(JSON.stringify(result));
+  await setCronRecordsProcessed(ENDPOINTS.length);
   await logCronRun('cron_smoke_test', result, allOk ? 'ok' : 'error');
   return Response.json(result);
 }

@@ -3,13 +3,15 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 /**
  * GET /api/counselor/inactive-members?days=7|14|30
  * Returns members (role='member') who haven't had a dashboard_viewed event in N days.
- * Counselor/admin only.
+ * Counselor/admin only. Scoped to the actor organization (counselor roster).
  */
 export async function GET(request: Request) {
+  try {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -48,7 +50,8 @@ export async function GET(request: Request) {
     `
     : Prisma.empty;
 
-  // Get scoped members and their last activity
+  const orgId = await getActorOrganizationId(user.id);
+
   const inactiveMembers = await prisma.$queryRaw`
     SELECT
       u.id,
@@ -61,6 +64,7 @@ export async function GET(request: Request) {
     JOIN profiles p ON p.user_id = u.id
     LEFT JOIN member_events me ON me.user_id = u.id
     WHERE p.role = 'member'
+    AND u.organization_id = ${orgId}::uuid
     ${assignmentScope}
     GROUP BY u.id, u.email, u.created_at, p.role, p.profile_phone
     HAVING MAX(me.created_at) IS NULL OR MAX(me.created_at) < ${cutoffDate}
@@ -91,4 +95,10 @@ export async function GET(request: Request) {
     count: formatted.length,
     members: formatted,
   });
+
+  } catch (error) {
+    console.error('/counselor/inactive-members error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

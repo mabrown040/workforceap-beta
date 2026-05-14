@@ -8,6 +8,7 @@ import { APPLY_STORAGE_KEY } from '../ApplyEligibilityClient';
 import { APPLY_PROGRAM_SLUG_KEY, APPLY_PROGRAM_RANKED_KEY } from '@/lib/apply/applyProgramStorage';
 import { CardSkeleton } from '@/components/ui/Skeleton';
 import { ProgramIcon } from '@/components/ProgramIcon';
+import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 
 const FYP_RESULTS_KEY = 'find_your_path_results';
@@ -26,6 +27,7 @@ function toggleSlug(list: string[], slug: string, max: number): string[] {
 }
 
 export default function ApplyResultsClient() {
+  const t = useTranslations('apply');
   const searchParams = useSearchParams();
   const programParam = searchParams.get('program');
   const [pageState, setPageState] = useState<'loading' | 'ready' | 'missing'>('loading');
@@ -160,7 +162,8 @@ export default function ApplyResultsClient() {
   const rankLabel = (slug: string) => {
     const i = selectedSlugs.indexOf(slug);
     if (i < 0) return null;
-    return ['1st choice', '2nd choice', '3rd choice'][i] ?? `${i + 1}`;
+    const labels = [t('resultsRankFirst'), t('resultsRankSecond'), t('resultsRankThird')];
+    return labels[i] ?? `${i + 1}`;
   };
 
   if (pageState === 'loading') {
@@ -181,21 +184,20 @@ export default function ApplyResultsClient() {
       <div className="apply-flow">
         <div className="apply-progress-bar">
           <div className="apply-progress-fill" style={{ width: '66%' }} />
-          <p className="apply-progress-label">Step 2 of 3 — choose your programs</p>
+          <p className="apply-progress-label">{t('resultsProgressLabel')}</p>
         </div>
         <div className="apply-step-content apply-missing-session">
-          <h2 className="apply-step-title">We need your answers from step 1 first</h2>
+          <h2 className="apply-step-title">{t('resultsMissingTitle')}</h2>
           <p className="apply-step-desc">
-            This page works after the quick eligibility check. If you opened this page directly, switched devices, or cleared browser data,
-            we may not have your step 1 answers anymore.
+            {t('resultsMissingDesc')}
           </p>
           <p style={{ marginBottom: '1.25rem' }}>
             <Link href="/apply" className="btn btn-primary">
-              Go to step 1 — quick eligibility check
+              {t('resultsMissingCta')}
             </Link>
           </p>
           <p className="apply-step-desc" style={{ fontSize: '0.9rem' }}>
-            Already did step 1 in this browser? Return to <Link href="/apply">/apply</Link> and answer the 3 questions again — it only takes about a minute.
+            {t('resultsMissingFootnote')} <Link href="/apply">/apply</Link> {t('resultsMissingFootnoteSuffix')}
           </p>
         </div>
       </div>
@@ -206,60 +208,62 @@ export default function ApplyResultsClient() {
     <div className="apply-flow">
       <div className="apply-progress-bar">
         <div className="apply-progress-fill" style={{ width: '66%' }} />
-        <p className="apply-progress-label">Step 2 of 3 — choose your programs</p>
+        <p className="apply-progress-label">{t('resultsProgressLabel')}</p>
       </div>
 
       <div className="apply-step-content">
         <p className="apply-step-back-nav">
-          <Link href="/apply">← Back to step 1 — eligibility</Link>
+          <Link href="/apply">{t('resultsBackStep1')}</Link>
         </p>
-        <p className="apply-step-kicker">About 2 minutes • still no account required</p>
-        <div className="apply-transition-card" role="note" aria-label="What happens after program selection">
-          <strong>Before you continue:</strong>
+        <p className="apply-step-kicker">{t('resultsKicker')}</p>
+        <div className="apply-transition-card" role="note" aria-label={t('resultsTransitionAria')}>
+          <strong>{t('resultsBeforeStrong')}</strong>
           <span>
             {' '}
-            Pick up to <strong>three</strong> programs in order of preference (1st = what you want most). You can change your mind later with a counselor.
-            If you used the <Link href="/find-your-path">pathfinder quiz</Link>, we may have pre-filled your top matches.
+            {t('resultsBeforePick')}{' '}
+            <Link href="/find-your-path">{t('resultsPathfinderQuizLink')}</Link>
+            {t('resultsBeforeSuffix')}
           </span>
         </div>
         {qualifies ? (
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
               <p>
-                <strong>Looks like a strong funding fit.</strong> Rank the programs you want most, then create your account so a counselor can confirm next steps within 1–2 business days.
+                <strong>{t('resultsFundingFitStrong')}</strong> {t('resultsFundingFitRest')}
               </p>
             </div>
             <div className="apply-undecided-reassurance" style={{ marginBottom: '1.5rem', padding: '1rem 1.25rem', background: 'var(--surface-container)', borderRadius: '8px', border: '1px solid var(--outline-variant)' }}>
               <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--color-on-surface-variant)' }}>
-                <strong style={{ color: 'var(--color-on-surface)' }}>Not sure which program?</strong> That is normal. Pick the one that feels closest to your goals — a counselor will help confirm the fit when we follow up. You are not locked in.
+                <strong style={{ color: 'var(--color-on-surface)' }}>{t('resultsUndecidedLead')}</strong> {t('resultsUndecidedBody')}
               </p>
             </div>
-            <h2 className="apply-step-title">Which programs interest you most?</h2>
-            <p className="apply-results-program-hint">Tap up to three — order is your preference. Your first choice is your primary starting point.</p>
+            <h2 className="apply-step-title">{t('resultsTitleQualifies')}</h2>
+            <p className="apply-results-program-hint">{t('resultsHintQualifies')}</p>
           </>
         ) : (
           <>
             <div className="apply-results-anyway" style={{ marginBottom: '1rem', padding: '1rem 1.25rem', background: 'var(--surface-container)', borderRadius: '8px' }}>
               <p style={{ margin: 0 }}>
-                <strong>Your answers don&rsquo;t match our standard funding profile right now.</strong> That is not a final decision. We still review every application,
-                suggest realistic next steps, and often start people with foundational options while we sort out timing and support.
+                <strong>{t('resultsMismatchStrong')}</strong> {t('resultsMismatchRest')}
               </p>
             </div>
             <section className="apply-foundational-support" aria-labelledby="apply-foundational-heading">
               <h2 id="apply-foundational-heading" className="apply-foundational-support__title">
-                Start with support
+                {t('resultsFoundationalTitle')}
               </h2>
               <ul className="apply-foundational-support__list">
                 <li>
-                  <strong>Not sure what fits?</strong> Take the <Link href="/find-your-path">2-minute pathfinder</Link> for ranked ideas.
+                  <strong>{t('resultsFoundationalLi1Strong')}</strong> {t('resultsFoundationalLi1Rest')}{' '}
+                  <Link href="/find-your-path">{t('resultsTwoMinutePathfinder')}</Link> {t('resultsFoundationalLi1Suffix')}
                 </li>
                 <li>
-                  <strong>Want a person to help?</strong> <Link href="/contact">Contact us</Link> or call <a href="tel:+15127771808">(512) 777-1808</a>.
+                  <strong>{t('resultsFoundationalLi2Strong')}</strong> <Link href="/contact">{t('resultsFoundationalLi2Mid')}</Link> {t('resultsFoundationalLi2Suffix')}{' '}
+                  <a href="tel:+15127771808">(512) 777-1808</a>.
                 </li>
               </ul>
             </section>
-            <h2 className="apply-step-title">Which programs should we start with?</h2>
-            <p className="apply-results-program-hint">Select up to three in order. Your first choice is your starting point — not a final commitment.</p>
+            <h2 className="apply-step-title">{t('resultsTitleNonQual')}</h2>
+            <p className="apply-results-program-hint">{t('resultsHintNonQual')}</p>
           </>
         )}
 
@@ -315,7 +319,7 @@ export default function ApplyResultsClient() {
                       borderRadius: 4,
                     }}
                   >
-                    From career quiz
+                    {t('resultsFromQuizBadge')}
                   </span>
                 )}
                 {rank && (
@@ -363,12 +367,12 @@ export default function ApplyResultsClient() {
 
         {selectedSlugs.length === 0 && (
           <p className="apply-continue-hint" role="alert">
-            Select at least one program to continue. Tap again to remove; you can rank up to three.
+            {t('resultsSelectProgramError')}
           </p>
         )}
 
         <button type="button" className="btn btn-primary" disabled={selectedSlugs.length === 0} onClick={handleContinue}>
-          Continue to step 3 — create your account →
+          {t('resultsContinueAccount')}
         </button>
       </div>
     </div>

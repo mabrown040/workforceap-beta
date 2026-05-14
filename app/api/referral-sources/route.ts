@@ -10,6 +10,7 @@ export async function GET() {
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { name: true },
+      take: 100,
     });
     const partnerNames = partners
       .map((p) => p.name)

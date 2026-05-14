@@ -54,92 +54,97 @@ Output format (JSON only):
 }`;
 
 export async function POST() {
-  const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!isAIConfigured()) return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
-
-  const { success } = await checkAIToolRateLimit(user.id);
-  if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
-
-
   try {
-    // Get resume text
-    const resumeText = await getMemberResumePlainText(user.id, 6000);
-    if (!resumeText || resumeText.length < 50) {
-      return NextResponse.json({
-        error: 'No resume found. Upload a resume first to extract skills.',
-        axes: RADAR_AXES.map((axis) => ({ axis, score: 0, evidence: [] })),
-      }, { status: 400 });
-    }
-
-    const output = await chatCompletion(
-      [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: `Resume:\n---\n${resumeText}\n---\n\nExtract skills and score each axis. Return JSON only.` },
-      ],
-      { maxTokens: 800, temperature: 0.3 },
-    );
-
-    if (!output) {
-      return NextResponse.json({ error: 'AI extraction failed' }, { status: 500 });
-    }
-
-    // Parse the JSON response — handle potential markdown fences
-    const cleaned = output.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-    let parsed: {
-      axes?: { axis: string; score: number; evidence: string[] }[];
-      topSkills?: string[];
-      suggestedOccupations?: string[];
-    };
-
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!isAIConfigured()) return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
+  
+    const { success } = await checkAIToolRateLimit(user.id);
+    if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
+  
+  
     try {
-      parsed = JSON.parse(cleaned);
-    } catch {
-      // Try to extract JSON from a potentially chatty response
-      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[0]);
-      } else {
-        return NextResponse.json({ error: 'We could not read the AI response just now. Please try again in a moment.' }, { status: 500 });
+      // Get resume text
+      const resumeText = await getMemberResumePlainText(user.id, 6000);
+      if (!resumeText || resumeText.length < 50) {
+        return NextResponse.json({
+          error: 'No resume found. Upload a resume first to extract skills.',
+          axes: RADAR_AXES.map((axis) => ({ axis, score: 0, evidence: [] })),
+        }, { status: 400 });
       }
-    }
-
-    // Validate and normalize
-    const axes = RADAR_AXES.map((axis) => {
-      const found = parsed.axes?.find((a) => a.axis === axis);
-      return {
-        axis,
-        score: Math.min(100, Math.max(0, Math.round(found?.score ?? 0))),
-        evidence: (found?.evidence ?? []).slice(0, 5),
-      };
-    });
-
-    // Save to DB so skill-profile can pick it up on next load
-    try {
-      await ensureUserInDb(user);
-      await saveAIToolResult(
-        user.id,
-        'skill_assessment',
-        'AI resume skill extraction',
-        JSON.stringify({
-          source: 'ai_resume_extraction',
-          axes,
-          topSkills: (parsed.topSkills ?? []).slice(0, 8),
-          suggestedOccupations: (parsed.suggestedOccupations ?? []).slice(0, 3),
-        }),
+  
+      const output = await chatCompletion(
+        [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: `Resume:\n---\n${resumeText}\n---\n\nExtract skills and score each axis. Return JSON only.` },
+        ],
+        { maxTokens: 800, temperature: 0.3 },
       );
-    } catch {
-      /* non-fatal — result still returned to client */
+  
+      if (!output) {
+        return NextResponse.json({ error: 'AI extraction failed' }, { status: 500 });
+      }
+  
+      // Parse the JSON response — handle potential markdown fences
+      const cleaned = output.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+      let parsed: {
+        axes?: { axis: string; score: number; evidence: string[] }[];
+        topSkills?: string[];
+        suggestedOccupations?: string[];
+      };
+  
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch {
+        // Try to extract JSON from a potentially chatty response
+        const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[0]);
+        } else {
+          return NextResponse.json({ error: 'We could not read the AI response just now. Please try again in a moment.' }, { status: 500 });
+        }
+      }
+  
+      // Validate and normalize
+      const axes = RADAR_AXES.map((axis) => {
+        const found = parsed.axes?.find((a) => a.axis === axis);
+        return {
+          axis,
+          score: Math.min(100, Math.max(0, Math.round(found?.score ?? 0))),
+          evidence: (found?.evidence ?? []).slice(0, 5),
+        };
+      });
+  
+      // Save to DB so skill-profile can pick it up on next load
+      try {
+        await ensureUserInDb(user);
+        await saveAIToolResult(
+          user.id,
+          'skill_assessment',
+          'AI resume skill extraction',
+          JSON.stringify({
+            source: 'ai_resume_extraction',
+            axes,
+            topSkills: (parsed.topSkills ?? []).slice(0, 8),
+            suggestedOccupations: (parsed.suggestedOccupations ?? []).slice(0, 3),
+          }),
+        );
+      } catch {
+        /* non-fatal — result still returned to client */
+      }
+  
+      return NextResponse.json({
+        axes,
+        topSkills: (parsed.topSkills ?? []).slice(0, 8),
+        suggestedOccupations: (parsed.suggestedOccupations ?? []).slice(0, 3),
+        source: 'ai',
+      });
+    } catch (error) {
+      console.error('[ai/extract-resume-skills] error:', error);
+      return NextResponse.json({ error: 'Skill extraction failed' }, { status: 500 });
     }
-
-    return NextResponse.json({
-      axes,
-      topSkills: (parsed.topSkills ?? []).slice(0, 8),
-      suggestedOccupations: (parsed.suggestedOccupations ?? []).slice(0, 3),
-      source: 'ai',
-    });
   } catch (error) {
-    console.error('[ai/extract-resume-skills] error:', error);
-    return NextResponse.json({ error: 'Skill extraction failed' }, { status: 500 });
+    console.error('/ai/extract-resume-skills:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

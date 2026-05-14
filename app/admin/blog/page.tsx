@@ -21,6 +21,7 @@ const STATUS_COLOR: Record<string, { bg: string; color: string }> = {
 
 export default async function AdminBlogPage() {
   const posts = await prisma.blogPost.findMany({
+    take: 5000,
     orderBy: { updatedAt: 'desc' },
     select: {
       id: true,

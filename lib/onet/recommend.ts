@@ -123,7 +123,7 @@ export async function buildCareerMatchResult(
   const prismaBand = uiBandToPrisma(experienceBand);
   const supportFlags = { needsComputerSupport: needsComputerSupport(answers) };
 
-  const rules = await prisma.careerQuizRule.findMany({ where: { isActive: true } });
+  const rules = await prisma.careerQuizRule.findMany({ take: 5000, where: { isActive: true } });
   const boostMap = new Map<string, number>();
   for (const r of rules) {
     const sig = r.inputSignal as Record<string, unknown>;
@@ -133,6 +133,7 @@ export async function buildCareerMatchResult(
   }
 
   const mappings = await prisma.careerProgramMapping.findMany({
+    take: 5000,
     where: { isActive: true, experienceBand: prismaBand },
     include: { occupation: true },
   });
@@ -168,19 +169,32 @@ export async function buildCareerMatchResult(
 
   const topCodes = ranked.slice(0, 3).map(([c]) => c);
 
+  // Batch fetch all top occupations + their related titles in two queries.
+  const occs = await prisma.onetOccupation.findMany({
+    where: { onetCode: { in: topCodes } },
+    include: {
+      skills: { take: 8, orderBy: { importance: 'desc' } },
+      tasks: { take: 5 },
+      relatedFrom: { take: 6 },
+    },
+  });
+  const occMap = new Map(occs.map((o) => [o.onetCode, o]));
+
+  const allRelatedCodes = [...new Set(occs.flatMap((o) => o.relatedFrom.slice(0, 3).map((r) => r.relatedOnetCode)))];
+  const relatedOccs = allRelatedCodes.length
+    ? await prisma.onetOccupation.findMany({
+        where: { onetCode: { in: allRelatedCodes } },
+        select: { onetCode: true, title: true },
+      })
+    : [];
+  const relatedTitleMap = new Map(relatedOccs.map((o) => [o.onetCode, o.title]));
+
   const topOccupations: CareerMatchResult['topOccupations'] = [];
 
   for (let i = 0; i < topCodes.length; i++) {
     const code = topCodes[i];
     const conf = ranked.find(([c]) => c === code)?.[1] ?? 0;
-    const occ = await prisma.onetOccupation.findUnique({
-      where: { onetCode: code },
-      include: {
-        skills: { take: 8, orderBy: { importance: 'desc' } },
-        tasks: { take: 5 },
-        relatedFrom: { take: 6 },
-      },
-    });
+    const occ = occMap.get(code);
     if (!occ) continue;
 
     // Self-healing: if the stored title is just the O*NET code, fetch the real
@@ -199,14 +213,8 @@ export async function buildCareerMatchResult(
       if (fallback) occupationTitle = fallback;
     }
 
-    const relatedTitles = await Promise.all(
-      occ.relatedFrom.slice(0, 3).map(async (r) => {
-        const rel = await prisma.onetOccupation.findUnique({
-          where: { onetCode: r.relatedOnetCode },
-          select: { title: true },
-        });
-        return rel?.title ?? r.relatedOnetCode;
-      })
+    const relatedTitles = occ.relatedFrom.slice(0, 3).map((r) =>
+      relatedTitleMap.get(r.relatedOnetCode) ?? r.relatedOnetCode
     );
 
     const whyFit: string[] = [];

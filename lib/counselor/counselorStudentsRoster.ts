@@ -20,6 +20,7 @@ export async function loadCounselorRosterRiskAndActivity(
 
   const [alerts, lastEvents, users] = await Promise.all([
     prisma.atRiskAlert.findMany({
+      take: 5000,
       where: {
         userId: { in: memberIds },
         status: { in: ['open', 'acknowledged'] },
@@ -35,6 +36,7 @@ export async function loadCounselorRosterRiskAndActivity(
       memberIds,
     ),
     prisma.user.findMany({
+      take: 5000,
       where: { id: { in: memberIds } },
       select: { id: true, createdAt: true },
     }),

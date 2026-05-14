@@ -18,6 +18,7 @@ const patchSchema = z.object({
 });
 
 export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string; studentId: string }> }) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -51,4 +52,10 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
   });
 
   return NextResponse.json(updated);
+
+  } catch (error) {
+    console.error('/employer/jobs/[id]/matches/[studentId] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

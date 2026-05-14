@@ -96,7 +96,7 @@
     --color-light: #f7f8fa;
 
     /* Typography */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-size-h1: 2.5rem;
     --font-size-h2: 2rem;
     --font-size-h3: 1.5rem;
@@ -144,7 +144,8 @@
     /* Mobile Interactions */
     --button-press-scale: 0.97;
     --card-hover-lift: -4px;
-    --touch-target-min: 48px;
+    --touch-target-min: 44px;
+    --btn-min-height: 44px;
     --nav-height-default: 80px;
     --nav-height-scrolled: 60px;
     /* Fixed .main-nav: bar height + notch / safe-area (used for layout spacer, sticky offsets, mobile panel) */
@@ -204,6 +205,16 @@
 .bg-surface-container { background: var(--surface-container); }
 .bg-surface-container-high { background: var(--surface-container-high); }
 .bg-surface-container-highest { background: var(--surface-container-highest); }
+
+/* ─── At-Risk Modal animations ─── */
+@keyframes at-risk-modal-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.at-risk-modal {
+  animation: at-risk-modal-in 0.18s ease-out;
+}
 
 /* Portal layout utilities (uniform, Apple-like spacing) */
 .portal-pad {
@@ -405,7 +416,7 @@ html.dark .portal-kpi-card {
 .portal-input {
     width: 100%;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 1rem;
     line-height: 1.25;
     min-height: 48px;
     padding: 0.625rem 0.875rem;
@@ -709,6 +720,8 @@ html.dark .blog-cta-card h3 {
     color: #ffffff;
 }
 html.dark .blog-cta-buttons .btn-accent,
+html.dark .blog-cta-buttons .btn-primary,
+html.dark .blog-cta-buttons .btn-secondary,
 html.dark .blog-cta-buttons .btn-ghost {
     color: #ffffff;
 }
@@ -1380,11 +1393,13 @@ html.dark .jobs-empty-state__title {
 html.dark .jobs-empty-state__text {
     color: var(--color-on-surface-variant);
 }
-html.dark .jobs-empty-state .btn-ghost {
-    border-color: rgba(255, 255, 255, 0.25);
+html.dark .jobs-empty-state .btn.btn-ghost,
+html.dark .jobs-empty-state a.btn.btn-ghost {
+    border: 1px solid rgba(255, 255, 255, 0.25);
     color: #f9fafb;
 }
-html.dark .jobs-empty-state .btn-ghost:hover {
+html.dark .jobs-empty-state .btn.btn-ghost:hover,
+html.dark .jobs-empty-state a.btn.btn-ghost:hover {
     background: rgba(255, 255, 255, 0.08);
     color: #fff;
 }
@@ -1469,22 +1484,6 @@ html.dark .admin-preview-placeholder {
     color: var(--color-on-surface-variant) !important;
 }
 
-html.dark .footer-cta {
-    background: #0b0d10;
-    color: #f9fafb;
-}
-html.dark .footer-cta h2,
-html.dark .footer-cta p {
-    color: #f9fafb;
-}
-html.dark .footer-cta .btn-primary {
-    background: var(--color-accent);
-    color: #ffffff;
-}
-html.dark .footer-cta .btn-primary:hover {
-    background: var(--color-accent-dark);
-    color: #ffffff;
-}
 html.dark .employer-dash-page,
 html.dark .partner-impact-console {
     color: var(--color-primary);
@@ -1596,13 +1595,10 @@ html.dark .portal-page-header p,
 html.dark .portal-page-header .portal-page-header-main p {
     color: var(--color-on-surface-variant);
 }
-html.dark .btn-outline {
+html.dark .btn-outline,
+html.dark .btn-secondary {
     border-color: var(--color-gray-300);
     color: var(--color-primary);
-}
-html.dark .btn-secondary {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
 }
 html.dark .app-system-page {
     background: var(--color-white);
@@ -2153,11 +2149,10 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
     text-decoration: none;
     transition: all var(--transition-fast);
     white-space: nowrap;
-    /* WCAG / mobile touch target — primary CTA stays ≥ 48px. */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
+    min-height: var(--btn-min-height);
 }
 .nav-apply-btn:hover {
     background: var(--color-accent-dark);
@@ -2175,21 +2170,10 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
     .nav-right-actions .nav-login-btn,
     .nav-right-actions .nav-apply-btn { display: none; }
 }
+/* .nav-cta composes .btn.btn-primary.btn-radius-md in MainNav — keep only menu-specific overrides */
 .nav-cta,
 a.nav-cta {
-    background: var(--color-accent) !important;
-    color: var(--color-white) !important;
-    padding: 12px 20px !important;
-    border-radius: var(--radius-md) !important;
-    font-weight: 700 !important;
-    font-size: 0.875rem !important;
-    transition: all var(--transition-fast) !important;
     white-space: nowrap !important;
-    /* WCAG / mobile touch target — primary CTA stays ≥ 48px tall. */
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-height: 48px !important;
 }
 @media (max-width: 1024px) {
     .nav-container {
@@ -2198,20 +2182,20 @@ a.nav-cta {
     .nav-menu {
         gap: 1rem;
     }
-    .nav-cta,
-    a.nav-cta {
+    .nav-cta.btn,
+    a.nav-cta.btn {
         padding: 10px 14px !important;
         font-size: 0.8125rem !important;
-        min-height: 44px !important;
     }
 }
 .nav-cta:hover,
 a.nav-cta:hover {
-    background: var(--color-accent-dark) !important;
     transform: translateY(-1px);
 }
-.nav-cta::after,
-a.nav-cta::after { display: none !important; }
+.nav-cta.btn::after,
+a.nav-cta.btn::after {
+    display: none;
+}
 .mobile-nav-toggle {
     display: none;
     background: var(--surface-container, rgba(0,0,0,0.04));
@@ -2256,7 +2240,17 @@ body.mobile-nav-open {
 }
 
 /* =============================================
-   BUTTONS
+   BUTTONS — unified system
+   Process-step index capsule: `.marketing-num-pill__index` in css/marketing.css.
+   Base `.btn` sets min-height (`--btn-min-height`, 44px) and default radius md.
+   Compose: .btn + variant (.btn-primary | .btn-secondary | .btn-ghost)
+            + optional aliases: .btn-outline → same rules as .btn-secondary
+            + radius ladder (.btn-radius-sm | .btn-radius-md | .btn-radius-lg | .btn-radius-full)
+   Variants:
+     — primary: solid brand magenta (--color-accent)
+     — secondary: outline on light (+ .btn-secondary--on-dark for photo/dark scrims)
+     — ghost: text-only (use `.btn-secondary--on-dark` on photo scrims when outline contrast is needed)
+     — .btn-muted / .btn-dark / .btn-white: legacy product surfaces (not marketing ladder)
    ============================================= */
 .btn {
     display: inline-flex;
@@ -2264,7 +2258,7 @@ body.mobile-nav-open {
     justify-content: center;
     gap: 0.5rem;
     padding: 0.8125rem 1.75rem;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     font-weight: 600;
     font-size: 0.9375rem;
     font-family: inherit;
@@ -2272,10 +2266,23 @@ body.mobile-nav-open {
     cursor: pointer;
     border: none;
     transition: all var(--transition-base);
-    min-height: 48px;
+    min-height: var(--btn-min-height);
     line-height: 1.2;
     position: relative;
     overflow: hidden;
+}
+/* Radius ladder — compose with .btn / .nav-cta */
+.btn-radius-sm {
+    border-radius: var(--radius-sm) !important;
+}
+.btn-radius-md {
+    border-radius: var(--radius-md) !important;
+}
+.btn-radius-lg {
+    border-radius: var(--radius-lg) !important;
+}
+.btn-radius-full {
+    border-radius: var(--radius-full) !important;
 }
 .btn::after {
     content: '';
@@ -2288,16 +2295,17 @@ body.mobile-nav-open {
 .btn:hover::after {
     transform: translateX(100%);
 }
+/* Variant: primary — solid brand magenta */
 .btn-primary,
 a.btn-primary,
 button.btn-primary {
-    background: linear-gradient(135deg, #8c0f37, #ad2c4d);
+    background: var(--color-accent);
     color: var(--color-white);
     border: none;
     border-radius: var(--radius-md);
 }
 .btn-primary:hover {
-    background: linear-gradient(135deg, #7a0d30, #9c2744);
+    background: var(--color-accent-dark);
     transform: translateY(-2px);
     box-shadow: 0 20px 40px rgba(28, 27, 27, 0.06);
 }
@@ -2306,18 +2314,19 @@ button.btn-primary {
     outline-offset: 2px;
     box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-accent);
 }
-.btn-secondary,
-a.btn-secondary {
+/* Muted filled — neutral emphasis (portal / secondary actions); not the marketing "secondary" variant */
+.btn-muted,
+a.btn-muted {
     background: var(--surface-container-high);
     color: var(--color-on-surface);
     border: none;
     border-radius: var(--radius-md);
 }
-.btn-secondary:hover {
+.btn-muted:hover {
     background: var(--surface-container-highest);
     transform: translateY(-2px);
 }
-.btn-secondary:focus-visible {
+.btn-muted:focus-visible {
     outline: 3px solid var(--color-accent);
     outline-offset: 2px;
 }
@@ -2332,6 +2341,9 @@ a.btn-tertiary {
 .btn-tertiary:hover {
     text-decoration: underline;
 }
+/* Variant: secondary — outline */
+.btn-secondary,
+a.btn-secondary,
 .btn-outline,
 a.btn-outline {
     background: transparent;
@@ -2339,14 +2351,79 @@ a.btn-outline {
     border: 1px solid var(--outline-variant);
     border-radius: var(--radius-md);
 }
-.btn-outline:hover {
+.btn-secondary:hover,
+a.btn-secondary:hover,
+.btn-outline:hover,
+a.btn-outline:hover {
     border-color: var(--color-accent);
     color: var(--color-accent);
     background: rgba(173, 44, 77, 0.04);
 }
-.btn-outline:focus-visible {
+.btn-secondary:focus-visible,
+a.btn-secondary:focus-visible,
+.btn-outline:focus-visible,
+a.btn-outline:focus-visible {
     outline: 3px solid var(--color-accent);
     outline-offset: 2px;
+}
+/* Outline on dark / photo scrims (shared with home hero secondary CTA) */
+.btn-secondary--on-dark,
+a.btn-secondary--on-dark {
+    background: rgba(0, 0, 0, 0.45) !important;
+    color: #f5f5f8 !important;
+    border: 2px solid rgba(255, 255, 255, 0.58) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
+}
+.btn-secondary--on-dark:hover,
+a.btn-secondary--on-dark:hover {
+    background: rgba(0, 0, 0, 0.58) !important;
+    border-color: rgba(255, 255, 255, 0.78) !important;
+    color: #ffffff !important;
+}
+.btn-secondary--on-dark:focus-visible,
+a.btn-secondary--on-dark:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+}
+.btn-secondary--on-dark::after,
+a.btn-secondary--on-dark::after {
+    display: none;
+}
+/* Variant: ghost — text-only (no fill, no border) */
+.btn-ghost,
+a.btn-ghost,
+.btn-ghost-text,
+a.btn-ghost-text {
+    background: transparent;
+    color: var(--color-accent);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    box-shadow: none;
+}
+.btn-ghost:hover,
+a.btn-ghost:hover,
+.btn-ghost-text:hover,
+a.btn-ghost-text:hover {
+    text-decoration: underline;
+    color: var(--color-accent-dark);
+    transform: none;
+    background: transparent;
+}
+.btn-ghost:focus-visible,
+a.btn-ghost:focus-visible,
+.btn-ghost-text:focus-visible,
+a.btn-ghost-text:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+}
+.btn-ghost::after,
+a.btn-ghost::after,
+.btn-ghost-text::after,
+a.btn-ghost-text::after {
+    display: none;
 }
 .btn:disabled,
 button:disabled.btn,
@@ -2373,15 +2450,16 @@ a.btn-white {
     background: var(--color-gray-100);
     transform: translateY(-2px);
 }
-.btn-small { 
-    padding: 0.5rem 1rem; 
+.btn-small,
+.btn-sm {
+    padding: 0.5rem 1rem;
     font-size: var(--font-size-sm);
-    min-height: 36px;
+    min-height: var(--btn-min-height);
 }
 .btn-large { 
     padding: 1rem 2.5rem; 
     font-size: 1.0625rem;
-    min-height: var(--touch-target-min);
+    min-height: var(--btn-min-height);
 }
 .btn-full-width {
     width: 100%;
@@ -2396,16 +2474,6 @@ a.btn-white {
 }
 .btn-content-loading {
     opacity: 0.7;
-}
-.btn-ghost {
-    background: rgba(255,255,255,0.15);
-    color: var(--color-white);
-    border: 1px solid rgba(255,255,255,0.3);
-    backdrop-filter: blur(4px);
-}
-.btn-ghost:hover {
-    background: rgba(255,255,255,0.25);
-    transform: translateY(-2px);
 }
 
 /* =============================================
@@ -2460,8 +2528,23 @@ html.dark .homepage .hero .btn-accent,
 html.dark .homepage .hero a.btn-accent {
     color: #ffffff;
 }
-html.dark .homepage .hero .btn-ghost,
-html.dark .homepage .hero a.btn-ghost {
+/* Legacy `.homepage .hero` markup: frosted outline for secondary-style actions */
+.homepage .hero .btn.btn-ghost,
+.homepage .hero a.btn.btn-ghost {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--color-white);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    font-weight: 500;
+}
+.homepage .hero .btn.btn-ghost:hover,
+.homepage .hero a.btn.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+html.dark .homepage .hero .btn.btn-ghost,
+html.dark .homepage .hero a.btn.btn-ghost {
     color: #ffffff;
     border-color: rgba(255, 255, 255, 0.35);
 }
@@ -2599,17 +2682,23 @@ a.btn-accent:hover {
     box-shadow: 0 10px 50px rgba(173,44,77,0.6);
     transform: translateY(-3px);
 }
-.hero-actions-prominent .btn-ghost {
+.hero-actions-prominent .btn.btn-ghost,
+.hero-actions-prominent a.btn.btn-ghost {
     padding: 0.875rem 2rem;
     font-size: 0.9375rem;
     font-weight: 500;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--color-white);
     opacity: 0.9;
+    text-decoration: none;
 }
-.hero-actions-prominent .btn-ghost:hover {
-    background: rgba(255,255,255,0.15);
+.hero-actions-prominent .btn.btn-ghost:hover,
+.hero-actions-prominent a.btn.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.15);
     opacity: 1;
+    color: var(--color-white);
+    text-decoration: none;
 }
 .trust-strip {
     opacity: 0.85;
@@ -4134,6 +4223,19 @@ html.dark .employer-dash-empty-jobs p {
     .wyg-grid { grid-template-columns: 1fr; }
 }
 
+/* Career Mappings admin page: stack to single column on mobile, 2-col on desktop */
+.career-mappings-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+    gap: 1.5rem;
+    align-items: start;
+}
+@media (max-width: 768px) {
+    .career-mappings-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Keep class for backward compat */
 .loaner-laptop-section {
     padding: 3rem 0;
@@ -4194,6 +4296,32 @@ html.dark .employer-dash-empty-jobs p {
     background: var(--color-gray-100);
     color: var(--color-primary);
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.footer-cta .btn-primary,
+.footer-cta a.btn-primary {
+    border-radius: var(--radius-lg);
+}
+.footer-cta .btn-secondary,
+.footer-cta a.btn-secondary {
+    background: transparent;
+    color: var(--color-white);
+    border: 2px solid rgba(255, 255, 255, 0.92);
+    border-radius: var(--radius-lg);
+}
+.footer-cta .btn-secondary:hover,
+.footer-cta a.btn-secondary:hover {
+    border-color: #ffffff;
+    color: var(--color-white);
+    background: rgba(255, 255, 255, 0.1);
+}
+.footer-cta .btn-ghost,
+.footer-cta a.btn-ghost {
+    color: rgba(255, 255, 255, 0.92);
+}
+.footer-cta .btn-ghost:hover,
+.footer-cta a.btn-ghost:hover {
+    color: #ffffff;
+    text-decoration: underline;
 }
 
 /* =============================================
@@ -4367,6 +4495,21 @@ html.dark .photo-highlight-content .section-label {
 html.dark .photo-highlight-content p {
     opacity: 1;
 }
+.photo-highlight-content .btn-secondary,
+.photo-highlight-content a.btn-secondary {
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--color-white);
+    border: 2px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+.photo-highlight-content .btn-secondary:hover,
+.photo-highlight-content a.btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.55);
+    border-color: rgba(255, 255, 255, 0.82);
+    color: var(--color-white);
+}
+
 html.dark .program-card-skill-tag,
 html.dark .program-skill-tag {
     background: #1e2329 !important;
@@ -4675,7 +4818,7 @@ body.inner-page {
     border: 2px solid var(--color-gray-200);
     border-radius: var(--radius-md);
     font-family: inherit;
-    font-size: 0.9375rem;
+    font-size: 1rem;
     background: var(--color-white);
     transition: all var(--transition-base);
     color: var(--color-primary);
@@ -6597,7 +6740,7 @@ img.img-fade.loaded { opacity: 1; }
     .dropdown-menu a {
         font-size: 0.97rem;
         padding: 0.7rem 0.95rem;
-        min-height: 48px;
+        min-height: var(--btn-min-height);
         display: flex;
         align-items: center;
         border-radius: var(--radius-sm);
@@ -6680,13 +6823,13 @@ img.img-fade.loaded { opacity: 1; }
 
     /* Mobile touch target improvements */
     .btn, button, a.btn {
-        min-height: 48px;
+        min-height: var(--btn-min-height);
         min-width: 48px;
     }
     .hero-actions { gap: 0.75rem; }
     .hero-actions .btn {
         padding: 1rem 2rem;
-        min-height: 52px;
+        min-height: var(--btn-min-height);
     }
     nav a, .nav-link {
         min-height: 44px;
@@ -6694,12 +6837,12 @@ img.img-fade.loaded { opacity: 1; }
         align-items: center;
     }
     .program-sidebar-card .btn {
-        min-height: 52px;
+        min-height: var(--btn-min-height);
         font-size: 1rem;
     }
     details summary {
         padding: 1rem;
-        min-height: 48px;
+        min-height: var(--btn-min-height);
     }
     .page-hero { padding: 5rem 1.25rem 3rem; }
     .page-hero h1 { font-size: 1.75rem; }
@@ -7137,6 +7280,86 @@ body { animation: fadeIn 0.4s ease; }
     color: var(--color-on-surface-variant);
     margin-top: 0.5rem;
     margin-bottom: 0;
+}
+.apply-social-proof {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-accent-dark);
+    margin: 0 0 0.75rem;
+    line-height: 1.45;
+}
+.apply-personal-block {
+    margin: 0 0 1.5rem;
+    padding: 1rem 1.15rem 1.1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--outline-variant);
+    background: var(--surface-container-low);
+}
+.apply-personal-block__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.85rem;
+    color: var(--color-primary);
+}
+.apply-personal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+.apply-form-group--full {
+    margin-bottom: 0;
+}
+.apply-step1-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+.apply-step1-actions__primary { width: 100%; min-height: 48px; font-weight: 700; }
+.apply-step1-actions__secondary { width: 100%; min-height: 48px; }
+.apply-save-notice {
+    font-size: 0.9rem;
+    color: var(--color-on-surface-variant);
+    margin: 0.75rem 0 0;
+}
+.apply-account-field-row {
+    grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+    .apply-account-field-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 768px) {
+    .apply-flow .form-radio-card {
+        min-height: 48px;
+        padding: 0.75rem 1rem;
+        align-items: center;
+    }
+    .apply-flow .form-radio-cards {
+        gap: 0.65rem;
+    }
+    .apply-flow input[type="text"],
+    .apply-flow input[type="email"],
+    .apply-flow input[type="tel"],
+    .apply-flow input[type="password"],
+    .apply-flow select,
+    .apply-flow textarea,
+    .apply-form input[type="text"],
+    .apply-form input[type="email"],
+    .apply-form input[type="tel"],
+    .apply-form input[type="password"],
+    .apply-form select,
+    .apply-form textarea {
+        font-size: 1rem;
+    }
+    .apply-flow .btn,
+    .apply-form .btn {
+        min-height: 48px;
+    }
+    .apply-results-program-grid {
+        grid-template-columns: 1fr !important;
+    }
 }
 .apply-step-content { max-width: 720px; }
 .apply-step-kicker {
@@ -7741,7 +7964,7 @@ body { animation: fadeIn 0.4s ease; }
 /* Responsive touch targets */
 @media (hover: none) {
     .btn { min-height: 44px; min-width: 44px; padding: 0.6rem 1rem; }
-    .btn.btn-large { min-height: 48px; }
+    .btn.btn-large { min-height: var(--btn-min-height); }
     .filter-chip { min-height: 44px; padding: 0.5rem 1rem; }
     .nav-menu a { min-height: 44px; display: flex; align-items: center; padding: 0.5rem 0.75rem; }
     .program-card details summary { min-height: 44px; padding: 0.5rem 0; }
@@ -8338,7 +8561,6 @@ body { animation: fadeIn 0.4s ease; }
     margin-bottom: 1rem;
 }
 .resume-rewriter-output-header h3 { font-size: 1.1rem; margin: 0; }
-.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; min-height: 36px; }
 .headline-list { list-style: none; padding: 0; margin: 0; }
 .headline-item {
   display: flex;
@@ -8943,6 +9165,41 @@ html.dark .portal-nav {
     /* Set by WorkspaceShell (header + tab bar height) for sticky sidebar alignment */
     --workspace-tab-bar-h: 0px;
     --workspace-top-offset: calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px));
+    /* Icon-only mobile bottom nav — still ≥~64px equivalent so compact chrome never eats tap targets */
+    --wap-portal-mobile-bottom-clearance-compact: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+}
+/* Anchor / focus scroll-into-view: clear sticky workspace chrome (+ member top tab strip when present) */
+@media (max-width: 768px) {
+    html[data-portal-role="member"] {
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem) + 0.5rem
+        );
+    }
+    html[data-portal-role="member"] body {
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem) + 0.5rem
+        );
+    }
+    html[data-portal-role]:not([data-portal-role="member"]) {
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px) + 0.5rem
+        );
+    }
+    html[data-portal-role]:not([data-portal-role="member"]) body {
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px) + 0.5rem
+        );
+    }
+
+    /* Hash / scroll-into-view: clear fixed MobileBottomNav on non-member portals */
+    html[data-portal-role]:not([data-portal-role="member"]).wap-reserve-mobile-bottom-nav,
+    html[data-portal-role]:not([data-portal-role="member"]):has(nav#mobile-bottom-nav.mobile-bottom-nav-root) {
+        scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+    }
+    html[data-portal-role]:not([data-portal-role="member"]).wap-reserve-mobile-bottom-nav body,
+    html[data-portal-role]:not([data-portal-role="member"]):has(nav#mobile-bottom-nav.mobile-bottom-nav-root) body {
+        scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+    }
 }
 .workspace-shell-header {
     display: flex;
@@ -8962,6 +9219,71 @@ html.dark .portal-nav {
     top: 0;
     z-index: 60;
     min-width: 0;
+}
+@media (max-width: 768px) {
+    /* Single-row header: avoid wrapped meta/actions sandwiching the viewport */
+    .workspace-shell-header {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    .workspace-shell-header__brand {
+        flex: 0 1 auto;
+        min-width: 0;
+    }
+    .workspace-shell-header__meta {
+        flex: 1 1 auto;
+        min-width: 0;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+        gap: 0.35rem 0.5rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+    }
+    .workspace-shell-header__meta::-webkit-scrollbar {
+        display: none;
+    }
+}
+@media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .workspace-shell-header {
+        transition: padding 0.2s ease, box-shadow 0.2s ease;
+    }
+}
+/* Scroll-compacted chrome (see useWorkspaceMobileScrollChrome) */
+@media (max-width: 768px) {
+    html.wap-portal-chrome-compact .workspace-shell-header {
+        padding: 0.35rem 0.65rem;
+        padding-top: max(0.32rem, env(safe-area-inset-top, 0.32rem));
+        gap: 0.4rem 0.65rem;
+    }
+    html.wap-portal-chrome-compact .workspace-menu-btn {
+        min-width: 40px;
+        min-height: 40px;
+        padding: 0.32rem;
+    }
+    html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-context--chip,
+    html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-tier-badge,
+    html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-context-logo-wrap,
+    html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-impersonating-chip {
+        display: none !important;
+    }
+    html.wap-portal-chrome-compact .workspace-shell-tagline,
+    html.wap-portal-chrome-compact .workspace-shell-public-site-link {
+        display: none !important;
+    }
+    html.wap-portal-chrome-compact .workspace-shell-attribution {
+        display: none !important;
+    }
+    html.wap-portal-chrome-compact .workspace-shell-header--minimal-mobile {
+        padding-top: max(0.28rem, env(safe-area-inset-top, 0.28rem));
+        padding-bottom: 0.28rem;
+    }
+    html.wap-portal-chrome-compact .workspace-resume-upload-hint {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.76rem;
+    }
 }
 html:not(.dark) .workspace-shell-header {
     background: rgba(255, 255, 255, 0.92);
@@ -9072,7 +9394,7 @@ html:not(.dark) .workspace-shell-header {
 }
 
 /* Member portal (mobile): bottom nav is primary; minimize top chrome. */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   html[data-portal-role="member"] .workspace-shell-header__brand .workspace-shell-brand-block {
     display: none;
   }
@@ -9565,6 +9887,22 @@ html.dark .workspace-sidebar-signout:hover {
     min-width: 0;
     padding: 1.25rem 1rem;
     width: 100%;
+}
+/* Mobile: keep page ends clear of fixed MobileBottomNav (counselor / employer / partner / admin). */
+@media (max-width: 768px) {
+    .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main {
+        padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+        scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+    }
+    html.wap-portal-chrome-compact
+        .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root)
+        .workspace-shell-main {
+        padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
+        scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
+    }
+    html[data-portal-role="member"] .workspace-shell-main {
+        padding-bottom: max(1.75rem, calc(1rem + env(safe-area-inset-bottom, 0px)));
+    }
 }
 .workspace-super-admin-banner {
     max-width: var(--max-width);
@@ -10768,13 +11106,31 @@ html.dark .workspace-sidebar-signout:hover {
     background: var(--color-accent);
     color: var(--color-white);
 }
-.blog-cta-buttons .btn-ghost {
-    background: rgba(255,255,255,0.15);
+.blog-cta-buttons .btn.btn-secondary,
+.blog-cta-buttons a.btn.btn-secondary {
+    background: rgba(255, 255, 255, 0.12);
     color: var(--color-white);
-    border-color: rgba(255,255,255,0.3);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: none;
+    text-decoration: none;
 }
-.blog-cta-buttons .btn-ghost:hover {
-    background: rgba(255,255,255,0.25);
+.blog-cta-buttons .btn.btn-secondary:hover,
+.blog-cta-buttons a.btn.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.65);
+    color: var(--color-white);
+    text-decoration: none;
+}
+.blog-cta-card .btn.btn-ghost,
+.blog-cta-card a.btn.btn-ghost {
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 600;
+    text-decoration: none;
+}
+.blog-cta-card .btn.btn-ghost:hover,
+.blog-cta-card a.btn.btn-ghost:hover {
+    color: #ffffff;
+    text-decoration: underline;
 }
 .blog-post-related {
     padding-top: 4rem;
@@ -11187,7 +11543,7 @@ body:has(.dashboard-drawer-overlay.open) {
     }
 }
 /* Minimal mobile header for member portal — reduce chrome when bottom nav is primary navigation */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     .workspace-shell-header--minimal-mobile {
         padding: 0.4rem 0.75rem;
         padding-top: max(0.4rem, env(safe-area-inset-top, 0.4rem));
@@ -13630,14 +13986,19 @@ td.admin-members-col-select {
 /* =============================================
    EMPLOYERS PAGE
    ============================================= */
-.employers-hero .hero-actions .btn-ghost {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.3);
+.employers-hero .hero-actions .btn.btn-ghost,
+.employers-hero .hero-actions a.btn.btn-ghost {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: var(--color-white);
+    font-weight: 500;
+    text-decoration: none;
 }
-.employers-hero .hero-actions .btn-ghost:hover {
-    background: rgba(255,255,255,0.2);
+.employers-hero .hero-actions .btn.btn-ghost:hover,
+.employers-hero .hero-actions a.btn.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.2);
     color: var(--color-white);
+    text-decoration: none;
 }
 
 .employers-three-col {
@@ -14910,15 +15271,21 @@ td.admin-members-col-select {
     }
 }
 /* Ghost buttons are styled for dark hero sections; on light workspace/cards use readable outline treatment. */
-.employer-jobs-board .btn-ghost,
-.employer-bulk-modal .btn-ghost {
+.employer-jobs-board .btn.btn-ghost,
+.employer-jobs-board a.btn.btn-ghost,
+.employer-bulk-modal .btn.btn-ghost,
+.employer-bulk-modal a.btn.btn-ghost {
     background: transparent;
     color: var(--color-primary);
     border: 2px solid var(--color-gray-300);
     backdrop-filter: none;
+    font-weight: 600;
+    text-decoration: none;
 }
-.employer-jobs-board .btn-ghost:hover,
-.employer-bulk-modal .btn-ghost:hover {
+.employer-jobs-board .btn.btn-ghost:hover,
+.employer-jobs-board a.btn.btn-ghost:hover,
+.employer-bulk-modal .btn.btn-ghost:hover,
+.employer-bulk-modal a.btn.btn-ghost:hover {
     background: rgba(173, 44, 77, 0.05);
     border-color: var(--color-accent);
     color: var(--color-accent-dark);
@@ -14962,12 +15329,14 @@ td.admin-members-col-select {
     gap: 0.5rem;
     align-items: center;
 }
-.employer-jobs-board__bulk-actions .btn {
-    min-height: 2.5rem;
-}
 @media (max-width: 639px) {
     .employer-jobs-board__bulk-actions {
         justify-content: center;
+    }
+}
+@media (min-width: 769px) {
+    .employer-jobs-board__bulk-actions .btn {
+        min-height: 2.5rem;
     }
 }
 .employer-jobs-board__bulk-delete {
@@ -15264,11 +15633,13 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     gap: 0.5rem;
     margin-top: auto;
 }
-.employer-job-card__actions .btn {
-    min-height: 2.45rem;
-}
-.employer-bulk-modal__actions .btn {
-    min-height: 2.5rem;
+@media (min-width: 769px) {
+    .employer-job-card__actions .btn {
+        min-height: 2.45rem;
+    }
+    .employer-bulk-modal__actions .btn {
+        min-height: 2.5rem;
+    }
 }
 .employer-job-card__actions .btn-accent {
     font-weight: 600;
@@ -15743,6 +16114,8 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
 .admin-table-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    min-width: 0;
 }
 .admin-portal-card-list {
     display: none;
@@ -15765,6 +16138,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     align-items: flex-start;
     gap: 0.75rem;
     margin-bottom: 0.35rem;
+    overflow-wrap: break-word;
 }
 .admin-portal-card__badge {
     font-size: 0.72rem;
@@ -15777,6 +16151,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     font-size: 0.85rem;
     color: var(--color-on-surface-variant);
     margin: 0 0 0.5rem;
+    overflow-wrap: break-word;
 }
 .admin-portal-card__row {
     font-size: 0.9rem;
@@ -16858,5 +17233,6 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
     will-change: auto;
 }
 
-/* Tailwind utility layer (was globals-onboarding.css): keep last so utilities can override when needed. */
+/* Tailwind utility layer (was globals-onboarding.css): keep last so utilities can override when needed.
+   Portal/admin-only rules that must load after utilities live in css/portal.css (imported by portal + admin layouts). */
 @tailwind utilities;

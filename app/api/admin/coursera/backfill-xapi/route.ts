@@ -14,39 +14,49 @@ async function requireAdminUser() {
 }
 
 export async function GET(request: Request) {
-  const user = await requireAdminUser();
-  if (!user) {
-    return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+  try {
+    const user = await requireAdminUser();
+    if (!user) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    const url = new URL(request.url);
+    const email = url.searchParams.get('email')?.trim().toLowerCase();
+    if (!email) {
+      return NextResponse.json({ ok: false, error: 'email query param required' }, { status: 400 });
+    }
+  
+    return runBackfill(email);
+  } catch (error) {
+    console.error('/admin/coursera/backfill-xapi:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const url = new URL(request.url);
-  const email = url.searchParams.get('email')?.trim().toLowerCase();
-  if (!email) {
-    return NextResponse.json({ ok: false, error: 'email query param required' }, { status: 400 });
-  }
-
-  return runBackfill(email);
 }
 
 export async function POST(request: Request) {
-  const user = await requireAdminUser();
-  if (!user) {
-    return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let body: { email?: string };
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: 'Invalid JSON body' }, { status: 400 });
+    const user = await requireAdminUser();
+    if (!user) {
+      return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+    }
+  
+    let body: { email?: string };
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ ok: false, error: 'Invalid JSON body' }, { status: 400 });
+    }
+  
+    const email = body.email?.trim().toLowerCase();
+    if (!email) {
+      return NextResponse.json({ ok: false, error: 'email required' }, { status: 400 });
+    }
+  
+    return runBackfill(email);
+  } catch (error) {
+    console.error('/admin/coursera/backfill-xapi:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const email = body.email?.trim().toLowerCase();
-  if (!email) {
-    return NextResponse.json({ ok: false, error: 'email required' }, { status: 400 });
-  }
-
-  return runBackfill(email);
 }
 
 async function runBackfill(email: string) {  const member = await prisma.user.findFirst({
@@ -63,6 +73,7 @@ async function runBackfill(email: string) {  const member = await prisma.user.fi
   const statements = await prisma.xapiStatement.findMany({
     where: { actorEmail: email },
     orderBy: { createdAt: 'asc' },
+    take: 100,
   });
 
   if (statements.length === 0) {

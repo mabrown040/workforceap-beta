@@ -173,7 +173,7 @@ export default function BlogListingClient({
                 : 'No posts match this filter.'}
             </p>
             {posts.length > 0 && filter !== null && (
-              <button type="button" className="btn btn-secondary blog-empty-state__clear" onClick={() => setFilter(null)}>
+              <button type="button" className="btn btn-muted blog-empty-state__clear" onClick={() => setFilter(null)}>
                 Show all posts
               </button>
             )}
@@ -181,7 +181,7 @@ export default function BlogListingClient({
               <Link href="/programs" className="btn btn-primary">
                 Browse programs
               </Link>
-              <Link href="/apply" className="btn btn-secondary">
+              <Link href="/apply" className="btn btn-muted">
                 Apply
               </Link>
               <Link href="/faq" className="btn btn-outline">

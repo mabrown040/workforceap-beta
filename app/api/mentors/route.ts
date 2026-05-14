@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 
 export async function GET(req: NextRequest) {
+  try {
   const { searchParams } = new URL(req.url);
   const industry = searchParams.get('industry');
   const take = Math.min(Number(searchParams.get('take') ?? 24), 50);
@@ -26,4 +27,10 @@ export async function GET(req: NextRequest) {
   ]);
 
   return NextResponse.json({ mentors, total });
+
+  } catch (error) {
+    console.error('/mentors error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

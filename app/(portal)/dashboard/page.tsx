@@ -35,11 +35,15 @@ import { maybeAutoSyncCourseraOnDashboard } from '@/lib/coursera/dashboardAutoSy
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgramTrainingView';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
-import PortalLoadingState from '@/components/portal/PortalLoadingState';
+import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
+import JobsSkeleton from '@/components/dashboard/JobsSkeleton';
+import ErrorBoundary from '@/components/error/ErrorBoundary';
+import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import RequestHelpButton from '@/components/portal/RequestHelpButton';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 import PointsWidget from '@/components/portal/PointsWidget';
+import PWAInstallPrompt from '@/components/pwa/PWAInstallPrompt';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 import { getTranslations } from 'next-intl/server';
@@ -161,8 +165,8 @@ async function renderMemberDashboard(
 
   // Single source of truth for member state (application, training, profile, checklist, next actions).
   // `b4bProgress` is threaded through so `trainingView.progressPercentDisplay`
-  // reflects Coursera's authoritative average when every catalog course has
-  // a B4B row (all-or-nothing — see averageProgramProgressFromB4B).
+  // prefers Coursera B4B enrollmentReports per course when available (fallback:
+  // local CourseProgress / xAPI-fed rows).
   const memberState = await getMemberState(user.id, {
     b4bProgress,
     activeProgramSlug: enrolledProgramSlug,
@@ -238,6 +242,7 @@ async function renderMemberDashboard(
       },
     }),
     prisma.jobApplication.findMany({
+      take: 500,
       where: { userId: user.id, status: 'OFFER' },
       select: {
         id: true,
@@ -516,14 +521,7 @@ async function renderMemberDashboard(
     console.error('[dashboard] canBypassMemberAssessment failed', e);
   }
 
-  /* Mobile progress percentage for orb — uses blended % from CourseProgress rollup when available. */
-  const mobilePct = progressPercentDisplay;
-  const mobileProgressTone = allCoursesComplete ? t('progressCompleted') : completedCount > 0 ? t('progressInProgress') : t('progressGettingStarted');
-  const mobileProgressSummary = totalCourses > 0
-    ? t('coursesComplete', { completed: completedCount, total: totalCourses, plural: totalCourses === 1 ? '' : 's' })
-    : t('coursesWillAppear');
-  const orbCircumference = 251.2;
-  const orbDashoffset = orbCircumference - (orbCircumference * mobilePct) / 100;
+  /* Mobile hero uses a My Training hub link (states C/D) — training home is now /dashboard */
 
   const AI_TOOL_LABELS: Record<string, string> = {
     job_match_scorer: t('seeHowYouMatch'),
@@ -614,6 +612,8 @@ async function renderMemberDashboard(
     <>
       <h1 className="wa-sr-only">{noApplicationOnFile ? `Welcome to WorkforceAP, ${firstName}` : `Welcome back, ${firstName}`}</h1>
 
+      <PWAInstallPrompt />
+
       {staffViewer && (
         <div style={{ padding: '0.75rem 1rem 0' }}>
           <StaffViewBanner page="dashboard" />
@@ -635,7 +635,7 @@ async function renderMemberDashboard(
       <div className="md:wa-hidden portal-mobile-content">
 
         {/* ΓöÇΓöÇ Hero: greeting + progress ring ΓöÇΓöÇ */}
-        <section style={{ padding: '1.25rem 1.25rem 1rem' }}>
+        <section aria-label="Dashboard hero" style={{ padding: '1.25rem 1.25rem 1rem' }}>
           <div
             style={{
               borderRadius: '1.5rem',
@@ -690,61 +690,60 @@ async function renderMemberDashboard(
                 )}
               </div>
 
-              {/* Progress ring — only shown once training has actually started (state C/D); 0% next to "Getting started" reads as failure */}
-              {(dashboardState === 'C' || dashboardState === 'D') && <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', flexShrink: 0, width: '7rem' }}>
+              {/* Training hub CTA — course-level % and Coursera live on My Training */}
+              {(dashboardState === 'C' || dashboardState === 'D') && (
                 <div
-                  className="portal-progress-ring"
                   style={{
-                    position: 'relative',
-                    width: '6rem',
-                    height: '6rem',
                     flexShrink: 0,
-                    margin: '0 auto',
-                    borderRadius: '999px',
-                    background: 'radial-gradient(circle at center, color-mix(in srgb, var(--color-accent) 10%, white) 0%, white 60%)',
-                    boxShadow: '0 14px 32px color-mix(in srgb, var(--color-accent) 14%, transparent)',
-                    border: '1px solid color-mix(in srgb, var(--color-accent) 12%, white)',
+                    width: '7.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'stretch',
+                    gap: '0.5rem',
                   }}
                 >
-                  <svg style={{ width: '100%', height: '100%', display: 'block', transform: 'rotate(-90deg)' }} viewBox="0 0 96 96" aria-hidden>
-                    <circle cx="48" cy="48" r="40" fill="transparent" stroke="var(--surface-container-high)" strokeWidth="7" />
-                    <circle
-                      cx="48" cy="48" r="40" fill="transparent"
-                      stroke="var(--color-accent)" strokeWidth="7"
-                      strokeDasharray={orbCircumference}
-                      strokeDashoffset={orbDashoffset}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.12rem' }}>
-                    <span className="wa-text-xl wa-font-extrabold wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1 }}>{mobilePct}%</span>
-                    <span className="wa-text-[11px] wa-font-semibold wa-uppercase wa-tracking-[0.12em] wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1 }}>
-                      {mobileProgressTone}
+                  <Link
+                    href="/dashboard"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.35rem',
+                      padding: '0.65rem 0.5rem',
+                      borderRadius: '1rem',
+                      background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 12%, white) 0%, white 100%)',
+                      border: '1px solid color-mix(in srgb, var(--color-accent) 22%, white)',
+                      boxShadow: '0 10px 28px color-mix(in srgb, var(--color-accent) 12%, transparent)',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      textAlign: 'center',
+                      minHeight: '44px',
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                      school
                     </span>
-                  </div>
+                    <span className="wa-text-[11px] wa-font-extrabold wa-uppercase wa-tracking-[0.08em] wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1.2 }}>
+                      {t('myTrainingMetricLabel')}
+                    </span>
+                    <span className="wa-text-[10px] wa-font-semibold wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1.3 }}>
+                      {t('myTrainingMetricValue')}
+                    </span>
+                  </Link>
+                  {nextIncompleteCourse ? (
+                    <p style={{ margin: 0, fontSize: '0.65rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+                      {t('myTrainingHubNextUp', { course: nextIncompleteCourse.name })}
+                    </p>
+                  ) : null}
                 </div>
-                <div
-                  style={{
-                    padding: '0.38rem 0.72rem',
-                    borderRadius: '999px',
-                    background: 'color-mix(in srgb, var(--color-accent) 10%, white)',
-                    border: '1px solid color-mix(in srgb, var(--color-accent) 20%, white)',
-                  }}
-                >
-                  <span className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-[0.14em] wa-text-[var(--color-accent-dark)]">
-                    {t('trainingProgress')}
-                  </span>
-                </div>
-                <p style={{ margin: 0, fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center', maxWidth: '7rem' }}>
-                  {mobileProgressSummary}
-                </p>
-              </div>}
+              )}
             </div>
 
             {(dashboardState === 'C' || dashboardState === 'D') && (
             <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
               <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
-                {t('trainingProgressBlends')}
+                {t('dashboardCourseProgressOnTraining')}
               </p>
             </div>
             )}
@@ -753,7 +752,7 @@ async function renderMemberDashboard(
 
         {/* ΓöÇΓöÇ State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ΓöÇΓöÇ */}
         {dashboardState === 'A' && (
-          <section style={{ padding: '0 1.25rem 1.25rem' }}>
+          <section aria-label="Next step" style={{ padding: '0 1.25rem 1.25rem' }}>
             <Link
               href={noApplicationOnFile ? '/apply' : '/dashboard/program'}
               style={{
@@ -788,7 +787,7 @@ async function renderMemberDashboard(
         )}
 
         {showStuckCounselor && (
-          <section style={{ padding: '0 1.25rem 0.75rem' }}>
+          <section aria-label="Counselor help" style={{ padding: '0 1.25rem 0.75rem' }}>
             <MemberStuckCounselorStrip />
           </section>
         )}
@@ -798,17 +797,17 @@ async function renderMemberDashboard(
         ) : null}
 
         {(dashboardState === 'C' || dashboardState === 'D') && (
-          <section style={{ padding: '0 1.5rem 1rem' }}>
+          <section aria-label="Progress overview" style={{ padding: '0 1.5rem 1rem' }}>
             <MemberProgressStrip {...progressStripProps} />
           </section>
         )}
 
-        <section style={{ padding: '0 1.25rem 0.75rem' }}>
+        <section aria-label="Certifications" style={{ padding: '0 1.25rem 0.75rem' }}>
           <LogCertificationModal />
         </section>
 
         {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
-          <section style={{ padding: '0 1.25rem 1rem' }}>
+          <section aria-label="Next actions" style={{ padding: '0 1.25rem 1rem' }}>
             <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
           </section>
         )}
@@ -816,7 +815,7 @@ async function renderMemberDashboard(
         {/* ΓöÇΓöÇ Priority next-step card ΓöÇΓöÇ */}
         <PlacementConfirmationStrip offers={jobOffers} />
         {!dominantNextAction && applicationStatus?.nextStep && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+          <section aria-label="Priority action" style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
             <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
               <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -833,7 +832,7 @@ async function renderMemberDashboard(
                 </p>
                 <Link
                   href={applicationStatus.nextStepHref}
-                  style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box' }}
+                  style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box', minHeight: '44px' }}
                 >
                   {t('takeAction')}
                 </Link>
@@ -843,12 +842,14 @@ async function renderMemberDashboard(
         )}
 
         {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
-        <div style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
-          <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-        </div>
+        <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+          <div role="region" aria-label="Career path" style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
+            <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+          </div>
+        </ErrorBoundary>
 
         {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
+        <section aria-label="Application journey" style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
           <details className="portal-card portal-card--flat" style={{ borderRadius: '0.875rem', padding: '0.95rem 1rem' }}>
             <summary style={{ cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
               {t('applicationJourney')}
@@ -878,13 +879,14 @@ async function renderMemberDashboard(
         </section>
 
         {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
-          {memberPoints ? (
-            <PointsWidget
-              total={memberPoints.total}
-              level={memberPoints.level}
-              recent={recentTx}
-            />
+        <ErrorBoundary fallback={<DashboardErrorFallback section="points" />}>
+          <section aria-label="Points and rewards" style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+            {memberPoints ? (
+              <PointsWidget
+                total={memberPoints.total}
+                level={memberPoints.level}
+                recent={recentTx}
+              />
           ) : (
             <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
               <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('yourFirstPointsWaiting')}</p>
@@ -914,11 +916,12 @@ async function renderMemberDashboard(
               </Link>
             </div>
           )}
-        </section>
+          </section>
+        </ErrorBoundary>
 
         {/* Recommended programs (only when not enrolled) OR ΓÇ£keep goingΓÇ¥ actions (when enrolled) */}
         {!enrolledProgram ? (
-          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+          <section aria-label="Recommended programs" style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
               <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">{t('recommendedPrograms')}</h3>
               <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>{t('viewAll')}</a>
@@ -944,7 +947,7 @@ async function renderMemberDashboard(
                   <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
                   <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
                     <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || t('workforceAP')}</p>
-                    <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
+                    <h3 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h3>
                   </div>
                 </div>
                 </Link>
@@ -952,12 +955,12 @@ async function renderMemberDashboard(
             </div>
           </section>
         ) : (
-          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+          <section aria-label="Next milestones" style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
               <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
                 {t('nextMilestones')}
               </h3>
-              <a href="/dashboard/training" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
+              <a href="/dashboard" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
                 {t('trainingLink')}
               </a>
             </div>
@@ -967,7 +970,7 @@ async function renderMemberDashboard(
                   eyebrow: program?.title ?? t('yourProgram'),
                   title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : t('continueTraining'),
                   desc: nextIncompleteCourse?.name ? t('pickUpWhereLeftOff') : t('openTrainingTrack'),
-                  href: '/dashboard/training',
+                  href: '/dashboard',
                   icon: 'school',
                 },
                 {
@@ -1018,14 +1021,14 @@ async function renderMemberDashboard(
         )}
 
         {/* ΓöÇΓöÇ Quick Actions 2x2 ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
+        <section aria-label="Quick actions" style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
           <div className="portal-dash-section-header">
             <h3 className="portal-dash-section-header__title">{t('quickActions')}</h3>
           </div>
           <div className="portal-quick-grid-2x2">
             {([
+              { icon: 'school', label: t('myTrainingMetricLabel'), href: '/dashboard' },
               { icon: 'upload_file', label: t('uploadResume'), href: '/dashboard/ai-tools/resume-rewriter' },
-              { icon: 'support_agent', label: t('myProgress'), href: '/dashboard/readiness' },
               { icon: 'forum', label: t('interviewPrep'), href: '/dashboard/ai-tools/interview-practice' },
               { icon: 'auto_awesome', label: t('aiTools'), href: '/dashboard/ai-tools' },
             ] as const).map((action) => (
@@ -1042,7 +1045,7 @@ async function renderMemberDashboard(
           </div>
         </section>
 
-        <section style={{ padding: '0 1.25rem 1.25rem' }}>
+        <section aria-label="Career voice assistant" style={{ padding: '0 1.25rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>
 
@@ -1092,7 +1095,7 @@ async function renderMemberDashboard(
       {/* ΓöÇΓöÇ Desktop view (hidden on mobile) ΓöÇΓöÇ */}
       <div className="wa-hidden md:wa-block">
         <PortalEntryErrorBoundary>
-          <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
+          <Suspense fallback={<DashboardSkeleton />}>
             <PortalEntryClient
               portal="member"
               tourStorageUserId={user.id}
@@ -1140,8 +1143,9 @@ async function renderMemberDashboard(
                   />
                 </div>
               )}
-              <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
-                <DashboardHomeClient
+              <ErrorBoundary fallback={<DashboardErrorFallback section="profile" />}>
+                <Suspense fallback={<DashboardSkeleton />}>
+                  <DashboardHomeClient
                   recommendedActions={recommendedActions}
                   jobSearchUrl={jobSearchUrl}
                   aiToolsUsedCount={recentTools.length}
@@ -1171,8 +1175,9 @@ async function renderMemberDashboard(
                   noApplicationOnFile={noApplicationOnFile}
                   age={userAge}
                   isMinor={isMinor}
-                />
-              </Suspense>
+                  />
+                </Suspense>
+              </ErrorBoundary>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
                 <MemberDashboardVoiceSectionLazy />
               </div>
@@ -1203,9 +1208,11 @@ async function renderMemberDashboard(
               </div>
               <PlacementConfirmationStrip offers={jobOffers} />
               {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
-                <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>
-                  <MatchedRoles />
-                </Suspense>
+                <ErrorBoundary fallback={<DashboardErrorFallback section="jobs" />}>
+                  <Suspense fallback={<JobsSkeleton count={4} />}>
+                    <MatchedRoles />
+                  </Suspense>
+                </ErrorBoundary>
               )}
               {/* Recent AI Activity is rendered in the mobile view above ΓÇö
                   suppressed here so the same data doesn't appear twice in the DOM

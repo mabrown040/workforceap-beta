@@ -1,5 +1,6 @@
 import { getMemberState } from '@/lib/member/getMemberState';
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
@@ -12,12 +13,42 @@ import DashboardProfileForm from "@/components/portal/DashboardProfileForm";
 import SettingsForm from "@/components/portal/SettingsForm";
 import DeleteAccountButton from "@/components/portal/DeleteAccountButton";
 import StartTourButton from "@/components/onboarding/StartTourButton";
-import ResumeClient from "@/app/(portal)/dashboard/resume/ResumeClient";
-import ResumeCoachWorkspace from "@/components/portal/ResumeCoachWorkspace";
+import LanguageToggle from "@/components/portal/LanguageToggle";
+import DownloadMyDataButton from "@/components/portal/DownloadMyDataButton";
 import {
   getCounselorStarterProfileReview,
   getStarterProfileFieldLabels,
 } from "@/lib/member/starterProfileReview";
+
+const chunkLoadingCard = (
+  label: string,
+  minHeight: number,
+) => (
+  <div
+    role="status"
+    aria-live="polite"
+    className="portal-card portal-card--flat"
+    style={{
+      minHeight,
+      padding: "2.5rem 1.25rem",
+      borderRadius: 12,
+      textAlign: "center",
+      color: "var(--color-on-surface-variant)",
+      fontSize: "0.9rem",
+      fontWeight: 600,
+    }}
+  >
+    {label}
+  </div>
+);
+
+const ResumeClient = dynamic(() => import("@/app/(portal)/dashboard/resume/ResumeClient"), {
+  loading: () => chunkLoadingCard("Loading resume tools…", 280),
+});
+
+const ResumeCoachWorkspace = dynamic(() => import("@/components/portal/ResumeCoachWorkspace"), {
+  loading: () => chunkLoadingCard("Loading resume coach…", 360),
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -695,6 +726,32 @@ export default async function DashboardProfilePage() {
                   </Link>
                   <StartTourButton />
                 </div>
+              </section>
+              <section>
+                <h3
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "var(--color-on-surface)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  Language
+                </h3>
+                <LanguageToggle />
+              </section>
+              <section>
+                <h3
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "var(--color-on-surface)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  Data Privacy
+                </h3>
+                <DownloadMyDataButton />
               </section>
               <section>
                 <h3

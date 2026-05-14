@@ -42,7 +42,6 @@ const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
 export const MEMBER_PORTAL_NAV_ITEMS_I18N: PortalNavItem[] = [
   { href: '/dashboard', label: 'nav:dashboard', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   { href: '/dashboard/program', label: 'nav:programs', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
-  { href: '/dashboard/training', label: 'nav:training', group: 'primary', tab: 'program', Icon: GraduationCap },
   { href: '/dashboard/certifications', label: 'nav:certifications', group: 'manage', tab: 'program', Icon: Award, aliases: ['/certifications'] },
   { href: '/dashboard/career-brief', label: 'nav:careerPlan', group: 'insights', tab: 'program', Icon: ClipboardList },
   ...(WIOA_AVAILABLE

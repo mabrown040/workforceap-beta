@@ -123,13 +123,21 @@ export async function isPartner(userId: string): Promise<boolean> {
 
 export type PartnerPortalContext = {
   partnerId: string;
-  partner: { id: string; name: string; slug: string; logoUrl: string | null; brandColor: string | null };
+  partner: {
+    id: string;
+    organizationId: string;
+    name: string;
+    slug: string;
+    logoUrl: string | null;
+    brandColor: string | null;
+  };
   /** User has a real `partner_users` row (not super-admin viewing first partner). */
   hasDirectPartnerLink: boolean;
 };
 
 const PARTNER_BRANDING_SELECT = {
   id: true,
+  organizationId: true,
   name: true,
   slug: true,
   logoUrl: true,
@@ -283,7 +291,12 @@ export async function isEmployer(userId: string): Promise<boolean> {
   return !!row;
 }
 
-async function ensureSuperAdminFallbackPartner(): Promise<{ id: string; name: string; slug: string }> {
+async function ensureSuperAdminFallbackPartner(): Promise<{
+  id: string;
+  organizationId: string;
+  name: string;
+  slug: string;
+}> {
   const organizationId = await getDefaultOrganizationId();
   return prisma.partner.upsert({
     where: { slug: SUPER_ADMIN_FALLBACK_PARTNER_SLUG },
@@ -295,7 +308,7 @@ async function ensureSuperAdminFallbackPartner(): Promise<{ id: string; name: st
       referralCode: SUPER_ADMIN_FALLBACK_PARTNER_SLUG,
       active: true,
     },
-    select: { id: true, name: true, slug: true },
+    select: { id: true, organizationId: true, name: true, slug: true },
   });
 }
 

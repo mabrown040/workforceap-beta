@@ -20,41 +20,46 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const { success: rateOk } = await checkPublicVoiceSessionRateLimit(`public-wioa-voice:${ip}`);
-  if (!rateOk) {
-    return NextResponse.json(
-      { error: 'Too many voice session requests. Please wait a few minutes and try again.' },
-      { status: 429, headers: { 'Retry-After': '600' } }
-    );
-  }
-
-  let body: unknown = {};
   try {
-    body = await request.json();
-  } catch {
-    body = {};
-  }
-
-  const parsed = payloadSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid voice session payload' }, { status: 400 });
-  }
-
-  try {
-    const dynamicVariables = buildPublicWioaPortalDynamicVariables(parsed.data);
-    const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('wioa_prequal', {
-      dynamicVariables,
-    });
-
-    return NextResponse.json({
-      signedUrl,
-      expiresAt,
-      dynamicVariables: returned ?? dynamicVariables,
-    });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Failed to start session';
-    console.error('[public/wioa-qualification/voice-session]', msg);
-    return NextResponse.json({ error: msg }, { status: 503 });
+    const ip = getClientIp(request);
+    const { success: rateOk } = await checkPublicVoiceSessionRateLimit(`public-wioa-voice:${ip}`);
+    if (!rateOk) {
+      return NextResponse.json(
+        { error: 'Too many voice session requests. Please wait a few minutes and try again.' },
+        { status: 429, headers: { 'Retry-After': '600' } }
+      );
+    }
+  
+    let body: unknown = {};
+    try {
+      body = await request.json();
+    } catch {
+      body = {};
+    }
+  
+    const parsed = payloadSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid voice session payload' }, { status: 400 });
+    }
+  
+    try {
+      const dynamicVariables = buildPublicWioaPortalDynamicVariables(parsed.data);
+      const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('wioa_prequal', {
+        dynamicVariables,
+      });
+  
+      return NextResponse.json({
+        signedUrl,
+        expiresAt,
+        dynamicVariables: returned ?? dynamicVariables,
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to start session';
+      console.error('[public/wioa-qualification/voice-session]', msg);
+      return NextResponse.json({ error: msg }, { status: 503 });
+    }
+  } catch (error) {
+    console.error('/public/wioa-qualification/voice-session:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

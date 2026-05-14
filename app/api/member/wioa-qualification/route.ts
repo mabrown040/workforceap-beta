@@ -5,6 +5,7 @@ import { computeWioaSignal, parseWioaAnswers, type WioaQualificationSnapshot } f
 import { sendWioaScreeningNotification } from '@/lib/wioa/wioaNotification';
 
 export async function GET() {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -14,9 +15,16 @@ export async function GET() {
   });
 
   return NextResponse.json({ snapshot: row?.wioaQualificationJson ?? null });
+
+  } catch (error) {
+    console.error('/member/wioa-qualification error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
+
 export async function POST(request: Request) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -75,4 +83,10 @@ export async function POST(request: Request) {
     : false;
 
   return NextResponse.json({ ok: true, snapshot, emailSent });
+
+  } catch (error) {
+    console.error('/member/wioa-qualification error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+

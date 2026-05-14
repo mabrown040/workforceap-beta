@@ -4,6 +4,7 @@ import { sendInactiveNudgeEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Cron endpoint to send inactive member nudge emails.
@@ -52,6 +53,7 @@ async function handle(_request: Request) {
   }
 
   const runResult = { ok: true, checkedAt: new Date().toISOString(), recentlyActiveCount: activeUserIds.size, inactiveEmailsSent: sent };
+  await setCronRecordsProcessed(sent);
   await logCronRun('cron_inactive_nudge', runResult);
   return NextResponse.json(runResult);
 }

@@ -21,13 +21,14 @@ const jobUpdateSchema = z.object({
   requirements: z.array(z.string()).optional(),
   preferredCertifications: z.array(z.string()).optional(),
   suggestedPrograms: z.array(z.string()).optional(),
-  status: z.enum(['draft', 'pending', 'filled', 'closed']).optional(),
+  status: z.enum(['draft', 'pending', 'approved', 'live', 'filled', 'closed']).optional(),
 });
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -48,12 +49,19 @@ export async function GET(
 
   if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
   return NextResponse.json(job);
+
+  } catch (error) {
+    console.error('/employer/jobs/[id] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -79,7 +87,7 @@ export async function PATCH(
   }
   if (status === 'filled' || status === 'closed') {
     if (existing.status !== 'live' && existing.status !== 'approved') {
-      return NextResponse.json({ error: 'Only live jobs can be marked filled/closed' }, { status: 400 });
+      return NextResponse.json({ error: 'Only active or paused jobs can be closed' }, { status: 400 });
     }
   }
 
@@ -142,4 +150,48 @@ export async function PATCH(
   }
 
   return NextResponse.json(job);
+
+  } catch (error) {
+    console.error('/employer/jobs/[id] error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const ctx = await getEmployerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const { id } = await params;
+    const existing = await prisma.job.findFirst({
+      where: { id, employerId: ctx.employerId },
+    });
+    if (!existing) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+
+    const job = await prisma.job.update({
+      where: { id },
+      data: { status: 'closed' },
+    });
+
+    await recordEmployerWorkflowEvent({
+      employerId: ctx.employerId,
+      actorUserId: user.id,
+      kind: 'job_status',
+      headline: `Job closed: ${job.title}`,
+      entityType: 'Job',
+      entityId: job.id,
+    });
+
+    return NextResponse.json({ ok: true, job });
+  } catch (error) {
+    console.error('/employer/jobs/[id] DELETE error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+

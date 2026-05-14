@@ -5,6 +5,7 @@ import { loadB4BContents } from '@/lib/coursera/programContentsCache';
 import { seedCanonicalMappingsFromB4B } from '@/lib/coursera/seedCanonicalMappingsFromB4B';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
@@ -62,6 +63,7 @@ async function handle(_req: NextRequest) {
       byUserCount: Object.keys(result.byUser).length,
       canonicalSeed,
     };
+    await setCronRecordsProcessed(result.upserted);
     await logCronRun(WORKFLOW_KEY, runResult, result.errors > 0 ? 'error' : 'ok');
     return NextResponse.json(runResult);
   } catch (err) {

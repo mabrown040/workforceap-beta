@@ -8,6 +8,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorMessagesInboxClient from '@/components/portal/CounselorMessagesInboxClient';
 import { buildCounselorInboxRows } from '@/lib/messages/counselorInbox';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 
 export default async function CounselorMessagesHubPage() {
   const user = await getUser();
@@ -22,6 +23,7 @@ export default async function CounselorMessagesHubPage() {
 
   const assignments = counselor
     ? await prisma.counselorAssignment.findMany({
+      take: 200,
         where: { counselorId: counselor.id, active: true },
         include: { member: { select: { id: true, fullName: true, email: true } } },
         orderBy: { assignedAt: 'desc' },
@@ -31,14 +33,16 @@ export default async function CounselorMessagesHubPage() {
   const memberIds = assignments.map((a) => a.member.id);
   const rows = await buildCounselorInboxRows(memberIds);
 
+  const t = await getTranslations('counselor');
+
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Member Messages"
+        title={t('memberMessages')}
         subtitle={
           <>
-            <span className="wa-block md:wa-hidden">Conversations with your members</span>
-            <span className="wa-hidden md:wa-block">Search, open a thread, or view the full member profile.</span>
+            <span className="wa-block md:wa-hidden">{t('conversationsWithMembers')}</span>
+            <span className="wa-hidden md:wa-block">{t('searchOpenThread')}</span>
           </>
         }
       />
@@ -56,7 +60,7 @@ export default async function CounselorMessagesHubPage() {
           <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
           <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
             <Link href="/counselor/students" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-              Browse all members
+              {t('browseAllMembers')}
             </Link>
           </p>
         </div>

@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
+import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
+import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { getMemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import type { MemberEngagementSignals } from '@/lib/member/memberEngagementSignals';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
@@ -52,6 +54,7 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
       where: { id: userId },
       select: {
         id: true,
+        email: true,
         enrolledProgram: true,
         assessmentCompleted: true,
         staleTrainingDetectedAt: true,
@@ -104,14 +107,27 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
     }
   }
 
-  // Enrollment + training progress
+  // Enrollment + training progress (prefer live B4B enrollmentReports when configured).
   if (user.enrolledProgram) {
+    const courseraProgramId =
+      DISCOVERED_COURSERA_PROGRAMS[user.enrolledProgram]?.courseraProgramId;
+    const b4bProgress =
+      user.email?.trim()
+        ? await fetchLearnerProgressFromB4B(user.email, {
+            programId: courseraProgramId,
+          }).catch(() => new Map())
+        : new Map();
+
     const trainingView = await loadMemberProgramTrainingView({
       userId,
       programSlug: user.enrolledProgram,
+      b4bProgress,
     });
 
-    if (!trainingView.hasStartedTraining) {
+    if (!trainingView) {
+      score += FACTORS.INCOMPLETE_FIRST_COURSE.weight;
+      factors.push({ ...FACTORS.INCOMPLETE_FIRST_COURSE, name: 'INCOMPLETE_FIRST_COURSE' });
+    } else if (!trainingView.hasStartedTraining) {
       score += FACTORS.INCOMPLETE_FIRST_COURSE.weight;
       factors.push({ ...FACTORS.INCOMPLETE_FIRST_COURSE, name: 'INCOMPLETE_FIRST_COURSE' });
     }
@@ -123,6 +139,7 @@ export async function calculateAtRiskScore(userId: string): Promise<AtRiskScore>
 
     // Job applications (only if placement-ready: completed courses + assessment)
     if (
+      trainingView &&
       trainingView.allCoursesComplete &&
       user.assessmentCompleted &&
       user._count.jobApplications === 0
@@ -192,6 +209,7 @@ function buildRecommendedAction(score: number, factors: AtRiskFactor[]): string 
 
 export async function calculateAllAtRiskScores(): Promise<AtRiskScore[]> {
   const activeMembers = await prisma.user.findMany({
+    take: 5000,
     where: {
       deletedAt: null,
       // Exclude already placed members

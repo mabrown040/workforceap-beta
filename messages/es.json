@@ -98,7 +98,7 @@
     "blog": "Blog",
     "experienceAcrossEcosystem": "Experiencia en todo el ecosistema laboral",
     "communityOrganizations": "Organizaciones comunitarias",
-    "workforceBoards": "Juntas estatales y locales de desarrollo de la fuerza laboral",
+    "workforceBoards": "Juntas de desarrollo de la fuerza laboral",
     "employerPartners": "Socios empleadores",
     "copyright": "© {year} Workforce Advancement Project. Entrenamiento profesional y apoyo de preparación laboral mediante capacitación financiada por Workforce para miembros calificados.",
     "onetAttribution": "Este sitio incorpora información de O*NET Web Services del Departamento de Trabajo de EE.UU., Administración de Empleo y Capacitación (USDOL/ETA). O*NET® es una marca registrada de USDOL/ETA."
@@ -1414,7 +1414,7 @@
       "stat1Label": "Años eliminando barreras para la oportunidad laboral",
       "stat2Label": "Aprendices capacitados a través de programas de desarrollo de fuerza laboral (histórico)",
       "stat3Label": "Rutas profesionales alineadas con la demanda real del empleador",
-      "stat4Label": "Costo para miembros: sin cargo si calificas — capacitación financiada por Workforce",
+      "stat4Label": "Costo para miembros — capacitación financiada por Workforce para miembros calificados",
       "modelTitle": "Cómo funciona el modelo",
       "modelDesc": "Las asociaciones con empleadores y el financiamiento público ayudan a cubrir el acceso al programa, los servicios de apoyo y la preparación para la fuerza laboral para que los miembros puedan enfocarse en el aprendizaje y la colocación.",
       "membersTitle": "Lo que reciben los miembros",

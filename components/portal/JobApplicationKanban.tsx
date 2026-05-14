@@ -160,7 +160,7 @@ function MobileApplicationCard({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="wa-mt-3 wa-text-xs wa-text-[#8c0f37] wa-font-medium hover:wa-underline"
+          className="wa-mt-3 wa-text-xs wa-text-[#8c0f37] wa-font-medium hover:wa-underline focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[#8c0f37] focus-visible:wa-ring-offset-1 wa-rounded-sm"
         >
           Update Status
         </button>

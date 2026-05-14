@@ -124,7 +124,7 @@ export default function JobApplicationCard({
           <button
             onClick={handleStatusChange}
             type="button"
-            className="wa-flex-1 wa-px-3 wa-py-2 wa-text-white wa-text-sm wa-font-medium wa-rounded"
+            className="wa-flex-1 wa-px-3 wa-py-2 wa-text-white wa-text-sm wa-font-medium wa-rounded focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[#8c0f37] focus-visible:wa-ring-offset-1"
             style={{ background: "var(--color-accent-dark, #6b0c29)" }}
           >
             Save
@@ -132,7 +132,7 @@ export default function JobApplicationCard({
           <button
             type="button"
             onClick={() => setIsEditing(false)}
-            className="wa-flex-1 wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-rounded"
+            className="wa-flex-1 wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-rounded focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[#8c0f37] focus-visible:wa-ring-offset-1"
             style={{
               background: "var(--surface-container-high)",
               color: "var(--color-on-surface)",
@@ -232,13 +232,20 @@ export default function JobApplicationCard({
       )}
 
       <p
-        className="wa-text-xs wa-mt-2 wa-pt-2 wa-border-t"
+        className="wa-text-xs wa-mt-2 wa-pt-2 wa-border-t wa-flex wa-items-center"
         style={{
           color: "var(--color-on-surface-variant)",
           opacity: 0.7,
           borderColor: "rgba(222,191,194,0.25)",
         }}
       >
+        <span
+          className="material-symbols-outlined"
+          style={{ fontSize: "14px", marginRight: "4px" }}
+          aria-hidden="true"
+        >
+          edit
+        </span>
         Click to edit
       </p>
     </div>

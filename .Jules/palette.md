@@ -57,3 +57,6 @@
 ## 2024-05-10 - Copy Button Accessibility vs Label Shadowing
 **Learning:** For micro-UX improvements on clipboard or asynchronous actions, if the dynamic text change (like "Copied!") is wrapped in a `<span aria-live="polite">`, any static or dynamic `aria-label` on the parent `<button>` will prevent screen readers from properly announcing the live region updates. The `aria-label` "shadows" the live text changes underneath it.
 **Action:** When adding `aria-live` state announcements to buttons with visible text that clearly explains the action (e.g. "Copy transcript"), do not add an `aria-label` to the button. Allow the screen reader to natively read the text and announce the dynamic updates within the `aria-live` region. Additionally, use existing utility classes (like Tailwind) over inline styles where possible to pass code reviews.
+## 2024-05-14 - Removed Invalid ARIA controls on mutually exclusive conditional elements
+**Learning:** Adding `aria-controls` to a conditionally rendered element that points to an element not in the DOM, or mutually exclusive components like a conditionally rendered button and panel will result in an invalid ARIA IDREF.
+**Action:** Do not use `aria-controls` on mutually exclusive components.

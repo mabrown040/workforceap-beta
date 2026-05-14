@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import LocalizedLink from '@/components/LocalizedLink';
+import LanguageToggle from '@/components/portal/LanguageToggle';
 import { Linkedin } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -98,6 +99,9 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
 
       {/* Copyright bar */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '1.5rem 2rem 0', borderTop: '1px solid var(--surface-container-highest, #333537)', textAlign: 'center' }}>
+        <div style={{ marginBottom: '1rem', color: 'var(--color-on-surface-variant)' }}>
+          <LanguageToggle />
+        </div>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
           {t('copyright', { year })}
         </p>

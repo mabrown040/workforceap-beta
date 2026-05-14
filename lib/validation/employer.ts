@@ -34,6 +34,11 @@ export const employerSignupSchema = z.object({
     .max(2000, 'Must be less than 2000 characters')
     .optional()
     .or(z.literal('')),
+  hearAbout: z
+    .string()
+    .max(200, 'Must be less than 200 characters')
+    .optional()
+    .or(z.literal('')),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')

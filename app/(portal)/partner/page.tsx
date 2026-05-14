@@ -27,6 +27,7 @@ import PortalCard from '@/components/portal/ui/PortalCard';
 import DataTable from '@/components/portal/ui/DataTable';
 import type { DataTableColumn } from '@/components/portal/ui/DataTable';
 import PartnerReferralResourcesSection from '@/components/partner/PartnerReferralResourcesSection';
+import PendingApprovalBanner from '@/components/partner/PendingApprovalBanner';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -62,12 +63,15 @@ export default async function PartnerDashboardPage() {
       tourCompletedAt: true,
       stripeConnectId: true,
       stripeConnectStatus: true,
+      status: true,
     },
   });
 
   if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 
   const t = await getTranslations('partner');
+
+  const isPendingApproval = partnerRow.status === 'pending_approval';
 
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
@@ -246,6 +250,12 @@ export default async function PartnerDashboardPage() {
         </p>
       </div>
 
+      {isPendingApproval && (
+        <div className="portal-pad-x" style={{ paddingTop: '0.5rem' }}>
+          <PendingApprovalBanner />
+        </div>
+      )}
+
       {/* Estimated payout + KPI strip */}
       <div className="portal-pad-x" style={{ paddingTop: '0.5rem', paddingBottom: '0.75rem' }}>
         <div
@@ -320,17 +330,19 @@ export default async function PartnerDashboardPage() {
         </PortalCard>
       </div>
 
-      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }} data-tour="tour-referral-link">
-        <PortalCard
-          title={t('referralLink')}
-          subtitle={t('appliedViaYourLink', { count: referredMembersAppliedViaLink })}
-        >
-          <p style={{ margin: '0 0 0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
-            {referralApplyUrl}
-          </p>
-          <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
-        </PortalCard>
-      </div>
+      {!isPendingApproval && (
+        <div className="portal-pad-x" style={{ paddingBottom: '1rem' }} data-tour="tour-referral-link">
+          <PortalCard
+            title={t('referralLink')}
+            subtitle={t('appliedViaYourLink', { count: referredMembersAppliedViaLink })}
+          >
+            <p style={{ margin: '0 0 0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
+              {referralApplyUrl}
+            </p>
+            <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
+          </PortalCard>
+        </div>
+      )}
 
       <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
         <PortalCard
@@ -494,13 +506,17 @@ export default async function PartnerDashboardPage() {
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
               {t('outcomesSnapshotBtn')}
             </Link>
-            <Link href={referralApplyUrl} className="btn btn-primary">
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
-              {t('newReferral')}
-            </Link>
+            {!isPendingApproval && (
+              <Link href={referralApplyUrl} className="btn btn-primary">
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
+                {t('newReferral')}
+              </Link>
+            )}
           </div>
         }
       />
+
+      {isPendingApproval && <PendingApprovalBanner />}
 
       <section style={{ marginBottom: '1.25rem' }}>
         <div
@@ -576,17 +592,19 @@ export default async function PartnerDashboardPage() {
         </PortalCard>
       </section>
 
-      <section style={{ marginBottom: '1.5rem' }} data-tour="tour-referral-link">
-        <PortalCard
-          title={t('referralLink')}
-          subtitle={t('appliedViaYourLink', { count: referredMembersAppliedViaLink })}
-        >
-          <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
-            {referralApplyUrl}
-          </p>
-          <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
-        </PortalCard>
-      </section>
+      {!isPendingApproval && (
+        <section style={{ marginBottom: '1.5rem' }} data-tour="tour-referral-link">
+          <PortalCard
+            title={t('referralLink')}
+            subtitle={t('appliedViaYourLink', { count: referredMembersAppliedViaLink })}
+          >
+            <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
+              {referralApplyUrl}
+            </p>
+            <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
+          </PortalCard>
+        </section>
+      )}
 
       <section style={{ marginBottom: '2rem' }}>
         <PortalCard

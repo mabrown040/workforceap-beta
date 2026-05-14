@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
 
 const ORG_TYPES = [
@@ -23,27 +24,43 @@ const MONTHLY = [
 ];
 
 export default function PartnerSignupForm() {
+  const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     trackLeadFormEvent('partner_signup', 'viewed');
   }, []);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const fd = new FormData(form);
 
+    const password = String(fd.get('password') || '');
+    const confirmPassword = String(fd.get('confirm_password') || '');
+
+    if (password.length < 8) {
+      setStatus('error');
+      setErrorMsg('Password must be at least 8 characters.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setStatus('error');
+      setErrorMsg('Passwords do not match.');
+      return;
+    }
+
     const payload = {
       organizationName: String(fd.get('organization_name') || '').trim(),
       contactName: String(fd.get('contact_name') || '').trim(),
-      contactEmail: String(fd.get('contact_email') || '').trim(),
+      contactEmail: String(fd.get('contact_email') || '').trim().toLowerCase(),
       contactPhone: String(fd.get('contact_phone') || '').trim() || null,
       orgType: String(fd.get('org_type') || '').trim(),
       serveArea: String(fd.get('serve_area') || '').trim(),
       expectedMonthly: String(fd.get('expected_monthly') || '').trim(),
       hearAbout: String(fd.get('hear_about') || '').trim() || null,
+      password,
     };
 
     setStatus('sending');
@@ -66,6 +83,13 @@ export default function PartnerSignupForm() {
       setStatus('success');
       trackLeadFormEvent('partner_signup', 'succeeded', { org_type: payload.orgType, expected_monthly: payload.expectedMonthly });
       form.reset();
+
+      if (data.redirectTo) {
+        // Small delay so user sees the success state briefly
+        setTimeout(() => {
+          router.push(data.redirectTo);
+        }, 800);
+      }
     } catch {
       setStatus('error');
       trackLeadFormEvent('partner_signup', 'errored', { reason: 'network_error' });
@@ -85,9 +109,9 @@ export default function PartnerSignupForm() {
           textAlign: 'center',
         }}
       >
-        <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>Thank you!</p>
+        <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>Welcome aboard!</p>
         <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>
-          We&rsquo;ll review your registration and set up your partner portal within 1–2 business days.
+          Your account has been created. Taking you to your partner portal…
         </p>
       </div>
     );
@@ -156,9 +180,43 @@ export default function PartnerSignupForm() {
         <textarea id="ps-hear" name="hear_about" rows={3} maxLength={2000} disabled={status === 'sending'} />
       </div>
 
+      <div className="form-group">
+        <label htmlFor="ps-password">Create password *</label>
+        <input
+          id="ps-password"
+          name="password"
+          type="password"
+          required
+          minLength={8}
+          maxLength={128}
+          disabled={status === 'sending'}
+          autoComplete="new-password"
+        />
+        <small style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>
+          Must be at least 8 characters
+        </small>
+      </div>
+      <div className="form-group">
+        <label htmlFor="ps-confirm-password">Confirm password *</label>
+        <input
+          id="ps-confirm-password"
+          name="confirm_password"
+          type="password"
+          required
+          minLength={8}
+          maxLength={128}
+          disabled={status === 'sending'}
+          autoComplete="new-password"
+        />
+      </div>
+
       <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem' }} disabled={status === 'sending'}>
-        {status === 'sending' ? 'Submitting…' : 'Submit registration'}
+        {status === 'sending' ? 'Creating your account…' : 'Create partner account'}
       </button>
+
+      <p style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+        By signing up, you agree to our Terms of Service and Privacy Policy.
+      </p>
     </form>
   );
 }

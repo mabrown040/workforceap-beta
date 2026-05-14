@@ -1,8 +1,79 @@
 'use client';
 
 import { useState } from 'react';
-import { getProgramDisplayTitle, type Program } from '@/lib/content/programs';
+import { useTranslations } from 'next-intl';
+import { getProgramDisplayTitle, type Program, type LanguageSupport, type LanguageSupportLevel } from '@/lib/content/programs';
 import ProgramOnetCareerSection from '@/components/programs/ProgramOnetCareerSection';
+
+function LanguageSection({ languages }: { languages?: LanguageSupport }) {
+  const tPrograms = useTranslations('marketing.programs');
+  const tCommon = useTranslations('common');
+
+  if (!languages) {
+    return (
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{tPrograms('languagesTitle')}</h2>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{tPrograms('languageEnglishOnly')}</p>
+      </div>
+    );
+  }
+
+  const entries: { code: keyof LanguageSupport; level: LanguageSupportLevel; label: string }[] = [
+    { code: 'es', level: languages.es, label: tCommon('languageEs') },
+    { code: 'pt', level: languages.pt, label: tCommon('languagePt') },
+    { code: 'fr', level: languages.fr, label: tCommon('languageFr') },
+  ];
+
+  const active = entries.filter((e) => e.level !== 'none');
+
+  if (active.length === 0) {
+    return (
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{tPrograms('languagesTitle')}</h2>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>{tPrograms('languageEnglishOnly')}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{tPrograms('languagesTitle')}</h2>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <span
+          style={{
+            background: 'var(--surface-container)',
+            color: 'var(--color-on-surface)',
+            padding: '0.25rem 0.6rem',
+            borderRadius: '4px',
+            fontSize: '0.9rem',
+          }}
+        >
+          {tCommon('languageEn')}
+        </span>
+        {active.map((e) => {
+          let text: string;
+          if (e.level === 'full') text = tPrograms('languageFull', { language: e.label });
+          else if (e.level === 'subtitles') text = tPrograms('languageSubtitles', { language: e.label });
+          else text = tPrograms('languageAuto', { language: e.label });
+          return (
+            <span
+              key={e.code}
+              style={{
+                background: 'var(--surface-container)',
+                color: 'var(--color-on-surface)',
+                padding: '0.25rem 0.6rem',
+                borderRadius: '4px',
+                fontSize: '0.9rem',
+              }}
+            >
+              {text}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function ProgramDetailClient({ program }: { program: Program }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -13,6 +84,8 @@ export default function ProgramDetailClient({ program }: { program: Program }) {
   return (
     <div>
       <ProgramOnetCareerSection programSlug={program.slug} />
+
+      <LanguageSection languages={program.languagesSupported} />
 
       {skills.length > 0 ? (
         <div style={{ marginBottom: '1.5rem' }}>

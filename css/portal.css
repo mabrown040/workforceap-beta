@@ -528,10 +528,10 @@
 /* =============================================
    Mobile Bottom Navigation (from stitch mobile mockups)
    ============================================= */
-@media (max-width: 768px) {
-  /* Align with MobileBottomNav breakpoint (768px) + marketing.css clearance token */
+@media (max-width: 767px) {
+  /* Align with MobileBottomNav visibility (≤767px) + marketing.css clearance token */
   .portal-shell-main {
-    padding-bottom: var(--wap-mobile-bottom-nav-clearance, calc(5.5rem + env(safe-area-inset-bottom, 0px))) !important;
+    padding-bottom: var(--wap-mobile-bottom-nav-clearance, calc(6rem + env(safe-area-inset-bottom, 0px))) !important;
   }
 
   /* Mobile bottom nav bar */

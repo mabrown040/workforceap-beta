@@ -10,8 +10,8 @@
  * mobile whenever the bar is mounted (keeps layout in sync with the DOM).
  */
 :root {
-  /* Fixed MobileBottomNav row (~56–72px) + labels + device home indicator; generous buffer keeps CTAs above the bar */
-  --wap-mobile-bottom-nav-clearance: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  /* Fixed MobileBottomNav (~64px row + captions) + device home indicator + buffer so CTAs stay tappable */
+  --wap-mobile-bottom-nav-clearance: calc(6rem + env(safe-area-inset-bottom, 0px));
   /*
    * Foregrounds for Stitch marketing stripes. Light-on tokens match cream/pale surfaces (#fcf9f8).
    * They stay the same inside html.dark when the stripe remains light — only switch to dark-on-* when
@@ -32,7 +32,7 @@ html {
   --wap-doc-on-surface-variant: var(--color-on-surface-variant);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   html.wap-reserve-mobile-bottom-nav,
   html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) {
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
@@ -44,8 +44,12 @@ html {
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
   }
 
-  html.wap-reserve-mobile-bottom-nav main#main-content,
-  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) main#main-content {
+  /*
+   * Workspace shells already pad `.workspace-shell-main` (main.css) — padding only here
+   * for marketing and other routes without `WorkspaceShell` to avoid double reserve.
+   */
+  html.wap-reserve-mobile-bottom-nav main#main-content:not(:has(.workspace-shell-root)),
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) main#main-content:not(:has(.workspace-shell-root)) {
     box-sizing: border-box;
     padding-bottom: var(--wap-mobile-bottom-nav-clearance);
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);

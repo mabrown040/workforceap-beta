@@ -87,7 +87,12 @@ function buildSyntheticParsed(
     resultProgressPercent: data.progressPercent ?? null,
     rawStatement: rawForAudit,
   };
-}export const POST = withSystemGuc(async (request: Request) => {
+}
+
+// Same withSystemGuc-misuse fix as Stripe + learning-completion webhooks.
+// The factory ran the callback at module load; wrap in a real handler.
+export async function POST(request: Request) {
+  return withSystemGuc(async () => {
   const startTime = Date.now();
   let rawBody = '';
   let payloadSize = 0;
@@ -336,4 +341,5 @@ function buildSyntheticParsed(
     console.error('/webhooks/coursera:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-});
+  });
+}

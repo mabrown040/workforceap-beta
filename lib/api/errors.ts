@@ -69,11 +69,24 @@ export class ApiError extends Error {
 
 /**
  * Convert any thrown value into a standardized ApiError.
+ *
+ * Only ApiError instances carry their original message through to the
+ * response body — those are explicitly authored by route handlers and
+ * are safe to surface. Anything else (raw Error from a Prisma/DB call,
+ * third-party SDK exception, plain string throw) gets a generic
+ * "Internal server error" message so we don't leak internals like
+ * connection strings, SQL fragments, or stack-derived paths.
+ *
+ * The original Error message is still preserved on the ApiError's
+ * `cause` field for server-side logging — see handleApiError, which
+ * Sentry+console-logs the cause but returns only the safe message.
  */
 export function toApiError(err: unknown): ApiError {
   if (err instanceof ApiError) return err;
-  if (err instanceof Error) return ApiError.internal(err.message);
-  return ApiError.internal(typeof err === 'string' ? err : 'Unknown error');
+  const apiErr = ApiError.internal('Internal server error');
+  // Attach the original for logging; never serialized into the response.
+  (apiErr as Error & { cause?: unknown }).cause = err;
+  return apiErr;
 }
 
 /**

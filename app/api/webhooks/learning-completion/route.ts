@@ -41,12 +41,13 @@ export async function checkIdempotency(dedupeKey: string): Promise<'fresh' | 'al
   });
   if (existing?.processed) return 'already_processed';
   if (existing) {
-    // Mid-flight retry — mark as processed since we're about to reprocess
-    await prisma.xapiStatement.updateMany({
-      where: { statementId: dedupeKey },
-      data: { processed: true, processedAt: new Date() },
-    });
-    return 'already_processed';
+    // Mid-flight retry — the original delivery created the idempotency row
+    // but failed before flipping `processed` to true. Return `fresh` so the
+    // caller actually re-runs handleLearningCompletion. The previous
+    // implementation marked the row as processed and returned
+    // already_processed, which silently dropped every transient failure's
+    // retry — losing real learning-completion events on flake.
+    return 'fresh';
   }
 
   try {
@@ -77,7 +78,14 @@ export async function checkIdempotency(dedupeKey: string): Promise<'fresh' | 'al
     }
     throw error;
   }
-}export const POST = withSystemGuc(async (req: Request) => {
+}
+
+// withSystemGuc(fn) EXECUTES the callback immediately. The previous
+// `export const POST = withSystemGuc(...)` ran the inner function at
+// module load with `req` undefined. Wrap in a real handler so the
+// callback fires per-request and `req` is bound correctly.
+export async function POST(req: Request) {
+  return withSystemGuc(async () => {
   const startTime = Date.now();
   let rawBody = '';
   let eventId: string | undefined;
@@ -234,5 +242,6 @@ export async function checkIdempotency(dedupeKey: string): Promise<'fresh' | 'al
       { error: 'Internal Server Error', retryScheduled: retryResult === 'scheduled' },
       { status: 500 }
     );
-  }
-});
+    }
+  });
+}

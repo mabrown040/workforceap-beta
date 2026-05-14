@@ -2249,18 +2249,25 @@ model FeatureFlag {
   @@map("feature_flags")
 }
 
-// --- Webhook Monitoring ---
+// --- Webhook Events ---
 
+/// Backs the `webhook_events` table created by migration
+/// 20260513000000_add_webhook_events. Without a Prisma model the
+/// generated client has no `webhookEvent` delegate, so
+/// `prisma.webhookEvent.*` calls in the admin dashboard,
+/// /api/admin/health, and lib/webhooks/* fail at runtime. Field shapes
+/// mirror the migration's columns exactly.
+/// `status` values: 'success' | 'failed' | 'retrying' | 'dead_letter'.
 model WebhookEvent {
-  id               String    @id @default(uuid())
-  source           String    // e.g. 'coursera', 'learning-completion'
+  id               String    @id @default(uuid()) @db.Uuid
+  source           String
   eventType        String?   @map("event_type")
   eventId          String?   @map("event_id")
   payloadSize      Int       @map("payload_size")
   processingTimeMs Int?      @map("processing_time_ms")
-  status           String    // 'success', 'failed', 'retrying', 'dead_letter'
+  status           String
   httpStatusCode   Int?      @map("http_status_code")
-  errorMessage     String?   @map("error_message")
+  errorMessage     String?   @map("error_message") @db.Text
   retryCount       Int       @default(0) @map("retry_count")
   nextRetryAt      DateTime? @map("next_retry_at")
   createdAt        DateTime  @default(now()) @map("created_at")

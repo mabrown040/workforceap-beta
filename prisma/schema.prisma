@@ -2144,7 +2144,10 @@ model CourseraSkillsetProgress {
 /// for the same milestone is a no-op. Status is plain text + CHECK constraint
 /// (not Prisma enum) to mirror AtRiskAlert.status and keep new statuses cheap.
 model MilestoneCascade {
-  id                  String    @id @default(uuid())
+  // @db.Uuid matches the underlying column (`id UUID DEFAULT gen_random_uuid()`)
+  // in the migration. Without it Prisma assumes TEXT and `prisma migrate diff`
+  // flags drift on every run.
+  id                  String    @id @default(uuid()) @db.Uuid
   userId              String    @map("user_id")
 
   /// "course_completed" today. Future: "cert_earned", "streak_7day", etc.

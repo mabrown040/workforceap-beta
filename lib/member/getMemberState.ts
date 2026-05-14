@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
-import { invalidateCache } from '@/lib/cache';
+import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildMemberApplicationStatusView, type MemberApplicationStatusView } from './memberApplicationStatus';
 import { loadMemberProgramTrainingView, type MemberProgramTrainingView } from './memberProgramTrainingView';
@@ -7,7 +7,6 @@ import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/pr
 import { buildNextBestActions, type NextBestAction, type NextBestActionsContext } from './nextBestActions';
 import { getMemberEngagementSignals, type MemberEngagementSignals } from './memberEngagementSignals';
 import { getMemberResumePlainText } from './getMemberResumePlainText';
-import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 import type { CareerMatchResult } from '@/lib/onet/types';
 import type { LearnerProgressByContent } from '@/lib/coursera/learnerProgress';
 

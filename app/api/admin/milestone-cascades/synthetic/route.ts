@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { detectCompletionMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
 
@@ -50,10 +51,14 @@ export async function POST(req: NextRequest) {
 
     const targetUserId = parsed.data.userId ?? user.id;
 
-    // Confirm the target user exists — gives a clear 404 instead of a vague
-    // foreign-key failure if a bad UUID is supplied.
-    const targetUser = await prisma.user.findUnique({
-      where: { id: targetUserId },
+    // Tenant scope: a tenant admin can only trigger synthetic cascades for
+    // learners in their own organization. Super-admins bypass the scope so
+    // they can exercise the flow across tenants.
+    const isSuper = await isSuperAdmin(user.id);
+    const orgId = isSuper ? null : await getActorOrganizationId(user.id);
+
+    const targetUser = await prisma.user.findFirst({
+      where: orgId ? { id: targetUserId, organizationId: orgId } : { id: targetUserId },
       select: { id: true },
     });
     if (!targetUser) {

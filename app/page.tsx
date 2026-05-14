@@ -10,6 +10,7 @@ import ErrorBoundary from '@/components/error/ErrorBoundary';
 
 import { getTranslations } from 'next-intl/server';
 import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
+import LanguageToggle from '@/components/portal/LanguageToggle';
 
 // Product stake: if the homepage uses the brand line "Empowering People. Advancing Futures.",
 // keep the supporting copy immediately concrete, member-safe, and operational.
@@ -156,7 +157,9 @@ export default async function HomePage() {
           padding: 'clamp(5.5rem, 12vw, 8rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 8vw, 6rem)',
         }}
         >
-
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
+            <LanguageToggle compact />
+          </div>
 
           <h1
             className="text-display-lg"

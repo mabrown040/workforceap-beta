@@ -15,7 +15,7 @@ const languages: { code: AppLocale; label: string }[] = [
   { code: 'pt', label: 'Português' },
 ];
 
-export default function LanguageToggle() {
+export default function LanguageToggle({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const pathname = usePathname() ?? '/';
   const tCommon = useTranslations('common');
@@ -36,6 +36,32 @@ export default function LanguageToggle() {
       window.location.reload();
     }
   };
+
+  if (compact) {
+    return (
+      <div className="language-toggle language-toggle--compact" aria-label={tCommon('selectLanguage')}>
+        {languages.map((lang, index) => (
+          <span key={lang.code} className="language-toggle__item">
+            {lang.code === currentLocale ? (
+              <span className="language-toggle__current">{lang.label}</span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleChange(lang.code)}
+                className="language-toggle__link"
+                suppressHydrationWarning
+              >
+                {lang.label}
+              </button>
+            )}
+            {index < languages.length - 1 && (
+              <span className="language-toggle__sep" aria-hidden="true">·</span>
+            )}
+          </span>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="language-toggle">

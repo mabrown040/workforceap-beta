@@ -64,3 +64,48 @@ html.dark .language-toggle-select option {
   color: #e2e2e5;
   background: #1e2022;
 }
+
+/* Compact inline text-link variant (homepage hero, etc.) */
+.language-toggle--compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: inherit;
+}
+
+.language-toggle__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.language-toggle__link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  opacity: 0.75;
+  transition: opacity 0.15s ease;
+}
+
+.language-toggle__link:hover {
+  opacity: 1;
+}
+
+.language-toggle__current {
+  font-weight: 700;
+  opacity: 1;
+}
+
+.language-toggle__sep {
+  opacity: 0.45;
+  user-select: none;
+}

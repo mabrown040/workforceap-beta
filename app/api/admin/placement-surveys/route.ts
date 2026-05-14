@@ -2,12 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { requireAdminOrCounselor } from '@/lib/auth/roles';
 
-/**
- * GET /api/admin/placement-surveys
- * Admin API: view all placement survey results.
- * Query params: ?status=completed|pending&limit=50&offset=0
- */
-export async function GET(req: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: Request) => {
   try {
     const auth = await requireAdminOrCounselor(req);
     if (!auth.ok) {
@@ -100,4 +95,4 @@ export async function GET(req: Request) {
     console.error('/admin/placement-surveys:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

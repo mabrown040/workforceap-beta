@@ -5,6 +5,8 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { randomUUID } from 'crypto';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 // In-memory session store (replace with Redis/DB for production)
 export const interviewSessions = new Map<
   string,
@@ -15,9 +17,7 @@ export const interviewSessions = new Map<
     startedAt: Date;
     completedAt?: Date;
   }
->();
-
-export async function POST(request: Request) {
+>();export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -117,4 +117,4 @@ Return ONLY a JSON object with these exact keys:
     console.error('/ai/interview/start:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

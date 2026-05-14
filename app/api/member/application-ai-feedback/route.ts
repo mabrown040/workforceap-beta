@@ -5,13 +5,13 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   jobApplicationId: z.string().uuid(),
   howUsed: z.nativeEnum(ApplicationAiFeedbackHowUsed),
   primaryAiToolResultId: z.string().uuid().optional().nullable(),
-});
-
-export async function POST(req: NextRequest) {
+});export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -56,4 +56,4 @@ export async function POST(req: NextRequest) {
     captureApiError(error, { route: 'POST /api/member/application-ai-feedback' });
     return NextResponse.json({ error: 'Failed to save' }, { status: 500 });
   }
-}
+});

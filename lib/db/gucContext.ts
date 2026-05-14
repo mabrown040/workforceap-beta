@@ -44,6 +44,25 @@ export function getGucContext(): GucContext | undefined {
 }
 
 /**
+ * Throw if no GUC context is active.
+ *
+ * Use this at the start of sensitive operations (mutations, admin actions,
+ * data exports) to guarantee that RLS policies will see the correct
+ * user/org/role. In production this should never throw if the request
+ * pipeline is wired correctly; in development it catches missing wrappers.
+ */
+export function requireGucContext(): GucContext {
+  const ctx = getGucContext();
+  if (!ctx) {
+    throw new Error(
+      'Missing GUC context — wrap the call site in withApiGuc(), withAuthGuc(), ' +
+        'runWithGucContext(), or ensure the root layout gucContextStorage.run() is active.',
+    );
+  }
+  return ctx;
+}
+
+/**
  * Run `fn` with the given GUC context. Every Prisma query executed inside
  * `fn` (on the same async call stack) will have the corresponding
  * PostgreSQL GUCs set via `SET LOCAL`.

@@ -3,17 +3,11 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 function daysSince(date: Date): number {
   return Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
-}
-
-/**
- * GET /api/admin/pipeline/surveys
- *
- * Returns placement survey response stats and at-risk placements
- * (no response after 7 days past survey send).
- */
-export async function GET(req: NextRequest) {
+}export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -71,4 +65,4 @@ export async function GET(req: NextRequest) {
     console.error('/admin/pipeline/surveys error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

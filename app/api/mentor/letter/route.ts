@@ -2,13 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-/**
- * GET /api/mentor/letter?mentorId=xxx
- *
- * Returns a simple HTML volunteer hour letter for the mentor to print/save as PDF.
- * The mentor must be the authenticated user.
- */
-export async function GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -93,5 +87,5 @@ export async function GET(req: NextRequest) {
     console.error('/mentor/letter error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

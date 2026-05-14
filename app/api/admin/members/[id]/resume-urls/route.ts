@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const BUCKET = 'member-resumes';
 
 function storageErrorMessage(error: { message?: string } | null): string {
@@ -12,12 +14,10 @@ function storageErrorMessage(error: { message?: string } | null): string {
     return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
   }
   return 'Could not create resume download link';
-}
-
-export async function GET(
+}export const GET = withApiGuc(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,4 +65,4 @@ export async function GET(
     console.error('[admin/members/[id]/resume-urls GET] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

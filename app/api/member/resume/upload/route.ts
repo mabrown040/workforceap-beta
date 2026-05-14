@@ -6,11 +6,11 @@ import { validateFileType } from '@/lib/resume/file-validation';
 import { awardPoints } from '@/lib/member/points';
 import { Buffer } from 'node:buffer';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /** Create bucket `member-resumes` in Supabase Dashboard → Storage if it does not exist (private bucket is fine). */
 const BUCKET = 'member-resumes';
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-
-export async function POST(request: Request) {
+const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -75,4 +75,4 @@ export async function POST(request: Request) {
         : 'Failed to process upload';
     return NextResponse.json({ error: msg }, { status: 500 });
   }
-}
+});

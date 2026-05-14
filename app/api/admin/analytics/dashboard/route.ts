@@ -9,7 +9,7 @@ export async function invalidateAdminStats(orgId: string): Promise<void> {
   await invalidateCache(`admin:stats:${orgId}*`);
 }
 
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -72,4 +72,4 @@ export async function GET() {
     console.error('/admin/analytics/dashboard error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 export interface CronsQueryParams {
   jobName?: string;
   status?: string;
@@ -53,9 +55,7 @@ export async function fetchCrons(params: CronsQueryParams) {
       totalPages: Math.ceil(total / params.pageSize),
     },
   };
-}
-
-export async function GET(request: NextRequest) {
+}export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -78,4 +78,4 @@ export async function GET(request: NextRequest) {
     console.error('[admin/crons] Error:', error);
     return NextResponse.json({ error: 'Failed to load cron executions' }, { status: 500 });
   }
-}
+});

@@ -71,6 +71,7 @@ interface MetricsData {
 }
 
 import MfaStatusBanner from '@/components/admin/MfaStatusBanner';
+import ErrorBoundary from '@/components/error/ErrorBoundary';
 
 export default function ExecutiveDashboardPage() {
   const [data, setData] = useState<MetricsData | null>(null);
@@ -248,11 +249,19 @@ export default function ExecutiveDashboardPage() {
 
       {/* Trend Charts */}
       <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>30-Day Trends</h2>
-      <ExecutiveTrendCharts
-        signupData={signupData}
-        enrollmentData={enrollmentData}
-        viewData={viewData}
-      />
+      <ErrorBoundary
+        fallback={
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', textAlign: 'center' }}>
+            <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>Charts could not load.</p>
+          </div>
+        }
+      >
+        <ExecutiveTrendCharts
+          signupData={signupData}
+          enrollmentData={enrollmentData}
+          viewData={viewData}
+        />
+      </ErrorBoundary>
 
       {/* Footer note */}
       <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>

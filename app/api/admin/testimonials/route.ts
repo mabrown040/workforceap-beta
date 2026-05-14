@@ -4,12 +4,7 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { TestimonialStatus } from '@prisma/client';
 
-/**
- * GET /api/admin/testimonials
- * Admin/counselor API: list testimonials with filtering by status.
- * Query params: ?status=pending|approved|rejected|published&limit=50&offset=0
- */
-export async function GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -82,4 +77,4 @@ export async function GET(req: NextRequest) {
     console.error('[admin/testimonials] GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { invalidateMemberState } from '@/lib/member/getMemberState';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const schema = z.object({
   fullName: z.string().min(1).max(200).optional(),
@@ -13,17 +14,10 @@ const schema = z.object({
   profileAddress: z.string().max(300).optional().nullable(),
   profileBio: z.string().max(2000).optional().nullable(),
   profileLinkedin: z.string().url().max(300).optional().nullable().or(z.literal('')),
-});
-
-/**
- * PATCH /api/admin/members/[id]/edit-profile
- *
- * Admin can update basic member profile fields.
- */
-export async function PATCH(
+});export const PATCH = withApiGuc(async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const admin = await getUser();
     if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -89,4 +83,4 @@ export async function PATCH(
     console.error('/admin/members/[id]/edit-profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

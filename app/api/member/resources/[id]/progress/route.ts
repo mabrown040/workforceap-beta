@@ -5,11 +5,11 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const actionSchema = z.object({
   action: z.enum(['view', 'complete', 'download', 'save']),
-});
-
-export async function POST(
+});async function _POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -70,8 +70,7 @@ export async function POST(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function GET(
+export const POST = withApiGuc(_POST);async function _GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -90,3 +89,4 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

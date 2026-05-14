@@ -7,6 +7,8 @@ import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -55,9 +57,7 @@ const patchSchema = z.object({
     .optional()
     .nullable(),
   subgroupIds: z.array(z.string().uuid()).optional(),
-});
-
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+});export const PATCH = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -191,4 +191,4 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     console.error('/admin/partners/[id]:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

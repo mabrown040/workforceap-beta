@@ -4,20 +4,16 @@ import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const updateSchema = z.object({
   status: z.enum(['pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected']),
   employerNotes: z.string().optional(),
   interviewScheduledAt: z.string().datetime().optional().nullable(),
-});
-
-/**
- * PATCH /api/employer/applications/[id]
- * Employer updates an applicant's status and notes.
- */
-export async function PATCH(
+});export const PATCH = withApiGuc(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -72,5 +68,5 @@ export async function PATCH(
     console.error('/employer/applications/[id] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

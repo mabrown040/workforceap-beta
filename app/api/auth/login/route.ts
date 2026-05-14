@@ -8,7 +8,7 @@ import { cookies } from 'next/headers';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 
-export async function POST(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
   let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
   try {
@@ -160,5 +160,5 @@ export async function POST(request: Request) {
     console.error('/auth/login error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

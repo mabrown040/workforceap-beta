@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-export async function PATCH(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -37,5 +37,5 @@ export async function PATCH(request: Request) {
     console.error('/member/settings error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

@@ -8,12 +8,7 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
-/**
- * GET /api/auth/check-mfa-required
- * Returns whether the current session needs MFA verification.
- * Used by the verify-mfa page to guard access.
- */
-export async function GET(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: Request) => {
   try {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkAuthRateLimit(`check-mfa-required:${ip}`);
@@ -99,5 +94,5 @@ export async function GET(request: Request) {
     console.error('/auth/check-mfa-required error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

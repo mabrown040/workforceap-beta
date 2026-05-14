@@ -3,15 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendAssessmentResetNotificationEmail } from '@/lib/email';
 
-/**
- * POST /api/member/assessment/reset
- *
- * Allows a member to request a re-take of their skills assessment.
- * - Records the reset request in AssessmentHistory (all scores preserved)
- * - Resets assessmentCompleted / score fields so they can retake
- * - Notifies staff via email
- */
-export async function POST() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -85,4 +77,4 @@ export async function POST() {
     console.error('/member/assessment/reset:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

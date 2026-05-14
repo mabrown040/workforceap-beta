@@ -4,15 +4,10 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 
-/**
- * GET /api/counselor/members/:memberId/activity-timeline?limit=20
- * Returns recent member events for the activity timeline in the at-risk detail modal.
- * Requires admin or assigned-counselor role.
- */
-export async function GET(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (
   req: Request,
   { params }: { params: Promise<{ memberId: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -57,4 +52,4 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+});

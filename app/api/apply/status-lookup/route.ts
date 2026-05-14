@@ -5,6 +5,8 @@ import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { applicationStatusForPublicLookup } from '@/lib/member/memberApplicationStatus';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   email: z.string().email().max(320).toLowerCase().trim(),
 });
@@ -15,9 +17,7 @@ function getClientIp(request: NextRequest): string {
     request.headers.get('x-real-ip') ||
     'unknown'
   );
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
     const { success: rateOk } = await checkAuthRateLimit(`apply-status:${ip}`);
@@ -82,4 +82,4 @@ export async function POST(request: NextRequest) {
     captureApiError(err, { route: 'apply/status-lookup' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

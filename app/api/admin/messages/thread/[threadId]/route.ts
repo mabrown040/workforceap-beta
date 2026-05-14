@@ -6,9 +6,9 @@ import { serializeMessage } from '@/lib/messages/counselorThread';
 import { getSlaStatusForThreads } from '@/lib/messages/superAdminMessageQueries';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-type Props = { params: Promise<{ threadId: string }> };
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(_request: NextRequest, { params }: Props) {
+type Props = { params: Promise<{ threadId: string }> };export const GET = withApiGuc(async (_request: NextRequest, { params }: Props) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -170,4 +170,4 @@ export async function GET(_request: NextRequest, { params }: Props) {
     captureApiError(error, { route: 'admin/messages/thread/[threadId] GET' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

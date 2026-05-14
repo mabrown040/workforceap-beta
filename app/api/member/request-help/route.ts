@@ -5,10 +5,10 @@ import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { Resend } from 'resend';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-const FALLBACK_EMAIL = 'info@workforceap.org';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function POST() {
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+const FALLBACK_EMAIL = 'info@workforceap.org';export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -81,4 +81,4 @@ export async function POST() {
     console.error('/member/request-help:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

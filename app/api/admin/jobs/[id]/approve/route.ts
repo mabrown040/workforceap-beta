@@ -6,6 +6,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendJobApprovedEmail } from '@/lib/email';
 import { runAiMatchForLiveJob } from '@/lib/employer/triggerEmployerJobAiMatch';
+import { invalidateJobListings } from '@/app/api/(portal)/dashboard/jobs/route';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
@@ -60,6 +61,8 @@ export async function POST(
     });
 
     after(() => runAiMatchForLiveJob(id));
+
+    await invalidateJobListings();
 
     return NextResponse.json({ ok: true });
   } catch (error) {

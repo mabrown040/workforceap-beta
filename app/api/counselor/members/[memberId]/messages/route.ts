@@ -4,6 +4,8 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getSubjectOrganizationId } from "@/lib/tenant/organization";
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 import {
   getOrCreateMemberCounselorThread,
   assertStaffCanAccessThread,
@@ -30,9 +32,7 @@ type Props = { params: Promise<{ memberId: string }> };
 async function canUseCounselorMessaging(userId: string): Promise<boolean> {
   if (await isAdmin(userId)) return true;
   return isCounselor(userId);
-}
-
-export async function GET(_request: NextRequest, { params }: Props) {
+}async function _GET(_request: NextRequest, { params }: Props) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -88,9 +88,7 @@ export async function GET(_request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function POST(request: NextRequest, { params }: Props) {
+export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, { params }: Props) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -149,9 +147,7 @@ export async function POST(request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(_request: NextRequest, { params }: Props) {
+export const POST = withApiGuc(_POST);async function _PATCH(_request: NextRequest, { params }: Props) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -188,4 +184,5 @@ export async function PATCH(_request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);
 

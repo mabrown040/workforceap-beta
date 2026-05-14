@@ -4,16 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 
-/**
- * GET /api/counselor/placements
- * Returns all placement records. Counselor/admin only.
- * Query params: memberId, employerName, days (recent N days)
- * 
- * POST /api/counselor/placements
- * Creates a new placement record. Counselor/admin only.
- * Body: { userId, employerName, jobTitle, startDate, salaryOffered, programSlug, notes }
- */
-export async function GET(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(request: Request) {
   try {
   const user = await getUser();
   if (!user) {
@@ -65,9 +56,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function POST(request: Request) {
+export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   try {
   const user = await getUser();
   if (!user) {
@@ -139,4 +128,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 

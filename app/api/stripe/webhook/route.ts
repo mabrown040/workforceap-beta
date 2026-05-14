@@ -3,7 +3,16 @@ import { prisma } from '@/lib/db/prisma';
 import { getStripe, getStripeConnectWebhookSecret } from '@/lib/stripe/client';
 import type Stripe from 'stripe';
 
+import { withSystemGuc } from '@/lib/db/withRequestGuc';
+
+// withSystemGuc(fn) EXECUTES fn immediately and returns a Promise — it's
+// not a route-handler factory like withApiGuc. The previous `export const
+// POST = withSystemGuc(async (request) => {...})` ran the inner function
+// at module-load time with `request` undefined and exported a Promise
+// instead of a callable handler. Wrap with a real handler that defers
+// execution until Next.js actually invokes POST with the request.
 export async function POST(request: NextRequest) {
+  return withSystemGuc(async () => {
   try {
     const payload = await request.text();
     const sig = request.headers.get('stripe-signature') || '';
@@ -74,8 +83,9 @@ export async function POST(request: NextRequest) {
       console.error('[stripe/webhook] processing error:', err);
       return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
     }
-  } catch (error) {
-    console.error('/stripe/webhook:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+    } catch (error) {
+      console.error('/stripe/webhook:', error);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+  });
 }

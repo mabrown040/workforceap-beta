@@ -4,6 +4,8 @@ import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { publicApiCorsHeaders } from '@/lib/http/publicApiCors';
 import { checkPublicHealthRateLimit } from '@/lib/rate-limit';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const HEALTH_CORS = publicApiCorsHeaders('GET, HEAD, OPTIONS');
 
 /**
@@ -147,9 +149,7 @@ export async function OPTIONS() {
     console.error('/health:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
-
-export async function GET(request: Request) {
+}export const GET = withApiGuc(async (request: Request) => {
   try {
   const ip = getClientIpFromRequest(request);
   const { success: withinHealthLimit } = await checkPublicHealthRateLimit(ip);
@@ -201,5 +201,5 @@ export async function GET(request: Request) {
     console.error('/health error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

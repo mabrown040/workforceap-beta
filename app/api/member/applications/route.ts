@@ -7,6 +7,8 @@ import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { awardPoints } from '@/lib/member/points';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const createSchema = z.object({
   company: z.string().min(1).max(200),
   role: z.string().min(1).max(200),
@@ -14,9 +16,7 @@ const createSchema = z.object({
   appliedAt: z.string().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   url: z.string().url().optional().nullable().or(z.literal('')),
-});
-
-export async function GET() {
+});async function _GET() {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,8 +39,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function POST(request: Request) {
+export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -92,3 +91,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

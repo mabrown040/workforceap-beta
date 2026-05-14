@@ -6,7 +6,7 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { PROGRAMS } from '@/lib/content/programs';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-export async function POST() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -94,4 +94,4 @@ export async function POST() {
     console.error('/admin/blog/ai/suggest-topics:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

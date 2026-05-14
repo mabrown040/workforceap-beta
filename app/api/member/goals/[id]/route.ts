@@ -4,15 +4,15 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const updateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   description: z.string().max(2000).optional(),
   targetMetricValue: z.number().int().min(0).optional(),
   targetDate: z.string().datetime().optional().nullable(),
   status: z.enum(['ACTIVE', 'COMPLETED', 'PAUSED']).optional(),
-});
-
-export async function PATCH(
+});async function _PATCH(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -66,9 +66,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function DELETE(
+export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -90,4 +88,5 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);
 

@@ -6,16 +6,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { buildCsv, csvDate } from '@/lib/csv';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
-/**
- * GET /api/admin/cohort-export?program=<slug>
- *
- * Cohort CSV for grant reporting (e.g. WIOA). Lists every member in a given program
- * with placement + wage data, course progress, assessment outcome, employment status
- * at enroll, and self-reported employment barriers from the pre-screening response.
- *
- * Admin-only. Streams text/csv as an attachment.
- */
-export async function GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -194,5 +185,5 @@ export async function GET(req: NextRequest) {
     console.error('/admin/cohort-export error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

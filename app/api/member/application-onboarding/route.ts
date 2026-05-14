@@ -4,14 +4,11 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { ApplicationStatus } from '@prisma/client';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   programInterest: z.string().min(1).max(500),
-});
-
-/**
- * Upserts program interest for onboarding (latest application or new draft row).
- */
-export async function PATCH(request: Request) {
+});export const PATCH = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -63,5 +60,5 @@ export async function PATCH(request: Request) {
     console.error('/member/application-onboarding error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

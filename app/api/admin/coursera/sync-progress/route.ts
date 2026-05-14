@@ -6,6 +6,8 @@ import { replayPendingXapiStatements } from '@/lib/coursera/replayPendingXapi';
 import { promoteCsvProgressToCanonical } from '@/lib/coursera/csvImport.server';
 import { refreshMemberProgramProgressRollup } from '@/lib/member/courseProgress';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
@@ -13,17 +15,7 @@ async function requireAdminUser() {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) return null;
   return user;
-}
-
-/**
- * POST /api/admin/coursera/sync-progress
- *
- * Two-phase admin-triggered training sync:
- * 1. Replay any pending xAPI statements that haven't been processed yet.
- * 2. Re-run the progress rollup for every member who has CourseProgress rows
- *    so User.coursesCompleted JSON is up to date for counselor/partner views.
- */
-export async function POST() {
+}export const POST = withApiGuc(async () => {
   try {
   const admin = await requireAdminUser();
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,5 +57,5 @@ export async function POST() {
     console.error('/admin/coursera/sync-progress error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

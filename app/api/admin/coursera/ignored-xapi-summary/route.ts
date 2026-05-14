@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * GET /api/admin/coursera/ignored-xapi-summary
  *
@@ -31,9 +33,7 @@ type IgnoredSlugRow = {
   distinct_learners: bigint;
   first_seen: Date | null;
   last_seen: Date | null;
-};
-
-export async function GET(request: Request) {
+};export const GET = withApiGuc(async (request: Request) => {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -129,4 +129,4 @@ export async function GET(request: Request) {
     console.error('/admin/coursera/ignored-xapi-summary:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

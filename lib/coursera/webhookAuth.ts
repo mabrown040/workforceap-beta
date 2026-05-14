@@ -63,8 +63,12 @@ export function verifyCourseraRestWebhookAuth(args: {
   if (!expectedSecret) return { ok: false };
 
   const sigHeader = readSignatureHeader(request);
-  if (sigHeader && tryVerifyHmacSha256(expectedSecret, rawBody, sigHeader)) {
-    return { ok: true, method: 'hmac-sha256' };
+  if (sigHeader) {
+    if (tryVerifyHmacSha256(expectedSecret, rawBody, sigHeader)) {
+      return { ok: true, method: 'hmac-sha256' };
+    }
+    // If a signature header was present but HMAC failed, do not fall through to other methods.
+    return { ok: false };
   }
 
   const headerSecret = request.headers.get('x-coursera-webhook-secret')?.trim();
@@ -76,9 +80,6 @@ export function verifyCourseraRestWebhookAuth(args: {
   if (bodyS && secureStringEqual(bodyS, expectedSecret)) {
     return { ok: true, method: 'shared-secret-body' };
   }
-
-  // If a signature header was present but HMAC failed, do not fall through to other methods.
-  if (sigHeader) return { ok: false };
 
   return { ok: false };
 }

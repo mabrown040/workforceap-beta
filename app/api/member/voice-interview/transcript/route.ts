@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 import { completeCareerOsInterviewActions } from '@/lib/workflows/completeCareerOsActions';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 type TranscriptTurn = { role: 'agent' | 'user'; text: string };
 
 function normalizeTranscript(input: unknown): TranscriptTurn[] {
@@ -22,9 +24,7 @@ function hasMeaningfulUserPractice(transcript: TranscriptTurn[]) {
   const meaningfulTurns = userTurns.filter((turn) => turn.text.trim().length >= 20);
   const totalUserChars = userTurns.reduce((sum, turn) => sum + turn.text.trim().length, 0);
   return meaningfulTurns.length >= 1 && totalUserChars >= 40;
-}
-
-export async function POST(req: NextRequest) {
+}export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -122,4 +122,4 @@ export async function POST(req: NextRequest) {
     console.error('/member/voice-interview/transcript:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

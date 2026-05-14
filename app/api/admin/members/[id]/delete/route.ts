@@ -4,10 +4,10 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
-export async function POST(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -57,4 +57,4 @@ export async function POST(
     console.error('[admin/members/[id]/delete POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -5,12 +5,12 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const createSchema = z.object({
   requestedProgramSlug: z.string().min(1).max(120),
   reason: z.string().min(10).max(8000),
-});
-
-export async function GET() {
+});async function _GET() {
   try {
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -37,8 +37,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to load requests' }, { status: 500 });
   }
 }
-
-export async function POST(req: NextRequest) {
+export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -80,3 +79,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Could not submit request' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

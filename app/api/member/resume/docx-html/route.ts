@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import mammoth from 'mammoth';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const BUCKET = 'member-resumes';
 
 function storageErrorMessage(error: { message?: string } | null): string {
@@ -12,13 +14,7 @@ function storageErrorMessage(error: { message?: string } | null): string {
     return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
   }
   return 'Could not load resume file';
-}
-
-/**
- * Converts stored DOC/DOCX to HTML for same-origin inline preview (iframe srcDoc + sandbox).
- * POST /api/member/resume/docx-html?variant=original|enhanced
- */
-export async function POST(req: NextRequest) {
+}export const POST = withApiGuc(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,5 +61,5 @@ export async function POST(req: NextRequest) {
     console.error('/member/resume/docx-html error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

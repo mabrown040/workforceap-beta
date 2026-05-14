@@ -11,6 +11,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * POST /api/admin/coursera/reconcile/add-to-wap
  *
@@ -59,9 +61,7 @@ const bodySchema = z.object({
   courseraExternalId: z.string().min(1).max(200),
   programId: z.string().min(1).max(200),
   programSlug: z.string().min(1).max(120).optional(),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -278,4 +278,4 @@ export async function POST(request: NextRequest) {
     console.error('/admin/coursera/reconcile/add-to-wap:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

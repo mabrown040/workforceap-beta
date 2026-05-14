@@ -4,14 +4,10 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 
-const BUCKET = 'member-resumes';
-const MAX_CHARS = 120_000;
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-/**
- * Persists the member's live resume draft as plain text (coach workspace, tooling).
- * Stored alongside generated resumes as `resume-enhanced.txt` so `getMemberResumePlainText` picks it up.
- */
-export async function POST(request: Request) {
+const BUCKET = 'member-resumes';
+const MAX_CHARS = 120_000;export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,4 +45,4 @@ export async function POST(request: Request) {
     console.error('[member/resume/plain-text] error:', e);
     return NextResponse.json({ error: 'Failed to save resume text' }, { status: 500 });
   }
-}
+});

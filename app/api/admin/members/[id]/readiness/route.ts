@@ -4,7 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { READINESS_SECTIONS, getJobSiteItemKey } from '@/lib/content/readinessChecklist';
 
-export async function GET(
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -92,9 +92,7 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(
+export const GET = withApiGuc(_GET);async function _PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -176,4 +174,5 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);
 

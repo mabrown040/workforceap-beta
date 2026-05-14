@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const draftSchema = z.object({
   employmentStatus: z.string().max(50).optional(),
   primaryGoal: z.string().max(80).optional(),
@@ -13,9 +15,7 @@ const draftSchema = z.object({
   workforceAssistance: z.enum(['yes', 'no', '']).optional(),
   phone: z.string().max(50).optional(),
   address: z.string().max(500).optional(),
-});
-
-export async function GET() {
+});async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -38,9 +38,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PUT(request: Request) {
+export const GET = withApiGuc(_GET);async function _PUT(request: Request) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -111,4 +109,5 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PUT = withApiGuc(_PUT);
 

@@ -8,8 +8,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { findRecentAiToolsForApplicationFeedback } from '@/lib/member/applicationAiFeedback';
 import { awardPoints } from '@/lib/member/points';
 
-// GET: List user's job applications
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   try {
     const user = await getUser();
     if (!user?.id) {
@@ -31,6 +30,7 @@ export async function GET() {
     );
   }
 }
+export const GET = withApiGuc(_GET);
 
 // POST: Create a new job application
 const createApplicationSchema = z.object({
@@ -41,9 +41,7 @@ const createApplicationSchema = z.object({
   nextInterviewDate: z.string().datetime().nullable().optional(),
   notes: z.string().optional().nullable(),
   status: z.enum(['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'ACCEPTED', 'REJECTED']).default('APPLIED'),
-});
-
-export async function POST(request: NextRequest) {
+});async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user?.id) {
@@ -119,3 +117,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+export const POST = withApiGuc(_POST);

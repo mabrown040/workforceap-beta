@@ -7,6 +7,8 @@ import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { getMatchSuggestionsTestRecipient, isMatchSuggestionsDryRun } from '@/lib/admin/matchSuggestionsConfig';
 import { applyEmployerNotifiedAfterSuggest } from '@/lib/admin/applyEmployerNotifiedAfterSuggest';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 async function recordSuggestAudit(input: {
   actorUserId: string;
   jobId: string;
@@ -38,12 +40,10 @@ async function recordSuggestAudit(input: {
       message: err instanceof Error ? err.message : String(err),
     });
   }
-}
-
-export async function POST(
+}export const POST = withApiGuc(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -206,4 +206,4 @@ export async function POST(
     console.error('/admin/jobs/[id]/suggest-matches:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

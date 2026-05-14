@@ -12,11 +12,7 @@ import {
 } from '@/lib/ai/matchWeights';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-/**
- * GET /api/member/matched-jobs
- * Returns top 5 active jobs matched to the current student's profile.
- */
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -101,4 +97,4 @@ export async function GET() {
     console.error('/member/matched-jobs:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

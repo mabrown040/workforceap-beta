@@ -543,6 +543,11 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             </div>
           </nav>
 
+          {/* Mobile-only trust bar — key signals lost when brand panel hides */}
+          <div className="mobile-trust-bar" aria-label="Program credentials">
+            ✓ No-cost to members · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808
+          </div>
+
           <form onSubmit={handleSubmit} noValidate>
             {/* Email */}
             <div style={s.fieldGroup}>
@@ -676,8 +681,21 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
 
       {/* Responsive: hide brand panel on mobile; accessible focus rings */}
       <style>{`
+        .mobile-trust-bar { display: none; }
         @media (max-width: 768px) {
           .login-brand-panel { display: none !important; }
+          .mobile-trust-bar {
+            display: block !important;
+            margin-bottom: var(--space-4);
+            padding: var(--space-2) var(--space-3);
+            background: var(--surface-container-high);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--outline-variant);
+            text-align: center;
+            font-size: 0.8125rem;
+            color: var(--color-on-surface-variant);
+            line-height: 1.4;
+          }
         }
         .login-field:focus {
           outline: 2px solid var(--color-accent);

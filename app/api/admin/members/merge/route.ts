@@ -1,8 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { executeMemberMerge, buildMergePreview } from '@/lib/admin/memberMerge';
+
+/**
+ * Verify that both members in a merge candidate pair belong to the caller's
+ * tenant (or that the caller is a super-admin who can act across tenants).
+ *
+ * Returns true if the merge is allowed, false otherwise. Cross-tenant
+ * member ids are masked behind a generic 404 by the caller to prevent
+ * id-enumeration.
+ */
+async function bothMembersInActorScope(
+  staffUserId: string,
+  primaryId: string,
+  secondaryId: string,
+): Promise<boolean> {
+  if (await isSuperAdmin(staffUserId)) return true;
+  let orgId: string;
+  try {
+    orgId = await getActorOrganizationId(staffUserId);
+  } catch {
+    return false;
+  }
+  const count = await prisma.user.count({
+    where: { id: { in: [primaryId, secondaryId] }, organizationId: orgId },
+  });
+  return count === 2;
+}
 
 /**
  * GET /api/admin/members/merge?primaryId=...&secondaryId=...
@@ -23,6 +50,15 @@ export async function GET(req: NextRequest) {
 
     if (!primaryId || !secondaryId || primaryId === secondaryId) {
       return NextResponse.json({ error: 'primaryId and secondaryId required and must differ' }, { status: 400 });
+    }
+
+    // Tenant scope: a non-super tenant admin can only preview merges
+    // between members in their own organization. requireAdmin alone is
+    // a global role check; without this extra scope a tenant admin who
+    // obtains another tenant's user ids could read names, emails, and
+    // merge-conflict detail for those members.
+    if (!(await bothMembersInActorScope(user.id, primaryId, secondaryId))) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
     const preview = await prisma.$transaction(async (tx) => {
@@ -57,6 +93,14 @@ export async function POST(req: NextRequest) {
     const { primaryId, secondaryId } = body;
     if (!primaryId || !secondaryId || primaryId === secondaryId) {
       return NextResponse.json({ error: 'primaryId and secondaryId required and must differ' }, { status: 400 });
+    }
+
+    // Same tenant scope as the GET preview — strictly more important here
+    // because this is the destructive path. Without scope, a tenant admin
+    // who obtained another tenant's user ids could merge those users
+    // together, irreversibly corrupting that tenant's data.
+    if (!(await bothMembersInActorScope(user.id, primaryId, secondaryId))) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
     const result = await prisma.$transaction(async (tx) => {

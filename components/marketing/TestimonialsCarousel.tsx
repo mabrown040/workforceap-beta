@@ -1,29 +1,55 @@
 import { prisma } from '@/lib/db/prisma';
-import { TestimonialStatus } from '@prisma/client';
+import { TestimonialStatus, type Testimonial } from '@prisma/client';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { Quote, Star } from 'lucide-react';
+
+type TestimonialWithMember = Testimonial & {
+  member: { fullName: string; enrolledProgram: string | null };
+};
+
+async function loadTestimonials(limit: number): Promise<TestimonialWithMember[]> {
+  // /impact is ISR — `npm run build` prerenders this server component. In
+  // build environments using the placeholder Prisma URL, the query throws
+  // and breaks the build. Skip the read entirely; the empty-state branch
+  // below renders fine, and runtime requests revalidate with real data.
+  if (
+    process.env.__PRISMA_PLACEHOLDER_DB === '1' ||
+    shouldSkipOptionalDbQueriesAtBuild()
+  ) {
+    return [];
+  }
+  try {
+    return (await prisma.testimonial.findMany({
+      where: {
+        status: TestimonialStatus.PUBLISHED,
+        deletedAt: null,
+        consentGiven: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: {
+        member: {
+          select: {
+            fullName: true,
+            enrolledProgram: true,
+          },
+        },
+      },
+    })) as TestimonialWithMember[];
+  } catch (err) {
+    // Belt-and-suspenders: a DB outage on a public marketing page should
+    // never blow up the response. Empty list is a fine soft-fail.
+    console.error('[TestimonialsCarousel] testimonial query failed:', err);
+    return [];
+  }
+}
 
 /**
  * Server component: fetch approved/published testimonials and render
  * a simple grid. Used on public marketing pages like /impact.
  */
 export default async function TestimonialsCarousel({ limit = 6 }: { limit?: number }) {
-  const testimonials = await prisma.testimonial.findMany({
-    where: {
-      status: TestimonialStatus.PUBLISHED,
-      deletedAt: null,
-      consentGiven: true,
-    },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    include: {
-      member: {
-        select: {
-          fullName: true,
-          enrolledProgram: true,
-        },
-      },
-    },
-  });
+  const testimonials = await loadTestimonials(limit);
 
   if (testimonials.length === 0) {
     return null;

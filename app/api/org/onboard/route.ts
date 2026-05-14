@@ -77,7 +77,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const stripe = getStripe();
     const priceId =
       tier === 'enterprise'
         ? process.env.STRIPE_ENTERPRISE_PRICE_ID
@@ -88,6 +87,12 @@ export async function POST(request: NextRequest) {
     let checkoutUrl: string | null = null;
 
     if (priceId) {
+      // Only instantiate Stripe when we actually need it. getStripe() throws
+      // if STRIPE_SECRET_KEY is unset; previously this fired before the
+      // priceId check, so any preview / self-hosted env with no Stripe
+      // config 500'd here instead of falling through to the trial path
+      // below (subscriptionStatus: 'trial').
+      const stripe = getStripe();
       const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
         line_items: [{ price: priceId, quantity: 1 }],

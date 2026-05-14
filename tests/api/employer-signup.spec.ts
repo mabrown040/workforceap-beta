@@ -383,8 +383,8 @@ describe('Employer auth flow', () => {
           },
           error: null,
         }),
-        getUser: vi.fn(),
-        getSession: vi.fn(),
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: UUIDS.user, email: 'employer@acme.com' } } }),
+        getSession: vi.fn().mockResolvedValue({ data: { session: { access_token: 'tok' } } }),
         mfa: {
           getAuthenticatorAssuranceLevel: vi.fn(),
           listFactors: vi.fn(),

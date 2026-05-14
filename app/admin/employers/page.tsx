@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Download } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
@@ -187,7 +188,27 @@ export default async function AdminEmployersPage() {
 
   return (
     <PortalPageFrame>
-      <PageHeader title="Employers" subtitle="Manage employer accounts. Only active employers can be opened in the employer portal preview; inactive rows stay here until reactivated." />
+      <PageHeader
+        title="Employers"
+        subtitle="Manage employer accounts. Only active employers can be opened in the employer portal preview; inactive rows stay here until reactivated."
+        action={
+          // /admin/employers is a Server Component — inline onClick handlers
+          // are not allowed (passing an event handler from server to client
+          // fails the route at render time). Use a plain anchor with
+          // target="_blank" instead; functionally identical from the user's
+          // perspective and survives SSR.
+          <a
+            href="/api/admin/employers/export"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline btn-sm"
+            title="Export employers to CSV"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <Download size={14} /> Export CSV
+          </a>
+        }
+      />
 
       {superAdmin && (
         <p style={{ fontSize: '0.9rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>

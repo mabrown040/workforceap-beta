@@ -75,9 +75,18 @@ export async function POST(request: NextRequest) {
 
     const member = await prisma.user.findUnique({
       where: { id: memberId },
-      select: { id: true, fullName: true },
+      select: { id: true, fullName: true, organizationId: true, deletedAt: true },
     });
-    if (!member) {
+    // Tenant scope: only members in the partner's own organization can be
+    // referred. Returning a 404 (rather than 403) for cross-tenant members
+    // is intentional — it avoids leaking the existence of users in other
+    // tenants by id-probe. Soft-deleted users are also masked as 404 for
+    // the same reason.
+    if (
+      !member ||
+      member.deletedAt ||
+      member.organizationId !== ctx.partner.organizationId
+    ) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 

@@ -17,8 +17,17 @@ export async function POST(req: Request) {
 
     const { memberId, courseName } = await req.json();
 
-    const providedSecret = req.headers.get('x-webhook-secret') || '';
+    // Refuse to authenticate if the server-side secret is not configured.
+    // Without this guard, an unset/empty WEBHOOK_SECRET would let any caller
+    // omit the header and pass timingSafeEqual('', '') as true — silent
+    // bypass on misconfigured preview/staging/prod envs.
     const expectedSecret = process.env.WEBHOOK_SECRET || '';
+    if (!expectedSecret) {
+      console.error('[webhooks/learning-completion] WEBHOOK_SECRET is not configured — refusing all requests');
+      return NextResponse.json({ error: 'Webhook not configured' }, { status: 503 });
+    }
+
+    const providedSecret = req.headers.get('x-webhook-secret') || '';
     if (providedSecret.length !== expectedSecret.length) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

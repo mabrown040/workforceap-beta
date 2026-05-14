@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { TestimonialStatus } from '@prisma/client';
@@ -21,7 +21,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const orgId = await getActorOrganizationId(user.id);
+    const isSuper = await isSuperAdmin(user.id);
+    const orgId = isSuper ? null : await getActorOrganizationId(user.id);
 
     const { searchParams } = new URL(req.url);
     const statusRaw = searchParams.get('status') ?? undefined;
@@ -34,10 +35,9 @@ export async function GET(req: NextRequest) {
         : undefined;
 
     // Tenant scope: only testimonials whose member belongs to the caller's
-    // organization. Same `member: { organizationId }` relation filter applies
-    // to the listing, the listing's total count, and the headline stats so
-    // every number on the page is honestly scoped.
-    const orgScope = { member: { organizationId: orgId } };
+    // organization. Super-admins skip the scope so the platform-level queue
+    // is visible (matches the `[id]` handler's super-admin bypass).
+    const orgScope = orgId ? { member: { organizationId: orgId } } : {};
 
     const where = {
       deletedAt: null,

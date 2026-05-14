@@ -60,6 +60,9 @@ self.addEventListener('fetch', (event) => {
   // marketing routes; authenticated portals fall through to the offline
   // page on failure instead.
   if (event.request.mode === 'navigate') {
+    // Mirrors PORTAL_PATHS + ADMIN_PATHS in middleware.ts — every route the
+    // middleware gates behind auth must be excluded from this cache, or a
+    // shared device can serve a previous user's HTML offline after logout.
     const isAuthenticatedRoute =
       url.pathname.startsWith('/dashboard') ||
       url.pathname.startsWith('/admin') ||
@@ -67,7 +70,11 @@ self.addEventListener('fetch', (event) => {
       url.pathname.startsWith('/employer') ||
       url.pathname.startsWith('/partner') ||
       url.pathname.startsWith('/profile') ||
-      url.pathname.startsWith('/account');
+      url.pathname.startsWith('/account') ||
+      url.pathname.startsWith('/applications') ||
+      url.pathname.startsWith('/resources') ||
+      url.pathname.startsWith('/help') ||
+      url.pathname.startsWith('/certifications');
     event.respondWith(
       fetch(event.request)
         .then((res) => {

@@ -97,7 +97,13 @@ export async function POST(req: Request) {
       });
 
       // Auto-create testimonial pipeline entry if member consented
-      if (updated.allowTestimonial) {
+      // Gate testimonial creation on the FIRST completion. The same signed
+      // token can be submitted multiple times (double-click, retry, link
+      // reopened before expiry) and the survey row gets updated every
+      // time. Without this guard, every resubmission with
+      // allowTestimonial=true added another pending testimonial.
+      const isFirstCompletion = !survey.completedAt;
+      if (updated.allowTestimonial && isFirstCompletion) {
         try {
           const member = await prisma.user.findUnique({
             where: { id: updated.userId },

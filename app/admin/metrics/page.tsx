@@ -11,11 +11,16 @@ import AdminAnalyticsCharts from '@/components/admin/AdminAnalyticsChartsLazy';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  // `t` must be resolved here, not inferred from the page component below
+  // (which is a separate render scope). The previous code referenced `t`
+  // before it was declared, so /admin/metrics threw a ReferenceError during
+  // metadata generation instead of rendering.
+  const t = await getTranslations('admin');
   return buildPageMetadataAsync({
-  title: t('adminAnalytics'),
-  description: t('engagementAndActivity'),
-  path: '/admin/metrics',
-});
+    title: t('adminAnalytics'),
+    description: t('engagementAndActivity'),
+    path: '/admin/metrics',
+  });
 }
 
 export default async function AdminMetricsPage() {

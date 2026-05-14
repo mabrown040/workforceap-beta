@@ -173,6 +173,7 @@ export async function buildMergePreview(
     { model: 'placementSurvey', field: 'userId', promise: tx.placementSurvey.count({ where: { userId: secondaryId } }) },
     { model: 'testimonial', field: 'memberId', promise: tx.testimonial.count({ where: { memberId: secondaryId } }) },
     { model: 'testimonial', field: 'reviewedBy', promise: tx.testimonial.count({ where: { reviewedBy: secondaryId } }) },
+    { model: 'milestoneCascade', field: 'userId', promise: tx.milestoneCascade.count({ where: { userId: secondaryId } }) },
     { model: 'courseraCourseProgress', field: 'userId', promise: tx.courseraCourseProgress.count({ where: { userId: secondaryId } }) },
     { model: 'courseraBadgeProgress', field: 'userId', promise: tx.courseraBadgeProgress.count({ where: { userId: secondaryId } }) },
     { model: 'courseraSkillsetProgress', field: 'userId', promise: tx.courseraSkillsetProgress.count({ where: { userId: secondaryId } }) },
@@ -354,6 +355,7 @@ export async function executeMemberMerge(
   await repoint('placementSurvey', 'userId');
   await repoint('testimonial', 'memberId');
   await repoint('testimonial', 'reviewedBy');
+  await repoint('milestoneCascade', 'userId');
   await repoint('courseraCourseProgress', 'userId');
   await repoint('courseraBadgeProgress', 'userId');
   await repoint('courseraSkillsetProgress', 'userId');

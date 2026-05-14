@@ -25,10 +25,28 @@ async function bothMembersInActorScope(
   } catch {
     return false;
   }
-  const count = await prisma.user.count({
-    where: { id: { in: [primaryId, secondaryId] }, organizationId: orgId },
+  // Both ids must:
+  //   (a) belong to the actor's org, AND
+  //   (b) be actual member accounts (no counselor/mentor/employer/partner
+  //       profile, no admin role).
+  // executeMemberMerge is destructive — repointing roles on a staff/admin
+  // account and soft-deleting one of them is data-corrupting in a way the
+  // admin UI doesn't expose (it searches members only) but the API
+  // accepts any user id. Without this gate a misconfigured/malicious
+  // request could merge an admin into a member.
+  const members = await prisma.user.findMany({
+    where: {
+      id: { in: [primaryId, secondaryId] },
+      organizationId: orgId,
+      counselorProfile: null,
+      mentorProfile: null,
+      partnerUser: null,
+      employer: null,
+      userRoles: { none: { role: { name: { in: ['admin', 'super_admin'] } } } },
+    },
+    select: { id: true },
   });
-  return count === 2;
+  return members.length === 2;
 }
 
 /**

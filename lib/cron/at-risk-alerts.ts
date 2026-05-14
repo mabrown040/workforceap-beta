@@ -84,6 +84,7 @@ export async function runDailyAtRiskCounselorAlerts(): Promise<DailyAtRiskAlertR
 
   // Get members with active counselor assignments
   const membersWithCounselors = await prisma.user.findMany({
+    take: 500,
     where: {
       id: { in: criticalScores.map((s) => s.userId) },
       deletedAt: null,

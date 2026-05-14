@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { computeWioaSignal, parseWioaAnswers, type WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { sendWioaScreeningNotification } from '@/lib/wioa/wioaNotification';
+import { checkPublicWioaQualificationRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 const publicLeadSchema = z.object({
   fullName: z.string().trim().min(2, 'Please enter your full name').max(120),
@@ -11,6 +13,15 @@ const publicLeadSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkPublicWioaQualificationRateLimit(ip);
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: 'Too many submissions. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': '3600' } }
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();

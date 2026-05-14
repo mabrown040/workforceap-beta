@@ -139,7 +139,7 @@ async function getEmployerBadgeCounts(employerId: string): Promise<NavBadgeCount
 
 async function getCounselorBadgeCounts(counselorId: string): Promise<NavBadgeCounts> {
   const assignments = await prisma.counselorAssignment.findMany({
-    take: 5000,
+    take: 500,
     where: {
       counselorId,
       active: true,
@@ -152,7 +152,7 @@ async function getCounselorBadgeCounts(counselorId: string): Promise<NavBadgeCou
   if (memberIds.length === 0) return {};
 
   const threads = await prisma.messageThread.findMany({
-    take: 5000,
+    take: 500,
     where: {
       kind: 'member',
       memberId: { in: memberIds },
@@ -206,12 +206,12 @@ async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts>
   const [attentionRows, referralIds, partnerUsers, thread] = await Promise.all([
     buildPartnerAttentionQueue(partnerId),
     prisma.partnerReferral.findMany({
-      take: 5000,
+      take: 500,
       where: { partnerId, member: { deletedAt: null } },
       select: { memberId: true },
     }),
     prisma.partnerUser.findMany({
-      take: 5000,
+      take: 500,
       where: { partnerId },
       select: { userId: true },
     }),

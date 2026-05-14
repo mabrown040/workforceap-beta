@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Plus, Merge } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -263,7 +263,12 @@ export default async function AdminMembersPage() {
       <PageHeader
         title={t('members')}
         subtitle={t('viewAndManageAccounts')}
-        action={<Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Plus size={16} /> {t('addMember')}</Link>}
+        action={
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <Link href="/admin/members/merge" className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Merge size={16} /> Merge</Link>
+            <Link href="/admin/members/new" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}><Plus size={16} /> {t('addMember')}</Link>
+          </div>
+        }
       />
 
       {members.length >= 2000 && (

@@ -31,8 +31,9 @@ export type ReplayPendingXapiResult = {
  * before identity mapping existed, or transient failure after persist).
  */
 export async function replayPendingXapiStatements(limit = 150): Promise<ReplayPendingXapiResult> {
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
   const rows = await prisma.xapiStatement.findMany({
-    where: { processed: false },
+    where: { processed: false, createdAt: { gte: ninetyDaysAgo } },
     orderBy: { createdAt: 'asc' },
     take: limit,
   });
@@ -48,9 +49,10 @@ export async function replayPendingXapiStatements(limit = 150): Promise<ReplayPe
 export async function replayPendingXapiStatementsForEmail(
   actorEmail: string,
 ): Promise<ReplayPendingXapiResult> {
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
   const rows = await prisma.xapiStatement.findMany({
-    take: 5000,
-    where: { processed: false, actorEmail },
+    take: 500,
+    where: { processed: false, actorEmail, createdAt: { gte: ninetyDaysAgo } },
     orderBy: { createdAt: 'asc' },
   });
 
@@ -66,6 +68,7 @@ export async function replayPendingXapiStatementsForEmail(
 export async function replayUnresolvedXapiStatementsForIdentity(args: {
   courseraEmail?: string | null;
   actorIdentifier?: string | null;
+  sinceDays?: number;
 }): Promise<ReplayPendingXapiResult> {
   const email = args.courseraEmail?.trim().toLowerCase() || null;
   const actor = args.actorIdentifier?.trim() || null;
@@ -73,8 +76,14 @@ export async function replayUnresolvedXapiStatementsForIdentity(args: {
     return _replayRows([]);
   }
 
+  const sinceDays = args.sinceDays ?? 30;
+  const cutoff = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
+
   const rows = await prisma.xapiStatement.findMany({
-    take: 5000,
+    take: 500,
+    where: {
+      createdAt: { gte: cutoff },
+    },
     where: {
       OR: [
         ...(email ? [{ actorEmail: email }] : []),

@@ -84,6 +84,7 @@ export async function loadTrainingDashboardData(): Promise<TrainingDashboardData
       },
       courseProgress: {
         where: { status: { in: [CourseProgressStatus.IN_PROGRESS, CourseProgressStatus.COMPLETED] } },
+        take: 50,
         select: { courseSlug: true, status: true, lastUpdatedAt: true },
       },
       partnerReferrals: {

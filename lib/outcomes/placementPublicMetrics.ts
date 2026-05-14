@@ -23,14 +23,19 @@ export async function getPlacementPublicMetrics(prisma: PrismaClient): Promise<P
   }
 
   try {
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+    const timeBound = { placedAt: { gte: twoYearsAgo } };
+
     const [placedCount, withRetentionNote, last] = await Promise.all([
-      prisma.placementRecord.count(),
+      prisma.placementRecord.count({ where: timeBound }),
       prisma.placementRecord.count({
         where: {
-          OR: [{ retentionStatus: { not: null } }, { retentionDecision: { not: null } }],
+          AND: [timeBound, { OR: [{ retentionStatus: { not: null } }, { retentionDecision: { not: null } }] }],
         },
       }),
       prisma.placementRecord.findFirst({
+        where: timeBound,
         orderBy: { placedAt: 'desc' },
         select: { placedAt: true },
       }),

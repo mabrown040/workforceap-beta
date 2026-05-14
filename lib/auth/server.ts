@@ -2,6 +2,9 @@ import { cache } from 'react';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
+import { runWithGucContext, buildGucContext, ANONYMOUS_GUC_CONTEXT } from '@/lib/db/gucContext';
+import type { GucContext } from '@/lib/db/gucContext';
+import { getProfileRole } from './roles';
 
 export function hasSupabaseServerEnv() {
   return Boolean(
@@ -82,3 +85,40 @@ export const getUser = cache(async function getUser() {
   } = await supabase.auth.getUser();
   return user;
 });
+
+/**
+ * Resolve the GUC context for the current request.
+ *
+ * - Authenticated: reads the Supabase user, resolves the profile role from
+ *   the database, and builds a GucContext with `userId` + `role`.
+ * - Unauthenticated: returns `ANONYMOUS_GUC_CONTEXT`.
+ *
+ * Uses React `cache()` so multiple calls in the same request share one DB
+ * round-trip for the profile role.
+ */
+export const resolveAuthGucContext = cache(async function resolveAuthGucContext(): Promise<GucContext> {
+  const user = await getUser();
+  if (!user) return ANONYMOUS_GUC_CONTEXT;
+  const profileRole = await getProfileRole(user.id);
+  return buildGucContext({
+    userId: user.id,
+    orgId: null,
+    profileRole,
+  });
+});
+
+/**
+ * Run `fn` with the GUC context derived from the current authenticated user.
+ *
+ * Use this in API routes, server actions, or server components where you
+ * want every Prisma query inside `fn` to carry the correct RLS credentials.
+ *
+ * Example (API route):
+ *   export const GET = withAuthGuc(async () => {
+ *     const data = await prisma.member.findMany();
+ *     return Response.json(data);
+ *   });
+ */
+export function withAuthGuc<T>(fn: () => Promise<T>): Promise<T> {
+  return resolveAuthGucContext().then((ctx) => runWithGucContext(ctx, fn));
+}

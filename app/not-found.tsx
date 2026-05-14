@@ -14,7 +14,7 @@ export default function NotFound() {
         <Link href="/" className="app-system-page__logo-link" aria-label="Workforce Advancement Project home">
           <Image
             src="/images/wap_logo.png"
-            alt=""
+            alt="WorkforceAP logo"
             width={180}
             height={92}
             className="app-system-page__logo"

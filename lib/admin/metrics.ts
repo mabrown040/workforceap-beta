@@ -417,7 +417,7 @@ export async function getAdminMetrics(orgId: string) {
 
   const active14dSet = new Set(activeUserIds14d.map((x) => x.userId));
 
-  const allUsersResult = await withTenantScope(orgId, (db) => db.user.findMany({ select: { id: true } }))
+  const allUsersResult = await withTenantScope(orgId, (db) => db.user.findMany({ take: 5000, select: { id: true } }))
     .then((value) => ({ status: 'fulfilled' as const, value }))
     .catch((reason) => ({ status: 'rejected' as const, reason }));
 

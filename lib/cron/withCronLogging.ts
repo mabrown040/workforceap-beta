@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { runWithGucContext, SYSTEM_GUC_CONTEXT } from '@/lib/db/gucContext';
 import { authorizeCronRequest } from './authorizeCronRequest';
 import { isCronEnabled } from './isCronEnabled';
 import { startCronExecution, completeCronExecution, runWithCronExecution } from './cronExecution';
@@ -30,7 +31,7 @@ export function withCronLogging(
       }
 
       try {
-        const response = await handler(request);
+        const response = await runWithGucContext(SYSTEM_GUC_CONTEXT, () => handler(request));
         await completeCronExecution(executionId, 'SUCCESS');
         return response;
       } catch (err) {

@@ -14,44 +14,49 @@ export type ThreadSlaRow = {
 /**
  * For each thread: if the latest message from the member has no later counselor/staff message,
  * the thread "needs" a counselor reply. SLA breach when that member message is older than 48h / 72h.
+ *
+ * Uses a single raw query to avoid loading entire thread histories (N+1 / memory bloat).
  */
 export async function getSlaStatusForThreads(threadIds: string[]): Promise<Map<string, ThreadSlaRow>> {
   const map = new Map<string, ThreadSlaRow>();
   if (threadIds.length === 0) return map;
 
-  const threads = await prisma.messageThread.findMany({
-    take: 500,
-    where: {
-      id: { in: threadIds },
-      kind: 'member',
-    },
-    include: {
-      messages: {
-        orderBy: { createdAt: 'desc' },
-      },
-    },
-  });
+  const rows = await prisma.$queryRawUnsafe<
+    Array<{ thread_id: string; member_last_msg_at: Date; has_staff_after: boolean }>
+  >(
+    `WITH latest_member_message AS (
+       SELECT DISTINCT ON (m.thread_id)
+         m.thread_id,
+         m.created_at AS member_last_msg_at
+       FROM messages m
+       JOIN message_threads t ON m.thread_id = t.id
+       WHERE m.thread_id = ANY($1)
+         AND m.author_id = t.member_id
+         AND t.kind = 'member'
+       ORDER BY m.thread_id, m.created_at DESC
+     )
+     SELECT
+       lmm.thread_id,
+       lmm.member_last_msg_at,
+       EXISTS (
+         SELECT 1 FROM messages m2
+         JOIN message_threads t2 ON m2.thread_id = t2.id
+         WHERE m2.thread_id = lmm.thread_id
+           AND m2.author_id != t2.member_id
+           AND m2.created_at > lmm.member_last_msg_at
+       ) AS has_staff_after
+     FROM latest_member_message lmm`,
+    threadIds,
+  );
 
   const now = Date.now();
-  for (const thread of threads) {
-    if (!thread.memberId) continue;
+  for (const row of rows) {
+    const needsCounselorReply = !row.has_staff_after;
+    const ageMs = now - row.member_last_msg_at.getTime();
 
-    const memberMessages = thread.messages.filter(m => m.authorId === thread.memberId);
-    if (memberMessages.length === 0) continue;
-
-    const latestMemberMessage = memberMessages[0];
-
-    const hasStaffAfter = thread.messages.some(m =>
-      m.authorId !== thread.memberId &&
-      m.createdAt > latestMemberMessage.createdAt
-    );
-
-    const needsCounselorReply = !hasStaffAfter;
-    const ageMs = now - latestMemberMessage.createdAt.getTime();
-
-    map.set(thread.id, {
-      threadId: thread.id,
-      memberLastMessageAt: latestMemberMessage.createdAt,
+    map.set(row.thread_id, {
+      threadId: row.thread_id,
+      memberLastMessageAt: row.member_last_msg_at,
       needsCounselorReply,
       breached48h: needsCounselorReply && ageMs >= HOURS_48_MS,
       breached72h: needsCounselorReply && ageMs >= HOURS_72_MS,
@@ -65,45 +70,35 @@ export async function countThreadsWithSlaBreach(minHours: 48 | 72): Promise<numb
   const thresholdMs = minHours === 48 ? HOURS_48_MS : HOURS_72_MS;
   const threshold = new Date(Date.now() - thresholdMs);
 
-  const threads = await prisma.messageThread.findMany({
-    take: 500,
-    where: {
-      kind: 'member',
-      messages: {
-        some: {
-          createdAt: { lt: threshold }
-        }
-      }
-    },
-    include: {
-      messages: {
-        orderBy: { createdAt: 'desc' },
-      },
-    },
-  });
+  const result = await prisma.$queryRawUnsafe<
+    Array<{ count: number }>
+  >(
+    `WITH latest_member_message AS (
+       SELECT DISTINCT ON (m.thread_id)
+         m.thread_id,
+         m.created_at AS member_last_msg_at
+       FROM messages m
+       JOIN message_threads t ON m.thread_id = t.id
+       WHERE t.kind = 'member'
+         AND m.author_id = t.member_id
+         AND t.member_id IS NOT NULL
+       ORDER BY m.thread_id, m.created_at DESC
+     )
+     SELECT COUNT(*)::int AS count
+     FROM latest_member_message lmm
+     JOIN message_threads t ON lmm.thread_id = t.id
+     WHERE lmm.member_last_msg_at < $1
+       AND NOT EXISTS (
+         SELECT 1 FROM messages m2
+         JOIN message_threads t2 ON m2.thread_id = t2.id
+         WHERE m2.thread_id = lmm.thread_id
+           AND m2.author_id != t2.member_id
+           AND m2.created_at > lmm.member_last_msg_at
+       )`,
+    threshold,
+  );
 
-  let count = 0;
-  for (const thread of threads) {
-    if (!thread.memberId) continue;
-
-    const memberMessages = thread.messages.filter(m => m.authorId === thread.memberId);
-    if (memberMessages.length === 0) continue;
-
-    const latestMemberMessage = memberMessages[0];
-
-    if (latestMemberMessage.createdAt >= threshold) continue;
-
-    const hasStaffAfter = thread.messages.some(m =>
-      m.authorId !== thread.memberId &&
-      m.createdAt > latestMemberMessage.createdAt
-    );
-
-    if (!hasStaffAfter) {
-      count++;
-    }
-  }
-
-  return count;
+  return result[0]?.count ?? 0;
 }
 
 export async function countMessageThreadsWithActivity(): Promise<number> {
@@ -114,52 +109,36 @@ export async function countMessageThreadsWithActivity(): Promise<number> {
 
 /** Thread IDs where the latest member message has no staff reply after it and member message is older than `threshold`. */
 export async function getThreadIdsBreachingSla(threshold: Date, limit: number): Promise<string[]> {
-  const threads = await prisma.messageThread.findMany({
-    take: 500,
-    where: {
-      kind: 'member',
-      messages: {
-        some: {
-          createdAt: { lt: threshold }
-        }
-      },
-      member: {
-        deletedAt: null
-      }
-    },
-    include: {
-      messages: {
-        orderBy: { createdAt: 'desc' },
-      },
-    },
-  });
+  const rows = await prisma.$queryRawUnsafe<
+    Array<{ thread_id: string; member_last_msg_at: Date }>
+  >(
+    `WITH latest_member_message AS (
+       SELECT DISTINCT ON (m.thread_id)
+         m.thread_id,
+         m.created_at AS member_last_msg_at
+       FROM messages m
+       JOIN message_threads t ON m.thread_id = t.id
+       WHERE t.kind = 'member'
+         AND m.author_id = t.member_id
+         AND t.member_id IS NOT NULL
+         AND t.member_id IN (SELECT id FROM users WHERE deleted_at IS NULL)
+       ORDER BY m.thread_id, m.created_at DESC
+     )
+     SELECT lmm.thread_id, lmm.member_last_msg_at
+     FROM latest_member_message lmm
+     WHERE lmm.member_last_msg_at < $1
+       AND NOT EXISTS (
+         SELECT 1 FROM messages m2
+         JOIN message_threads t2 ON m2.thread_id = t2.id
+         WHERE m2.thread_id = lmm.thread_id
+           AND m2.author_id != t2.member_id
+           AND m2.created_at > lmm.member_last_msg_at
+       )
+     ORDER BY lmm.member_last_msg_at ASC
+     LIMIT $2`,
+    threshold,
+    limit,
+  );
 
-  const breachingThreads = [];
-
-  for (const thread of threads) {
-    if (!thread.memberId) continue;
-
-    const memberMessages = thread.messages.filter(m => m.authorId === thread.memberId);
-    if (memberMessages.length === 0) continue;
-
-    const latestMemberMessage = memberMessages[0];
-
-    if (latestMemberMessage.createdAt >= threshold) continue;
-
-    const hasStaffAfter = thread.messages.some(m =>
-      m.authorId !== thread.memberId &&
-      m.createdAt > latestMemberMessage.createdAt
-    );
-
-    if (!hasStaffAfter) {
-      breachingThreads.push({
-        threadId: thread.id,
-        memberLastAt: latestMemberMessage.createdAt,
-      });
-    }
-  }
-
-  breachingThreads.sort((a, b) => a.memberLastAt.getTime() - b.memberLastAt.getTime());
-
-  return breachingThreads.slice(0, limit).map(t => t.threadId);
+  return rows.map(r => r.thread_id);
 }

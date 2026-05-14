@@ -31,6 +31,27 @@ async function handle(_req: NextRequest) {
     take: 100,
   });
 
+  // Batch fetch the most recent completed course per member to avoid N+1.
+  const memberIds = completed.map((m) => m.id);
+  const milestones = memberIds.length
+    ? await prisma.courseProgress.findMany({
+        where: {
+          userId: { in: memberIds },
+          status: 'COMPLETED',
+          completedAt: { gte: yesterday },
+        },
+        orderBy: { completedAt: 'desc' },
+        select: { userId: true, programSlug: true, completedAt: true },
+      })
+    : [];
+
+  const latestMilestoneByMember = new Map<string, { programSlug: string }>();
+  for (const m of milestones) {
+    if (!latestMilestoneByMember.has(m.userId)) {
+      latestMilestoneByMember.set(m.userId, { programSlug: m.programSlug });
+    }
+  }
+
   let sent = 0;
 
   for (const member of completed) {
@@ -40,15 +61,7 @@ async function handle(_req: NextRequest) {
       // Multi-program learners may have hit this milestone in their
       // secondary program; congratulating them on their primary program
       // is a user-visible bug.
-      const milestone = await prisma.courseProgress.findFirst({
-        where: {
-          userId: member.id,
-          status: 'COMPLETED',
-          completedAt: { gte: yesterday },
-        },
-        orderBy: { completedAt: 'desc' },
-        select: { programSlug: true },
-      });
+      const milestone = latestMilestoneByMember.get(member.id);
 
       const programSlug = milestone?.programSlug ?? member.enrolledProgram ?? null;
       const program = programSlug ? getProgramBySlug(programSlug) : undefined;

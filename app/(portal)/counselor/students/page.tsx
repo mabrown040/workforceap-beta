@@ -36,7 +36,7 @@ export default async function CounselorStudentsPage() {
 
   const assignments = counselor
     ? await prisma.counselorAssignment.findMany({
-      take: 5000,
+      take: 500,
         where: { counselor: { userId: user.id, active: true }, active: true },
         include: {
           member: {
@@ -93,7 +93,7 @@ export default async function CounselorStudentsPage() {
 
   const hotQueue = memberIds.length
     ? await prisma.memberNextBestAction.findMany({
-      take: 5000,
+      take: 500,
         where: {
           memberId: { in: memberIds },
           status: 'PENDING',

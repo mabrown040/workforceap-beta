@@ -2207,3 +2207,21 @@ model CourseraSkillsetProgress {
   @@index([programId])
   @@map("coursera_skillset_progress")
 }
+
+// --- Feature Flags ---
+
+model FeatureFlag {
+  id                  String   @id @default(uuid())
+  key                 String   @unique
+  name                String
+  description         String?
+  enabled             Boolean  @default(false)
+  rolloutPercentage   Int      @default(0) @map("rollout_percentage") // 0-100
+  allowedRoles        String[] @default([]) @map("allowed_roles") // which roles can see this
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled])
+  @@index([key])
+  @@map("feature_flags")
+}

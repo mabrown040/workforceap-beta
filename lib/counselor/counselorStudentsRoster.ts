@@ -31,7 +31,7 @@ export async function loadCounselorRosterRiskAndActivity(
     prisma.$queryRawUnsafe<Array<{ user_id: string; last_at: Date | null }>>(
       `SELECT user_id, MAX(created_at) AS last_at
        FROM member_events
-       WHERE user_id = ANY($1::uuid[])
+       WHERE user_id = ANY($1::text[])
        GROUP BY user_id`,
       memberIds,
     ),

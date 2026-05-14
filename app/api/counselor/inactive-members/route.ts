@@ -64,7 +64,7 @@ export async function GET(request: Request) {
     JOIN profiles p ON p.user_id = u.id
     LEFT JOIN member_events me ON me.user_id = u.id
     WHERE p.role = 'member'
-    AND u.organization_id = ${orgId}::uuid
+    AND u.organization_id = ${orgId}
     ${assignmentScope}
     GROUP BY u.id, u.email, u.created_at, p.role, p.profile_phone
     HAVING MAX(me.created_at) IS NULL OR MAX(me.created_at) < ${cutoffDate}

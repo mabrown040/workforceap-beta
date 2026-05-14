@@ -1,13 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Resend } from 'resend';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
 import { checkPartnerSignupRateLimit } from '@/lib/rate-limit';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
-
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-const TO_EMAIL = 'info@workforceap.org';
+const ADMIN_EMAIL = 'info@workforceap.org';
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+async function generateUniqueSlug(base: string): Promise<string> {
+  let slug = slugify(base);
+  if (!slug) slug = 'partner';
+  let candidate = slug;
+  let suffix = 0;
+  while (await prisma.partner.findUnique({ where: { slug: candidate }, select: { id: true } })) {
+    suffix++;
+    candidate = `${slug}-${suffix}`;
+  }
+  return candidate;
+}
+
+async function generateUniqueReferralCode(base: string): Promise<string> {
+  let code = slugify(base);
+  if (!code) code = 'partner';
+  let candidate = code;
+  let suffix = 0;
+  while (
+    await prisma.partner.findFirst({
+      where: { OR: [{ referralCode: candidate }, { slug: candidate }] },
+      select: { id: true },
+    })
+  ) {
+    suffix++;
+    candidate = `${code}-${suffix}`;
+  }
+  return candidate;
+}
 
 const signupSchema = z.object({
   organizationName: z.string().min(1).max(200).trim(),
@@ -18,15 +66,10 @@ const signupSchema = z.object({
   serveArea: z.string().min(1).max(200).trim(),
   expectedMonthly: z.string().min(1).max(40).trim(),
   hearAbout: z.string().max(2000).optional().nullable(),
+  password: z.string().min(8).max(128),
 });
 
-function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
-  );
-}export const POST = withApiGuc(async (request: NextRequest) => {
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
     const { success: rateOk } = await checkPartnerSignupRateLimit(ip);
@@ -36,14 +79,14 @@ function getClientIp(request: NextRequest): string {
         { status: 429 }
       );
     }
-  
+
     let body: unknown;
     try {
       body = await request.json();
     } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
-  
+
     const parsed = signupSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
@@ -51,66 +94,266 @@ function getClientIp(request: NextRequest): string {
         { status: 400 }
       );
     }
-  
+
     const d = parsed.data;
     const phone = d.contactPhone?.trim() || null;
     const hear = d.hearAbout?.trim() || null;
-  
-    await prisma.partnerSignupRequest.create({
-      data: {
-        organizationName: d.organizationName,
-        contactName: d.contactName,
-        contactEmail: d.contactEmail,
-        contactPhone: phone,
-        orgType: d.orgType,
-        expectedMonthly: d.expectedMonthly,
-        serveArea: d.serveArea,
-        hearAbout: hear,
+
+    // Check if email already exists in our DB
+    const existingUser = await prisma.user.findUnique({
+      where: { email: d.contactEmail },
+      select: { id: true },
+    });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'An account with this email already exists. Try logging in or resetting your password.' },
+        { status: 400 }
+      );
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey || !serviceRoleKey) {
+      return NextResponse.json(
+        { error: 'Server configuration error. Please try again later.' },
+        { status: 500 }
+      );
+    }
+
+    // Create Supabase auth user via admin (confirmed, no email verification gate)
+    const supabaseAdmin = getSupabaseAdmin();
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: d.contactEmail,
+      password: d.password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: d.contactName,
+        phone: phone ?? undefined,
       },
     });
-  
+
+    if (authError) {
+      if (authError.message.includes('already') || authError.code === 'user_already_exists') {
+        return NextResponse.json(
+          { error: 'An account with this email already exists. Try logging in or resetting your password.' },
+          { status: 400 }
+        );
+      }
+      console.error('Partner signup auth error:', authError);
+      return NextResponse.json(
+        { error: 'We could not create your account. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    const authUser = authData.user;
+    if (!authUser) {
+      return NextResponse.json(
+        { error: 'Account creation failed. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    const organizationId = await getDefaultOrganizationId();
+    const slug = await generateUniqueSlug(d.organizationName);
+    const referralCode = await generateUniqueReferralCode(d.organizationName);
+
+    // Create DB records in transaction
+    try {
+      await prisma.$transaction(async (tx) => {
+        // Create User row
+        await tx.user.create({
+          data: {
+            id: authUser.id,
+            organizationId,
+            email: d.contactEmail,
+            fullName: d.contactName,
+            phone,
+          },
+        });
+
+        // Create Profile with partner role
+        await tx.profile.create({
+          data: {
+            userId: authUser.id,
+            role: 'partner',
+            consentTerms: true,
+          },
+        });
+
+        // Create Partner row (pending approval)
+        const partner = await tx.partner.create({
+          data: {
+            organizationId,
+            name: d.organizationName,
+            slug,
+            referralCode,
+            contactName: d.contactName,
+            contactEmail: d.contactEmail,
+            contactPhone: phone,
+            organizationType: d.orgType,
+            status: 'pending_approval',
+            active: true,
+          },
+        });
+
+        // Link PartnerUser
+        await tx.partnerUser.create({
+          data: {
+            partnerId: partner.id,
+            userId: authUser.id,
+          },
+        });
+
+        // Keep audit record
+        await tx.partnerSignupRequest.create({
+          data: {
+            organizationName: d.organizationName,
+            contactName: d.contactName,
+            contactEmail: d.contactEmail,
+            contactPhone: phone,
+            orgType: d.orgType,
+            expectedMonthly: d.expectedMonthly,
+            serveArea: d.serveArea,
+            hearAbout: hear,
+            status: 'self_service_created',
+          },
+        });
+      });
+    } catch (dbErr) {
+      console.error('Partner signup DB error:', dbErr);
+      // Attempt to clean up auth user so they can retry
+      await supabaseAdmin.auth.admin.deleteUser(authUser.id).catch((e) => {
+        console.error('Failed to clean up auth user after DB error:', e);
+      });
+      return NextResponse.json(
+        { error: 'Account creation failed. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    // Sign in to create session (set cookies)
+    const cookieStore = await cookies();
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookieOptions: getSupabaseCookieOptions(),
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          // We'll forward cookies via response headers below
+        },
+      },
+    });
+
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: d.contactEmail,
+      password: d.password,
+    });
+
+    if (signInError || !signInData.session) {
+      console.error('Partner auto-login error:', signInError);
+      // Account created but auto-login failed — tell them to log in manually
+      return NextResponse.json(
+        {
+          ok: true,
+          needsManualLogin: true,
+          message: 'Your account was created. Please log in to access your partner portal.',
+          redirectTo: '/login?redirectTo=/partner',
+        },
+        { status: 200 }
+      );
+    }
+
+    // Build response with session cookies
+    const response = NextResponse.json({
+      ok: true,
+      redirectTo: '/partner',
+      message: 'Your partner account has been created. You can now access your portal.',
+    });
+
+    // Set Supabase session cookies on the response
+    const { session } = signInData;
+    const cookieOptions = getSupabaseCookieOptions();
+    response.cookies.set('sb-access-token', session.access_token, {
+      ...cookieOptions,
+      maxAge: session.expires_in,
+    });
+    response.cookies.set('sb-refresh-token', session.refresh_token, {
+      ...cookieOptions,
+      maxAge: 60 * 60 * 24 * 30,
+    });
+
+    // Send welcome email
     const resendKey = process.env.RESEND_API_KEY;
     const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
-  
     if (resendKey) {
-      const text = [
-        'New partner organization registration',
-        '',
-        `Organization: ${d.organizationName}`,
-        `Contact: ${d.contactName}`,
-        `Email: ${d.contactEmail}`,
-        `Phone: ${phone ?? '—'}`,
-        `Organization type: ${d.orgType}`,
-        `City / county served: ${d.serveArea}`,
-        `Estimated monthly referrals: ${d.expectedMonthly}`,
-        hear ? `How they heard about WorkforceAP: ${hear}` : '',
-        '',
-        `Submitted: ${new Date().toISOString()}`,
-      ]
-        .filter(Boolean)
-        .join('\n');
-  
+      const resend = new Resend(resendKey);
+
+      // Welcome email to partner
       try {
-        const resend = new Resend(resendKey);
         await resend.emails.send({
           from: emailFrom,
-          to: TO_EMAIL,
-          replyTo: d.contactEmail,
-          subject: sanitizeEmailSubjectLine(`Partner signup: ${d.organizationName}`),
-          text,
+          to: d.contactEmail,
+          subject: sanitizeEmailSubjectLine('Welcome to WorkforceAP Partner Portal'),
+          text: [
+            `Hi ${d.contactName},`,
+            '',
+            'Thank you for signing up as a WorkforceAP partner!',
+            '',
+            'Your account is currently pending approval. You can log in to your portal right away to explore onboarding materials.',
+            '',
+            `Portal URL: ${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org'}/partner`,
+            '',
+            'Once approved, you will be able to start referring members and tracking outcomes.',
+            '',
+            'Questions? Reply to this email or contact us at info@workforceap.org.',
+            '',
+            '— WorkforceAP Team',
+          ].join('\n'),
         });
       } catch (e) {
-        console.error('Partner signup email failed:', e);
+        console.error('Partner welcome email failed:', e);
+      }
+
+      // Notify admin
+      try {
+        const adminText = [
+          'New partner self-signup (pending approval)',
+          '',
+          `Organization: ${d.organizationName}`,
+          `Contact: ${d.contactName}`,
+          `Email: ${d.contactEmail}`,
+          `Phone: ${phone ?? '—'}`,
+          `Type: ${d.orgType}`,
+          `Serve area: ${d.serveArea}`,
+          `Expected monthly referrals: ${d.expectedMonthly}`,
+          hear ? `How they heard about us: ${hear}` : '',
+          `Slug: ${slug}`,
+          `Referral code: ${referralCode}`,
+          '',
+          `Approve: ${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org'}/admin/partners`,
+        ]
+          .filter(Boolean)
+          .join('\n');
+
+        await resend.emails.send({
+          from: emailFrom,
+          to: ADMIN_EMAIL,
+          replyTo: d.contactEmail,
+          subject: sanitizeEmailSubjectLine(`[Action needed] Partner signup: ${d.organizationName}`),
+          text: adminText,
+        });
+      } catch (e) {
+        console.error('Partner signup admin email failed:', e);
       }
     }
-  
-    return NextResponse.json({
-      ok: true,
-      message:
-        "Thank you! We'll review your registration and set up your partner portal within 1–2 business days.",
-    });
+
+    return response;
   } catch (error) {
-    console.error('/partner/signup:', error);
+    console.error('/api/partner/signup:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });

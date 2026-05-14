@@ -142,6 +142,7 @@ model User {
   notesAuthored        CounselorNote[]       @relation("NoteAuthor")
   partnerUser          PartnerUser?
   employer             Employer?
+  employersApproved    Employer[]            @relation("EmployerApprover")
 
   jobPostingApplications   JobPostingApplication[]
   aiJobMatches             AIJobMatch[]
@@ -804,6 +805,13 @@ model Partner {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
+  status                String    @default("pending_approval") @map("status") // pending_approval, active, rejected, inactive
+  approvalNotes         String?   @map("approval_notes") @db.Text
+  approvedAt            DateTime? @map("approved_at")
+  approvedById          String?   @map("approved_by_id")
+  rejectedAt            DateTime? @map("rejected_at")
+  rejectedById          String?   @map("rejected_by_id")
+  rejectionNotes        String?   @map("rejection_notes") @db.Text
   notifyOnEnrollment    Boolean   @default(true) @map("notify_on_enrollment")
   notifyOnCourse        Boolean   @default(false) @map("notify_on_course")
   notifyOnCertified     Boolean   @default(true) @map("notify_on_certified")
@@ -1202,7 +1210,7 @@ model Employer {
   contactName              String    @map("contact_name")
   contactEmail             String    @map("contact_email")
   contactPhone             String?   @map("contact_phone")
-  status                   String    @default("active") // active, inactive
+  status                   String    @default("active") // active, inactive, pending_approval
   hiringPipelineActive     Boolean   @default(false) @map("hiring_pipeline_active")
   targetCertifications     String[]  @default([]) @map("target_certifications")
   placementAgreementSigned Boolean   @default(false) @map("placement_agreement_signed")
@@ -1213,8 +1221,13 @@ model Employer {
   stripeCustomerId         String?   @map("stripe_customer_id")
   stripeSubscriptionId     String?   @map("stripe_subscription_id")
   stripeSubscriptionStatus String?   @map("stripe_subscription_status")
+  hearAbout                String?   @map("hear_about")
+  approvedAt               DateTime? @map("approved_at")
+  approvedById             String?   @map("approved_by")
+  approvalNotes            String?   @map("approval_notes") @db.Text
 
   user           User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approvedBy     User?                 @relation("EmployerApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   jobs           Job[]
   workflowEvents PortalWorkflowEvent[]

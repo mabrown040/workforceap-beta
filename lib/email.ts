@@ -35,6 +35,9 @@ import {
   placementSurveyHtml,
   placementSurveyEscalationHtml,
   employerWelcomeHtml,
+  employerSignupAdminAlertHtml,
+  employerApprovedHtml,
+  employerRejectedHtml,
   wioaReportHtml,
 } from '@/emails';
 
@@ -1516,6 +1519,101 @@ export async function sendEmployerWelcomeEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendEmployerWelcomeEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send admin alert when a new employer signs up */
+export async function sendEmployerSignupAdminAlertEmail(params: {
+  companyName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEmployerSignupAdminAlertEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: `New Employer Signup: ${params.companyName}`,
+    bodyHtml: employerSignupAdminAlertHtml(params),
+    ctaText: 'Review Employers',
+    ctaUrl: `${SITE_URL}/admin/employers`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: ADMIN_EMAIL,
+      subject: sanitizeEmailSubjectLine(`New employer signup: ${params.companyName}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEmployerSignupAdminAlertEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send approval email to employer */
+export async function sendEmployerApprovedEmail(params: {
+  to: string;
+  companyName: string;
+  contactName: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEmployerApprovedEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'Your WorkforceAP Employer Account is Approved',
+    bodyHtml: employerApprovedHtml(params),
+    ctaText: 'Go to Employer Portal',
+    ctaUrl: `${SITE_URL}/employer`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`Your employer account is approved — ${params.companyName}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEmployerApprovedEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send rejection email to employer */
+export async function sendEmployerRejectedEmail(params: {
+  to: string;
+  companyName: string;
+  contactName: string;
+  reason?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEmployerRejectedEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'WorkforceAP Employer Account Update',
+    bodyHtml: employerRejectedHtml(params),
+    ctaText: 'Contact Us',
+    ctaUrl: `${SITE_URL}/contact`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`Your employer account — ${params.companyName}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEmployerRejectedEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

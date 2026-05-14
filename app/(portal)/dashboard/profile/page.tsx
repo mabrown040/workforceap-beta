@@ -758,6 +758,29 @@ export default async function DashboardProfilePage() {
                   style={{
                     fontSize: "0.875rem",
                     fontWeight: 700,
+                    color: "var(--color-on-surface)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  Feedback
+                </h3>
+                <p
+                  style={{
+                    fontSize: "0.8125rem",
+                    color: "var(--color-on-surface-variant)",
+                    marginBottom: "0.75rem",
+                    lineHeight: 1.55,
+                  }}
+                >
+                  Have suggestions or found a bug? We want to hear from you.
+                </p>
+                <MemberFeedbackButton />
+              </section>
+              <section>
+                <h3
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
                     color: "var(--color-error, #c00)",
                     marginBottom: "0.75rem",
                   }}

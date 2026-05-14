@@ -193,6 +193,7 @@ model User {
   placementSurveys       PlacementSurvey[]
   testimonials           Testimonial[]
   reviewedTestimonials   Testimonial[] @relation("TestimonialReviewer")
+  memberFeedback         MemberFeedback[]
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -2210,6 +2211,28 @@ model CourseraSkillsetProgress {
 
 // --- Feature Flags ---
 
+// --- Member Feedback ---
+
+model MemberFeedback {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // 'training', 'counselor', 'platform', 'program', 'general'
+  rating    Int      // 1-5
+  comment   String?  @db.Text
+  metadata  Json?    @map("metadata") // { programSlug, courseId, counselorId, etc. }
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([rating])
+  @@index([createdAt])
+  @@map("member_feedback")
+}
+
+// --- Feature Flags ---
+
 model FeatureFlag {
   id                  String   @id @default(uuid())
   key                 String   @unique
@@ -2224,4 +2247,29 @@ model FeatureFlag {
   @@index([enabled])
   @@index([key])
   @@map("feature_flags")
+}
+
+// --- Webhook Monitoring ---
+
+model WebhookEvent {
+  id               String    @id @default(uuid())
+  source           String    // e.g. 'coursera', 'learning-completion'
+  eventType        String?   @map("event_type")
+  eventId          String?   @map("event_id")
+  payloadSize      Int       @map("payload_size")
+  processingTimeMs Int?      @map("processing_time_ms")
+  status           String    // 'success', 'failed', 'retrying', 'dead_letter'
+  httpStatusCode   Int?      @map("http_status_code")
+  errorMessage     String?   @map("error_message")
+  retryCount       Int       @default(0) @map("retry_count")
+  nextRetryAt      DateTime? @map("next_retry_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@index([source])
+  @@index([status])
+  @@index([createdAt])
+  @@index([nextRetryAt])
+  @@index([eventId])
+  @@map("webhook_events")
 }

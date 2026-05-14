@@ -11,11 +11,12 @@ import AdminAnalyticsCharts from '@/components/admin/AdminAnalyticsChartsLazy';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('admin');
   return buildPageMetadataAsync({
-  title: t('adminAnalytics'),
-  description: t('engagementAndActivity'),
-  path: '/admin/metrics',
-});
+    title: t('adminAnalytics'),
+    description: t('engagementAndActivity'),
+    path: '/admin/metrics',
+  });
 }
 
 export default async function AdminMetricsPage() {

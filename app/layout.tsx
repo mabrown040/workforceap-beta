@@ -19,6 +19,7 @@ import {
   ANONYMOUS_GUC_CONTEXT,
 } from '@/lib/db/gucContext';
 import { getProfileRole } from '@/lib/auth/roles';
+import { getUser } from '@/lib/auth/server';
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
@@ -98,10 +99,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Middleware strips any client-supplied x-wap-user-id and only re-adds it
   // after cryptographically verifying the Supabase session.
   const forwardedUserId = h.get(WAP_USER_ID_HEADER);
+  const resolvedUserId = forwardedUserId ?? (await getUser())?.id ?? null;
   let gucCtx = ANONYMOUS_GUC_CONTEXT;
-  if (forwardedUserId) {
-    const profileRole = await getProfileRole(forwardedUserId);
-    gucCtx = buildGucContext({ userId: forwardedUserId, orgId: null, profileRole });
+  if (resolvedUserId) {
+    const profileRole = await getProfileRole(resolvedUserId);
+    gucCtx = buildGucContext({ userId: resolvedUserId, orgId: null, profileRole });
   }
 
   const orgBranding = await getRequestOrgBranding(h);

@@ -537,9 +537,10 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
             <button
               type="submit"
               disabled={submitStatus === 'loading'}
+              aria-busy={submitStatus === 'loading'}
               style={{ ...s.primaryBtn, opacity: submitStatus === 'loading' ? 0.7 : 1 }}
             >
-              {submitStatus === 'loading' ? 'Creating account...' : 'Create account'}
+              <span aria-live="polite">{submitStatus === 'loading' ? 'Creating account...' : 'Create account'}</span>
             </button>
           </form>
 

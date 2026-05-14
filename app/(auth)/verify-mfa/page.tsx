@@ -155,6 +155,7 @@ export default function VerifyMfaPage() {
           <button
             type="submit"
             disabled={loading || code.length !== 6}
+            aria-busy={loading}
             style={{
               width: '100%',
               padding: '0.875rem',
@@ -167,7 +168,7 @@ export default function VerifyMfaPage() {
               cursor: loading || code.length !== 6 ? 'not-allowed' : 'pointer',
             }}
           >
-            {loading ? 'Verifying…' : 'Verify'}
+            <span aria-live="polite">{loading ? 'Verifying…' : 'Verify'}</span>
           </button>
         </form>
 

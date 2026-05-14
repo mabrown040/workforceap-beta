@@ -274,7 +274,13 @@ export async function generateWeeklyRecaps(
       prisma.mentorSession.findMany({
         where: { memberId: { in: memberIds }, scheduledAt: { gte: now }, status: { in: ['PENDING', 'CONFIRMED'] } },
         orderBy: { scheduledAt: 'asc' },
-        take: 5,
+        // No `take: 5` here — the batch path runs over up to 500 members.
+        // A global `take: 5` would return only the earliest 5 sessions
+        // across the whole batch, so most members beyond the top would
+        // get recap emails with no appointments (the single-member path
+        // at line ~66 takes 5 per user). Pull enough rows to cover the
+        // cohort and slice to 5 per member after groupBy below.
+        take: 2500,
         select: { memberId: true, scheduledAt: true, topic: true },
       }),
       prisma.job.findMany({
@@ -321,7 +327,10 @@ export async function generateWeeklyRecaps(
     const resourceProgress = resourceProgressByUser.get(member.id) ?? [];
     const pathwayProgress = pathwayProgressByUser.get(member.id) ?? [];
     const certs = certsByUser.get(member.id) ?? [];
-    const upcomingSessions = (upcomingSessionsByUser.get(member.id) ?? []).map((s) => ({
+    // Slice to 5 per member here — the batch fetch above is unbounded
+    // per-member to avoid the global-take-5 bug, so the cap lives here
+    // (matches the single-member path's `take: 5`).
+    const upcomingSessions = (upcomingSessionsByUser.get(member.id) ?? []).slice(0, 5).map((s) => ({
       at: s.scheduledAt.toLocaleString('en-US', {
         weekday: 'short', month: 'short', day: 'numeric',
         hour: 'numeric', minute: '2-digit', timeZoneName: 'short',

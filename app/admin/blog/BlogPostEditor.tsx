@@ -2,11 +2,26 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { Sparkles, ChevronDown, ChevronRight } from 'lucide-react';
 import { BLOG_TOPIC_SUGGESTIONS } from '@/lib/content/blogTopicSuggestions';
+
+
+const MarkdownPreview = dynamic(async () => {
+  const [{ default: ReactMarkdown }, { default: remarkGfm }] = await Promise.all([
+    import('react-markdown'),
+    import('remark-gfm'),
+  ]);
+
+  function MarkdownPreviewComponent({ content }: { content: string }) {
+    return <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>;
+  }
+
+  return MarkdownPreviewComponent;
+}, {
+  loading: () => <span className="admin-preview-placeholder">Loading preview…</span>,
+});
 
 type BlogPost = {
   id: string;
@@ -458,7 +473,7 @@ export default function BlogPostEditor({
           >
             <div style={{ fontSize: '0.95rem', lineHeight: 1.6 }}>
               {content ? (
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                <MarkdownPreview content={content} />
               ) : (
                 <span className="admin-preview-placeholder">Live preview appears here…</span>
               )}

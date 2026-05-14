@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Conversation } from '@elevenlabs/client';
+import type { Conversation } from '@elevenlabs/client';
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
       import ToolFollowThrough from './ToolFollowThrough';
@@ -83,6 +83,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
     transcriptRef.current = [];
 
     try {
+      const { Conversation } = await import('@elevenlabs/client');
       const conv = await Conversation.startSession({
         signedUrl,
         onConnect: () => setPhase('active'),

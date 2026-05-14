@@ -2159,7 +2159,7 @@ enum TestimonialStatus {
 }
 
 model Testimonial {
-  id              String            @id @default(uuid())
+  id              String            @id @default(uuid()) @db.Uuid
   memberId        String            @map("member_id")
   content         String            @db.Text
   rating          Int?

@@ -1,4 +1,18 @@
+import { splitLocalePrefix, withLocalePrefix, type AppLocale } from '@/lib/i18n/config';
 import { sanitizeRedirectPath } from './safeRedirectPath';
+
+function prefixForLocale(pathname: string, locale: AppLocale | null): string {
+  return locale ? withLocalePrefix(pathname, locale) : pathname;
+}
+
+function parseRedirectPath(path: string): { locale: AppLocale | null; pathnameWithoutLocale: string } | null {
+  try {
+    const pathname = new URL(path, 'https://internal.invalid').pathname;
+    return splitLocalePrefix(pathname);
+  } catch {
+    return null;
+  }
+}
 
 /**
  * If the user asked for the member home (`/dashboard` only, not nested routes),
@@ -8,18 +22,14 @@ export function resolveRoleAwarePostLoginRedirect(
   redirectTo: string,
   profileRole: string | null | undefined
 ): string {
-  if (profileRole === 'super_admin') return '/admin';
+  const parsed = parseRedirectPath(redirectTo);
+  const locale = parsed?.locale ?? null;
 
-  let pathname: string;
-  try {
-    pathname = new URL(redirectTo, 'https://internal.invalid').pathname;
-  } catch {
-    return redirectTo;
-  }
-  if (pathname !== '/dashboard') return redirectTo;
+  if (profileRole === 'super_admin') return prefixForLocale('/admin', locale);
+  if (!parsed || parsed.pathnameWithoutLocale !== '/dashboard') return redirectTo;
 
-  if (profileRole === 'admin') return '/admin';
-  if (profileRole === 'counselor') return '/counselor';
+  if (profileRole === 'admin') return prefixForLocale('/admin', locale);
+  if (profileRole === 'counselor') return prefixForLocale('/counselor', locale);
   return redirectTo;
 }
 
@@ -32,12 +42,11 @@ export function normalizePostLoginRedirect(
   fallback = '/dashboard'
 ): string {
   const safe = sanitizeRedirectPath(raw, fallback);
+  const parsed = parseRedirectPath(safe);
 
-  try {
-    const parsed = new URL(safe, 'https://internal.invalid');
-    if (parsed.pathname === '/login') return fallback;
-    return safe;
-  } catch {
-    return fallback;
+  if (!parsed) return fallback;
+  if (parsed.pathnameWithoutLocale === '/login') {
+    return prefixForLocale(fallback, parsed.locale);
   }
+  return safe;
 }

@@ -65,6 +65,10 @@ function requestedPathWithSearch(request: NextRequest) {
   return `${request.nextUrl.pathname}${request.nextUrl.search}`;
 }
 
+function localizedLoginPath(locale: AppLocale) {
+  return withLocalePrefix('/login', locale);
+}
+
 function resolvePreferredLocale(request: NextRequest): { locale: AppLocale; fromQuery: boolean } {
   const queryLang = request.nextUrl.searchParams.get('lang');
   if (queryLang && isAppLocale(queryLang)) {
@@ -151,7 +155,7 @@ export async function middleware(request: NextRequest) {
 
   if (!supabaseUrl || !supabaseAnonKey) {
     if (isProtectedPath(effectivePath)) {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL(localizedLoginPath(prefixLocale ?? inferredLocale), request.url);
       loginUrl.searchParams.set('redirectTo', requestedPathWithSearch(request));
       return NextResponse.redirect(loginUrl);
     }
@@ -200,7 +204,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isProtectedPath(effectivePath) && !user) {
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL(localizedLoginPath(prefixLocale ?? inferredLocale), request.url);
     loginUrl.searchParams.set('redirectTo', requestedPathWithSearch(request));
     return NextResponse.redirect(loginUrl);
   }

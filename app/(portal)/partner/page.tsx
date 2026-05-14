@@ -28,6 +28,7 @@ import DataTable from '@/components/portal/ui/DataTable';
 import type { DataTableColumn } from '@/components/portal/ui/DataTable';
 import PartnerReferralResourcesSection from '@/components/partner/PartnerReferralResourcesSection';
 import PendingApprovalBanner from '@/components/partner/PendingApprovalBanner';
+import PartnerConnectPayoutButton from '@/components/partner/PartnerConnectPayoutButton';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -309,22 +310,7 @@ export default async function PartnerDashboardPage() {
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
                 {t('connectBankToReceive')}
               </p>
-              <form
-                action="/api/partner/connect"
-                method="POST"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const res = await fetch('/api/partner/connect', { method: 'POST' });
-                  const data = await res.json();
-                  if (data.url) window.location.href = data.url;
-                  else alert(data.error || 'Something went wrong');
-                }}
-              >
-                <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '0.375rem' }}>account_balance</span>
-                  {t('connectBankAccount')}
-                </button>
-              </form>
+              <PartnerConnectPayoutButton label={t('connectBankAccount')} fullWidth />
             </div>
           )}
         </PortalCard>
@@ -571,22 +557,7 @@ export default async function PartnerDashboardPage() {
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
                 {t('connectBankToReceive')}
               </p>
-              <form
-                action="/api/partner/connect"
-                method="POST"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const res = await fetch('/api/partner/connect', { method: 'POST' });
-                  const data = await res.json();
-                  if (data.url) window.location.href = data.url;
-                  else alert(data.error || 'Something went wrong');
-                }}
-              >
-                <button type="submit" className="btn btn-primary">
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '0.375rem' }}>account_balance</span>
-                  {t('connectBankAccount')}
-                </button>
-              </form>
+              <PartnerConnectPayoutButton label={t('connectBankAccount')} />
             </div>
           )}
         </PortalCard>

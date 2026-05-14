@@ -183,7 +183,13 @@ export default function ApplyEligibilityClient() {
         <p className="apply-progress-label">{t('step1ProgressLabel')}</p>
       </div>
 
-      <div className="apply-step-content">
+      <form
+        className="apply-step-content"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleContinue();
+        }}
+      >
         <p className="apply-social-proof" role="note">
           {t('applySocialProof')}
         </p>
@@ -362,7 +368,7 @@ export default function ApplyEligibilityClient() {
         )}
 
         <div className="apply-step1-actions">
-          <button type="button" className="btn btn-primary apply-step1-actions__primary" onClick={handleContinue}>
+          <button type="submit" className="btn btn-primary apply-step1-actions__primary">
             {t('continueToPrograms')}
           </button>
           <button type="button" className="btn btn-outline apply-step1-actions__secondary" onClick={handleSaveLater}>
@@ -381,7 +387,7 @@ export default function ApplyEligibilityClient() {
               : t('continueSoftHint')}
           </p>
         )}
-      </div>
+      </form>
     </div>
   );
 }

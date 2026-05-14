@@ -11,12 +11,6 @@ export async function invalidateJobListings(): Promise<void> {
   await invalidateCache('jobs:list:*');
 }
 
-/** Invalidate cached job listings (called after admin approval/rejection) */
-export async function invalidateJobListings(): Promise<void> {
-  // TODO: wire up cache revalidation (revalidatePath / revalidateTag)
-  // when job listing caching is implemented.
-}
-
 /** Public jobs listing - only live jobs for students */
 export async function GET(request: NextRequest) {
   try {

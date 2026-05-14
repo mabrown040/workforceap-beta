@@ -16,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AdminSubgroupsPage() {
   const subgroups = await prisma.subgroup.findMany({
+    take: 5000,
     orderBy: { name: 'asc' },
     include: {
       leader: { select: { id: true, fullName: true, email: true } },

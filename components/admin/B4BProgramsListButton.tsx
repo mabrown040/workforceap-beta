@@ -94,10 +94,10 @@ export default function B4BProgramsListButton() {
             >
               <thead>
                 <tr style={{ background: 'var(--surface-container-low)' }}>
-                  <th style={{ textAlign: 'left', padding: '0.4rem 0.5rem', borderBottom: '1px solid var(--outline-variant)' }}>id</th>
-                  <th style={{ textAlign: 'left', padding: '0.4rem 0.5rem', borderBottom: '1px solid var(--outline-variant)' }}>slug</th>
-                  <th style={{ textAlign: 'left', padding: '0.4rem 0.5rem', borderBottom: '1px solid var(--outline-variant)' }}>name</th>
-                  <th style={{ textAlign: 'left', padding: '0.4rem 0.5rem', borderBottom: '1px solid var(--outline-variant)' }}>url</th>
+                  <th scope="col" style={{ textAlign: 'left', padding: '0.4rem 0.5rem', borderBottom: '1px solid var(--outline-variant)' }}>id</th>
+                  <th scope="col" style={{ textAlign: 'left', padding: '0.4rem 0.5rem', borderBottom: '1px solid var(--outline-variant)' }}>slug</th>
+                  <th scope="col" style={{ textAlign: 'left', padding: '0.4rem 0.5rem', borderBottom: '1px solid var(--outline-variant)' }}>name</th>
+                  <th scope="col" style={{ textAlign: 'left', padding: '0.4rem 0.5rem', borderBottom: '1px solid var(--outline-variant)' }}>url</th>
                 </tr>
               </thead>
               <tbody>

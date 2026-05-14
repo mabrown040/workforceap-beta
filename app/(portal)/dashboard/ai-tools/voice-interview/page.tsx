@@ -1,11 +1,32 @@
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
-import VoiceInterviewScaffold from '@/components/portal/tools/VoiceInterviewScaffold';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
+
+const VoiceInterviewScaffold = dynamic(() => import('@/components/portal/tools/VoiceInterviewScaffold'), {
+  loading: () => (
+    <div
+      role="status"
+      aria-live="polite"
+      className="portal-card portal-card--flat"
+      style={{
+        minHeight: 320,
+        padding: '2.5rem 1.25rem',
+        borderRadius: 12,
+        textAlign: 'center',
+        color: 'var(--color-on-surface-variant)',
+        fontSize: '0.9rem',
+        fontWeight: 600,
+      }}
+    >
+      Loading voice interview…
+    </div>
+  ),
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({

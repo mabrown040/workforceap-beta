@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendWeeklyRecapEmail } from '@/lib/email';
 import { buildWeeklyRecapEmailSummary } from '@/lib/recap/buildWeeklyRecapEmailSummary';
-import { generateWeeklyRecap } from '@/lib/recap/generate';
+import { generateWeeklyRecaps } from '@/lib/recap/generate';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * GET /api/cron/weekly-recap
@@ -45,12 +46,14 @@ async function handle(_request: Request) {
   let sent = 0;
   let failed = 0;
 
+  // Batch-generate recaps to eliminate read-side N+1 (~10 queries total vs 10×N)
+  const recaps = await generateWeeklyRecaps(members, weekStart);
+  const recapByUserId = new Map(recaps.map((r) => [r.userId, r.recapData]));
+
   for (const member of members) {
     try {
-      const recap = await generateWeeklyRecap(member.id, weekStart);
-      if (!recap) { failed++; continue; }
-
-      const recapData = recap.recapJson as Parameters<typeof buildWeeklyRecapEmailSummary>[0];
+      const recapData = recapByUserId.get(member.id) as Parameters<typeof buildWeeklyRecapEmailSummary>[0] | undefined;
+      if (!recapData) { failed++; continue; }
 
       const recapSummary = buildWeeklyRecapEmailSummary(recapData);
 
@@ -69,6 +72,7 @@ async function handle(_request: Request) {
   }
 
   const runResult = { sent, failed, total: members.length };
+  await setCronRecordsProcessed(sent);
   await logCronRun('cron_weekly_recap', runResult, failed === members.length && members.length > 0 ? 'error' : 'ok');
   return NextResponse.json(runResult);
 }

@@ -21,6 +21,7 @@ export default async function AdminInterviewReadyPage() {
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const rows = await prisma.user.findMany({
+    take: 5000,
     where: {
       deletedAt: null,
       interviewEligible: true,

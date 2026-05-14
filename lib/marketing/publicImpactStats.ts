@@ -80,6 +80,7 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
     ] = await Promise.all([
       prisma.user.count({ where: memberWhere }),
       prisma.user.findMany({
+        take: 5000,
         where: { ...memberWhere, enrolledProgram: { not: null } },
         select: {
           id: true,
@@ -99,6 +100,7 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
       }),
       prisma.placementRecord.count({ where: { user: memberWhere } }),
       prisma.placementRecord.findMany({
+        take: 5000,
         where: {
           salaryOffered: { not: null },
           wageAtFollowUp: { not: null },
@@ -113,6 +115,7 @@ export async function getPublicImpactStats(orgId: string): Promise<PublicImpactS
 
     if (userIds.length) {
       const cps = await prisma.courseProgress.findMany({
+        take: 5000,
         where: {
           userId: { in: userIds },
           status: 'COMPLETED',

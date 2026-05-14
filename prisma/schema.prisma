@@ -192,6 +192,8 @@ model User {
   atRiskAlerts             AtRiskAlert[]
   placementSurveys       PlacementSurvey[]
   milestoneCascades        MilestoneCascade[]
+  testimonials           Testimonial[]
+  reviewedTestimonials   Testimonial[] @relation("TestimonialReviewer")
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -390,6 +392,8 @@ model JobApplication {
   @@index([status])
   @@index([curatedJobId])
   @@index([nextInterviewDate])
+  @@index([userId, createdAt])
+  @@index([userId, status, createdAt])
   @@map("job_applications")
 }
 
@@ -509,6 +513,7 @@ model Goal {
 
   @@index([userId])
   @@index([status])
+  @@index([userId, createdAt])
   @@map("goals")
 }
 
@@ -581,6 +586,23 @@ model WorkflowDiagnostic {
   @@index([status, createdAt])
   @@index([actorUserId])
   @@map("workflow_diagnostics")
+}
+
+model CronExecution {
+  id               String   @id @default(uuid())
+  jobName          String   @map("job_name")
+  status           String   // RUNNING | SUCCESS | FAILED | SKIPPED
+  startedAt        DateTime @default(now()) @map("started_at")
+  completedAt      DateTime? @map("completed_at")
+  errorMessage     String?  @map("error_message")
+  recordsProcessed Int?     @map("records_processed")
+  durationMs       Int?     @map("duration_ms")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@index([jobName, createdAt])
+  @@index([status, createdAt])
+  @@index([startedAt])
+  @@map("cron_executions")
 }
 
 model WeeklyRecap {
@@ -680,6 +702,7 @@ model AIToolResult {
 
   @@index([userId])
   @@index([userId, toolType])
+  @@index([userId, createdAt])
   @@map("ai_tool_results")
 }
 
@@ -852,6 +875,7 @@ model CounselorAssignment {
   @@index([memberId])
   @@index([memberId, active])
   @@index([counselorId, active])
+  @@index([memberId, active, assignedAt(sort: Desc)])
   @@map("counselor_assignments")
 }
 
@@ -904,6 +928,7 @@ model Message {
   author User?          @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([threadId, createdAt])
+  @@index([authorId, createdAt(sort: Desc)])
   @@map("messages")
 }
 
@@ -1437,6 +1462,7 @@ model XapiStatement {
   @@index([createdAt])
   @@index([courseId, courseItemId])
   @@index([actorEmail, courseId])
+  @@index([processed, createdAt])
   @@map("xapi_statements")
 }
 
@@ -1477,6 +1503,7 @@ model CourseProgress {
   // descending sort lets Postgres satisfy ORDER BY last_activity_at DESC LIMIT N
   // for a single user without a sort step.
   @@index([userId, lastActivityAt(sort: Desc)])
+  @@index([userId, courseId, completedAt])
   @@map("course_progress")
 }
 
@@ -2112,6 +2139,55 @@ model PlacementSurvey {
   @@map("placement_surveys")
 }
 
+// --- Testimonials ---
+
+enum TestimonialSource {
+  SURVEY
+  MANUAL
+  INTERVIEW
+
+  @@map("testimonial_source")
+}
+
+enum TestimonialStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PUBLISHED
+
+  @@map("testimonial_status")
+}
+
+model Testimonial {
+  id              String            @id @default(uuid())
+  memberId        String            @map("member_id")
+  content         String            @db.Text
+  rating          Int?
+  programId       String?           @map("program_id")
+  placementId     String?           @map("placement_id")
+  source          TestimonialSource @default(SURVEY)
+  status          TestimonialStatus @default(PENDING)
+  photoUrl        String?           @map("photo_url")
+  consentGiven    Boolean           @default(false) @map("consent_given")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  reviewedBy      String?           @map("reviewed_by")
+  reviewedAt      DateTime?         @map("reviewed_at")
+  rejectionReason String?           @map("rejection_reason") @db.Text
+  deletedAt       DateTime?         @map("deleted_at")
+
+  member   User  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("TestimonialReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([memberId])
+  @@index([status])
+  @@index([source])
+  @@index([reviewedBy])
+  @@index([deletedAt])
+  @@index([createdAt])
+  @@map("testimonials")
+}
+
 // --- Coursera Active-Pull Sync ---
 
 /// Snapshot of Coursera Enterprise skillset progress for a member, written
@@ -2191,4 +2267,22 @@ model MilestoneCascade {
   @@index([status, expiresAt])
   @@index([userId, createdAt])
   @@map("milestone_cascades")
+}
+
+// --- Feature Flags ---
+
+model FeatureFlag {
+  id                  String   @id @default(uuid())
+  key                 String   @unique
+  name                String
+  description         String?
+  enabled             Boolean  @default(false)
+  rolloutPercentage   Int      @default(0) @map("rollout_percentage") // 0-100
+  allowedRoles        String[] @default([]) @map("allowed_roles") // which roles can see this
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled])
+  @@index([key])
+  @@map("feature_flags")
 }

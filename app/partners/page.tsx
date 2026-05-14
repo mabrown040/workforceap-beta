@@ -31,6 +31,7 @@ export default async function PartnersPage() {
       {/* ── Hero ── */}
       <HeroSection
         backgroundImage="/images/hero-people.webp"
+        priority
         overlayGradient="linear-gradient(135deg, rgba(18,20,22,0.92) 0%, rgba(18,20,22,0.75) 50%, rgba(173,44,77,0.25) 100%)"
         eyebrow={
           <span
@@ -420,6 +421,7 @@ export default async function PartnersPage() {
                   src="/images/hero-people.webp"
                   alt=""
                   fill
+                  loading="lazy"
                   aria-hidden="true"
                   style={{ objectFit: 'cover', objectPosition: 'center 40%' }}
                   sizes="(max-width: 768px) 100vw, 50vw"

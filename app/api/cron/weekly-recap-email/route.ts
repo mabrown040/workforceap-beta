@@ -4,6 +4,7 @@ import { sendAdminWeeklyRecapEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Cron endpoint to send weekly admin recap email.
@@ -65,6 +66,7 @@ async function handle(_request: Request) {
   });
 
   const runResult = { ok: true, checkedAt: now.toISOString(), newApplicants, placements, atRiskStudents, pendingApplications, emailSent: result.ok };
+  await setCronRecordsProcessed(newApplicants + placements + atRiskStudents + pendingApplications);
   await logCronRun('cron_weekly_recap_email', runResult, result.ok ? 'ok' : 'error');
   return NextResponse.json(runResult);
   } catch (err) {

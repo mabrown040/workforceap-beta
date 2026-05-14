@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Daily verification that member-facing cron jobs actually executed.
@@ -74,6 +75,7 @@ async function handle(_request: Request) {
     checkedAt: now.toISOString(),
   };
 
+  await setCronRecordsProcessed(criticalCrons.length);
   await logCronRun('cron_verification', runResult);
   return Response.json(runResult);
 }

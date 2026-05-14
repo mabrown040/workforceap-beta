@@ -157,14 +157,17 @@ async function getDailyActivity(
 
   const [eventsR, aiSavedR, aiEventsR, applicationsR] = await Promise.allSettled([
     prisma.memberEvent.findMany({
+      take: 5000,
       where: { createdAt: { gte: rangeStart, lte: rangeEnd }, ...userScope },
       select: { createdAt: true },
     }),
     prisma.aIToolResult.findMany({
+      take: 5000,
       where: { createdAt: { gte: rangeStart, lte: rangeEnd }, ...userScope },
       select: { createdAt: true },
     }),
     prisma.memberEvent.findMany({
+      take: 5000,
       where: {
         createdAt: { gte: rangeStart, lte: rangeEnd },
         eventName: 'ai_tool_run_started',
@@ -174,6 +177,7 @@ async function getDailyActivity(
       select: { createdAt: true, metadata: true },
     }),
     prisma.jobApplication.findMany({
+      take: 5000,
       where: {
         createdAt: { gte: rangeStart, lte: rangeEnd },
         status: { not: 'SAVED' },
@@ -373,11 +377,13 @@ export async function getAdminMetrics(orgId: string) {
   ] = await Promise.allSettled([
     withTenantScope(orgId, (db) => db.user.count({ where: { deletedAt: null } })),
     prisma.memberEvent.findMany({
+      take: 5000,
       where: { createdAt: { gte: sevenDaysAgo }, ...userScope },
       select: { userId: true },
       distinct: ['userId'],
     }),
     prisma.memberEvent.findMany({
+      take: 5000,
       where: { createdAt: { gte: fourteenDaysAgo }, ...userScope },
       select: { userId: true },
       distinct: ['userId'],
@@ -411,7 +417,7 @@ export async function getAdminMetrics(orgId: string) {
 
   const active14dSet = new Set(activeUserIds14d.map((x) => x.userId));
 
-  const allUsersResult = await withTenantScope(orgId, (db) => db.user.findMany({ select: { id: true } }))
+  const allUsersResult = await withTenantScope(orgId, (db) => db.user.findMany({ take: 5000, select: { id: true } }))
     .then((value) => ({ status: 'fulfilled' as const, value }))
     .catch((reason) => ({ status: 'rejected' as const, reason }));
 

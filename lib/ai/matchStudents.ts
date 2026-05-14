@@ -21,6 +21,7 @@ export async function matchStudentsForJob(job: {
   preferredCertifications: string[];
 }): Promise<StudentMatch[]> {
   const students = await prisma.user.findMany({
+    take: 5000,
     where: {
       deletedAt: null,
       enrolledProgram: { not: null },

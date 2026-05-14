@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { getUser } from '@/lib/auth/server';
 
@@ -73,7 +73,7 @@ export default async function CareerBusinessCoachPage() {
           glowColor="#2563eb"
           gradient="linear-gradient(135deg, #1e40af 0%, #2563eb 45%, #60a5fa 100%)"
         >
-          <PortalVoiceSession
+          <PortalVoiceSessionLazy
             sessionEndpoint="/api/member/career-business-coach/voice-session"
             completionEndpoint="/api/member/career-business-coach/completion"
             title="Career and Business Coach"

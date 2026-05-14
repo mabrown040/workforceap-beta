@@ -211,6 +211,7 @@ export default function ApplyEligibilityClient() {
                 type="text"
                 name="firstName"
                 autoComplete="given-name"
+                inputMode="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 aria-invalid={attemptedContinue && !firstName.trim()}
@@ -223,6 +224,7 @@ export default function ApplyEligibilityClient() {
                 type="text"
                 name="lastName"
                 autoComplete="family-name"
+                inputMode="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 aria-invalid={attemptedContinue && !lastName.trim()}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -71,14 +72,15 @@ export default async function EmployersPage() {
           overflow: 'hidden',
         }}
       >
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'url(/images/hero-people.webp)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center 35%',
-          }}
+        <Image
+          src="/images/hero-people.webp"
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          sizes="100vw"
+          style={{ objectFit: 'cover', objectPosition: 'center 35%' }}
+          aria-hidden="true"
         />
         <div
           style={{
@@ -86,10 +88,11 @@ export default async function EmployersPage() {
             inset: 0,
             background:
               'linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.78) 50%, rgba(173,44,77,0.2) 100%)',
+            zIndex: 1,
           }}
         />
 
-        <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 'var(--max-width)', padding: '6rem 1.5rem 3rem' }}>
+        <div className="container" style={{ position: 'relative', zIndex: 2, maxWidth: 'var(--max-width)', padding: '6rem 1.5rem 3rem' }}>
           <span
             style={{
               display: 'inline-block',
@@ -201,7 +204,7 @@ export default async function EmployersPage() {
         <div
           style={{
             position: 'relative',
-            zIndex: 1,
+            zIndex: 2,
             padding: '1.5rem 0',
             borderTop: '1px solid rgba(255,255,255,0.08)',
             marginTop: 'auto',

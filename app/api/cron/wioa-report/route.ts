@@ -3,6 +3,7 @@ import { generateWioaReport } from '@/lib/cron/wioa-report';
 import { sendWioaReportEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * GET /api/cron/wioa-report
@@ -40,6 +41,7 @@ async function handle(_request: Request) {
     emailError: emailResult.error ?? null,
   };
 
+  await setCronRecordsProcessed(report.totalActiveMembers);
   await logCronRun('cron_wioa_report', runResult, emailResult.ok ? 'ok' : 'error');
 
   if (!emailResult.ok) {

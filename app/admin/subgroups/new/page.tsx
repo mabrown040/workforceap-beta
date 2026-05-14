@@ -16,11 +16,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function NewSubgroupPage() {
   const [users, partners] = await Promise.all([
     prisma.user.findMany({
+      take: 5000,
       where: { deletedAt: null },
       select: { id: true, fullName: true, email: true },
       orderBy: { fullName: 'asc' },
     }),
     prisma.partner.findMany({
+      take: 5000,
       where: { active: true },
       select: { id: true, name: true },
       orderBy: { name: 'asc' },

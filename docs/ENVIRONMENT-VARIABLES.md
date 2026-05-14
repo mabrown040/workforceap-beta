@@ -1,0 +1,449 @@
+# WorkforceAP Environment Variables
+
+> **Last audited:** 2026-05-13  
+> **Scope:** Application code (`app/`, `lib/`, `components/`, `scripts/`, `tests/`, `prisma/`)  
+> **Excludes:** Node.js / Next.js / Vercel runtime internals (e.g. `PORT`, `HOSTNAME`, `PATH`)  
+
+---
+
+## Table of Contents
+
+1. [Legend](#legend)
+2. [Quick Stats](#quick-stats)
+3. [Core Infrastructure](#core-infrastructure)
+4. [Authentication & Security](#authentication--security)
+5. [Database](#database)
+6. [Email](#email)
+7. [AI & LLM Providers](#ai--llm-providers)
+8. [ElevenLabs Voice & Conversational AI](#elevenlabs-voice--conversational-ai)
+9. [Coursera / Learning Integration](#coursera--learning-integration)
+10. [Stripe / Payments](#stripe--payments)
+11. [Analytics & Monitoring](#analytics--monitoring)
+12. [WIOA](#wioa)
+13. [Partner & Org](#partner--org)
+14. [Admin & Cron](#admin--cron)
+15. [Testing & QA](#testing--qa)
+16. [Build & Internal](#build--internal)
+17. [Deprecated / Legacy](#deprecated--legacy)
+18. [Security Notes](#security-notes)
+19. [Drift Report](#drift-report)
+
+---
+
+## Legend
+
+| Badge | Meaning |
+|-------|---------|
+| 🔴 **Required** | App will error or misbehave in production without this |
+| 🟡 **Recommended** | App works without it but features are degraded |
+| 🟢 **Optional** | Nice-to-have; no impact if missing |
+| 🛠️ **Dev-only** | Only needed for local development, seeding, or E2E tests |
+| 👁️ **Public** | Safe to expose to the browser (`NEXT_PUBLIC_*`) |
+| 🔒 **Secret** | Server-only. Never prefix with `NEXT_PUBLIC_` |
+
+---
+
+## Quick Stats
+
+| Category | Count |
+|----------|-------|
+| 🔴 Required for production | ~14 |
+| 🟡 Recommended for production | ~12 |
+| 🟢 Optional | ~35 |
+| 🛠️ Dev / test only | ~14 |
+| 🔴 Deprecated / unused in code | 6 |
+| **Total application env vars** | **~81** |
+
+---
+
+## Core Infrastructure
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `NODE_ENV` | — | Node.js runtime mode (set automatically) | `production` | Universal |
+| `NEXT_PUBLIC_SITE_URL` | 🔴 👁️ | Canonical public URL for links, redirects, emails | `https://www.workforceap.org` | `middleware.ts`, email, auth, Coursera |
+| `NEXT_PUBLIC_BASE_URL` | 🟢 👁️ | Alternate base URL fallback | `https://www.workforceap.org` | Smoke-test cron |
+| `VERCEL_URL` | — | Vercel auto-provided deploy URL | `wap-abc123.vercel.app` | Site URL fallback |
+| `VERCEL_ENV` | — | Vercel environment name | `production` | Sentry env fallback |
+| `NEXT_PUBLIC_VERCEL_ENV` | 🟢 👁️ | Exposed Vercel env for client checks | `production` | Sentry client config |
+
+---
+
+## Authentication & Security
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | 🔴 👁️ | Supabase project URL | `https://xyz.supabase.co` | `middleware.ts`, client, server |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 🔴 👁️ | Supabase public anon key | `eyJ...` | `middleware.ts`, client, server |
+| `SUPABASE_SERVICE_ROLE_KEY` | 🔴 🔒 | Supabase service role key (bypasses RLS) | `eyJ...` | Server DB admin ops |
+| `AUTH_TRUST_COOKIE_SECRET` | 🔴 🔒 | Signing secret for admin MFA trust cookies | `openssl rand -hex 32` | `lib/auth/mfaTrust.ts` |
+| `ADMIN_MFA_TRUST_DAYS` | 🟡 🔒 | How long admin MFA trust lasts (default: 7) | `7` | `lib/auth/mfaTrust.ts` |
+| `STAFF_MFA_ENFORCEMENT` | 🟡 🔒 | Set `1` to force MFA for staff | `0` or `1` | Auth flows |
+| `CRON_SECRET` | 🔴 🔒 | Protects `/api/cron/*` endpoints | `openssl rand -hex 32` | All cron routes |
+| `PLACEMENT_SURVEY_TOKEN_SECRET` | 🔴 🔒 | Signs post-placement survey email links | `openssl rand -hex 32` | Placement survey cron |
+| `NEXT_PUBLIC_CAPTCHA_ENABLED` | 🟡 👁️ | Enable Cloudflare Turnstile | `false` | Public forms |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | 🟡 👁️ | Turnstile site key (public) | `0x4AAAA...` | Employer contact, public forms |
+| `TURNSTILE_SECRET_KEY` | 🟡 🔒 | Turnstile secret key | `0x4AAAA...` | API validation |
+
+---
+
+## Database
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `POSTGRES_PRISMA_URL` | 🔴 🔒 | Pooled Prisma connection string | `postgresql://...?pgbouncer=true` | Prisma client |
+| `POSTGRES_URL_NON_POOLING` | 🔴 🔒 | Direct non-pooled connection (migrations) | `postgresql://...` | Prisma migrate |
+| `DATABASE_URL` | 🟡 🔒 | Fallback for local dev | `postgresql://...` | `scripts/ensure-prisma-env.cjs` |
+| `__PRISMA_PLACEHOLDER_DB` | 🛠️ 🔒 | Internal flag set by build script when DB is unreachable | `1` | `lib/db/optionalBuildDb.ts` |
+| `WORKFORCEAP_FORCE_DB_BUILD` | 🛠️ 🔒 | Force DB queries during build (dev override) | `1` | `lib/db/optionalBuildDb.ts` |
+
+**Note:** `scripts/ensure-prisma-env.cjs` automatically copies `DATABASE_URL` → `POSTGRES_PRISMA_URL` / `POSTGRES_URL_NON_POOLING` if the latter are missing.
+
+---
+
+## Email
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `RESEND_API_KEY` | 🔴 🔒 | Resend API key for transactional email | `re_xxxxxxxx` | `lib/email.ts` |
+| `EMAIL_FROM` | 🔴 🔒 | Default sender address | `WorkforceAP <hello@workforceap.org>` | `lib/email.ts` |
+| `SUPPORT_EMAIL` | 🟡 🔒 | Support/contact email fallback | `info@workforceap.org` | `lib/tenant/organizationBranding.ts` |
+| `WORKSPACE_EMAIL_PROVIDER` | 🟢 🔒 | Workspace email provider (`noop`, `google`, `microsoft`) | `noop` | `lib/workspace-email/provider.ts` |
+| `VOICE_COACH_TRANSCRIPT_EMAILS` | 🟢 🔒 | Comma-separated recipients for coach transcripts | `admin@workforceap.org` | `lib/email.ts` |
+| `VOICE_INTERVIEW_TRANSCRIPT_EMAILS` | 🟢 🔒 | Comma-separated recipients for interview transcripts | `admin@workforceap.org` | `app/api/interview/history/route.ts` |
+| `AT_RISK_DIGEST_EMAILS` | 🟢 🔒 | Comma-separated recipients for at-risk member digests | `admin@workforceap.org` | `lib/email.ts` |
+| `COURSERA_UNMATCHED_ACTOR_ALERT_EMAILS` | 🟢 🔒 | Comma-separated alerts for unmatched Coursera actors | `admin@workforceap.org` | `lib/email.ts` |
+| `WIOA_SCREENING_NOTIFY_EMAIL` | 🟢 🔒 | WIOA screening notification recipient | `info@workforceap.org` | `lib/wioa/wioaNotification.ts` |
+
+**Deprecated:** `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_PORT` — referenced in old `ENV-VARIABLES.md` but **not used in current code**. Resend is the sole email provider.
+
+---
+
+## AI & LLM Providers
+
+Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is required for member AI tools.
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `ANTHROPIC_API_KEY` | 🟡 🔒 | Anthropic API key | `sk-ant-...` | `lib/ai/anthropic.ts` |
+| `ANTHROPIC_MODEL` | 🟢 🔒 | Override Anthropic model | `claude-3-5-sonnet-latest` | `lib/ai/anthropic.ts` |
+| `GROQ_API_KEY` | 🟡 🔒 | Groq API key | `gsk_...` | `lib/ai/groq.ts` |
+| `GROQ_MODEL` | 🟢 🔒 | Override Groq model | `llama-3.3-70b-versatile` | `lib/ai/groq.ts` |
+| `GEMINI_API_KEY` | 🟡 🔒 | Google Gemini API key | `AIza...` | `lib/ai/gemini.ts` |
+| `GEMINI_MODEL` | 🟢 🔒 | Override Gemini model | `gemini-2.5-flash` | `lib/ai/gemini.ts` |
+| `TAVILY_API_KEY` | 🟢 🔒 | Tavily web search (blog AI tools) | `tvly-...` | Blog drafting |
+| `FIRECRAWL_API_KEY` | 🟢 🔒 | Firecrawl for job import from URLs | `fc-...` | Employer job import |
+| `PROXYCURL_API_KEY` | 🟢 🔒 | Proxycurl for LinkedIn enrichment | `your-key` | `app/api/member/linkedin-enrich/route.ts` |
+
+---
+
+## ElevenLabs Voice & Conversational AI
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `ELEVENLABS_API_KEY` | 🟡 🔒 | ElevenLabs API key | `sk_...` | Voice UI, signed URLs |
+| `ELEVENLABS_INTERVIEW_AGENT_ID` | 🟢 🔒 | ConvAI agent: interview coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_COUNSELOR_AGENT_ID` | 🟢 🔒 | ConvAI agent: counselor | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_EMPLOYER_AGENT_ID` | 🟢 🔒 | ConvAI agent: employer coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_READINESS_AGENT_ID` | 🟢 🔒 | ConvAI agent: readiness coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_RESUME_COACH_AGENT_ID` | 🟢 🔒 | ConvAI agent: resume coach | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_PARTNER_AGENT_ID` | 🟢 🔒 | ConvAI agent: partner portal | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_WIOA_PREQUAL_AGENT_ID` | 🟢 🔒 | ConvAI agent: WIOA prequal | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `ELEVENLABS_CAREER_BUSINESS_AGENT_ID` | 🟢 🔒 | ConvAI agent: career & business | `agent_...` | `lib/ai/elevenlabsAgents.ts` |
+| `NEXT_PUBLIC_ELEVENLABS_WIOA_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: WIOA | `Sarah` | Portal voice surfaces |
+| `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: counselor | `...` | Portal voice surfaces |
+| `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_FEMALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: female interviewer | `...` | Portal voice surfaces |
+| `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_MALE_VOICE_ID` | 🟢 👁️ | Public TTS voice ID: male interviewer | `...` | Portal voice surfaces |
+
+**Note:** Agent IDs have hardcoded fallbacks in `lib/ai/elevenlabsAgents.ts` for production resilience. Override with env vars per deploy.
+
+---
+
+## Coursera / Learning Integration
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `COURSERA_API_BASE_URL` | 🟡 🔒 | Enterprise REST API base | `https://api.coursera.com/ent/api/rest/v1` | `lib/coursera/configCore.ts` |
+| `COURSERA_API_TOKEN` | 🟡 🔒 | Bearer token for Enterprise API | `...` | `lib/coursera/configCore.ts` |
+| `COURSERA_PROGRAM_ID` | 🟢 🔒 | Default program ID | `TpIlAogTQ8-SJQKIE8PP9w` | `lib/coursera/configCore.ts` |
+| `COURSERA_PROGRAM_ID_MAP` | 🟢 🔒 | JSON slug → program ID map | `{}` | `lib/coursera/configCore.ts` |
+| `COURSERA_PROGRAM_HOME_URL` | 🟢 🔒 | Fixed member launch URL | `...` | `lib/coursera/configCore.ts` |
+| `COURSERA_PROGRAM_URL_TEMPLATE` | 🟢 🔒 | Templated launch URL | `https://.../{programId}` | `lib/coursera/configCore.ts` |
+| `COURSERA_DEFAULT_SKILLSET_IDS` | 🟢 🔒 | Comma-separated skillset IDs | `skill1,skill2` | `lib/coursera/configCore.ts` |
+| `COURSERA_SKILLSET_ID_MAP` | 🟢 🔒 | JSON slug → skillset IDs | `{}` | `lib/coursera/configCore.ts` |
+| `COURSERA_LEARNING_PATH_URL_TEMPLATE` | 🟢 🔒 | Deep-link template for learning paths | `...` | `lib/coursera/configCore.ts` |
+| `COURSERA_LEARNING_PATH_ID_MAP` | 🟢 🔒 | JSON slug → learning path ID | `{}` | `lib/coursera/configCore.ts` |
+| `COURSERA_WEBHOOK_SECRET` | 🟡 🔒 | Secret for inbound completion webhooks | `...` | `lib/coursera/webhookAuth.ts` |
+| `WEBHOOK_SECRET` | 🟢 🔒 | **Fallback** for Coursera webhook secret | `...` | `lib/coursera/configCore.ts` |
+| `COURSERA_XAPI_CLIENT_ID` | 🟢 🔒 | xAPI client ID | `...` | `lib/xapi/config.ts` |
+| `COURSERA_XAPI_CLIENT_SECRET` | 🟢 🔒 | xAPI client secret | `...` | `lib/xapi/config.ts` |
+| `COURSERA_XAPI_ENDPOINT` | 🟢 🔒 | xAPI endpoint URL | `...` | `lib/xapi/config.ts` |
+| `COURSERA_XAPI_USERNAME` | 🟢 🔒 | xAPI basic auth username | `...` | `lib/xapi/config.ts` |
+| `COURSERA_XAPI_PASSWORD` | 🟢 🔒 | xAPI basic auth password | `...` | `lib/xapi/config.ts` |
+| `COURSERA_SSO_SECRET` | 🟢 🔒 | Shared secret for SSO launch | `...` | `lib/coursera/sso.ts` |
+| `COURSERA_DEFAULT_PROGRAM_ID` | 🟢 🔒 | Default program (xAPI path) | `...` | `lib/xapi/config.ts` |
+| `COURSERA_TARGET_BASE_URL` | 🟢 🔒 | Target base URL for launch | `...` | `lib/coursera/configCore.ts` |
+| `COURSERA_ORG_ID` | 🟢 🔒 | Organization ID | `...` | `lib/coursera/configCore.ts` |
+| `COURSERA_ORG_SLUG` | 🟢 🔒 | Organization slug | `...` | `lib/coursera/configCore.ts` |
+| `COURSERA_OAUTH_TOKEN_URL` | 🟢 🔒 | OAuth token endpoint | `...` | `lib/coursera/configCore.ts` |
+| `COURSERA_B4B_CLIENT_ID` | 🟢 🔒 | Business-to-Business client ID | `...` | `lib/coursera/b4bClient.ts` |
+| `COURSERA_B4B_CLIENT_SECRET` | 🟢 🔒 | Business-to-Business client secret | `...` | `lib/coursera/b4bClient.ts` |
+| `COURSERA_COURSE_ID_MAP` | 🟢 🔒 | JSON slug → course ID map | `{}` | `lib/coursera/configCore.ts` |
+| `COURSERA_COURSE_URL_TEMPLATE` | 🟢 🔒 | Course deep-link template | `...` | `lib/coursera/configCore.ts` |
+| `COURSERA_SKILLSET_SLUG_MAP` | 🟢 🔒 | Skillset slug mapping | `{}` | `lib/coursera/configCore.ts` |
+
+---
+
+## Stripe / Payments
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `STRIPE_SECRET_KEY` | 🔴 🔒 | Stripe secret key | `sk_live_...` | `lib/stripe/client.ts` |
+| `STRIPE_WEBHOOK_SECRET` | 🔴 🔒 | Stripe webhook endpoint secret | `whsec_...` | `lib/stripe/client.ts` |
+| `STRIPE_CONNECT_WEBHOOK_SECRET` | 🔴 🔒 | Stripe Connect webhook secret | `whsec_...` | `lib/stripe/client.ts` |
+| `STRIPE_STARTER_PRICE_ID` | 🟡 🔒 | Org onboarding: Starter tier | `price_...` | `app/org/onboard/page.tsx` |
+| `STRIPE_GROWTH_PRICE_ID` | 🟡 🔒 | Org onboarding: Growth tier | `price_...` | `app/org/onboard/page.tsx` |
+| `STRIPE_ENTERPRISE_PRICE_ID` | 🟡 🔒 | Org onboarding: Enterprise tier | `price_...` | `app/org/onboard/page.tsx` |
+| `STRIPE_BASIC_PRICE_ID` | 🟢 🔒 | Legacy basic tier | `price_...` | `lib/stripe/client.ts` |
+
+---
+
+## Analytics & Monitoring
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `NEXT_PUBLIC_GTM_ID` | 🟡 👁️ | Google Tag Manager container ID | `GTM-XXXXXXX` | Public pages |
+| `SENTRY_DSN` | 🟡 🔒 | Sentry server/edge DSN | `https://...` | `sentry.server.config.ts`, `sentry.edge.config.ts` |
+| `NEXT_PUBLIC_SENTRY_DSN` | 🟡 👁️ | Sentry browser DSN | `https://...` | `instrumentation-client.ts` |
+| `SENTRY_ENVIRONMENT` | 🟢 🔒 | Sentry server environment tag | `production` | `sentry.server.config.ts` |
+| `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | 🟢 👁️ | Sentry client environment tag | `production` | `instrumentation-client.ts` |
+| `ENABLE_ANALYTICS_LOGS` | 🟢 🔒 | Enable analytics debug logging | `true` | Analytics utilities |
+
+**Build-time only** (used by `@sentry/nextjs` webpack plugin, not referenced directly in app code):
+- `SENTRY_AUTH_TOKEN` — Source map upload token
+- `SENTRY_ORG` — Sentry organization slug
+- `SENTRY_PROJECT` — Sentry project slug
+
+---
+
+## WIOA
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `NEXT_PUBLIC_WIOA_ENABLED` | 🟡 👁️ | Enable WIOA program features | `1` | Portal nav, learning hub |
+| `WIOA_SCREENING_NOTIFY_EMAIL` | 🟢 🔒 | WIOA screening notifications | `info@workforceap.org` | `lib/wioa/wioaNotification.ts` |
+
+---
+
+## Partner & Org
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `PARTNER_PLACEMENT_PAYOUT_USD` | 🟢 🔒 | Illustrative payout per placement | `500` | Partner dashboard |
+| `NEXT_PUBLIC_PARTNER_PLACEMENT_PAYOUT_USD` | 🟢 👁️ | Public-facing payout display | `500` | Partner portal |
+
+---
+
+## Admin & Cron
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `ADMIN_MATCH_SUGGESTIONS_TEST_EMAIL` | 🛠️ 🔒 | Redirect match suggestion emails to test inbox | `test@workforceap.org` | `lib/admin/matchSuggestionsConfig.ts` |
+| `ADMIN_MATCH_SUGGESTIONS_DRY_RUN` | 🛠️ 🔒 | Skip Resend send, record audit only | `1` | `lib/admin/matchSuggestionsConfig.ts` |
+| `DEFAULT_GREETING_TZ` | 🟢 🔒 | Timezone for greeting calculations | `America/Chicago` | `lib/time/greeting.ts` |
+
+---
+
+## Testing & QA
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `PLAYWRIGHT_BASE_URL` | 🛠️ 🔒 | E2E test target URL | `http://localhost:3000` | Playwright tests |
+| `PLAYWRIGHT_MEMBER_EMAIL` | 🛠️ 🔒 | Test member login email | `member-test@...` | E2E specs |
+| `PLAYWRIGHT_PARTNER_EMAIL` | 🛠️ 🔒 | Test partner login email | `partner-test@...` | E2E specs |
+| `PLAYWRIGHT_PORTAL_PASSWORD` | 🛠️ 🔒 | Shared test password | `TestWfAP2026!` | E2E specs |
+| `PLAYWRIGHT_STORAGE_STATE` | 🛠️ 🔒 | Auth state file path | `./playwright-state.json` | E2E helpers |
+| `PLAYWRIGHT_ADMIN_STORAGE_STATE` | 🛠️ 🔒 | Admin auth state path | `./admin-state.json` | E2E helpers |
+| `PLAYWRIGHT_VERCEL_SHARE_URL` | 🛠️ 🔒 | Vercel share URL for remote runs | `...` | `tests/e2e/auth-helpers.ts` |
+| `PLAYWRIGHT_SCREENSHOT` | 🛠️ 🔒 | Enable screenshots | `on` | `playwright.config.ts` |
+| `PLAYWRIGHT_TRACE` | 🛠️ 🔒 | Enable traces | `on` | `playwright.config.ts` |
+| `PLAYWRIGHT_VIDEO` | 🛠️ 🔒 | Enable video | `on` | `playwright.config.ts` |
+| `PORTAL_AUDIT_SECTION` | 🛠️ 🔒 | Filter portal audit section | `all` | `tests/e2e/cross-portal-routes.spec.ts` |
+| `ARTIFACTS_DIR` | 🛠️ 🔒 | E2E artifact output dir | `./test-results/artifacts` | Visual regression tests |
+| `E2E_MEMBER_EMAIL` | 🛠️ 🔒 | E2E member email | `...` | Coursera E2E |
+| `E2E_MEMBER_PASSWORD` | 🛠️ 🔒 | E2E member password | `...` | Coursera E2E |
+| `E2E_ISSUE_XAPI_TOKEN` | 🛠️ 🔒 | xAPI token for E2E issue testing | `...` | Coursera E2E |
+| `SEED_TEST_ACCOUNTS` | 🛠️ 🔒 | Seed QA test accounts in DB | `true` | `prisma/seed.ts` |
+| `SEED_DEMO` | 🛠️ 🔒 | Seed demo data | `true` | `prisma/seed-demo.ts` |
+
+---
+
+## Build & Internal
+
+| Name | Badge | Description | Example | Used In |
+|------|-------|-------------|---------|---------|
+| `ANALYZE` | 🛠️ 🔒 | Enable `@next/bundle-analyzer` | `true` | `next.config.ts` |
+| `NEXT_PUBLIC_IS_BUILDING` | 🛠️ 👁️ | Client hint for build-time UIs | `1` | (reserved) |
+| `NEXT_PUBLIC_IS_PREVIEW_DEVELOPMENT` | 🛠️ 👁️ | Preview dev mode flag | `1` | (reserved) |
+| `VERCEL_GIT_COMMIT_SHA` | — | Vercel auto-provided commit SHA | `abc123...` | Sentry release version |
+| `VERCEL_PROJECT_ID` | — | Vercel project ID | `prj_...` | Vercel API scripts |
+| `VERCEL_TEAM_ID` | — | Vercel team ID | `team_...` | Vercel API scripts |
+| `VERCEL_TOKEN` | 🟢 🔒 | Vercel API token | `...` | Deployment scripts |
+
+---
+
+## Deprecated / Legacy
+
+The following variables appear in `.env.example` or old docs but **are not referenced in current application code**. They should be removed from Vercel and `.env` files to avoid confusion.
+
+| Name | Status | Migration |
+|------|--------|-----------|
+| `SMTP_HOST` | ❌ Unused | Remove. Resend is the sole email provider. |
+| `SMTP_USER` | ❌ Unused | Remove. |
+| `SMTP_PASS` | ❌ Unused | Remove. |
+| `SMTP_PORT` | ❌ Unused | Remove. |
+| `ONET_API_USERNAME` | ❌ Unused | Remove. O*NET v2 uses `ONET_API_KEY` only. |
+| `ONET_API_PASSWORD` | ❌ Unused | Remove. |
+| `NEXT_PUBLIC_GA_ID` | ❌ Unused | Remove. Use `NEXT_PUBLIC_GTM_ID` instead. |
+
+---
+
+## Security Notes
+
+### 🔒 Server-Only Variables
+
+**NEVER** expose these to the client. Do not prefix with `NEXT_PUBLIC_`:
+
+- `SUPABASE_SERVICE_ROLE_KEY` — bypasses all Row Level Security
+- `RESEND_API_KEY` — could be used to send spam
+- `CRON_SECRET` — could trigger arbitrary cron jobs
+- `PLACEMENT_SURVEY_TOKEN_SECRET` — could forge survey links
+- `AUTH_TRUST_COOKIE_SECRET` — could forge MFA trust cookies
+- `STRIPE_SECRET_KEY` — financial access
+- All `*_API_KEY`, `*_SECRET`, `*_SECRET_KEY`, `*_TOKEN` vars
+
+### 👁️ Client-Safe Variables
+
+These **must** be prefixed with `NEXT_PUBLIC_` to be accessible in the browser:
+
+- `NEXT_PUBLIC_SITE_URL`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_GTM_ID`
+- `NEXT_PUBLIC_CAPTCHA_ENABLED`
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+- `NEXT_PUBLIC_SENTRY_DSN`
+- `NEXT_PUBLIC_ELEVENLABS_*_VOICE_ID`
+- `NEXT_PUBLIC_WIOA_ENABLED`
+- `NEXT_PUBLIC_PARTNER_PLACEMENT_PAYOUT_USD`
+
+### .gitignore
+
+`.env.local` and `.env.*.local` are already in `.gitignore`. Never commit secrets.
+
+---
+
+## Drift Report
+
+### Variables in CODE but NOT in `.env.example` (Missing from template)
+
+These are referenced in the application but absent from `.env.example`. New developers won't know they exist.
+
+**Auth & Security:**
+- `AUTH_TRUST_COOKIE_SECRET`
+- `ADMIN_MFA_TRUST_DAYS`
+- `ADMIN_MATCH_SUGGESTIONS_DRY_RUN`
+- `ADMIN_MATCH_SUGGESTIONS_TEST_EMAIL`
+
+**AI / Voice:**
+- `ELEVENLABS_CAREER_BUSINESS_AGENT_ID`
+- `ELEVENLABS_WIOA_PREQUAL_AGENT_ID`
+- `GEMINI_API_KEY`
+- `GEMINI_MODEL`
+- `GROQ_MODEL`
+- `NEXT_PUBLIC_ELEVENLABS_COUNSELOR_VOICE_ID`
+- `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_FEMALE_VOICE_ID`
+- `NEXT_PUBLIC_ELEVENLABS_INTERVIEWER_MALE_VOICE_ID`
+
+**Analytics:**
+- `ENABLE_ANALYTICS_LOGS`
+- `NEXT_PUBLIC_SENTRY_ENVIRONMENT`
+
+**Build / Internal:**
+- `NEXT_PUBLIC_BASE_URL`
+- `NEXT_PUBLIC_IS_BUILDING`
+- `NEXT_PUBLIC_IS_PREVIEW_DEVELOPMENT`
+- `NEXT_PUBLIC_VERCEL_ENV`
+
+**Coursera (many missing):**
+- `COURSERA_B4B_CLIENT_ID`, `COURSERA_B4B_CLIENT_SECRET`
+- `COURSERA_COURSE_ID_MAP`, `COURSERA_COURSE_URL_TEMPLATE`
+- `COURSERA_DEFAULT_PROGRAM_ID`
+- `COURSERA_LEARNING_PATH_ID_MAP`, `COURSERA_LEARNING_PATH_URL_TEMPLATE`
+- `COURSERA_OAUTH_TOKEN_URL`
+- `COURSERA_ORG_ID`, `COURSERA_ORG_SLUG`
+- `COURSERA_PROGRAM_HOME_URL`, `COURSERA_PROGRAM_ID_MAP`, `COURSERA_PROGRAM_URL_TEMPLATE`
+- `COURSERA_SKILLSET_ID_MAP`, `COURSERA_SKILLSET_SLUG_MAP`
+- `COURSERA_SSO_SECRET`
+- `COURSERA_TARGET_BASE_URL`
+- `COURSERA_UNMATCHED_ACTOR_ALERT_EMAILS`
+- `COURSERA_XAPI_CLIENT_ID`, `COURSERA_XAPI_CLIENT_SECRET`, `COURSERA_XAPI_ENDPOINT`, `COURSERA_XAPI_PASSWORD`, `COURSERA_XAPI_USERNAME`
+- `WEBHOOK_SECRET` (fallback)
+
+**Email / Notifications:**
+- `AT_RISK_DIGEST_EMAILS`
+- `COURSERA_UNMATCHED_ACTOR_ALERT_EMAILS`
+- `DEFAULT_GREETING_TZ`
+- `SUPPORT_EMAIL`
+- `VOICE_COACH_TRANSCRIPT_EMAILS`
+- `VOICE_INTERVIEW_TRANSCRIPT_EMAILS`
+- `WIOA_SCREENING_NOTIFY_EMAIL`
+- `WORKSPACE_EMAIL_PROVIDER`
+
+**O*NET:**
+- `ONET_API_BASE_URL`
+
+**Partner / Org:**
+- `NEXT_PUBLIC_PARTNER_PLACEMENT_PAYOUT_USD`
+
+**Stripe:**
+- `STRIPE_BASIC_PRICE_ID`
+- `STRIPE_CONNECT_WEBHOOK_SECRET`
+- `STRIPE_ENTERPRISE_PRICE_ID`
+- `STRIPE_GROWTH_PRICE_ID`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_STARTER_PRICE_ID`
+- `STRIPE_WEBHOOK_SECRET`
+
+**Testing / QA:**
+- `ARTIFACTS_DIR`
+- `E2E_ISSUE_XAPI_TOKEN`
+- `E2E_MEMBER_EMAIL`, `E2E_MEMBER_PASSWORD`
+- `PLAYWRIGHT_ADMIN_STORAGE_STATE`, `PLAYWRIGHT_BASE_URL`, `PLAYWRIGHT_MEMBER_EMAIL`, `PLAYWRIGHT_PARTNER_EMAIL`, `PLAYWRIGHT_PORTAL_PASSWORD`, `PLAYWRIGHT_SCREENSHOT`, `PLAYWRIGHT_STORAGE_STATE`, `PLAYWRIGHT_TRACE`, `PLAYWRIGHT_VERCEL_SHARE_URL`, `PLAYWRIGHT_VIDEO`
+- `PORTAL_AUDIT_SECTION`
+- `SEED_DEMO`, `SEED_TEST_ACCOUNTS`
+
+**WIOA:**
+- `NEXT_PUBLIC_WIOA_ENABLED`
+
+**Other:**
+- `FIRECRAWL_API_KEY`
+- `PROXYCURL_API_KEY`
+- `TAVILY_API_KEY`
+- `WORKFORCEAP_FORCE_DB_BUILD`
+
+### Variables in `.env.example` but NOT in CODE (Potentially stale)
+
+- `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_PORT` — **Deprecated**. Remove.
+- `ONET_API_USERNAME`, `ONET_API_PASSWORD` — **Deprecated**. Remove.
+- `NEXT_PUBLIC_GA_ID` — **Deprecated**. Not in code. Remove.
+- `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` — **Build-time only** (used by `@sentry/nextjs` internally). Keep for CI/build but document as build-time.
+
+---
+
+## Changelog
+
+| Date | Change |
+|------|--------|
+| 2026-05-13 | Comprehensive audit. Documented 81 vars. Identified 6 deprecated. Updated `.env.example`. |
+| 2026-04-24 | Initial env variable list in `ENV-VARIABLES.md` (now superseded by this doc). |

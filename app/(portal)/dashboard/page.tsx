@@ -35,11 +35,15 @@ import { maybeAutoSyncCourseraOnDashboard } from '@/lib/coursera/dashboardAutoSy
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgramTrainingView';
 import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
-import PortalLoadingState from '@/components/portal/PortalLoadingState';
+import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
+import JobsSkeleton from '@/components/dashboard/JobsSkeleton';
+import ErrorBoundary from '@/components/error/ErrorBoundary';
+import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import RequestHelpButton from '@/components/portal/RequestHelpButton';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 import PointsWidget from '@/components/portal/PointsWidget';
+import PWAInstallPrompt from '@/components/pwa/PWAInstallPrompt';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 import { getTranslations } from 'next-intl/server';
@@ -238,6 +242,7 @@ async function renderMemberDashboard(
       },
     }),
     prisma.jobApplication.findMany({
+      take: 500,
       where: { userId: user.id, status: 'OFFER' },
       select: {
         id: true,
@@ -607,6 +612,8 @@ async function renderMemberDashboard(
     <>
       <h1 className="wa-sr-only">{noApplicationOnFile ? `Welcome to WorkforceAP, ${firstName}` : `Welcome back, ${firstName}`}</h1>
 
+      <PWAInstallPrompt />
+
       {staffViewer && (
         <div style={{ padding: '0.75rem 1rem 0' }}>
           <StaffViewBanner page="dashboard" />
@@ -628,7 +635,7 @@ async function renderMemberDashboard(
       <div className="md:wa-hidden portal-mobile-content">
 
         {/* ΓöÇΓöÇ Hero: greeting + progress ring ΓöÇΓöÇ */}
-        <section style={{ padding: '1.25rem 1.25rem 1rem' }}>
+        <section aria-label="Dashboard hero" style={{ padding: '1.25rem 1.25rem 1rem' }}>
           <div
             style={{
               borderRadius: '1.5rem',
@@ -711,6 +718,7 @@ async function renderMemberDashboard(
                       textDecoration: 'none',
                       color: 'inherit',
                       textAlign: 'center',
+                      minHeight: '44px',
                     }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
@@ -744,7 +752,7 @@ async function renderMemberDashboard(
 
         {/* ΓöÇΓöÇ State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ΓöÇΓöÇ */}
         {dashboardState === 'A' && (
-          <section style={{ padding: '0 1.25rem 1.25rem' }}>
+          <section aria-label="Next step" style={{ padding: '0 1.25rem 1.25rem' }}>
             <Link
               href={noApplicationOnFile ? '/apply' : '/dashboard/program'}
               style={{
@@ -779,7 +787,7 @@ async function renderMemberDashboard(
         )}
 
         {showStuckCounselor && (
-          <section style={{ padding: '0 1.25rem 0.75rem' }}>
+          <section aria-label="Counselor help" style={{ padding: '0 1.25rem 0.75rem' }}>
             <MemberStuckCounselorStrip />
           </section>
         )}
@@ -789,17 +797,17 @@ async function renderMemberDashboard(
         ) : null}
 
         {(dashboardState === 'C' || dashboardState === 'D') && (
-          <section style={{ padding: '0 1.5rem 1rem' }}>
+          <section aria-label="Progress overview" style={{ padding: '0 1.5rem 1rem' }}>
             <MemberProgressStrip {...progressStripProps} />
           </section>
         )}
 
-        <section style={{ padding: '0 1.25rem 0.75rem' }}>
+        <section aria-label="Certifications" style={{ padding: '0 1.25rem 0.75rem' }}>
           <LogCertificationModal />
         </section>
 
         {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
-          <section style={{ padding: '0 1.25rem 1rem' }}>
+          <section aria-label="Next actions" style={{ padding: '0 1.25rem 1rem' }}>
             <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
           </section>
         )}
@@ -807,7 +815,7 @@ async function renderMemberDashboard(
         {/* ΓöÇΓöÇ Priority next-step card ΓöÇΓöÇ */}
         <PlacementConfirmationStrip offers={jobOffers} />
         {!dominantNextAction && applicationStatus?.nextStep && (
-          <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+          <section aria-label="Priority action" style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
             <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
               <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -824,7 +832,7 @@ async function renderMemberDashboard(
                 </p>
                 <Link
                   href={applicationStatus.nextStepHref}
-                  style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box' }}
+                  style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box', minHeight: '44px' }}
                 >
                   {t('takeAction')}
                 </Link>
@@ -834,12 +842,14 @@ async function renderMemberDashboard(
         )}
 
         {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
-        <div style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
-          <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-        </div>
+        <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+          <div role="region" aria-label="Career path" style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
+            <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+          </div>
+        </ErrorBoundary>
 
         {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
+        <section aria-label="Application journey" style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
           <details className="portal-card portal-card--flat" style={{ borderRadius: '0.875rem', padding: '0.95rem 1rem' }}>
             <summary style={{ cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
               {t('applicationJourney')}
@@ -869,13 +879,14 @@ async function renderMemberDashboard(
         </section>
 
         {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
-          {memberPoints ? (
-            <PointsWidget
-              total={memberPoints.total}
-              level={memberPoints.level}
-              recent={recentTx}
-            />
+        <ErrorBoundary fallback={<DashboardErrorFallback section="points" />}>
+          <section aria-label="Points and rewards" style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
+            {memberPoints ? (
+              <PointsWidget
+                total={memberPoints.total}
+                level={memberPoints.level}
+                recent={recentTx}
+              />
           ) : (
             <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
               <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('yourFirstPointsWaiting')}</p>
@@ -905,11 +916,12 @@ async function renderMemberDashboard(
               </Link>
             </div>
           )}
-        </section>
+          </section>
+        </ErrorBoundary>
 
         {/* Recommended programs (only when not enrolled) OR ΓÇ£keep goingΓÇ¥ actions (when enrolled) */}
         {!enrolledProgram ? (
-          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+          <section aria-label="Recommended programs" style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
               <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">{t('recommendedPrograms')}</h3>
               <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>{t('viewAll')}</a>
@@ -935,7 +947,7 @@ async function renderMemberDashboard(
                   <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
                   <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
                     <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || t('workforceAP')}</p>
-                    <h4 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h4>
+                    <h3 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h3>
                   </div>
                 </div>
                 </Link>
@@ -943,7 +955,7 @@ async function renderMemberDashboard(
             </div>
           </section>
         ) : (
-          <section style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+          <section aria-label="Next milestones" style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
               <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
                 {t('nextMilestones')}
@@ -1009,7 +1021,7 @@ async function renderMemberDashboard(
         )}
 
         {/* ΓöÇΓöÇ Quick Actions 2x2 ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
+        <section aria-label="Quick actions" style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
           <div className="portal-dash-section-header">
             <h3 className="portal-dash-section-header__title">{t('quickActions')}</h3>
           </div>
@@ -1033,7 +1045,7 @@ async function renderMemberDashboard(
           </div>
         </section>
 
-        <section style={{ padding: '0 1.25rem 1.25rem' }}>
+        <section aria-label="Career voice assistant" style={{ padding: '0 1.25rem 1.25rem' }}>
           <MemberDashboardVoiceSectionLazy />
         </section>
 
@@ -1083,7 +1095,7 @@ async function renderMemberDashboard(
       {/* ΓöÇΓöÇ Desktop view (hidden on mobile) ΓöÇΓöÇ */}
       <div className="wa-hidden md:wa-block">
         <PortalEntryErrorBoundary>
-          <Suspense fallback={<PortalLoadingState message="Loading portal..." />}>
+          <Suspense fallback={<DashboardSkeleton />}>
             <PortalEntryClient
               portal="member"
               tourStorageUserId={user.id}
@@ -1131,8 +1143,9 @@ async function renderMemberDashboard(
                   />
                 </div>
               )}
-              <Suspense fallback={<PortalLoadingState message="Loading dashboard..." />}>
-                <DashboardHomeClient
+              <ErrorBoundary fallback={<DashboardErrorFallback section="profile" />}>
+                <Suspense fallback={<DashboardSkeleton />}>
+                  <DashboardHomeClient
                   recommendedActions={recommendedActions}
                   jobSearchUrl={jobSearchUrl}
                   aiToolsUsedCount={recentTools.length}
@@ -1162,8 +1175,9 @@ async function renderMemberDashboard(
                   noApplicationOnFile={noApplicationOnFile}
                   age={userAge}
                   isMinor={isMinor}
-                />
-              </Suspense>
+                  />
+                </Suspense>
+              </ErrorBoundary>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
                 <MemberDashboardVoiceSectionLazy />
               </div>
@@ -1194,9 +1208,11 @@ async function renderMemberDashboard(
               </div>
               <PlacementConfirmationStrip offers={jobOffers} />
               {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
-                <Suspense fallback={<PortalLoadingState message="Loading career matches..." />}>
-                  <MatchedRoles />
-                </Suspense>
+                <ErrorBoundary fallback={<DashboardErrorFallback section="jobs" />}>
+                  <Suspense fallback={<JobsSkeleton count={4} />}>
+                    <MatchedRoles />
+                  </Suspense>
+                </ErrorBoundary>
               )}
               {/* Recent AI Activity is rendered in the mobile view above ΓÇö
                   suppressed here so the same data doesn't appear twice in the DOM

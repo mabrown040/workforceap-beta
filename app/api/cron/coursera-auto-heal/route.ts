@@ -5,6 +5,7 @@ import {
 } from '@/lib/xapi/reprocess';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { loadB4BContents } from '@/lib/coursera/programContentsCache';
 import { seedCanonicalMappingsFromB4B } from '@/lib/coursera/seedCanonicalMappingsFromB4B';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -85,6 +86,7 @@ async function handle(_request: Request) {
     canonicalSeed,
     ignoredReplay,
   };
+  await setCronRecordsProcessed(result.processed);
   await logCronRun('cron_coursera_auto_heal', runResult);
   return NextResponse.json(runResult);
 }

@@ -41,6 +41,7 @@ export async function buildCounselorInboxRows(
   if (memberIds.length === 0) return [];
 
   const members = await prisma.user.findMany({
+    take: 500,
     where: { id: { in: memberIds } },
     select: {
       id: true,
@@ -52,6 +53,7 @@ export async function buildCounselorInboxRows(
   const memberById = new Map(members.map((m) => [m.id, m]));
 
   const existingThreads = await prisma.messageThread.findMany({
+    take: 500,
     where: { memberId: { in: memberIds } },
   });
   const threadByMemberId = new Map(
@@ -63,6 +65,7 @@ export async function buildCounselorInboxRows(
   );
   if (idsNeedingThread.length > 0) {
     const assignments = await prisma.counselorAssignment.findMany({
+      take: 500,
       where: { memberId: { in: idsNeedingThread }, active: true },
       orderBy: { assignedAt: 'desc' },
       select: {
@@ -93,6 +96,7 @@ export async function buildCounselorInboxRows(
     }
 
     let ensured = await prisma.messageThread.findMany({
+      take: 500,
       where: { memberId: { in: idsNeedingThread } },
     });
     const haveId = new Set(

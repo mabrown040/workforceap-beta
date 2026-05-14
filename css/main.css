@@ -96,7 +96,7 @@
     --color-light: #f7f8fa;
 
     /* Typography */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-size-h1: 2.5rem;
     --font-size-h2: 2rem;
     --font-size-h3: 1.5rem;
@@ -205,6 +205,16 @@
 .bg-surface-container { background: var(--surface-container); }
 .bg-surface-container-high { background: var(--surface-container-high); }
 .bg-surface-container-highest { background: var(--surface-container-highest); }
+
+/* ─── At-Risk Modal animations ─── */
+@keyframes at-risk-modal-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.at-risk-modal {
+  animation: at-risk-modal-in 0.18s ease-out;
+}
 
 /* Portal layout utilities (uniform, Apple-like spacing) */
 .portal-pad {
@@ -406,7 +416,7 @@ html.dark .portal-kpi-card {
 .portal-input {
     width: 100%;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 1rem;
     line-height: 1.25;
     min-height: 48px;
     padding: 0.625rem 0.875rem;
@@ -4808,7 +4818,7 @@ body.inner-page {
     border: 2px solid var(--color-gray-200);
     border-radius: var(--radius-md);
     font-family: inherit;
-    font-size: 0.9375rem;
+    font-size: 1rem;
     background: var(--color-white);
     transition: all var(--transition-base);
     color: var(--color-primary);
@@ -9155,16 +9165,40 @@ html.dark .portal-nav {
     /* Set by WorkspaceShell (header + tab bar height) for sticky sidebar alignment */
     --workspace-tab-bar-h: 0px;
     --workspace-top-offset: calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px));
-    /* Icon-only mobile bottom nav — tighter than marketing full captions */
-    --wap-portal-mobile-bottom-clearance-compact: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    /* Icon-only mobile bottom nav — still ≥~64px equivalent so compact chrome never eats tap targets */
+    --wap-portal-mobile-bottom-clearance-compact: calc(4.25rem + env(safe-area-inset-bottom, 0px));
 }
-/* Anchor / in-page jumps: clear sticky workspace header (+ member top tab strip when present) */
-@media (max-width: 767px) {
+/* Anchor / focus scroll-into-view: clear sticky workspace chrome (+ member top tab strip when present) */
+@media (max-width: 768px) {
     html[data-portal-role="member"] {
-        scroll-padding-top: calc(var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem));
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem) + 0.5rem
+        );
+    }
+    html[data-portal-role="member"] body {
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 3.25rem) + 0.5rem
+        );
     }
     html[data-portal-role]:not([data-portal-role="member"]) {
-        scroll-padding-top: var(--workspace-header-h, 3.25rem);
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px) + 0.5rem
+        );
+    }
+    html[data-portal-role]:not([data-portal-role="member"]) body {
+        scroll-padding-top: calc(
+            var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px) + 0.5rem
+        );
+    }
+
+    /* Hash / scroll-into-view: clear fixed MobileBottomNav on non-member portals */
+    html[data-portal-role]:not([data-portal-role="member"]).wap-reserve-mobile-bottom-nav,
+    html[data-portal-role]:not([data-portal-role="member"]):has(nav#mobile-bottom-nav.mobile-bottom-nav-root) {
+        scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+    }
+    html[data-portal-role]:not([data-portal-role="member"]).wap-reserve-mobile-bottom-nav body,
+    html[data-portal-role]:not([data-portal-role="member"]):has(nav#mobile-bottom-nav.mobile-bottom-nav-root) body {
+        scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
     }
 }
 .workspace-shell-header {
@@ -9186,13 +9220,39 @@ html.dark .portal-nav {
     z-index: 60;
     min-width: 0;
 }
-@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 768px) {
+    /* Single-row header: avoid wrapped meta/actions sandwiching the viewport */
+    .workspace-shell-header {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    .workspace-shell-header__brand {
+        flex: 0 1 auto;
+        min-width: 0;
+    }
+    .workspace-shell-header__meta {
+        flex: 1 1 auto;
+        min-width: 0;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+        gap: 0.35rem 0.5rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+    }
+    .workspace-shell-header__meta::-webkit-scrollbar {
+        display: none;
+    }
+}
+@media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
     .workspace-shell-header {
         transition: padding 0.2s ease, box-shadow 0.2s ease;
     }
 }
 /* Scroll-compacted chrome (see useWorkspaceMobileScrollChrome) */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     html.wap-portal-chrome-compact .workspace-shell-header {
         padding: 0.35rem 0.65rem;
         padding-top: max(0.32rem, env(safe-area-inset-top, 0.32rem));
@@ -9207,6 +9267,13 @@ html.dark .portal-nav {
     html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-tier-badge,
     html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-context-logo-wrap,
     html.wap-portal-chrome-compact .workspace-shell-header__meta .workspace-shell-impersonating-chip {
+        display: none !important;
+    }
+    html.wap-portal-chrome-compact .workspace-shell-tagline,
+    html.wap-portal-chrome-compact .workspace-shell-public-site-link {
+        display: none !important;
+    }
+    html.wap-portal-chrome-compact .workspace-shell-attribution {
         display: none !important;
     }
     html.wap-portal-chrome-compact .workspace-shell-header--minimal-mobile {
@@ -9327,7 +9394,7 @@ html:not(.dark) .workspace-shell-header {
 }
 
 /* Member portal (mobile): bottom nav is primary; minimize top chrome. */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   html[data-portal-role="member"] .workspace-shell-header__brand .workspace-shell-brand-block {
     display: none;
   }
@@ -9822,14 +9889,16 @@ html.dark .workspace-sidebar-signout:hover {
     width: 100%;
 }
 /* Mobile: keep page ends clear of fixed MobileBottomNav (counselor / employer / partner / admin). */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main {
         padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+        scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
     }
     html.wap-portal-chrome-compact
         .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root)
         .workspace-shell-main {
         padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
+        scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
     }
     html[data-portal-role="member"] .workspace-shell-main {
         padding-bottom: max(1.75rem, calc(1rem + env(safe-area-inset-bottom, 0px)));
@@ -11474,7 +11543,7 @@ body:has(.dashboard-drawer-overlay.open) {
     }
 }
 /* Minimal mobile header for member portal — reduce chrome when bottom nav is primary navigation */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     .workspace-shell-header--minimal-mobile {
         padding: 0.4rem 0.75rem;
         padding-top: max(0.4rem, env(safe-area-inset-top, 0.4rem));
@@ -15260,12 +15329,14 @@ td.admin-members-col-select {
     gap: 0.5rem;
     align-items: center;
 }
-.employer-jobs-board__bulk-actions .btn {
-    min-height: 2.5rem;
-}
 @media (max-width: 639px) {
     .employer-jobs-board__bulk-actions {
         justify-content: center;
+    }
+}
+@media (min-width: 769px) {
+    .employer-jobs-board__bulk-actions .btn {
+        min-height: 2.5rem;
     }
 }
 .employer-jobs-board__bulk-delete {
@@ -15562,11 +15633,13 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     gap: 0.5rem;
     margin-top: auto;
 }
-.employer-job-card__actions .btn {
-    min-height: 2.45rem;
-}
-.employer-bulk-modal__actions .btn {
-    min-height: 2.5rem;
+@media (min-width: 769px) {
+    .employer-job-card__actions .btn {
+        min-height: 2.45rem;
+    }
+    .employer-bulk-modal__actions .btn {
+        min-height: 2.5rem;
+    }
 }
 .employer-job-card__actions .btn-accent {
     font-weight: 600;
@@ -16041,6 +16114,8 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
 .admin-table-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    min-width: 0;
 }
 .admin-portal-card-list {
     display: none;
@@ -16063,6 +16138,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     align-items: flex-start;
     gap: 0.75rem;
     margin-bottom: 0.35rem;
+    overflow-wrap: break-word;
 }
 .admin-portal-card__badge {
     font-size: 0.72rem;
@@ -16075,6 +16151,7 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     font-size: 0.85rem;
     color: var(--color-on-surface-variant);
     margin: 0 0 0.5rem;
+    overflow-wrap: break-word;
 }
 .admin-portal-card__row {
     font-size: 0.9rem;
@@ -17156,5 +17233,6 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
     will-change: auto;
 }
 
-/* Tailwind utility layer (was globals-onboarding.css): keep last so utilities can override when needed. */
+/* Tailwind utility layer (was globals-onboarding.css): keep last so utilities can override when needed.
+   Portal/admin-only rules that must load after utilities live in css/portal.css (imported by portal + admin layouts). */
 @tailwind utilities;

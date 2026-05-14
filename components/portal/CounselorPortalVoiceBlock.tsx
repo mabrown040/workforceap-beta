@@ -1,6 +1,6 @@
 'use client';
 
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { counselorStaffVoiceSurface } from '@/lib/portal/voice';
 
@@ -11,7 +11,7 @@ import { counselorStaffVoiceSurface } from '@/lib/portal/voice';
 export default function CounselorPortalVoiceBlock() {
   return (
     <VoiceAgentSurface {...counselorStaffVoiceSurface}>
-      <PortalVoiceSession
+      <PortalVoiceSessionLazy
         sessionEndpoint="/api/counselor/session"
         title="Counselor voice assistant"
         titleAs="h2"

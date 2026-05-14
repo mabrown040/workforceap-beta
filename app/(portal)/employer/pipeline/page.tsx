@@ -32,6 +32,7 @@ export default async function EmployerPipelinePage() {
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
   const jobs = await prisma.job.findMany({
+    take: 5000,
     where: { employerId: ctx.employerId, status: 'live' },
     select: { id: true, title: true },
     orderBy: { updatedAt: 'desc' },
@@ -42,6 +43,7 @@ export default async function EmployerPipelinePage() {
     jobIds.length === 0
       ? []
       : await prisma.aIJobMatch.findMany({
+        take: 5000,
           where: { jobId: { in: jobIds } },
           orderBy: [{ jobId: 'asc' }, { matchScore: 'desc' }],
           include: {

@@ -1,0 +1,255 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// ─── Mocks ───
+vi.mock('next/server', () => {
+  class MockNextRequest extends Request {
+    get nextUrl() {
+      return new URL(this.url);
+    }
+  }
+  return {
+    NextRequest: MockNextRequest,
+    NextResponse: {
+      json: (body: unknown, init?: ResponseInit) =>
+        new Response(JSON.stringify(body), {
+          ...init,
+          headers: { 'content-type': 'application/json', ...(init?.headers || {}) },
+        }),
+    },
+  };
+});
+
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+}));
+
+vi.mock('@/lib/auth/roles', () => ({
+  isAdmin: vi.fn(),
+  isCounselor: vi.fn(),
+}));
+
+vi.mock('@/lib/db/prisma', () => ({
+  prisma: {
+    profile: {
+      findUnique: vi.fn(),
+    },
+    counselorAssignment: {
+      findFirst: vi.fn(),
+    },
+  },
+}));
+
+vi.mock('@/lib/supabase-admin', () => ({
+  getSupabaseAdmin: vi.fn(),
+}));
+
+vi.mock('@/lib/member/getMemberResumePlainText', () => ({
+  getMemberResumePlainText: vi.fn(),
+}));
+
+// ─── Imports after mocks ───
+import { GET as resumeGET } from '@/app/api/member/resume/route';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+
+function makeReq(url: string) {
+  class MockNextRequest extends Request {
+    get nextUrl() {
+      return new URL(this.url);
+    }
+  }
+  return new MockNextRequest(url);
+}
+
+describe('GET /api/member/resume', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns 401 when not authenticated', async () => {
+    vi.mocked(getUser).mockResolvedValue(null as any);
+
+    const res = await resumeGET(makeReq('http://localhost:3000/api/member/resume') as any);
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: 'Unauthorized' });
+  });
+
+  it('returns resume metadata for authenticated user with no resume', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-123' } as any);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+      userId: 'user-123',
+      resumeOriginalPath: null,
+      resumeEnhancedPath: null,
+    } as any);
+
+    const res = await resumeGET(makeReq('http://localhost:3000/api/member/resume') as any);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.hasOriginal).toBe(false);
+    expect(json.hasEnhanced).toBe(false);
+    expect(json.originalUrl).toBeNull();
+    expect(json.enhancedUrl).toBeNull();
+  });
+
+  it('returns signed URLs when resume files exist', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-123' } as any);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+      userId: 'user-123',
+      resumeOriginalPath: 'user-123/original.pdf',
+      resumeEnhancedPath: 'user-123/enhanced.pdf',
+    } as any);
+
+    const sharedMock = {
+      createSignedUrl: vi.fn()
+        .mockResolvedValueOnce({ data: { signedUrl: 'https://signed/original' }, error: null })
+        .mockResolvedValueOnce({ data: { signedUrl: 'https://signed/enhanced' }, error: null }),
+      download: vi.fn().mockResolvedValue({ data: { text: vi.fn().mockResolvedValue('enhanced text') }, error: null }),
+    };
+    const mockFrom = vi.fn(() => sharedMock);
+    vi.mocked(getSupabaseAdmin).mockReturnValue({ storage: { from: mockFrom } } as any);
+
+    const res = await resumeGET(makeReq('http://localhost:3000/api/member/resume') as any);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.hasOriginal).toBe(true);
+    expect(json.hasEnhanced).toBe(true);
+    expect(json.originalUrl).toBe('https://signed/original');
+    expect(json.enhancedUrl).toBe('https://signed/enhanced');
+    expect(json.enhancedText).toBe('enhanced text');
+  });
+
+  it('includes plain text when includePlainText=1', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-123' } as any);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+      userId: 'user-123',
+      resumeOriginalPath: 'user-123/original.pdf',
+      resumeEnhancedPath: null,
+    } as any);
+    vi.mocked(getMemberResumePlainText).mockResolvedValue('plain resume text');
+
+    const mockFrom = vi.fn(() => ({
+      createSignedUrl: vi.fn().mockResolvedValue({ data: { signedUrl: 'https://signed/original' }, error: null }),
+    }));
+    vi.mocked(getSupabaseAdmin).mockReturnValue({ storage: { from: mockFrom } } as any);
+
+    const res = await resumeGET(
+      makeReq('http://localhost:3000/api/member/resume?includePlainText=1') as any
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.resumePlainText).toBe('plain resume text');
+  });
+
+  it('returns 403 when requesting another member as non-admin/non-counselor', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-123' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(false);
+    vi.mocked(isCounselor).mockResolvedValue(false);
+
+    const res = await resumeGET(
+      makeReq('http://localhost:3000/api/member/resume?memberId=user-456') as any
+    );
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Forbidden' });
+  });
+
+  it('allows admin to access any member resume', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(isCounselor).mockResolvedValue(false);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+      userId: 'user-456',
+      resumeOriginalPath: null,
+      resumeEnhancedPath: null,
+    } as any);
+
+    const res = await resumeGET(
+      makeReq('http://localhost:3000/api/member/resume?memberId=user-456') as any
+    );
+    expect(res.status).toBe(200);
+    expect(prisma.profile.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: 'user-456' } })
+    );
+  });
+
+  it('allows counselor to access assigned member resume', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'counselor-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(false);
+    vi.mocked(isCounselor).mockResolvedValue(true);
+    vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
+      memberId: 'user-456',
+      active: true,
+      counselor: { userId: 'counselor-1' },
+    } as any);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+      userId: 'user-456',
+      resumeOriginalPath: null,
+      resumeEnhancedPath: null,
+    } as any);
+
+    const res = await resumeGET(
+      makeReq('http://localhost:3000/api/member/resume?memberId=user-456') as any
+    );
+    expect(res.status).toBe(200);
+    expect(prisma.counselorAssignment.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { memberId: 'user-456', active: true },
+      })
+    );
+  });
+
+  it('returns 403 when counselor accesses unassigned member', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'counselor-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(false);
+    vi.mocked(isCounselor).mockResolvedValue(true);
+    vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue(null);
+
+    const res = await resumeGET(
+      makeReq('http://localhost:3000/api/member/resume?memberId=user-456') as any
+    );
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Forbidden' });
+  });
+
+  it('returns 502 when storage sign fails', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-123' } as any);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+      userId: 'user-123',
+      resumeOriginalPath: 'user-123/original.pdf',
+      resumeEnhancedPath: null,
+    } as any);
+
+    const mockFrom = vi.fn(() => ({
+      createSignedUrl: vi.fn().mockResolvedValue({ data: null, error: { message: 'Bucket not found' } }),
+    }));
+    vi.mocked(getSupabaseAdmin).mockReturnValue({ storage: { from: mockFrom } } as any);
+
+    const res = await resumeGET(makeReq('http://localhost:3000/api/member/resume') as any);
+    expect(res.status).toBe(502);
+    const json = await res.json();
+    expect(json.error).toContain('Storage is not configured');
+  });
+
+  it('returns file extensions correctly', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-123' } as any);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+      userId: 'user-123',
+      resumeOriginalPath: 'user-123/original.PDF',
+      resumeEnhancedPath: 'user-123/enhanced.docx',
+    } as any);
+
+    const mockFrom = vi.fn(() => ({
+      createSignedUrl: vi.fn().mockResolvedValue({ data: { signedUrl: 'https://signed' }, error: null }),
+      download: vi.fn().mockResolvedValue({ data: { text: vi.fn().mockResolvedValue('text') }, error: null }),
+    }));
+    vi.mocked(getSupabaseAdmin).mockReturnValue({ storage: { from: mockFrom } } as any);
+
+    const res = await resumeGET(makeReq('http://localhost:3000/api/member/resume') as any);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.originalExt).toBe('pdf');
+    expect(json.enhancedExt).toBe('docx');
+  });
+});

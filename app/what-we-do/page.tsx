@@ -48,14 +48,15 @@ export default async function WhatWeDoPage() {
         }}
       >
         {/* Background image + gradient overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: 'url(/images/austin-skyline.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
+        <Image
+          src="/images/austin-skyline.webp"
+          alt=""
+          fill
+          priority
+          fetchPriority="high"
+          sizes="100vw"
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          aria-hidden="true"
         />
         <div
           style={{
@@ -63,6 +64,7 @@ export default async function WhatWeDoPage() {
             inset: 0,
             background:
               'linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.72) 45%, rgba(173,44,77,0.28) 100%)',
+            zIndex: 1,
           }}
         />
         {/* Extra bottom scrim so body copy stays readable on bright areas of the photo */}
@@ -76,7 +78,7 @@ export default async function WhatWeDoPage() {
           aria-hidden={true}
         />
 
-        <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: 'var(--max-width)', padding: '6rem 1.5rem' }}>
+        <div className="container" style={{ position: 'relative', zIndex: 2, maxWidth: 'var(--max-width)', padding: '6rem 1.5rem' }}>
           <span
             className="wwd-photo-hero__eyebrow"
             style={{
@@ -229,6 +231,7 @@ export default async function WhatWeDoPage() {
                   src="/images/hero-people.webp"
                   alt="Diverse team collaborating on workforce development"
                   fill
+                  loading="lazy"
                   style={{ objectFit: 'cover', objectPosition: 'center' }}
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />

@@ -381,6 +381,7 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 
   // Pre-load all active users by normalized email
   const users = await prisma.user.findMany({
+    take: 5000,
     where: { deletedAt: null, email: { not: '' } },
     select: { id: true, email: true },
   });
@@ -582,16 +583,30 @@ export async function syncCourseraB4BEnrollmentReports(): Promise<B4BSyncResult>
 
 async function updateRollups(emails: string[]) {
   const affectedUsers = await prisma.user.findMany({
+    take: 5000,
     where: { email: { in: emails, mode: 'insensitive' }, deletedAt: null },
     select: { id: true, email: true },
   });
 
+  const allUserIds = affectedUsers.map((u) => u.id);
+  const allRows = allUserIds.length
+    ? await prisma.courseProgress.findMany({
+        take: 5000,
+        where: { userId: { in: allUserIds } },
+        select: { userId: true, programSlug: true, status: true, percentComplete: true },
+      })
+    : [];
+
+  const rowsByUser = new Map<string, typeof allRows>();
+  for (const row of allRows) {
+    const list = rowsByUser.get(row.userId) ?? [];
+    list.push(row);
+    rowsByUser.set(row.userId, list);
+  }
+
   for (const user of affectedUsers) {
     try {
-      const rows = await prisma.courseProgress.findMany({
-        where: { userId: user.id },
-        select: { programSlug: true, status: true, percentComplete: true },
-      });
+      const rows = rowsByUser.get(user.id) ?? [];
 
       const byProgram = new Map<string, { total: number; completed: number; sumPct: number }>();
       for (const r of rows) {

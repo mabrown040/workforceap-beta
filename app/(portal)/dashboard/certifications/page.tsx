@@ -39,12 +39,14 @@ export default async function DashboardCertificationsPage() {
 
   const [certs, pathwayRows] = await Promise.all([
     prisma.userCertification.findMany({
+      take: 500,
       where: { userId: user.id },
       orderBy: { earnedAt: 'desc' },
       select: { id: true, certName: true, earnedAt: true },
     }),
     primaryPathway
       ? prisma.pathwayStepProgress.findMany({
+        take: 500,
           where: { userId: user.id, pathwayId: primaryPathway.id },
         })
       : Promise.resolve([] as Array<{ pathwayId: string; stepIndex: number; status: string }>),

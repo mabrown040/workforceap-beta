@@ -498,14 +498,14 @@ export default function MembersTable({ members }: MembersTableProps) {
               aria-label={`View details for ${m.fullName}`}
             >
               <div className="admin-portal-card__header" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', flex: 1 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', flex: 1, minWidth: 0 }}>
                   <input
                     type="checkbox"
                     checked={selectedIds.has(m.id)}
                     onChange={() => toggleSelect(m.id)}
                     aria-label={`Select ${m.fullName}`}
                   />
-                  <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 700, color: 'var(--color-accent)' }} onClick={(e) => e.stopPropagation()}>
+                  <Link href={`/admin/members/${m.id}`} style={{ fontWeight: 700, color: 'var(--color-accent)', wordBreak: 'break-word' }} onClick={(e) => e.stopPropagation()}>
                     {m.healthStatus && <HealthDot status={m.healthStatus} />}
                     {m.fullName}
                   </Link>
@@ -547,7 +547,7 @@ export default function MembersTable({ members }: MembersTableProps) {
                   href={`/counselor/sessions/${m.id}/run`}
                   onClick={(e) => e.stopPropagation()}
                   className="btn btn-sm btn-outline"
-                  style={{ fontSize: '0.75rem', flex: 1, textAlign: 'center' }}
+                  style={{ flex: 1, textAlign: 'center' }}
                 >
                   Start session
                 </Link>

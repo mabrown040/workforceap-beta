@@ -23,6 +23,7 @@ export default async function AdminJobReadyPage() {
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const candidates = await prisma.user.findMany({
+    take: 5000,
     where: {
       deletedAt: null,
       ...MEMBER_OR_DOGFOOD_WHERE,

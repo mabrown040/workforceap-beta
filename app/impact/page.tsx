@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
-import Footer from '@/components/Footer';
-import MobileBottomNav from '@/components/MobileBottomNav';
+import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 import DataTable, { type DataTableColumn } from '@/components/portal/ui/DataTable';
 import { SectionHeader, StatCard, InfoCard, PageSection } from '@/components/marketing/ui';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
@@ -13,12 +13,13 @@ import {
   type ImpactProgramRow,
 } from '@/lib/marketing/publicImpactStats';
 import JsonLdDataset from '@/components/JsonLdDataset';
+import TestimonialsCarousel from '@/components/marketing/TestimonialsCarousel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('marketing.publicImpact');
   return buildPageMetadataAsync({
-    title: 'Public impact · Workforce Advancement Project',
-    description:
-      'Live WorkforceAP outcomes: members served, training completion, job placement, program results, and employer partnership stats.',
+    title: t('title'),
+    description: t('description'),
     path: '/impact',
   });
 }
@@ -30,6 +31,7 @@ function formatThousands(n: number): string {
 }
 
 export default async function ImpactPage() {
+  const t = await getTranslations('marketing.publicImpact');
   let stats: Awaited<ReturnType<typeof getPublicImpactStats>>;
 
   if (shouldSkipOptionalDbQueriesAtBuild()) {
@@ -56,16 +58,16 @@ export default async function ImpactPage() {
   const salaryLabel =
     stats.salaryIncreaseSampleSize > 0 ? (
       <>
-        Avg. salary increase
+        {t('avgSalaryIncreaseLabel')}
         <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.8rem', fontWeight: 400 }}>
-          From placement offer to follow-up wage (where both are on file; n={stats.salaryIncreaseSampleSize})
+          {t('avgSalaryIncreaseSample', { count: stats.salaryIncreaseSampleSize })}
         </span>
       </>
     ) : (
       <>
-        Avg. salary increase
+        {t('avgSalaryIncreaseLabel')}
         <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.8rem', fontWeight: 400 }}>
-          Reported after placement follow-ups; insufficient paired data to show an average yet.
+          {t('avgSalaryIncreaseInsufficient')}
         </span>
       </>
     );
@@ -82,7 +84,7 @@ export default async function ImpactPage() {
             color: 'var(--color-on-surface-variant)',
           }}
         >
-          Program
+          {t('programColumn')}
         </span>
       ),
       rowHeader: true,
@@ -100,7 +102,7 @@ export default async function ImpactPage() {
             color: 'var(--color-on-surface-variant)',
           }}
         >
-          Enrolled
+          {t('enrolledColumn')}
         </span>
       ),
       cell: (row) => row.enrolled,
@@ -117,7 +119,7 @@ export default async function ImpactPage() {
             color: 'var(--color-on-surface-variant)',
           }}
         >
-          Completed
+          {t('completedColumn')}
         </span>
       ),
       cell: (row) => row.completed,
@@ -134,20 +136,23 @@ export default async function ImpactPage() {
             color: 'var(--color-on-surface-variant)',
           }}
         >
-          Avg. time to complete
+          {t('avgTimeColumn')}
         </span>
       ),
-      cell: (row) => (row.avgDaysToComplete != null ? `${Math.round(row.avgDaysToComplete)} days` : '—'),
+      cell: (row) =>
+        row.avgDaysToComplete != null
+          ? t('days', { count: Math.round(row.avgDaysToComplete) })
+          : t('noData'),
     },
   ];
 
   const datasetStats = [
-    { label: 'Members served', value: formatThousands(stats.membersServed) },
-    { label: 'Completion rate', value: `${stats.completionRatePct}%` },
-    { label: 'Placement rate', value: `${stats.placementRatePct}%` },
-    { label: 'Employer partners', value: formatThousands(stats.employersPartnered) },
-    { label: 'Jobs posted', value: formatThousands(stats.jobsPosted) },
-    { label: 'Hires on file', value: formatThousands(stats.hiresMade) },
+    { label: t('membersServedLabel'), value: formatThousands(stats.membersServed) },
+    { label: t('completionRateLabel'), value: `${stats.completionRatePct}%` },
+    { label: t('placementRateLabel'), value: `${stats.placementRatePct}%` },
+    { label: t('employerPartnersLabel'), value: formatThousands(stats.employersPartnered) },
+    { label: t('jobsPostedLabel'), value: formatThousands(stats.jobsPosted) },
+    { label: t('hiresLabel'), value: formatThousands(stats.hiresMade) },
   ];
 
   return (
@@ -156,9 +161,9 @@ export default async function ImpactPage() {
       <PageSection padding="lg" variant="default">
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <SectionHeader
-            eyebrow="Live statistics"
-            title={<>Real outcomes for real people</>}
-            subtitle="WorkforceAP impact metrics drawn from our operational systems—shared on a short cache interval for public transparency."
+            eyebrow={t('eyebrow')}
+            title={t('heading')}
+            subtitle={t('subtitle')}
             align="left"
             marginBottom="2rem"
           />
@@ -182,12 +187,22 @@ export default async function ImpactPage() {
             >
               {formatThousands(stats.membersServed)}
             </p>
-            <p style={{ margin: '0.75rem 0 0', fontWeight: 700, fontSize: '1.125rem' }}>Members served</p>
-            <p style={{ margin: '0.5rem 0 0', fontSize: '0.92rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
-              Active member accounts (profile role &ldquo;member&rdquo;), default WorkforceAP organization. Test fixtures are
-              excluded.
+            <p style={{ margin: '0.75rem 0 0', fontWeight: 700, fontSize: '1.125rem' }}>
+              {t('membersServedLabel')}
             </p>
-            <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{stats.asOfLabel}</p>
+            <p
+              style={{
+                margin: '0.5rem 0 0',
+                fontSize: '0.92rem',
+                color: 'var(--color-on-surface-variant)',
+                lineHeight: 1.6,
+              }}
+            >
+              {t('membersServedDesc')}
+            </p>
+            <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+              {stats.asOfLabel}
+            </p>
           </div>
 
           <div
@@ -198,32 +213,37 @@ export default async function ImpactPage() {
               marginBottom: '3rem',
             }}
           >
-            <StatCard value={`${stats.completionRatePct}%`} label="Completion rate (enrolled cohort)" />
-            <StatCard value={`${stats.placementRatePct}%`} label="Placement rate (enrolled cohort)" />
+            <StatCard value={`${stats.completionRatePct}%`} label={t('completionRateLabel')} />
+            <StatCard value={`${stats.placementRatePct}%`} label={t('placementRateLabel')} />
             <StatCard value={salaryValue} label={salaryLabel} />
           </div>
         </div>
       </PageSection>
 
-      <PageSection padding="md" variant="dark" ariaLabel="Programs">
+      <PageSection padding="md" variant="dark" ariaLabel={t('programsTitle')}>
         <SectionHeader
-          title="Programs"
-          subtitle="Per-program enrollment, curriculum completion, and typical time to complete (where completion timestamps are available)."
+          title={t('programsTitle')}
+          subtitle={t('programsSubtitle')}
           align="left"
           marginBottom="1.5rem"
         />
         {stats.programs.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No enrolled program cohorts recorded yet.</p>
+          <p style={{ color: 'var(--color-on-surface-variant)' }}>{t('noPrograms')}</p>
         ) : (
-          <DataTable<ImpactProgramRow> rows={stats.programs} rowKey={(row) => row.programSlug} density="standard" columns={programColumns} />
+          <DataTable<ImpactProgramRow>
+            rows={stats.programs}
+            rowKey={(row) => row.programSlug}
+            density="standard"
+            columns={programColumns}
+          />
         )}
       </PageSection>
 
-      <PageSection padding="md" ariaLabel="Employers">
+      <PageSection padding="md" ariaLabel={t('employersTitle')}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <SectionHeader
-            title="Employers"
-            subtitle="Employer partners and roles moving through the curated job pipeline (excludes draft and pending review)."
+            title={t('employersTitle')}
+            subtitle={t('employersSubtitle')}
             align="left"
             marginBottom="1.5rem"
           />
@@ -234,35 +254,47 @@ export default async function ImpactPage() {
               gap: '1rem',
             }}
           >
-            <StatCard value={formatThousands(stats.employersPartnered)} label="Employer partners (active)" />
-            <StatCard value={formatThousands(stats.jobsPosted)} label="Jobs posted (approved, live, filled, or closed)" />
-            <StatCard value={formatThousands(stats.hiresMade)} label="Hires on file (placement records)" />
+            <StatCard value={formatThousands(stats.employersPartnered)} label={t('employerPartnersLabel')} />
+            <StatCard value={formatThousands(stats.jobsPosted)} label={t('jobsPostedLabel')} />
+            <StatCard value={formatThousands(stats.hiresMade)} label={t('hiresLabel')} />
           </div>
         </div>
       </PageSection>
 
-      <PageSection padding="md" variant="dark" ariaLabel="Funders">
+      <PageSection padding="md" ariaLabel={t('testimonialsTitle') ?? 'Member stories'}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <SectionHeader
+            title="Member Stories"
+            subtitle="Real outcomes from real members"
+            align="left"
+            marginBottom="1.5rem"
+          />
+          <TestimonialsCarousel />
+        </div>
+      </PageSection>
+
+      <PageSection padding="md" variant="dark" ariaLabel={t('fundersTitle')}>
         <div style={{ maxWidth: 880, margin: '0 auto' }}>
-          <SectionHeader title="Funders" align="left" marginBottom="1rem" />
+          <SectionHeader title={t('fundersTitle')} align="left" marginBottom="1rem" />
           <InfoCard
             variant="flat"
-            eyebrow="Nonprofit model"
-            title="Grant-funded access"
-            description="WorkforceAP is a 501(c)(3) nonprofit. Funded by grants and partners, no cost to qualifying members."
+            eyebrow={t('nonprofitModelEyebrow')}
+            title={t('grantFundedTitle')}
+            description={t('grantFundedDesc')}
           />
           <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
             <Link href="/outcomes" className="btn btn-outline">
-              Placement outcomes detail
+              {t('outcomesLink')}
             </Link>
             <Link href="/apply" className="btn btn-primary">
-              Apply
+              {t('applyCta')}
             </Link>
           </div>
         </div>
       </PageSection>
 
-      <Footer />
-      <MobileBottomNav />
+      <DynamicFooter />
+      <DynamicMobileBottomNav />
       <div className="mobile-bottom-nav-spacer" aria-hidden="true" />
     </div>
   );

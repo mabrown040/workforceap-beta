@@ -24,7 +24,7 @@ export default async function DashboardCareerLibraryPage() {
   const resources = await getMemberResources();
   let resourcesProgress: Awaited<ReturnType<typeof prisma.resourceProgress.findMany>> = [];
   try {
-    resourcesProgress = await prisma.resourceProgress.findMany({ where: { userId: user.id } });
+    resourcesProgress = await prisma.resourceProgress.findMany({ take: 500, where: { userId: user.id } });
   } catch (e) {
     console.error('[career-library] progress query failed', e);
   }

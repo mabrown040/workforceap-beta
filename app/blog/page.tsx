@@ -32,6 +32,7 @@ export default async function BlogPage() {
           OR: [{ published: true }, { scheduledAt: { lte: new Date() } }],
         },
         orderBy: { publishedAt: 'desc' },
+        take: 200,
         select: {
           id: true,
           slug: true,

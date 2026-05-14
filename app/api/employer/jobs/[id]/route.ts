@@ -157,3 +157,41 @@ export async function PATCH(
   }
 }
 
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const ctx = await getEmployerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const { id } = await params;
+    const existing = await prisma.job.findFirst({
+      where: { id, employerId: ctx.employerId },
+    });
+    if (!existing) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+
+    const job = await prisma.job.update({
+      where: { id },
+      data: { status: 'closed' },
+    });
+
+    await recordEmployerWorkflowEvent({
+      employerId: ctx.employerId,
+      actorUserId: user.id,
+      kind: 'job_status',
+      headline: `Job closed: ${job.title}`,
+      entityType: 'Job',
+      entityId: job.id,
+    });
+
+    return NextResponse.json({ ok: true, job });
+  } catch (error) {
+    console.error('/employer/jobs/[id] DELETE error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+

@@ -30,6 +30,7 @@ export default async function AdminTrainingProgressPage() {
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const learners = await prisma.user.findMany({
+    take: 5000,
     where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
     orderBy: [{ fullName: 'asc' }],
     select: {
@@ -45,6 +46,7 @@ export default async function AdminTrainingProgressPage() {
 
   const [canonicalProgressRows, rawCourseraRows, dbMappings, courseEnrollmentRows] = await Promise.all([
     prisma.courseProgress.findMany({
+      take: 5000,
       where: { userId: { in: learnerIds } },
       select: {
         userId: true,
@@ -58,6 +60,7 @@ export default async function AdminTrainingProgressPage() {
       },
     }),
     prisma.courseraCourseProgress.findMany({
+      take: 5000,
       // Intentionally NOT filtered by `userId in learnerIds`. We want to
       // surface every Coursera enrollment the org has — including rows whose
       // courseraEmail never matched a WAP user. Those orphans are exactly the
@@ -83,6 +86,7 @@ export default async function AdminTrainingProgressPage() {
       },
     }),
     prisma.courseraCanonicalCourseMapping.findMany({
+      take: 5000,
       select: {
         courseraCourseId: true,
         canonicalProgramSlug: true,
@@ -94,6 +98,7 @@ export default async function AdminTrainingProgressPage() {
     // single-program field stays as a fallback below for users without any
     // CourseEnrollment rows yet (seeded test users).
     prisma.courseEnrollment.findMany({
+      take: 5000,
       where: { userId: { in: learnerIds } },
       select: {
         userId: true,

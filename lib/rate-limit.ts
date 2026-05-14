@@ -30,6 +30,9 @@ let xapiConfigGetRateLimiter: Ratelimit | null = null;
 let xapiOAuthTokenRateLimiter: Ratelimit | null = null;
 let xapiStatementsPostRateLimiter: Ratelimit | null = null;
 let placementSurveyRateLimiter: Ratelimit | null = null;
+let publicWioaQualificationRateLimiter: Ratelimit | null = null;
+let webhookRateLimiter: Ratelimit | null = null;
+let orgOnboardRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -150,6 +153,21 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(50, '1 h'),
     prefix: 'ratelimit:placement-survey',
+  });
+  publicWioaQualificationRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:public-wioa-qualification',
+  });
+  webhookRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(1000, '1 m'),
+    prefix: 'ratelimit:webhook',
+  });
+  orgOnboardRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:org-onboard',
   });
 }
 
@@ -299,5 +317,26 @@ export async function checkXapiStatementsPostRateLimit(ip: string): Promise<{ su
 export async function checkPlacementSurveyRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!placementSurveyRateLimiter) return { success: true };
   const result = await placementSurveyRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** POST /api/public/wioa-qualification — public lead form; fail-open without Redis. */
+export async function checkPublicWioaQualificationRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicWioaQualificationRateLimiter) return { success: true };
+  const result = await publicWioaQualificationRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Webhook endpoints (Coursera, learning-completion, etc.) — generous for legitimate retries. */
+export async function checkWebhookRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!webhookRateLimiter) return { success: true };
+  const result = await webhookRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** POST /api/org/onboard — public organization creation; fail-open without Redis. */
+export async function checkOrgOnboardRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!orgOnboardRateLimiter) return { success: true };
+  const result = await orgOnboardRateLimiter.limit(ip);
   return { success: result.success };
 }

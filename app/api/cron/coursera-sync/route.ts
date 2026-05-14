@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { isCronEnabled } from '@/lib/cron/isCronEnabled';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { resolveCourseraProgramId, resolveCourseraSkillsetIds } from '@/lib/coursera/config';
 import { fetchCourseraLearnerSkillsetProgress } from '@/lib/coursera/client';
@@ -171,6 +172,7 @@ async function handle(_req: NextRequest) {
     skipped,
     durationMs: Date.now() - startedAt,
   };
+  await setCronRecordsProcessed(processed);
   await logCronRun(WORKFLOW_KEY, result, errors > 0 && errors === processed ? 'error' : 'ok');
   return NextResponse.json(result);
 }

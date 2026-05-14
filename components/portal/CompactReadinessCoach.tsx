@@ -1,6 +1,6 @@
 'use client';
 
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 
 const ACCENT = '#0d9488';
 const ACCENT_DARK = '#0f766e';
@@ -57,7 +57,7 @@ export default function CompactReadinessCoach() {
           borderTop: '1px solid var(--outline-variant)',
         }}
       >
-        <PortalVoiceSession
+        <PortalVoiceSessionLazy
           sessionEndpoint="/api/member/readiness/voice-session"
           completionEndpoint="/api/counselor/feedback"
           checkpointEndpoint="/api/member/voice-session/checkpoint"

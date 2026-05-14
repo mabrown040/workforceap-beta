@@ -57,7 +57,7 @@ export const LEADERS: Leader[] = [
     name: 'Michael A. Brown, PMP, ChE',
     role: 'Executive Director, CEO',
     title: 'Executive Director & Chief Executive Officer',
-    image: '/images/michael-brown.jpg',
+    image: '/images/michael-brown.webp',
     founder: true,
     linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
     cardBio:

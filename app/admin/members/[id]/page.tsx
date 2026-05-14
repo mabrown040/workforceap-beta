@@ -166,6 +166,7 @@ export default async function AdminMemberDetailPage({
 
   const sharedQueries = () => [
     prisma.partner.findMany({
+      take: 5000,
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
@@ -175,14 +176,17 @@ export default async function AdminMemberDetailPage({
       select: { partnerId: true },
     }),
     prisma.subgroup.findMany({
+      take: 5000,
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true },
     }),
     prisma.memberSubgroup.findMany({
+      take: 5000,
       where: { memberId: id },
       select: { subgroupId: true },
     }),
     prisma.counselor.findMany({
+      take: 5000,
       where: { active: true },
       orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
       include: {
@@ -280,6 +284,7 @@ export default async function AdminMemberDetailPage({
 
   const organizationId = await getDefaultOrganizationId();
   const catalogPrograms = await prisma.organizationProgramCatalog.findMany({
+    take: 5000,
     where: { organizationId },
     orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
     select: { programSlug: true, name: true, status: true },
@@ -319,6 +324,7 @@ export default async function AdminMemberDetailPage({
   };
   const chatThread = await getOrCreateMemberCounselorThread(member.id);
   const chatMsgs = await prisma.message.findMany({
+    take: 5000,
     where: { threadId: chatThread.id },
     orderBy: { createdAt: 'asc' },
   });
@@ -326,6 +332,7 @@ export default async function AdminMemberDetailPage({
   const chatAuthors =
     chatAuthorIds.length > 0
       ? await prisma.user.findMany({
+        take: 5000,
           where: { id: { in: chatAuthorIds } },
           select: { id: true, fullName: true },
         })

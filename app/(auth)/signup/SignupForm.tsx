@@ -138,6 +138,8 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 44,
+    minHeight: 44,
   } as React.CSSProperties,
 
   select: {
@@ -358,6 +360,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                 id="fullName"
                 type="text"
                 autoComplete="name"
+                inputMode="text"
                 placeholder="Jane Doe"
                 aria-invalid={!!errors.fullName}
                 aria-describedby={errors.fullName ? 'fullName-error' : undefined}
@@ -374,6 +377,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                 id="email"
                 type="email"
                 autoComplete="email"
+                inputMode="email"
                 placeholder="you@example.com"
                 aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? 'email-error' : undefined}
@@ -414,7 +418,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
               {/* Strength bars */}
               <div style={s.strengthRow}>
                 {[0, 1, 2, 3, 4].map((i) => (
-                  <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: strengthColor(pwStrength, i), transition: 'background 0.3s' }} />
+                  <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: strengthColor(pwStrength, i), transition: 'background 0.3s' }} aria-hidden="true" />
                 ))}
               </div>
               <p style={s.hint}>Uppercase, lowercase, and a number required</p>
@@ -429,6 +433,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
               <input
                 id="phone"
                 type="tel"
+                inputMode="tel"
                 autoComplete="tel"
                 placeholder="(512) 555-1234"
                 aria-invalid={!!errors.phone}
@@ -500,7 +505,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
             {/* Consent checkboxes */}
             <div style={{ marginBottom: 'var(--space-4)' }}>
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2)', cursor: 'pointer', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-3)' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-3)', minHeight: 44 }}>
                 <input
                   type="checkbox"
                   aria-invalid={!!errors.consentTerms}
@@ -517,7 +522,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
               </label>
               {errors.consentTerms && <span id="consentTerms-error" role="alert" style={s.fieldError}>{errors.consentTerms.message}</span>}
 
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2)', cursor: 'pointer', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', minHeight: 44 }}>
                 <input type="checkbox" style={{ marginTop: 3, accentColor: 'var(--color-accent)' }} {...register('consentCommunications')} />
                 <span>I agree to receive program updates and communications via email</span>
               </label>

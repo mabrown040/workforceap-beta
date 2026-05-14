@@ -144,6 +144,7 @@ async function getEmployerBadgeCounts(employerId: string): Promise<NavBadgeCount
 
 async function getCounselorBadgeCounts(counselorId: string): Promise<NavBadgeCounts> {
   const assignments = await prisma.counselorAssignment.findMany({
+    take: 500,
     where: {
       counselorId,
       active: true,
@@ -156,6 +157,7 @@ async function getCounselorBadgeCounts(counselorId: string): Promise<NavBadgeCou
   if (memberIds.length === 0) return {};
 
   const threads = await prisma.messageThread.findMany({
+    take: 500,
     where: {
       kind: 'member',
       memberId: { in: memberIds },
@@ -169,20 +171,26 @@ async function getCounselorBadgeCounts(counselorId: string): Promise<NavBadgeCou
 
   if (threads.length === 0) return {};
 
-  const unreadCounts = await Promise.all(
-    threads.map(async (thread) => {
-      if (!thread.memberId) return 0;
-      return thread.counselorLastReadAt
-        ? prisma.message.count({
-            where: {
-              threadId: thread.id,
-              authorId: thread.memberId,
-              createdAt: { gt: thread.counselorLastReadAt },
-            },
-          })
-        : 0;
-    })
+  // Batch unread counts into a single SQL query (eliminates N message.count calls).
+  const threadIds = threads.map((t) => t.id);
+  const unreadRows = await prisma.$queryRawUnsafe<
+    Array<{ threadId: string; count: bigint }>
+  >(
+    `SELECT m.thread_id as "threadId", COUNT(*) as count
+     FROM messages m
+     JOIN message_threads t ON m.thread_id = t.id
+     WHERE m.thread_id = ANY($1)
+       AND m.author_id = t.member_id
+       AND t.counselor_last_read_at IS NOT NULL
+       AND m.created_at > t.counselor_last_read_at
+     GROUP BY m.thread_id`,
+    threadIds,
   );
+  const unreadMap = new Map<string, bigint>();
+  for (const row of unreadRows) {
+    unreadMap.set(row.threadId, row.count);
+  }
+  const unreadCounts = threads.map((t) => Number(unreadMap.get(t.id) ?? 0));
 
   const slaRows = await getSlaStatusForThreads(threads.map((thread) => thread.id));
   let counselor_sla_breach_48h = 0;
@@ -203,10 +211,12 @@ async function getPartnerBadgeCounts(partnerId: string): Promise<NavBadgeCounts>
   const [attentionRows, referralIds, partnerUsers, thread] = await Promise.all([
     buildPartnerAttentionQueue(partnerId),
     prisma.partnerReferral.findMany({
+      take: 500,
       where: { partnerId, member: { deletedAt: null } },
       select: { memberId: true },
     }),
     prisma.partnerUser.findMany({
+      take: 500,
       where: { partnerId },
       select: { userId: true },
     }),

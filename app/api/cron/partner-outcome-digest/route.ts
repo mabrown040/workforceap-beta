@@ -5,6 +5,7 @@ import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStudent } from '@
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
+import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Weekly digest for referral partners: referral counts by stage + weekly wins.
@@ -26,6 +27,41 @@ async function handle(_request: Request) {
     },
   });
 
+  // Batch-load all referrals for all partners in one query (N+1 eliminator)
+  const partnerIds = partners.map((p) => p.id);
+  const allReferrals = await prisma.partnerReferral.findMany({
+    where: { partnerId: { in: partnerIds }, member: { deletedAt: null } },
+    take: 2000 * partnerIds.length,
+    include: {
+      member: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          enrolledProgram: true,
+          enrolledAt: true,
+          assessmentCompleted: true,
+          deletedAt: true,
+          placementRecord: {
+            select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
+          },
+          userCertifications: { select: { certName: true, earnedAt: true } },
+          applications: { select: { status: true, submittedAt: true } },
+          memberProgramProgress: {
+            select: { programSlug: true, averagePercent: true, coursesCompleted: true },
+          },
+        },
+      },
+    },
+  });
+
+  const referralsByPartner = new Map<string, typeof allReferrals>();
+  for (const r of allReferrals) {
+    const list = referralsByPartner.get(r.partnerId) ?? [];
+    list.push(r);
+    referralsByPartner.set(r.partnerId, list);
+  }
+
   const results: Array<{ partnerId: string; name: string; emailSent: boolean; error?: string }> = [];
 
   for (const p of partners) {
@@ -34,31 +70,7 @@ async function handle(_request: Request) {
       continue;
     }
 
-    const referrals = await prisma.partnerReferral.findMany({
-      where: { partnerId: p.id, member: { deletedAt: null } },
-      take: 2000,
-      include: {
-        member: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            enrolledProgram: true,
-            enrolledAt: true,
-            assessmentCompleted: true,
-            deletedAt: true,
-            placementRecord: {
-              select: { employerName: true, jobTitle: true, salaryOffered: true, placedAt: true },
-            },
-            userCertifications: { select: { certName: true, earnedAt: true } },
-            applications: { select: { status: true, submittedAt: true } },
-            memberProgramProgress: {
-              select: { programSlug: true, averagePercent: true, coursesCompleted: true },
-            },
-          },
-        },
-      },
-    });
+    const referrals = referralsByPartner.get(p.id) ?? [];
 
     const stageCounts: Record<string, number> = {};
     const successLines: string[] = [];
@@ -134,6 +146,7 @@ async function handle(_request: Request) {
   const skipped = results.filter(r => r.error === 'no_contact_email').length;
   const failed = results.filter(r => r.error && r.error !== 'no_contact_email').length;
   const runResult = { ok: failed === 0, checkedAt: now.toISOString(), sent, skipped, failed, total: results.length };
+  await setCronRecordsProcessed(sent);
   await logCronRun('cron_partner_digest', runResult, failed > 0 ? 'error' : 'ok');
   return NextResponse.json({ ok: failed === 0, checkedAt: now.toISOString(), results });
 }

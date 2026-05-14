@@ -102,6 +102,7 @@ export type PipelineRow = {
  */
 export async function loadPartnerReferralBundle(partnerId: string, tenantOrganizationId: string) {
   const referrals = await prisma.partnerReferral.findMany({
+    take: 5000,
     where: {
       partnerId,
       partner: { organizationId: tenantOrganizationId },
@@ -119,14 +120,18 @@ export async function loadPartnerReferralBundle(partnerId: string, tenantOrganiz
 
   const memberIds = referrals.map((r) => r.member.id);
 
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+
   // Load pending placement confirmations (self-reported by members, not yet reviewed)
   const pendingPlacements =
     memberIds.length === 0
       ? []
       : await prisma.memberEvent.findMany({
+        take: 500,
           where: {
             userId: { in: memberIds },
             eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED',
+            createdAt: { gte: ninetyDaysAgo },
           },
           orderBy: { createdAt: 'desc' },
           select: {

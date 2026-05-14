@@ -1,14 +1,30 @@
 import { NextResponse } from 'next/server';
 import { timingSafeEqual } from 'crypto';
+import { checkWebhookRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { handleLearningCompletion } from '@/lib/workflows/careerOS';
 
 export async function POST(req: Request) {
   try {
-    const { memberId, courseName, secret } = await req.json();
+    const ip = getClientIpFromRequest(req);
+    const { success: withinLimit } = await checkWebhookRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      );
+    }
 
-    const expected = Buffer.from(process.env.WEBHOOK_SECRET || '');
-    const actual = Buffer.from(secret);
-    if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
+    const { memberId, courseName } = await req.json();
+
+    const providedSecret = req.headers.get('x-webhook-secret') || '';
+    const expectedSecret = process.env.WEBHOOK_SECRET || '';
+    if (providedSecret.length !== expectedSecret.length) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const expected = Buffer.from(expectedSecret);
+    const actual = Buffer.from(providedSecret);
+    if (!timingSafeEqual(actual, expected)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

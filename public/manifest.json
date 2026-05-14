@@ -1,8 +1,8 @@
 {
-  "name": "Workforce Advancement Project",
-  "short_name": "WorkforceAP",
+  "name": "WorkforceAP",
+  "short_name": "WAP",
   "description": "Career training, certifications, and job placement support.",
-  "start_url": "/pwa-start",
+  "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#121416",
   "theme_color": "#ad2c4d",
@@ -10,13 +10,13 @@
   "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "/images/wap_logo.png",
+      "src": "/images/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/images/wap_logo.png",
+      "src": "/images/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

@@ -133,10 +133,10 @@ export default function IgnoredXapiSummaryCard() {
           <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ textAlign: 'left' }}>
-                <th style={{ padding: '0.4rem 0.5rem' }}>Course slug</th>
-                <th style={{ padding: '0.4rem 0.5rem' }}>Events</th>
-                <th style={{ padding: '0.4rem 0.5rem' }}>Learners</th>
-                <th style={{ padding: '0.4rem 0.5rem' }}>Last seen</th>
+                <th scope="col" style={{ padding: '0.4rem 0.5rem' }}>Course slug</th>
+                <th scope="col" style={{ padding: '0.4rem 0.5rem' }}>Events</th>
+                <th scope="col" style={{ padding: '0.4rem 0.5rem' }}>Learners</th>
+                <th scope="col" style={{ padding: '0.4rem 0.5rem' }}>Last seen</th>
               </tr>
             </thead>
             <tbody>

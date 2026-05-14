@@ -72,6 +72,7 @@ export async function seedCanonicalMappingsFromCatalog(
   const actorUserId = args.actorUserId ?? null;
 
   const courses = await prisma.course.findMany({
+    take: 5000,
     select: {
       programSlug: true,
       courseSlug: true,

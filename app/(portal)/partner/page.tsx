@@ -19,6 +19,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voice';
+import { getTranslations } from 'next-intl/server';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
@@ -29,9 +30,10 @@ import PartnerReferralResourcesSection from '@/components/partner/PartnerReferra
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('partner');
   return buildPageMetadataAsync({
-  title: 'Partner Portal',
-  description: 'Referral outcomes, training progress, and placements for your organization.',
+  title: t('partnerPortal'),
+  description: t('referralOutcomes'),
   path: '/partner',
 });
 }
@@ -65,6 +67,8 @@ export default async function PartnerDashboardPage() {
 
   if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 
+  const t = await getTranslations('partner');
+
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
   const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
@@ -82,6 +86,7 @@ export default async function PartnerDashboardPage() {
       ? 0
       : (
           await prisma.application.findMany({
+            take: 5000,
             where: { referralPartnerId: ctx.partnerId, userId: { in: memberIds } },
             select: { userId: true },
             distinct: ['userId'],
@@ -124,12 +129,12 @@ export default async function PartnerDashboardPage() {
     const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
     const enrollmentDate = p.member.enrolledAt ? p.member.enrolledAt.toLocaleDateString() : '—';
     const placementDate = p.member.placementRecord?.placedAt ? p.member.placementRecord.placedAt.toLocaleDateString() : '—';
-    let payoutStatus = 'Not placed';
-    if (p.member.placementRecord) payoutStatus = 'Included in estimate';
-    else if (pendingUserIds.has(p.member.id)) payoutStatus = 'Pending verification';
+    let payoutStatus = t('notPlaced');
+    if (p.member.placementRecord) payoutStatus = t('includedInEstimate');
+    else if (pendingUserIds.has(p.member.id)) payoutStatus = t('pendingVerification');
     return {
       id: p.member.id,
-      fullName: p.member.fullName ?? 'Member',
+      fullName: p.member.fullName ?? t('memberFallback'),
       stage: p.stage,
       stageLabel,
       enrollmentDate,
@@ -142,7 +147,7 @@ export default async function PartnerDashboardPage() {
   const referralColumns: DataTableColumn<ReferralDashRow>[] = [
     {
       key: 'name',
-      header: 'Name',
+      header: t('name'),
       rowHeader: true,
       cell: (row) => (
         <Link
@@ -155,39 +160,39 @@ export default async function PartnerDashboardPage() {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('status'),
       cell: (row) => (
         <StatusBadge label={row.stageLabel} variant={row.stage === 'placed' ? 'success' : 'accent'} />
       ),
     },
     {
       key: 'enrolled',
-      header: 'Enrollment date',
+      header: t('enrollmentDate'),
       hideOnMobile: true,
       cell: (row) => row.enrollmentDate,
     },
     {
       key: 'placed',
-      header: 'Placement date',
+      header: t('placementDate'),
       hideOnMobile: true,
       cell: (row) => row.placementDate,
     },
     {
       key: 'payout',
-      header: 'Payout status',
+      header: t('payoutStatus'),
       cell: (row) => row.payoutStatus,
     },
   ];
 
   const nextAction = total === 0
-    ? { label: 'Share workforceap.org/apply with your community', href: '/partner/guide', tip: 'Ask applicants to list your organization when asked how they heard about us.' }
+    ? { label: t('nextActionShareLink'), href: '/partner/guide', tip: t('nextActionShareLinkTip') }
     : pendingPlacementCount > 0
-      ? { label: `${pendingPlacementCount} member${pendingPlacementCount !== 1 ? 's' : ''} reported a job offer — review needed`, href: '/partner/outcomes', tip: 'WorkforceAP is reviewing these offers. You will see verified placements once confirmed.' }
+      ? { label: t('nextActionReviewPlacements', { count: pendingPlacementCount }), href: '/partner/outcomes', tip: t('nextActionReviewPlacementsTip') }
       : placements === 0 && inTraining > 0
-        ? { label: `${inTraining} member${inTraining !== 1 ? 's' : ''} in training — encourage completion`, href: '/partner', tip: 'Check in with members who are close to finishing their program.' }
+        ? { label: t('nextActionEncourageTraining', { count: inTraining }), href: '/partner', tip: t('nextActionEncourageTrainingTip') }
         : placements > 0
-          ? { label: 'Celebrate placements, share more referrals', href: '/partner/guide', tip: 'Your referrals are landing jobs. Keep the pipeline full.' }
-          : { label: 'Review member progress', href: '/partner', tip: 'Members are moving through the journey — track their outcomes.' };
+          ? { label: t('nextActionCelebrate'), href: '/partner/guide', tip: t('nextActionCelebrateTip') }
+          : { label: t('nextActionReviewProgress'), href: '/partner', tip: t('nextActionReviewProgressTip') };
 
   const nearCompletion = pipelineMembers.filter((p) => p.stage === 'in_training' && p.progress >= 70);
 
@@ -221,7 +226,7 @@ export default async function PartnerDashboardPage() {
     >
     <PortalPageFrame maxWidth="80rem">
       <h1 className="wa-sr-only">
-        Partner Overview — {ctx.partner.name}
+        {t('partnerOverview')} — {ctx.partner.name}
       </h1>
     {/* ── MOBILE SECTION ── */}
     <div className="wa-block md:wa-hidden portal-mobile-content">
@@ -231,13 +236,13 @@ export default async function PartnerDashboardPage() {
           className="wa-text-[11px] wa-uppercase wa-tracking-[0.15em] wa-font-bold wa-mb-1"
           style={{ color: 'var(--color-accent)' }}
         >
-          Partner Dashboard
+          {t('partnerDashboard')}
         </p>
         <h2 className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', lineHeight: 1.1 }}>
           {ctx.partner.name}
         </h2>
         <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>
-          {partnerRow.organizationType || 'Partner Organization'}
+          {partnerRow.organizationType || t('partnerOrganization')}
         </p>
       </div>
 
@@ -251,13 +256,13 @@ export default async function PartnerDashboardPage() {
             className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-bold wa-mb-1"
             style={{ color: 'var(--color-on-surface-variant)' }}
           >
-            Estimated payout
+            {t('estimatedPayout')}
           </p>
           <p className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
             {fmtMoney(estimatedPayout)}
           </p>
           <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.45 }}>
-            {placements} verified placement{placements !== 1 ? 's' : ''} × {fmtMoney(payoutPerPlacement)} each. Final amounts follow your partner agreement.
+            {t('verifiedPlacements', { count: placements, amount: fmtMoney(payoutPerPlacement) })}
           </p>
         </div>
 
@@ -269,30 +274,30 @@ export default async function PartnerDashboardPage() {
             gap: '0.625rem',
           }}
         >
-          <PortalKpiCard accent="accent" label="Members referred" value={total} hint="In your portal" />
-          <PortalKpiCard accent="neutral" label="Members enrolled" value={enrolledCount} hint="Started a program" />
-          <PortalKpiCard accent="green" label="Members placed" value={placements} hint="Verified hires" href="/partner/outcomes" />
-          <PortalKpiCard accent="gold" label="Est. payout" value={fmtMoney(estimatedPayout)} hint="Placement estimate" />
+          <PortalKpiCard accent="accent" label={t('membersReferred')} value={total} hint={t('inYourPortal')} />
+          <PortalKpiCard accent="neutral" label={t('membersEnrolled')} value={enrolledCount} hint={t('startedAProgram')} />
+          <PortalKpiCard accent="green" label={t('membersPlaced')} value={placements} hint={t('verifiedHires')} href="/partner/outcomes" />
+          <PortalKpiCard accent="gold" label={t('estPayout')} value={fmtMoney(estimatedPayout)} hint={t('placementEstimate')} />
         </div>
       </div>
 
       {/* Mobile Connect payout section */}
       <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
-        <PortalCard title="Payouts" subtitle="Get paid directly to your bank account.">
+        <PortalCard title={t('payouts')} subtitle={t('getPaidToBank')}>
           {partnerRow.stripeConnectStatus === 'active' ? (
             <div>
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
-                Bank account connected. Payouts are sent automatically when placements are verified.
+                {t('bankAccountConnected')}
               </p>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
-                Ready for payouts
+                {t('readyForPayouts')}
               </span>
             </div>
           ) : (
             <div>
               <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
-                Connect your bank account to receive payouts automatically.
+                {t('connectBankToReceive')}
               </p>
               <form
                 action="/api/partner/connect"
@@ -307,7 +312,7 @@ export default async function PartnerDashboardPage() {
               >
                 <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '0.375rem' }}>account_balance</span>
-                  Connect bank account
+                  {t('connectBankAccount')}
                 </button>
               </form>
             </div>
@@ -317,8 +322,8 @@ export default async function PartnerDashboardPage() {
 
       <div className="portal-pad-x" style={{ paddingBottom: '1rem' }} data-tour="tour-referral-link">
         <PortalCard
-          title="Referral link"
-          subtitle={`Applied via your link: ${referredMembersAppliedViaLink}`}
+          title={t('referralLink')}
+          subtitle={t('appliedViaYourLink', { count: referredMembersAppliedViaLink })}
         >
           <p style={{ margin: '0 0 0.5rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
             {referralApplyUrl}
@@ -329,11 +334,11 @@ export default async function PartnerDashboardPage() {
 
       <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
         <PortalCard
-          title="Referred members"
-          subtitle="Enrollment and placement dates reflect WorkforceAP records."
+          title={t('referredMembers')}
+          subtitle={t('enrollmentAndPlacementDates')}
           action={
             <Link href="/partner/referred-members" className="portal-section-action wa-text-[11px]">
-              View all
+              {t('viewAll')}
               <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
                 arrow_forward
               </span>
@@ -347,10 +352,10 @@ export default async function PartnerDashboardPage() {
             density="compact"
             emptyState={
               <PortalEmptyState
-                title="No referred members yet"
-                description="Share your referral link so applicants can enroll with your organization attributed."
+                title={t('noReferredMembersYet')}
+                description={t('shareReferralLink')}
                 icon={<span className="material-symbols-outlined">group_add</span>}
-                primaryAction={{ label: 'Referral guide', href: '/partner/guide' }}
+                primaryAction={{ label: t('referralGuide'), href: '/partner/guide' }}
               />
             }
           />
@@ -400,8 +405,8 @@ export default async function PartnerDashboardPage() {
                 description="Ask about referrals, member progress, or using the partner portal."
                 accent="var(--color-amber)"
                 accentDark="var(--color-amber)"
-                speakingLabel="Assistant is speaking…"
-                listeningLabel="Listening — ask your question"
+                speakingLabel={t('assistantSpeaking')}
+                listeningLabel={t('assistantListening')}
               />
             </VoiceAgentSurface>
           </div>
@@ -410,7 +415,7 @@ export default async function PartnerDashboardPage() {
 
       {/* Quick Actions */}
       <div style={{ padding: '0 1.5rem 1rem' }}>
-        <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>Quick Actions</p>
+        <p className="wa-text-sm wa-font-bold" style={{ color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>{t('quickActions')}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <Link href="/partner/milestones" className="wa-no-underline active:scale-[0.98] wa-transition-all">
             <PortalCard className="portal-card--compact">
@@ -420,9 +425,9 @@ export default async function PartnerDashboardPage() {
                 </div>
                 <div className="portal-inbox-row__main">
                   <div className="portal-inbox-row__top">
-                    <div className="portal-inbox-row__title">Milestones & Updates</div>
+                    <div className="portal-inbox-row__title">{t('milestonesAndUpdates')}</div>
                   </div>
-                  <div className="portal-inbox-row__preview">{inTrainingCount} currently in training</div>
+                  <div className="portal-inbox-row__preview">{t('currentlyInTraining', { count: inTrainingCount })}</div>
                 </div>
                 <div className="portal-inbox-row__badge" aria-hidden>
                   <span className="material-symbols-outlined" style={{ opacity: 0.7 }}>arrow_forward_ios</span>
@@ -439,9 +444,9 @@ export default async function PartnerDashboardPage() {
                 </div>
                 <div className="portal-inbox-row__main">
                   <div className="portal-inbox-row__top">
-                    <div className="portal-inbox-row__title">Outcomes</div>
+                    <div className="portal-inbox-row__title">{t('outcomes')}</div>
                   </div>
-                  <div className="portal-inbox-row__preview">View placement reports</div>
+                  <div className="portal-inbox-row__preview">{t('viewPlacementReports')}</div>
                 </div>
                 <div className="portal-inbox-row__badge" aria-hidden>
                   <span className="material-symbols-outlined" style={{ opacity: 0.7 }}>arrow_forward_ios</span>
@@ -458,9 +463,9 @@ export default async function PartnerDashboardPage() {
                 </div>
                 <div className="portal-inbox-row__main">
                   <div className="portal-inbox-row__top">
-                    <div className="portal-inbox-row__title">Export Data</div>
+                    <div className="portal-inbox-row__title">{t('exportData')}</div>
                   </div>
-                  <div className="portal-inbox-row__preview">CSV, PDF reports</div>
+                  <div className="portal-inbox-row__preview">{t('csvPdfReports')}</div>
                 </div>
                 <div className="portal-inbox-row__badge" aria-hidden>
                   <span className="material-symbols-outlined" style={{ opacity: 0.7 }}>arrow_forward_ios</span>
@@ -480,18 +485,18 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Header ── */}
       <PageHeader
-        title="Partner Overview"
+        title={t('partnerOverview')}
         titleHeadingLevel={2}
-        subtitle={`${ctx.partner.name} referrals, progress, and placement outcomes in one place.`}
+        subtitle={t('referralsProgressOutcomes', { partnerName: ctx.partner.name })}
         action={
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <Link href="/partner/outcomes" className="btn btn-outline">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>summarize</span>
-              Outcomes snapshot
+              {t('outcomesSnapshotBtn')}
             </Link>
             <Link href={referralApplyUrl} className="btn btn-primary">
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>person_add</span>
-              New Referral
+              {t('newReferral')}
             </Link>
           </div>
         }
@@ -503,13 +508,13 @@ export default async function PartnerDashboardPage() {
           style={{ borderLeft: '4px solid var(--color-gold)' }}
         >
           <p className="partner-section-eyebrow" style={{ marginBottom: '0.35rem' }}>
-            Estimated payout
+            {t('estimatedPayout')}
           </p>
           <p style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.1 }}>
             {fmtMoney(estimatedPayout)}
           </p>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', maxWidth: '42rem', lineHeight: 1.5 }}>
-            {placements} verified placement{placements !== 1 ? 's' : ''} × {fmtMoney(payoutPerPlacement)} each. Estimates are illustrative; actual payouts follow your partner agreement.
+            {t('verifiedPlacements', { count: placements, amount: fmtMoney(payoutPerPlacement) })}
           </p>
         </div>
       </section>
@@ -523,32 +528,32 @@ export default async function PartnerDashboardPage() {
             gap: '1rem',
           }}
         >
-          <PortalKpiCard accent="accent" label="Members referred" value={total} hint="In your portal" />
-          <PortalKpiCard accent="neutral" label="Members enrolled" value={enrolledCount} hint="Started a program" />
-          <PortalKpiCard accent="green" label="Members placed" value={placements} hint="Verified hires" href="/partner/outcomes" />
-          <PortalKpiCard accent="gold" label="Est. payout" value={fmtMoney(estimatedPayout)} hint="Placement estimate" />
+          <PortalKpiCard accent="accent" label={t('membersReferred')} value={total} hint={t('inYourPortal')} />
+          <PortalKpiCard accent="neutral" label={t('membersEnrolled')} value={enrolledCount} hint={t('startedAProgram')} />
+          <PortalKpiCard accent="green" label={t('membersPlaced')} value={placements} hint={t('verifiedHires')} href="/partner/outcomes" />
+          <PortalKpiCard accent="gold" label={t('estPayout')} value={fmtMoney(estimatedPayout)} hint={t('placementEstimate')} />
         </div>
       </section>
 
       {/* Desktop Connect payout section */}
       <section style={{ marginBottom: '1.5rem' }}>
-        <PortalCard title="Payouts" subtitle="Get paid directly to your bank account when placements are verified.">
+        <PortalCard title={t('payouts')} subtitle={t('getPaidToBankWhenVerified')}>
           {partnerRow.stripeConnectStatus === 'active' ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
-                  Bank account connected. Payouts are sent automatically when placements are verified.
+                  {t('bankAccountConnected')}
                 </p>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
-                  Ready for payouts
+                  {t('readyForPayouts')}
                 </span>
               </div>
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                Connect your bank account to receive payouts automatically.
+                {t('connectBankToReceive')}
               </p>
               <form
                 action="/api/partner/connect"
@@ -563,7 +568,7 @@ export default async function PartnerDashboardPage() {
               >
                 <button type="submit" className="btn btn-primary">
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', marginRight: '0.375rem' }}>account_balance</span>
-                  Connect bank account
+                  {t('connectBankAccount')}
                 </button>
               </form>
             </div>
@@ -573,8 +578,8 @@ export default async function PartnerDashboardPage() {
 
       <section style={{ marginBottom: '1.5rem' }} data-tour="tour-referral-link">
         <PortalCard
-          title="Referral link"
-          subtitle={`Applied via your link: ${referredMembersAppliedViaLink}`}
+          title={t('referralLink')}
+          subtitle={t('appliedViaYourLink', { count: referredMembersAppliedViaLink })}
         >
           <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', wordBreak: 'break-all' }}>
             {referralApplyUrl}
@@ -585,11 +590,11 @@ export default async function PartnerDashboardPage() {
 
       <section style={{ marginBottom: '2rem' }}>
         <PortalCard
-          title="Referred members"
-          subtitle="Name, journey status, enrollment and placement dates, and how each member contributes to your payout estimate."
+          title={t('referredMembers')}
+          subtitle={t('referredMembersTableSubtitle')}
           action={
             <Link href="/partner/referred-members" className="portal-section-action">
-              View all
+              {t('viewAll')}
               <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
                 arrow_forward
               </span>
@@ -603,9 +608,9 @@ export default async function PartnerDashboardPage() {
             emptyState={
               <PortalEmptyState
                 icon={<span className="material-symbols-outlined">group_add</span>}
-                title="No referred members yet"
-                description={`Send applicants to workforceap.org/apply and have them list ${ctx.partner.name} when asked how they heard about WorkforceAP.`}
-                primaryAction={{ label: 'Open referral guide', href: '/partner/guide' }}
+                title={t('noReferredMembersYet')}
+                description={t('sendApplicantsTo', { partnerName: ctx.partner.name })}
+                primaryAction={{ label: t('openReferralGuide'), href: '/partner/guide' }}
               />
             }
           />
@@ -618,12 +623,12 @@ export default async function PartnerDashboardPage() {
         <VoiceAgentSurface {...partnerVoiceSurface}>
           <PortalVoiceSessionLazy
             sessionEndpoint="/api/partner/voice-session"
-            title="Partner Assistant"
-            description="Ask about referrals, member progress, or using the partner portal."
+            title={t('partnerAssistant')}
+            description={t('askAboutReferrals')}
             accent="var(--color-amber)"
             accentDark="var(--color-amber)"
-            speakingLabel="Assistant is speaking…"
-            listeningLabel="Listening — ask your question"
+            speakingLabel={t('assistantSpeaking')}
+            listeningLabel={t('assistantListening')}
           />
         </VoiceAgentSurface>
       </section>
@@ -644,7 +649,7 @@ export default async function PartnerDashboardPage() {
 
       {/* ── Journey Snapshot (5-col metric strip) ── */}
       <section style={{ marginBottom: '2rem' }}>
-        <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Journey Snapshot</p>
+        <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>{t('journeySnapshot')}</p>
         <div className="portal-grid-metrics">
           {JOURNEY_STAGES.map((s, i) => (
             <div
@@ -669,7 +674,7 @@ export default async function PartnerDashboardPage() {
             {/* Member Pipeline */}
             <section>
               <div className="portal-section-header" style={{ marginBottom: '1rem' }}>
-                <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>Member Pipeline</h2>
+                <h2 className="portal-heading-with-bar portal-section-heading" style={{ margin: 0 }}>{t('memberPipeline')}</h2>
                 <Link href="/partner/referred-members" className="portal-section-action">
                   View all
                   <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_forward</span>
@@ -724,10 +729,10 @@ export default async function PartnerDashboardPage() {
 
               {/* Placement rate + referral link usage */}
               <div className="portal-card portal-card--flat portal-card--padded">
-                <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>Partner Insights</h3>
+                <h3 className="portal-section-title" style={{ marginBottom: '1.25rem' }}>{t('partnerInsights')}</h3>
                 <div style={{ marginBottom: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                    <span style={{ color: 'var(--color-on-surface)' }}>Placement rate</span>
+                    <span style={{ color: 'var(--color-on-surface)' }}>{t('placementRate')}</span>
                     <span style={{ color: 'var(--color-accent)', fontSize: '1rem' }}>{conversionRate}%</span>
                   </div>
                   <div className="portal-progress-bar">
@@ -736,14 +741,14 @@ export default async function PartnerDashboardPage() {
                 </div>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                    <span style={{ color: 'var(--color-on-surface)' }}>Referral link usage</span>
+                    <span style={{ color: 'var(--color-on-surface)' }}>{t('referralLinkUsage')}</span>
                     <span style={{ color: 'var(--color-green)', fontSize: '1rem' }}>{referralLinkUsagePct}%</span>
                   </div>
                   <div className="portal-progress-bar portal-progress-bar--gold">
                     <div className="portal-progress-bar__fill" style={{ width: `${referralLinkUsagePct}%`, background: 'var(--color-green)' }} />
                   </div>
                   <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.4 }}>
-                    Members who applied using your referral link.
+                    {t('membersWhoAppliedUsingLink')}
                   </p>
                 </div>
               </div>
@@ -751,9 +756,9 @@ export default async function PartnerDashboardPage() {
               {/* Near Completion */}
               {nearCompletion.length > 0 && (
                 <div className="portal-card portal-card--flat portal-card--padded">
-                  <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Near completion</p>
+                  <p className="portal-section-title" style={{ marginBottom: '0.75rem' }}>{t('nearCompletion')}</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem' }}>
-                    {nearCompletion.length} member{nearCompletion.length !== 1 ? 's' : ''} at 70%+ — a check-in could help them finish.
+                    {t('membersAt70Percent', { count: nearCompletion.length })}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {nearCompletion.slice(0, 3).map((p) => (
@@ -773,9 +778,9 @@ export default async function PartnerDashboardPage() {
           {/* ── Activity ── */}
           <section className="partner-activity partner-panel">
             <details className="partner-activity-collapsed">
-              <summary>Recent activity</summary>
+              <summary>{t('recentActivity')}</summary>
               {events.length === 0 ? (
-                <p className="partner-activity-empty">No milestone events yet.</p>
+                <p className="partner-activity-empty">{t('noMilestoneEventsYet')}</p>
               ) : (
                 <ul>
                   {events.map((ev) => (

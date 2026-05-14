@@ -1,13 +1,34 @@
 import { getMemberState } from '@/lib/member/getMemberState';
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
-import ResumeClient from './ResumeClient';
 import { getTranslations } from 'next-intl/server';
+
+const ResumeClient = dynamic(() => import('./ResumeClient'), {
+  loading: () => (
+    <div
+      role="status"
+      aria-live="polite"
+      className="portal-card portal-card--flat"
+      style={{
+        minHeight: 280,
+        padding: '2.5rem 1.25rem',
+        borderRadius: 12,
+        textAlign: 'center',
+        color: 'var(--color-on-surface-variant)',
+        fontSize: '0.9rem',
+        fontWeight: 600,
+      }}
+    >
+      Loading resume tools…
+    </div>
+  ),
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({

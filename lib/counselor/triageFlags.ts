@@ -239,6 +239,7 @@ export async function getTriageQueue(
     });
     if (counselor) {
       const assignments = await prisma.counselorAssignment.findMany({
+        take: 5000,
         where: { counselorId: counselor.id, active: true },
         select: { memberId: true },
       });
@@ -258,6 +259,7 @@ export async function getTriageQueue(
     });
     if (!counselor) return emptyQueue();
     const assignments = await prisma.counselorAssignment.findMany({
+      take: 5000,
       where: { counselorId: counselor.id, active: true },
       select: { memberId: true },
     });
@@ -268,8 +270,11 @@ export async function getTriageQueue(
   // Fetch all the inputs in parallel.
   const milestoneCutoff = new Date(now.getTime() - MILESTONE_WINDOW_DAYS * DAY_MS);
 
+  const ninetyDaysAgo = new Date(now.getTime() - 90 * DAY_MS);
+
   const [members, lastEventByUser, threads, lastStaffMsgByThread, computerFollowUpEvents, milestoneEvents] = await Promise.all([
     prisma.user.findMany({
+      take: 5000,
       where: { id: { in: memberIds } },
       select: {
         id: true,
@@ -289,6 +294,7 @@ export async function getTriageQueue(
       memberIds,
     ),
     prisma.messageThread.findMany({
+      take: 500,
       where: { memberId: { in: memberIds }, kind: 'member' },
       select: {
         id: true,
@@ -317,14 +323,17 @@ export async function getTriageQueue(
       memberIds,
     ),
     prisma.memberEvent.findMany({
+      take: 5000,
       where: {
         userId: { in: memberIds },
         eventName: { in: ['computer_support_followup_recorded', 'counselor_followup_recorded'] },
+        createdAt: { gte: ninetyDaysAgo },
       },
       select: { userId: true, createdAt: true },
       orderBy: { createdAt: 'desc' },
     }),
     prisma.memberEvent.findMany({
+      take: 5000,
       where: {
         userId: { in: memberIds },
         eventName: { in: ['course_completed', 'certification_earned'] },

@@ -26,6 +26,8 @@ import {
 const WAP_ORG_ID_HEADER = 'x-wap-org-id';
 /** Always-set header carrying the normalized Host so Node-runtime resolvers can populate cache. */
 const WAP_HOST_HEADER = 'x-wap-host';
+/** Header forwarded when middleware has cryptographically verified the user via Supabase. */
+const WAP_USER_ID_HEADER = 'x-wap-user-id';
 
 const PORTAL_PATHS = [
   '/dashboard',
@@ -85,6 +87,7 @@ export async function middleware(request: NextRequest) {
   // function may set them, and only on verified host matches.
   requestHeaders.delete(WAP_ORG_ID_HEADER);
   requestHeaders.delete(WAP_HOST_HEADER);
+  requestHeaders.delete(WAP_USER_ID_HEADER);
 
   const { locale: prefixLocale, pathnameWithoutLocale } = splitLocalePrefix(pathname);
   const effectivePath = prefixLocale ? pathnameWithoutLocale : pathname;
@@ -188,6 +191,12 @@ export async function middleware(request: NextRequest) {
     user = u;
   } else {
     await supabase.auth.getSession();
+  }
+
+  // Forward verified user ID to Node runtime so SSR layouts / API routes
+  // can set PostgreSQL GUCs without repeating the Supabase round-trip.
+  if (user?.id) {
+    requestHeaders.set(WAP_USER_ID_HEADER, user.id);
   }
 
   if (isProtectedPath(effectivePath) && !user) {

@@ -136,6 +136,7 @@ async function loadXapiCourseProgressSummary(
 
     const membersWithProgress = members.filter((member) => member.enrolledProgram);
     const progressRows = await prisma.courseProgress.findMany({
+      take: 5000,
       where: {
         userId: { in: membersWithProgress.map((member) => member.id) },
       },

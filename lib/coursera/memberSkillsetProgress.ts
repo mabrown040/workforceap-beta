@@ -20,6 +20,7 @@ export type MemberSkillsetProgressRow = {
 export async function loadMemberSkillsetProgress(userId: string): Promise<MemberSkillsetProgressRow[]> {
   try {
     const rows = await prisma.courseraSkillsetProgress.findMany({
+      take: 5000,
       where: { userId },
       orderBy: [{ progressPct: 'desc' }, { skillsetName: 'asc' }],
       select: {

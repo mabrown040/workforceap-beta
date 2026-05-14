@@ -37,6 +37,7 @@ export default async function LearningPage() {
 
   const [allProgress, dbUser] = await Promise.all([
     prisma.pathwayStepProgress.findMany({
+      take: 500,
       where: { userId: user.id },
     }),
     prisma.user.findUnique({

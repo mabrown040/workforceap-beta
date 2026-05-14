@@ -7,6 +7,7 @@ import ThemeToggle from '@/components/theme/ThemeToggle';
 import LanguageToggle from '@/components/portal/LanguageToggle';
 import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
+import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 import { usePathname } from 'next/navigation';
 import { splitLocalePrefix } from '@/lib/i18n/config';
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
@@ -51,17 +52,20 @@ function isOnApplyFunnel(pathnameWithoutLocale: string): boolean {
   return pathnameWithoutLocale === '/apply' || pathnameWithoutLocale.startsWith('/apply/');
 }
 
-type SignInPortalCtaKey =
-  | 'memberSignIn'
-  | 'counselorSignIn'
-  | 'employerSignIn'
-  | 'partnerSignIn'
-  | 'adminSignIn';
+type PortalSubmenuItem = { href: string; label: string };
 
-/** Flyout rows for `/login` entry points — use `cta` so labels always resolve from `cta.*`, not duplicated English strings. */
-type PortalSubmenuItem =
-  | { href: string; cta: SignInPortalCtaKey }
-  | { href: string; label: string };
+/** English route labels — localized through `translateLabel` → `messages.cta.*` (never show generic Sign In twice). */
+const GUEST_LOGIN_SUBMENU: PortalSubmenuItem[] = [
+  { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
+  { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
+  { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
+  { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
+  { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
+];
+
+/** Partner-exclusive session: alternate sign-in shortcuts only */
+const PARTNER_EXCLUSIVE_LOGIN_SUBMENU: PortalSubmenuItem[] =
+  GUEST_LOGIN_SUBMENU.slice(0, 3);
 
 export default function MainNav() {
   const pathname = usePathname() ?? '/';
@@ -76,13 +80,7 @@ export default function MainNav() {
     submenu: PortalSubmenuItem[];
   }>({
       primary: { href: '/login', label: 'Login' },
-      submenu: [
-      { href: '/login?redirectTo=/dashboard', cta: 'memberSignIn' },
-      { href: '/login?redirectTo=/counselor', cta: 'counselorSignIn' },
-      { href: '/login?redirectTo=/employer', cta: 'employerSignIn' },
-      { href: '/login?redirectTo=/partner', cta: 'partnerSignIn' },
-      { href: '/login?redirectTo=/admin', cta: 'adminSignIn' },
-      ],
+      submenu: GUEST_LOGIN_SUBMENU,
   });
   const menuRef = useRef<HTMLUListElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -114,13 +112,15 @@ export default function MainNav() {
     const ctaMap: Record<string, string> = {
       'Apply Now': tCta('applyNow'),
       'Login': tCta('logIn'),
+      'Member Sign In': tCta('memberSignIn'),
+      'Counselor Sign In': tCta('counselorSignIn'),
+      'Employer Sign In': tCta('employerSignIn'),
+      'Partner Sign In': tCta('partnerSignIn'),
+      'Admin Sign In': tCta('adminSignIn'),
     };
     if (label in ctaMap) return ctaMap[label];
     return label;
   };
-
-  const portalSubmenuLabel = (item: PortalSubmenuItem) =>
-    'cta' in item ? tCta(item.cta) : translateLabel(item.label);
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -161,13 +161,7 @@ export default function MainNav() {
         if (!data.role) {
           setPortalState({
             primary: { href: '/login', label: 'Login' },
-            submenu: [
-              { href: '/login?redirectTo=/dashboard', cta: 'memberSignIn' },
-              { href: '/login?redirectTo=/counselor', cta: 'counselorSignIn' },
-              { href: '/login?redirectTo=/employer', cta: 'employerSignIn' },
-              { href: '/login?redirectTo=/partner', cta: 'partnerSignIn' },
-              { href: '/login?redirectTo=/admin', cta: 'adminSignIn' },
-            ],
+            submenu: GUEST_LOGIN_SUBMENU,
           });
           return;
         }
@@ -175,11 +169,7 @@ export default function MainNav() {
         if (partnerExclusive) {
           setPortalState({
             primary: { href: '/partner', label: 'Partner' },
-            submenu: [
-              { href: '/login?redirectTo=/dashboard', cta: 'memberSignIn' },
-              { href: '/login?redirectTo=/counselor', cta: 'counselorSignIn' },
-              { href: '/login?redirectTo=/employer', cta: 'employerSignIn' },
-            ],
+            submenu: PARTNER_EXCLUSIVE_LOGIN_SUBMENU,
           });
           return;
         }
@@ -201,13 +191,7 @@ export default function MainNav() {
         if (!cancelled) {
           setPortalState({
             primary: { href: '/login', label: 'Login' },
-            submenu: [
-              { href: '/login?redirectTo=/dashboard', cta: 'memberSignIn' },
-              { href: '/login?redirectTo=/counselor', cta: 'counselorSignIn' },
-              { href: '/login?redirectTo=/employer', cta: 'employerSignIn' },
-              { href: '/login?redirectTo=/partner', cta: 'partnerSignIn' },
-              { href: '/login?redirectTo=/admin', cta: 'adminSignIn' },
-            ],
+            submenu: GUEST_LOGIN_SUBMENU,
           });
         }
       }
@@ -311,7 +295,7 @@ export default function MainNav() {
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
       <div className="nav-container" ref={navContainerRef}>
         <LocalizedLink href="/" prefetch={false} className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
-          <Image src="/images/wap_logo.png" alt="Workforce Advancement Project" width={1930} height={985} className="nav-logo-image" sizes="(max-width: 900px) 130px, 210px" quality={85} priority />
+          <Image src="/images/wap_logo.png" alt="Workforce Advancement Project" width={210} height={107} className="nav-logo-image" sizes="(max-width: 900px) 130px, 210px" quality={85} priority />
         </LocalizedLink>
 
         {/* Mobile toggle */}
@@ -427,7 +411,7 @@ export default function MainNav() {
                       className={portalHrefActive(item.href.split('?')[0]) ? 'active' : undefined}
                       onClick={closeMobile}
                     >
-                      {portalSubmenuLabel(item)}
+                      {translateLabel(item.label)}
                     </Link>
                   </li>
                 ))}
@@ -436,7 +420,14 @@ export default function MainNav() {
           </li>
           {!isOnApplyFunnel(pathnameWithoutLocale) && (
           <li>
-            <LocalizedLink href="/apply" prefetch={true} className="btn btn-primary btn-radius-md nav-cta" onClick={closeMobile}>{translateLabel('Apply Now')}</LocalizedLink>
+            <LocalizedLink
+              href="/apply"
+              prefetch={true}
+              className={marketingButtonClasses({ variant: 'primary', radius: 'md', className: 'nav-cta' })}
+              onClick={closeMobile}
+            >
+              {translateLabel('Apply Now')}
+            </LocalizedLink>
           </li>
           )}
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">

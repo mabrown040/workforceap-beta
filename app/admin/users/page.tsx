@@ -25,6 +25,7 @@ export default async function AdminUsersPage() {
 
   const [users, canManageRoles, deletedCount] = await Promise.all([
     prisma.user.findMany({
+      take: 5000,
       where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
       select: {

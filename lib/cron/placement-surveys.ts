@@ -86,6 +86,17 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
     const skipped: SurveySendResult['skipped'] = [];
     const emailFailures: SurveySendResult['emailFailures'] = [];
 
+    // Batch idempotency check: load all existing surveys for this wave + placement set
+    const existingSurveys = await prisma.placementSurvey.findMany({
+      take: 5000,
+      where: {
+        placementId: { in: placements.map((p) => p.id) },
+        wave,
+      },
+      select: { placementId: true },
+    });
+    const existingPlacementIds = new Set(existingSurveys.map((s) => s.placementId));
+
     for (const placement of placements) {
       const user = placement.user;
       if (!user?.email) {
@@ -93,12 +104,8 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
         continue;
       }
 
-      // Double-check idempotency
-      const existing = await prisma.placementSurvey.findFirst({
-        where: { placementId: placement.id, wave },
-        select: { id: true },
-      });
-      if (existing) {
+      // Idempotency check (in-memory)
+      if (existingPlacementIds.has(placement.id)) {
         skipped.push({ userId: placement.userId, reason: `Survey already exists for ${wave}` });
         continue;
       }
@@ -185,6 +192,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
   const alerted: EscalationResult['alerted'] = [];
   const skipped: EscalationResult['skipped'] = [];
   const emailFailures: EscalationResult['emailFailures'] = [];
+  const skippedSurveyIds: string[] = [];
 
   for (const survey of staleSurveys) {
     const user = survey.user;
@@ -193,11 +201,7 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
 
     if (!counselorEmail) {
       skipped.push({ userId: user.id, reason: 'No active counselor email' });
-      // Still mark as escalated so we don't keep trying
-      await prisma.placementSurvey.update({
-        where: { id: survey.id },
-        data: { escalatedAt: new Date() },
-      });
+      skippedSurveyIds.push(survey.id);
       continue;
     }
 
@@ -226,6 +230,14 @@ export async function escalateStalePlacementSurveys(): Promise<EscalationResult>
     } else {
       emailFailures.push({ userId: user.id, error: result.error ?? 'Unknown send error' });
     }
+  }
+
+  // Batch-update skipped surveys so we don't keep retrying them
+  if (skippedSurveyIds.length > 0) {
+    await prisma.placementSurvey.updateMany({
+      where: { id: { in: skippedSurveyIds } },
+      data: { escalatedAt: new Date() },
+    });
   }
 
   return { alerted, skipped, emailFailures };

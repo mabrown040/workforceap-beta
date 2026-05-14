@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
 import { prisma } from '@/lib/db/prisma';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { checkAuthRateLimit } from '@/lib/rate-limit';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 /**
  * GET /api/auth/check-mfa-required
@@ -13,6 +15,15 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
  */
 export async function GET(request: Request) {
   try {
+  const ip = getClientIpFromRequest(request);
+  const { success: withinLimit } = await checkAuthRateLimit(`check-mfa-required:${ip}`);
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429, headers: { 'Retry-After': '60' } }
+    );
+  }
+
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({
       mfaRequired: false,

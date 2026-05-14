@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline — WorkforceAP</title>
+  <meta name="theme-color" content="#ad2c4d">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #121416;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      text-align: center;
+    }
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1.5rem;
+      border-radius: 1rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    p {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.75);
+      margin: 0 0 1.5rem;
+      max-width: 320px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #ad2c4d;
+      color: #fff;
+      border: none;
+      padding: 0.875rem 1.5rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+    .btn:hover { background: #8a233d; }
+  </style>
+</head>
+<body>
+  <img src="/images/icon-192x192.png" alt="WorkforceAP" class="logo">
+  <h1>You’re offline</h1>
+  <p>We can’t reach the internet right now. Some pages may still work if you’ve visited them before.</p>
+  <a href="/dashboard" class="btn">Try Dashboard</a>
+</body>
+</html>

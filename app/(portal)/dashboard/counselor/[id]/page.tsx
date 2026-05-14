@@ -44,7 +44,7 @@ export default async function CounselorSessionDetailPage({ params }: { params: P
           {session.output as string}
         </div>
         <div style={{ marginTop: '1.5rem' }}>
-          <Link href="/dashboard/counselor" className="wa-btn wa-btn--secondary" style={{ display: 'inline-block' }}>
+          <Link href="/dashboard/counselor" className="btn btn-outline">
             ← Back to {tCommon('aiCounselor')}
           </Link>
         </div>
@@ -55,7 +55,7 @@ export default async function CounselorSessionDetailPage({ params }: { params: P
           {session.output as string}
         </div>
         <div style={{ marginTop: '1.5rem' }}>
-          <Link href="/dashboard/counselor" className="wa-btn wa-btn--secondary" style={{ display: 'inline-block' }}>
+          <Link href="/dashboard/counselor" className="btn btn-outline">
             ← Back to {tCommon('aiCounselor')}
           </Link>
         </div>

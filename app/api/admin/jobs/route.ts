@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 /**
@@ -14,7 +14,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  * is provably scoped to a single tenant. A test in
  * `tests/tenant-isolation.test.ts` (future) asserts the invariant.
  *
- * For now `orgId` resolves via `getDefaultOrganizationId()` (production is
+ * For now `orgId` resolves via `getActorOrganizationId()` (production is
  * single-tenant). When the multi-tenant resolver lands in Sprint A.2,
  * `orgId` will come from the authenticated user's `User.organizationId`.
  */
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     else if (filter === 'draft') where.status = { in: ['draft'] };
     else if (filter === 'approved') where.status = { in: ['approved'] };
 
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await getActorOrganizationId(user.id);
     const jobs = await withTenantScope(orgId, (db) =>
       db.job.findMany({
         where,

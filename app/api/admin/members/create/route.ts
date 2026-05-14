@@ -6,7 +6,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
       // Optionally trigger password reset so user can set their own.
       // Track E (Sprint E.1 PR 2) — pass orgId so the reset link uses the
       // member's tenant domain instead of the platform default.
-      const orgIdForReset = await getDefaultOrganizationId();
+      const orgIdForReset = await getActorOrganizationId(user.id);
       await sendPasswordResetEmail(email, '/reset-password', { orgId: orgIdForReset });
     }
   
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
     }
   
-    const organizationId = await getDefaultOrganizationId();
+    const organizationId = await getActorOrganizationId(user.id);
   
     try {
       await prisma.$transaction(async (tx) => {

@@ -1,33 +1,37 @@
 -- Three Prisma models declared in schema.prisma but never given a
 -- corresponding CREATE TABLE migration. `prisma generate` produces a
--- client that exposes each delegate, but `prisma migrate deploy` leaves
--- the table missing in fresh environments — so every route hitting these
--- models 500s with a relation-not-found error.
+-- client that exposes each delegate, but `prisma migrate deploy` against
+-- a fresh DB blows up: the later 20260513040000_add_rls_policies migration
+-- references `placement_surveys` and `member_next_best_actions` in ENABLE
+-- ROW LEVEL SECURITY statements, and `20260513000000_add_placement_survey_wave`
+-- runs ALTER TABLE on a placement_surveys it assumes exists. Both fail with
+-- "relation does not exist".
 --
--- 1. PlacementSurvey   → placement_surveys           (heavily used)
--- 2. MemberNextBestAction → member_next_best_actions (used by careerOS)
--- 3. MentorSpecialty   → mentor_specialties          (used by mentor portal)
+-- Models / tables created here:
+--   1. PlacementSurvey       → placement_surveys
+--   2. MemberNextBestAction  → member_next_best_actions
+--   3. MentorSpecialty       → mentor_specialties
 --
--- All three tables are also referenced by relation in other models that
--- DO have migrations, so the foreign keys are recreated here even though
--- the referenced sides exist. Idempotent — `IF NOT EXISTS` on table +
--- index creates means re-running this migration against an environment
--- where the tables exist is a no-op.
+-- Timestamp deliberately pre-dates 20260513000000 so this runs FIRST.
+--
+-- IMPORTANT: `placement_surveys` is created WITHOUT the `wave` column here.
+-- The existing migration `20260513000000_add_placement_survey_wave` adds
+-- the `wave` column + its enum + the composite unique on (user_id, wave).
+-- Including `wave` here would collide with that migration's ADD COLUMN.
+-- The single-column UNIQUE on user_id below is intentional —
+-- `add_placement_survey_wave` drops it and recreates it as composite,
+-- matching the historical migration chain.
+--
+-- Idempotent (IF NOT EXISTS) so applying against an environment where the
+-- tables happen to exist (e.g. seeded via raw SQL in a long-lived env) is
+-- safe.
 
 -- ─── 1) placement_surveys ───────────────────────────────────────────────────
-
--- The enum is referenced as a column type and needs to exist first.
-DO $$ BEGIN
-  CREATE TYPE "PlacementSurveyWave" AS ENUM ('thirty_day', 'sixty_day', 'ninety_day');
-EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
 
 CREATE TABLE IF NOT EXISTS "placement_surveys" (
     "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
     "placement_id" TEXT NOT NULL REFERENCES "placement_records"("id") ON DELETE CASCADE,
-    "wave" "PlacementSurveyWave" NOT NULL DEFAULT 'thirty_day',
     "sent_at" TIMESTAMPTZ NOT NULL DEFAULT now(),
     "completed_at" TIMESTAMPTZ,
     "escalated_at" TIMESTAMPTZ,
@@ -43,10 +47,12 @@ CREATE TABLE IF NOT EXISTS "placement_surveys" (
     CONSTRAINT "placement_surveys_pkey" PRIMARY KEY ("id")
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "placement_surveys_user_id_wave_key"
-  ON "placement_surveys" ("user_id", "wave");
-CREATE INDEX IF NOT EXISTS "placement_surveys_user_id_idx"
+-- UNIQUE on user_id matches the pre-wave-migration state. The next
+-- migration (20260513000000_add_placement_survey_wave) drops this and
+-- creates a composite (user_id, wave) unique.
+CREATE UNIQUE INDEX IF NOT EXISTS "placement_surveys_user_id_key"
   ON "placement_surveys" ("user_id");
+
 CREATE INDEX IF NOT EXISTS "placement_surveys_sent_at_idx"
   ON "placement_surveys" ("sent_at");
 CREATE INDEX IF NOT EXISTS "placement_surveys_placement_id_idx"
@@ -90,4 +96,3 @@ CREATE INDEX IF NOT EXISTS "mentor_specialties_mentor_id_idx"
 -- DROP TABLE IF EXISTS "mentor_specialties";
 -- DROP TABLE IF EXISTS "member_next_best_actions";
 -- DROP TABLE IF EXISTS "placement_surveys";
--- DROP TYPE  IF EXISTS "PlacementSurveyWave";

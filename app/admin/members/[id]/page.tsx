@@ -8,7 +8,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import AdminMemberResumeSection from '@/components/admin/AdminMemberResumeSection';
 import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
@@ -282,7 +282,7 @@ export default async function AdminMemberDetailPage({
     where: { userId: member.id },
   });
 
-  const organizationId = await getDefaultOrganizationId();
+  const organizationId = await getActorOrganizationId(user.id);
   const catalogPrograms = await prisma.organizationProgramCatalog.findMany({
     take: 5000,
     where: { organizationId },

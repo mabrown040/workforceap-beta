@@ -53,6 +53,7 @@ function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMes
     courseraProgress: m.courseraProgress,
     partner: m.partner,
     group: m.group,
+    apply: m.apply,
   };
   if (mk && mk.programs !== undefined) {
     out.marketing = { programs: mk.programs };

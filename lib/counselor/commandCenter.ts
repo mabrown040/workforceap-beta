@@ -114,7 +114,7 @@ export async function getCounselorCommandCenter(
       }>>(
         `SELECT DISTINCT ON (thread_id) id, thread_id, author_id, body, created_at
          FROM messages
-         WHERE thread_id = ANY($1::uuid[])
+         WHERE thread_id = ANY($1::text[])
          ORDER BY thread_id, created_at DESC`,
         threadIds,
       )
@@ -182,7 +182,7 @@ export async function getCounselorCommandCenter(
     const lastEvents = await prisma.$queryRawUnsafe<Array<{ user_id: string; last_at: Date | null }>>(
       `SELECT user_id, MAX(created_at) AS last_at
        FROM member_events
-       WHERE user_id = ANY($1::uuid[])
+       WHERE user_id = ANY($1::text[])
        GROUP BY user_id`,
       atRiskCandidateIds,
     );

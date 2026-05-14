@@ -4,7 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -15,7 +15,11 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const organizationId = await getDefaultOrganizationId();
+    // Use the actor's organization, not the platform default. Without this a
+    // tenant admin (whose User.organizationId is not the default WorkforceAP
+    // org) could overwrite the default tenant's branding by uploading their
+    // own logo, AND would never be able to update their own tenant's logo.
+    const organizationId = await getActorOrganizationId(user.id);
 
     const formData = await request.formData();
     const file = formData.get('file') as File | null;

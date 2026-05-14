@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
@@ -9,6 +10,19 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+  // Tenant scope: super-admins see drift across the platform; tenant admins
+  // only see members in their own organization. Without this filter a non-
+  // super tenant admin would see member emails + program slugs across every
+  // tenant on the platform.
+  let orgFilterId: string | null = null;
+  if (!(await isSuperAdmin(user.id))) {
+    try {
+      orgFilterId = await getActorOrganizationId(user.id);
+    } catch {
+      return NextResponse.json({ drift: [], totalScanned: 0 });
+    }
+  }
+
   // Find users with enrolledProgram set. Multi-program: drift now compares
   // User.enrolledProgram against the user's *primary* CourseEnrollment row
   // (the one with isPrimary = true). Secondary enrollments are not a drift
@@ -16,7 +30,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   // Cybersecurity (secondary). Prisma findMany with a filtered relation
   // returns at most one row because of the partial unique index.
   const enrolledUsers = await prisma.user.findMany({
-    where: { enrolledProgram: { not: null }, deletedAt: null },
+    where: {
+      enrolledProgram: { not: null },
+      deletedAt: null,
+      ...(orgFilterId ? { organizationId: orgFilterId } : {}),
+    },
     select: {
       id: true,
       fullName: true,

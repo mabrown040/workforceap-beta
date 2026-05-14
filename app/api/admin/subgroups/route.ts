@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
@@ -24,8 +25,21 @@ const createSchema = z.object({
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  // Tenant scope: super-admins see all subgroups; tenant admins only see
+  // subgroups whose LEADER belongs to their org (the canonical owner). A
+  // helper `subgroupInOrg(orgId)` exists in lib/admin but isn't used here.
+  let tenantFilter: object = {};
+  if (!(await isSuperAdmin(user.id))) {
+    try {
+      tenantFilter = { leader: { organizationId: await getActorOrganizationId(user.id) } };
+    } catch {
+      return NextResponse.json([]);
+    }
+  }
+
   const subgroups = await prisma.subgroup.findMany({
     take: 500,
+    where: tenantFilter,
     orderBy: { name: 'asc' },
     include: {
       leader: { select: { id: true, fullName: true, email: true } },

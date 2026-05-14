@@ -14,20 +14,20 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
   const assessmentCompleted = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(*)::int as count FROM users
       WHERE assessment_completed = true AND deleted_at IS NULL
-        AND organization_id = ${orgId}::uuid
+        AND organization_id = ${orgId}
     `;
 
   const dashboardViews = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(DISTINCT me.user_id)::int as count
       FROM member_events me
-      INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}::uuid
+      INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
       WHERE me.event_name = 'member_dashboard_viewed'
     `;
 
   const dashboardActivated = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(*)::int as count
       FROM member_events me
-      INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}::uuid
+      INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
       WHERE me.event_name = 'member_dashboard_activated'
     `;
 
@@ -35,10 +35,10 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
       SELECT COUNT(DISTINCT s.user_id)::int as count
       FROM (
         SELECT air.user_id FROM ai_tool_results air
-        INNER JOIN users u ON u.id = air.user_id AND u.organization_id = ${orgId}::uuid
+        INNER JOIN users u ON u.id = air.user_id AND u.organization_id = ${orgId}
         UNION
         SELECT me.user_id FROM member_events me
-        INNER JOIN users u2 ON u2.id = me.user_id AND u2.organization_id = ${orgId}::uuid
+        INNER JOIN users u2 ON u2.id = me.user_id AND u2.organization_id = ${orgId}
         WHERE me.event_name = 'ai_tool_run_started' AND me.entity_type = 'ai_tool'
       ) s
     `;
@@ -46,7 +46,7 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
   const jobApplicationUsers = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(DISTINCT ja.user_id)::int as count
       FROM job_applications ja
-      INNER JOIN users u ON u.id = ja.user_id AND u.organization_id = ${orgId}::uuid
+      INNER JOIN users u ON u.id = ja.user_id AND u.organization_id = ${orgId}
       WHERE ja.status <> 'SAVED'
     `;
 
@@ -56,14 +56,14 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
   const recentPlacements = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(*)::int as count
       FROM placement_records pr
-      INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}::uuid
+      INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}
       WHERE pr.placed_at >= ${thirtyDaysAgo}
     `;
 
   const avgSalary = await prisma.$queryRaw<{ avg: number | null }[]>`
       SELECT AVG(pr.salary_offered)::float as avg
       FROM placement_records pr
-      INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}::uuid
+      INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}
       WHERE pr.salary_offered IS NOT NULL
     `;
 
@@ -71,7 +71,7 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
       SELECT DATE_TRUNC('week', created_at)::text as week, COUNT(*)::int as count
       FROM users
       WHERE created_at >= ${thirtyDaysAgo}
-        AND organization_id = ${orgId}::uuid
+        AND organization_id = ${orgId}
       GROUP BY DATE_TRUNC('week', created_at)
       ORDER BY week
     `;
@@ -80,7 +80,7 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
       SELECT DATE_TRUNC('week', ce.created_at)::text as week, COUNT(*)::int as count
       FROM course_enrollments ce
       WHERE ce.created_at >= ${thirtyDaysAgo}
-        AND ce.organization_id = ${orgId}::uuid
+        AND ce.organization_id = ${orgId}
       GROUP BY DATE_TRUNC('week', ce.created_at)
       ORDER BY week
     `;
@@ -88,7 +88,7 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
   const weeklyDashboardViews = await prisma.$queryRaw<{ week: string; count: number }[]>`
       SELECT DATE_TRUNC('week', me.created_at)::text as week, COUNT(*)::int as count
       FROM member_events me
-      INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}::uuid
+      INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
       WHERE me.event_name = 'member_dashboard_viewed' AND me.created_at >= ${thirtyDaysAgo}
       GROUP BY DATE_TRUNC('week', me.created_at)
       ORDER BY week

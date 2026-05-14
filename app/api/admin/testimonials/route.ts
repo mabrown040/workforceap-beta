@@ -1,15 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { TestimonialStatus } from '@prisma/client';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
+/**
+ * GET /api/admin/testimonials
+ * Admin/counselor API: list testimonials with filtering by status.
+ * Query params: ?status=pending|approved|rejected|published&limit=50&offset=0
+ *
+ * Scoped to the caller's organization via the `member.organizationId` link.
+ * Super-admins bypass the scope so the platform-level queue surfaces
+ * cross-tenant pending testimonials (matches the `[id]` handler).
+ */
+export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+
+    const isSuper = await isSuperAdmin(user.id);
+    const orgId = isSuper ? null : await getActorOrganizationId(user.id);
 
     const { searchParams } = new URL(req.url);
     const statusRaw = searchParams.get('status') ?? undefined;
@@ -21,8 +35,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         ? (statusRaw as TestimonialStatus)
         : undefined;
 
+    // Tenant scope: only testimonials whose member belongs to the caller's
+    // organization. Super-admins skip the scope.
+    const orgScope = orgId ? { member: { organizationId: orgId } } : {};
+
     const where = {
       deletedAt: null,
+      ...orgScope,
       ...(statusFilter ? { status: statusFilter } : {}),
     };
 
@@ -53,12 +72,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       prisma.testimonial.count({ where }),
     ]);
 
-    // Global stats
+    // Stats — same org scope as the listing.
     const [globalPending, globalApproved, globalRejected, globalPublished] = await Promise.all([
-      prisma.testimonial.count({ where: { deletedAt: null, status: TestimonialStatus.PENDING } }),
-      prisma.testimonial.count({ where: { deletedAt: null, status: TestimonialStatus.APPROVED } }),
-      prisma.testimonial.count({ where: { deletedAt: null, status: TestimonialStatus.REJECTED } }),
-      prisma.testimonial.count({ where: { deletedAt: null, status: TestimonialStatus.PUBLISHED } }),
+      prisma.testimonial.count({ where: { deletedAt: null, ...orgScope, status: TestimonialStatus.PENDING } }),
+      prisma.testimonial.count({ where: { deletedAt: null, ...orgScope, status: TestimonialStatus.APPROVED } }),
+      prisma.testimonial.count({ where: { deletedAt: null, ...orgScope, status: TestimonialStatus.REJECTED } }),
+      prisma.testimonial.count({ where: { deletedAt: null, ...orgScope, status: TestimonialStatus.PUBLISHED } }),
     ]);
 
     return NextResponse.json({

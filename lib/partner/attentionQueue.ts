@@ -77,7 +77,12 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
       : await prisma.partnerOutreachLog.findMany({
           where: { partnerId, memberId: { in: memberIds } },
           orderBy: { createdAt: 'desc' },
-          take: 400,
+          // No global cap: the dedup loop below keeps only the FIRST log
+          // per memberId (most-recent due to orderBy). A global take: 400
+          // would starve later memberIds — high-activity members consumed
+          // the entire window and the rest showed "Unknown" as last touch.
+          // Bound generously per-member.
+          take: Math.max(memberIds.length * 5, 400),
           include: { createdBy: { select: { fullName: true } } },
         });
   const lastTouchByMember = new Map<string, string>();

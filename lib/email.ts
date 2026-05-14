@@ -845,6 +845,55 @@ export async function sendCourseCompletedEmail(params: {
   }
 }
 
+/**
+ * Send a counselor-approved milestone-cascade email to a learner.
+ *
+ * The subject + body are LLM-drafted and counselor-reviewed (possibly edited).
+ * We HTML-escape and lightly format the plain text so newlines and paragraph
+ * breaks render correctly — the brandedEmailLayout handles the surrounding
+ * shell, footer, and CTA button.
+ */
+export async function sendMilestoneCascadeEmail(params: {
+  to: string;
+  subject: string;
+  bodyText: string;
+  /** Optional CTA. Defaults to a training-dashboard link. */
+  ctaText?: string;
+  ctaUrl?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendMilestoneCascadeEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  // Convert plain text → safe HTML: escape, then paragraphs on \n\n,
+  // <br> on single \n inside a paragraph.
+  const paragraphs = params.bodyText
+    .split(/\n\n+/)
+    .map((para) =>
+      `<p>${escapeHtml(para.trim()).replace(/\n/g, '<br />')}</p>`,
+    )
+    .join('\n');
+  const html = brandedEmailLayout({
+    title: params.subject,
+    bodyHtml: paragraphs,
+    ctaText: params.ctaText ?? 'Open Workforce Portal',
+    ctaUrl: params.ctaUrl ?? `${SITE_URL}/dashboard`,
+  });
+  try {
+    await resend.emails.send({
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(params.subject),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendMilestoneCascadeEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
 /** Send weekly recap to member */
 export async function sendWeeklyRecapEmail(params: {
   to: string;

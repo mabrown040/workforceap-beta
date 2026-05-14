@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
@@ -38,7 +38,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });
   }
 
-  const orgId = await getDefaultOrganizationId();
+  const orgId = await getActorOrganizationId(user.id);
 
   const employer = await withTenantScope(orgId, (db) =>
     db.employer.findFirst({ where: { id } }),

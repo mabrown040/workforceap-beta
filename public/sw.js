@@ -50,12 +50,35 @@ self.addEventListener('fetch', (event) => {
   // to an older cached JS/CSS asset.
   if (url.pathname.startsWith('/_next/')) return;
 
-  // Navigation requests (HTML pages): network-first with offline fallback
+  // Navigation requests (HTML pages): network-first with offline fallback.
+  //
+  // Do NOT cache authenticated routes. The previous version stored every
+  // 200 HTML response keyed by URL, which on a shared device meant that
+  // after logout (or a different user signing in) going offline and
+  // re-opening /dashboard or /admin served the previous user's
+  // server-rendered private page from the SW cache. We only cache public
+  // marketing routes; authenticated portals fall through to the offline
+  // page on failure instead.
   if (event.request.mode === 'navigate') {
+    // Mirrors PORTAL_PATHS + ADMIN_PATHS in middleware.ts — every route the
+    // middleware gates behind auth must be excluded from this cache, or a
+    // shared device can serve a previous user's HTML offline after logout.
+    const isAuthenticatedRoute =
+      url.pathname.startsWith('/dashboard') ||
+      url.pathname.startsWith('/admin') ||
+      url.pathname.startsWith('/counselor') ||
+      url.pathname.startsWith('/employer') ||
+      url.pathname.startsWith('/partner') ||
+      url.pathname.startsWith('/profile') ||
+      url.pathname.startsWith('/account') ||
+      url.pathname.startsWith('/applications') ||
+      url.pathname.startsWith('/resources') ||
+      url.pathname.startsWith('/help') ||
+      url.pathname.startsWith('/certifications');
     event.respondWith(
       fetch(event.request)
         .then((res) => {
-          if (res.status === 200) {
+          if (res.status === 200 && !isAuthenticatedRoute) {
             const resClone = res.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
           }

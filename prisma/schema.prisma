@@ -191,6 +191,7 @@ model User {
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
   atRiskAlerts             AtRiskAlert[]
   placementSurveys       PlacementSurvey[]
+  milestoneCascades        MilestoneCascade[]
   testimonials           Testimonial[]
   reviewedTestimonials   Testimonial[] @relation("TestimonialReviewer")
   memberFeedback         MemberFeedback[]
@@ -2159,7 +2160,7 @@ enum TestimonialStatus {
 }
 
 model Testimonial {
-  id              String            @id @default(uuid())
+  id              String            @id @default(uuid()) @db.Uuid
   memberId        String            @map("member_id")
   content         String            @db.Text
   rating          Int?
@@ -2209,7 +2210,57 @@ model CourseraSkillsetProgress {
   @@map("coursera_skillset_progress")
 }
 
-// --- Feature Flags ---
+// --- Milestone Cascades ---
+
+/// Counselor-reviewable bundles of suggested actions triggered by significant
+/// member events (initially: course completion). The row is created at
+/// detection time; LLM drafting, approval UI, and outbound actions are
+/// layered on in follow-up PRs.
+///
+/// Idempotent on (userId, milestoneType, milestoneRef) — re-firing detection
+/// for the same milestone is a no-op. Status is plain text + CHECK constraint
+/// (not Prisma enum) to mirror AtRiskAlert.status and keep new statuses cheap.
+model MilestoneCascade {
+  id                  String    @id @default(uuid()) @db.Uuid
+  userId              String    @map("user_id")
+
+  /// "course_completed" today. Future: "cert_earned", "streak_7day", etc.
+  milestoneType       String    @map("milestone_type")
+  /// For course_completed: the course slug. Combined with milestoneType to
+  /// form the idempotency key.
+  milestoneRef        String    @map("milestone_ref")
+  /// pending_draft | awaiting_approval | approved | sent | dismissed | expired
+  status              String    @default("pending_draft")
+
+  programSlug         String?   @map("program_slug")
+  contextSnapshot     Json      @map("context_snapshot")
+  sourceEventId       String?   @map("source_event_id")
+
+  counselorBrief      String?   @map("counselor_brief") @db.Text
+  drafts              Json?
+  draftModel          String?   @map("draft_model")
+  draftPromptVersion  String?   @map("draft_prompt_version")
+  draftedAt           DateTime? @map("drafted_at")
+
+  approvedByUserId    String?   @map("approved_by_user_id")
+  approvedAt          DateTime? @map("approved_at")
+  dismissedAt         DateTime? @map("dismissed_at")
+  dismissedReason     String?   @map("dismissed_reason") @db.Text
+  sentAt              DateTime? @map("sent_at")
+
+  /// 72h TTL after creation. Stale celebrations don't get sent.
+  expiresAt           DateTime  @map("expires_at")
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, milestoneType, milestoneRef], name: "milestone_cascade_idempotency")
+  @@index([status, expiresAt])
+  @@index([userId, createdAt])
+  @@map("milestone_cascades")
+}
 
 // --- Member Feedback ---
 
@@ -2248,7 +2299,6 @@ model FeatureFlag {
   @@index([key])
   @@map("feature_flags")
 }
-
 // --- Webhook Events ---
 
 /// Backs the `webhook_events` table created by migration
@@ -2280,6 +2330,7 @@ model WebhookEvent {
   @@index([eventId])
   @@map("webhook_events")
 }
+
 // --- Email Templates ---
 
 model EmailTemplate {

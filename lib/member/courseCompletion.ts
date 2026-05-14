@@ -9,6 +9,7 @@ import { sendCourseCompletedEmail } from '@/lib/email';
 import { trackEvent } from '@/lib/events/track';
 import { handleLearningCompletion } from '@/lib/workflows/careerOS';
 import { awardPoints } from '@/lib/member/points';
+import { detectCompletionMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
 
 export async function completeMemberCourse(args: {
   userId: string;
@@ -126,6 +127,21 @@ export async function completeMemberCourse(args: {
     handleLearningCompletion(args.userId, matchedCourse.name).catch((error) =>
       console.error('[career-os] learning completion workflow failed:', error)
     );
+
+    // Milestone cascade detection: insert a row in milestone_cascades for the
+    // counselor-review pipeline. Idempotent and self-contained — never throws,
+    // never blocks the completion flow. The LLM drafting + approval UI live
+    // in follow-up PRs; this call seeds the queue.
+    detectCompletionMilestone({
+      userId: args.userId,
+      courseSlug: matchedCourse.slug,
+      courseName: matchedCourse.name,
+      programSlug: dbUser.enrolledProgram,
+      completedCount: await prisma.courseProgress.count({
+        where: { userId: args.userId, programSlug: dbUser.enrolledProgram, status: 'COMPLETED' },
+      }),
+      source: args.source,
+    }).catch((error) => console.error('[milestone-cascade] detect failed:', error));
   }
 
   awardPoints(args.userId, 'course_completed', matchedCourse.slug).catch(() => {});

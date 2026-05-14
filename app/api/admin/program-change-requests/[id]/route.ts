@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
@@ -25,8 +26,20 @@ const patchSchema = z.object({
     return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const existing = await prisma.programChangeRequest.findUnique({
-    where: { id },
+  // Tenant scope: super-admins can review any request; everyone else can
+  // only act on requests whose member belongs to their organization.
+  // findFirst (not findUnique) so the relation filter applies. Cross-tenant
+  // ids surface as 404 to avoid leaking existence.
+  let tenantFilter: object = {};
+  if (!(await isSuperAdmin(user.id))) {
+    try {
+      tenantFilter = { user: { organizationId: await getActorOrganizationId(user.id) } };
+    } catch {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+  }
+  const existing = await prisma.programChangeRequest.findFirst({
+    where: { id, ...tenantFilter },
     include: { user: { select: { id: true, enrolledProgram: true } } },
   });
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });

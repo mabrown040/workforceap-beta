@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
-import { invalidateCache } from '@/lib/cache';
+import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildMemberApplicationStatusView, type MemberApplicationStatusView } from './memberApplicationStatus';
 import { loadMemberProgramTrainingView, type MemberProgramTrainingView } from './memberProgramTrainingView';
@@ -7,25 +7,8 @@ import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/pr
 import { buildNextBestActions, type NextBestAction, type NextBestActionsContext } from './nextBestActions';
 import { getMemberEngagementSignals, type MemberEngagementSignals } from './memberEngagementSignals';
 import { getMemberResumePlainText } from './getMemberResumePlainText';
-import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 import type { CareerMatchResult } from '@/lib/onet/types';
 import type { LearnerProgressByContent } from '@/lib/coursera/learnerProgress';
-
-/**
- * Invalidate all cached member-state keys for a user. Called from profile
- * / enrollment / program-change routes whenever something the dashboard
- * reads might have changed.
- *
- * The current getMemberState implementation doesn't yet read through the
- * cache — but several route handlers in this PR already call this helper
- * after writes, and an upcoming change will start caching getMemberState
- * itself. Defining it here today means those callers compile and start
- * benefiting the moment caching is enabled. Today this is effectively
- * a no-op against an empty cache.
- */
-export async function invalidateMemberState(userId: string): Promise<void> {
-  await invalidateCache(`member-state:${userId}*`);
-}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

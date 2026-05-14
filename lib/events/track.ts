@@ -48,7 +48,9 @@ export type EventName =
   | 'training_access_requested'
   | 'training_access_approved'
   | 'training_access_activated'
-  | 'partner_invite_sent';
+  | 'partner_invite_sent'
+  | 'milestone_cascade_sent'
+  | 'milestone_cascade_dismissed';
 
 type TrackEventParams = {
   userId: string;

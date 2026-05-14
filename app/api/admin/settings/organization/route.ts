@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -24,7 +24,7 @@ const patchSchema = z.object({
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const organizationId = await getDefaultOrganizationId();
+  const organizationId = await getActorOrganizationId(user.id);
   const org = await prisma.organization.findUnique({
     where: { id: organizationId },
     select: {
@@ -59,7 +59,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: NextRequest) 
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
   }
 
-  const organizationId = await getDefaultOrganizationId();
+  const organizationId = await getActorOrganizationId(user.id);
   const org = await prisma.organization.update({
     where: { id: organizationId },
     data: {

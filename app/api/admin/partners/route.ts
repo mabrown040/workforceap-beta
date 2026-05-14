@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -48,7 +48,7 @@ const partnerSchema = z.object({
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await getActorOrganizationId(user.id);
     const partners = await withTenantScope(orgId, (db) =>
       db.partner.findMany({
         take: 500,
@@ -72,7 +72,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     const parsed = partnerSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   
-    const orgId = await getDefaultOrganizationId();
+    const orgId = await getActorOrganizationId(user.id);
     const referralCode = parsed.data.referralCode ?? parsed.data.slug;
   
     // Global uniqueness pre-check — slug and referralCode are @unique across

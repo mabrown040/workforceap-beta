@@ -26,7 +26,7 @@ async function countEventOnlyAiRunsBetween(orgId: string, start: Date, end: Date
   const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
     SELECT COUNT(*)::bigint AS count
     FROM "member_events" me
-    INNER JOIN "users" u ON u.id = me.user_id AND u.organization_id = ${orgId}::uuid
+    INNER JOIN "users" u ON u.id = me.user_id AND u.organization_id = ${orgId}
     WHERE me.created_at >= ${start}
       AND me.created_at <= ${end}
       AND me.event_name = 'ai_tool_run_started'
@@ -64,7 +64,7 @@ async function countSingleEventOnlyTool(
   const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
     SELECT COUNT(*)::bigint AS count
     FROM "member_events" me
-    INNER JOIN "users" u ON u.id = me.user_id AND u.organization_id = ${orgId}::uuid
+    INNER JOIN "users" u ON u.id = me.user_id AND u.organization_id = ${orgId}
     WHERE me.created_at >= ${start}
       AND me.created_at <= ${end}
       AND me.event_name = 'ai_tool_run_started'
@@ -265,7 +265,7 @@ async function getCareerOsMetrics(orgId: string) {
       prisma.$queryRaw<Array<{ count: bigint | number }>>`
       SELECT COUNT(DISTINCT nba.id)::bigint AS count
       FROM member_next_best_actions nba
-      INNER JOIN users u_scope ON u_scope.id = nba.member_id AND u_scope.organization_id = ${orgId}::uuid
+      INNER JOIN users u_scope ON u_scope.id = nba.member_id AND u_scope.organization_id = ${orgId}
       INNER JOIN member_events source_event
         ON source_event.entity_id = nba.id
       WHERE nba.status = 'COMPLETED'
@@ -275,7 +275,7 @@ async function getCareerOsMetrics(orgId: string) {
       prisma.$queryRaw<Array<{ count: bigint | number }>>`
       SELECT COUNT(DISTINCT nba.id)::bigint AS count
       FROM member_next_best_actions nba
-      INNER JOIN users u_scope ON u_scope.id = nba.member_id AND u_scope.organization_id = ${orgId}::uuid
+      INNER JOIN users u_scope ON u_scope.id = nba.member_id AND u_scope.organization_id = ${orgId}
       INNER JOIN member_events source_event
         ON source_event.entity_id = nba.id
       WHERE nba.status = 'DISMISSED'
@@ -285,7 +285,7 @@ async function getCareerOsMetrics(orgId: string) {
       prisma.$queryRaw<Array<{ count: bigint | number }>>`
       SELECT COUNT(DISTINCT nba.id)::bigint AS count
       FROM member_next_best_actions nba
-      INNER JOIN users u_scope ON u_scope.id = nba.member_id AND u_scope.organization_id = ${orgId}::uuid
+      INNER JOIN users u_scope ON u_scope.id = nba.member_id AND u_scope.organization_id = ${orgId}
       INNER JOIN member_events source_event
         ON source_event.entity_id = nba.id
       WHERE nba.status = 'PENDING'

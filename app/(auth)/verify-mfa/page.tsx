@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 
 function getMfaNextPath() {
@@ -173,7 +173,7 @@ export default function VerifyMfaPage() {
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-          Lost your authenticator? <Link href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Sign in again</Link>
+          Lost your authenticator? <LocalizedLink href="/login" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Sign in again</LocalizedLink>
         </p>
       </div>
     </div>

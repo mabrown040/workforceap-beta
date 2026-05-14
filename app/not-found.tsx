@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
 import Footer from '@/components/Footer';
 
@@ -11,7 +11,7 @@ export default function NotFound() {
   return (
     <div className="app-system-page">
       <div className="app-system-page__inner container">
-        <Link href="/" className="app-system-page__logo-link" aria-label="Workforce Advancement Project home">
+        <LocalizedLink href="/" className="app-system-page__logo-link" aria-label="Workforce Advancement Project home">
           <Image
             src="/images/wap_logo.png"
             alt="WorkforceAP logo"
@@ -21,7 +21,7 @@ export default function NotFound() {
             sizes="180px"
             quality={85}
           />
-        </Link>
+        </LocalizedLink>
         <p className="app-system-page__eyebrow">404</p>
         <h1 className="app-system-page__title">Page not found</h1>
         <p className="app-system-page__text">
@@ -29,15 +29,15 @@ export default function NotFound() {
           <a href="mailto:info@workforceap.org">info@workforceap.org</a> if you need help.
         </p>
         <div className="app-system-page__actions">
-          <Link href="/" className="btn btn-primary">
+          <LocalizedLink href="/" className="btn btn-primary">
             Back to home
-          </Link>
-          <Link href="/apply" className="btn btn-outline">
+          </LocalizedLink>
+          <LocalizedLink href="/apply" className="btn btn-outline">
             Apply for training
-          </Link>
-          <Link href="/contact" className="btn btn-app-system-ghost">
+          </LocalizedLink>
+          <LocalizedLink href="/contact" className="btn btn-app-system-ghost">
             Contact us
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
       <Footer />

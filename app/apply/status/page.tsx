@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Footer from '@/components/Footer';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -35,9 +35,9 @@ export default async function ApplyStatusPage() {
         <div className="container" style={{ maxWidth: '560px' }}>
           <ApplyStatusClient />
           <p style={{ marginTop: '1.5rem', fontSize: '0.95rem' }}>
-            <Link href="/apply">{t('statusFooterApply')}</Link>
+            <LocalizedLink href="/apply">{t('statusFooterApply')}</LocalizedLink>
             {' · '}
-            <Link href="/contact">{t('statusFooterContact')}</Link>
+            <LocalizedLink href="/contact">{t('statusFooterContact')}</LocalizedLink>
           </p>
         </div>
       </section>

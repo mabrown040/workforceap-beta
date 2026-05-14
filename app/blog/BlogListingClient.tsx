@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
 import { ArrowRight, BookOpen, HelpCircle, GraduationCap, Mail } from 'lucide-react';
 import { blogListingCardAlt, blogListingCardImage } from '@/lib/blog/blogListingImage';
@@ -49,7 +49,7 @@ export default function BlogListingClient({
             marginBottom: '2.5rem',
           }}
         >
-          <Link
+          <LocalizedLink
             href="/programs"
             style={{
               display: 'flex',
@@ -70,8 +70,8 @@ export default function BlogListingClient({
               </div>
             </div>
             <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5, flexShrink: 0 }} />
-          </Link>
-          <Link
+          </LocalizedLink>
+          <LocalizedLink
             href="/faq"
             style={{
               display: 'flex',
@@ -92,7 +92,7 @@ export default function BlogListingClient({
               </div>
             </div>
             <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5, flexShrink: 0 }} />
-          </Link>
+          </LocalizedLink>
         </div>
 
         {categories.length > 0 && (
@@ -138,7 +138,7 @@ export default function BlogListingClient({
             });
             return (
               <article key={post.id} className="blog-card">
-                <Link href={`/blog/${post.slug}`} className="blog-card-link">
+                <LocalizedLink href={`/blog/${post.slug}`} className="blog-card-link">
                   <div className="blog-card-cover">
                     <Image
                       src={cardSrc}
@@ -159,7 +159,7 @@ export default function BlogListingClient({
                     )}
                   </div>
                   <span className="blog-card-cta">{post.title ? `Read more: ${post.title}` : 'Read more'}</span>
-                </Link>
+                </LocalizedLink>
               </article>
             );
           })}
@@ -178,15 +178,15 @@ export default function BlogListingClient({
               </button>
             )}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-              <Link href="/programs" className="btn btn-primary">
+              <LocalizedLink href="/programs" className="btn btn-primary">
                 Browse programs
-              </Link>
-              <Link href="/apply" className="btn btn-muted">
+              </LocalizedLink>
+              <LocalizedLink href="/apply" className="btn btn-muted">
                 Apply
-              </Link>
-              <Link href="/faq" className="btn btn-outline">
+              </LocalizedLink>
+              <LocalizedLink href="/faq" className="btn btn-outline">
                 Read FAQ
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         )}
@@ -198,9 +198,9 @@ export default function BlogListingClient({
           <p className="blog-updates-card__text">
             Ask to be notified about new articles and program news — our team responds within a few business days.
           </p>
-          <Link href="/contact" className="btn btn-primary">
+          <LocalizedLink href="/contact" className="btn btn-primary">
             Contact us for updates
-          </Link>
+          </LocalizedLink>
         </div>
 
         {/* Bottom CTA */}
@@ -208,18 +208,18 @@ export default function BlogListingClient({
           <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.95 }} aria-hidden />
           <h3>Ready to take the next step?</h3>
           <p>
-            WorkforceAP offers no-cost career training paths for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link> — with guided tools, counselor support, and employer-aligned credentials.
+            WorkforceAP offers no-cost career training paths for <LocalizedLink href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</LocalizedLink> — with guided tools, counselor support, and employer-aligned credentials.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/find-your-path" className="btn blog-listing-bottom-cta__secondary">
+            <LocalizedLink href="/find-your-path" className="btn blog-listing-bottom-cta__secondary">
               Find Your Path
-            </Link>
-            <Link href="/programs" className="btn blog-listing-bottom-cta__ghost">
+            </LocalizedLink>
+            <LocalizedLink href="/programs" className="btn blog-listing-bottom-cta__ghost">
               Explore Programs
-            </Link>
-            <Link href="/apply" className="btn blog-listing-bottom-cta__ghost">
+            </LocalizedLink>
+            <LocalizedLink href="/apply" className="btn blog-listing-bottom-cta__ghost">
               Apply Now
-            </Link>
+            </LocalizedLink>
           </div>
         </div>
       </div>

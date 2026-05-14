@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 import { APPLY_FLOW_DRAFT_KEY, type ApplyFlowDraftV1 } from '@/lib/apply/applyProgramStorage';
 
@@ -53,6 +54,7 @@ export default function ApplyEligibilityClient() {
   const tForm = useTranslations('form');
   const router = useRouter();
   const searchParams = useSearchParams();
+  const locale = useLocaleFromPath();
   const programParam = searchParams.get('program');
 
   const [firstName, setFirstName] = useState('');
@@ -170,8 +172,8 @@ export default function ApplyEligibilityClient() {
         })
       );
     }
-    const resultsUrl = programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results';
-    router.push(resultsUrl);
+    const resultsPath = programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results';
+    router.push(localizeHref(resultsPath, locale));
   };
 
   return (
@@ -190,9 +192,9 @@ export default function ApplyEligibilityClient() {
         <p className="apply-step-desc">{t('step1Lead')}</p>
         <p className="apply-step-desc apply-eligibility-exception-note">
           {t('eligibilityExceptionLead')}{' '}
-          <Link href="/faq" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+          <LocalizedLink href="/faq" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
             FAQ
-          </Link>
+          </LocalizedLink>
           {t('eligibilityExceptionSuffix')}
         </p>
 

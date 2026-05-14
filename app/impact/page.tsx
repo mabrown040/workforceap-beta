@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
@@ -283,12 +283,12 @@ export default async function ImpactPage() {
             description={t('grantFundedDesc')}
           />
           <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <Link href="/outcomes" className="btn btn-outline">
+            <LocalizedLink href="/outcomes" className="btn btn-outline">
               {t('outcomesLink')}
-            </Link>
-            <Link href="/apply" className="btn btn-primary">
+            </LocalizedLink>
+            <LocalizedLink href="/apply" className="btn btn-primary">
               {t('applyCta')}
-            </Link>
+            </LocalizedLink>
           </div>
         </div>
       </PageSection>

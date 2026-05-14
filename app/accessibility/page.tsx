@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -44,7 +44,7 @@ export default async function AccessibilityPage() {
               <ul style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.8, paddingLeft: '1.25rem', margin: 0 }}>
                 <li>{t('helpEmail')} <a href="mailto:info@workforceap.org">info@workforceap.org</a></li>
                 <li>{t('helpPhone')} <a href="tel:+15127771808">(512) 777-1808</a></li>
-                <li><Link href="/contact">{t('helpForm')}</Link></li>
+                <li><LocalizedLink href="/contact">{t('helpForm')}</LocalizedLink></li>
               </ul>
             </>
           } variant="flat" />

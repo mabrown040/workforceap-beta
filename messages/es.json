@@ -137,7 +137,11 @@
     "today": "Hoy",
     "yesterday": "Ayer",
     "sending": "Enviando…",
-    "selectLanguage": "Seleccionar idioma"
+    "selectLanguage": "Seleccionar idioma",
+    "languageEs": "Español",
+    "languagePt": "Portugués",
+    "languageFr": "Francés",
+    "languageEn": "Inglés"
   },
   "dashboard": {
     "welcome": "Bienvenido de nuevo",
@@ -1145,7 +1149,12 @@
       "ctaHeadline": "¿Listo para dar el siguiente paso?",
       "ctaSubheadline": "Envía tu solicitud en minutos. Un asesor de miembros dará seguimiento en 1–2 días hábiles.",
       "ctaPrimary": "Solicita ahora",
-      "ctaSecondary": "Explorar programas"
+      "ctaSecondary": "Explorar programas",
+      "languagesTitle": "Idiomas",
+      "languageEnglishOnly": "Solo en inglés",
+      "languageFull": "Disponible en {language}",
+      "languageSubtitles": "Subtítulos en {language}",
+      "languageAuto": "{language} (automático)"
     },
     "faq": {
       "knowledgeBase": "Centro de ayuda",

@@ -1,8 +1,9 @@
 'use client';
 
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
 import { Flame } from 'lucide-react';
 import type { ComparisonTrack } from '@/lib/content/programComparisonTracks';
 import { getProgramExtra } from '@/lib/content/programExtras';
@@ -49,6 +50,7 @@ function DemandCell({ track }: { track: ComparisonTrack }) {
 export default function ProgramComparisonClient({ tracks }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const locale = useLocaleFromPath();
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [hydrated, setHydrated] = useState(false);
   const initFromUrlRef = useRef(false);
@@ -77,9 +79,9 @@ export default function ProgramComparisonClient({ tracks }: Props) {
     const arr = [...selected];
     if (arr.length >= MIN_PICK) {
       const q = arr.slice(0, MAX_PICK).sort().join(',');
-      router.replace(`/program-comparison?compare=${q}`, { scroll: false });
+      router.replace(localizeHref(`/program-comparison?compare=${q}`, locale), { scroll: false });
     } else {
-      router.replace('/program-comparison', { scroll: false });
+      router.replace(localizeHref('/program-comparison', locale), { scroll: false });
     }
   }, [selected, hydrated]); // eslint-disable-line react-hooks/exhaustive-deps -- omit router; avoid replace loops
 
@@ -152,9 +154,9 @@ export default function ProgramComparisonClient({ tracks }: Props) {
         key: 'next',
         criteriaLabel: 'Next step',
         bySlug: cellFor((t) => (
-          <Link href={`/apply?program=${t.slug}`} className="btn btn-muted btn-sm">
+          <LocalizedLink href={`/apply?program=${t.slug}`} className="btn btn-muted btn-sm">
             Apply
-          </Link>
+          </LocalizedLink>
         )),
       },
     ];
@@ -170,7 +172,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
     };
     const trackCols: DataTableColumn<MatrixRow>[] = selectedTracks.map((t) => ({
       key: t.slug,
-      header: <Link href={`/programs/${t.slug}`}>{t.shortName}</Link>,
+      header: <LocalizedLink href={`/programs/${t.slug}`}>{t.shortName}</LocalizedLink>,
       cellDataLabel: t.shortName,
       cell: (r) => r.bySlug[t.slug],
     }));
@@ -214,9 +216,9 @@ export default function ProgramComparisonClient({ tracks }: Props) {
         cellDataLabel: 'Track',
         cell: (row) =>
           row.kind === 'track' ? (
-            <Link href={`/programs/${row.track.slug}`}>
+            <LocalizedLink href={`/programs/${row.track.slug}`}>
               <strong>{row.track.shortName}</strong>
-            </Link>
+            </LocalizedLink>
           ) : null,
       },
       {
@@ -255,9 +257,9 @@ export default function ProgramComparisonClient({ tracks }: Props) {
         cellDataLabel: 'Apply',
         cell: (row) =>
           row.kind === 'track' ? (
-            <Link href={`/apply?program=${row.track.slug}`} className="btn btn-muted" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+            <LocalizedLink href={`/apply?program=${row.track.slug}`} className="btn btn-muted" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
               Apply
-            </Link>
+            </LocalizedLink>
           ) : null,
       },
     ],
@@ -280,7 +282,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
           </li>
           <li>
             <strong>Confirm with salary context</strong> —{' '}
-            <Link href="/salary-guide">Salary guide</Link> uses the same bands as program pages.
+            <LocalizedLink href="/salary-guide">Salary guide</LocalizedLink> uses the same bands as program pages.
           </li>
         </ol>
         <p className="program-comparison-guide-lead">Pick based on what matters most:</p>
@@ -322,9 +324,9 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                     {t.duration} · {t.difficulty} · {t.salary}
                   </p>
                   <div className="program-comparison-starter-actions">
-                    <Link href={`/programs/${t.slug}`} className="btn btn-outline btn-sm">
+                    <LocalizedLink href={`/programs/${t.slug}`} className="btn btn-outline btn-sm">
                       Program detail
-                    </Link>
+                    </LocalizedLink>
                     <label className="program-comparison-starter-pick">
                       <input
                         type="checkbox"
@@ -341,8 +343,8 @@ export default function ProgramComparisonClient({ tracks }: Props) {
           })}
         </ul>
         <p className="program-comparison-starters-more">
-          <Link href="/find-your-path">Take the 2-minute quiz</Link> for ranked matches →{' '}
-          <Link href="/programs">browse all 19 programs</Link>.
+          <LocalizedLink href="/find-your-path">Take the 2-minute quiz</LocalizedLink> for ranked matches →{' '}
+          <LocalizedLink href="/programs">browse all 19 programs</LocalizedLink>.
         </p>
       </section>
 
@@ -414,12 +416,12 @@ export default function ProgramComparisonClient({ tracks }: Props) {
                   <label htmlFor={`compare-${t.slug}`}>Compare</label>
                 </div>
                 <div className="program-comparison-card__header">
-                  <Link id={`program-card-title-${t.slug}`} href={`/programs/${t.slug}`} className="program-comparison-card__title">
+                  <LocalizedLink id={`program-card-title-${t.slug}`} href={`/programs/${t.slug}`} className="program-comparison-card__title">
                     {t.shortName}
-                  </Link>
-                  <Link href={`/apply?program=${t.slug}`} className="btn btn-muted program-comparison-card__apply" aria-label={`Apply to ${t.shortName}`}>
+                  </LocalizedLink>
+                  <LocalizedLink href={`/apply?program=${t.slug}`} className="btn btn-muted program-comparison-card__apply" aria-label={`Apply to ${t.shortName}`}>
                     Apply
-                  </Link>
+                  </LocalizedLink>
                 </div>
                 {extra?.bestFor && (
                   <p className="program-comparison-card__best-for">

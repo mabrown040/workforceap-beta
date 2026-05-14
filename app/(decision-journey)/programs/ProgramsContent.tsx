@@ -9,7 +9,7 @@ import {
   getProgramDisplayPartner,
   getProgramDisplayTitle,
 } from '@/lib/content/programs';
-import type { Program } from '@/lib/content/programs';
+import type { Program, LanguageSupport, LanguageSupportLevel } from '@/lib/content/programs';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { ProgramIcon } from '@/components/ProgramIcon';
@@ -51,6 +51,50 @@ const CATEGORY_BORDER: Record<string, string> = {
   'digital-literacy': '#6b7280',
 };
 
+function LanguagePills({ languages }: { languages?: LanguageSupport }) {
+  const tPrograms = useTranslations('marketing.programs');
+  const tCommon = useTranslations('common');
+  if (!languages) return null;
+
+  const entries: { code: keyof LanguageSupport; level: LanguageSupportLevel; label: string }[] = [
+    { code: 'es', level: languages.es, label: tCommon('languageEs') },
+    { code: 'pt', level: languages.pt, label: tCommon('languagePt') },
+    { code: 'fr', level: languages.fr, label: tCommon('languageFr') },
+  ];
+
+  const active = entries.filter((e) => e.level !== 'none');
+  if (active.length === 0) return null;
+
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.35rem', marginBottom: '.75rem' }}>
+      {active.map((e) => {
+        let text: string;
+        if (e.level === 'full') text = tPrograms('languageFull', { language: e.label });
+        else if (e.level === 'subtitles') text = tPrograms('languageSubtitles', { language: e.label });
+        else text = tPrograms('languageAuto', { language: e.label });
+        return (
+          <span
+            key={e.code}
+            style={{
+              background: 'var(--surface-container-high)',
+              color: 'var(--color-on-surface-variant)',
+              padding: '.2rem .55rem',
+              borderRadius: '50px',
+              fontSize: '.72rem',
+              fontWeight: 500,
+              border: '1px solid var(--outline-variant)',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            🌐 {text}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 function ProgramCard({ program }: { program: Program }) {
   const t = useTranslations('marketing.programs');
   const [open, setOpen] = useState(false);
@@ -73,6 +117,7 @@ function ProgramCard({ program }: { program: Program }) {
         <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={program} size={28} /></span>
       </div>
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{displayTitle}</h3>
+      <LanguagePills languages={program.languagesSupported} />
       {extra?.bestFor && (
         <p className="program-card-best-for">
           <strong>{t('cardBestFor')}</strong> {extra.bestFor}

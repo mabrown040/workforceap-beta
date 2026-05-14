@@ -14,7 +14,8 @@
 import { NextResponse } from 'next/server';
 
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -86,6 +87,30 @@ export async function GET(request: Request) {
       { error: 'courseraCourseId query param is required' },
       { status: 400 },
     );
+  }
+
+  // Tenant scope: confirm the email belongs to a member of the caller's
+  // organization before exposing their xAPI item-level progress. Without
+  // this, a tenant admin who knew a learner's email (or guessed it) could
+  // pull cross-tenant Coursera item-level progress.
+  if (!(await isSuperAdmin(user.id))) {
+    let orgId: string;
+    try {
+      orgId = await getActorOrganizationId(user.id);
+    } catch {
+      return NextResponse.json({ items: [], totals: { items: 0 } });
+    }
+    const targetUser = await prisma.user.findFirst({
+      where: {
+        email: { equals: emailParam, mode: 'insensitive' },
+        organizationId: orgId,
+      },
+      select: { id: true },
+    });
+    if (!targetUser) {
+      // Don't leak whether the email exists in another tenant.
+      return NextResponse.json({ items: [], totals: { items: 0 } });
+    }
   }
 
   // Pull every item-level statement for this (learner, course) and roll up

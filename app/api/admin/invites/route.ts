@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { checkAdminInviteRateLimit } from '@/lib/rate-limit';
@@ -26,10 +26,23 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status'); // 'all' | 'pending' | 'accepted' | 'expired'
 
-  const where: { status?: InvitationStatus } = {};
+  // Tenant scope: super-admins see all invites; tenant admins see only
+  // invites issued by users in their org. Helper `invitationInOrg(orgId)`
+  // exists in lib/admin but wasn't used here.
+  const where: {
+    status?: InvitationStatus;
+    invitedBy?: { organizationId: string };
+  } = {};
   if (status && status !== 'all') {
     if (['pending', 'accepted', 'expired', 'revoked'].includes(status)) {
       where.status = status as InvitationStatus;
+    }
+  }
+  if (!(await isSuperAdmin(user.id))) {
+    try {
+      where.invitedBy = { organizationId: await getActorOrganizationId(user.id) };
+    } catch {
+      return NextResponse.json({ invites: [] });
     }
   }
 

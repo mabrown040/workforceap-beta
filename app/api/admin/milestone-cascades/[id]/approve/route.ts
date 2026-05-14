@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin } from '@/lib/auth/roles';
 import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
@@ -16,8 +16,17 @@ import { dispatchApprovedCascade } from '@/lib/milestoneCascade/sendApprovedCasc
 /**
  * Approve a cascade. Sends celebrate_milestone drafts via email and logs
  * the advisory drafts (suggest_next_course, request_peer_pair, etc.). The
- * counselor can edit subject/body inline before approving — that's the
+ * approver can edit subject/body inline before approving — that's the
  * `editedDrafts` field, a sparse map keyed by draft index.
+ *
+ * Admin-only. Counselor access is a follow-up: it requires per-row
+ * assignment scoping (counselor X must only be able to approve cascades
+ * for members assigned to them via active counselor_assignment rows), and
+ * the inbox query must filter to the same scope. Until that's wired,
+ * letting any counselor approve any cascade would let counselor A act on
+ * counselor B's learners by guessing/copying a cascade id. See
+ * lib/counselor/staffMemberAccess.ts for the existing per-row helper
+ * (`assertStaffCanAccessMemberRecord`) that the follow-up should call here.
  */
 
 // Counselor can patch subject/body of a celebrate_milestone draft. Other
@@ -39,11 +48,7 @@ export async function POST(
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const [adminOk, counselorOk] = await Promise.all([
-      isAdmin(user.id),
-      isCounselor(user.id),
-    ]);
-    if (!adminOk && !counselorOk) {
+    if (!(await isAdmin(user.id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

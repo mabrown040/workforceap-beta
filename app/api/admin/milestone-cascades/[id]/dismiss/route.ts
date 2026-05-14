@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin } from '@/lib/auth/roles';
 import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
@@ -10,6 +10,9 @@ import { trackEvent } from '@/lib/events/track';
 /**
  * Dismiss a cascade without sending. Reason is optional but encouraged —
  * dismissal text is the highest-signal feedback we get on prompt quality.
+ *
+ * Admin-only. See sibling approve/route.ts for the same rationale: counselor
+ * access requires per-row assignment scoping that lands in a follow-up PR.
  */
 
 const bodySchema = z.object({
@@ -24,11 +27,7 @@ export async function POST(
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const [adminOk, counselorOk] = await Promise.all([
-      isAdmin(user.id),
-      isCounselor(user.id),
-    ]);
-    if (!adminOk && !counselorOk) {
+    if (!(await isAdmin(user.id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

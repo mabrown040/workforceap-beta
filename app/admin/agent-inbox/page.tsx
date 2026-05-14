@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin } from '@/lib/auth/roles';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 
@@ -18,21 +18,21 @@ export const metadata: Metadata = {
 };
 
 /**
- * Read-only first cut of the agent inbox. Shows every cascade currently
- * waiting for counselor review, oldest first. Approve / Edit / Dismiss
- * controls land in Thursday's PR.
+ * Agent inbox — admin-only.
  *
- * Auth: visible to admins AND counselors. Both can review.
+ * Shows every cascade currently waiting for review, oldest first. Counselor
+ * access is a follow-up: it requires the list query and the underlying
+ * approve/dismiss endpoints to filter by counselor_assignment, so a
+ * counselor can only see and act on cascades for members assigned to them.
+ * Until that's wired, this page (and the API routes it drives) are
+ * admin-only — matching the /admin/* layout guard.
  */
 export default async function AgentInboxPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/agent-inbox');
-
-  const [adminOk, counselorOk] = await Promise.all([
-    isAdmin(user.id),
-    isCounselor(user.id),
-  ]);
-  if (!adminOk && !counselorOk) redirect('/dashboard');
+  // The /admin layout already enforces isAdmin, but check again here so
+  // this page's auth contract is self-evident from the file.
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const [cascades, metrics] = await Promise.all([
     listAwaitingApprovalCascades({ limit: 100 }),

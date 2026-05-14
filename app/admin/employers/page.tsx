@@ -192,15 +192,21 @@ export default async function AdminEmployersPage() {
         title="Employers"
         subtitle="Manage employer accounts. Only active employers can be opened in the employer portal preview; inactive rows stay here until reactivated."
         action={
-          <button
-            type="button"
-            onClick={() => window.open('/api/admin/employers/export', '_blank')}
+          // /admin/employers is a Server Component — inline onClick handlers
+          // are not allowed (passing an event handler from server to client
+          // fails the route at render time). Use a plain anchor with
+          // target="_blank" instead; functionally identical from the user's
+          // perspective and survives SSR.
+          <a
+            href="/api/admin/employers/export"
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn btn-outline btn-sm"
             title="Export employers to CSV"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
           >
             <Download size={14} /> Export CSV
-          </button>
+          </a>
         }
       />
 

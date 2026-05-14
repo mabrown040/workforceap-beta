@@ -64,11 +64,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No valid members found' }, { status: 404 });
     }
 
-    // If counselor update requested, validate counselor exists and is active
+    // If counselor update requested, validate counselor exists, is active,
+    // AND belongs to the actor's organization. Without the tenant scope a
+    // crafted bulk-update request could attach in-tenant members to a
+    // cross-tenant counselor — the dropdown in /admin/members itself uses
+    // /api/admin/counselors (which is scoped), but the API accepts any
+    // counselorUserId in the body.
     let counselor: { id: string; user: { id: string; fullName: string } } | null = null;
     if (counselorUserId) {
       counselor = await prisma.counselor.findFirst({
-        where: { userId: counselorUserId, active: true },
+        where: {
+          userId: counselorUserId,
+          active: true,
+          user: { organizationId: orgId },
+        },
         include: { user: { select: { id: true, fullName: true } } },
       });
       if (!counselor) {

@@ -9,24 +9,37 @@ function escapeSqlString(value: string): string {
 }
 
 function isGucSetupQuery(sql: unknown): boolean {
-  return typeof sql === 'string' && sql.includes('SET LOCAL app.current_');
+  if (typeof sql !== 'string') return false;
+  // Match the current `SELECT set_config(...)` shape and keep the legacy
+  // `SET LOCAL app.current_` literal so the recursion guard still trips on
+  // any older calls that might still be in flight.
+  return (
+    sql.includes("set_config('app.current_") ||
+    sql.includes('SET LOCAL app.current_')
+  );
 }
 
 export function buildGucSql(ctx: GucContext): string {
-  const sets: string[] = [];
+  // PostgreSQL rejects prepared statements that contain multiple commands
+  // separated by semicolons, which is what `SET LOCAL a = 'x'; SET LOCAL b
+  // = 'y';` would produce. Use a single SELECT that calls set_config for
+  // each value instead — same semantics (is_local=true mirrors SET LOCAL),
+  // one statement on the wire. The SELECT returns the new values as text;
+  // we ignore the rows.
+  const setters: string[] = [];
 
-  sets.push(`SET LOCAL app.current_user_id = '${escapeSqlString(ctx.userId ?? '')}';`);
-  sets.push(`SET LOCAL app.current_org_id = '${escapeSqlString(ctx.orgId ?? '')}';`);
-  sets.push(`SET LOCAL app.current_role = '${escapeSqlString(ctx.role)}';`);
+  setters.push(`set_config('app.current_user_id', '${escapeSqlString(ctx.userId ?? '')}', true)`);
+  setters.push(`set_config('app.current_org_id', '${escapeSqlString(ctx.orgId ?? '')}', true)`);
+  setters.push(`set_config('app.current_role', '${escapeSqlString(ctx.role)}', true)`);
 
   if (ctx.employerId) {
-    sets.push(`SET LOCAL app.current_employer_id = '${escapeSqlString(ctx.employerId)}';`);
+    setters.push(`set_config('app.current_employer_id', '${escapeSqlString(ctx.employerId)}', true)`);
   }
   if (ctx.partnerId) {
-    sets.push(`SET LOCAL app.current_partner_id = '${escapeSqlString(ctx.partnerId)}';`);
+    setters.push(`set_config('app.current_partner_id', '${escapeSqlString(ctx.partnerId)}', true)`);
   }
 
-  return sets.join(' ');
+  return `SELECT ${setters.join(', ')}`;
 }
 
 function createPrismaClient(): PrismaClient {

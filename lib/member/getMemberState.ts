@@ -71,62 +71,64 @@ export type MemberStateFull = MemberState & {
 // ─── Core Data Fetch ─────────────────────────────────────────────────────────
 
 async function loadMemberCore(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      email: true,
-      fullName: true,
-      enrolledProgram: true,
-      enrolledAt: true,
-      assessmentCompleted: true,
-      assessmentCompletedAt: true,
-      careerRecommendationJson: true,
-      programInterest: true,
-      interviewEligible: true,
-      interviewRequestedAt: true,
-      interviewCompletedAt: true,
-      onboardingCompletedAt: true,
-      tourCompletedAt: true,
-      needsComputerSupportFollowUp: true,
-      workspaceEmail: true,
-      workspaceEmailProvisioned: true,
-      preScreeningResponse: { select: { id: true } },
-      profile: {
-        select: {
-          profilePhone: true,
-          profileAddress: true,
-          profileLinkedin: true,
-          profileBio: true,
-          employmentStatus: true,
-          educationLevel: true,
-          resumeOriginalPath: true,
-          resumeEnhancedPath: true,
-          referralSource: true,
-          city: true,
-          state: true,
-          zip: true,
-          dob: true,
-          isMinor: true,
+  const user = await prisma.$transaction((tx) =>
+    tx.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        assessmentCompleted: true,
+        assessmentCompletedAt: true,
+        careerRecommendationJson: true,
+        programInterest: true,
+        interviewEligible: true,
+        interviewRequestedAt: true,
+        interviewCompletedAt: true,
+        onboardingCompletedAt: true,
+        tourCompletedAt: true,
+        needsComputerSupportFollowUp: true,
+        workspaceEmail: true,
+        workspaceEmailProvisioned: true,
+        preScreeningResponse: { select: { id: true } },
+        profile: {
+          select: {
+            profilePhone: true,
+            profileAddress: true,
+            profileLinkedin: true,
+            profileBio: true,
+            employmentStatus: true,
+            educationLevel: true,
+            resumeOriginalPath: true,
+            resumeEnhancedPath: true,
+            referralSource: true,
+            city: true,
+            state: true,
+            zip: true,
+            dob: true,
+            isMinor: true,
+          },
+        },
+        applications: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            status: true,
+            programInterest: true,
+            submittedAt: true,
+            createdAt: true,
+          },
+        },
+        _count: {
+          select: {
+            jobApplications: true,
+          },
         },
       },
-      applications: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        select: {
-          status: true,
-          programInterest: true,
-          submittedAt: true,
-          createdAt: true,
-        },
-      },
-      _count: {
-        select: {
-          jobApplications: true,
-        },
-      },
-    },
-  });
+    })
+  );
   return user;
 }
 
@@ -138,11 +140,13 @@ async function loadLatestResumeText(userId: string): Promise<string | null> {
   const fromFile = await getMemberResumePlainText(userId, 8000, { preferOriginal: true });
   if (fromFile && fromFile.trim().length > 40) return fromFile.trim();
 
-  const aiResult = await prisma.aIToolResult.findFirst({
-    where: { userId, toolType: 'resume_analysis' },
-    orderBy: { createdAt: 'desc' },
-    select: { output: true },
-  });
+  const aiResult = await prisma.$transaction((tx) =>
+    tx.aIToolResult.findFirst({
+      where: { userId, toolType: 'resume_analysis' },
+      orderBy: { createdAt: 'desc' },
+      select: { output: true },
+    })
+  );
   if (aiResult?.output && aiResult.output.trim().length > 40) return aiResult.output.trim().slice(0, 8000);
 
   return null;
@@ -357,89 +361,92 @@ export async function getMemberStateFull(userId: string): Promise<MemberStateFul
 
 // ─── Full Context Loader (admin/counselor) ─────────────────────────────────
 async function loadMemberFullContext(userId: string): Promise<Omit<MemberStateFull, keyof MemberState>> {
-  const [placement, courseEnrollment, counselorAssignment, recentMessagesRaw, memberEvents, partnerReferral] = await Promise.all([
-    prisma.placementRecord.findUnique({
-      where: { userId },
-      select: {
-        placedAt: true,
-        retentionDecision: true,
-        onboardingWindowEnd: true,
-        employerName: true,
-        jobTitle: true,
-        salaryOffered: true,
-      },
-    }),
-    prisma.courseEnrollment.findFirst({
-      where: { userId, isPrimary: true },
-      orderBy: { enrolledAt: 'desc' },
-      select: {
-        id: true,
-        enrolledByAdminId: true,
-        programSlug: true,
-        enrolledAt: true,
-        fundingSource: true,
-      },
-    }),
-    prisma.counselorAssignment.findFirst({
-      where: { memberId: userId, active: true },
-      orderBy: { assignedAt: 'desc' },
-      select: {
-        assignedAt: true,
-        counselor: {
-          select: {
-            user: { select: { fullName: true } },
+  const [placement, courseEnrollment, counselorAssignment, recentMessagesRaw, memberEvents, partnerReferral, unreadCount] = await prisma.$transaction(async (tx) => {
+    const [placement, courseEnrollment, counselorAssignment, recentMessagesRaw, memberEvents, partnerReferral] = await Promise.all([
+      tx.placementRecord.findUnique({
+        where: { userId },
+        select: {
+          placedAt: true,
+          retentionDecision: true,
+          onboardingWindowEnd: true,
+          employerName: true,
+          jobTitle: true,
+          salaryOffered: true,
+        },
+      }),
+      tx.courseEnrollment.findFirst({
+        where: { userId, isPrimary: true },
+        orderBy: { enrolledAt: 'desc' },
+        select: {
+          id: true,
+          enrolledByAdminId: true,
+          programSlug: true,
+          enrolledAt: true,
+          fundingSource: true,
+        },
+      }),
+      tx.counselorAssignment.findFirst({
+        where: { memberId: userId, active: true },
+        orderBy: { assignedAt: 'desc' },
+        select: {
+          assignedAt: true,
+          counselor: {
+            select: {
+              user: { select: { fullName: true } },
+            },
           },
         },
-      },
-    }),
-    prisma.messageThread.findFirst({
-      where: { memberId: userId },
-      orderBy: { updatedAt: 'desc' },
-      select: {
-        id: true,
-        updatedAt: true,
-        memberLastReadAt: true,
-        messages: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-          select: { createdAt: true, body: true },
+      }),
+      tx.messageThread.findFirst({
+        where: { memberId: userId },
+        orderBy: { updatedAt: 'desc' },
+        select: {
+          id: true,
+          updatedAt: true,
+          memberLastReadAt: true,
+          messages: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { createdAt: true, body: true },
+          },
+        },
+      }),
+      tx.memberEvent.findMany({
+        where: {
+          userId,
+          createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: {
+          eventName: true,
+          createdAt: true,
+          metadata: true,
+          sourcePage: true,
+        },
+      }),
+      tx.partnerReferral.findFirst({
+        where: { memberId: userId },
+        orderBy: { referredAt: 'desc' },
+        select: {
+          partner: { select: { name: true } },
+          referredAt: true,
+        },
+      }),
+    ]);
+
+    const messageThreadLastReadAt = recentMessagesRaw?.memberLastReadAt;
+    const unreadCount = await tx.message.count({
+      where: {
+        thread: { memberId: userId },
+        authorId: { not: userId },
+        createdAt: {
+          gt: messageThreadLastReadAt ?? new Date(0),
         },
       },
-    }),
-    prisma.memberEvent.findMany({
-      where: {
-        userId,
-        createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-      select: {
-        eventName: true,
-        createdAt: true,
-        metadata: true,
-        sourcePage: true,
-      },
-    }),
-    prisma.partnerReferral.findFirst({
-      where: { memberId: userId },
-      orderBy: { referredAt: 'desc' },
-      select: {
-        partner: { select: { name: true } },
-        referredAt: true,
-      },
-    }),
-  ]);
+    });
 
-  // Count unread messages properly (messages where member hasn't read since last message)
-  const messageThreadLastReadAt = recentMessagesRaw?.memberLastReadAt;
-  const unreadCount = await prisma.message.count({
-    where: {
-      thread: { memberId: userId },
-      authorId: { not: userId }, // messages from counselor/staff, not member
-      createdAt: {
-        gt: messageThreadLastReadAt ?? new Date(0),
-      },
-    },
+    return [placement, courseEnrollment, counselorAssignment, recentMessagesRaw, memberEvents, partnerReferral, unreadCount] as const;
   });
 
   return {

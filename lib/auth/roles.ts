@@ -13,18 +13,22 @@ const SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL = 'employer-preview@example.com';
 const SUPER_ADMIN_FALLBACK_EMPLOYER_NAME = 'WorkforceAP Example Employer';
 
 export const getUserRoles = cache(async function getUserRoles(userId: string): Promise<string[]> {
-  const userRoles = await prisma.userRole.findMany({
-    where: { userId },
-    include: { role: true },
-  });
+  const userRoles = await prisma.$transaction((tx) =>
+    tx.userRole.findMany({
+      where: { userId },
+      include: { role: true },
+    })
+  );
   return userRoles.map((ur) => ur.role.name);
 });
 
 export const getProfileRole = cache(async function getProfileRole(userId: string): Promise<string> {
-  const profile = await prisma.profile.findUnique({
-    where: { userId },
-    select: { role: true },
-  });
+  const profile = await prisma.$transaction((tx) =>
+    tx.profile.findUnique({
+      where: { userId },
+      select: { role: true },
+    })
+  );
   return profile?.role ?? 'member';
 });
 

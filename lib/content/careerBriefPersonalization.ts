@@ -132,22 +132,24 @@ function buildSuburbPresets(programShortLabel: string | null): CareerSearchPrese
 export async function fetchCareerBriefRelations(userId: string, options?: { activeMemberOnly?: boolean }) {
   const where = options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId };
 
-  const [user, goals, resourceProgress, learningProgress, pathwaySteps, certs, interviewPracticeCompletion, lastEvent] = await Promise.all([
-    prisma.user.findUnique({
-      where,
-      include: memberCareerBriefInclude,
-    }),
-    prisma.goal.findMany({ take: 100, where: { userId } }),
-    prisma.resourceProgress.findMany({ take: 100, where: { userId } }),
-    prisma.learningProgress.findMany({ take: 100, where: { userId } }),
-    prisma.pathwayStepProgress.findMany({ take: 100, where: { userId } }),
-    prisma.userCertification.findMany({ take: 100, where: { userId } }),
-    prisma.memberEvent.findFirst({
-      where: { userId, eventName: 'career_os.interview_practice_completed' },
-      select: { id: true },
-    }),
-    prisma.memberEvent.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-  ]);
+  const [user, goals, resourceProgress, learningProgress, pathwaySteps, certs, interviewPracticeCompletion, lastEvent] = await prisma.$transaction(async (tx) =>
+    Promise.all([
+      tx.user.findUnique({
+        where,
+        include: memberCareerBriefInclude,
+      }),
+      tx.goal.findMany({ take: 100, where: { userId } }),
+      tx.resourceProgress.findMany({ take: 100, where: { userId } }),
+      tx.learningProgress.findMany({ take: 100, where: { userId } }),
+      tx.pathwayStepProgress.findMany({ take: 100, where: { userId } }),
+      tx.userCertification.findMany({ take: 100, where: { userId } }),
+      tx.memberEvent.findFirst({
+        where: { userId, eventName: 'career_os.interview_practice_completed' },
+        select: { id: true },
+      }),
+      tx.memberEvent.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+    ])
+  );
 
   const aiResults = user?.aiToolResults ?? [];
   const jobApps = user?.jobApplications ?? [];
@@ -257,10 +259,12 @@ export async function loadMemberCareerBriefBundleSafe(
     console.error('[loadMemberCareerBriefBundleSafe] primary load failed', firstErr);
     try {
       const where = options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId };
-      const user = await prisma.user.findUnique({
-        where,
-        include: memberCareerBriefInclude,
-      });
+      const user = await prisma.$transaction((tx) =>
+        tx.user.findUnique({
+          where,
+          include: memberCareerBriefInclude,
+        })
+      );
       if (!user) {
         return { user: null, careerBrief: assembleCareerBriefContext(null, emptyScoreBreakdown()) };
       }
@@ -280,23 +284,25 @@ export async function loadMemberCareerBriefBundleSafe(
     } catch (secondErr) {
       console.error('[loadMemberCareerBriefBundleSafe] include-based fallback failed', secondErr);
       try {
-        const user = await prisma.user.findUnique({
-          where: options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId },
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            enrolledProgram: true,
-            enrolledAt: true,
-            assessmentCompleted: true,
-            assessmentCompletedAt: true,
-            assessmentScorePct: true,
-            profile: true,
-            applications: { orderBy: { createdAt: 'desc' }, take: 1 },
-            jobApplications: true,
-            aiToolResults: { select: { toolType: true } },
-          },
-        });
+        const user = await prisma.$transaction((tx) =>
+          tx.user.findUnique({
+            where: options?.activeMemberOnly ? { id: userId, deletedAt: null } : { id: userId },
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              enrolledProgram: true,
+              enrolledAt: true,
+              assessmentCompleted: true,
+              assessmentCompletedAt: true,
+              assessmentScorePct: true,
+              profile: true,
+              applications: { orderBy: { createdAt: 'desc' }, take: 1 },
+              jobApplications: true,
+              aiToolResults: { select: { toolType: true } },
+            },
+          })
+        );
         if (!user) {
           return { user: null, careerBrief: assembleCareerBriefContext(null, emptyScoreBreakdown()) };
         }

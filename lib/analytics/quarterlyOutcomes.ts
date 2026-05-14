@@ -132,7 +132,12 @@ async function fetchEnrolledMembers(orgId: string, start: Date, end: Date): Prom
   });
 }
 
-async function fetchCompletions(orgId: string, start: Date, end: Date): Promise<Set<string>> {
+interface CompletionRow {
+  userId: string;
+  programSlug: string | null;
+}
+
+async function fetchCompletions(orgId: string, start: Date, end: Date): Promise<CompletionRow[]> {
   const [courseCompletions, certCompletions] = await Promise.all([
     prisma.courseProgress.findMany({
       take: 5000,
@@ -140,8 +145,7 @@ async function fetchCompletions(orgId: string, start: Date, end: Date): Promise<
         completedAt: { gte: start, lte: end },
         user: { organizationId: orgId },
       },
-      select: { userId: true },
-      distinct: ['userId'],
+      select: { userId: true, programSlug: true },
     }),
     prisma.userCertification.findMany({
       take: 5000,
@@ -149,15 +153,14 @@ async function fetchCompletions(orgId: string, start: Date, end: Date): Promise<
         earnedAt: { gte: start, lte: end },
         user: { organizationId: orgId },
       },
-      select: { userId: true },
-      distinct: ['userId'],
+      select: { userId: true, user: { select: { enrolledProgram: true } } },
     }),
   ]);
 
-  const set = new Set<string>();
-  for (const c of courseCompletions) set.add(c.userId);
-  for (const c of certCompletions) set.add(c.userId);
-  return set;
+  const rows: CompletionRow[] = [];
+  for (const c of courseCompletions) rows.push({ userId: c.userId, programSlug: c.programSlug });
+  for (const c of certCompletions) rows.push({ userId: c.userId, programSlug: c.user.enrolledProgram });
+  return rows;
 }
 
 async function fetchPlacements(orgId: string, start: Date, end: Date) {
@@ -219,6 +222,12 @@ function isCompleted(member: EnrolledMemberRow, completionSet: Set<string>): boo
   return completionSet.has(member.id);
 }
 
+function buildCompletedUserSet(completionRows: ReadonlyArray<CompletionRow>): Set<string> {
+  const s = new Set<string>();
+  for (const c of completionRows) s.add(c.userId);
+  return s;
+}
+
 function hasStartedTraining(member: EnrolledMemberRow): boolean {
   return member.courseProgress.some((cp) => cp.percentComplete > 0);
 }
@@ -229,18 +238,17 @@ export async function generateQuarterlyOutcomes(
 ): Promise<QuarterlyOutcomesReport> {
   const { start, end } = quarterToDates(spec);
 
-  const [enrolledMembers, completionSet, placements] = await Promise.all([
+  const [enrolledMembers, completionRows, placements] = await Promise.all([
     fetchEnrolledMembers(orgId, start, end),
     fetchCompletions(orgId, start, end),
     fetchPlacements(orgId, start, end),
   ]);
 
+  const completionSet = buildCompletedUserSet(completionRows);
   const totalEnrolled = enrolledMembers.length;
 
   // Categorize enrolled members
   const placedUserIds = new Set(placements.map((p) => p.userId));
-  const completedMembers = enrolledMembers.filter((m) => isCompleted(m, completionSet));
-  const placedMembers = enrolledMembers.filter((m) => placedUserIds.has(m.id));
 
   // Active = enrolled, not placed, not completed, has started training
   const activeMembers = enrolledMembers.filter(
@@ -301,9 +309,28 @@ export async function generateQuarterlyOutcomes(
         placements: 0,
       };
       cur.enrolled += 1;
-      if (isCompleted(m, completionSet)) cur.completions += 1;
       programMap.set(slug, cur);
     }
+  }
+
+  // Attribute completions to programs from the completion rows themselves so
+  // learners who enrolled before the quarter but completed during it still
+  // count. Dedupe per (user, program) to mirror the previous behaviour of
+  // counting one completion per enrolled member per program.
+  const completionsByProgram = new Set<string>();
+  for (const c of completionRows) {
+    if (!c.programSlug) continue;
+    const key = `${c.userId}::${c.programSlug}`;
+    if (completionsByProgram.has(key)) continue;
+    completionsByProgram.add(key);
+    const cur = programMap.get(c.programSlug) ?? {
+      programSlug: c.programSlug,
+      enrolled: 0,
+      completions: 0,
+      placements: 0,
+    };
+    cur.completions += 1;
+    programMap.set(c.programSlug, cur);
   }
 
   for (const p of placements) {
@@ -345,7 +372,7 @@ export async function generateQuarterlyOutcomes(
     generatedAt: new Date().toISOString(),
     metrics: {
       totalEnrolled,
-      completions: completedMembers.length,
+      completions: completionSet.size,
       placements: placements.length,
       activeMembers: activeMembers.length,
       dropOffs: dropOffMembers.length,

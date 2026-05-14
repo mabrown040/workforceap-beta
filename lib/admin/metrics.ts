@@ -2,6 +2,7 @@ import { AIToolType, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { CAREER_OS_WORKFLOW } from '@/lib/workflows/careerOS';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getCacheOrFetch } from '@/lib/cache';
 
 function logMetricsReason(label: string, reason: unknown) {
   const msg = reason instanceof Error ? reason.message : String(reason);
@@ -358,6 +359,10 @@ async function getAiToolStats(orgId: string, days: number) {
 }
 
 export async function getAdminMetrics(orgId: string) {
+  return getCacheOrFetch(`admin:metrics:${orgId}`, () => _getAdminMetricsUncached(orgId), 300);
+}
+
+async function _getAdminMetricsUncached(orgId: string) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const fourteenDaysAgo = new Date();

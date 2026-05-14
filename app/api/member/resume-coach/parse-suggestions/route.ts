@@ -9,6 +9,8 @@ import {
 import { prisma } from '@/lib/db/prisma';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const MAX_HISTORY_CHARS = 16000;
 
 type ResumeTranscriptTurn = { speaker: 'agent' | 'user'; text: string };
@@ -39,14 +41,7 @@ function buildHistoryOutput(transcript: ResumeTranscriptTurn[], suggestions: Arr
     lines.push(`${turn.speaker === 'agent' ? 'Coach' : 'Member'}: ${turn.text}`);
   });
   return lines.join('\n').slice(0, MAX_HISTORY_CHARS);
-}
-
-/**
- * POST — parse voice coach transcript into structured resume suggestions.
- * Input: { transcript: Array<{ speaker: 'agent' | 'user'; text: string }> }
- * Output: { suggestions: Array<{ original?: string; suggested: string; context: string }> }
- */
-export async function POST(req: NextRequest) {
+}export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -104,4 +99,4 @@ export async function POST(req: NextRequest) {
     console.error('/member/resume-coach/parse-suggestions:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

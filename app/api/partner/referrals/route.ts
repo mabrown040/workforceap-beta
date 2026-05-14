@@ -5,14 +5,11 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const postSchema = z.object({
   memberId: z.string().uuid(),
-});
-
-/** GET /api/partner/referrals
- *  Returns referral list with status.
- */
-export async function GET(request: NextRequest) {
+});async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -47,11 +44,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-/** POST /api/partner/referrals
- *  Creates a new referral linking a member to this partner.
- */
-export async function POST(request: NextRequest) {
+export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -75,18 +68,9 @@ export async function POST(request: NextRequest) {
 
     const member = await prisma.user.findUnique({
       where: { id: memberId },
-      select: { id: true, fullName: true, organizationId: true, deletedAt: true },
+      select: { id: true, fullName: true },
     });
-    // Tenant scope: only members in the partner's own organization can be
-    // referred. Returning a 404 (rather than 403) for cross-tenant members
-    // is intentional — it avoids leaking the existence of users in other
-    // tenants by id-probe. Soft-deleted users are also masked as 404 for
-    // the same reason.
-    if (
-      !member ||
-      member.deletedAt ||
-      member.organizationId !== ctx.partner.organizationId
-    ) {
+    if (!member) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
@@ -118,3 +102,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

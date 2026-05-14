@@ -37,6 +37,12 @@ export default class ErrorBoundary extends Component<Props, State> {
     this.props.onReset?.();
   };
 
+  private handleReload = () => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  };
+
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
@@ -100,21 +106,52 @@ export default class ErrorBoundary extends Component<Props, State> {
             This part of the page could not load. You can try again or continue
             using the rest of the dashboard.
           </p>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={this.handleReset}
-            style={{ minHeight: 44 }}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.75rem',
+              justifyContent: 'center',
+            }}
           >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}
-              aria-hidden="true"
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={this.handleReset}
+              style={{ minHeight: 44 }}
             >
-              refresh
-            </span>
-            Try again
-          </button>
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}
+                aria-hidden="true"
+              >
+                refresh
+              </span>
+              Try again
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={this.handleReload}
+              style={{ minHeight: 44 }}
+            >
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}
+                aria-hidden="true"
+              >
+                restart_alt
+              </span>
+              Reload page
+            </button>
+            <a
+              href="mailto:info@workforceap.org"
+              className="btn btn-ghost"
+              style={{ minHeight: 44 }}
+            >
+              Contact support
+            </a>
+          </div>
         </div>
       );
     }

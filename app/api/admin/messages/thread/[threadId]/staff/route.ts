@@ -4,9 +4,9 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { assertStaffCanPost, normalizeMessageBody, serializeMessage } from '@/lib/messages/counselorThread';
 
-type Props = { params: Promise<{ threadId: string }> };
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function POST(request: NextRequest, { params }: Props) {
+type Props = { params: Promise<{ threadId: string }> };async function _POST(request: NextRequest, { params }: Props) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -56,9 +56,7 @@ export async function POST(request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(_request: NextRequest, { params }: Props) {
+export const POST = withApiGuc(_POST);async function _PATCH(_request: NextRequest, { params }: Props) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -85,4 +83,5 @@ export async function PATCH(_request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);
 

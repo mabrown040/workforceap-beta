@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const hexColor = z
   .string()
   .regex(/^#[0-9A-Fa-f]{6}$/, 'Primary color must be a 6-digit hex like #1a5f7a')
@@ -16,9 +18,7 @@ const patchSchema = z.object({
   overviewVideoUrl: z.string().url().max(2000).optional().nullable(),
   name: z.string().min(1).max(200).optional(),
   primaryColor: hexColor,
-});
-
-export async function GET() {
+});async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -47,9 +47,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(request: NextRequest) {
+export const GET = withApiGuc(_GET);async function _PATCH(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -89,4 +87,5 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);
 

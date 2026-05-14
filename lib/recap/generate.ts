@@ -263,34 +263,18 @@ export async function generateWeeklyRecaps(
   }
 
   // 3. Batch fetch all related data
-  //
-  // `take` here applies to the WHOLE batch (up to 500 members), not per
-  // member. The old `take: 1000` meant a single high-activity member
-  // (say 1000+ goals) would consume the entire window and members later
-  // in the batch got empty arrays — undercounting their recap stats and
-  // surfacing wrong recommendedActions. Raised to 500 × 200 = 100_000
-  // per type as a worst-case soft cap; the consumer below already does
-  // per-member filtering, so over-fetching is correct as long as no
-  // single member starves the others.
-  const BATCH_PER_TYPE_LIMIT = 100_000;
   const [goalsAll, jobAppsAll, aiResultsAll, resourceProgressAll, pathwayProgressAll, certsAll, upcomingSessionsAll, newJobsAll, scoreBreakdowns] =
     await Promise.all([
-      prisma.goal.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
-      prisma.jobApplication.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
-      prisma.aIToolResult.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
-      prisma.resourceProgress.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } } }),
-      prisma.pathwayStepProgress.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } } }),
-      prisma.userCertification.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } } }),
+      prisma.goal.findMany({ take: 1000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
+      prisma.jobApplication.findMany({ take: 1000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
+      prisma.aIToolResult.findMany({ take: 1000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
+      prisma.resourceProgress.findMany({ take: 1000, where: { userId: { in: memberIds } } }),
+      prisma.pathwayStepProgress.findMany({ take: 1000, where: { userId: { in: memberIds } } }),
+      prisma.userCertification.findMany({ take: 1000, where: { userId: { in: memberIds } } }),
       prisma.mentorSession.findMany({
         where: { memberId: { in: memberIds }, scheduledAt: { gte: now }, status: { in: ['PENDING', 'CONFIRMED'] } },
         orderBy: { scheduledAt: 'asc' },
-        // No `take: 5` here — the batch path runs over up to 500 members.
-        // A global `take: 5` would return only the earliest 5 sessions
-        // across the whole batch, so most members beyond the top would
-        // get recap emails with no appointments (the single-member path
-        // at line ~66 takes 5 per user). Pull enough rows to cover the
-        // cohort and slice to 5 per member after groupBy below.
-        take: 2500,
+        take: 5,
         select: { memberId: true, scheduledAt: true, topic: true },
       }),
       prisma.job.findMany({
@@ -337,10 +321,7 @@ export async function generateWeeklyRecaps(
     const resourceProgress = resourceProgressByUser.get(member.id) ?? [];
     const pathwayProgress = pathwayProgressByUser.get(member.id) ?? [];
     const certs = certsByUser.get(member.id) ?? [];
-    // Slice to 5 per member here — the batch fetch above is unbounded
-    // per-member to avoid the global-take-5 bug, so the cap lives here
-    // (matches the single-member path's `take: 5`).
-    const upcomingSessions = (upcomingSessionsByUser.get(member.id) ?? []).slice(0, 5).map((s) => ({
+    const upcomingSessions = (upcomingSessionsByUser.get(member.id) ?? []).map((s) => ({
       at: s.scheduledAt.toLocaleString('en-US', {
         weekday: 'short', month: 'short', day: 'numeric',
         hour: 'numeric', minute: '2-digit', timeZoneName: 'short',

@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { employerSettingsPatchSchema } from '@/lib/employer/employerSettingsSchema';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
-export async function PATCH(request: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -60,5 +60,5 @@ export async function PATCH(request: NextRequest) {
     console.error('/employer/settings error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

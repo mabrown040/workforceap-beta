@@ -19,7 +19,6 @@ import {
   ANONYMOUS_GUC_CONTEXT,
 } from '@/lib/db/gucContext';
 import { getProfileRole } from '@/lib/auth/roles';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
@@ -98,22 +97,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Build GUC context from the verified user ID forwarded by middleware.
   // Middleware strips any client-supplied x-wap-user-id and only re-adds it
   // after cryptographically verifying the Supabase session.
-  //
-  // orgId must be populated here: the RLS policies use
-  // `is_admin_for_member_data` / `can_access_org_row`, which compare row
-  // organization to `get_current_org_id()`. Without orgId, every tenant-
-  // scoped read (users/profiles/placements/jobs/organizations) is denied
-  // for authenticated SSR renders the moment FORCE ROW LEVEL SECURITY
-  // is enabled. Defensive .catch so a transient lookup failure falls
-  // back to an org-less context rather than crashing the root layout.
   const forwardedUserId = h.get(WAP_USER_ID_HEADER);
   let gucCtx = ANONYMOUS_GUC_CONTEXT;
   if (forwardedUserId) {
-    const [profileRole, orgId] = await Promise.all([
-      getProfileRole(forwardedUserId),
-      getActorOrganizationId(forwardedUserId).catch(() => null),
-    ]);
-    gucCtx = buildGucContext({ userId: forwardedUserId, orgId, profileRole });
+    const profileRole = await getProfileRole(forwardedUserId);
+    gucCtx = buildGucContext({ userId: forwardedUserId, orgId: null, profileRole });
   }
 
   const orgBranding = await getRequestOrgBranding(h);

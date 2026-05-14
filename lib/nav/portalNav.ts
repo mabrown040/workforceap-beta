@@ -18,6 +18,7 @@ import {
   GitBranch,
   GraduationCap,
   Handshake,
+  HeartPulse,
   HelpCircle,
   Home,
   Layers,
@@ -60,8 +61,7 @@ export type NavBadgeKey =
   | 'employer_queue_stale_48h'
   | 'employer_queue_interview'
   | 'employer_messages_unread'
-  | 'partner_messages_unread'
-  | 'milestones_awaiting_approval';
+  | 'partner_messages_unread';
 
 export type PortalNavItem = {
   href: string;
@@ -340,13 +340,6 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // SessionsIndexBody components are shared with the counselor route
   // — only the URL prefixes for breadcrumbs / "back" links differ.
   { href: '/admin/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
-  {
-    href: '/admin/agent-inbox',
-    label: 'Agent Inbox',
-    group: 'workflows',
-    Icon: Flag,
-    badgeKey: 'milestones_awaiting_approval',
-  },
 
   // ── Content — jobs, blog, invites ──
   { href: '/admin/jobs', label: 'Jobs', group: 'content', Icon: Briefcase },
@@ -365,7 +358,9 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/analytics/ai-efficacy', label: 'AI Efficacy', group: 'insights', Icon: Target },
   { href: '/admin/diagnostics', label: 'Diagnostics', group: 'insights', Icon: Activity },
   { href: '/admin/crons', label: 'Cron Monitor', group: 'insights', Icon: Timer },
+  { href: '/admin/health', label: 'System Health', group: 'insights', Icon: HeartPulse },
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'insights', Icon: Shield, requiresSuperAdminContext: true },
+  { href: '/admin/webhook-events', label: 'Webhook events', group: 'insights', Icon: Activity, requiresSuperAdminContext: true },
   { href: '/admin/placement-surveys', label: 'Placement surveys', group: 'insights', Icon: ClipboardCheck },
   { href: '/admin/email-crons', label: 'Email & Crons', group: 'insights', Icon: MessageSquare },
   // ── Manage ──

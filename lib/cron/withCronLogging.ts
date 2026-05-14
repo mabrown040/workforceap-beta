@@ -32,24 +32,7 @@ export function withCronLogging(
 
       try {
         const response = await runWithGucContext(SYSTEM_GUC_CONTEXT, () => handler(request));
-        // Inspect the response status: some wrapped handlers (e.g.
-        // /api/cron/coursera-training-sync) catch their own exceptions
-        // and return a 500 JSON response instead of rethrowing. Without
-        // this check the wrapper would record SUCCESS for those runs,
-        // corrupting the admin cron dashboard exactly when a cron failed.
-        const status =
-          response && typeof response === 'object' && 'status' in response
-            ? (response as { status: number }).status
-            : 200;
-        if (status >= 500) {
-          await completeCronExecution(
-            executionId,
-            'FAILED',
-            `handler returned status ${status}`,
-          );
-        } else {
-          await completeCronExecution(executionId, 'SUCCESS');
-        }
+        await completeCronExecution(executionId, 'SUCCESS');
         return response;
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));

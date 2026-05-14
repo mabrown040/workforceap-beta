@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { notFound } from 'next/navigation';
 import { buildPageMetadataAsync, DEFAULT_OG_IMAGE, SITE_URL } from '@/app/seo';
 import Footer from '@/components/Footer';
@@ -295,14 +295,14 @@ export default async function LeaderBioPage({ params }: Props) {
             <h2>Collaborate for Change</h2>
             <p>Partner with us to expand workforce equity and create pathways to meaningful careers.</p>
             <div className="ld-cta-actions">
-              <Link href="/contact" className="ld-cta-btn-primary">
+              <LocalizedLink href="/contact" className="ld-cta-btn-primary">
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden>mail</span>
                 Get in Touch
-              </Link>
-              <Link href="/leadership" className="ld-cta-btn-muted">
+              </LocalizedLink>
+              <LocalizedLink href="/leadership" className="ld-cta-btn-muted">
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden>arrow_back</span>
                 Back to Team
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         </div>

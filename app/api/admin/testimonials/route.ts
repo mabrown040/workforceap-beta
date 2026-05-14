@@ -4,6 +4,7 @@ import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { TestimonialStatus } from '@prisma/client';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * GET /api/admin/testimonials
@@ -11,10 +12,10 @@ import { TestimonialStatus } from '@prisma/client';
  * Query params: ?status=pending|approved|rejected|published&limit=50&offset=0
  *
  * Scoped to the caller's organization via the `member.organizationId` link.
- * Without scoping, a tenant admin or counselor would see every tenant's
- * testimonials plus member emails — cross-tenant PII exposure.
+ * Super-admins bypass the scope so the platform-level queue surfaces
+ * cross-tenant pending testimonials (matches the `[id]` handler).
  */
-export async function GET(req: NextRequest) {
+export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -35,8 +36,7 @@ export async function GET(req: NextRequest) {
         : undefined;
 
     // Tenant scope: only testimonials whose member belongs to the caller's
-    // organization. Super-admins skip the scope so the platform-level queue
-    // is visible (matches the `[id]` handler's super-admin bypass).
+    // organization. Super-admins skip the scope.
     const orgScope = orgId ? { member: { organizationId: orgId } } : {};
 
     const where = {
@@ -96,4 +96,4 @@ export async function GET(req: NextRequest) {
     console.error('[admin/testimonials] GET error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

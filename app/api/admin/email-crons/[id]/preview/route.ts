@@ -5,20 +5,14 @@ import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 import { prisma } from '@/lib/db/prisma';
 import type { CronPreviewRecipient, CronPreviewResponse } from '@/lib/admin/cronPreviewTypes';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 export type { CronPreviewRecipient, CronPreviewResponse };
 
-const PREVIEW_LIMIT = 50;
-
-/**
- * GET /api/admin/email-crons/[id]/preview
- *
- * Returns the would-receive recipient list for a cron job without sending
- * anything. Uses the same DB queries as the live cron endpoints.
- */
-export async function GET(
+const PREVIEW_LIMIT = 50;export const GET = withApiGuc(async (
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -40,7 +34,7 @@ export async function GET(
     console.error('/admin/email-crons/[id]/preview:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
   const cron = CRON_REGISTRY.find(c => c.id === id)!;

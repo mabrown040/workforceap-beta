@@ -287,24 +287,14 @@ export async function getTriageQueue(
       },
     }),
     prisma.$queryRawUnsafe<Array<{ user_id: string; last_at: Date }>>(
-      // User.id is the Prisma `String`/text column (no @db.Uuid), so
-      // memberIds must bind as text[] — `text = uuid` would fail with
-      // "operator does not exist".
       `SELECT user_id, MAX(created_at) AS last_at
        FROM member_events
-       WHERE user_id = ANY($1::text[])
+       WHERE user_id = ANY($1::uuid[])
        GROUP BY user_id`,
       memberIds,
     ),
     prisma.messageThread.findMany({
-      // Each member has at most one thread (memberId is unique on
-      // MessageThread), so the natural cap is memberIds.length. The
-      // previous `take: 500` truncated arbitrarily with no ordering —
-      // counselors with more than 500 assigned members lost some
-      // threads from the needs-reply queue at random. Bound generously
-      // and add a deterministic order so any future cap is meaningful.
-      take: Math.max(memberIds.length, 500),
-      orderBy: { updatedAt: 'desc' },
+      take: 500,
       where: { memberId: { in: memberIds }, kind: 'member' },
       select: {
         id: true,
@@ -326,7 +316,7 @@ export async function getTriageQueue(
       `SELECT t.id AS thread_id, t.member_id, MAX(m.created_at) AS staff_last_at
        FROM messages m
        JOIN message_threads t ON t.id = m.thread_id
-       WHERE t.member_id = ANY($1::text[])
+       WHERE t.member_id = ANY($1::uuid[])
          AND t.kind = 'member'
          AND m.author_id <> t.member_id
        GROUP BY t.id, t.member_id`,

@@ -3,6 +3,8 @@ import type { AIToolType } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const TOOL_LABELS: Record<string, string> = {
   job_match_scorer: 'See how you match a job',
   resume_analysis: 'Resume Analysis',
@@ -17,9 +19,7 @@ const TOOL_LABELS: Record<string, string> = {
   gap_analyzer: 'See what is missing for a job',
   career_counselor: 'Career Coach',
   skill_assessment: 'Find skills employers want / Skill Assessment',
-};
-
-export async function GET(request: Request) {
+};export const GET = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -63,5 +63,5 @@ export async function GET(request: Request) {
     console.error('/member/ai-history error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

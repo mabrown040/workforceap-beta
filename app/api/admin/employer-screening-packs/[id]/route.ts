@@ -4,15 +4,15 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const patchSchema = z.object({
   isActive: z.boolean().optional(),
   packTitle: z.string().min(1).max(200).optional(),
   employerLabel: z.string().min(1).max(200).optional(),
 });
 
-type RouteContext = { params: Promise<{ id: string }> };
-
-export async function PATCH(request: Request, ctx: RouteContext) {
+type RouteContext = { params: Promise<{ id: string }> };async function _PATCH(request: Request, ctx: RouteContext) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,9 +39,7 @@ export async function PATCH(request: Request, ctx: RouteContext) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function DELETE(_request: Request, ctx: RouteContext) {
+export const PATCH = withApiGuc(_PATCH);async function _DELETE(_request: Request, ctx: RouteContext) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -56,4 +54,5 @@ export async function DELETE(_request: Request, ctx: RouteContext) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);
 

@@ -4,23 +4,14 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const patchSchema = z.object({
   notifyOnEnrollment: z.boolean().optional(),
   notifyOnCourse: z.boolean().optional(),
   notifyOnCertified: z.boolean().optional(),
   notifyOnPlaced: z.boolean().optional(),
-});
-
-/**
- * PATCH /api/partner/settings/notifications
- *
- * Updates partner notification preferences. Only the fields provided
- * in the request body are updated; omitted fields are left unchanged.
- *
- * INVARIANT: These preferences are checked by sendPartnerMilestoneEmail
- * before sending milestone emails. See lib/notifications/partner-notify.ts.
- */
-export async function PATCH(req: NextRequest) {
+});export const PATCH = withApiGuc(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -55,5 +46,5 @@ export async function PATCH(req: NextRequest) {
     console.error('/partner/settings/notifications error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

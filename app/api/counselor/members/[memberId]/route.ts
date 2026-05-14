@@ -12,17 +12,10 @@ import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCa
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
-/**
- * GET /api/counselor/members/[memberId]
- * Returns a single member's full detail view for the counselor portal.
- *
- * Optimization: all related records are fetched in parallel or eager-loaded
- * via Prisma `include`. No per-record queries in loops.
- */
-export async function GET(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (
   _request: NextRequest,
   { params }: { params: Promise<{ memberId: string }> },
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -256,4 +249,4 @@ export async function GET(
       { status: 500 },
     );
   }
-}
+});

@@ -4,10 +4,7 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 
-/** GET /api/partner/earnings
- *  Returns earnings / payout data for the partner.
- */
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -53,4 +50,4 @@ export async function GET() {
     console.error('/partner/earnings error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -7,7 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { saveSkillAssessmentSchema } from '@/lib/validation/skillAssessment';
 
-export async function POST(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,4 +65,4 @@ export async function POST(request: Request) {
     console.error('/member/skill-assessment:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -7,8 +7,9 @@ import { trackEvent } from '@/lib/events/track';
 import { getActivePrograms, isProgramSlugActiveInCatalog } from '@/lib/platform/programCatalog';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import { awardPoints } from '@/lib/member/points';
+import { invalidateMemberState } from '@/lib/member/getMemberState';
 
-export async function POST(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -129,11 +130,14 @@ export async function POST(request: Request) {
     programName: programTitle,
   }).catch((err) => console.error('Course enrolled email failed:', err));
 
+  // Invalidate cached member state so dashboard reflects enrollment immediately
+  await invalidateMemberState(user.id);
+
   return NextResponse.json({ ok: true, programSlug: slug });
 
   } catch (error) {
     console.error('/member/enroll error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

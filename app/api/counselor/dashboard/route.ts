@@ -4,17 +4,7 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getCounselorCommandCenter } from '@/lib/counselor/commandCenter';
 
-/**
- * GET /api/counselor/dashboard
- * Returns the counselor's dashboard data in a single batched query.
- *
- * Optimizations vs page-level fetching:
- *   - Member data is eager-loaded via Prisma `include` (no N+1).
- *   - Message reply status is computed from a single raw SQL query
- *     (no per-thread groupBy + findMany OR pattern).
- *   - Command center is built from batched queries in getCounselorCommandCenter.
- */
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -87,7 +77,7 @@ export async function GET() {
            LIMIT 1
          ) latest ON true
          WHERE t.kind = 'member'
-           AND t.member_id = ANY($1::text[])
+           AND t.member_id = ANY($1::uuid[])
            AND latest.author_id = t.member_id`,
         memberIds,
       );
@@ -149,4 +139,4 @@ export async function GET() {
       { status: 500 },
     );
   }
-}
+});

@@ -195,24 +195,8 @@ export async function middleware(request: NextRequest) {
 
   // Forward verified user ID to Node runtime so SSR layouts / API routes
   // can set PostgreSQL GUCs without repeating the Supabase round-trip.
-  //
-  // `response` was already constructed above with a snapshot of
-  // `requestHeaders`, so mutating the map here does not propagate to the
-  // downstream request that app/layout.tsx sees. We have to rebuild the
-  // response with the updated headers and carry over the auth cookies
-  // Supabase wrote onto the old response.
   if (user?.id) {
     requestHeaders.set(WAP_USER_ID_HEADER, user.id);
-    const rebuilt = rewriteUrl
-      ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
-      : NextResponse.next({ request: { headers: requestHeaders } });
-    // Re-attach cookies Supabase set on the old response (refreshed
-    // access/refresh tokens). NextResponse cookies.getAll returns the
-    // full ResponseCookie shape so set() takes it directly.
-    for (const cookie of response.cookies.getAll()) {
-      rebuilt.cookies.set(cookie);
-    }
-    response = rebuilt;
   }
 
   if (isProtectedPath(effectivePath) && !user) {

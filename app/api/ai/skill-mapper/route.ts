@@ -14,22 +14,13 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getFallbackDesignScore } from '@/lib/content/courseSkillMap';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 import {
   getDemoRadarForCode,
   isDemoOccupationCode,
   searchDemoOccupations,
-} from '@/lib/ai/skillMapperDemo';
-
-/**
- * GET /api/ai/skill-mapper?occupation=software+developer
- *
- * Search O*NET occupations and return skill data for the Skill Mapper radar chart.
- *
- * GET /api/ai/skill-mapper?code=15-1252.00
- *
- * Get skills for a specific O*NET occupation code.
- */
-export async function GET(req: NextRequest) {
+} from '@/lib/ai/skillMapperDemo';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -212,4 +203,4 @@ export async function GET(req: NextRequest) {
     console.error('/ai/skill-mapper:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

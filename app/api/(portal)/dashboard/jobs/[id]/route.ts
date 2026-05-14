@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { captureApiError } from '@/lib/observability/captureApiError';
+import { handleApiError, ApiError } from '@/lib/api/errors';
 
 /** Public job detail - only live jobs */
 export async function GET(
@@ -9,21 +9,15 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    try {
-      const job = await prisma.job.findFirst({
-        where: { id, status: 'live' },
-        include: {
-          employer: { select: { companyName: true } },
-        },
-      });
-      if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
-      return NextResponse.json(job);
-    } catch (err) {
-      captureApiError(err, { route: 'dashboard/jobs/[id]' });
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    }
+    const job = await prisma.job.findFirst({
+      where: { id, status: 'live' },
+      include: {
+        employer: { select: { companyName: true } },
+      },
+    });
+    if (!job) throw ApiError.notFound('Job not found');
+    return NextResponse.json(job);
   } catch (error) {
-    console.error('/(portal)/dashboard/jobs/[id]:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleApiError(error, 'GET /api/jobs/[id]');
   }
 }

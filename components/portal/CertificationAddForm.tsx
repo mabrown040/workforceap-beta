@@ -201,8 +201,11 @@ export default function CertificationAddForm() {
           disabled={saving || !finalName}
           className="btn btn-primary"
           style={{ flex: 1 }}
+          aria-busy={saving}
         >
-          {saving ? 'Adding…' : 'Add Certificate'}
+          <span aria-live="polite">
+            {saving ? 'Adding…' : 'Add Certificate'}
+          </span>
         </button>
         <button type="button" onClick={() => setOpen(false)} className="btn btn-outline">
           Cancel

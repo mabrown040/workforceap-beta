@@ -2,11 +2,10 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-/** PATCH /api/member/nba/:id — update a DB-sourced next best action */
-export async function PATCH(
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (
   req: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -54,5 +53,5 @@ export async function PATCH(
     console.error('/member/nba/[id] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

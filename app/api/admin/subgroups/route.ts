@@ -5,6 +5,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const SUBGROUP_TYPES = ['partner', 'manager', 'church'] as const;
 
 const createSchema = z.object({
@@ -13,9 +15,7 @@ const createSchema = z.object({
   leaderId: z.string().uuid(),
   partnerId: z.string().uuid().optional().nullable(),
   description: z.string().max(1000).optional().nullable(),
-});
-
-export async function GET() {
+});async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -54,9 +54,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function POST(request: NextRequest) {
+export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -108,4 +106,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 

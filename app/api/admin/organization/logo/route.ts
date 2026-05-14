@@ -6,10 +6,10 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-const BUCKET = 'organization-branding';
-const MAX_SIZE = 2 * 1024 * 1024;
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function POST(request: Request) {
+const BUCKET = 'organization-branding';
+const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,4 +65,4 @@ export async function POST(request: Request) {
     console.error('[admin/organization/logo] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

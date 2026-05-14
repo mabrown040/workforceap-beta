@@ -5,11 +5,11 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { recordPartnerWorkflowEvent } from '@/lib/portal/workflowEvents';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const patchSchema = z.object({
   assignedPartnerUserId: z.string().uuid().nullable(),
-});
-
-export async function PATCH(request: NextRequest, ctx: { params: Promise<{ memberId: string }> }) {
+});export const PATCH = withApiGuc(async (request: NextRequest, ctx: { params: Promise<{ memberId: string }> }) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -69,5 +69,5 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ membe
     console.error('/partner/referrals/[memberId] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

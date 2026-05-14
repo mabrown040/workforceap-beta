@@ -16,24 +16,7 @@ import {
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 
-/**
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 4).
- * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
- *
- * GET/POST migrated to `withTenantScope` so an admin from Org A only
- * sees / creates users in their own tenant.
- *
- * EXCEPTION: the create-time email collision pre-check uses
- * `crossTenantOK` because `User.email` is `@unique` GLOBALLY in the
- * schema. A scoped pre-check would miss Org B owning the address and
- * the create would 500 on Prisma's P2002 instead of returning 409.
- * The route also surfaces P2002 from `ensureAppUser` as belt-and-
- * braces. Once the schema migrates to per-tenant uniqueness in
- * Sprint A.3, this check moves back inside `withTenantScope`.
- */
-
-/** List users for admin dropdowns (e.g. subgroup leader selection). Returns id, fullName, email. */
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -58,15 +41,14 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);
 
 const createSchema = z.object({
   fullName: z.string().trim().min(1).max(200),
   email: z.string().trim().email().max(200),
   role: z.enum(ADMIN_USER_ROLES).default('member'),
   sendResetEmail: z.boolean().default(true),
-});
-
-export async function POST(request: NextRequest) {
+});async function _POST(request: NextRequest) {
   try {
     const admin = await getUser();
     if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -197,3 +179,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

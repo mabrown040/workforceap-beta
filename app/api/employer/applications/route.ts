@@ -6,6 +6,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const STATUSES: JobPostingApplicationStatus[] = [
   'pending',
   'reviewing',
@@ -13,9 +15,7 @@ const STATUSES: JobPostingApplicationStatus[] = [
   'offered',
   'hired',
   'rejected',
-];
-
-export async function GET(request: NextRequest) {
+];export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -61,4 +61,4 @@ export async function GET(request: NextRequest) {
     console.error('/employer/applications:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

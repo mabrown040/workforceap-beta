@@ -3,9 +3,10 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { seedOrganizationProgramCatalog } from '@/lib/platform/seedProgramCatalog';
+import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
@@ -49,25 +50,33 @@ export async function GET() {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   
-    const organizationId = await getActorOrganizationId(user.id);
-    let rows = await withTenantScope(organizationId, (db) =>
-      db.organizationProgramCatalog.findMany({
-        orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
-        take: 100,
-      }),
+    const organizationId = await getDefaultOrganizationId();
+    const cacheKey = `programs:list:${organizationId}`;
+    const rows = await getCacheOrFetch(
+      cacheKey,
+      async () => {
+        let result = await withTenantScope(organizationId, (db) =>
+          db.organizationProgramCatalog.findMany({
+            orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+            take: 100,
+          }),
+        );
+        // Auto-seed from static PROGRAMS list if catalog is empty (first load).
+        // The seed helper writes via the regular Prisma client (it tags rows
+        // with `organizationId` itself); we re-read via the scoped client.
+        if (result.length === 0) {
+          await seedOrganizationProgramCatalog(organizationId);
+          result = await withTenantScope(organizationId, (db) =>
+            db.organizationProgramCatalog.findMany({
+              orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
+              take: 100,
+            }),
+          );
+        }
+        return result;
+      },
+      3600,
     );
-    // Auto-seed from static PROGRAMS list if catalog is empty (first load).
-    // The seed helper writes via the regular Prisma client (it tags rows
-    // with `organizationId` itself); we re-read via the scoped client.
-    if (rows.length === 0) {
-      await seedOrganizationProgramCatalog(organizationId);
-      rows = await withTenantScope(organizationId, (db) =>
-        db.organizationProgramCatalog.findMany({
-          orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
-          take: 100,
-        }),
-      );
-    }
     return NextResponse.json({ programs: rows });
   } catch (error) {
     console.error('/admin/programs/catalog:', error);
@@ -95,7 +104,7 @@ export async function POST(request: NextRequest) {
       );
     }
   
-    const organizationId = await getActorOrganizationId(user.id);
+    const organizationId = await getDefaultOrganizationId();
     try {
       const row = await withTenantScope(organizationId, (db) =>
         db.organizationProgramCatalog.create({
@@ -126,6 +135,8 @@ export async function POST(request: NextRequest) {
           },
         }),
       );
+      await invalidateCache(`programs:list:${organizationId}*`);
+      await invalidateCache(`courses:catalog:${organizationId}*`);
       return NextResponse.json(row, { status: 201 });
     } catch (e: unknown) {
       const code = typeof e === 'object' && e && 'code' in e ? (e as { code: string }).code : '';
@@ -159,7 +170,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
     }
   
-    const organizationId = await getActorOrganizationId(user.id);
+    const organizationId = await getDefaultOrganizationId();
     const { id, ...rest } = parsed.data;
   
     const existing = await withTenantScope(organizationId, (db) =>
@@ -210,6 +221,8 @@ export async function PATCH(request: NextRequest) {
       }),
     );
   
+    await invalidateCache(`programs:list:${organizationId}*`);
+    await invalidateCache(`courses:catalog:${organizationId}*`);
     return NextResponse.json(row);
   } catch (error) {
     console.error('/admin/programs/catalog:', error);

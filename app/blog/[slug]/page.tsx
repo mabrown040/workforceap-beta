@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
@@ -121,9 +121,9 @@ export default async function BlogPostPage({ params }: Props) {
       />
       <div className="blog-post-layout">
         <article className="blog-post-article">
-        <Link href="/blog" className="blog-back-link">
+        <LocalizedLink href="/blog" className="blog-back-link">
           ← Back to Blog
-        </Link>
+        </LocalizedLink>
         {(() => {
           const hero = resolveBlogHeroImage(post.coverImage, post.category, post.slug);
           return (
@@ -169,7 +169,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {relevantPrograms.map(program => (
-                    <Link
+                    <LocalizedLink
                       key={program.slug}
                       href={`/programs/${program.slug}`}
                       style={{
@@ -188,14 +188,14 @@ export default async function BlogPostPage({ params }: Props) {
                         {program.title}
                       </span>
                       <ArrowRight size={16} style={{ opacity: 0.5 }} />
-                    </Link>
+                    </LocalizedLink>
                   ))}
                 </div>
               </div>
             )}
 
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link
+              <LocalizedLink
                 href="/faq"
                 style={{
                   display: 'inline-flex',
@@ -212,8 +212,8 @@ export default async function BlogPostPage({ params }: Props) {
                 <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">help</span>
                 Read FAQ
                 <ArrowRight size={16} style={{ opacity: 0.5 }} />
-              </Link>
-              <Link
+              </LocalizedLink>
+              <LocalizedLink
                 href="/find-your-path"
                 style={{
                   display: 'inline-flex',
@@ -229,7 +229,7 @@ export default async function BlogPostPage({ params }: Props) {
               >
                 Take Career Quiz
                 <ArrowRight size={16} />
-              </Link>
+              </LocalizedLink>
             </div>
           </section>
         )}
@@ -237,17 +237,17 @@ export default async function BlogPostPage({ params }: Props) {
         <section className="blog-cta-section">
           <div className="blog-cta-card">
             <h3>Ready to take the next step?</h3>
-            <p>WorkforceAP offers no-cost career training paths for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link> — with guided tools, counselor support, and employer-aligned credentials.</p>
+            <p>WorkforceAP offers no-cost career training paths for <LocalizedLink href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</LocalizedLink> — with guided tools, counselor support, and employer-aligned credentials.</p>
             <div className="blog-cta-buttons">
-              <Link href="/find-your-path" className="btn btn-primary btn-radius-md">
+              <LocalizedLink href="/find-your-path" className="btn btn-primary btn-radius-md">
                 Find Your Path
-              </Link>
-              <Link href="/programs" className="btn btn-secondary btn-radius-md">
+              </LocalizedLink>
+              <LocalizedLink href="/programs" className="btn btn-secondary btn-radius-md">
                 Explore Programs
-              </Link>
-              <Link href="/apply" className="btn btn-ghost btn-radius-md">
+              </LocalizedLink>
+              <LocalizedLink href="/apply" className="btn btn-ghost btn-radius-md">
                 Apply Now
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         </section>
@@ -258,7 +258,7 @@ export default async function BlogPostPage({ params }: Props) {
             <ul>
               {related.map((r) => (
                 <li key={r.slug}>
-                  <Link href={`/blog/${r.slug}`}>{r.title}</Link>
+                  <LocalizedLink href={`/blog/${r.slug}`}>{r.title}</LocalizedLink>
                 </li>
               ))}
             </ul>

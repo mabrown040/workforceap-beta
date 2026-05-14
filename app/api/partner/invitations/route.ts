@@ -9,14 +9,14 @@ import { trackEvent } from '@/lib/events/track';
 import { recordPartnerWorkflowEvent } from '@/lib/portal/workflowEvents';
 import { checkAdminInviteRateLimit } from '@/lib/rate-limit';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
 const schema = z.object({
   email: z.string().email().max(320).transform((value) => value.toLowerCase().trim()),
   personalMessage: z.string().max(2000).optional().nullable(),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -107,4 +107,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

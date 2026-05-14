@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { Suspense } from 'react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
@@ -134,12 +134,12 @@ export default async function ApplyConfirmationPage() {
                   {t('confirmationSignedInBody')}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-                  <Link href="/dashboard" className="btn btn-primary">
+                  <LocalizedLink href="/dashboard" className="btn btn-primary">
                     {t('confirmationOpenDashboard')}
-                  </Link>
-                  <Link href="/apply/status" className="btn btn-outline">
+                  </LocalizedLink>
+                  <LocalizedLink href="/apply/status" className="btn btn-outline">
                     {t('confirmationCheckStatusShort')}
-                  </Link>
+                  </LocalizedLink>
                 </div>
               </div>
             ) : (
@@ -211,9 +211,9 @@ export default async function ApplyConfirmationPage() {
                 <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
                   {whatYouCanDoNow.map((item) => (
                     <li key={item.label} style={{ marginBottom: '0.75rem' }}>
-                      <Link href={item.href} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                      <LocalizedLink href={item.href} style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
                         {item.label}
-                      </Link>
+                      </LocalizedLink>
                       <span style={{ display: 'block', marginTop: '0.25rem', fontSize: '0.9375rem' }}>{item.desc}</span>
                     </li>
                   ))}
@@ -240,15 +240,15 @@ export default async function ApplyConfirmationPage() {
             </section>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-              <Link href="/apply/status" className="btn btn-primary">
+              <LocalizedLink href="/apply/status" className="btn btn-primary">
                 {t('confirmationCtaStatus')}
-              </Link>
-              <Link href="/programs" className="btn btn-outline">
+              </LocalizedLink>
+              <LocalizedLink href="/programs" className="btn btn-outline">
                 {t('confirmationCtaPrograms')}
-              </Link>
-              <Link href="/" className="btn btn-muted">
+              </LocalizedLink>
+              <LocalizedLink href="/" className="btn btn-muted">
                 {t('confirmationCtaHome')}
-              </Link>
+              </LocalizedLink>
             </div>
           </div>
         </div>

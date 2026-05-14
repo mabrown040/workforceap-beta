@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { redirect } from 'next/navigation';
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
@@ -143,7 +143,7 @@ export default async function EmployersPage() {
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            <Link
+            <LocalizedLink
               href="/employer/jobs/post"
               style={{
                 display: 'inline-flex',
@@ -160,8 +160,8 @@ export default async function EmployersPage() {
             >
               {t('postJobCta')}
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>post_add</span>
-            </Link>
-            <Link
+            </LocalizedLink>
+            <LocalizedLink
               href="#employer-contact-form"
               style={{
                 display: 'inline-flex',
@@ -177,9 +177,9 @@ export default async function EmployersPage() {
             >
               {t('heroCta')}
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
-            </Link>
+            </LocalizedLink>
             {!user && (
-              <Link
+              <LocalizedLink
                 href="/login?redirectTo=/employer"
                 style={{
                   display: 'inline-flex',
@@ -195,7 +195,7 @@ export default async function EmployersPage() {
                 }}
               >
                 {t('heroSignIn')}
-              </Link>
+              </LocalizedLink>
             )}
           </div>
         </div>
@@ -357,8 +357,8 @@ export default async function EmployersPage() {
             </h2>
             <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '40rem', margin: '0 auto' }}>
               Graduate profiles by program and certification. Ranges match our published program outcomes.
-              See <Link href="/programs" style={{ color: 'var(--color-accent)' }}>program pages</Link> and the{' '}
-              <Link href="/salary-guide" style={{ color: 'var(--color-accent)' }}>salary guide</Link> for detail.
+              See <LocalizedLink href="/programs" style={{ color: 'var(--color-accent)' }}>program pages</LocalizedLink> and the{' '}
+              <LocalizedLink href="/salary-guide" style={{ color: 'var(--color-accent)' }}>salary guide</LocalizedLink> for detail.
             </p>
           </div>
 
@@ -638,9 +638,9 @@ export default async function EmployersPage() {
               {t('ctaCta')}
             </a>
             {!user ? (
-              <Link href="/login?redirectTo=/employer" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
+              <LocalizedLink href="/login?redirectTo=/employer" className="btn btn-outline" style={{ fontSize: '1rem', padding: '0.875rem 2rem' }}>
                 {t('heroSignIn')}
-              </Link>
+              </LocalizedLink>
             ) : null}
           </>
         }

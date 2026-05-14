@@ -1,0 +1,334 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// ─── Mocks ───
+vi.mock('next/server', () => ({
+  NextRequest: class extends Request {
+    get nextUrl() {
+      return new URL(this.url);
+    }
+  },
+  NextResponse: class extends Response {
+    static json(body: unknown, init?: ResponseInit) {
+      return new Response(JSON.stringify(body), {
+        ...init,
+        headers: { 'content-type': 'application/json', ...(init?.headers || {}) },
+      });
+    }
+  },
+}));
+
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(() =>
+    Promise.resolve({
+      get: vi.fn(),
+      getAll: vi.fn(() => []),
+      set: vi.fn(),
+    })
+  ),
+}));
+
+vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
+vi.mock('@/lib/auth/roles', () => ({ isAdmin: vi.fn() }));
+vi.mock('@/lib/tenant/organization', () => ({ getActorOrganizationId: vi.fn() }));
+vi.mock('@/lib/tenant/organizationBranding', () => ({
+  getOrganizationBranding: vi.fn(() => Promise.resolve({ domain: 'https://www.workforceap.org', name: 'WorkforceAP' })),
+}));
+vi.mock('@/lib/tenant/withTenantScope', () => ({
+  withTenantScope: vi.fn(async (_orgId: string, fn: (db: any) => Promise<unknown>) => {
+    const { prisma } = await import('@/lib/db/prisma');
+    return fn(prisma);
+  }),
+}));
+vi.mock('@/lib/audit', () => ({ auditLog: vi.fn() }));
+vi.mock('@/lib/email', () => ({
+  getResend: vi.fn(),
+}));
+vi.mock('@/lib/email/template', () => ({ brandedEmailLayout: vi.fn(() => '<html>email</html>') }));
+vi.mock('@/lib/email/escapeHtml', () => ({
+  escapeHtml: vi.fn((s: string) => s),
+  sanitizeEmailSubjectLine: vi.fn((s: string) => s),
+}));
+vi.mock('@/lib/messages/counselorThread', () => ({
+  getOrCreateMemberCounselorThread: vi.fn(async (memberId: string) => ({ id: `thread-${memberId}`, memberId })),
+}));
+vi.mock('@/lib/content/programs', () => ({
+  getProgramBySlug: vi.fn((slug: string) => (slug ? { title: slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) } : null)),
+}));
+vi.mock('@/lib/formatPhone', () => ({ formatPhone: vi.fn((p: string) => p) }));
+
+// ─── Prisma mock ───
+const mockTx = {
+  message: { create: vi.fn() },
+  messageThread: { update: vi.fn() },
+  counselorAssignment: {
+    updateMany: vi.fn(),
+    update: vi.fn(),
+    create: vi.fn(),
+    findUnique: vi.fn(),
+  },
+};
+
+vi.mock('@/lib/db/prisma', () => ({
+  prisma: {
+    user: {
+      findMany: vi.fn(),
+      updateMany: vi.fn(),
+    },
+    $transaction: vi.fn(async (fn: any) => {
+      if (typeof fn === 'function') return fn(mockTx);
+      for (const op of fn) await op;
+      return undefined;
+    }),
+    message: { create: vi.fn() },
+    messageThread: { update: vi.fn(), findUnique: vi.fn() },
+    counselorAssignment: {
+      updateMany: vi.fn(),
+      update: vi.fn(),
+      create: vi.fn(),
+      findUnique: vi.fn(),
+    },
+    counselor: {
+      findFirst: vi.fn(),
+    },
+    memberProgramProgress: {
+      findMany: vi.fn(),
+    },
+    memberEvent: {
+      groupBy: vi.fn(),
+    },
+  },
+}));
+
+// ─── Imports after mocks ───
+import { POST as bulkEmailPost } from '@/app/api/admin/members/bulk-email/route';
+import { POST as bulkUpdatePost } from '@/app/api/admin/members/bulk-update/route';
+import { POST as bulkExportPost } from '@/app/api/admin/members/bulk-export/route';
+import { NextRequest } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { getResend } from '@/lib/email';
+import { prisma } from '@/lib/db/prisma';
+
+const uid = (n: number) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`;
+
+const makeRequest = (body: unknown) =>
+  new NextRequest('http://localhost:3000/api/admin/members/bulk-email', {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: { 'content-type': 'application/json' },
+  });
+
+describe('Bulk operations', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  // ─── Bulk Email ───
+  describe('POST /api/admin/members/bulk-email', () => {
+    it('returns 401 when unauthenticated', async () => {
+      vi.mocked(getUser).mockResolvedValue(null);
+      const res = await bulkEmailPost(makeRequest({ memberIds: [uid(1)], subject: 'Hi', body: 'Hello' }));
+      expect(res.status).toBe(401);
+      expect(await res.json()).toEqual({ error: 'Unauthorized' });
+    });
+
+    it('returns 403 when not admin', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'user@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(false);
+      const res = await bulkEmailPost(makeRequest({ memberIds: [uid(1)], subject: 'Hi', body: 'Hello' }));
+      expect(res.status).toBe(403);
+      expect(await res.json()).toEqual({ error: 'Forbidden' });
+    });
+
+    it('returns 400 for invalid input', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      const res = await bulkEmailPost(makeRequest({ memberIds: [], subject: '', body: '' }));
+      expect(res.status).toBe(400);
+    });
+
+    it('sends emails and creates messages for selected members', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: uid(1), email: 'alice@example.com', fullName: 'Alice Smith', enrolledProgram: 'data-analytics', organizationId: 'org-1' },
+        { id: uid(2), email: 'bob@example.com', fullName: 'Bob Jones', enrolledProgram: null, organizationId: 'org-1' },
+      ] as any);
+
+      const sendMock = vi.fn().mockResolvedValue({ id: 'email-id' });
+      vi.mocked(getResend).mockReturnValue({ emails: { send: sendMock } } as any);
+
+      const res = await bulkEmailPost(
+        makeRequest({
+          memberIds: [uid(1), uid(2)],
+          subject: 'Hi {firstName}',
+          body: 'Hello {fullName}, your program is {programName}',
+          sendAsEmail: true,
+          createMessage: true,
+        })
+      );
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.sent).toBe(2);
+      expect(body.messagesCreated).toBe(2);
+      expect(body.total).toBe(2);
+      expect(sendMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('returns 503 when email not configured and sendAsEmail true', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: uid(1), email: 'alice@example.com', fullName: 'Alice', enrolledProgram: null, organizationId: 'org-1' },
+      ] as any);
+      vi.mocked(getResend).mockReturnValue(null);
+
+      const res = await bulkEmailPost(
+        makeRequest({ memberIds: [uid(1)], subject: 'Hi', body: 'Hello', sendAsEmail: true, createMessage: false })
+      );
+      expect(res.status).toBe(503);
+    });
+
+    it('limits to 100 members', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      const res = await bulkEmailPost(
+        makeRequest({ memberIds: Array.from({ length: 101 }, (_, i) => uid(i)), subject: 'Hi', body: 'Hello' })
+      );
+      expect(res.status).toBe(400);
+    });
+  });
+
+  // ─── Bulk Update ───
+  describe('POST /api/admin/members/bulk-update', () => {
+    const makeUpdateRequest = (body: unknown) =>
+      new NextRequest('http://localhost:3000/api/admin/members/bulk-update', {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'content-type': 'application/json' },
+      });
+
+    it('returns 401 when unauthenticated', async () => {
+      vi.mocked(getUser).mockResolvedValue(null);
+      const res = await bulkUpdatePost(makeUpdateRequest({ memberIds: [uid(1)], pipelineStage: 'enrolled' }));
+      expect(res.status).toBe(401);
+    });
+
+    it('returns 400 when no updates specified', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      const res = await bulkUpdatePost(makeUpdateRequest({ memberIds: [uid(1)] }));
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ error: 'No updates specified' });
+    });
+
+    it('updates pipeline stage for members', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: uid(1), email: 'alice@example.com', fullName: 'Alice', enrolledProgram: 'data', pipelineBoardStage: 'applied' },
+      ] as any);
+      vi.mocked(prisma.user.updateMany).mockResolvedValue({ count: 1 } as any);
+
+      const res = await bulkUpdatePost(
+        makeUpdateRequest({ memberIds: [uid(1)], pipelineStage: 'enrolled' })
+      );
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.updated).toBe(1);
+      expect(body.total).toBe(1);
+    });
+
+    it('validates counselor exists when assigning', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        { id: uid(1), email: 'alice@example.com', fullName: 'Alice', enrolledProgram: null, pipelineBoardStage: null },
+      ] as any);
+      vi.mocked(prisma.counselor.findFirst).mockResolvedValue(null);
+
+      const res = await bulkUpdatePost(
+        makeUpdateRequest({ memberIds: [uid(1)], counselorUserId: uid(88) })
+      );
+
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ error: 'Counselor not found or inactive' });
+    });
+  });
+
+  // ─── Bulk Export ───
+  describe('POST /api/admin/members/bulk-export', () => {
+    const makeExportRequest = (body: unknown) =>
+      new NextRequest('http://localhost:3000/api/admin/members/bulk-export', {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { 'content-type': 'application/json' },
+      });
+
+    it('returns 401 when unauthenticated', async () => {
+      vi.mocked(getUser).mockResolvedValue(null);
+      const res = await bulkExportPost(makeExportRequest({ memberIds: [uid(1)] }));
+      expect(res.status).toBe(401);
+    });
+
+    it('returns 400 for invalid input', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      const res = await bulkExportPost(makeExportRequest({ memberIds: [] }));
+      expect(res.status).toBe(400);
+    });
+
+    it('returns CSV for selected members', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+      vi.mocked(prisma.user.findMany).mockResolvedValue([
+        {
+          id: uid(1),
+          fullName: 'Alice',
+          email: 'alice@example.com',
+          phone: '555-1234',
+          enrolledProgram: 'data-analytics',
+          enrolledAt: new Date('2024-01-15'),
+          assessmentScorePct: 85,
+          assessmentCompleted: true,
+          pipelineBoardStage: 'enrolled',
+          updatedAt: new Date(),
+          createdAt: new Date(),
+          lastLoginAt: new Date(),
+          profile: { profilePhone: null, employmentStatus: 'unemployed', educationLevel: 'high_school' },
+          courseEnrollments: [],
+          partnerReferrals: [{ partner: { name: 'Goodwill' } }],
+          counselorAssignments: [{ counselor: { user: { fullName: 'Carol Counselor' } } }],
+        },
+      ] as any);
+      vi.mocked(prisma.memberProgramProgress.findMany).mockResolvedValue([
+        { userId: uid(1), programSlug: 'data-analytics', averagePercent: 75, coursesCompleted: 3 },
+      ] as any);
+      vi.mocked(prisma.memberEvent.groupBy).mockResolvedValue([
+        { userId: uid(1), _max: { createdAt: new Date('2024-06-01') } },
+      ] as any);
+
+      const res = await bulkExportPost(makeExportRequest({ memberIds: [uid(1)] }));
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toContain('text/csv');
+      expect(res.headers.get('Content-Disposition')).toContain('attachment');
+      const text = await res.text();
+      expect(text).toContain('Alice');
+      expect(text).toContain('alice@example.com');
+    });
+
+    it('limits to 500 members', async () => {
+      vi.mocked(getUser).mockResolvedValue({ id: uid(99), email: 'admin@example.com' } as any);
+      vi.mocked(isAdmin).mockResolvedValue(true);
+      const res = await bulkExportPost(makeExportRequest({ memberIds: Array.from({ length: 501 }, (_, i) => uid(i)) }));
+      expect(res.status).toBe(400);
+    });
+  });
+});

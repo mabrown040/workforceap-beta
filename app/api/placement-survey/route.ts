@@ -4,16 +4,7 @@ import { verifyPlacementSurveyToken } from '@/lib/security/placementSurveyToken'
 import { checkPlacementSurveyRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
-/**
- * POST /api/placement-survey
- *
- * Member submits their post-placement survey. Auth is by signed token
- * delivered in the email link (NOT body userId - see #1180 follow-up).
- * Body shape: { token, jobSatisfaction, trainingRelevance, supportQuality,
- *               whatHelpedMost, whatCouldImprove, stillEmployed,
- *               currentSalary, allowTestimonial }
- */
-export async function POST(req: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: Request) {
   try {
     const ip = getClientIpFromRequest(req);
     const { success: withinLimit } = await checkPlacementSurveyRateLimit(ip);
@@ -97,13 +88,7 @@ export async function POST(req: Request) {
       });
 
       // Auto-create testimonial pipeline entry if member consented
-      // Gate testimonial creation on the FIRST completion. The same signed
-      // token can be submitted multiple times (double-click, retry, link
-      // reopened before expiry) and the survey row gets updated every
-      // time. Without this guard, every resubmission with
-      // allowTestimonial=true added another pending testimonial.
-      const isFirstCompletion = !survey.completedAt;
-      if (updated.allowTestimonial && isFirstCompletion) {
+      if (updated.allowTestimonial) {
         try {
           const member = await prisma.user.findUnique({
             where: { id: updated.userId },
@@ -154,14 +139,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-/**
- * GET /api/placement-survey?token=...
- *
- * Token-gated existence + completion check (used by the form page to
- * short-circuit if the survey is already filled out).
- */
-export async function GET(req: Request) {
+export const POST = withApiGuc(_POST);async function _GET(req: Request) {
   try {
     const ip = getClientIpFromRequest(req);
     const { success: withinLimit } = await checkPlacementSurveyRateLimit(ip);
@@ -193,3 +171,4 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

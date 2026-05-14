@@ -1,12 +1,19 @@
+import type { Metadata } from 'next';
 import { prisma } from '@/lib/db/prisma';
 import { verifyPlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import PlacementSurveyForm from '@/components/forms/PlacementSurveyForm';
+import { buildPageMetadataAsync } from '@/app/seo';
 
 export const dynamic = 'force-dynamic';
-export const metadata = {
-  title: 'Post-Placement Survey | WorkforceAP',
-  robots: { index: false, follow: false },
-};
+
+export async function generateMetadata(): Promise<Metadata> {
+  const base = await buildPageMetadataAsync({
+    title: 'Post-Placement Survey',
+    description: 'Help us understand what worked and share real outcomes with funders.',
+    path: '/placement-survey',
+  });
+  return { ...base, robots: { index: false, follow: false } };
+}
 
 const wrapStyle: React.CSSProperties = {
   maxWidth: 640,

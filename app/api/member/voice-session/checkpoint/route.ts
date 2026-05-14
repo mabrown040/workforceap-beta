@@ -4,17 +4,13 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 interface CheckpointBody {
   transcript: { role: 'agent' | 'user'; text: string }[];
   toolType?: string;
   inputSummary?: string;
-}
-
-/** Lightweight checkpoint endpoint for voice sessions.
- *  Saves transcript without AI processing (no action-plan generation, no emails).
- *  Used for auto-save during session and on unexpected disconnect.
- */
-export async function POST(req: NextRequest) {
+}export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -76,4 +72,4 @@ export async function POST(req: NextRequest) {
     console.error('/member/voice-session/checkpoint:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

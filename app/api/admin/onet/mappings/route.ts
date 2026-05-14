@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { auditLog } from '@/lib/audit';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const upsertSchema = z.object({
   id: z.string().uuid().optional(),
   onetCode: z.string().min(1),
@@ -56,9 +58,7 @@ function snapshot(row: {
     whyRecommended: row.whyRecommended,
     isActive: row.isActive,
   };
-}
-
-export async function GET(request: NextRequest) {
+}async function _GET(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -88,9 +88,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function POST(request: NextRequest) {
+export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -191,9 +189,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function DELETE(request: NextRequest) {
+export const POST = withApiGuc(_POST);async function _DELETE(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -240,4 +236,5 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);
 

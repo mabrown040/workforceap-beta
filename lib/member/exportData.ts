@@ -3,21 +3,10 @@ import { prisma } from '@/lib/db/prisma';
 /**
  * Builds a comprehensive GDPR-compliant data export for a member.
  * Includes all personal data stored across the platform.
- *
- * Previously this applied hidden 90-day / 1-year recency windows on
- * member_events, audit_logs, and points_transactions even though those
- * rows are not actually purged from the database. For a GDPR /
- * data-portability export that's wrong — silently truncating personal
- * data on date is exactly the failure mode the regulation tries to
- * prevent. The only cap that remains is a generous `take: 5000` per
- * table, which is documented in the response's `_exportLimits` block
- * so callers can detect truncation explicitly.
  */
 export async function buildMemberExport(userId: string) {
-  // Per-table soft cap. Documented in the response; surfacing the cap
-  // explicitly is the difference between "we omit data" and "we omit data
-  // and tell you."
-  const PER_TABLE_LIMIT = 5000;
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+  const oneYearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -85,7 +74,7 @@ export async function buildMemberExport(userId: string) {
     prisma.goal.findMany({ take: 5000, where: { userId } }),
     prisma.learningProgress.findMany({ take: 5000, where: { userId } }),
     prisma.resourceProgress.findMany({ take: 5000, where: { userId } }),
-    prisma.memberEvent.findMany({ take: PER_TABLE_LIMIT, where: { userId }, orderBy: { createdAt: 'desc' } }),
+    prisma.memberEvent.findMany({ take: 5000, where: { userId, createdAt: { gte: ninetyDaysAgo } } }),
     prisma.weeklyRecap.findMany({ take: 5000, where: { userId } }),
     prisma.pathwayStepProgress.findMany({ take: 5000, where: { userId } }),
     prisma.trainingAccessRequest.findMany({ take: 5000, where: { userId } }),
@@ -125,7 +114,7 @@ export async function buildMemberExport(userId: string) {
       include: { mentor: { include: { user: { select: { fullName: true } } } } },
     }),
     prisma.memberPoints.findUnique({ where: { userId } }),
-    prisma.pointsTransaction.findMany({ take: PER_TABLE_LIMIT, where: { userId }, orderBy: { createdAt: 'desc' } }),
+    prisma.pointsTransaction.findMany({ take: 5000, where: { userId, createdAt: { gte: oneYearAgo } } }),
     prisma.courseraCourseProgress.findMany({ take: 5000, where: { userId } }),
     prisma.courseraBadgeProgress.findMany({ take: 5000, where: { userId } }),
     prisma.courseraSkillsetProgress.findMany({ take: 5000, where: { userId } }),
@@ -134,7 +123,7 @@ export async function buildMemberExport(userId: string) {
     prisma.placementSurvey.findMany({ take: 5000, where: { userId } }),
     prisma.testimonial.findMany({ take: 5000, where: { memberId: userId } }),
     prisma.memberNextBestAction.findMany({ take: 5000, where: { userId } }),
-    prisma.auditLog.findMany({ take: PER_TABLE_LIMIT, where: { actorUserId: userId }, orderBy: { createdAt: 'desc' } }),
+    prisma.auditLog.findMany({ take: 5000, where: { actorUserId: userId, createdAt: { gte: ninetyDaysAgo } } }),
     prisma.jobPostingApplication.findMany({ take: 5000, where: { userId } }),
     prisma.aIJobMatch.findMany({ take: 5000, where: { userId } }),
     prisma.applicationAiFeedback.findMany({ take: 5000, where: { userId } }),
@@ -661,16 +650,6 @@ export async function buildMemberExport(userId: string) {
       metadata: pwe.metadata,
       createdAt: pwe.createdAt?.toISOString() ?? null,
     })),
-    // Tells the recipient how to detect truncation: any per-table array
-    // whose `.length === PER_TABLE_LIMIT` may have been capped. Replaces
-    // the previous hidden 90-day / 1-year date filters that silently
-    // omitted retained rows.
-    _exportLimits: {
-      perTableLimit: PER_TABLE_LIMIT,
-      generatedAt: new Date().toISOString(),
-      note:
-        'Each per-table array is capped at perTableLimit rows. Tables where length equals perTableLimit may be truncated; request a paginated export if needed.',
-    },
   };
 
   return exportData;

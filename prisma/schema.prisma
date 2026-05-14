@@ -194,6 +194,7 @@ model User {
   milestoneCascades        MilestoneCascade[]
   testimonials           Testimonial[]
   reviewedTestimonials   Testimonial[] @relation("TestimonialReviewer")
+  memberFeedback         MemberFeedback[]
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -2220,9 +2221,6 @@ model CourseraSkillsetProgress {
 /// for the same milestone is a no-op. Status is plain text + CHECK constraint
 /// (not Prisma enum) to mirror AtRiskAlert.status and keep new statuses cheap.
 model MilestoneCascade {
-  // @db.Uuid matches the underlying column (`id UUID DEFAULT gen_random_uuid()`)
-  // in the migration. Without it Prisma assumes TEXT and `prisma migrate diff`
-  // flags drift on every run.
   id                  String    @id @default(uuid()) @db.Uuid
   userId              String    @map("user_id")
 
@@ -2235,20 +2233,15 @@ model MilestoneCascade {
   status              String    @default("pending_draft")
 
   programSlug         String?   @map("program_slug")
-  /// Snapshot of state at detection time (course name, completedCount,
-  /// source, etc.) so the LLM draft step can rebuild context deterministically.
   contextSnapshot     Json      @map("context_snapshot")
-  /// xAPI statement_id when known, for traceability back to the trigger event.
   sourceEventId       String?   @map("source_event_id")
 
-  // LLM-produced fields (populated by the drafting cron in a follow-up PR)
   counselorBrief      String?   @map("counselor_brief") @db.Text
   drafts              Json?
   draftModel          String?   @map("draft_model")
   draftPromptVersion  String?   @map("draft_prompt_version")
   draftedAt           DateTime? @map("drafted_at")
 
-  // Approval flow (populated by counselor actions in a follow-up PR)
   approvedByUserId    String?   @map("approved_by_user_id")
   approvedAt          DateTime? @map("approved_at")
   dismissedAt         DateTime? @map("dismissed_at")
@@ -2269,6 +2262,26 @@ model MilestoneCascade {
   @@map("milestone_cascades")
 }
 
+// --- Member Feedback ---
+
+model MemberFeedback {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // 'training', 'counselor', 'platform', 'program', 'general'
+  rating    Int      // 1-5
+  comment   String?  @db.Text
+  metadata  Json?    @map("metadata") // { programSlug, courseId, counselorId, etc. }
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([rating])
+  @@index([createdAt])
+  @@map("member_feedback")
+}
+
 // --- Feature Flags ---
 
 model FeatureFlag {
@@ -2285,4 +2298,53 @@ model FeatureFlag {
   @@index([enabled])
   @@index([key])
   @@map("feature_flags")
+}
+// --- Webhook Events ---
+
+/// Backs the `webhook_events` table created by migration
+/// 20260513000000_add_webhook_events. Without a Prisma model the
+/// generated client has no `webhookEvent` delegate, so
+/// `prisma.webhookEvent.*` calls in the admin dashboard,
+/// /api/admin/health, and lib/webhooks/* fail at runtime. Field shapes
+/// mirror the migration's columns exactly.
+/// `status` values: 'success' | 'failed' | 'retrying' | 'dead_letter'.
+model WebhookEvent {
+  id               String    @id @default(uuid()) @db.Uuid
+  source           String
+  eventType        String?   @map("event_type")
+  eventId          String?   @map("event_id")
+  payloadSize      Int       @map("payload_size")
+  processingTimeMs Int?      @map("processing_time_ms")
+  status           String
+  httpStatusCode   Int?      @map("http_status_code")
+  errorMessage     String?   @map("error_message") @db.Text
+  retryCount       Int       @default(0) @map("retry_count")
+  nextRetryAt      DateTime? @map("next_retry_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  @@index([source])
+  @@index([status])
+  @@index([createdAt])
+  @@index([nextRetryAt])
+  @@index([eventId])
+  @@map("webhook_events")
+}
+
+// --- Email Templates ---
+
+model EmailTemplate {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  name      String
+  subject   String
+  body      String   @db.Text
+  variables String[] @default([])
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([key])
+  @@index([active])
+  @@map("email_templates")
 }

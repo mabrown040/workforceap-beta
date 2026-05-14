@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { useTranslations } from 'next-intl';
 import {
   PROGRAMS,
@@ -9,7 +9,7 @@ import {
   getProgramDisplayPartner,
   getProgramDisplayTitle,
 } from '@/lib/content/programs';
-import type { Program } from '@/lib/content/programs';
+import type { Program, LanguageSupport, LanguageSupportLevel } from '@/lib/content/programs';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { ProgramIcon } from '@/components/ProgramIcon';
@@ -51,6 +51,50 @@ const CATEGORY_BORDER: Record<string, string> = {
   'digital-literacy': '#6b7280',
 };
 
+function LanguagePills({ languages }: { languages?: LanguageSupport }) {
+  const tPrograms = useTranslations('marketing.programs');
+  const tCommon = useTranslations('common');
+  if (!languages) return null;
+
+  const entries: { code: keyof LanguageSupport; level: LanguageSupportLevel; label: string }[] = [
+    { code: 'es', level: languages.es, label: tCommon('languageEs') },
+    { code: 'pt', level: languages.pt, label: tCommon('languagePt') },
+    { code: 'fr', level: languages.fr, label: tCommon('languageFr') },
+  ];
+
+  const active = entries.filter((e) => e.level !== 'none');
+  if (active.length === 0) return null;
+
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.35rem', marginBottom: '.75rem' }}>
+      {active.map((e) => {
+        let text: string;
+        if (e.level === 'full') text = tPrograms('languageFull', { language: e.label });
+        else if (e.level === 'subtitles') text = tPrograms('languageSubtitles', { language: e.label });
+        else text = tPrograms('languageAuto', { language: e.label });
+        return (
+          <span
+            key={e.code}
+            style={{
+              background: 'var(--surface-container-high)',
+              color: 'var(--color-on-surface-variant)',
+              padding: '.2rem .55rem',
+              borderRadius: '50px',
+              fontSize: '.72rem',
+              fontWeight: 500,
+              border: '1px solid var(--outline-variant)',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            🌐 {text}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 function ProgramCard({ program }: { program: Program }) {
   const t = useTranslations('marketing.programs');
   const [open, setOpen] = useState(false);
@@ -73,6 +117,7 @@ function ProgramCard({ program }: { program: Program }) {
         <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={program} size={28} /></span>
       </div>
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{displayTitle}</h3>
+      <LanguagePills languages={program.languagesSupported} />
       {extra?.bestFor && (
         <p className="program-card-best-for">
           <strong>{t('cardBestFor')}</strong> {extra.bestFor}
@@ -145,12 +190,12 @@ function ProgramCard({ program }: { program: Program }) {
       >
         <span style={{ fontSize: '.8rem', color: 'var(--color-on-surface-variant)' }}>Partner: {displayPartner}</span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
-          <Link href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
+          <LocalizedLink href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             View Program
-          </Link>
-          <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
+          </LocalizedLink>
+          <LocalizedLink href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             Get Started →
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
     </div>
@@ -230,7 +275,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                     Not sure which one fits? Start with these three.
                   </h3>
                 </div>
-                <Link href="/find-your-path" className="btn btn-primary">Take the 2-minute quiz</Link>
+                <LocalizedLink href="/find-your-path" className="btn btn-primary">Take the 2-minute quiz</LocalizedLink>
               </div>
               <p style={{ fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', maxWidth: '44rem', lineHeight: 1.6, margin: '0.75rem 0 1rem' }}>
                 These are the safest first choices for members who are new, want the fastest job path, or prefer a business-friendly route.
@@ -367,14 +412,14 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
           ))}
         </div>
         )}
-        <div className="programs-quiz-sticky"><Link href="/find-your-path" className="btn btn-primary">Not sure? Take the 2-minute quiz</Link></div>
+        <div className="programs-quiz-sticky"><LocalizedLink href="/find-your-path" className="btn btn-primary">Not sure? Take the 2-minute quiz</LocalizedLink></div>
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
           Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>
         <div className="programs-bottom-actions">
-          <Link href="/find-your-path" className="btn btn-primary">Find Your Path — Take the Quiz</Link>
-          <Link href="/program-comparison" className="btn btn-outline">Compare Programs</Link>
-          <Link href="/salary-guide" className="btn btn-ghost">View Salary Guide</Link>
+          <LocalizedLink href="/find-your-path" className="btn btn-primary">Find Your Path — Take the Quiz</LocalizedLink>
+          <LocalizedLink href="/program-comparison" className="btn btn-outline">Compare Programs</LocalizedLink>
+          <LocalizedLink href="/salary-guide" className="btn btn-ghost">View Salary Guide</LocalizedLink>
         </div>
       </div>
     </section>

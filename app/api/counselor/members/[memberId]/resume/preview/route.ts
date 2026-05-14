@@ -4,15 +4,11 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const BUCKET = 'member-resumes';
 
-type Props = { params: Promise<{ memberId: string }> };
-
-/**
- * Same-origin PDF/DOC binary for inline preview (counselor / admin viewing assigned member).
- * GET /api/counselor/members/:memberId/resume/preview?variant=original|enhanced
- */
-export async function GET(req: NextRequest, { params }: Props) {
+type Props = { params: Promise<{ memberId: string }> };export const GET = withApiGuc(async (req: NextRequest, { params }: Props) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,5 +61,5 @@ export async function GET(req: NextRequest, { params }: Props) {
     console.error('/counselor/members/[memberId]/resume/preview error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

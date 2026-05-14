@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { notFound } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { PROGRAMS, getProgramBySlug, getProgramDisplayPartner, getProgramDisplayTitle } from '@/lib/content/programs';
@@ -169,29 +169,29 @@ export default async function ProgramPage({ params }: Props) {
                 Ready to start your career in {program.categoryLabel}?
               </h3>
               <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
-                Applications take about 10 minutes. No cost for <Link href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</Link>.
+                Applications take about 10 minutes. No cost for <LocalizedLink href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</LocalizedLink>.
                 We respond within 1–2 business days.
               </p>
-              <Link
+              <LocalizedLink
                 href={`/apply?program=${program.slug}`}
                 className="btn btn-primary btn-large"
                 style={{ display: 'inline-block' }}
               >
                 Apply for This Program
-              </Link>
+              </LocalizedLink>
               <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-                <Link
+                <LocalizedLink
                   href="/find-your-path"
                   style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
                 >
                   Not sure this is right? Take the pathfinder quiz
-                </Link>
-                <Link
+                </LocalizedLink>
+                <LocalizedLink
                   href="/program-comparison"
                   style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
                 >
                   Compare programs side-by-side
-                </Link>
+                </LocalizedLink>
               </div>
             </div>
 
@@ -209,7 +209,7 @@ export default async function ProgramPage({ params }: Props) {
                 Have Questions?
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                <Link href="/faq" style={{
+                <LocalizedLink href="/faq" style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.75rem',
@@ -222,8 +222,8 @@ export default async function ProgramPage({ params }: Props) {
                   <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">menu_book</span>
                   <span>Read FAQ</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
-                </Link>
-                <Link href="/how-it-works" style={{
+                </LocalizedLink>
+                <LocalizedLink href="/how-it-works" style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.75rem',
@@ -236,9 +236,9 @@ export default async function ProgramPage({ params }: Props) {
                   <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">schedule</span>
                   <span>How It Works</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
-                </Link>
+                </LocalizedLink>
 
-                <Link href="/salary-guide" style={{
+                <LocalizedLink href="/salary-guide" style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.75rem',
@@ -251,9 +251,9 @@ export default async function ProgramPage({ params }: Props) {
                   <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">payments</span>
                   <span>Salary Guide</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
-                </Link>
+                </LocalizedLink>
 
-                <Link href="/blog" style={{
+                <LocalizedLink href="/blog" style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.75rem',
@@ -266,7 +266,7 @@ export default async function ProgramPage({ params }: Props) {
                   <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-accent)' }} aria-hidden="true">work</span>
                   <span>Career Tips</span>
                   <ArrowRight size={16} style={{ marginLeft: 'auto', opacity: 0.5 }} />
-                </Link>
+                </LocalizedLink>
               </div>
             </div>
           </div>
@@ -277,28 +277,28 @@ export default async function ProgramPage({ params }: Props) {
                 <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
               </div>
               <span className="program-sidebar-partner">{partnerBadge}</span>
-              <Link href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
+              <LocalizedLink href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
                 Apply for This Program
-              </Link>
+              </LocalizedLink>
               <p className="program-sidebar-note">No-cost training for members.</p>
-              <Link href="/find-your-path" className="program-sidebar-quiz-link">
+              <LocalizedLink href="/find-your-path" className="program-sidebar-quiz-link">
                 Not sure? Take the pathfinder quiz →
-              </Link>
+              </LocalizedLink>
               {slugInFeaturedCompare ? (
-                <Link
+                <LocalizedLink
                   href={`/program-comparison?compare=${program.slug},${compareBaselineSlug}`}
                   className="program-sidebar-compare-link"
                 >
                   Compare side-by-side (with a common on-ramp track)
-                </Link>
+                </LocalizedLink>
               ) : null}
-              <Link
+              <LocalizedLink
                 href="/program-comparison"
                 className="program-sidebar-compare-link"
                 style={{ marginTop: slugInFeaturedCompare ? '0.35rem' : 0 }}
               >
                 Open comparison tool (featured tracks)
-              </Link>
+              </LocalizedLink>
             </div>
           </aside>
         </div>

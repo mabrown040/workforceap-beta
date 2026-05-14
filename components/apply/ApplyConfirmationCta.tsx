@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -39,12 +39,12 @@ export default function ApplyConfirmationCta() {
         </p>
       ) : null}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-        <Link href={createHref} className="btn btn-primary">
+        <LocalizedLink href={createHref} className="btn btn-primary">
           {t('confirmationGuestCreateAccount')}
-        </Link>
-        <Link href="/apply/status" className="btn btn-outline">
+        </LocalizedLink>
+        <LocalizedLink href="/apply/status" className="btn btn-outline">
           {t('confirmationCheckStatusShort')}
-        </Link>
+        </LocalizedLink>
       </div>
       <p style={{ margin: '1rem 0 0', fontSize: '0.88rem', color: 'var(--color-on-surface-variant)' }}>
         {t('confirmationGuestLaterNote')}

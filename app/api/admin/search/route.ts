@@ -1,35 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
-/**
- * GET /api/admin/search?q=keyword&limit=8
- *
- * Fast cross-entity search for admin global search (Cmd+K). Scoped to the
- * caller's tenant for every entity type (members, employers, partners, jobs).
- * Super-admins see the whole platform.
- *
- * Without tenant scope the Cmd+K bar surfaced cross-tenant data: a tenant
- * admin searching "drew" would find members from other orgs.
- */
-export async function GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-
-  // Resolve tenant scope. Super-admins get no filter. Org-lookup failures
-  // surface as an empty result list rather than 500'ing Cmd+K.
-  let orgFilterId: string | null = null;
-  if (!(await isSuperAdmin(user.id))) {
-    try {
-      orgFilterId = await getActorOrganizationId(user.id);
-    } catch {
-      return NextResponse.json({ results: [] });
-    }
-  }
 
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? '';
   const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') ?? '8', 10), 20);
@@ -42,7 +20,6 @@ export async function GET(req: NextRequest) {
     prisma.user.findMany({
       where: {
         deletedAt: null,
-        ...(orgFilterId ? { organizationId: orgFilterId } : {}),
         OR: [
           { fullName: { contains: q, mode } },
           { email: { contains: q, mode } },
@@ -52,28 +29,17 @@ export async function GET(req: NextRequest) {
       select: { id: true, fullName: true, email: true, enrolledProgram: true },
     }),
     prisma.employer.findMany({
-      where: {
-        companyName: { contains: q, mode },
-        ...(orgFilterId ? { organizationId: orgFilterId } : {}),
-      },
+      where: { companyName: { contains: q, mode } },
       take: 3,
       select: { id: true, companyName: true, industry: true },
     }),
     prisma.partner.findMany({
-      where: {
-        name: { contains: q, mode },
-        active: true,
-        ...(orgFilterId ? { organizationId: orgFilterId } : {}),
-      },
+      where: { name: { contains: q, mode }, active: true },
       take: 3,
       select: { id: true, name: true, organizationType: true },
     }),
     prisma.job.findMany({
-      where: {
-        title: { contains: q, mode },
-        status: 'live',
-        ...(orgFilterId ? { organizationId: orgFilterId } : {}),
-      },
+      where: { title: { contains: q, mode }, status: 'live' },
       take: 3,
       select: { id: true, title: true, employer: { select: { companyName: true } } },
     }),
@@ -120,5 +86,5 @@ export async function GET(req: NextRequest) {
     console.error('/admin/search error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

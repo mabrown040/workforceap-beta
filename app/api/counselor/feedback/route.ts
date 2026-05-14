@@ -9,6 +9,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 interface FeedbackBody {
   transcript: { role: 'agent' | 'user'; text: string }[];
 }
@@ -119,9 +121,7 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
   }
 
   throw new Error('No AI provider configured');
-}
-
-export async function POST(req: NextRequest) {
+}export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -197,4 +197,4 @@ export async function POST(req: NextRequest) {
     console.error('/counselor/feedback:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -2,12 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 
-/**
- * GET /api/gdpr/export
- * Returns all personal data for the authenticated user.
- * Implements GDPR Article 20 — Right to data portability.
- */
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
   const user = await getUser();
   if (!user) {
@@ -81,5 +76,5 @@ export async function GET() {
     console.error('/gdpr/export error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

@@ -1,60 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { executeMemberMerge, buildMergePreview } from '@/lib/admin/memberMerge';
 
-/**
- * Verify that both members in a merge candidate pair belong to the caller's
- * tenant (or that the caller is a super-admin who can act across tenants).
- *
- * Returns true if the merge is allowed, false otherwise. Cross-tenant
- * member ids are masked behind a generic 404 by the caller to prevent
- * id-enumeration.
- */
-async function bothMembersInActorScope(
-  staffUserId: string,
-  primaryId: string,
-  secondaryId: string,
-): Promise<boolean> {
-  if (await isSuperAdmin(staffUserId)) return true;
-  let orgId: string;
-  try {
-    orgId = await getActorOrganizationId(staffUserId);
-  } catch {
-    return false;
-  }
-  // Both ids must:
-  //   (a) belong to the actor's org, AND
-  //   (b) be actual member accounts (no counselor/mentor/employer/partner
-  //       profile, no admin role).
-  // executeMemberMerge is destructive — repointing roles on a staff/admin
-  // account and soft-deleting one of them is data-corrupting in a way the
-  // admin UI doesn't expose (it searches members only) but the API
-  // accepts any user id. Without this gate a misconfigured/malicious
-  // request could merge an admin into a member.
-  const members = await prisma.user.findMany({
-    where: {
-      id: { in: [primaryId, secondaryId] },
-      organizationId: orgId,
-      counselorProfile: null,
-      mentorProfile: null,
-      partnerUser: null,
-      employer: null,
-      userRoles: { none: { role: { name: { in: ['admin', 'super_admin'] } } } },
-    },
-    select: { id: true },
-  });
-  return members.length === 2;
-}
-
-/**
- * GET /api/admin/members/merge?primaryId=...&secondaryId=...
- *
- * Returns a preview of what would happen if the two members were merged.
- */
-export async function GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -70,15 +20,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'primaryId and secondaryId required and must differ' }, { status: 400 });
     }
 
-    // Tenant scope: a non-super tenant admin can only preview merges
-    // between members in their own organization. requireAdmin alone is
-    // a global role check; without this extra scope a tenant admin who
-    // obtains another tenant's user ids could read names, emails, and
-    // merge-conflict detail for those members.
-    if (!(await bothMembersInActorScope(user.id, primaryId, secondaryId))) {
-      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
-    }
-
     const preview = await prisma.$transaction(async (tx) => {
       return buildMergePreview(tx, primaryId, secondaryId);
     });
@@ -90,16 +31,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-
-/**
- * POST /api/admin/members/merge
- *
- * Body: { primaryId: string, secondaryId: string }
- *
- * Merges secondary member into primary.
- * Returns: { ok: true, primaryId, secondaryId, repointed: string[], mergedFields: string[] }
- */
-export async function POST(req: NextRequest) {
+export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -113,14 +45,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'primaryId and secondaryId required and must differ' }, { status: 400 });
     }
 
-    // Same tenant scope as the GET preview — strictly more important here
-    // because this is the destructive path. Without scope, a tenant admin
-    // who obtained another tenant's user ids could merge those users
-    // together, irreversibly corrupting that tenant's data.
-    if (!(await bothMembersInActorScope(user.id, primaryId, secondaryId))) {
-      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
-    }
-
     const result = await prisma.$transaction(async (tx) => {
       return executeMemberMerge(tx, primaryId, secondaryId, user.id);
     });
@@ -132,3 +56,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

@@ -246,13 +246,7 @@ export async function getScoreBreakdowns(userIds: string[]): Promise<Map<string,
         where: {
           userId: { in: userIds },
           eventName: 'career_os.interview_practice_completed',
-          // No date window here. The single-user getScoreBreakdown()
-          // awards the interview-practice 15-point credit regardless
-          // of age, so dropping events >90 days here meant batch-scored
-          // weekly recaps under-reported readiness for those members
-          // (and the per-user real-time score said something else).
-          // The separate `lastEvents` query below still applies its own
-          // recency filter for the freshness-only checks that need it.
+          createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
         },
         select: { userId: true, id: true },
       }),

@@ -2,15 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 
-/**
- * GET /api/gdpr/consent
- * Returns the user's current consent preferences.
- * 
- * PATCH /api/gdpr/consent
- * Updates consent preferences.
- * Body: { consentCommunications?: boolean }
- */
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   try {
   const user = await getUser();
   if (!user) {
@@ -32,9 +24,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(request: Request) {
+export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
   try {
   const user = await getUser();
   if (!user) {
@@ -73,4 +63,5 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);
 

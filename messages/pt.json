@@ -137,7 +137,11 @@
     "today": "Hoje",
     "yesterday": "Ontem",
     "sending": "Enviando…",
-    "selectLanguage": "Selecionar idioma"
+    "selectLanguage": "Selecionar idioma",
+    "languageEs": "Espanhol",
+    "languagePt": "Português",
+    "languageFr": "Francês",
+    "languageEn": "Inglês"
   },
   "dashboard": {
     "welcome": "Bem-vindo de volta",
@@ -1170,7 +1174,12 @@
       "ctaPrimary": "Candidatar-se Agora",
       "ctaSecondary": "Explorar Programas",
       "toolChipCompare": "Comparar Programas",
-      "toolChipSalary": "Ver Guia Salarial"
+      "toolChipSalary": "Ver Guia Salarial",
+      "languagesTitle": "Idiomas",
+      "languageEnglishOnly": "Apenas em inglês",
+      "languageFull": "Disponível em {language}",
+      "languageSubtitles": "Legendas em {language}",
+      "languageAuto": "{language} (automático)"
     },
     "faq": {
       "knowledgeBase": "Base de conhecimento",

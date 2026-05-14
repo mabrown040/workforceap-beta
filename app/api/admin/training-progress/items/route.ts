@@ -18,6 +18,8 @@ import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 export const dynamic = 'force-dynamic';
 
 export type TrainingProgressItemRow = {
@@ -66,9 +68,7 @@ function shortVerb(verbId: string | null): string | null {
   if (!trimmed) return null;
   const tail = trimmed.split(/[/#]/).filter(Boolean).pop();
   return (tail ?? trimmed).toLowerCase();
-}
-
-export async function GET(request: Request) {
+}export const GET = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
@@ -195,5 +195,5 @@ export async function GET(request: Request) {
     console.error('/admin/training-progress/items error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { Download } from 'lucide-react';
 import DataTable from '@/components/portal/ui/DataTable';
 
 export type CronExecutionRow = {
@@ -49,6 +50,13 @@ export default function AdminCronsClient({
     if (filterStatus && row.status !== filterStatus) return false;
     return true;
   });
+
+  function exportCsv() {
+    const params = new URLSearchParams();
+    if (filterJob) params.set('jobName', filterJob);
+    if (filterStatus) params.set('status', filterStatus);
+    window.open(`/api/admin/crons/export?${params.toString()}`, '_blank');
+  }
 
   return (
     <div>
@@ -102,6 +110,15 @@ export default function AdminCronsClient({
             Clear filters
           </button>
         )}
+        <button
+          type="button"
+          onClick={() => void exportCsv()}
+          className="btn btn-outline btn-sm"
+          title="Export cron executions to CSV"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+        >
+          <Download size={14} /> Export CSV
+        </button>
       </div>
 
       <div className="portal-card portal-card--flat" style={{ overflow: 'auto' }}>

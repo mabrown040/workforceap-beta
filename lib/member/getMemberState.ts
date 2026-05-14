@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { invalidateCache } from '@/lib/cache';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildMemberApplicationStatusView, type MemberApplicationStatusView } from './memberApplicationStatus';
 import { loadMemberProgramTrainingView, type MemberProgramTrainingView } from './memberProgramTrainingView';
@@ -6,8 +7,25 @@ import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/pr
 import { buildNextBestActions, type NextBestAction, type NextBestActionsContext } from './nextBestActions';
 import { getMemberEngagementSignals, type MemberEngagementSignals } from './memberEngagementSignals';
 import { getMemberResumePlainText } from './getMemberResumePlainText';
+import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 import type { CareerMatchResult } from '@/lib/onet/types';
 import type { LearnerProgressByContent } from '@/lib/coursera/learnerProgress';
+
+/**
+ * Invalidate all cached member-state keys for a user. Called from profile
+ * / enrollment / program-change routes whenever something the dashboard
+ * reads might have changed.
+ *
+ * The current getMemberState implementation doesn't yet read through the
+ * cache — but several route handlers in this PR already call this helper
+ * after writes, and an upcoming change will start caching getMemberState
+ * itself. Defining it here today means those callers compile and start
+ * benefiting the moment caching is enabled. Today this is effectively
+ * a no-op against an empty cache.
+ */
+export async function invalidateMemberState(userId: string): Promise<void> {
+  await invalidateCache(`member-state:${userId}*`);
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -179,22 +197,10 @@ function deriveStateLetter(args: {
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
-export async function getMemberState(
+async function _getMemberStateUncached(
   userId: string,
   opts: {
-    /** Optional Coursera B4B enrollmentReports map keyed by Coursera `contentId`.
-     *  When supplied, `trainingView.progressPercentDisplay` prefers B4B
-     *  `overallProgress` per course (mean across the catalog); otherwise local
-     *  `CourseProgress` / rollup are used — see `loadMemberProgramTrainingView`. */
     b4bProgress?: LearnerProgressByContent;
-    /** Multi-program override for the program slug used to compute the
-     *  `trainingView` (and thus the hero progress + completed count). The
-     *  dashboard home page passes the active enrollment slug from
-     *  `getActiveProgramForDashboard`, so a member viewing a secondary
-     *  program via `?program=<slug>` (or whose primary enrollment differs
-     *  from the legacy `User.enrolledProgram`) sees consistent numbers
-     *  with the program name in the hero. Defaults to `User.enrolledProgram`
-     *  for callers that don't yet know about the helper. */
     activeProgramSlug?: string | null;
   } = {},
 ): Promise<MemberState> {
@@ -332,6 +338,26 @@ export async function getMemberState(
     nextBestActions,
     stateLetter,
   };
+}
+
+export async function getMemberState(
+  userId: string,
+  opts: {
+    b4bProgress?: LearnerProgressByContent;
+    activeProgramSlug?: string | null;
+  } = {},
+): Promise<MemberState> {
+  // Skip cache when b4bProgress is supplied (dynamic external data).
+  if (opts.b4bProgress) {
+    return _getMemberStateUncached(userId, opts);
+  }
+  const cacheKey = `member:state:${userId}:${opts.activeProgramSlug || 'default'}`;
+  return getCacheOrFetch(cacheKey, () => _getMemberStateUncached(userId, opts), 300);
+}
+
+/** Invalidate member state cache for a given user. Call after mutations. */
+export async function invalidateMemberState(userId: string): Promise<void> {
+  await invalidateCache(`member:state:${userId}:*`);
 }
 
 export async function getMemberStateFull(userId: string): Promise<MemberStateFull> {

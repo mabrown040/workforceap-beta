@@ -10,6 +10,8 @@ import { trackEvent } from '@/lib/events/track';
 import { ApplicationStatus } from '@prisma/client';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 import {
   sendApplicationConfirmationEmail,
   sendNewApplicationAdminEmail,
@@ -42,9 +44,7 @@ const applySignupSchema = z.object({
   recommendedCareerTitle: z.string().max(200).optional().nullable(),
   careerRecommendationJson: z.any().optional().nullable(),
   needsComputerSupportFollowUp: z.boolean().optional(),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
     const { success: rateOk } = await checkApplySignupRateLimit(ip);
@@ -325,4 +325,4 @@ export async function POST(request: NextRequest) {
     console.error('/apply/signup:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

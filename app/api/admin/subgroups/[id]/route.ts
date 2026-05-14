@@ -4,6 +4,8 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const SUBGROUP_TYPES = ['partner', 'manager', 'church'] as const;
 
 const patchSchema = z.object({
@@ -12,9 +14,7 @@ const patchSchema = z.object({
   leaderId: z.string().uuid().optional(),
   partnerId: z.string().uuid().nullable().optional(),
   description: z.string().max(1000).nullable().optional(),
-});
-
-export async function PATCH(
+});async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -70,9 +70,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function DELETE(
+export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -97,4 +95,5 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);
 

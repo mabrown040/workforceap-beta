@@ -2,25 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-/**
- * POST /api/member/linkedin-enrich
- * Body: { linkedinUrl: string }
- *
- * Enriches the member's skill profile from their LinkedIn public URL.
- *
- * IMPLEMENTATION OPTIONS (in order of reliability):
- * 1. Proxycurl API (PROXYCURL_API_KEY env var) — structured JSON, $0.01/call
- * 2. Native fetch of public profile — LinkedIn blocks most headless fetches
- *    with 999 errors; works ~20% of the time, not reliable for production.
- *
- * When PROXYCURL_API_KEY is set, uses Proxycurl.
- * Otherwise returns { note: 'manual_only' } and skips enrichment.
- *
- * The returned skills feed into /api/member/skill-profile the next time
- * it's called — stored as a skill_assessment AIToolResult with
- * source: 'linkedin_enrichment'.
- */
-export async function POST(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -108,4 +90,4 @@ export async function POST(req: NextRequest) {
     console.error('/member/linkedin-enrich:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

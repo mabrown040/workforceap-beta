@@ -9,37 +9,24 @@ function escapeSqlString(value: string): string {
 }
 
 function isGucSetupQuery(sql: unknown): boolean {
-  if (typeof sql !== 'string') return false;
-  // Match the current `SELECT set_config(...)` shape and keep the legacy
-  // `SET LOCAL app.current_` literal so the recursion guard still trips on
-  // any older calls that might still be in flight.
-  return (
-    sql.includes("set_config('app.current_") ||
-    sql.includes('SET LOCAL app.current_')
-  );
+  return typeof sql === 'string' && sql.includes('SET LOCAL app.current_');
 }
 
 export function buildGucSql(ctx: GucContext): string {
-  // PostgreSQL rejects prepared statements that contain multiple commands
-  // separated by semicolons, which is what `SET LOCAL a = 'x'; SET LOCAL b
-  // = 'y';` would produce. Use a single SELECT that calls set_config for
-  // each value instead — same semantics (is_local=true mirrors SET LOCAL),
-  // one statement on the wire. The SELECT returns the new values as text;
-  // we ignore the rows.
-  const setters: string[] = [];
+  const sets: string[] = [];
 
-  setters.push(`set_config('app.current_user_id', '${escapeSqlString(ctx.userId ?? '')}', true)`);
-  setters.push(`set_config('app.current_org_id', '${escapeSqlString(ctx.orgId ?? '')}', true)`);
-  setters.push(`set_config('app.current_role', '${escapeSqlString(ctx.role)}', true)`);
+  sets.push(`SET LOCAL app.current_user_id = '${escapeSqlString(ctx.userId ?? '')}';`);
+  sets.push(`SET LOCAL app.current_org_id = '${escapeSqlString(ctx.orgId ?? '')}';`);
+  sets.push(`SET LOCAL app.current_role = '${escapeSqlString(ctx.role)}';`);
 
   if (ctx.employerId) {
-    setters.push(`set_config('app.current_employer_id', '${escapeSqlString(ctx.employerId)}', true)`);
+    sets.push(`SET LOCAL app.current_employer_id = '${escapeSqlString(ctx.employerId)}';`);
   }
   if (ctx.partnerId) {
-    setters.push(`set_config('app.current_partner_id', '${escapeSqlString(ctx.partnerId)}', true)`);
+    sets.push(`SET LOCAL app.current_partner_id = '${escapeSqlString(ctx.partnerId)}';`);
   }
 
-  return `SELECT ${setters.join(', ')}`;
+  return sets.join(' ');
 }
 
 function createPrismaClient(): PrismaClient {
@@ -54,31 +41,14 @@ function createPrismaClient(): PrismaClient {
    * PostgreSQL RLS policies (migration 20260513040000_add_rls_policies)
    * can read the current user, org, and role.
    *
-   * Note on `SET LOCAL` vs connection pooling — CRITICAL:
+   * Note on `SET LOCAL` vs connection pooling:
    *   - For explicit `$transaction` calls we override `$transaction` below
    *     to inject the GUC query *inside* the transaction boundary, so
-   *     `set_config(..., true)` is guaranteed to be visible to every query
-   *     in the batch.
+   *     `SET LOCAL` is guaranteed to be visible to every query in the batch.
    *   - For single (non-transactional) queries the `$executeRawUnsafe`
-   *     call and the subsequent `next(params)` are TWO SEPARATE statements
-   *     on Prisma's pool. The GUC set_config runs in its own implicit
-   *     transaction (with `is_local=true`) which COMMITS before next(),
-   *     so the session variable is reset BEFORE the actual query runs.
-   *     Postgres then evaluates the protected query with empty GUCs.
-   *   - This means: with `FORCE ROW LEVEL SECURITY` enabled on a non-bypass
-   *     connection role, single-statement Prisma calls will be denied or
-   *     read as anonymous. Migration
-   *     20260514000000_defer_rls_force_authorize_system DEFERS that FORCE
-   *     enable specifically because this middleware can't yet propagate
-   *     GUCs across the connection-pool boundary. Resolving this in the
-   *     middleware itself requires either:
-   *       (a) wrapping every non-tx query in $transaction (significant
-   *           perf change — every read becomes a transaction), or
-   *       (b) migrating from `$use` middleware to the newer `$extends`
-   *           API which can wrap the actual query execution.
-   *     Until one of those lands, RLS enforcement must remain via the
-   *     application-layer scope filters we've been adding to admin/counselor
-   *     routes — NOT via FORCE on the Postgres connection.
+   *     call and the subsequent `next(params)` may land on different
+   *     connections from the pool.  This is a best-effort safeguard; for
+   *     guaranteed RLS enforcement wrap sensitive reads in `$transaction`.
    *
    * Note on recursion guard:
    *   `$executeRawUnsafe` itself triggers the middleware, so we detect
@@ -104,6 +74,17 @@ function createPrismaClient(): PrismaClient {
     }
 
     const ctx = getGucContext();
+
+    // Development-only warning when queries run outside any GUC context.
+    // In production we silently fall back to anonymous so the site stays up.
+    if (!ctx && process.env.NODE_ENV === 'development') {
+      console.warn(
+        `[prisma:guc] Query "${params.model ?? 'raw'}.${params.action}" ran without an active GUC context. ` +
+          `Wrap the call site in withApiGuc(), withAuthGuc(), runWithGucContext(), or ensure ` +
+          `the root layout gucContextStorage.run() is active.`
+      );
+    }
+
     const sql = buildGucSql(ctx ?? { userId: null, orgId: null, role: 'anonymous' });
     await (client as any).$executeRawUnsafe(sql);
 

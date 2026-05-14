@@ -7,6 +7,8 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -21,9 +23,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 
 const noteSchema = z.object({
   content: z.string().min(1).max(5000),
-});
-
-export async function GET(
+});async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -54,8 +54,7 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function POST(
+export const GET = withApiGuc(_GET);async function _POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -85,3 +84,4 @@ export async function POST(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

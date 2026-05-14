@@ -7,13 +7,13 @@ import { sendInvitationEmail } from '@/lib/email';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { randomBytes } from 'crypto';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-const INVITE_EXPIRY_DAYS = 7;
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function POST(
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+const INVITE_EXPIRY_DAYS = 7;export const POST = withApiGuc(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -112,4 +112,4 @@ export async function POST(
     console.error('[admin/invites/[id]/resend POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -17,6 +17,7 @@ import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
+import VoiceSectionErrorBoundary from '@/components/portal/VoiceSectionErrorBoundary';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
@@ -40,6 +41,7 @@ import JobsSkeleton from '@/components/dashboard/JobsSkeleton';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import RequestHelpButton from '@/components/portal/RequestHelpButton';
+import MemberFeedbackButton from '@/components/portal/MemberFeedbackButton';
 import LogCertificationModal from './LogCertificationModal';
 import PlacementConfirmationStrip from './PlacementConfirmationStrip';
 import PointsWidget from '@/components/portal/PointsWidget';
@@ -793,27 +795,37 @@ async function renderMemberDashboard(
         )}
 
         {dashboardState !== 'A' && dominantNextAction ? (
-          <MemberDoThisNextCard action={dominantNextAction} paddingX="1.25rem" />
+          <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
+            <MemberDoThisNextCard action={dominantNextAction} paddingX="1.25rem" />
+          </ErrorBoundary>
         ) : null}
 
         {(dashboardState === 'C' || dashboardState === 'D') && (
-          <section aria-label="Progress overview" style={{ padding: '0 1.5rem 1rem' }}>
-            <MemberProgressStrip {...progressStripProps} />
-          </section>
+          <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+            <section aria-label="Progress overview" style={{ padding: '0 1.5rem 1rem' }}>
+              <MemberProgressStrip {...progressStripProps} />
+            </section>
+          </ErrorBoundary>
         )}
 
-        <section aria-label="Certifications" style={{ padding: '0 1.25rem 0.75rem' }}>
-          <LogCertificationModal />
-        </section>
+        <ErrorBoundary fallback={<DashboardErrorFallback section="training" />}>
+          <section aria-label="Certifications" style={{ padding: '0 1.25rem 0.75rem' }}>
+            <LogCertificationModal />
+          </section>
+        </ErrorBoundary>
 
         {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
-          <section aria-label="Next actions" style={{ padding: '0 1.25rem 1rem' }}>
-            <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
-          </section>
+          <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
+            <section aria-label="Next actions" style={{ padding: '0 1.25rem 1rem' }}>
+              <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
+            </section>
+          </ErrorBoundary>
         )}
 
         {/* ΓöÇΓöÇ Priority next-step card ΓöÇΓöÇ */}
-        <PlacementConfirmationStrip offers={jobOffers} />
+        <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
+          <PlacementConfirmationStrip offers={jobOffers} />
+        </ErrorBoundary>
         {!dominantNextAction && applicationStatus?.nextStep && (
           <section aria-label="Priority action" style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
             <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
@@ -1040,14 +1052,17 @@ async function renderMemberDashboard(
               </a>
             ))}
           </div>
-          <div style={{ marginTop: '0.75rem' }}>
+          <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <RequestHelpButton />
+            <MemberFeedbackButton />
           </div>
         </section>
 
-        <section aria-label="Career voice assistant" style={{ padding: '0 1.25rem 1.25rem' }}>
-          <MemberDashboardVoiceSectionLazy />
-        </section>
+        <VoiceSectionErrorBoundary>
+          <section aria-label="Career voice assistant" style={{ padding: '0 1.25rem 1.25rem' }}>
+            <MemberDashboardVoiceSectionLazy />
+          </section>
+        </VoiceSectionErrorBoundary>
 
         {/* ΓöÇΓöÇ Recent AI Activity — mobile ΓöÇΓöÇ */}
         <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label={t('recentAIActivity')}>
@@ -1179,7 +1194,9 @@ async function renderMemberDashboard(
                 </Suspense>
               </ErrorBoundary>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
-                <MemberDashboardVoiceSectionLazy />
+                <VoiceSectionErrorBoundary>
+                  <MemberDashboardVoiceSectionLazy />
+                </VoiceSectionErrorBoundary>
               </div>
               <div
                 style={{
@@ -1188,16 +1205,23 @@ async function renderMemberDashboard(
                   padding: '0 2rem 1.25rem',
                 }}
               >
-                <MemberProgressStrip {...progressStripProps} />
+                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+                  <MemberProgressStrip {...progressStripProps} />
+                </ErrorBoundary>
               </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 0.75rem' }}>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <RequestHelpButton />
+                <MemberFeedbackButton />
               </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
-                <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+                  <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+                </ErrorBoundary>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
                   <div style={{ maxWidth: '300px' }}>
-                    <LogCertificationModal />
+                    <ErrorBoundary fallback={<DashboardErrorFallback section="training" />}>
+                      <LogCertificationModal />
+                    </ErrorBoundary>
                   </div>
                   {memberPoints && (
                     <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
@@ -1206,7 +1230,9 @@ async function renderMemberDashboard(
                   )}
                 </div>
               </div>
-              <PlacementConfirmationStrip offers={jobOffers} />
+              <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
+                <PlacementConfirmationStrip offers={jobOffers} />
+              </ErrorBoundary>
               {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
                 <ErrorBoundary fallback={<DashboardErrorFallback section="jobs" />}>
                   <Suspense fallback={<JobsSkeleton count={4} />}>

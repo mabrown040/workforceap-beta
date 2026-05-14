@@ -10,6 +10,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const EMPLOYMENT_OPTIONS = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN_OPTIONS = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
 const INCOME_OPTIONS = ['Under $20K', '$20K–$40K', '$40K–$60K', 'Over $60K'];
@@ -23,9 +25,7 @@ const ETHNICITY_OPTIONS = [
   'American Indian or Alaska Native',
   'Native Hawaiian or Pacific Islander',
   'Two or More Races',
-];
-
-export async function POST(request: Request) {
+];export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -258,4 +258,4 @@ export async function POST(request: Request) {
     console.error('/admin/members/create:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

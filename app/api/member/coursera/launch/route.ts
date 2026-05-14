@@ -12,7 +12,7 @@ import {
 import { getFirstIncompleteCourseIndex } from '@/lib/member/courseraCourseProgress';
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
 
-export async function GET(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) {
@@ -194,5 +194,5 @@ export async function GET(request: Request) {
     console.error('/member/coursera/launch error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

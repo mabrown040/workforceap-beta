@@ -7,14 +7,14 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 // Create bucket "member-resumes" in Supabase Dashboard → Storage if it does not exist
 const BUCKET = 'member-resumes';
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-
-export async function POST(
+const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
   request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -112,5 +112,5 @@ export async function POST(
     console.error('/admin/members/[id]/upload-resume error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

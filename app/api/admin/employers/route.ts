@@ -7,6 +7,8 @@ import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 1).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -41,9 +43,7 @@ const employerSchema = z.object({
   contactName: z.string().min(1).max(200),
   contactEmail: z.string().email(),
   contactPhone: z.string().max(50).optional().nullable(),
-});
-
-export async function GET(request: NextRequest) {
+});async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -74,8 +74,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function POST(request: NextRequest) {
+export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -157,3 +156,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

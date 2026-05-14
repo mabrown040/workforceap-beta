@@ -9,6 +9,8 @@ import { ApplicationStatus } from '@prisma/client';
 import { sendEnrollmentConfirmationEmail, sendApplicationRejectedEmail } from '@/lib/email';
 import { getProgramByInterestValue } from '@/lib/content/programs';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 function getClientIp(request: NextRequest): string {
   return (
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -20,12 +22,10 @@ function getClientIp(request: NextRequest): string {
 const statusSchema = z.object({
   status: z.enum(['PENDING', 'APPROVED', 'DENIED', 'NEEDS_INFO']),
   notes: z.string().optional(),
-});
-
-export async function PATCH(
+});export const PATCH = withApiGuc(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
   const ip = getClientIp(request);
   const { success: rateOk } = await checkAuthRateLimit(`admin:${ip}`);
@@ -125,5 +125,5 @@ export async function PATCH(
     console.error('/admin/members/[id]/status error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

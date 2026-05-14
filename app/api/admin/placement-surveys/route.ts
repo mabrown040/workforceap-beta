@@ -1,46 +1,23 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { requireAdminOrCounselor, isSuperAdmin } from '@/lib/auth/roles';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { requireAdminOrCounselor } from '@/lib/auth/roles';
 
-/**
- * GET /api/admin/placement-surveys
- * Admin/counselor API: view placement survey results scoped to the
- * caller's tenant. Super-admins see the whole platform.
- * Query params: ?status=completed|pending&limit=50&offset=0
- *
- * Without tenant scope, this would expose cross-tenant member emails,
- * job-satisfaction ratings, and salary data.
- */
-export async function GET(req: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: Request) => {
   try {
     const auth = await requireAdminOrCounselor(req);
     if (!auth.ok) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Build tenant scope: super-admins see all; everyone else is scoped
-    // through the survey's user.organizationId.
-    let orgScope: { user: { organizationId: string } } | null = null;
-    if (!(await isSuperAdmin(auth.userId))) {
-      try {
-        const orgId = await getActorOrganizationId(auth.userId);
-        orgScope = { user: { organizationId: orgId } };
-      } catch {
-        return NextResponse.json({ surveys: [], total: 0, limit: 50, offset: 0 });
-      }
-    }
-
+  
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') ?? undefined;
     const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);
     const offset = parseInt(searchParams.get('offset') ?? '0', 10);
-
+  
     try {
       const where = {
         ...(status === 'completed' ? { completedAt: { not: null } } : {}),
         ...(status === 'pending' ? { completedAt: null } : {}),
-        ...(orgScope ?? {}),
       };
   
       const [surveys, total] = await Promise.all([
@@ -118,4 +95,4 @@ export async function GET(req: Request) {
     console.error('/admin/placement-surveys:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -4,7 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -37,7 +37,7 @@ export async function GET() {
           MIN(pr.salary_offered)::float as min,
           MAX(pr.salary_offered)::float as max
         FROM placement_records pr
-        INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}
+        INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}::uuid
         WHERE pr.salary_offered IS NOT NULL
       `,
     ]);
@@ -55,4 +55,4 @@ export async function GET() {
     console.error('/admin/analytics/placements error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

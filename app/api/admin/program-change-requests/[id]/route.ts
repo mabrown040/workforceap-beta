@@ -6,15 +6,15 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const patchSchema = z.object({
   status: z.enum(['APPROVED', 'DENIED']),
   adminNote: z.string().max(4000).optional().nullable(),
-});
-
-export async function PATCH(
+});export const PATCH = withApiGuc(async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -167,5 +167,5 @@ export async function PATCH(
     console.error('/admin/program-change-requests/[id] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

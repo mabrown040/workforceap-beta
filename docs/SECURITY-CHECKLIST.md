@@ -27,7 +27,7 @@
 
 | # | Item | Status | Verification |
 |---|------|--------|--------------|
-| 8 | **RLS policies deployed** | ⚠️ Partial | 5 tables have RLS (`mentors`, `mentor_specialties`, `mentor_sessions`, `member_next_best_actions`, `course_enrollments`). 41+ P0 tables need policies. Migration drafted in `prisma/migrations/20260513040000_add_rls_policies/`. |
+| 8 | **RLS policies deployed** | ⚠️ Partial | 5 tables have RLS in prod. 41+ P0 tables drafted in `prisma/migrations/20260513040000_add_rls_policies/`. **GUC middleware unblocked** (2026-05-13): `lib/db/prisma.ts` `$use` middleware now sets `app.current_*` GUCs on every query; API routes wrapped via `withApiGuc`/`withAuthenticatedApiGuc`; cron jobs use `SYSTEM_GUC_CONTEXT`. See `docs/GUC-MIDDLEWARE.md`. Remaining work: enable the drafted migration. |
 | 9 | **Encryption at rest (database)** | ✅ | Supabase Postgres encrypts at rest by default (AES-256). |
 | 10 | **Encryption in transit (TLS)** | ✅ | HSTS `max-age=63072000; includeSubDomains; preload` in `next.config.ts`. All Supabase connections use TLS. |
 | 11 | **PII minimization** | ✅ | Schema reviewed: only necessary fields collected. SSN is *not* stored. Income, veteran, disability status are collected for WIOA eligibility only. |
@@ -109,7 +109,7 @@ All blocking security gaps have been addressed. Remaining gaps are tracked for p
 
 ### Post-Launch Hardening (within 30 days)
 
-- Deploy RLS policies (prerequisite: GUC middleware for Prisma)
+- Deploy RLS policies (GUC middleware prerequisite ✅ complete — see `docs/GUC-MIDDLEWARE.md`)
 - Add Snyk/Dependabot dependency scanning
 - Add CSP `report-uri`
 - Remove `unsafe-inline`/`unsafe-eval` from CSP via nonces

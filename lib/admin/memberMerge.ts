@@ -150,8 +150,8 @@ export async function buildMergePreview(
     { model: 'memberSubgroup', field: 'assignerId', promise: tx.memberSubgroup.count({ where: { assignerId: secondaryId } }) },
     { model: 'subgroupLeader', field: 'userId', promise: tx.subgroupLeader.count({ where: { userId: secondaryId } }) },
     { model: 'messageThread', field: 'memberId', promise: tx.messageThread.count({ where: { memberId: secondaryId } }) },
-    { model: 'messageThread', field: 'counselorUserId', promise: tx.messageThread.count({ where: { counselorUserId: secondaryId } }) },
-    { model: 'messageThread', field: 'staffUserId', promise: tx.messageThread.count({ where: { staffUserId: secondaryId } }) },
+    { model: 'messageThread', field: 'counselorId', promise: tx.messageThread.count({ where: { counselorId: secondaryId } }) },
+    { model: 'messageThread', field: 'staffId', promise: tx.messageThread.count({ where: { staffId: secondaryId } }) },
     { model: 'application', field: 'userId', promise: tx.application.count({ where: { userId: secondaryId } }) },
     { model: 'learningProgress', field: 'userId', promise: tx.learningProgress.count({ where: { userId: secondaryId } }) },
     { model: 'userCertification', field: 'userId', promise: tx.userCertification.count({ where: { userId: secondaryId } }) },
@@ -173,7 +173,6 @@ export async function buildMergePreview(
     { model: 'placementSurvey', field: 'userId', promise: tx.placementSurvey.count({ where: { userId: secondaryId } }) },
     { model: 'testimonial', field: 'memberId', promise: tx.testimonial.count({ where: { memberId: secondaryId } }) },
     { model: 'testimonial', field: 'reviewedBy', promise: tx.testimonial.count({ where: { reviewedBy: secondaryId } }) },
-    { model: 'milestoneCascade', field: 'userId', promise: tx.milestoneCascade.count({ where: { userId: secondaryId } }) },
     { model: 'courseraCourseProgress', field: 'userId', promise: tx.courseraCourseProgress.count({ where: { userId: secondaryId } }) },
     { model: 'courseraBadgeProgress', field: 'userId', promise: tx.courseraBadgeProgress.count({ where: { userId: secondaryId } }) },
     { model: 'courseraSkillsetProgress', field: 'userId', promise: tx.courseraSkillsetProgress.count({ where: { userId: secondaryId } }) },
@@ -332,8 +331,8 @@ export async function executeMemberMerge(
   await repoint('memberSubgroup', 'assignerId');
   await repoint('subgroupLeader', 'userId');
   await repoint('messageThread', 'memberId');
-  await repoint('messageThread', 'counselorUserId');
-  await repoint('messageThread', 'staffUserId');
+  await repoint('messageThread', 'counselorId');
+  await repoint('messageThread', 'staffId');
   await repoint('application', 'userId');
   await repoint('learningProgress', 'userId');
   await repoint('userCertification', 'userId');
@@ -355,7 +354,6 @@ export async function executeMemberMerge(
   await repoint('placementSurvey', 'userId');
   await repoint('testimonial', 'memberId');
   await repoint('testimonial', 'reviewedBy');
-  await repoint('milestoneCascade', 'userId');
   await repoint('courseraCourseProgress', 'userId');
   await repoint('courseraBadgeProgress', 'userId');
   await repoint('courseraSkillsetProgress', 'userId');

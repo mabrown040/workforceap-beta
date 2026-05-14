@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildApplyProgramBlockCopy } from '@/lib/apply/applyProgramPage';
 
@@ -25,8 +25,8 @@ export default function ApplyProgramIntro({ programSlug }: { programSlug: string
         <strong>Typical starting salary range:</strong> {salaryLine} (early-career, national framing — not a guarantee)
       </p>
       <p className="apply-program-intro__more">
-        <Link href={`/programs/${program.slug}`}>Read the full program overview</Link> or{' '}
-        <Link href="/programs">compare all programs</Link>.
+        <LocalizedLink href={`/programs/${program.slug}`}>Read the full program overview</LocalizedLink> or{' '}
+        <LocalizedLink href="/programs">compare all programs</LocalizedLink>.
       </p>
     </section>
   );

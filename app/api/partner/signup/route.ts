@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { checkPartnerSignupRateLimit } from '@/lib/rate-limit';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const TO_EMAIL = 'info@workforceap.org';
 
 const signupSchema = z.object({
@@ -24,9 +26,7 @@ function getClientIp(request: NextRequest): string {
     request.headers.get('x-real-ip') ||
     'unknown'
   );
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
     const { success: rateOk } = await checkPartnerSignupRateLimit(ip);
@@ -113,4 +113,4 @@ export async function POST(request: NextRequest) {
     console.error('/partner/signup:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

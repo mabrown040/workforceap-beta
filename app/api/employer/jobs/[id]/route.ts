@@ -6,6 +6,9 @@ import { sendJobSubmittedEmail } from '@/lib/email';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { recordEmployerWorkflowEvent } from '@/lib/portal/workflowEvents';
+import { invalidateJobListings } from '@/app/api/(portal)/dashboard/jobs/route';
+
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const jobUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -22,9 +25,7 @@ const jobUpdateSchema = z.object({
   preferredCertifications: z.array(z.string()).optional(),
   suggestedPrograms: z.array(z.string()).optional(),
   status: z.enum(['draft', 'pending', 'approved', 'live', 'filled', 'closed']).optional(),
-});
-
-export async function GET(
+});async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -55,9 +56,7 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(
+export const GET = withApiGuc(_GET);async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -138,6 +137,11 @@ export async function PATCH(
     });
   }
 
+  // Invalidate public job listings cache when a live job is modified
+  if (existing.status === 'live' || job.status === 'live') {
+    await invalidateJobListings().catch(() => {});
+  }
+
   if (parsed.data.status === 'pending' || parsed.data.status === 'draft' || parsed.data.status === undefined) {
     await trackEvent({
       userId: user.id,
@@ -156,6 +160,49 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);async function _DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const ctx = await getEmployerForUser(user.id);
+    if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const { id } = await params;
+    const existing = await prisma.job.findFirst({
+      where: { id, employerId: ctx.employerId },
+    });
+    if (!existing) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+
+    const job = await prisma.job.update({
+      where: { id },
+      data: { status: 'closed' },
+    });
+
+    await recordEmployerWorkflowEvent({
+      employerId: ctx.employerId,
+      actorUserId: user.id,
+      kind: 'job_status',
+      headline: `Job closed: ${job.title}`,
+      entityType: 'Job',
+      entityId: job.id,
+    });
+
+    // Invalidate public job listings cache when a live job is closed
+    if (existing.status === 'live') {
+      await invalidateJobListings().catch(() => {});
+    }
+
+    return NextResponse.json({ ok: true, job });
+  } catch (error) {
+    console.error('/employer/jobs/[id] DELETE error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+export const DELETE = withApiGuc(_DELETE);
 
 export async function DELETE(
   _request: NextRequest,

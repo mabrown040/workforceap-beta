@@ -3,12 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { requireAdminOrCounselor } from '@/lib/auth/roles';
 import { getRiskLevel, THRESHOLDS } from '@/lib/member/atRiskScoring';
 
-/**
- * GET /api/admin/members/at-risk?threshold=50&limit=20
- * Returns at-risk members sorted by score descending.
- * Requires admin or counselor role.
- */
-export async function GET(req: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: Request) {
   try {
     const auth = await requireAdminOrCounselor(req);
     if (!auth.ok) {
@@ -108,12 +103,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-/**
- * POST /api/admin/members/at-risk/:alertId/acknowledge
- * Acknowledge an at-risk alert.
- */
-export async function PATCH(req: Request) {
+export const GET = withApiGuc(_GET);async function _PATCH(req: Request) {
   try {
     const auth = await requireAdminOrCounselor(req);
     if (!auth.ok) {
@@ -151,3 +141,4 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);

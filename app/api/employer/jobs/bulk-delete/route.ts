@@ -5,6 +5,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST } from '@/lib/employer/employerJobsBulk';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   ids: z.array(z.string().uuid()).min(1).max(EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST),
   action: z.enum(['delete', 'close']).default('delete'),
@@ -14,9 +16,7 @@ const bodySchema = z.object({
 const BULK_DELETABLE = new Set(['draft', 'pending', 'filled', 'closed']);
 
 /** Jobs employers may close in bulk (only live or approved postings). */
-const BULK_CLOSABLE = new Set(['live', 'approved']);
-
-export async function POST(request: NextRequest) {
+const BULK_CLOSABLE = new Set(['live', 'approved']);export const POST = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -112,5 +112,5 @@ export async function POST(request: NextRequest) {
     console.error('/employer/jobs/bulk-delete error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

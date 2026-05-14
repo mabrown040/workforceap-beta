@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 
 interface PartnershipCardProps {
   icon: ReactNode;
@@ -55,7 +55,7 @@ export function PartnershipCard({ icon, title, who, why, cta, ctaHref, span = 4 
       <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7, flex: 1 }}>
         {why}
       </p>
-      <Link
+      <LocalizedLink
         href={ctaHref}
         style={{
           display: 'inline-flex',
@@ -72,7 +72,7 @@ export function PartnershipCard({ icon, title, who, why, cta, ctaHref, span = 4 
         <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
           arrow_forward
         </span>
-      </Link>
+      </LocalizedLink>
     </div>
   );
 }

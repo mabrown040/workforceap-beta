@@ -127,12 +127,7 @@ export async function loadPartnerReferralBundle(partnerId: string, tenantOrganiz
     memberIds.length === 0
       ? []
       : await prisma.memberEvent.findMany({
-        // No global cap: the dedup loop below collapses to one
-        // pendingByUserId entry per member. A global take: 500 starved
-        // members beyond the first 500 worth of events (high-activity
-        // members consumed the window), so their pending-placement
-        // counts read as zero in the partner portal. Bound per-member.
-        take: Math.max(memberIds.length * 5, 500),
+        take: 500,
           where: {
             userId: { in: memberIds },
             eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED',

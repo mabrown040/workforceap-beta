@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const BUCKET = 'member-resumes';
 
 function storageErrorMessage(error: { message?: string } | null): string {
@@ -11,13 +13,7 @@ function storageErrorMessage(error: { message?: string } | null): string {
     return `Storage is not configured. Create the ${BUCKET} bucket in Supabase Storage.`;
   }
   return 'Could not load resume file';
-}
-
-/**
- * Same-origin PDF/DOC binary for inline preview (avoids cross-origin iframe issues with signed Supabase URLs).
- * GET /api/member/resume/preview?variant=original|enhanced
- */
-export async function GET(req: NextRequest) {
+}export const GET = withApiGuc(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -67,5 +63,5 @@ export async function GET(req: NextRequest) {
     console.error('/member/resume/preview error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

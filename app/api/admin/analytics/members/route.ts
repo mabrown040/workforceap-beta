@@ -3,8 +3,9 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(req: NextRequest) {
+export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
       prisma.$queryRaw<{ day: string; count: number }[]>`
         SELECT DATE_TRUNC('day', created_at)::date::text as day, COUNT(*)::int as count
         FROM users
-        WHERE organization_id = ${orgId}
+        WHERE organization_id = ${orgId}::uuid
           AND deleted_at IS NULL
           AND created_at >= ${start}
           AND created_at <= ${end}
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
       prisma.$queryRaw<{ day: string; count: number }[]>`
         SELECT DATE_TRUNC('day', me.created_at)::date::text as day, COUNT(DISTINCT me.user_id)::int as count
         FROM member_events me
-        INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
+        INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}::uuid
         WHERE me.created_at >= ${start} AND me.created_at <= ${end}
         GROUP BY DATE_TRUNC('day', me.created_at)
         ORDER BY day
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
       prisma.$queryRaw<{ day: string; count: number }[]>`
         SELECT DATE_TRUNC('day', ce.created_at)::date::text as day, COUNT(*)::int as count
         FROM course_enrollments ce
-        WHERE ce.organization_id = ${orgId}
+        WHERE ce.organization_id = ${orgId}::uuid
           AND ce.created_at >= ${start}
           AND ce.created_at <= ${end}
         GROUP BY DATE_TRUNC('day', ce.created_at)
@@ -66,4 +67,4 @@ export async function GET(req: NextRequest) {
     console.error('/admin/analytics/members error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

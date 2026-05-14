@@ -5,6 +5,8 @@ import { getStripe } from '@/lib/stripe/client';
 import { checkOrgOnboardRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 function slugify(name: string): string {
   return name
     .toLowerCase()
@@ -38,9 +40,7 @@ const onboardSchema = z.object({
     .nullable(),
   email: z.string().email(),
   tier: z.enum(['starter', 'growth', 'enterprise']).default('starter'),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIpFromRequest(request);
     const { success: withinLimit } = await checkOrgOnboardRateLimit(ip);
@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const stripe = getStripe();
     const priceId =
       tier === 'enterprise'
         ? process.env.STRIPE_ENTERPRISE_PRICE_ID
@@ -87,12 +88,6 @@ export async function POST(request: NextRequest) {
     let checkoutUrl: string | null = null;
 
     if (priceId) {
-      // Only instantiate Stripe when we actually need it. getStripe() throws
-      // if STRIPE_SECRET_KEY is unset; previously this fired before the
-      // priceId check, so any preview / self-hosted env with no Stripe
-      // config 500'd here instead of falling through to the trial path
-      // below (subscriptionStatus: 'trial').
-      const stripe = getStripe();
       const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
         line_items: [{ price: priceId, quantity: 1 }],
@@ -137,4 +132,4 @@ export async function POST(request: NextRequest) {
     console.error('[org/onboard] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

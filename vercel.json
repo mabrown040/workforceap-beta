@@ -18,8 +18,6 @@
     { "path": "/api/cron/stale-training-check", "schedule": "30 12 * * *" },
     { "path": "/api/cron/placement-survey", "schedule": "0 14 * * *" },
     { "path": "/api/cron/at-risk-check", "schedule": "0 6 * * *" },
-    { "path": "/api/cron/at-risk-alerts", "schedule": "0 13 * * *" },
-    { "path": "/api/cron/milestone-cascade-draft", "schedule": "30 * * * *" },
-    { "path": "/api/cron/milestone-cascade-expire", "schedule": "15 3 * * *" }
+    { "path": "/api/cron/at-risk-alerts", "schedule": "0 13 * * *" }
   ]
 }

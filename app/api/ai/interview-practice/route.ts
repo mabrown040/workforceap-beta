@@ -10,13 +10,13 @@ import { aiResponseLanguageInstruction } from '@/lib/ai/responseLanguage';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText, cleanSpokenLine } from '@/lib/ai/postProcess';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const LEVEL_PROMPTS = {
   entry: 'entry-level / junior (0-2 years experience)',
   mid: 'mid-level (3-7 years experience)',
   senior: 'senior / lead (8+ years experience)',
-};
-
-export async function POST(request: Request) {
+};export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -165,4 +165,4 @@ export async function POST(request: Request) {
     console.error('/ai/interview-practice:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

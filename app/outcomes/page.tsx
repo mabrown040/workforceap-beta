@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import LocalizedLink from '@/components/LocalizedLink';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -41,9 +41,9 @@ export default async function PublicOutcomesPage() {
           </h1>
           <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.25rem' }}>
             {t('intro')}{' '}
-            <Link href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+            <LocalizedLink href="/programs" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
               {t('browsePrograms')}
-            </Link>
+            </LocalizedLink>
             .
           </p>
           <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1.5rem' }}>

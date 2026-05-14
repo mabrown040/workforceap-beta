@@ -7,13 +7,13 @@ import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { trackEvent } from '@/lib/events/track';
 import { awardPoints } from '@/lib/member/points';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const toggleSchema = z.object({
   certName: z.string().min(1).max(200),
   earned: z.boolean(),
   earnedAt: z.string().datetime().optional(), // ISO string from manual add form
-});
-
-export async function GET() {
+});async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,9 +35,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function POST(request: Request) {
+export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -107,4 +105,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 

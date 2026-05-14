@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { getGucContext, runWithGucContext, inTransactionStorage, buildGucContext, ANONYMOUS_GUC_CONTEXT } from './gucContext';
 import { buildGucSql } from './prisma';
 
-test('buildGucSql generates SET LOCAL statements', () => {
+test('buildGucSql generates set_config statements', () => {
   const ctx = {
     userId: 'u-1',
     orgId: 'o-1',
@@ -13,23 +13,23 @@ test('buildGucSql generates SET LOCAL statements', () => {
     partnerId: 'p-1',
   };
   const sql = buildGucSql(ctx);
-  assert.ok(sql.includes("SET LOCAL app.current_user_id = 'u-1'"));
-  assert.ok(sql.includes("SET LOCAL app.current_org_id = 'o-1'"));
-  assert.ok(sql.includes("SET LOCAL app.current_role = 'admin'"));
-  assert.ok(sql.includes("SET LOCAL app.current_employer_id = 'e-1'"));
-  assert.ok(sql.includes("SET LOCAL app.current_partner_id = 'p-1'"));
+  assert.ok(sql.includes("set_config('app.current_user_id', 'u-1', true)"));
+  assert.ok(sql.includes("set_config('app.current_org_id', 'o-1', true)"));
+  assert.ok(sql.includes("set_config('app.current_role', 'admin', true)"));
+  assert.ok(sql.includes("set_config('app.current_employer_id', 'e-1', true)"));
+  assert.ok(sql.includes("set_config('app.current_partner_id', 'p-1', true)"));
 });
 
 test('buildGucSql handles anonymous context', () => {
   const sql = buildGucSql({ userId: null, orgId: null, role: 'anonymous' });
-  assert.ok(sql.includes("app.current_user_id = ''"));
-  assert.ok(sql.includes("app.current_org_id = ''"));
-  assert.ok(sql.includes("app.current_role = 'anonymous'"));
+  assert.ok(sql.includes("set_config('app.current_user_id', '', true)"));
+  assert.ok(sql.includes("set_config('app.current_org_id', '', true)"));
+  assert.ok(sql.includes("set_config('app.current_role', 'anonymous', true)"));
 });
 
 test('buildGucSql handles system context', () => {
   const sql = buildGucSql({ userId: null, orgId: null, role: 'system' });
-  assert.ok(sql.includes("app.current_role = 'system'"));
+  assert.ok(sql.includes("set_config('app.current_role', 'system', true)"));
 });
 
 test('inTransactionStorage propagates across await boundaries', async () => {
@@ -66,7 +66,7 @@ test('buildGucContext maps admin profileRole', () => {
 
 test('ANONYMOUS_GUC_CONTEXT produces empty GUC sql', () => {
   const sql = buildGucSql(ANONYMOUS_GUC_CONTEXT);
-  assert.ok(sql.includes("app.current_user_id = ''"));
-  assert.ok(sql.includes("app.current_org_id = ''"));
-  assert.ok(sql.includes("app.current_role = 'anonymous'"));
+  assert.ok(sql.includes("set_config('app.current_user_id', '', true)"));
+  assert.ok(sql.includes("set_config('app.current_org_id', '', true)"));
+  assert.ok(sql.includes("set_config('app.current_role', 'anonymous', true)"));
 });

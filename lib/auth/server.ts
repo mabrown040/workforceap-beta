@@ -5,6 +5,7 @@ import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCoo
 import { runWithGucContext, buildGucContext, ANONYMOUS_GUC_CONTEXT } from '@/lib/db/gucContext';
 import type { GucContext } from '@/lib/db/gucContext';
 import { getProfileRole } from './roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 export function hasSupabaseServerEnv() {
   return Boolean(
@@ -99,10 +100,20 @@ export const getUser = cache(async function getUser() {
 export const resolveAuthGucContext = cache(async function resolveAuthGucContext(): Promise<GucContext> {
   const user = await getUser();
   if (!user) return ANONYMOUS_GUC_CONTEXT;
-  const profileRole = await getProfileRole(user.id);
+  // orgId must be populated: the RLS policies for tenant-scoped tables
+  // (users/profiles/placements/jobs/organizations) compare row org to
+  // get_current_org_id() — without orgId here, every authenticated API
+  // call evaluated under the policies is denied. Same fix as
+  // app/layout.tsx for the SSR side. Defensive .catch so a transient
+  // lookup failure falls back to an org-less context rather than
+  // 500'ing the route.
+  const [profileRole, orgId] = await Promise.all([
+    getProfileRole(user.id),
+    getActorOrganizationId(user.id).catch(() => null),
+  ]);
   return buildGucContext({
     userId: user.id,
-    orgId: null,
+    orgId,
     profileRole,
   });
 });

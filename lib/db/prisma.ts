@@ -54,14 +54,31 @@ function createPrismaClient(): PrismaClient {
    * PostgreSQL RLS policies (migration 20260513040000_add_rls_policies)
    * can read the current user, org, and role.
    *
-   * Note on `SET LOCAL` vs connection pooling:
+   * Note on `SET LOCAL` vs connection pooling — CRITICAL:
    *   - For explicit `$transaction` calls we override `$transaction` below
    *     to inject the GUC query *inside* the transaction boundary, so
-   *     `SET LOCAL` is guaranteed to be visible to every query in the batch.
+   *     `set_config(..., true)` is guaranteed to be visible to every query
+   *     in the batch.
    *   - For single (non-transactional) queries the `$executeRawUnsafe`
-   *     call and the subsequent `next(params)` may land on different
-   *     connections from the pool.  This is a best-effort safeguard; for
-   *     guaranteed RLS enforcement wrap sensitive reads in `$transaction`.
+   *     call and the subsequent `next(params)` are TWO SEPARATE statements
+   *     on Prisma's pool. The GUC set_config runs in its own implicit
+   *     transaction (with `is_local=true`) which COMMITS before next(),
+   *     so the session variable is reset BEFORE the actual query runs.
+   *     Postgres then evaluates the protected query with empty GUCs.
+   *   - This means: with `FORCE ROW LEVEL SECURITY` enabled on a non-bypass
+   *     connection role, single-statement Prisma calls will be denied or
+   *     read as anonymous. Migration
+   *     20260514000000_defer_rls_force_authorize_system DEFERS that FORCE
+   *     enable specifically because this middleware can't yet propagate
+   *     GUCs across the connection-pool boundary. Resolving this in the
+   *     middleware itself requires either:
+   *       (a) wrapping every non-tx query in $transaction (significant
+   *           perf change — every read becomes a transaction), or
+   *       (b) migrating from `$use` middleware to the newer `$extends`
+   *           API which can wrap the actual query execution.
+   *     Until one of those lands, RLS enforcement must remain via the
+   *     application-layer scope filters we've been adding to admin/counselor
+   *     routes — NOT via FORCE on the Postgres connection.
    *
    * Note on recursion guard:
    *   `$executeRawUnsafe` itself triggers the middleware, so we detect

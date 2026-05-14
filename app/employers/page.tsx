@@ -180,6 +180,25 @@ export default async function EmployersPage() {
             </LocalizedLink>
             {!user && (
               <LocalizedLink
+                href="/employers/signup"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: 'rgba(255,255,255,0.9)',
+                  color: 'var(--color-accent)',
+                  padding: '1rem 2rem',
+                  borderRadius: 'var(--radius-md)',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                }}
+              >
+                Create Free Employer Account
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>business</span>
+              </LocalizedLink>
+            )}
+            {!user && (
+              <LocalizedLink
                 href="/login?redirectTo=/employer"
                 style={{
                   display: 'inline-flex',

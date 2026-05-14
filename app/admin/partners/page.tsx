@@ -22,7 +22,18 @@ async function loadAdminPartnersData() {
     prisma.partner.findMany({
       take: 5000,
       orderBy: { name: 'asc' },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        contactName: true,
+        contactEmail: true,
+        contactPhone: true,
+        active: true,
+        status: true,
+        notes: true,
+        logoUrl: true,
+        brandColor: true,
         _count: {
           select: {
             counselors: true,

@@ -43,6 +43,8 @@ export default async function EmployerDashboardPage() {
     redirect('/dashboard');
   }
 
+  const isPendingApproval = ctx.employer.status === 'pending_approval';
+
   const employerRow = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
     select: {
@@ -212,6 +214,28 @@ export default async function EmployerDashboardPage() {
       }}
     >
     <PortalPageFrame>
+      {isPendingApproval && (
+        <div style={{
+          background: 'rgba(245, 158, 11, 0.08)',
+          border: '1px solid rgba(245, 158, 11, 0.25)',
+          borderRadius: '0.75rem',
+          padding: '1rem 1.25rem',
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+        }}>
+          <span className="material-symbols-outlined" style={{ color: '#b45309', fontVariationSettings: "'FILL' 1" }}>hourglass_empty</span>
+          <div>
+            <p style={{ fontWeight: 600, fontSize: '0.9375rem', color: '#b45309', margin: 0 }}>
+              Your account is pending approval
+            </p>
+            <p style={{ fontSize: '0.8125rem', color: '#92400e', margin: '0.125rem 0 0' }}>
+              You can draft jobs now. After our team approves your account, you can submit them for review and they will go live.
+            </p>
+          </div>
+        </div>
+      )}
       <h1 className="wa-sr-only">
         {t('employerOverview')} — {employerRow.companyName}
       </h1>

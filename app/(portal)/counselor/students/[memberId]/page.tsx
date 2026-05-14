@@ -105,7 +105,12 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
   }
 
   // ── Timeline data fetch ───────────────────────────────────────────
-  const [memberEvents, programAvg] = await Promise.all([
+  // applicationCount is queried up-front (rather than reading
+  // applications.length later) because the placement-stage status row
+  // below references it. The full `applications` array is still fetched
+  // below for the actual UI display — this is just the 1-bit
+  // "has the member applied yet?" signal that the timeline needs early.
+  const [memberEvents, programAvg, applicationCount] = await Promise.all([
     prisma.memberEvent.findMany({
       where: { userId: memberId },
       orderBy: { createdAt: 'asc' },
@@ -118,6 +123,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           _avg: { averagePercent: true },
         })
       : Promise.resolve([]),
+    prisma.jobPostingApplication.count({ where: { studentId: memberId } }),
   ]);
 
   const enrollmentEvent = memberEvents.find((e) => e.eventName === 'program_enrolled');
@@ -180,7 +186,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         certEvent?.createdAt ?? firstCourseEvent?.createdAt ?? assessmentEvent?.createdAt ?? member.courseEnrollments[0]?.enrolledAt ?? member.createdAt,
         placementEvent?.createdAt ?? null,
       ),
-      status: placementEvent ? 'completed' : applications.length > 0 ? 'in_progress' : 'pending',
+      status: placementEvent ? 'completed' : applicationCount > 0 ? 'in_progress' : 'pending',
     },
   ];
 

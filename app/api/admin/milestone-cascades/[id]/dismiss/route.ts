@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
@@ -11,9 +12,19 @@ import { trackEvent } from '@/lib/events/track';
  * Dismiss a cascade without sending. Reason is optional but encouraged —
  * dismissal text is the highest-signal feedback we get on prompt quality.
  *
- * Admin-only. See sibling approve/route.ts for the same rationale: counselor
- * access requires per-row assignment scoping that lands in a follow-up PR.
+ * Admin-only AND tenant-scoped. See sibling approve/route.ts for the same
+ * rationale.
  */
+
+async function resolveCascadeUserFilter(staffUserId: string): Promise<object> {
+  if (await isSuperAdmin(staffUserId)) return {};
+  try {
+    const orgId = await getActorOrganizationId(staffUserId);
+    return { user: { organizationId: orgId } };
+  } catch {
+    return { id: '__deny__' };
+  }
+}
 
 const bodySchema = z.object({
   reason: z.string().max(1000).optional(),
@@ -40,8 +51,11 @@ export async function POST(
       );
     }
 
-    const cascade = await prisma.milestoneCascade.findUnique({
-      where: { id },
+    // Tenant scope (mirrors approve route): cross-tenant cascade ids
+    // resolve to 404, preventing tenant admins from dismissing other
+    // tenants' cascades by guessing UUIDs.
+    const cascade = await prisma.milestoneCascade.findFirst({
+      where: { id, ...(await resolveCascadeUserFilter(user.id)) },
       select: { id: true, userId: true, status: true },
     });
     if (!cascade) return NextResponse.json({ error: 'Not found' }, { status: 404 });

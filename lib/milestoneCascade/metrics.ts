@@ -50,15 +50,35 @@ function minutesBetween(a: Date | null, b: Date | null): number | null {
 
 export async function getCascadeMetrics(opts?: {
   windowDays?: number;
+  /** Tenant scope filter — same shape as the inbox queries. Defaults to
+   *  unscoped, but the admin page passes a tenant-restricted scope so the
+   *  stats card numbers match what the user can actually see. */
+  scope?: import('./queries').CascadeScopeFilter;
 }): Promise<CascadeMetrics> {
   const windowDays = opts?.windowDays ?? 7;
   const now = new Date();
   const windowStart = new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000);
 
+  // Tenant scope. 'deny' returns zeros — same posture as the inbox helpers.
+  if (opts?.scope?.kind === 'deny') {
+    return {
+      windowDays,
+      totals: { pendingDraft: 0, awaitingApproval: 0, sent: 0, dismissed: 0, expired: 0 },
+      medianMinutesToDraft: null,
+      medianMinutesToReview: null,
+      approvalRate: null,
+    };
+  }
+  const userFilter =
+    opts?.scope?.kind === 'org'
+      ? { user: { organizationId: opts.scope.organizationId } }
+      : {};
+
   // Status counts — current snapshot, not windowed.
   const grouped = await prisma.milestoneCascade.groupBy({
     by: ['status'],
     _count: { _all: true },
+    where: userFilter,
   });
   const countByStatus: Record<string, number> = {};
   for (const g of grouped) countByStatus[g.status] = g._count._all;
@@ -69,15 +89,16 @@ export async function getCascadeMetrics(opts?: {
   // "Awaiting review" stat would otherwise read higher than the inbox card
   // count. Override with the actionable-only count for UX consistency.
   const awaitingApprovalActionable = await prisma.milestoneCascade.count({
-    where: { status: 'awaiting_approval', expiresAt: { gt: now } },
+    where: { status: 'awaiting_approval', expiresAt: { gt: now }, ...userFilter },
   });
   countByStatus.awaiting_approval = awaitingApprovalActionable;
 
-  // Timing samples — windowed by createdAt.
+  // Timing samples — windowed by createdAt, and tenant-scoped if applicable.
   const drafted = await prisma.milestoneCascade.findMany({
     where: {
       createdAt: { gte: windowStart },
       draftedAt: { not: null },
+      ...userFilter,
     },
     select: { createdAt: true, draftedAt: true },
   });
@@ -87,6 +108,7 @@ export async function getCascadeMetrics(opts?: {
       createdAt: { gte: windowStart },
       draftedAt: { not: null },
       OR: [{ approvedAt: { not: null } }, { dismissedAt: { not: null } }],
+      ...userFilter,
     },
     select: { draftedAt: true, approvedAt: true, dismissedAt: true, status: true },
   });
@@ -107,6 +129,7 @@ export async function getCascadeMetrics(opts?: {
     where: {
       createdAt: { gte: windowStart },
       status: { in: ['sent', 'dismissed', 'expired'] },
+      ...userFilter,
     },
     select: { status: true },
   });

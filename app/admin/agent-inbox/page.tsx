@@ -6,7 +6,10 @@ import { isAdmin } from '@/lib/auth/roles';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 
-import { listAwaitingApprovalCascades } from '@/lib/milestoneCascade/queries';
+import {
+  listAwaitingApprovalCascades,
+  resolveCascadeScope,
+} from '@/lib/milestoneCascade/queries';
 import { getCascadeMetrics } from '@/lib/milestoneCascade/metrics';
 import { AgentInboxClient } from './AgentInboxClient';
 import { InboxStatsBlock } from './InboxStatsBlock';
@@ -34,9 +37,15 @@ export default async function AgentInboxPage() {
   // this page's auth contract is self-evident from the file.
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
+  // Tenant scope: super-admin sees the platform; tenant admins see only
+  // their org's cascades. `isAdmin()` is global so without this filter a
+  // non-super tenant admin saw every tenant's pending cascades, including
+  // AI-drafted message bodies and learner emails.
+  const scope = await resolveCascadeScope(user.id);
+
   const [cascades, metrics] = await Promise.all([
-    listAwaitingApprovalCascades({ limit: 100 }),
-    getCascadeMetrics({ windowDays: 7 }),
+    listAwaitingApprovalCascades({ limit: 100, scope }),
+    getCascadeMetrics({ windowDays: 7, scope }),
   ]);
 
   return (

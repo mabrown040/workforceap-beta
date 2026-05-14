@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
@@ -12,6 +13,23 @@ import {
   type ActionDraft,
 } from '@/lib/milestoneCascade/types';
 import { dispatchApprovedCascade } from '@/lib/milestoneCascade/sendApprovedCascade';
+
+/**
+ * Build a where-fragment that restricts a milestone_cascade lookup to the
+ * staff user's tenant. Super-admins pass through with no filter; tenant
+ * admins must own the cascade's member. Returns `{ id: '__deny__' }` (a
+ * value that won't match any real row) on org-lookup failure so the caller
+ * gets a clean 404.
+ */
+async function resolveCascadeUserFilter(staffUserId: string): Promise<object> {
+  if (await isSuperAdmin(staffUserId)) return {};
+  try {
+    const orgId = await getActorOrganizationId(staffUserId);
+    return { user: { organizationId: orgId } };
+  } catch {
+    return { id: '__deny__' };
+  }
+}
 
 /**
  * Approve a cascade. Sends celebrate_milestone drafts via email and logs
@@ -61,9 +79,15 @@ export async function POST(
       );
     }
 
-    const cascade = await prisma.milestoneCascade.findUnique({
-      where: { id },
-      include: { user: { select: { email: true } } },
+    // Tenant scope: super-admin can act across orgs; everyone else can only
+    // approve cascades whose member belongs to their organization. Without
+    // this filter the global `isAdmin()` check above would let any tenant
+    // admin who knows / guesses a cascade UUID send a milestone email to
+    // another tenant's learner. 404 on cross-tenant ids to prevent
+    // enumeration.
+    const cascade = await prisma.milestoneCascade.findFirst({
+      where: { id, ...(await resolveCascadeUserFilter(user.id)) },
+      include: { user: { select: { email: true, organizationId: true } } },
     });
     if (!cascade) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     if (cascade.status !== 'awaiting_approval') {

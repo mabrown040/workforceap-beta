@@ -3,7 +3,10 @@ import { getCounselorForUser, getEmployerForUser, getPartnerForUser, isSuperAdmi
 import { countThreadsWithSlaBreach, getSlaStatusForThreads } from '@/lib/messages/superAdminMessageQueries';
 import { countEmployerQueueBadges } from '@/lib/employer/workQueue';
 import { buildPartnerAttentionQueue, countActionablePartnerAttention } from '@/lib/partner/attentionQueue';
-import { countAwaitingApprovalCascades } from '@/lib/milestoneCascade/queries';
+import {
+  countAwaitingApprovalCascades,
+  resolveCascadeScope,
+} from '@/lib/milestoneCascade/queries';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
 import type { PortalRole } from '@/lib/nav/portalNav';
 
@@ -16,10 +19,12 @@ export async function getNavBadgeCountsForUser(
   userId: string
 ): Promise<NavBadgeCounts> {
   if (role === 'admin') {
-    // Admin gets the agent-inbox count regardless of super-admin status —
-    // any admin can review pending milestone cascades. Defensive .catch
-    // so a query failure doesn't break the whole nav.
-    const milestones_awaiting_approval = await countAwaitingApprovalCascades().catch(() => 0);
+    // Admin gets the agent-inbox count, tenant-scoped to their org so the
+    // badge number matches what they'll actually see in /admin/agent-inbox.
+    // Super-admins get the unscoped count. Defensive .catch so a query
+    // failure doesn't break the whole nav.
+    const scope = await resolveCascadeScope(userId).catch(() => ({ kind: 'deny' as const }));
+    const milestones_awaiting_approval = await countAwaitingApprovalCascades({ scope }).catch(() => 0);
     if (await isSuperAdmin(userId)) {
       const counselor_sla_breach_48h = await countThreadsWithSlaBreach(48);
       return { counselor_sla_breach_48h, milestones_awaiting_approval };

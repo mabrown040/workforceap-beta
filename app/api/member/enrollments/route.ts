@@ -1,11 +1,34 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { getDiscoveredProgram } from '@/lib/content/programs';
 
-function deriveEnrollmentStatus(progress: { status: string }[]): string {
+/**
+ * Decide whether a member has completed a program. The previous version
+ * checked `progress.every(p => p.status === 'COMPLETED')`, but CourseProgress
+ * only has rows for courses the member has actually touched — so a member
+ * who completed 1 of 10 courses would have `progress = [{ COMPLETED }]`,
+ * every() == true, and the program would falsely report COMPLETED. Worse,
+ * `?status=COMPLETED` would surface in-progress enrollments.
+ *
+ * Fix: compare the completed-course count to the program's full course
+ * count from the catalog. A program is COMPLETED only when every catalog
+ * course has a COMPLETED progress row.
+ */
+function deriveEnrollmentStatus(
+  programSlug: string,
+  progress: { status: string }[],
+): string {
   if (progress.length === 0) return 'NOT_STARTED';
-  if (progress.every((p) => p.status === 'COMPLETED')) return 'COMPLETED';
-  if (progress.some((p) => p.status === 'IN_PROGRESS')) return 'IN_PROGRESS';
+  const discovered = getDiscoveredProgram(programSlug);
+  const totalCatalogCourses = discovered?.courses.length ?? 0;
+  const completedCount = progress.filter((p) => p.status === 'COMPLETED').length;
+  if (totalCatalogCourses > 0 && completedCount >= totalCatalogCourses) {
+    return 'COMPLETED';
+  }
+  if (progress.some((p) => p.status === 'IN_PROGRESS') || completedCount > 0) {
+    return 'IN_PROGRESS';
+  }
   return 'NOT_STARTED';
 }
 
@@ -37,7 +60,7 @@ export async function GET(request: Request) {
       const courseProgress = progress.filter(
         (p) => p.programSlug === enrollment.programSlug
       );
-      const status = deriveEnrollmentStatus(courseProgress);
+      const status = deriveEnrollmentStatus(enrollment.programSlug, courseProgress);
       const overallPercent =
         courseProgress.length > 0
           ? Math.round(

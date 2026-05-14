@@ -1,6 +1,8 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { ActionDraftSchema, type ActionDraft } from './types';
 
@@ -51,8 +53,46 @@ function parseDrafts(raw: unknown): { drafts: ActionDraft[]; invalid: number } {
 }
 
 /**
+ * Tenant scope filter for `MilestoneCascade.user`. Returns:
+ *   - `undefined` for super-admins (whole platform)
+ *   - `{ organizationId }` for tenant admins
+ *   - `null` to deny (org lookup failed)
+ *
+ * Pulled out of the inbox helpers because the approve/dismiss routes
+ * need the same predicate to refuse cross-tenant id-probes.
+ */
+export type CascadeScopeFilter =
+  | { kind: 'all' } // super-admin
+  | { kind: 'org'; organizationId: string } // tenant admin
+  | { kind: 'deny' }; // lookup failed / no scope
+
+/**
+ * Resolve the cascade-scope filter for a staff user. Super-admin → see all;
+ * any other admin → restricted to their organization. Defensive against
+ * `getActorOrganizationId` throwing (returns 'deny' so callers render
+ * "no cascades" rather than 500ing).
+ */
+export async function resolveCascadeScope(
+  staffUserId: string,
+): Promise<CascadeScopeFilter> {
+  if (await isSuperAdmin(staffUserId)) return { kind: 'all' };
+  try {
+    const organizationId = await getActorOrganizationId(staffUserId);
+    return { kind: 'org', organizationId };
+  } catch {
+    return { kind: 'deny' };
+  }
+}
+
+/**
  * List cascades currently awaiting counselor approval, oldest first. Drives
  * `/admin/agent-inbox`.
+ *
+ * Tenant scope: super-admins see everything; tenant admins see only their
+ * own organization's cascades. Without this filter a non-super tenant admin
+ * could see every tenant's pending cascades plus AI-drafted message
+ * bodies and learner emails. `isAdmin()` itself is not tenant-aware so
+ * the page MUST pass the actor scope.
  *
  * Excludes cascades whose 72h TTL has already elapsed (`expiresAt <= now`).
  * The expire cron runs daily so there's a window of up to 24h where a
@@ -63,9 +103,19 @@ function parseDrafts(raw: unknown): { drafts: ActionDraft[]; invalid: number } {
  */
 export async function listAwaitingApprovalCascades(opts?: {
   limit?: number;
+  scope?: CascadeScopeFilter;
 }): Promise<CascadeCardData[]> {
+  if (opts?.scope?.kind === 'deny') return [];
+  const userFilter =
+    opts?.scope?.kind === 'org'
+      ? { user: { organizationId: opts.scope.organizationId } }
+      : {};
   const rows = await prisma.milestoneCascade.findMany({
-    where: { status: 'awaiting_approval', expiresAt: { gt: new Date() } },
+    where: {
+      status: 'awaiting_approval',
+      expiresAt: { gt: new Date() },
+      ...userFilter,
+    },
     orderBy: { createdAt: 'asc' },
     take: opts?.limit ?? 100,
     include: {
@@ -98,11 +148,23 @@ export async function listAwaitingApprovalCascades(opts?: {
 /**
  * Fast count for nav badges. Cheaper than the full list when we just need a
  * number ("Agent Inbox · 3"). Mirrors the list filter — past-TTL cascades
- * are not actionable, so they're not counted in the badge either.
+ * are not actionable, so they're not counted in the badge either. Also
+ * tenant-scoped per the actor's CascadeScopeFilter.
  */
-export async function countAwaitingApprovalCascades(): Promise<number> {
+export async function countAwaitingApprovalCascades(opts?: {
+  scope?: CascadeScopeFilter;
+}): Promise<number> {
+  if (opts?.scope?.kind === 'deny') return 0;
+  const userFilter =
+    opts?.scope?.kind === 'org'
+      ? { user: { organizationId: opts.scope.organizationId } }
+      : {};
   return prisma.milestoneCascade.count({
-    where: { status: 'awaiting_approval', expiresAt: { gt: new Date() } },
+    where: {
+      status: 'awaiting_approval',
+      expiresAt: { gt: new Date() },
+      ...userFilter,
+    },
   });
 }
 

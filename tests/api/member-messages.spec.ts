@@ -41,6 +41,7 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
 
 vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(() => Promise.resolve({ userId: null, orgId: null, role: 'anonymous' })),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
@@ -93,6 +94,11 @@ vi.mock('@/lib/messages/rateLimit', () => ({
   checkMessageRateLimit: vi.fn(() => ({ ok: true })),
 }));
 
+vi.mock('@/lib/notifications/create', () => ({
+  createNotification: vi.fn(),
+  createBulkNotifications: vi.fn(),
+}));
+
 // ─── Imports after mocks ───
 import { GET, POST, PATCH } from '@/app/api/member/messages/route';
 import { getUser } from '@/lib/auth/server';
@@ -102,6 +108,7 @@ import {
   assertMemberCanAccessThread,
 } from '@/lib/messages/counselorThread';
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
+import { createNotification } from '@/lib/notifications/create';
 
 const makeRequest = (body?: Record<string, unknown>) =>
   new Request('http://localhost:3000/api/member/messages', {
@@ -214,7 +221,7 @@ describe('POST /api/member/messages', () => {
   });
 
   it('sends message to counselor successfully', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
+    vi.mocked(getUser).mockResolvedValue({ id: 'user-123', fullName: 'Jane Doe', email: 'jane@example.com' } as any);
 
     const thread = {
       id: 'thread-1',
@@ -244,6 +251,16 @@ describe('POST /api/member/messages', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.message.body).toBe('I need help with my resume');
+
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'counselor-456',
+        type: 'message',
+        title: 'New message from Jane Doe',
+        body: 'I need help with my resume',
+        data: expect.objectContaining({ threadId: 'thread-1', memberId: 'user-123' }),
+      })
+    );
   });
 
   it('returns 400 for empty message', async () => {

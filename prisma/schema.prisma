@@ -195,6 +195,7 @@ model User {
   testimonials           Testimonial[]
   reviewedTestimonials   Testimonial[] @relation("TestimonialReviewer")
   memberFeedback         MemberFeedback[]
+  notifications          Notification[]
 
   @@index([organizationId])
   @@index([wioaReviewStatus])
@@ -2347,4 +2348,25 @@ model EmailTemplate {
   @@index([key])
   @@index([active])
   @@map("email_templates")
+}
+
+// --- Notifications ---
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // 'message', 'course_complete', 'job_match', 'survey_due', 'task_assigned', 'broadcast'
+  title     String
+  body      String
+  data      Json?    @map("data") // { link, threadId, jobId, courseId, surveyId, etc. }
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([readAt])
+  @@index([createdAt])
+  @@map("notifications")
 }

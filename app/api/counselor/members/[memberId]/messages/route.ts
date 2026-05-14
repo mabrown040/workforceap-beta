@@ -13,6 +13,7 @@ import {
   normalizeMessageBody,
   serializeMessage,
 } from '@/lib/messages/counselorThread';
+import { createNotification } from '@/lib/notifications/create';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
@@ -138,6 +139,14 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
       },
     });
     return m;
+  });
+
+  void createNotification({
+    userId: memberId,
+    type: 'message',
+    title: 'New message from your advisor',
+    body: normalized.body.slice(0, 200),
+    data: { threadId: thread.id, authorId: user.id },
   });
 
   return NextResponse.json({ message: serializeMessage(msg) });

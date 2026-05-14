@@ -8,6 +8,7 @@ import {
   serializeMessage,
 } from '@/lib/messages/counselorThread';
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
+import { createNotification } from '@/lib/notifications/create';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   try {
@@ -91,6 +92,16 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     });
     return m;
   });
+
+  if (thread.counselorUserId) {
+    void createNotification({
+      userId: thread.counselorUserId,
+      type: 'message',
+      title: `New message from ${user.fullName ?? 'member'}`,
+      body: normalized.body.slice(0, 200),
+      data: { threadId: thread.id, memberId: user.id },
+    });
+  }
 
   return NextResponse.json({ message: serializeMessage(msg) });
 

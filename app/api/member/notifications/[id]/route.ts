@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 
 type Props = { params: Promise<{ id: string }> };
 
-async function markRead(_request: Request, { params }: Props) {
+export async function DELETE(_request: Request, { params }: Props) {
   try {
     const user = await getUser();
     if (!user) {
@@ -25,28 +25,13 @@ async function markRead(_request: Request, { params }: Props) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const updated = await prisma.notification.update({
+    await prisma.notification.delete({
       where: { id },
-      data: { readAt: new Date() },
     });
 
-    return NextResponse.json({
-      ok: true,
-      notification: {
-        id: updated.id,
-        type: updated.type,
-        title: updated.title,
-        body: updated.body,
-        data: updated.data ?? null,
-        readAt: updated.readAt?.toISOString() ?? null,
-        createdAt: updated.createdAt.toISOString(),
-      },
-    });
+    return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error('/member/notifications/[id]/read error:', error);
+    console.error('/member/notifications/[id] delete error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export const PUT = markRead;
-export const PATCH = markRead;

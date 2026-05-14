@@ -196,6 +196,11 @@ vi.mock('@/lib/counselor/nudgeTemplates', () => ({
   renderNudge: vi.fn(() => 'Hi there — test message.'),
 }));
 
+vi.mock('@/lib/notifications/create', () => ({
+  createNotification: vi.fn(),
+  createBulkNotifications: vi.fn(),
+}));
+
 // ─── Imports after mocks ───
 import { GET as getDashboard } from '@/app/api/counselor/dashboard/route';
 import { GET as getMemberDetail } from '@/app/api/counselor/members/[memberId]/route';
@@ -222,6 +227,7 @@ import { sendInactiveNudgeEmail } from '@/lib/email';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import { loadMemberSkillsetProgress } from '@/lib/coursera/memberSkillsetProgress';
 import { getMemberPoints } from '@/lib/member/points';
+import { createNotification } from '@/lib/notifications/create';
 
 const UUIDS = {
   counselorUser: '550e8400-e29b-41d4-a716-446655440001',
@@ -667,6 +673,16 @@ describe('POST /api/counselor/members/[memberId]/messages', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.message.body).toBe('Great progress!');
+
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: UUIDS.memberUser,
+        type: 'message',
+        title: 'New message from your advisor',
+        body: 'Great progress!',
+        data: expect.objectContaining({ threadId: UUIDS.threadId, authorId: UUIDS.counselorUser }),
+      })
+    );
   });
 
   it('returns 400 for empty message body', async () => {

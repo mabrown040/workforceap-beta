@@ -56,6 +56,11 @@ vi.mock('@/lib/content/programs', () => ({
 }));
 vi.mock('@/lib/formatPhone', () => ({ formatPhone: vi.fn((p: string) => p) }));
 
+vi.mock('@/lib/notifications/create', () => ({
+  createNotification: vi.fn(),
+  createBulkNotifications: vi.fn(),
+}));
+
 // ─── Prisma mock ───
 const mockTx = {
   message: { create: vi.fn() },
@@ -109,6 +114,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getResend } from '@/lib/email';
 import { prisma } from '@/lib/db/prisma';
+import { createNotification } from '@/lib/notifications/create';
 
 const uid = (n: number) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`;
 
@@ -174,6 +180,26 @@ describe('Bulk operations', () => {
       expect(body.messagesCreated).toBe(2);
       expect(body.total).toBe(2);
       expect(sendMock).toHaveBeenCalledTimes(2);
+
+      expect(createNotification).toHaveBeenCalledTimes(2);
+      expect(createNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: uid(1),
+          type: 'broadcast',
+          title: 'Hi Alice',
+          body: 'Hello Alice Smith, your program is data-analytics',
+          data: expect.objectContaining({ threadId: `thread-${uid(1)}`, authorId: uid(99) }),
+        })
+      );
+      expect(createNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: uid(2),
+          type: 'broadcast',
+          title: 'Hi Bob',
+          body: 'Hello Bob Jones, your program is your program',
+          data: expect.objectContaining({ threadId: `thread-${uid(2)}`, authorId: uid(99) }),
+        })
+      );
     });
 
     it('returns 503 when email not configured and sendAsEmail true', async () => {

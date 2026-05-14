@@ -8,6 +8,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { sendPlacementSurveyEmail, sendPlacementSurveyEscalationEmail } from '@/lib/email';
+import { createNotification } from '@/lib/notifications/create';
 import type { PlacementSurveyWave } from '@prisma/client';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -118,6 +119,14 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
           sentAt: new Date(),
         },
         select: { id: true },
+      });
+
+      void createNotification({
+        userId: placement.userId,
+        type: 'survey_due',
+        title: 'Placement survey ready',
+        body: `Your ${wave.replace('_', '-day ')} placement survey is ready. It only takes 2 minutes.`,
+        data: { surveyId: survey.id, wave },
       });
 
       const token = await issuePlacementSurveyToken({ surveyId: survey.id });

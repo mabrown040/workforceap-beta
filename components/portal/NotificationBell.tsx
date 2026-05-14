@@ -4,7 +4,17 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
 
-type Notification = {
+type NotificationItem = {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  data: Record<string, unknown> | null;
+  readAt: string | null;
+  createdAt: string;
+};
+
+type BadgeNotification = {
   key: string;
   label: string;
   href: string;
@@ -20,8 +30,8 @@ function getRole(pathname: string): string {
   return 'member';
 }
 
-function buildNotifications(badges: Partial<Record<NavBadgeKey, number>>, role: string): Notification[] {
-  const items: Notification[] = [];
+function buildBadgeNotifications(badges: Partial<Record<NavBadgeKey, number>>, role: string): BadgeNotification[] {
+  const items: BadgeNotification[] = [];
 
   if (role === 'member') {
     if ((badges.counselor_messages_unread ?? 0) > 0) {
@@ -71,20 +81,60 @@ function buildNotifications(badges: Partial<Record<NavBadgeKey, number>>, role: 
   return items;
 }
 
+function getNotificationLink(n: NotificationItem): string {
+  const data = n.data ?? {};
+  if (data.link && typeof data.link === 'string') return data.link;
+  if (data.threadId && typeof data.threadId === 'string') return '/dashboard/messages';
+  if (data.jobId && typeof data.jobId === 'string') return '/dashboard/jobs';
+  if (data.courseSlug && typeof data.courseSlug === 'string') return '/dashboard/training';
+  if (data.surveyId && typeof data.surveyId === 'string') return '/survey/placement';
+  return '#';
+}
+
+function formatTimeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 export default function NotificationBell({ badges: externalBadges }: { badges?: Partial<Record<NavBadgeKey, number>> }) {
   const pathname = usePathname() ?? '';
   const role = getRole(pathname);
   const [selfBadges, setSelfBadges] = useState<Partial<Record<NavBadgeKey, number>>>({});
+  const [dbNotifications, setDbNotifications] = useState<NotificationItem[]>([]);
+  const [dbUnreadCount, setDbUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [lastFetch, setLastFetch] = useState(0);
   const dropRef = useRef<HTMLDivElement>(null);
 
-  // When the parent (WorkspaceShell) provides badges, use those directly so the
-  // bell badge and the dropdown panel always read from the same source (#10).
   const badges = externalBadges ?? selfBadges;
 
+  const fetchDbNotifications = useCallback(async () => {
+    if (role !== 'member') return;
+    try {
+      setLoading(true);
+      const r = await fetch('/api/member/notifications?limit=10', { credentials: 'include' });
+      if (r.ok) {
+        const data = await r.json() as { notifications: NotificationItem[]; unreadCount: number };
+        setDbNotifications(data.notifications);
+        setDbUnreadCount(data.unreadCount);
+        setLastFetch(Date.now());
+      }
+    } catch {
+      /* non-fatal */
+    } finally {
+      setLoading(false);
+    }
+  }, [role]);
+
   const fetchBadges = useCallback(async () => {
-    if (externalBadges) return; // parent owns the data
+    if (externalBadges || role === 'member') return;
     try {
       const r = await fetch(`/api/portal/nav-badges?role=${encodeURIComponent(role)}`, { credentials: 'include' });
       if (r.ok) {
@@ -97,21 +147,74 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
     }
   }, [role, externalBadges]);
 
-  // Initial load + poll every 45s (only when not driven by parent)
-  useEffect(() => {
-    if (externalBadges) return;
-    void fetchBadges();
-    const id = setInterval(() => void fetchBadges(), 45_000);
-    return () => clearInterval(id);
-  }, [fetchBadges, externalBadges]);
+  const markRead = useCallback(async (id: string) => {
+    try {
+      const r = await fetch(`/api/member/notifications/${id}/read`, { method: 'PATCH', credentials: 'include' });
+      if (r.ok) {
+        setDbNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, readAt: new Date().toISOString() } : n))
+        );
+        setDbUnreadCount((c) => Math.max(0, c - 1));
+      }
+    } catch {
+      /* non-fatal */
+    }
+  }, []);
 
-  // Also refresh on wa-nav-badges-refresh event (only when not driven by parent)
+  const markAllRead = useCallback(async () => {
+    try {
+      const r = await fetch('/api/member/notifications/read-all', { method: 'POST', credentials: 'include' });
+      if (r.ok) {
+        setDbNotifications((prev) => prev.map((n) => ({ ...n, readAt: new Date().toISOString() })));
+        setDbUnreadCount(0);
+      }
+    } catch {
+      /* non-fatal */
+    }
+  }, []);
+
+  const dismiss = useCallback(async (id: string) => {
+    try {
+      const r = await fetch(`/api/member/notifications/${id}`, { method: 'DELETE', credentials: 'include' });
+      if (r.ok) {
+        // Decrement the unread badge ONLY if the dismissed notification was
+        // actually unread. Otherwise dismissing an already-read item makes
+        // the bell underreport unread count until the next poll.
+        setDbNotifications((prev) => {
+          const target = prev.find((n) => n.id === id);
+          if (target && !target.readAt) {
+            setDbUnreadCount((c) => Math.max(0, c - 1));
+          }
+          return prev.filter((n) => n.id !== id);
+        });
+      }
+    } catch {
+      /* non-fatal */
+    }
+  }, []);
+
+  // Initial load + poll every 45s
   useEffect(() => {
-    if (externalBadges) return;
-    const handler = () => void fetchBadges();
+    if (role === 'member') {
+      void fetchDbNotifications();
+      const id = setInterval(() => void fetchDbNotifications(), 45_000);
+      return () => clearInterval(id);
+    } else {
+      void fetchBadges();
+      const id = setInterval(() => void fetchBadges(), 45_000);
+      return () => clearInterval(id);
+    }
+  }, [fetchDbNotifications, fetchBadges, role]);
+
+  // Refresh on wa-nav-badges-refresh event
+  useEffect(() => {
+    const handler = () => {
+      if (role === 'member') void fetchDbNotifications();
+      else void fetchBadges();
+    };
     window.addEventListener('wa-nav-badges-refresh', handler);
     return () => window.removeEventListener('wa-nav-badges-refresh', handler);
-  }, [fetchBadges, externalBadges]);
+  }, [fetchDbNotifications, fetchBadges, role]);
 
   // Close on outside click
   useEffect(() => {
@@ -123,67 +226,131 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  const notifications = buildNotifications(badges, role);
-  const total = notifications.reduce((s, n) => s + n.count, 0);
+  const badgeNotifications = buildBadgeNotifications(badges, role);
+  const badgeTotal = badgeNotifications.reduce((s, n) => s + n.count, 0);
+  const totalUnread = role === 'member' ? dbUnreadCount : badgeTotal;
+  const isDbMode = role === 'member';
 
   return (
     <div ref={dropRef} style={{ position: 'relative', flexShrink: 0 }}>
       <button
         type="button"
         className="portal-icon-btn"
-        onClick={() => { setOpen(o => !o); if (!open && Date.now() - lastFetch > 10_000) void fetchBadges(); }}
-        aria-label={total > 0 ? `${total} notification${total !== 1 ? 's' : ''}` : 'Notifications'}
+        onClick={() => { setOpen(o => !o); if (!open && Date.now() - lastFetch > 10_000) { if (role === 'member') void fetchDbNotifications(); else void fetchBadges(); } }}
+        aria-label={totalUnread > 0 ? `${totalUnread} notification${totalUnread !== 1 ? 's' : ''}` : 'Notifications'}
         aria-expanded={open}
-        style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '2.25rem', height: '2.25rem', borderRadius: '0.5rem', background: open ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)' : 'transparent', border: 'none', cursor: 'pointer', color: total > 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', transition: 'background 0.15s' }}
+        style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '2.25rem', height: '2.25rem', borderRadius: '0.5rem', background: open ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)' : 'transparent', border: 'none', cursor: 'pointer', color: totalUnread > 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', transition: 'background 0.15s' }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', fontVariationSettings: total > 0 ? "'FILL' 1" : "'FILL' 0" }}>
+        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', fontVariationSettings: totalUnread > 0 ? "'FILL' 1" : "'FILL' 0" }}>
           notifications
         </span>
-        {total > 0 && (
+        {totalUnread > 0 && (
           <span style={{ position: 'absolute', top: '-2px', right: '-2px', minWidth: '1.125rem', height: '1.125rem', borderRadius: '9999px', background: 'var(--color-accent)', color: '#fff', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0.25rem', lineHeight: 1, border: '2px solid var(--surface-container-low, #1a1c1e)' }}>
-            {total > 9 ? '9+' : total}
+            {totalUnread > 9 ? '9+' : totalUnread}
           </span>
         )}
       </button>
 
       {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 0.5rem)', right: 0, width: '20rem', maxWidth: '90vw', zIndex: 200, borderRadius: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', boxShadow: '0 8px 32px rgba(0,0,0,0.22)', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 'calc(100% + 0.5rem)', right: 0, width: '22rem', maxWidth: '90vw', zIndex: 200, borderRadius: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', boxShadow: '0 8px 32px rgba(0,0,0,0.22)', overflow: 'hidden' }}>
           <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <p style={{ fontWeight: 800, fontSize: '0.8125rem', color: 'var(--color-on-surface)', margin: 0 }}>Notifications</p>
-            {total > 0 && (
+            {isDbMode && dbUnreadCount > 0 && (
+              <button
+                onClick={markAllRead}
+                style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-accent)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem 0.5rem', borderRadius: '0.375rem' }}
+              >
+                Mark all read
+              </button>
+            )}
+            {!isDbMode && badgeTotal > 0 && (
               <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                {total} new
+                {badgeTotal} new
               </span>
             )}
           </div>
 
-          {notifications.length === 0 ? (
-            <div style={{ padding: '1.5rem 1rem', textAlign: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem', fontVariationSettings: "'FILL' 1" }}>notifications_none</span>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>All caught up</p>
-            </div>
+          {isDbMode ? (
+            loading && dbNotifications.length === 0 ? (
+              <div style={{ padding: '1.5rem 1rem', textAlign: 'center' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Loading…</p>
+              </div>
+            ) : dbNotifications.length === 0 ? (
+              <div style={{ padding: '1.5rem 1rem', textAlign: 'center' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem', fontVariationSettings: "'FILL' 1" }}>notifications_none</span>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>All caught up</p>
+              </div>
+            ) : (
+              <div style={{ maxHeight: '24rem', overflowY: 'auto' }}>
+                {dbNotifications.map((n) => (
+                  <div
+                    key={n.id}
+                    className="portal-notification-item"
+                    style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem 1rem', textDecoration: 'none', color: 'inherit', transition: 'background 0.15s', borderBottom: '1px solid rgba(255,255,255,0.04)', opacity: n.readAt ? 0.7 : 1, background: n.readAt ? 'transparent' : 'color-mix(in srgb, var(--color-accent) 4%, transparent)' }}
+                  >
+                    <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '0.125rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                        {n.type === 'message' ? 'forum' : n.type === 'course_complete' ? 'school' : n.type === 'job_match' ? 'work' : n.type === 'survey_due' ? 'assignment' : n.type === 'broadcast' ? 'campaign' : 'notifications'}
+                      </span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <a href={getNotificationLink(n)} onClick={() => { if (!n.readAt) void markRead(n.id); setOpen(false); }} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.3 }}>{n.title}</p>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0', lineHeight: 1.35, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{n.body}</p>
+                      </a>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.375rem' }}>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', opacity: 0.7 }}>{formatTimeAgo(n.createdAt)}</span>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          {!n.readAt && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); void markRead(n.id); }}
+                              style={{ fontSize: '0.7rem', color: 'var(--color-accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                            >
+                              Mark read
+                            </button>
+                          )}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); void dismiss(n.id); }}
+                            style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
           ) : (
-            <div>
-              {notifications.map((n) => (
-                <a
-                  key={n.key}
-                  href={n.href}
-                  onClick={() => setOpen(false)}
-                  className="portal-notification-item"
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', color: 'inherit', transition: 'background 0.15s', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                >
-                  <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{n.icon}</span>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.label}</p>
-                  </div>
-                  {n.count > 0 && (
-                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-accent)', flexShrink: 0 }}>{n.count}</span>
-                  )}
-                </a>
-              ))}
-            </div>
+            badgeNotifications.length === 0 ? (
+              <div style={{ padding: '1.5rem 1rem', textAlign: 'center' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem', fontVariationSettings: "'FILL' 1" }}>notifications_none</span>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>All caught up</p>
+              </div>
+            ) : (
+              <div>
+                {badgeNotifications.map((n) => (
+                  <a
+                    key={n.key}
+                    href={n.href}
+                    onClick={() => setOpen(false)}
+                    className="portal-notification-item"
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.875rem 1rem', textDecoration: 'none', color: 'inherit', transition: 'background 0.15s', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                  >
+                    <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>{n.icon}</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.label}</p>
+                    </div>
+                    {n.count > 0 && (
+                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--color-accent)', flexShrink: 0 }}>{n.count}</span>
+                    )}
+                  </a>
+                ))}
+              </div>
+            )
           )}
         </div>
       )}

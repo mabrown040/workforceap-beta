@@ -8,6 +8,7 @@ import { getResend } from '@/lib/email';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
+import { createNotification } from '@/lib/notifications/create';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
@@ -126,6 +127,13 @@ export async function POST(request: NextRequest) {
               where: { id: thread.id },
               data: { updatedAt: new Date(), staffUserId: user.id, staffLastReadAt: new Date() },
             });
+          });
+          void createNotification({
+            userId: member.id,
+            type: 'broadcast',
+            title: subject,
+            body: bodyText.slice(0, 200),
+            data: { threadId: thread.id, authorId: user.id },
           });
           messageCount++;
         }

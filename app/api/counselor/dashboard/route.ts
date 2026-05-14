@@ -87,7 +87,7 @@ export async function GET() {
            LIMIT 1
          ) latest ON true
          WHERE t.kind = 'member'
-           AND t.member_id = ANY($1::uuid[])
+           AND t.member_id = ANY($1::text[])
            AND latest.author_id = t.member_id`,
         memberIds,
       );

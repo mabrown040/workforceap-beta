@@ -4,6 +4,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
+import { invalidateMemberState } from '@/lib/member/getMemberState';
+
 const schema = z.object({
   fullName: z.string().min(1).max(200).optional(),
   phone: z.string().max(30).optional().nullable(),
@@ -75,6 +77,9 @@ export async function PATCH(
         });
       }
   
+      // Invalidate cached member state so dashboard reflects changes immediately
+      await invalidateMemberState(id);
+
       return NextResponse.json({ success: true, user });
     } catch (e) {
       console.error('[admin/edit-profile]', e);

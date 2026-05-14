@@ -8,6 +8,7 @@ import {
   DISCOVERED_COURSERA_PROGRAMS,
   type CourseraDiscoveredCourse,
 } from '@/lib/content/courseraDiscoveredCatalog';
+import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 
 export const FUNDING_SOURCES = [
   'WIOA',
@@ -425,4 +426,14 @@ export function getProgramByInterestValue(interest: string): Program | undefined
  */
 export function getProgramBySlug(slug: string): Program | undefined {
   return getProgramByInterestValue(slug);
+}
+
+/** Return all programs (cached 1 hour). */
+export async function getAllPrograms(): Promise<Program[]> {
+  return getCacheOrFetch('programs:all', () => Promise.resolve(PROGRAMS), 3600);
+}
+
+/** Invalidate all program caches. Call after catalog mutations. */
+export async function invalidateProgramCache(): Promise<void> {
+  await invalidateCache('programs:*');
 }

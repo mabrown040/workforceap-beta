@@ -4,6 +4,12 @@ import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
+import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
+
+/** Invalidate cached job listings (called after admin approval/rejection) */
+export async function invalidateJobListings(): Promise<void> {
+  await invalidateCache('jobs:list:*');
+}
 
 /** Public jobs listing - only live jobs for students */
 export async function GET(request: NextRequest) {
@@ -95,32 +101,45 @@ export async function GET(request: NextRequest) {
           : sort === 'title'
             ? [{ title: 'asc' }]
             : [{ updatedAt: 'desc' }];
-  
-    try {
-      const jobs = await prisma.job.findMany({
-        where,
-        orderBy,
-        include: {
-          employer: { select: { companyName: true, logoUrl: true } },
-        },
-        take: 100,
-      });
-      const visible = jobs
-        .filter(
-          (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
-        )
-        .map((job) => ({
-          ...job,
-          employer: {
-            ...job.employer,
-            logoUrl: resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl),
+
+    const cacheKeyParts = [
+      keyword || '',
+      locationType || '',
+      jobType || '',
+      program || '',
+      salaryMinNum ?? '',
+      salaryMaxNum ?? '',
+      sort,
+      ageGroup || '',
+    ];
+    const cacheKey = `jobs:list:${cacheKeyParts.join('|')}`;
+
+    const visible = await getCacheOrFetch(
+      cacheKey,
+      async () => {
+        const jobs = await prisma.job.findMany({
+          where,
+          orderBy,
+          include: {
+            employer: { select: { companyName: true, logoUrl: true } },
           },
-        }));
-      return NextResponse.json(visible);
-    } catch (err) {
-      captureApiError(err, { route: 'GET /api/jobs' });
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    }
+          take: 100,
+        });
+        return jobs
+          .filter(
+            (j) => !isExcludedPublicEmployerName(j.employer.companyName) && !isExcludedPublicJobTitle(j.title),
+          )
+          .map((job) => ({
+            ...job,
+            employer: {
+              ...job.employer,
+              logoUrl: resolveSupabasePublicAssetUrl('employer-logos', job.employer.logoUrl),
+            },
+          }));
+      },
+      900,
+    );
+    return NextResponse.json(visible);
   } catch (error) {
     console.error('/(portal)/dashboard/jobs:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

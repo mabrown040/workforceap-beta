@@ -53,12 +53,19 @@ function parseDrafts(raw: unknown): { drafts: ActionDraft[]; invalid: number } {
 /**
  * List cascades currently awaiting counselor approval, oldest first. Drives
  * `/admin/agent-inbox`.
+ *
+ * Excludes cascades whose 72h TTL has already elapsed (`expiresAt <= now`).
+ * The expire cron runs daily so there's a window of up to 24h where a
+ * cascade's status is still 'awaiting_approval' but the approve endpoint
+ * will refuse to send it. Showing those cards in the inbox would let an
+ * admin click Approve and get a 409 — actionable-looking but not
+ * actionable. Filtering at the query layer keeps both surfaces honest.
  */
 export async function listAwaitingApprovalCascades(opts?: {
   limit?: number;
 }): Promise<CascadeCardData[]> {
   const rows = await prisma.milestoneCascade.findMany({
-    where: { status: 'awaiting_approval' },
+    where: { status: 'awaiting_approval', expiresAt: { gt: new Date() } },
     orderBy: { createdAt: 'asc' },
     take: opts?.limit ?? 100,
     include: {
@@ -90,11 +97,12 @@ export async function listAwaitingApprovalCascades(opts?: {
 
 /**
  * Fast count for nav badges. Cheaper than the full list when we just need a
- * number ("Agent Inbox · 3").
+ * number ("Agent Inbox · 3"). Mirrors the list filter — past-TTL cascades
+ * are not actionable, so they're not counted in the badge either.
  */
 export async function countAwaitingApprovalCascades(): Promise<number> {
   return prisma.milestoneCascade.count({
-    where: { status: 'awaiting_approval' },
+    where: { status: 'awaiting_approval', expiresAt: { gt: new Date() } },
   });
 }
 

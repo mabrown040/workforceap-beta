@@ -52,7 +52,8 @@ export async function getCascadeMetrics(opts?: {
   windowDays?: number;
 }): Promise<CascadeMetrics> {
   const windowDays = opts?.windowDays ?? 7;
-  const windowStart = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const windowStart = new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000);
 
   // Status counts — current snapshot, not windowed.
   const grouped = await prisma.milestoneCascade.groupBy({
@@ -61,6 +62,16 @@ export async function getCascadeMetrics(opts?: {
   });
   const countByStatus: Record<string, number> = {};
   for (const g of grouped) countByStatus[g.status] = g._count._all;
+
+  // The raw groupBy includes cascades whose 72h TTL has elapsed but which
+  // the daily expire cron hasn't flipped to 'expired' yet. The inbox query
+  // filters those out (the approve endpoint refuses them anyway), so the
+  // "Awaiting review" stat would otherwise read higher than the inbox card
+  // count. Override with the actionable-only count for UX consistency.
+  const awaitingApprovalActionable = await prisma.milestoneCascade.count({
+    where: { status: 'awaiting_approval', expiresAt: { gt: now } },
+  });
+  countByStatus.awaiting_approval = awaitingApprovalActionable;
 
   // Timing samples — windowed by createdAt.
   const drafted = await prisma.milestoneCascade.findMany({

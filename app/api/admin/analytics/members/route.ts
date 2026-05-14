@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       prisma.$queryRaw<{ day: string; count: number }[]>`
         SELECT DATE_TRUNC('day', me.created_at)::text as day, COUNT(DISTINCT me.user_id)::int as count
         FROM member_events me
-        INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}::uuid
+        INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
         WHERE me.created_at >= ${start} AND me.created_at <= ${end}
         GROUP BY DATE_TRUNC('day', me.created_at)
         ORDER BY day

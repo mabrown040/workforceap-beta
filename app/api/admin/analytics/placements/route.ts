@@ -37,7 +37,7 @@ export async function GET() {
           MIN(pr.salary_offered)::float as min,
           MAX(pr.salary_offered)::float as max
         FROM placement_records pr
-        INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}::uuid
+        INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}
         WHERE pr.salary_offered IS NOT NULL
       `,
     ]);

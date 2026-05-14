@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdminOrCounselor } from '@/lib/auth/roles';
+import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { buildMemberExport } from '@/lib/member/exportData';
 
 /**
  * GET /api/admin/members/[id]/export-data
  *
- * Admin/counselor can export any member's data.
- * Returns the same comprehensive JSON structure as the member self-export.
+ * Admin can export any member's data. Counselor can export only their own
+ * assigned members — same scoping as the rest of the counselor surface
+ * (lib/counselor/staffMemberAccess.ts). Without this check a counselor
+ * could enumerate member ids and exfiltrate GDPR-style dumps for anyone.
  */
 export async function GET(
   _req: NextRequest,
@@ -20,6 +23,13 @@ export async function GET(
     }
 
     const { id } = await params;
+
+    // Per-member scope: admin passes through; counselor must be actively
+    // assigned to this member.
+    const allowed = await assertStaffCanAccessMemberRecord(auth.userId, id);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Forbidden: not your assigned member' }, { status: 403 });
+    }
 
     const exportData = await buildMemberExport(id);
 

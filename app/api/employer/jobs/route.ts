@@ -100,6 +100,14 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
     }
 
+    // Pending approval employers can only save drafts
+    if (ctx.employer.status === 'pending_approval' && parsed.data.status !== 'draft') {
+      return NextResponse.json(
+        { error: 'Your account is pending approval. You can only save drafts at this time.' },
+        { status: 403 }
+      );
+    }
+
   const employer = await prisma.employer.findUnique({
       where: { id: ctx.employerId },
       select: { companyName: true, contactEmail: true, organizationId: true },

@@ -9,6 +9,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import { DefinitionList, DefinitionRow } from '@/components/portal/ui/DefinitionList';
 import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPrefs';
+import PartnerContactEditForm from '@/components/partner/PartnerContactEditForm';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -74,10 +75,13 @@ export default async function PartnerSettingsPage() {
       <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', maxWidth: 640, marginBottom: '1rem' }}>
         <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>Primary Contact</h2>
         <DefinitionList>
-          <DefinitionRow label="Contact Name" value={partner.contactName} />
           <DefinitionRow label="Email" value={partner.contactEmail} />
-          <DefinitionRow label="Phone" value={partner.contactPhone} />
         </DefinitionList>
+        <PartnerContactEditForm
+          partnerId={ctx.partnerId}
+          initialContactName={partner.contactName}
+          initialContactPhone={partner.contactPhone}
+        />
       </div>
 
       <PartnerNotificationPrefs
@@ -89,13 +93,9 @@ export default async function PartnerSettingsPage() {
         }}
       />
 
-      <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: 640, lineHeight: 1.6, marginBottom: '1rem' }}>
-        To change contact details or branding, email{' '}
-        <a href="mailto:info@workforceap.org">info@workforceap.org</a> or use the{' '}
-        <Link href="/contact" style={{ color: 'var(--color-accent)' }}>
-          contact form
-        </Link>
-        .
+      <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: 640, lineHeight: 1.6, marginBottom: '1rem', fontSize: '0.875rem' }}>
+        To change your organization name, slug, or referral code, please{' '}
+        <a href="mailto:info@workforceap.org">contact our team</a>.
       </p>
       </div>
       <MobileBottomNav variant="partner" />

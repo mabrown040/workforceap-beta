@@ -33,6 +33,22 @@ function getPartnershipTier(placementAgreementSigned: boolean, hiringPipelineAct
   return { label: 'Standard', color: 'var(--color-on-surface-variant)', bg: 'var(--surface-container)' };
 }
 
+function statusBadgeStyle(status: string) {
+  if (status === 'active') {
+    return { background: 'rgba(74, 155, 79, 0.12)', color: '#2d7a32' };
+  }
+  if (status === 'pending_approval') {
+    return { background: 'rgba(245, 158, 11, 0.12)', color: '#b45309' };
+  }
+  return { background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' };
+}
+
+function statusLabel(status: string) {
+  if (status === 'active') return 'Active';
+  if (status === 'pending_approval') return 'Pending';
+  return 'Inactive';
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
     title: 'Admin - Employers',
@@ -41,24 +57,42 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function AdminEmployersPage() {
+export default async function AdminEmployersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/employers');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const [superAdmin, employers] = await Promise.all([
+  const { status: statusFilter } = await searchParams;
+  const activeTab = statusFilter || 'all';
+
+  const where = activeTab !== 'all' ? { status: activeTab } : {};
+
+  const [superAdmin, employers, pendingCount] = await Promise.all([
     isSuperAdmin(user.id),
     prisma.employer.findMany({
       take: 5000,
+      where,
       orderBy: { companyName: 'asc' },
       include: {
         user: { select: { email: true, fullName: true } },
         _count: { select: { jobs: true } },
       },
     }),
+    prisma.employer.count({ where: { status: 'pending_approval' } }),
   ]);
 
   type EmployerRow = (typeof employers)[number];
+
+  const tabs = [
+    { key: 'all', label: 'All' },
+    { key: 'pending_approval', label: `Pending${pendingCount > 0 ? ` (${pendingCount})` : ''}` },
+    { key: 'active', label: 'Active' },
+    { key: 'inactive', label: 'Inactive' },
+  ];
 
   const employerColumns: DataTableColumn<EmployerRow>[] = [
     {
@@ -117,20 +151,23 @@ export default async function AdminEmployersPage() {
     {
       key: 'status',
       header: 'Status',
-      cell: (e) => (
-        <span
-          style={{
-            padding: '0.2rem 0.5rem',
-            borderRadius: '999px',
-            fontSize: '0.75rem',
-            background: e.status === 'active' ? 'rgba(74, 155, 79, 0.12)' : 'var(--surface-container)',
-            color: e.status === 'active' ? '#2d7a32' : 'var(--color-on-surface-variant)',
-            fontWeight: 600,
-          }}
-        >
-          {e.status === 'active' ? 'Active' : 'Inactive'}
-        </span>
-      ),
+      cell: (e) => {
+        const style = statusBadgeStyle(e.status);
+        return (
+          <span
+            style={{
+              padding: '0.2rem 0.5rem',
+              borderRadius: '999px',
+              fontSize: '0.75rem',
+              background: style.background,
+              color: style.color,
+              fontWeight: 600,
+            }}
+          >
+            {statusLabel(e.status)}
+          </span>
+        );
+      },
     },
     {
       key: 'jobs',
@@ -167,7 +204,7 @@ export default async function AdminEmployersPage() {
     {
       key: 'actions',
       header: 'Actions',
-      cell: (e) => <EmployerStatusButton employerId={e.id} active={e.status === 'active'} />,
+      cell: (e) => <EmployerStatusButton employerId={e.id} status={e.status as 'active' | 'inactive' | 'pending_approval'} />,
     },
     ...(superAdmin
       ? ([
@@ -213,6 +250,28 @@ export default async function AdminEmployersPage() {
         </p>
       )}
 
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '0.25rem' }}>
+        {tabs.map((tab) => (
+          <Link
+            key={tab.key}
+            href={`/admin/employers${tab.key === 'all' ? '' : `?status=${tab.key}`}`}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem 0.5rem 0 0',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+              color: activeTab === tab.key ? 'var(--color-primary)' : 'var(--color-on-surface-variant)',
+              background: activeTab === tab.key ? 'var(--surface-container)' : 'transparent',
+              borderBottom: activeTab === tab.key ? '2px solid var(--color-primary)' : '2px solid transparent',
+            }}
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </div>
+
       {employers.length > 0 && (
         <>
           {/* Desktop table */}
@@ -231,6 +290,7 @@ export default async function AdminEmployersPage() {
           <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
             {employers.map((e) => {
               const initials = (e.companyName ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+              const sStyle = statusBadgeStyle(e.status);
               return (
                 <div key={e.id} className="portal-activity-item" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.75rem' }}>
                   {/* Header row */}
@@ -247,12 +307,9 @@ export default async function AdminEmployersPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
                       <span
                         className="admin-portal-card__badge"
-                        style={{
-                          background: e.status === 'active' ? 'rgba(74,155,79,0.12)' : 'var(--surface-container)',
-                          color: e.status === 'active' ? '#2d7a32' : 'var(--color-on-surface-variant)',
-                        }}
+                        style={{ background: sStyle.background, color: sStyle.color }}
                       >
-                        {e.status === 'active' ? 'Active' : 'Inactive'}
+                        {statusLabel(e.status)}
                       </span>
                       <span className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue" style={{ width: '1.75rem', height: '1.75rem', borderRadius: '0.375rem' }}>
                         <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>work</span>
@@ -280,7 +337,7 @@ export default async function AdminEmployersPage() {
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0, alignItems: 'center' }}>
                       <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />
-                      <EmployerStatusButton employerId={e.id} active={e.status === 'active'} />
+                      <EmployerStatusButton employerId={e.id} status={e.status as 'active' | 'inactive' | 'pending_approval'} />
                       {superAdmin && (
                         <OpenEmployerPortalButton
                           employerId={e.id}
@@ -299,7 +356,13 @@ export default async function AdminEmployersPage() {
 
       {employers.length === 0 && (
         <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '1rem' }}>
-          No employers yet. Create the first account using the form below.
+          {activeTab === 'pending_approval'
+            ? 'No pending employers. Great!'
+            : activeTab === 'active'
+            ? 'No active employers yet.'
+            : activeTab === 'inactive'
+            ? 'No inactive employers.'
+            : 'No employers yet. Create the first account using the form below.'}
         </p>
       )}
 

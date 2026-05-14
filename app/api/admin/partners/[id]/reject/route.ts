@@ -1,0 +1,95 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { Resend } from 'resend';
+import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
+
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+export const POST = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
+  try {
+    const user = await getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const { id } = await params;
+
+    const partner = await prisma.partner.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        status: true,
+        contactEmail: true,
+        contactName: true,
+        name: true,
+      },
+    });
+
+    if (!partner) {
+      return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+    }
+
+    if (partner.status !== 'pending_approval') {
+      return NextResponse.json({ error: 'Partner is not pending approval' }, { status: 400 });
+    }
+
+    let notes: string | null = null;
+    try {
+      const body = await request.json();
+      notes = typeof body.notes === 'string' ? body.notes.trim() || null : null;
+    } catch {
+      notes = null;
+    }
+
+    await prisma.partner.update({
+      where: { id },
+      data: {
+        status: 'rejected',
+        active: false,
+        rejectedAt: new Date(),
+        rejectedById: user.id,
+        rejectionNotes: notes,
+      },
+    });
+
+    // Send rejection email
+    const resendKey = process.env.RESEND_API_KEY;
+    const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
+    if (resendKey && partner.contactEmail) {
+      try {
+        const resend = new Resend(resendKey);
+        const lines = [
+          `Hi ${partner.contactName || 'there'},`,
+          '',
+          `Thank you for your interest in partnering with WorkforceAP.`,
+          '',
+          `After review, we are not able to approve ${partner.name} as a referral partner at this time.`,
+        ];
+        if (notes) {
+          lines.push('', `Reason: ${notes}`);
+        }
+        lines.push(
+          '',
+          'If you believe this was in error or your circumstances have changed, feel free to reach out to us at info@workforceap.org.',
+          '',
+          '— WorkforceAP Team'
+        );
+
+        await resend.emails.send({
+          from: emailFrom,
+          to: partner.contactEmail,
+          subject: sanitizeEmailSubjectLine('Update on your WorkforceAP partner application'),
+          text: lines.join('\n'),
+        });
+      } catch (e) {
+        console.error('Partner rejection email failed:', e);
+      }
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error('/admin/partners/[id]/reject:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+});

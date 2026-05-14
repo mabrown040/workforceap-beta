@@ -358,9 +358,10 @@ function mapEmployerRow(row: {
   contactEmail: string;
   tier: string;
   logoUrl: string | null;
+  status?: string;
 }): {
   employerId: string;
-  employer: { id: string; companyName: string; contactEmail: string; tier: string; logoUrl: string | null };
+  employer: { id: string; companyName: string; contactEmail: string; tier: string; logoUrl: string | null; status: string };
 } {
   return {
     employerId: row.id,
@@ -370,6 +371,7 @@ function mapEmployerRow(row: {
       contactEmail: row.contactEmail,
       tier: row.tier,
       logoUrl: resolveSupabasePublicAssetUrl('employer-logos', row.logoUrl),
+      status: row.status ?? 'active',
     },
   };
 }
@@ -384,7 +386,7 @@ export async function getEmployerForUser(
   options?: { isSuperAdminHint?: boolean }
 ): Promise<{
   employerId: string;
-  employer: { id: string; companyName: string; contactEmail: string; tier: string; logoUrl: string | null };
+  employer: { id: string; companyName: string; contactEmail: string; tier: string; logoUrl: string | null; status: string };
 } | null> {
   const superUser =
     options?.isSuperAdminHint !== undefined ? options.isSuperAdminHint : await isSuperAdmin(userId);
@@ -395,14 +397,14 @@ export async function getEmployerForUser(
     if (fromCookie) {
       const byCookie = await prisma.employer.findFirst({
         where: { id: fromCookie, status: 'active' },
-        select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
+        select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true, status: true },
       });
       if (byCookie) return mapEmployerRow(byCookie);
     }
 
     const fallbackEmployer = await prisma.employer.findFirst({
       where: { contactEmail: SUPER_ADMIN_FALLBACK_EMPLOYER_EMAIL, status: 'active' },
-      select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
+      select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true, status: true },
     });
     if (fallbackEmployer) return mapEmployerRow(fallbackEmployer);
 
@@ -412,7 +414,7 @@ export async function getEmployerForUser(
     const anyActiveEmployer = await prisma.employer.findFirst({
       where: { status: 'active' },
       orderBy: { createdAt: 'asc' },
-      select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true },
+      select: { id: true, companyName: true, contactEmail: true, tier: true, logoUrl: true, status: true },
     });
     if (anyActiveEmployer) return mapEmployerRow(anyActiveEmployer);
   }
@@ -421,7 +423,7 @@ export async function getEmployerForUser(
     where: { userId },
     select: { id: true, companyName: true, contactEmail: true, status: true, tier: true, logoUrl: true },
   });
-  if (row && row.status === 'active') {
+  if (row && (row.status === 'active' || row.status === 'pending_approval')) {
     return mapEmployerRow(row);
   }
 
@@ -456,7 +458,7 @@ export async function getEmployerAccountForNav(
     where: { userId },
     select: { id: true, companyName: true, status: true },
   });
-  if (row?.status === 'active') {
+  if (row && (row.status === 'active' || row.status === 'pending_approval')) {
     return { employerId: row.id, companyName: row.companyName };
   }
   return null;

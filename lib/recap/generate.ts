@@ -263,14 +263,24 @@ export async function generateWeeklyRecaps(
   }
 
   // 3. Batch fetch all related data
+  //
+  // `take` here applies to the WHOLE batch (up to 500 members), not per
+  // member. The old `take: 1000` meant a single high-activity member
+  // (say 1000+ goals) would consume the entire window and members later
+  // in the batch got empty arrays — undercounting their recap stats and
+  // surfacing wrong recommendedActions. Raised to 500 × 200 = 100_000
+  // per type as a worst-case soft cap; the consumer below already does
+  // per-member filtering, so over-fetching is correct as long as no
+  // single member starves the others.
+  const BATCH_PER_TYPE_LIMIT = 100_000;
   const [goalsAll, jobAppsAll, aiResultsAll, resourceProgressAll, pathwayProgressAll, certsAll, upcomingSessionsAll, newJobsAll, scoreBreakdowns] =
     await Promise.all([
-      prisma.goal.findMany({ take: 1000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
-      prisma.jobApplication.findMany({ take: 1000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
-      prisma.aIToolResult.findMany({ take: 1000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
-      prisma.resourceProgress.findMany({ take: 1000, where: { userId: { in: memberIds } } }),
-      prisma.pathwayStepProgress.findMany({ take: 1000, where: { userId: { in: memberIds } } }),
-      prisma.userCertification.findMany({ take: 1000, where: { userId: { in: memberIds } } }),
+      prisma.goal.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
+      prisma.jobApplication.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
+      prisma.aIToolResult.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
+      prisma.resourceProgress.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } } }),
+      prisma.pathwayStepProgress.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } } }),
+      prisma.userCertification.findMany({ take: BATCH_PER_TYPE_LIMIT, where: { userId: { in: memberIds } } }),
       prisma.mentorSession.findMany({
         where: { memberId: { in: memberIds }, scheduledAt: { gte: now }, status: { in: ['PENDING', 'CONFIRMED'] } },
         orderBy: { scheduledAt: 'asc' },

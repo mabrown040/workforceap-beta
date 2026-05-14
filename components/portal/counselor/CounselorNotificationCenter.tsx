@@ -117,8 +117,15 @@ export default function CounselorNotificationCenter({ members }: { members: Memb
     try {
       const r = await fetch(`/api/member/notifications/${id}`, { method: 'DELETE', credentials: 'include' });
       if (r.ok) {
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
-        setUnreadCount((c) => Math.max(0, c - 1));
+        // Only decrement the unread badge if the dismissed notification was
+        // actually unread. Mirrors the fix in NotificationBell.dismiss().
+        setNotifications((prev) => {
+          const target = prev.find((n) => n.id === id);
+          if (target && !target.read) {
+            setUnreadCount((c) => Math.max(0, c - 1));
+          }
+          return prev.filter((n) => n.id !== id);
+        });
       }
     } catch {
       /* non-fatal */

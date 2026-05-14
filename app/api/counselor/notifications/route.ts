@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUser, isCounselor } from '@/lib/auth/server';
+import { getUser } from '@/lib/auth/server';
+import { isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -8,7 +9,10 @@ async function _GET(request: NextRequest) {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const isCounselorUser = await isCounselor(user);
+    // isCounselor takes a userId (string), not a User object — the previous
+    // import was from lib/auth/server which has no such export. Tests masked
+    // this by mocking the missing function.
+    const isCounselorUser = await isCounselor(user.id);
     if (!isCounselorUser) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);

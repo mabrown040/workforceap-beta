@@ -177,8 +177,16 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
     try {
       const r = await fetch(`/api/member/notifications/${id}`, { method: 'DELETE', credentials: 'include' });
       if (r.ok) {
-        setDbNotifications((prev) => prev.filter((n) => n.id !== id));
-        setDbUnreadCount((c) => Math.max(0, c - 1));
+        // Decrement the unread badge ONLY if the dismissed notification was
+        // actually unread. Otherwise dismissing an already-read item makes
+        // the bell underreport unread count until the next poll.
+        setDbNotifications((prev) => {
+          const target = prev.find((n) => n.id === id);
+          if (target && !target.read) {
+            setDbUnreadCount((c) => Math.max(0, c - 1));
+          }
+          return prev.filter((n) => n.id !== id);
+        });
       }
     } catch {
       /* non-fatal */

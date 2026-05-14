@@ -9,24 +9,39 @@ function escapeSqlString(value: string): string {
 }
 
 function isGucSetupQuery(sql: unknown): boolean {
-  return typeof sql === 'string' && sql.includes('SET LOCAL app.current_');
+  return typeof sql === 'string' && sql.includes("set_config('app.current_");
 }
 
 export function buildGucSql(ctx: GucContext): string {
-  const sets: string[] = [];
-
-  sets.push(`SET LOCAL app.current_user_id = '${escapeSqlString(ctx.userId ?? '')}';`);
-  sets.push(`SET LOCAL app.current_org_id = '${escapeSqlString(ctx.orgId ?? '')}';`);
-  sets.push(`SET LOCAL app.current_role = '${escapeSqlString(ctx.role)}';`);
+  // Use `set_config(name, value, is_local)` instead of `SET LOCAL <name> = <value>`
+  // because PostgreSQL's parser rejects `SET LOCAL app.current_role = ...` —
+  // `current_role` is a SQL-reserved word (current_role is a builtin function),
+  // so the statement form trips error 42601 ("syntax error at or near
+  // \"current_role\"") even though the qualified `app.<name>` identifier is
+  // legal as a custom GUC at runtime. `set_config()` takes the parameter name
+  // as a regular string and dodges the parser issue.
+  //
+  // All three params are combined into a single SELECT so we issue one query
+  // per Prisma middleware invocation. `set_config(name, value, true)` sets
+  // the value for the rest of the current transaction (equivalent to
+  // `SET LOCAL`).
+  const userId = escapeSqlString(ctx.userId ?? '');
+  const orgId = escapeSqlString(ctx.orgId ?? '');
+  const role = escapeSqlString(ctx.role);
+  const parts = [
+    `set_config('app.current_user_id', '${userId}', true)`,
+    `set_config('app.current_org_id', '${orgId}', true)`,
+    `set_config('app.current_role', '${role}', true)`,
+  ];
 
   if (ctx.employerId) {
-    sets.push(`SET LOCAL app.current_employer_id = '${escapeSqlString(ctx.employerId)}';`);
+    parts.push(`set_config('app.current_employer_id', '${escapeSqlString(ctx.employerId)}', true)`);
   }
   if (ctx.partnerId) {
-    sets.push(`SET LOCAL app.current_partner_id = '${escapeSqlString(ctx.partnerId)}';`);
+    parts.push(`set_config('app.current_partner_id', '${escapeSqlString(ctx.partnerId)}', true)`);
   }
 
-  return sets.join(' ');
+  return `SELECT ${parts.join(', ')};`;
 }
 
 function createPrismaClient(): PrismaClient {

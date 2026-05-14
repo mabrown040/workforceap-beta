@@ -110,8 +110,8 @@ test('buildGucSql includes employerId and partnerId when present', () => {
     partnerId: 'p-1',
   };
   const sql = buildGucSql(ctx);
-  assert.ok(sql.includes("app.current_employer_id = 'e-1'"));
-  assert.ok(sql.includes("app.current_partner_id = 'p-1'"));
+  assert.ok(sql.includes("set_config('app.current_employer_id', 'e-1', true)"));
+  assert.ok(sql.includes("set_config('app.current_partner_id', 'p-1', true)"));
 });
 
 test('buildGucSql omits employerId and partnerId when absent', () => {
@@ -127,9 +127,9 @@ test('buildGucSql omits employerId and partnerId when absent', () => {
 
 test('buildGucSql sets empty strings for null userId/orgId', () => {
   const sql = buildGucSql(ANONYMOUS_GUC_CONTEXT);
-  assert.ok(sql.includes("app.current_user_id = ''"));
-  assert.ok(sql.includes("app.current_org_id = ''"));
-  assert.ok(sql.includes("app.current_role = 'anonymous'"));
+  assert.ok(sql.includes("set_config('app.current_user_id', '', true)"));
+  assert.ok(sql.includes("set_config('app.current_org_id', '', true)"));
+  assert.ok(sql.includes("set_config('app.current_role', 'anonymous', true)"));
 });
 
 test('inTransactionStorage defaults to undefined', () => {

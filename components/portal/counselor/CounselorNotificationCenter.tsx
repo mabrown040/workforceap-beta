@@ -121,7 +121,7 @@ export default function CounselorNotificationCenter({ members }: { members: Memb
         // actually unread. Mirrors the fix in NotificationBell.dismiss().
         setNotifications((prev) => {
           const target = prev.find((n) => n.id === id);
-          if (target && !target.read) {
+          if (target && !target.readAt) {
             setUnreadCount((c) => Math.max(0, c - 1));
           }
           return prev.filter((n) => n.id !== id);

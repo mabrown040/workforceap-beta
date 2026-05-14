@@ -182,7 +182,7 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
         // the bell underreport unread count until the next poll.
         setDbNotifications((prev) => {
           const target = prev.find((n) => n.id === id);
-          if (target && !target.read) {
+          if (target && !target.readAt) {
             setDbUnreadCount((c) => Math.max(0, c - 1));
           }
           return prev.filter((n) => n.id !== id);

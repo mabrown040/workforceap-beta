@@ -412,6 +412,13 @@ html.dark .home-credibility-bar .home-cred-logo {
   border-top: 1px solid var(--mbn-border);
 }
 
+@media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+  nav#mobile-bottom-nav.mobile-bottom-nav-root,
+  nav#mobile-bottom-nav.mobile-bottom-nav-root .marketing-bottom-nav__link {
+    transition: padding 0.18s ease, min-height 0.18s ease;
+  }
+}
+
 html.dark .marketing-bottom-nav {
   --mbn-inactive-fg: #584144;
   --mbn-bg: rgba(252, 249, 248, 0.92);

@@ -186,7 +186,7 @@ export default function ApplyEligibilityClient() {
       <form
         className="apply-step-content"
         action={localizeHref(programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results', locale)}
-        method="post"
+        method="get"
         noValidate
         onSubmit={(e) => {
           e.preventDefault();

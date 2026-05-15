@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Workforce Advancement Project logo">
   <rect width="1200" height="675" rx="42" fill="#111827" />
   <g transform="translate(86 230)">
-    <circle cx="85" cy="85" r="76" fill="#8B1538" />
-    <path d="M66 30h22L74 93h38L68 169l14-63H47z" fill="#fff" stroke="#8B0000" stroke-width="3" />
+    <circle cx="85" cy="85" r="76" fill="#DC143C" />
+    <path d="M66 30h22L74 93h38L68 169l14-63H47z" fill="#fff" stroke="#8B0000" stroke-width="2" />
   </g>
-  <text x="300" y="300" fill="#ffffff" font-size="96" font-family="Arial, Helvetica, sans-serif" font-weight="800">WorkforceAP</text>
+  <text x="300" y="300" fill="#ffffff" font-size="96" font-family="Arial, Helvetica, sans-serif" font-weight="700">WorkforceAP</text>
   <text x="300" y="370" fill="#d1d5db" font-size="42" font-family="Arial, Helvetica, sans-serif">Workforce Advancement Project</text>
   <text x="300" y="435" fill="#9ca3af" font-size="34" font-family="Arial, Helvetica, sans-serif">Empowering People. Advancing Futures.</text>
 </svg>

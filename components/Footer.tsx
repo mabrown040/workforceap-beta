@@ -14,7 +14,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         <div>
           {variant === 'inner' ? (
             <Image
-              src="/images/logo-tight.png"
+              src="/images/wap_logo.png"
               alt="WorkforceAP"
               className="footer-logo"
               width={210}

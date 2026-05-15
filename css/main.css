@@ -1881,7 +1881,7 @@ body.mobile-nav-open .main-nav::after {
     display: block;
     object-fit: contain;
     object-position: center;
-    filter: contrast(1.06) saturate(1.03);
+    filter: contrast(1.05) saturate(1.01);
     transition: height var(--transition-base);
 }
 .main-nav.scrolled .nav-logo-image {
@@ -4593,7 +4593,7 @@ html.dark .program-skill-tag {
     width: auto;
     margin-bottom: 1.25rem;
     display: block;
-    filter: contrast(1.06) saturate(1.03);
+    filter: contrast(1.05) saturate(1.01);
 }
 .footer-bottom {
     max-width: var(--max-width);

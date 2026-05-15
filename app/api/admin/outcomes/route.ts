@@ -6,9 +6,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { unstable_cache } from 'next/cache';
 
-const getOutcomes = unstable_cache(
-  async (orgId: string) => {
-    return withTenantScope(orgId, async (db) => {
+function computeOutcomes(orgId: string) {
+  return withTenantScope(orgId, async (db) => {
       const totalMembers = await db.user.count({ where: { deletedAt: null, role: 'member' } });
       const enrolled = await db.courseEnrollment.count();
       const completed = await db.courseProgress.count({ where: { status: 'COMPLETED' } });
@@ -81,10 +80,7 @@ const getOutcomes = unstable_cache(
         })),
       };
     });
-  },
-  ['admin-outcomes'],
-  { revalidate: 300 }
-);
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -94,7 +90,15 @@ export async function GET(req: NextRequest) {
   }
 
   const orgId = await getActorOrganizationId(user.id);
-  const data = await getOutcomes(orgId);
+  // Include orgId in the cache key array (not just as an arg) so a
+  // future change to Next.js's implicit arg-keying can't cause
+  // cross-tenant cache pollution. Matches the pattern in
+  // /api/admin/metrics and /api/admin/analytics/ai-efficacy.
+  const data = await unstable_cache(
+    () => computeOutcomes(orgId),
+    ['admin-outcomes-v1', orgId],
+    { revalidate: 300 },
+  )();
   return NextResponse.json(data);
 
   } catch (error) {

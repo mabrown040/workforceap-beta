@@ -140,17 +140,14 @@ export default async function CounselorStudentsPage() {
     atRiskList: { memberId: string; riskScore: number; riskLevel: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'; enrolledProgram: string | null }[];
   } | null = null;
 
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/api/counselor/analytics`, {
-      headers: { cookie: '' }, // server-side fetch, auth via session cookie if available
-      next: { revalidate: 60 },
-    });
-    if (res.ok) {
-      analyticsData = await res.json();
-    }
-  } catch {
-    // Analytics fetch failed silently — page still renders
-  }
+  // Previously fetched `/api/counselor/analytics` here, but the call
+  // sent `cookie: ''` (no session) so the route always returned 401,
+  // and the failure was cached for 60s under `next: { revalidate }` —
+  // wasting requests and polluting the data cache. The fallback below
+  // already computes a usable analytics object from the rosterRows
+  // we've already loaded, so the fetch was dead code. If we want a
+  // richer view later, render this through a client component that
+  // can authenticate.
 
   // Fallback analytics from already-loaded data
   const analytics = analyticsData ?? {

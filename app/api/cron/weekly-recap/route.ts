@@ -57,14 +57,27 @@ async function handle(_request: Request) {
 
       const recapSummary = buildWeeklyRecapEmailSummary(recapData);
 
-      await sendWeeklyRecapEmail({
+      const result = await sendWeeklyRecapEmail({
         to: member.email,
         fullName: member.fullName ?? member.email,
         recapSummary,
       });
 
-      // Do not set openedAt here — that field means the member opened the recap in the portal.
-      sent++;
+      // sendWeeklyRecapEmail catches Resend failures internally and
+      // returns `{ ok: false }` rather than throwing. Without this
+      // check the previous version booked every recipient as `sent`,
+      // making the metric meaningless and hiding deliverability
+      // regressions from the cron dashboard.
+      if (result?.ok === false) {
+        captureApiError(new Error(result.error ?? 'sendWeeklyRecapEmail failed'), {
+          route: 'cron/weekly-recap',
+          extra: { userId: member.id },
+        });
+        failed++;
+      } else {
+        // Do not set openedAt here — that field means the member opened the recap in the portal.
+        sent++;
+      }
     } catch (e) {
       captureApiError(e, { route: 'cron/weekly-recap', extra: { userId: member.id } });
       failed++;

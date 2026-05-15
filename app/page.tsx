@@ -11,6 +11,7 @@ import ErrorBoundary from '@/components/error/ErrorBoundary';
 import { getTranslations } from 'next-intl/server';
 import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 import LanguageToggle from '@/components/portal/LanguageToggle';
+import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 // Product stake: if the homepage uses the brand line "Empowering People. Advancing Futures.",
 // keep the supporting copy immediately concrete, member-safe, and operational.
@@ -133,7 +134,7 @@ export default async function HomePage() {
           fill
           priority={true}
           fetchPriority="high"
-          sizes="(min-width: 1921px) 1920px, 100vw"
+          sizes={MARKETING_FULL_BLEED_HERO_SIZES}
           quality={85}
           placeholder="blur"
           blurDataURL={HERO_IMAGE_BLUR}

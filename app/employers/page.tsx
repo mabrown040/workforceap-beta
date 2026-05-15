@@ -11,6 +11,7 @@ import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { getTranslations } from 'next-intl/server';
+import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.employers');
@@ -78,7 +79,7 @@ export default async function EmployersPage() {
           fill
           priority
           fetchPriority="high"
-          sizes="100vw"
+          sizes={MARKETING_FULL_BLEED_HERO_SIZES}
           style={{ objectFit: 'cover', objectPosition: 'center 35%' }}
           aria-hidden="true"
         />

@@ -4,7 +4,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { memberSignupSchema } from '@/lib/validation/member';
-import { checkSignupRateLimit } from '@/lib/rate-limit';
+import { checkSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -44,7 +44,18 @@ export async function POST(request: NextRequest) {
     }
   
     const data = parsed.data;
-  
+
+    // Per-email rate limit. The per-IP limit above lets an attacker
+    // rotating IPs spam verification mail at the same target address;
+    // this caps requests at 3/hr/email.
+    const { success: emailRateOk } = await checkSignupEmailRateLimit(data.email);
+    if (!emailRateOk) {
+      return NextResponse.json(
+        { error: 'Too many signup attempts for this email. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     const databaseUrl =

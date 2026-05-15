@@ -5,7 +5,7 @@ import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { z } from 'zod';
-import { checkApplySignupRateLimit } from '@/lib/rate-limit';
+import { checkApplySignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
 import { ApplicationStatus } from '@prisma/client';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
@@ -86,7 +86,17 @@ const applySignupSchema = z.object({
       careerRecommendationJson,
       needsComputerSupportFollowUp,
     } = parsed.data;
-  
+
+    // Per-email rate limit (3/hr). The per-IP limit above lets an
+    // attacker rotating IPs spam verification mail to the same target.
+    const { success: emailRateOk } = await checkSignupEmailRateLimit(email);
+    if (!emailRateOk) {
+      return NextResponse.json(
+        { error: 'Too many signup attempts for this email. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const profileAddressParts = [addressLine1?.trim(), addressLine2?.trim()].filter(Boolean) as string[];
     const profileAddress = profileAddressParts.length > 0 ? profileAddressParts.join(', ') : null;
   

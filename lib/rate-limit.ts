@@ -11,6 +11,19 @@ const FAIL_CLOSED = !redisUrl || !redisToken;
 let signupRateLimiter: Ratelimit | null = null;
 let applySignupRateLimiter: Ratelimit | null = null;
 let authRateLimiter: Ratelimit | null = null;
+// Per-IP-only bucket used alongside the per-(ip,email) `authRateLimiter`
+// above. The compound key permits credential-stuffing — rotating emails on
+// one IP gives each email its own bucket. This bucket caps the total
+// auth attempts from any single IP regardless of which email is being
+// tried. Per-launch-bump tuning: 100/15min covers a workforce-center-on-
+// shared-IP burst without enabling rapid stuffing.
+let authIpRateLimiter: Ratelimit | null = null;
+// Per-email-only bucket for signup endpoints. Each signup route has its
+// own per-IP limiter; this one prevents an attacker spread across many
+// IPs from spamming the same target email with verification mails
+// (Supabase will silently send "your account already exists" notices to
+// real owners, which is an email-bombing surface for a known address).
+let signupEmailRateLimiter: Ratelimit | null = null;
 let aiToolRateLimiter: Ratelimit | null = null;
 let contactRateLimiter: Ratelimit | null = null;
 let adminInviteRateLimiter: Ratelimit | null = null;
@@ -52,6 +65,16 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(20, '1 m'),
     prefix: 'ratelimit:auth',
+  });
+  authIpRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(100, '15 m'),
+    prefix: 'ratelimit:auth-ip',
+  });
+  signupEmailRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(3, '1 h'),
+    prefix: 'ratelimit:signup-email',
   });
   aiToolRateLimiter = new Ratelimit({
     redis,
@@ -187,6 +210,30 @@ export async function checkAuthRateLimit(identifier: string): Promise<{ success:
   // Auth fails OPEN so the app stays usable when Upstash is not configured
   if (!authRateLimiter) return { success: true };
   const result = await authRateLimiter.limit(identifier);
+  return { success: result.success, remaining: result.remaining };
+}
+
+/**
+ * Per-IP-only auth limiter. Use alongside `checkAuthRateLimit` (which is
+ * keyed by `ip:email`) so a credential-stuffer rotating emails on one IP
+ * is throttled by total attempts, not per-target-email buckets.
+ */
+export async function checkAuthIpRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!authIpRateLimiter) return { success: true };
+  const result = await authIpRateLimiter.limit(`auth-ip:${ip}`);
+  return { success: result.success, remaining: result.remaining };
+}
+
+/**
+ * Per-email signup limiter. Use alongside the per-IP signup limiters
+ * (member/apply/employer/partner) to block one attacker rotating IPs to
+ * spam verification mail to the same target address.
+ */
+export async function checkSignupEmailRateLimit(email: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!signupEmailRateLimiter) return { success: true };
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return { success: true };
+  const result = await signupEmailRateLimiter.limit(`signup-email:${normalized}`);
   return { success: result.success, remaining: result.remaining };
 }
 

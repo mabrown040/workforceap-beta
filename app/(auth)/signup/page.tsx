@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
+import { getRequestLocale } from '@/lib/i18n/server';
+import { withLocalePrefix } from '@/lib/i18n/config';
 import SignupForm from './SignupForm';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,12 +20,12 @@ export default async function SignupPage({
 }: {
   searchParams: Promise<{ redirectTo?: string }>;
 }) {
-  const sp = await searchParams;
+  const [sp, locale] = await Promise.all([searchParams, getRequestLocale()]);
   const rawRedirect = typeof sp?.redirectTo === 'string' ? sp.redirectTo : undefined;
-  const normalizedRedirect = sanitizeRedirectPath(rawRedirect, '/dashboard');
+  const normalizedRedirect = sanitizeRedirectPath(rawRedirect, withLocalePrefix('/dashboard', locale));
 
   if (rawRedirect && rawRedirect !== normalizedRedirect) {
-    redirect(`/signup?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
+    redirect(`${withLocalePrefix('/signup', locale)}?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
   }
 
   return <SignupForm initialRedirectTo={normalizedRedirect} />;

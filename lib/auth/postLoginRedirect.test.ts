@@ -11,6 +11,15 @@ test('normalizePostLoginRedirect falls back when redirect target is /login', () 
   assert.equal(normalizePostLoginRedirect('/login'), '/dashboard');
   assert.equal(normalizePostLoginRedirect('/login?redirectTo=%2Fpartner'), '/dashboard');
   assert.equal(normalizePostLoginRedirect('/login#member'), '/dashboard');
+  assert.equal(normalizePostLoginRedirect('/es/login?redirectTo=%2Fpartner'), '/es/dashboard');
+});
+
+test('normalizePostLoginRedirect does not double-prefix an already-localized fallback', () => {
+  // Caller may pass a fallback that already carries the locale prefix; we
+  // should strip it before re-prefixing with the locale from `raw`.
+  assert.equal(normalizePostLoginRedirect('/es/login', '/es/dashboard'), '/es/dashboard');
+  assert.equal(normalizePostLoginRedirect('/es/login?redirectTo=%2Fes%2Flogin', '/es/dashboard'), '/es/dashboard');
+  assert.equal(normalizePostLoginRedirect('/en/login', '/es/dashboard'), '/en/dashboard');
 });
 
 test('normalizePostLoginRedirect still blocks malformed redirects', () => {
@@ -21,6 +30,7 @@ test('normalizePostLoginRedirect still blocks malformed redirects', () => {
 test('resolveRoleAwarePostLoginRedirect sends counselors to /counselor when destination is member home', () => {
   assert.equal(resolveRoleAwarePostLoginRedirect('/dashboard', 'counselor'), '/counselor');
   assert.equal(resolveRoleAwarePostLoginRedirect('/dashboard?x=1', 'counselor'), '/counselor');
+  assert.equal(resolveRoleAwarePostLoginRedirect('/es/dashboard', 'counselor'), '/es/counselor');
 });
 
 test('resolveRoleAwarePostLoginRedirect leaves /counselor and nested /dashboard paths unchanged', () => {
@@ -38,6 +48,7 @@ test('resolveRoleAwarePostLoginRedirect keeps member and employer on /dashboard'
 test('resolveRoleAwarePostLoginRedirect keeps super_admin on /admin', () => {
   assert.equal(resolveRoleAwarePostLoginRedirect('/dashboard', 'super_admin'), '/admin');
   assert.equal(resolveRoleAwarePostLoginRedirect('/employer', 'super_admin'), '/admin');
+  assert.equal(resolveRoleAwarePostLoginRedirect('/es/dashboard', 'super_admin'), '/es/admin');
 });
 
 test('resolveRoleAwarePostLoginRedirect sends admins to /admin from member home only', () => {

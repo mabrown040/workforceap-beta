@@ -4,6 +4,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { normalizePostLoginRedirect, resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { getUser } from '@/lib/auth/server';
 import { getProfileRole } from '@/lib/auth/roles';
+import { getRequestLocale } from '@/lib/i18n/server';
+import { withLocalePrefix } from '@/lib/i18n/config';
 import LoginForm from './LoginForm';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,9 +23,9 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ redirectTo?: string }>;
 }) {
-  const [user, sp] = await Promise.all([getUser(), searchParams]);
+  const [user, sp, locale] = await Promise.all([getUser(), searchParams, getRequestLocale()]);
   const rawRedirect = typeof sp?.redirectTo === 'string' ? sp.redirectTo : undefined;
-  const normalizedRedirect = normalizePostLoginRedirect(rawRedirect, '/dashboard');
+  const normalizedRedirect = normalizePostLoginRedirect(rawRedirect, withLocalePrefix('/dashboard', locale));
 
   if (user) {
     const profileRole = await getProfileRole(user.id);
@@ -31,7 +33,7 @@ export default async function LoginPage({
   }
 
   if (rawRedirect && rawRedirect !== normalizedRedirect) {
-    redirect(`/login?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
+    redirect(`${withLocalePrefix('/login', locale)}?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
   }
 
   return <LoginForm initialRedirectTo={normalizedRedirect} />;

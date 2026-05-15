@@ -183,7 +183,16 @@ export default function ApplyEligibilityClient() {
         <p className="apply-progress-label">{t('step1ProgressLabel')}</p>
       </div>
 
-      <div className="apply-step-content">
+      <form
+        className="apply-step-content"
+        action={localizeHref(programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results', locale)}
+        method="get"
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleContinue();
+        }}
+      >
         <p className="apply-social-proof" role="note">
           {t('applySocialProof')}
         </p>
@@ -216,6 +225,7 @@ export default function ApplyEligibilityClient() {
                 inputMode="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
+                required
                 aria-invalid={attemptedContinue && !firstName.trim()}
               />
             </div>
@@ -229,6 +239,7 @@ export default function ApplyEligibilityClient() {
                 inputMode="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
+                required
                 aria-invalid={attemptedContinue && !lastName.trim()}
               />
             </div>
@@ -242,6 +253,7 @@ export default function ApplyEligibilityClient() {
                 inputMode="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
                 aria-invalid={attemptedContinue && !emailLooksValid(email.trim())}
               />
             </div>
@@ -255,6 +267,8 @@ export default function ApplyEligibilityClient() {
                 inputMode="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                required
+                minLength={10}
                 aria-invalid={attemptedContinue && phone.replace(/\D/g, '').length < 10}
               />
             </div>
@@ -277,12 +291,12 @@ export default function ApplyEligibilityClient() {
               aria-describedby={attemptedContinue && q1 === null ? 'apply-eligibility-q1-error' : undefined}
             >
               <label className={`form-radio-card ${q1 === 'yes' ? 'selected' : ''}`}>
-                <input type="radio" name="q1" value="yes" checked={q1 === 'yes'} onChange={() => setQ1('yes')} />
+                <input type="radio" name="q1" value="yes" checked={q1 === 'yes'} onChange={() => setQ1('yes')} required />
                 <span className="radio-dot" />
                 <span>{t('answerYes')}</span>
               </label>
               <label className={`form-radio-card ${q1 === 'no' ? 'selected' : ''}`}>
-                <input type="radio" name="q1" value="no" checked={q1 === 'no'} onChange={() => setQ1('no')} />
+                <input type="radio" name="q1" value="no" checked={q1 === 'no'} onChange={() => setQ1('no')} required />
                 <span className="radio-dot" />
                 <span>{t('answerNo')}</span>
               </label>
@@ -303,12 +317,12 @@ export default function ApplyEligibilityClient() {
               aria-describedby={attemptedContinue && q2 === null ? 'apply-eligibility-q2-error' : undefined}
             >
               <label className={`form-radio-card ${q2 === 'yes' ? 'selected' : ''}`}>
-                <input type="radio" name="q2" value="yes" checked={q2 === 'yes'} onChange={() => setQ2('yes')} />
+                <input type="radio" name="q2" value="yes" checked={q2 === 'yes'} onChange={() => setQ2('yes')} required />
                 <span className="radio-dot" />
                 <span>{t('answerYes')}</span>
               </label>
               <label className={`form-radio-card ${q2 === 'no' ? 'selected' : ''}`}>
-                <input type="radio" name="q2" value="no" checked={q2 === 'no'} onChange={() => setQ2('no')} />
+                <input type="radio" name="q2" value="no" checked={q2 === 'no'} onChange={() => setQ2('no')} required />
                 <span className="radio-dot" />
                 <span>{t('answerNo')}</span>
               </label>
@@ -329,12 +343,12 @@ export default function ApplyEligibilityClient() {
               aria-describedby={attemptedContinue && q3 === null ? 'apply-eligibility-q3-error' : undefined}
             >
               <label className={`form-radio-card ${q3 === 'yes' ? 'selected' : ''}`}>
-                <input type="radio" name="q3" value="yes" checked={q3 === 'yes'} onChange={() => setQ3('yes')} />
+                <input type="radio" name="q3" value="yes" checked={q3 === 'yes'} onChange={() => setQ3('yes')} required />
                 <span className="radio-dot" />
                 <span>{t('answerYes')}</span>
               </label>
               <label className={`form-radio-card ${q3 === 'no' ? 'selected' : ''}`}>
-                <input type="radio" name="q3" value="no" checked={q3 === 'no'} onChange={() => setQ3('no')} />
+                <input type="radio" name="q3" value="no" checked={q3 === 'no'} onChange={() => setQ3('no')} required />
                 <span className="radio-dot" />
                 <span>{t('answerNo')}</span>
               </label>
@@ -362,7 +376,7 @@ export default function ApplyEligibilityClient() {
         )}
 
         <div className="apply-step1-actions">
-          <button type="button" className="btn btn-primary apply-step1-actions__primary" onClick={handleContinue}>
+          <button type="submit" className="btn btn-primary apply-step1-actions__primary">
             {t('continueToPrograms')}
           </button>
           <button type="button" className="btn btn-outline apply-step1-actions__secondary" onClick={handleSaveLater}>
@@ -381,7 +395,7 @@ export default function ApplyEligibilityClient() {
               : t('continueSoftHint')}
           </p>
         )}
-      </div>
+      </form>
     </div>
   );
 }

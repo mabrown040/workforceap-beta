@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import {
   memberSignupSchema,
@@ -12,6 +13,7 @@ import {
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
+import { splitLocalePrefix } from '@/lib/i18n/config';
 
 /* ─── constants (preserved from MemberSignupForm) ─── */
 const EMPLOYMENT_OPTIONS = [
@@ -220,10 +222,12 @@ function strengthColor(score: number, index: number): string {
 }
 
 export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupFormProps) {
+  const tAuth = useTranslations('auth');
   /* ─── all business logic preserved from MemberSignupForm ─── */
   const redirectTo = sanitizeRedirectPath(initialRedirectTo, '/dashboard');
+  const canonicalRedirectTo = splitLocalePrefix(redirectTo).pathnameWithoutLocale;
   const loginHref = `/login?redirectTo=${encodeURIComponent(redirectTo)}`;
-  const isMemberSignup = redirectTo === '/dashboard';
+  const isMemberSignup = canonicalRedirectTo === '/dashboard';
 
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -292,15 +296,15 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
       <div style={{ ...s.wrapper, justifyContent: 'center', alignItems: 'center' }}>
         <div style={{ textAlign: 'center', maxWidth: 440, padding: 'var(--space-8)' }}>
           <span className="material-symbols-outlined" style={{ fontSize: 56, color: 'var(--color-green)', marginBottom: 'var(--space-4)', display: 'block' }} aria-hidden="true">mark_email_read</span>
-          <h2 style={{ ...s.heading, marginBottom: 'var(--space-4)' }}>Check your email</h2>
+          <h2 style={{ ...s.heading, marginBottom: 'var(--space-4)' }}>{tAuth('signup.successTitle')}</h2>
           <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-6)', lineHeight: 'var(--line-height-normal)' }}>
-            We&rsquo;ve sent you a verification link. Click it to activate your account, then you can log in.
+            {tAuth('signup.successBody')}
           </p>
           <LocalizedLink
             href={loginHref}
             style={{ ...s.primaryBtn, display: 'inline-block', textDecoration: 'none', textAlign: 'center', maxWidth: 280 }}
           >
-            Go to login
+            {tAuth('signup.goToLogin')}
           </LocalizedLink>
         </div>
       </div>
@@ -324,10 +328,10 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
         <div style={s.brandContent}>
           <span className="material-symbols-outlined" style={{ fontSize: 48, opacity: 0.9, marginBottom: 'var(--space-4)', display: 'block' }} aria-hidden="true">account_balance</span>
           <h1 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', fontWeight: 800, lineHeight: 1.15, marginBottom: 'var(--space-4)', letterSpacing: '-0.02em' }}>
-            Career training at no cost for qualifying members
+            {tAuth('signup.heroTitle')}
           </h1>
           <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.75, lineHeight: 'var(--line-height-normal)' }}>
-            Industry-recognized credentials. Career-changing programs. Funded through grants and partnerships so members are not charged.
+            {tAuth('signup.heroBody')}
           </p>
         </div>
 
@@ -345,28 +349,28 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
       {/* ── Right form panel ── */}
       <div style={s.formPanel}>
         <div style={s.formContainer}>
-          <h2 style={s.heading}>Create an account</h2>
+          <h2 style={s.heading}>{tAuth('signup.heading')}</h2>
           <p style={{ color: 'var(--color-on-surface-variant)', margin: '0 0 var(--space-6)', lineHeight: 'var(--line-height-normal)', fontSize: 'var(--font-size-sm)' }}>
             {isMemberSignup
-              ? 'This creates your member portal account so you can apply, track progress, and use career tools.'
-              : 'This page creates a member portal account. Staff, counselor, employer, and admin access are issued by WorkforceAP.'}
+              ? tAuth('signup.memberBody')
+              : tAuth('signup.nonMemberBody')}
           </p>
 
           {/* Mobile-only trust bar — key signals lost when brand panel hides */}
           <div className="mobile-trust-bar" aria-label="Program credentials">
-            ✓ No-cost to members · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808
+            {tAuth('signup.mobileTrustBar')}
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
             {/* Full Name */}
             <div style={s.fieldGroup}>
-              <label htmlFor="fullName" style={s.label}>Full Name</label>
+              <label htmlFor="fullName" style={s.label}>{tAuth('signup.fullName')}</label>
               <input
                 id="fullName"
                 type="text"
                 autoComplete="name"
                 inputMode="text"
-                placeholder="Jane Doe"
+                placeholder={tAuth('signup.fullNamePlaceholder')}
                 aria-invalid={!!errors.fullName}
                 aria-describedby={errors.fullName ? 'fullName-error' : undefined}
                 style={s.input}
@@ -377,7 +381,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
             {/* Email */}
             <div style={s.fieldGroup}>
-              <label htmlFor="email" style={s.label}>Email</label>
+              <label htmlFor="email" style={s.label}>{tAuth('signup.email')}</label>
               <input
                 id="email"
                 type="email"
@@ -394,13 +398,13 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
             {/* Password with strength indicator */}
             <div style={s.fieldGroup}>
-              <label htmlFor="password" style={s.label}>Password</label>
+              <label htmlFor="password" style={s.label}>{tAuth('signup.password')}</label>
               <div style={s.passwordWrap}>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
-                  placeholder="Min 8 characters"
+                  placeholder={tAuth('signup.passwordPlaceholder')}
                   aria-invalid={!!errors.password}
                   aria-describedby={errors.password ? 'password-error' : undefined}
                   style={{ ...s.input, paddingRight: 'var(--space-8)' }}
@@ -412,7 +416,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                   type="button"
                   style={s.passwordToggle}
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? tAuth('signup.hidePassword') : tAuth('signup.showPassword')}
                   aria-pressed={showPassword}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
@@ -426,21 +430,21 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                   <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: strengthColor(pwStrength, i), transition: 'background 0.3s' }} aria-hidden="true" />
                 ))}
               </div>
-              <p style={s.hint}>Uppercase, lowercase, and a number required</p>
+              <p style={s.hint}>{tAuth('signup.passwordHint')}</p>
               {errors.password && <span id="password-error" role="alert" style={s.fieldError}>{errors.password.message}</span>}
             </div>
 
             {/* Phone */}
             <div style={s.fieldGroup}>
               <label htmlFor="phone" style={s.label}>
-                Phone <span style={{ fontSize: '0.75rem', color: '#737373', fontWeight: 400 }}>(optional)</span>
+                {tAuth('signup.phone')} <span style={{ fontSize: '0.75rem', color: '#737373', fontWeight: 400 }}>({tAuth('signup.optional')})</span>
               </label>
               <input
                 id="phone"
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                placeholder="(512) 555-1234"
+                placeholder={tAuth('signup.phonePlaceholder')}
                 aria-invalid={!!errors.phone}
                 aria-describedby={errors.phone ? 'phone-error' : undefined}
                 style={s.input}
@@ -452,14 +456,14 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
             {/* ZIP */}
             <div style={s.fieldGroup}>
               <label htmlFor="zip" style={s.label}>
-                ZIP Code <span style={{ fontSize: '0.75rem', color: '#737373', fontWeight: 400 }}>(optional)</span>
+                {tAuth('signup.zipCode')} <span style={{ fontSize: '0.75rem', color: '#737373', fontWeight: 400 }}>({tAuth('signup.optional')})</span>
               </label>
               <input
                 id="zip"
                 type="text"
                 inputMode="numeric"
                 autoComplete="postal-code"
-                placeholder="78701"
+                placeholder={tAuth('signup.zipPlaceholder')}
                 aria-invalid={!!errors.zip}
                 aria-describedby={errors.zip ? 'zip-error' : undefined}
                 style={s.input}
@@ -470,7 +474,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
             {/* Program Interest */}
             <div style={s.fieldGroup}>
-              <label htmlFor="programInterest" style={s.label}>Program of Interest</label>
+              <label htmlFor="programInterest" style={s.label}>{tAuth('signup.programOfInterest')}</label>
               <select
                 id="programInterest"
                 aria-invalid={!!errors.programInterest}
@@ -478,7 +482,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                 style={s.select}
                 {...register('programInterest')}
               >
-                <option value="">Select a program...</option>
+                <option value="">{tAuth('signup.selectProgram')}</option>
                 {PROGRAM_INTEREST_OPTIONS.map((p) => (
                   <option key={p} value={p}>{p}</option>
                 ))}
@@ -488,9 +492,9 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
             {/* Employment */}
             <div style={s.fieldGroup}>
-              <label htmlFor="employmentStatus" style={s.label}>Employment Status</label>
+              <label htmlFor="employmentStatus" style={s.label}>{tAuth('signup.employmentStatus')}</label>
               <select id="employmentStatus" style={s.select} {...register('employmentStatus')}>
-                <option value="">Select...</option>
+                <option value="">{tAuth('signup.selectOption')}</option>
                 {EMPLOYMENT_OPTIONS.map((o) => (
                   <option key={o} value={o}>{o}</option>
                 ))}
@@ -499,9 +503,9 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
             {/* Veteran */}
             <div style={s.fieldGroup}>
-              <label htmlFor="veteranStatus" style={s.label}>Veteran Status</label>
+              <label htmlFor="veteranStatus" style={s.label}>{tAuth('signup.veteranStatus')}</label>
               <select id="veteranStatus" style={s.select} {...register('veteranStatus')}>
-                <option value="">Select...</option>
+                <option value="">{tAuth('signup.selectOption')}</option>
                 {VETERAN_OPTIONS.map((o) => (
                   <option key={o} value={o}>{o}</option>
                 ))}
@@ -519,9 +523,9 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
                   {...register('consentTerms')}
                 />
                 <span>
-                  I agree to the{' '}
+                  {tAuth('signup.agreeToThe')}{' '}
                   <LocalizedLink href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>Terms of Service</LocalizedLink>{' '}
-                  and{' '}
+                  {tAuth('signup.and')}{' '}
                   <LocalizedLink href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)' }}>Privacy Policy</LocalizedLink> *
                 </span>
               </label>
@@ -529,7 +533,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
 
               <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', minHeight: 44 }}>
                 <input type="checkbox" style={{ marginTop: 3, accentColor: 'var(--color-accent)' }} {...register('consentCommunications')} />
-                <span>I agree to receive program updates and communications via email</span>
+                <span>{tAuth('signup.commsConsent')}</span>
               </label>
             </div>
 
@@ -545,13 +549,13 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
               aria-busy={submitStatus === 'loading'}
               style={{ ...s.primaryBtn, opacity: submitStatus === 'loading' ? 0.7 : 1 }}
             >
-              <span aria-live="polite">{submitStatus === 'loading' ? 'Creating account...' : 'Create account'}</span>
+              <span aria-live="polite">{submitStatus === 'loading' ? tAuth('signup.creatingAccount') : tAuth('signup.createAccount')}</span>
             </button>
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
-            Already have an account?{' '}
-            <LocalizedLink href={loginHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Sign in</LocalizedLink>
+            {tAuth('signup.alreadyHaveAccount')}{' '}
+            <LocalizedLink href={loginHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>{tAuth('signup.signIn')}</LocalizedLink>
           </p>
         </div>
       </div>

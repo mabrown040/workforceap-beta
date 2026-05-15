@@ -9165,8 +9165,6 @@ html.dark .portal-nav {
     /* Set by WorkspaceShell (header + tab bar height) for sticky sidebar alignment */
     --workspace-tab-bar-h: 0px;
     --workspace-top-offset: calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px));
-    /* Icon-only compact bar — still clears ~64px tap band + home indicator */
-    --wap-portal-mobile-bottom-clearance-compact: calc(4.75rem + env(safe-area-inset-bottom, 0px));
 }
 /* Anchor / focus scroll-into-view: clear sticky workspace chrome (+ member top tab strip when present) */
 @media (max-width: 768px) {
@@ -9213,6 +9211,9 @@ html.dark .portal-nav {
         }
         html[data-portal-role]:not([data-portal-role="member"]) .workspace-shell-main [id] {
             scroll-margin-bottom: var(--wap-mobile-bottom-nav-clearance);
+        }
+        html.wap-portal-chrome-compact[data-portal-role]:not([data-portal-role="member"]) .workspace-shell-main [id] {
+            scroll-margin-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
         }
     }
 }
@@ -9903,18 +9904,8 @@ html.dark .workspace-sidebar-signout:hover {
     padding: 1.25rem 1rem;
     width: 100%;
 }
-/* Mobile: keep page ends clear of fixed MobileBottomNav (counselor / employer / partner / admin). */
+/* Mobile bottom nav clearance lives on `main#main-content` (marketing.css). */
 @media (max-width: 767px) {
-    .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main {
-        padding-bottom: var(--wap-mobile-bottom-nav-clearance);
-        scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
-    }
-    html.wap-portal-chrome-compact
-        .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root)
-        .workspace-shell-main {
-        padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
-        scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
-    }
     html[data-portal-role="member"] .workspace-shell-main {
         padding-bottom: max(1.75rem, calc(1rem + env(safe-area-inset-bottom, 0px)));
     }

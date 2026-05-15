@@ -27,6 +27,13 @@ let signupEmailRateLimiter: Ratelimit | null = null;
 let aiToolRateLimiter: Ratelimit | null = null;
 let contactRateLimiter: Ratelimit | null = null;
 let adminInviteRateLimiter: Ratelimit | null = null;
+// Per-admin limiter on /api/admin/members/bulk-email. The route can
+// fire up to MAX_MEMBERS (100) Resend sends per call; without a
+// per-admin cap a compromised admin token can blast every member in
+// the org repeatedly until Resend's bulk-sender heuristic trips and
+// the domain reputation craters. 3 bulk-sends per hour per admin
+// covers normal communications while blocking compromise/abuse.
+let bulkEmailRateLimiter: Ratelimit | null = null;
 let employerJobImportRateLimiter: Ratelimit | null = null;
 let partnerSignupRateLimiter: Ratelimit | null = null;
 let confirmationEmailRateLimiter: Ratelimit | null = null;
@@ -98,6 +105,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(10, '1 h'),
     prefix: 'ratelimit:admin-invite',
+  });
+  bulkEmailRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(3, '1 h'),
+    prefix: 'ratelimit:bulk-email',
   });
   employerJobImportRateLimiter = new Ratelimit({
     redis,
@@ -284,6 +296,18 @@ export async function checkPartnerSignupRateLimit(identifier: string): Promise<{
 export async function checkAdminInviteRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
   if (!adminInviteRateLimiter) return { success: true };
   const result = await adminInviteRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
+}
+
+/**
+ * Per-admin cap on /api/admin/members/bulk-email — 3 calls/hr. Each
+ * call can fan out to MAX_MEMBERS (100) Resend sends, so a compromised
+ * admin can blast the entire member list and burn the domain's bulk-
+ * sender reputation.
+ */
+export async function checkBulkEmailRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!bulkEmailRateLimiter) return { success: true };
+  const result = await bulkEmailRateLimiter.limit(`bulk-email:${userId}`);
   return { success: result.success, remaining: result.remaining };
 }
 

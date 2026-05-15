@@ -22,7 +22,13 @@ function getApiKey(): string | undefined {
   return process.env.ONET_API_KEY?.trim() || undefined;
 }
 
-async function onetGet<T>(path: string, query?: Record<string, string | number | undefined>): Promise<T> {
+const MAX_RETRIES_429 = 4;
+
+async function onetGet<T>(
+  path: string,
+  query?: Record<string, string | number | undefined>,
+  attempt = 0
+): Promise<T> {
   const key = getApiKey();
   if (!key) {
     throw new Error('ONET_API_KEY is not configured');
@@ -44,10 +50,15 @@ async function onetGet<T>(path: string, query?: Record<string, string | number |
       'User-Agent': 'WorkforceAP/1.0 (career-matching)',
     },
     next: { revalidate: 0 },
+    signal: AbortSignal.timeout(15_000),
   });
   if (res.status === 429) {
-    await new Promise((r) => setTimeout(r, 250));
-    return onetGet<T>(path, query);
+    if (attempt >= MAX_RETRIES_429) {
+      throw new Error(`O*NET rate-limited after ${MAX_RETRIES_429} retries`);
+    }
+    const backoff = 250 * 2 ** attempt;
+    await new Promise((r) => setTimeout(r, backoff));
+    return onetGet<T>(path, query, attempt + 1);
   }
   const text = await res.text();
   let data: unknown;

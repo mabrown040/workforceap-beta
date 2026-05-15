@@ -4,7 +4,7 @@ import { Resend } from 'resend';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
-import { checkPartnerSignupRateLimit } from '@/lib/rate-limit';
+import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
@@ -98,6 +98,15 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     const d = parsed.data;
     const phone = d.contactPhone?.trim() || null;
     const hear = d.hearAbout?.trim() || null;
+
+    // Per-email rate limit (3/hr) — caps target-mail spam from IP-rotators.
+    const { success: emailRateOk } = await checkSignupEmailRateLimit(d.contactEmail);
+    if (!emailRateOk) {
+      return NextResponse.json(
+        { error: 'Too many signup attempts for this email. Please try again later.' },
+        { status: 429 }
+      );
+    }
 
     // Check if email already exists in our DB
     const existingUser = await prisma.user.findUnique({

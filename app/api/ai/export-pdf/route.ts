@@ -245,6 +245,17 @@ export async function POST(req: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
+    // Body-size cap. `text` is wrapped into PDF and `chartImage` may be a
+    // base64 data URL — both can grow large. Cap at 2 MB serialized to
+    // prevent giant-page DoS that ties up the PDF library + memory.
+    try {
+      const bodyBytes = new TextEncoder().encode(JSON.stringify(body)).byteLength;
+      if (bodyBytes > 2 * 1024 * 1024) {
+        return NextResponse.json({ error: 'Input too large' }, { status: 413 });
+      }
+    } catch {
+      return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
+    }
     const { text, title, toolName, chartImage, chartData } = body as {
       text?: string;
       title?: string;

@@ -16,6 +16,8 @@ const ELIGIBILITY_KEYS = [
   { legendKey: 'eligibilityQ3Legend', promptKey: 'eligibilityQ3Prompt' as const },
 ] as const;
 
+const APPLY_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
 function readDraft(): ApplyFlowDraftV1 | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -23,6 +25,16 @@ function readDraft(): ApplyFlowDraftV1 | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as ApplyFlowDraftV1;
     if (parsed?.version !== 1) return null;
+    // Drop drafts older than the TTL — these usually hold PII
+    // (firstName / lastName / email / phone) and should not linger on
+    // a shared device past a reasonable resume-application window.
+    if (typeof parsed.updatedAt === 'string') {
+      const updated = Date.parse(parsed.updatedAt);
+      if (Number.isFinite(updated) && Date.now() - updated > APPLY_DRAFT_TTL_MS) {
+        try { localStorage.removeItem(APPLY_FLOW_DRAFT_KEY); } catch { /* noop */ }
+        return null;
+      }
+    }
     return parsed;
   } catch {
     return null;

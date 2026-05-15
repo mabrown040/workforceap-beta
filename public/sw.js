@@ -144,17 +144,39 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
+// Only allow notifications to deep-link to same-origin paths. A push
+// payload that ships `data.url = "https://evil.example/..."` would
+// otherwise launch the malicious URL from inside the installed PWA
+// with the user's trust. Returns a safe in-app path or null.
+function sanitizeNotificationUrl(input) {
+  if (typeof input !== 'string' || input.length === 0) return null;
+  try {
+    const resolved = new URL(input, self.location.origin);
+    if (resolved.origin !== self.location.origin) return null;
+    return resolved.pathname + resolved.search + resolved.hash;
+  } catch {
+    return null;
+  }
+}
+
 // Push: show branded notification
 self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
-  const title = data.title ?? 'Workforce Advancement Project';
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+  const title = typeof data.title === 'string' ? data.title : 'Workforce Advancement Project';
+  const safeUrl = sanitizeNotificationUrl(data.url) ?? '/dashboard';
+  const actions = Array.isArray(data.actions) ? data.actions : [{ action: 'open', title: 'Open Portal' }];
   const options = {
-    body: data.body ?? 'You have a new update.',
+    body: typeof data.body === 'string' ? data.body : 'You have a new update.',
     icon: '/images/wap_logo.png',
     badge: '/images/wap_logo.png',
-    tag: data.tag ?? 'workforceap',
-    data: { url: data.url ?? '/dashboard' },
-    actions: data.actions ?? [{ action: 'open', title: 'Open Portal' }],
+    tag: typeof data.tag === 'string' ? data.tag : 'workforceap',
+    data: { url: safeUrl },
+    actions,
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
@@ -162,13 +184,17 @@ self.addEventListener('push', (event) => {
 // Notification click: navigate to the associated URL
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = event.notification.data?.url ?? '/dashboard';
+  const url = sanitizeNotificationUrl(event.notification.data?.url) ?? '/dashboard';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.navigate(url);
-          return client.focus();
+        try {
+          if (new URL(client.url).origin === self.location.origin && 'focus' in client) {
+            client.navigate(url);
+            return client.focus();
+          }
+        } catch {
+          // skip malformed client URLs
         }
       }
       if (clients.openWindow) return clients.openWindow(url);

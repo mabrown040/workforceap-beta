@@ -45,6 +45,7 @@ function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMes
     cta: m.cta,
     footer: m.footer,
     form: m.form,
+    auth: m.auth,
     common: m.common,
     dashboard: m.dashboard,
     messages: m.messages,

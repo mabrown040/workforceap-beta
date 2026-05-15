@@ -2,8 +2,10 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
+import { splitLocalePrefix } from '@/lib/i18n/config';
 
 /* ─── portal destination data (unchanged business logic) ─── */
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
@@ -34,10 +36,15 @@ const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[]
   },
 ];
 
+function canonicalPortalPath(path: string): string {
+  return splitLocalePrefix(path).pathnameWithoutLocale;
+}
+
 function portalTitleForPath(path: string): string {
+  const canonicalPath = canonicalPortalPath(path);
   for (const o of PORTAL_DESTINATIONS) {
     if (o.redirectTo === '/dashboard') continue;
-    if (path === o.redirectTo || path.startsWith(`${o.redirectTo}/`)) {
+    if (canonicalPath === o.redirectTo || canonicalPath.startsWith(`${o.redirectTo}/`)) {
       return o.title;
     }
   }
@@ -48,28 +55,29 @@ function portalTitleForPath(path: string): string {
  *  Defaults to member-focused copy; staff/employer/partner sign-ins get
  *  audience-appropriate copy so we don't tell employers their "career starts here". */
 function portalHeroCopyForPath(path: string): { headline: string; subtitle: string } {
-  if (path === '/employer' || path.startsWith('/employer/')) {
+  const canonicalPath = canonicalPortalPath(path);
+  if (canonicalPath === '/employer' || canonicalPath.startsWith('/employer/')) {
     return {
       headline: 'Find Job-Ready Talent',
       subtitle:
         'Sign in to post roles, review WorkforceAP candidates, and run hiring workflows for your company.',
     };
   }
-  if (path === '/partner' || path.startsWith('/partner/')) {
+  if (canonicalPath === '/partner' || canonicalPath.startsWith('/partner/')) {
     return {
       headline: 'Connect Your Community',
       subtitle:
         'Sign in to track referrals, follow member progress, and review accountability views for your organization.',
     };
   }
-  if (path === '/counselor' || path.startsWith('/counselor/')) {
+  if (canonicalPath === '/counselor' || canonicalPath.startsWith('/counselor/')) {
     return {
       headline: 'Support Members at Every Step',
       subtitle:
         'Sign in to access your member roster, messaging, and counseling resources.',
     };
   }
-  if (path === '/admin' || path.startsWith('/admin/')) {
+  if (canonicalPath === '/admin' || canonicalPath.startsWith('/admin/')) {
     return {
       headline: 'Operations Workspace',
       subtitle:
@@ -297,29 +305,31 @@ type LoginFormProps = {
 };
 
 export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFormProps) {
+  const tAuth = useTranslations('auth');
   /* ─── business logic (preserved exactly) ─── */
   const redirectTo = sanitizeRedirectPath(initialRedirectTo, '/dashboard');
+  const canonicalRedirectTo = canonicalPortalPath(redirectTo);
   const redirectParam = initialRedirectTo;
 
   const destinationActive = (target: string) => {
     if (target === '/dashboard') {
-      return redirectParam == null || redirectParam === '' || redirectTo === '/dashboard';
+      return redirectParam == null || redirectParam === '' || canonicalRedirectTo === '/dashboard';
     }
-    return redirectTo === target;
+    return canonicalRedirectTo === target;
   };
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const signupHref = `/signup?redirectTo=${encodeURIComponent('/dashboard')}`;
   const partnerSignupHref = '/partners#partner-signup';
-  const isPartnerLogin = redirectTo === '/partner' || redirectTo.startsWith('/partner/');
+  const isPartnerLogin = canonicalRedirectTo === '/partner' || canonicalRedirectTo.startsWith('/partner/');
   const isStaffLikeLogin =
-    redirectTo === '/admin' ||
-    redirectTo.startsWith('/admin/') ||
-    redirectTo === '/counselor' ||
-    redirectTo.startsWith('/counselor/') ||
-    redirectTo === '/employer' ||
-    redirectTo.startsWith('/employer/');
+    canonicalRedirectTo === '/admin' ||
+    canonicalRedirectTo.startsWith('/admin/') ||
+    canonicalRedirectTo === '/counselor' ||
+    canonicalRedirectTo.startsWith('/counselor/') ||
+    canonicalRedirectTo === '/employer' ||
+    canonicalRedirectTo.startsWith('/employer/');
 
   const [showPassword, setShowPassword] = useState(false);
   /* Default unchecked — members may sign in on shared/library/lab
@@ -331,7 +341,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showStaffPortals, setShowStaffPortals] = useState(
-    () => redirectTo !== '/dashboard',
+    () => canonicalRedirectTo !== '/dashboard',
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -427,7 +437,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
         <div style={s.brandContent}>
           <div style={s.brandBadge}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">verified_user</span>
-            Trusted &amp; Secure
+            {tAuth('login.trustedSecure')}
           </div>
           <h1 style={{ ...s.brandHeading, marginTop: 'var(--space-6)' }}>
             {portalHeroCopyForPath(redirectTo).headline}
@@ -441,9 +451,9 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
       {/* ── Right form panel ── */}
       <div style={s.formPanel}>
         <div style={s.formContainer}>
-          <h2 style={s.heading}>Sign in to your account</h2>
+          <h2 style={s.heading}>{tAuth('login.heading')}</h2>
           <p style={s.subheading}>
-            You are signing in to: <strong style={{ color: 'var(--color-accent)' }}>{portalTitleForPath(redirectTo)}</strong>
+            {tAuth('login.signingInto')}{' '}<strong style={{ color: 'var(--color-accent)' }}>{portalTitleForPath(redirectTo)}</strong>
           </p>
 
           {/* First-time CTA — prominent for members who land here by accident */}
@@ -462,10 +472,10 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             }}>
               <div>
                 <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>
-                  New here?
+                  {tAuth('login.newHereTitle')}
                 </p>
                 <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.4 }}>
-                  Create your account to explore programs and start training.
+                  {tAuth('login.newHereBody')}
                 </p>
               </div>
               <LocalizedLink href={signupHref} style={{
@@ -481,13 +491,13 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 whiteSpace: 'nowrap',
                 minHeight: 44,
               }}>
-                Get started →
+                {tAuth('login.getStarted')}
               </LocalizedLink>
             </div>
           )}
 
           {/* Portal routing — staff portals hidden behind toggle */}
-          <nav aria-label="Choose portal destination after sign-in" style={{ marginBottom: 'var(--space-6)' }}>
+          <nav aria-label={tAuth('login.portalDestinationAria')} style={{ marginBottom: 'var(--space-6)' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px', alignItems: 'center' }}>
               {PORTAL_DESTINATIONS.filter((o) =>
                 o.redirectTo === '/dashboard' || showStaffPortals
@@ -537,28 +547,28 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                     transition: 'all 0.2s',
                   }}
                 >
-                  Staff login
+                  {tAuth('login.staffLogin')}
                 </button>
               )}
             </div>
           </nav>
 
           {/* Mobile-only trust bar — key signals lost when brand panel hides */}
-          <div className="mobile-trust-bar" aria-label="Program credentials">
-            ✓ No-cost to members · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808
+          <div className="mobile-trust-bar" aria-label={tAuth('login.programCredentialsAria')}>
+            {tAuth('login.mobileTrustBar')}
           </div>
 
           <form onSubmit={handleSubmit} noValidate>
             {/* Email */}
             <div style={s.fieldGroup}>
-              <label htmlFor="email" style={s.label}>Email</label>
+              <label htmlFor="email" style={s.label}>{tAuth('login.email')}</label>
               <input
                 id="email"
                 type="email"
                 autoComplete="email"
                 inputMode="email"
                 autoFocus
-                placeholder="you@example.com"
+                placeholder={tAuth('login.emailPlaceholder')}
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(null); }}
                 required
@@ -577,15 +587,15 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             {/* Password */}
             <div style={s.fieldGroup}>
               <div style={s.passwordRow}>
-                <label htmlFor="password" style={{ ...s.label, marginBottom: 0 }}>Password</label>
-                <LocalizedLink href="/forgot-password" style={s.recoverLink}>Forgot password?</LocalizedLink>
+                <label htmlFor="password" style={{ ...s.label, marginBottom: 0 }}>{tAuth('login.password')}</label>
+                <LocalizedLink href="/forgot-password" style={s.recoverLink}>{tAuth('login.forgotPassword')}</LocalizedLink>
               </div>
               <div style={s.passwordWrap}>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  placeholder="Enter your password"
+                  placeholder={tAuth('login.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); if (passwordError) setPasswordError(null); }}
                   required
@@ -598,7 +608,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                   type="button"
                   style={s.passwordToggle}
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? tAuth('login.hidePassword') : tAuth('login.showPassword')}
                   aria-pressed={showPassword}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
@@ -623,7 +633,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
                 style={{ accentColor: 'var(--color-accent)', width: 20, height: 20 }}
               />
               <label htmlFor="remember" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', cursor: 'pointer' }}>
-                Stay signed in for 7 days
+                {tAuth('login.staySignedIn')}
               </label>
             </div>
 
@@ -641,36 +651,36 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
               aria-busy={loading}
               style={{ ...s.primaryBtn, opacity: loading ? 0.7 : 1 }}
             >
-              <span aria-live="polite">{loading ? 'Signing in…' : 'Sign In'}</span>
+              <span aria-live="polite">{loading ? tAuth('login.signingIn') : tAuth('login.signIn')}</span>
             </button>
           </form>
 
           {/* Trust bar — reassurance at the moment of login friction */}
-          <div style={{ ...s.trustBar, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.2rem 0.75rem', alignItems: 'center', fontSize: '0.8125rem', opacity: 0.85 }} aria-label="Program credentials">
+          <div style={{ ...s.trustBar, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.2rem 0.75rem', alignItems: 'center', fontSize: '0.8125rem', opacity: 0.85 }} aria-label={tAuth('login.programCredentialsAria')}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}>
               <span className="material-symbols-outlined" style={{ fontSize: 14 }} aria-hidden="true">lock</span>
-              Secure login
+              {tAuth('login.secureLogin')}
             </span>
             <span style={s.trustDot} aria-hidden="true">·</span>
-            <span style={{ whiteSpace: 'nowrap' }}>No-cost to members</span>
+            <span style={{ whiteSpace: 'nowrap' }}>{tAuth('login.noCostMembers')}</span>
             <span style={s.trustDot} aria-hidden="true">·</span>
-            <span style={{ whiteSpace: 'nowrap' }}>Grants &amp; partner funded</span>
+            <span style={{ whiteSpace: 'nowrap' }}>{tAuth('login.grantsPartnerFunded')}</span>
           </div>
 
           {/* Bottom links */}
           <p style={{ textAlign: 'center', marginTop: 'var(--space-6)', fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', lineHeight: 'var(--line-height-normal)' }}>
             {isPartnerLogin ? (
               <>
-                Need partner access?{' '}
+                {tAuth('login.needPartnerAccess')}{' '}
                 <LocalizedLink href={partnerSignupHref} style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                  Register your organization
+                  {tAuth('login.registerOrganization')}
                 </LocalizedLink>
               </>
             ) : isStaffLikeLogin ? (
               <>
-                Staff account not working?{' '}
+                {tAuth('login.staffAccountNotWorking')}{' '}
                 <LocalizedLink href="/contact" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                  Contact support
+                  {tAuth('login.contactSupport')}
                 </LocalizedLink>
               </>
             ) : null}

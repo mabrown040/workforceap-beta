@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { apiError } from '@/lib/http/errorResponse';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import {
@@ -123,7 +124,14 @@ const createSchema = z.object({
           return NextResponse.json({ error: 'This email already exists in auth, but could not be linked.' }, { status: 409 });
         }
       } else if (error) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
+        // Don't echo raw Supabase error text — log to Sentry instead and
+        // return a generic message. The previous version leaked
+        // provider-specific phrasing useful for enumeration.
+        return apiError(error, {
+          route: 'admin/users/create',
+          status: 400,
+          message: 'Failed to create user.',
+        });
       }
     } catch (error) {
       console.error('[admin/users POST] create auth user failed', error);

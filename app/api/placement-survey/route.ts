@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { verifyPlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { checkPlacementSurveyRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { apiError } from '@/lib/http/errorResponse';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: Request) {
   try {
@@ -128,15 +129,16 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
 
       return NextResponse.json({ success: true, survey: updated });
     } catch (error) {
-      console.error('[placement-survey] Submit failed:', error);
-      return NextResponse.json(
-        { error: 'Failed to submit survey', details: error instanceof Error ? error.message : String(error) },
-        { status: 500 },
-      );
+      // This route is reached with a single-use signed survey token. The
+      // previous version returned raw `error.message` in `details`, which
+      // leaked Prisma column names and stack hints to any token-holder.
+      return apiError(error, {
+        route: 'placement-survey/submit',
+        message: 'Failed to submit survey',
+      });
     }
   } catch (error) {
-    console.error('/placement-survey:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiError(error, { route: 'placement-survey' });
   }
 }
 export const POST = withApiGuc(_POST);async function _GET(req: Request) {

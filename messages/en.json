@@ -1499,6 +1499,8 @@
     "programsFootnote": "All programs are offered through Workforce Funded Training for qualified members."
   },
   "admin": {
+    "loadingCharts": "Loading charts…",
+    "memberCount": "{count, plural, one {# member} other {# members}}",
     "memberPipeline": "Member Pipeline",
     "sevenStageJourney": "7-stage journey from invitation to employment",
     "holdingRoom": "Holding Room",

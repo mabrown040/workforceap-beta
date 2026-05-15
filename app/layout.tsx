@@ -149,10 +149,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </a>
         {/* Second skip link for keyboard users on portal pages with a fixed
             mobile bottom nav (audit #146). The nav is far from the
-            top tab order; this lets a tab-only user reach it directly. */}
-        <a href="#mobile-bottom-nav" className="skip-link">
-          Skip to navigation
-        </a>
+            top tab order; this lets a tab-only user reach it directly.
+            Only render when middleware has signalled that this page
+            actually has the mobile bottom nav — otherwise the link
+            anchored to `#mobile-bottom-nav` lands nowhere on admin / auth
+            / many member portal pages and confuses keyboard users. */}
+        {reserveMobileBottomNav && (
+          <a href="#mobile-bottom-nav" className="skip-link">
+            Skip to navigation
+          </a>
+        )}
         {GTM_ID && (
           <>
             <noscript>

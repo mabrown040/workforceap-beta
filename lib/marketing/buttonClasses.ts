@@ -21,6 +21,10 @@ export const marketingButton = {
     lg: 'btn-radius-lg',
     full: 'btn-radius-full',
   },
+  /** 44×44 circular primary index — pair with `variant: primary` + `radius: full` */
+  modifiers: {
+    numPill: 'marketing-btn-num-pill',
+  },
   onDarkSecondary: 'btn-secondary--on-dark',
   large: 'btn-large',
 } as const;
@@ -55,4 +59,13 @@ export function marketingButtonClasses({
     className,
   ];
   return parts.filter(Boolean).join(' ');
+}
+
+/** Numbered pills / step index: solid magenta circle, full radius, 44px min. */
+export function marketingNumPillClasses(options?: { className?: string }): string {
+  return marketingButtonClasses({
+    variant: 'primary',
+    radius: 'full',
+    className: [marketingButton.modifiers.numPill, options?.className].filter(Boolean).join(' '),
+  });
 }

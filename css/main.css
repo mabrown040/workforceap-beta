@@ -2241,7 +2241,7 @@ body.mobile-nav-open {
 
 /* =============================================
    BUTTONS — unified system
-   Process-step index capsule: `.marketing-num-pill__index` in css/marketing.css.
+   Numbered step / hero index: `.marketing-btn-num-pill` (+ `lib/marketing/buttonClasses.ts`).
    Base `.btn` sets min-height (`--btn-min-height`, 44px) and default radius md.
    Compose: .btn + variant (.btn-primary | .btn-secondary | .btn-ghost)
             + optional aliases: .btn-outline → same rules as .btn-secondary
@@ -2284,6 +2284,16 @@ body.mobile-nav-open {
 .btn-radius-full {
     border-radius: var(--radius-full) !important;
 }
+/* Numbered pills / circular step index — composes .btn.btn-primary.btn-radius-full */
+.btn.marketing-btn-num-pill {
+    padding: 0;
+    min-width: var(--btn-min-height);
+    min-height: var(--btn-min-height);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    line-height: 1;
+    cursor: default;
+}
 .btn::after {
     content: '';
     position: absolute;
@@ -2294,6 +2304,9 @@ body.mobile-nav-open {
 }
 .btn:hover::after {
     transform: translateX(100%);
+}
+.btn.marketing-btn-num-pill::after {
+    display: none;
 }
 /* Variant: primary — solid brand magenta */
 .btn-primary,

@@ -364,20 +364,26 @@ html.dark .marketing-process-step__icon {
   color: var(--color-marketing-accent-on-dark);
 }
 
-/* Step badge circle — used by `ProcessStep` (compose with `.marketing-process-step__badge`). */
-.marketing-num-pill__index {
+/* Home hero numbered row: outline capsule (secondary on-dark) + primary index circle */
+.marketing-hero-step-pill.btn,
+a.marketing-hero-step-pill.btn {
+  gap: 0.625rem;
+  padding: 0.3rem 1rem 0.3rem 0.3rem;
+  justify-content: flex-start;
+  cursor: default;
+  font-weight: 600;
+  font-size: clamp(0.8125rem, 0.35vw + 0.78rem, 0.9375rem);
+  line-height: 1.25;
+  text-align: left;
+}
+
+.marketing-hero-step-pill .marketing-hero-step-pill__index.btn {
   flex-shrink: 0;
-  min-width: var(--btn-min-height);
-  min-height: var(--btn-min-height);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-accent);
-  color: var(--color-white);
-  font-weight: 700;
-  font-size: 0.8125rem;
-  border: none;
-  line-height: 1;
+  cursor: default;
+}
+
+.marketing-hero-step-pill__label {
+  color: inherit;
 }
 
 /*

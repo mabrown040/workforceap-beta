@@ -9,7 +9,7 @@ import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dy
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 
 import { getTranslations } from 'next-intl/server';
-import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
+import { marketingButtonClasses, marketingNumPillClasses } from '@/lib/marketing/buttonClasses';
 import LanguageToggle from '@/components/portal/LanguageToggle';
 import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
@@ -197,9 +197,19 @@ export default async function HomePage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '2rem', maxWidth: '720px' }}>
             {([t('heroStep1'), t('heroStep2'), t('heroStep3')] as const).map((step, index) => (
-              <div key={index} className="marketing-hero-step-pill">
-                <span className="marketing-hero-step-pill__index">{index + 1}</span>
-                <span>{step}</span>
+              <div
+                key={index}
+                className={marketingButtonClasses({
+                  variant: 'secondary',
+                  radius: 'full',
+                  onDarkSecondary: true,
+                  className: 'marketing-hero-step-pill',
+                })}
+              >
+                <span className={marketingNumPillClasses({ className: 'marketing-hero-step-pill__index' })}>
+                  {index + 1}
+                </span>
+                <span className="marketing-hero-step-pill__label">{step}</span>
               </div>
             ))}
           </div>

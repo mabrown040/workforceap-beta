@@ -15,23 +15,13 @@
   /* Compact portal chrome — shorter bottom bar + safe area */
   --wap-portal-mobile-bottom-clearance-compact: calc(4.75rem + env(safe-area-inset-bottom, 0px));
   /*
-   * Foregrounds for Stitch marketing stripes. Light-on tokens match cream/pale surfaces (#fcf9f8).
-   * They stay the same inside html.dark when the stripe remains light — only switch to dark-on-* when
-   * the surface is actually dark (see .marketing-mobile--on-dark-marketing-surface).
+   * Foregrounds for Stitch marketing stripes / pale surfaces (#fcf9f8). Used by overrides such as
+   * `.program-detail-shared`; retained globally even though `.marketing-mobile` selectors were retired.
    */
   --wap-marketing-light-on-surface: #1c1b1b;
   --wap-marketing-light-on-surface-variant: #584144;
   --wap-marketing-dark-on-surface: #e8e6e3;
   --wap-marketing-dark-on-surface-variant: rgba(232, 230, 227, 0.78);
-}
-
-/*
- * Mirrors theme foreground on <html> only. `.marketing-mobile` overrides `--color-on-surface` for its
- * subtree; `html.dark` stripes need document theme colors via `--wap-doc-*` (inherited, not circular).
- */
-html {
-  --wap-doc-on-surface: var(--color-on-surface);
-  --wap-doc-on-surface-variant: var(--color-on-surface-variant);
 }
 
 @media (max-width: 767px) {
@@ -136,57 +126,6 @@ html.dark .partner-logos-small span {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/*
- * Stitch mobile columns default to a light cream surface (dark type). In `html.dark`, use the
- * document theme foreground (`--wap-doc-on-surface*`) unless this stripe is still a pale/cream band
- * (`marketing-mobile--on-light-marketing-surface`), sits on the parent surface
- * (`marketing-mobile--on-theme-surface`), or is an explicitly dark band
- * (`marketing-mobile--on-dark-marketing-surface`).
- */
-.marketing-mobile {
-  /* Fall back to document theme foreground so `html.dark` never uses a light-mode-only #1c1b1b default. */
-  color: var(--wap-marketing-mobile-text, var(--wap-doc-on-surface));
-  --color-on-surface: var(--wap-marketing-mobile-c-on-surface, var(--wap-doc-on-surface));
-  --color-on-surface-variant: var(
-    --wap-marketing-mobile-c-on-surface-variant,
-    var(--wap-doc-on-surface-variant)
-  );
-}
-
-html:not(.dark)
-  .marketing-mobile:not(.marketing-mobile--on-theme-surface):not(.marketing-mobile--on-dark-marketing-surface) {
-  --wap-marketing-mobile-text: var(--wap-marketing-light-on-surface);
-  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-light-on-surface);
-  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
-}
-
-html.dark
-  .marketing-mobile:not(.marketing-mobile--on-theme-surface):not(
-    .marketing-mobile--on-dark-marketing-surface
-  ):not(.marketing-mobile--on-light-marketing-surface) {
-  --wap-marketing-mobile-text: var(--wap-doc-on-surface);
-  --wap-marketing-mobile-c-on-surface: var(--wap-doc-on-surface);
-  --wap-marketing-mobile-c-on-surface-variant: var(--wap-doc-on-surface-variant);
-}
-
-html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
-  --wap-marketing-mobile-text: var(--wap-marketing-light-on-surface);
-  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-light-on-surface);
-  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
-}
-
-.marketing-mobile.marketing-mobile--on-theme-surface {
-  color: inherit;
-  --color-on-surface: inherit;
-  --color-on-surface-variant: inherit;
-}
-
-.marketing-mobile.marketing-mobile--on-dark-marketing-surface {
-  --wap-marketing-mobile-text: var(--wap-marketing-dark-on-surface);
-  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-dark-on-surface);
-  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-dark-on-surface-variant);
 }
 
 .home-impact-bento {
@@ -597,15 +536,6 @@ html.dark .marketing-bottom-nav {
 /* Hash links / scroll-into-view clear the fixed main nav when marketing chrome is shown */
 html.has-marketing-main-nav {
   scroll-padding-top: var(--main-nav-layout-height);
-}
-
-/*
- * Sticky UI that must sit above the mobile bottom nav (fixed offset).
- */
-@media (max-width: 767px) {
-  .marketing-mobile-sticky-above-bottom-nav {
-    bottom: var(--wap-mobile-bottom-nav-clearance);
-  }
 }
 
 /* /programs: mobile sticky quiz CTA clears last catalog rows */

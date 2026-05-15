@@ -294,7 +294,7 @@ export default function MainNav() {
     <nav className={`main-nav${scrolled ? ' scrolled' : ''}`} aria-label="Main navigation">
       <div className="nav-container" ref={navContainerRef}>
         <LocalizedLink href="/" prefetch={false} className="logo" aria-label="Workforce Advancement Project home" onClick={closeMobile}>
-          <Image src="/images/wap_logo.png" alt="Workforce Advancement Project" width={210} height={107} className="nav-logo-image" sizes="(max-width: 900px) 130px, 210px" quality={85} priority />
+          <Image src="/images/logo-tight.png" alt="Workforce Advancement Project" width={640} height={240} className="nav-logo-image" sizes="(max-width: 900px) 130px, 210px" quality={85} priority />
         </LocalizedLink>
 
         {/* Mobile toggle */}

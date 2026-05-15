@@ -132,7 +132,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="WorkforceAP" />
         <meta name="theme-color" content="#ad2c4d" />
-        <link rel="apple-touch-icon" href="/images/logo-tight.png" />
+        <link rel="apple-touch-icon" href="/images/wap_logo.png" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />

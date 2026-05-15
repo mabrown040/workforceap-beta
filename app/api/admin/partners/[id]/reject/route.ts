@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { Resend } from 'resend';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 
@@ -14,9 +16,9 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
+    const orgId = await getActorOrganizationId(user.id);
 
-    const partner = await prisma.partner.findUnique({
-      where: { id },
+    const partner = await withTenantScope(orgId, (db) => db.partner.findFirst({ where: { id },
       select: {
         id: true,
         status: true,
@@ -42,8 +44,7 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
       notes = null;
     }
 
-    await prisma.partner.update({
-      where: { id },
+    await withTenantScope(orgId, (db) => db.partner.update({ where: { id },
       data: {
         status: 'rejected',
         active: false,
@@ -92,4 +93,4 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
     console.error('/admin/partners/[id]/reject:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-});
+}));

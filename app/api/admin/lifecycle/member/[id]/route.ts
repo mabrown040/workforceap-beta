@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (
   _req: NextRequest,
@@ -14,9 +15,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
 
   const { id: memberId } = await params;
 
+  // Tenant scope: an Org A admin cannot read the lifecycle/program/
+  // event-history of an Org B member by guessing their UUID.
+  const orgId = await getActorOrganizationId(user.id);
+
   const [member, enrollment, events] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: memberId },
+    prisma.user.findFirst({
+      where: { id: memberId, organizationId: orgId },
       select: {
         id: true,
         fullName: true,

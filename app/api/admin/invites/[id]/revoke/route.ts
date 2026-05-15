@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (
   _request: Request,
@@ -15,7 +16,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
 
     const { id } = await params;
 
-    const invitation = await prisma.invitation.findUnique({ where: { id } });
+    // Invitation has no `organizationId` column but is FK-bound to
+    // the issuing user (`invitedById`). An Org A admin can only revoke
+    // invitations sent by users in their own org.
+    const orgId = await getActorOrganizationId(user.id);
+    const invitation = await prisma.invitation.findFirst({
+      where: { id, invitedBy: { organizationId: orgId } },
+    });
 
     if (!invitation) {
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
@@ -28,8 +35,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
       );
     }
 
-    await prisma.invitation.update({
-      where: { id },
+    // updateMany so the FK-gated where clause is honored on the write.
+    await prisma.invitation.updateMany({
+      where: { id, invitedBy: { organizationId: orgId } },
       data: { status: 'revoked' },
     });
 

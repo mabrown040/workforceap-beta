@@ -111,6 +111,12 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
         continue;
       }
 
+      // Create the row first because we need its id to mint the
+      // signed token embedded in the email's survey URL. If the email
+      // send subsequently fails, roll the row back (below) so the next
+      // cron run will re-pick this user — otherwise the idempotency
+      // filter above (`placementSurveys: { none: { wave } }` style)
+      // would skip them forever despite never receiving their email.
       const survey = await prisma.placementSurvey.create({
         data: {
           userId: placement.userId,
@@ -119,14 +125,6 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
           sentAt: new Date(),
         },
         select: { id: true },
-      });
-
-      void createNotification({
-        userId: placement.userId,
-        type: 'survey_due',
-        title: 'Placement survey ready',
-        body: `Your ${wave.replace('_', '-day ')} placement survey is ready. It only takes 2 minutes.`,
-        data: { surveyId: survey.id, wave },
       });
 
       const token = await issuePlacementSurveyToken({ surveyId: survey.id });
@@ -141,8 +139,33 @@ export async function sendDuePlacementSurveys(): Promise<SurveySendResult[]> {
       });
 
       if (result.ok) {
+        // Fire the in-app notification only after the email succeeds so
+        // a failed-email run doesn't leave an orphan "survey ready"
+        // notification pointing at a row we're about to delete.
+        void createNotification({
+          userId: placement.userId,
+          type: 'survey_due',
+          title: 'Placement survey ready',
+          body: `Your ${wave.replace('_', '-day ')} placement survey is ready. It only takes 2 minutes.`,
+          data: { surveyId: survey.id, wave },
+        });
         sent.push({ userId: placement.userId, email: user.email, surveyId: survey.id });
       } else {
+        // Rollback so the user gets re-picked on the next cron run.
+        // Best-effort: if the delete itself fails (e.g. transient DB
+        // hiccup), the row leaks and the user will be skipped — surface
+        // both errors in the result.
+        try {
+          await prisma.placementSurvey.delete({ where: { id: survey.id } });
+        } catch (deleteErr) {
+          emailFailures.push({
+            userId: placement.userId,
+            error: `Email failed (${result.error ?? 'unknown'}) and rollback delete also failed (${
+              deleteErr instanceof Error ? deleteErr.message : 'unknown'
+            }); row leaked and user will be skipped on the next run.`,
+          });
+          continue;
+        }
         emailFailures.push({ userId: placement.userId, error: result.error ?? 'Unknown send error' });
       }
     }

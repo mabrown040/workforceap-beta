@@ -13,7 +13,7 @@ export default function NotFound() {
       <div className="app-system-page__inner container">
         <LocalizedLink href="/" className="app-system-page__logo-link" aria-label="Workforce Advancement Project home">
           <Image
-            src="/images/wap_logo.png"
+            src="/images/logo-tight.png"
             alt="WorkforceAP logo"
             width={180}
             height={92}

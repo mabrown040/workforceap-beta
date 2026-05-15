@@ -1881,7 +1881,7 @@ body.mobile-nav-open .main-nav::after {
     display: block;
     object-fit: contain;
     object-position: center;
-    filter: contrast(1.06) saturate(1.03);
+    filter: contrast(1.05) saturate(1.01);
     transition: height var(--transition-base);
 }
 .main-nav.scrolled .nav-logo-image {
@@ -2241,7 +2241,7 @@ body.mobile-nav-open {
 
 /* =============================================
    BUTTONS — unified system
-   Process-step index capsule: `.marketing-num-pill__index` in css/marketing.css.
+   Numbered step / hero index: `.marketing-btn-num-pill` (+ `lib/marketing/buttonClasses.ts`).
    Base `.btn` sets min-height (`--btn-min-height`, 44px) and default radius md.
    Compose: .btn + variant (.btn-primary | .btn-secondary | .btn-ghost)
             + optional aliases: .btn-outline → same rules as .btn-secondary
@@ -2284,6 +2284,16 @@ body.mobile-nav-open {
 .btn-radius-full {
     border-radius: var(--radius-full) !important;
 }
+/* Numbered pills / circular step index — composes .btn.btn-primary.btn-radius-full */
+.btn.marketing-btn-num-pill {
+    padding: 0;
+    min-width: var(--btn-min-height);
+    min-height: var(--btn-min-height);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    line-height: 1;
+    cursor: default;
+}
 .btn::after {
     content: '';
     position: absolute;
@@ -2294,6 +2304,9 @@ body.mobile-nav-open {
 }
 .btn:hover::after {
     transform: translateX(100%);
+}
+.btn.marketing-btn-num-pill::after {
+    display: none;
 }
 /* Variant: primary — solid brand magenta */
 .btn-primary,
@@ -4593,7 +4606,7 @@ html.dark .program-skill-tag {
     width: auto;
     margin-bottom: 1.25rem;
     display: block;
-    filter: contrast(1.06) saturate(1.03);
+    filter: contrast(1.05) saturate(1.01);
 }
 .footer-bottom {
     max-width: var(--max-width);
@@ -9165,8 +9178,6 @@ html.dark .portal-nav {
     /* Set by WorkspaceShell (header + tab bar height) for sticky sidebar alignment */
     --workspace-tab-bar-h: 0px;
     --workspace-top-offset: calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px));
-    /* Icon-only compact bar — still clears ~64px tap band + home indicator */
-    --wap-portal-mobile-bottom-clearance-compact: calc(4.75rem + env(safe-area-inset-bottom, 0px));
 }
 /* Anchor / focus scroll-into-view: clear sticky workspace chrome (+ member top tab strip when present) */
 @media (max-width: 768px) {
@@ -9213,6 +9224,9 @@ html.dark .portal-nav {
         }
         html[data-portal-role]:not([data-portal-role="member"]) .workspace-shell-main [id] {
             scroll-margin-bottom: var(--wap-mobile-bottom-nav-clearance);
+        }
+        html.wap-portal-chrome-compact[data-portal-role]:not([data-portal-role="member"]) .workspace-shell-main [id] {
+            scroll-margin-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
         }
     }
 }
@@ -9903,18 +9917,8 @@ html.dark .workspace-sidebar-signout:hover {
     padding: 1.25rem 1rem;
     width: 100%;
 }
-/* Mobile: keep page ends clear of fixed MobileBottomNav (counselor / employer / partner / admin). */
+/* Mobile bottom nav clearance lives on `main#main-content` (marketing.css). */
 @media (max-width: 767px) {
-    .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main {
-        padding-bottom: var(--wap-mobile-bottom-nav-clearance);
-        scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
-    }
-    html.wap-portal-chrome-compact
-        .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root)
-        .workspace-shell-main {
-        padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
-        scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
-    }
     html[data-portal-role="member"] .workspace-shell-main {
         padding-bottom: max(1.75rem, calc(1rem + env(safe-area-inset-bottom, 0px)));
     }

@@ -7,6 +7,7 @@
  */
 
 import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
+import { safeFetch, UnsafeUrlError } from '@/lib/http/safeOutboundFetch';
 
 export interface ATSJob {
   title: string;
@@ -415,7 +416,14 @@ function ashbyJobToATS(posting: Record<string, unknown>, company: string): ATSJo
 
 async function fetchGenericPage(url: string): Promise<{ text: string; isJSRendered: boolean } | null> {
   try {
-    const res = await fetch(url, {
+    // SSRF guard + 2 MB body cap + 15s timeout. `url` is supplied by an
+    // authenticated user (member or employer) via the job-import form,
+    // so we must block private IP literals (AWS IMDS, localhost) and
+    // cap response size to prevent giant-page DoS.
+    const res = await safeFetch(url, {
+      httpsOnly: false, // some job-board APIs still serve http
+      timeoutMs: 15_000,
+      maxBytes: 2 * 1024 * 1024,
       headers: { ...FETCH_HEADERS, 'Accept': 'text/html,application/xhtml+xml' },
     });
     if (!res.ok) return null;
@@ -427,7 +435,10 @@ async function fetchGenericPage(url: string): Promise<{ text: string; isJSRender
     }
 
     return { text: extracted.text, isJSRendered: false };
-  } catch {
+  } catch (err) {
+    if (err instanceof UnsafeUrlError) {
+      console.warn('[atsProviders] fetchGenericPage rejected unsafe URL', err.message);
+    }
     return null;
   }
 }

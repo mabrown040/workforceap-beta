@@ -15,3 +15,19 @@ tmp/
 .claude/
 .venv-fonttools/
 coverage/
+
+# Vercel CLI link metadata — contains projectId/orgId. Per Vercel's own
+# README.txt: "you should not share the '.vercel' folder with anyone."
+.vercel/
+
+# Credentials / certs — should never be tracked.
+*.pem
+*.key
+*.p12
+
+# Stray local-tool logs (Codex CLI, debugger dumps, npm-debug, etc.).
+*.log
+
+# OS clutter
+.DS_Store
+Thumbs.db

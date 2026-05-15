@@ -50,7 +50,13 @@ const nextConfig: NextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           // camera=(self) so mock-interview / practice video can use getUserMedia; mic already (self)
-          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=()' },
+          // Explicitly disable the newer policy-controlled features so the
+          // bare absence of a directive doesn't silently grant them.
+          {
+            key: 'Permissions-Policy',
+            value:
+              'camera=(self), microphone=(self), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=(), browsing-topics=()',
+          },
           {
             key: 'Content-Security-Policy',
             // Hardening notes (see docs/SECURITY-AND-HEALTH.md for the full posture):
@@ -66,11 +72,13 @@ const nextConfig: NextConfig = {
             //   - `upgrade-insecure-requests` forces any accidental http://
             //     references in user-generated content to https on supporting
             //     browsers.
+            //   - `img-src` is an explicit allowlist (was `https:` wildcard).
+            //     Add new hosts here as needed instead of widening back to `https:`.
             value: [
               "default-src 'self'",
               `script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io https://api.elevenlabs.io wss://api.elevenlabs.io https://livekit.rtc.elevenlabs.io wss://livekit.rtc.elevenlabs.io wss://*.livekit.cloud wss://*.elevenlabs.io https://*.elevenlabs.io",
-              "img-src 'self' data: https: blob:",
+              "img-src 'self' data: blob: https://*.supabase.co https://*.public.blob.vercel-storage.com https://images.unsplash.com https://www.google-analytics.com https://www.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "frame-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com",
@@ -81,6 +89,25 @@ const nextConfig: NextConfig = {
               "upgrade-insecure-requests",
             ].join('; '),
           },
+        ],
+      },
+      // Authenticated HTML routes should never be cached by browsers or
+      // intermediate caches. Without this, hitting back-button after sign-
+      // out (or shared CDN edge in front of Vercel) can surface a previous
+      // user's portal HTML. Mirrors the SW exclusion list in public/sw.js.
+      {
+        source: '/:path(dashboard|admin|employer|counselor|partner|applications|account|profile|certifications|resources|help)(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
+          { key: 'Pragma', value: 'no-cache' },
+        ],
+      },
+      // Authenticated API surface — same reason. Public routes (health,
+      // referral-sources, public/*) set their own Cache-Control inline.
+      {
+        source: '/api/:path(auth|admin|portal|member|counselor|employer|partner|gdpr|ai)(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
         ],
       },
       {

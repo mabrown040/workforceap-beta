@@ -797,7 +797,14 @@
     "atRiskMediumCount": "Medio",
     "atRiskLoadingNotes": "Cargando resumen de riesgo...",
     "atRiskNoAlerts": "No hay alertas de riesgo en este momento. ¡Buen trabajo!",
-    "atRiskRecentAlerts": "Alertas recientes"
+    "atRiskRecentAlerts": "Alertas recientes",
+    "counselorNameFallback": "Consejero",
+    "membersAppearOnceAssignedMobile": "Los miembros aparecerán aquí cuando un administrador los asigne. Mientras tanto, explora la guía del consejero.",
+    "unknownProgram": "Programa desconocido",
+    "available": "Disponible",
+    "messages": "Mensajes",
+    "hotQueueHoursAgo": "{count}h",
+    "hotQueueDaysAgo": "{count}d"
   },
   "workspace": {
     "publicSite": "Sitio de WorkforceAP",
@@ -903,7 +910,25 @@
     "programCompletions": "Completados de programa",
     "pendingPlacementReviews": "Revisiones de colocación pendientes",
     "pendingPlacementDesc": "{count} miembro{count, plural, =1 {} other {s}} reportó haber aceptado una oferta de trabajo. El personal de WorkforceAP está revisando estos reportes antes de marcarlos como colocaciones verificadas. Los verás moverse a \"Colocados\" una vez confirmados.",
-    "searchAndFilter": "Busca y filtra a todos los que tu organización ha referido a WorkforceAP."
+    "searchAndFilter": "Busca y filtra a todos los que tu organización ha referido a WorkforceAP.",
+    "memberFallback": "Miembro",
+    "nextActionShareLink": "Comparte workforceap.org/apply con tu comunidad",
+    "nextActionShareLinkTip": "Pide a las personas referidas que mencionen tu organización cuando les pregunten cómo conocieron WorkforceAP.",
+    "nextActionReviewPlacements": "{count, plural, =1 {1 miembro reportó} other {# miembros reportaron}} aceptar una oferta de trabajo — se requiere revisión",
+    "nextActionReviewPlacementsTip": "El equipo de WorkforceAP revisa estas ofertas. Verás las colocaciones confirmadas una vez verificadas.",
+    "nextActionEncourageTraining": "{count, plural, =1 {1 miembro está} other {# miembros están}} en formación — anímalos a terminar",
+    "nextActionEncourageTrainingTip": "Comunícate con los miembros que están cerca de terminar su programa.",
+    "nextActionCelebrate": "Celebra las colocaciones y comparte más referencias",
+    "nextActionCelebrateTip": "Tus referencias están consiguiendo empleos. Mantén el flujo activo.",
+    "nextActionReviewProgress": "Sigue el progreso de los miembros",
+    "nextActionReviewProgressTip": "Los miembros avanzan en su trayectoria — sigue sus resultados.",
+    "assistantSpeaking": "El asistente está hablando…",
+    "assistantListening": "Escuchando — haz tu pregunta",
+    "referredMembersTableSubtitle": "Nombre, estado del recorrido, fechas de inscripción y colocación, y la contribución de cada miembro a tu pago estimado.",
+    "partnerInsights": "Perspectivas del socio",
+    "referredMembersDescription": "Todos los miembros referidos por tu organización.",
+    "outcomesSnapshotDescription": "Resumen de resultados de tus referencias.",
+    "placed": "Colocado"
   },
   "group": {
     "workflows": "Flujos de trabajo",
@@ -1492,7 +1517,9 @@
       "grantFundedTitle": "Acceso financiado por subvenciones",
       "grantFundedDesc": "WorkforceAP es una organización 501(c)(3) sin fines de lucro. Financiada por subvenciones y socios. Capacitación financiada por Workforce para miembros calificados.",
       "outcomesLink": "Detalle de resultados de colocación",
-      "applyCta": "Solicitar"
+      "applyCta": "Solicitar",
+      "testimonialsTitle": "Historias de miembros",
+      "testimonialsSubtitle": "Resultados reales de miembros reales"
     }
   },
   "findYourPath": {
@@ -1633,7 +1660,17 @@
     "upgradePlan": "Actualizar plan",
     "importJobsBtn": "Importar Empleos",
     "appliedTo": "Envió solicitud a",
-    "reviewApplicants": "Revisar solicitantes"
+    "reviewApplicants": "Revisar solicitantes",
+    "candidateCountLast30d": "{count} en 30d",
+    "awaitingGoLiveCount": "{count} pendientes de publicación",
+    "offersOutCount": "{count, plural, =1 {1 oferta} other {# ofertas}} activas",
+    "matchToHireTracked": "Coincidencia → contratación (cuando se registra)",
+    "heroHeadline": "{count, plural, =0 {Tu cartera de talento} one {# candidato esperando} other {# candidatos esperando}}",
+    "candidateCountLast30dShort": "{count} en 30d",
+    "noRecentActivity": "Sin actividad reciente",
+    "activeRoles": "Vacantes activas",
+    "matchToHire": "Coincidencia → contratación",
+    "addHiresToSee": "Agrega contrataciones para verlas"
   },
   "auth": {
     "login": {

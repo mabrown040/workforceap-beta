@@ -10006,6 +10006,16 @@ html.dark .workspace-sidebar-signout:hover {
     overflow: hidden;
     z-index: 101;
 }
+@media (max-width: 768px) {
+    .workspace-shell-header__meta .super-admin-view-switcher__panel {
+        position: fixed;
+        top: calc(var(--workspace-header-h, 3.25rem) + 0.5rem);
+        right: 0.5rem;
+        left: auto;
+        min-width: 200px;
+        max-width: min(320px, 90vw);
+    }
+}
 @media (min-width: 1024px) {
     .workspace-menu-btn {
         display: none;

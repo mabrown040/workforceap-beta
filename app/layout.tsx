@@ -56,6 +56,8 @@ function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMes
     partner: m.partner,
     group: m.group,
     apply: m.apply,
+    admin: m.admin,
+    findYourPath: m.findYourPath,
   };
   if (mk && mk.programs !== undefined) {
     out.marketing = { programs: mk.programs };

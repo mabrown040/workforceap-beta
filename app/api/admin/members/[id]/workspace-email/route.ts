@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 import { getWorkspaceEmailProvider } from '@/lib/workspace-email/provider';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -14,9 +15,12 @@ const provisionBody = z.object({
 
 type Props = { params: Promise<{ id: string }> };
 
-async function loadMemberOr404(memberId: string) {
+// Tenant scope: load only members of the actor's organization. Without
+// the org filter, an Org A admin could provision a workspace email for
+// an Org B member by guessing their UUID.
+async function loadMemberOr404(memberId: string, orgId: string) {
   return prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
+    where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: {
       id: true,
       email: true,
@@ -32,7 +36,8 @@ async function loadMemberOr404(memberId: string) {
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   
     const { id: memberId } = await params;
-    const member = await loadMemberOr404(memberId);
+    const orgId = await getActorOrganizationId(user.id);
+    const member = await loadMemberOr404(memberId, orgId);
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   
     let body: unknown = {};
@@ -109,7 +114,8 @@ export const POST = withApiGuc(_POST);async function _DELETE(_request: NextReque
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   
     const { id: memberId } = await params;
-    const member = await loadMemberOr404(memberId);
+    const orgId = await getActorOrganizationId(user.id);
+    const member = await loadMemberOr404(memberId, orgId);
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   
     let provider;

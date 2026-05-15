@@ -299,7 +299,9 @@ export default function MemberSignupForm() {
         disabled={submitStatus === 'loading'}
         aria-busy={submitStatus === 'loading'}
       >
-        {submitStatus === 'loading' ? 'Creating account...' : 'Create account'}
+        <span aria-live="polite">
+          {submitStatus === 'loading' ? 'Creating account...' : 'Create account'}
+        </span>
       </button>
 
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.9rem' }}>

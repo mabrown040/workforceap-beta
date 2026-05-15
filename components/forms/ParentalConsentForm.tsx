@@ -273,9 +273,12 @@ export default function ParentalConsentForm({
         type="submit" 
         className="btn btn-primary" 
         disabled={submitting || !formData.consentTerms}
+        aria-busy={submitting}
         style={{ width: '100%' }}
       >
-        {submitting ? 'Submitting consent...' : 'Submit Parental Consent'}
+        <span aria-live="polite">
+          {submitting ? 'Submitting consent...' : 'Submit Parental Consent'}
+        </span>
       </button>
     </form>
   );

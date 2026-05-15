@@ -234,6 +234,7 @@ export default function PlacementSurveyForm({
       <button
         type="submit"
         disabled={submitStatus === 'loading'}
+        aria-busy={submitStatus === 'loading'}
         style={{
           padding: '0.75rem 1.5rem',
           fontSize: '1rem',
@@ -246,7 +247,9 @@ export default function PlacementSurveyForm({
           opacity: submitStatus === 'loading' ? 0.7 : 1,
         }}
       >
-        {submitStatus === 'loading' ? 'Submitting…' : 'Submit survey'}
+        <span aria-live="polite">
+          {submitStatus === 'loading' ? 'Submitting…' : 'Submit survey'}
+        </span>
       </button>
     </form>
   );

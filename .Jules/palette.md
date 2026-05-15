@@ -60,3 +60,6 @@
 ## 2024-05-14 - Removed Invalid ARIA controls on mutually exclusive conditional elements
 **Learning:** Adding `aria-controls` to a conditionally rendered element that points to an element not in the DOM, or mutually exclusive components like a conditionally rendered button and panel will result in an invalid ARIA IDREF.
 **Action:** Do not use `aria-controls` on mutually exclusive components.
+## 2026-05-25 - Form loading states
+**Learning:** Found several submit buttons that lacked semantic markers for their loading states beyond changing the visible text.
+**Action:** When working on form submission flows, ensure submit buttons utilize `aria-busy={true}` when loading, and wrap the dynamic loading text inside a `<span aria-live="polite">` element to announce the state correctly to screen readers.

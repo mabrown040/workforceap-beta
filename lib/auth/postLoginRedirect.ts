@@ -46,7 +46,8 @@ export function normalizePostLoginRedirect(
 
   if (!parsed) return fallback;
   if (parsed.pathnameWithoutLocale === '/login') {
-    return prefixForLocale(fallback, parsed.locale);
+    const fallbackPath = parseRedirectPath(fallback)?.pathnameWithoutLocale ?? fallback;
+    return prefixForLocale(fallbackPath, parsed.locale);
   }
   return safe;
 }

@@ -14,6 +14,14 @@ test('normalizePostLoginRedirect falls back when redirect target is /login', () 
   assert.equal(normalizePostLoginRedirect('/es/login?redirectTo=%2Fpartner'), '/es/dashboard');
 });
 
+test('normalizePostLoginRedirect does not double-prefix an already-localized fallback', () => {
+  // Caller may pass a fallback that already carries the locale prefix; we
+  // should strip it before re-prefixing with the locale from `raw`.
+  assert.equal(normalizePostLoginRedirect('/es/login', '/es/dashboard'), '/es/dashboard');
+  assert.equal(normalizePostLoginRedirect('/es/login?redirectTo=%2Fes%2Flogin', '/es/dashboard'), '/es/dashboard');
+  assert.equal(normalizePostLoginRedirect('/en/login', '/es/dashboard'), '/en/dashboard');
+});
+
 test('normalizePostLoginRedirect still blocks malformed redirects', () => {
   assert.equal(normalizePostLoginRedirect('https://evil.com', '/dashboard'), '/dashboard');
   assert.equal(normalizePostLoginRedirect('/\\evil.com', '/dashboard'), '/dashboard');

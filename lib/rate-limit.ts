@@ -36,6 +36,13 @@ let forgotPasswordRateLimiter: Ratelimit | null = null;
 let forgotPasswordEmailRateLimiter: Ratelimit | null = null;
 let publicCareersGetRateLimiter: Ratelimit | null = null;
 let publicVoiceSessionRateLimiter: Ratelimit | null = null;
+// Per-authenticated-user limiter for any ElevenLabs voice session mint
+// (member portal voice tools, counselor/employer/partner walkthroughs,
+// AI interview practice, etc.). Each session bills 5-10 minutes of
+// ElevenLabs voice at ~$0.30/min, so 1k unbounded reqs ≈ $1.5-3k.
+// 5/hr per user covers normal multi-session interview practice while
+// blocking obvious abuse and accidental loops.
+let voiceSessionRateLimiter: Ratelimit | null = null;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
 let verifyMfaRateLimiter: Ratelimit | null = null;
 let publicHealthRateLimiter: Ratelimit | null = null;
@@ -134,6 +141,11 @@ if (redisUrl && redisToken) {
     limiter: Ratelimit.slidingWindow(120, '1 h'),
     prefix: 'ratelimit:careers-public-get',
   });
+  voiceSessionRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:voice-session',
+  });
   publicVoiceSessionRateLimiter = new Ratelimit({
     redis,
     // Public voice flows may retry on mic permission / network hiccups.
@@ -221,6 +233,19 @@ export async function checkAuthRateLimit(identifier: string): Promise<{ success:
 export async function checkAuthIpRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
   if (!authIpRateLimiter) return { success: true };
   const result = await authIpRateLimiter.limit(`auth-ip:${ip}`);
+  return { success: result.success, remaining: result.remaining };
+}
+
+/**
+ * Per-authenticated-user voice-session rate limit. Apply at every
+ * /api/**/voice-session, /api/**/voice-walkthrough, and
+ * /api/interview/session call site. ElevenLabs is ~$0.30/min and
+ * each session bills 5-10 min, so unbounded mints are an immediate
+ * money-drain on a compromised account.
+ */
+export async function checkVoiceSessionRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!voiceSessionRateLimiter) return { success: true };
+  const result = await voiceSessionRateLimiter.limit(`voice-session:${userId}`);
   return { success: result.success, remaining: result.remaining };
 }
 

@@ -1,7 +1,13 @@
 import { Groq } from 'groq-sdk';
 
 export async function generateResumeBullet(courseName: string): Promise<string> {
-  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || 'dummy_key_for_build' });
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    // Don't ship a dummy key to Groq — every call would 401 against a real
+    // tenant ID, burning rate limit and masking the underlying config bug.
+    return `Completed ${courseName}`;
+  }
+  const groq = new Groq({ apiKey });
   const response = await groq.chat.completions.create({
     model: 'llama3-8b-8192',
     max_tokens: 150,

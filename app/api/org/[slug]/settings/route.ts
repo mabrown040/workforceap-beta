@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db/prisma';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { clearOrganizationBrandingCache } from '@/lib/tenant/organizationBranding';
+import { getUser } from '@/lib/auth/server';
+import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -24,6 +26,11 @@ const settingsSchema = z.object({
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { slug } = await params;
     const org = await prisma.organization.findUnique({
       where: { slug },
@@ -45,6 +52,10 @@ const settingsSchema = z.object({
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
 
+    if (!(await isAdminInOrg(user.id, org.id))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     return NextResponse.json({
       ...org,
       logo: resolveSupabasePublicAssetUrl('organization-branding', org.logo),
@@ -59,13 +70,40 @@ export const GET = withApiGuc(_GET);async function _PUT(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { slug } = await params;
+    const existing = await prisma.organization.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
+    }
+
+    if (!(await isAdminInOrg(user.id, existing.id))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const body = await request.json().catch(() => null);
     const parsed = settingsSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.errors[0]?.message ?? 'Invalid body' },
         { status: 400 }
+      );
+    }
+
+    // customDomain controls multi-tenant host routing. Only platform super-admins
+    // may set/change it — a tenant admin escalating their own customDomain is the
+    // hijack vector flagged in AUDIT-2026-05-16 §C-S1.
+    if (parsed.data.customDomain !== undefined && !(await isSuperAdmin(user.id))) {
+      return NextResponse.json(
+        { error: 'Only platform super-admins can modify customDomain' },
+        { status: 403 }
       );
     }
 

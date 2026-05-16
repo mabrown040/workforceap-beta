@@ -63,3 +63,6 @@
 ## 2026-05-25 - Form loading states
 **Learning:** Found several submit buttons that lacked semantic markers for their loading states beyond changing the visible text.
 **Action:** When working on form submission flows, ensure submit buttons utilize `aria-busy={true}` when loading, and wrap the dynamic loading text inside a `<span aria-live="polite">` element to announce the state correctly to screen readers.
+## 2025-05-14 - Removed redundant `aria-label` on buttons with `aria-live`
+**Learning:** Adding a dynamically updating `aria-label` on a `<button>` wrapper shadows its inner contents for screen readers. If the button's text is wrapped in `<span aria-live="polite">` to announce asynchronous UI changes (like "Copied!"), the screen reader will ignore the live region and only read the parent `aria-label`, effectively breaking the notification.
+**Action:** Remove static or dynamically updating `aria-label` attributes on buttons when an inner `<span aria-live="polite">` is used for micro-UX state feedback.

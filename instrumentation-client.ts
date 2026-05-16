@@ -33,6 +33,38 @@ function isPortalRoute(pathname: string): boolean {
 let captureRouterTransitionStart: ((href: string, navigationType?: string) => void) | undefined;
 let initPromise: Promise<void> | null = null;
 
+/** PII-bearing query-string keys that should be stripped from breadcrumb URLs
+ *  before they reach Sentry. */
+const PII_QUERY_KEYS = new Set([
+  'email',
+  'phone',
+  'token',
+  'code',
+  'reset_token',
+  'access_token',
+  'refresh_token',
+  'magic_link',
+  'invite_token',
+  'tokenHash',
+  'token_hash',
+]);
+
+function scrubUrlForBreadcrumb(value: string): string {
+  try {
+    const url = new URL(value, 'https://internal.invalid');
+    let mutated = false;
+    for (const key of [...url.searchParams.keys()]) {
+      if (PII_QUERY_KEYS.has(key.toLowerCase())) {
+        url.searchParams.set(key, '[redacted]');
+        mutated = true;
+      }
+    }
+    return mutated ? url.toString() : value;
+  } catch {
+    return value;
+  }
+}
+
 async function initSentry() {
   if (!dsn || !isProduction) return;
 
@@ -43,7 +75,40 @@ async function initSentry() {
     tracesSampleRate: 0.1,
     replaysSessionSampleRate: 0.05,
     replaysOnErrorSampleRate: 1.0,
-    integrations: [Sentry.replayIntegration()],
+    integrations: [
+      // Replay default is to render the DOM verbatim. For a portal that
+      // shows member names, emails, phone numbers, resume content, WIOA
+      // qualification answers, etc., that's a hard-blocking privacy
+      // problem if anyone with Sentry access can scrub through replays.
+      // Mask everything by default; surface only what we explicitly
+      // mark as safe.
+      Sentry.replayIntegration({
+        maskAllText: true,
+        maskAllInputs: true,
+        blockAllMedia: true,
+      }),
+    ],
+    // Strip PII from breadcrumb URLs before they're stored on Sentry.
+    // Auto-captured fetch/navigation breadcrumbs include the full URL,
+    // so /forgot-password?email=…, /invite?token=…, etc. would otherwise
+    // ship the PII to Sentry's index.
+    beforeBreadcrumb(breadcrumb) {
+      try {
+        const data = breadcrumb.data as { url?: string; from?: string; to?: string } | undefined;
+        if (data?.url && typeof data.url === 'string') {
+          data.url = scrubUrlForBreadcrumb(data.url);
+        }
+        if (data?.from && typeof data.from === 'string') {
+          data.from = scrubUrlForBreadcrumb(data.from);
+        }
+        if (data?.to && typeof data.to === 'string') {
+          data.to = scrubUrlForBreadcrumb(data.to);
+        }
+      } catch {
+        // never let a scrubber failure drop the breadcrumb
+      }
+      return breadcrumb;
+    },
     environment: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT ?? process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.NODE_ENV,
   });
 

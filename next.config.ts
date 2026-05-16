@@ -281,8 +281,32 @@ const nextConfig: NextConfig = {
   },
 };
 
+// AUDIT-2026-05-16 §H-CI6: enable source-map upload + release tagging so
+// production stack traces in Sentry are unminified and grouped by deploy.
+// All upload-side config is only honored when SENTRY_AUTH_TOKEN is set
+// (typically only on Vercel prod). Local builds remain unchanged.
+const sentryBuildOptions = {
+  silent: true,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  // Tag every release with the Vercel commit SHA so issues group by deploy.
+  // Falls back to the npm version when running outside Vercel.
+  release: {
+    name:
+      process.env.SENTRY_RELEASE ||
+      process.env.VERCEL_GIT_COMMIT_SHA ||
+      process.env.npm_package_version,
+    create: true,
+  },
+  // Upload source maps for client-side chunks so the React component
+  // stack and other client errors aren't reported as minified gibberish.
+  widenClientFileUpload: true,
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+} as const;
+
 export default withBundleAnalyzer(
-  withSentryConfig(withNextIntl(nextConfig), {
-    silent: true,
-  }),
+  withSentryConfig(withNextIntl(nextConfig), sentryBuildOptions),
 );

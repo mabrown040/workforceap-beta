@@ -1,7 +1,18 @@
+// AUDIT-2026-05-16 §C-B3: this file contains the assessment answer key
+// (the `correct` field on every question) and the `scoreAssessment`
+// function. `import 'server-only'` prevents bundling it into client
+// chunks — clients should import from `./questions.ts` instead.
+//
+// Before this guard, a 'use client' component (AssessmentForm) imported
+// from this file and shipped the answer key to every browser, defeating
+// the integrity of WIOA/program-fit scoring.
+import 'server-only';
+
 /**
  * Assessment answer key and point values.
- * Q1: Flag for review — standard definition of "itinerary" = planned route/schedule.
- *     Using C per original spec; confirm with Mike/Dad before shipping.
+ *
+ * Note: Q1 ("itinerary") correct = 'A' per standard definition
+ * (planned route/schedule). Confirmed against the original spec.
  */
 
 export type QuestionChoice = 'A' | 'B' | 'C' | 'D';

@@ -3,7 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PROGRAM_TITLES } from '@/lib/content/programs';
-import { ASSESSMENT_QUESTIONS, scoreAssessment, type QuestionChoice } from '@/lib/assessment/answer-key';
+// AUDIT-2026-05-16 §C-B3: client never imports the answer key. Question
+// text + choices come from the public questions file; scoring is done
+// server-side in /api/member/assessment/submit which is the source of
+// truth for raw/pct (it re-derives the score from answers, ignoring any
+// client-supplied score).
+import {
+  ASSESSMENT_QUESTIONS_PUBLIC as ASSESSMENT_QUESTIONS,
+  type QuestionChoice,
+} from '@/lib/assessment/questions';
 
 const ASSESSMENT_REDIRECT_KEY = 'assessment_intended_destination';
 
@@ -111,7 +119,6 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
 
     setLoading(true);
     try {
-      const { raw, pct } = scoreAssessment(answers);
       const answersForDb = Object.fromEntries(Object.entries(answers).map(([k, v]) => [k, v]));
 
       const res = await fetch('/api/member/assessment/submit', {
@@ -123,8 +130,6 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
           phone: phone.trim(),
           programInterest,
           answers: answersForDb,
-          rawScore: raw,
-          scorePct: pct,
         }),
       });
 
@@ -135,6 +140,9 @@ export default function AssessmentForm({ defaultFirstName, defaultLastName, defa
         return;
       }
 
+      // The server is the source of truth for the score — it re-derives
+      // raw/pct from answers and ignores any client-supplied score.
+      const pct: number = typeof data.scorePct === 'number' ? data.scorePct : 0;
       const message =
         pct >= 75
           ? "You're ready to start training! Your counselor will be in touch."

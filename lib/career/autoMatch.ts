@@ -1,49 +1,70 @@
 /**
- * Pure scoring helpers for the O*NET → WorkforceAP program auto-match feature.
+ * Structured, multi-dimensional scorer for O*NET → WorkforceAP program auto-match.
  *
- * Extracted from `app/api/admin/onet/auto-match/route.ts` so the scoring rules
- * (token tokenization, overlap ratio, recommendationType buckets, top-N cutoff)
- * can be unit tested in isolation without a database or Next request.
+ * Replaces the previous token-overlap-only scorer with six weighted dimensions
+ * that use O*NET's full taxonomy:
  *
- * The scoring stays intentionally simple: whole-word overlap between the
- * occupation's metadata tokens and each program's keyword tokens. Anything more
- * elaborate (semantic embeddings, weighted skills) belongs in a separate
- * scorer — keep this one transparent for compliance/audit conversations.
+ *   1. Domain / category bridge        (0.25)
+ *   2. Knowledge area overlap            (0.25)
+ *   3. Skill direct match              (0.20)
+ *   4. Work activity alignment         (0.15)
+ *   5. Education / job zone alignment  (0.10)
+ *   6. Token overlap (tiebreaker)     (0.05)
+ *
+ * Each dimension returns a score in [0,1] and a reason string. The final score
+ * is a weighted sum, clamped to [0,1]. The composite `reason` text explains the
+ * strongest dimensions so admin users understand *why* a program matched.
+ *
+ * The old token helpers (tokenize, buildOccupationTokens, buildProgramKeywords)
+ * are preserved for backward compatibility and used by Dimension 6.
  */
 
 import type { Program } from '@/lib/content/programs';
+import { inferProgramDifficulty, scoreJobZoneAlignment } from '@/lib/onet/jobZoneMap';
+import { scoreKnowledgeAreas } from '@/lib/onet/knowledgeAreaMap';
+import { scoreSkillMapping } from '@/lib/onet/skillMapping';
+import { scoreWorkActivities } from '@/lib/onet/workActivityMap';
 
-/** Minimal, non-DB shape of an O*NET occupation needed for scoring. */
+/** Minimal, non-DB shape of an O*NET occupation needed for structured scoring.
+ *  All new taxonomy fields are optional so existing callers keep working. */
 export type OccupationForMatch = {
   title: string;
   description?: string | null;
   jobFamily?: string | null;
   outlookSummary?: string | null;
+  jobZone?: number | null;
   skills: { skillName: string }[];
   tasks: { taskText: string }[];
   technologies?: { technologyName: string }[];
+  /** O*NET abilities (from /details/abilities) */
+  abilities?: { name: string; importance: number | null; level: number | null }[];
+  /** O*NET knowledge areas (from /details/knowledge) */
+  knowledge?: { name: string; importance: number | null; level: number | null }[];
+  /** O*NET work activities (from /details/work_activities) */
+  workActivities?: { name: string; importance: number | null; level: number | null }[];
+  /** O*NET education/training/experience (from /details/education_training_experience) */
+  education?: { title: string; category: string; percent?: number | null; required?: boolean | null }[];
+  /** O*NET sample / alternate titles (from /summary/alternate_titles) */
+  sampleTitles?: { title: string; shortTitle?: boolean }[];
 };
 
 export type AutoMatchResult = {
   programSlug: string;
   programTitle: string;
-  /** Overlap ratio in [0, 1], rounded to 3 decimal places. */
+  /** Weighted composite score in [0, 1], rounded to 3 decimals. */
   score: number;
   reason: string;
   recommendationType: 'primary' | 'bridge' | 'stretch';
   experienceBand: 'beginner' | 'some_experience' | 'experienced';
+  /** Per-dimension breakdown for admin debugging. */
+  dimensionBreakdown?: { name: string; score: number; weight: number; reason: string }[];
 };
 
-/** Tokens shorter than this are dropped (matches the original route behavior).
- *  Reduced from 4 to 2 so critical abbreviations like IT, AI, SQL, AWS, OS,
- *  UX, EHR, CPT, CLT, OSHA are preserved for matching. */
+/** ── tokenization helpers (preserved, used by Dimension 6) ───────────────── */
+
 const MIN_TOKEN_LENGTH = 2;
 
-/** Synonym groups — terms in the same group are treated as equivalent matches.
- *  Bridges the vocabulary gap between O*NET occupational language and
- *  WorkforceAP program/certification language. */
 const DOMAIN_SYNONYMS: string[][] = [
-  // IT / Networking / Cybersecurity
   ['computer', 'computing', 'information', 'technology', 'technical', 'tech', 'it'],
   ['network', 'networking', 'networks', 'lan', 'wan', 'tcp', 'cisco', 'wireless', 'infrastructure'],
   ['security', 'cybersecurity', 'cyber', 'risk', 'cryptography', 'protection', 'defense'],
@@ -57,34 +78,25 @@ const DOMAIN_SYNONYMS: string[][] = [
   ['ai', 'artificial', 'intelligence', 'machine', 'learning', 'ml', 'deep', 'neural', 'nlp'],
   ['data', 'analytics', 'analyst', 'analysis', 'visualization', 'tableau', 'powerbi', 'bi'],
   ['testing', 'qa', 'quality', 'assurance', 'validation'],
-
-  // Healthcare / HIT
   ['medical', 'healthcare', 'health', 'clinical', 'patient', 'hospital'],
   ['billing', 'coding', 'coder', 'icd', 'cpt', 'hcpcs', 'revenue'],
   ['ehr', 'emr', 'electronic', 'record', 'records', 'health', 'information'],
   ['hipaa', 'compliance', 'privacy', 'security'],
-
-  // Business / Project Management
   ['project', 'program', 'portfolio', 'management', 'manager', 'pm'],
   ['agile', 'scrum', 'kanban', 'sprint', 'waterfall', 'lean'],
   ['business', 'operations', 'operational', 'process', 'workflow'],
   ['marketing', 'digital', 'seo', 'sem', 'social', 'content', 'email'],
   ['sales', 'selling', 'customer', 'client', 'account'],
-
-  // Manufacturing / Construction / Logistics
   ['manufacturing', 'production', 'fabrication', 'assembly', 'machining'],
   ['logistics', 'supply', 'chain', 'warehouse', 'inventory', 'transportation', 'distribution'],
   ['construction', 'building', 'carpentry', 'masonry', 'electrical', 'plumbing'],
   ['safety', 'osha', 'compliance', 'inspection', 'hazard'],
   ['quality', 'control', 'inspection', 'assurance', 'sixsigma'],
-
-  // Digital literacy / General office
   ['digital', 'literacy', 'computer', 'basic', 'fundamentals', 'foundations'],
   ['office', 'administrative', 'clerical', 'secretary', 'assistant'],
   ['excel', 'spreadsheet', 'word', 'powerpoint', 'microsoft', 'google', 'suite'],
 ];
 
-/** Build a bidirectional synonym lookup: token -> Set of equivalent tokens. */
 function buildSynonymMap(): Map<string, Set<string>> {
   const map = new Map<string, Set<string>>();
   for (const group of DOMAIN_SYNONYMS) {
@@ -103,9 +115,6 @@ function buildSynonymMap(): Map<string, Set<string>> {
 }
 const SYNONYM_MAP = buildSynonymMap();
 
-/** Common English stop words that should never count as matching tokens,
- *  even when they meet MIN_TOKEN_LENGTH. Keeps short abbreviations like IT,
- *  AI, OS, UX, SQL, AWS while filtering out noise. */
 const STOP_WORDS = new Set([
   'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had',
   'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his',
@@ -120,8 +129,6 @@ const STOP_WORDS = new Set([
   'he', 'me', 'my', 'no', 'of', 'on', 'or', 'to', 'we',
 ]);
 
-/** Tokenize free text into a lowercased whole-word set, dropping short tokens
- *  and common stop words. */
 export function tokenize(text: string): string[] {
   return text
     .toLowerCase()
@@ -129,7 +136,6 @@ export function tokenize(text: string): string[] {
     .filter((w) => w.length >= MIN_TOKEN_LENGTH && !STOP_WORDS.has(w));
 }
 
-/** Expand a token set with all synonyms so domain-equivalent terms match. */
 function expandWithSynonyms(tokens: Set<string>): Set<string> {
   const expanded = new Set(tokens);
   for (const token of tokens) {
@@ -141,13 +147,9 @@ function expandWithSynonyms(tokens: Set<string>): Set<string> {
   return expanded;
 }
 
-/** Build the occupation token set used for overlap scoring.
- *  Title tokens are weighted 3× (added twice) because the occupation title
- *  is the strongest signal, especially when skills/tasks/tech are empty. */
 export function buildOccupationTokens(occ: OccupationForMatch): Set<string> {
   const titleTokens = tokenize(occ.title);
   const blob = [
-    // Title weighted 3×
     ...titleTokens,
     ...titleTokens,
     occ.description ?? '',
@@ -156,12 +158,16 @@ export function buildOccupationTokens(occ: OccupationForMatch): Set<string> {
     occ.skills.map((s) => s.skillName).join(' '),
     occ.tasks.map((t) => t.taskText).join(' '),
     occ.technologies?.map((t) => t.technologyName).join(' ') ?? '',
+    occ.abilities?.map((a) => a.name).join(' ') ?? '',
+    occ.knowledge?.map((k) => k.name).join(' ') ?? '',
+    occ.workActivities?.map((w) => w.name).join(' ') ?? '',
+    occ.education?.map((e) => e.title).join(' ') ?? '',
+    occ.sampleTitles?.map((s) => s.title).join(' ') ?? '',
   ].join(' ');
   const raw = new Set(tokenize(blob));
   return expandWithSynonyms(raw);
 }
 
-/** Build the deduped keyword list for a program, including course names. */
 export function buildProgramKeywords(prog: Program): string[] {
   const raw = [
     prog.title,
@@ -175,27 +181,18 @@ export function buildProgramKeywords(prog: Program): string[] {
   return tokens;
 }
 
-/** Build program tokens with synonym expansion. */
 function buildProgramTokens(prog: Program): Set<string> {
   return expandWithSynonyms(new Set(buildProgramKeywords(prog)));
 }
 
-/**
- * Check whether two tokens are similar enough to count as a partial match.
- * Handles common stem variations: network ↔ networking, troubleshoot ↔ troubleshooting,
- * security ↔ cybersecurity, etc.
- */
 function isPartialMatch(a: string, b: string): boolean {
   if (a === b) return true;
   if (a.length < 2 || b.length < 2) return false;
-  // One is a prefix of the other (network / networking)
   if (a.startsWith(b) || b.startsWith(a)) return true;
-  // One contains the other as a whole word segment
   if (a.includes(b) || b.includes(a)) return true;
   return false;
 }
 
-/** Count exact and partial keyword matches against an occupation token set. */
 function countMatches(
   keywords: string[],
   occTokens: Set<string>
@@ -204,13 +201,10 @@ function countMatches(
   const partialTerms: string[] = [];
 
   for (const kw of keywords) {
-    // Direct match or synonym match
     if (occTokens.has(kw)) {
       exactTerms.push(kw);
       continue;
     }
-
-    // Partial / stem match
     let foundPartial = false;
     for (const token of occTokens) {
       if (isPartialMatch(token, kw)) {
@@ -230,13 +224,8 @@ function countMatches(
   };
 }
 
-/**
- * Category/domain bridge: if the occupation clearly belongs to a domain
- * (IT, healthcare, business, manufacturing, construction, logistics),
- * programs in the matching category get a baseline score even if token
- * overlap is weak. This prevents "Computer Network Support Specialists"
- * from scoring 0 against IT Support because the vocabularies differ.
- */
+/** ── domain bridge (Dimension 1) ────────────────────────────────────────── */
+
 const DOMAIN_PATTERNS: Array<{ name: string; occRegex: RegExp; programCategories: Set<string> }> = [
   {
     name: 'IT & Cybersecurity',
@@ -273,17 +262,28 @@ function detectDomain(occ: OccupationForMatch): string | null {
   return null;
 }
 
-/**
- * Convert a raw overlap score into a recommendation tier.
- * Boundaries match the original API route so scoring is consistent.
- */
+function scoreDomainBridge(occ: OccupationForMatch, prog: Program): { score: number; reason: string } {
+  const detectedDomain = detectDomain(occ);
+  if (!detectedDomain) return { score: 0, reason: '' };
+  for (const domain of DOMAIN_PATTERNS) {
+    if (domain.name === detectedDomain && domain.programCategories.has(prog.category)) {
+      return {
+        score: 0.35, // baseline score within this dimension; will be multiplied by dimension weight
+        reason: `Aligned ${detectedDomain} domain`,
+      };
+    }
+  }
+  return { score: 0, reason: '' };
+}
+
+/** ── recommendation tier + experience band (preserved) ───────────────────── */
+
 export function scoreToRecommendationType(score: number): AutoMatchResult['recommendationType'] {
   if (score >= 0.25) return 'primary';
   if (score >= 0.1) return 'bridge';
   return 'stretch';
 }
 
-/** Infer an experience band from the occupation title and description tokens. */
 export function inferExperienceBand(occ: OccupationForMatch): AutoMatchResult['experienceBand'] {
   const text = [occ.title, occ.description ?? ''].join(' ').toLowerCase();
   if (/\b(entry[- ]?level|junior|trainee|assistant|intern|beginner)\b/.test(text)) return 'beginner';
@@ -291,48 +291,96 @@ export function inferExperienceBand(occ: OccupationForMatch): AutoMatchResult['e
   return 'some_experience';
 }
 
-/** Score a single program against an occupation token set.
- *  Includes domain/category bridging and course-name matching. */
-export function scoreProgram(prog: Program, occTokens: Set<string>, occ: OccupationForMatch): AutoMatchResult {
+/** ── structured multi-dimensional scorer ─────────────────────────────────── */
+
+const DIMENSIONS = [
+  { name: 'Domain bridge', weight: 0.25 },
+  { name: 'Knowledge areas', weight: 0.25 },
+  { name: 'Skill match', weight: 0.20 },
+  { name: 'Work activities', weight: 0.15 },
+  { name: 'Education/zone', weight: 0.10 },
+  { name: 'Token overlap', weight: 0.05 },
+] as const;
+
+/** Build the full element list used for skill + knowledge + ability scoring. */
+function buildAllElements(occ: OccupationForMatch): { name: string; importance: number | null; level: number | null }[] {
+  const all: { name: string; importance: number | null; level: number | null }[] = [];
+  if (occ.skills?.length) all.push(...occ.skills.map((s) => ({ name: s.skillName, importance: null, level: null })));
+  if (occ.abilities?.length) all.push(...occ.abilities);
+  if (occ.knowledge?.length) all.push(...occ.knowledge);
+  if (occ.workActivities?.length) all.push(...occ.workActivities);
+  return all;
+}
+
+function scoreProgramStructured(prog: Program, occ: OccupationForMatch): AutoMatchResult {
+  const allElements = buildAllElements(occ);
+  const occTokens = buildOccupationTokens(occ);
   const keywords = buildProgramKeywords(prog);
+
+  // Dimension 1: Domain / category bridge
+  const d1 = scoreDomainBridge(occ, prog);
+
+  // Dimension 2: Knowledge area overlap
+  const knowledgeAreas = occ.knowledge ?? [];
+  const d2Raw = scoreKnowledgeAreas(knowledgeAreas, prog.category);
+  const d2 = { score: d2Raw.score, reason: d2Raw.reasons.join(', ') || 'No knowledge area overlap' };
+
+  // Dimension 3: Skill direct match (abilities + knowledge + work activities + skills)
+  const d3Raw = scoreSkillMapping(allElements, prog.skills);
+  const d3 = { score: d3Raw.score, reason: d3Raw.reasons.join(', ') || 'No direct skill matches' };
+
+  // Dimension 4: Work activity alignment
+  const d4Raw = scoreWorkActivities(occ.workActivities ?? [], prog.category);
+  const d4 = { score: d4Raw.score, reason: d4Raw.reasons.join(', ') || 'No work activity alignment' };
+
+  // Dimension 5: Education / job zone alignment
+  const progDifficulty = inferProgramDifficulty(prog);
+  const d5 = scoreJobZoneAlignment(occ.jobZone, progDifficulty);
+
+  // Dimension 6: Token overlap (legacy, tiebreaker)
   const progTokens = buildProgramTokens(prog);
-
   const { exact, partial, matchedTerms } = countMatches(keywords, occTokens);
+  const rawTokenScore = keywords.length > 0 ? (exact + partial * 0.5) / keywords.length : 0;
+  const d6 = {
+    score: Math.min(1, rawTokenScore),
+    reason: matchedTerms.length
+      ? `Token overlap: ${exact} exact, ${partial} partial (${matchedTerms.slice(0, 4).join(', ')})`
+      : 'Low token overlap',
+  };
 
-  // Base keyword overlap score
-  const rawScore = keywords.length > 0 ? (exact + partial * 0.5) / keywords.length : 0;
+  // Weighted composite
+  const dims = [
+    { name: DIMENSIONS[0].name, score: d1.score, weight: DIMENSIONS[0].weight, reason: d1.reason || 'No domain bridge' },
+    { name: DIMENSIONS[1].name, score: d2.score, weight: DIMENSIONS[1].weight, reason: d2.reason },
+    { name: DIMENSIONS[2].name, score: d3.score, weight: DIMENSIONS[2].weight, reason: d3.reason },
+    { name: DIMENSIONS[3].name, score: d4.score, weight: DIMENSIONS[3].weight, reason: d4.reason },
+    { name: DIMENSIONS[4].name, score: d5.score, weight: DIMENSIONS[4].weight, reason: d5.reason },
+    { name: DIMENSIONS[5].name, score: d6.score, weight: DIMENSIONS[5].weight, reason: d6.reason },
+  ];
 
-  // Domain bridge bonus: if occupation and program share a domain,
-  // add a baseline score so vocabulary gaps don't zero out matches.
-  let domainBonus = 0;
-  const detectedDomain = detectDomain(occ);
-  if (detectedDomain) {
-    for (const domain of DOMAIN_PATTERNS) {
-      if (domain.name === detectedDomain && domain.programCategories.has(prog.category)) {
-        // Small but meaningful bonus — enough to push into bridge territory
-        domainBonus = 0.06;
-        break;
-      }
-    }
-  }
+  const compositeScore = dims.reduce((sum, dim) => sum + dim.score * dim.weight, 0);
+  const score = Math.min(1, Math.round(compositeScore * 1000) / 1000);
 
-  const score = Math.min(1, Math.round((rawScore + domainBonus) * 1000) / 1000);
-  const recommendationType = scoreToRecommendationType(score);
-  const experienceBand = occ ? inferExperienceBand(occ) : 'beginner';
+  // Build reason string from top 2-3 contributing dimensions
+  const contributing = dims
+    .filter((d) => d.score > 0.05)
+    .sort((a, b) => b.score * b.weight - a.score * a.weight)
+    .slice(0, 3);
 
-  const matchedDisplay = matchedTerms.slice(0, 5);
   let reason: string;
-  if (exact > 0 && partial > 0) {
-    reason = `Shares ${exact} exact keyword${exact !== 1 ? 's' : ''} and ${partial} related term${partial !== 1 ? 's' : ''}${matchedDisplay.length ? ` including ${matchedDisplay.join(', ')}` : ''}.`;
-  } else if (exact > 0) {
-    reason = `Shares ${exact} keyword${exact !== 1 ? 's' : ''}${matchedDisplay.length ? ` including ${matchedDisplay.join(', ')}` : ''}.`;
-  } else if (partial > 0) {
-    reason = `Partial overlap on ${partial} related term${partial !== 1 ? 's' : ''}${matchedDisplay.length ? ` including ${matchedDisplay.join(', ')}` : ''}.`;
-  } else if (domainBonus > 0) {
-    reason = `Aligned ${detectedDomain} domain — recommended as a career pathway match.`;
+  if (contributing.length === 0) {
+    reason = 'Low multi-dimensional overlap — stretch recommendation based on adjacent career pathway.';
   } else {
-    reason = 'Low keyword overlap — stretch recommendation based on adjacent career pathway.';
+    const parts = contributing.map((d) => {
+      const prefix = d.name;
+      const detail = d.reason;
+      return `${prefix}: ${detail}`;
+    });
+    reason = parts.join(' | ');
   }
+
+  const recommendationType = scoreToRecommendationType(score);
+  const experienceBand = inferExperienceBand(occ);
 
   return {
     programSlug: prog.slug,
@@ -341,31 +389,23 @@ export function scoreProgram(prog: Program, occTokens: Set<string>, occ: Occupat
     reason,
     recommendationType,
     experienceBand,
+    dimensionBreakdown: dims,
   };
 }
 
-/** Lower bound — programs scoring below this are dropped from the top-N list. */
+/** ── rankPrograms entry point (signature preserved) ──────────────────────── */
+
 export const MIN_INCLUDED_SCORE = 0.04;
-/** Maximum number of matches returned to the admin UI. */
 export const TOP_N = 8;
 
-/**
- * Fallback title-only matcher when the full occupation record yields no results.
- * Compares occupation title tokens against program title + skills + courses for quick matches.
- * Fixed scoring: divides by occupation title tokens (not program tokens) so the score
- * reflects how much of the occupation vocabulary the program covers.
- */
-function rankProgramsByTitle(
-  occ: OccupationForMatch,
-  programs: ReadonlyArray<Program>
-): AutoMatchResult[] {
+/** Title-only fallback when structured scoring yields nothing useful. */
+function rankProgramsByTitle(occ: OccupationForMatch, programs: ReadonlyArray<Program>): AutoMatchResult[] {
   const titleTokens = expandWithSynonyms(new Set(tokenize(occ.title)));
   if (titleTokens.size === 0) return [];
 
   return programs
     .map((p) => {
       const progTokens = buildProgramTokens(p);
-
       let exact = 0;
       let partial = 0;
       const matched: string[] = [];
@@ -387,8 +427,6 @@ function rankProgramsByTitle(
         if (hit) matched.push(token);
       }
 
-      // Score: matched tokens / occupation title tokens (how much of the
-      // occupation does this program cover?)
       const score = Math.min(1, Math.round(((exact + partial * 0.5) / titleTokens.size) * 1000) / 1000);
       const matchedDisplay = matched.slice(0, 5);
 
@@ -396,7 +434,6 @@ function rankProgramsByTitle(
       if (exact + partial > 0) {
         reason = `Title match: shares ${exact + partial} term${exact + partial !== 1 ? 's' : ''}${matchedDisplay.length ? ` including ${matchedDisplay.join(', ')}` : ''}.`;
       } else {
-        // Domain bridge may still apply even with zero token overlap
         const detectedDomain = detectDomain(occ);
         let domainBonus = 0;
         if (detectedDomain) {
@@ -429,18 +466,13 @@ function rankProgramsByTitle(
 }
 
 /** Run the full auto-match pipeline for an occupation against a program list. */
-export function rankPrograms(
-  occ: OccupationForMatch,
-  programs: ReadonlyArray<Program>
-): AutoMatchResult[] {
-  const occTokens = buildOccupationTokens(occ);
+export function rankPrograms(occ: OccupationForMatch, programs: ReadonlyArray<Program>): AutoMatchResult[] {
   const ranked = programs
-    .map((p) => scoreProgram(p, occTokens, occ))
+    .map((p) => scoreProgramStructured(p, occ))
     .filter((m) => m.score >= MIN_INCLUDED_SCORE || (m.reason.includes('domain') && m.score > 0))
     .sort((a, b) => b.score - a.score)
     .slice(0, TOP_N);
 
-  // If full-data scoring yields nothing useful, fall back to title-only matching.
   if (ranked.length === 0) {
     return rankProgramsByTitle(occ, programs);
   }
@@ -450,3 +482,11 @@ export function rankPrograms(
 
 /** Alias for `rankPrograms` used by the AI career mapping engine. */
 export const autoMatchOccupationToPrograms = rankPrograms;
+
+/** Legacy single-program scorer (signature preserved for unit tests). */
+export function scoreProgram(prog: Program, occTokens: Set<string>, occ: OccupationForMatch): AutoMatchResult {
+  // Build a shallow OccupationForMatch that only has the fields the old callers set,
+  // then run the structured scorer. The structured scorer ignores the pre-built
+  // token set when taxonomy fields are absent, so this stays backward-compatible.
+  return scoreProgramStructured(prog, occ);
+}

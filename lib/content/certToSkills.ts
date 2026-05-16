@@ -14,47 +14,47 @@ export const CERT_SKILL_PROFILES: CertSkillProfile[] = [
   { certName: 'CompTIA A+', skills: [
     { axis: 'Analytics', value: 40 }, { axis: 'Engineering', value: 80 },
     { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 25 },
-    { axis: 'Ethics', value: 35 }, { axis: 'Research', value: 30 },
+    { axis: 'Service', value: 35 }, { axis: 'Research', value: 30 },
   ]},
   { certName: 'CompTIA Network+', skills: [
     { axis: 'Analytics', value: 45 }, { axis: 'Engineering', value: 85 },
     { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 25 },
-    { axis: 'Ethics', value: 30 }, { axis: 'Research', value: 30 },
+    { axis: 'Service', value: 30 }, { axis: 'Research', value: 30 },
   ]},
   { certName: 'CompTIA Security+', skills: [
     { axis: 'Analytics', value: 55 }, { axis: 'Engineering', value: 75 },
     { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 40 },
-    { axis: 'Ethics', value: 65 }, { axis: 'Research', value: 40 },
+    { axis: 'Service', value: 65 }, { axis: 'Research', value: 40 },
   ]},
   { certName: 'CNA Certification', skills: [
     { axis: 'Analytics', value: 25 }, { axis: 'Engineering', value: 20 },
     { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 30 },
-    { axis: 'Ethics', value: 80 }, { axis: 'Research', value: 35 },
+    { axis: 'Service', value: 80 }, { axis: 'Research', value: 35 },
   ]},
   { certName: 'CPR/First Aid', skills: [
     { axis: 'Analytics', value: 15 }, { axis: 'Engineering', value: 10 },
     { axis: 'Design', value: 5 }, { axis: 'Strategy', value: 20 },
-    { axis: 'Ethics', value: 55 }, { axis: 'Research', value: 15 },
+    { axis: 'Service', value: 55 }, { axis: 'Research', value: 15 },
   ]},
   { certName: 'Medical Assistant Certificate', skills: [
     { axis: 'Analytics', value: 40 }, { axis: 'Engineering', value: 30 },
     { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 25 },
-    { axis: 'Ethics', value: 75 }, { axis: 'Research', value: 45 },
+    { axis: 'Service', value: 75 }, { axis: 'Research', value: 45 },
   ]},
   { certName: 'OSHA 10', skills: [
     { axis: 'Analytics', value: 25 }, { axis: 'Engineering', value: 40 },
     { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 25 },
-    { axis: 'Ethics', value: 60 }, { axis: 'Research', value: 20 },
+    { axis: 'Service', value: 60 }, { axis: 'Research', value: 20 },
   ]},
   { certName: 'OSHA 30', skills: [
     { axis: 'Analytics', value: 35 }, { axis: 'Engineering', value: 50 },
     { axis: 'Design', value: 10 }, { axis: 'Strategy', value: 35 },
-    { axis: 'Ethics', value: 70 }, { axis: 'Research', value: 25 },
+    { axis: 'Service', value: 70 }, { axis: 'Research', value: 25 },
   ]},
   { certName: 'Trade-specific certification', skills: [
     { axis: 'Analytics', value: 30 }, { axis: 'Engineering', value: 70 },
     { axis: 'Design', value: 15 }, { axis: 'Strategy', value: 25 },
-    { axis: 'Ethics', value: 40 }, { axis: 'Research', value: 25 },
+    { axis: 'Service', value: 40 }, { axis: 'Research', value: 25 },
   ]},
 ];
 

@@ -53,7 +53,7 @@ test('riasecToRadarAxes returns all six radar axes in stable order', () => {
   const axes = riasecToRadarAxes(zero);
   assert.deepEqual(
     axes.map((a) => a.axis),
-    ['Analytics', 'Engineering', 'Design', 'Strategy', 'Ethics', 'Research'],
+    ['Analytics', 'Engineering', 'Design', 'Strategy', 'Service', 'Research'],
   );
   for (const a of axes) assert.equal(a.value, 0);
 });
@@ -77,11 +77,11 @@ test('riasecToRadarAxes — sample user (R8 I10 A3 S11 E14 C6) reflects E/S domi
   });
   // Strategy = (14*0.7 + 6*0.3) / 25 = (9.8 + 1.8) / 25 = 0.464.
   assert.ok(Math.abs(axisValue(axes, 'Strategy') - 0.464) < 0.005);
-  // Ethics = (11*0.75 + 14*0.25) / 25 = (8.25 + 3.5) / 25 = 0.47.
-  assert.ok(Math.abs(axisValue(axes, 'Ethics') - 0.47) < 0.005);
-  // Strategy + Ethics should be the two highest axes for this profile.
+  // Service = (11*0.75 + 14*0.25) / 25 = (8.25 + 3.5) / 25 = 0.47.
+  assert.ok(Math.abs(axisValue(axes, 'Service') - 0.47) < 0.005);
+  // Strategy + Service should be the two highest axes for this profile.
   const sorted = [...axes].sort((a, b) => b.value - a.value);
-  assert.equal(sorted[0].axis, 'Ethics');
+  assert.equal(sorted[0].axis, 'Service');
   assert.equal(sorted[1].axis, 'Strategy');
 });
 
@@ -115,9 +115,9 @@ test('riasecToRadarAxes — investigative no longer dominates 4 of 6 axes', () =
   // Investigative contributes only secondarily to Engineering and Design.
   assert.ok(axisValue(axes, 'Engineering') <= 0.25 + 1e-9);
   assert.ok(axisValue(axes, 'Design') <= 0.15 + 1e-9);
-  // Pure-I profile should not light up Strategy or Ethics at all.
+  // Pure-I profile should not light up Strategy or Service at all.
   assert.equal(axisValue(axes, 'Strategy'), 0);
-  assert.equal(axisValue(axes, 'Ethics'), 0);
+  assert.equal(axisValue(axes, 'Service'), 0);
 });
 
 test('riasecToRadarAxes — caller can override the per-dimension max for non-standard forms', () => {

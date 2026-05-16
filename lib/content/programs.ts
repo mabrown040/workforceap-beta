@@ -308,8 +308,8 @@ export const PROGRAM_AXIS_MAP: Record<string, Record<string, number>> = {
   },
 };
 
-export type RadarAxis = 'Analytics' | 'Engineering' | 'Design' | 'Strategy' | 'Ethics' | 'Research';
-export const RADAR_AXES: RadarAxis[] = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Ethics', 'Research'];
+export type RadarAxis = 'Analytics' | 'Engineering' | 'Design' | 'Strategy' | 'Service' | 'Research';
+export const RADAR_AXES: RadarAxis[] = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Service', 'Research'];
 
 export interface ProgramRecommendation {
   program: Program;

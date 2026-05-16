@@ -31,7 +31,7 @@ export const SKILL_MAPPER_RADAR_AXES = [
   'Engineering',
   'Design',
   'Strategy',
-  'Ethics',
+  'Service',
   'Research',
 ] as const;
 export type SkillMapperRadarAxis = (typeof SKILL_MAPPER_RADAR_AXES)[number];
@@ -123,9 +123,9 @@ export function riasecFromResultRows(
  *   - Investigative used to bleed across Analytics + Engineering + Design + Research.
  *     Tightened to Analytics (primary) and Research (primary) so an Investigative
  *     member doesn't get high scores everywhere.
- *   - Social maps to Ethics (legacy axis name in this codebase — covers
- *     people-facing, service, collaboration). Renaming Ethics → "Service" /
- *     "People" is a wider product change tracked separately.
+ *   - Social → Service (people-facing, customer-facing, healthcare,
+ *     teaching, social work, collaboration). RIASEC Enterprising contributes
+ *     a 25% secondary because client-facing sales roles also pattern here.
  */
 export function riasecToRadarAxes(
   riasec: InterestProfilerRiasec,
@@ -146,7 +146,7 @@ export function riasecToRadarAxes(
     { axis: 'Engineering', value: Math.min(1, r * 0.75 + i * 0.25) },
     { axis: 'Design',      value: Math.min(1, a * 0.85 + i * 0.15) },
     { axis: 'Strategy',    value: Math.min(1, e * 0.7  + c * 0.3)  },
-    { axis: 'Ethics',      value: Math.min(1, s * 0.75 + e * 0.25) },
+    { axis: 'Service',      value: Math.min(1, s * 0.75 + e * 0.25) },
     { axis: 'Research',    value: Math.min(1, i * 0.6  + a * 0.4)  },
   ];
 }

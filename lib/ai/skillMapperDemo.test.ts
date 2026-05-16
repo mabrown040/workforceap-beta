@@ -28,7 +28,7 @@ test('getDemoRadarForCode: sales code 41-4012.00 uses sales demo skills', () => 
 
   // Sales skills have high Strategy and Ethics scores; Engineering should be low/zero
   const strategy = axisValue(result, 'Strategy');
-  const ethics = axisValue(result, 'Ethics');
+  const ethics = axisValue(result, 'Service');
   const engineering = axisValue(result, 'Engineering');
 
   assert.ok(strategy > 0, `Strategy should be > 0 for sales; got ${strategy}`);

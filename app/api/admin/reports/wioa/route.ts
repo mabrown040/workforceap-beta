@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
 
 export async function GET(req: NextRequest) {
   try {
@@ -71,6 +72,22 @@ export async function GET(req: NextRequest) {
       programs,
     };
   });
+
+  // AUDIT §H-DEP4: WIOA reports surface ethnicity, veteran-status, and
+  // education-level data; every read must be auditable.
+  await auditLog({
+    actorUserId: user.id,
+    action: 'admin.report.wioa',
+    targetType: 'WioaReport',
+    metadata: {
+      year,
+      quarter: quarter ?? null,
+      state: state ?? null,
+      organizationId: orgId,
+      totalMembers: report.totalMembers,
+      placedMembers: report.placedMembers,
+    },
+  }).catch((err) => console.error('[admin/reports/wioa] audit log failed:', err));
 
   return NextResponse.json(report);
 

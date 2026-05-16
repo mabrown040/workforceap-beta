@@ -238,10 +238,10 @@ export async function checkAuthIpRateLimit(ip: string): Promise<{ success: boole
 
 /**
  * Per-authenticated-user voice-session rate limit. Apply at every
- * /api/**/voice-session, /api/**/voice-walkthrough, and
- * /api/interview/session call site. ElevenLabs is ~$0.30/min and
- * each session bills 5-10 min, so unbounded mints are an immediate
- * money-drain on a compromised account.
+ * voice-session / voice-walkthrough / interview/session call site
+ * (under `/api/`). ElevenLabs is ~$0.30/min and each session bills
+ * 5-10 min, so unbounded mints are an immediate money-drain on a
+ * compromised account.
  */
 export async function checkVoiceSessionRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
   if (!voiceSessionRateLimiter) return { success: true };

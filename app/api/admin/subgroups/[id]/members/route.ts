@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { memberProgramProgressPct } from '@/lib/partner/memberProgress';
@@ -20,11 +20,23 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   }
 
   const { id: subgroupId } = await params;
+  // Pull leader's organizationId so we can gate on isAdminInOrg before
+  // returning any member data. Without this, any admin in any org could
+  // read full member rosters / PII for any subgroup (AUDIT §C-T4).
   const subgroup = await prisma.subgroup.findUnique({
     where: { id: subgroupId },
-    include: { leader: { select: { fullName: true, email: true } } },
+    include: { leader: { select: { fullName: true, email: true, organizationId: true } } },
   });
   if (!subgroup) return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
+
+  const subgroupOrgId = subgroup.leader?.organizationId;
+  if (!subgroupOrgId) {
+    // Defensive: a subgroup whose leader has no org row is malformed; treat as not found.
+    return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
+  }
+  if (!(await isSuperAdmin(user.id)) && !(await isAdminInOrg(user.id, subgroupOrgId))) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const memberSubgroups = await prisma.memberSubgroup.findMany({
     where: { subgroupId },

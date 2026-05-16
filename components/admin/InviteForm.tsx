@@ -168,7 +168,7 @@ export default function InviteForm({ subgroups, programs, partners, onClose }: P
                   >
                     {manualLink.url}
                   </code>
-                  <button type="button" className="btn btn-outline btn-sm" onClick={() => void copyManualLink()} aria-label={copied ? "Copied" : "Copy link"}>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => void copyManualLink()}>
                     <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center' }}>
                       {copied ? (
                         <>

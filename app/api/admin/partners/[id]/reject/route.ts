@@ -18,15 +18,18 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
     const { id } = await params;
     const orgId = await getActorOrganizationId(user.id);
 
-    const partner = await withTenantScope(orgId, (db) => db.partner.findFirst({ where: { id },
-      select: {
-        id: true,
-        status: true,
-        contactEmail: true,
-        contactName: true,
-        name: true,
-      },
-    });
+    const partner = await withTenantScope(orgId, (db) =>
+      db.partner.findFirst({
+        where: { id },
+        select: {
+          id: true,
+          status: true,
+          contactEmail: true,
+          contactName: true,
+          name: true,
+        },
+      }),
+    );
 
     if (!partner) {
       return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
@@ -44,15 +47,18 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
       notes = null;
     }
 
-    await withTenantScope(orgId, (db) => db.partner.update({ where: { id },
-      data: {
-        status: 'rejected',
-        active: false,
-        rejectedAt: new Date(),
-        rejectedById: user.id,
-        rejectionNotes: notes,
-      },
-    });
+    await withTenantScope(orgId, (db) =>
+      db.partner.update({
+        where: { id },
+        data: {
+          status: 'rejected',
+          active: false,
+          rejectedAt: new Date(),
+          rejectedById: user.id,
+          rejectionNotes: notes,
+        },
+      }),
+    );
 
     // Send rejection email
     const resendKey = process.env.RESEND_API_KEY;
@@ -93,4 +99,4 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
     console.error('/admin/partners/[id]/reject:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}));
+});

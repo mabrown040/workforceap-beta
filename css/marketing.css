@@ -308,6 +308,8 @@ html.dark .marketing-process-step__icon {
 a.marketing-hero-step-pill.btn {
   gap: 0.625rem;
   padding: 0.3rem 1rem 0.3rem 0.3rem;
+  min-height: var(--btn-min-height);
+  box-sizing: border-box;
   justify-content: flex-start;
   cursor: default;
   font-weight: 600;
@@ -409,16 +411,7 @@ html.dark .marketing-bottom-nav {
   color: var(--mbn-inactive-fg);
 }
 
-/*
- * Mobile bottom bar: never use partial font-variation-settings inline — WebKit (iOS) can drop
- * other axes and ligatures fail, so icon names render as plain text. Keep full axis tuple in CSS.
- */
-.marketing-bottom-nav .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined', sans-serif;
-  -webkit-font-feature-settings: 'liga';
-  font-feature-settings: 'liga';
-  font-variation-settings: 'FILL' var(--ms-fill, 0), 'wght' var(--ms-wght, 400), 'GRAD' 0, 'opsz' 24;
-}
+/* Icons inherit `.material-symbols-outlined` from main.css (full variation tuple required on WebKit). */
 
 .marketing-bottom-nav__link--active .material-symbols-outlined {
   --ms-fill: 1;

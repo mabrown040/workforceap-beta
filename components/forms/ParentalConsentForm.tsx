@@ -1,5 +1,6 @@
 'use client';
 
+import { marketingPrimaryButtonClasses } from '@/lib/marketing/buttonClasses';
 import { useState } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 
@@ -269,12 +270,14 @@ export default function ParentalConsentForm({
         </p>
       </div>
 
-      <button 
-        type="submit" 
-        className="btn btn-primary" 
+      <button
+        type="submit"
+        className={marketingPrimaryButtonClasses({
+          radius: 'md',
+          className: 'btn-full-width',
+        })}
         disabled={submitting || !formData.consentTerms}
         aria-busy={submitting}
-        style={{ width: '100%' }}
       >
         <span aria-live="polite">
           {submitting ? 'Submitting consent...' : 'Submit Parental Consent'}

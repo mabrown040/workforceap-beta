@@ -8,7 +8,7 @@ import { refineMatchesWithLlm } from '@/lib/career/autoMatchLlmRefine';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: NextRequest) => {
+export const GET = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

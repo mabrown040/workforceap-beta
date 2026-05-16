@@ -175,13 +175,12 @@ Provider fallback chain: **Anthropic → Groq → Gemini**. At least one is requ
 | `COURSERA_LEARNING_PATH_ID_MAP` | 🟢 🔒 | JSON slug → learning path ID | `{}` | `lib/coursera/configCore.ts` |
 | `COURSERA_WEBHOOK_SECRET` | 🟡 🔒 | Secret for inbound completion webhooks | `...` | `lib/coursera/webhookAuth.ts` |
 | `WEBHOOK_SECRET` | 🟢 🔒 | **Fallback** for Coursera webhook secret | `...` | `lib/coursera/configCore.ts` |
-| `COURSERA_XAPI_CLIENT_ID` | 🟢 🔒 | xAPI client ID | `...` | `lib/xapi/config.ts` |
-| `COURSERA_XAPI_CLIENT_SECRET` | 🟢 🔒 | xAPI client secret | `...` | `lib/xapi/config.ts` |
-| `COURSERA_XAPI_ENDPOINT` | 🟢 🔒 | xAPI endpoint URL | `...` | `lib/xapi/config.ts` |
-| `COURSERA_XAPI_USERNAME` | 🟢 🔒 | xAPI basic auth username | `...` | `lib/xapi/config.ts` |
-| `COURSERA_XAPI_PASSWORD` | 🟢 🔒 | xAPI basic auth password | `...` | `lib/xapi/config.ts` |
-| `COURSERA_SSO_SECRET` | 🟢 🔒 | Shared secret for SSO launch | `...` | `lib/coursera/sso.ts` |
-| `COURSERA_DEFAULT_PROGRAM_ID` | 🟢 🔒 | Default program (xAPI path) | `...` | `lib/xapi/config.ts` |
+| `XAPI_CLIENT_ID` | 🟢 🔒 | Primary inbound xAPI client ID | `...` | `lib/xapi/config.ts` |
+| `XAPI_CLIENT_SECRET` | 🟢 🔒 | Primary inbound xAPI client secret | `...` | `lib/xapi/config.ts` |
+| `COURSERA_APP_ID` | 🟢 🔒 | Fallback inbound xAPI client ID | `...` | `lib/xapi/config.ts` |
+| `COURSERA_APP_SECRET` | 🟢 🔒 | Fallback inbound xAPI client secret | `...` | `lib/xapi/config.ts` |
+| `COURSERA_XAPI_CLIENT_ID` | 🟡 🔒 | Optional explicit inbound test credential override | `...` | `app/api/admin/coursera/self-test/route.ts` |
+| `COURSERA_XAPI_CLIENT_SECRET` | 🟡 🔒 | Optional explicit inbound test credential override | `...` | `app/api/admin/coursera/self-test/route.ts` |
 | `COURSERA_TARGET_BASE_URL` | 🟢 🔒 | Target base URL for launch | `...` | `lib/coursera/configCore.ts` |
 | `COURSERA_ORG_ID` | 🟢 🔒 | Organization ID | `...` | `lib/coursera/configCore.ts` |
 | `COURSERA_ORG_SLUG` | 🟢 🔒 | Organization slug | `...` | `lib/coursera/configCore.ts` |
@@ -378,16 +377,16 @@ These are referenced in the application but absent from `.env.example`. New deve
 **Coursera (many missing):**
 - `COURSERA_B4B_CLIENT_ID`, `COURSERA_B4B_CLIENT_SECRET`
 - `COURSERA_COURSE_ID_MAP`, `COURSERA_COURSE_URL_TEMPLATE`
-- `COURSERA_DEFAULT_PROGRAM_ID`
 - `COURSERA_LEARNING_PATH_ID_MAP`, `COURSERA_LEARNING_PATH_URL_TEMPLATE`
 - `COURSERA_OAUTH_TOKEN_URL`
 - `COURSERA_ORG_ID`, `COURSERA_ORG_SLUG`
 - `COURSERA_PROGRAM_HOME_URL`, `COURSERA_PROGRAM_ID_MAP`, `COURSERA_PROGRAM_URL_TEMPLATE`
 - `COURSERA_SKILLSET_ID_MAP`, `COURSERA_SKILLSET_SLUG_MAP`
-- `COURSERA_SSO_SECRET`
 - `COURSERA_TARGET_BASE_URL`
 - `COURSERA_UNMATCHED_ACTOR_ALERT_EMAILS`
-- `COURSERA_XAPI_CLIENT_ID`, `COURSERA_XAPI_CLIENT_SECRET`, `COURSERA_XAPI_ENDPOINT`, `COURSERA_XAPI_PASSWORD`, `COURSERA_XAPI_USERNAME`
+- `XAPI_CLIENT_ID`, `XAPI_CLIENT_SECRET`
+- `COURSERA_APP_ID`, `COURSERA_APP_SECRET`
+- `COURSERA_XAPI_CLIENT_ID`, `COURSERA_XAPI_CLIENT_SECRET` (optional self-test overrides)
 - `WEBHOOK_SECRET` (fallback)
 
 **Email / Notifications:**

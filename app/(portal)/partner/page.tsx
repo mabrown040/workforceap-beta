@@ -104,11 +104,10 @@ export default async function PartnerDashboardPage() {
           contactName: true,
           contactPhone: true,
           tourCompletedAt: true,
-          status: true,
         },
       });
       partnerRow = fallbackRow
-        ? { ...fallbackRow, stripeConnectId: null, stripeConnectStatus: null }
+        ? { ...fallbackRow, stripeConnectId: null, stripeConnectStatus: null, status: null }
         : null;
     } else {
       throw error;

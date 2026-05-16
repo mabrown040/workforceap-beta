@@ -194,7 +194,7 @@ export default async function EmployersPage() {
                   textDecoration: 'none',
                 }}
               >
-                Create Free Employer Account
+                Create Employer Account
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>business</span>
               </LocalizedLink>
             )}

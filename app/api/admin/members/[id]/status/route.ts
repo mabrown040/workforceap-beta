@@ -8,6 +8,7 @@ import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { ApplicationStatus } from '@prisma/client';
 import { sendEnrollmentConfirmationEmail, sendApplicationRejectedEmail } from '@/lib/email';
 import { getProgramByInterestValue } from '@/lib/content/programs';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -60,8 +61,13 @@ const statusSchema = z.object({
 
   const { status, notes } = parsed.data;
 
-  const application = await prisma.application.findUnique({
-    where: { id },
+  // Tenant scope: Application isn't in TENANT_SCOPED_MODELS but is
+  // org-bound via its owning User. Filter through the parent so an
+  // admin from Org A can't change status on an Org B member's
+  // application by guessing the application ID.
+  const orgId = await getActorOrganizationId(user.id);
+  const application = await prisma.application.findFirst({
+    where: { id, user: { organizationId: orgId } },
     include: { user: { select: { email: true, fullName: true, programInterest: true } } },
   });
 
@@ -71,8 +77,10 @@ const statusSchema = z.object({
 
   const previousStatus = application.status;
 
-  await prisma.application.update({
-    where: { id },
+  // updateMany ensures the FK-filter is honored on the write side.
+  // (Plain update({where:{id}}) bypasses the user.organizationId clause.)
+  await prisma.application.updateMany({
+    where: { id, user: { organizationId: orgId } },
     data: { status, notes: notes ?? application.notes },
   });
 

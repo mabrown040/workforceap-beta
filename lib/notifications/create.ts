@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
+import { Prisma } from '@prisma/client';
 
 export type NotificationType =
   | 'message'
@@ -32,7 +33,7 @@ export async function createNotification(
         type: input.type,
         title: input.title,
         body: input.body,
-        data: input.data ?? null,
+        data: (input.data ?? null) as unknown as Prisma.InputJsonValue,
       },
     });
   } catch (error) {
@@ -55,7 +56,7 @@ export async function createBulkNotifications(
         type: input.type,
         title: input.title,
         body: input.body,
-        data: input.data ?? null,
+        data: (input.data ?? null) as unknown as Prisma.InputJsonValue,
       })),
     });
   } catch (error) {

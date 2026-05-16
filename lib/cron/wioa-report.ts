@@ -43,12 +43,12 @@ export async function generateWioaReport(
   const dateRange = { gte: start, lte: end };
 
   const totalActiveMembers = await prisma.user.count({
-    where: { deletedAt: null, role: 'member', createdAt: dateRange },
+    where: { deletedAt: null, createdAt: dateRange },
   });
 
   const completers = await prisma.courseProgress.groupBy({
     by: ['userId'],
-    where: { status: 'COMPLETED', updatedAt: dateRange },
+    where: { status: 'COMPLETED', lastUpdatedAt: dateRange },
     _count: { userId: true },
   });
   const totalCompleters = completers.length;
@@ -73,7 +73,7 @@ export async function generateWioaReport(
   // Completers by program in the period
   const completersByProgram = await prisma.courseProgress.groupBy({
     by: ['programSlug'],
-    where: { status: 'COMPLETED', updatedAt: dateRange },
+    where: { status: 'COMPLETED', lastUpdatedAt: dateRange },
     _count: { programSlug: true },
   });
 
@@ -98,12 +98,13 @@ export async function generateWioaReport(
   ]);
 
   const programs: WioaReportProgram[] = Array.from(programSlugs)
+    .filter((s): s is string => s !== null)
     .sort()
     .map((programSlug) => ({
       programSlug,
-      activeMembers: enrollmentsByProgram.find((e) => e.programSlug === programSlug)?._count?.programSlug ?? 0,
-      completers: completersByProgram.find((c) => c.programSlug === programSlug)?._count?.programSlug ?? 0,
-      placements: placementsByProgram.find((p) => p.programSlug === programSlug)?._count?.programSlug ?? 0,
+      activeMembers: (enrollmentsByProgram.find((e) => e.programSlug === programSlug)?._count as { programSlug?: number } | undefined)?.programSlug ?? 0,
+      completers: (completersByProgram.find((c) => c.programSlug === programSlug)?._count as { programSlug?: number } | undefined)?.programSlug ?? 0,
+      placements: (placementsByProgram.find((p) => p.programSlug === programSlug)?._count as { programSlug?: number } | undefined)?.programSlug ?? 0,
       avgWage: wageByProgram.find((w) => w.programSlug === programSlug)?._avg?.salaryOffered ?? null,
     }));
 

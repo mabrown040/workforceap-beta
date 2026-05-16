@@ -132,7 +132,7 @@ async function bulkUpsertCourseProgressChunk(
       contract_active,
       source,
       last_synced_at
-    ) VALUES ${Prisma.join(tuples, Prisma.sql`, `)}
+    ) VALUES ${Prisma.join(tuples, ', ')}
     ON CONFLICT (LOWER(external_email), coursera_course_id) DO UPDATE SET
       user_id = COALESCE(EXCLUDED.user_id, coursera_course_progress.user_id),
       external_name = EXCLUDED.external_name,
@@ -374,7 +374,7 @@ async function bulkUpsertBadgeProgressChunk(
       collection_name,
       source,
       last_synced_at
-    ) VALUES ${Prisma.join(tuples, Prisma.sql`, `)}
+    ) VALUES ${Prisma.join(tuples, ', ')}
     ON CONFLICT (LOWER(external_email), badge_slug) DO UPDATE SET
       user_id = COALESCE(EXCLUDED.user_id, coursera_badge_progress.user_id),
       external_name = EXCLUDED.external_name,

@@ -15,8 +15,11 @@ export async function GET(req: NextRequest) {
   }
 
   const orgId = await getActorOrganizationId(user.id);
+  // Only referral partners can earn payouts. Community partners are excluded
+  // so this aggregate doesn't surface them in the admin payout dashboard.
   const partners = await withTenantScope(orgId, async (db) =>
     db.partner.findMany({
+      where: { partnerType: 'referral' },
       include: {
         user: { select: { fullName: true, email: true } },
         referrals: {

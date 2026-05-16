@@ -247,7 +247,7 @@ export default function JobsListingClient({
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const qParam = searchParams?.get('q') ?? '';
+  const qParam = (searchParams?.get('q') ?? '') ?? '';
   const [qLocal, setQLocal] = useState(qParam);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

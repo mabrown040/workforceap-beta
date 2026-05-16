@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 function daysSince(date: Date): number {
   return Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
-}export const GET = withApiGuc(async (req: NextRequest) => {
+}
+
+export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -21,34 +22,46 @@ function daysSince(date: Date): number {
         where: {
           wave: 'thirty_day',
           completedAt: null,
-          sentAt: { not: null },
-          // Sent more than 7 days ago
-          AND: [
-            { sentAt: { lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
-          ],
-        },
-        include: {
-          user: { select: { fullName: true, email: true } },
-          placement: { select: { employerName: true, jobTitle: true, placedAt: true } },
+          sentAt: { not: null, lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
         },
         orderBy: { sentAt: 'asc' },
         take: 100,
       }),
     ]);
 
-    const atRisk = atRiskRows.map((s) => ({
-      id: s.placementId,
-      userId: s.userId,
-      fullName: s.user?.fullName ?? null,
-      email: s.user?.email ?? null,
-      employerName: s.placement?.employerName ?? '—',
-      jobTitle: s.placement?.jobTitle ?? '—',
-      placedAt: s.placement?.placedAt?.toISOString() ?? '',
-      daysSincePlacement: s.placement?.placedAt ? daysSince(s.placement.placedAt) : 0,
-      surveySent: true,
-      surveyCompleted: false,
-      wave: s.wave,
-    }));
+    // Batch-fetch users and placements separately (relations removed from model)
+    const userIds = atRiskRows.map((r) => r.userId);
+    const placementIds = atRiskRows.map((r) => r.placementId);
+    const [users, placements] = await Promise.all([
+      prisma.user.findMany({
+        where: { id: { in: userIds } },
+        select: { id: true, fullName: true, email: true },
+      }),
+      prisma.placementRecord.findMany({
+        where: { id: { in: placementIds } },
+        select: { id: true, employerName: true, jobTitle: true, placedAt: true },
+      }),
+    ]);
+    const userMap = new Map(users.map((u) => [u.id, u]));
+    const placementMap = new Map(placements.map((p) => [p.id, p]));
+
+    const atRisk = atRiskRows.map((s) => {
+      const u = userMap.get(s.userId);
+      const p = placementMap.get(s.placementId);
+      return {
+        id: s.placementId,
+        userId: s.userId,
+        fullName: u?.fullName ?? null,
+        email: u?.email ?? null,
+        employerName: p?.employerName ?? '—',
+        jobTitle: p?.jobTitle ?? '—',
+        placedAt: p?.placedAt?.toISOString() ?? '',
+        daysSincePlacement: p?.placedAt ? daysSince(p.placedAt) : 0,
+        surveySent: true,
+        surveyCompleted: false,
+        wave: s.wave,
+      };
+    });
 
     const responseRate = totalSent > 0 ? Math.round((totalCompleted / totalSent) * 100) : 0;
 

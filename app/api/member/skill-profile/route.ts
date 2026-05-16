@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { mapSkillsToRadarAxes } from '@/lib/ai/onetSkills';
 import type { OnetSkill } from '@/lib/ai/onetSkills';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { riasecToRadarAxes } from '@/lib/content/quizIpMerge';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -342,18 +343,14 @@ function mergeProfiles(
         // Interest Profiler result
         if (parsed.source === 'interest_profiler' && parsed.riasec && !interestProfilerProfile) {
           hasInterestProfiler = true;
-          const r = parsed.riasec;
-          const vals = Object.values(r).filter((v): v is number => typeof v === 'number');
-          const maxR = Math.max(...vals, 1);
-          // RIASEC → radar axes mapping
-          interestProfilerProfile = [
-            { axis: 'Analytics', value: Math.min(1, ((r.investigative ?? 0) * 0.6 + (r.conventional ?? 0) * 0.4) / maxR) },
-            { axis: 'Engineering', value: Math.min(1, ((r.realistic ?? 0) * 0.7 + (r.investigative ?? 0) * 0.3) / maxR) },
-            { axis: 'Design', value: Math.min(1, ((r.artistic ?? 0) * 0.75 + (r.investigative ?? 0) * 0.25) / maxR) },
-            { axis: 'Strategy', value: Math.min(1, ((r.enterprising ?? 0) * 0.6 + (r.conventional ?? 0) * 0.4) / maxR) },
-            { axis: 'Ethics', value: Math.min(1, ((r.social ?? 0) * 0.7 + (r.conventional ?? 0) * 0.3) / maxR) },
-            { axis: 'Research', value: Math.min(1, ((r.investigative ?? 0) * 0.5 + (r.artistic ?? 0) * 0.5) / maxR) },
-          ];
+          interestProfilerProfile = riasecToRadarAxes({
+            realistic: parsed.riasec.realistic ?? 0,
+            investigative: parsed.riasec.investigative ?? 0,
+            artistic: parsed.riasec.artistic ?? 0,
+            social: parsed.riasec.social ?? 0,
+            enterprising: parsed.riasec.enterprising ?? 0,
+            conventional: parsed.riasec.conventional ?? 0,
+          });
         }
 
         // O*NET skill mapper result

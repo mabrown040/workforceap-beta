@@ -59,6 +59,16 @@ jobs:
           fi
           echo "✅ Typecheck passed (test file errors ignored)"
 
+      # Unit tests (Node's built-in test runner via the `test:unit`
+      # script, which uses tsx). Non-blocking initially — the suite has
+      # ~191 specs and several depend on external services (Coursera,
+      # Resend, Supabase) that aren't configured in CI. Once flaky /
+      # env-dependent specs are tagged or skipped, remove
+      # `continue-on-error: true` to make this a required gate.
+      - name: Unit tests
+        continue-on-error: true
+        run: npm run test:unit
+
       - name: Build
         run: npx next build
         env:

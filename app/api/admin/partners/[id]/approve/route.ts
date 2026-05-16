@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { Resend } from 'resend';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -14,19 +16,24 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
+    // Partner IS in TENANT_SCOPED_MODELS — wrap reads + writes so an
+    // Org A admin cannot approve an Org B partner by guessing its UUID.
+    const orgId = await getActorOrganizationId(user.id);
 
-    const partner = await prisma.partner.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        status: true,
-        contactEmail: true,
-        contactName: true,
-        name: true,
-        slug: true,
-        referralCode: true,
-      },
-    });
+    const partner = await withTenantScope(orgId, (db) =>
+      db.partner.findFirst({
+        where: { id },
+        select: {
+          id: true,
+          status: true,
+          contactEmail: true,
+          contactName: true,
+          name: true,
+          slug: true,
+          referralCode: true,
+        },
+      }),
+    );
 
     if (!partner) {
       return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
@@ -36,15 +43,17 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
       return NextResponse.json({ error: 'Partner is not pending approval' }, { status: 400 });
     }
 
-    await prisma.partner.update({
-      where: { id },
-      data: {
-        status: 'active',
-        active: true,
-        approvedAt: new Date(),
-        approvedById: user.id,
-      },
-    });
+    await withTenantScope(orgId, (db) =>
+      db.partner.update({
+        where: { id },
+        data: {
+          status: 'active',
+          active: true,
+          approvedAt: new Date(),
+          approvedById: user.id,
+        },
+      }),
+    );
 
     // Send approval email
     const resendKey = process.env.RESEND_API_KEY;

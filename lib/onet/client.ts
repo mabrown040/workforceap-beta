@@ -4,7 +4,7 @@
  * Auth: X-API-Key header (set ONET_API_KEY).
  */
 
-const BASE_URL = process.env.ONET_API_BASE_URL?.replace(/\/?$/, '/') ?? 'https://services.onetcenter.org/ws/';
+const BASE_URL = process.env.ONET_API_BASE_URL?.replace(/\/?$/, '/') ?? 'https://api-v2.onetcenter.org/';
 
 export type OnetSearchOccupation = { code: string; title: string };
 

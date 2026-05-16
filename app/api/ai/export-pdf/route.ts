@@ -129,6 +129,56 @@ function sanitizeLine(s: string): string {
   return normalizePdfExportText(s).replace(/\n+/g, ' ');
 }
 
+/**
+ * Parse a "## Skill Profile" section out of free-form body text and return a
+ * single-series radar payload. Callers that hit this endpoint without an
+ * explicit `chartData` (e.g. the AI History download button rendering an old
+ * Skill Mapper result) still get the radar visualization on top of the text.
+ *
+ * The pre-rename "Ethics" axis is mapped to "Service" inline so old stored
+ * results render with the current axis taxonomy \u2014 matches the read-time shim
+ * in app/api/member/skill-profile/route.ts.
+ */
+function radarFromSkillProfileText(text: string): RadarChartData | null {
+  const lines = text.split(/\r?\n/);
+  let inSection = false;
+  const out: { axis: string; value: number }[] = [];
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (/^#{1,3}\s*Skill Profile\b/i.test(line)) { inSection = true; continue; }
+    if (!inSection) continue;
+    if (!line) {
+      if (out.length > 0) break;
+      continue;
+    }
+    if (/^#{1,3}\s/.test(line)) break;
+    const m = line.match(/^([A-Za-z][A-Za-z &/-]{1,40}?):\s*(\d{1,3}(?:\.\d+)?)\s*%?\s*$/);
+    if (!m) break;
+    let axis = m[1].trim();
+    if (axis === 'Ethics') axis = 'Service';
+    const pct = Number(m[2]);
+    if (!Number.isFinite(pct)) break;
+    out.push({ axis, value: Math.max(0, Math.min(1, pct / 100)) });
+  }
+  if (out.length < 3) return null;
+  return { type: 'radar', axes: out.map(v => v.axis), series: [{ values: out }] };
+}
+
+/** Rewrite a legacy "Ethics:" axis row to "Service:" when it appears inside a Skill Profile block. */
+function rewriteLegacyAxisNames(text: string): string {
+  const lines = text.split('\n');
+  let inSection = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (/^#{1,3}\s*Skill Profile\b/i.test(line)) { inSection = true; continue; }
+    if (!inSection) continue;
+    if (!line) { if (i > 0 && /^#{1,3}\s/.test((lines[i + 1] ?? '').trim())) inSection = false; continue; }
+    if (/^#{1,3}\s/.test(line)) { inSection = false; continue; }
+    lines[i] = lines[i].replace(/^(\s*)Ethics:/, '$1Service:');
+  }
+  return lines.join('\n');
+}
+
 type EmbeddedLogo = Awaited<ReturnType<PDFDocument['embedPng']>> | null;
 
 async function loadLogo(pdfDoc: PDFDocument): Promise<EmbeddedLogo> {
@@ -378,6 +428,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'text is required' }, { status: 400 });
     }
 
+    // Rewrite legacy "Ethics" axis rows to "Service" so old stored Skill Mapper
+    // results render with the current taxonomy in both the body and the chart.
+    const normalizedText = rewriteLegacyAxisNames(text);
+
+    // If the caller didn't pass chartData but the body contains a "## Skill Profile"
+    // section, synthesize a single-series radar so AI-History downloads of past
+    // Skill Mapper results still get the chart they had in the original tool.
+    const effectiveChartData: RadarChartData | null = validChartData
+      ?? radarFromSkillProfileText(normalizedText);
+
     const pdfDoc = await PDFDocument.create();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -419,7 +479,7 @@ export async function POST(req: NextRequest) {
       return lines;
     };
 
-    const bodyLines = wrapText(normalizePdfExportText(text), font, bodyFontSize, maxWidth);
+    const bodyLines = wrapText(normalizePdfExportText(normalizedText), font, bodyFontSize, maxWidth);
 
     // First page
     let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
@@ -460,12 +520,12 @@ export async function POST(req: NextRequest) {
         height: chartH,
       });
       y -= 16;
-    } else if (validChartData) {
+    } else if (effectiveChartData) {
       // Draw the radar chart natively with pdf-lib primitives (preferred — works without
       // a browser canvas round-trip). Box: ~260pt tall to leave room for axis labels & legend.
       const radius = 80;
       const labelPadding = 28; // extra room above & below for axis labels
-      const legendPadding = validChartData.series.length > 1 ? 18 : 0;
+      const legendPadding = effectiveChartData.series.length > 1 ? 18 : 0;
       const chartBoxH = radius * 2 + labelPadding * 2 + legendPadding;
       if (y - chartBoxH < BODY_BOTTOM) {
         page = pdfDoc.addPage([PAGE_W, PAGE_H]);
@@ -474,7 +534,7 @@ export async function POST(req: NextRequest) {
       }
       const cx = PAGE_W / 2;
       const cy = y - labelPadding - radius;
-      drawRadarChart(page, font, validChartData, { cx, cy, radius });
+      drawRadarChart(page, font, effectiveChartData, { cx, cy, radius });
       y -= chartBoxH;
       y -= 8;
     }

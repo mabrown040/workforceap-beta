@@ -18,7 +18,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
  * Much more accurate than the keyword-matching approach in skill-profile.
  */
 
-const RADAR_AXES = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Ethics', 'Research'] as const;
+const RADAR_AXES = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Service', 'Research'] as const;
 
 const SYSTEM_PROMPT = `You are a workforce skills analyst. Given a resume, extract and score the person's competency across exactly 6 skill axes. Return ONLY valid JSON, no markdown fences.
 

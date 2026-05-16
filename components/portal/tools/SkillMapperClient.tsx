@@ -13,7 +13,7 @@ const DEMO_RADAR = [
   { axis: 'Engineering', value: 0.85 },
   { axis: 'Design', value: 0.38 },
   { axis: 'Strategy', value: 0.44 },
-  { axis: 'Ethics', value: 0.55 },
+  { axis: 'Service', value: 0.55 },
   { axis: 'Research', value: 0.61 },
 ];
 const DEMO_SKILLS = [
@@ -30,7 +30,7 @@ const DEMO_SALES_RADAR = [
   { axis: 'Engineering', value: 0.18 },
   { axis: 'Design', value: 0.22 },
   { axis: 'Strategy', value: 0.78 },
-  { axis: 'Ethics', value: 0.82 },
+  { axis: 'Service', value: 0.82 },
   { axis: 'Research', value: 0.38 },
 ];
 const DEMO_SALES_SKILLS = [

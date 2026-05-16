@@ -42,7 +42,6 @@ const SKIP_REASONS = {
   vitest: "imports 'vitest' (node:test runner can't satisfy)",
   serverOnly: "imports 'server-only' (no test-env shim yet)",
   realDb: "requires a live postgres connection (no Prisma mock layer in this spec)",
-  staleAssertion: "asserts a route shape that no longer matches the implementation; needs human triage",
 };
 
 /**
@@ -107,13 +106,6 @@ function classify(relPath) {
     // rewriting the test against the wrapper rather than the real
     // function, which defeats most of its value. Daytime cleanup item.
     return { skip: 'realDb' };
-  }
-  if (/lib\/member\/aiToolFollowThrough\.test\.ts/.test(relPath)) {
-    // Asserts the post-skill-assessment redirect equals '/dashboard/training'
-    // but the implementation now returns '/dashboard'. Could be either a
-    // real regression OR an out-of-date assertion — needs human read
-    // before deciding which to change.
-    return { skip: 'staleAssertion' };
   }
   return null;
 }

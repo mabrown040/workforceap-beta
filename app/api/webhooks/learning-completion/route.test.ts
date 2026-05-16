@@ -101,6 +101,42 @@ test('verifyWebhookSecret returns false when secret header is missing', () => {
   assert.equal(result, false);
 });
 
+test('verifyWebhookSecret returns false when WEBHOOK_SECRET env is unset (fail closed)', () => {
+  // Regression guard for AUDIT-2026-05-16 C-S2: with empty expected & provided
+  // secrets, SHA256('') === SHA256('') would otherwise grant anonymous access.
+  const originalSecret = process.env.WEBHOOK_SECRET;
+  delete process.env.WEBHOOK_SECRET;
+
+  const req = new Request('https://example.com/webhooks/learning-completion', {
+    method: 'POST',
+    headers: { 'x-webhook-secret': '' },
+    body: '{}',
+  });
+
+  const result = verifyWebhookSecret(req);
+  if (originalSecret === undefined) delete process.env.WEBHOOK_SECRET;
+  else process.env.WEBHOOK_SECRET = originalSecret;
+
+  assert.equal(result, false);
+});
+
+test('verifyWebhookSecret returns false when WEBHOOK_SECRET is empty string', () => {
+  const originalSecret = process.env.WEBHOOK_SECRET;
+  process.env.WEBHOOK_SECRET = '';
+
+  const req = new Request('https://example.com/webhooks/learning-completion', {
+    method: 'POST',
+    headers: { 'x-webhook-secret': '' },
+    body: '{}',
+  });
+
+  const result = verifyWebhookSecret(req);
+  if (originalSecret === undefined) delete process.env.WEBHOOK_SECRET;
+  else process.env.WEBHOOK_SECRET = originalSecret;
+
+  assert.equal(result, false);
+});
+
 test('verifyWebhookSecret is safe against timing attacks (same-length wrong secret)', () => {
   const originalSecret = process.env.WEBHOOK_SECRET;
   process.env.WEBHOOK_SECRET = 'secret-a';

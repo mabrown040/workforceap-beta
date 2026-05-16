@@ -31,3 +31,16 @@ coverage/
 # OS clutter
 .DS_Store
 Thumbs.db
+
+# AI-agent write probes and scratch files (Kimi, similar tooling).
+# These exposed a write-side supply-chain surface in AUDIT-2026-05-16.
+.kimi_*
+*_probe.txt
+test-file.txt
+
+# Stray vendor/audio assets that shouldn't ship with the repo.
+narration_*.mp3
+font-ranger-*.tgz
+
+# Shell-pipe accidents (e.g. `tee prisma.\>\>`).
+prisma.\(*\)

@@ -37,6 +37,12 @@ let bulkEmailRateLimiter: Ratelimit | null = null;
 let employerJobImportRateLimiter: Ratelimit | null = null;
 let partnerSignupRateLimiter: Ratelimit | null = null;
 let confirmationEmailRateLimiter: Ratelimit | null = null;
+// Per-email cap to prevent IP-rotating spray against a target inbox.
+// The per-IP limiter alone allows a botnet to spam any chosen address
+// with our branded "your application was received" email, abusing our
+// domain for phishing pretext. 2/hr/email blocks that without affecting
+// legitimate re-sends.
+let confirmationEmailEmailRateLimiter: Ratelimit | null = null;
 let careersRecommendRateLimiter: Ratelimit | null = null;
 let interestProfilerRateLimiter: Ratelimit | null = null;
 let forgotPasswordRateLimiter: Ratelimit | null = null;
@@ -126,6 +132,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:confirmation-email',
+  });
+  confirmationEmailEmailRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(2, '1 h'),
+    prefix: 'ratelimit:confirmation-email-email',
   });
   careersRecommendRateLimiter = new Ratelimit({
     redis,
@@ -281,7 +292,11 @@ export async function checkAIToolRateLimit(userId: string): Promise<{ success: b
 }
 
 export async function checkContactRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!contactRateLimiter) return { success: true };
+  if (!contactRateLimiter) {
+    // Contact is a documented "fail-closed in production" surface
+    // (spam vector). Dev/preview fail-open so local testing isn't blocked.
+    return { success: process.env.VERCEL_ENV !== 'production' };
+  }
   const result = await contactRateLimiter.limit(ip);
   return { success: result.success, remaining: result.remaining };
 }
@@ -318,10 +333,25 @@ export async function checkEmployerJobImportRateLimit(userId: string): Promise<{
   return { success: result.success, remaining: result.remaining };
 }
 
-/** Public confirmation-email endpoint — 5 per IP per hour. Fail-open without Upstash; Supabase enforces its own email send limits. */
+/** Public confirmation-email endpoint — 5 per IP per hour. Production fails closed when Redis is unconfigured: this endpoint sends mail from our verified domain to an arbitrary attacker-chosen address; a botnet can rotate IPs trivially, so unlimited fail-open would burn deliverability. */
 export async function checkConfirmationEmailRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!confirmationEmailRateLimiter) return { success: true };
+  if (!confirmationEmailRateLimiter) {
+    // Dev/preview: fail open so local testing isn't blocked. Production:
+    // fail closed because the endpoint is a phishing-payload carrier.
+    return { success: process.env.VERCEL_ENV !== 'production' };
+  }
   const result = await confirmationEmailRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Per-email cap on confirmation-email sends — 2 per email per hour. Same fail-closed-in-prod policy as the per-IP variant. Use both together. */
+export async function checkConfirmationEmailEmailRateLimit(email: string): Promise<{ success: boolean }> {
+  if (!confirmationEmailEmailRateLimiter) {
+    return { success: process.env.VERCEL_ENV !== 'production' };
+  }
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return { success: true };
+  const result = await confirmationEmailEmailRateLimiter.limit(`confirmation-email-email:${normalized}`);
   return { success: result.success };
 }
 

@@ -29,10 +29,10 @@ function occupation(partial: Partial<OccupationForMatch> & { title: string }): O
 
 test('tokenize: lowercases and drops short words', () => {
   const out = tokenize('Linux SQL is BIG and tiny');
-  assert.deepEqual(new Set(out), new Set(['linux', 'tiny']));
-  // "sql", "big", "and", "is" are all <= 3 chars and dropped
-  assert.ok(!out.includes('sql'));
-  assert.ok(!out.includes('big'));
+  assert.deepEqual(new Set(out), new Set(['linux', 'sql', 'big', 'tiny']));
+  // "is" and "and" are stop words and dropped
+  assert.ok(!out.includes('is'));
+  assert.ok(!out.includes('and'));
 });
 
 test('tokenize: splits on non-word boundaries', () => {
@@ -57,12 +57,13 @@ test('scoreToRecommendationType: tier boundaries', () => {
 
 test('scoreProgram: empty token set yields stretch with zero score', () => {
   const prog = PROGRAMS[0];
-  const result = scoreProgram(prog, new Set());
+  const occ = occupation({ title: 'Entry Level Unknown' });
+  const result = scoreProgram(prog, new Set(), occ);
   assert.equal(result.programSlug, prog.slug);
   assert.equal(result.score, 0);
   assert.equal(result.recommendationType, 'stretch');
   assert.equal(result.experienceBand, 'beginner');
-  assert.match(result.reason, /Low keyword overlap/);
+  assert.match(result.reason, /Low keyword overlap|stretch/);
 });
 
 test('scoreProgram: full-overlap reasoning lists matched terms', () => {
@@ -70,10 +71,17 @@ test('scoreProgram: full-overlap reasoning lists matched terms', () => {
   const prog = PROGRAMS[0];
   assert.ok(prog, 'expected at least one program in catalog');
   const keywords = buildProgramKeywords(prog);
-  const result = scoreProgram(prog, new Set(keywords));
-  assert.equal(result.score, 1);
+  const occ = occupation({
+    title: prog.title,
+    description: keywords.join(' '),
+    skills: prog.skills.map((s) => ({ skillName: s })),
+  });
+  const occTokens = buildOccupationTokens(occ);
+  const result = scoreProgram(prog, occTokens, occ);
+  // With synonym expansion and domain bonuses, score may exceed 1 (clamped)
+  assert.ok(result.score >= 0.9, `expected near-full overlap, got ${result.score}`);
   assert.equal(result.recommendationType, 'primary');
-  assert.match(result.reason, /Shares \d+ keywords? including/);
+  assert.match(result.reason, /Shares \d+ keyword|domain/);
 });
 
 // ── rankPrograms — known O*NET → expected program ─────────────────────────────

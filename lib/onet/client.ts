@@ -4,7 +4,7 @@
  * Auth: X-API-Key header (set ONET_API_KEY).
  */
 
-const BASE_URL = process.env.ONET_API_BASE_URL?.replace(/\/?$/, '/') ?? 'https://api-v2.onetcenter.org/';
+const BASE_URL = process.env.ONET_API_BASE_URL?.replace(/\/?$/, '/') ?? 'https://services.onetcenter.org/ws/';
 
 export type OnetSearchOccupation = { code: string; title: string };
 
@@ -136,20 +136,21 @@ export async function getOccupation(onetCode: string): Promise<OnetOccupationOve
     occupation?: { code: string; title: string; description?: string; tags?: { bright_outlook?: boolean } };
     error?: string;
   };
-  try {
-    const data = await onetGet<Ov>(`online/occupations/${encodeURIComponent(code)}/`);
-    if (data.error) return null;
-    const o = data.occupation;
-    if (!o) return null;
-    return {
-      code: o.code,
-      title: o.title,
-      description: o.description,
-      tags: o.tags,
-    };
-  } catch {
+  const data = await onetGet<Ov>(`online/occupations/${encodeURIComponent(code)}`);
+  if (data.error) {
+    // O*NET returns 200 with an error body for some "not found" cases.
     return null;
   }
+  const o = data.occupation;
+  if (!o) {
+    return null;
+  }
+  return {
+    code: o.code,
+    title: o.title,
+    description: o.description,
+    tags: o.tags,
+  };
 }
 
 type ElementRating = {

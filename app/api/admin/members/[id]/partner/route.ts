@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { sendPartnerNewMemberAssignedEmail } from '@/lib/notifications/partner-notify';
 import { z } from 'zod';
 
@@ -27,7 +28,8 @@ const patchSchema = z.object({
     }
   
     const { id: memberId } = await params;
-    const member = await prisma.user.findUnique({ where: { id: memberId }, select: { id: true, deletedAt: true } });
+    const orgId = await getActorOrganizationId(user.id);
+    const member = await prisma.user.findFirst({ where: { id: memberId, organizationId: orgId }, select: { id: true, deletedAt: true } });
     if (!member || member.deletedAt) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }

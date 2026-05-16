@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -24,6 +25,19 @@ function storageErrorMessage(error: { message?: string } | null): string {
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id: memberId } = await params;
+
+    // Tenant scope: verify the member belongs to the actor's org before
+    // minting signed resume URLs. Profile isn't tenant-scoped directly
+    // but is FK-bound to User; resolving via User.organizationId is the
+    // canonical pattern.
+    const orgId = await getActorOrganizationId(user.id);
+    const member = await prisma.user.findFirst({
+      where: { id: memberId, organizationId: orgId },
+      select: { id: true },
+    });
+    if (!member) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+    }
 
     const profile = await prisma.profile.findUnique({
       where: { userId: memberId },

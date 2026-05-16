@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import {
   getOrCreateMemberCounselorThread,
@@ -19,9 +20,10 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: memberId } = await params;
+  const orgId = await getActorOrganizationId(user.id);
 
   const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
+    where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: { id: true, fullName: true },
   });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
@@ -70,9 +72,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: memberId } = await params;
+  const orgId = await getActorOrganizationId(user.id);
 
   const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
+    where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: { id: true },
   });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
@@ -126,9 +129,10 @@ export const POST = withApiGuc(_POST);async function _PATCH(_request: NextReques
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: memberId } = await params;
+  const orgId = await getActorOrganizationId(user.id);
 
   const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
+    where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: { id: true },
   });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });

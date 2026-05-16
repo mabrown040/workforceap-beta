@@ -44,13 +44,89 @@ const MARGIN = 50;
 const PAGE_W = 612;
 const PAGE_H = 792;
 
+/**
+ * pdf-lib's StandardFonts (Helvetica family) only support WinAnsi encoding.
+ * Any character outside Windows-1252 (e.g. arrows, checkmarks, most math
+ * symbols, Asian/Arabic text) makes `drawText` / `widthOfTextAtSize` throw,
+ * which crashes the whole export. The Skill Mapper's comparison export, for
+ * example, builds lines like "Service: 65% \u2192 80% (+15 needed)" \u2014 the
+ * U+2192 arrow is not WinAnsi-encodable and used to silently break the
+ * download.
+ *
+ * WinAnsi covers ISO-8859-1 (U+0000\u2013U+00FF) plus 27 extras in the 0x80\u20130x9F
+ * range (smart quotes, em/en dash, bullet, ellipsis, euro, ...). Anything
+ * outside that set needs an ASCII fallback or we'll get an encoding error.
+ */
+const WINANSI_EXTRA = new Set([
+  0x20ac, // \u20AC
+  0x201a, // \u201A
+  0x0192, // \u0192
+  0x201e, // \u201E
+  0x2026, // \u2026
+  0x2020, // \u2020
+  0x2021, // \u2021
+  0x02c6, // \u02C6
+  0x2030, // \u2030
+  0x0160, // \u0160
+  0x2039, // \u2039
+  0x0152, // \u0152
+  0x017d, // \u017D
+  0x2018, // \u2018
+  0x2019, // \u2019
+  0x201c, // \u201C
+  0x201d, // \u201D
+  0x2022, // \u2022
+  0x2013, // \u2013
+  0x2014, // \u2014
+  0x02dc, // \u02DC
+  0x2122, // \u2122
+  0x0161, // \u0161
+  0x203a, // \u203A
+  0x0153, // \u0153
+  0x017e, // \u017E
+  0x0178, // \u0178
+]);
+
+/** Map common non-WinAnsi codepoints to safe ASCII so PDFs render rather than crash. */
+const UNICODE_FALLBACKS: Record<string, string> = {
+  '\u2192': '->', '\u2190': '<-', '\u2191': '^', '\u2193': 'v',
+  '\u2194': '<->', '\u21D2': '=>', '\u21D0': '<=',
+  '\u2713': 'OK', '\u2714': 'OK', '\u2717': 'X', '\u2718': 'X',
+  '\u00D7': 'x', '\u00F7': '/',
+  '\u2264': '<=', '\u2265': '>=', '\u2260': '!=', '\u2248': '~',
+  '\u00B1': '+/-', '\u221E': 'inf',
+  '\u25CF': '- ', '\u25A0': '- ', '\u25A1': '- ', '\u25CB': '- ', '\u25B6': '> ',
+  '\u00A0': ' ', '\u202F': ' ', '\u2009': ' ', '\u200A': ' ',
+  '\u200B': '', '\u200C': '', '\u200D': '', '\uFEFF': '',
+};
+
 /** Normalize pasted/markdown content so Helvetica renders reliably and PDFs look intentional. */
 function normalizePdfExportText(raw: string): string {
   let t = raw.replace(/\r\n/g, '\n').replace(/\*\*/g, '');
   t = t.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
   t = t.replace(/\u2022|\u25CF/g, '- ');
-  t = t.replace(/\n{4,}/g, '\n\n\n');
-  return t.trim();
+  for (const [src, repl] of Object.entries(UNICODE_FALLBACKS)) {
+    if (t.includes(src)) t = t.split(src).join(repl);
+  }
+  // Final pass: any remaining codepoint outside WinAnsi gets replaced with '?'
+  // rather than crashing the whole export. This is the safety net for content
+  // we didn't explicitly map above (emoji, CJK, exotic math symbols, etc.).
+  let out = '';
+  for (const ch of t) {
+    const cp = ch.codePointAt(0)!;
+    if (cp <= 0x7f || (cp >= 0xa0 && cp <= 0xff) || WINANSI_EXTRA.has(cp) || ch === '\n' || ch === '\t') {
+      out += ch;
+    } else {
+      out += '?';
+    }
+  }
+  out = out.replace(/\n{4,}/g, '\n\n\n');
+  return out.trim();
+}
+
+/** Sanitize a single line of text (titles, labels) \u2014 same safety as body normalization. */
+function sanitizeLine(s: string): string {
+  return normalizePdfExportText(s).replace(/\n+/g, ' ');
 }
 
 type EmbeddedLogo = Awaited<ReturnType<PDFDocument['embedPng']>> | null;
@@ -169,25 +245,31 @@ function drawRadarChart(
     });
   }
 
-  // Series polygons (closed outlines) and dots
+  // Series polygons — translucent fill + solid outline + dots, so two-series
+  // comparisons read as overlapping regions (matches the on-screen DualRadarChart).
+  // pdf-lib doesn't have a filled-polygon primitive but `drawSvgPath` accepts
+  // a closed path with `color` (fill) + `opacity` for translucent overlay.
   data.series.forEach((series, sIdx) => {
     const stroke = seriesColors[sIdx] ?? seriesColors[0];
     const lookup = new Map(series.values.map(v => [v.axis, Math.max(0, Math.min(1, v.value))]));
     const poly: { x: number; y: number }[] = axes.map((axis, i) => point(i, lookup.get(axis) ?? 0));
 
-    // Closed outline (no fill — pdf-lib has no convenient polygon-fill primitive
-    // we want without including a heavier path string; outline-only reads cleanly in print).
-    for (let i = 0; i < poly.length; i++) {
-      const p1 = poly[i];
-      const p2 = poly[(i + 1) % poly.length];
-      page.drawLine({
-        start: { x: p1.x, y: p1.y },
-        end: { x: p2.x, y: p2.y },
-        thickness: 1.5,
-        color: stroke,
-      });
-    }
-    // Data dots
+    // pdf-lib's drawSvgPath applies translate(x, y) then scale(1, -1) — i.e.
+    // SVG y-down semantics. To land each polygon point at its computed PDF
+    // coords, pass x:0, y:0 and negate y in the path string.
+    const pathData = `M ${poly[0].x} ${-poly[0].y} ` +
+      poly.slice(1).map(p => `L ${p.x} ${-p.y}`).join(' ') +
+      ' Z';
+    page.drawSvgPath(pathData, {
+      x: 0,
+      y: 0,
+      color: stroke,
+      opacity: 0.22,
+      borderColor: stroke,
+      borderWidth: 1.5,
+      borderOpacity: 1,
+    });
+
     for (const p of poly) {
       page.drawCircle({ x: p.x, y: p.y, size: 2.2, color: stroke });
     }
@@ -196,10 +278,15 @@ function drawRadarChart(
   // Axis labels (placed slightly outside the outermost ring)
   const labelSize = 8;
   axes.forEach((axisLabel, i) => {
+    const label = sanitizeLine(axisLabel);
     const p = point(i, 1.18);
-    const w = font.widthOfTextAtSize(axisLabel, labelSize);
-    // Approximate centering: nudge x left by half-width; PDF text baseline sits at y, so nudge y slightly up
-    page.drawText(axisLabel, {
+    let w: number;
+    try {
+      w = font.widthOfTextAtSize(label, labelSize);
+    } catch {
+      return;
+    }
+    page.drawText(label, {
       x: p.x - w / 2,
       y: p.y - labelSize / 3,
       font,
@@ -214,7 +301,7 @@ function drawRadarChart(
     let legendX = cx - radius;
     data.series.forEach((series, sIdx) => {
       const color = seriesColors[sIdx] ?? seriesColors[0];
-      const label = (series.label ?? `Series ${sIdx + 1}`).slice(0, 28);
+      const label = sanitizeLine(series.label ?? `Series ${sIdx + 1}`).slice(0, 28);
       page.drawRectangle({ x: legendX, y: legendY, width: 8, height: 8, color });
       page.drawText(label, {
         x: legendX + 12,
@@ -341,16 +428,16 @@ export async function POST(req: NextRequest) {
 
     // Document title
     if (title) {
-      const cleanTitle = title.replace(/\*\*/g, '');
+      const cleanTitle = sanitizeLine(title);
       page.drawText(cleanTitle, { x: MARGIN, y, font: boldFont, size: 15, color: ACCENT });
       y -= 22;
     }
 
     // Meta line
     const genDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const meta = toolName
+    const meta = sanitizeLine(toolName
       ? `Generated by WorkforceAP ${toolName} · ${genDate}`
-      : `Generated by Workforce Advancement Project · ${genDate}`;
+      : `Generated by Workforce Advancement Project · ${genDate}`);
     page.drawText(meta, { x: MARGIN, y, font, size: 8, color: MUTED });
     y -= 6;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: PAGE_W - MARGIN, y }, thickness: 0.5, color: RULE });

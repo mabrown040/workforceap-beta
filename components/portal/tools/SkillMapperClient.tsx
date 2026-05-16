@@ -484,7 +484,10 @@ export default function SkillMapperClient() {
           chartData,
         }),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        setError("Couldn't generate the PDF — please try again. If this keeps happening, contact support.");
+        return;
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -492,6 +495,8 @@ export default function SkillMapperClient() {
       a.download = `workforceap-skill-map-${selectedTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setError("Couldn't generate the PDF — please try again. If this keeps happening, contact support.");
     } finally {
       setExportingPdf(false);
     }
@@ -541,7 +546,10 @@ export default function SkillMapperClient() {
           chartData,
         }),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        setError("Couldn't generate the comparison PDF — please try again. If this keeps happening, contact support.");
+        return;
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -549,6 +557,8 @@ export default function SkillMapperClient() {
       a.download = `workforceap-skill-comparison-${(selectedTitle || 'profile').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setError("Couldn't generate the comparison PDF — please try again. If this keeps happening, contact support.");
     } finally {
       setExportingComparison(false);
     }

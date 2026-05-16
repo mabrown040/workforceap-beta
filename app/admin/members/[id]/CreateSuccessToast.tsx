@@ -9,10 +9,10 @@ export default function CreateSuccessToast() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [visible, setVisible] = useState(false);
-  const email = searchParams.get('email');
+  const email = searchParams?.get('email');
 
   useEffect(() => {
-    if (searchParams.get('toast') === 'created' && email) {
+    if (searchParams?.get('toast') === 'created' && email) {
       setVisible(true);
       const t = setTimeout(() => {
         setVisible(false);

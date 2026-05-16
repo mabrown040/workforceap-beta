@@ -19,7 +19,7 @@ type InviteData = {
 
 function InviteContent() {
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const token = searchParams?.get('token');
 
   const [data, setData] = useState<InviteData | null>(null);
   const [loading, setLoading] = useState(true);

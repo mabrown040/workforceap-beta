@@ -33,9 +33,9 @@ function ResetPasswordForm() {
     });
 
     async function exchangeToken() {
-      const code = searchParams.get('code');
-      const tokenHash = searchParams.get('token_hash');
-      const type = searchParams.get('type');
+      const code = searchParams?.get('code');
+      const tokenHash = searchParams?.get('token_hash');
+      const type = searchParams?.get('type');
       const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
       const accessToken = hashParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token');
@@ -128,7 +128,7 @@ function ResetPasswordForm() {
     }
 
     setStage('success');
-    const target = normalizePostLoginRedirect(searchParams.get('redirectTo'));
+    const target = normalizePostLoginRedirect(searchParams?.get('redirectTo'));
     setTimeout(() => router.push(target), 2000);
   }
 

@@ -19,7 +19,7 @@ const bodySchema = z.object({
     if (!(await isAdmin(admin.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id: memberId } = await params;
-    const orgId = await getActorOrganizationId(user.id);
+    const orgId = await getActorOrganizationId(admin.id);
     const body = await request.json().catch(() => null);
     const parsed = bodySchema.safeParse(body);
     if (!parsed.success) {

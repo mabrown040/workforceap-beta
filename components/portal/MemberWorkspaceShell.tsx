@@ -31,7 +31,7 @@ export default function MemberWorkspaceShell({
       trackFunnelEvent('member_signup', 'email_verified');
       trackFunnelEvent('member_signup', 'dashboard_first_visit');
       // Remove the param without adding to history
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
       params.delete('verified');
       const newUrl = params.size > 0 ? `${pathname}?${params.toString()}` : pathname;
       router.replace(newUrl);

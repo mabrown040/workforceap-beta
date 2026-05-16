@@ -247,7 +247,7 @@ export default function JobsListingClient({
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const qParam = searchParams.get('q') ?? '';
+  const qParam = searchParams?.get('q') ?? '';
   const [qLocal, setQLocal] = useState(qParam);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -255,12 +255,12 @@ export default function JobsListingClient({
     setQLocal(qParam);
   }, [qParam]);
 
-  const locationType = searchParams.get('locationType') ?? '';
-  const jobType = searchParams.get('jobType') ?? '';
-  const program = searchParams.get('program') ?? '';
-  const salaryMin = searchParams.get('salaryMin') ?? '';
-  const salaryMax = searchParams.get('salaryMax') ?? '';
-  const sort = searchParams.get('sort') ?? 'newest';
+  const locationType = searchParams?.get('locationType') ?? '';
+  const jobType = searchParams?.get('jobType') ?? '';
+  const program = searchParams?.get('program') ?? '';
+  const salaryMin = searchParams?.get('salaryMin') ?? '';
+  const salaryMax = searchParams?.get('salaryMax') ?? '';
+  const sort = searchParams?.get('sort') ?? 'newest';
   const q = qParam;
 
   const updateUrl = useCallback(

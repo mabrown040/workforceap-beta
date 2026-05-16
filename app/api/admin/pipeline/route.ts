@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   const counts = await withTenantScope(orgId, async (db) => {
     const members = await db.user.findMany({
-      where: { deletedAt: null, role: 'member' },
+      where: { deletedAt: null, userRoles: { some: { role: { name: 'member' } } } },
       select: {
         id: true,
         createdAt: true,

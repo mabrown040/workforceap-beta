@@ -15,13 +15,24 @@
   /* Compact portal chrome — shorter bottom bar + safe area */
   --wap-portal-mobile-bottom-clearance-compact: calc(4.75rem + env(safe-area-inset-bottom, 0px));
   /*
-   * Foregrounds for Stitch marketing stripes / pale surfaces (#fcf9f8). Used by overrides such as
-   * `.program-detail-shared`; retained globally even though `.marketing-mobile` selectors were retired.
+   * Foregrounds for Stitch marketing stripes / pale surfaces (#fcf9f8).
+   * Light-on tokens stay on cream bands in every theme; document foreground (`--wap-doc-on-surface*` on
+   * `html`) is used inside `html.dark` for non-cream stripes so text never sticks to `#1c1b1b`.
+   * Also used by overrides such as `.program-detail-shared`.
    */
   --wap-marketing-light-on-surface: #1c1b1b;
   --wap-marketing-light-on-surface-variant: #584144;
   --wap-marketing-dark-on-surface: #e8e6e3;
   --wap-marketing-dark-on-surface-variant: rgba(232, 230, 227, 0.78);
+}
+
+/*
+ * Mirrors theme foreground on <html> only. `.marketing-mobile` overrides `--color-on-surface` for its
+ * subtree; dark-mode stripes need resolved document colors via `--wap-doc-*` (inherited, not circular).
+ */
+html {
+  --wap-doc-on-surface: var(--color-on-surface);
+  --wap-doc-on-surface-variant: var(--color-on-surface-variant);
 }
 
 @media (max-width: 767px) {
@@ -100,8 +111,52 @@ html.dark .partner-logos-small span {
 }
 
 /*
- * Marketing mobile vs desktop (768px) — REMOVED — site is now fully responsive.
+ * Legacy `.marketing-mobile` hook — fully responsive markup no longer duplicates desktop/mobile trees,
+ * but this class fixes the old mistake of `#1c1b1b` for both `:root` and `html.dark` on theme surfaces.
+ * Cream stripes opt in via `marketing-mobile--on-light-marketing-surface`; dark stripes use `--wap-marketing-dark-on-surface*`.
  */
+.marketing-mobile {
+  color: var(--wap-marketing-mobile-text, var(--wap-doc-on-surface));
+  --color-on-surface: var(--wap-marketing-mobile-c-on-surface, var(--wap-doc-on-surface));
+  --color-on-surface-variant: var(
+    --wap-marketing-mobile-c-on-surface-variant,
+    var(--wap-doc-on-surface-variant)
+  );
+}
+
+html:not(.dark)
+  .marketing-mobile:not(.marketing-mobile--on-theme-surface):not(.marketing-mobile--on-dark-marketing-surface) {
+  --wap-marketing-mobile-text: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
+}
+
+html.dark
+  .marketing-mobile:not(.marketing-mobile--on-theme-surface):not(
+    .marketing-mobile--on-dark-marketing-surface
+  ):not(.marketing-mobile--on-light-marketing-surface) {
+  --wap-marketing-mobile-text: var(--wap-doc-on-surface);
+  --wap-marketing-mobile-c-on-surface: var(--wap-doc-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant: var(--wap-doc-on-surface-variant);
+}
+
+html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
+  --wap-marketing-mobile-text: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
+}
+
+.marketing-mobile.marketing-mobile--on-theme-surface {
+  color: inherit;
+  --color-on-surface: inherit;
+  --color-on-surface-variant: inherit;
+}
+
+.marketing-mobile.marketing-mobile--on-dark-marketing-surface {
+  --wap-marketing-mobile-text: var(--wap-marketing-dark-on-surface);
+  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-dark-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-dark-on-surface-variant);
+}
 
 /* Center public “decision stack” pages (/programs, etc.) for consistent horizontal rhythm */
 .marketing-stack {

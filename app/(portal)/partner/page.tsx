@@ -51,22 +51,69 @@ export default async function PartnerDashboardPage() {
   const ctx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin });
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
-  const partnerRow = await prisma.partner.findUnique({
-    where: { id: ctx.partnerId },
-    select: {
-      referralCode: true,
-      slug: true,
-      onboardingCompletedAt: true,
-      name: true,
-      organizationType: true,
-      contactName: true,
-      contactPhone: true,
-      tourCompletedAt: true,
-      stripeConnectId: true,
-      stripeConnectStatus: true,
-      status: true,
-    },
-  });
+  let partnerRow:
+    | {
+        referralCode: string | null;
+        slug: string | null;
+        onboardingCompletedAt: Date | null;
+        name: string;
+        organizationType: string | null;
+        contactName: string | null;
+        contactPhone: string | null;
+        tourCompletedAt: Date | null;
+        stripeConnectId: string | null;
+        stripeConnectStatus: string | null;
+        status: string | null;
+      }
+    | null = null;
+
+  try {
+    partnerRow = await prisma.partner.findUnique({
+      where: { id: ctx.partnerId },
+      select: {
+        referralCode: true,
+        slug: true,
+        onboardingCompletedAt: true,
+        name: true,
+        organizationType: true,
+        contactName: true,
+        contactPhone: true,
+        tourCompletedAt: true,
+        stripeConnectId: true,
+        stripeConnectStatus: true,
+        status: true,
+      },
+    });
+  } catch (error) {
+    // Older prod databases may lag the Stripe Connect columns. Keep the portal
+    // usable and treat payout-connect state as unavailable until migrations land.
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 'P2022'
+    ) {
+      const fallbackRow = await prisma.partner.findUnique({
+        where: { id: ctx.partnerId },
+        select: {
+          referralCode: true,
+          slug: true,
+          onboardingCompletedAt: true,
+          name: true,
+          organizationType: true,
+          contactName: true,
+          contactPhone: true,
+          tourCompletedAt: true,
+          status: true,
+        },
+      });
+      partnerRow = fallbackRow
+        ? { ...fallbackRow, stripeConnectId: null, stripeConnectStatus: null }
+        : null;
+    } else {
+      throw error;
+    }
+  }
 
   if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 

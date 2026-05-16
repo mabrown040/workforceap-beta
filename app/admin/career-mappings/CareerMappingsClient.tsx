@@ -138,13 +138,23 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
     }
   }, []);
 
+  const [searchError, setSearchError] = useState<string | null>(null);
+
   useEffect(() => {
     const t = setTimeout(() => {
-      if (searchQ.trim().length < 2) { setSearchResults([]); return; }
+      if (searchQ.trim().length < 2) { setSearchResults([]); setSearchError(null); return; }
       fetch(`/api/admin/onet/search?q=${encodeURIComponent(searchQ.trim())}`)
-        .then((r) => r.json())
-        .then((d) => setSearchResults(d.occupations ?? []))
-        .catch(() => setSearchResults([]));
+        .then(async (r) => {
+          const d = await r.json().catch(() => ({ error: 'Invalid response' }));
+          if (!r.ok || d.error) {
+            setSearchError(d.error ?? `Search failed (${r.status})`);
+            setSearchResults([]);
+            return;
+          }
+          setSearchError(null);
+          setSearchResults(d.occupations ?? []);
+        })
+        .catch(() => { setSearchError('Network error — check connection'); setSearchResults([]); });
     }, 300);
     return () => clearTimeout(t);
   }, [searchQ]);
@@ -153,6 +163,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
     setSelectedOcc(occ);
     setSearchQ('');
     setSearchResults([]);
+    setSearchError(null);
     setMessage(null);
     void loadMappings(occ.code);
     void loadAutoMatches(occ.code);
@@ -268,7 +279,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
             style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}
           />
           {searchQ && (
-            <button type="button" onClick={() => { setSearchQ(''); setSearchResults([]); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-on-surface-variant)', display: 'flex' }}>
+            <button type="button" onClick={() => { setSearchQ(''); setSearchResults([]); setSearchError(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-on-surface-variant)', display: 'flex' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>close</span>
             </button>
           )}
@@ -288,6 +299,11 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                 <span style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.3 }}>{o.title}</span>
               </button>
             ))}
+          </div>
+        )}
+        {searchError && (
+          <div style={{ marginTop: '0.5rem', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(173,44,77,0.08)', border: '1px solid rgba(173,44,77,0.2)', color: 'var(--color-accent)', fontSize: '0.8rem' }}>
+            {searchError}
           </div>
         )}
       </div>
@@ -354,7 +370,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.375rem' }}>
                 <button
                   type="button"
-                  onClick={() => { setSelectedOcc(null); setMappings([]); setAutoMatches([]); setMessage(null); }}
+                  onClick={() => { setSelectedOcc(null); setMappings([]); setAutoMatches([]); setMessage(null); setSearchError(null); }}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8125rem', fontWeight: 700 }}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_back</span>

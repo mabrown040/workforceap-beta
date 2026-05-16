@@ -3,6 +3,8 @@ import {
   RETENTION_TABLES,
   RETENTION_BATCH_SIZE,
   DELETED_ACCOUNT_RETENTION_DAYS,
+  CRITICAL_AUDIT_ACTION_PREFIXES,
+  CRITICAL_AUDIT_RETENTION_DAYS,
   getCutoffDate,
   type RetentionTableConfig,
 } from './config';
@@ -38,12 +40,41 @@ export async function cleanupTable(cfg: RetentionTableConfig): Promise<CleanupRe
     throw new Error(`Invalid Prisma model: ${cfg.model}`);
   }
 
+  // AUDIT-2026-05-16 §H-B1: for the audit-log table, exclude rows whose
+  // `action` matches a federally-mandated retention prefix. Those rows
+  // remain until they pass CRITICAL_AUDIT_RETENTION_DAYS (3 years).
+  const isAuditLog = cfg.model === 'auditLog';
+  const criticalCutoff = isAuditLog ? getCutoffDate(CRITICAL_AUDIT_RETENTION_DAYS) : null;
+  // SQL pattern for `LIKE`: `wioa.%` etc.
+  const criticalLikes = CRITICAL_AUDIT_ACTION_PREFIXES.map((p) => `${p}%`);
+
   let totalDeleted = 0;
   let batchCount = 0;
 
   while (true) {
+    const where: Record<string, unknown> = { [cfg.dateColumn]: { lt: cutoff } };
+    if (isAuditLog && criticalCutoff) {
+      // Default-bucket sweep: NOT a critical action OR older than the
+      // 3-year critical-retention cutoff. Critical rows under 3 years
+      // are excluded; the next pass (below) handles older critical rows.
+      where.OR = [
+        { NOT: { action: { in: [] } } }, // placeholder; replaced by AND below
+      ];
+      delete where.OR;
+      where.AND = [
+        { [cfg.dateColumn]: { lt: cutoff } },
+        {
+          OR: [
+            { NOT: { OR: criticalLikes.map((pat) => ({ action: { startsWith: pat.replace('%', '') } })) } },
+            { [cfg.dateColumn]: { lt: criticalCutoff } },
+          ],
+        },
+      ];
+      delete where[cfg.dateColumn];
+    }
+
     const rows: { id: string }[] = await delegate.findMany({
-      where: { [cfg.dateColumn]: { lt: cutoff } },
+      where,
       select: { id: true },
       take: RETENTION_BATCH_SIZE,
       orderBy: { [cfg.dateColumn]: 'asc' },

@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
+// AUDIT-2026-05-16 §C-B3: client never imports the answer key. The
+// `correctnessByUserId` prop carries pre-computed pass/fail booleans so
+// the admin browser never receives the answer string for each question.
+import { ASSESSMENT_QUESTIONS_PUBLIC as ASSESSMENT_QUESTIONS } from '@/lib/assessment/questions';
 import { formatPhone } from '@/lib/formatPhone';
 import DataTable from '@/components/portal/ui/DataTable';
 
@@ -20,6 +23,12 @@ type AssessmentUser = {
 
 type AssessmentsTableProps = {
   users: AssessmentUser[];
+  /**
+   * Server-computed correctness map: `{ [userId]: { [questionId]: boolean } }`.
+   * The server reads the answer key and member's answers and emits only the
+   * pass/fail boolean per question so the client doesn't need the answer key.
+   */
+  correctnessByUserId: Record<string, Record<number, boolean>>;
   highlightUserId?: string;
   programFilter?: string;
   minScore?: number;
@@ -28,6 +37,7 @@ type AssessmentsTableProps = {
 
 export default function AssessmentsTable({
   users,
+  correctnessByUserId,
   highlightUserId,
   programFilter,
   minScore,
@@ -195,7 +205,7 @@ export default function AssessmentsTable({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
                     {ASSESSMENT_QUESTIONS.map((q) => {
                       const ans = userAnswers[q.id];
-                      const correct = ans === q.correct;
+                      const correct = correctnessByUserId[u.id]?.[q.id] === true;
                       return (
                         <div key={q.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.375rem 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: correct ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', flexShrink: 0, minWidth: '1.5rem' }}>Q{q.id}</span>
@@ -239,7 +249,7 @@ export default function AssessmentsTable({
                 <div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.9rem' }}>
                   {ASSESSMENT_QUESTIONS.map((q) => {
                     const ans = answers(u)[q.id];
-                    const correct = ans === q.correct;
+                    const correct = correctnessByUserId[u.id]?.[q.id] === true;
                     return (
                       <div key={q.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline' }}>
                         <span style={{ fontWeight: 600, minWidth: '2rem' }}>Q{q.id}:</span>

@@ -24,7 +24,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     }
 
     const referrals = await prisma.partnerReferral.findMany({
-      take: 5000,
+      take: 500,
       where: { partnerId: ctx.partnerId },
       include: {
         member: {

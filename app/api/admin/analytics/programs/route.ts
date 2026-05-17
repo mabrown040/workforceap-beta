@@ -17,7 +17,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     const orgId = await getActorOrganizationId(user.id);
 
     const programs = await prisma.organizationProgramCatalog.findMany({
-      take: 5000,
+      take: 500,
       where: { organizationId: orgId },
       select: { id: true, name: true },
     });

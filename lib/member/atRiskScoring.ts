@@ -209,7 +209,7 @@ function buildRecommendedAction(score: number, factors: AtRiskFactor[]): string 
 
 export async function calculateAllAtRiskScores(): Promise<AtRiskScore[]> {
   const activeMembers = await prisma.user.findMany({
-    take: 5000,
+    take: 500,
     where: {
       deletedAt: null,
       // Exclude already placed members

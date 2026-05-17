@@ -89,7 +89,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       skillsetProgress,
     ] = await Promise.all([
       prisma.jobPostingApplication.findMany({
-        take: 5000,
+        take: 500,
         where: { studentId: memberId },
         orderBy: { appliedAt: 'desc' },
         include: {
@@ -103,7 +103,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         },
       }),
       prisma.aIJobMatch.findMany({
-        take: 5000,
+        take: 500,
         where: { studentId: memberId },
         orderBy: { matchScore: 'desc' },
         include: {

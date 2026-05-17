@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
         _count: { _all: true },
       }),
       prisma.memberProgramProgress.findMany({
-        take: 5000,
+        take: 500,
         select: {
           userId: true,
           programSlug: true,

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { NextRequest } from 'next/server';
 
 // ─── Mocks ───
 vi.mock('next/server', () => ({
@@ -158,7 +159,7 @@ describe('POST /api/admin/placements', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
 
-    const res = await POST(postReq({ userId: 'u1', employerName: 'Co', jobTitle: 'Dev' }));
+    const res = await POST(postReq({ userId: 'u1', employerName: 'Co', jobTitle: 'Dev' }) as unknown as NextRequest);
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });
@@ -167,7 +168,7 @@ describe('POST /api/admin/placements', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
 
-    const res = await POST(postReq({ userId: 'u1' }));
+    const res = await POST(postReq({ userId: 'u1' }) as unknown as NextRequest);
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'Missing required fields' });
   });
@@ -202,7 +203,7 @@ describe('POST /api/admin/placements', () => {
         jobTitle: 'Nurse',
         salaryOffered: '52000',
         placedAt: '2026-05-01',
-      })
+      }) as unknown as NextRequest
     );
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -233,7 +234,7 @@ describe('POST /api/admin/placements', () => {
       return fn(mockDb);
     });
 
-    const res = await POST(postReq({ userId: 'u1', employerName: 'Co', jobTitle: 'Dev' }));
+    const res = await POST(postReq({ userId: 'u1', employerName: 'Co', jobTitle: 'Dev' }) as unknown as NextRequest);
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.placement.salaryOffered).toBeNull();
@@ -244,7 +245,7 @@ describe('POST /api/admin/placements', () => {
     vi.mocked(isAdmin).mockResolvedValue(true);
     vi.mocked(getActorOrganizationId).mockRejectedValue(new Error('org lookup failed'));
 
-    const res = await POST(postReq({ userId: 'u1', employerName: 'Co', jobTitle: 'Dev' }));
+    const res = await POST(postReq({ userId: 'u1', employerName: 'Co', jobTitle: 'Dev' }) as unknown as NextRequest);
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Internal server error' });
   });
@@ -257,7 +258,7 @@ describe('PATCH /api/admin/placements', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
 
-    const res = await PATCH(patchReq({ id: 'pl-1', jobTitle: 'Senior Dev' }));
+    const res = await PATCH(patchReq({ id: 'pl-1', jobTitle: 'Senior Dev' }) as unknown as NextRequest);
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });
@@ -266,7 +267,7 @@ describe('PATCH /api/admin/placements', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
 
-    const res = await PATCH(patchReq({ jobTitle: 'Senior Dev' }));
+    const res = await PATCH(patchReq({ jobTitle: 'Senior Dev' }) as unknown as NextRequest);
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'Missing id' });
   });
@@ -293,7 +294,7 @@ describe('PATCH /api/admin/placements', () => {
       return fn(mockDb);
     });
 
-    const res = await PATCH(patchReq({ id: 'pl-1', jobTitle: 'Senior Nurse', salaryOffered: 60000 }));
+    const res = await PATCH(patchReq({ id: 'pl-1', jobTitle: 'Senior Nurse', salaryOffered: 60000 }) as unknown as NextRequest);
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.placement.jobTitle).toBe('Senior Nurse');
@@ -305,7 +306,7 @@ describe('PATCH /api/admin/placements', () => {
     vi.mocked(isAdmin).mockResolvedValue(true);
     vi.mocked(getActorOrganizationId).mockRejectedValue(new Error('org lookup failed'));
 
-    const res = await PATCH(patchReq({ id: 'pl-1', jobTitle: 'Senior Dev' }));
+    const res = await PATCH(patchReq({ id: 'pl-1', jobTitle: 'Senior Dev' }) as unknown as NextRequest);
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Internal server error' });
   });

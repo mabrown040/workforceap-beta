@@ -71,7 +71,7 @@ describe('GET /api/cron/weekly-recap', () => {
       { userId: 'user-1', recapData: { coursesCompleted: 2 } },
       { userId: 'user-2', recapData: { coursesCompleted: 0 } },
     ] as any);
-    vi.mocked(sendWeeklyRecapEmail).mockResolvedValue(undefined);
+    vi.mocked(sendWeeklyRecapEmail).mockResolvedValue({ ok: true });
 
     const res = await weeklyRecapGET(new Request('http://localhost:3000/api/cron/weekly-recap'));
     expect(res.status).toBe(200);
@@ -128,7 +128,7 @@ describe('GET /api/cron/weekly-recap', () => {
     vi.mocked(generateWeeklyRecaps).mockResolvedValue([
       { userId: 'user-1', recapData: { coursesCompleted: 1 } },
     ] as any);
-    vi.mocked(sendWeeklyRecapEmail).mockResolvedValue(undefined);
+    vi.mocked(sendWeeklyRecapEmail).mockResolvedValue({ ok: true });
 
     await weeklyRecapGET(new Request('http://localhost:3000/api/cron/weekly-recap'));
     expect(setCronRecordsProcessed).toHaveBeenCalledWith(1);
@@ -140,7 +140,7 @@ describe('GET /api/cron/weekly-recap', () => {
     vi.mocked(generateWeeklyRecaps).mockResolvedValue([
       { userId: 'user-1', recapData: { coursesCompleted: 1 } },
     ] as any);
-    vi.mocked(sendWeeklyRecapEmail).mockResolvedValue(undefined);
+    vi.mocked(sendWeeklyRecapEmail).mockResolvedValue({ ok: true });
 
     await weeklyRecapGET(new Request('http://localhost:3000/api/cron/weekly-recap'));
     expect(logCronRun).toHaveBeenCalledWith(

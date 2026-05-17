@@ -193,7 +193,7 @@ describe('GET /api/cron/weekly-recap', () => {
     });
 
     it('falls back to email when fullName is missing', async () => {
-      const members = mockMembers([{ id: 'user-1', email: 'alice@example.com', fullName: null, enrolledProgram: 'cdl' }]);
+      const members = mockMembers([{ id: 'user-1', email: 'alice@example.com', fullName: undefined, enrolledProgram: 'cdl' }]);
       const recaps = mockRecaps([mockRecaps()[0]]);
       vi.mocked(prisma.user.findMany).mockResolvedValue(members);
       vi.mocked(generateWeeklyRecaps).mockResolvedValue(recaps);

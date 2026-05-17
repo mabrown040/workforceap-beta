@@ -180,6 +180,13 @@ function makeMockTx() {
   } as unknown as Prisma.TransactionClient;
 }
 
+type MockTxExtras = {
+  calls: string[];
+  user: {
+    findUnique: (args: { where: Record<string, unknown> }) => Promise<ReturnType<typeof makeMockUser> | null>;
+  };
+};
+
 describe('checkMergeConflicts', () => {
   it('returns empty when both users have same enrolledProgram', async () => {
     const tx = makeMockTx();
@@ -219,13 +226,14 @@ describe('executeMemberMerge', () => {
     expect(result.secondaryId).toBe('secondary');
 
     // Should have updated secondary user with deletedAt + email suffix
-    const userUpdateCall = tx.calls.find((c) => c.startsWith('user.update({"where":{"id":"secondary"}'));
+    const calls = (tx as unknown as MockTxExtras).calls;
+    const userUpdateCall = calls.find((c) => c.startsWith('user.update({"where":{"id":"secondary"}'));
     expect(userUpdateCall).toBeDefined();
     expect(userUpdateCall).toContain('deletedAt');
     expect(userUpdateCall).toContain('.merged-secondary');
 
     // Should have logged merge
-    const logCall = tx.calls.find((c) => c.startsWith('workflowDiagnostic.create'));
+    const logCall = calls.find((c) => c.startsWith('workflowDiagnostic.create'));
     expect(logCall).toBeDefined();
     expect(logCall).toContain('member_merge');
   });
@@ -233,7 +241,7 @@ describe('executeMemberMerge', () => {
   it('merges scalar fields when secondary has values primary lacks', async () => {
     const tx = makeMockTx();
     // Override primary to have null phone, secondary to have phone
-    tx.user.findUnique = async ({ where }: { where: Record<string, unknown> }) => {
+    (tx as unknown as MockTxExtras).user.findUnique = async ({ where }: { where: Record<string, unknown> }) => {
       if (where.id === 'primary') return makeMockUser({ id: 'primary', phone: null, email: 'primary@example.com' });
       if (where.id === 'secondary') return makeMockUser({ id: 'secondary', phone: '555-1234', email: 'secondary@example.com' });
       return null;

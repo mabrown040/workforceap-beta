@@ -73,7 +73,7 @@ const UUIDS = {
   employer2: '550e8400-e29b-41d4-a716-446655440007',
 };
 
-function makeJob(overrides: Partial<Parameters<typeof prisma.job.findMany>[0] extends { where?: any } ? any : never> = {}) {
+function makeJob(overrides: Record<string, any> = {}) {
   return {
     id: UUIDS.job1,
     title: 'Software Engineer',

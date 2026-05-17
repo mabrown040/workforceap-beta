@@ -689,7 +689,7 @@ describe('escalateStalePlacementSurveys', () => {
 
     await escalateStalePlacementSurveys();
 
-    const findCall = vi.mocked(prisma.placementSurvey.findMany).mock.calls[0][0];
+    const findCall = vi.mocked(prisma.placementSurvey.findMany).mock.calls[0][0]!;
     expect(findCall.where).toMatchObject({
       wave: 'thirty_day',
       completedAt: null,

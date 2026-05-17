@@ -362,6 +362,15 @@ html.dark .marketing-process-step__icon {
   color: var(--color-marketing-accent-on-dark);
 }
 
+/* Partner / photo-hero ghost jump links — underline always for “learn more” pattern */
+.marketing-inline-ghost-link.btn-ghost--on-photo {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.marketing-inline-ghost-link.btn-ghost--on-photo:hover {
+  text-decoration: underline;
+}
+
 /* Home hero numbered row: outline capsule (secondary on-dark) + primary index circle */
 .marketing-hero-step-pill.btn,
 a.marketing-hero-step-pill.btn {

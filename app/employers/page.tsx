@@ -11,6 +11,11 @@ import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { getTranslations } from 'next-intl/server';
+import {
+  marketingGhostButtonClasses,
+  marketingPrimaryButtonClasses,
+  marketingSecondaryButtonClasses,
+} from '@/lib/marketing/buttonClasses';
 import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -54,7 +59,7 @@ export default async function EmployersPage() {
           </div>
           <a
             href="#employer-contact-form"
-            className="btn btn-primary btn-small"
+            className={marketingPrimaryButtonClasses({ radius: 'sm' })}
             style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
           >
             {t('waitlistCta')}
@@ -146,73 +151,39 @@ export default async function EmployersPage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
             <LocalizedLink
               href="/employer/jobs/post"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: 'rgba(255,255,255,0.12)',
-                color: '#fff',
-                padding: '1rem 2rem',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 700,
-                textDecoration: 'none',
-                border: '1px solid rgba(255,255,255,0.28)',
-              }}
+              className={marketingSecondaryButtonClasses({
+                radius: 'lg',
+                large: true,
+                onDarkSecondary: true,
+              })}
             >
               {t('postJobCta')}
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>post_add</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">post_add</span>
             </LocalizedLink>
             <LocalizedLink
               href="#employer-contact-form"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                padding: '1rem 2rem',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 700,
-                textDecoration: 'none',
-              }}
+              className={marketingPrimaryButtonClasses({ radius: 'lg', large: true })}
             >
               {t('heroCta')}
-              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>arrow_forward</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
             </LocalizedLink>
             {!user && (
               <LocalizedLink
                 href="/employers/signup"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  background: 'rgba(255,255,255,0.9)',
-                  color: 'var(--color-accent)',
-                  padding: '1rem 2rem',
-                  borderRadius: 'var(--radius-md)',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                }}
+                className={marketingSecondaryButtonClasses({
+                  radius: 'lg',
+                  large: true,
+                  onDarkSecondary: true,
+                })}
               >
                 Create Employer Account
-                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }}>business</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">business</span>
               </LocalizedLink>
             )}
             {!user && (
               <LocalizedLink
                 href="/login?redirectTo=/employer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  background: 'transparent',
-                  color: '#fff',
-                  padding: '1rem 2rem',
-                  borderRadius: 'var(--radius-md)',
-                  fontWeight: 700,
-                  textDecoration: 'none',
-                  border: '1px solid rgba(255,255,255,0.24)',
-                }}
+                className={marketingGhostButtonClasses({ radius: 'lg', large: true, onDarkGhost: true })}
               >
                 {t('heroSignIn')}
               </LocalizedLink>

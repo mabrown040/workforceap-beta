@@ -2438,6 +2438,33 @@ a.btn-ghost::after,
 a.btn-ghost-text::after {
     display: none;
 }
+
+/* Ghost on photo / hero scrims — marketing `onDarkGhost` (btn-ghost--on-photo); keeps 44px tap target */
+.btn-ghost--on-photo,
+a.btn-ghost--on-photo {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.92);
+    border: none;
+    box-shadow: none;
+    font-weight: 600;
+}
+.btn-ghost--on-photo:hover,
+a.btn-ghost--on-photo:hover {
+    color: #ffffff;
+    text-decoration: underline;
+    transform: none;
+    background: transparent;
+}
+.btn-ghost--on-photo:focus-visible,
+a.btn-ghost--on-photo:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+}
+.btn-ghost--on-photo::after,
+a.btn-ghost--on-photo::after {
+    display: none;
+}
+
 .btn:disabled,
 button:disabled.btn,
 .btn[disabled] {

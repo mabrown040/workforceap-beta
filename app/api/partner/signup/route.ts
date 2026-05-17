@@ -204,7 +204,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             contactPhone: phone,
             organizationType: d.orgType,
             status: 'pending_approval',
-            active: true,
+            active: false,
           },
         });
 

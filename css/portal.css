@@ -531,7 +531,7 @@
 @media (max-width: 767px) {
   /* Align with MobileBottomNav visibility (≤767px) + marketing.css clearance token */
   .portal-shell-main {
-    padding-bottom: var(--wap-mobile-bottom-nav-clearance, calc(6rem + env(safe-area-inset-bottom, 0px))) !important;
+    padding-bottom: var(--wap-mobile-bottom-nav-clearance, calc(6.25rem + env(safe-area-inset-bottom, 0px))) !important;
   }
 
   /* Mobile bottom nav bar */

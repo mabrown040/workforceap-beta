@@ -10,10 +10,14 @@
  * mobile whenever the bar is mounted (keeps layout in sync with the DOM).
  */
 :root {
-  /* Fixed MobileBottomNav (~64px row + captions) + device home indicator + buffer so CTAs stay tappable */
-  --wap-mobile-bottom-nav-clearance: calc(6rem + env(safe-area-inset-bottom, 0px));
-  /* Compact portal chrome — shorter bottom bar + safe area */
-  --wap-portal-mobile-bottom-clearance-compact: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  /*
+   * Fixed MobileBottomNav (~64px row + captions) + device home indicator + buffer so CTAs stay tappable.
+   * Compact portal chrome (`html.wap-portal-chrome-compact`) hides captions but the bar still uses
+   * min 44px tap targets plus vertical padding; a smaller clearance token under-counted vs. the real
+   * nav height on notched devices — keep compact inset equal to the default.
+   */
+  --wap-mobile-bottom-nav-clearance: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+  --wap-portal-mobile-bottom-clearance-compact: var(--wap-mobile-bottom-nav-clearance);
   /*
    * Foregrounds for Stitch marketing stripes / pale surfaces (#fcf9f8).
    * Light-on tokens stay on cream bands in every theme; document foreground (`--wap-doc-on-surface*` on

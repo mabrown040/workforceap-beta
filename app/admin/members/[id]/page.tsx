@@ -11,7 +11,9 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import AdminMemberResumeSection from '@/components/admin/AdminMemberResumeSection';
-import { ASSESSMENT_QUESTIONS } from '@/lib/assessment/answer-key';
+// Use the client-safe questions file — the "Full Q&A" details list only
+// renders question text + recorded answer, no correctness check.
+import { ASSESSMENT_QUESTIONS_PUBLIC as ASSESSMENT_QUESTIONS } from '@/lib/assessment/questions';
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberCourseraEnrollmentApproval from '@/components/admin/MemberCourseraEnrollmentApproval';
 import AdminMemberDbActions from '@/components/admin/AdminMemberDbActions';

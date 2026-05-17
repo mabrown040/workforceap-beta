@@ -1,4 +1,5 @@
 import { extractResumeCoachSuggestionsFromText } from '@/lib/ai/resumeCoachHeuristic';
+import { claudeChat } from './anthropicChat';
 
 const MAX_HISTORY_TURNS = 120;
 const MAX_AGENT_CHARS = 6000;
@@ -67,52 +68,25 @@ export async function parseResumeCoachSuggestionsFromTranscript(
     maxSuggestions
   );
 
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (!anthropicKey) return suggestions;
+  const systemPrompt =
+    'Extract resume improvement suggestions from a voice coaching transcript. Return strict JSON array of objects with keys: original (the text to change, if quoted), suggested (the improved version), context (brief explanation). If no concrete suggestions exist, return empty array. Only include actionable resume text changes.';
+  const userPrompt = `Voice coach transcript (agent lines only):\n\n${agentLines}`;
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
-        max_tokens: 1200,
-        temperature: 0.1,
-        system:
-          'Extract resume improvement suggestions from a voice coaching transcript. Return strict JSON array of objects with keys: original (the text to change, if quoted), suggested (the improved version), context (brief explanation). If no concrete suggestions exist, return empty array. Only include actionable resume text changes.',
-        messages: [
-          {
-            role: 'user',
-            content: `Voice coach transcript (agent lines only):\n\n${agentLines}`,
-          },
-        ],
-      }),
-    });
-
-    if (!res.ok) return suggestions;
-
-    const payload = (await res.json()) as {
-      content?: Array<{ type: string; text?: string }>;
-    };
-    const text = payload.content?.find((part) => part.type === 'text')?.text;
-    if (!text) return suggestions;
-
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) return suggestions;
-
-    const parsed = JSON.parse(jsonMatch[0]) as Array<{
-      original?: string;
-      suggested?: string;
-      context?: string;
-    }>;
-
-    suggestions = sanitizeSuggestions(parsed, maxSuggestions);
-  } catch (err) {
-    console.error('[resume-coach-suggestions] Anthropic error:', err);
+  const text = await claudeChat(systemPrompt, userPrompt, { maxTokens: 1200, temperature: 0.1 });
+  if (text) {
+    try {
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]) as Array<{
+          original?: string;
+          suggested?: string;
+          context?: string;
+        }>;
+        suggestions = sanitizeSuggestions(parsed, maxSuggestions);
+      }
+    } catch (err) {
+      console.error('[resume-coach-suggestions] AI parse error:', err);
+    }
   }
 
   return suggestions;

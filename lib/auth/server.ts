@@ -5,6 +5,7 @@ import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCoo
 import { runWithGucContext, buildGucContext, ANONYMOUS_GUC_CONTEXT } from '@/lib/db/gucContext';
 import type { GucContext } from '@/lib/db/gucContext';
 import { getProfileRole } from './roles';
+import { prisma } from '@/lib/db/prisma';
 
 export function hasSupabaseServerEnv() {
   return Boolean(
@@ -99,10 +100,22 @@ export const getUser = cache(async function getUser() {
 export const resolveAuthGucContext = cache(async function resolveAuthGucContext(): Promise<GucContext> {
   const user = await getUser();
   if (!user) return ANONYMOUS_GUC_CONTEXT;
-  const profileRole = await getProfileRole(user.id);
+  const [profileRole, userRow] = await Promise.all([
+    getProfileRole(user.id),
+    // Resolve the user's organization so the GUC carries `app.current_org_id`.
+    // Previously orgId was hardcoded to null, which makes every RLS policy
+    // that calls `can_access_org_row(check_org_id)` evaluate with NULL —
+    // every admin RLS path silently fails once FORCE ROW LEVEL SECURITY
+    // is enabled (AUDIT §C-T6). Today it's masked because Prisma uses the
+    // service-role connection that bypasses RLS; this lookup makes the
+    // GUC ready for the forced-RLS flip.
+    prisma.user
+      .findUnique({ where: { id: user.id }, select: { organizationId: true } })
+      .catch(() => null),
+  ]);
   return buildGucContext({
     userId: user.id,
-    orgId: null,
+    orgId: userRow?.organizationId ?? null,
     profileRole,
   });
 });

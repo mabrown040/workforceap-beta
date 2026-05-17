@@ -8,8 +8,7 @@ import {
   type MutableRefObject,
   type UIEvent,
 } from 'react';
-import { Conversation } from '@elevenlabs/client';
-import type { BaseSessionConfig } from '@elevenlabs/client';
+import type { BaseSessionConfig, Conversation } from '@elevenlabs/client';
 
 type VoiceDisconnectDetails = {
   reason?: string;
@@ -570,10 +569,11 @@ export default function PortalVoiceSession({
     );
 
     try {
+      const { Conversation: ConversationClient } = await import('@elevenlabs/client');
       if (hasDynamicVariables) {
         try {
           logVoice('start_attempt', { withDynamicVariables: true });
-          const conv = await Conversation.startSession({
+          const conv = await ConversationClient.startSession({
             signedUrl,
             dynamicVariables,
             ...(conversationOverrides ? { overrides: conversationOverrides } : {}),
@@ -587,7 +587,7 @@ export default function PortalVoiceSession({
             throw firstErr;
           }
           logVoice('start_retry', { plainSignedUrlOnly: true });
-          const conv = await Conversation.startSession({
+          const conv = await ConversationClient.startSession({
             signedUrl,
             ...(conversationOverrides ? { overrides: conversationOverrides } : {}),
             ...sessionCallbacks,
@@ -597,7 +597,7 @@ export default function PortalVoiceSession({
         }
       } else {
         logVoice('start_attempt', { plain: true });
-        const conv = await Conversation.startSession({
+        const conv = await ConversationClient.startSession({
           signedUrl,
           ...(conversationOverrides ? { overrides: conversationOverrides } : {}),
           ...sessionCallbacks,

@@ -11,6 +11,12 @@ import { issueXapiAccessToken } from '@/lib/xapi/token';
  */
 export async function GET() {
   try {
+  // Hard-disable on any Vercel-deployed environment (preview or production).
+  // VERCEL_ENV is set by Vercel for every deploy and is not user-settable,
+  // so this can't be flipped by misconfiguring NODE_ENV or E2E_ISSUE_XAPI_TOKEN.
+  if (process.env.VERCEL_ENV) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
   const allowByNodeEnv = process.env.NODE_ENV === 'test';
   const allowForLocalE2E =
     process.env.E2E_ISSUE_XAPI_TOKEN === '1' && process.env.NODE_ENV !== 'production';

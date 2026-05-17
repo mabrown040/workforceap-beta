@@ -47,7 +47,7 @@ export default function CopyReferralLink({
           {referralCodeDisplay}
         </span>
       ) : null}
-      <button type="button" className="btn btn-muted btn-sm" onClick={() => void copy()} aria-label={state === 'copied' ? 'Copied referral link' : state === 'err' ? 'Copy failed — try again' : 'Copy referral link'}>
+      <button type="button" className="btn btn-muted btn-sm" onClick={() => void copy()}>
         <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center' }}>
           {state === 'copied' ? (
             <>

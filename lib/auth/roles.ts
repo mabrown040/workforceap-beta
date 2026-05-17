@@ -134,6 +134,8 @@ export type PartnerPortalContext = {
     slug: string;
     logoUrl: string | null;
     brandColor: string | null;
+    /** Taxonomy used to gate payout UI/APIs. See `lib/partner/partnerType`. */
+    partnerType: string;
   };
   /** User has a real `partner_users` row (not super-admin viewing first partner). */
   hasDirectPartnerLink: boolean;
@@ -146,6 +148,7 @@ const PARTNER_BRANDING_SELECT = {
   slug: true,
   logoUrl: true,
   brandColor: true,
+  partnerType: true,
 } as const;
 
 export async function getPartnerForUser(
@@ -300,6 +303,7 @@ async function ensureSuperAdminFallbackPartner(): Promise<{
   organizationId: string;
   name: string;
   slug: string;
+  partnerType: string;
 }> {
   const organizationId = await getDefaultOrganizationId();
   return prisma.partner.upsert({
@@ -312,7 +316,7 @@ async function ensureSuperAdminFallbackPartner(): Promise<{
       referralCode: SUPER_ADMIN_FALLBACK_PARTNER_SLUG,
       active: true,
     },
-    select: { id: true, organizationId: true, name: true, slug: true },
+    select: { id: true, organizationId: true, name: true, slug: true, partnerType: true },
   });
 }
 

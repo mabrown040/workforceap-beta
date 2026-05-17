@@ -3,7 +3,9 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -22,7 +24,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const GET = withApiGuc(_GET);async function _PATCH(
+export const GET = withApiGuc(_GET);
+
+async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -50,7 +54,9 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     if (slug?.trim() && slug !== existing.slug) {
-      const dup = await prisma.blogPost.findUnique({ where: { slug: slug.trim() } });
+      const dup = await prisma.blogPost.findFirst({
+        where: { slug: slug.trim(), NOT: { id } },
+      });
       if (dup) {
         return NextResponse.json({ error: 'Slug already exists' }, { status: 400 });
       }
@@ -81,7 +87,9 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const PATCH = withApiGuc(_PATCH);async function _DELETE(
+export const PATCH = withApiGuc(_PATCH);
+
+async function _DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -92,6 +100,10 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
+    const existing = await prisma.blogPost.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
     await prisma.blogPost.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (error) {

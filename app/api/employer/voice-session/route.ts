@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchEmployerPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
@@ -9,6 +10,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { success: voiceRateOk } = await checkVoiceSessionRateLimit(user.id);
+    if (!voiceRateOk) {
+      return NextResponse.json(
+        { error: 'Too many voice sessions. Please wait an hour before starting another.' },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
+    }
   
     const ctx = await getEmployerForUser(user.id);
     if (!ctx) {

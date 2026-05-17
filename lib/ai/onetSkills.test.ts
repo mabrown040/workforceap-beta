@@ -83,7 +83,7 @@ test('mapSkillsToRadarAxes: service orientation and active listening land on Eth
 
   const result = mapSkillsToRadarAxes(skills);
 
-  assert.ok(axisValue(result, 'Ethics') > 0, 'Ethics should be non-zero for interpersonal skills');
+  assert.ok(axisValue(result, 'Service') > 0, 'Service should be non-zero for interpersonal skills');
   assert.equal(axisValue(result, 'Engineering'), 0, 'Engineering should be 0 when no tech skills present');
 });
 
@@ -99,7 +99,7 @@ test('mapSkillsToRadarAxes: Design fallback applies when hasData=false and fallb
   assert.equal(axisValue(result, 'Analytics'), 0);
   assert.equal(axisValue(result, 'Engineering'), 0);
   assert.equal(axisValue(result, 'Strategy'), 0);
-  assert.equal(axisValue(result, 'Ethics'), 0);
+  assert.equal(axisValue(result, 'Service'), 0);
   assert.equal(axisValue(result, 'Research'), 0);
 });
 

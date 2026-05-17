@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: Request) => {
   try {
@@ -32,9 +33,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(false);
 
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookieOptions: cookieOpts,
       cookies: {

@@ -200,7 +200,7 @@ function resetLoginMocks() {
         webauthn: { challenge: vi.fn(), verify: vi.fn(), enroll: vi.fn(), unenroll: vi.fn() },
       },
     },
-  }));
+  }) as any);
   vi.mocked(prisma.profile.findUnique).mockResolvedValue(null);
   vi.mocked(isStaffMfaEnforcementEnabled).mockReturnValue(false);
   vi.mocked(verifyAdminMfaTrustToken).mockResolvedValue(false);
@@ -238,7 +238,7 @@ function resetMfaMocks() {
         webauthn: { challenge: vi.fn(), verify: vi.fn(), enroll: vi.fn(), unenroll: vi.fn() },
       },
     },
-  }));
+  }) as any);
   vi.mocked(prisma.profile.findUnique).mockResolvedValue(null);
   vi.mocked(verifyAdminMfaTrustToken).mockResolvedValue(false);
   vi.mocked(cookies).mockResolvedValue(createMockCookieStore() as any);

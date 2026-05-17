@@ -573,15 +573,29 @@ async function finishNewUserDbSetup(
   phone: string | null,
   _request: NextRequest
 ) {
+  // Resolve the new user's organization from the inviter, not the global
+  // default. Before this fix, every accepted invite landed in the default
+  // org regardless of which tenant the admin who sent the invite belonged
+  // to — multi-tenant invites were broken at the root (AUDIT §C-T2).
+  // Fall back to the default org only if the inviter has no organizationId
+  // (e.g. legacy super-admin user rows pre-multitenancy).
   let organizationId: string;
   try {
-    organizationId = await getDefaultOrganizationId();
+    const inviter = await prisma.user.findUnique({
+      where: { id: invitation.invitedById },
+      select: { organizationId: true },
+    });
+    if (inviter?.organizationId) {
+      organizationId = inviter.organizationId;
+    } else {
+      organizationId = await getDefaultOrganizationId();
+    }
   } catch (err) {
-    console.error('[finishNewUserDbSetup] default organization missing:', err);
+    console.error('[finishNewUserDbSetup] organization resolution failed:', err);
     return NextResponse.json(
       {
         error:
-          'Server configuration error: default organization is not set up. Please contact support.',
+          'Server configuration error: could not resolve inviting organization. Please contact support.',
       },
       { status: 500 }
     );

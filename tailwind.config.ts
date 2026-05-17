@@ -1,5 +1,14 @@
 import type { Config } from 'tailwindcss';
 
+/**
+ * Tailwind JIT only expands `@tailwind utilities` in css/main.css: unused prefixed
+ * classes are stripped from the emitted CSS. The tens of KB of `.wa-*` rules in
+ * the production bundle exclude unused palettes (verified via build output).
+ *
+ * Plain CSS selectors in css/main.css (everything above `@tailwind utilities`)
+ * intentionally ship intact — Next.js does not tree‑shake stylesheet rules —
+ * alongside marketing.css/language-toggle.css from app/layout.tsx.
+ */
 const config: Config = {
   darkMode: 'class',
   prefix: 'wa-',

@@ -9,17 +9,25 @@ const PAYOUT_PER_PLACEMENT = 500;
 
 export async function GET(req: NextRequest) {
   try {
-  const user = await getUser();
-  if (!user || !(await isAdmin(user.id))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
+    const user = await getUser();
+    if (!user || !(await isAdmin(user.id))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-  const orgId = await getActorOrganizationId(user.id);
-  const partners = await withTenantScope(orgId, async (db) =>
-    db.partner.findMany({
-      include: {
-        user: { select: { fullName: true, email: true } },
-        referrals: {
+    const orgId = await getActorOrganizationId(user.id);
+    const partners = await withTenantScope(orgId, async (db) => {
+      const partnerList = await db.partner.findMany({
+        where: { partnerType: 'referral' },
+        take: 100,
+      });
+      const partnerIds = partnerList.map((p) => p.id);
+      const [partnerUsers, referrals] = await Promise.all([
+        db.partnerUser.findMany({
+          where: { partnerId: { in: partnerIds } },
+          include: { user: { select: { fullName: true, email: true } } },
+        }),
+        db.partnerReferral.findMany({
+          where: { partnerId: { in: partnerIds } },
           include: {
             member: {
               select: {
@@ -28,33 +36,38 @@ export async function GET(req: NextRequest) {
               },
             },
           },
-        },
-      },
-      take: 100,
-    })
-  );
+        }),
+      ]);
+      return { partnerList, partnerUsers, referrals };
+    });
 
-  const payouts = partners.map((p) => {
-    const referred = p.referrals.length;
-    const enrolled = p.referrals.filter((r) => r.member?.courseEnrollments?.length > 0).length;
-    const placed = p.referrals.filter((r) => r.member?.placementRecord).length;
-    const earned = placed * PAYOUT_PER_PLACEMENT;
-    return {
-      partnerId: p.id,
-      partnerName: p.user?.fullName || p.user?.email,
-      referred,
-      enrolled,
-      placed,
-      earned,
-      payoutPerPlacement: PAYOUT_PER_PLACEMENT,
-    };
-  });
+    const payouts = partners.partnerList.map((p) => {
+      const pUsers = partners.partnerUsers.filter((pu) => pu.partnerId === p.id);
+      const firstUser = pUsers[0]?.user;
+      const pReferrals = partners.referrals.filter((r) => r.partnerId === p.id);
+      const referred = pReferrals.length;
+      const enrolled = pReferrals.filter(
+        (r) => r.member?.courseEnrollments?.length > 0
+      ).length;
+      const placed = pReferrals.filter((r) => r.member?.placementRecord).length;
+      const earned = placed * PAYOUT_PER_PLACEMENT;
+      return {
+        partnerId: p.id,
+        partnerName: firstUser?.fullName || firstUser?.email || p.name,
+        referred,
+        enrolled,
+        placed,
+        earned,
+        payoutPerPlacement: PAYOUT_PER_PLACEMENT,
+      };
+    });
 
-  return NextResponse.json({ payouts });
-
+    return NextResponse.json({ payouts });
   } catch (error) {
     console.error('/admin/partner-payouts error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
-

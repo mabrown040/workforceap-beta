@@ -128,11 +128,6 @@ export default function WeeklyRecapClient({ recap, recapData, weekStart }: Props
                   <span style={{ fontSize: '0.9rem', color: done ? 'var(--color-on-surface-variant)' : 'var(--color-on-surface)', textDecoration: done ? 'line-through' : 'none' }}>
                     {g.title}
                   </span>
-                  {!done && g.status && (
-                    <span style={{ fontSize: '0.625rem', fontWeight: 700, padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'rgba(173,44,77,0.1)', color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em', marginLeft: 'auto' }}>
-                      {g.status}
-                    </span>
-                  )}
                 </div>
               );
             })}

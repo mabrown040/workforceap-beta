@@ -20,6 +20,11 @@ export function verifyWebhookSecret(req: Request): boolean {
   const providedSecret = req.headers.get('x-webhook-secret') || '';
   const expectedSecret = process.env.WEBHOOK_SECRET || '';
 
+  // Fail-closed when either side is empty. Without this guard,
+  // SHA256('') === SHA256('') and an unset WEBHOOK_SECRET grants
+  // anonymous access to anyone sending an empty x-webhook-secret header.
+  if (!expectedSecret || !providedSecret) return false;
+
   // Use crypto.timingSafeEqual to prevent timing attacks.
   // Normalize lengths first so timingSafeEqual doesn't throw on mismatched lengths.
   const expected = createHash('sha256').update(expectedSecret, 'utf8').digest();

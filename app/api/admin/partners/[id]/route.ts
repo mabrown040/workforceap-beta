@@ -146,6 +146,12 @@ const patchSchema = z.object({
       if (data.subgroupIds !== undefined) {
         // Subgroup is NOT tenant-scoped (inherits via FK to Partner).
         // Run the clear+assign inside its own transaction.
+        //
+        // Filter the assign-by-id by the partner's organization so an
+        // Org A admin can't move Org B subgroups under their own Org A
+        // partner (AUDIT §H-T2). Subgroups are tied to a tenant via
+        // their `leader.organizationId`; resolve `orgId` from the
+        // current scope.
         await prisma.$transaction(async (tx) => {
           await tx.subgroup.updateMany({
             where: { partnerId, type: 'partner' },
@@ -156,6 +162,7 @@ const patchSchema = z.object({
               where: {
                 id: { in: data.subgroupIds },
                 type: 'partner',
+                leader: { organizationId: orgId },
               },
               data: { partnerId },
             });

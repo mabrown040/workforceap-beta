@@ -20,7 +20,7 @@ require('./scripts/ensure-prisma-env.cjs');
 
 const nextConfig: NextConfig = {
   experimental: {
-    optimizePackageImports: ['lucide-react', 'recharts', 'react-markdown', 'remark-gfm'],
+    optimizePackageImports: ['lucide-react', 'recharts', 'react-markdown', 'remark-gfm', '@elevenlabs/client'],
     /** Lightning CSS pipeline for smaller critical/global CSS chunks. */
     optimizeCss: true,
   },
@@ -50,7 +50,13 @@ const nextConfig: NextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           // camera=(self) so mock-interview / practice video can use getUserMedia; mic already (self)
-          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=()' },
+          // Explicitly disable the newer policy-controlled features so the
+          // bare absence of a directive doesn't silently grant them.
+          {
+            key: 'Permissions-Policy',
+            value:
+              'camera=(self), microphone=(self), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=(), browsing-topics=()',
+          },
           {
             key: 'Content-Security-Policy',
             // Hardening notes (see docs/SECURITY-AND-HEALTH.md for the full posture):
@@ -66,11 +72,13 @@ const nextConfig: NextConfig = {
             //   - `upgrade-insecure-requests` forces any accidental http://
             //     references in user-generated content to https on supporting
             //     browsers.
+            //   - `img-src` is an explicit allowlist (was `https:` wildcard).
+            //     Add new hosts here as needed instead of widening back to `https:`.
             value: [
               "default-src 'self'",
               `script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io https://api.elevenlabs.io wss://api.elevenlabs.io https://livekit.rtc.elevenlabs.io wss://livekit.rtc.elevenlabs.io wss://*.livekit.cloud wss://*.elevenlabs.io https://*.elevenlabs.io",
-              "img-src 'self' data: https: blob:",
+              "img-src 'self' data: blob: https://*.supabase.co https://*.public.blob.vercel-storage.com https://images.unsplash.com https://www.google-analytics.com https://www.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "frame-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com",
@@ -81,6 +89,25 @@ const nextConfig: NextConfig = {
               "upgrade-insecure-requests",
             ].join('; '),
           },
+        ],
+      },
+      // Authenticated HTML routes should never be cached by browsers or
+      // intermediate caches. Without this, hitting back-button after sign-
+      // out (or shared CDN edge in front of Vercel) can surface a previous
+      // user's portal HTML. Mirrors the SW exclusion list in public/sw.js.
+      {
+        source: '/:path(dashboard|admin|employer|counselor|partner|applications|account|profile|certifications|resources|help)(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
+          { key: 'Pragma', value: 'no-cache' },
+        ],
+      },
+      // Authenticated API surface — same reason. Public routes (health,
+      // referral-sources, public/*) set their own Cache-Control inline.
+      {
+        source: '/api/:path(auth|admin|portal|member|counselor|employer|partner|gdpr|ai)(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'private, no-store, max-age=0, must-revalidate' },
         ],
       },
       {
@@ -105,7 +132,8 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    deviceSizes: [384, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    /** Omit 2048/3840 — largest `next/image` `src`/srcSet fallback matches this list; avoids oversized LCP payloads. */
+    deviceSizes: [384, 640, 750, 828, 1080, 1200, 1920],
     formats: ['image/avif', 'image/webp'],
     // Allow Next.js's default q=75 in addition to the explicit q=85 used on
     // hero images. Restricting to [85] alone caused every <Image> without an
@@ -253,8 +281,32 @@ const nextConfig: NextConfig = {
   },
 };
 
+// AUDIT-2026-05-16 §H-CI6: enable source-map upload + release tagging so
+// production stack traces in Sentry are unminified and grouped by deploy.
+// All upload-side config is only honored when SENTRY_AUTH_TOKEN is set
+// (typically only on Vercel prod). Local builds remain unchanged.
+const sentryBuildOptions = {
+  silent: true,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  // Tag every release with the Vercel commit SHA so issues group by deploy.
+  // Falls back to the npm version when running outside Vercel.
+  release: {
+    name:
+      process.env.SENTRY_RELEASE ||
+      process.env.VERCEL_GIT_COMMIT_SHA ||
+      process.env.npm_package_version,
+    create: true,
+  },
+  // Upload source maps for client-side chunks so the React component
+  // stack and other client errors aren't reported as minified gibberish.
+  widenClientFileUpload: true,
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+} as const;
+
 export default withBundleAnalyzer(
-  withSentryConfig(withNextIntl(nextConfig), {
-    silent: true,
-  }),
+  withSentryConfig(withNextIntl(nextConfig), sentryBuildOptions),
 );

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import type { AppLocale } from '@/lib/i18n/config';
 import { DEFAULT_LOCALE, WAP_LOCALE_COOKIE, isAppLocale, splitLocalePrefix, withLocalePrefix } from '@/lib/i18n/config';
+import { localizeHref as localizeHrefPure } from '@/lib/i18n/localizeHref';
 
 function readLocaleCookie(): AppLocale | null {
   if (typeof document === 'undefined') return null;
@@ -35,19 +36,10 @@ export function useLocaleFromPath(): AppLocale {
 /** Prefix a site path with the locale from the current URL (for MainNav, footers, etc.). */
 export function useLocalizedHref(href: string): string {
   const locale = useLocaleFromPath();
-  return useMemo(() => localizeHref(href, locale), [href, locale]);
+  return useMemo(() => localizeHrefPure(href, locale), [href, locale]);
 }
 
-export function localizeHref(href: string, locale: AppLocale): string {
-  if (!href.startsWith('/') || href.startsWith('//')) return href;
-  if (href.startsWith('/api') || href.startsWith('/_next')) return href;
-  const q = href.includes('?') ? href.slice(href.indexOf('?')) : '';
-  const pathOnly = q ? href.slice(0, href.indexOf('?')) : href;
-  const { locale: existing } = splitLocalePrefix(pathOnly);
-  if (existing) return href;
-  const prefixed = withLocalePrefix(pathOnly === '' ? '/' : pathOnly, locale);
-  return `${prefixed}${q}`;
-}
+export const localizeHref = localizeHrefPure;
 
 export function parseLocaleFromPathname(pathname: string): AppLocale {
   const { locale } = splitLocalePrefix(pathname);

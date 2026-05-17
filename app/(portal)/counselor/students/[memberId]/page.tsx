@@ -76,6 +76,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
       wioaReviewedAt: true,
       wioaReviewedByUserId: true,
       wioaReviewNotes: true,
+      createdAt: true,
       // Multi-program-aware: load ALL course enrollments so we can render
       // secondary programs below the primary block (instead of hiding them
       // when `User.enrolledProgram` is set to just the primary slug).

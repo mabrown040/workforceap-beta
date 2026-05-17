@@ -1,20 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { assertPublicHttpUrl, UnsafeUrlError } from '@/lib/http/safeOutboundFetch';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
+
     let body: { linkedinUrl?: string };
     try { body = await req.json(); } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
-  
-    const linkedinUrl = body.linkedinUrl?.trim();
-    if (!linkedinUrl || !linkedinUrl.includes('linkedin.com')) {
-      return NextResponse.json({ error: 'Provide a valid LinkedIn profile URL' }, { status: 400 });
+
+    // Strict URL validation: must be https, must be on a linkedin.com host
+    // (or subdomain), no IP literals, no private addresses. The previous
+    // `includes('linkedin.com')` check let `https://attacker.com/?x=linkedin.com`
+    // through, and the value also gets persisted to Profile.profileLinkedin.
+    const linkedinUrlRaw = body.linkedinUrl?.trim() ?? '';
+    let linkedinUrl: string;
+    try {
+      const parsed = assertPublicHttpUrl(linkedinUrlRaw, {
+        httpsOnly: true,
+        allowHosts: ['linkedin.com'],
+      });
+      // Re-serialize to a canonical form (strips userinfo, etc.).
+      linkedinUrl = parsed.toString();
+    } catch (err) {
+      if (err instanceof UnsafeUrlError) {
+        return NextResponse.json({ error: 'Provide a valid LinkedIn profile URL' }, { status: 400 });
+      }
+      throw err;
     }
   
     // Save URL to profile regardless

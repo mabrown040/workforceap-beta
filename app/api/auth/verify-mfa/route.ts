@@ -9,6 +9,7 @@ import {
 } from '@/lib/auth/mfaTrust';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { checkVerifyMfaRateLimit } from '@/lib/rate-limit';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 /**
  * POST /api/auth/verify-mfa
@@ -39,9 +40,11 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(false);
 
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookieOptions: cookieOpts,
       cookies: {

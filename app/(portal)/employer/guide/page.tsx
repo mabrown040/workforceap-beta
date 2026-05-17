@@ -32,7 +32,7 @@ const QUICK_NAV = [
 const FAQS = [
   {
     q: 'Is there a cost to post jobs?',
-    a: 'No — posting jobs through WorkforceAP is free. You only pay when you choose to participate in the 10% giveback after a successful hire.',
+    a: 'No — posting jobs through WorkforceAP is offered at no cost to members. You only pay when you choose to participate in the 10% giveback after a successful hire.',
   },
   {
     q: "What's the 10% giveback?",

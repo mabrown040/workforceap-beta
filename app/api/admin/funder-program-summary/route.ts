@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
+import { buildFunderProgramSummaryCsv } from '@/lib/admin/funderProgramSummaryCsv';
+import { getFunderProgramSummaryRows } from '@/lib/admin/funderProgramMetrics';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { buildFunderProgramSummaryCsv, getFunderProgramSummaryRows } from '@/lib/admin/funderProgramMetrics';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 /**
@@ -11,21 +13,22 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  * Program-level CSV for grant / funder reporting (enrollment, 30-day activity,
  * training completion, placements, at-risk alerts, rates).
  */
-export async function GET() {
+export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!(await isAdmin(user.id)))
+    if (!(await isAdmin(user.id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  
+    }
+
     try {
       const orgId = await getActorOrganizationId(user.id);
       const { rows, truncated } = await getFunderProgramSummaryRows(orgId);
       const csv = buildFunderProgramSummaryCsv(rows);
-  
+
       const date = new Date().toISOString().slice(0, 10);
       const filename = `funder-program-summary-${date}.csv`;
-  
+
       const headers: Record<string, string> = {
         'Content-Type': 'text/csv; charset=utf-8',
         'Content-Disposition': `attachment; filename="${filename}"`,
@@ -35,7 +38,7 @@ export async function GET() {
         headers['X-Export-Truncated'] = 'true';
         headers['X-Export-Limit'] = '10000';
       }
-  
+
       return new NextResponse(csv, { status: 200, headers });
     } catch (e) {
       console.error('[admin/funder-program-summary]', e);
@@ -45,4 +48,4 @@ export async function GET() {
     console.error('/admin/funder-program-summary:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

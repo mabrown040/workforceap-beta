@@ -27,15 +27,35 @@ let signupEmailRateLimiter: Ratelimit | null = null;
 let aiToolRateLimiter: Ratelimit | null = null;
 let contactRateLimiter: Ratelimit | null = null;
 let adminInviteRateLimiter: Ratelimit | null = null;
+// Per-admin limiter on /api/admin/members/bulk-email. The route can
+// fire up to MAX_MEMBERS (100) Resend sends per call; without a
+// per-admin cap a compromised admin token can blast every member in
+// the org repeatedly until Resend's bulk-sender heuristic trips and
+// the domain reputation craters. 3 bulk-sends per hour per admin
+// covers normal communications while blocking compromise/abuse.
+let bulkEmailRateLimiter: Ratelimit | null = null;
 let employerJobImportRateLimiter: Ratelimit | null = null;
 let partnerSignupRateLimiter: Ratelimit | null = null;
 let confirmationEmailRateLimiter: Ratelimit | null = null;
+// Per-email cap to prevent IP-rotating spray against a target inbox.
+// The per-IP limiter alone allows a botnet to spam any chosen address
+// with our branded "your application was received" email, abusing our
+// domain for phishing pretext. 2/hr/email blocks that without affecting
+// legitimate re-sends.
+let confirmationEmailEmailRateLimiter: Ratelimit | null = null;
 let careersRecommendRateLimiter: Ratelimit | null = null;
 let interestProfilerRateLimiter: Ratelimit | null = null;
 let forgotPasswordRateLimiter: Ratelimit | null = null;
 let forgotPasswordEmailRateLimiter: Ratelimit | null = null;
 let publicCareersGetRateLimiter: Ratelimit | null = null;
 let publicVoiceSessionRateLimiter: Ratelimit | null = null;
+// Per-authenticated-user limiter for any ElevenLabs voice session mint
+// (member portal voice tools, counselor/employer/partner walkthroughs,
+// AI interview practice, etc.). Each session bills 5-10 minutes of
+// ElevenLabs voice at ~$0.30/min, so 1k unbounded reqs ≈ $1.5-3k.
+// 5/hr per user covers normal multi-session interview practice while
+// blocking obvious abuse and accidental loops.
+let voiceSessionRateLimiter: Ratelimit | null = null;
 let inviteAcceptRateLimiter: Ratelimit | null = null;
 let verifyMfaRateLimiter: Ratelimit | null = null;
 let publicHealthRateLimiter: Ratelimit | null = null;
@@ -92,6 +112,11 @@ if (redisUrl && redisToken) {
     limiter: Ratelimit.slidingWindow(10, '1 h'),
     prefix: 'ratelimit:admin-invite',
   });
+  bulkEmailRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(3, '1 h'),
+    prefix: 'ratelimit:bulk-email',
+  });
   employerJobImportRateLimiter = new Ratelimit({
     redis,
     // Bulk import can trigger many AI/scrape calls per request; keep this tighter than generic AI-tool limits.
@@ -107,6 +132,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:confirmation-email',
+  });
+  confirmationEmailEmailRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(2, '1 h'),
+    prefix: 'ratelimit:confirmation-email-email',
   });
   careersRecommendRateLimiter = new Ratelimit({
     redis,
@@ -133,6 +163,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(120, '1 h'),
     prefix: 'ratelimit:careers-public-get',
+  });
+  voiceSessionRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:voice-session',
   });
   publicVoiceSessionRateLimiter = new Ratelimit({
     redis,
@@ -225,6 +260,19 @@ export async function checkAuthIpRateLimit(ip: string): Promise<{ success: boole
 }
 
 /**
+ * Per-authenticated-user voice-session rate limit. Apply at every
+ * voice-session / voice-walkthrough / interview/session call site
+ * (under `/api/`). ElevenLabs is ~$0.30/min and each session bills
+ * 5-10 min, so unbounded mints are an immediate money-drain on a
+ * compromised account.
+ */
+export async function checkVoiceSessionRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!voiceSessionRateLimiter) return { success: true };
+  const result = await voiceSessionRateLimiter.limit(`voice-session:${userId}`);
+  return { success: result.success, remaining: result.remaining };
+}
+
+/**
  * Per-email signup limiter. Use alongside the per-IP signup limiters
  * (member/apply/employer/partner) to block one attacker rotating IPs to
  * spam verification mail to the same target address.
@@ -244,7 +292,11 @@ export async function checkAIToolRateLimit(userId: string): Promise<{ success: b
 }
 
 export async function checkContactRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!contactRateLimiter) return { success: true };
+  if (!contactRateLimiter) {
+    // Contact is a documented "fail-closed in production" surface
+    // (spam vector). Dev/preview fail-open so local testing isn't blocked.
+    return { success: process.env.VERCEL_ENV !== 'production' };
+  }
   const result = await contactRateLimiter.limit(ip);
   return { success: result.success, remaining: result.remaining };
 }
@@ -262,6 +314,18 @@ export async function checkAdminInviteRateLimit(userId: string): Promise<{ succe
   return { success: result.success, remaining: result.remaining };
 }
 
+/**
+ * Per-admin cap on /api/admin/members/bulk-email — 3 calls/hr. Each
+ * call can fan out to MAX_MEMBERS (100) Resend sends, so a compromised
+ * admin can blast the entire member list and burn the domain's bulk-
+ * sender reputation.
+ */
+export async function checkBulkEmailRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!bulkEmailRateLimiter) return { success: true };
+  const result = await bulkEmailRateLimiter.limit(`bulk-email:${userId}`);
+  return { success: result.success, remaining: result.remaining };
+}
+
 /** Per-user cap on employer job import POSTs (single + bulk share one bucket). Fail-open without Redis. */
 export async function checkEmployerJobImportRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
   if (!employerJobImportRateLimiter) return { success: true };
@@ -269,10 +333,25 @@ export async function checkEmployerJobImportRateLimit(userId: string): Promise<{
   return { success: result.success, remaining: result.remaining };
 }
 
-/** Public confirmation-email endpoint — 5 per IP per hour. Fail-open without Upstash; Supabase enforces its own email send limits. */
+/** Public confirmation-email endpoint — 5 per IP per hour. Production fails closed when Redis is unconfigured: this endpoint sends mail from our verified domain to an arbitrary attacker-chosen address; a botnet can rotate IPs trivially, so unlimited fail-open would burn deliverability. */
 export async function checkConfirmationEmailRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!confirmationEmailRateLimiter) return { success: true };
+  if (!confirmationEmailRateLimiter) {
+    // Dev/preview: fail open so local testing isn't blocked. Production:
+    // fail closed because the endpoint is a phishing-payload carrier.
+    return { success: process.env.VERCEL_ENV !== 'production' };
+  }
   const result = await confirmationEmailRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** Per-email cap on confirmation-email sends — 2 per email per hour. Same fail-closed-in-prod policy as the per-IP variant. Use both together. */
+export async function checkConfirmationEmailEmailRateLimit(email: string): Promise<{ success: boolean }> {
+  if (!confirmationEmailEmailRateLimiter) {
+    return { success: process.env.VERCEL_ENV !== 'production' };
+  }
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return { success: true };
+  const result = await confirmationEmailEmailRateLimiter.limit(`confirmation-email-email:${normalized}`);
   return { success: result.success };
 }
 

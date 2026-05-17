@@ -42,8 +42,8 @@ function AdminInvitesPageContent() {
   });
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const inviteSent = searchParams.get('invite') === 'sent';
-  const inviteSavedNoEmail = searchParams.get('invite') === 'saved_no_email';
+  const inviteSent = searchParams?.get('invite') === 'sent';
+  const inviteSavedNoEmail = searchParams?.get('invite') === 'saved_no_email';
 
   useEffect(() => {
     async function fetchData() {

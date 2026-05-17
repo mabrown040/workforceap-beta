@@ -135,7 +135,7 @@ export function mapSkillsToRadarAxes(
       ],
     },
     {
-      axis: 'Ethics',
+      axis: 'Service',
       keywords: [
         'social', 'service', 'compliance', 'regulation', 'governance', 'integrity', 'dependability', 'concern for others',
         'social perceptiveness', 'persuasion', 'negotiation', 'instructing', 'service orientation', 'ethical',

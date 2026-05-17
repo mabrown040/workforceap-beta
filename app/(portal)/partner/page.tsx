@@ -30,6 +30,7 @@ import PartnerReferralResourcesSection from '@/components/partner/PartnerReferra
 import PendingApprovalBanner from '@/components/partner/PendingApprovalBanner';
 import PartnerConnectPayoutButton from '@/components/partner/PartnerConnectPayoutButton';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
+import { isReferralPartner } from '@/lib/partner/partnerType';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('partner');
@@ -51,22 +52,68 @@ export default async function PartnerDashboardPage() {
   const ctx = await getPartnerForUser(user.id, { isSuperAdminHint: superAdmin });
   if (!ctx) redirect(await unlinkedPartnerHref(user.id));
 
-  const partnerRow = await prisma.partner.findUnique({
-    where: { id: ctx.partnerId },
-    select: {
-      referralCode: true,
-      slug: true,
-      onboardingCompletedAt: true,
-      name: true,
-      organizationType: true,
-      contactName: true,
-      contactPhone: true,
-      tourCompletedAt: true,
-      stripeConnectId: true,
-      stripeConnectStatus: true,
-      status: true,
-    },
-  });
+  let partnerRow:
+    | {
+        referralCode: string | null;
+        slug: string | null;
+        onboardingCompletedAt: Date | null;
+        name: string;
+        organizationType: string | null;
+        contactName: string | null;
+        contactPhone: string | null;
+        tourCompletedAt: Date | null;
+        stripeConnectId: string | null;
+        stripeConnectStatus: string | null;
+        status: string | null;
+      }
+    | null = null;
+
+  try {
+    partnerRow = await prisma.partner.findUnique({
+      where: { id: ctx.partnerId },
+      select: {
+        referralCode: true,
+        slug: true,
+        onboardingCompletedAt: true,
+        name: true,
+        organizationType: true,
+        contactName: true,
+        contactPhone: true,
+        tourCompletedAt: true,
+        stripeConnectId: true,
+        stripeConnectStatus: true,
+        status: true,
+      },
+    });
+  } catch (error) {
+    // Older prod databases may lag the Stripe Connect columns. Keep the portal
+    // usable and treat payout-connect state as unavailable until migrations land.
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 'P2022'
+    ) {
+      const fallbackRow = await prisma.partner.findUnique({
+        where: { id: ctx.partnerId },
+        select: {
+          referralCode: true,
+          slug: true,
+          onboardingCompletedAt: true,
+          name: true,
+          organizationType: true,
+          contactName: true,
+          contactPhone: true,
+          tourCompletedAt: true,
+        },
+      });
+      partnerRow = fallbackRow
+        ? { ...fallbackRow, stripeConnectId: null, stripeConnectStatus: null, status: null }
+        : null;
+    } else {
+      throw error;
+    }
+  }
 
   if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 
@@ -124,6 +171,10 @@ export default async function PartnerDashboardPage() {
 
   const total = members.length;
 
+  // Payout-related UI (estimated earnings, Stripe Connect, payout-per-placement
+  // copy) only surfaces for partners on the payout track. Community partners
+  // get the referral pipeline view without any money-shaped chrome.
+  const showPayouts = isReferralPartner(ctx.partner);
   const payoutPerPlacement = getPartnerPlacementPayoutUsd();
   const enrolledCount = members.filter((m) => m.enrolledAt != null).length;
   const estimatedPayout = placements * payoutPerPlacement;
@@ -182,11 +233,15 @@ export default async function PartnerDashboardPage() {
       hideOnMobile: true,
       cell: (row) => row.placementDate,
     },
-    {
-      key: 'payout',
-      header: t('payoutStatus'),
-      cell: (row) => row.payoutStatus,
-    },
+    ...(isReferralPartner(ctx.partner)
+      ? ([
+          {
+            key: 'payout',
+            header: t('payoutStatus'),
+            cell: (row) => row.payoutStatus,
+          },
+        ] satisfies DataTableColumn<ReferralDashRow>[])
+      : []),
   ];
 
   const nextAction = total === 0
@@ -257,25 +312,27 @@ export default async function PartnerDashboardPage() {
         </div>
       )}
 
-      {/* Estimated payout + KPI strip */}
+      {/* Estimated payout + KPI strip — payout card only for referral partners */}
       <div className="portal-pad-x" style={{ paddingTop: '0.5rem', paddingBottom: '0.75rem' }}>
-        <div
-          className="portal-card portal-card--flat portal-card--padded"
-          style={{ borderLeft: '4px solid var(--color-gold)', marginBottom: '1rem' }}
-        >
-          <p
-            className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-bold wa-mb-1"
-            style={{ color: 'var(--color-on-surface-variant)' }}
+        {showPayouts && (
+          <div
+            className="portal-card portal-card--flat portal-card--padded"
+            style={{ borderLeft: '4px solid var(--color-gold)', marginBottom: '1rem' }}
           >
-            {t('estimatedPayout')}
-          </p>
-          <p className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
-            {fmtMoney(estimatedPayout)}
-          </p>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.45 }}>
-            {t('verifiedPlacements', { count: placements, amount: fmtMoney(payoutPerPlacement) })}
-          </p>
-        </div>
+            <p
+              className="wa-text-[11px] wa-uppercase wa-tracking-[0.12em] wa-font-bold wa-mb-1"
+              style={{ color: 'var(--color-on-surface-variant)' }}
+            >
+              {t('estimatedPayout')}
+            </p>
+            <p className="wa-text-3xl wa-font-extrabold wa-tracking-tight" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
+              {fmtMoney(estimatedPayout)}
+            </p>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', lineHeight: 1.45 }}>
+              {t('verifiedPlacements', { count: placements, amount: fmtMoney(payoutPerPlacement) })}
+            </p>
+          </div>
+        )}
 
         <div
           className="portal-kpi-grid"
@@ -288,33 +345,37 @@ export default async function PartnerDashboardPage() {
           <PortalKpiCard accent="accent" label={t('membersReferred')} value={total} hint={t('inYourPortal')} />
           <PortalKpiCard accent="neutral" label={t('membersEnrolled')} value={enrolledCount} hint={t('startedAProgram')} />
           <PortalKpiCard accent="green" label={t('membersPlaced')} value={placements} hint={t('verifiedHires')} href="/partner/outcomes" />
-          <PortalKpiCard accent="gold" label={t('estPayout')} value={fmtMoney(estimatedPayout)} hint={t('placementEstimate')} />
+          {showPayouts && (
+            <PortalKpiCard accent="gold" label={t('estPayout')} value={fmtMoney(estimatedPayout)} hint={t('placementEstimate')} />
+          )}
         </div>
       </div>
 
-      {/* Mobile Connect payout section */}
-      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
-        <PortalCard title={t('payouts')} subtitle={t('getPaidToBank')}>
-          {partnerRow.stripeConnectStatus === 'active' ? (
-            <div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
-                {t('bankAccountConnected')}
-              </p>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
-                {t('readyForPayouts')}
-              </span>
-            </div>
-          ) : (
-            <div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
-                {t('connectBankToReceive')}
-              </p>
-              <PartnerConnectPayoutButton label={t('connectBankAccount')} fullWidth />
-            </div>
-          )}
-        </PortalCard>
-      </div>
+      {/* Mobile Connect payout section — referral partners only */}
+      {showPayouts && (
+        <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
+          <PortalCard title={t('payouts')} subtitle={t('getPaidToBank')}>
+            {partnerRow.stripeConnectStatus === 'active' ? (
+              <div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' }}>
+                  {t('bankAccountConnected')}
+                </p>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
+                  {t('readyForPayouts')}
+                </span>
+              </div>
+            ) : (
+              <div>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem' }}>
+                  {t('connectBankToReceive')}
+                </p>
+                <PartnerConnectPayoutButton label={t('connectBankAccount')} fullWidth />
+              </div>
+            )}
+          </PortalCard>
+        </div>
+      )}
 
       {!isPendingApproval && (
         <div className="portal-pad-x" style={{ paddingBottom: '1rem' }} data-tour="tour-referral-link">
@@ -504,22 +565,24 @@ export default async function PartnerDashboardPage() {
 
       {isPendingApproval && <PendingApprovalBanner />}
 
-      <section style={{ marginBottom: '1.25rem' }}>
-        <div
-          className="portal-card portal-card--flat portal-card--padded"
-          style={{ borderLeft: '4px solid var(--color-gold)' }}
-        >
-          <p className="partner-section-eyebrow" style={{ marginBottom: '0.35rem' }}>
-            {t('estimatedPayout')}
-          </p>
-          <p style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.1 }}>
-            {fmtMoney(estimatedPayout)}
-          </p>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', maxWidth: '42rem', lineHeight: 1.5 }}>
-            {t('verifiedPlacements', { count: placements, amount: fmtMoney(payoutPerPlacement) })}
-          </p>
-        </div>
-      </section>
+      {showPayouts && (
+        <section style={{ marginBottom: '1.25rem' }}>
+          <div
+            className="portal-card portal-card--flat portal-card--padded"
+            style={{ borderLeft: '4px solid var(--color-gold)' }}
+          >
+            <p className="partner-section-eyebrow" style={{ marginBottom: '0.35rem' }}>
+              {t('estimatedPayout')}
+            </p>
+            <p style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.1 }}>
+              {fmtMoney(estimatedPayout)}
+            </p>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0.5rem 0 0', maxWidth: '42rem', lineHeight: 1.5 }}>
+              {t('verifiedPlacements', { count: placements, amount: fmtMoney(payoutPerPlacement) })}
+            </p>
+          </div>
+        </section>
+      )}
 
       <section style={{ marginBottom: '1.5rem' }}>
         <div
@@ -533,35 +596,39 @@ export default async function PartnerDashboardPage() {
           <PortalKpiCard accent="accent" label={t('membersReferred')} value={total} hint={t('inYourPortal')} />
           <PortalKpiCard accent="neutral" label={t('membersEnrolled')} value={enrolledCount} hint={t('startedAProgram')} />
           <PortalKpiCard accent="green" label={t('membersPlaced')} value={placements} hint={t('verifiedHires')} href="/partner/outcomes" />
-          <PortalKpiCard accent="gold" label={t('estPayout')} value={fmtMoney(estimatedPayout)} hint={t('placementEstimate')} />
+          {showPayouts && (
+            <PortalKpiCard accent="gold" label={t('estPayout')} value={fmtMoney(estimatedPayout)} hint={t('placementEstimate')} />
+          )}
         </div>
       </section>
 
-      {/* Desktop Connect payout section */}
-      <section style={{ marginBottom: '1.5rem' }}>
-        <PortalCard title={t('payouts')} subtitle={t('getPaidToBankWhenVerified')}>
-          {partnerRow.stripeConnectStatus === 'active' ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
-                  {t('bankAccountConnected')}
-                </p>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
-                  {t('readyForPayouts')}
-                </span>
+      {/* Desktop Connect payout section — referral partners only */}
+      {showPayouts && (
+        <section style={{ marginBottom: '1.5rem' }}>
+          <PortalCard title={t('payouts')} subtitle={t('getPaidToBankWhenVerified')}>
+            {partnerRow.stripeConnectStatus === 'active' ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
+                    {t('bankAccountConnected')}
+                  </p>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-green)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>check_circle</span>
+                    {t('readyForPayouts')}
+                  </span>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                {t('connectBankToReceive')}
-              </p>
-              <PartnerConnectPayoutButton label={t('connectBankAccount')} />
-            </div>
-          )}
-        </PortalCard>
-      </section>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                  {t('connectBankToReceive')}
+                </p>
+                <PartnerConnectPayoutButton label={t('connectBankAccount')} />
+              </div>
+            )}
+          </PortalCard>
+        </section>
+      )}
 
       {!isPendingApproval && (
         <section style={{ marginBottom: '1.5rem' }} data-tour="tour-referral-link">

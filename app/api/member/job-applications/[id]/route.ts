@@ -167,8 +167,7 @@ function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
       return NextResponse.json(application);
     } catch (error) {
       console.error('[PATCH /api/member/job-applications/:id]', error);
-      const message = error instanceof Error ? error.message : 'Database error';
-      return NextResponse.json({ error: message }, { status: 500 });
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
   } catch (error) {
     console.error('/member/job-applications/[id]:', error);

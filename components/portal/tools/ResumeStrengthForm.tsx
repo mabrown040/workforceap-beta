@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import ResumeAnalysisPanel from './ResumeAnalysisPanel';
+import ResumeScoreBreakdown, { type ResumeScorePayload } from './ResumeScoreBreakdown';
 import ToolFollowThrough from './ToolFollowThrough';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 
@@ -68,6 +69,7 @@ const bulletSuggestions = [
 export default function ResumeStrengthForm() {
   const [resume, setResume] = useState('');
   const [output, setOutput] = useState('');
+  const [scorePayload, setScorePayload] = useState<ResumeScorePayload | null>(null);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
@@ -97,6 +99,7 @@ export default function ResumeStrengthForm() {
     e.preventDefault();
     setError('');
     setOutput('');
+    setScorePayload(null);
     setLoading(true);
     trackToolLaunch('resume-analysis', 'Resume Analysis');
     trackAIToolRun('started', 'resume-analysis');
@@ -118,6 +121,14 @@ export default function ResumeStrengthForm() {
 
       trackAIToolRun('completed', 'resume-analysis', { output_length: (data.output ?? '').length });
       setOutput(data.output ?? '');
+      setScorePayload({
+        composite: data.composite,
+        pillars: data.pillars,
+        structural: data.structural,
+        occupations: data.occupations,
+        onetCoverage: data.onetCoverage,
+        marketCoverage: data.marketCoverage,
+      });
     } catch {
       trackAIToolRun('errored', 'resume-analysis', { reason: 'network_error' });
       setError('Network error. Please try again.');
@@ -198,6 +209,7 @@ export default function ResumeStrengthForm() {
 
       {output && (
         <>
+          {scorePayload && <ResumeScoreBreakdown payload={scorePayload} />}
           <ResumeAnalysisPanel
             resumePreview={resume}
             scorePercent={scorePercent}

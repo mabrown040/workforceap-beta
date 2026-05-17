@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { awardPoints } from '@/lib/member/points';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -14,6 +16,15 @@ export async function POST(request: Request, { params }: Props) {
   if (!admin && !counselor) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: memberId } = await params;
+
+  // Tenant scope: verify the member belongs to the actor's org before
+  // awarding points. Otherwise an Org A admin could write to an Org B
+  // member's points ledger by guessing their UUID.
+  const orgId = await getActorOrganizationId(user.id);
+  const member = await withTenantScope(orgId, (db) =>
+    db.user.findFirst({ where: { id: memberId }, select: { id: true } }),
+  );
+  if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   let body: unknown;
   try { body = await request.json(); } catch {

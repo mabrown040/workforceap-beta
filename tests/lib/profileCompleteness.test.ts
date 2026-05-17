@@ -80,7 +80,7 @@ describe('getProfileCompleteness', () => {
     };
     const user = {
       fullName: 'Test User',
-      email: null,
+      email: undefined,
       enrolledProgram: 'cyber',
       assessmentCompleted: null,
     };
@@ -151,7 +151,7 @@ describe('getProfileMissingFields', () => {
     };
     const user = {
       fullName: 'Test User',
-      email: null,
+      email: undefined,
       enrolledProgram: 'cyber',
       assessmentCompleted: null,
     };

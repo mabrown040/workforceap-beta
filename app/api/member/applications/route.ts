@@ -31,8 +31,7 @@ const createSchema = z.object({
       return NextResponse.json({ applications });
     } catch (err) {
       captureApiError(err, { route: 'member/applications GET' });
-      const message = err instanceof Error ? err.message : 'Database error';
-      return NextResponse.json({ error: message }, { status: 500 });
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
   } catch (error) {
     console.error('/member/applications:', error);
@@ -83,8 +82,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       return NextResponse.json({ application: app });
     } catch (err) {
       captureApiError(err, { route: 'member/applications POST' });
-      const message = err instanceof Error ? err.message : 'Database error';
-      return NextResponse.json({ error: message }, { status: 500 });
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
   } catch (error) {
     console.error('/member/applications:', error);

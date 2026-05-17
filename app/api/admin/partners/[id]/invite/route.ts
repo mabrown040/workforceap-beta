@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 import { z } from 'zod';
@@ -77,7 +79,12 @@ async function ensurePartnerInviteUser(params: {
     }
   
     const { id: partnerId } = await params;
-    const partner = await prisma.partner.findUnique({ where: { id: partnerId } });
+    // Partner is tenant-scoped. An Org A admin cannot invite a user
+    // to an Org B partner.
+    const orgId = await getActorOrganizationId(adminUser.id);
+    const partner = await withTenantScope(orgId, (db) =>
+      db.partner.findFirst({ where: { id: partnerId } }),
+    );
     if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
   
     const body = await request.json().catch(() => null);

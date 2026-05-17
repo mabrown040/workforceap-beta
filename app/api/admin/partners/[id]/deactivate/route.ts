@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -19,10 +21,15 @@ const bodySchema = z.object({
   }
 
   const { id: partnerId } = await params;
-  const partner = await prisma.partner.findUnique({
-    where: { id: partnerId },
-    include: { _count: { select: { referrals: true } } },
-  });
+  // Partner is tenant-scoped. Wrap reads + writes so an Org A admin
+  // cannot deactivate (or reassign referrals from) an Org B partner.
+  const orgId = await getActorOrganizationId(user.id);
+  const partner = await withTenantScope(orgId, (db) =>
+    db.partner.findFirst({
+      where: { id: partnerId },
+      include: { _count: { select: { referrals: true } } },
+    }),
+  );
   if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
 
   if (!partner.active) {
@@ -34,7 +41,10 @@ const bodySchema = z.object({
   const reassignToPartnerId = parsed.success ? parsed.data.reassignToPartnerId : undefined;
 
   if (reassignToPartnerId) {
-    const target = await prisma.partner.findFirst({ where: { id: reassignToPartnerId, active: true } });
+    // Target partner must also be in actor's org.
+    const target = await withTenantScope(orgId, (db) =>
+      db.partner.findFirst({ where: { id: reassignToPartnerId, active: true } }),
+    );
     if (!target) {
       return NextResponse.json({ error: 'Invalid or inactive target partner for reassignment' }, { status: 400 });
     }

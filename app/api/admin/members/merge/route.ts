@@ -1,10 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { executeMemberMerge, buildMergePreview } from '@/lib/admin/memberMerge';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: NextRequest) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+// Verifies both members involved in a merge belong to the same tenant
+// AND that the requesting admin can act on that tenant. Without this,
+// an admin in Org A could merge any two members across orgs (AUDIT §C-T3).
+async function assertMergeTenantOk(
+  adminUserId: string,
+  primaryId: string,
+  secondaryId: string
+): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
+  if (await isSuperAdmin(adminUserId)) return { ok: true };
+  const rows = await prisma.user.findMany({
+    where: { id: { in: [primaryId, secondaryId] } },
+    select: { id: true, organizationId: true },
+  });
+  if (rows.length !== 2) {
+    return { ok: false, status: 404, error: 'One or both members not found' };
+  }
+  const [a, b] = rows;
+  if (!a.organizationId || a.organizationId !== b.organizationId) {
+    return { ok: false, status: 403, error: 'Members must belong to the same organization' };
+  }
+  if (!(await isAdminInOrg(adminUserId, a.organizationId))) {
+    return { ok: false, status: 403, error: 'Forbidden' };
+  }
+  return { ok: true };
+}async function _GET(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -18,6 +44,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: Ne
 
     if (!primaryId || !secondaryId || primaryId === secondaryId) {
       return NextResponse.json({ error: 'primaryId and secondaryId required and must differ' }, { status: 400 });
+    }
+
+    const tenantCheck = await assertMergeTenantOk(user.id, primaryId, secondaryId);
+    if (!tenantCheck.ok) {
+      return NextResponse.json({ error: tenantCheck.error }, { status: tenantCheck.status });
     }
 
     const preview = await prisma.$transaction(async (tx) => {
@@ -43,6 +74,11 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
     const { primaryId, secondaryId } = body;
     if (!primaryId || !secondaryId || primaryId === secondaryId) {
       return NextResponse.json({ error: 'primaryId and secondaryId required and must differ' }, { status: 400 });
+    }
+
+    const tenantCheck = await assertMergeTenantOk(user.id, primaryId, secondaryId);
+    if (!tenantCheck.ok) {
+      return NextResponse.json({ error: tenantCheck.error }, { status: tenantCheck.status });
     }
 
     const result = await prisma.$transaction(async (tx) => {

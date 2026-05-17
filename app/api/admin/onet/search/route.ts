@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ occupations });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      return NextResponse.json({ error: msg, occupations: [] }, { status: 200 });
+      console.error('/admin/onet/search O*NET error:', msg);
+      return NextResponse.json({ error: `O*NET search unavailable: ${msg}`, occupations: [] }, { status: 503 });
     }
   } catch (error) {
     console.error('/admin/onet/search:', error);

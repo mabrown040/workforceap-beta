@@ -4,6 +4,7 @@
  */
 
 import { Resend } from 'resend';
+import { sendBrandedEmail } from '@/lib/email/send';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
@@ -141,7 +142,7 @@ export async function sendVoiceCoachTranscriptEmail(params: {
   });
 
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: recipients,
       subject: sanitizeEmailSubjectLine(`${params.coachLabel} transcript — ${params.memberName}`),
@@ -206,7 +207,7 @@ export async function sendVoiceCoachArtifactEmail(params: {
   });
 
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: recipients,
       subject: sanitizeEmailSubjectLine(`${params.coachLabel} artifact — ${params.memberName}`),
@@ -277,7 +278,7 @@ export async function sendVoiceInterviewTranscriptEmail(params: {
   });
 
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: recipients,
       subject: sanitizeEmailSubjectLine(`Voice interview transcript — ${params.memberName} — ${params.role}`),
@@ -332,7 +333,7 @@ export async function sendElevatorSpeechEmail(params: {
   });
 
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to,
       subject: sanitizeEmailSubjectLine(`Your AI elevator speech — ${params.targetRole}`),
@@ -380,7 +381,7 @@ export async function sendCounselorAssignedEmail(params: {
     branding,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`${branding.name} — ${params.counselorFullName} is your counselor`),
@@ -426,7 +427,7 @@ export async function sendEnrollmentConfirmationEmail(params: {
     ctaUrl: `${SITE_URL}/dashboard`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject,
@@ -500,7 +501,7 @@ export async function sendCourseraUnmatchedActorAlertEmail(params: {
   });
 
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: recipients,
       subject: sanitizeEmailSubjectLine(`Coursera unmatched actor: ${params.actorEmail}`),
@@ -542,7 +543,7 @@ export async function sendAtRiskAlertDigestEmail(params: {
     ctaUrl: `${SITE_URL}/counselor/at-risk`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`At-Risk Digest — ${params.criticalCount} critical, ${params.highCount} high (${params.dateLabel})`),
@@ -588,7 +589,7 @@ export async function sendApplicationAcceptedEmail(params: {
     branding,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject,
@@ -619,7 +620,7 @@ export async function sendApplicationRejectedEmail(params: {
     ctaUrl: `${SITE_URL}/contact`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: 'WorkforceAP Application Update',
@@ -663,7 +664,7 @@ export async function sendPreScreeningReadyEmail(params: {
     ctaUrl: `${SITE_URL}/admin/members/${encodeURIComponent(params.memberId)}`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: ADMIN_EMAIL,
       subject: sanitizeEmailSubjectLine(`Interview ready: ${name}`),
@@ -694,7 +695,7 @@ export async function sendNewApplicationAdminEmail(params: {
     ctaUrl: `${SITE_URL}/admin/members?highlight=${encodeURIComponent(params.applicationId)}`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: ADMIN_EMAIL,
       subject: sanitizeEmailSubjectLine(`New Application: ${params.applicantName}`),
@@ -726,7 +727,7 @@ export async function sendCourseEnrolledEmail(params: {
     ctaUrl: `${SITE_URL}/dashboard`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`You're Enrolled: ${params.programName}`),
@@ -767,7 +768,7 @@ export async function sendPlacementSurveyEmail(params: {
     ctaUrl: params.surveyUrl,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(subject),
@@ -803,7 +804,7 @@ export async function sendPlacementSurveyEscalationEmail(params: {
     ctaUrl: params.surveyUrl,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Follow-up needed: ${params.memberName} — placement survey not completed`),
@@ -835,7 +836,7 @@ export async function sendCourseCompletedEmail(params: {
     ctaUrl: `${SITE_URL}/dashboard/training`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Congratulations! You Completed ${params.courseName}`),
@@ -884,7 +885,7 @@ export async function sendMilestoneCascadeEmail(params: {
     ctaUrl: params.ctaUrl ?? `${SITE_URL}/dashboard`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(params.subject),
@@ -916,7 +917,7 @@ export async function sendWeeklyRecapEmail(params: {
     ctaUrl: `${SITE_URL}/dashboard/weekly-recap`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: 'Your WorkforceAP Weekly Recap',
@@ -964,7 +965,7 @@ export async function sendInvitationEmail(params: {
     branding,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`${params.inviterName} invited you to join ${branding.name}`),
@@ -1002,7 +1003,7 @@ export async function sendPartnerReferralInviteEmail(params: {
   });
 
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`${params.inviterName} invited you to WorkforceAP`),
@@ -1038,7 +1039,7 @@ export async function sendInvitationAcceptedEmail(params: {
     ctaUrl: `${SITE_URL}/admin/invites`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`${params.accepterName} accepted your WorkforceAP invitation`),
@@ -1069,7 +1070,7 @@ export async function sendInactiveNudgeEmail(params: {
     ctaUrl: `${SITE_URL}/dashboard`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: 'We Miss You at WorkforceAP',
@@ -1101,7 +1102,7 @@ export async function sendJobSubmittedEmail(params: {
     ctaUrl: `${SITE_URL}/admin/jobs/${params.jobId}`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: ADMIN_EMAIL,
       subject: sanitizeEmailSubjectLine(`New Job Submitted: ${params.jobTitle} - ${params.companyName}`),
@@ -1145,7 +1146,7 @@ export async function sendJobApprovedEmail(params: {
     branding,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Your job "${params.jobTitle}" is now live on ${branding.name}`),
@@ -1190,7 +1191,7 @@ export async function sendJobRejectedEmail(params: {
     branding,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Job posting "${params.jobTitle}" - Update`),
@@ -1223,7 +1224,7 @@ export async function sendNewJobApplicationEmail(params: {
     ctaUrl: `${SITE_URL}/employer/applications`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`New applicant for "${params.jobTitle}"`),
@@ -1255,7 +1256,7 @@ export async function sendAIMatchSuggestionEmail(params: {
     ctaUrl: `${SITE_URL}/employer/jobs`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Top candidate matches for "${params.jobTitle}"`),
@@ -1295,7 +1296,7 @@ export async function sendApplicationConfirmationEmail(params: {
     ctaUrl: `${SITE_URL}/login`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine('Application Received — Workforce Advancement Project'),
@@ -1327,7 +1328,7 @@ export async function sendApplicantFollowupEmail(params: {
     ctaUrl: `${SITE_URL}/programs`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: 'Your WorkforceAP Application is Being Reviewed',
@@ -1356,7 +1357,7 @@ export async function sendAdminPendingApplicantsEmail(params: {
     ctaUrl: `${SITE_URL}/admin/members`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: ADMIN_EMAIL,
       subject: sanitizeEmailSubjectLine(`Action Needed: ${params.pendingCount} pending applications over 3 days old`),
@@ -1388,7 +1389,7 @@ export async function sendAdminWeeklyRecapEmail(params: {
     ctaUrl: `${SITE_URL}/admin`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: ADMIN_EMAIL,
       subject: sanitizeEmailSubjectLine(
@@ -1431,7 +1432,7 @@ export async function sendWioaReportEmail(params: {
     ctaUrl: `${SITE_URL}/admin`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: ADMIN_EMAIL,
       subject: sanitizeEmailSubjectLine(`WIOA Monthly Report — ${params.periodLabel}`),
@@ -1475,7 +1476,7 @@ export async function sendPartnerWeeklyDigestEmail(params: {
     ctaUrl: `${SITE_URL}/partner`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`WorkforceAP weekly referral update — ${params.partnerName}`),
@@ -1510,7 +1511,7 @@ export async function sendEmployerWelcomeEmail(params: {
     ctaUrl: `${SITE_URL}/login`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Welcome to WorkforceAP — ${params.companyName}`),
@@ -1542,7 +1543,7 @@ export async function sendEmployerSignupAdminAlertEmail(params: {
     ctaUrl: `${SITE_URL}/admin/employers`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: ADMIN_EMAIL,
       subject: sanitizeEmailSubjectLine(`New employer signup: ${params.companyName}`),
@@ -1573,7 +1574,7 @@ export async function sendEmployerApprovedEmail(params: {
     ctaUrl: `${SITE_URL}/employer`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Your employer account is approved — ${params.companyName}`),
@@ -1605,7 +1606,7 @@ export async function sendEmployerRejectedEmail(params: {
     ctaUrl: `${SITE_URL}/contact`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Your employer account — ${params.companyName}`),
@@ -1641,7 +1642,7 @@ export async function sendAssessmentResetNotificationEmail(params: {
     `,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: ['info@workforceap.org', ADMIN_EMAIL],
       subject: sanitizeEmailSubjectLine(`Assessment Reset — ${params.memberName}`),
@@ -1702,7 +1703,7 @@ export async function sendInterviewPrepBundleEmail(params: {
   });
 
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to,
       subject: sanitizeEmailSubjectLine('Your Pre-Interview Prep Bundle — WorkforceAP'),
@@ -1737,7 +1738,7 @@ export async function sendInterviewPrepReminderEmail(params: {
     ctaUrl: `${SITE_URL}/dashboard/ai-tools/interview-practice`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Reminder: interview prep for ${params.company}`),
@@ -1771,7 +1772,7 @@ export async function sendInterviewDebriefPromptEmail(params: {
     ctaUrl: `${SITE_URL}/dashboard/messages`,
   });
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`Quick check-in: ${params.company} interview`),
@@ -1827,7 +1828,7 @@ export async function sendCounselorAtRiskAlertEmail(params: {
   });
 
   try {
-    await resend.emails.send({
+    await sendBrandedEmail(resend, {
       from: getFrom(),
       to: params.to,
       subject: sanitizeEmailSubjectLine(`At-Risk Alert: ${subjectLine}`),

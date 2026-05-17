@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -53,9 +54,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(!rememberMe); // sessionOnly = !rememberMe
 
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookieOptions: cookieOpts,
       cookies: {

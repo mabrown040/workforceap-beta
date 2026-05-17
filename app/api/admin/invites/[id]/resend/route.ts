@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { checkAdminInviteRateLimit } from '@/lib/rate-limit';
 import { sendInvitationEmail } from '@/lib/email';
@@ -30,8 +30,23 @@ const INVITE_EXPIRY_DAYS = 7;export const POST = withApiGuc(async (
 
     const { id } = await params;
 
-    const invitation = await prisma.invitation.findUnique({
-      where: { id },
+    // Tenant-scope the lookup so an Org A admin can't rotate the token
+    // on an Org B invitation (AUDIT §H-T1). Mirrors the existing scope
+    // already in place on the sibling /revoke route. Super-admins bypass.
+    const actorIsSuperAdmin = await isSuperAdmin(user.id);
+    let actorOrgId: string | null = null;
+    if (!actorIsSuperAdmin) {
+      try {
+        actorOrgId = await getActorOrganizationId(user.id);
+      } catch {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
+
+    const invitation = await prisma.invitation.findFirst({
+      where: actorIsSuperAdmin
+        ? { id }
+        : { id, invitedBy: { organizationId: actorOrgId! } },
       include: { invitedBy: { select: { fullName: true } } },
     });
 

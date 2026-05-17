@@ -8,7 +8,14 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from "@/lib/auth/server";
 import { prisma } from "@/lib/db/prisma";
 import { getProgramBySlug } from "@/lib/content/programs";
-import { ASSESSMENT_QUESTIONS, TOTAL_POINTS } from "@/lib/assessment/answer-key";
+// Use the client-safe questions file. This page doesn't need the answer
+// key (only renders question text + member's recorded answer), so we
+// avoid pulling the server-only answer-key module into this server
+// component's import graph.
+import {
+  ASSESSMENT_QUESTIONS_PUBLIC as ASSESSMENT_QUESTIONS,
+  TOTAL_POINTS_PUBLIC as TOTAL_POINTS,
+} from "@/lib/assessment/questions";
 import DashboardProfileForm from "@/components/portal/DashboardProfileForm";
 import SettingsForm from "@/components/portal/SettingsForm";
 import DeleteAccountButton from "@/components/portal/DeleteAccountButton";

@@ -5,6 +5,10 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import LocalizedLink from '@/components/LocalizedLink';
 import Footer from '@/components/Footer';
 import { CTABand, HeroSection, PageSection, PartnershipCard, SectionHeader, ValueCard } from '@/components/marketing/ui';
+import {
+  marketingGhostButtonClasses,
+  marketingPrimaryButtonClasses,
+} from '@/lib/marketing/buttonClasses';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { getTranslations } from 'next-intl/server';
@@ -101,33 +105,22 @@ export default async function PartnersPage() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginTop: '2.5rem' }}>
           <LocalizedLink
             href={partnerSignupHref}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: 'var(--color-accent)',
-              color: '#fff',
-              padding: '1rem 2rem',
-              borderRadius: 'var(--radius-md)',
-              fontWeight: 700,
-              textDecoration: 'none',
-            }}
+            className={marketingPrimaryButtonClasses({
+              radius: 'lg',
+              large: true,
+            })}
           >
             {t('heroCta')}
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
           </LocalizedLink>
           <LocalizedLink
             href="#partner-types"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              color: 'rgba(255,255,255,0.9)',
-              padding: '0.75rem 1rem',
-              fontWeight: 600,
-              textDecoration: 'underline',
-              textUnderlineOffset: '4px',
-            }}
+            className={marketingGhostButtonClasses({
+              radius: 'md',
+              large: true,
+              onDarkGhost: true,
+              className: 'marketing-inline-ghost-link',
+            })}
           >
             {t('heroSecondary')}
           </LocalizedLink>

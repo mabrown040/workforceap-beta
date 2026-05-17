@@ -16,7 +16,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 async function handle(_request: Request) {
   try {
     const result = await runStaleCourseraTrainingCheck();
-    await setCronRecordsProcessed(result.flagged ?? result.staleCount ?? 0);
+    await setCronRecordsProcessed(result.newlyFlagged ?? 0);
     await logCronRun('cron_stale_training_check', result, 'ok');
     return NextResponse.json(result);
   } catch (err) {

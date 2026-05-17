@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
 
 export async function GET(req: NextRequest) {
   try {
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
 
   const report = await withTenantScope(orgId, async (db) => {
     const totalMembers = await db.user.count({
-      where: { deletedAt: null, role: 'member', createdAt: dateRange },
+      where: { deletedAt: null, userRoles: { some: { role: { name: 'member' } } }, createdAt: dateRange },
     });
 
     const enrolledMembers = await db.courseEnrollment.count({
@@ -31,7 +32,7 @@ export async function GET(req: NextRequest) {
 
     const completedMembers = await db.courseProgress.groupBy({
       by: ['userId'],
-      where: { status: 'COMPLETED', updatedAt: dateRange },
+      where: { status: 'COMPLETED', completedAt: dateRange },
       _count: { userId: true },
     });
 
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
     });
 
     const demographics = await db.user.findMany({
-      where: { deletedAt: null, role: 'member', createdAt: dateRange },
+      where: { deletedAt: null, userRoles: { some: { role: { name: 'member' } } }, createdAt: dateRange },
       select: {
         profile: { select: { ethnicity: true, veteranStatus: true, educationLevel: true, state: true } },
       },
@@ -67,10 +68,26 @@ export async function GET(req: NextRequest) {
       completedMembers: completedMembers.length,
       placedMembers,
       avgSalary: avgSalary._avg.salaryOffered ?? 0,
-      demographics: aggregateDemographics(demographics),
+      demographics: aggregateDemographics(demographics as Array<{ profile: { ethnicity: string | null; veteranStatus: string | null; educationLevel: string | null; state: string | null } | null }>),
       programs,
     };
   });
+
+  // AUDIT §H-DEP4: WIOA reports surface ethnicity, veteran-status, and
+  // education-level data; every read must be auditable.
+  await auditLog({
+    actorUserId: user.id,
+    action: 'admin.report.wioa',
+    targetType: 'WioaReport',
+    metadata: {
+      year,
+      quarter: quarter ?? null,
+      state: state ?? null,
+      organizationId: orgId,
+      totalMembers: report.totalMembers,
+      placedMembers: report.placedMembers,
+    },
+  }).catch((err) => console.error('[admin/reports/wioa] audit log failed:', err));
 
   return NextResponse.json(report);
 

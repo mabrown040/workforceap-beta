@@ -4,8 +4,15 @@ import { createSupabaseServerClient } from '@/lib/auth/server';
 import { SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { getAdminMfaTrustCookieName } from '@/lib/auth/mfaTrust';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    // CSRF guard: reject cross-origin logout requests (AUDIT §H-S10).
+    const origin = request.headers.get('origin');
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    if (origin && siteUrl && !origin.startsWith(siteUrl)) {
+      return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
+    }
+
     const supabase = await createSupabaseServerClient();
     await supabase.auth.signOut();
 

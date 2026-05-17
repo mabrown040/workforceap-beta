@@ -16,6 +16,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
+import { formatDate } from '@/lib/i18n/date';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -108,7 +109,7 @@ export default async function ProgramPage() {
         {staffViewer && <StaffViewBanner page="program" />}
         <PageHeader
           title="My Program"
-          subtitle={dbUser?.enrolledAt ? `Enrolled ${dbUser.enrolledAt.toLocaleDateString()}` : undefined}
+          subtitle={dbUser?.enrolledAt ? `Enrolled ${formatDate(dbUser.enrolledAt)}` : undefined}
           breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'My Program' }]}
         />
 

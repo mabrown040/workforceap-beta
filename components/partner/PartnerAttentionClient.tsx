@@ -74,7 +74,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
       if (t === 'high') next.delete('tier');
       else next.set('tier', t);
       const qs = next.toString();
-      router.replace(qs.length ? `${pathname}?${qs}` : pathname, { scroll: false });
+      if (pathname) router.replace(qs.length ? `${pathname}?${qs}` : pathname, { scroll: false });
       setTierFilter(t);
     },
     [pathname, router, searchParams],

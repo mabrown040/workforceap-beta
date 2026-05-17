@@ -16,7 +16,7 @@ export default function CreateSuccessToast() {
       setVisible(true);
       const t = setTimeout(() => {
         setVisible(false);
-        router.replace(pathname, { scroll: false });
+        if (pathname) router.replace(pathname, { scroll: false });
       }, 5000);
       return () => clearTimeout(t);
     }

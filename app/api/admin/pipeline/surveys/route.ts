@@ -17,12 +17,12 @@ export const GET = withApiGuc(async (req: NextRequest) => {
 
     const [totalSent, totalCompleted, atRiskRows] = await Promise.all([
       prisma.placementSurvey.count(),
-      prisma.placementSurvey.count({ where: { completedAt: { not: null } } }),
+      prisma.placementSurvey.count({ where: { completedAt: { not: undefined } } }),
       prisma.placementSurvey.findMany({
         where: {
           wave: 'thirty_day',
-          completedAt: null,
-          sentAt: { not: null, lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+          completedAt: { not: null },
+          sentAt: { not: undefined, lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
         },
         orderBy: { sentAt: 'asc' },
         take: 100,

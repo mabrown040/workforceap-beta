@@ -265,7 +265,7 @@ export default function JobsListingClient({
 
   const updateUrl = useCallback(
     (updates: Record<string, string | undefined>) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
       for (const [key, value] of Object.entries(updates)) {
         if (value === undefined || value === '') {
           params.delete(key);
@@ -274,7 +274,7 @@ export default function JobsListingClient({
         }
       }
       const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
+      if (pathname) router.push(qs ? `${pathname}?${qs}` : pathname);
     },
     [pathname, router, searchParams]
   );
@@ -296,7 +296,7 @@ export default function JobsListingClient({
     q || locationType || jobType || program || salaryMin || salaryMax || sort !== 'newest';
 
   const clearFilters = () => {
-    router.push(pathname);
+    if (pathname) router.push(pathname);
     setFiltersOpen(false);
   };
 

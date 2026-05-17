@@ -166,7 +166,7 @@ export async function safeFetch(inputUrl: string, init: SafeFetchInit = {}): Pro
   });
   if (maxBytes && res.body) {
     const limited = await readBodyCapped(res.body, maxBytes);
-    return new Response(limited, {
+    return new Response(limited as any, {
       status: res.status,
       statusText: res.statusText,
       headers: res.headers,

@@ -9,7 +9,7 @@ export default function QueryToast() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const toast = searchParams.get('toast');
+    const toast = searchParams?.get('toast');
     if (toast) {
       setMessage(toast);
       setVisible(true);

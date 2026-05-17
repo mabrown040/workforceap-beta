@@ -126,7 +126,7 @@ function maybeInitSentry(href?: string) {
  *  Lazily loads Sentry so marketing pages don't pay the 420KB chunk cost. */
 export const onRouterTransitionStart = (href: string) => {
   maybeInitSentry(href);
-  captureRouterTransitionStart?.(href);
+  captureRouterTransitionStart?.(href, 'push');
 };
 
 // Initialize immediately on portal routes (initial page load)

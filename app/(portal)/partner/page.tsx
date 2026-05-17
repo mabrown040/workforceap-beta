@@ -183,8 +183,8 @@ export default async function PartnerDashboardPage() {
   const pendingUserIds = new Set(pendingPlacements.map((p) => p.userId));
   const referralTableRows = pipelineMembers.map((p) => {
     const stageLabel = (PIPELINE_STAGE_LABELS as Record<string, string>)[p.stage] ?? p.stage;
-    const enrollmentDate = p.member.enrolledAt ? p.member.enrolledAt.toLocaleDateString() : '—';
-    const placementDate = p.member.placementRecord?.placedAt ? p.member.placementRecord.placedAt.toLocaleDateString() : '—';
+    const enrollmentDate = p.member.enrolledAt ? p.member.enrolledAt.toLocaleDateString('en-US') : '—';
+    const placementDate = p.member.placementRecord?.placedAt ? p.member.placementRecord.placedAt.toLocaleDateString('en-US') : '—';
     let payoutStatus = t('notPlaced');
     if (p.member.placementRecord) payoutStatus = t('includedInEstimate');
     else if (pendingUserIds.has(p.member.id)) payoutStatus = t('pendingVerification');

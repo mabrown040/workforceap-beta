@@ -226,7 +226,9 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
             disabled={disabled || searching || !query.trim()}
             aria-busy={searching}
           >
-            {searching ? 'Searching…' : 'Assess Your Skills'}
+            <span aria-live="polite">
+              {searching ? 'Searching…' : 'Assess Your Skills'}
+            </span>
           </button>
           {selectedOccupation ? (
             <button
@@ -340,7 +342,9 @@ export default function SkillAssessmentForm({ disabled = false }: Props) {
                 disabled={saving}
                 aria-busy={saving}
               >
-                {saving ? 'Saving…' : 'Save skill snapshot'}
+                <span aria-live="polite">
+                  {saving ? 'Saving…' : 'Save skill snapshot'}
+                </span>
               </button>
             </div>
           </div>

@@ -6,6 +6,7 @@ import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { apiError } from '@/lib/http/errorResponse';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 /**
  * POST /api/auth/setup-mfa
@@ -34,11 +35,7 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(false);
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
-  }
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
 
   const supabase = createServerClient(
     supabaseUrl,
@@ -113,11 +110,7 @@ export async function PATCH(request: Request) {
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(false);
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
-  }
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
 
   const supabase = createServerClient(
     supabaseUrl,

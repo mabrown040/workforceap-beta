@@ -41,6 +41,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
     if (!survey) {
       return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
     }
+    if (survey.completedAt) {
+      return NextResponse.json({ error: 'Survey already completed' }, { status: 409 });
+    }
 
     const {
       jobSatisfaction,

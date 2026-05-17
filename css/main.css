@@ -3739,6 +3739,7 @@ html.dark .program-card-courses-list li {
     align-items: center;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    padding: 1rem 0;
 }
 .partner-logos-small img {
     height: 28px;
@@ -3757,6 +3758,11 @@ html.dark .program-card-courses-list li {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--color-gray-200);
+    transition: all var(--transition-base);
+}
+.programs-preview:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
 }
 .programs-preview h3 { font-size: 1.5rem; margin-bottom: 0.75rem; }
 .programs-preview p { color: var(--color-on-surface-variant); margin-bottom: 1.5rem; }
@@ -4398,12 +4404,13 @@ html.dark .employer-dash-empty-jobs p {
     padding: 2rem;
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-gray-200);
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    transition: all var(--transition-base);
     position: relative;
 }
 .testimonial-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(164,127,56,0.15);
 }
 .testimonial-card .stars {
     color: var(--color-gold);
@@ -4839,6 +4846,14 @@ body.inner-page {
     padding: 2.5rem;
     border-radius: var(--radius-xl);
     border: 1px solid var(--color-gray-200);
+}
+.contact-form,
+.apply-form {
+    transition: box-shadow var(--transition-base);
+}
+.contact-form:hover,
+.apply-form:hover {
+    box-shadow: var(--shadow-md);
 }
 .form-group { margin-bottom: 1.35rem; }
 .form-group:last-child { margin-bottom: 0; }
@@ -5777,9 +5792,12 @@ fieldset.apply-fieldset {
     gap: 2.5rem;
     align-items: flex-start;
     border: 1px solid var(--color-gray-200);
-    transition: box-shadow var(--transition-base);
+    transition: all var(--transition-base);
 }
-.leader-card:hover { box-shadow: var(--shadow-md); }
+.leader-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
 .leader-photo {
     width: 140px;
     height: 140px;
@@ -6013,6 +6031,11 @@ html.dark .faq-section-heading {
     background: var(--color-light);
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-gray-200);
+    transition: all var(--transition-base);
+}
+.cta-section:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(164,127,56,0.2);
 }
 .cta-section h2 {
     margin-bottom: 0.75rem;
@@ -6587,6 +6610,7 @@ html:not(.dark) .program-filters::after {
 .career-track:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-md);
+    border-top-color: var(--color-gold);
 }
 .track-icon { font-size: 2.5rem; margin-bottom: 1rem; }
 .career-track h3 {
@@ -7088,18 +7112,6 @@ img.img-fade.loaded { opacity: 1; }
 }
 
 /* =============================================
-   SELECTION & SCROLLBAR
-   ============================================= */
-::selection {
-    background: rgba(173, 44, 77, 0.15);
-    color: var(--color-primary);
-}
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--color-gray-100); }
-::-webkit-scrollbar-thumb { background: var(--color-gray-400); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-gray-500); }
-
-/* =============================================
    SMOOTH HOVER HELPERS
    ============================================= */
 .hover-lift { transition: transform var(--transition-base), box-shadow var(--transition-base); }
@@ -7145,63 +7157,6 @@ img.img-fade.loaded { opacity: 1; }
     top: 0; left: 0; right: 0;
     height: 1px;
     background: linear-gradient(90deg, transparent 10%, var(--color-gray-200) 50%, transparent 90%);
-}
-
-/* Enhanced about section partner logos */
-.partner-logos-small {
-    padding: 1rem 0;
-}
-
-/* Enhanced programs preview card */
-.programs-preview {
-    transition: all var(--transition-base);
-}
-.programs-preview:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
-}
-
-/* Contact form enhanced */
-.contact-form,
-.apply-form {
-    transition: box-shadow var(--transition-base);
-}
-.contact-form:hover,
-.apply-form:hover {
-    box-shadow: var(--shadow-md);
-}
-
-/* Leader card enhanced */
-.leader-card {
-    transition: all var(--transition-base);
-}
-.leader-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-}
-
-/* Career track enhanced */
-.career-track:hover {
-    border-top-color: var(--color-gold);
-}
-
-/* Enhanced CTA section */
-.cta-section {
-    transition: all var(--transition-base);
-}
-.cta-section:hover {
-    box-shadow: var(--shadow-md);
-    border-color: rgba(164,127,56,0.2);
-}
-
-/* Enhanced testimonial cards */
-.testimonial-card {
-    transition: all var(--transition-base);
-}
-.testimonial-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-lg);
-    border-color: rgba(164,127,56,0.15);
 }
 
 /* Table row hover enhanced */

@@ -245,11 +245,14 @@ export default function InterestProfilerClient() {
             onClick={() => void exportResultsPdf(score)}
             disabled={exportingPdf || !score.riasec}
             aria-label="Download results as PDF"
+            aria-busy={exportingPdf}
           >
             <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.1rem', marginRight: '0.4rem', verticalAlign: '-3px' }}>
               file_download
             </span>
-            {exportingPdf ? 'Preparing PDF…' : 'Download PDF'}
+            <span aria-live="polite">
+              {exportingPdf ? 'Preparing PDF…' : 'Download PDF'}
+            </span>
           </button>
           {exportError && (
             <span role="alert" style={{ color: '#b91c1c', fontSize: '0.85rem' }}>

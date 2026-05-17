@@ -66,6 +66,7 @@ let placementSurveyRateLimiter: Ratelimit | null = null;
 let publicWioaQualificationRateLimiter: Ratelimit | null = null;
 let webhookRateLimiter: Ratelimit | null = null;
 let orgOnboardRateLimiter: Ratelimit | null = null;
+let courseraIdentityRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -226,6 +227,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:org-onboard',
+  });
+  courseraIdentityRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:coursera-identity',
   });
 }
 
@@ -460,5 +466,12 @@ export async function checkWebhookRateLimit(ip: string): Promise<{ success: bool
 export async function checkOrgOnboardRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!orgOnboardRateLimiter) return { success: true };
   const result = await orgOnboardRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** POST /api/member/coursera/identity — limit Coursera email spray. */
+export async function checkCourseraIdentityRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!courseraIdentityRateLimiter) return { success: true };
+  const result = await courseraIdentityRateLimiter.limit(ip);
   return { success: result.success };
 }

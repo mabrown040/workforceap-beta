@@ -6,6 +6,7 @@ type AdminMfaTrustPayload = {
   sub: string;
   exp: number;
   ua?: string;
+  ip?: string;
 };
 
 const encoder = new TextEncoder();
@@ -62,6 +63,13 @@ async function hashUserAgent(userAgent: string | null | undefined) {
   return bytesToBase64Url(new Uint8Array(digest));
 }
 
+async function hashIp(ip: string | null | undefined) {
+  const normalized = ip?.trim();
+  if (!normalized || normalized === 'unknown') return undefined;
+  const digest = await crypto.subtle.digest('SHA-256', encoder.encode(normalized));
+  return bytesToBase64Url(new Uint8Array(digest));
+}
+
 export function getAdminMfaTrustDays() {
   const raw = Number(process.env.ADMIN_MFA_TRUST_DAYS || '7');
   if (!Number.isFinite(raw)) return 7;
@@ -72,13 +80,14 @@ export function getAdminMfaTrustCookieName() {
   return ADMIN_MFA_TRUST_COOKIE;
 }
 
-export async function issueAdminMfaTrustToken(args: { userId: string; userAgent?: string | null }) {
+export async function issueAdminMfaTrustToken(args: { userId: string; userAgent?: string | null; ip?: string | null }) {
   const now = Math.floor(Date.now() / 1000);
   const payload: AdminMfaTrustPayload = {
     v: ADMIN_MFA_TRUST_VERSION,
     sub: args.userId,
     exp: now + getAdminMfaTrustDays() * 24 * 60 * 60,
     ua: await hashUserAgent(args.userAgent),
+    ip: await hashIp(args.ip),
   };
 
   const encodedPayload = bytesToBase64Url(encoder.encode(JSON.stringify(payload)));
@@ -90,6 +99,7 @@ export async function verifyAdminMfaTrustToken(args: {
   token?: string | null;
   userId: string;
   userAgent?: string | null;
+  ip?: string | null;
 }) {
   const token = args.token?.trim();
   if (!token) return false;
@@ -114,6 +124,9 @@ export async function verifyAdminMfaTrustToken(args: {
 
   const expectedUaHash = await hashUserAgent(args.userAgent);
   if ((payload.ua || undefined) !== (expectedUaHash || undefined)) return false;
+
+  const expectedIpHash = await hashIp(args.ip);
+  if ((payload.ip || undefined) !== (expectedIpHash || undefined)) return false;
 
   return true;
 }

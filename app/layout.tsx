@@ -23,6 +23,7 @@ import { getUser } from '@/lib/auth/server';
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
+import '@/css/marketing-a11y.css';
 import DeferredAnalytics from '@/components/DeferredAnalytics';
 import CookieConsentBanner from '@/components/CookieConsentBanner';
 
@@ -143,7 +144,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {`if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){})}`}
         </Script>
       </head>
-      <body>
+      <body className="marketing-touch-target">
         <OrgBrandingStyle branding={orgBranding} />
         <a href="#main-content" className="skip-link">
           Skip to main content

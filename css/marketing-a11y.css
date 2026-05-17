@@ -1,0 +1,33 @@
+/**
+ * Public/marketing page accessibility — minimum touch targets
+ *
+ * WCAG 2.1 SC 2.5.5: 44×44 CSS pixels for all interactive targets.
+ * Applied to marketing surfaces (homepage, programs, apply funnel, etc.).
+ */
+.marketing-touch-target a,
+.marketing-touch-target button,
+.marketing-touch-target [role="button"],
+.marketing-touch-target input,
+.marketing-touch-target select,
+.marketing-touch-target textarea {
+  min-width: 2.75rem;   /* 44px */
+  min-height: 2.75rem;  /* 44px */
+}
+
+/* Inline text links, small chips, pills */
+.marketing-touch-target a.inline-link,
+.marketing-touch-target .chip-button,
+.marketing-touch-target .tag-pill {
+  min-width: auto;
+  min-height: auto;
+}
+
+/* Focus indicators */
+.marketing-touch-target a:focus-visible,
+.marketing-touch-target button:focus-visible,
+.marketing-touch-target [role="button"]:focus-visible,
+.marketing-touch-target input:focus-visible,
+.marketing-touch-target select:focus-visible {
+  outline: 2px solid var(--color-primary, #2563eb);
+  outline-offset: 2px;
+}

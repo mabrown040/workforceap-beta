@@ -64,7 +64,6 @@ export default function ResumeMobileQuickActions() {
         type="button"
         onClick={shareResume}
         disabled={!downloadUrl}
-        aria-label={copied ? "Copied" : "Share resume"}
         style={{
           flex: 1,
           display: 'flex',

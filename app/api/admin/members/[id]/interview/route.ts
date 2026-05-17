@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -18,14 +19,15 @@ const bodySchema = z.object({
     if (!(await isAdmin(admin.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id: memberId } = await params;
+    const orgId = await getActorOrganizationId(admin.id);
     const body = await request.json().catch(() => null);
     const parsed = bodySchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
     }
 
-    const member = await prisma.user.findUnique({
-      where: { id: memberId },
+    const member = await prisma.user.findFirst({
+      where: { id: memberId, organizationId: orgId  },
       select: { id: true },
     });
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });

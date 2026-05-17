@@ -11,6 +11,7 @@ import {
 } from '@/lib/validation/member';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { marketingPrimaryButtonClasses } from '@/lib/marketing/buttonClasses';
 
 const EMPLOYMENT_OPTIONS = [
   'Employed full-time',
@@ -294,12 +295,17 @@ export default function MemberSignupForm() {
 
       <button
         type="submit"
-        className="btn btn-primary"
-        style={{ width: '100%', padding: '1rem', fontSize: '1.05rem' }}
+        className={marketingPrimaryButtonClasses({
+          radius: 'md',
+          large: true,
+          className: 'btn-full-width',
+        })}
         disabled={submitStatus === 'loading'}
         aria-busy={submitStatus === 'loading'}
       >
-        {submitStatus === 'loading' ? 'Creating account...' : 'Create account'}
+        <span aria-live="polite">
+          {submitStatus === 'loading' ? 'Creating account...' : 'Create account'}
+        </span>
       </button>
 
       <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.9rem' }}>

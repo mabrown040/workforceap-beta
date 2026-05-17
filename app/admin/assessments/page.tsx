@@ -9,6 +9,9 @@ import AssessmentsTable from '@/components/admin/AssessmentsTable';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 import PageHeader from '@/components/portal/PageHeader';
+// Server-only: holds the answer key. Used here to pre-compute per-question
+// correctness so AssessmentsTable (client) doesn't need to ship the key.
+import { ASSESSMENT_QUESTIONS, type QuestionChoice } from '@/lib/assessment/answer-key';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -73,6 +76,22 @@ export default async function AdminAssessmentsPage({
     return <AdminDataLoadError title="Assessments unavailable" />;
   }
 
+  // Pre-compute per-question correctness on the server so the client
+  // bundle never receives the answer key (AUDIT §C-B3 defense-in-depth).
+  const correctnessByUserId: Record<string, Record<number, boolean>> = {};
+  for (const u of users) {
+    const map: Record<number, boolean> = {};
+    const raw = u.assessmentAnswers;
+    if (raw && typeof raw === 'object') {
+      const recorded = raw as Record<string | number, string | undefined>;
+      for (const q of ASSESSMENT_QUESTIONS) {
+        const ans = recorded[q.id] ?? recorded[String(q.id)];
+        map[q.id] = ans === (q.correct as QuestionChoice);
+      }
+    }
+    correctnessByUserId[u.id] = map;
+  }
+
   return (
     <div>
       <PageHeader title="Skills assessments" subtitle="View member assessment results and export for counselor review." />
@@ -81,6 +100,7 @@ export default async function AdminAssessmentsPage({
           <Suspense fallback={<TableSkeleton rows={8} cols={6} />}>
             <AssessmentsTable
               users={users}
+              correctnessByUserId={correctnessByUserId}
               highlightUserId={highlightUserId}
               programFilter={programFilter}
               minScore={minScore}

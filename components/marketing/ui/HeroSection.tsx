@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import type { ReactNode } from 'react';
+import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 interface HeroSectionProps {
   eyebrow?: ReactNode;
@@ -44,7 +45,7 @@ export function HeroSection({
           fill
           priority={priority}
           fetchPriority={priority ? 'high' : 'low'}
-          sizes="(min-width: 1921px) 1920px, 100vw"
+          sizes={MARKETING_FULL_BLEED_HERO_SIZES}
           style={{ objectFit: 'cover', objectPosition: 'center' }}
           aria-hidden="true"
         />

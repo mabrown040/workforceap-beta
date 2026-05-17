@@ -43,6 +43,7 @@ export default function ExportPdfButton({
       className="btn btn-outline btn-sm"
       onClick={handleExport}
       disabled={loading || !text}
+      aria-busy={loading}
       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}
     >
       {loading ? (
@@ -50,7 +51,7 @@ export default function ExportPdfButton({
       ) : (
         <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">picture_as_pdf</span>
       )}
-      {label}
+      <span aria-live="polite">{loading ? 'Saving…' : label}</span>
     </button>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 
 type SurveyClientProps = {
   userId: string;
@@ -113,9 +113,11 @@ function TextAreaField({
   placeholder: string;
   required?: boolean;
 }) {
+  const id = useId();
   return (
     <div style={{ marginBottom: '1.25rem' }}>
       <label
+        htmlFor={id}
         style={{
           display: 'block',
           fontSize: '0.875rem',
@@ -130,6 +132,7 @@ function TextAreaField({
         )}
       </label>
       <textarea
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -214,6 +217,7 @@ function ToggleGroup({
 }
 
 export default function SurveyClient({ userId, placementId }: SurveyClientProps) {
+  const salaryId = useId();
   const [form, setForm] = useState<SurveyForm>({
     jobSatisfaction: 0,
     trainingRelevance: 0,
@@ -407,6 +411,7 @@ export default function SurveyClient({ userId, placementId }: SurveyClientProps)
 
         <div style={{ marginBottom: '1.25rem' }}>
           <label
+            htmlFor={salaryId}
             style={{
               display: 'block',
               fontSize: '0.875rem',
@@ -432,6 +437,7 @@ export default function SurveyClient({ userId, placementId }: SurveyClientProps)
               $
             </span>
             <input
+              id={salaryId}
               type="number"
               min={0}
               step={1000}

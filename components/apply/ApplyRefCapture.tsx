@@ -8,7 +8,7 @@ import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 export default function ApplyRefCapture() {
   const searchParams = useSearchParams();
   useEffect(() => {
-    const ref = searchParams.get('ref')?.trim().toLowerCase();
+    const ref = searchParams?.get('ref')?.trim().toLowerCase();
     if (!ref || typeof window === 'undefined') return;
     try {
       sessionStorage.setItem(APPLY_REFERRAL_SESSION_KEY, ref);

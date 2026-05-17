@@ -819,6 +819,13 @@ model Partner {
   onboardingCompletedAt DateTime? @map("onboarding_completed_at")
   tourCompletedAt       DateTime? @map("tour_completed_at")
   organizationType      String?   @map("organization_type")
+  // Two-tier taxonomy distinguishing partners who receive payouts (`referral`) from
+  // those who don't (`community`). Defaults to `community` so newly created or
+  // imported partners can never trigger payouts until an admin explicitly upgrades
+  // them. Additional values (e.g. training_center, public_agency, funder) can be
+  // added later — keep the existing two as a stable gating boundary. Stored as a
+  // free-form text column (no Postgres enum) to match the `status` column convention.
+  partnerType           String    @default("community") @map("partner_type")
   stripeConnectId       String?   @map("stripe_connect_id")
   stripeConnectStatus   String?   @map("stripe_connect_status")
 
@@ -835,6 +842,7 @@ model Partner {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
 
   @@index([organizationId])
+  @@index([partnerType])
   @@map("partners")
 }
 
@@ -2117,6 +2125,13 @@ enum PlacementSurveyWave {
   thirty_day
   sixty_day
   ninety_day
+
+  // The CREATE TYPE migration (20260513000000_add_placement_survey_wave)
+  // names the Postgres enum `placement_survey_wave` (snake_case), but
+  // without this @@map Prisma's generated client expects the PascalCase
+  // type "PlacementSurveyWave". `prisma migrate deploy` reports drift
+  // on every run. Audit (2026-05-15, migration drift P0 #2).
+  @@map("placement_survey_wave")
 }
 
 model PlacementSurvey {

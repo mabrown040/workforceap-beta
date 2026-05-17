@@ -112,7 +112,7 @@ async function renderMemberDashboard(
   // CourseProgress rows get their enrollment + xAPI seeded right here so the
   // hero ring + "X of N courses" reflect real Coursera progress. Subsequent
   // renders skip via the `users.last_coursera_auto_sync_at` dedupe.
-  // PR #1079 wired B4B real-time progress into /dashboard/training; this
+  // PR #1079 wired B4B real-time progress into /dashboard/learning; this
   // closes the equivalent gap on the home page (#1079 only enriched the
   // training page, so the home dashboard kept reading 0% from local rows
   // for any never-synced learner). See lib/coursera/dashboardAutoSync.ts.
@@ -705,7 +705,7 @@ async function renderMemberDashboard(
                   }}
                 >
                   <Link
-                    href="/dashboard"
+                    href="/dashboard/learning"
                     style={{
                       display: 'flex',
                       flexDirection: 'column',
@@ -972,7 +972,7 @@ async function renderMemberDashboard(
               <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
                 {t('nextMilestones')}
               </h3>
-              <a href="/dashboard" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
+              <a href="/dashboard/learning" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
                 {t('trainingLink')}
               </a>
             </div>
@@ -982,7 +982,7 @@ async function renderMemberDashboard(
                   eyebrow: program?.title ?? t('yourProgram'),
                   title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : t('continueTraining'),
                   desc: nextIncompleteCourse?.name ? t('pickUpWhereLeftOff') : t('openTrainingTrack'),
-                  href: '/dashboard',
+                  href: '/dashboard/learning',
                   icon: 'school',
                 },
                 {
@@ -1039,7 +1039,7 @@ async function renderMemberDashboard(
           </div>
           <div className="portal-quick-grid-2x2">
             {([
-              { icon: 'school', label: t('myTrainingMetricLabel'), href: '/dashboard' },
+              { icon: 'school', label: t('myTrainingMetricLabel'), href: '/dashboard/learning' },
               { icon: 'upload_file', label: t('uploadResume'), href: '/dashboard/ai-tools/resume-rewriter' },
               { icon: 'forum', label: t('interviewPrep'), href: '/dashboard/ai-tools/interview-practice' },
               { icon: 'auto_awesome', label: t('aiTools'), href: '/dashboard/ai-tools' },

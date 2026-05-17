@@ -11,7 +11,7 @@
 import { ProgramCourse } from './programs';
 
 export interface CourseSkillContribution {
-  axis: 'Analytics' | 'Engineering' | 'Design' | 'Strategy' | 'Ethics' | 'Research';
+  axis: 'Analytics' | 'Engineering' | 'Design' | 'Strategy' | 'Service' | 'Research';
   score: number; // 0-100 contribution to this axis
   specificSkills: string[]; // Human-readable skills
 }
@@ -26,7 +26,7 @@ export interface CourseSkillMapping {
   contributions: CourseSkillContribution[];
   onetSkillsAddressed: string[]; // O*NET skill names this course covers
   technologies: string[]; // Tech/tools learned
-  softSkills: string[]; // Ethics, communication, etc.
+  softSkills: string[]; // Service, communication, etc.
 }
 
 // ============================================================================
@@ -42,7 +42,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
     partner: 'WorkforceAP',
     estimatedHours: 4,
     contributions: [
-      { axis: 'Ethics', score: 25, specificSkills: ['Online safety awareness', 'Digital citizenship'] },
+      { axis: 'Service', score: 25, specificSkills: ['Online safety awareness', 'Digital citizenship'] },
       { axis: 'Strategy', score: 15, specificSkills: ['Goal setting', 'Program navigation'] },
     ],
     onetSkillsAddressed: ['Active Learning', 'Speaking'],
@@ -72,7 +72,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
     partner: 'WorkforceAP',
     estimatedHours: 4,
     contributions: [
-      { axis: 'Ethics', score: 30, specificSkills: ['Email etiquette', 'Professional communication'] },
+      { axis: 'Service', score: 30, specificSkills: ['Email etiquette', 'Professional communication'] },
       { axis: 'Strategy', score: 20, specificSkills: ['Inbox management', 'Organization'] },
     ],
     onetSkillsAddressed: ['Written Comprehension', 'Written Expression'],
@@ -87,7 +87,7 @@ const DIGITAL_LITERACY_COURSES: CourseSkillMapping[] = [
     partner: 'WorkforceAP',
     estimatedHours: 4,
     contributions: [
-      { axis: 'Ethics', score: 35, specificSkills: ['Security awareness', 'Fraud prevention'] },
+      { axis: 'Service', score: 35, specificSkills: ['Security awareness', 'Fraud prevention'] },
       { axis: 'Analytics', score: 20, specificSkills: ['Financial literacy', 'Budgeting basics'] },
     ],
     onetSkillsAddressed: ['Critical Thinking', 'Judgment and Decision Making'],
@@ -257,7 +257,7 @@ const UX_DESIGN_COURSES: CourseSkillMapping[] = [
     contributions: [
       { axis: 'Design', score: 40, specificSkills: ['Ideation', 'Sketching', 'Concept development', 'Brainstorming'] },
       { axis: 'Research', score: 30, specificSkills: ['User interviews', 'Empathy maps', 'Personas'] },
-      { axis: 'Ethics', score: 20, specificSkills: ['Inclusive design', 'Accessibility awareness'] },
+      { axis: 'Service', score: 20, specificSkills: ['Inclusive design', 'Accessibility awareness'] },
     ],
     onetSkillsAddressed: ['Originality', 'Fluency of Ideas', 'Visualization', 'Social Perceptiveness'],
     technologies: ['Figma', 'Miro', 'Whiteboarding tools'],
@@ -333,7 +333,7 @@ const UX_DESIGN_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Design', score: 35, specificSkills: ['Portfolio design', 'Case study creation'] },
-      { axis: 'Ethics', score: 30, specificSkills: ['Social impact design', 'Ethical considerations'] },
+      { axis: 'Service', score: 30, specificSkills: ['Social impact design', 'Ethical considerations'] },
       { axis: 'Strategy', score: 25, specificSkills: ['Job preparation', 'Interview skills', 'Presentation'] },
     ],
     onetSkillsAddressed: ['Social Perceptiveness', 'Service Orientation', 'Speaking'],
@@ -497,7 +497,7 @@ const CYBERSECURITY_COURSES: CourseSkillMapping[] = [
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 35, specificSkills: ['Security ethics', 'Privacy principles', 'CIA triad'] },
+      { axis: 'Service', score: 35, specificSkills: ['Security ethics', 'Privacy principles', 'CIA triad'] },
       { axis: 'Engineering', score: 20, specificSkills: ['Security concepts', 'Threat landscape'] },
     ],
     onetSkillsAddressed: ['Systems Evaluation', 'Judgment and Decision Making'],
@@ -513,7 +513,7 @@ const CYBERSECURITY_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 30, specificSkills: ['Risk assessment', 'Security frameworks', 'Compliance'] },
-      { axis: 'Ethics', score: 30, specificSkills: ['Risk management ethics', 'Business impact'] },
+      { axis: 'Service', score: 30, specificSkills: ['Risk management ethics', 'Business impact'] },
     ],
     onetSkillsAddressed: ['Management of Material Resources', 'Systems Evaluation'],
     technologies: ['NIST', 'Security frameworks'],
@@ -603,7 +603,7 @@ const CYBERSECURITY_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 30, specificSkills: ['Job preparation', 'Interview skills', 'Portfolio'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Professional ethics', 'Industry standards'] },
+      { axis: 'Service', score: 25, specificSkills: ['Professional ethics', 'Industry standards'] },
     ],
     onetSkillsAddressed: ['Speaking', 'Social Perceptiveness'],
     technologies: [],
@@ -910,7 +910,7 @@ const IT_SUPPORT_COURSES: CourseSkillMapping[] = [
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 30, specificSkills: ['Customer service', 'Professionalism', 'Communication'] },
+      { axis: 'Service', score: 30, specificSkills: ['Customer service', 'Professionalism', 'Communication'] },
       { axis: 'Strategy', score: 15, specificSkills: ['Support process', 'Ticket management'] },
     ],
     onetSkillsAddressed: ['Service Orientation', 'Social Perceptiveness', 'Speaking'],
@@ -970,7 +970,7 @@ const IT_SUPPORT_COURSES: CourseSkillMapping[] = [
     partner: 'IBM',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 35, specificSkills: ['Security awareness', 'Privacy', 'Best practices'] },
+      { axis: 'Service', score: 35, specificSkills: ['Security awareness', 'Privacy', 'Best practices'] },
       { axis: 'Engineering', score: 25, specificSkills: ['Security tools', 'Threat basics'] },
     ],
     onetSkillsAddressed: ['Systems Evaluation', 'Judgment and Decision Making'],
@@ -1001,7 +1001,7 @@ const IT_SUPPORT_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 30, specificSkills: ['Troubleshooting', 'Case resolution'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Professionalism', 'Customer satisfaction'] },
+      { axis: 'Service', score: 25, specificSkills: ['Professionalism', 'Customer satisfaction'] },
       { axis: 'Strategy', score: 20, specificSkills: ['Project completion', 'Portfolio'] },
     ],
     onetSkillsAddressed: ['Complex Problem Solving', 'Service Orientation'],
@@ -1024,7 +1024,7 @@ const PROJECT_MANAGEMENT_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 35, specificSkills: ['PM fundamentals', 'Lifecycle', 'Methodologies'] },
-      { axis: 'Ethics', score: 20, specificSkills: ['Professionalism', 'Ethics in PM'] },
+      { axis: 'Service', score: 20, specificSkills: ['Professionalism', 'Ethics in PM'] },
     ],
     onetSkillsAddressed: ['Management of Material Resources', 'Coordination'],
     technologies: ['MS Project', 'Excel'],
@@ -1069,7 +1069,7 @@ const PROJECT_MANAGEMENT_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 40, specificSkills: ['Risk management', 'Change control', 'Stakeholder engagement'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Negotiation', 'Conflict resolution'] },
+      { axis: 'Service', score: 25, specificSkills: ['Negotiation', 'Conflict resolution'] },
     ],
     onetSkillsAddressed: ['Negotiation', 'Persuasion', 'Social Perceptiveness'],
     technologies: ['Risk registers', 'Collaboration tools'],
@@ -1083,7 +1083,7 @@ const PROJECT_MANAGEMENT_COURSES: CourseSkillMapping[] = [
     partner: 'Microsoft',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 40, specificSkills: ['Leadership', 'Communication', 'Team motivation'] },
+      { axis: 'Service', score: 40, specificSkills: ['Leadership', 'Communication', 'Team motivation'] },
       { axis: 'Strategy', score: 35, specificSkills: ['Influence', 'Executive presence'] },
     ],
     onetSkillsAddressed: ['Management of Personnel Resources', 'Speaking', 'Social Perceptiveness'],
@@ -1099,7 +1099,7 @@ const PROJECT_MANAGEMENT_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 35, specificSkills: ['Agile', 'Scrum', 'Sprint planning', 'Adaptive planning'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Team empowerment', 'Servant leadership'] },
+      { axis: 'Service', score: 25, specificSkills: ['Team empowerment', 'Servant leadership'] },
     ],
     onetSkillsAddressed: ['Management of Personnel Resources', 'Coordination'],
     technologies: ['Azure DevOps', 'Jira', 'Scrum boards'],
@@ -1130,7 +1130,7 @@ const PROJECT_MANAGEMENT_COURSES: CourseSkillMapping[] = [
     contributions: [
       { axis: 'Strategy', score: 35, specificSkills: ['End-to-end PM', 'Integration'] },
       { axis: 'Analytics', score: 25, specificSkills: ['Performance analysis', 'Lessons learned'] },
-      { axis: 'Ethics', score: 20, specificSkills: ['Professional reflection'] },
+      { axis: 'Service', score: 20, specificSkills: ['Professional reflection'] },
     ],
     onetSkillsAddressed: ['Complex Problem Solving', 'Systems Evaluation'],
     technologies: ['All previous'],
@@ -1181,7 +1181,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 30, specificSkills: ['Community management', 'Customer engagement', 'Social listening'] },
+      { axis: 'Service', score: 30, specificSkills: ['Community management', 'Customer engagement', 'Social listening'] },
       { axis: 'Strategy', score: 25, specificSkills: ['Social strategy', 'Influencer basics'] },
     ],
     onetSkillsAddressed: ['Social Perceptiveness', 'Service Orientation', 'Speaking'],
@@ -1241,7 +1241,7 @@ const DIGITAL_MARKETING_COURSES: CourseSkillMapping[] = [
     partner: 'Google',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 35, specificSkills: ['Customer retention', 'Loyalty programs', 'Service excellence'] },
+      { axis: 'Service', score: 35, specificSkills: ['Customer retention', 'Loyalty programs', 'Service excellence'] },
       { axis: 'Strategy', score: 25, specificSkills: ['CRM strategy', 'Lifecycle marketing'] },
     ],
     onetSkillsAddressed: ['Service Orientation', 'Social Perceptiveness'],
@@ -1279,7 +1279,7 @@ const AWS_CLOUD_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 40, specificSkills: ['AWS support', 'Troubleshooting', 'Incident response'] },
-      { axis: 'Ethics', score: 20, specificSkills: ['Customer support', 'SLA awareness'] },
+      { axis: 'Service', score: 20, specificSkills: ['Customer support', 'SLA awareness'] },
     ],
     onetSkillsAddressed: ['Operations Analysis', 'Troubleshooting', 'Service Orientation'],
     technologies: ['AWS Support', 'CloudWatch', 'CloudTrail'],
@@ -1309,7 +1309,7 @@ const AWS_CLOUD_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 40, specificSkills: ['Consulting', 'Client management', 'Solution design'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Professionalism', 'Client trust'] },
+      { axis: 'Service', score: 25, specificSkills: ['Professionalism', 'Client trust'] },
     ],
     onetSkillsAddressed: ['Management of Material Resources', 'Social Perceptiveness', 'Speaking'],
     technologies: ['AWS Well-Architected', 'Solution architecture tools'],
@@ -1370,7 +1370,7 @@ const AWS_CLOUD_COURSES: CourseSkillMapping[] = [
     contributions: [
       { axis: 'Engineering', score: 40, specificSkills: ['Architecture', 'Best practices', 'Security'] },
       { axis: 'Strategy', score: 30, specificSkills: ['Solution design', 'Cost optimization'] },
-      { axis: 'Ethics', score: 20, specificSkills: ['Security', 'Compliance'] },
+      { axis: 'Service', score: 20, specificSkills: ['Security', 'Compliance'] },
     ],
     onetSkillsAddressed: ['Systems Evaluation', 'Complex Problem Solving', 'Judgment and Decision Making'],
     technologies: ['AWS Well-Architected Tool', 'Full AWS stack'],
@@ -1422,7 +1422,7 @@ const COMPTIA_A_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 45, specificSkills: ['Virtualization', 'Security basics', 'Advanced networking'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Security awareness', 'Best practices'] },
+      { axis: 'Service', score: 25, specificSkills: ['Security awareness', 'Best practices'] },
     ],
     onetSkillsAddressed: ['Systems Analysis', 'Systems Evaluation'],
     technologies: ['Virtualization', 'Security tools'],
@@ -1467,7 +1467,7 @@ const COMPTIA_A_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 45, specificSkills: ['Advanced networking', 'Security', 'Operations'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Security protocols', 'Compliance'] },
+      { axis: 'Service', score: 25, specificSkills: ['Security protocols', 'Compliance'] },
     ],
     onetSkillsAddressed: ['Systems Analysis', 'Systems Evaluation', 'Operations Monitoring'],
     technologies: ['Security tools', 'Network protocols'],
@@ -1646,7 +1646,7 @@ const COMPTIA_SECURITY_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 40, specificSkills: ['Network security', 'Firewalls', 'VPNs'] },
-      { axis: 'Ethics', score: 30, specificSkills: ['Security ethics', 'Defense mindset'] },
+      { axis: 'Service', score: 30, specificSkills: ['Security ethics', 'Defense mindset'] },
     ],
     onetSkillsAddressed: ['Systems Evaluation', 'Technology Design'],
     technologies: ['Firewalls', 'VPNs', 'Network security tools'],
@@ -1676,7 +1676,7 @@ const COMPTIA_SECURITY_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 45, specificSkills: ['System hardening', 'Endpoint security', 'Network defense'] },
-      { axis: 'Ethics', score: 30, specificSkills: ['Security policies', 'Compliance'] },
+      { axis: 'Service', score: 30, specificSkills: ['Security policies', 'Compliance'] },
     ],
     onetSkillsAddressed: ['Systems Evaluation', 'Operations Analysis'],
     technologies: ['Endpoint protection', 'SIEM basics'],
@@ -1809,7 +1809,7 @@ const HEALTH_INFORMATION_TECH_COURSES: CourseSkillMapping[] = [
     partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 30, specificSkills: ['HIPAA', 'Privacy', 'HIT fundamentals'] },
+      { axis: 'Service', score: 30, specificSkills: ['HIPAA', 'Privacy', 'HIT fundamentals'] },
       { axis: 'Research', score: 20, specificSkills: ['Health data concepts'] },
     ],
     onetSkillsAddressed: ['Social Perceptiveness', 'Reading Comprehension'],
@@ -1840,7 +1840,7 @@ const HEALTH_INFORMATION_TECH_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 30, specificSkills: ['HIM principles', 'Data governance', 'Workflow'] },
-      { axis: 'Ethics', score: 30, specificSkills: ['Compliance', 'Data integrity'] },
+      { axis: 'Service', score: 30, specificSkills: ['Compliance', 'Data integrity'] },
     ],
     onetSkillsAddressed: ['Management of Material Resources', 'Systems Analysis'],
     technologies: ['HIM systems', 'Data governance tools'],
@@ -1855,7 +1855,7 @@ const HEALTH_INFORMATION_TECH_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 35, specificSkills: ['EHR systems', 'Workflow design', 'Implementation'] },
-      { axis: 'Ethics', score: 30, specificSkills: ['Patient privacy', 'Security'] },
+      { axis: 'Service', score: 30, specificSkills: ['Patient privacy', 'Security'] },
     ],
     onetSkillsAddressed: ['Technology Design', 'Systems Analysis'],
     technologies: ['Epic', 'Cerner', 'EHR platforms'],
@@ -1869,7 +1869,7 @@ const HEALTH_INFORMATION_TECH_COURSES: CourseSkillMapping[] = [
     partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 50, specificSkills: ['Healthcare law', 'HIPAA', 'Compliance', 'Ethics'] },
+      { axis: 'Service', score: 50, specificSkills: ['Healthcare law', 'HIPAA', 'Compliance', 'Ethics'] },
       { axis: 'Strategy', score: 20, specificSkills: ['Risk management', 'Policy'] },
     ],
     onetSkillsAddressed: ['Judgment and Decision Making', 'Social Perceptiveness'],
@@ -1914,7 +1914,7 @@ const HEALTH_INFORMATION_TECH_COURSES: CourseSkillMapping[] = [
     partner: 'Healthcare Career Pathway',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 30, specificSkills: ['Professional practice', 'Integration'] },
+      { axis: 'Service', score: 30, specificSkills: ['Professional practice', 'Integration'] },
       { axis: 'Strategy', score: 25, specificSkills: ['Workflow design', 'Career readiness'] },
       { axis: 'Analytics', score: 25, specificSkills: ['Applied coding', 'Quality assurance'] },
     ],
@@ -1983,7 +1983,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 45, specificSkills: ['Welding', 'Fabrication', 'Metallurgy'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Safety', 'Quality'] },
+      { axis: 'Service', score: 25, specificSkills: ['Safety', 'Quality'] },
     ],
     onetSkillsAddressed: ['Operation and Control', 'Equipment Maintenance'],
     technologies: ['Welding equipment', 'Safety gear'],
@@ -2012,7 +2012,7 @@ const CPT_COURSES: CourseSkillMapping[] = [
     partner: 'CPT',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 50, specificSkills: ['Safety', 'OSHA', 'Compliance', 'Risk management'] },
+      { axis: 'Service', score: 50, specificSkills: ['Safety', 'OSHA', 'Compliance', 'Risk management'] },
       { axis: 'Strategy', score: 20, specificSkills: ['Safety programs', 'Culture'] },
     ],
     onetSkillsAddressed: ['Management of Material Resources', 'Judgment and Decision Making'],
@@ -2125,7 +2125,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 40, specificSkills: ['Procurement', 'Sourcing', 'Negotiation'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Vendor relations', 'Ethics'] },
+      { axis: 'Service', score: 25, specificSkills: ['Vendor relations', 'Ethics'] },
     ],
     onetSkillsAddressed: ['Negotiation', 'Management of Material Resources'],
     technologies: ['Procurement systems', 'ERP'],
@@ -2155,7 +2155,7 @@ const CLT_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Strategy', score: 40, specificSkills: ['Global trade', 'Import/export', 'Compliance'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Trade ethics', 'Regulations'] },
+      { axis: 'Service', score: 25, specificSkills: ['Trade ethics', 'Regulations'] },
     ],
     onetSkillsAddressed: ['Management of Material Resources', 'Judgment and Decision Making'],
     technologies: ['Trade platforms', 'Compliance tools'],
@@ -2221,7 +2221,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 50, specificSkills: ['OSHA-10', 'Safety', 'Compliance', 'Hazards'] },
+      { axis: 'Service', score: 50, specificSkills: ['OSHA-10', 'Safety', 'Compliance', 'Hazards'] },
       { axis: 'Strategy', score: 20, specificSkills: ['Safety programs', 'Culture'] },
     ],
     onetSkillsAddressed: ['Management of Material Resources', 'Judgment and Decision Making'],
@@ -2237,7 +2237,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 40, specificSkills: ['Hand tools', 'Power tools', 'Tool safety'] },
-      { axis: 'Ethics', score: 25, specificSkills: ['Tool safety', 'Maintenance'] },
+      { axis: 'Service', score: 25, specificSkills: ['Tool safety', 'Maintenance'] },
     ],
     onetSkillsAddressed: ['Equipment Maintenance', 'Operation and Control'],
     technologies: ['Construction tools'],
@@ -2282,7 +2282,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     estimatedHours: 10,
     contributions: [
       { axis: 'Engineering', score: 45, specificSkills: ['Electrical basics', 'Plumbing basics', 'Codes'] },
-      { axis: 'Ethics', score: 30, specificSkills: ['Code compliance', 'Safety'] },
+      { axis: 'Service', score: 30, specificSkills: ['Code compliance', 'Safety'] },
     ],
     onetSkillsAddressed: ['Technology Design', 'Installation'],
     technologies: ['Electrical tools', 'Plumbing tools'],
@@ -2296,7 +2296,7 @@ const CONSTRUCTION_COURSES: CourseSkillMapping[] = [
     partner: 'OSHA-10 / WorkforceAP',
     estimatedHours: 10,
     contributions: [
-      { axis: 'Ethics', score: 30, specificSkills: ['Professional readiness', 'Safety mastery'] },
+      { axis: 'Service', score: 30, specificSkills: ['Professional readiness', 'Safety mastery'] },
       { axis: 'Strategy', score: 25, specificSkills: ['Career preparation'] },
       { axis: 'Engineering', score: 25, specificSkills: ['Skill integration'] },
     ],

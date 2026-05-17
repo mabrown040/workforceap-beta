@@ -7,6 +7,8 @@
  * - Post-interview feedback generation with Anthropic fallback support
  */
 
+import { claudeChat } from './anthropicChat';
+
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
 
 // Professional female voice — good for interviewer persona
@@ -177,61 +179,37 @@ export async function generateInterviewFeedback(params: {
     };
   }
 
-  const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
-  if (anthropicApiKey) {
+  const systemPrompt =
+    'You are an interview coach. Return concise feedback as strict JSON with keys: summary(string), strengths(string[] exactly 3), improvements(string[] exactly 3), overallScore(number 0-100).';
+  const userPrompt = [
+    `Role: ${role}`,
+    `Interview type: ${interviewType}`,
+    'Candidate transcript:',
+    ...candidateTurns.map((turn, i) => `${i + 1}. ${turn}`),
+  ].join('\n');
+
+  const text = await claudeChat(systemPrompt, userPrompt, { maxTokens: 900, temperature: 0.3 });
+  if (text) {
     try {
-      const prompt = [
-        `Role: ${role}`,
-        `Interview type: ${interviewType}`,
-        'Candidate transcript:',
-        ...candidateTurns.map((turn, i) => `${i + 1}. ${turn}`),
-      ].join('\n');
-
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-api-key': anthropicApiKey,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
-          max_tokens: 900,
-          temperature: 0.3,
-          system:
-            'You are an interview coach. Return concise feedback as strict JSON with keys: summary(string), strengths(string[] exactly 3), improvements(string[] exactly 3), overallScore(number 0-100).',
-          messages: [{ role: 'user', content: prompt }],
-        }),
-      });
-
-      if (response.ok) {
-        const payload = (await response.json()) as {
-          content?: Array<{ type: string; text?: string }>;
+      const parsed = JSON.parse(text) as {
+        summary: string;
+        strengths: string[];
+        improvements: string[];
+        overallScore: number;
+      };
+      if (
+        typeof parsed.summary === 'string' &&
+        Array.isArray(parsed.strengths) &&
+        Array.isArray(parsed.improvements) &&
+        typeof parsed.overallScore === 'number'
+      ) {
+        return {
+          summary: parsed.summary,
+          strengths: parsed.strengths.slice(0, 3),
+          improvements: parsed.improvements.slice(0, 3),
+          overallScore: Math.max(0, Math.min(100, Math.round(parsed.overallScore))),
+          source: 'anthropic',
         };
-        const text = payload.content?.find((part) => part.type === 'text')?.text;
-        if (text) {
-          const parsed = JSON.parse(text) as {
-            summary: string;
-            strengths: string[];
-            improvements: string[];
-            overallScore: number;
-          };
-
-          if (
-            typeof parsed.summary === 'string' &&
-            Array.isArray(parsed.strengths) &&
-            Array.isArray(parsed.improvements) &&
-            typeof parsed.overallScore === 'number'
-          ) {
-            return {
-              summary: parsed.summary,
-              strengths: parsed.strengths.slice(0, 3),
-              improvements: parsed.improvements.slice(0, 3),
-              overallScore: Math.max(0, Math.min(100, Math.round(parsed.overallScore))),
-              source: 'anthropic',
-            };
-          }
-        }
       }
     } catch {
       // Fall through to heuristic feedback.

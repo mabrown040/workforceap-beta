@@ -2,12 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdminOrCounselor } from '@/lib/auth/roles';
 import { buildMemberExport } from '@/lib/member/exportData';
+import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 /**
  * GET /api/admin/members/[id]/export-data
  *
  * Admin/counselor can export any member's data.
  * Returns the same comprehensive JSON structure as the member self-export.
+ *
+ * Tenant scope: only members of the actor's organization are exportable.
+ * Without this filter, an admin from Org A could dump full PII (resume,
+ * contact info, wioa qualification answers, assessment answers, etc.)
+ * for any Org B member by guessing their UUID. P0.
  */
 export async function GET(
   _req: NextRequest,
@@ -20,6 +27,17 @@ export async function GET(
     }
 
     const { id } = await params;
+
+    // Verify the member belongs to the actor's org before building
+    // the export. buildMemberExport() does not enforce org scoping.
+    const actor = await getUser();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const orgId = await getActorOrganizationId(actor.id);
+    const member = await prisma.user.findFirst({
+      where: { id, organizationId: orgId },
+      select: { id: true },
+    });
+    if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
     const exportData = await buildMemberExport(id);
 

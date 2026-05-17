@@ -8,6 +8,7 @@ import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { formatPhone } from '@/lib/formatPhone';
+import { auditLog } from '@/lib/audit';
 
 export async function GET(request: NextRequest) {
   try {
@@ -213,6 +214,26 @@ export async function GET(request: NextRequest) {
     );
 
     const filename = exportFilename('members');
+
+    // Federal grant programs (WIOA) require an audit trail on every PII
+    // export. Without this the admin roster can be siphoned with no record.
+    // AUDIT §H-DEP4.
+    await auditLog({
+      actorUserId: user.id,
+      action: 'admin.export.members',
+      targetType: 'MemberRoster',
+      metadata: {
+        rowCount: rows.length,
+        truncated: members.length >= 2000,
+        filters: {
+          search: search || null,
+          program: programFilter || null,
+          partner: partnerFilter || null,
+          health: healthFilter || null,
+        },
+      },
+    }).catch((err) => console.error('[admin/members/export] audit log failed:', err));
+
     return csvDownloadResponse(csv, filename, { truncated: members.length >= 2000, limit: 2000 });
   } catch (error) {
     console.error('[admin/members/export] error:', error);

@@ -29,6 +29,7 @@ build
 business
 business_center
 calendar_today
+cancel
 category
 celebration
 chat
@@ -40,6 +41,7 @@ check_circle
 checklist
 chevron_right
 church
+cleaning_services
 close
 cloud
 cloud_done
@@ -53,6 +55,8 @@ content_copy
 corporate_fare
 crisis_alert
 dashboard
+database
+delete
 description
 devices
 diversity_3
@@ -66,7 +70,6 @@ edit_note
 edit_square
 emoji_events
 error
-error_outline
 event
 event_note
 expand_more
@@ -74,6 +77,8 @@ explore
 extension
 fact_check
 favorite
+feedback
+file_download
 filter_alt_off
 filter_list
 fitness_center
@@ -97,6 +102,7 @@ history
 history_edu
 home
 home_work
+hourglass_empty
 how_to_reg
 hub
 inbox
@@ -159,9 +165,12 @@ record_voice_over
 redeem
 refresh
 replay
+report
+restart_alt
 rocket_launch
 route
 salesforce
+save
 schedule
 schedule_send
 school

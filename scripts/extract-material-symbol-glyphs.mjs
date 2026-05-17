@@ -53,11 +53,21 @@ function addPathwayIconArrays(content) {
 
 function addMaterialSymbolSpans(content) {
   const spanRe = /<span[^>]*material-symbols-outlined[^>]*>([\s\S]*?)<\/span>/gi;
+  /** Material icon ligature snippets in JSX (`star`, `check_circle`) */
+  const iconStrRe = /\b(?:'|")([a-z][a-z0-9_]*)['"]\b/g;
+
   let m;
   while ((m = spanRe.exec(content))) {
     const inner = m[1].replace(/\/\*[\s\S]*?\*\//g, '').trim();
     if (/^[a-z0-9_]+$/.test(inner)) {
       glyphs.add(inner);
+      continue;
+    }
+    /** Ternaries like `{filled ? 'star' : 'star_border'}`, template fragments, etc. */
+    iconStrRe.lastIndex = 0;
+    let sm;
+    while ((sm = iconStrRe.exec(inner))) {
+      glyphs.add(sm[1]);
     }
   }
 }

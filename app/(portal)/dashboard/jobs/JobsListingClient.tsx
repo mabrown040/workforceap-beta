@@ -247,7 +247,7 @@ export default function JobsListingClient({
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const qParam = searchParams.get('q') ?? '';
+  const qParam = (searchParams?.get('q') ?? '') ?? '';
   const [qLocal, setQLocal] = useState(qParam);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -255,17 +255,17 @@ export default function JobsListingClient({
     setQLocal(qParam);
   }, [qParam]);
 
-  const locationType = searchParams.get('locationType') ?? '';
-  const jobType = searchParams.get('jobType') ?? '';
-  const program = searchParams.get('program') ?? '';
-  const salaryMin = searchParams.get('salaryMin') ?? '';
-  const salaryMax = searchParams.get('salaryMax') ?? '';
-  const sort = searchParams.get('sort') ?? 'newest';
+  const locationType = searchParams?.get('locationType') ?? '';
+  const jobType = searchParams?.get('jobType') ?? '';
+  const program = searchParams?.get('program') ?? '';
+  const salaryMin = searchParams?.get('salaryMin') ?? '';
+  const salaryMax = searchParams?.get('salaryMax') ?? '';
+  const sort = searchParams?.get('sort') ?? 'newest';
   const q = qParam;
 
   const updateUrl = useCallback(
     (updates: Record<string, string | undefined>) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
       for (const [key, value] of Object.entries(updates)) {
         if (value === undefined || value === '') {
           params.delete(key);
@@ -274,7 +274,7 @@ export default function JobsListingClient({
         }
       }
       const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
+      if (pathname) router.push(qs ? `${pathname}?${qs}` : pathname);
     },
     [pathname, router, searchParams]
   );
@@ -296,7 +296,7 @@ export default function JobsListingClient({
     q || locationType || jobType || program || salaryMin || salaryMax || sort !== 'newest';
 
   const clearFilters = () => {
-    router.push(pathname);
+    if (pathname) router.push(pathname);
     setFiltersOpen(false);
   };
 

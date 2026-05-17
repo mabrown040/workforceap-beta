@@ -12,6 +12,7 @@ import { createNotification } from '@/lib/notifications/create';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
+import { checkBulkEmailRateLimit } from '@/lib/rate-limit';
 
 const MAX_MEMBERS = 100;
 const MAX_SUBJECT = 200;
@@ -38,6 +39,19 @@ export async function POST(request: NextRequest) {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    // Per-admin rate limit (3 calls/hr). Each call can fan out to 100
+    // Resend sends; a compromised admin token without this gate can
+    // blast every member repeatedly and burn the domain's bulk-sender
+    // reputation. Apply BEFORE body parsing so an unauthenticated attacker
+    // can't shape the 429 response based on parse errors.
+    const { success: bulkRateOk } = await checkBulkEmailRateLimit(user.id);
+    if (!bulkRateOk) {
+      return NextResponse.json(
+        { error: 'Bulk-email rate limit reached. Please wait an hour before sending another.' },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
+    }
 
     let rawBody: unknown;
     try {

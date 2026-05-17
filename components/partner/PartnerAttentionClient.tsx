@@ -58,7 +58,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const tr = searchParams.get('tier');
+    const tr = searchParams?.get('tier');
     if (!tr) {
       setTierFilter('high');
       return;
@@ -70,11 +70,11 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
 
   const pushTierRoute = useCallback(
     (t: TierFilter) => {
-      const next = new URLSearchParams(searchParams.toString());
+      const next = new URLSearchParams(searchParams?.toString() ?? '');
       if (t === 'high') next.delete('tier');
       else next.set('tier', t);
       const qs = next.toString();
-      router.replace(qs.length ? `${pathname}?${qs}` : pathname, { scroll: false });
+      if (pathname) router.replace(qs.length ? `${pathname}?${qs}` : pathname, { scroll: false });
       setTierFilter(t);
     },
     [pathname, router, searchParams],

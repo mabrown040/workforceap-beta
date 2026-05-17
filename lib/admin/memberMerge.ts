@@ -131,27 +131,26 @@ export async function buildMergePreview(
     { model: 'trainingAccessRequest', field: 'userId', promise: tx.trainingAccessRequest.count({ where: { userId: secondaryId } }) },
     { model: 'workflowDiagnostic', field: 'actorUserId', promise: tx.workflowDiagnostic.count({ where: { actorUserId: secondaryId } }) },
     { model: 'auditLog', field: 'actorUserId', promise: tx.auditLog.count({ where: { actorUserId: secondaryId } }) },
-    { model: 'invitation', field: 'inviterId', promise: tx.invitation.count({ where: { inviterId: secondaryId } }) },
-    { model: 'invitation', field: 'accepterId', promise: tx.invitation.count({ where: { accepterId: secondaryId } }) },
+    { model: 'invitation', field: 'invitedById', promise: tx.invitation.count({ where: { invitedById: secondaryId } }) },
+    { model: 'invitation', field: 'acceptedById', promise: tx.invitation.count({ where: { acceptedById: secondaryId } }) },
     { model: 'programChangeRequest', field: 'userId', promise: tx.programChangeRequest.count({ where: { userId: secondaryId } }) },
-    { model: 'programChangeRequest', field: 'reviewerId', promise: tx.programChangeRequest.count({ where: { reviewerId: secondaryId } }) },
+    { model: 'programChangeRequest', field: 'reviewedById', promise: tx.programChangeRequest.count({ where: { reviewedById: secondaryId } }) },
     { model: 'partnerReferral', field: 'memberId', promise: tx.partnerReferral.count({ where: { memberId: secondaryId } }) },
-    { model: 'partnerReferral', field: 'assigneeId', promise: tx.partnerReferral.count({ where: { assigneeId: secondaryId } }) },
+    { model: 'partnerReferral', field: 'assignedPartnerUserId', promise: tx.partnerReferral.count({ where: { assignedPartnerUserId: secondaryId } }) },
     { model: 'partnerOutreachLog', field: 'memberId', promise: tx.partnerOutreachLog.count({ where: { memberId: secondaryId } }) },
-    { model: 'partnerOutreachLog', field: 'authorId', promise: tx.partnerOutreachLog.count({ where: { authorId: secondaryId } }) },
-    { model: 'portalWorkflowEvent', field: 'userId', promise: tx.portalWorkflowEvent.count({ where: { userId: secondaryId } }) },
-    { model: 'jobPostingApplication', field: 'userId', promise: tx.jobPostingApplication.count({ where: { userId: secondaryId } }) },
-    { model: 'aiJobMatch', field: 'userId', promise: tx.aiJobMatch.count({ where: { userId: secondaryId } }) },
-    { model: 'memberNextBestAction', field: 'userId', promise: tx.memberNextBestAction.count({ where: { userId: secondaryId } }) },
+    { model: 'partnerOutreachLog', field: 'createdByUserId', promise: tx.partnerOutreachLog.count({ where: { createdByUserId: secondaryId } }) },
+    { model: 'portalWorkflowEvent', field: 'actorUserId', promise: tx.portalWorkflowEvent.count({ where: { actorUserId: secondaryId } }) },
+    { model: 'jobPostingApplication', field: 'studentId', promise: tx.jobPostingApplication.count({ where: { studentId: secondaryId } }) },
+    { model: 'aIJobMatch', field: 'studentId', promise: tx.aIJobMatch.count({ where: { studentId: secondaryId } }) },
+    { model: 'memberNextBestAction', field: 'memberId', promise: tx.memberNextBestAction.count({ where: { memberId: secondaryId } }) },
     { model: 'jobApplication', field: 'userId', promise: tx.jobApplication.count({ where: { userId: secondaryId } }) },
     { model: 'pointsTransaction', field: 'userId', promise: tx.pointsTransaction.count({ where: { userId: secondaryId } }) },
-    { model: 'pointsTransaction', field: 'awarderId', promise: tx.pointsTransaction.count({ where: { awarderId: secondaryId } }) },
-    { model: 'memberSubgroup', field: 'userId', promise: tx.memberSubgroup.count({ where: { userId: secondaryId } }) },
-    { model: 'memberSubgroup', field: 'assignerId', promise: tx.memberSubgroup.count({ where: { assignerId: secondaryId } }) },
+    { model: 'pointsTransaction', field: 'awardedBy', promise: tx.pointsTransaction.count({ where: { awardedBy: secondaryId } }) },
+    { model: 'memberSubgroup', field: 'memberId', promise: tx.memberSubgroup.count({ where: { memberId: secondaryId } }) },
+    { model: 'memberSubgroup', field: 'assignedBy', promise: tx.memberSubgroup.count({ where: { assignedBy: secondaryId } }) },
     { model: 'subgroupLeader', field: 'userId', promise: tx.subgroupLeader.count({ where: { userId: secondaryId } }) },
     { model: 'messageThread', field: 'memberId', promise: tx.messageThread.count({ where: { memberId: secondaryId } }) },
-    { model: 'messageThread', field: 'counselorId', promise: tx.messageThread.count({ where: { counselorId: secondaryId } }) },
-    { model: 'messageThread', field: 'staffId', promise: tx.messageThread.count({ where: { staffId: secondaryId } }) },
+    { model: 'messageThread', field: 'counselorUserId', promise: tx.messageThread.count({ where: { counselorUserId: secondaryId } }) },
     { model: 'application', field: 'userId', promise: tx.application.count({ where: { userId: secondaryId } }) },
     { model: 'learningProgress', field: 'userId', promise: tx.learningProgress.count({ where: { userId: secondaryId } }) },
     { model: 'userCertification', field: 'userId', promise: tx.userCertification.count({ where: { userId: secondaryId } }) },
@@ -165,7 +164,7 @@ export async function buildMergePreview(
     { model: 'mentorSession', field: 'memberId', promise: tx.mentorSession.count({ where: { memberId: secondaryId } }) },
     { model: 'userRole', field: 'userId', promise: tx.userRole.count({ where: { userId: secondaryId } }) },
     { model: 'courseEnrollment', field: 'userId', promise: tx.courseEnrollment.count({ where: { userId: secondaryId } }) },
-    { model: 'courseEnrollment', field: 'adminId', promise: tx.courseEnrollment.count({ where: { adminId: secondaryId } }) },
+    { model: 'courseEnrollment', field: 'enrolledByAdminId', promise: tx.courseEnrollment.count({ where: { enrolledByAdminId: secondaryId } }) },
     { model: 'preScreeningResponse', field: 'userId', promise: tx.preScreeningResponse.count({ where: { userId: secondaryId } }) },
     { model: 'preScreeningDraft', field: 'userId', promise: tx.preScreeningDraft.count({ where: { userId: secondaryId } }) },
     { model: 'applicationAiFeedback', field: 'userId', promise: tx.applicationAiFeedback.count({ where: { userId: secondaryId } }) },
@@ -287,9 +286,9 @@ export async function executeMemberMerge(
   const mergedFields: string[] = [];
 
   // Helper: update a model's FK from secondary → primary
-  async function repoint(model: keyof PrismaClient, field: string, extraWhere?: Record<string, unknown>) {
+  async function repoint(model: string, field: string, extraWhere?: Record<string, unknown>) {
     try {
-      const delegate = tx[model] as { updateMany: (args: { where: Record<string, unknown>; data: Record<string, unknown> }) => Promise<{ count: number }> };
+      const delegate = (tx as any)[model] as { updateMany: (args: { where: Record<string, unknown>; data: Record<string, unknown> }) => Promise<{ count: number }> };
       const count = await delegate.updateMany({
         where: { [field]: secondaryId, ...(extraWhere ?? {}) },
         data: { [field]: primaryId },
@@ -305,7 +304,7 @@ export async function executeMemberMerge(
   await repoint('message', 'authorId');
   await repoint('memberEvent', 'userId');
   await repoint('weeklyRecap', 'userId');
-  await repoint('aiToolResult', 'userId');
+  await repoint('aIToolResult', 'userId');
   await repoint('goal', 'userId');
   await repoint('resourceProgress', 'userId');
   await repoint('pathwayStepProgress', 'userId');
@@ -313,26 +312,26 @@ export async function executeMemberMerge(
   await repoint('workflowDiagnostic', 'actorUserId');
   await repoint('auditLog', 'actorUserId');
   await repoint('invitation', 'inviterId');
-  await repoint('invitation', 'accepterId');
+  await repoint('invitation', 'acceptedById');
   await repoint('programChangeRequest', 'userId');
-  await repoint('programChangeRequest', 'reviewerId');
+  await repoint('programChangeRequest', 'reviewedById');
   await repoint('partnerReferral', 'memberId');
-  await repoint('partnerReferral', 'assigneeId');
+  await repoint('partnerReferral', 'assignedPartnerUserId');
   await repoint('partnerOutreachLog', 'memberId');
-  await repoint('partnerOutreachLog', 'authorId');
-  await repoint('portalWorkflowEvent', 'userId');
-  await repoint('jobPostingApplication', 'userId');
-  await repoint('aiJobMatch', 'userId');
-  await repoint('memberNextBestAction', 'userId');
+  await repoint('partnerOutreachLog', 'createdByUserId');
+  await repoint('portalWorkflowEvent', 'actorUserId');
+  await repoint('jobPostingApplication', 'studentId');
+  await repoint('aIJobMatch', 'studentId');
+  await repoint('memberNextBestAction', 'memberId');
   await repoint('jobApplication', 'userId');
   await repoint('pointsTransaction', 'userId');
-  await repoint('pointsTransaction', 'awarderId');
+  await repoint('pointsTransaction', 'awardedBy');
   await repoint('memberSubgroup', 'userId');
-  await repoint('memberSubgroup', 'assignerId');
+  await repoint('memberSubgroup', 'assignedBy');
   await repoint('subgroupLeader', 'userId');
   await repoint('messageThread', 'memberId');
-  await repoint('messageThread', 'counselorId');
-  await repoint('messageThread', 'staffId');
+  await repoint('messageThread', 'counselorUserId');
+  await repoint('messageThread', 'staffUserId');
   await repoint('application', 'userId');
   await repoint('learningProgress', 'userId');
   await repoint('userCertification', 'userId');
@@ -346,7 +345,7 @@ export async function executeMemberMerge(
   await repoint('mentorSession', 'memberId');
   await repoint('userRole', 'userId');
   await repoint('courseEnrollment', 'userId');
-  await repoint('courseEnrollment', 'adminId');
+  await repoint('courseEnrollment', 'enrolledByAdminId');
   await repoint('preScreeningResponse', 'userId');
   await repoint('preScreeningDraft', 'userId');
   await repoint('applicationAiFeedback', 'userId');
@@ -446,14 +445,14 @@ export async function executeMemberMerge(
   ];
 
   for (const { model, field, name } of uniqueMoves) {
-    const primaryRow = await (tx as Record<string, unknown>)[model].findUnique({
+    const primaryRow = await ((tx as any)[model] as { findUnique: (args: any) => Promise<any> }).findUnique({
       where: { [field]: primaryId },
-    } as Record<string, unknown>) as unknown;
-    const secondaryRow = await (tx as Record<string, unknown>)[model].findUnique({
+    });
+    const secondaryRow = await ((tx as any)[model] as { findUnique: (args: any) => Promise<any> }).findUnique({
       where: { [field]: secondaryId },
-    } as Record<string, unknown>) as unknown;
+    });
     if (!primaryRow && secondaryRow) {
-      await ((tx as Record<string, unknown>)[model] as { update: (args: Record<string, unknown>) => Promise<unknown> }).update({
+      await ((tx as any)[model] as { update: (args: any) => Promise<any> }).update({
         where: { [field]: secondaryId },
         data: { [field]: primaryId },
       });

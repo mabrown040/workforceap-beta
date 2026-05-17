@@ -67,7 +67,7 @@ export default function ApplyEligibilityClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocaleFromPath();
-  const programParam = searchParams.get('program');
+  const programParam = searchParams?.get('program');
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');

@@ -8,7 +8,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 export default function RecordPlacementPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialMemberId = searchParams.get('memberId') ?? '';
+  const initialMemberId = searchParams?.get('memberId') ?? '';
 
   const [memberId, setMemberId] = useState(initialMemberId);
   const [employerName, setEmployerName] = useState('');

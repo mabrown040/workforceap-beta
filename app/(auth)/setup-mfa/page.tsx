@@ -196,6 +196,7 @@ export default function SetupMfaPage() {
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
+                aria-label="6-digit MFA code"
                 autoFocus
                 style={{
                   width: '100%',

@@ -30,7 +30,21 @@ import {
     let body: Record<string, string>;
     try { body = await request.json() as Record<string, string>; }
     catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
-  
+
+    // Body-size cap. The Record<string,string> shape has no field-level
+    // schema, so user could submit megabytes of free text that all flow
+    // into the Anthropic prompt (~$0.015 / 1k tokens). Cap total
+    // serialized body at 32KB — more than enough for the largest
+    // legitimate elevator pitch input.
+    try {
+      const bodyBytes = new TextEncoder().encode(JSON.stringify(body)).byteLength;
+      if (bodyBytes > 32_768) {
+        return NextResponse.json({ error: 'Input too large' }, { status: 413 });
+      }
+    } catch {
+      return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
+    }
+
     const { name, targetRole, strengths, certifications, industry, language, subjectMemberId, sessionId } = body;
   
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId ?? undefined);

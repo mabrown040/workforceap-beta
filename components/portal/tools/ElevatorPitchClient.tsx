@@ -183,7 +183,7 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
             &ldquo;{pitch}&rdquo;
           </p>
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => void handleCopy()} className="btn btn-outline btn-sm" aria-label={copied ? 'Copied' : 'Copy pitch'}>
+            <button type="button" onClick={() => void handleCopy()} className="btn btn-outline btn-sm">
               <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }} aria-hidden="true">
                   {copied ? 'check' : 'content_copy'}

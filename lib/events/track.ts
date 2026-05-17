@@ -37,6 +37,7 @@ export type EventName =
   | 'employer_import_started'
   | 'employer_import_succeeded'
   | 'employer_import_fallback_used'
+  | 'feedback_submitted'
   | 'employer_job_draft_saved'
   | 'employer_job_submitted_for_review'
   | 'employer_job_posted_live'

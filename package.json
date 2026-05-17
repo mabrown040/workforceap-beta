@@ -4,16 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/prisma-env.js prisma generate && next build",
-    "build:with-migrate": "node scripts/safe-migrate.cjs && node scripts/prisma-env.js prisma generate && next build",
+    "build": "node scripts/verify-material-symbols-font-size.mjs && node scripts/prisma-env.js prisma generate && next build",
+    "build:with-migrate": "node scripts/verify-material-symbols-font-size.mjs && node scripts/safe-migrate.cjs && node scripts/prisma-env.js prisma generate && next build",
     "postinstall": "node scripts/prisma-env.js prisma generate",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "check": "npm run typecheck && npm run lint",
+    "check": "npm run typecheck && npm run lint && node scripts/verify-material-symbols-font-size.mjs",
     "check:tenant-routes": "node scripts/verify-high-risk-tenant-routes.cjs",
-    "build:local": "node scripts/prisma-env.js prisma generate && next build",
+    "build:local": "node scripts/verify-material-symbols-font-size.mjs && node scripts/prisma-env.js prisma generate && next build",
     "preflight": "npm run typecheck && NODE_OPTIONS=--max-old-space-size=4096 npm run build:local",
     "db:generate": "node scripts/prisma-env.js prisma generate",
     "db:migrate": "node scripts/prisma-env.js prisma migrate dev",
@@ -32,20 +32,20 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "repo:sync-master": "powershell -ExecutionPolicy Bypass -File scripts/auto-sync-master.ps1",
-    "test:unit": "node --import tsx --test lib/**/*.test.ts",
+    "test:unit": "node scripts/test-unit.mjs",
+    "test:vitest": "vitest run --reporter=default",
     "elevenlabs:apply-patches": "node scripts/elevenlabs/apply-agent-patches.mjs",
     "coursera:test": "tsx scripts/coursera-integration-test.ts",
     "coursera:backfill-catalog": "node scripts/backfill-coursera-courseids.cjs",
     "email": "email dev -p 3001",
-    "analyze": "ANALYZE=true npm run build"
+    "analyze": "ANALYZE=true npm run build",
+    "fonts:subset-material-symbols": "bash scripts/subset-material-symbols.sh"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.92.0",
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/utilities": "^3.2.2",
     "@elevenlabs/client": "^1.0.0",
     "@hookform/resolvers": "^3.9.1",
     "@marsidev/react-turnstile": "^1.4.2",
@@ -73,11 +73,11 @@
     "remark-gfm": "^4.0.1",
     "resend": "^4.0.1",
     "stripe": "^18.5.0",
-    "undici": "^7.24.5",
     "zod": "^3.24.1"
   },
   "overrides": {
-    "@xmldom/xmldom": "^0.9.0"
+    "@xmldom/xmldom": "^0.9.11",
+    "fast-uri": ">= 3.1.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
@@ -102,7 +102,7 @@
     "prisma": "5.22.0",
     "react-email": "^5.2.11",
     "tailwindcss": "^3.4.19",
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.0",
     "typescript": "^5",
     "typescript-eslint": "^8.59.0",
     "vitest": "^4.1.6"

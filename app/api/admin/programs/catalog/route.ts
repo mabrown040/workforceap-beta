@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { seedOrganizationProgramCatalog } from '@/lib/platform/seedProgramCatalog';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
@@ -50,7 +50,7 @@ export async function GET() {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   
-    const organizationId = await getDefaultOrganizationId();
+    const organizationId = await getActorOrganizationId(user.id);
     const cacheKey = `programs:list:${organizationId}`;
     const rows = await getCacheOrFetch(
       cacheKey,
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       );
     }
   
-    const organizationId = await getDefaultOrganizationId();
+    const organizationId = await getActorOrganizationId(user.id);
     try {
       const row = await withTenantScope(organizationId, (db) =>
         db.organizationProgramCatalog.create({
@@ -170,7 +170,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
     }
   
-    const organizationId = await getDefaultOrganizationId();
+    const organizationId = await getActorOrganizationId(user.id);
     const { id, ...rest } = parsed.data;
   
     const existing = await withTenantScope(organizationId, (db) =>

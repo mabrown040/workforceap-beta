@@ -116,7 +116,6 @@ export default function LinkedInHeadlineForm() {
                   type="button"
                   className="btn btn-outline btn-sm"
                   onClick={() => void handleCopy(h, i)}
-                  aria-label={copiedIdx === i ? "Copied" : "Copy headline"}
                 >
                   <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center' }}>
                     {copiedIdx === i ? (

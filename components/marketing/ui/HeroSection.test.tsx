@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { HeroSection } from './HeroSection';
 
@@ -54,7 +54,7 @@ describe('HeroSection', () => {
     );
     const img = container.querySelector('img');
     expect(img).toHaveAttribute('src', '/hero-bg.jpg');
-    expect(img).toHaveAttribute('sizes', '(min-width: 1921px) 1920px, 100vw');
+    expect(img).toHaveAttribute('sizes', '100vw');
     expect(img).toHaveAttribute('data-priority', 'true');
   });
 

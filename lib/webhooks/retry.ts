@@ -2,6 +2,7 @@ import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
 import { logWebhookEvent, updateWebhookEventStatus } from './logEvent';
+export { updateWebhookEventStatus };
 
 // Exponential backoff: 1min, 5min, 15min, 1hr
 const RETRY_DELAYS_MS = [60_000, 300_000, 900_000, 3_600_000];

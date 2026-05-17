@@ -105,7 +105,7 @@ export async function buildMemberExport(userId: string) {
     }),
     prisma.memberSubgroup.findMany({
       take: 5000,
-      where: { userId },
+      where: { memberId: userId },
       include: { subgroup: { select: { name: true, type: true } } },
     }),
     prisma.mentorSession.findMany({
@@ -122,12 +122,12 @@ export async function buildMemberExport(userId: string) {
     prisma.preScreeningDraft.findUnique({ where: { userId } }),
     prisma.placementSurvey.findMany({ take: 5000, where: { userId } }),
     prisma.testimonial.findMany({ take: 5000, where: { memberId: userId } }),
-    prisma.memberNextBestAction.findMany({ take: 5000, where: { userId } }),
+    prisma.memberNextBestAction.findMany({ take: 5000, where: { memberId: userId } }),
     prisma.auditLog.findMany({ take: 5000, where: { actorUserId: userId, createdAt: { gte: ninetyDaysAgo } } }),
-    prisma.jobPostingApplication.findMany({ take: 5000, where: { userId } }),
-    prisma.aIJobMatch.findMany({ take: 5000, where: { userId } }),
+    prisma.jobPostingApplication.findMany({ take: 5000, where: { studentId: userId } }),
+    prisma.aIJobMatch.findMany({ take: 5000, where: { studentId: userId } }),
     prisma.applicationAiFeedback.findMany({ take: 5000, where: { userId } }),
-    prisma.portalWorkflowEvent.findMany({ take: 5000, where: { userId } }),
+    prisma.portalWorkflowEvent.findMany({ take: 5000, where: { actorUserId: userId } }),
   ]);
 
   const exportData = {
@@ -421,11 +421,6 @@ export async function buildMemberExport(userId: string) {
       kind: mt.kind,
       createdAt: mt.createdAt?.toISOString() ?? null,
       updatedAt: mt.updatedAt?.toISOString() ?? null,
-      messages: mt.messages.map((m) => ({
-            id: m.id,
-            body: m.body,
-            createdAt: m.createdAt?.toISOString() ?? null,
-          })),
     })),
     placementRecord: placementRecord
       ? {
@@ -465,15 +460,11 @@ export async function buildMemberExport(userId: string) {
       counselorEmail: ca.counselor.user.email,
       active: ca.active,
       assignedAt: ca.assignedAt?.toISOString() ?? null,
-      unassignedAt: ca.unassignedAt?.toISOString() ?? null,
-      createdAt: ca.createdAt?.toISOString() ?? null,
-      updatedAt: ca.updatedAt?.toISOString() ?? null,
     })),
     counselorNotes: counselorNotes.map((cn) => ({
       id: cn.id,
-      noteType: cn.noteType,
       content: cn.content,
-      authorName: cn.author.fullName,
+      authorName: cn.author?.fullName ?? 'Unknown',
       createdAt: cn.createdAt?.toISOString() ?? null,
       updatedAt: cn.updatedAt?.toISOString() ?? null,
     })),
@@ -487,8 +478,7 @@ export async function buildMemberExport(userId: string) {
       id: ms.id,
       subgroupName: ms.subgroup.name,
       subgroupType: ms.subgroup.type,
-      joinedAt: ms.joinedAt?.toISOString() ?? null,
-      createdAt: ms.createdAt?.toISOString() ?? null,
+      assignedAt: ms.assignedAt?.toISOString() ?? null,
     })),
     mentorSessions: mentorSessions.map((ms) => ({
       id: ms.id,
@@ -529,24 +519,19 @@ export async function buildMemberExport(userId: string) {
       learningHours: ccp.learningHours,
       isCompleted: ccp.isCompleted,
       courseGrade: ccp.courseGrade,
-      createdAt: ccp.createdAt?.toISOString() ?? null,
-      updatedAt: ccp.updatedAt?.toISOString() ?? null,
     })),
     courseraBadges: courseraBadgeProgress.map((cbp) => ({
       id: cbp.id,
-      badgeName: cbp.badgeName,
-      status: cbp.status,
-      earnedAt: cbp.earnedAt?.toISOString() ?? null,
-      createdAt: cbp.createdAt?.toISOString() ?? null,
-      updatedAt: cbp.updatedAt?.toISOString() ?? null,
+      badgeTitle: cbp.badgeTitle,
+      badgeCompleted: cbp.badgeCompleted,
+      badgeCompletionTime: cbp.badgeCompletionTime?.toISOString() ?? null,
+      lastSyncedAt: cbp.lastSyncedAt?.toISOString() ?? null,
     })),
     courseraSkillsets: courseraSkillsetProgress.map((csp) => ({
       id: csp.id,
       skillsetName: csp.skillsetName,
       progressPct: csp.progressPct,
-      status: csp.status,
-      createdAt: csp.createdAt?.toISOString() ?? null,
-      updatedAt: csp.updatedAt?.toISOString() ?? null,
+      lastSyncedAt: csp.lastSyncedAt?.toISOString() ?? null,
     })),
     preScreeningResponse: preScreeningResponse
       ? {
@@ -569,7 +554,6 @@ export async function buildMemberExport(userId: string) {
           hearAbout: preScreeningDraft.hearAbout,
           hearAboutOther: preScreeningDraft.hearAboutOther,
           workforceAssistance: preScreeningDraft.workforceAssistance,
-          createdAt: preScreeningDraft.createdAt?.toISOString() ?? null,
           updatedAt: preScreeningDraft.updatedAt?.toISOString() ?? null,
         }
       : null,
@@ -601,14 +585,12 @@ export async function buildMemberExport(userId: string) {
     })),
     nextBestActions: nextBestActions.map((nba) => ({
       id: nba.id,
-      actionType: nba.actionType,
       title: nba.title,
       description: nba.description,
       ctaLabel: nba.ctaLabel,
-      ctaLink: nba.ctaLink,
+      ctaHref: nba.ctaHref,
       priority: nba.priority,
-      dismissedAt: nba.dismissedAt?.toISOString() ?? null,
-      completedAt: nba.completedAt?.toISOString() ?? null,
+      status: nba.status,
       createdAt: nba.createdAt?.toISOString() ?? null,
       updatedAt: nba.updatedAt?.toISOString() ?? null,
     })),
@@ -622,19 +604,16 @@ export async function buildMemberExport(userId: string) {
     })),
     jobPostingApplications: jobPostingApplications.map((jpa) => ({
       id: jpa.id,
-      jobPostingId: jpa.jobPostingId,
+      jobId: jpa.jobId,
       status: jpa.status,
       appliedAt: jpa.appliedAt?.toISOString() ?? null,
-      createdAt: jpa.createdAt?.toISOString() ?? null,
-      updatedAt: jpa.updatedAt?.toISOString() ?? null,
     })),
     aiJobMatches: aiJobMatches.map((ajm) => ({
       id: ajm.id,
       jobId: ajm.jobId,
       matchScore: ajm.matchScore,
-      matchReason: ajm.matchReason,
+      matchReasons: ajm.matchReasons,
       createdAt: ajm.createdAt?.toISOString() ?? null,
-      updatedAt: ajm.updatedAt?.toISOString() ?? null,
     })),
     applicationAiFeedbacks: applicationsAiFeedback.map((aaf) => ({
       id: aaf.id,
@@ -644,10 +623,7 @@ export async function buildMemberExport(userId: string) {
     })),
     portalWorkflowEvents: portalWorkflowEvents.map((pwe) => ({
       id: pwe.id,
-      eventType: pwe.eventType,
-      step: pwe.step,
-      status: pwe.status,
-      metadata: pwe.metadata,
+      kind: pwe.kind,
       createdAt: pwe.createdAt?.toISOString() ?? null,
     })),
   };

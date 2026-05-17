@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { invalidateMemberState } from '@/lib/member/getMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -38,10 +40,19 @@ const schema = z.object({
     }
   
     const { fullName, phone, profilePhone, profileAddress, profileBio, profileLinkedin } = parsed.data;
-  
+
+    // Tenant scope: User.update wrapped so an admin from Org A cannot
+    // edit an Org B member's name/phone by guessing their UUID. The
+    // scope proxy adds `organizationId: orgId` to the where filter.
+    const orgId = await getActorOrganizationId(admin.id);
+
     try {
-      const [user] = await Promise.all([
-        prisma.user.update({
+      // Verify the member belongs to this admin's org before touching
+      // Profile (which isn't tenant-scoped via withTenantScope but is
+      // FK-tied to User.organizationId). If the user.update below
+      // doesn't match, Prisma throws P2025 → 404.
+      const user = await withTenantScope(orgId, (db) =>
+        db.user.update({
           where: { id },
           data: {
             ...(fullName !== undefined ? { fullName } : {}),
@@ -49,7 +60,7 @@ const schema = z.object({
           },
           select: { id: true, fullName: true, email: true },
         }),
-      ]);
+      );
   
       // Update profile fields if any profile data provided
       if (profilePhone !== undefined || profileAddress !== undefined || profileBio !== undefined || profileLinkedin !== undefined) {

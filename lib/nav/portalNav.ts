@@ -55,6 +55,7 @@ export type NavBadgeKey =
   | 'applications_new'
   | 'partner_needs_attention'
   | 'milestones_new'
+  | 'milestones_awaiting_approval'
   | 'counselor_messages_unread'
   | 'counselor_sla_breach_48h'
   | 'employer_queue_review_today'

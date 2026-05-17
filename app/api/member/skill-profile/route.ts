@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { mapSkillsToRadarAxes } from '@/lib/ai/onetSkills';
 import type { OnetSkill } from '@/lib/ai/onetSkills';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { riasecToRadarAxes } from '@/lib/content/quizIpMerge';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -69,19 +70,19 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   ['contract', 'Strategy', 65], ['revenue growth', 'Strategy', 72],
   ['b2b', 'Strategy', 68], ['saas', 'Strategy', 65],
   ['forecasting', 'Strategy', 70],
-  // Ethics
-  ['compliance', 'Ethics', 70], ['hipaa', 'Ethics', 75],
-  ['gdpr', 'Ethics', 75], ['privacy', 'Ethics', 70],
-  ['diversity', 'Ethics', 65], ['inclusion', 'Ethics', 65],
-  ['customer service', 'Ethics', 65], ['communication', 'Ethics', 65],
-  ['mentoring', 'Ethics', 65], ['coaching', 'Ethics', 65],
-  ['collaboration', 'Ethics', 60], ['teamwork', 'Ethics', 60],
-  ['interpersonal', 'Ethics', 65], ['empathy', 'Ethics', 65],
-  // Ethics — sales/client-facing (AE roles have strong relationship/communication signals)
-  ['client relationship', 'Ethics', 72], ['client management', 'Ethics', 68],
-  ['relationship building', 'Ethics', 70], ['outreach', 'Ethics', 68],
-  ['cold call', 'Ethics', 65], ['discovery call', 'Ethics', 65],
-  ['presentations', 'Ethics', 68],
+  // Service / People
+  ['compliance', 'Service', 70], ['hipaa', 'Service', 75],
+  ['gdpr', 'Service', 75], ['privacy', 'Service', 70],
+  ['diversity', 'Service', 65], ['inclusion', 'Service', 65],
+  ['customer service', 'Service', 65], ['communication', 'Service', 65],
+  ['mentoring', 'Service', 65], ['coaching', 'Service', 65],
+  ['collaboration', 'Service', 60], ['teamwork', 'Service', 60],
+  ['interpersonal', 'Service', 65], ['empathy', 'Service', 65],
+  // Service — sales/client-facing (AE roles have strong relationship/communication signals)
+  ['client relationship', 'Service', 72], ['client management', 'Service', 68],
+  ['relationship building', 'Service', 70], ['outreach', 'Service', 68],
+  ['cold call', 'Service', 65], ['discovery call', 'Service', 65],
+  ['presentations', 'Service', 68],
   // Research
   ['research', 'Research', 75], ['writing', 'Research', 70],
   ['technical writing', 'Research', 80], ['documentation', 'Research', 70],
@@ -89,7 +90,7 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   ['training', 'Research', 60], ['learning', 'Research', 60],
   ['curriculum', 'Research', 65], ['analysis', 'Research', 65],
   // Degrees → axis boosts (extrapolate coursework from credential)
-  ['mba', 'Strategy', 75], ['mba', 'Analytics', 65], ['mba', 'Research', 70], ['mba', 'Ethics', 60],
+  ['mba', 'Strategy', 75], ['mba', 'Analytics', 65], ['mba', 'Research', 70], ['mba', 'Service', 60],
   ['master', 'Research', 70], ['bachelor', 'Research', 55],
   ['phd', 'Research', 85], ['phd', 'Analytics', 70],
   ['degree', 'Research', 58],
@@ -97,30 +98,30 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   ['director', 'Strategy', 78], ['vice president', 'Strategy', 82],
   [' vp ', 'Strategy', 80], ['chief ', 'Strategy', 85],
   ['executive director', 'Strategy', 82],
-  // Ethics coursework
-  ['ethics', 'Ethics', 68], ['corporate responsibility', 'Ethics', 65],
+  // Service-adjacent coursework
+  ['ethics', 'Service', 68], ['corporate responsibility', 'Service', 65],
   // Healthcare / clinical
-  ['patient care', 'Ethics', 70], ['clinical', 'Research', 65],
-  ['nursing', 'Ethics', 70], ['cna', 'Ethics', 68],
-  ['medical assistant', 'Ethics', 65], ['phlebotomy', 'Engineering', 60],
+  ['patient care', 'Service', 70], ['clinical', 'Research', 65],
+  ['nursing', 'Service', 70], ['cna', 'Service', 68],
+  ['medical assistant', 'Service', 65], ['phlebotomy', 'Engineering', 60],
   ['ehr', 'Engineering', 65], ['emr', 'Engineering', 65],
   ['electronic health', 'Engineering', 65], ['epic', 'Engineering', 65],
-  ['hipaa', 'Ethics', 75], ['patient', 'Ethics', 60],
+  ['hipaa', 'Service', 75], ['patient', 'Service', 60],
   ['vital signs', 'Research', 62], ['medical coding', 'Research', 70],
   ['icd-10', 'Research', 72], ['billing', 'Strategy', 60],
   ['insurance verification', 'Strategy', 62], ['prior authorization', 'Research', 65],
   ['pharmacy', 'Research', 65], ['medication', 'Research', 60],
-  ['home health', 'Ethics', 65], ['long-term care', 'Ethics', 65],
+  ['home health', 'Service', 65], ['long-term care', 'Service', 65],
   ['diagnostic', 'Research', 68], ['laboratory', 'Research', 70],
   ['radiology', 'Engineering', 65], ['clinical trial', 'Research', 72],
   ['health informatics', 'Analytics', 70],
   // Customer service / retail / administrative
-  ['customer satisfaction', 'Ethics', 68], ['call center', 'Ethics', 65],
-  ['customer support', 'Ethics', 68], ['help desk', 'Engineering', 60],
-  ['ticketing', 'Engineering', 60], ['escalation', 'Ethics', 60],
-  ['retail', 'Ethics', 58], ['cashier', 'Ethics', 55],
+  ['customer satisfaction', 'Service', 68], ['call center', 'Service', 65],
+  ['customer support', 'Service', 68], ['help desk', 'Engineering', 60],
+  ['ticketing', 'Engineering', 60], ['escalation', 'Service', 60],
+  ['retail', 'Service', 58], ['cashier', 'Service', 55],
   ['point of sale', 'Engineering', 58], ['inventory', 'Strategy', 60],
-  ['merchandising', 'Strategy', 58], ['loss prevention', 'Ethics', 60],
+  ['merchandising', 'Strategy', 58], ['loss prevention', 'Service', 60],
   ['administrative', 'Strategy', 62], ['office management', 'Strategy', 65],
   ['scheduling', 'Strategy', 62], ['calendar management', 'Strategy', 60],
   ['bookkeeping', 'Analytics', 65], ['accounts payable', 'Analytics', 62],
@@ -128,14 +129,14 @@ const RESUME_SKILL_HINTS: Array<[string, string, number]> = [
   ['quickbooks', 'Analytics', 65], ['data entry', 'Research', 55],
   // Education / social services / non-profit
   ['teaching', 'Research', 65], ['educator', 'Research', 65],
-  ['lesson plan', 'Research', 65], ['early childhood', 'Ethics', 65],
-  ['childcare', 'Ethics', 62], ['social work', 'Ethics', 72],
-  ['case management', 'Ethics', 70], ['counseling', 'Ethics', 70],
-  ['community outreach', 'Ethics', 65], ['grant writing', 'Research', 70],
-  ['volunteer', 'Ethics', 55], ['non-profit', 'Ethics', 60],
+  ['lesson plan', 'Research', 65], ['early childhood', 'Service', 65],
+  ['childcare', 'Service', 62], ['social work', 'Service', 72],
+  ['case management', 'Service', 70], ['counseling', 'Service', 70],
+  ['community outreach', 'Service', 65], ['grant writing', 'Research', 70],
+  ['volunteer', 'Service', 55], ['non-profit', 'Service', 60],
 ];
 
-const RADAR_AXES = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Ethics', 'Research'];
+const RADAR_AXES = ['Analytics', 'Engineering', 'Design', 'Strategy', 'Service', 'Research'];
 
 type ResumeProfileResult = {
   profile: { axis: string; value: number }[];
@@ -342,24 +343,23 @@ function mergeProfiles(
         // Interest Profiler result
         if (parsed.source === 'interest_profiler' && parsed.riasec && !interestProfilerProfile) {
           hasInterestProfiler = true;
-          const r = parsed.riasec;
-          const vals = Object.values(r).filter((v): v is number => typeof v === 'number');
-          const maxR = Math.max(...vals, 1);
-          // RIASEC → radar axes mapping
-          interestProfilerProfile = [
-            { axis: 'Analytics', value: Math.min(1, ((r.investigative ?? 0) * 0.6 + (r.conventional ?? 0) * 0.4) / maxR) },
-            { axis: 'Engineering', value: Math.min(1, ((r.realistic ?? 0) * 0.7 + (r.investigative ?? 0) * 0.3) / maxR) },
-            { axis: 'Design', value: Math.min(1, ((r.artistic ?? 0) * 0.75 + (r.investigative ?? 0) * 0.25) / maxR) },
-            { axis: 'Strategy', value: Math.min(1, ((r.enterprising ?? 0) * 0.6 + (r.conventional ?? 0) * 0.4) / maxR) },
-            { axis: 'Ethics', value: Math.min(1, ((r.social ?? 0) * 0.7 + (r.conventional ?? 0) * 0.3) / maxR) },
-            { axis: 'Research', value: Math.min(1, ((r.investigative ?? 0) * 0.5 + (r.artistic ?? 0) * 0.5) / maxR) },
-          ];
+          interestProfilerProfile = riasecToRadarAxes({
+            realistic: parsed.riasec.realistic ?? 0,
+            investigative: parsed.riasec.investigative ?? 0,
+            artistic: parsed.riasec.artistic ?? 0,
+            social: parsed.riasec.social ?? 0,
+            enterprising: parsed.riasec.enterprising ?? 0,
+            conventional: parsed.riasec.conventional ?? 0,
+          });
         }
 
-        // O*NET skill mapper result
+        // O*NET skill mapper result — backwards-compat: rows saved before
+        // the Ethics → Service axis rename still carry `axis: 'Ethics'` in
+        // their stored JSON. Project to the new name so the downstream
+        // merge keys against the right axis.
         if (!parsed.source && parsed.radarAxes?.length && !savedAssessmentProfile) {
           savedAssessmentProfile = parsed.radarAxes.map((a) => ({
-            axis: a.axis,
+            axis: a.axis === 'Ethics' ? 'Service' : a.axis,
             value: (a.value ?? 0) / (a.maxValue ?? 100),
           }));
         }

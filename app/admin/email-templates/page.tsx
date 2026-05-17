@@ -36,7 +36,7 @@ export default async function AdminEmailTemplatesPage() {
           createdAt: t.createdAt.toISOString(),
           updatedAt: t.updatedAt.toISOString(),
         }))}
-        adminEmail={user.email}
+        adminEmail={user.email ?? ''}
       />
     </div>
   );

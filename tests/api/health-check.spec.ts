@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // ─── Mocks ───
 vi.mock('next/server', () => ({
@@ -36,6 +36,10 @@ vi.mock('@/lib/rate-limit', () => ({
   checkPublicHealthRateLimit: vi.fn(),
 }));
 
+vi.mock('@/lib/db/withRequestGuc', () => ({
+  withApiGuc: (handler: (request: Request) => Promise<Response>) => handler,
+}));
+
 // ─── Imports after mocks ───
 import { GET as healthGET, OPTIONS as healthOPTIONS } from '@/app/api/health/route';
 import { prisma } from '@/lib/db/prisma';
@@ -54,11 +58,8 @@ describe('GET /api/health', () => {
       NEXT_PUBLIC_SUPABASE_URL: 'https://test.supabase.co',
       NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-key',
       RESEND_API_KEY: 'test-resend-key',
-      COURSERA_XAPI_ENDPOINT: 'https://xapi.example.com',
-      COURSERA_XAPI_USERNAME: 'user',
-      COURSERA_XAPI_PASSWORD: 'pass',
-      COURSERA_SSO_SECRET: 'secret',
-      COURSERA_DEFAULT_PROGRAM_ID: 'prog-123',
+      XAPI_CLIENT_ID: 'workforceap-xapi',
+      XAPI_CLIENT_SECRET: 'xapi-secret',
       NEXT_PUBLIC_CAPTCHA_ENABLED: 'false',
       SENTRY_DSN: 'https://sentry.example.com',
       VERCEL_GIT_COMMIT_SHA: 'abc123def',
@@ -141,21 +142,21 @@ describe('GET /api/health', () => {
   });
 
   it('reports missing coursera config', async () => {
-    delete process.env.COURSERA_XAPI_ENDPOINT;
-    delete process.env.COURSERA_SSO_SECRET;
+    delete process.env.XAPI_CLIENT_ID;
+    delete process.env.XAPI_CLIENT_SECRET;
 
     const res = await healthGET(new Request('http://localhost:3000/api/health'));
 
     const body = await res.json();
     const courseraDep = body.dependencies.find((d: any) => d.name === 'coursera_xapi');
     expect(courseraDep.status).toBe('not_configured');
-    expect(courseraDep.note).toContain('COURSERA_XAPI_ENDPOINT');
+    expect(courseraDep.note).toContain('XAPI client secret');
   });
 
   it('returns local version when not on Vercel', async () => {
     delete process.env.VERCEL_GIT_COMMIT_SHA;
     delete process.env.VERCEL_ENV;
-    process.env.NODE_ENV = 'development';
+    (process.env as { NODE_ENV?: string }).NODE_ENV = 'development';
 
     const res = await healthGET(new Request('http://localhost:3000/api/health'));
 

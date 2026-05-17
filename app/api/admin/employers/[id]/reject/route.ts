@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { sendEmployerRejectedEmail } from '@/lib/email';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -17,7 +17,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     const { id: employerId } = await params;
-    const orgId = await getDefaultOrganizationId();
+    // Use the actor's organization, not the global default (AUDIT §C-T7).
+    const orgId = await getActorOrganizationId(user.id);
 
     let body: { reason?: string } = {};
     try {

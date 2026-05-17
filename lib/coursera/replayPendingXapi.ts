@@ -83,8 +83,6 @@ export async function replayUnresolvedXapiStatementsForIdentity(args: {
     take: 500,
     where: {
       createdAt: { gte: cutoff },
-    },
-    where: {
       OR: [
         ...(email ? [{ actorEmail: email }] : []),
         ...(actor ? [{ actorAccountName: actor }] : []),

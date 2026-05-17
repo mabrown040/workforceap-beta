@@ -24,6 +24,7 @@ import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
 import DeferredAnalytics from '@/components/DeferredAnalytics';
+import CookieConsentBanner from '@/components/CookieConsentBanner';
 
 const WAP_USER_ID_HEADER = 'x-wap-user-id';
 
@@ -169,6 +170,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 style={{ display: 'none', visibility: 'hidden' }}
               />
             </noscript>
+            {/* Google Consent Mode v2: deny by default, then sync with the
+                cookie banner. Tags loaded by GTM honor these defaults until
+                an `update` is pushed by CookieConsentBanner. */}
+            <Script
+              id="gtm-consent-default"
+              strategy="beforeInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `(function(){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=window.gtag||gtag;var stored=null;try{stored=JSON.parse(localStorage.getItem('wap-cookie-consent')||'null');}catch(_e){}var decision=stored&&(stored.decision||(stored.accepted===true?'accepted':stored.accepted===false?'declined':null));var v=decision==='accepted'?'granted':'denied';gtag('consent','default',{ad_storage:v,ad_user_data:v,ad_personalization:v,analytics_storage:v,wait_for_update:500});})();`,
+              }}
+            />
             <Script
               id="gtm"
               strategy="afterInteractive"
@@ -189,6 +200,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </NextIntlClientProvider>
         <ScrollAnimationsWrapper />
         <DeferredAnalytics />
+        <CookieConsentBanner />
       </body>
     </html>
   ));

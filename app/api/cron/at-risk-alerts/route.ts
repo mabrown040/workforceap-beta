@@ -15,7 +15,7 @@ import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
  */
 async function handle(_request: Request) {
   const result = await runDailyAtRiskCounselorAlerts();
-  await setCronRecordsProcessed(result.sent ?? result.alertsSent ?? 0);
+  await setCronRecordsProcessed(result.counselorsNotified ?? result.membersFlagged ?? 0);
   return NextResponse.json(result);
 }
 

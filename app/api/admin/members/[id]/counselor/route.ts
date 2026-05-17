@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sendCounselorAssignedEmail } from '@/lib/email';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 import { createNotification } from '@/lib/notifications/create';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -33,14 +34,23 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid input' }, { status: 400 });
   }
 
+  // Tenant scope: both member and counselor must belong to this admin's
+  // org. Without this, an Org A admin could reassign an Org B member's
+  // counselor (visible to wrong tenant) or assign an Org A counselor to
+  // an Org B member.
+  const orgId = await getActorOrganizationId(user.id);
   const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
+    where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: { id: true, email: true, fullName: true, organizationId: true },
   });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   const counselor = await prisma.counselor.findFirst({
-    where: { userId: parsed.data.counselorUserId, active: true },
+    where: {
+      userId: parsed.data.counselorUserId,
+      active: true,
+      user: { organizationId: orgId },
+    },
     include: { user: { select: { id: true, fullName: true } } },
   });
   if (!counselor) {

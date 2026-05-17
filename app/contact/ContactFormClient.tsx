@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from 'react';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
 import { useTranslations } from 'next-intl';
+import { marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 
 type FieldKey = 'first_name' | 'last_name' | 'email' | 'topic' | 'message';
 
@@ -188,7 +189,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
           <p style={{ margin: '0 0 0.75rem' }}>{errorMsg}</p>
           <button
             type="button"
-            className="btn btn-secondary btn-sm btn-radius-sm"
+            className={marketingButtonClasses({ variant: 'secondary', radius: 'sm' })}
             onClick={() => {
               setStatus('idle');
               setErrorMsg(null);
@@ -353,7 +354,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
       </div>
       <button
         type="submit"
-        className="btn btn-primary btn-full-width btn-radius-md"
+        className={marketingButtonClasses({ variant: 'primary', radius: 'md', className: 'btn-full-width' })}
         disabled={status === 'sending'}
       >
         {status === 'sending' ? tCommon('sending') : tMessages('sendMessage')}

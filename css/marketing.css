@@ -10,12 +10,19 @@
  * mobile whenever the bar is mounted (keeps layout in sync with the DOM).
  */
 :root {
-  /* Fixed MobileBottomNav (~64px row + captions) + device home indicator + buffer so CTAs stay tappable */
-  --wap-mobile-bottom-nav-clearance: calc(6rem + env(safe-area-inset-bottom, 0px));
   /*
-   * Foregrounds for Stitch marketing stripes. Light-on tokens match cream/pale surfaces (#fcf9f8).
-   * They stay the same inside html.dark when the stripe remains light — only switch to dark-on-* when
-   * the surface is actually dark (see .marketing-mobile--on-dark-marketing-surface).
+   * Fixed MobileBottomNav (~64px row + captions) + device home indicator + buffer so CTAs stay tappable.
+   * Compact portal chrome (`html.wap-portal-chrome-compact`) hides captions but the bar still uses
+   * min 44px tap targets plus vertical padding; a smaller clearance token under-counted vs. the real
+   * nav height on notched devices — keep compact inset equal to the default.
+   */
+  --wap-mobile-bottom-nav-clearance: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+  --wap-portal-mobile-bottom-clearance-compact: var(--wap-mobile-bottom-nav-clearance);
+  /*
+   * Foregrounds for Stitch marketing stripes / pale surfaces (#fcf9f8).
+   * Light-on tokens stay on cream bands in every theme; document foreground (`--wap-doc-on-surface*` on
+   * `html`) is used inside `html.dark` for non-cream stripes so text never sticks to `#1c1b1b`.
+   * Also used by overrides such as `.program-detail-shared`.
    */
   --wap-marketing-light-on-surface: #1c1b1b;
   --wap-marketing-light-on-surface-variant: #584144;
@@ -25,7 +32,7 @@
 
 /*
  * Mirrors theme foreground on <html> only. `.marketing-mobile` overrides `--color-on-surface` for its
- * subtree; `html.dark` stripes need document theme colors via `--wap-doc-*` (inherited, not circular).
+ * subtree; dark-mode stripes need resolved document colors via `--wap-doc-*` (inherited, not circular).
  */
 html {
   --wap-doc-on-surface: var(--color-on-surface);
@@ -44,15 +51,32 @@ html {
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
   }
 
+  html.wap-portal-chrome-compact.wap-reserve-mobile-bottom-nav,
+  html.wap-portal-chrome-compact:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) {
+    scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
+  }
+
+  html.wap-portal-chrome-compact.wap-reserve-mobile-bottom-nav body,
+  html.wap-portal-chrome-compact:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) body {
+    scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
+  }
+
   /*
-   * Workspace shells already pad `.workspace-shell-main` (main.css) — padding only here
-   * for marketing and other routes without `WorkspaceShell` to avoid double reserve.
+   * Single global inset under `#main-content` whenever the fixed MobileBottomNav is reserved
+   * (middleware first paint) or mounted — covers marketing and WorkspaceShell portals without
+   * relying on inner scroll regions missing `.workspace-shell-main` padding.
    */
-  html.wap-reserve-mobile-bottom-nav main#main-content:not(:has(.workspace-shell-root)),
-  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) main#main-content:not(:has(.workspace-shell-root)) {
+  html.wap-reserve-mobile-bottom-nav main#main-content,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) main#main-content {
     box-sizing: border-box;
     padding-bottom: var(--wap-mobile-bottom-nav-clearance);
     scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+  }
+
+  html.wap-portal-chrome-compact.wap-reserve-mobile-bottom-nav main#main-content,
+  html.wap-portal-chrome-compact:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) main#main-content {
+    padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
+    scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
   }
 
   /*
@@ -91,43 +115,11 @@ html.dark .partner-logos-small span {
 }
 
 /*
- * Marketing mobile vs desktop (768px) — REMOVED — site is now fully responsive.
- */
-
-/* Center public “decision stack” pages (/programs, etc.) for consistent horizontal rhythm */
-.marketing-stack {
-  max-width: min(1200px, 100%);
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .marketing-stack--enter {
-    animation: marketing-stack-fade-in 0.42s ease-out both;
-  }
-}
-
-@keyframes marketing-stack-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/*
- * Stitch mobile columns default to a light cream surface (dark type). In `html.dark`, use the
- * document theme foreground (`--wap-doc-on-surface*`) unless this stripe is still a pale/cream band
- * (`marketing-mobile--on-light-marketing-surface`), sits on the parent surface
- * (`marketing-mobile--on-theme-surface`), or is an explicitly dark band
- * (`marketing-mobile--on-dark-marketing-surface`).
+ * Legacy `.marketing-mobile` hook — fully responsive markup no longer duplicates desktop/mobile trees,
+ * but this class fixes the old mistake of `#1c1b1b` for both `:root` and `html.dark` on theme surfaces.
+ * Cream stripes opt in via `marketing-mobile--on-light-marketing-surface`; dark stripes use `--wap-marketing-dark-on-surface*`.
  */
 .marketing-mobile {
-  /* Fall back to document theme foreground so `html.dark` never uses a light-mode-only #1c1b1b default. */
   color: var(--wap-marketing-mobile-text, var(--wap-doc-on-surface));
   --color-on-surface: var(--wap-marketing-mobile-c-on-surface, var(--wap-doc-on-surface));
   --color-on-surface-variant: var(
@@ -168,6 +160,31 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
   --wap-marketing-mobile-text: var(--wap-marketing-dark-on-surface);
   --wap-marketing-mobile-c-on-surface: var(--wap-marketing-dark-on-surface);
   --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-dark-on-surface-variant);
+}
+
+/* Center public “decision stack” pages (/programs, etc.) for consistent horizontal rhythm */
+.marketing-stack {
+  max-width: min(1200px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .marketing-stack--enter {
+    animation: marketing-stack-fade-in 0.42s ease-out both;
+  }
+}
+
+@keyframes marketing-stack-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .home-impact-bento {
@@ -345,20 +362,37 @@ html.dark .marketing-process-step__icon {
   color: var(--color-marketing-accent-on-dark);
 }
 
-/* Step badge circle — used by `ProcessStep` (compose with `.marketing-process-step__badge`). */
-.marketing-num-pill__index {
-  flex-shrink: 0;
-  min-width: var(--btn-min-height);
+/* Partner / photo-hero ghost jump links — underline always for “learn more” pattern */
+.marketing-inline-ghost-link.btn-ghost--on-photo {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.marketing-inline-ghost-link.btn-ghost--on-photo:hover {
+  text-decoration: underline;
+}
+
+/* Home hero numbered row: outline capsule (secondary on-dark) + primary index circle */
+.marketing-hero-step-pill.btn,
+a.marketing-hero-step-pill.btn {
+  gap: 0.625rem;
+  padding: 0.3rem 1rem 0.3rem 0.3rem;
   min-height: var(--btn-min-height);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-accent);
-  color: var(--color-white);
-  font-weight: 700;
-  font-size: 0.8125rem;
-  border: none;
-  line-height: 1;
+  box-sizing: border-box;
+  justify-content: flex-start;
+  cursor: default;
+  font-weight: 600;
+  font-size: clamp(0.8125rem, 0.35vw + 0.78rem, 0.9375rem);
+  line-height: 1.25;
+  text-align: left;
+}
+
+.marketing-hero-step-pill .marketing-hero-step-pill__index.btn {
+  flex-shrink: 0;
+  cursor: default;
+}
+
+.marketing-hero-step-pill__label {
+  color: inherit;
 }
 
 /*
@@ -445,16 +479,7 @@ html.dark .marketing-bottom-nav {
   color: var(--mbn-inactive-fg);
 }
 
-/*
- * Mobile bottom bar: never use partial font-variation-settings inline — WebKit (iOS) can drop
- * other axes and ligatures fail, so icon names render as plain text. Keep full axis tuple in CSS.
- */
-.marketing-bottom-nav .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined', sans-serif;
-  -webkit-font-feature-settings: 'liga';
-  font-feature-settings: 'liga';
-  font-variation-settings: 'FILL' var(--ms-fill, 0), 'wght' var(--ms-wght, 400), 'GRAD' 0, 'opsz' 24;
-}
+/* Icons inherit `.material-symbols-outlined` from main.css (full variation tuple required on WebKit). */
 
 .marketing-bottom-nav__link--active .material-symbols-outlined {
   --ms-fill: 1;
@@ -572,15 +597,6 @@ html.dark .marketing-bottom-nav {
 /* Hash links / scroll-into-view clear the fixed main nav when marketing chrome is shown */
 html.has-marketing-main-nav {
   scroll-padding-top: var(--main-nav-layout-height);
-}
-
-/*
- * Sticky UI that must sit above the mobile bottom nav (fixed offset).
- */
-@media (max-width: 767px) {
-  .marketing-mobile-sticky-above-bottom-nav {
-    bottom: var(--wap-mobile-bottom-nav-clearance);
-  }
 }
 
 /* /programs: mobile sticky quiz CTA clears last catalog rows */

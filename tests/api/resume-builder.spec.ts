@@ -177,7 +177,7 @@ describe('POST /api/member/resume/generate', () => {
     vi.mocked(checkAIToolRateLimit).mockResolvedValue({ success: true });
     vi.mocked(getMemberResumePlainText).mockResolvedValue('');
     vi.mocked(getProgramBySlug).mockReturnValue(mockProgram() as any);
-    vi.mocked(completeCareerOsResumeActions).mockResolvedValue(undefined);
+    vi.mocked(completeCareerOsResumeActions).mockResolvedValue({ completedCount: 0, actionIds: [] });
     mockSupabaseAdmin();
   });
 
@@ -379,7 +379,7 @@ describe('GET /api/member/resume', () => {
       ...mockProfile(),
       resumeOriginalPath: `${UUIDS.user}/resume-original.pdf`,
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
-    });
+    } as any);
     const storage = mockSupabaseAdmin(() => ({
       createSignedUrl: vi.fn(() => ({ data: { signedUrl: 'https://example.com/signed' }, error: null })),
       download: vi.fn(() => ({ data: { text: vi.fn(() => Promise.resolve('# Test Member\n\n## Professional Summary\nExperienced professional\n\n## Experience\nDriver at ABC Corp\n\n## Education\nHigh School\n\n## Core Skills\nCommunication')), arrayBuffer: vi.fn(() => Promise.resolve(new ArrayBuffer(0))) }, error: null })),
@@ -402,7 +402,7 @@ describe('GET /api/member/resume', () => {
 
   it('returns empty metadata when no resume exists', async () => {
     vi.mocked(getUser).mockResolvedValue(mockUser() as any);
-    vi.mocked(prisma.profile.findUnique).mockResolvedValue(mockProfile());
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue(mockProfile() as any);
 
     const res = await getResume(makeGetResumeRequest());
     expect(res.status).toBe(200);
@@ -431,7 +431,7 @@ describe('GET /api/member/resume', () => {
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       ...mockProfile(),
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
-    });
+    } as any);
     mockSupabaseAdmin(() => ({
       createSignedUrl: vi.fn(() => ({ data: { signedUrl: 'https://example.com/signed' }, error: null })),
       download: vi.fn(() => ({ data: { text: vi.fn(() => Promise.resolve('Admin view')), arrayBuffer: vi.fn(() => Promise.resolve(new ArrayBuffer(0))) }, error: null })),
@@ -453,7 +453,7 @@ describe('GET /api/member/resume', () => {
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       ...mockProfile(),
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
-    });
+    } as any);
     mockSupabaseAdmin(() => ({
       createSignedUrl: vi.fn(() => ({ data: { signedUrl: 'https://example.com/signed' }, error: null })),
       download: vi.fn(() => ({ data: { text: vi.fn(() => Promise.resolve('Counselor view')), arrayBuffer: vi.fn(() => Promise.resolve(new ArrayBuffer(0))) }, error: null })),
@@ -483,7 +483,7 @@ describe('GET /api/member/resume', () => {
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       ...mockProfile(),
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
-    });
+    } as any);
     vi.mocked(getMemberResumePlainText).mockResolvedValue('Plain text resume content');
     mockSupabaseAdmin(() => ({
       createSignedUrl: vi.fn(() => ({ data: { signedUrl: 'https://example.com/signed' }, error: null })),
@@ -502,7 +502,7 @@ describe('GET /api/member/resume', () => {
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       ...mockProfile(),
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
-    });
+    } as any);
     mockSupabaseAdmin(() => ({
       createSignedUrl: vi.fn(() => ({ data: null, error: { message: 'Bucket not found' } })),
     }));
@@ -536,7 +536,7 @@ describe('GET /api/counselor/members/[memberId]/resume', () => {
       ...mockProfile(),
       resumeOriginalPath: `${UUIDS.user}/resume-original.pdf`,
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
-    });
+    } as any);
     // assertStaffCanAccessMemberRecord checks counselor assignment internally
     vi.mocked(prisma.counselorAssignment.findFirst).mockResolvedValue({
       counselor: { userId: UUIDS.counselor },
@@ -585,7 +585,7 @@ describe('GET /api/counselor/members/[memberId]/resume', () => {
     vi.mocked(prisma.profile.findUnique).mockResolvedValue({
       ...mockProfile(),
       resumeEnhancedPath: `${UUIDS.user}/resume-enhanced.txt`,
-    });
+    } as any);
     mockSupabaseAdmin(() => ({
       createSignedUrl: vi.fn(() => ({ data: { signedUrl: 'https://example.com/signed' }, error: null })),
       download: vi.fn(() => ({ data: null, error: { message: 'Download failed' } })),

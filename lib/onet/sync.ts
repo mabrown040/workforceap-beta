@@ -3,9 +3,14 @@ import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import {
   getOccupation,
+  getOccupationAbilities,
+  getOccupationEducation,
+  getOccupationKnowledge,
+  getOccupationSampleTitles,
   getOccupationSkills,
   getOccupationTasks,
   getOccupationTechnology,
+  getOccupationWorkActivities,
   getRelatedOccupations,
   isOnetConfigured,
 } from '@/lib/onet/client';
@@ -47,14 +52,19 @@ export async function syncOccupationBundle(onetCode: string): Promise<void> {
     throw new Error(`Occupation not found: ${code}`);
   }
 
-  const [skills, tasks, tech, related] = await Promise.all([
+  const [skills, tasks, tech, related, abilities, knowledge, workActivities, education, sampleTitles] = await Promise.all([
     getOccupationSkills(code),
     getOccupationTasks(code),
     getOccupationTechnology(code),
     getRelatedOccupations(code),
+    getOccupationAbilities(code),
+    getOccupationKnowledge(code),
+    getOccupationWorkActivities(code),
+    getOccupationEducation(code),
+    getOccupationSampleTitles(code),
   ]);
 
-  const rawBundle = { overview, skills, tasks, tech, related };
+  const rawBundle = { overview, skills, tasks, tech, related, abilities, knowledge, workActivities, education, sampleTitles };
 
   await prisma.$transaction(async (tx) => {
     await tx.onetOccupation.upsert({

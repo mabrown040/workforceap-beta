@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { Resend } from 'resend';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 
@@ -14,17 +16,20 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
+    const orgId = await getActorOrganizationId(user.id);
 
-    const partner = await prisma.partner.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        status: true,
-        contactEmail: true,
-        contactName: true,
-        name: true,
-      },
-    });
+    const partner = await withTenantScope(orgId, (db) =>
+      db.partner.findFirst({
+        where: { id },
+        select: {
+          id: true,
+          status: true,
+          contactEmail: true,
+          contactName: true,
+          name: true,
+        },
+      }),
+    );
 
     if (!partner) {
       return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
@@ -42,16 +47,18 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
       notes = null;
     }
 
-    await prisma.partner.update({
-      where: { id },
-      data: {
-        status: 'rejected',
-        active: false,
-        rejectedAt: new Date(),
-        rejectedById: user.id,
-        rejectionNotes: notes,
-      },
-    });
+    await withTenantScope(orgId, (db) =>
+      db.partner.update({
+        where: { id },
+        data: {
+          status: 'rejected',
+          active: false,
+          rejectedAt: new Date(),
+          rejectedById: user.id,
+          rejectionNotes: notes,
+        },
+      }),
+    );
 
     // Send rejection email
     const resendKey = process.env.RESEND_API_KEY;

@@ -23,9 +23,12 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(() => Promise.resolve({ userId: null, orgId: null, profileRole: null })),
+}));
+
+vi.mock('@/lib/auth/roles', () => ({
   isCounselor: vi.fn(),
   isAdmin: vi.fn(),
-  resolveAuthGucContext: vi.fn(() => Promise.resolve({ userId: null, orgId: null, profileRole: null })),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
@@ -49,7 +52,8 @@ import { POST as dismissAll } from '@/app/api/member/notifications/dismiss-all/r
 import { POST as readAll } from '@/app/api/member/notifications/read-all/route';
 import { DELETE as deleteNotification } from '@/app/api/member/notifications/[id]/route';
 import { GET as getCounselorNotifications } from '@/app/api/counselor/notifications/route';
-import { getUser, isCounselor } from '@/lib/auth/server';
+import { getUser } from '@/lib/auth/server';
+import { isCounselor } from '@/lib/auth/roles';
 import { prisma as _prisma } from '@/lib/db/prisma';
 const prisma = _prisma as any;
 

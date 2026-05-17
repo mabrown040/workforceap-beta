@@ -1,5 +1,6 @@
 'use client';
 
+import { marketingPrimaryButtonClasses } from '@/lib/marketing/buttonClasses';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -233,20 +234,15 @@ export default function PlacementSurveyForm({
 
       <button
         type="submit"
+        className={marketingPrimaryButtonClasses({
+          radius: 'md',
+        })}
         disabled={submitStatus === 'loading'}
-        style={{
-          padding: '0.75rem 1.5rem',
-          fontSize: '1rem',
-          fontWeight: 600,
-          color: '#fff',
-          background: 'var(--color-dark, #231f20)',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: submitStatus === 'loading' ? 'wait' : 'pointer',
-          opacity: submitStatus === 'loading' ? 0.7 : 1,
-        }}
+        aria-busy={submitStatus === 'loading'}
       >
-        {submitStatus === 'loading' ? 'Submitting…' : 'Submit survey'}
+        <span aria-live="polite">
+          {submitStatus === 'loading' ? 'Submitting…' : 'Submit survey'}
+        </span>
       </button>
     </form>
   );

@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, ExternalLink, FileText, Keyboard, Loader2, MessagesSquare, Mic, PenLine, Search, Sparkles, Upload, User } from 'lucide-react';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
@@ -492,7 +492,7 @@ export default function SessionRunClient({
         </p>
         {activeVoiceCard === 'walkthrough' ? (
           <VoiceAgentSurface {...resumeCoachVoiceSurface}>
-            <PortalVoiceSession
+            <PortalVoiceSessionLazy
               sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
               sessionPayload={walkthroughPayload}
               title={`Build ${memberFullName.split(' ')[0]}'s session out loud`}
@@ -600,7 +600,7 @@ export default function SessionRunClient({
         {activeVoiceCard === 'resume' ? (
           <div style={{ marginBottom: '1rem' }}>
             <VoiceAgentSurface {...resumeCoachVoiceSurface}>
-              <PortalVoiceSession
+              <PortalVoiceSessionLazy
                 sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
                 sessionPayload={resumeVoicePayload}
                 title="Resume coach"
@@ -750,7 +750,7 @@ export default function SessionRunClient({
         {activeVoiceCard === 'cover' ? (
           <div style={{ marginBottom: '1rem' }}>
             <VoiceAgentSurface {...resumeCoachVoiceSurface}>
-              <PortalVoiceSession
+              <PortalVoiceSessionLazy
                 sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
                 sessionPayload={coverVoicePayload}
                 title="Cover letter coach"
@@ -869,7 +869,7 @@ export default function SessionRunClient({
         {activeVoiceCard === 'interview' ? (
           <div style={{ marginBottom: '1rem' }}>
             <VoiceAgentSurface {...mockInterviewVoiceSurface}>
-              <PortalVoiceSession
+              <PortalVoiceSessionLazy
                 sessionEndpoint="/api/counselor/sessions/voice-walkthrough"
                 sessionPayload={interviewVoicePayload}
                 title="Mock interview"

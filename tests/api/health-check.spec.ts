@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // ─── Mocks ───
 vi.mock('next/server', () => ({
@@ -156,7 +156,7 @@ describe('GET /api/health', () => {
   it('returns local version when not on Vercel', async () => {
     delete process.env.VERCEL_GIT_COMMIT_SHA;
     delete process.env.VERCEL_ENV;
-    process.env.NODE_ENV = 'development';
+    (process.env as { NODE_ENV?: string }).NODE_ENV = 'development';
 
     const res = await healthGET(new Request('http://localhost:3000/api/health'));
 

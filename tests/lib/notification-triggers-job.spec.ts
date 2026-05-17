@@ -33,7 +33,7 @@ describe('Trigger: job_match', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('creates job_match notification for each newly matched member', async () => {
-    const deps = createAdminJobMatchesPrismaDeps(() => {});
+    const deps = createAdminJobMatchesPrismaDeps(async () => {});
     await deps.persistMatches('job-123', [
       { studentId: 'user-1', matchScore: 85, matchReasons: ['Skill match'] },
       { studentId: 'user-2', matchScore: 72, matchReasons: ['Certification match'] },
@@ -61,7 +61,7 @@ describe('Trigger: job_match', () => {
   });
 
   it('does not create notifications when there are no new matches', async () => {
-    const deps = createAdminJobMatchesPrismaDeps(() => {});
+    const deps = createAdminJobMatchesPrismaDeps(async () => {});
     await deps.persistMatches('job-123', []);
 
     expect(createNotification).not.toHaveBeenCalled();
@@ -73,7 +73,7 @@ describe('Trigger: job_match', () => {
       { studentId: 'user-1' },
     ] as any);
 
-    const deps = createAdminJobMatchesPrismaDeps(() => {});
+    const deps = createAdminJobMatchesPrismaDeps(async () => {});
     await deps.persistMatches('job-123', [
       { studentId: 'user-1', matchScore: 85, matchReasons: ['Skill match'] },
       { studentId: 'user-2', matchScore: 72, matchReasons: ['Certification match'] },

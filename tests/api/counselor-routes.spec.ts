@@ -278,7 +278,7 @@ describe('GET /api/counselor/dashboard', () => {
       },
     ] as any);
 
-    vi.mocked(prisma.$queryRawUnsafe).mockResolvedValue([{ count: 0n }] as any);
+    vi.mocked(prisma.$queryRawUnsafe).mockResolvedValue([{ count: BigInt(0) }] as any);
     vi.mocked(getCounselorCommandCenter).mockResolvedValue({
       needsReply: [],
       atRisk: [],
@@ -513,7 +513,7 @@ describe('GET /api/counselor/members/[memberId]/messages', () => {
       counselorLastReadAt: null,
     };
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
-    vi.mocked(assertStaffCanAccessThread).mockResolvedValue(true);
+    vi.mocked(assertStaffCanAccessThread).mockResolvedValue(true as any);
 
     vi.mocked(prisma.message.findMany).mockResolvedValue([
       {
@@ -610,7 +610,7 @@ describe('GET /api/counselor/members/[memberId]/messages', () => {
       counselorLastReadAt: null,
     };
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
-    vi.mocked(assertStaffCanAccessThread).mockResolvedValue(false);
+    vi.mocked(assertStaffCanAccessThread).mockResolvedValue(false as any);
 
     const res = await getMessages(
       makeRequest('http://localhost:3000/api/counselor/members/' + UUIDS.memberUser + '/messages'),
@@ -644,7 +644,7 @@ describe('POST /api/counselor/members/[memberId]/messages', () => {
       counselorLastReadAt: null,
     };
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
-    vi.mocked(assertStaffCanPost).mockResolvedValue(true);
+    vi.mocked(assertStaffCanPost).mockResolvedValue(true as any);
 
     vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
       const tx = {
@@ -772,7 +772,7 @@ describe('POST /api/counselor/members/[memberId]/messages', () => {
       counselorLastReadAt: null,
     };
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
-    vi.mocked(assertStaffCanPost).mockResolvedValue(false);
+    vi.mocked(assertStaffCanPost).mockResolvedValue(false as any);
 
     const res = await postMessage(
       makeRequest('http://localhost:3000/api/counselor/members/' + UUIDS.memberUser + '/messages', {
@@ -809,7 +809,7 @@ describe('PATCH /api/counselor/members/[memberId]/messages', () => {
       counselorLastReadAt: null,
     };
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
-    vi.mocked(assertStaffCanAccessThread).mockResolvedValue(true);
+    vi.mocked(assertStaffCanAccessThread).mockResolvedValue(true as any);
     vi.mocked(prisma.messageThread.update).mockResolvedValue({} as any);
 
     const res = await patchMessages(
@@ -901,7 +901,7 @@ describe('POST /api/counselor/nudge', () => {
       counselorLastReadAt: null,
     };
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
-    vi.mocked(assertStaffCanPost).mockResolvedValue(true);
+    vi.mocked(assertStaffCanPost).mockResolvedValue(true as any);
 
     vi.mocked(prisma.$transaction).mockImplementation(async (fn: any) => {
       const tx = {
@@ -1012,7 +1012,7 @@ describe('POST /api/counselor/nudge', () => {
       counselorLastReadAt: null,
     };
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
-    vi.mocked(assertStaffCanPost).mockResolvedValue(false);
+    vi.mocked(assertStaffCanPost).mockResolvedValue(false as any);
 
     const res = await postNudge(
       makeRequest('http://localhost:3000/api/counselor/nudge', {

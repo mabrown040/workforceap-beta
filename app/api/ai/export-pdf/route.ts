@@ -129,56 +129,6 @@ function sanitizeLine(s: string): string {
   return normalizePdfExportText(s).replace(/\n+/g, ' ');
 }
 
-/**
- * Parse a "## Skill Profile" section out of free-form body text and return a
- * single-series radar payload. Callers that hit this endpoint without an
- * explicit `chartData` (e.g. the AI History download button rendering an old
- * Skill Mapper result) still get the radar visualization on top of the text.
- *
- * The pre-rename "Ethics" axis is mapped to "Service" inline so old stored
- * results render with the current axis taxonomy \u2014 matches the read-time shim
- * in app/api/member/skill-profile/route.ts.
- */
-function radarFromSkillProfileText(text: string): RadarChartData | null {
-  const lines = text.split(/\r?\n/);
-  let inSection = false;
-  const out: { axis: string; value: number }[] = [];
-  for (const raw of lines) {
-    const line = raw.trim();
-    if (/^#{1,3}\s*Skill Profile\b/i.test(line)) { inSection = true; continue; }
-    if (!inSection) continue;
-    if (!line) {
-      if (out.length > 0) break;
-      continue;
-    }
-    if (/^#{1,3}\s/.test(line)) break;
-    const m = line.match(/^([A-Za-z][A-Za-z &/-]{1,40}?):\s*(\d{1,3}(?:\.\d+)?)\s*%?\s*$/);
-    if (!m) break;
-    let axis = m[1].trim();
-    if (axis === 'Ethics') axis = 'Service';
-    const pct = Number(m[2]);
-    if (!Number.isFinite(pct)) break;
-    out.push({ axis, value: Math.max(0, Math.min(1, pct / 100)) });
-  }
-  if (out.length < 3) return null;
-  return { type: 'radar', axes: out.map(v => v.axis), series: [{ values: out }] };
-}
-
-/** Rewrite a legacy "Ethics:" axis row to "Service:" when it appears inside a Skill Profile block. */
-function rewriteLegacyAxisNames(text: string): string {
-  const lines = text.split('\n');
-  let inSection = false;
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (/^#{1,3}\s*Skill Profile\b/i.test(line)) { inSection = true; continue; }
-    if (!inSection) continue;
-    if (!line) { if (i > 0 && /^#{1,3}\s/.test((lines[i + 1] ?? '').trim())) inSection = false; continue; }
-    if (/^#{1,3}\s/.test(line)) { inSection = false; continue; }
-    lines[i] = lines[i].replace(/^(\s*)Ethics:/, '$1Service:');
-  }
-  return lines.join('\n');
-}
-
 type EmbeddedLogo = Awaited<ReturnType<PDFDocument['embedPng']>> | null;
 
 async function loadLogo(pdfDoc: PDFDocument): Promise<EmbeddedLogo> {

@@ -25,3 +25,13 @@ test('funder program summary CSV is header-first with requested columns', () => 
   assert.ok(lines[1].startsWith('Healthcare Admin,'));
   assert.ok(lines[1].includes('10,5,2,1,3,20%,10%'));
 });
+
+test('funder program summary CSV is header-only when there are no program rows', () => {
+  const csv = buildFunderProgramSummaryCsv([]);
+  const lines = csv.trim().split('\r\n');
+  assert.equal(lines.length, 1);
+  assert.equal(
+    lines[0],
+    'Program,Total Enrolled,Active (last 30d),Completed,Placed,At-Risk,Completion %,Placement %',
+  );
+});

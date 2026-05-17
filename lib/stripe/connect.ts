@@ -32,15 +32,19 @@ export async function createAccountLink(accountId: string, refreshUrl: string, r
 export async function createPayoutTransfer(
   amountCents: number,
   destinationAccountId: string,
-  metadata: Record<string, string> = {}
+  metadata: Record<string, string> = {},
+  idempotencyKey?: string
 ) {
   const stripe = getStripeConnect();
-  const transfer = await stripe.transfers.create({
-    amount: amountCents,
-    currency: 'usd',
-    destination: destinationAccountId,
-    metadata,
-  });
+  const transfer = await stripe.transfers.create(
+    {
+      amount: amountCents,
+      currency: 'usd',
+      destination: destinationAccountId,
+      metadata,
+    },
+    { idempotencyKey }
+  );
   return transfer;
 }
 

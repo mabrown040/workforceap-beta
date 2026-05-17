@@ -72,12 +72,13 @@ export async function POST(request: NextRequest) {
 
     const payoutAmount = getPartnerPlacementPayoutUsd();
     const amountCents = Math.round(payoutAmount * 100);
+    const idempotencyKey = `partner-payout:${partnerId}:${placementId}:${Math.floor(Date.now() / 1000 / 60)}`;
 
     const transfer = await createPayoutTransfer(amountCents, partner.stripeConnectId, {
       partnerId,
       placementId,
       triggeredBy: user.id,
-    });
+    }, idempotencyKey);
 
     return NextResponse.json({
       transferId: transfer.id,

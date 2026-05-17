@@ -5,6 +5,7 @@ import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { prisma } from '@/lib/db/prisma';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 // Handles Supabase email confirmation and OAuth redirects.
 // Supabase sends ?code=xxx (PKCE); we exchange it for a session then redirect.
@@ -15,11 +16,7 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = await cookies();
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error('Missing Supabase environment variables');
-    }
+    const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
     const supabase = createServerClient(
       supabaseUrl,
       supabaseAnonKey,

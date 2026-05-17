@@ -1,20 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import { getImgProps } from 'next/dist/shared/lib/get-img-props';
 import defaultLoader from 'next/dist/shared/lib/image-loader';
-import { imageConfigDefault } from 'next/dist/shared/lib/image-config';
+import { imageConfigDefault, type ImageConfigComplete } from 'next/dist/shared/lib/image-config';
 import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 /** Mirrors `components/marketing/ui` Image config merging + `next.config.ts` deviceSizes cap. */
-function heroTestImageConfig() {
+function heroTestImageConfig(): ImageConfigComplete {
   const deviceSizes = [384, 640, 750, 828, 1080, 1200, 1920];
   const allSizes = [...deviceSizes, ...imageConfigDefault.imageSizes].sort((a, b) => a - b);
   return {
     ...imageConfigDefault,
     deviceSizes: [...deviceSizes].sort((a, b) => a - b),
-    allSizes,
     qualities: [75, 85],
     formats: ['image/avif', 'image/webp'],
-  };
+    // `allSizes` is consumed by get-img-props but not on the public
+    // ImageConfigComplete type; attach via cast.
+    ...({ allSizes } as Record<string, unknown>),
+  } as ImageConfigComplete;
 }
 
 describe('marketing hero image (sizes + srcSet)', () => {

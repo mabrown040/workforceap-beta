@@ -9,6 +9,7 @@ import {
 } from '@/lib/auth/mfaTrust';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { checkVerifyMfaRateLimit } from '@/lib/rate-limit';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 /**
  * POST /api/auth/verify-mfa
@@ -39,11 +40,7 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(false);
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
-  }
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
 
   const supabase = createServerClient(
     supabaseUrl,

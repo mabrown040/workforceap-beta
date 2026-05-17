@@ -32,7 +32,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   }
 
   // Rate limit by email AND independently by IP. The per-(ip,email) key
-  // alone permits credential-stuffing — an attacker rotating emails on
+  // alone permits credential-stuffing - an attacker rotating emails on
   // one IP gets a fresh bucket per email. `checkAuthIpRateLimit` caps
   // the total auth attempts from any single IP regardless of which
   // email is being tried.
@@ -86,12 +86,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     let friendly: string;
     if (/email not confirmed/i.test(msg)) {
       friendly =
-        "Your email hasn’t been verified yet. Check your inbox for the verification link, or contact us at (512) 777-1808 for help.";
+        "Your email hasn't been verified yet. Check your inbox for the verification link, or contact us at (512) 777-1808 for help.";
     } else if (/user.*disabled|account.*disabled|banned/i.test(msg)) {
       friendly =
-        "Your account isn’t available. Contact us at (512) 777-1808 for help.";
+        "Your account isn't available. Contact us at (512) 777-1808 for help.";
     } else {
-      friendly = msg || 'Incorrect email or password.';
+      // Always return identical generic message to prevent account enumeration
+      friendly = 'Incorrect email or password.';
     }
     return NextResponse.json({ error: friendly }, { status: 401 });
   }

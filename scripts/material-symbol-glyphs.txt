@@ -78,6 +78,7 @@ extension
 fact_check
 favorite
 feedback
+file_download
 filter_alt_off
 filter_list
 fitness_center

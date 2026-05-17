@@ -54,7 +54,7 @@ describe('HeroSection', () => {
     );
     const img = container.querySelector('img');
     expect(img).toHaveAttribute('src', '/hero-bg.jpg');
-    expect(img).toHaveAttribute('sizes', '(max-width: 1920px) 100vw, 1920px');
+    expect(img).toHaveAttribute('sizes', '100vw');
     expect(img).toHaveAttribute('data-priority', 'true');
   });
 

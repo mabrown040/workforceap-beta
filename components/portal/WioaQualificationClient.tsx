@@ -6,7 +6,7 @@ import type { WioaBarrier, WioaEligibilitySignal, WioaQualificationSnapshot } fr
 import { barrierLabel } from '@/lib/wioa/wioaQualification';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { PortalInput } from '@/components/portal/ui/PortalInput';
-import PortalVoiceSession from '@/components/portal/PortalVoiceSession';
+import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 
 type ClientMode = 'member' | 'public';
@@ -286,7 +286,7 @@ export default function WioaQualificationClient({
               glowColor="#0d9488"
               gradient="linear-gradient(135deg, #99f6e4 0%, #14b8a6 45%, #0f766e 100%)"
             >
-              <PortalVoiceSession
+              <PortalVoiceSessionLazy
                 sessionEndpoint={voiceSessionEndpoint}
                 sessionPayload={voicePayload}
                 title="WIOA Qualification Assessment"

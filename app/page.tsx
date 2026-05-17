@@ -222,6 +222,7 @@ export default async function HomePage() {
                 variant: 'ghost',
                 radius: 'md',
                 large: true,
+                onDarkGhost: true,
                 className: 'home-hero__cta-ghost',
               })}
             >

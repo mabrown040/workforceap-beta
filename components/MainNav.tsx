@@ -51,19 +51,30 @@ function isOnApplyFunnel(pathnameWithoutLocale: string): boolean {
   return pathnameWithoutLocale === '/apply' || pathnameWithoutLocale.startsWith('/apply/');
 }
 
-type PortalSubmenuItem = { href: string; label: string };
+type GuestSignInCTAKey =
+  | 'memberSignIn'
+  | 'counselorSignIn'
+  | 'employerSignIn'
+  | 'partnerSignIn'
+  | 'adminSignIn';
 
-/** English route labels — localized through `translateLabel` → `messages.cta.*` (never show generic Sign In twice). */
-const GUEST_LOGIN_SUBMENU: PortalSubmenuItem[] = [
-  { href: '/login?redirectTo=/dashboard', label: 'Member Sign In' },
-  { href: '/login?redirectTo=/counselor', label: 'Counselor Sign In' },
-  { href: '/login?redirectTo=/employer', label: 'Employer Sign In' },
-  { href: '/login?redirectTo=/partner', label: 'Partner Sign In' },
-  { href: '/login?redirectTo=/admin', label: 'Admin Sign In' },
+type GuestLoginSubmenuItem = { href: string; signInCtaKey: GuestSignInCTAKey };
+
+/** Explicit `cta` keys — always distinct labels in every locale (never duplicate generic “Sign In”). */
+const GUEST_LOGIN_SUBMENU: GuestLoginSubmenuItem[] = [
+  { href: '/login?redirectTo=/dashboard', signInCtaKey: 'memberSignIn' },
+  { href: '/login?redirectTo=/counselor', signInCtaKey: 'counselorSignIn' },
+  { href: '/login?redirectTo=/employer', signInCtaKey: 'employerSignIn' },
+  { href: '/login?redirectTo=/partner', signInCtaKey: 'partnerSignIn' },
+  { href: '/login?redirectTo=/admin', signInCtaKey: 'adminSignIn' },
 ];
 
+type PortalSubmenuItem =
+  | GuestLoginSubmenuItem
+  | { href: string; label: string };
+
 /** Partner-exclusive session: alternate sign-in shortcuts only */
-const PARTNER_EXCLUSIVE_LOGIN_SUBMENU: PortalSubmenuItem[] =
+const PARTNER_EXCLUSIVE_LOGIN_SUBMENU: GuestLoginSubmenuItem[] =
   GUEST_LOGIN_SUBMENU.slice(0, 3);
 
 export default function MainNav() {
@@ -111,15 +122,13 @@ export default function MainNav() {
     const ctaMap: Record<string, string> = {
       'Apply Now': tCta('applyNow'),
       'Login': tCta('logIn'),
-      'Member Sign In': tCta('memberSignIn'),
-      'Counselor Sign In': tCta('counselorSignIn'),
-      'Employer Sign In': tCta('employerSignIn'),
-      'Partner Sign In': tCta('partnerSignIn'),
-      'Admin Sign In': tCta('adminSignIn'),
     };
     if (label in ctaMap) return ctaMap[label];
     return label;
   };
+
+  const portalSubmenuLabel = (item: PortalSubmenuItem): string =>
+    'signInCtaKey' in item ? tCta(item.signInCtaKey) : translateLabel(item.label);
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -410,7 +419,7 @@ export default function MainNav() {
                       className={portalHrefActive(item.href.split('?')[0]) ? 'active' : undefined}
                       onClick={closeMobile}
                     >
-                      {translateLabel(item.label)}
+                      {portalSubmenuLabel(item)}
                     </LocalizedLink>
                   </li>
                 ))}

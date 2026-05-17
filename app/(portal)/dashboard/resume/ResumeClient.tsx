@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import dynamic from 'next/dynamic';
+
+const MarkdownPreview = dynamic(() => import('@/components/MarkdownPreview'), { ssr: false });
 import "@/css/counselor.css";
 import { uploadMemberResumeFile } from "@/lib/portal/memberResumeUpload";
 import { trackFunnelEvent } from "@/lib/analytics/events";
@@ -617,22 +618,7 @@ export default function ResumeClient({
                     color: "var(--color-on-surface)",
                   }}
                 >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      a: ({ href, children }) => (
-                        <a
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {children}
-                        </a>
-                      ),
-                    }}
-                  >
-                    {resumeData.enhancedText}
-                  </ReactMarkdown>
+                <MarkdownPreview>{resumeData.enhancedText}</MarkdownPreview>
                 </article>
               )}
           </div>

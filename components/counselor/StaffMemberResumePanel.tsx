@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import dynamic from 'next/dynamic';
+
+const MarkdownPreview = dynamic(() => import('@/components/MarkdownPreview'), { ssr: false });
 
 type ResumeMeta = {
   hasOriginal: boolean;
@@ -237,18 +238,7 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
                 color: 'var(--color-on-surface)',
               }}
             >
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  a: ({ href, children }) => (
-                    <a href={href} target="_blank" rel="noopener noreferrer">
-                      {children}
-                    </a>
-                  ),
-                }}
-              >
-                {data.enhancedText}
-              </ReactMarkdown>
+              <MarkdownPreview>{data.enhancedText}</MarkdownPreview>
             </article>
           )}
       </div>
@@ -347,7 +337,7 @@ export default function StaffMemberResumePanel({ memberId }: StaffMemberResumePa
                       color: 'var(--color-on-surface)',
                     }}
                   >
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.enhancedText}</ReactMarkdown>
+                    <MarkdownPreview>{data.enhancedText}</MarkdownPreview>
                   </article>
                 )}
             </div>

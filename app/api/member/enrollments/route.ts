@@ -34,7 +34,7 @@ function deriveEnrollmentStatus(progress: { status: string }[]): string {
         });
 
         const progress = await prisma.courseProgress.findMany({
-          take: 5000,
+          take: 500,
           where: {
             userId: user.id,
             programSlug: { in: enrollments.map((e) => e.programSlug) },

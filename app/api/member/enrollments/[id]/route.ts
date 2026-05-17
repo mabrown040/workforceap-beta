@@ -30,7 +30,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     }
 
     const courseProgress = await prisma.courseProgress.findMany({
-      take: 5000,
+      take: 500,
       where: {
         userId: user.id,
         programSlug: enrollment.programSlug,

@@ -31,12 +31,12 @@ function computeOutcomes(orgId: string) {
         db.placementRecord.findMany({
           where: {},
           select: { userId: true },
-          take: 5000,
+          take: 500,
         }),
         db.courseEnrollment.findMany({
           where: { programSlug: { in: programSlugs } },
           select: { userId: true, programSlug: true },
-          take: 5000,
+          take: 500,
         }),
       ]);
 

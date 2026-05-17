@@ -70,7 +70,7 @@ export async function loadMemberProgramTrainingView(args: {
 
   const [rows, rollup] = await Promise.all([
     prisma.courseProgress.findMany({
-      take: 5000,
+      take: 500,
       where: { userId: args.userId, programSlug: args.programSlug },
       select: {
         courseSlug: true,

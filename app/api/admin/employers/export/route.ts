@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const employers = await prisma.employer.findMany({
       where,
       orderBy: { companyName: 'asc' },
-      take: 5000,
+      take: 500,
       include: {
         user: { select: { email: true, fullName: true } },
         _count: { select: { jobs: true } },

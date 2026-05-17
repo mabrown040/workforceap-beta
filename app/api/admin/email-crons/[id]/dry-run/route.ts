@@ -129,7 +129,7 @@ async function simulateCron(id: string): Promise<DryRunResult> {
     case 'inactivity-nudge': {
       const fourteenDaysAgo = new Date();
       fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-      const recentActiveIds = await prisma.memberEvent.findMany({ take: 5000, where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'] });
+      const recentActiveIds = await prisma.memberEvent.findMany({ take: 500, where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'] });
       const activeSet = new Set(recentActiveIds.map(r => r.userId));
       // Mirror the production inactivity-nudge recipient filter: a user
       // is eligible if they have ANY course_enrollments row OR the legacy

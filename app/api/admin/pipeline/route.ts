@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
         profile: { select: { resumeOriginalPath: true, resumeEnhancedPath: true } },
         aiToolResults: { select: { id: true }, take: 1 },
       },
-      take: 5000,
+      take: 500,
     });
 
     const c = {

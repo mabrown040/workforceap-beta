@@ -102,7 +102,7 @@ export type PipelineRow = {
  */
 export async function loadPartnerReferralBundle(partnerId: string, tenantOrganizationId: string) {
   const referrals = await prisma.partnerReferral.findMany({
-    take: 5000,
+    take: 500,
     where: {
       partnerId,
       partner: { organizationId: tenantOrganizationId },

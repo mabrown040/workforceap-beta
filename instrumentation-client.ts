@@ -73,7 +73,7 @@ async function initSentry() {
   Sentry.init({
     dsn,
     tracesSampleRate: 0.1,
-    replaysSessionSampleRate: 0.05,
+    replaysSessionSampleRate: Number(process.env.NEXT_PUBLIC_SENTRY_REPLAY_SAMPLE_RATE ?? '0.01'),
     replaysOnErrorSampleRate: 1.0,
     integrations: [
       // Replay default is to render the DOM verbatim. For a portal that

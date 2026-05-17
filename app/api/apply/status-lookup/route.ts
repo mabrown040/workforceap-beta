@@ -44,12 +44,13 @@ function getClientIp(request: NextRequest): string {
       select: { id: true },
     });
 
+    // Anti-enumeration: return identical generic response regardless of
+    // whether the email exists or has an application (AUDIT §H-S4).
+    const genericMessage =
+      'If we have an application on file for that email, you will receive status updates by email and SMS. Otherwise, you can submit a new application at workforceap.org/apply.';
+
     if (!dbUser) {
-      return NextResponse.json({
-        found: false,
-        message:
-          'We could not find an application for that email. Double-check spelling, or apply if you have not submitted yet.',
-      });
+      return NextResponse.json({ found: false, message: genericMessage });
     }
 
     const application = await prisma.application.findFirst({
@@ -59,10 +60,7 @@ function getClientIp(request: NextRequest): string {
     });
 
     if (!application) {
-      return NextResponse.json({
-        found: false,
-        message: 'We could not find an application on file for that email.',
-      });
+      return NextResponse.json({ found: false, message: genericMessage });
     }
 
     const statusKey = applicationStatusForPublicLookup(application.status);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { prisma } from '@/lib/db/prisma';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
           type,
           rating,
           comment: comment?.trim() || null,
-          metadata: metadata ?? null,
+          metadata: metadata as unknown as Prisma.InputJsonValue ?? null,
         },
       });
 

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import type { ComponentProps } from 'react';
-import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
+import { useLocaleFromPath } from '@/lib/i18n/client';
+import { localizeHref } from '@/lib/i18n/localizeHref';
 
 type LinkProps = ComponentProps<typeof Link>;
 

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildCsv, csvDate } from '@/lib/csv';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { auditLog } from '@/lib/audit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
@@ -175,6 +176,19 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     headers['X-Export-Truncated'] = 'true';
     headers['X-Export-Limit'] = `${EXPORT_LIMIT}`;
   }
+
+  // AUDIT §H-DEP4: federal-grant exports must leave an audit trail.
+  await auditLog({
+    actorUserId: user.id,
+    action: 'admin.export.cohort',
+    targetType: 'CohortExport',
+    metadata: {
+      programSlug: slug,
+      rowCount: users.length,
+      truncated: users.length >= EXPORT_LIMIT,
+      limit: EXPORT_LIMIT,
+    },
+  }).catch((err) => console.error('[admin/cohort-export] audit log failed:', err));
 
   return new NextResponse(csv, { status: 200, headers });
   } catch {

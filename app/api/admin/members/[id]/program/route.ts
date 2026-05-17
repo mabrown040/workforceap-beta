@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
@@ -33,6 +34,17 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
   const program = getProgramBySlug(programSlug);
   if (!program) {
     return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
+  }
+
+  // Tenant scope: an Org A admin cannot change program enrollment on
+  // an Org B member by guessing their UUID.
+  const orgId = await getActorOrganizationId(user.id);
+  const target = await prisma.user.findFirst({
+    where: { id, organizationId: orgId },
+    select: { id: true },
+  });
+  if (!target) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }
 
   const now = new Date();

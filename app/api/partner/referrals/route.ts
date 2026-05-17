@@ -66,11 +66,18 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
 
     const { memberId } = parsed.data;
 
+    // Reject cross-tenant referrals. Without this, a partner in Org A could
+    // claim any member in Org B; the corrupted PartnerReferral row would
+    // persist even though loadPartnerReferralBundle hides it from the UI
+    // (AUDIT §C-T5).
     const member = await prisma.user.findUnique({
       where: { id: memberId },
-      select: { id: true, fullName: true },
+      select: { id: true, fullName: true, organizationId: true },
     });
     if (!member) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+    }
+    if (member.organizationId !== ctx.partner.organizationId) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 

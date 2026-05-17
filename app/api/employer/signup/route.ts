@@ -4,7 +4,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { employerSignupSchema } from '@/lib/validation/employer';
-import { checkPartnerSignupRateLimit } from '@/lib/rate-limit';
+import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { sendEmployerWelcomeEmail, sendEmployerSignupAdminAlertEmail } from '@/lib/email';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
@@ -46,6 +46,15 @@ export async function POST(request: NextRequest) {
     }
 
     const data = parsed.data;
+
+    // Per-email rate limit (3/hr) — caps target-mail spam from IP-rotators.
+    const { success: emailRateOk } = await checkSignupEmailRateLimit(data.email);
+    if (!emailRateOk) {
+      return NextResponse.json(
+        { error: 'Too many signup attempts for this email. Please try again later.' },
+        { status: 429 }
+      );
+    }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

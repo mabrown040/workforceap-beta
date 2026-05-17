@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   _request: Request,
@@ -14,6 +16,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     await requireAdmin(user.id);
 
     const { id } = await params;
+    const orgId = await getActorOrganizationId(user.id);
 
     // Soft-delete the Prisma row AND release the email from the unique
     // constraint so a fresh sign-up with the same address can succeed.
@@ -22,11 +25,17 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     // the User.email @unique constraint and the new account can't be
     // created. We rewrite to a sentinel address that preserves the
     // original for audit (deleted_<userId>_<originalEmail>@deleted.invalid).
+    //
+    // Tenant scope: lookup + update wrapped in withTenantScope so an
+    // admin from Org A cannot delete a member from Org B by guessing
+    // their UUID.
     const now = new Date();
-    const existing = await prisma.user.findUnique({
-      where: { id },
-      select: { email: true, deletedAt: true },
-    });
+    const existing = await withTenantScope(orgId, (db) =>
+      db.user.findFirst({
+        where: { id },
+        select: { email: true, deletedAt: true },
+      }),
+    );
     if (!existing) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -38,13 +47,15 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       ? existing.email
       : `deleted_${id}_${now.getTime()}_${existing.email}@deleted.invalid`.slice(0, 255);
 
-    await prisma.user.update({
-      where: { id },
-      data: {
-        deletedAt: now,
-        email: newEmail,
-      },
-    });
+    await withTenantScope(orgId, (db) =>
+      db.user.update({
+        where: { id },
+        data: {
+          deletedAt: now,
+          email: newEmail,
+        },
+      }),
+    );
 
     const supabaseAdmin = getSupabaseAdmin();
     const { error } = await supabaseAdmin.auth.admin.deleteUser(id);

@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { normalizePostLoginRedirect, resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
-import { checkAuthRateLimit } from '@/lib/rate-limit';
+import { checkAuthRateLimit, checkAuthIpRateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -29,11 +30,18 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
   }
 
-  // Rate limit by email to prevent brute-force
+  // Rate limit by email AND independently by IP. The per-(ip,email) key
+  // alone permits credential-stuffing — an attacker rotating emails on
+  // one IP gets a fresh bucket per email. `checkAuthIpRateLimit` caps
+  // the total auth attempts from any single IP regardless of which
+  // email is being tried.
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
   const rateLimitKey = `login:${ip}:${email.toLowerCase()}`;
-  const { success: withinLimit } = await checkAuthRateLimit(rateLimitKey);
-  if (!withinLimit) {
+  const [emailBucket, ipBucket] = await Promise.all([
+    checkAuthRateLimit(rateLimitKey),
+    checkAuthIpRateLimit(ip),
+  ]);
+  if (!emailBucket.success || !ipBucket.success) {
     return NextResponse.json(
       {
         error:
@@ -46,9 +54,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(!rememberMe); // sessionOnly = !rememberMe
 
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookieOptions: cookieOpts,
       cookies: {

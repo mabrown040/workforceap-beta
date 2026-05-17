@@ -11,6 +11,7 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { inferResumeFramework, resumeFrameworkPromptBlock, type ResumeFramework } from '@/lib/resume/inferResumeFramework';
 import { prefillResumeRewriter, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
 import { prisma } from '@/lib/db/prisma';
+import { analyzeResume } from '@/lib/ai/resumeScore';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -119,14 +120,45 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   1. REPOSITIONED RESUME: The full resume, repositioned toward their goal. Use clear section headers.
   2. HOW WE POSITIONED YOU: 3-5 bullet points explaining what was reframed and why — helping the member understand the strategy, not just copy the output.`;
   
+    // Pre-LLM evidence gathering: structural gaps + O*NET top-importance skills + live market keywords.
+    // Used as REFRAMING TARGETS only — never as license to fabricate. The anti-invention rules in the
+    // system prompt still apply; this section tells the LLM what to look for in the existing resume.
+    let evidenceBlock = '';
+    try {
+      const analysis = await analyzeResume(finalResume);
+      const lines: string[] = ['', 'EVIDENCE-BACKED REFRAMING TARGETS (use to identify existing claims to strengthen — NEVER fabricate):'];
+      const weakBullets = Object.entries(analysis.structural.breakdown)
+        .filter(([, sub]) => sub.score < 70)
+        .flatMap(([, sub]) => sub.notes.filter((n) => n.startsWith('  • L')));
+      if (weakBullets.length > 0) {
+        lines.push('Structural weakness — bullets to strengthen if true claims exist:');
+        weakBullets.slice(0, 6).forEach((n) => lines.push(`  ${n.trim()}`));
+      }
+      analysis.onetCoverage.forEach((c) => {
+        if (c.topGaps.length === 0) return;
+        lines.push(`O*NET top-importance skills for ${c.title} not surfaced in current draft (surface only if the member actually has them):`);
+        c.topGaps.slice(0, 4).forEach((g) => lines.push(`  - ${g.skill.name} (importance ${g.skill.importance})`));
+      });
+      analysis.marketCoverage.forEach((m, i) => {
+        if (m.mustHaveMissing.length === 0) return;
+        const occ = analysis.occupations[i];
+        lines.push(`Live market must-have keywords missing from current draft for ${occ?.title ?? 'target'} (surface only if accurate):`);
+        m.mustHaveMissing.slice(0, 6).forEach((k) => lines.push(`  - ${k.phrase} (${Math.round(k.frequency * 100)}% of postings)`));
+      });
+      if (lines.length > 2) evidenceBlock = lines.join('\n');
+    } catch (err) {
+      console.error('[resume-rewriter] analyzeResume signal-gathering failed:', err instanceof Error ? err.message : err);
+    }
+
     const userPrompt = `CAREER GOAL
   Target role: ${finalJobTarget ?? 'not specified'}${goalContext ? `\n${goalContext}` : ''}
-  
+${evidenceBlock}
+
   ORIGINAL RESUME
   ---
   ${finalResume}
   ---
-  
+
   Reposition this resume toward the career goal above. Remember: only work with what is actually in the resume. Frame it powerfully toward the target — do not invent anything.`;
   
     try {

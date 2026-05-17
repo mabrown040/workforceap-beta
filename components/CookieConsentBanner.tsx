@@ -1,17 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-
-const COOKIE_CONSENT_KEY = 'wap-cookie-consent';
+import { useEffect, useState } from 'react';
+import {
+  detectGpc,
+  pushConsentToGtag,
+  readConsent,
+  writeConsent,
+} from '@/lib/consent/state';
 
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const [mobilePortalOffset, setMobilePortalOffset] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
-    if (!consent) {
-      setVisible(true);
+    const existing = readConsent();
+    if (existing.decision === 'unset') {
+      if (detectGpc()) {
+        // Honor the browser signal automatically and skip showing the banner.
+        // The privacy policy commits to treating GPC as a valid opt-out.
+        writeConsent('declined', { fromGpc: true });
+        pushConsentToGtag('declined');
+      } else {
+        setVisible(true);
+      }
     }
     const syncViewport = () => setMobilePortalOffset(window.innerWidth < 768);
     syncViewport();
@@ -30,12 +41,14 @@ export default function CookieConsentBanner() {
   }, [visible, mobilePortalOffset]);
 
   const accept = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify({ accepted: true, date: new Date().toISOString() }));
+    writeConsent('accepted');
+    pushConsentToGtag('accepted');
     setVisible(false);
   };
 
   const decline = () => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify({ accepted: false, date: new Date().toISOString() }));
+    writeConsent('declined');
+    pushConsentToGtag('declined');
     setVisible(false);
   };
 
@@ -64,9 +77,9 @@ export default function CookieConsentBanner() {
     >
       <div style={{ flex: 1, minWidth: 280 }}>
         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-on-surface)', lineHeight: 1.5 }}>
-          We use cookies to improve your experience. By continuing, you agree to our{' '}
-          <a href="/terms" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Terms</a> and{' '}
-          <a href="/privacy" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Privacy Policy</a>.
+          We use cookies and similar technologies to improve your experience and measure how our site is used. See our{' '}
+          <a href="/privacy" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Privacy Policy</a> and{' '}
+          <a href="/terms" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Terms</a>.
         </p>
       </div>
       <div style={{ display: 'flex', gap: '0.75rem', flexShrink: 0 }}>

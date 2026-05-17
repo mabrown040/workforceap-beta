@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { getProgramBySlug } from '@/lib/content/programs';
 import {
   INTEREST_PROFILER_STORAGE_KEY,
+  MINI_IP_MAX_PER_DIMENSION,
+  riasecToRadarAxes,
   type StoredInterestProfilerV1,
   type InterestProfilerRiasec,
 } from '@/lib/content/quizIpMerge';
@@ -36,6 +38,78 @@ export default function InterestProfilerClient() {
   const [submitting, setSubmitting] = useState(false);
   const [scoreError, setScoreError] = useState<string | null>(null);
   const [score, setScore] = useState<ScoreResponse | null>(null);
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  const exportResultsPdf = useCallback(async (payload: ScoreResponse) => {
+    if (!payload.riasec) return;
+    setExportingPdf(true);
+    setExportError(null);
+    try {
+      const radarValues = riasecToRadarAxes(payload.riasec);
+      const riasecLines = payload.result.map((r) => `${r.title}: ${r.score} of ${MINI_IP_MAX_PER_DIMENSION}`);
+      const careerLines = payload.careers.slice(0, 15).map((c) => {
+        const fit = c.fit ? ` — ${c.fit}` : '';
+        return `${c.title} (${c.code})${fit}`;
+      });
+      const programLines = payload.programSlugs
+        .map((slug) => {
+          const program = getProgramBySlug(slug);
+          return program ? `${program.title} — ${program.categoryLabel}` : null;
+        })
+        .filter((line): line is string => Boolean(line));
+
+      const text = [
+        'Mini O*NET Interest Profiler — 30 questions',
+        '',
+        '## Your RIASEC interest scores',
+        ...riasecLines,
+        '',
+        ...(careerLines.length
+          ? ['## Sample career matches (from O*NET)', ...careerLines, '']
+          : []),
+        ...(programLines.length
+          ? ['## Mapped WorkforceAP programs', ...programLines, '']
+          : []),
+        '## How to use this',
+        'These results are saved to your Skill Profile and blended into the Skill Mapper radar so you can compare against any O*NET occupation.',
+      ].join('\n');
+
+      const response = await fetch('/api/ai/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'Interest Profiler Results',
+          toolName: 'Interest Profiler',
+          text,
+          chartData: {
+            type: 'radar',
+            axes: radarValues.map((a) => a.axis),
+            series: [
+              {
+                label: 'Your interest profile',
+                values: radarValues.map((a) => ({ axis: a.axis, value: a.value })),
+              },
+            ],
+          },
+        }),
+      });
+      if (!response.ok) throw new Error(`Export failed (${response.status})`);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `workforceap-interest-profiler-${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : 'Could not generate PDF');
+    } finally {
+      setExportingPdf(false);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -150,11 +224,42 @@ export default function InterestProfilerClient() {
         <h1 className="portal-page-title" style={{ marginBottom: '0.5rem' }}>
           Your interest profile
         </h1>
-        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', lineHeight: 1.65 }}>
+        <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.65 }}>
           Here are your RIASEC interest scores from the Mini Interest Profiler (30 questions). Results are also saved in
           this browser for when you use <Link href="/find-your-path">Find Your Path</Link> — we blend them gently with that
           quiz so recommendations stay aligned with both your interests and your situation.
         </p>
+
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+            alignItems: 'center',
+            marginBottom: '1.5rem',
+          }}
+        >
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => void exportResultsPdf(score)}
+            disabled={exportingPdf || !score.riasec}
+            aria-label="Download results as PDF"
+            aria-busy={exportingPdf}
+          >
+            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.1rem', marginRight: '0.4rem', verticalAlign: '-3px' }}>
+              file_download
+            </span>
+            <span aria-live="polite">
+              {exportingPdf ? 'Preparing PDF…' : 'Download PDF'}
+            </span>
+          </button>
+          {exportError && (
+            <span role="alert" style={{ color: '#b91c1c', fontSize: '0.85rem' }}>
+              {exportError}
+            </span>
+          )}
+        </div>
 
         <section style={{ marginBottom: '2rem' }}>
           <h2 className="wa-text-lg wa-font-semibold" style={{ marginBottom: '1rem' }}>

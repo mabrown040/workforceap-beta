@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendApplicationConfirmationEmail } from '@/lib/email';
-import { checkConfirmationEmailRateLimit } from '@/lib/rate-limit';
+import {
+  checkConfirmationEmailRateLimit,
+  checkConfirmationEmailEmailRateLimit,
+} from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -35,6 +38,14 @@ export async function POST(request: NextRequest) {
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
+    }
+
+    // Block IP-rotating spray against a target inbox. Without this, the
+    // per-IP cap alone lets a botnet send our branded confirmation email
+    // to any attacker-chosen address — domain abuse for phishing pretext.
+    const { success: emailWithinLimit } = await checkConfirmationEmailEmailRateLimit(parsed.data.email);
+    if (!emailWithinLimit) {
+      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
     }
 
     const result = await sendApplicationConfirmationEmail({

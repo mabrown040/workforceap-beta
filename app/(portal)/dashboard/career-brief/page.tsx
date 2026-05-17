@@ -50,7 +50,7 @@ const PROGRAM_TIPS: Record<string, { tips: string[]; topRoles: string[]; avgRamp
     tips: [
       'Medical billing roles often allow remote work after 90 days — ask during interviews',
       'Bilingual candidates earn 8–12% more in healthcare admin roles in Texas',
-      'HIPAA certification is free online and always worth mentioning',
+      'HIPAA certification is available at no cost online and always worth mentioning',
     ],
     topRoles: ['Medical Coder', 'Healthcare Administrator', 'Medical Billing Specialist'],
     avgRampMonths: 3,
@@ -76,7 +76,7 @@ const PROGRAM_TIPS: Record<string, { tips: string[]; topRoles: string[]; avgRamp
   'digital-literacy': {
     tips: [
       'Digital literacy opens admin and coordinator roles across every industry',
-      'Microsoft Office certification (free via LinkedIn Learning) adds credibility to your application',
+      'Microsoft Office certification (available at no cost via LinkedIn Learning) adds credibility to your application',
       'Entry-level roles often offer the fastest path to internal promotions',
     ],
     topRoles: ['Administrative Coordinator', 'Office Assistant', 'Data Entry Specialist'],

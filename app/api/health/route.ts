@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { publicApiCorsHeaders } from '@/lib/http/publicApiCors';
 import { checkPublicHealthRateLimit } from '@/lib/rate-limit';
+import { getXapiReadiness } from '@/lib/xapi/config';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -88,22 +89,12 @@ function checkEmail(): DepReport {
 }
 
 function checkCourseraXapi(): DepReport {
-  const endpoint = process.env.COURSERA_XAPI_ENDPOINT;
-  const username = process.env.COURSERA_XAPI_USERNAME;
-  const password = process.env.COURSERA_XAPI_PASSWORD;
-  const ssoSecret = process.env.COURSERA_SSO_SECRET;
-  const programId = process.env.COURSERA_DEFAULT_PROGRAM_ID;
-  const missing: string[] = [];
-  if (!endpoint) missing.push('COURSERA_XAPI_ENDPOINT');
-  if (!username) missing.push('COURSERA_XAPI_USERNAME');
-  if (!password) missing.push('COURSERA_XAPI_PASSWORD');
-  if (!ssoSecret) missing.push('COURSERA_SSO_SECRET');
-  if (!programId) missing.push('COURSERA_DEFAULT_PROGRAM_ID');
-  if (missing.length > 0) {
+  const readiness = getXapiReadiness();
+  if (!readiness.ready) {
     return {
       name: 'coursera_xapi',
       status: 'not_configured',
-      note: `missing env: ${missing.join(', ')}`,
+      note: `missing config: ${readiness.missing.join(', ')}`,
     };
   }
   return { name: 'coursera_xapi', status: 'ok', note: 'configured (config-only check)' };
@@ -202,4 +193,3 @@ export async function OPTIONS() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

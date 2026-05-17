@@ -22,7 +22,13 @@ function getApiKey(): string | undefined {
   return process.env.ONET_API_KEY?.trim() || undefined;
 }
 
-async function onetGet<T>(path: string, query?: Record<string, string | number | undefined>): Promise<T> {
+const MAX_RETRIES_429 = 4;
+
+async function onetGet<T>(
+  path: string,
+  query?: Record<string, string | number | undefined>,
+  attempt = 0
+): Promise<T> {
   const key = getApiKey();
   if (!key) {
     throw new Error('ONET_API_KEY is not configured');
@@ -44,10 +50,15 @@ async function onetGet<T>(path: string, query?: Record<string, string | number |
       'User-Agent': 'WorkforceAP/1.0 (career-matching)',
     },
     next: { revalidate: 0 },
+    signal: AbortSignal.timeout(15_000),
   });
   if (res.status === 429) {
-    await new Promise((r) => setTimeout(r, 250));
-    return onetGet<T>(path, query);
+    if (attempt >= MAX_RETRIES_429) {
+      throw new Error(`O*NET rate-limited after ${MAX_RETRIES_429} retries`);
+    }
+    const backoff = 250 * 2 ** attempt;
+    await new Promise((r) => setTimeout(r, backoff));
+    return onetGet<T>(path, query, attempt + 1);
   }
   const text = await res.text();
   let data: unknown;
@@ -125,20 +136,21 @@ export async function getOccupation(onetCode: string): Promise<OnetOccupationOve
     occupation?: { code: string; title: string; description?: string; tags?: { bright_outlook?: boolean } };
     error?: string;
   };
-  try {
-    const data = await onetGet<Ov>(`online/occupations/${encodeURIComponent(code)}/`);
-    if (data.error) return null;
-    const o = data.occupation;
-    if (!o) return null;
-    return {
-      code: o.code,
-      title: o.title,
-      description: o.description,
-      tags: o.tags,
-    };
-  } catch {
+  const data = await onetGet<Ov>(`online/occupations/${encodeURIComponent(code)}`);
+  if (data.error) {
+    // O*NET returns 200 with an error body for some "not found" cases.
     return null;
   }
+  const o = data.occupation;
+  if (!o) {
+    return null;
+  }
+  return {
+    code: o.code,
+    title: o.title,
+    description: o.description,
+    tags: o.tags,
+  };
 }
 
 type ElementRating = {
@@ -234,6 +246,112 @@ export async function getOccupationTechnology(onetCode: string): Promise<{ name:
   }
 }
 
+export async function getOccupationAbilities(onetCode: string) {
+  const code = encodeURIComponent(onetCode.trim());
+  try {
+    const data = await onetGet<unknown>(`online/occupations/${code}/details/abilities`, { sort: 'importance', start: 1, end: 30 });
+    return mapSkillsPayload(data);
+  } catch {
+    return [];
+  }
+}
+
+export async function getOccupationKnowledge(onetCode: string) {
+  const code = encodeURIComponent(onetCode.trim());
+  try {
+    const data = await onetGet<unknown>(`online/occupations/${code}/details/knowledge`, { sort: 'importance', start: 1, end: 30 });
+    return mapSkillsPayload(data);
+  } catch {
+    return [];
+  }
+}
+
+export async function getOccupationWorkActivities(onetCode: string) {
+  const code = encodeURIComponent(onetCode.trim());
+  try {
+    const data = await onetGet<unknown>(`online/occupations/${code}/details/work_activities`, { sort: 'importance', start: 1, end: 30 });
+    return mapSkillsPayload(data);
+  } catch {
+    return [];
+  }
+}
+
+export type OnetEducationEntry = {
+  title: string;
+  category: string;
+  percent?: number | null;
+  required?: boolean | null;
+};
+
+function mapEducationPayload(data: unknown): OnetEducationEntry[] {
+  if (!data || typeof data !== 'object') return [];
+  const d = data as {
+    education?: { category?: { title?: string; name?: string; education_type?: string; percent?: number; required?: boolean; example?: unknown[] }[] };
+    training?: { category?: { title?: string; name?: string; training_type?: string; percent?: number }[] };
+    experience?: { category?: { title?: string; name?: string; experience_type?: string; percent?: number }[] };
+    occupation?: { education?: unknown; training?: unknown; experience?: unknown };
+  };
+  const combined: OnetEducationEntry[] = [];
+  const pushCats = (cats: unknown[], defaultCategory: string) => {
+    if (!Array.isArray(cats)) return;
+    for (const c of cats) {
+      if (!c || typeof c !== 'object') continue;
+      const entry = c as { title?: string; name?: string; education_type?: string; training_type?: string; experience_type?: string; percent?: number; required?: boolean; example?: unknown[] };
+      const title = entry.title ?? entry.name ?? '';
+      if (!title) continue;
+      combined.push({
+        title,
+        category: defaultCategory,
+        percent: entry.percent ?? null,
+        required: entry.required ?? null,
+      });
+    }
+  };
+  pushCats(d.education?.category ?? d.occupation?.education as unknown[] ?? [], 'Education');
+  pushCats(d.training?.category ?? d.occupation?.training as unknown[] ?? [], 'Training');
+  pushCats(d.experience?.category ?? d.occupation?.experience as unknown[] ?? [], 'Experience');
+  return combined;
+}
+
+export async function getOccupationEducation(onetCode: string): Promise<OnetEducationEntry[]> {
+  const code = encodeURIComponent(onetCode.trim());
+  try {
+    const data = await onetGet<unknown>(`online/occupations/${code}/details/education_training_experience`);
+    return mapEducationPayload(data);
+  } catch {
+    return [];
+  }
+}
+
+export type OnetSampleTitle = {
+  title: string;
+  shortTitle?: boolean;
+};
+
+function mapSampleTitlesPayload(data: unknown): OnetSampleTitle[] {
+  if (!data || typeof data !== 'object') return [];
+  const d = data as {
+    alternate_titles?: { title?: { name?: string; title?: string; short_title?: boolean }[] };
+    occupation?: { alternate_titles?: { title?: { name?: string; title?: string; short_title?: boolean }[] } };
+  };
+  const arr = d.alternate_titles?.title ?? d.occupation?.alternate_titles?.title ?? [];
+  if (!Array.isArray(arr)) return [];
+  return arr.slice(0, 40).map((t) => ({
+    title: t.name ?? t.title ?? '',
+    shortTitle: t.short_title ?? false,
+  })).filter((t) => t.title.length > 0);
+}
+
+export async function getOccupationSampleTitles(onetCode: string): Promise<OnetSampleTitle[]> {
+  const code = encodeURIComponent(onetCode.trim());
+  try {
+    const data = await onetGet<unknown>(`online/occupations/${code}/summary/alternate_titles`);
+    return mapSampleTitlesPayload(data);
+  } catch {
+    return [];
+  }
+}
+
 export async function getRelatedOccupations(onetCode: string): Promise<{ code: string; title: string; relationship?: string }[]> {
   const code = encodeURIComponent(onetCode.trim());
   try {
@@ -248,3 +366,4 @@ export async function getRelatedOccupations(onetCode: string): Promise<{ code: s
     return [];
   }
 }
+

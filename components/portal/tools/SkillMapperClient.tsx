@@ -13,7 +13,7 @@ const DEMO_RADAR = [
   { axis: 'Engineering', value: 0.85 },
   { axis: 'Design', value: 0.38 },
   { axis: 'Strategy', value: 0.44 },
-  { axis: 'Ethics', value: 0.55 },
+  { axis: 'Service', value: 0.55 },
   { axis: 'Research', value: 0.61 },
 ];
 const DEMO_SKILLS = [
@@ -30,7 +30,7 @@ const DEMO_SALES_RADAR = [
   { axis: 'Engineering', value: 0.18 },
   { axis: 'Design', value: 0.22 },
   { axis: 'Strategy', value: 0.78 },
-  { axis: 'Ethics', value: 0.82 },
+  { axis: 'Service', value: 0.82 },
   { axis: 'Research', value: 0.38 },
 ];
 const DEMO_SALES_SKILLS = [
@@ -484,7 +484,10 @@ export default function SkillMapperClient() {
           chartData,
         }),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        setError("Couldn't generate the PDF — please try again. If this keeps happening, contact support.");
+        return;
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -492,6 +495,8 @@ export default function SkillMapperClient() {
       a.download = `workforceap-skill-map-${selectedTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setError("Couldn't generate the PDF — please try again. If this keeps happening, contact support.");
     } finally {
       setExportingPdf(false);
     }
@@ -541,7 +546,10 @@ export default function SkillMapperClient() {
           chartData,
         }),
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        setError("Couldn't generate the comparison PDF — please try again. If this keeps happening, contact support.");
+        return;
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -549,6 +557,8 @@ export default function SkillMapperClient() {
       a.download = `workforceap-skill-comparison-${(selectedTitle || 'profile').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setError("Couldn't generate the comparison PDF — please try again. If this keeps happening, contact support.");
     } finally {
       setExportingComparison(false);
     }
@@ -797,12 +807,15 @@ export default function SkillMapperClient() {
                   type="button"
                   onClick={() => void exportSkillMap()}
                   disabled={exportingPdf}
+                  aria-busy={exportingPdf}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.8125rem', cursor: exportingPdf ? 'default' : 'pointer', opacity: exportingPdf ? 0.6 : 1 }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                     {exportingPdf ? 'hourglass_empty' : 'download'}
                   </span>
-                  {exportingPdf ? 'Saving…' : 'Export Skill Map PDF'}
+                  <span aria-live="polite">
+                    {exportingPdf ? 'Saving…' : 'Export Skill Map PDF'}
+                  </span>
                 </button>
                 {memberProfile.length > 0 && (
                   <button type="button" onClick={() => setActiveTab('profile')}
@@ -952,12 +965,15 @@ export default function SkillMapperClient() {
                       type="button"
                       onClick={() => void exportComparisonPdf()}
                       disabled={exportingComparison}
+                      aria-busy={exportingComparison}
                       style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.875rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.8rem', cursor: exportingComparison ? 'default' : 'pointer', opacity: exportingComparison ? 0.6 : 1 }}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
                         {exportingComparison ? 'hourglass_empty' : 'download'}
                       </span>
-                      {exportingComparison ? 'Saving…' : 'Export Comparison PDF'}
+                      <span aria-live="polite">
+                        {exportingComparison ? 'Saving…' : 'Export Comparison PDF'}
+                      </span>
                     </button>
                   </div>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', textAlign: 'center', marginBottom: '1.5rem', lineHeight: 1.5 }}>

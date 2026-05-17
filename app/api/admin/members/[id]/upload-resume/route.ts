@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -23,8 +24,12 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
 
   const { id: userId } = await params;
 
-  const member = await prisma.user.findUnique({
-    where: { id: userId },
+  // Tenant scope: an admin can only upload resumes for members of
+  // their organization. Without this filter, an admin from Org A
+  // could overwrite an Org B member's resume blob.
+  const orgId = await getActorOrganizationId(user.id);
+  const member = await prisma.user.findFirst({
+    where: { id: userId, organizationId: orgId },
     include: { profile: true },
   });
   if (!member || member.deletedAt) {

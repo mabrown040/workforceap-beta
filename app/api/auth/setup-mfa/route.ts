@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { apiError } from '@/lib/http/errorResponse';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 /**
  * POST /api/auth/setup-mfa
@@ -33,9 +35,11 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(false);
 
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookieOptions: cookieOpts,
       cookies: {
@@ -60,7 +64,12 @@ export async function POST(request: Request) {
   });
 
   if (error || !data) {
-    return NextResponse.json({ error: error?.message ?? 'Failed to start MFA enrollment.' }, { status: 500 });
+    // Don't echo Supabase's raw error text — it leaks provider-specific
+    // phrasing that can aid enumeration of factor state.
+    return apiError(error ?? new Error('mfa.enroll returned no data'), {
+      route: 'auth/setup-mfa',
+      message: 'Failed to start MFA enrollment.',
+    });
   }
 
   return NextResponse.json(
@@ -101,9 +110,11 @@ export async function PATCH(request: Request) {
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(false);
 
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookieOptions: cookieOpts,
       cookies: {

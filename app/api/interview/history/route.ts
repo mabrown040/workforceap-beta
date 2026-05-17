@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { getUser } from '@/lib/auth/server';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
-import { chatCompletion } from '@/lib/ai/groq';
+import { claudeChat } from '@/lib/ai/anthropicChat';
 import { prisma } from '@/lib/db/prisma';
 import { sendVoiceInterviewTranscriptEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -47,45 +47,10 @@ async function generateFeedback(params: {
     transcript,
   ].join('\n');
 
-  // Try Anthropic first
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (anthropicKey) {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
-        max_tokens: 900,
-        temperature: 0.3,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }],
-      }),
-    });
+  const feedback = await claudeChat(systemPrompt, userPrompt, { maxTokens: 900, temperature: 0.3 });
+  if (feedback) return feedback;
 
-    if (response.ok) {
-      const payload = (await response.json()) as {
-        content?: Array<{ type: string; text?: string }>;
-      };
-      const feedback = payload.content?.find((item) => item.type === 'text')?.text?.trim();
-      if (feedback) return feedback;
-    }
-  }
-
-  // Fall back to Groq
-  const groqResult = await chatCompletion(
-    [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ],
-    { maxTokens: 900, temperature: 0.3 }
-  );
-  if (groqResult) return groqResult;
-
-  throw new Error('No AI provider configured — set ANTHROPIC_API_KEY or GROQ_API_KEY');
+  throw new Error('No AI provider configured — set ANTHROPIC_API_KEY, GROQ_API_KEY, or GEMINI_API_KEY');
 }async function _GET(req: NextRequest) {
   try {
     const user = await getUser();

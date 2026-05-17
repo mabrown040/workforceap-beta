@@ -18,8 +18,24 @@ export function getCareerBriefs(): CareerBriefMeta[] {
 }
 
 export function getCareerBriefContent(slug: string): string | null {
+  // Path-traversal guard: only allow slugs that match a known brief.
+  // Without this, the [slug] dynamic route segment in
+  // `app/(portal)/dashboard/career-brief/[slug]/page.tsx` will pass
+  // URL-decoded `..` segments straight into `path.join`, letting a
+  // signed-in member read any `*.md` file beneath the project root.
+  // Defense-in-depth: also normalize the resolved path and reject
+  // anything that escapes `content/career-brief/`.
+  if (!BRIEFS.some((b) => b.slug === slug)) return null;
+
+  const baseDir = join(process.cwd(), 'content', 'career-brief');
+  const filePath = join(baseDir, `${slug}.md`);
+  // join() resolves `..` segments; assert the result stays under baseDir
+  // (handles edge cases like Windows path separators or a future code
+  // change that loosens the slug check above).
+  if (!filePath.startsWith(baseDir + (filePath.includes('\\') ? '\\' : '/'))) {
+    return null;
+  }
   try {
-    const filePath = join(process.cwd(), 'content', 'career-brief', `${slug}.md`);
     return readFileSync(filePath, 'utf-8');
   } catch {
     return null;

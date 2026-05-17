@@ -1,26 +1,14 @@
-import 'server-only';
-
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
-import { buildCsv } from '@/lib/csv';
+import type { FunderProgramSummaryRow } from '@/lib/admin/funderProgramSummaryCsv';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { THRESHOLDS } from '@/lib/member/atRiskScoring';
-import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { THRESHOLDS } from '@/lib/member/atRiskScoring';
+import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 
 const EXPORT_LIMIT = 10_000;
 
-export type FunderProgramSummaryRow = {
-  programSlug: string;
-  programTitle: string;
-  totalEnrolled: number;
-  activeLast30d: number;
-  completed: number;
-  placed: number;
-  atRisk: number;
-  completionPct: number;
-  placementPct: number;
-};
+export type { FunderProgramSummaryRow } from '@/lib/admin/funderProgramSummaryCsv';
 
 /**
  * Aggregates enrollment, engagement, completion, placement, and at-risk counts per
@@ -157,34 +145,4 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
     rows,
     truncated: users.length >= EXPORT_LIMIT,
   };
-}
-
-const CSV_HEADERS = [
-  'Program',
-  'Total Enrolled',
-  'Active (last 30d)',
-  'Completed',
-  'Placed',
-  'At-Risk',
-  'Completion %',
-  'Placement %',
-] as const;
-
-export function buildFunderProgramSummaryCsv(summaryRows: FunderProgramSummaryRow[]): string {
-  const dataRows = summaryRows.map((r) => [
-    r.programTitle,
-    r.totalEnrolled,
-    r.activeLast30d,
-    r.completed,
-    r.placed,
-    r.atRisk,
-    `${r.completionPct}%`,
-    `${r.placementPct}%`,
-  ]);
-
-  return buildCsv([...CSV_HEADERS], dataRows, {
-    reportTitle: 'Program outcomes summary (funder / grant)',
-    notes:
-      'Member-only cohort. Active = any member_events in trailing 30 days. At-risk = open or acknowledged alerts with score >=50 (HIGH threshold). Completed = full curriculum progress for catalog-backed programs.',
-  });
 }

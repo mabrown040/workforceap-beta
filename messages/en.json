@@ -797,7 +797,14 @@
     "atRiskMediumCount": "Medium",
     "atRiskLoadingNotes": "Loading at-risk summary…",
     "atRiskNoAlerts": "No at-risk alerts right now. Great work!",
-    "atRiskRecentAlerts": "Recent alerts"
+    "atRiskRecentAlerts": "Recent alerts",
+    "counselorNameFallback": "Counselor",
+    "membersAppearOnceAssignedMobile": "Members will appear here once an admin assigns them. In the meantime, explore the counselor guide.",
+    "unknownProgram": "Unknown program",
+    "available": "Available",
+    "messages": "Messages",
+    "hotQueueHoursAgo": "{count}h",
+    "hotQueueDaysAgo": "{count}d"
   },
   "workspace": {
     "publicSite": "WorkforceAP site",
@@ -903,7 +910,25 @@
     "programCompletions": "Program completions",
     "pendingPlacementReviews": "Pending Placement Reviews",
     "pendingPlacementDesc": "{count} member{count, plural, =1 {} other {s}} self-reported accepting a job offer. WorkforceAP staff are reviewing these reports before marking them as verified placements. You will see them move to \"Placed\" once confirmed.",
-    "searchAndFilter": "Search and filter everyone your organization has referred to WorkforceAP."
+    "searchAndFilter": "Search and filter everyone your organization has referred to WorkforceAP.",
+    "memberFallback": "Member",
+    "nextActionShareLink": "Share workforceap.org/apply with your community",
+    "nextActionShareLinkTip": "Ask referrals to mention your organization when asked how they heard about WorkforceAP.",
+    "nextActionReviewPlacements": "{count, plural, =1 {1 member} other {# members}} reported accepting a job offer — review needed",
+    "nextActionReviewPlacementsTip": "The WorkforceAP team reviews these offers. You'll see verified placements once confirmed.",
+    "nextActionEncourageTraining": "{count, plural, =1 {1 member} other {# members}} in training — encourage completion",
+    "nextActionEncourageTrainingTip": "Check in on members who are close to finishing their program.",
+    "nextActionCelebrate": "Celebrate placements, share more referrals",
+    "nextActionCelebrateTip": "Your referrals are landing jobs. Keep the pipeline full.",
+    "nextActionReviewProgress": "Track member progress",
+    "nextActionReviewProgressTip": "Members are moving through their journey — follow their outcomes.",
+    "assistantSpeaking": "Assistant is speaking…",
+    "assistantListening": "Listening — ask your question",
+    "referredMembersTableSubtitle": "Name, journey status, enrollment and placement dates, and each member's contribution to your estimated payout.",
+    "partnerInsights": "Partner insights",
+    "referredMembersDescription": "All members referred by your organization.",
+    "outcomesSnapshotDescription": "High-level outcomes for your referrals.",
+    "placed": "Placed"
   },
   "group": {
     "workflows": "Workflows",
@@ -1234,9 +1259,9 @@
       "eyebrow": "A Legacy of Opportunity",
       "heroHeadline": "Build Your Community's",
       "heroHeadlineAccent": "Future",
-      "heroCopy": "Refer members, track outcomes, and get paid. Employers, workforce boards, and funders each have a clear path too.",
-      "referralPayMicrocopy": "Referral stipends come from grants and partners—not sales commissions. No cost to members; partners refer only, never sell.",
-      "heroCta": "Become a referral partner",
+      "heroCopy": "Community partners refer the people we serve; referral partners share in placement outcomes when funding is available. Training centers, public agencies, and funders each have a clear path too.",
+      "referralPayMicrocopy": "Referral partners receive a stipend per verified placement, paid only after the placement is verified and the relevant grant or partner funding has cleared. Community partners do not receive payouts. No cost to members; partners refer only, never sell.",
+      "heroCta": "Become a partner",
       "heroSecondary": "Partnership types",
       "heroCta2": "Browse partnership types",
       "narrativeHeadline": "Empowering Those Who",
@@ -1492,7 +1517,9 @@
       "grantFundedTitle": "Grant-funded access",
       "grantFundedDesc": "WorkforceAP is a 501(c)(3) nonprofit. Funded by grants and partners, no cost to qualifying members.",
       "outcomesLink": "Placement outcomes detail",
-      "applyCta": "Apply"
+      "applyCta": "Apply",
+      "testimonialsTitle": "Member stories",
+      "testimonialsSubtitle": "Real outcomes from real members"
     }
   },
   "findYourPath": {
@@ -1633,7 +1660,17 @@
     "upgradePlan": "Upgrade plan",
     "importJobsBtn": "Import Jobs",
     "appliedTo": "Applied to",
-    "reviewApplicants": "Review applicants"
+    "reviewApplicants": "Review applicants",
+    "candidateCountLast30d": "{count} in 30d",
+    "awaitingGoLiveCount": "{count} awaiting go-live",
+    "offersOutCount": "{count, plural, =1 {1 offer} other {# offers}} out",
+    "matchToHireTracked": "Match → hire (when tracked)",
+    "heroHeadline": "{count, plural, =0 {Your talent pipeline} one {# candidate waiting} other {# candidates waiting}}",
+    "candidateCountLast30dShort": "{count} in 30d",
+    "noRecentActivity": "No recent activity",
+    "activeRoles": "Active roles",
+    "matchToHire": "Match → hire",
+    "addHiresToSee": "Add hires to see"
   },
   "auth": {
     "login": {

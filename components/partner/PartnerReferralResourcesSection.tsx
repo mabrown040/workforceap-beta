@@ -13,7 +13,7 @@ export default function PartnerReferralResourcesSection({
   const emailBody = [
     `Hi,`,
     ``,
-    `I'm reaching out from ${partnerName}. WorkforceAP offers free training and career support for eligible participants in our community.`,
+    `I'm reaching out from ${partnerName}. WorkforceAP offers no-cost training and career support for eligible participants in our community.`,
     ``,
     `If you or someone you know could benefit, you can apply here (please use this link so we're credited as your referral partner):`,
     `${referralApplyUrl}`,

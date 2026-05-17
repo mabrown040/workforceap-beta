@@ -2241,7 +2241,7 @@ body.mobile-nav-open {
 
 /* =============================================
    BUTTONS — unified system
-   Process-step index capsule: `.marketing-num-pill__index` in css/marketing.css.
+   Numbered step / hero index: `.marketing-btn-num-pill` (+ `lib/marketing/buttonClasses.ts`).
    Base `.btn` sets min-height (`--btn-min-height`, 44px) and default radius md.
    Compose: .btn + variant (.btn-primary | .btn-secondary | .btn-ghost)
             + optional aliases: .btn-outline → same rules as .btn-secondary
@@ -2284,6 +2284,16 @@ body.mobile-nav-open {
 .btn-radius-full {
     border-radius: var(--radius-full) !important;
 }
+/* Numbered pills / circular step index — composes .btn.btn-primary.btn-radius-full */
+.btn.marketing-btn-num-pill {
+    padding: 0;
+    min-width: var(--btn-min-height);
+    min-height: var(--btn-min-height);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    line-height: 1;
+    cursor: default;
+}
 .btn::after {
     content: '';
     position: absolute;
@@ -2294,6 +2304,9 @@ body.mobile-nav-open {
 }
 .btn:hover::after {
     transform: translateX(100%);
+}
+.btn.marketing-btn-num-pill::after {
+    display: none;
 }
 /* Variant: primary — solid brand magenta */
 .btn-primary,
@@ -2425,6 +2438,33 @@ a.btn-ghost::after,
 a.btn-ghost-text::after {
     display: none;
 }
+
+/* Ghost on photo / hero scrims — marketing `onDarkGhost` (btn-ghost--on-photo); keeps 44px tap target */
+.btn-ghost--on-photo,
+a.btn-ghost--on-photo {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.92);
+    border: none;
+    box-shadow: none;
+    font-weight: 600;
+}
+.btn-ghost--on-photo:hover,
+a.btn-ghost--on-photo:hover {
+    color: #ffffff;
+    text-decoration: underline;
+    transform: none;
+    background: transparent;
+}
+.btn-ghost--on-photo:focus-visible,
+a.btn-ghost--on-photo:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+}
+.btn-ghost--on-photo::after,
+a.btn-ghost--on-photo::after {
+    display: none;
+}
+
 .btn:disabled,
 button:disabled.btn,
 .btn[disabled] {
@@ -3699,6 +3739,7 @@ html.dark .program-card-courses-list li {
     align-items: center;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    padding: 1rem 0;
 }
 .partner-logos-small img {
     height: 28px;
@@ -3717,6 +3758,11 @@ html.dark .program-card-courses-list li {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--color-gray-200);
+    transition: all var(--transition-base);
+}
+.programs-preview:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
 }
 .programs-preview h3 { font-size: 1.5rem; margin-bottom: 0.75rem; }
 .programs-preview p { color: var(--color-on-surface-variant); margin-bottom: 1.5rem; }
@@ -4358,12 +4404,13 @@ html.dark .employer-dash-empty-jobs p {
     padding: 2rem;
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-gray-200);
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    transition: all var(--transition-base);
     position: relative;
 }
 .testimonial-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(164,127,56,0.15);
 }
 .testimonial-card .stars {
     color: var(--color-gold);
@@ -4799,6 +4846,14 @@ body.inner-page {
     padding: 2.5rem;
     border-radius: var(--radius-xl);
     border: 1px solid var(--color-gray-200);
+}
+.contact-form,
+.apply-form {
+    transition: box-shadow var(--transition-base);
+}
+.contact-form:hover,
+.apply-form:hover {
+    box-shadow: var(--shadow-md);
 }
 .form-group { margin-bottom: 1.35rem; }
 .form-group:last-child { margin-bottom: 0; }
@@ -5737,9 +5792,12 @@ fieldset.apply-fieldset {
     gap: 2.5rem;
     align-items: flex-start;
     border: 1px solid var(--color-gray-200);
-    transition: box-shadow var(--transition-base);
+    transition: all var(--transition-base);
 }
-.leader-card:hover { box-shadow: var(--shadow-md); }
+.leader-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
 .leader-photo {
     width: 140px;
     height: 140px;
@@ -5973,6 +6031,11 @@ html.dark .faq-section-heading {
     background: var(--color-light);
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-gray-200);
+    transition: all var(--transition-base);
+}
+.cta-section:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(164,127,56,0.2);
 }
 .cta-section h2 {
     margin-bottom: 0.75rem;
@@ -6547,6 +6610,7 @@ html:not(.dark) .program-filters::after {
 .career-track:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-md);
+    border-top-color: var(--color-gold);
 }
 .track-icon { font-size: 2.5rem; margin-bottom: 1rem; }
 .career-track h3 {
@@ -7048,18 +7112,6 @@ img.img-fade.loaded { opacity: 1; }
 }
 
 /* =============================================
-   SELECTION & SCROLLBAR
-   ============================================= */
-::selection {
-    background: rgba(173, 44, 77, 0.15);
-    color: var(--color-primary);
-}
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--color-gray-100); }
-::-webkit-scrollbar-thumb { background: var(--color-gray-400); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-gray-500); }
-
-/* =============================================
    SMOOTH HOVER HELPERS
    ============================================= */
 .hover-lift { transition: transform var(--transition-base), box-shadow var(--transition-base); }
@@ -7105,63 +7157,6 @@ img.img-fade.loaded { opacity: 1; }
     top: 0; left: 0; right: 0;
     height: 1px;
     background: linear-gradient(90deg, transparent 10%, var(--color-gray-200) 50%, transparent 90%);
-}
-
-/* Enhanced about section partner logos */
-.partner-logos-small {
-    padding: 1rem 0;
-}
-
-/* Enhanced programs preview card */
-.programs-preview {
-    transition: all var(--transition-base);
-}
-.programs-preview:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
-}
-
-/* Contact form enhanced */
-.contact-form,
-.apply-form {
-    transition: box-shadow var(--transition-base);
-}
-.contact-form:hover,
-.apply-form:hover {
-    box-shadow: var(--shadow-md);
-}
-
-/* Leader card enhanced */
-.leader-card {
-    transition: all var(--transition-base);
-}
-.leader-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-}
-
-/* Career track enhanced */
-.career-track:hover {
-    border-top-color: var(--color-gold);
-}
-
-/* Enhanced CTA section */
-.cta-section {
-    transition: all var(--transition-base);
-}
-.cta-section:hover {
-    box-shadow: var(--shadow-md);
-    border-color: rgba(164,127,56,0.2);
-}
-
-/* Enhanced testimonial cards */
-.testimonial-card {
-    transition: all var(--transition-base);
-}
-.testimonial-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-lg);
-    border-color: rgba(164,127,56,0.15);
 }
 
 /* Table row hover enhanced */
@@ -9165,8 +9160,6 @@ html.dark .portal-nav {
     /* Set by WorkspaceShell (header + tab bar height) for sticky sidebar alignment */
     --workspace-tab-bar-h: 0px;
     --workspace-top-offset: calc(var(--workspace-header-h, 3.25rem) + var(--workspace-tab-bar-h, 0px));
-    /* Icon-only compact bar — still clears ~64px tap band + home indicator */
-    --wap-portal-mobile-bottom-clearance-compact: calc(4.75rem + env(safe-area-inset-bottom, 0px));
 }
 /* Anchor / focus scroll-into-view: clear sticky workspace chrome (+ member top tab strip when present) */
 @media (max-width: 768px) {
@@ -9213,6 +9206,9 @@ html.dark .portal-nav {
         }
         html[data-portal-role]:not([data-portal-role="member"]) .workspace-shell-main [id] {
             scroll-margin-bottom: var(--wap-mobile-bottom-nav-clearance);
+        }
+        html.wap-portal-chrome-compact[data-portal-role]:not([data-portal-role="member"]) .workspace-shell-main [id] {
+            scroll-margin-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
         }
     }
 }
@@ -9903,18 +9899,8 @@ html.dark .workspace-sidebar-signout:hover {
     padding: 1.25rem 1rem;
     width: 100%;
 }
-/* Mobile: keep page ends clear of fixed MobileBottomNav (counselor / employer / partner / admin). */
+/* Mobile bottom nav clearance lives on `main#main-content` (marketing.css). */
 @media (max-width: 767px) {
-    .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main {
-        padding-bottom: var(--wap-mobile-bottom-nav-clearance);
-        scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
-    }
-    html.wap-portal-chrome-compact
-        .workspace-shell-root:has(nav#mobile-bottom-nav.mobile-bottom-nav-root)
-        .workspace-shell-main {
-        padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
-        scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
-    }
     html[data-portal-role="member"] .workspace-shell-main {
         padding-bottom: max(1.75rem, calc(1rem + env(safe-area-inset-bottom, 0px)));
     }
@@ -10001,6 +9987,16 @@ html.dark .workspace-sidebar-signout:hover {
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     z-index: 101;
+}
+@media (max-width: 768px) {
+    .workspace-shell-header__meta .super-admin-view-switcher__panel {
+        position: fixed;
+        top: calc(var(--workspace-header-h, 3.25rem) + 0.5rem);
+        right: 0.5rem;
+        left: auto;
+        min-width: 200px;
+        max-width: min(320px, 90vw);
+    }
 }
 @media (min-width: 1024px) {
     .workspace-menu-btn {

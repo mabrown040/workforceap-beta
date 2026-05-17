@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { awardPoints } from '@/lib/member/points';
-import { chatCompletion } from '@/lib/ai/groq';
+import { claudeChat } from '@/lib/ai/anthropicChat';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -69,58 +69,17 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
 
   const userPrompt = `Here is the conversation transcript:\n\n${conversation}\n\nGenerate 3 specific next steps.`;
 
-  // Try Anthropic first
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (anthropicKey) {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest',
-        max_tokens: 400,
-        temperature: 0.4,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }],
-      }),
-    });
-
-    if (res.ok) {
-      const payload = await res.json() as { content?: Array<{ type: string; text?: string }> };
-      const text = payload.content?.find((c) => c.type === 'text')?.text?.trim();
-      if (text) {
-        try {
-          const steps = JSON.parse(text) as string[];
-          if (Array.isArray(steps) && steps.length > 0) {
-            return steps.slice(0, 3).map((step) => cleanSpokenLine(step));
-          }
-        } catch { /* fall through */ }
-      }
-    }
-  }
-
-  // Groq fallback
-  const result = await chatCompletion(
-    [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ],
-    { maxTokens: 400, temperature: 0.4 }
-  );
-
-  if (result) {
+  const text = await claudeChat(systemPrompt, userPrompt, { maxTokens: 400, temperature: 0.4 });
+  if (text) {
     try {
-      const steps = JSON.parse(result) as string[];
+      const steps = JSON.parse(text) as string[];
       if (Array.isArray(steps) && steps.length > 0) {
         return steps.slice(0, 3).map((step) => cleanSpokenLine(step));
       }
     } catch { /* fall through */ }
   }
 
-  throw new Error('No AI provider configured');
+  throw new Error('No AI provider configured — set ANTHROPIC_API_KEY, GROQ_API_KEY, or GEMINI_API_KEY');
 }export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();

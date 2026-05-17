@@ -71,7 +71,7 @@ export function getAIToolFollowThrough(params: {
     return {
       title: 'Use your assessment to guide training',
       body: 'Your assessment is most useful when it changes what you study next and how you prepare for job outcomes.',
-      href: '/dashboard',
+      href: '/dashboard/training',
       cta: 'Open Training',
     };
   }

@@ -143,16 +143,41 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     ? (role as (typeof validRoles)[number])
     : 'member';
 
+  // Tenant-scope FK lookups: a tenant admin must not be able to attach
+  // an Org B subgroup or Org B partner to their own org's invite. Super-
+  // admins bypass (cross-tenant ops). AUDIT §C-T8.
+  const actorIsSuperAdmin = await isSuperAdmin(user.id);
+  let actorOrgId: string | null = null;
+  if (!actorIsSuperAdmin) {
+    try {
+      actorOrgId = await getActorOrganizationId(user.id);
+    } catch {
+      return respondError('Server configuration error: actor organization not found', 500);
+    }
+  }
+
   if (inviteRole === 'partner' && subgroupId) {
-    const subgroup = await prisma.subgroup.findUnique({ where: { id: subgroupId } });
+    const subgroup = await prisma.subgroup.findUnique({
+      where: { id: subgroupId },
+      include: { leader: { select: { organizationId: true } } },
+    });
     if (!subgroup) {
+      return respondError('Invalid subgroup', 400);
+    }
+    if (!actorIsSuperAdmin && subgroup.leader?.organizationId !== actorOrgId) {
       return respondError('Invalid subgroup', 400);
     }
   }
 
   if (inviteRole === 'counselor' && partnerId) {
-    const p = await prisma.partner.findUnique({ where: { id: partnerId } });
+    const p = await prisma.partner.findUnique({
+      where: { id: partnerId },
+      select: { id: true, organizationId: true },
+    });
     if (!p) {
+      return respondError('Invalid partner', 400);
+    }
+    if (!actorIsSuperAdmin && p.organizationId !== actorOrgId) {
       return respondError('Invalid partner', 400);
     }
   }

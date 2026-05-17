@@ -78,4 +78,90 @@ assertContains(
   'partner context carries organizationId',
 );
 
+// --- AUDIT-2026-05-16 expansion: cross-tenant routes flagged in PR 2 ---
+
+assertContains(
+  'lib/counselor/staffMemberAccess.ts',
+  ['isAdminInOrg', 'member.organizationId'],
+  'counselor staff member access uses isAdminInOrg, not global isAdmin (AUDIT §C-T1)',
+);
+
+assertContains(
+  'app/api/invite/accept/route.ts',
+  ['invitation.invitedById', 'inviter?.organizationId'],
+  'invite/accept resolves org from inviter, not getDefaultOrganizationId (AUDIT §C-T2)',
+);
+
+assertContains(
+  'app/api/admin/members/merge/route.ts',
+  ['assertMergeTenantOk', 'isAdminInOrg'],
+  'admin/members/merge has tenant gate (AUDIT §C-T3)',
+);
+
+assertContains(
+  'app/api/admin/subgroups/[id]/members/route.ts',
+  ['subgroupOrgId', 'isAdminInOrg'],
+  'admin/subgroups/[id]/members enforces tenant scope (AUDIT §C-T4)',
+);
+
+assertContains(
+  'app/api/partner/referrals/route.ts',
+  ['member.organizationId !== ctx.partner.organizationId'],
+  'partner/referrals POST rejects cross-tenant memberId (AUDIT §C-T5)',
+);
+
+assertContains(
+  'app/api/admin/employers/[id]/approve/route.ts',
+  ['getActorOrganizationId(user.id)'],
+  'admin/employers/[id]/approve uses actor org, not default (AUDIT §C-T7)',
+);
+
+assertContains(
+  'app/api/admin/employers/[id]/reject/route.ts',
+  ['getActorOrganizationId(user.id)'],
+  'admin/employers/[id]/reject uses actor org, not default (AUDIT §C-T7)',
+);
+
+assertContains(
+  'app/api/admin/invites/route.ts',
+  ['leader: { select: { organizationId: true } }', 'p.organizationId !== actorOrgId'],
+  'admin/invites POST tenant-scopes subgroupId/partnerId (AUDIT §C-T8)',
+);
+
+assertContains(
+  'app/api/admin/invites/[id]/resend/route.ts',
+  ['invitedBy: { organizationId: actorOrgId!'],
+  'admin/invites/[id]/resend scopes by inviter org (AUDIT §H-T1)',
+);
+
+assertContains(
+  'app/api/admin/partners/[id]/route.ts',
+  ['leader: { organizationId: orgId }'],
+  'admin/partners/[id] subgroupIds filter is tenant-scoped (AUDIT §H-T2)',
+);
+
+assertContains(
+  'lib/auth/server.ts',
+  ['orgId: userRow?.organizationId'],
+  'resolveAuthGucContext looks up orgId from user row (AUDIT §C-T6)',
+);
+
+assertContains(
+  'app/api/admin/members/export/route.ts',
+  ["action: 'admin.export.members'"],
+  'admin/members/export emits an auditLog (AUDIT §H-DEP4)',
+);
+
+assertContains(
+  'app/api/admin/cohort-export/route.ts',
+  ["action: 'admin.export.cohort'"],
+  'admin/cohort-export emits an auditLog (AUDIT §H-DEP4)',
+);
+
+assertContains(
+  'app/api/admin/reports/wioa/route.ts',
+  ["action: 'admin.report.wioa'"],
+  'admin/reports/wioa emits an auditLog (AUDIT §H-DEP4)',
+);
+
 console.log('[verify-high-risk-tenant-routes] OK');

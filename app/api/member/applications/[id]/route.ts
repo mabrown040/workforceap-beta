@@ -73,8 +73,7 @@ const updateSchema = z.object({
       return NextResponse.json({ application: app });
     } catch (err) {
       console.error('[PATCH /api/member/applications/:id]', err);
-      const message = err instanceof Error ? err.message : 'Database error';
-      return NextResponse.json({ error: message }, { status: 500 });
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
   } catch (error) {
     console.error('/member/applications/[id]:', error);
@@ -102,8 +101,7 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
       return NextResponse.json({ success: true });
     } catch (err) {
       console.error('[DELETE /api/member/applications/:id]', err);
-      const message = err instanceof Error ? err.message : 'Database error';
-      return NextResponse.json({ error: message }, { status: 500 });
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
   } catch (error) {
     console.error('/member/applications/[id]:', error);

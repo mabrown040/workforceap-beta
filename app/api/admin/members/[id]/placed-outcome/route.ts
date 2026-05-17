@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
@@ -31,9 +32,9 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: memberId } = await params;
+  const orgId = await getActorOrganizationId(user.id);
 
-  const member = await prisma.user.findFirst({
-    where: { id: memberId, deletedAt: null },
+  const member = await prisma.user.findFirst({ where: { id: memberId, deletedAt: null , organizationId: orgId },
     select: { id: true, enrolledProgram: true },
   });
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });

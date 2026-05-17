@@ -103,7 +103,7 @@ export default function ApplyCreateAccountForm() {
   }, []);
 
   useEffect(() => {
-    const qEmail = searchParams.get('email')?.trim();
+    const qEmail = searchParams?.get('email')?.trim();
     if (qEmail) setEmail(qEmail);
   }, [searchParams]);
 

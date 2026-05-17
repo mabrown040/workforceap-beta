@@ -97,7 +97,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     void createNotification({
       userId: thread.counselorUserId,
       type: 'message',
-      title: `New message from ${user.fullName ?? 'member'}`,
+      title: `New message from ${user.email ?? 'member'}`,
       body: normalized.body.slice(0, 200),
       data: { threadId: thread.id, memberId: user.id },
     });

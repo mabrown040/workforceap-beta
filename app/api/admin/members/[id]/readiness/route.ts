@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { READINESS_SECTIONS, getJobSiteItemKey } from '@/lib/content/readinessChecklist';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
@@ -15,6 +16,17 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: userId } = await params;
+
+  // Tenant scope: verify member is in actor's org. ReadinessChecklist
+  // isn't tenant-scoped directly; gate via User.organizationId.
+  const orgId = await getActorOrganizationId(user.id);
+  const member = await prisma.user.findFirst({
+    where: { id: userId, organizationId: orgId },
+    select: { id: true },
+  });
+  if (!member) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  }
 
   const items = await prisma.readinessChecklist.findMany({
     where: { userId },
@@ -103,6 +115,17 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id: userId } = await params;
+
+  // Tenant scope: an Org A admin cannot tick checklist items on an
+  // Org B member by guessing their UUID.
+  const orgId = await getActorOrganizationId(user.id);
+  const target = await prisma.user.findFirst({
+    where: { id: userId, organizationId: orgId },
+    select: { id: true },
+  });
+  if (!target) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  }
 
   let body: unknown;
   try {

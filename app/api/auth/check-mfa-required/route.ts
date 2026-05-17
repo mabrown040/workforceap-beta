@@ -79,6 +79,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
           token: cookieStore.get(getAdminMfaTrustCookieName())?.value,
           userId: user.id,
           userAgent: request.headers.get('user-agent'),
+          ip: getClientIpFromRequest(request),
         });
 
         if (trustedDevice) {

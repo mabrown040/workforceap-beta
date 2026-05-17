@@ -6,6 +6,7 @@ import { checkAuthRateLimit, checkAuthIpRateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 
@@ -146,6 +147,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       token: cookieStore.get(getAdminMfaTrustCookieName())?.value,
       userId: data.user.id,
       userAgent: request.headers.get('user-agent'),
+      ip: getClientIpFromRequest(request),
     });
 
     if (trustedDevice) {

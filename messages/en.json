@@ -1922,7 +1922,9 @@
     "importJobsMetaTitle": "Import jobs",
     "importJobsMetaDesc": "Import job postings from URLs, LinkedIn, or careers pages as editable drafts.",
     "applicationReviewMetaTitle": "Application Review",
-    "applicationReviewMetaDesc": "Review applicant details and update status."
+    "applicationReviewMetaDesc": "Review applicant details and update status.",
+    "reviewCandidatesMobile": "Review and respond to applicants",
+    "reviewCandidatesDesktop": "Review and respond to applicants for your open roles"
   },
   "auth": {
     "login": {

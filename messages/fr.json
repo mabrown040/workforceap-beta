@@ -1923,7 +1923,9 @@
     "importJobsMetaTitle": "Importer des offres",
     "importJobsMetaDesc": "Importez des offres d'emploi depuis des URLs, LinkedIn ou des pages carrières comme brouillons modifiables.",
     "applicationReviewMetaTitle": "Examen de la candidature",
-    "applicationReviewMetaDesc": "Examinez les détails du candidat et mettez à jour le statut."
+    "applicationReviewMetaDesc": "Examinez les détails du candidat et mettez à jour le statut.",
+    "reviewCandidatesMobile": "Examiner et répondre aux candidats",
+    "reviewCandidatesDesktop": "Examiner et répondre aux candidats pour vos postes ouverts"
   },
   "auth": {
     "login": {

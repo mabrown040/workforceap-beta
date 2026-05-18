@@ -1922,7 +1922,9 @@
     "importJobsMetaTitle": "Importar empleos",
     "importJobsMetaDesc": "Importa publicaciones de empleo desde URLs, LinkedIn o páginas de carreras como borradores editables.",
     "applicationReviewMetaTitle": "Revisión de solicitud",
-    "applicationReviewMetaDesc": "Revisa los detalles del candidato y actualiza el estado."
+    "applicationReviewMetaDesc": "Revisa los detalles del candidato y actualiza el estado.",
+    "reviewCandidatesMobile": "Revisa y responde a candidatos",
+    "reviewCandidatesDesktop": "Revisa y responde a candidatos para tus roles abiertos"
   },
   "auth": {
     "login": {

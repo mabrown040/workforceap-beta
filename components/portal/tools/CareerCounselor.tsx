@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import type { Conversation } from '@elevenlabs/client';
-type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
+import ToolFollowThrough from './ToolFollowThrough';
 
-      import ToolFollowThrough from './ToolFollowThrough';
+type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
 const ACCENT = '#db2777';
 const ACCENT_DARK = '#be185d';

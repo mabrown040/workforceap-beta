@@ -1,12 +1,20 @@
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
-import InterviewCoach from '@/components/portal/tools/InterviewCoach';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
+
+const InterviewCoach = dynamic(() => import('@/components/portal/tools/InterviewCoach'), {
+  loading: () => (
+    <div className="portal-card portal-card--flat" style={{ padding: '2rem', marginBottom: '1rem' }}>
+      <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>Loading interview coach…</p>
+    </div>
+  ),
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');

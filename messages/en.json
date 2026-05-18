@@ -1785,7 +1785,15 @@
     "match": "match",
     "possibleFit": "Possible fit",
     "viewProfile": "View Profile",
-    "contact": "Contact"
+    "contact": "Contact",
+    "candidateProfileMetaTitle": "Candidate profile",
+    "candidateProfileMetaDesc": "WorkforceAP member profile for your hiring pipeline.",
+    "candidate": "Candidate",
+    "candidateProfileSubtitle": "Shared because this member matched or applied to one of your roles.",
+    "candidateProfileSubtitleDesktop": "Shared because this member matched or applied to your roles.",
+    "backToMatches": "Back to matches",
+    "rolesInPipeline": "Roles in pipeline",
+    "aiMatches": "AI matches"
   },
   "auth": {
     "login": {

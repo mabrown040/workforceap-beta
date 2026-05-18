@@ -1786,7 +1786,15 @@
     "match": "correspondance",
     "possibleFit": "Ajustement possible",
     "viewProfile": "Voir le profil",
-    "contact": "Contacter"
+    "contact": "Contacter",
+    "candidateProfileMetaTitle": "Profil du candidat",
+    "candidateProfileMetaDesc": "Profil membre WorkforceAP pour votre pipeline d'embauche.",
+    "candidate": "Candidat",
+    "candidateProfileSubtitle": "Partagé car ce membre a correspondu ou postulé à l'un de vos rôles.",
+    "candidateProfileSubtitleDesktop": "Partagé car ce membre a correspondu ou postulé à vos rôles.",
+    "backToMatches": "Retour aux correspondances",
+    "rolesInPipeline": "Rôles en pipeline",
+    "aiMatches": "Correspondances IA"
   },
   "auth": {
     "login": {

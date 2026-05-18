@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CheckCircle } from 'lucide-react';
@@ -31,9 +32,10 @@ export async function generateMetadata({
   params: Promise<{ studentId: string }>;
 }): Promise<Metadata> {
   const { studentId } = await params;
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-    title: 'Candidate profile',
-    description: 'WorkforceAP member profile for your hiring pipeline.',
+    title: t('candidateProfileMetaTitle'),
+    description: t('candidateProfileMetaDesc'),
     path: `/employer/candidates/${studentId}`,
   });
 }
@@ -59,6 +61,8 @@ export default async function EmployerCandidateProfilePage({
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const sp = (await searchParams) ?? {};
   const highlightJobId = typeof sp.jobId === 'string' ? sp.jobId : null;
@@ -160,14 +164,14 @@ export default async function EmployerCandidateProfilePage({
     <>
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PageHeader
-          title={student.fullName ?? 'Candidate'}
-          subtitle="Shared because this member matched or applied to one of your roles."
+          title={student.fullName ?? t('candidate')}
+          subtitle={t('candidateProfileSubtitle')}
           action={(
             <Link
               href="/employer/matches"
               style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}
             >
-              Back to matches
+              {t('backToMatches')}
             </Link>
           )}
         />
@@ -426,11 +430,11 @@ export default async function EmployerCandidateProfilePage({
       <div className="wa-hidden md:wa-block">
         <PortalPageFrame>
           <PageHeader
-            title={student.fullName ?? 'Candidate'}
-            subtitle="Shared because this member matched or applied to your roles."
+            title={student.fullName ?? t('candidate')}
+            subtitle={t('candidateProfileSubtitleDesktop')}
             action={
               <Link href="/employer/matches" className="btn btn-outline btn-sm">
-                Back to matches
+                {t('backToMatches')}
               </Link>
             }
           />

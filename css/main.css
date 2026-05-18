@@ -9909,7 +9909,7 @@ html.dark .workspace-sidebar-signout:hover {
     padding: 1.25rem 1rem;
     width: 100%;
 }
-/* Mobile bottom nav clearance lives on `main#main-content` (marketing.css). */
+/* Mobile bottom nav: `main#main-content` + WorkspaceShell `.workspace-shell-main` (marketing.css). */
 @media (max-width: 767px) {
     html[data-portal-role="member"] .workspace-shell-main {
         padding-bottom: max(1.75rem, calc(1rem + env(safe-area-inset-bottom, 0px)));

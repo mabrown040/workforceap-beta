@@ -1786,7 +1786,15 @@
     "match": "correspondência",
     "possibleFit": "Ajuste possível",
     "viewProfile": "Ver perfil",
-    "contact": "Contatar"
+    "contact": "Contatar",
+    "candidateProfileMetaTitle": "Perfil do candidato",
+    "candidateProfileMetaDesc": "Perfil de membro da WorkforceAP para seu pipeline de contratação.",
+    "candidate": "Candidato",
+    "candidateProfileSubtitle": "Compartilhado porque este membro correspondeu ou se candidatou a uma de suas vagas.",
+    "candidateProfileSubtitleDesktop": "Compartilhado porque este membro correspondeu ou se candidatou às suas vagas.",
+    "backToMatches": "Voltar às correspondências",
+    "rolesInPipeline": "Vagas no pipeline",
+    "aiMatches": "Correspondências de IA"
   },
   "auth": {
     "login": {

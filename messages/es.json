@@ -1785,7 +1785,15 @@
     "match": "coincidencia",
     "possibleFit": "Posible ajuste",
     "viewProfile": "Ver perfil",
-    "contact": "Contactar"
+    "contact": "Contactar",
+    "candidateProfileMetaTitle": "Perfil del candidato",
+    "candidateProfileMetaDesc": "Perfil de miembro de WorkforceAP para tu pipeline de contratación.",
+    "candidate": "Candidato",
+    "candidateProfileSubtitle": "Compartido porque este miembro coincidió o aplicó a uno de tus roles.",
+    "candidateProfileSubtitleDesktop": "Compartido porque este miembro coincidió o aplicó a tus roles.",
+    "backToMatches": "Volver a coincidencias",
+    "rolesInPipeline": "Roles en pipeline",
+    "aiMatches": "Coincidencias IA"
   },
   "auth": {
     "login": {

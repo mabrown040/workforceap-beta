@@ -92,7 +92,11 @@ export default async function EmployerApplicationsPage({
         }
         breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('applicants') }]}
       />
-      {totalCount === 0 ? (
+      {totalCount === 0 && !statusFilter ? (
+        // True empty state: no applications at all and no filter applied.
+        // (When a filter is active and matches zero rows, fall through to
+        // EmployerApplicationsClient so users keep their filter chips and
+        // "Show all applicants" reset.)
         <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>inbox</span>
           <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('noApplicationsYet')}</h3>

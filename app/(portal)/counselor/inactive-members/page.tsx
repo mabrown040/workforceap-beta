@@ -43,6 +43,9 @@ export default function InactiveMembersPage() {
   const [members, setMembers] = useState<InactiveMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Per-action error is intentionally separate from the page-load `error`
+  // so a single outreach failure doesn't hide the whole member list.
+  const [actionError, setActionError] = useState<string | null>(null);
   const [sendingReminder, setSendingReminder] = useState<string | null>(null);
   const [reminderSent, setReminderSent] = useState<Set<string>>(new Set());
 
@@ -67,7 +70,7 @@ export default function InactiveMembersPage() {
 
   const logOutreach = async (member: InactiveMember) => {
     setSendingReminder(member.id);
-    setError(null);
+    setActionError(null);
     try {
       const res = await fetchWithTimeout('/api/counselor/remind-member', {
         method: 'POST',
@@ -77,7 +80,7 @@ export default function InactiveMembersPage() {
       if (!res.ok) throw new Error('Failed to log outreach');
       setReminderSent((prev) => new Set(prev).add(member.id));
     } catch {
-      setError(t('couldNotLogOutreach'));
+      setActionError(t('couldNotLogOutreach'));
     } finally {
       setSendingReminder(null);
     }
@@ -138,6 +141,12 @@ export default function InactiveMembersPage() {
       {error ? (
         <div role="alert" style={{ color: 'var(--color-error)', padding: '1rem', textAlign: 'center', fontWeight: 600 }}>
           {error}
+        </div>
+      ) : null}
+
+      {actionError ? (
+        <div role="alert" style={{ color: 'var(--color-error)', padding: '0.75rem 1rem', marginBottom: '1rem', background: 'color-mix(in srgb, var(--color-error) 8%, transparent)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', fontWeight: 600 }}>
+          {actionError}
         </div>
       ) : null}
 

@@ -55,13 +55,6 @@ describe('GET /api/health', () => {
 
     process.env = {
       ...OLD_ENV,
-      NEXT_PUBLIC_SUPABASE_URL: 'https://test.supabase.co',
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-key',
-      RESEND_API_KEY: 'test-resend-key',
-      XAPI_CLIENT_ID: 'workforceap-xapi',
-      XAPI_CLIENT_SECRET: 'xapi-secret',
-      NEXT_PUBLIC_CAPTCHA_ENABLED: 'false',
-      SENTRY_DSN: 'https://sentry.example.com',
       VERCEL_GIT_COMMIT_SHA: 'abc123def',
       VERCEL_ENV: 'production',
     };
@@ -71,45 +64,43 @@ describe('GET /api/health', () => {
     process.env = OLD_ENV;
   });
 
-  it('returns healthy status when all dependencies are ok', async () => {
+  it('returns ok when database is healthy and redis/s3 are skipped', async () => {
     const res = await healthGET(new Request('http://localhost:3000/api/health'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.status).toBe('ok');
-    expect(body.environment).toBe('production');
     expect(body.version).toBe('abc123d');
-    expect(body.dependencies).toHaveLength(6);
-    expect(body.dependencies.find((d: any) => d.name === 'database')?.status).toBe('ok');
-    expect(body.dependencies.find((d: any) => d.name === 'supabase')?.status).toBe('ok');
-    expect(body.dependencies.find((d: any) => d.name === 'email_resend')?.status).toBe('ok');
+    expect(body.timestamp).toBeDefined();
+    expect(body.checks.database.status).toBe('ok');
+    expect(body.checks.redis.status).toBe('skipped');
+    expect(body.checks.s3.status).toBe('skipped');
   });
 
-  it('returns degraded when non-critical dependency fails', async () => {
-    process.env.NEXT_PUBLIC_CAPTCHA_ENABLED = 'true';
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = '';
-    process.env.TURNSTILE_SECRET_KEY = '';
+  it('returns degraded when redis is configured but fails', async () => {
+    process.env.UPSTASH_REDIS_REST_URL = 'https://test.upstash.io';
+    process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
 
+    // @upstash/redis ping will fail because module is not really loaded in test context
+    // (it will throw), so redis status becomes degraded.
     const res = await healthGET(new Request('http://localhost:3000/api/health'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.status).toBe('degraded');
-    const captchaDep = body.dependencies.find((d: any) => d.name === 'captcha_turnstile');
-    expect(captchaDep.status).toBe('fail');
+    expect(body.checks.database.status).toBe('ok');
+    expect(body.checks.redis.status).toBe('degraded');
   });
 
-  it('returns fail when database is down', async () => {
+  it('returns 503 when database is down', async () => {
     vi.mocked(prisma.$queryRaw).mockRejectedValue(new Error('Connection refused'));
 
     const res = await healthGET(new Request('http://localhost:3000/api/health'));
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(503);
     const body = await res.json();
     expect(body.status).toBe('fail');
-    const dbDep = body.dependencies.find((d: any) => d.name === 'database');
-    expect(dbDep.status).toBe('fail');
-    expect(dbDep.note).toContain('unreachable');
+    expect(body.checks.database.status).toBe('degraded');
   });
 
   it('returns 429 when rate limited', async () => {
@@ -121,36 +112,14 @@ describe('GET /api/health', () => {
     expect(await res.json()).toEqual({ error: 'Too many requests' });
   });
 
-  it('reports captcha as skipped when disabled', async () => {
-    const res = await healthGET(new Request('http://localhost:3000/api/health'));
+  it('includes responseTimeMs when deep=true', async () => {
+    const res = await healthGET(new Request('http://localhost:3000/api/health?deep=true'));
 
+    expect(res.status).toBe(200);
     const body = await res.json();
-    const captchaDep = body.dependencies.find((d: any) => d.name === 'captcha_turnstile');
-    expect(captchaDep.status).toBe('skipped');
-  });
-
-  it('reports captcha as fail when enabled but misconfigured', async () => {
-    process.env.NEXT_PUBLIC_CAPTCHA_ENABLED = 'true';
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = '';
-    process.env.TURNSTILE_SECRET_KEY = '';
-
-    const res = await healthGET(new Request('http://localhost:3000/api/health'));
-
-    const body = await res.json();
-    const captchaDep = body.dependencies.find((d: any) => d.name === 'captcha_turnstile');
-    expect(captchaDep.status).toBe('fail');
-  });
-
-  it('reports missing coursera config', async () => {
-    delete process.env.XAPI_CLIENT_ID;
-    delete process.env.XAPI_CLIENT_SECRET;
-
-    const res = await healthGET(new Request('http://localhost:3000/api/health'));
-
-    const body = await res.json();
-    const courseraDep = body.dependencies.find((d: any) => d.name === 'coursera_xapi');
-    expect(courseraDep.status).toBe('not_configured');
-    expect(courseraDep.note).toContain('XAPI client secret');
+    expect(body.checks.database.responseTimeMs).toBeGreaterThanOrEqual(0);
+    expect(body.checks.redis.responseTimeMs).toBeUndefined();
+    expect(body.checks.s3.responseTimeMs).toBeUndefined();
   });
 
   it('returns local version when not on Vercel', async () => {
@@ -162,13 +131,12 @@ describe('GET /api/health', () => {
 
     const body = await res.json();
     expect(body.version).toBe('local');
-    expect(body.environment).toBe('development');
   });
 
-  it('includes Cache-Control no-store header', async () => {
+  it('includes max-age=5 cache header', async () => {
     const res = await healthGET(new Request('http://localhost:3000/api/health'));
 
-    expect(res.headers.get('Cache-Control')).toBe('no-store');
+    expect(res.headers.get('Cache-Control')).toBe('max-age=5');
   });
 });
 

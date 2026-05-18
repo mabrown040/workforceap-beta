@@ -758,6 +758,19 @@ export default async function DashboardProfilePage() {
                     marginBottom: "0.75rem",
                   }}
                 >
+                  Appearance
+                </h3>
+                <ThemeSelector />
+              </section>
+              <section>
+                <h3
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "var(--color-on-surface)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
                   Data Privacy
                 </h3>
                 <DownloadMyDataButton />

@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -11,11 +12,14 @@ import StatusBadge from '@/components/portal/StatusBadge';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import ApplicationStatusUpdater from '@/components/employer/ApplicationStatusUpdater';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Application Review',
-  description: 'Review applicant details and update status.',
-  path: '/employer/applications',
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
+  return buildPageMetadata({
+    title: t('applicationReviewMetaTitle'),
+    description: t('applicationReviewMetaDesc'),
+    path: '/employer/applications',
+  });
+}
 
 export default async function EmployerApplicationPage({
   params,

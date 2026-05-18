@@ -1807,7 +1807,9 @@
     "employerGuideHeadline": "Como a WorkforceAP funciona para empregadores",
     "employerGuideBody": "Acesse talento verificado e pronto para trabalhar — em poucos passos simples.",
     "importJobsMetaTitle": "Importar vagas",
-    "importJobsMetaDesc": "Importe publicações de vagas de URLs, LinkedIn ou páginas de carreira como rascunhos editáveis."
+    "importJobsMetaDesc": "Importe publicações de vagas de URLs, LinkedIn ou páginas de carreira como rascunhos editáveis.",
+    "applicationReviewMetaTitle": "Revisão de candidatura",
+    "applicationReviewMetaDesc": "Revise os detalhes do candidato e atualize o status."
   },
   "auth": {
     "login": {

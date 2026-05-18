@@ -29,13 +29,12 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   poweredByHeader: false,
   serverExternalPackages: ['pdf-parse', 'mammoth'],
-  // Vercel build SIGKILL/OOM was hitting "Linting and checking validity
-  // of types" with 8GB available — the project's grown past what
-  // tsc-in-build can do on the standard build machine. Skipping these
-  // here is safe because tsc --noEmit is run on every PR locally and
-  // ESLint runs the same way; build-time check was redundant. If we
-  // ever move to enhanced build machines this can be re-enabled.
-  typescript: { ignoreBuildErrors: true },
+  // Build-time ESLint stays off for now: the codebase has a small set of
+  // known lint errors (bare <table> elements in 3 admin components + 1
+  // missing alt). CI runs `npm run lint` as report-only so the errors are
+  // visible on every PR; once burned down, drop this flag and flip the CI
+  // step to required. tsc runs as a required CI gate and at build time
+  // (Vercel builds will fail on type errors).
   eslint: { ignoreDuringBuilds: true },
   async headers() {
     return [

@@ -49,21 +49,7 @@ jobs:
         run: node scripts/prisma-env.js prisma generate
 
       - name: Typecheck
-        # Filter out pre-existing errors in test files (roles.test.ts uses tsx imports
-        # incompatible with tsc outside the test runner). All non-test errors are fatal.
-        run: |
-          set +e
-          npx tsc --noEmit 2>&1 | tee /tmp/tsc-output.txt
-          TSC_EXIT=${PIPESTATUS[0]}
-          set -e
-          # Fail only if there are errors outside of test/spec files
-          NON_TEST_ERRORS=$(grep 'error TS' /tmp/tsc-output.txt | grep -v '\.test\.ts\|\.spec\.ts' || true)
-          if [ -n "$NON_TEST_ERRORS" ]; then
-            echo "❌ TypeScript errors in non-test files:"
-            echo "$NON_TEST_ERRORS"
-            exit 1
-          fi
-          echo "✅ Typecheck passed (test file errors ignored)"
+        run: npx tsc --noEmit
 
       # Unit tests (Node's built-in test runner via the `test:unit`
       # script, which uses tsx). 499 specs run deterministically without

@@ -72,7 +72,7 @@ describe('POST /api/member/feedback', () => {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: 'not-json',
-      })
+      }) as unknown as import('next/server').NextRequest
     );
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'Invalid JSON' });

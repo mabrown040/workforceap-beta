@@ -61,7 +61,7 @@ export default function ExportPdfButton({
         ) : (
           <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">picture_as_pdf</span>
         )}
-        {label}
+        <span aria-live="polite">{loading ? 'Saving…' : label}</span>
       </button>
       {error ? (
         <span role="alert" style={{ color: 'var(--color-error, #b91c1c)', fontSize: '0.75rem', lineHeight: 1.3 }}>

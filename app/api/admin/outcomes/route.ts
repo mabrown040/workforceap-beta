@@ -8,7 +8,7 @@ import { unstable_cache } from 'next/cache';
 
 function computeOutcomes(orgId: string) {
   return withTenantScope(orgId, async (db) => {
-      const totalMembers = await db.user.count({ where: { deletedAt: null, role: 'member' } });
+      const totalMembers = await db.user.count({ where: { deletedAt: null, userRoles: { some: { role: { name: 'member' } } } } });
       const enrolled = await db.courseEnrollment.count();
       const completed = await db.courseProgress.count({ where: { status: 'COMPLETED' } });
       const placed = await db.placementRecord.count();
@@ -31,12 +31,12 @@ function computeOutcomes(orgId: string) {
         db.placementRecord.findMany({
           where: {},
           select: { userId: true },
-          take: 5000,
+          take: 500,
         }),
         db.courseEnrollment.findMany({
           where: { programSlug: { in: programSlugs } },
           select: { userId: true, programSlug: true },
-          take: 5000,
+          take: 500,
         }),
       ]);
 
@@ -62,7 +62,7 @@ function computeOutcomes(orgId: string) {
 
       const monthlyTrend = await db.user.groupBy({
         by: ['createdAt'],
-        where: { deletedAt: null, role: 'member' },
+        where: { deletedAt: null, userRoles: { some: { role: { name: 'member' } } } },
         _count: { id: true },
         orderBy: { createdAt: 'asc' },
         take: 12,
@@ -76,7 +76,7 @@ function computeOutcomes(orgId: string) {
         programBreakdown: programStats,
         monthlyTrend: monthlyTrend.map((m) => ({
           month: m.createdAt.toISOString().slice(0, 7),
-          membersEnrolled: m._count.id,
+          membersEnrolled: m._count?.id ?? 0,
         })),
       };
     });

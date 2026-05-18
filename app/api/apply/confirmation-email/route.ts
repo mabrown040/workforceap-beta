@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db/prisma';
 import { sendApplicationConfirmationEmail } from '@/lib/email';
 import {
   checkConfirmationEmailRateLimit,
@@ -46,6 +47,25 @@ export async function POST(request: NextRequest) {
     const { success: emailWithinLimit } = await checkConfirmationEmailEmailRateLimit(parsed.data.email);
     if (!emailWithinLimit) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+    }
+
+    // Close the open-relay vector (AUDIT §H-S8): only send to addresses that
+    // have a recent application or user record. An attacker rotating IPs can
+    // no longer spray arbitrary inboxes with our branded confirmation email.
+    // Application has no `email` column; the applicant's email lives on the
+    // related User row (User.email is @unique). Filter through the relation
+    // so the open-relay guard still anchors on a real recent application.
+    const recentApplication = await prisma.application.findFirst({
+      where: {
+        user: { is: { email: parsed.data.email } },
+        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true },
+      take: 1,
+    });
+    if (!recentApplication) {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
     const result = await sendApplicationConfirmationEmail({

@@ -237,9 +237,9 @@ export default async function EmployerApplicationPage({
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>{msg.author.fullName}</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>{msg.author?.fullName ?? 'Unknown'}</span>
                     <span style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)' }}>
-                      {new Date(msg.createdAt).toLocaleDateString()}
+                      {new Date(msg.createdAt).toLocaleDateString('en-US')}
                     </span>
                   </div>
                   <p style={{ fontSize: '0.8125rem', margin: 0, lineHeight: 1.5 }}>{msg.body}</p>

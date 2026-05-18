@@ -175,7 +175,7 @@ export async function loadMemberProgressAuditByEmail(email: string): Promise<Mem
 
   const [courseRowsRaw, storedRollups] = await Promise.all([
     prisma.courseProgress.findMany({
-      take: 5000,
+      take: 500,
       where: { userId: user.id },
       orderBy: [{ programSlug: 'asc' }, { courseSlug: 'asc' }],
       select: {
@@ -189,7 +189,7 @@ export async function loadMemberProgressAuditByEmail(email: string): Promise<Mem
       },
     }),
     prisma.memberProgramProgress.findMany({
-      take: 5000,
+      take: 500,
       where: { userId: user.id },
       orderBy: { programSlug: 'asc' },
       select: {

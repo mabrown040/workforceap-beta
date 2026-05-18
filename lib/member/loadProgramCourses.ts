@@ -48,7 +48,7 @@ export async function loadProgramCourses(args: {
 
   // 2. Course DB table. Per-org rows keyed by (orgId, programSlug).
   const dbRows = await prisma.course.findMany({
-    take: 5000,
+    take: 500,
     where: {
       organizationId: args.organizationId,
       programSlug: args.programSlug,

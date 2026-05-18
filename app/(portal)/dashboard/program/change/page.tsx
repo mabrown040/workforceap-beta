@@ -77,7 +77,7 @@ export default async function ProgramChangePage() {
                 </strong>
               </p>
               <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
-                Submitted {pendingRequest.createdAt.toLocaleDateString()}
+                Submitted {pendingRequest.createdAt.toLocaleDateString('en-US')}
               </p>
               <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
                 A counselor will reach out via Counselor Chat or email. You can submit a new request once this one is decided.

@@ -132,7 +132,7 @@ export default function PortalShell({ children }: { children: React.ReactNode })
           />
         </>
       )}
-      {children}
+      <div className="portal-touch-target">{children}</div>
     </>
   );
 }

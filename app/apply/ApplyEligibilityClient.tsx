@@ -67,7 +67,7 @@ export default function ApplyEligibilityClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = useLocaleFromPath();
-  const programParam = searchParams.get('program');
+  const programParam = searchParams?.get('program');
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -395,6 +395,17 @@ export default function ApplyEligibilityClient() {
             {t('saveContinueLater')}
           </button>
         </div>
+        <p className="apply-consent-line" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0', lineHeight: 1.5 }}>
+          {t('applyConsentLine')}{' '}
+          <LocalizedLink href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>
+            {t('applyConsentPrivacy')}
+          </LocalizedLink>{' '}
+          {t('applyConsentAnd')}{' '}
+          <LocalizedLink href="/terms" style={{ color: 'inherit', textDecoration: 'underline' }}>
+            {t('applyConsentTerms')}
+          </LocalizedLink>
+          .
+        </p>
         {saveNotice ? (
           <p className="apply-save-notice" role="status" aria-live="polite">
             {saveNotice}

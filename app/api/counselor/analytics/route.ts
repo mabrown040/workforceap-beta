@@ -57,7 +57,7 @@ export const GET = withApiGuc(async () => {
     const [alerts, recentEvents, programAverages] = await Promise.all([
       memberIds.length > 0
         ? prisma.atRiskAlert.findMany({
-            take: 5000,
+            take: 500,
             where: {
               userId: { in: memberIds },
               status: { in: ['open', 'acknowledged'] },

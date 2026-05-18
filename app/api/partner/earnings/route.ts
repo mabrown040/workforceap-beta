@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
+import { isReferralPartner } from '@/lib/partner/partnerType';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
   try {
@@ -12,8 +13,18 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     const ctx = await getPartnerForUser(user.id);
     if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+    // Community partners don't receive payouts — refuse the earnings endpoint
+    // entirely rather than returning a zero-dollar payload that would still
+    // imply the partner is on the payout track.
+    if (!isReferralPartner(ctx.partner)) {
+      return NextResponse.json(
+        { error: 'Earnings are only available to referral partners.' },
+        { status: 403 },
+      );
+    }
+
     const referrals = await prisma.partnerReferral.findMany({
-      take: 5000,
+      take: 500,
       where: { partnerId: ctx.partnerId },
       include: {
         member: {

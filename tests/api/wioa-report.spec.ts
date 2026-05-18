@@ -362,7 +362,7 @@ describe('GET /api/cron/wioa-report', () => {
       new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { 'content-type': 'application/json' },
-      })
+      }) as unknown as import('next/server').NextResponse
     );
 
     const res = await runWioaCron(new Request('http://localhost:3000/api/cron/wioa-report'));

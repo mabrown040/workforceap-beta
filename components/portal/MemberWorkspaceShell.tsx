@@ -27,14 +27,14 @@ export default function MemberWorkspaceShell({
   const pathname = usePathname();
 
   useEffect(() => {
-    if (searchParams.get('verified') === '1') {
+    if (searchParams?.get('verified') === '1') {
       trackFunnelEvent('member_signup', 'email_verified');
       trackFunnelEvent('member_signup', 'dashboard_first_visit');
       // Remove the param without adding to history
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
       params.delete('verified');
       const newUrl = params.size > 0 ? `${pathname}?${params.toString()}` : pathname;
-      router.replace(newUrl);
+      if (newUrl) router.replace(newUrl);
     }
   }, [searchParams, pathname, router]);
 

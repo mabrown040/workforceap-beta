@@ -1,5 +1,6 @@
 'use client';
 
+import { fetchAuth } from '@/lib/fetchWithTimeout';
 import { useState, useEffect } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
@@ -22,7 +23,7 @@ export default function SetupMfaPage() {
   useEffect(() => {
     setNextPath(getMfaSetupNextPath());
 
-    fetch('/api/auth/setup-mfa', { method: 'POST' })
+    fetchAuth('/api/auth/setup-mfa', { method: 'POST' })
       .then(async (r) => {
         if (!r.ok) {
           const data = await r.json().catch(() => ({}));
@@ -54,7 +55,7 @@ export default function SetupMfaPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/setup-mfa', {
+      const res = await fetchAuth('/api/auth/setup-mfa', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ factorId, code }),
@@ -196,6 +197,7 @@ export default function SetupMfaPage() {
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
+                aria-label="6-digit MFA code"
                 autoFocus
                 style={{
                   width: '100%',

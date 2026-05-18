@@ -60,7 +60,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
   useEffect(() => {
     if (initFromUrlRef.current) return;
     initFromUrlRef.current = true;
-    const raw = searchParams.get('compare');
+    const raw = searchParams?.get('compare');
     if (raw) {
       const want = new Set(
         raw

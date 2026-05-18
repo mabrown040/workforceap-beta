@@ -15,8 +15,10 @@ let authRateLimiter: Ratelimit | null = null;
 // above. The compound key permits credential-stuffing — rotating emails on
 // one IP gives each email its own bucket. This bucket caps the total
 // auth attempts from any single IP regardless of which email is being
-// tried. Per-launch-bump tuning: 100/15min covers a workforce-center-on-
-// shared-IP burst without enabling rapid stuffing.
+// tried. Per-launch-bump tuning: 300/15min covers a workforce-center- or
+// library-on-shared-IP burst (~20 people each with a few attempts) without
+// enabling rapid stuffing. The compound bucket at 20/min/email still
+// catches single-account brute force. Revisit if abuse signals appear.
 let authIpRateLimiter: Ratelimit | null = null;
 // Per-email-only bucket for signup endpoints. Each signup route has its
 // own per-IP limiter; this one prevents an attacker spread across many
@@ -66,6 +68,7 @@ let placementSurveyRateLimiter: Ratelimit | null = null;
 let publicWioaQualificationRateLimiter: Ratelimit | null = null;
 let webhookRateLimiter: Ratelimit | null = null;
 let orgOnboardRateLimiter: Ratelimit | null = null;
+let courseraIdentityRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -88,7 +91,7 @@ if (redisUrl && redisToken) {
   });
   authIpRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(100, '15 m'),
+    limiter: Ratelimit.slidingWindow(300, '15 m'),
     prefix: 'ratelimit:auth-ip',
   });
   signupEmailRateLimiter = new Ratelimit({
@@ -227,6 +230,11 @@ if (redisUrl && redisToken) {
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:org-onboard',
   });
+  courseraIdentityRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 h'),
+    prefix: 'ratelimit:coursera-identity',
+  });
 }
 
 export async function checkSignupRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
@@ -293,9 +301,7 @@ export async function checkAIToolRateLimit(userId: string): Promise<{ success: b
 
 export async function checkContactRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
   if (!contactRateLimiter) {
-    // Contact is a documented "fail-closed in production" surface
-    // (spam vector). Dev/preview fail-open so local testing isn't blocked.
-    return { success: process.env.VERCEL_ENV !== 'production' };
+    return { success: !FAIL_CLOSED };
   }
   const result = await contactRateLimiter.limit(ip);
   return { success: result.success, remaining: result.remaining };
@@ -333,21 +339,19 @@ export async function checkEmployerJobImportRateLimit(userId: string): Promise<{
   return { success: result.success, remaining: result.remaining };
 }
 
-/** Public confirmation-email endpoint — 5 per IP per hour. Production fails closed when Redis is unconfigured: this endpoint sends mail from our verified domain to an arbitrary attacker-chosen address; a botnet can rotate IPs trivially, so unlimited fail-open would burn deliverability. */
+/** Public confirmation-email endpoint — 5 per IP per hour. Fails closed when Redis is unconfigured: this endpoint sends mail from our verified domain to an arbitrary attacker-chosen address; a botnet can rotate IPs trivially, so unlimited fail-open would burn deliverability. */
 export async function checkConfirmationEmailRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!confirmationEmailRateLimiter) {
-    // Dev/preview: fail open so local testing isn't blocked. Production:
-    // fail closed because the endpoint is a phishing-payload carrier.
-    return { success: process.env.VERCEL_ENV !== 'production' };
+    return { success: !FAIL_CLOSED };
   }
   const result = await confirmationEmailRateLimiter.limit(ip);
   return { success: result.success };
 }
 
-/** Per-email cap on confirmation-email sends — 2 per email per hour. Same fail-closed-in-prod policy as the per-IP variant. Use both together. */
+/** Per-email cap on confirmation-email sends — 2 per email per hour. Same fail-closed policy as the per-IP variant. Use both together. */
 export async function checkConfirmationEmailEmailRateLimit(email: string): Promise<{ success: boolean }> {
   if (!confirmationEmailEmailRateLimiter) {
-    return { success: process.env.VERCEL_ENV !== 'production' };
+    return { success: !FAIL_CLOSED };
   }
   const normalized = email.trim().toLowerCase();
   if (!normalized) return { success: true };
@@ -464,5 +468,12 @@ export async function checkWebhookRateLimit(ip: string): Promise<{ success: bool
 export async function checkOrgOnboardRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!orgOnboardRateLimiter) return { success: true };
   const result = await orgOnboardRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** POST /api/member/coursera/identity — limit Coursera email spray. */
+export async function checkCourseraIdentityRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!courseraIdentityRateLimiter) return { success: true };
+  const result = await courseraIdentityRateLimiter.limit(ip);
   return { success: result.success };
 }

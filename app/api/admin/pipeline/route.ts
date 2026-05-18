@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   const counts = await withTenantScope(orgId, async (db) => {
     const members = await db.user.findMany({
-      where: { deletedAt: null, role: 'member' },
+      where: { deletedAt: null, userRoles: { some: { role: { name: 'member' } } } },
       select: {
         id: true,
         createdAt: true,
@@ -27,10 +27,10 @@ export async function GET(req: NextRequest) {
         courseEnrollments: { select: { id: true, fundingSource: true } },
         courseProgress: { select: { status: true } },
         placementRecord: { select: { id: true } },
-        profile: { select: { hasResume: true } },
+        profile: { select: { resumeOriginalPath: true, resumeEnhancedPath: true } },
         aiToolResults: { select: { id: true }, take: 1 },
       },
-      take: 5000,
+      take: 500,
     });
 
     const c = {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
       if (m.placementRecord) { c.placed++; continue; }
 
       // Stage 6: Workforce Ready
-      const hasResume = m.profile?.hasResume;
+      const hasResume = m.profile?.resumeOriginalPath || m.profile?.resumeEnhancedPath;
       const hasAITool = m.aiToolResults.length > 0;
       if (m.assessmentCompleted && hasResume && hasAITool) { c.ready++; continue; }
 

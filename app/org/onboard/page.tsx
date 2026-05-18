@@ -40,8 +40,8 @@ function slugify(name: string): string {
 
 export default function OrgOnboardPage() {
   const searchParams = useSearchParams();
-  const successOrg = searchParams.get('org');
-  const isSuccess = searchParams.get('success') === '1';
+  const successOrg = searchParams?.get('org');
+  const isSuccess = searchParams?.get('success') === '1';
 
   const [name, setName] = useState('');
   const [domain, setDomain] = useState('');

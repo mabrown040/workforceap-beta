@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -15,12 +16,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    // BlogPost has organizationId — scope reads + writes so an Org A
-    // admin cannot read, edit, or delete an Org B blog post.
-    const orgId = await getActorOrganizationId(user.id);
-    const post = await prisma.blogPost.findFirst({
-      where: { id, organizationId: orgId },
-    });
+    const post = await prisma.blogPost.findUnique({ where: { id } });
     if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(post);
   } catch (error) {
@@ -28,7 +24,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const GET = withApiGuc(_GET);async function _PATCH(
+export const GET = withApiGuc(_GET);
+
+async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -52,16 +50,12 @@ export const GET = withApiGuc(_GET);async function _PATCH(
       scheduledAt,
     } = body;
 
-    const orgId = await getActorOrganizationId(user.id);
-    const existing = await prisma.blogPost.findFirst({
-      where: { id, organizationId: orgId },
-    });
+    const existing = await prisma.blogPost.findUnique({ where: { id } });
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     if (slug?.trim() && slug !== existing.slug) {
-      // Check uniqueness within the same org.
       const dup = await prisma.blogPost.findFirst({
-        where: { slug: slug.trim(), organizationId: orgId, NOT: { id } },
+        where: { slug: slug.trim(), NOT: { id } },
       });
       if (dup) {
         return NextResponse.json({ error: 'Slug already exists' }, { status: 400 });
@@ -82,14 +76,9 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     }
     if (scheduledAt !== undefined) update.scheduledAt = scheduledAt ? new Date(scheduledAt) : null;
 
-    // updateMany so the org filter is enforced; update({where:{id}}) would
-    // bypass the FK clause.
-    await prisma.blogPost.updateMany({
-      where: { id, organizationId: orgId },
+    const post = await prisma.blogPost.update({
+      where: { id },
       data: update,
-    });
-    const post = await prisma.blogPost.findFirst({
-      where: { id, organizationId: orgId },
     });
 
     return NextResponse.json(post);
@@ -98,7 +87,9 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const PATCH = withApiGuc(_PATCH);async function _DELETE(
+export const PATCH = withApiGuc(_PATCH);
+
+async function _DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -109,13 +100,11 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const orgId = await getActorOrganizationId(user.id);
-    const result = await prisma.blogPost.deleteMany({
-      where: { id, organizationId: orgId },
-    });
-    if (result.count === 0) {
+    const existing = await prisma.blogPost.findUnique({ where: { id } });
+    if (!existing) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
+    await prisma.blogPost.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/blog/[id] DELETE] error:', error);

@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const partners = await prisma.partner.findMany({
       where,
       orderBy: { name: 'asc' },
-      take: 5000,
+      take: 500,
       include: {
         _count: { select: { counselors: true, referrals: true } },
       },

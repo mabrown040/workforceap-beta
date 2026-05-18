@@ -29,7 +29,7 @@ function toggleSlug(list: string[], slug: string, max: number): string[] {
 export default function ApplyResultsClient() {
   const t = useTranslations('apply');
   const searchParams = useSearchParams();
-  const programParam = searchParams.get('program');
+  const programParam = searchParams?.get('program');
   const [pageState, setPageState] = useState<'loading' | 'ready' | 'missing'>('loading');
   const [qualifies, setQualifies] = useState<boolean | null>(null);
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>([]);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { getStripe, getStripeConnectWebhookSecret } from '@/lib/stripe/client';
+import { getStripe, getStripeConnectWebhookSecret, getStripeWebhookSecret } from '@/lib/stripe/client';
 import type Stripe from 'stripe';
 
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
@@ -19,15 +19,81 @@ export async function POST(request: NextRequest) {
   
     let event: Stripe.Event;
     try {
-      event = getStripe().webhooks.constructEvent(payload, sig, getStripeConnectWebhookSecret());
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Unknown error';
-      console.error('[stripe/webhook] signature verification failed:', msg);
-      return NextResponse.json({ error: `Webhook signature verification failed: ${msg}` }, { status: 400 });
+      // Try platform webhook secret first (checkout, subscription, invoice events)
+      event = getStripe().webhooks.constructEvent(payload, sig, getStripeWebhookSecret());
+    } catch (platformErr: unknown) {
+      // Platform secret failed — try Connect secret (account, transfer, payout events)
+      try {
+        event = getStripe().webhooks.constructEvent(payload, sig, getStripeConnectWebhookSecret());
+      } catch (connectErr: unknown) {
+        const msg = connectErr instanceof Error ? connectErr.message : 'Unknown error';
+        console.error('[stripe/webhook] signature verification failed for both platform and Connect secrets:', msg);
+        return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
+      }
     }
   
     try {
       switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object as Stripe.Checkout.Session;
+          const orgId = session.metadata?.organizationId;
+          if (!orgId) {
+            console.warn('[stripe/webhook] checkout.session.completed missing organizationId metadata');
+            break;
+          }
+          if (session.payment_status === 'paid') {
+            await prisma.organization.update({
+              where: { id: orgId },
+              data: { subscriptionStatus: 'active' },
+            });
+          }
+          break;
+        }
+        // Stripe never emits a bare `subscription.updated` / `subscription.canceled`
+        // event — the canonical event names are namespaced under `customer.*`,
+        // and the cancellation event is `deleted` (not `canceled`). Using the
+        // wrong strings meant this branch silently never matched in production.
+        case 'customer.subscription.updated': {
+          const subscription = event.data.object as Stripe.Subscription;
+          const orgId = subscription.metadata?.organizationId;
+          if (!orgId) break;
+          const status = subscription.status === 'active' ? 'active' : 'past_due';
+          await prisma.organization.update({
+            where: { id: orgId },
+            data: { subscriptionStatus: status },
+          });
+          break;
+        }
+        case 'customer.subscription.deleted': {
+          const subscription = event.data.object as Stripe.Subscription;
+          const orgId = subscription.metadata?.organizationId;
+          if (!orgId) break;
+          await prisma.organization.update({
+            where: { id: orgId },
+            data: { subscriptionStatus: 'canceled' },
+          });
+          break;
+        }
+        case 'invoice.payment_failed': {
+          const invoice = event.data.object as Stripe.Invoice;
+          const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
+          if (!orgId) break;
+          await prisma.organization.update({
+            where: { id: orgId },
+            data: { subscriptionStatus: 'past_due' },
+          });
+          break;
+        }
+        case 'invoice.payment_succeeded': {
+          const invoice = event.data.object as Stripe.Invoice;
+          const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
+          if (!orgId) break;
+          await prisma.organization.update({
+            where: { id: orgId },
+            data: { subscriptionStatus: 'active' },
+          });
+          break;
+        }
         case 'account.updated': {
           const account = event.data.object as Stripe.Account;
           const partnerId = account.metadata?.partnerId;

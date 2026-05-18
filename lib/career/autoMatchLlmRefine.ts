@@ -22,7 +22,7 @@ export type RefinedMatch = AutoMatchResult & {
   llmReordered?: boolean;
 };
 
-function buildPrompt(occ: OccupationForMatch, candidates: AutoMatchResult[]): {
+function buildPrompt(occ: OccupationForMatch, candidates: AutoMatchResult[], programs?: Program[]): {
   system: string;
   user: string;
 } {
@@ -109,7 +109,7 @@ export async function refineMatchesWithLlm(
 ): Promise<RefinedMatch[]> {
   if (candidates.length === 0) return [];
 
-  const { system, user } = buildPrompt(occ, candidates);
+  const { system, user } = buildPrompt(occ, candidates, programs);
   const response = await claudeChat(system, user, { maxTokens: 2500, temperature: 0.3 });
   if (!response) {
     // LLM unavailable — return originals untouched

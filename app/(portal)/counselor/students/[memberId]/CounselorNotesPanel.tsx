@@ -174,7 +174,7 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
           <div key={note.id} style={{ borderLeft: '3px solid var(--color-accent)', paddingLeft: '0.75rem', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <p style={{ fontSize: '0.7rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.25rem' }}>
-                {new Date(note.createdAt).toLocaleDateString()} · {note.author.fullName ?? note.author.email}
+                {new Date(note.createdAt).toLocaleDateString('en-US')} · {note.author.fullName ?? note.author.email}
               </p>
               <button type="button"
                 onClick={() => handleDelete(note.id)}

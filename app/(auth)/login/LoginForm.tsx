@@ -1,5 +1,6 @@
 'use client';
 
+import { fetchAuth } from '@/lib/fetchWithTimeout';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -363,7 +364,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetchAuth('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

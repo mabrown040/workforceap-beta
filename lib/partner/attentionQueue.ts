@@ -43,7 +43,7 @@ export type PartnerAttentionRow = {
 
 export async function buildPartnerAttentionQueue(partnerId: string): Promise<PartnerAttentionRow[]> {
   const referrals = await prisma.partnerReferral.findMany({
-    take: 5000,
+    take: 500,
     where: { partnerId, member: { deletedAt: null } },
     include: {
       assignedPartnerUser: { select: { fullName: true } },

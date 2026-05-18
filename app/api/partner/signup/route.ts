@@ -204,7 +204,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             contactPhone: phone,
             organizationType: d.orgType,
             status: 'pending_approval',
-            active: true,
+            active: false,
           },
         });
 
@@ -251,7 +251,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           // We'll forward cookies via response headers below
         },
       },

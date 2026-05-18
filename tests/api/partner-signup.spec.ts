@@ -125,7 +125,8 @@ import { POST as rejectPost } from '@/app/api/admin/partners/[id]/reject/route';
 import { PATCH as contactPatch } from '@/app/api/partner/settings/contact/route';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
+const supabaseAdmin = getSupabaseAdmin();
 import { isAdmin } from '@/lib/auth/roles';
 import { NextRequest } from 'next/server';
 

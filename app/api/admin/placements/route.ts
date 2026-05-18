@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
@@ -82,10 +83,29 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const { id, ...updates } = body;
-  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+  const parsed = z.object({
+    id: z.string().min(1),
+    placedAt: z.string().datetime().optional(),
+    salaryOffered: z.number().nonnegative().optional(),
+    employerName: z.string().min(1).max(200).optional(),
+    jobTitle: z.string().min(1).max(200).optional(),
+    retentionStatus: z.enum(['active', 'left', 'unknown']).optional(),
+  }).safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid fields', issues: parsed.error.issues }, { status: 400 });
+  }
 
+  const { id, ...updates } = parsed.data;
   const orgId = await getActorOrganizationId(user.id);
+
+  // Verify placement belongs to admin's org before updating
+  const existing = await withTenantScope(orgId, async (db) =>
+    db.placementRecord.findUnique({ where: { id }, select: { id: true } })
+  );
+  if (!existing) {
+    return NextResponse.json({ error: 'Placement not found' }, { status: 404 });
+  }
+
   const placement = await withTenantScope(orgId, async (db) =>
     db.placementRecord.update({ where: { id }, data: updates })
   );

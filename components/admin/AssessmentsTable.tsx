@@ -64,7 +64,7 @@ export default function AssessmentsTable({
   });
 
   const updateFilters = (updates: Record<string, string | undefined>) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
     for (const [k, v] of Object.entries(updates)) {
       if (v) params.set(k, v);
       else params.delete(k);

@@ -1,0 +1,33 @@
+/**
+ * Portal accessibility — minimum touch targets
+ *
+ * WCAG 2.1 SC 2.5.5: target size 44×44 CSS pixels.
+ * Applied to all interactive elements inside portal surfaces.
+ */
+.portal-touch-target a,
+.portal-touch-target button,
+.portal-touch-target [role="button"],
+.portal-touch-target input,
+.portal-touch-target select,
+.portal-touch-target textarea {
+  min-width: 2.75rem;   /* 44px */
+  min-height: 2.75rem;  /* 44px */
+}
+
+/* Smaller exceptions: inline text links, chip buttons, tag pills */
+.portal-touch-target a.inline-link,
+.portal-touch-target .chip-button,
+.portal-touch-target .tag-pill {
+  min-width: auto;
+  min-height: auto;
+}
+
+/* Focus indicators for keyboard navigation */
+.portal-touch-target a:focus-visible,
+.portal-touch-target button:focus-visible,
+.portal-touch-target [role="button"]:focus-visible,
+.portal-touch-target input:focus-visible,
+.portal-touch-target select:focus-visible {
+  outline: 2px solid var(--color-primary, #2563eb);
+  outline-offset: 2px;
+}

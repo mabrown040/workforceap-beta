@@ -200,7 +200,7 @@ function resetLoginMocks() {
         webauthn: { challenge: vi.fn(), verify: vi.fn(), enroll: vi.fn(), unenroll: vi.fn() },
       },
     },
-  }));
+  }) as any);
   vi.mocked(prisma.profile.findUnique).mockResolvedValue(null);
   vi.mocked(isStaffMfaEnforcementEnabled).mockReturnValue(false);
   vi.mocked(verifyAdminMfaTrustToken).mockResolvedValue(false);
@@ -238,7 +238,7 @@ function resetMfaMocks() {
         webauthn: { challenge: vi.fn(), verify: vi.fn(), enroll: vi.fn(), unenroll: vi.fn() },
       },
     },
-  }));
+  }) as any);
   vi.mocked(prisma.profile.findUnique).mockResolvedValue(null);
   vi.mocked(verifyAdminMfaTrustToken).mockResolvedValue(false);
   vi.mocked(cookies).mockResolvedValue(createMockCookieStore() as any);
@@ -646,7 +646,7 @@ describe('POST /api/auth/logout', () => {
     const cookieStore = createMockCookieStore();
     vi.mocked(cookies).mockResolvedValue(cookieStore as any);
 
-    const res = await logoutPOST();
+    const res = await logoutPOST(new Request('http://localhost/api/auth/logout', { method: 'POST' }));
 
     expect(signOutFn).toHaveBeenCalled();
     expect(res.status).toBe(200);
@@ -667,7 +667,7 @@ describe('POST /api/auth/logout', () => {
     const { createSupabaseServerClient } = await import('@/lib/auth/server');
     vi.mocked(createSupabaseServerClient).mockRejectedValue(new Error('Supabase down'));
 
-    const res = await logoutPOST();
+    const res = await logoutPOST(new Request('http://localhost/api/auth/logout', { method: 'POST' }));
 
     expect(res.status).toBe(500);
     const body = await res.json();

@@ -44,7 +44,7 @@ export function withCronLogging(
           'error',
         );
         return NextResponse.json(
-          { error: 'Cron failed', detail: error.message },
+          { error: 'Cron failed' },
           { status: 500 },
         );
       }

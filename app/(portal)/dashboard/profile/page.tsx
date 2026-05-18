@@ -23,6 +23,7 @@ import StartTourButton from "@/components/onboarding/StartTourButton";
 import LanguageToggle from "@/components/portal/LanguageToggle";
 import DownloadMyDataButton from "@/components/portal/DownloadMyDataButton";
 import MemberFeedbackButton from '@/components/portal/MemberFeedbackButton';
+import ThemeSelector from '@/components/theme/ThemeSelector';
 import {
   getCounselorStarterProfileReview,
   getStarterProfileFieldLabels,
@@ -747,6 +748,19 @@ export default async function DashboardProfilePage() {
                   Language
                 </h3>
                 <LanguageToggle />
+              </section>
+              <section>
+                <h3
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: 700,
+                    color: "var(--color-on-surface)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  Appearance
+                </h3>
+                <ThemeSelector />
               </section>
               <section>
                 <h3

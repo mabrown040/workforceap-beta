@@ -26,7 +26,7 @@ export default function ScrollAnimationsWrapper() {
       if (!cancelled) setAllowAnimations(true);
     };
     let idleId: number | null = null;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let timeoutId: number | null = null;
     if (typeof window.requestIdleCallback === 'function') {
       idleId = window.requestIdleCallback(enable, { timeout: 2500 });
     } else {

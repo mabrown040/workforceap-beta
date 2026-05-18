@@ -9,7 +9,7 @@ export default function ApplyConfirmationCta() {
   const t = useTranslations('apply');
   const searchParams = useSearchParams();
   const email = useMemo(() => {
-    const raw = searchParams.get('email')?.trim() ?? '';
+    const raw = searchParams?.get('email')?.trim() ?? '';
     return raw;
   }, [searchParams]);
 

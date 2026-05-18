@@ -30,7 +30,7 @@ function isPortalRoute(pathname: string): boolean {
   return portalPrefixes.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
-let captureRouterTransitionStart: ((href: string, navigationType?: string) => void) | undefined;
+let captureRouterTransitionStart: ((href: string, navigationType: string) => void) | undefined;
 let initPromise: Promise<void> | null = null;
 
 /** PII-bearing query-string keys that should be stripped from breadcrumb URLs
@@ -73,7 +73,7 @@ async function initSentry() {
   Sentry.init({
     dsn,
     tracesSampleRate: 0.1,
-    replaysSessionSampleRate: 0.05,
+    replaysSessionSampleRate: Number(process.env.NEXT_PUBLIC_SENTRY_REPLAY_SAMPLE_RATE ?? '0.01'),
     replaysOnErrorSampleRate: 1.0,
     integrations: [
       // Replay default is to render the DOM verbatim. For a portal that
@@ -126,7 +126,7 @@ function maybeInitSentry(href?: string) {
  *  Lazily loads Sentry so marketing pages don't pay the 420KB chunk cost. */
 export const onRouterTransitionStart = (href: string) => {
   maybeInitSentry(href);
-  captureRouterTransitionStart?.(href);
+  captureRouterTransitionStart?.(href, 'push');
 };
 
 // Initialize immediately on portal routes (initial page load)

@@ -1,19 +1,76 @@
 import { NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
+import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
+import { cookies } from 'next/headers';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+export const POST = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  if (!user.email) {
+    // Password re-authentication requires an email on the account.
+    // Accounts without an email (e.g. phone-only auth) must use a different deletion flow.
+    return NextResponse.json(
+      { error: 'Account has no email on file; password re-authentication is not possible.' },
+      { status: 400 },
+    );
+  }
+
+  let body: { password?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  }
+  const password = typeof body?.password === 'string' ? body.password : '';
+  if (!password) {
+    return NextResponse.json({ error: 'Password confirmation required' }, { status: 400 });
+  }
+
+  // Re-authenticate to confirm ownership before destructive action
+  const cookieStore = await cookies();
+  const cookieOpts = getSupabaseCookieOptions(false);
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
+
+  const supabase = createServerClient(
+    supabaseUrl,
+    supabaseAnonKey,
+    {
+      cookieOptions: cookieOpts,
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options as Parameters<typeof cookieStore.set>[2]);
+          });
+        },
+      },
+    }
+  );
+
+  const { error: authError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password,
+  });
+  if (authError) {
+    return NextResponse.json({ error: 'Incorrect password. Account deletion cancelled.' }, { status: 403 });
+  }
+
+  // Revoke Supabase session first (prevents continued use)
+  await supabase.auth.signOut({ scope: 'global' });
 
   const userId = user.id;
 
   // Anonymize user record
   await prisma.$executeRaw`
-    UPDATE users 
+    UPDATE users
     SET email = 'deleted_' || id || '@workforceap.org',
         updated_at = NOW()
     WHERE id = ${userId}
@@ -57,9 +114,17 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     )
   `;
 
-  return NextResponse.json({ 
-    ok: true, 
-    message: 'Your account has been deleted. Personal data has been anonymized.' 
+  // Delete Supabase auth user (irreversible — prevents re-login with old credentials)
+  const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(userId);
+  if (deleteAuthError) {
+    console.error('[gdpr/delete] Supabase auth delete failed:', deleteAuthError);
+    // Don't fail the whole request — the DB is already anonymized and sessions revoked.
+    // Log for manual cleanup.
+  }
+
+  return NextResponse.json({
+    ok: true,
+    message: 'Your account has been deleted. Personal data has been anonymized and all sessions revoked.',
   });
 
   } catch (error) {

@@ -90,7 +90,7 @@ export async function diagnoseMemberCoursera(
   if (!member) return { ok: false, error: 'Member not found' };
 
   const enrollmentsRaw = await prisma.courseEnrollment.findMany({
-    take: 5000,
+    take: 500,
     where: { userId: memberId },
     select: { programSlug: true, isPrimary: true, enrolledAt: true },
     orderBy: { enrolledAt: 'desc' },
@@ -99,7 +99,7 @@ export async function diagnoseMemberCoursera(
   let identityMappings: IdentityMappingRaw[] = [];
   try {
     identityMappings = await prisma.courseraIdentityMapping.findMany({
-      take: 5000,
+      take: 500,
       where: { userId: memberId },
       orderBy: [{ lastSeenAt: { sort: 'desc', nulls: 'last' } }],
       select: {

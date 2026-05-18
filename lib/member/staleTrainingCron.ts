@@ -15,12 +15,14 @@ export type StaleTrainingCronResult = {
  * Members with `CourseEnrollment` whose per-program `CourseProgress` has not
  * been updated in {@link STALE_DAYS} get `User.staleTrainingDetectedAt` set (once).
  * Cleared when progress is fresh or program appears complete via rollup.
+ *
+ * Batched query version: replaces per-enrollment N+1 with 4 total queries.
  */
 export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCronResult> {
   const cutoff = new Date(Date.now() - STALE_DAYS * 86_400_000);
 
   const enrollments = await prisma.courseEnrollment.findMany({
-    take: 5000,
+    take: 500,
     where: { user: { deletedAt: null } },
     select: {
       userId: true,
@@ -28,57 +30,102 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
     },
   });
 
+  if (enrollments.length === 0) {
+    return { enrollmentsChecked: 0, newlyFlagged: 0, cleared: 0, unchangedStale: 0 };
+  }
+
+  // Batch 1: all rollups for enrolled (userId, programSlug) pairs
+  const rollups = await prisma.memberProgramProgress.findMany({
+    where: {
+      OR: enrollments.map((e) => ({
+        userId: e.userId,
+        programSlug: e.programSlug,
+      })),
+    },
+    select: { userId: true, programSlug: true, averagePercent: true },
+  });
+  const rollupMap = new Map(
+    rollups.map((r) => [`${r.userId}:${r.programSlug}`, r.averagePercent]),
+  );
+
+  // Batch 2: max lastUpdatedAt per (userId, programSlug) from courseProgress
+  const progressAgg = await prisma.courseProgress.groupBy({
+    by: ['userId', 'programSlug'],
+    where: {
+      OR: enrollments.map((e) => ({
+        userId: e.userId,
+        programSlug: e.programSlug,
+      })),
+    },
+    _max: { lastUpdatedAt: true },
+  });
+  const progressMap = new Map(
+    progressAgg.map((g) => [
+      `${g.userId}:${g.programSlug}`,
+      g._max.lastUpdatedAt,
+    ]),
+  );
+
+  // Batch 3: staleTrainingDetectedAt for all enrolled users
+  const userIds = [...new Set(enrollments.map((e) => e.userId))];
+  const users = await prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true, staleTrainingDetectedAt: true },
+  });
+  const userMap = new Map(users.map((u) => [u.id, u.staleTrainingDetectedAt]));
+
   let newlyFlagged = 0;
   let cleared = 0;
   let unchangedStale = 0;
 
-  for (const { userId, programSlug } of enrollments) {
-    const rollup = await prisma.memberProgramProgress.findUnique({
-      where: { userId_programSlug: { userId, programSlug } },
-      select: { averagePercent: true },
-    });
+  const toClear: string[] = [];
+  const toFlag: string[] = [];
 
-    const programComplete = rollup != null && rollup.averagePercent >= 100;
+  for (const { userId, programSlug } of enrollments) {
+    const key = `${userId}:${programSlug}`;
+    const averagePercent = rollupMap.get(key);
+    const programComplete = averagePercent != null && averagePercent >= 100;
 
     if (programComplete) {
-      const res = await prisma.user.updateMany({
-        where: { id: userId, staleTrainingDetectedAt: { not: null } },
-        data: { staleTrainingDetectedAt: null },
-      });
-      cleared += res.count;
+      toClear.push(userId);
       continue;
     }
 
-    const agg = await prisma.courseProgress.aggregate({
-      where: { userId, programSlug },
-      _max: { lastUpdatedAt: true },
-    });
-    const last = agg._max.lastUpdatedAt;
+    const last = progressMap.get(key);
     const isStale = !last || last < cutoff;
 
     if (!isStale) {
-      const res = await prisma.user.updateMany({
-        where: { id: userId, staleTrainingDetectedAt: { not: null } },
-        data: { staleTrainingDetectedAt: null },
-      });
-      cleared += res.count;
+      toClear.push(userId);
       continue;
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { staleTrainingDetectedAt: true },
-    });
-    if (user?.staleTrainingDetectedAt) {
+    const alreadyStale = userMap.get(userId);
+    if (alreadyStale) {
       unchangedStale += 1;
       continue;
     }
 
-    await prisma.user.update({
-      where: { id: userId },
+    toFlag.push(userId);
+  }
+
+  // Batch 4: clear stale flag where needed
+  if (toClear.length > 0) {
+    const uniqueToClear = [...new Set(toClear)];
+    const clearRes = await prisma.user.updateMany({
+      where: { id: { in: uniqueToClear }, staleTrainingDetectedAt: { not: null } },
+      data: { staleTrainingDetectedAt: null },
+    });
+    cleared = clearRes.count;
+  }
+
+  // Batch 5: set stale flag where needed
+  if (toFlag.length > 0) {
+    const uniqueToFlag = [...new Set(toFlag)];
+    const flagRes = await prisma.user.updateMany({
+      where: { id: { in: uniqueToFlag }, staleTrainingDetectedAt: null },
       data: { staleTrainingDetectedAt: new Date() },
     });
-    newlyFlagged += 1;
+    newlyFlagged = flagRes.count;
   }
 
   return {

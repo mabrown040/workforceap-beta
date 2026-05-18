@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import ToolFollowThrough from './ToolFollowThrough';
-import PortalVoiceSession, { type VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
+import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
+import type { VoiceSessionPhase } from '@/components/portal/PortalVoiceSession';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { mockInterviewVoiceSurface } from '@/lib/portal/voice';
 import InterviewCoachingPanel from '@/components/portal/tools/InterviewCoachingPanel';
@@ -287,7 +288,7 @@ export default function VoiceInterviewScaffold() {
               <p style={{ color: '#b91c1c', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{videoErr}</p>
             ) : null}
             <VoiceAgentSurface {...mockInterviewVoiceSurface}>
-              <PortalVoiceSession
+              <PortalVoiceSessionLazy
                 key={voiceSessionKey}
                 sessionEndpoint="/api/member/voice-interview/session"
                 sessionPayload={{ role: role.trim(), interviewType, experienceLevel, language }}

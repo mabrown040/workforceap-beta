@@ -6,7 +6,9 @@ import { checkAuthRateLimit, checkAuthIpRateLimit } from '@/lib/rate-limit';
 import { prisma } from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
 import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { getSupabaseEnv } from '@/lib/supabase/env';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -30,7 +32,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   }
 
   // Rate limit by email AND independently by IP. The per-(ip,email) key
-  // alone permits credential-stuffing — an attacker rotating emails on
+  // alone permits credential-stuffing - an attacker rotating emails on
   // one IP gets a fresh bucket per email. `checkAuthIpRateLimit` caps
   // the total auth attempts from any single IP regardless of which
   // email is being tried.
@@ -53,9 +55,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   const cookieStore = await cookies();
   const cookieOpts = getSupabaseCookieOptions(!rememberMe); // sessionOnly = !rememberMe
 
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseEnv();
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookieOptions: cookieOpts,
       cookies: {
@@ -82,12 +86,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     let friendly: string;
     if (/email not confirmed/i.test(msg)) {
       friendly =
-        "Your email hasn’t been verified yet. Check your inbox for the verification link, or contact us at (512) 777-1808 for help.";
+        "Your email hasn't been verified yet. Check your inbox for the verification link, or contact us at (512) 777-1808 for help.";
     } else if (/user.*disabled|account.*disabled|banned/i.test(msg)) {
       friendly =
-        "Your account isn’t available. Contact us at (512) 777-1808 for help.";
+        "Your account isn't available. Contact us at (512) 777-1808 for help.";
     } else {
-      friendly = msg || 'Incorrect email or password.';
+      // Always return identical generic message to prevent account enumeration
+      friendly = 'Incorrect email or password.';
     }
     return NextResponse.json({ error: friendly }, { status: 401 });
   }
@@ -143,6 +148,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       token: cookieStore.get(getAdminMfaTrustCookieName())?.value,
       userId: data.user.id,
       userAgent: request.headers.get('user-agent'),
+      ip: getClientIpFromRequest(request),
     });
 
     if (trustedDevice) {

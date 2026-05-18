@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import dynamic from 'next/dynamic';
+
+const MarkdownPreview = dynamic(() => import('@/components/MarkdownPreview'), { ssr: false });
 import "@/css/counselor.css";
 import { uploadMemberResumeFile } from "@/lib/portal/memberResumeUpload";
 import { trackFunnelEvent } from "@/lib/analytics/events";
@@ -426,7 +427,7 @@ export default function ResumeClient({
                   <iframe
                     title="Original resume preview"
                     srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${originalDocHtml}</body></html>`}
-                    sandbox="allow-same-origin"
+                    sandbox=""
                     style={{
                       width: "100%",
                       minHeight: "480px",
@@ -551,7 +552,7 @@ export default function ResumeClient({
                   <iframe
                     title="Enhanced resume preview"
                     srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body{font-family:system-ui,sans-serif;padding:1rem;margin:0;line-height:1.45;color:#111;}.mammoth-doc img{max-width:100%;height:auto;}</style></head><body>${enhancedDocHtml}</body></html>`}
-                    sandbox="allow-same-origin"
+                    sandbox=""
                     style={{
                       width: "100%",
                       minHeight: "480px",
@@ -617,22 +618,7 @@ export default function ResumeClient({
                     color: "var(--color-on-surface)",
                   }}
                 >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      a: ({ href, children }) => (
-                        <a
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {children}
-                        </a>
-                      ),
-                    }}
-                  >
-                    {resumeData.enhancedText}
-                  </ReactMarkdown>
+                <MarkdownPreview>{resumeData.enhancedText}</MarkdownPreview>
                 </article>
               )}
           </div>

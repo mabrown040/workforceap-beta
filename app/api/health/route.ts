@@ -1,195 +1,171 @@
 import { NextResponse } from 'next/server';
+import { Redis } from '@upstash/redis';
 import { prisma } from '@/lib/db/prisma';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { publicApiCorsHeaders } from '@/lib/http/publicApiCors';
 import { checkPublicHealthRateLimit } from '@/lib/rate-limit';
-import { getXapiReadiness } from '@/lib/xapi/config';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const HEALTH_CORS = publicApiCorsHeaders('GET, HEAD, OPTIONS');
 
-/**
- * GET /api/health
- *
- * Public health endpoint. Reports the reachability and configuration status
- * of every external dependency the platform relies on. Designed for:
- *   - Partner / employer IT due diligence ("what's your uptime story?")
- *   - Internal monitoring (uptime checks can hit this)
- *   - Demo prep ("walk me through your operational story")
- *
- * Discipline:
- *   - Never returns secrets. Only reports presence (configured / not) and
- *     reachability (ok / fail / skipped).
- *   - Always returns 200 with a structured payload — uptime monitors should
- *     check the `status` field, not the HTTP status. This avoids the
- *     ambiguity of "the health check returned 500 because the health check
- *     itself crashed."
- *   - DB check uses a trivial `SELECT 1` so we don't load real rows on every
- *     hit and don't leak schema details if the response is observed.
- *   - Each dependency runs in parallel and is wrapped so one failure doesn't
- *     mask the others.
- */
-
 export const dynamic = 'force-dynamic';
 
-type DepStatus = 'ok' | 'fail' | 'not_configured' | 'skipped';
+const CACHE_TTL_MS = 5000;
 
-type DepReport = {
-  name: string;
-  status: DepStatus;
-  /** Human-readable note. NEVER include secrets, tokens, or PII. */
-  note?: string;
-  /** Latency of the check in ms; only set when an actual call was made. */
-  latencyMs?: number;
+let cache: {
+  body: unknown;
+  status: number;
+  headers: Record<string, string>;
+  until: number;
+} | null = null;
+
+/** Test-only: clear the in-memory health cache. */
+export function __resetHealthCache() {
+  cache = null;
+}
+
+type CheckStatus = 'ok' | 'degraded' | 'skipped';
+
+type CheckResult = {
+  status: CheckStatus;
+  responseTimeMs?: number;
 };
 
-async function checkDatabase(): Promise<DepReport> {
+type HealthChecks = {
+  database: CheckResult;
+  redis: CheckResult;
+  s3: CheckResult;
+};
+
+async function checkDatabase(): Promise<CheckResult> {
   const started = Date.now();
   try {
     await prisma.$queryRaw`SELECT 1`;
-    return { name: 'database', status: 'ok', latencyMs: Date.now() - started };
+    return { status: 'ok', responseTimeMs: Date.now() - started };
   } catch {
-    return {
-      name: 'database',
-      status: 'fail',
-      latencyMs: Date.now() - started,
-      note: 'database unreachable',
-    };
+    return { status: 'degraded', responseTimeMs: Date.now() - started };
   }
 }
 
-function checkSupabase(): DepReport {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anon) {
-    return {
-      name: 'supabase',
-      status: 'not_configured',
-      note: 'NEXT_PUBLIC_SUPABASE_URL or _ANON_KEY missing',
-    };
+async function checkRedis(): Promise<CheckResult> {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) {
+    return { status: 'skipped' };
   }
-  // We deliberately do NOT make an outbound request here — Supabase health
-  // is best read from Supabase's own dashboard, and pinging on every health
-  // check would create a spam pattern. Configuration presence is the right
-  // thing to surface here.
-  return { name: 'supabase', status: 'ok', note: 'configured (config-only check)' };
+  const started = Date.now();
+  try {
+    const client = new Redis({ url, token });
+    const pong = await client.ping();
+    if (pong === 'PONG') {
+      return { status: 'ok', responseTimeMs: Date.now() - started };
+    }
+    return { status: 'degraded', responseTimeMs: Date.now() - started };
+  } catch {
+    return { status: 'degraded', responseTimeMs: Date.now() - started };
+  }
 }
 
-function checkEmail(): DepReport {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    return {
-      name: 'email_resend',
-      status: 'not_configured',
-      note: 'RESEND_API_KEY missing — outbound emails will be skipped',
-    };
+async function checkS3(): Promise<CheckResult> {
+  const endpoint = process.env.S3_ENDPOINT || process.env.AWS_S3_ENDPOINT;
+  const bucket = process.env.S3_BUCKET_NAME || process.env.AWS_BUCKET_NAME || process.env.R2_BUCKET_NAME;
+  if (!endpoint || !bucket) {
+    return { status: 'skipped' };
   }
-  return { name: 'email_resend', status: 'ok', note: 'configured (config-only check)' };
+  const started = Date.now();
+  try {
+    // HEAD a well-known object path; 200/404/403 all mean the store is reachable.
+    const res = await fetch(`${endpoint.replace(/\/$/, '')}/${bucket}/health-check.txt`, {
+      method: 'HEAD',
+      signal: AbortSignal.timeout(5000),
+    });
+    if (res.ok || res.status === 404 || res.status === 403) {
+      return { status: 'ok', responseTimeMs: Date.now() - started };
+    }
+    return { status: 'degraded', responseTimeMs: Date.now() - started };
+  } catch {
+    return { status: 'degraded', responseTimeMs: Date.now() - started };
+  }
 }
 
-function checkCourseraXapi(): DepReport {
-  const readiness = getXapiReadiness();
-  if (!readiness.ready) {
-    return {
-      name: 'coursera_xapi',
-      status: 'not_configured',
-      note: `missing config: ${readiness.missing.join(', ')}`,
-    };
-  }
-  return { name: 'coursera_xapi', status: 'ok', note: 'configured (config-only check)' };
-}
+function buildResponse(
+  checks: HealthChecks,
+  deep: boolean,
+): {
+  body: { status: string; version: string; timestamp: string; checks: HealthChecks };
+  httpStatus: number;
+} {
+  const dbOk = checks.database.status === 'ok';
+  const allOk = dbOk && checks.redis.status !== 'degraded' && checks.s3.status !== 'degraded';
 
-function checkCaptcha(): DepReport {
-  const enabled = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-  const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!enabled) {
-    return {
-      name: 'captcha_turnstile',
-      status: 'skipped',
-      note: 'NEXT_PUBLIC_CAPTCHA_ENABLED is not "true"; CAPTCHA bypassed for public forms',
-    };
-  }
-  if (!siteKey || !secret) {
-    return {
-      name: 'captcha_turnstile',
-      status: 'fail',
-      note: 'CAPTCHA enabled but TURNSTILE_SITE_KEY or TURNSTILE_SECRET_KEY missing',
-    };
-  }
-  return { name: 'captcha_turnstile', status: 'ok', note: 'configured + enabled' };
-}
+  const overall = dbOk ? (allOk ? 'ok' : 'degraded') : 'fail';
+  const httpStatus = dbOk ? 200 : 503;
 
-function checkSentry(): DepReport {
-  const dsn = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
-  if (!dsn) {
-    return {
-      name: 'sentry',
-      status: 'not_configured',
-      note: 'SENTRY_DSN missing — errors will not be reported externally',
-    };
-  }
-  return { name: 'sentry', status: 'ok', note: 'configured (config-only check)' };
+  const checksOut: HealthChecks = deep
+    ? checks
+    : {
+        database: { status: checks.database.status },
+        redis: { status: checks.redis.status },
+        s3: { status: checks.s3.status },
+      };
+
+  return {
+    body: {
+      status: overall,
+      version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'local',
+      timestamp: new Date().toISOString(),
+      checks: checksOut,
+    },
+    httpStatus,
+  };
 }
 
 export async function OPTIONS() {
   try {
     return new NextResponse(null, { status: 204, headers: HEALTH_CORS });
   } catch (error) {
-    console.error('/health:', error);
+    console.error('/health OPTIONS:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}export const GET = withApiGuc(async (request: Request) => {
+}
+
+export const GET = withApiGuc(async (request: Request) => {
   try {
-  const ip = getClientIpFromRequest(request);
-  const { success: withinHealthLimit } = await checkPublicHealthRateLimit(ip);
-  if (!withinHealthLimit) {
-    return NextResponse.json(
-      { error: 'Too many requests' },
-      { status: 429, headers: { ...HEALTH_CORS, 'Cache-Control': 'no-store' } },
-    );
-  }
+    const ip = getClientIpFromRequest(request);
+    const { success: withinHealthLimit } = await checkPublicHealthRateLimit(ip);
+    if (!withinHealthLimit) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429, headers: { ...HEALTH_CORS, 'Cache-Control': 'no-store' } },
+      );
+    }
 
-  const startedAt = new Date();
-  const [database, supabase, email, coursera, captcha, sentry] = await Promise.all([
-    checkDatabase(),
-    Promise.resolve(checkSupabase()),
-    Promise.resolve(checkEmail()),
-    Promise.resolve(checkCourseraXapi()),
-    Promise.resolve(checkCaptcha()),
-    Promise.resolve(checkSentry()),
-  ]);
+    const url = new URL(request.url);
+    const deep = url.searchParams.get('deep') === 'true';
 
-  const dependencies = [database, supabase, email, coursera, captcha, sentry];
+    // Serve cached response if still fresh.
+    if (cache && cache.until > Date.now()) {
+      return NextResponse.json(cache.body, {
+        status: cache.status,
+        headers: cache.headers,
+      });
+    }
 
-  // Overall status:
-  //   - "ok" if no dependency is in `fail`
-  //   - "degraded" if a non-critical dep failed
-  //   - "fail" if the database is down (the only single point of failure)
-  let overall: 'ok' | 'degraded' | 'fail' = 'ok';
-  if (database.status === 'fail') {
-    overall = 'fail';
-  } else if (dependencies.some((d) => d.status === 'fail')) {
-    overall = 'degraded';
-  }
+    const [database, redis, s3] = await Promise.all([checkDatabase(), checkRedis(), checkS3()]);
+    const checks: HealthChecks = { database, redis, s3 };
+    const { body, httpStatus } = buildResponse(checks, deep);
 
-  return NextResponse.json(
-    {
-      status: overall,
-      generatedAt: startedAt.toISOString(),
-      version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'local',
-      environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? 'unknown',
-      dependencies,
-    },
-    {
-      status: 200,
-      headers: { ...HEALTH_CORS, 'Cache-Control': 'no-store' },
-    },
-  );
+    const headers: Record<string, string> = {
+      ...HEALTH_CORS,
+      'Cache-Control': 'max-age=5',
+    };
 
+    cache = { body, status: httpStatus, headers, until: Date.now() + CACHE_TTL_MS };
+
+    return NextResponse.json(body, { status: httpStatus, headers });
   } catch (error) {
-    console.error('/health error:', error);
+    console.error('/health GET:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });

@@ -1,10 +1,10 @@
 /* Counselor sprint — resume & readiness (import only in allowed layouts) */
 .counselor-resume-upload {
-  border: 2px dashed #ccc;
+  border: 2px dashed var(--outline-variant);
   border-radius: 8px;
   padding: 1.5rem;
   text-align: center;
-  background: #fafafa;
+  background: var(--surface-container-low);
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
   min-width: 0;
@@ -15,7 +15,7 @@
 .counselor-resume-upload:hover,
 .counselor-resume-upload.dragover {
   border-color: var(--color-accent);
-  background: rgba(173, 44, 77, 0.05);
+  background: color-mix(in srgb, var(--color-accent) 5%, var(--surface-container-low));
 }
 .counselor-resume-preview {
   display: grid;
@@ -27,9 +27,9 @@
 }
 .counselor-resume-card {
   padding: 1rem;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--outline-variant);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface-container-lowest);
 }
 .counselor-resume-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
 .counselor-resume-card pre {
@@ -41,15 +41,15 @@
 }
 .counselor-wit-guide {
   padding: 1.5rem;
-  background: #f7f8fa;
+  background: var(--surface-container-low);
   border-radius: 8px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--outline-variant);
 }
 .counselor-wit-guide ol { padding-left: 1.25rem; margin: 0.5rem 0; }
 .counselor-wit-guide li { margin-bottom: 0.5rem; }
 .counselor-profile-bar {
   height: 8px;
-  background: #e5e5e5;
+  background: var(--surface-container-high);
   border-radius: 4px;
   overflow: hidden;
   margin-top: 0.25rem;
@@ -77,13 +77,13 @@
 .wizard-step-indicator {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--outline-variant);
 }
 .wizard-step-label {
   display: block;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--color-gray-600);
+  color: var(--color-on-surface-variant);
   margin-bottom: 0.5rem;
 }
 .wizard-step-dots {
@@ -96,9 +96,10 @@
   min-height: 44px;
   min-width: 44px;
   box-sizing: border-box;
-  border: 1px solid #ccc;
+  border: 1px solid var(--outline-variant);
   border-radius: 6px;
-  background: white;
+  background: var(--surface-container-lowest);
+  color: var(--color-on-surface);
   cursor: pointer;
   font-weight: 400;
   font-size: 0.9rem;
@@ -106,14 +107,14 @@
 .wizard-step-dot:hover { border-color: var(--color-accent); }
 .wizard-step-dot.active {
   border: 2px solid var(--color-accent);
-  background: rgba(74, 155, 79, 0.1);
+  background: color-mix(in srgb, var(--color-accent) 10%, var(--surface-container-lowest));
   font-weight: 600;
 }
 .wizard-step {
   padding: 1rem;
-  border: 1px solid #eee;
+  border: 1px solid var(--outline-variant);
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--surface-container-low);
   animation: counselorSlideIn 0.3s ease;
 }
 @media (min-width: 640px) {
@@ -131,7 +132,7 @@
   font-size: 1.2rem;
 }
 .wizard-icon { flex-shrink: 0; color: var(--color-accent); }
-.wizard-desc { margin-bottom: 1rem; color: #666; }
+.wizard-desc { margin-bottom: 1rem; color: var(--color-on-surface-variant); }
 .wizard-form-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -147,16 +148,18 @@
   max-width: 100%;
   box-sizing: border-box;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--outline-variant);
   border-radius: 6px;
   font-size: 0.95rem;
+  background: var(--surface-container-lowest);
+  color: var(--color-on-surface);
 }
 .wizard-field-full { grid-column: 1 / -1; }
 .wizard-wioa-card {
   margin-top: 1.5rem;
   padding: 1rem;
-  background: white;
-  border: 1px solid #e5e5e5;
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
   border-radius: 8px;
 }
 @media (min-width: 640px) {
@@ -175,7 +178,7 @@
 .wizard-toggle {
   display: flex;
   gap: 0;
-  border: 1px solid #ddd;
+  border: 1px solid var(--outline-variant);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -183,14 +186,15 @@
   padding: 0.5rem 1rem;
   min-height: 44px;
   border: none;
-  background: white;
+  background: var(--surface-container-lowest);
+  color: var(--color-on-surface);
   cursor: pointer;
   font-size: 0.9rem;
 }
-.wizard-toggle button:hover { background: #f5f5f5; }
+.wizard-toggle button:hover { background: var(--surface-container); }
 .wizard-toggle button.active {
   background: var(--color-accent);
-  color: white;
+  color: #fff;
 }
 .wizard-counselor-notes { margin-top: 1rem; }
 .wizard-actions { margin-top: 1.5rem; }
@@ -226,16 +230,16 @@
 }
 .wizard-program-card {
   padding: 1rem;
-  border: 2px solid #ddd;
+  border: 2px solid var(--outline-variant);
   border-radius: 8px;
-  background: white;
+  background: var(--surface-container-lowest);
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
 }
-.wizard-program-card:hover { border-color: #bbb; }
+.wizard-program-card:hover { border-color: color-mix(in srgb, var(--color-accent) 50%, var(--outline-variant)); }
 .wizard-program-card.selected {
   border-color: var(--color-accent);
-  background: rgba(74, 155, 79, 0.05);
+  background: color-mix(in srgb, var(--color-accent) 5%, var(--surface-container-lowest));
 }
 .wizard-skip-link {
   display: inline-block;
@@ -251,16 +255,16 @@
 .wizard-improvement-summary {
   margin: 1rem 0;
   padding: 1rem;
-  background: #e8f5e9;
+  background: color-mix(in srgb, var(--color-green) 14%, var(--surface-container-lowest));
   border-radius: 6px;
 }
 .wizard-improvement-summary ul { margin: 0.5rem 0 0 1rem; padding: 0; }
 .wizard-summary-card {
   padding: 1rem;
-  background: white;
+  background: var(--surface-container-lowest);
   border-radius: 8px;
   margin-bottom: 1rem;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--outline-variant);
   overflow-wrap: break-word;
   word-break: break-word;
 }
@@ -287,7 +291,7 @@
 }
 .counselor-toast-success {
   background: #2e7d32;
-  color: white;
+  color: #fff;
 }
 .counselor-toast-icon { flex-shrink: 0; }
 
@@ -303,16 +307,16 @@
 }
 .readiness-back-link:hover { text-decoration: underline; }
 .readiness-title { font-size: 1.75rem; margin-bottom: 0.25rem; }
-.readiness-meta { color: var(--color-gray-600); }
+.readiness-meta { color: var(--color-on-surface-variant); }
 .readiness-counselor-progress-bar {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: #e8f5e9;
+  background: color-mix(in srgb, var(--color-green) 14%, var(--surface-container-lowest));
   border-radius: 8px;
 }
 .readiness-progress-track {
   height: 10px;
-  background: #c8e6c9;
+  background: color-mix(in srgb, var(--color-green) 28%, var(--surface-container));
   border-radius: 5px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -324,18 +328,19 @@
   transition: width 0.3s ease;
 }
 .readiness-progress-text { font-weight: 600; margin: 0; }
-.readiness-last-updated { margin: 0.25rem 0 0; font-size: 0.9rem; color: #666; }
+.readiness-last-updated { margin: 0.25rem 0 0; font-size: 0.9rem; color: var(--color-on-surface-variant); }
 .readiness-print-actions { margin-bottom: 1rem; }
 .readiness-sections { display: flex; flex-direction: column; gap: 1rem; }
 .readiness-section-card {
-  border: 1px solid #eee;
+  border: 1px solid var(--outline-variant);
   border-radius: 8px;
   overflow: hidden;
 }
 .readiness-section-header {
   width: 100%;
   padding: 1rem;
-  background: #f5f5f5;
+  background: var(--surface-container);
+  color: var(--color-on-surface);
   border: none;
   text-align: left;
   font-weight: 600;
@@ -349,9 +354,9 @@
   margin-left: auto;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #666;
+  color: var(--color-on-surface-variant);
 }
-.readiness-section-body { padding: 1rem; background: white; }
+.readiness-section-body { padding: 1rem; background: var(--surface-container-lowest); }
 .readiness-item-row { margin-bottom: 1rem; }
 .readiness-item-row:last-child { margin-bottom: 0; }
 .readiness-checkbox-label {
@@ -371,8 +376,10 @@
   width: 100%;
   max-width: 400px;
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--outline-variant);
   border-radius: 6px;
+  background: var(--surface-container-lowest);
+  color: var(--color-on-surface);
 }
 .readiness-notes-trigger { margin-top: 0.25rem; margin-left: 1.5rem; }
 .readiness-notes-btn {
@@ -382,7 +389,7 @@
   background: none;
   border: none;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--color-on-surface-variant);
   cursor: pointer;
 }
 .readiness-notes-btn:hover { color: var(--color-accent); }
@@ -393,30 +400,49 @@
   margin-top: 0.25rem;
   padding: 0.5rem;
   font-size: 0.9rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--outline-variant);
   border-radius: 6px;
+  background: var(--surface-container-lowest);
+  color: var(--color-on-surface);
 }
 .readiness-signature-block {
   margin-top: 2rem;
   padding: 1rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--outline-variant);
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-on-surface-variant);
 }
 .readiness-signature-block p { margin: 0.25rem 0; }
 
 /* =============================================
-   PRINT STYLES
+   PRINT STYLES — paper is always white, ignore theme
    ============================================= */
 .readiness-print-only { display: none; }
 @media print {
+  /* Remap theme tokens to print-safe values so any descendant styled
+     via var(--color-on-surface-variant) etc. resolves to legible
+     ink-on-paper colors instead of dark-mode rose on white. Scoped
+     to :root so it only takes effect when this stylesheet is loaded
+     (counselor pages). */
+  :root,
+  html.dark {
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #ffffff;
+    --surface-container: #ffffff;
+    --surface-container-high: #f5f5f5;
+    --surface-container-highest: #eeeeee;
+    --color-on-surface: #000000;
+    --color-on-surface-variant: #333333;
+    --outline-variant: #999999;
+  }
   .main-nav, .admin-sidebar, .readiness-print-actions, .readiness-back-link,
   .readiness-notes-btn, .readiness-notes-trigger, .counselor-toast,
   button[type="button"]:not(.print-keep) { display: none !important; }
   .readiness-print-only { display: block !important; font-size: 0.9rem; margin-bottom: 1rem; }
   .readiness-counselor-page, .readiness-counselor-content {
     padding: 0 !important;
-    background: white !important;
+    background: #fff !important;
+    color: #000 !important;
   }
   .readiness-counselor-header {
     margin-bottom: 1rem;
@@ -424,9 +450,16 @@
     border-bottom: 1px solid #333;
   }
   .readiness-title { font-size: 1.25rem; }
-  .readiness-section-header { cursor: default; }
+  .readiness-section-header { cursor: default; background: #fff !important; color: #000 !important; }
+  .readiness-section-body { background: #fff !important; color: #000 !important; }
   .readiness-section-card { break-inside: avoid; }
-  body { background: white !important; }
+  .readiness-meta,
+  .readiness-last-updated,
+  .readiness-section-count,
+  .readiness-signature-block,
+  .readiness-progress-desc,
+  .readiness-member-value { color: #000 !important; }
+  body { background: #fff !important; color: #000 !important; }
   #readiness-print-area::before {
     content: "WorkforceAP — Career Readiness Checklist";
     display: block;
@@ -443,12 +476,12 @@
 .readiness-member-progress {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: rgba(74, 155, 79, 0.1);
+  background: color-mix(in srgb, var(--color-green) 10%, var(--surface-container-lowest));
   border-radius: 8px;
-  border: 1px solid rgba(74, 155, 79, 0.3);
+  border: 1px solid color-mix(in srgb, var(--color-green) 30%, var(--outline-variant));
 }
 .readiness-member-progress .readiness-progress-track {
-  background: rgba(74, 155, 79, 0.2);
+  background: color-mix(in srgb, var(--color-green) 20%, var(--surface-container));
 }
 .readiness-member-progress .readiness-progress-fill {
   background: var(--color-green);
@@ -456,7 +489,7 @@
 .readiness-progress-desc {
   margin: 0.25rem 0 0;
   font-size: 0.9rem;
-  color: var(--color-gray-600);
+  color: var(--color-on-surface-variant);
 }
 .readiness-member-item {
   display: flex;
@@ -470,11 +503,11 @@
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2px solid #ccc;
+  border: 2px solid var(--outline-variant);
   border-radius: 4px;
 }
 .readiness-member-value {
   margin: 0.25rem 0 0;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--color-on-surface-variant);
 }

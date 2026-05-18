@@ -81,6 +81,13 @@
     --color-on-surface: #e2e2e5;
     --color-on-surface-variant: #debfc2;
     --outline-variant: #584144;
+    /* AA-on-surface semantic colors. Dark defaults here; light overrides
+       at html:not(.dark) ~line 552. Targets: warning ~7:1 on near-black
+       (#fbbf24) / on white (#9a3412); info ~7:1 on near-black (#93c5fd)
+       / on white (#1d4ed8). Use these for small bold metric/status text
+       that needs to stay AA on the active surface. */
+    --color-warning-on-surface: #fbbf24;
+    --color-info-on-surface: #93c5fd;
     
     /* Color Palette - Neutrals (9 step) */
     --color-white: #ffffff;
@@ -549,6 +556,9 @@ html:not(.dark) {
     /* Darker gold / rose for small text on white or light gray cards */
     --color-marketing-gold-on-light: #b37400;
     --color-marketing-rose-on-light: #b83b56;
+    /* AA-on-surface (light-mode overrides). See :root for rationale. */
+    --color-warning-on-surface: #9a3412;
+    --color-info-on-surface: #1d4ed8;
 }
 
 html.dark {

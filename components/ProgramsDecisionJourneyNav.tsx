@@ -8,11 +8,16 @@ export type ProgramsJourneyStep = 'quiz' | 'programs' | 'detail' | 'compare' | '
 
 function pathToStep(pathname: string | null): ProgramsJourneyStep {
   if (!pathname) return 'programs';
-  if (pathname === '/find-your-path') return 'quiz';
-  if (pathname === '/programs') return 'programs';
-  if (pathname.startsWith('/programs/')) return 'detail';
-  if (pathname === '/program-comparison') return 'compare';
-  if (pathname === '/salary-guide') return 'salary';
+  // Strip the next-intl locale prefix so /en/salary-guide matches the same
+  // step as /salary-guide. Without this, the production URLs (always locale-
+  // prefixed) never match any case and fall through to the 'programs' default
+  // — making "Browse Programs" appear active on every page.
+  const path = pathname.replace(/^\/(en|es|fr|pt)(?=\/|$)/, '');
+  if (path === '/find-your-path') return 'quiz';
+  if (path === '/programs') return 'programs';
+  if (path.startsWith('/programs/')) return 'detail';
+  if (path === '/program-comparison') return 'compare';
+  if (path === '/salary-guide') return 'salary';
   return 'programs';
 }
 

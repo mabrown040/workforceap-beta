@@ -1730,7 +1730,16 @@
     "employerWorkQueueMetaTitle": "File de travail employeur",
     "employerWorkQueueMetaDesc": "Actions de recrutement prioritaires et files d'attente de type SLA.",
     "workQueue": "File de travail",
-    "employerWorkQueueSubtitle": "À réviser aujourd'hui, candidatures obsolètes et suivis d'entretiens — avec déplacements en un clic lorsque c'est sûr."
+    "employerWorkQueueSubtitle": "À réviser aujourd'hui, candidatures obsolètes et suivis d'entretiens — avec déplacements en un clic lorsque c'est sûr.",
+    "candidatePipelineMetaTitle": "Pipeline de candidats",
+    "candidatePipelineMetaDesc": "Correspondances suggérées par l'IA pour vos postes ouverts.",
+    "candidatePipeline": "Pipeline de candidats",
+    "candidatePipelineSubtitleMobile": "Candidats suggérés pour vos postes ouverts",
+    "candidatePipelineSubtitleDesktop": "Correspondances suggérées par WorkforceAP. Mettez à jour le statut au fur et à mesure que vous progressez dans les présentations et les décisions.",
+    "backToJobs": "Retour aux emplois",
+    "pipelineNew": "Nouveau",
+    "pipelineContact": "Contact",
+    "noProgram": "Aucun programme"
   },
   "auth": {
     "login": {

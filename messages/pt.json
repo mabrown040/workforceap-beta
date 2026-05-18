@@ -1730,7 +1730,16 @@
     "employerWorkQueueMetaTitle": "Fila de trabalho do empregador",
     "employerWorkQueueMetaDesc": "Ações de contratação priorizadas e filas estilo SLA.",
     "workQueue": "Fila de trabalho",
-    "employerWorkQueueSubtitle": "Necessita revisão hoje, candidaturas obsoletas e acompanhamentos de entrevistas — com movimentos de um clique onde for seguro."
+    "employerWorkQueueSubtitle": "Necessita revisão hoje, candidaturas obsoletas e acompanhamentos de entrevistas — com movimentos de um clique onde for seguro.",
+    "candidatePipelineMetaTitle": "Pipeline de candidatos",
+    "candidatePipelineMetaDesc": "Correspondências sugeridas por IA para suas vagas abertas.",
+    "candidatePipeline": "Pipeline de Candidatos",
+    "candidatePipelineSubtitleMobile": "Candidatos sugeridos em suas vagas abertas",
+    "candidatePipelineSubtitleDesktop": "Correspondências sugeridas pela WorkforceAP. Atualize o status à medida que avança nas apresentações e decisões.",
+    "backToJobs": "Voltar para vagas",
+    "pipelineNew": "Novo",
+    "pipelineContact": "Contato",
+    "noProgram": "Sem programa"
   },
   "auth": {
     "login": {

@@ -1729,7 +1729,16 @@
     "employerWorkQueueMetaTitle": "Cola de trabajo del empleador",
     "employerWorkQueueMetaDesc": "Acciones de contratación prioritarias y colas estilo SLA.",
     "workQueue": "Cola de trabajo",
-    "employerWorkQueueSubtitle": "Necesita revisión hoy, solicitudes obsoletas y seguimientos de entrevistas — con movimientos de un clic donde sea seguro."
+    "employerWorkQueueSubtitle": "Necesita revisión hoy, solicitudes obsoletas y seguimientos de entrevistas — con movimientos de un clic donde sea seguro.",
+    "candidatePipelineMetaTitle": "Canalización de candidatos",
+    "candidatePipelineMetaDesc": "Coincidencias sugeridas por IA para tus roles abiertos.",
+    "candidatePipeline": "Canalización de Candidatos",
+    "candidatePipelineSubtitleMobile": "Candidatos sugeridos en tus roles abiertos",
+    "candidatePipelineSubtitleDesktop": "Coincidencias sugeridas por WorkforceAP. Actualiza el estado a medida que avanzas en presentaciones y decisiones.",
+    "backToJobs": "Volver a empleos",
+    "pipelineNew": "Nuevo",
+    "pipelineContact": "Contacto",
+    "noProgram": "Sin programa"
   },
   "auth": {
     "login": {

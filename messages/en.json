@@ -1729,7 +1729,16 @@
     "employerWorkQueueMetaTitle": "Employer work queue",
     "employerWorkQueueMetaDesc": "Prioritized hiring actions and SLA-style queues.",
     "workQueue": "Work Queue",
-    "employerWorkQueueSubtitle": "Needs review today, stale applications, and interview follow-ups — with one-click moves where safe."
+    "employerWorkQueueSubtitle": "Needs review today, stale applications, and interview follow-ups — with one-click moves where safe.",
+    "candidatePipelineMetaTitle": "Candidate pipeline",
+    "candidatePipelineMetaDesc": "AI-suggested matches for your open roles.",
+    "candidatePipeline": "Candidate Pipeline",
+    "candidatePipelineSubtitleMobile": "Suggested candidates across your open roles",
+    "candidatePipelineSubtitleDesktop": "Suggested matches from WorkforceAP. Update status as you progress intros and decisions.",
+    "backToJobs": "Back to jobs",
+    "pipelineNew": "New",
+    "pipelineContact": "Contact",
+    "noProgram": "No program"
   },
   "auth": {
     "login": {

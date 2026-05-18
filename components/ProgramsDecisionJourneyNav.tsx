@@ -183,8 +183,13 @@ export default function ProgramsDecisionJourneyNav({
 
         @media (max-width: 639px) {
           .pdj-nav {
-            position: relative;
-            top: auto;
+            /* Keep the sticky + hide-on-scroll-down / show-on-scroll-up
+               behavior on mobile too. Previously this block set
+               position: relative which put the nav in document flow,
+               so the translateY(-120%) hide animation looked broken
+               (the nav would scroll out with the page and then jitter
+               on scroll-up). Now matches desktop: stick below the
+               main header and slide cleanly. */
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;

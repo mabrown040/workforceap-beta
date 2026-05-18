@@ -1793,7 +1793,12 @@
     "candidateProfileSubtitleDesktop": "Compartido porque este miembro coincidió o aplicó a tus roles.",
     "backToMatches": "Volver a coincidencias",
     "rolesInPipeline": "Roles en pipeline",
-    "aiMatches": "Coincidencias IA"
+    "aiMatches": "Coincidencias IA",
+    "applicantsMetaTitle": "Candidatos",
+    "applicantsMetaDesc": "Revisa los candidatos para este empleo.",
+    "applicantsFor": "Candidatos",
+    "applicant": "candidato",
+    "applicants": "candidatos"
   },
   "auth": {
     "login": {

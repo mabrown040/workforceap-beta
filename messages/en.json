@@ -1793,7 +1793,12 @@
     "candidateProfileSubtitleDesktop": "Shared because this member matched or applied to your roles.",
     "backToMatches": "Back to matches",
     "rolesInPipeline": "Roles in pipeline",
-    "aiMatches": "AI matches"
+    "aiMatches": "AI matches",
+    "applicantsMetaTitle": "Applicants",
+    "applicantsMetaDesc": "Review applicants for this job.",
+    "applicantsFor": "Applicants",
+    "applicant": "applicant",
+    "applicants": "applicants"
   },
   "auth": {
     "login": {

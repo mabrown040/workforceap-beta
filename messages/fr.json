@@ -1794,7 +1794,12 @@
     "candidateProfileSubtitleDesktop": "Partagé car ce membre a correspondu ou postulé à vos rôles.",
     "backToMatches": "Retour aux correspondances",
     "rolesInPipeline": "Rôles en pipeline",
-    "aiMatches": "Correspondances IA"
+    "aiMatches": "Correspondances IA",
+    "applicantsMetaTitle": "Candidats",
+    "applicantsMetaDesc": "Examinez les candidats pour ce poste.",
+    "applicantsFor": "Candidats",
+    "applicant": "candidat",
+    "applicants": "candidats"
   },
   "auth": {
     "login": {

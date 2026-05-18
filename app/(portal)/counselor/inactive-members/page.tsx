@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -37,6 +38,7 @@ function PortalListSkeleton({ label }: { label: string }) {
 }
 
 export default function InactiveMembersPage() {
+  const t = useTranslations('counselor');
   const [days, setDays] = useState(7);
   const [members, setMembers] = useState<InactiveMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +59,7 @@ export default function InactiveMembersPage() {
       const data = await res.json();
       setMembers(data.members || []);
     } catch {
-      setError('Could not load inactive members');
+      setError(t('couldNotLoadInactiveMembers'));
     } finally {
       setLoading(false);
     }
@@ -75,32 +77,32 @@ export default function InactiveMembersPage() {
       if (!res.ok) throw new Error('Failed to log outreach');
       setReminderSent((prev) => new Set(prev).add(member.id));
     } catch {
-      setError('Could not log outreach. Please try again.');
+      setError(t('couldNotLogOutreach'));
     } finally {
       setSendingReminder(null);
     }
   };
 
   const formatDate = (d: string | null) => {
-    if (!d) return 'Never';
+    if (!d) return t('never');
     return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const severity = (daysInactive: number) => {
-    if (daysInactive >= 30) return { color: 'var(--color-error)', label: 'Critical' };
-    if (daysInactive >= 14) return { color: 'var(--color-orange)', label: 'Warning' };
-    return { color: 'var(--color-yellow)', label: 'At Risk' };
+    if (daysInactive >= 30) return { color: 'var(--color-error)', label: t('critical') };
+    if (daysInactive >= 14) return { color: 'var(--color-orange)', label: t('warning') };
+    return { color: 'var(--color-yellow)', label: t('atRiskShort') };
   };
 
   return (
     <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
       <PageHeader
-        title="Inactive members"
-        subtitle="Members who haven't been active on the platform. Reach out directly by email or phone, then log outreach so other staff can see the member was contacted."
-        breadcrumbs={[{ label: 'Counselor Portal', href: '/counselor' }, { label: 'Inactive Members' }]}
+        title={t('inactiveMembersTitle')}
+        subtitle={t('inactiveMembersSubtitle')}
+        breadcrumbs={[{ label: t('counselorPortalBreadcrumb'), href: '/counselor' }, { label: t('inactiveMembersTitle') }]}
       />
 
-      <div role="tablist" aria-label="Minimum days inactive" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+      <div role="tablist" aria-label={t('minDaysInactive')} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         {THRESHOLDS.map((d) => (
           <button
             type="button"
@@ -126,12 +128,12 @@ export default function InactiveMembersPage() {
               justifyContent: 'center',
             }}
           >
-            {d}+ days
+            {t('daysThreshold', { days: d })}
           </button>
         ))}
       </div>
 
-      {loading ? <PortalListSkeleton label="Loading member list…" /> : null}
+      {loading ? <PortalListSkeleton label={t('loadingMemberList')} /> : null}
 
       {error ? (
         <div role="alert" style={{ color: 'var(--color-error)', padding: '1rem', textAlign: 'center', fontWeight: 600 }}>
@@ -141,8 +143,8 @@ export default function InactiveMembersPage() {
 
       {!loading && !error && members.length === 0 ? (
         <PortalEmptyState
-          title="Everyone is active"
-          description={`No members have been inactive for ${days}+ days with this filter.`}
+          title={t('everyoneIsActive')}
+          description={t('noMembersInactive', { days })}
           icon={<span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-on-surface-variant)' }} aria-hidden>celebration</span>}
         />
       ) : null}
@@ -159,8 +161,8 @@ export default function InactiveMembersPage() {
           <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--outline-variant)' }}>
             <SectionHeader
               density="compact"
-              title="Needs attention"
-              subtitle={`${members.length} member${members.length === 1 ? '' : 's'} · threshold ${days}+ days`}
+              title={t('needsAttention')}
+              subtitle={t('membersThreshold', { count: members.length, days })}
               action={
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
                   Updated {new Date().toLocaleTimeString()}
@@ -177,7 +179,7 @@ export default function InactiveMembersPage() {
             columns={[
               {
                 key: 'member',
-                header: 'Member',
+                header: t('member'),
                 cell: (m) => (
                   <div>
                     <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{m.email}</div>
@@ -189,7 +191,7 @@ export default function InactiveMembersPage() {
               },
               {
                 key: 'days',
-                header: 'Days inactive',
+                header: t('daysInactive'),
                 align: 'center',
                 cell: (m) => {
                   const sev = severity(m.daysInactive);
@@ -207,39 +209,39 @@ export default function InactiveMembersPage() {
                         fontSize: '0.8rem',
                       }}
                     >
-                      {m.daysInactive} days
+                      {m.daysInactive} {t('days')}
                     </span>
                   );
                 },
               },
               {
                 key: 'last',
-                header: 'Last active',
+                header: t('lastActive'),
                 cell: (m) => (
                   <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>{formatDate(m.lastActiveAt)}</span>
                 ),
               },
               {
                 key: 'joined',
-                header: 'Joined',
+                header: t('joined'),
                 cell: (m) => (
                   <span style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>{formatDate(m.joinedAt)}</span>
                 ),
               },
               {
                 key: 'action',
-                header: 'Action',
+                header: t('action'),
                 align: 'right',
                 cell: (m) => (
                   <button
                     type="button"
                     onClick={() => logOutreach(m)}
                     disabled={sendingReminder === m.id || reminderSent.has(m.id)}
-                    title="Mark that you contacted this member by email or phone. Does not send a message automatically."
+                    title={t('logOutreachTooltip')}
                     aria-label={
                       reminderSent.has(m.id)
-                        ? `Outreach logged for ${m.email}`
-                        : `Log outreach for ${m.email}`
+                        ? t('outreachLoggedFor', { email: m.email })
+                        : t('logOutreachFor', { email: m.email })
                     }
                     style={{
                       minWidth: '2.75rem',
@@ -258,7 +260,7 @@ export default function InactiveMembersPage() {
                       justifyContent: 'center',
                     }}
                   >
-                    {sendingReminder === m.id ? 'Saving…' : reminderSent.has(m.id) ? 'Logged ✓' : 'Log outreach'}
+                    {sendingReminder === m.id ? t('saving') : reminderSent.has(m.id) ? t('logged') : t('logOutreach')}
                   </button>
                 ),
               },

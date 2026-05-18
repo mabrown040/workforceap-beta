@@ -1769,7 +1769,11 @@
     "editJobPosting": "Edit Job Posting",
     "updateDetails": "Update the details for this role.",
     "backToJob": "Back to job",
-    "edit": "Edit"
+    "edit": "Edit",
+    "jobDetailsMetaTitle": "Job Details",
+    "jobDetailsMetaDesc": "View and edit job posting details.",
+    "jobDetails": "Job Details",
+    "jobDetailsSubtitle": "Tighten the posting, fix thin sections, and keep the hiring pipeline moving."
   },
   "auth": {
     "login": {

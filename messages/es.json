@@ -1769,7 +1769,11 @@
     "editJobPosting": "Editar publicación de empleo",
     "updateDetails": "Actualiza los detalles de este rol.",
     "backToJob": "Volver al empleo",
-    "edit": "Editar"
+    "edit": "Editar",
+    "jobDetailsMetaTitle": "Detalles del empleo",
+    "jobDetailsMetaDesc": "Ver y editar detalles de la publicación de empleo.",
+    "jobDetails": "Detalles del empleo",
+    "jobDetailsSubtitle": "Afina la publicación, corrige secciones débiles y mantén el pipeline de contratación en movimiento."
   },
   "auth": {
     "login": {

@@ -1770,7 +1770,11 @@
     "editJobPosting": "Modifier l'offre d'emploi",
     "updateDetails": "Mettez à jour les détails de ce poste.",
     "backToJob": "Retour à l'offre",
-    "edit": "Modifier"
+    "edit": "Modifier",
+    "jobDetailsMetaTitle": "Détails de l'offre",
+    "jobDetailsMetaDesc": "Voir et modifier les détails de l'offre d'emploi.",
+    "jobDetails": "Détails de l'offre",
+    "jobDetailsSubtitle": "Resserrez la publication, corrigez les sections faibles et gardez le pipeline de recrutement en mouvement."
   },
   "auth": {
     "login": {

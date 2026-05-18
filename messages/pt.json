@@ -1770,7 +1770,11 @@
     "editJobPosting": "Editar Publicação de Vaga",
     "updateDetails": "Atualize os detalhes desta vaga.",
     "backToJob": "Voltar para vaga",
-    "edit": "Editar"
+    "edit": "Editar",
+    "jobDetailsMetaTitle": "Detalhes da vaga",
+    "jobDetailsMetaDesc": "Ver e editar detalhes da publicação de vaga.",
+    "jobDetails": "Detalhes da vaga",
+    "jobDetailsSubtitle": "Ajuste a publicação, corrija seções fracas e mantenha o pipeline de contratação em movimento."
   },
   "auth": {
     "login": {

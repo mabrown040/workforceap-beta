@@ -1799,7 +1799,13 @@
     "applicantsMetaDesc": "Examinez les candidats pour ce poste.",
     "applicantsFor": "Candidats",
     "applicant": "candidat",
-    "applicants": "candidats"
+    "applicants": "candidats",
+    "employerGuideMetaTitle": "Comment ça marche pour les employeurs",
+    "employerGuideMetaDesc": "Accédez à des talents vérifiés et prêts à travailler en quelques étapes simples.",
+    "backToDashboard": "Retour au tableau de bord",
+    "employerGuideTitle": "Guide employeur",
+    "employerGuideHeadline": "Comment WorkforceAP fonctionne pour les employeurs",
+    "employerGuideBody": "Accédez à des talents vérifiés et prêts à travailler — en quelques étapes simples."
   },
   "auth": {
     "login": {

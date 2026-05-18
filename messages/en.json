@@ -1798,7 +1798,13 @@
     "applicantsMetaDesc": "Review applicants for this job.",
     "applicantsFor": "Applicants",
     "applicant": "applicant",
-    "applicants": "applicants"
+    "applicants": "applicants",
+    "employerGuideMetaTitle": "How It Works for Employers",
+    "employerGuideMetaDesc": "Access vetted, job-ready talent in a few simple steps.",
+    "backToDashboard": "Back to dashboard",
+    "employerGuideTitle": "Employer Guide",
+    "employerGuideHeadline": "How WorkforceAP Works for Employers",
+    "employerGuideBody": "Access vetted, job-ready talent — in a few simple steps."
   },
   "auth": {
     "login": {

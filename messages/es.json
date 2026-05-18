@@ -1798,7 +1798,13 @@
     "applicantsMetaDesc": "Revisa los candidatos para este empleo.",
     "applicantsFor": "Candidatos",
     "applicant": "candidato",
-    "applicants": "candidatos"
+    "applicants": "candidatos",
+    "employerGuideMetaTitle": "Cómo funciona para empleadores",
+    "employerGuideMetaDesc": "Accede a talento verificado y listo para trabajar en unos simples pasos.",
+    "backToDashboard": "Volver al panel",
+    "employerGuideTitle": "Guía para empleadores",
+    "employerGuideHeadline": "Cómo funciona WorkforceAP para empleadores",
+    "employerGuideBody": "Accede a talento verificado y listo para trabajar — en unos simples pasos."
   },
   "auth": {
     "login": {

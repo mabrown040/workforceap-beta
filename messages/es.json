@@ -857,7 +857,11 @@
     "atRiskShort": "En riesgo",
     "daysThreshold": "{days}+ días",
     "counselorGuideMetaTitle": "Guía del portal de consejeros",
-    "counselorGuideMetaDesc": "Herramientas y referencia para guiar a tus miembros desde la inscripción hasta el empleo."
+    "counselorGuideMetaDesc": "Herramientas y referencia para guiar a tus miembros desde la inscripción hasta el empleo.",
+    "counselorResourcesTitle": "Recursos para consejeros",
+    "counselorResourcesSubtitle": "Contexto del programa, páginas para miembros y herramientas que usas más en sesiones.",
+    "counselingWorkflow": "Flujo de consejería",
+    "memberFacingReference": "Referencia para miembros"
   },
   "workspace": {
     "publicSite": "Sitio de WorkforceAP",

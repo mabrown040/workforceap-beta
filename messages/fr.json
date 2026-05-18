@@ -857,7 +857,11 @@
     "atRiskShort": "À risque",
     "daysThreshold": "{days}+ jours",
     "counselorGuideMetaTitle": "Guide du portail conseiller",
-    "counselorGuideMetaDesc": "Outils et référence pour guider vos membres de l'inscription à l'emploi."
+    "counselorGuideMetaDesc": "Outils et référence pour guider vos membres de l'inscription à l'emploi.",
+    "counselorResourcesTitle": "Ressources conseiller",
+    "counselorResourcesSubtitle": "Contexte du programme, pages membres et outils que vous utilisez le plus souvent en séances.",
+    "counselingWorkflow": "Flux de conseil",
+    "memberFacingReference": "Référence membres"
   },
   "workspace": {
     "publicSite": "Site WorkforceAP",

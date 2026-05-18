@@ -857,7 +857,11 @@
     "atRiskShort": "At Risk",
     "daysThreshold": "{days}+ days",
     "counselorGuideMetaTitle": "Counselor portal guide",
-    "counselorGuideMetaDesc": "Tools and reference for guiding your members from enrollment to employment."
+    "counselorGuideMetaDesc": "Tools and reference for guiding your members from enrollment to employment.",
+    "counselorResourcesTitle": "Counselor Resources",
+    "counselorResourcesSubtitle": "Program context, member-facing pages, and tools you use most often in sessions.",
+    "counselingWorkflow": "Counseling Workflow",
+    "memberFacingReference": "Member-Facing Reference"
   },
   "workspace": {
     "publicSite": "WorkforceAP site",

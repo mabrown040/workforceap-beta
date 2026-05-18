@@ -1721,7 +1721,11 @@
     "noRecentActivity": "Sin actividad reciente",
     "activeRoles": "Vacantes activas",
     "matchToHire": "Coincidencia → contratación",
-    "addHiresToSee": "Agrega contrataciones para verlas"
+    "addHiresToSee": "Agrega contrataciones para verlas",
+    "employerMessagesMetaTitle": "Messages",
+    "employerMessagesMetaDesc": "Message candidates and the WorkforceAP team.",
+    "employerMessagesSubtitleMobile": "Candidates and WorkforceAP team",
+    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring."
   },
   "auth": {
     "login": {

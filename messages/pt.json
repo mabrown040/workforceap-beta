@@ -1722,7 +1722,11 @@
     "offersOutCount": "{count} oferta{count, plural, =1 {} other {s}} em andamento",
     "matchToHireTracked": "Correspondência → contratação (quando rastreado)",
     "matchToHire": "Correspondência → contratação",
-    "addHiresToSee": "Adicione contratações para ver"
+    "addHiresToSee": "Adicione contratações para ver",
+    "employerMessagesMetaTitle": "Messages",
+    "employerMessagesMetaDesc": "Message candidates and the WorkforceAP team.",
+    "employerMessagesSubtitleMobile": "Candidates and WorkforceAP team",
+    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring."
   },
   "auth": {
     "login": {

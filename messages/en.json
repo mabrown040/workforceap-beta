@@ -1721,7 +1721,11 @@
     "noRecentActivity": "No recent activity",
     "activeRoles": "Active roles",
     "matchToHire": "Match → hire",
-    "addHiresToSee": "Add hires to see"
+    "addHiresToSee": "Add hires to see",
+    "employerMessagesMetaTitle": "Messages",
+    "employerMessagesMetaDesc": "Message candidates and the WorkforceAP team.",
+    "employerMessagesSubtitleMobile": "Candidates and WorkforceAP team",
+    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring."
   },
   "auth": {
     "login": {

@@ -14,17 +14,19 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: 'Messages',
-  description: 'Message candidates and the WorkforceAP team.',
-  path: '/employer/messages',
-});
+    title: t('employerMessagesMetaTitle'),
+    description: t('employerMessagesMetaDesc'),
+    path: '/employer/messages',
+  });
 }
 
 export default async function EmployerMessagesPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer/messages');
   const t = await getTranslations('messages');
+  const te = await getTranslations('employer');
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
@@ -45,8 +47,8 @@ export default async function EmployerMessagesPage() {
         title={t('inbox')}
         subtitle={
           <>
-            <span className="wa-block md:wa-hidden">Candidates and WorkforceAP team</span>
-            <span className="wa-hidden md:wa-block">Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring.</span>
+            <span className="wa-block md:wa-hidden">{te('employerMessagesSubtitleMobile')}</span>
+            <span className="wa-hidden md:wa-block">{te('employerMessagesSubtitleDesktop')}</span>
           </>
         }
       />

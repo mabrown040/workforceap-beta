@@ -98,7 +98,7 @@
     "blog": "Blog",
     "experienceAcrossEcosystem": "Experiencia en todo el ecosistema laboral",
     "communityOrganizations": "Organizaciones comunitarias",
-    "workforceBoards": "Juntas de desarrollo de la fuerza laboral",
+    "workforceBoards": "Juntas de desarrollo laboral",
     "employerPartners": "Socios empleadores",
     "copyright": "© {year} Workforce Advancement Project. Entrenamiento profesional y apoyo de preparación laboral con capacitación financiada por Workforce para miembros calificados.",
     "onetAttribution": "Este sitio incorpora información de O*NET Web Services del Departamento de Trabajo de EE.UU., Administración de Empleo y Capacitación (USDOL/ETA). O*NET® es una marca registrada de USDOL/ETA."
@@ -609,7 +609,7 @@
     "createAccountMetaTitle": "Guarda tu lugar y crea tu acceso",
     "loadingFallback": "Cargando…",
     "applyNonprofitBadge": "Organización 501(c)(3) · EIN 41-2612389",
-    "applyNonprofitBadgeDesc": "WorkforceAP es una organización sin fines de lucro registrada. Los programas se ofrecen sin costo a miembros calificados a través de Capacitación Financiada por Workforce.",
+    "applyNonprofitBadgeDesc": "WorkforceAP es una organización sin fines de lucro registrada. Los programas están disponibles con capacitación financiada por Workforce para miembros calificados.",
     "resultsHeroBody": "Ordena hasta tres programas según preferencia. Crearás tu cuenta en el siguiente paso para que podamos guardar tus elecciones y dar seguimiento.",
     "resultsHeroTitle": "Paso 2 de 3 — elige tus programas",
     "resultsMetaDescription": "Revisa tu posible adecuación, ordena hasta tres programas y continúa a la creación de cuenta.",

@@ -4,6 +4,7 @@ import { fetchAuth } from '@/lib/fetchWithTimeout';
 import { useState, useEffect } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 
 function getMfaNextPath() {
   if (typeof window === 'undefined') return '/dashboard';
@@ -22,6 +23,7 @@ export default function VerifyMfaPage() {
   useEffect(() => {
     const destination = getMfaNextPath();
     setNextPath(destination);
+    trackFunnelEvent('member_login_mfa', 'verify_started');
 
     fetchAuth('/api/auth/check-mfa-required')
       .then(async (r) => {
@@ -59,10 +61,16 @@ export default function VerifyMfaPage() {
 
       if (!res.ok) {
         setError(data.error ?? 'Verification failed. Try again.');
+        trackFunnelEvent('member_login_mfa', 'verify_failed', {
+          status_code: res.status,
+        });
         setLoading(false);
         return;
       }
 
+      trackFunnelEvent('member_login_mfa', 'verify_completed', {
+        trust_device: trustDevice,
+      });
       setSuccess(true);
       // Redirect to the intended staff portal after brief delay
       setTimeout(() => {
@@ -70,6 +78,7 @@ export default function VerifyMfaPage() {
       }, 800);
     } catch {
       setError('Something went wrong. Please try again.');
+      trackFunnelEvent('member_login_mfa', 'verify_network_error');
       setLoading(false);
     }
   };

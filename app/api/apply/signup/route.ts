@@ -44,6 +44,16 @@ const applySignupSchema = z.object({
   recommendedCareerTitle: z.string().max(200).optional().nullable(),
   careerRecommendationJson: z.any().optional().nullable(),
   needsComputerSupportFollowUp: z.boolean().optional(),
+  // Marketing attribution captured at first ad-landing visit. Stored on
+  // the apply_signup_completed MemberEvent metadata so downstream analytics
+  // (GA4, BigQuery, internal cohort queries) can attribute conversion to
+  // a paid campaign or organic referrer.
+  utmSource: z.string().max(200).optional().nullable(),
+  utmMedium: z.string().max(200).optional().nullable(),
+  utmCampaign: z.string().max(200).optional().nullable(),
+  utmContent: z.string().max(200).optional().nullable(),
+  utmTerm: z.string().max(200).optional().nullable(),
+  referrer: z.string().max(500).optional().nullable(),
 });export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
@@ -85,6 +95,12 @@ const applySignupSchema = z.object({
       recommendedCareerTitle,
       careerRecommendationJson,
       needsComputerSupportFollowUp,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmContent,
+      utmTerm,
+      referrer,
     } = parsed.data;
 
     // Per-email rate limit (3/hr). The per-IP limit above lets an
@@ -278,12 +294,24 @@ const applySignupSchema = z.object({
           });
         }
       });
+      const attributionMetadata: Record<string, string> = {};
+      if (utmSource) attributionMetadata.utm_source = utmSource;
+      if (utmMedium) attributionMetadata.utm_medium = utmMedium;
+      if (utmCampaign) attributionMetadata.utm_campaign = utmCampaign;
+      if (utmContent) attributionMetadata.utm_content = utmContent;
+      if (utmTerm) attributionMetadata.utm_term = utmTerm;
+      if (referrer) attributionMetadata.referrer = referrer;
+
       await trackEvent({
         userId: user.id,
         eventName: 'apply_signup_completed',
         entityType: 'program',
         entityId: programSlug,
-        metadata: { smsOptIn: smsOptIn ?? false, program_ranked_slugs: programRankedSlugs },
+        metadata: {
+          smsOptIn: smsOptIn ?? false,
+          program_ranked_slugs: programRankedSlugs,
+          ...attributionMetadata,
+        },
         sourcePage: '/apply/create-account',
       });
   

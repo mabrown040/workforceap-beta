@@ -13,6 +13,7 @@ import {
 } from '@/lib/validation/member';
 import { trackFunnelEvent } from '@/lib/analytics/events';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { readMarketingAttribution, clearMarketingAttribution } from '@/lib/marketing/utmCapture';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { splitLocalePrefix } from '@/lib/i18n/config';
 
@@ -261,11 +262,21 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
       } catch {
         /* ignore */
       }
+      const attribution = readMarketingAttribution();
 
       const res = await fetchAuth('/api/member/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, referralRef }),
+        body: JSON.stringify({
+          ...data,
+          referralRef,
+          utmSource: attribution.utmSource,
+          utmMedium: attribution.utmMedium,
+          utmCampaign: attribution.utmCampaign,
+          utmContent: attribution.utmContent,
+          utmTerm: attribution.utmTerm,
+          referrer: attribution.referrer,
+        }),
       });
 
       const json = await res.json();
@@ -280,6 +291,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
       trackFunnelEvent('member_signup', 'signup_completed', { program_interest: data.programInterest });
       try {
         sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
+        clearMarketingAttribution();
       } catch {
         /* ignore */
       }

@@ -4,6 +4,7 @@ import { fetchAuth } from '@/lib/fetchWithTimeout';
 import { useState, useEffect } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 
 function getMfaSetupNextPath() {
   if (typeof window === 'undefined') return '/dashboard';
@@ -22,6 +23,7 @@ export default function SetupMfaPage() {
 
   useEffect(() => {
     setNextPath(getMfaSetupNextPath());
+    trackFunnelEvent('member_login_mfa', 'setup_started');
 
     fetchAuth('/api/auth/setup-mfa', { method: 'POST' })
       .then(async (r) => {
@@ -40,6 +42,9 @@ export default function SetupMfaPage() {
       .catch((e) => {
         setError(e.message);
         setStep('error');
+        trackFunnelEvent('member_login_mfa', 'setup_init_failed', {
+          error_message: e?.message?.slice(0, 120) ?? 'unknown',
+        });
       });
   }, []);
 
@@ -65,13 +70,18 @@ export default function SetupMfaPage() {
 
       if (!res.ok) {
         setError(data.error ?? 'Invalid code. Please try again.');
+        trackFunnelEvent('member_login_mfa', 'setup_confirm_failed', {
+          status_code: res.status,
+        });
         setLoading(false);
         return;
       }
 
+      trackFunnelEvent('member_login_mfa', 'setup_completed');
       setStep('done');
     } catch {
       setError('Something went wrong. Please try again.');
+      trackFunnelEvent('member_login_mfa', 'setup_network_error');
       setLoading(false);
     }
   };

@@ -449,6 +449,7 @@ export default function SkillMapperClient() {
   const exportSkillMap = async () => {
     if (!selectedTitle || !radarData.length) return;
     setExportingPdf(true);
+    setError(null);
     try {
       // Build a text summary of the skill map for PDF rendering
       const lines = [
@@ -505,6 +506,7 @@ export default function SkillMapperClient() {
   const exportComparisonPdf = async () => {
     if (!memberProfile.length || !radarData.length) return;
     setExportingComparison(true);
+    setError(null);
     try {
       const lines = [
         `Skill Comparison: Your Profile vs. ${selectedTitle}`,

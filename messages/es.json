@@ -205,7 +205,7 @@
     "checklistAccountReady": "Cuenta lista",
     "checklistCreateAccount": "Crear cuenta",
     "checklistProgramSelected": "Programa seleccionado",
-    "checklistStartApplication": "Comenzar solicitud",
+    "checklistStartApplication": "Empieza tu solicitud",
     "checklistChooseProgram": "Elige un programa",
     "checklistPreassessmentComplete": "Evaluación de pre-entrenamiento completada",
     "checklistCompletePreassessment": "Completar evaluación",
@@ -1247,7 +1247,7 @@
       "faq2cta": "Encuentra tu camino",
       "faq3q": "¿Qué ocurre después de enviar mi solicitud?",
       "faq3a": "WorkforceAP revisa tus objetivos, confirma la adecuación y da seguimiento con próximos pasos. Eso puede incluir orientación de admisión, revisión de documentación o apoyo específico al programa.",
-      "faq3cta": "Iniciar solicitud",
+      "faq3cta": "Empieza tu solicitud",
       "faq4q": "¿Cuánto tiempo toman los programas?",
       "faq4a": "La mayoría de los programas toman aproximadamente 3–5 meses a unas 10 horas por semana. Alfabetización Digital es más corto y funciona bien como punto de partida si necesitas un comienzo más gradual.",
       "faq4cta": "Ver plazos de programas"
@@ -1568,7 +1568,7 @@
       "grantFundedTitle": "Acceso financiado por subvenciones",
       "grantFundedDesc": "WorkforceAP es una organización 501(c)(3) sin fines de lucro. Financiada por subvenciones y socios. Capacitación financiada por Workforce para miembros calificados.",
       "outcomesLink": "Detalle de resultados de colocación",
-      "applyCta": "Solicitar",
+      "applyCta": "Solicita",
       "testimonialsTitle": "Historias de miembros",
       "testimonialsSubtitle": "Resultados reales de miembros reales"
     }

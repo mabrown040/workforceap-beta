@@ -5,7 +5,8 @@
  */
 
 /* Light mode (default) */
-:root {
+:root,
+[data-theme="light"] {
   --dm-bg: #ffffff;
   --dm-surface: #f7f8fa;
   --dm-surface-variant: #eef0f4;
@@ -21,7 +22,7 @@
   --dm-overlay: rgba(0, 0, 0, 0.45);
 }
 
-/* Dark mode */
+/* Dark mode — system preference */
 @media (prefers-color-scheme: dark) {
   :root {
     --dm-bg: #0f172a;
@@ -40,7 +41,8 @@
   }
 }
 
-/* Manual override via data attribute (for a future toggle) */
+/* Manual override — dark via class or data attribute */
+.dark,
 [data-theme="dark"] {
   --dm-bg: #0f172a;
   --dm-surface: #1e293b;

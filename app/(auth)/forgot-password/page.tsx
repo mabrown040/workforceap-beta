@@ -1,5 +1,6 @@
 'use client';
 
+import { fetchAuth } from '@/lib/fetchWithTimeout';
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import LocalizedLink from '@/components/LocalizedLink';
@@ -17,7 +18,7 @@ function ForgotPasswordForm() {
     setStatus('loading');
 
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetchAuth('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

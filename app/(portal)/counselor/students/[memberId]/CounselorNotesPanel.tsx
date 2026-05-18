@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
 
 interface Note {
   id: string;
@@ -16,12 +17,12 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
   const [newNote, setNewNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-
   const [fetchError, setFetchError] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const fetchNotes = useCallback(async () => {
     try {
-      const res = await fetch(`/api/counselor/members/${memberId}/notes`);
+      const res = await fetchWithTimeout(`/api/counselor/members/${memberId}/notes`, {}, 15000);
       if (!res.ok) {
         setFetchError(true);
         return;
@@ -42,11 +43,11 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch(`/api/counselor/members/${memberId}/notes`, {
+      const res = await fetchWithTimeout(`/api/counselor/members/${memberId}/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: newNote.trim() }),
-      });
+      }, 15000);
       if (!res.ok) throw new Error('Failed to save note');
       const note = await res.json();
       setNotes((prev) => [note, ...prev]);
@@ -60,12 +61,18 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
   };
 
   const handleDelete = async (noteId: string) => {
-    setNotes((prev) => prev.filter((n) => n.id !== noteId));
-    await fetch(`/api/counselor/members/${memberId}/notes`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ noteId }),
-    }).catch(() => {});
+    setDeleteError('');
+    try {
+      const res = await fetchWithTimeout(`/api/counselor/members/${memberId}/notes`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ noteId }),
+      }, 15000);
+      if (!res.ok) throw new Error('Failed to delete note');
+      setNotes((prev) => prev.filter((n) => n.id !== noteId));
+    } catch {
+      setDeleteError('Could not delete note. Please try again.');
+    }
   };
 
   return (
@@ -83,14 +90,19 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
           <button type="button"
             onClick={() => setAdding(true)}
             style={{
-              padding: '0.25rem 0.625rem',
+              minWidth: '2.75rem',
+              minHeight: '2.75rem',
+              padding: '0.5rem 0.875rem',
               background: 'var(--surface-container-highest)',
               border: 'none',
-              borderRadius: '0.375rem',
-              fontSize: '0.75rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.8rem',
               fontWeight: 600,
               cursor: 'pointer',
               color: 'var(--color-on-surface)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             + Add Note
@@ -124,15 +136,20 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
               onClick={handleAdd}
               disabled={submitting || !newNote.trim()}
               style={{
-                padding: '0.375rem 0.875rem',
+                minWidth: '2.75rem',
+                minHeight: '2.75rem',
+                padding: '0.5rem 1rem',
                 background: 'var(--color-accent)',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '0.375rem',
+                borderRadius: '0.5rem',
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 opacity: submitting ? 0.6 : 1,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               {submitting ? 'Saving…' : 'Save'}
@@ -140,19 +157,30 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
             <button type="button"
               onClick={() => { setAdding(false); setNewNote(''); setError(''); }}
               style={{
-                padding: '0.375rem 0.875rem',
+                minWidth: '2.75rem',
+                minHeight: '2.75rem',
+                padding: '0.5rem 1rem',
                 background: 'transparent',
                 color: 'var(--color-on-surface-variant)',
                 border: '1px solid var(--outline-variant)',
-                borderRadius: '0.375rem',
+                borderRadius: '0.5rem',
                 fontSize: '0.8rem',
                 cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               Cancel
             </button>
           </div>
         </div>
+      )}
+
+      {deleteError && (
+        <p style={{ fontSize: '0.8rem', color: 'var(--color-error, #c00)', margin: '0 0 0.5rem' }}>
+          {deleteError}
+        </p>
       )}
 
       {fetchError && (
@@ -182,12 +210,18 @@ export default function CounselorNotesPanel({ memberId }: { memberId: string }) 
                   background: 'none',
                   border: 'none',
                   color: 'var(--color-on-surface-variant)',
-                  fontSize: '0.75rem',
+                  fontSize: '0.875rem',
                   cursor: 'pointer',
-                  padding: '0 0.25rem',
+                  padding: '0.375rem 0.5rem',
                   lineHeight: 1,
+                  minWidth: '2.75rem',
+                  minHeight: '2.75rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
                 title="Delete note"
+                aria-label="Delete note"
               >
                 ×
               </button>

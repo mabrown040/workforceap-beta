@@ -5,6 +5,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import DataTable from '@/components/portal/ui/DataTable';
 import SectionHeader from '@/components/portal/ui/SectionHeader';
+import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
 
 interface InactiveMember {
   id: string;
@@ -51,7 +52,7 @@ export default function InactiveMembersPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/counselor/inactive-members?days=${days}`);
+      const res = await fetchWithTimeout(`/api/counselor/inactive-members?days=${days}`, {}, 15000);
       if (!res.ok) throw new Error('Failed to load');
       const data = await res.json();
       setMembers(data.members || []);
@@ -64,15 +65,17 @@ export default function InactiveMembersPage() {
 
   const logOutreach = async (member: InactiveMember) => {
     setSendingReminder(member.id);
+    setError(null);
     try {
-      await fetch('/api/counselor/remind-member', {
+      const res = await fetchWithTimeout('/api/counselor/remind-member', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: member.id, daysInactive: member.daysInactive }),
-      });
+      }, 15000);
+      if (!res.ok) throw new Error('Failed to log outreach');
       setReminderSent((prev) => new Set(prev).add(member.id));
     } catch {
-      // Silently fail — UI still works
+      setError('Could not log outreach. Please try again.');
     } finally {
       setSendingReminder(null);
     }
@@ -107,7 +110,9 @@ export default function InactiveMembersPage() {
             id={`inactive-tab-${d}`}
             onClick={() => setDays(d)}
             style={{
-              padding: '0.5rem 1rem',
+              minWidth: '2.75rem',
+              minHeight: '2.75rem',
+              padding: '0.625rem 1rem',
               borderRadius: 'var(--radius-md)',
               border: 'none',
               background: days === d ? 'var(--color-accent)' : 'var(--surface-container-high)',
@@ -116,6 +121,9 @@ export default function InactiveMembersPage() {
               cursor: 'pointer',
               fontSize: '0.85rem',
               outlineOffset: '2px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             {d}+ days
@@ -234,7 +242,9 @@ export default function InactiveMembersPage() {
                         : `Log outreach for ${m.email}`
                     }
                     style={{
-                      padding: '0.5rem 0.875rem',
+                      minWidth: '2.75rem',
+                      minHeight: '2.75rem',
+                      padding: '0.625rem 1rem',
                       borderRadius: 'var(--radius-md)',
                       border: 'none',
                       background: reminderSent.has(m.id) ? 'var(--color-green)' : 'var(--color-accent)',
@@ -243,6 +253,9 @@ export default function InactiveMembersPage() {
                       fontSize: '0.8rem',
                       cursor: sendingReminder === m.id || reminderSent.has(m.id) ? 'not-allowed' : 'pointer',
                       opacity: sendingReminder === m.id ? 0.7 : 1,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
                     {sendingReminder === m.id ? 'Saving…' : reminderSent.has(m.id) ? 'Logged ✓' : 'Log outreach'}

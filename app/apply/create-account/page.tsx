@@ -3,25 +3,28 @@ import { Suspense } from 'react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ApplyCreateAccountForm from './ApplyCreateAccountForm';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('apply');
   const base = await buildPageMetadataAsync({
-    title: 'Save Your Spot and Create Your Login',
-    description: 'Create your account to save your ranked program choices and connect with your next steps.',
+    title: t('createAccountMetaTitle'),
+    description: t('createAccountMetaDescription'),
     path: '/apply/create-account',
   });
   return { ...base, robots: { index: false, follow: false } };
 }
 
-export default function ApplyCreateAccountPage() {
+export default async function ApplyCreateAccountPage() {
+  const t = await getTranslations('apply');
   return (
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
-          <h1>Step 3 of 3 — save your spot and create your login</h1>
-          <p>Create your account to save your ranked program choices, track your progress, and connect with counselor support.</p>
+          <h1>{t('createAccountHeroTitle')}</h1>
+          <p>{t('createAccountHeroBody')}</p>
           <p style={{ marginTop: '0.75rem' }}>
-            Start with the basics now: name, email, phone, and password. You can add mailing address details later if we need them. Our team will follow up within 1–2 business days with your next step.
+            {t('createAccountHeroSub')}
           </p>
         </div>
       </section>
@@ -29,11 +32,12 @@ export default function ApplyCreateAccountPage() {
       <section className="content-section">
         <div className="container">
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
-            <Suspense fallback={<p>Loading…</p>}>
+            <Suspense fallback={<p>{t('loadingFallback')}</p>}>
               <ApplyCreateAccountForm />
             </Suspense>
             <p style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-              Already have an account? <a href="/login">Log in</a>
+              {t('createAccountAlready')}{' '}
+              <a href="/login">{t('createAccountLogIn')}</a>
             </p>
           </div>
         </div>

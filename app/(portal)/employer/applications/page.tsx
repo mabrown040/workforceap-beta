@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
@@ -10,19 +11,22 @@ import EmployerApplicationsClient from '@/components/employer/EmployerApplicatio
 import EmployerApplicationsPager from '@/components/employer/EmployerApplicationsPager';
 import MobileApplicationsClient from '@/components/employer/MobileApplicationsClient';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import {
   parseEmployerApplicationStatusFilter,
   parseEmployerApplicationsSort,
 } from '@/lib/employer/employerApplicationsListQuery';
+import { getTranslations } from 'next-intl/server';
 
 const PAGE_SIZE = 25;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: 'Applicants',
-  description: 'View applications from WorkforceAP members to your job postings.',
-  path: '/employer/applications',
-});
+    title: t('applicants'),
+    description: t('reviewCandidateApplications'),
+    path: '/employer/applications',
+  });
 }
 
 export default async function EmployerApplicationsPage({
@@ -74,34 +78,49 @@ export default async function EmployerApplicationsPage({
     student: app.student,
   }));
 
+  const t = await getTranslations('employer');
+
   return (
     <PortalPageFrame>
       <PageHeader
-        title={statusFilter ? `Applicants — filtered (${totalCount})` : `Applicants (${totalCount})`}
+        title={statusFilter ? `${t('applicants')} — ${t('filtered')} (${totalCount})` : `${t('applicants')} (${totalCount})`}
         subtitle={
           <>
-            <span className="wa-block md:wa-hidden">Review candidates and update their status.</span>
-            <span className="wa-hidden md:wa-block">Review candidates and update their status as you move them through your hiring process.</span>
+            <span className="wa-block md:wa-hidden">{t('reviewCandidatesMobile')}</span>
+            <span className="wa-hidden md:wa-block">{t('reviewCandidatesDesktop')}</span>
           </>
         }
-        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Applicants' }]}
+        breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('applicants') }]}
       />
-      {/* ── Mobile Applications View (≤640px) ── */}
-      <div className="wa-block md:wa-hidden wa-pb-24">
-        <MobileApplicationsClient initialRows={initialRows} />
-        <div className="wa-px-4">
-          <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
+      {totalCount === 0 ? (
+        <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>inbox</span>
+          <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('noApplicationsYet')}</h3>
+          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>{t('postRoleToStartReceiving')}</p>
+          <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+            {t('postAJob')}
+          </Link>
         </div>
-      </div>
-      {/* ── Desktop View ── */}
-      <div className="wa-hidden md:wa-block">
-        <EmployerApplicationsClient
-          initialRows={initialRows}
-          activeStatusFilter={statusFilter}
-          activeSort={sortOrder}
-        />
-        <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
-      </div>
+      ) : (
+        <>
+          {/* ── Mobile Applications View (≤640px) ── */}
+          <div className="wa-block md:wa-hidden wa-pb-24">
+            <MobileApplicationsClient initialRows={initialRows} />
+            <div className="wa-px-4">
+              <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
+            </div>
+          </div>
+          {/* ── Desktop View ── */}
+          <div className="wa-hidden md:wa-block">
+            <EmployerApplicationsClient
+              initialRows={initialRows}
+              activeStatusFilter={statusFilter}
+              activeSort={sortOrder}
+            />
+            <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
+          </div>
+        </>
+      )}
     </PortalPageFrame>
   );
 }

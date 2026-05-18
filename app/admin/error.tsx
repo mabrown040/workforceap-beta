@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
-import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
+import RouteErrorFallback from '@/components/error/RouteErrorFallback';
 
 export default function AdminError({
   error,
@@ -15,24 +14,5 @@ export default function AdminError({
     throw error;
   }
 
-  useEffect(() => {
-    console.error('[admin/error]', error.message, error.digest ?? '');
-  }, [error]);
-
-  return (
-    <PortalRouteFallback
-      title="Admin — something went wrong"
-      description={
-        error.digest
-          ? `Try again, or contact your technical lead with reference ${error.digest}.`
-          : 'Try again, or contact your technical lead if this continues.'
-      }
-    >
-      <div className="portal-route-fallback__actions">
-        <button type="button" className="btn btn-primary" onClick={() => reset()}>
-          Try again
-        </button>
-      </div>
-    </PortalRouteFallback>
-  );
+  return <RouteErrorFallback error={error} reset={reset} context="admin" />;
 }

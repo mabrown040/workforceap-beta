@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 
 type NotificationItem = {
   id: string;
@@ -199,10 +200,12 @@ export default function CounselorNotificationCenter({ members }: { members: Memb
           <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Loading…</p>
         </div>
       ) : notifications.length === 0 ? (
-        <div style={{ padding: '2.5rem 1rem', textAlign: 'center', borderRadius: '0.75rem', background: 'var(--surface-container-low)', border: '1px dashed var(--outline-variant)' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem', fontVariationSettings: "'FILL' 1" }}>notifications_none</span>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>No notifications match your filters</p>
-        </div>
+        <PortalEmptyState
+          title="No notifications"
+          description="Notifications will appear here when members complete courses, match with jobs, or need follow-up."
+          icon={<span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">notifications_none</span>}
+          primaryAction={{ label: 'Refresh', onClick: fetchNotifications }}
+        />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {notifications.map((n) => (

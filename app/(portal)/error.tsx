@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-import PortalRouteFallback from '@/components/portal/PortalRouteFallback';
+import RouteErrorFallback from '@/components/error/RouteErrorFallback';
 
 export default function PortalError({
   error,
@@ -10,26 +9,5 @@ export default function PortalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.error(error);
-    }
-  }, [error]);
-
-  return (
-    <PortalRouteFallback
-      title="Something went wrong"
-      description={
-        error.digest
-          ? `This page hit an unexpected error. You can try again, or contact info@workforceap.org with reference ${error.digest}.`
-          : 'This page hit an unexpected error. You can try again, or contact info@workforceap.org if it keeps happening.'
-      }
-    >
-      <div className="portal-route-fallback__actions">
-        <button type="button" className="btn btn-primary" onClick={() => reset()}>
-          Try again
-        </button>
-      </div>
-    </PortalRouteFallback>
-  );
+  return <RouteErrorFallback error={error} reset={reset} context="portal" />;
 }

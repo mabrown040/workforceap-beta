@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 
 type MatchedJob = {
   id: string;
@@ -67,10 +68,12 @@ export default function MatchedRoles() {
     return (
       <section className="dashboard-matched-roles" style={{ marginTop: '1.5rem' }}>
         <h2 className="dashboard-today-label">Roles that match you</h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-          No matched jobs available yet. Check back soon as we add new employer opportunities, 
-          or visit the <Link href="/dashboard/jobs" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>job board</Link> to browse all openings.
-        </p>
+        <PortalEmptyState
+          title="No matched jobs yet"
+          description="Check back soon as we add new employer opportunities, or browse the job board to see all openings."
+          icon={<span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">work_outline</span>}
+          primaryAction={{ label: 'Browse job board', href: '/dashboard/jobs' }}
+        />
       </section>
     );
   }

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { checkCourseraIdentityRateLimit } from '@/lib/rate-limit';
 import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
 
@@ -17,7 +19,7 @@ function normalizeEmail(value: unknown) {
   return typeof value === 'string' ? value.trim().toLowerCase() : '';
 }
 
-export async function POST(request: Request) {
+export const POST = withApiGuc(async (request: Request) => {
   try {
     // Rate-limit Coursera identity spray (AUDIT §H-S14).
     const { success } = await checkCourseraIdentityRateLimit(getClientIp(request));
@@ -69,4 +71,4 @@ export async function POST(request: Request) {
     console.error('/member/coursera/identity:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

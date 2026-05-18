@@ -15,8 +15,10 @@ let authRateLimiter: Ratelimit | null = null;
 // above. The compound key permits credential-stuffing — rotating emails on
 // one IP gives each email its own bucket. This bucket caps the total
 // auth attempts from any single IP regardless of which email is being
-// tried. Per-launch-bump tuning: 100/15min covers a workforce-center-on-
-// shared-IP burst without enabling rapid stuffing.
+// tried. Per-launch-bump tuning: 300/15min covers a workforce-center- or
+// library-on-shared-IP burst (~20 people each with a few attempts) without
+// enabling rapid stuffing. The compound bucket at 20/min/email still
+// catches single-account brute force. Revisit if abuse signals appear.
 let authIpRateLimiter: Ratelimit | null = null;
 // Per-email-only bucket for signup endpoints. Each signup route has its
 // own per-IP limiter; this one prevents an attacker spread across many
@@ -89,7 +91,7 @@ if (redisUrl && redisToken) {
   });
   authIpRateLimiter = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(100, '15 m'),
+    limiter: Ratelimit.slidingWindow(300, '15 m'),
     prefix: 'ratelimit:auth-ip',
   });
   signupEmailRateLimiter = new Ratelimit({

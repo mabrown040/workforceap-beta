@@ -10,14 +10,16 @@ import { getActivePrograms } from '@/lib/platform/programCatalog';
 import JobForm from '@/components/employer/JobForm';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
+  const t = await getTranslations('employer');
   const fallback = await buildPageMetadataAsync({
-    title: 'Edit Job',
-    description: 'Edit job posting.',
+    title: t('editJobMetaTitle'),
+    description: t('editJobMetaDesc'),
     path: `/employer/jobs/${id}/edit`,
   });
   const user = await getUser();
@@ -29,8 +31,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     select: { title: true },
   });
   return buildPageMetadataAsync({
-    title: job ? `Edit: ${job.title}` : 'Edit Job',
-    description: 'Edit job posting.',
+    title: job ? `${t('editJobMetaTitle')}: ${job.title}` : t('editJobMetaTitle'),
+    description: t('editJobMetaDesc'),
     path: `/employer/jobs/${id}/edit`,
   });
 }
@@ -41,6 +43,8 @@ export default async function EmployerJobEditPage({ params }: Props) {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const { id } = await params;
   const job = await prisma.job.findFirst({
@@ -60,16 +64,16 @@ export default async function EmployerJobEditPage({ params }: Props) {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Edit Job Posting"
-        subtitle="Update the details for this role."
+        title={t('editJobPosting')}
+        subtitle={t('updateDetails')}
         breadcrumbs={[
-          { label: 'Job Postings', href: '/employer/jobs' },
+          { label: t('jobPostings'), href: '/employer/jobs' },
           { label: job.title, href: `/employer/jobs/${id}` },
-          { label: 'Edit' },
+          { label: t('edit') },
         ]}
         action={
           <Link href={`/employer/jobs/${id}`} className="btn btn-outline btn-sm">
-            Back to job
+            {t('backToJob')}
           </Link>
         }
       />

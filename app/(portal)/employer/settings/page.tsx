@@ -9,13 +9,15 @@ import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import PageHeader from '@/components/portal/PageHeader';
 import EmployerSettingsForm from '@/components/employer/EmployerSettingsForm';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: 'Company settings',
-  description: 'Employer portal company settings.',
-  path: '/employer/settings',
-});
+    title: t('companySettingsMetaTitle'),
+    description: t('companySettingsMetaDesc'),
+    path: '/employer/settings',
+  });
 }
 
 export default async function EmployerSettingsPage() {
@@ -24,6 +26,8 @@ export default async function EmployerSettingsPage() {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const employer = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
@@ -50,15 +54,15 @@ export default async function EmployerSettingsPage() {
     <>
       <div style={{ maxWidth: '720px', margin: '0 auto', paddingBottom: '5rem' }}>
         <PageHeader
-          title="Company Settings"
-          subtitle="Update your company profile, logo, and hiring contact."
-          breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Settings' }]}
+          title={t('companySettings')}
+          subtitle={t('updateCompanyProfile')}
+          breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('settings') }]}
         />
 
         {/* Logo + form card */}
         <div className="portal-profile-section-card" style={{ marginBottom: '1rem' }}>
           <div className="portal-profile-section-card__header">
-            <h2 className="portal-profile-section-card__title">Company Profile</h2>
+            <h2 className="portal-profile-section-card__title">{t('companyProfile')}</h2>
           </div>
           <div className="portal-profile-section-card__body">
             <EmployerSettingsForm initial={employerInitial} />
@@ -68,7 +72,7 @@ export default async function EmployerSettingsPage() {
         {/* Quick nav */}
         <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
           <h2 style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.875rem' }}>
-            What you can do now
+            {t('whatYouCanDoNow')}
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {[

@@ -13,9 +13,110 @@ test('validates valid pdf with upper case ext', () => {
     assert.equal(validateFileType(buf, 'application/pdf', 'test.PDF'), true);
 });
 
-test('validates valid docx', () => {
+// --- DOCX structural validation helpers (H-S17) ----------------------------
+// Build a minimal in-memory ZIP archive (store / no compression) containing
+// the provided entries. Sufficient to exercise central-directory parsing.
+function buildZip(entries: Array<{ name: string; data?: Buffer }>): Buffer {
+    const localParts: Buffer[] = [];
+    const centralParts: Buffer[] = [];
+    let offset = 0;
+
+    for (const entry of entries) {
+        const nameBuf = Buffer.from(entry.name, 'utf8');
+        const data = entry.data ?? Buffer.alloc(0);
+
+        // Local file header (30 bytes + name + data)
+        const local = Buffer.alloc(30);
+        local.writeUInt32LE(0x04034b50, 0);   // signature
+        local.writeUInt16LE(20, 4);            // version needed
+        local.writeUInt16LE(0, 6);             // flags
+        local.writeUInt16LE(0, 8);             // compression: stored
+        local.writeUInt16LE(0, 10);            // mod time
+        local.writeUInt16LE(0, 12);            // mod date
+        local.writeUInt32LE(0, 14);            // crc32 (unchecked by our parser)
+        local.writeUInt32LE(data.length, 18);  // compressed size
+        local.writeUInt32LE(data.length, 22);  // uncompressed size
+        local.writeUInt16LE(nameBuf.length, 26);
+        local.writeUInt16LE(0, 28);            // extra length
+        localParts.push(local, nameBuf, data);
+
+        // Central directory entry (46 bytes + name)
+        const central = Buffer.alloc(46);
+        central.writeUInt32LE(0x02014b50, 0);  // signature
+        central.writeUInt16LE(20, 4);           // version made by
+        central.writeUInt16LE(20, 6);           // version needed
+        central.writeUInt16LE(0, 8);            // flags
+        central.writeUInt16LE(0, 10);           // compression
+        central.writeUInt16LE(0, 12);           // mod time
+        central.writeUInt16LE(0, 14);           // mod date
+        central.writeUInt32LE(0, 16);           // crc32
+        central.writeUInt32LE(data.length, 20); // compressed size
+        central.writeUInt32LE(data.length, 24); // uncompressed size
+        central.writeUInt16LE(nameBuf.length, 28);
+        central.writeUInt16LE(0, 30);           // extra length
+        central.writeUInt16LE(0, 32);           // comment length
+        central.writeUInt16LE(0, 34);           // disk number
+        central.writeUInt16LE(0, 36);           // internal attrs
+        central.writeUInt32LE(0, 38);           // external attrs
+        central.writeUInt32LE(offset, 42);      // offset of local header
+        centralParts.push(central, nameBuf);
+
+        offset += local.length + nameBuf.length + data.length;
+    }
+
+    const cdStart = offset;
+    const centralBuf = Buffer.concat(centralParts);
+
+    // End of central directory record (22 bytes, no comment)
+    const eocd = Buffer.alloc(22);
+    eocd.writeUInt32LE(0x06054b50, 0);
+    eocd.writeUInt16LE(0, 4);                   // disk
+    eocd.writeUInt16LE(0, 6);                   // disk with CD
+    eocd.writeUInt16LE(entries.length, 8);      // entries on disk
+    eocd.writeUInt16LE(entries.length, 10);     // total entries
+    eocd.writeUInt32LE(centralBuf.length, 12);  // CD size
+    eocd.writeUInt32LE(cdStart, 16);            // CD offset
+    eocd.writeUInt16LE(0, 20);                  // comment length
+
+    return Buffer.concat([...localParts, centralBuf, eocd]);
+}
+
+test('validates valid docx (contains [Content_Types].xml and word/document.xml)', () => {
+    const buf = buildZip([
+        { name: '[Content_Types].xml', data: Buffer.from('<xml/>') },
+        { name: '_rels/.rels', data: Buffer.from('<xml/>') },
+        { name: 'word/document.xml', data: Buffer.from('<xml/>') },
+    ]);
+    assert.equal(validateFileType(buf, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'test.docx'), true);
+});
+
+test('rejects bare PK magic bytes posing as docx (H-S17)', () => {
     const buf = Buffer.from([0x50, 0x4B, 0x03, 0x04, 0x00, 0x00]);
-    assert.equal(validateFileType(buf, 'application/docx', 'test.docx'), true);
+    assert.equal(validateFileType(buf, 'application/docx', 'test.docx'), false);
+});
+
+test('rejects arbitrary ZIP renamed to .docx (H-S17)', () => {
+    // A perfectly valid ZIP containing only an unrelated file — the canonical
+    // exploit shape flagged by the audit: `evil.zip` → `evil.docx`.
+    const buf = buildZip([
+        { name: 'evil.txt', data: Buffer.from('payload') },
+        { name: 'nested/other.bin', data: Buffer.from([0x00, 0x01, 0x02]) },
+    ]);
+    assert.equal(validateFileType(buf, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'evil.docx'), false);
+});
+
+test('rejects docx missing word/document.xml (H-S17)', () => {
+    const buf = buildZip([
+        { name: '[Content_Types].xml', data: Buffer.from('<xml/>') },
+    ]);
+    assert.equal(validateFileType(buf, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'partial.docx'), false);
+});
+
+test('rejects docx missing [Content_Types].xml (H-S17)', () => {
+    const buf = buildZip([
+        { name: 'word/document.xml', data: Buffer.from('<xml/>') },
+    ]);
+    assert.equal(validateFileType(buf, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'partial.docx'), false);
 });
 
 test('validates valid pdf with UTF-8 BOM', () => {

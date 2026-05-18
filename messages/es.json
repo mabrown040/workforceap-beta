@@ -855,7 +855,9 @@
     "critical": "Crítico",
     "warning": "Advertencia",
     "atRiskShort": "En riesgo",
-    "daysThreshold": "{days}+ días"
+    "daysThreshold": "{days}+ días",
+    "counselorGuideMetaTitle": "Guía del portal de consejeros",
+    "counselorGuideMetaDesc": "Herramientas y referencia para guiar a tus miembros desde la inscripción hasta el empleo."
   },
   "workspace": {
     "publicSite": "Sitio de WorkforceAP",

@@ -855,7 +855,9 @@
     "critical": "Critical",
     "warning": "Warning",
     "atRiskShort": "At Risk",
-    "daysThreshold": "{days}+ days"
+    "daysThreshold": "{days}+ days",
+    "counselorGuideMetaTitle": "Counselor portal guide",
+    "counselorGuideMetaDesc": "Tools and reference for guiding your members from enrollment to employment."
   },
   "workspace": {
     "publicSite": "WorkforceAP site",

@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -8,11 +9,12 @@ import { prisma } from '@/lib/db/prisma';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('counselor');
   return buildPageMetadataAsync({
-  title: 'Counselor portal guide',
-  description: 'Tools and reference for guiding your members from enrollment to employment.',
-  path: '/counselor/guide',
-});
+    title: t('counselorGuideMetaTitle'),
+    description: t('counselorGuideMetaDesc'),
+    path: '/counselor/guide',
+  });
 }
 
 const CAPABILITIES = [
@@ -68,6 +70,8 @@ export default async function CounselorGuidePage() {
 
   const allowed = (await isCounselor(user.id)) || (await isAdmin(user.id));
   if (!allowed) redirect('/dashboard');
+
+  const t = await getTranslations('counselor');
 
   const counselor = await prisma.counselor.findFirst({
     where: { userId: user.id, active: true },

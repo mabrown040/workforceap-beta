@@ -36,7 +36,7 @@ export function validateFileType(
   const searchLimit = Math.min(buffer.length, 1024);
   const searchArea = buffer.subarray(0, searchLimit);
 
-  return MAGIC_BYTES.some((m) => {
+  const magicMatches = MAGIC_BYTES.some((m) => {
     if (m.ext !== ext) return false;
 
     const seq = m.bytes;
@@ -57,4 +57,102 @@ export function validateFileType(
 
     return false;
   });
+
+  if (!magicMatches) return false;
+
+  // H-S17: DOCX files share the ZIP magic bytes (PK\x03\x04) with any ZIP archive.
+  // A malicious ZIP renamed to .docx would otherwise pass validation and be fed
+  // to `mammoth` downstream. Confirm the archive is actually a DOCX by checking
+  // for the canonical DOCX entries in the ZIP central directory.
+  if (ext === 'docx') {
+    return isDocxArchive(buffer);
+  }
+
+  return true;
+}
+
+/**
+ * Lightweight DOCX structure check. Parses the ZIP central directory and
+ * verifies that BOTH `[Content_Types].xml` AND `word/document.xml` are
+ * present as entries. This is sufficient to distinguish a real DOCX from
+ * an arbitrary ZIP archive without pulling in a full unzip dependency.
+ *
+ * ZIP central directory record layout (little-endian):
+ *   0  uint32  signature           0x02014b50
+ *   28 uint16  file name length
+ *   30 uint16  extra field length
+ *   32 uint16  file comment length
+ *   46 ...     file name (N bytes)
+ *
+ * End-of-central-directory record (EOCD), searched from end of file:
+ *   0  uint32  signature           0x06054b50
+ *   16 uint32  offset of central directory
+ */
+function isDocxArchive(buffer: Buffer): boolean {
+  const REQUIRED_ENTRIES = ['[Content_Types].xml', 'word/document.xml'];
+
+  try {
+    const eocdOffset = findEocd(buffer);
+    if (eocdOffset < 0) return false;
+
+    // EOCD must have at least 22 bytes available
+    if (eocdOffset + 22 > buffer.length) return false;
+
+    const cdOffset = buffer.readUInt32LE(eocdOffset + 16);
+    const cdSize = buffer.readUInt32LE(eocdOffset + 12);
+    const totalEntries = buffer.readUInt16LE(eocdOffset + 10);
+
+    if (cdOffset >= buffer.length || cdOffset + cdSize > buffer.length) {
+      return false;
+    }
+
+    const found = new Set<string>();
+    let cursor = cdOffset;
+    const cdEnd = cdOffset + cdSize;
+    const CENTRAL_DIR_SIGNATURE = 0x02014b50;
+    const HEADER_FIXED_LEN = 46;
+    // Cap entries we scan to avoid pathological inputs
+    const maxEntries = Math.min(totalEntries, 8192);
+
+    for (let i = 0; i < maxEntries; i++) {
+      if (cursor + HEADER_FIXED_LEN > cdEnd) break;
+      const sig = buffer.readUInt32LE(cursor);
+      if (sig !== CENTRAL_DIR_SIGNATURE) break;
+
+      const nameLen = buffer.readUInt16LE(cursor + 28);
+      const extraLen = buffer.readUInt16LE(cursor + 30);
+      const commentLen = buffer.readUInt16LE(cursor + 32);
+      const nameStart = cursor + HEADER_FIXED_LEN;
+      const nameEnd = nameStart + nameLen;
+      if (nameEnd > cdEnd) break;
+
+      const name = buffer.toString('utf8', nameStart, nameEnd);
+      if (REQUIRED_ENTRIES.includes(name)) {
+        found.add(name);
+        if (found.size === REQUIRED_ENTRIES.length) return true;
+      }
+
+      cursor = nameEnd + extraLen + commentLen;
+    }
+
+    return REQUIRED_ENTRIES.every((e) => found.has(e));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Locate the End-of-Central-Directory record signature (0x06054b50)
+ * by scanning backwards from the end of the buffer. The EOCD lives in
+ * the last 22 + up-to-65535 bytes (its trailing comment is variable).
+ */
+function findEocd(buffer: Buffer): number {
+  const EOCD_SIGNATURE = 0x06054b50;
+  const minOffset = Math.max(0, buffer.length - (22 + 0xffff));
+  for (let i = buffer.length - 22; i >= minOffset; i--) {
+    if (buffer.readUInt32LE(i) === EOCD_SIGNATURE) {
+      return i;
+    }
+  }
+  return -1;
 }

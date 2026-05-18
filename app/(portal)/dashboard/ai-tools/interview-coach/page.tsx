@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -8,11 +9,12 @@ import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 import { getUser } from '@/lib/auth/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'AI Interview Coach',
-  description: 'Run a text-based mock interview and get instant AI feedback.',
-  path: '/dashboard/ai-tools/interview-coach',
-});
+    title: t('interviewCoachMetaTitle'),
+    description: t('interviewCoachMetaDesc'),
+    path: '/dashboard/ai-tools/interview-coach',
+  });
 }
 
 export default async function InterviewCoachPage() {

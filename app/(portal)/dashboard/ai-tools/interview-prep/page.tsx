@@ -1,16 +1,20 @@
+import { getTranslations } from 'next-intl/server';
 import { getUser } from '@/lib/auth/server';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import { buildPageMetadata } from '@/app/seo';
+import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import InterviewPrepBundle from '@/components/portal/InterviewPrepBundle';
 
-export const metadata: Metadata = buildPageMetadata({
-  title: 'Pre-Interview Prep Bundle',
-  description: 'Everything you have built with our AI tools — pulled together for quick review before your next interview.',
-  path: '/dashboard/ai-tools/interview-prep',
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
+  return buildPageMetadataAsync({
+    title: t('interviewPrepMetaTitle'),
+    description: t('interviewPrepMetaDesc'),
+    path: '/dashboard/ai-tools/interview-prep',
+  });
+};
 
 export default async function InterviewPrepBundlePage() {
   const user = await getUser();

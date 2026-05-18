@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
@@ -28,11 +29,12 @@ const ResumeCoachWorkspace = dynamic(() => import('@/components/portal/ResumeCoa
 });
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Resume & Experience Enhancer',
-  description: 'Practice your story out loud and refine your resume in a dedicated voice coaching flow.',
-  path: '/dashboard/ai-tools/resume-coach',
-});
+    title: t('resumeCoachMetaTitle'),
+    description: t('resumeCoachMetaDesc'),
+    path: '/dashboard/ai-tools/resume-coach',
+  });
 }
 
 export default async function ResumeCoachPage() {

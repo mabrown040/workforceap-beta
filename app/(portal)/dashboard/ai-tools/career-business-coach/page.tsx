@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -8,11 +9,12 @@ import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { getUser } from '@/lib/auth/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Career and Business Coach',
-  description: 'A general career and business coach for project management, sales, marketing, and professional development questions.',
-  path: '/dashboard/ai-tools/career-business-coach',
-});
+    title: t('careerBusinessCoachMetaTitle'),
+    description: t('careerBusinessCoachMetaDesc'),
+    path: '/dashboard/ai-tools/career-business-coach',
+  });
 }
 
 export default async function CareerBusinessCoachPage() {

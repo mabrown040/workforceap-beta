@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -8,11 +9,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Cover Letter Builder',
-  description: 'Create a tailored cover letter that connects your experience to the job.',
-  path: '/dashboard/ai-tools/cover-letter',
-});
+    title: t('coverLetterMetaTitle'),
+    description: t('coverLetterMetaDesc'),
+    path: '/dashboard/ai-tools/cover-letter',
+  });
 }
 
 export default async function CoverLetterPage() {

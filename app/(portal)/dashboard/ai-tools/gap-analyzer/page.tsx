@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -7,11 +8,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Resume Gap Analyzer',
-  description: 'Detect employment gaps and get suggested framing for cover letters and interviews.',
-  path: '/dashboard/ai-tools/gap-analyzer',
-});
+    title: t('gapAnalyzerMetaTitle'),
+    description: t('gapAnalyzerMetaDesc'),
+    path: '/dashboard/ai-tools/gap-analyzer',
+  });
 }
 
 export default async function GapAnalyzerPage() {

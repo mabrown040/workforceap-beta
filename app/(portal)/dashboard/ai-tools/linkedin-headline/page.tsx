@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -7,11 +8,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'LinkedIn Headline Generator',
-  description: 'Craft a compelling LinkedIn headline that gets you noticed.',
-  path: '/dashboard/ai-tools/linkedin-headline',
-});
+    title: t('linkedinHeadlineMetaTitle'),
+    description: t('linkedinHeadlineMetaDesc'),
+    path: '/dashboard/ai-tools/linkedin-headline',
+  });
 }
 
 export default async function LinkedInHeadlinePage() {

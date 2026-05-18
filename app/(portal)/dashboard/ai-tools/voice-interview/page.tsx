@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
@@ -29,11 +30,12 @@ const VoiceInterviewScaffold = dynamic(() => import('@/components/portal/tools/V
 });
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Voice Job/Role Interviewer',
-  description: 'Practice a live voice mock interview for a specific job or role, with optional camera recording and real-time coaching feedback.',
-  path: '/dashboard/ai-tools/voice-interview',
-});
+    title: t('voiceInterviewMetaTitle'),
+    description: t('voiceInterviewMetaDesc'),
+    path: '/dashboard/ai-tools/voice-interview',
+  });
 }
 
 export default async function VoiceInterviewPage() {

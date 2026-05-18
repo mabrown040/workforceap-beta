@@ -58,20 +58,24 @@ type GuestSignInCTAKey =
   | 'partnerSignIn'
   | 'adminSignIn';
 
-type GuestLoginSubmenuItem = { href: string; signInCtaKey: GuestSignInCTAKey };
+type GuestLoginSubmenuItem = {
+  submenuKind: 'guestSignIn';
+  href: string;
+  signInCtaKey: GuestSignInCTAKey;
+};
 
-/** Explicit `cta` keys — always distinct labels in every locale (never duplicate generic “Sign In”). */
+type PortalLinkSubmenuItem = { submenuKind: 'portalLink'; href: string; label: string };
+
+/** Explicit `cta` keys — localized to “Member / Counselor / … Sign In” (never duplicate generic “Sign In”). */
 const GUEST_LOGIN_SUBMENU: GuestLoginSubmenuItem[] = [
-  { href: '/login?redirectTo=/dashboard', signInCtaKey: 'memberSignIn' },
-  { href: '/login?redirectTo=/counselor', signInCtaKey: 'counselorSignIn' },
-  { href: '/login?redirectTo=/employer', signInCtaKey: 'employerSignIn' },
-  { href: '/login?redirectTo=/partner', signInCtaKey: 'partnerSignIn' },
-  { href: '/login?redirectTo=/admin', signInCtaKey: 'adminSignIn' },
+  { submenuKind: 'guestSignIn', href: '/login?redirectTo=/dashboard', signInCtaKey: 'memberSignIn' },
+  { submenuKind: 'guestSignIn', href: '/login?redirectTo=/counselor', signInCtaKey: 'counselorSignIn' },
+  { submenuKind: 'guestSignIn', href: '/login?redirectTo=/employer', signInCtaKey: 'employerSignIn' },
+  { submenuKind: 'guestSignIn', href: '/login?redirectTo=/partner', signInCtaKey: 'partnerSignIn' },
+  { submenuKind: 'guestSignIn', href: '/login?redirectTo=/admin', signInCtaKey: 'adminSignIn' },
 ];
 
-type PortalSubmenuItem =
-  | GuestLoginSubmenuItem
-  | { href: string; label: string };
+type PortalSubmenuItem = GuestLoginSubmenuItem | PortalLinkSubmenuItem;
 
 /** Partner-exclusive session: alternate sign-in shortcuts only */
 const PARTNER_EXCLUSIVE_LOGIN_SUBMENU: GuestLoginSubmenuItem[] =
@@ -128,7 +132,7 @@ export default function MainNav() {
   };
 
   const portalSubmenuLabel = (item: PortalSubmenuItem): string =>
-    'signInCtaKey' in item ? tCta(item.signInCtaKey) : translateLabel(item.label);
+    item.submenuKind === 'guestSignIn' ? tCta(item.signInCtaKey) : translateLabel(item.label);
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -182,15 +186,15 @@ export default function MainNav() {
           return;
         }
         const sub: PortalSubmenuItem[] = [
-          { href: '/dashboard', label: 'Member dashboard' },
+          { submenuKind: 'portalLink', href: '/dashboard', label: 'Member dashboard' },
         ];
         if (data.employer) {
-          sub.push({ href: '/employer', label: 'Employer portal' });
+          sub.push({ submenuKind: 'portalLink', href: '/employer', label: 'Employer portal' });
         }
         if (data.partner && data.superAdmin) {
-          sub.push({ href: '/partner', label: 'Partner portal' });
+          sub.push({ submenuKind: 'portalLink', href: '/partner', label: 'Partner portal' });
         }
-        sub.push({ href: '/dashboard/account', label: 'Account settings' });
+        sub.push({ submenuKind: 'portalLink', href: '/dashboard/account', label: 'Account settings' });
         setPortalState({
           primary: { href: '/dashboard', label: 'Account' },
           submenu: sub,

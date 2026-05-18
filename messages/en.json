@@ -907,7 +907,8 @@
     "inOfficeSessions": "In-Office Sessions",
     "walkInSession": "Walk-In Session",
     "notificationCenter": "Notification Center",
-    "notificationCenterSubtitle": "Stay updated on your members' activity"
+    "notificationCenterSubtitle": "Stay updated on your members' activity",
+    "counselor": "Counselor portal"
   },
   "workspace": {
     "publicSite": "WorkforceAP site",
@@ -1851,6 +1852,9 @@
     "applicantsFor": "Applicants",
     "applicant": "applicant",
     "applicants": "applicants",
+    "filtered": "filtered",
+    "companySettingsMetaTitle": "Company settings",
+    "companySettingsMetaDesc": "Manage your company profile, hiring contacts, and notification preferences.",
     "employerGuideMetaTitle": "How It Works for Employers",
     "employerGuideMetaDesc": "Access vetted, job-ready talent in a few simple steps.",
     "backToDashboard": "Back to dashboard",

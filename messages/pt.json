@@ -861,7 +861,11 @@
     "counselorResourcesTitle": "Recursos do conselheiro",
     "counselorResourcesSubtitle": "Contexto do programa, páginas para membros e ferramentas que você usa mais em sessões.",
     "counselingWorkflow": "Fluxo de aconselhamento",
-    "memberFacingReference": "Referência para membros"
+    "memberFacingReference": "Referência para membros",
+    "backToMembers": "Voltar aos membros",
+    "members": "Membros",
+    "memberDetails": "Detalhes do membro",
+    "startInOfficeSession": "Iniciar sessão presencial →"
   },
   "workspace": {
     "publicSite": "Site WorkforceAP",

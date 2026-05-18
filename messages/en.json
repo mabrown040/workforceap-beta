@@ -861,7 +861,11 @@
     "counselorResourcesTitle": "Counselor Resources",
     "counselorResourcesSubtitle": "Program context, member-facing pages, and tools you use most often in sessions.",
     "counselingWorkflow": "Counseling Workflow",
-    "memberFacingReference": "Member-Facing Reference"
+    "memberFacingReference": "Member-Facing Reference",
+    "backToMembers": "Back to members",
+    "members": "Members",
+    "memberDetails": "Member details",
+    "startInOfficeSession": "Start in-office session →"
   },
   "workspace": {
     "publicSite": "WorkforceAP site",

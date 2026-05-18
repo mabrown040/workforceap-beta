@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { notFound, redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
@@ -61,6 +62,8 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     isAdmin(user.id),
   ]);
   if (!counselor && !adminUser) redirect('/dashboard');
+
+  const t = await getTranslations('counselor');
 
   const member = await prisma.user.findFirst({
     where: { id: memberId, deletedAt: null },
@@ -757,14 +760,14 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             href="/counselor/students"
             style={{ color: 'var(--color-accent)', marginBottom: '1rem', display: 'inline-block' }}
           >
-            ← Back to members
+            ← {t('backToMembers')}
           </Link>
           <PageHeader
             title={member.fullName}
             subtitle={member.email}
             breadcrumbs={[
-              { label: 'Members', href: '/counselor/students' },
-              { label: 'Member details' },
+              { label: t('members'), href: '/counselor/students' },
+              { label: t('memberDetails') },
             ]}
             action={
               <Link
@@ -772,7 +775,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 className="btn btn-primary"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
               >
-                Start in-office session →
+                {t('startInOfficeSession')}
               </Link>
             }
           />

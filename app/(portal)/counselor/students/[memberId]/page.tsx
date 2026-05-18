@@ -475,7 +475,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                       <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
                         Grade (avg, scored courses)
                       </span>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-blue)' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-info-on-surface)' }}>
                         {trainingView.averageGradePercentDisplay}%
                       </span>
                     </div>

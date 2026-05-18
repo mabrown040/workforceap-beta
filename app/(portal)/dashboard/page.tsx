@@ -642,7 +642,7 @@ async function renderMemberDashboard(
             style={{
               borderRadius: '1.5rem',
               padding: '1rem',
-              background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 7%, white) 0%, white 52%)',
+              background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 7%, var(--surface-container-lowest)) 0%, var(--surface-container-lowest) 52%)',
               border: '1px solid color-mix(in srgb, var(--color-accent) 14%, var(--outline-variant))',
               boxShadow: '0 16px 40px rgba(17, 24, 39, 0.08)',
               overflow: 'hidden',
@@ -664,7 +664,7 @@ async function renderMemberDashboard(
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.9rem', position: 'relative' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1, minWidth: 0, paddingRight: '0.25rem' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', alignSelf: 'flex-start', padding: '0.35rem 0.55rem', borderRadius: '999px', background: 'rgba(255,255,255,0.8)', border: '1px solid var(--outline-variant)' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', alignSelf: 'flex-start', padding: '0.35rem 0.55rem', borderRadius: '999px', background: 'color-mix(in srgb, var(--surface-container-lowest) 80%, transparent)', border: '1px solid var(--outline-variant)' }}>
                   <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.625rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0 }}>
                     {formatPortalDate(new Date())}
                   </p>
@@ -678,7 +678,7 @@ async function renderMemberDashboard(
                   </h2>
                 </div>
                 {program && (
-                  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', maxWidth: '100%', padding: '0.5rem 0.7rem', borderRadius: '0.9rem', background: 'rgba(255,255,255,0.9)', border: '1px solid color-mix(in srgb, var(--color-accent) 10%, var(--outline-variant))' }}>
+                  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', maxWidth: '100%', padding: '0.5rem 0.7rem', borderRadius: '0.9rem', background: 'color-mix(in srgb, var(--surface-container-lowest) 90%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 10%, var(--outline-variant))' }}>
                     <p style={{ fontSize: '0.76rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.35, fontWeight: 600 }}>
                       {program.title}
                     </p>
@@ -714,8 +714,8 @@ async function renderMemberDashboard(
                       gap: '0.35rem',
                       padding: '0.65rem 0.5rem',
                       borderRadius: '1rem',
-                      background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 12%, white) 0%, white 100%)',
-                      border: '1px solid color-mix(in srgb, var(--color-accent) 22%, white)',
+                      background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 12%, var(--surface-container-lowest)) 0%, var(--surface-container-lowest) 100%)',
+                      border: '1px solid color-mix(in srgb, var(--color-accent) 22%, var(--outline-variant))',
                       boxShadow: '0 10px 28px color-mix(in srgb, var(--color-accent) 12%, transparent)',
                       textDecoration: 'none',
                       color: 'inherit',
@@ -743,7 +743,7 @@ async function renderMemberDashboard(
             </div>
 
             {(dashboardState === 'C' || dashboardState === 'D') && (
-            <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, white)' }}>
+            <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, var(--surface-container-lowest))' }}>
               <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
                 {t('dashboardCourseProgressOnTraining')}
               </p>

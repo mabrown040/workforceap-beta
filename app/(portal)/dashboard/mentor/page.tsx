@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -6,11 +7,12 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Mentor Dashboard',
-  description: 'Manage your upcoming mentor sessions and availability.',
-  path: '/dashboard/mentor',
-});
+    title: t('mentorMetaTitle'),
+    description: t('mentorMetaDesc'),
+    path: '/dashboard/mentor',
+  });
 }
 
 export default async function MentorDashboardPage() {

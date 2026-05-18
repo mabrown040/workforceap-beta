@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -14,9 +15,10 @@ import {
 } from '@/lib/member/pointsConfig';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-    title: 'Your Points',
-    description: 'Track your points, level, and learn how to earn more.',
+    title: t('pointsMetaTitle'),
+    description: t('pointsMetaDesc'),
     path: '/dashboard/points',
   });
 }

@@ -376,7 +376,29 @@
     "skillMapperMetaTitle": "Skill Mapper",
     "skillMapperMetaDesc": "Explore occupation skills from O*NET. Visualize competency radar charts and top skills for any career path.",
     "voiceInterviewMetaTitle": "Voice Job/Role Interviewer",
-    "voiceInterviewMetaDesc": "Practice a live voice mock interview for a specific job or role, with optional camera recording and real-time coaching feedback."
+    "voiceInterviewMetaDesc": "Practice a live voice mock interview for a specific job or role, with optional camera recording and real-time coaching feedback.",
+    "assessmentMetaTitle": "Skills Snapshot",
+    "assessmentMetaDesc": "A quick 10-minute skills snapshot before your Coursera courses are activated.",
+    "programMetaTitle": "My Program",
+    "programMetaDesc": "View or select your enrolled program.",
+    "mentorMetaTitle": "Mentor Dashboard",
+    "mentorMetaDesc": "Manage your upcoming mentor sessions and availability.",
+    "pointsMetaTitle": "Your Points",
+    "pointsMetaDesc": "Track your points, level, and learn how to earn more.",
+    "guideMetaTitle": "Member guide",
+    "guideMetaDesc": "Your step-by-step guide to getting from enrolled to employed with WorkforceAP.",
+    "helpMetaTitle": "Help & Support",
+    "helpMetaDesc": "Get support and request access to member benefits.",
+    "resourcesMetaTitle": "Program Resources",
+    "resourcesMetaDesc": "AI career tools, external guides, and program-specific resources for your track.",
+    "weeklyRecapMetaTitle": "Weekly Recap",
+    "weeklyRecapMetaDesc": "Your personalized weekly summary and next actions.",
+    "careerLibraryMetaTitle": "Career Resources",
+    "careerLibraryMetaDesc": "Practical job-seeker resources by career stage. Resume, interviewing, career planning, AI skills, and job search.",
+    "jobApplicationsMetaTitle": "Application tracker",
+    "jobApplicationsMetaDesc": "Track your job applications and interview progress from the Jobs workflow.",
+    "readinessMetaTitle": "Job Readiness Checklist",
+    "readinessMetaDesc": "Track your progress toward being job-ready."
   },
   "apply": {
     "step1": "Informações pessoais",
@@ -1969,5 +1991,9 @@
       "and": "and",
       "commsConsent": "I agree to receive program updates and communications via email"
     }
+  },
+  "applications": {
+    "applicationsMetaTitle": "Job Applications",
+    "applicationsMetaDesc": "Track your job applications and interview progress."
   }
 }

@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -19,11 +20,12 @@ import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { formatDate } from '@/lib/i18n/date';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'My Program',
-  description: 'View or select your enrolled program.',
-  path: '/dashboard/program',
-});
+    title: t('programMetaTitle'),
+    description: t('programMetaDesc'),
+    path: '/dashboard/program',
+  });
 }
 
 export default async function ProgramPage() {

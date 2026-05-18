@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -6,11 +7,12 @@ import { getUser } from '@/lib/auth/server';
 import PageHeader from '@/components/portal/PageHeader';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Help & Support',
-  description: 'Get support and request access to member benefits.',
-  path: '/dashboard/help',
-});
+    title: t('helpMetaTitle'),
+    description: t('helpMetaDesc'),
+    path: '/dashboard/help',
+  });
 }
 
 const HELP_ITEMS = [

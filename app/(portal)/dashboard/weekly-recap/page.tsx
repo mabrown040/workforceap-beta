@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -7,11 +8,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import WeeklyRecapClient from '@/components/portal/WeeklyRecapClient';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Weekly Recap',
-  description: 'Your personalized weekly summary and next actions.',
-  path: '/dashboard/weekly-recap',
-});
+    title: t('weeklyRecapMetaTitle'),
+    description: t('weeklyRecapMetaDesc'),
+    path: '/dashboard/weekly-recap',
+  });
 }
 
 function getWeekStart(date: Date): Date {

@@ -1,14 +1,16 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('applications');
   return buildPageMetadataAsync({
-  title: 'Job Applications',
-  description: 'Track your job applications and interview progress.',
-  path: '/applications',
-});
+    title: t('applicationsMetaTitle'),
+    description: t('applicationsMetaDesc'),
+    path: '/applications',
+  });
 }
 
 export default async function ApplicationsPage() {

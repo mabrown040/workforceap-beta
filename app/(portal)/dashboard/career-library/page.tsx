@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -10,11 +11,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import ResourcesClient from '@/app/(portal)/resources/ResourcesClient';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Career Resources',
-  description: 'Practical job-seeker resources by career stage. Resume, interviewing, career planning, AI skills, and job search.',
-  path: '/dashboard/career-library',
-});
+    title: t('careerLibraryMetaTitle'),
+    description: t('careerLibraryMetaDesc'),
+    path: '/dashboard/career-library',
+  });
 }
 
 export default async function DashboardCareerLibraryPage() {

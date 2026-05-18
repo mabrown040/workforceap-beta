@@ -124,13 +124,20 @@ export default function DataRetentionClient({
         <button
           onClick={runCleanup}
           disabled={running}
+          aria-busy={running}
           className="btn btn-primary"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
-            cleaning_services
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '1rem', animation: running ? 'spin 1s linear infinite' : 'none' }}
+            aria-hidden="true"
+          >
+            {running ? 'progress_activity' : 'cleaning_services'}
           </span>
-          {running ? 'Running…' : 'Run Cleanup Now'}
+          <span aria-live="polite">
+            {running ? 'Running…' : 'Run Cleanup Now'}
+          </span>
         </button>
       </div>
 

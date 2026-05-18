@@ -1,5 +1,6 @@
 'use client';
 
+import { fetchAuth } from '@/lib/fetchWithTimeout';
 import { useState, useEffect } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
@@ -22,7 +23,7 @@ export default function VerifyMfaPage() {
     const destination = getMfaNextPath();
     setNextPath(destination);
 
-    fetch('/api/auth/check-mfa-required')
+    fetchAuth('/api/auth/check-mfa-required')
       .then(async (r) => {
         const data = await r.json().catch(() => ({}));
         if (!r.ok) {
@@ -48,7 +49,7 @@ export default function VerifyMfaPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/verify-mfa', {
+      const res = await fetchAuth('/api/auth/verify-mfa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, trustDevice }),

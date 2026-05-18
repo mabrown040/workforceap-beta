@@ -23,6 +23,7 @@ import StartTourButton from "@/components/onboarding/StartTourButton";
 import LanguageToggle from "@/components/portal/LanguageToggle";
 import DownloadMyDataButton from "@/components/portal/DownloadMyDataButton";
 import MemberFeedbackButton from '@/components/portal/MemberFeedbackButton';
+import ThemeSelector from '@/components/theme/ThemeSelector';
 import {
   getCounselorStarterProfileReview,
   getStarterProfileFieldLabels,

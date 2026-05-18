@@ -1,5 +1,6 @@
 'use client';
 
+import { fetchAuth } from '@/lib/fetchWithTimeout';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -261,7 +262,7 @@ export default function SignupForm({ initialRedirectTo = '/dashboard' }: SignupF
         /* ignore */
       }
 
-      const res = await fetch('/api/member/signup', {
+      const res = await fetchAuth('/api/member/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...data, referralRef }),

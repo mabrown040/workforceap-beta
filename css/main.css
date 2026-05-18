@@ -7320,8 +7320,8 @@ body { animation: fadeIn 0.4s ease; }
     gap: 0.75rem;
     margin-top: 1.25rem;
 }
-.apply-step1-actions__primary { width: 100%; min-height: 48px; font-weight: 700; }
-.apply-step1-actions__secondary { width: 100%; min-height: 48px; }
+.apply-step1-actions__primary { width: 100%; min-height: var(--btn-min-height); font-weight: 700; }
+.apply-step1-actions__secondary { width: 100%; min-height: var(--btn-min-height); }
 .apply-save-notice {
     font-size: 0.9rem;
     color: var(--color-on-surface-variant);

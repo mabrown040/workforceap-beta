@@ -9,7 +9,7 @@ import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dy
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 
 import { getTranslations } from 'next-intl/server';
-import { marketingButtonClasses, marketingNumPillClasses } from '@/lib/marketing/buttonClasses';
+import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 const LanguageToggle = dynamic(() => import('@/components/portal/LanguageToggle'));
@@ -177,14 +177,9 @@ export default async function HomePage() {
             {([t('heroStep1'), t('heroStep2'), t('heroStep3')] as const).map((step, index) => (
               <div
                 key={index}
-                className={marketingButtonClasses({
-                  variant: 'secondary',
-                  radius: 'full',
-                  onDarkSecondary: true,
-                  className: 'marketing-hero-step-pill',
-                })}
+                className={marketingButtonPresets.heroStepCapsuleOnDark('marketing-hero-step-pill')}
               >
-                <span className={marketingNumPillClasses({ className: 'marketing-hero-step-pill__index' })}>
+                <span className={marketingButtonPresets.stepNumPill('marketing-hero-step-pill__index')}>
                   {index + 1}
                 </span>
                 <span className="marketing-hero-step-pill__label">{step}</span>
@@ -195,36 +190,19 @@ export default async function HomePage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
             <LocalizedLinkServer
               href="/apply"
-              className={marketingButtonClasses({
-                variant: 'primary',
-                radius: 'lg',
-                large: true,
-                className: 'home-hero__cta-primary',
-              })}
+              className={marketingButtonPresets.heroPrimary('home-hero__cta-primary')}
             >
               {t('heroCtaPrimary')}
             </LocalizedLinkServer>
             <LocalizedLinkServer
               href="/find-your-path"
-              className={marketingButtonClasses({
-                variant: 'secondary',
-                radius: 'lg',
-                large: true,
-                onDarkSecondary: true,
-                className: 'home-hero__cta-secondary home-hero-secondary-cta',
-              })}
+              className={marketingButtonPresets.heroSecondaryOnDark('home-hero__cta-secondary home-hero-secondary-cta')}
             >
               {t('heroCta')}
             </LocalizedLinkServer>
             <LocalizedLinkServer
               href="/programs"
-              className={marketingButtonClasses({
-                variant: 'ghost',
-                radius: 'md',
-                large: true,
-                onDarkGhost: true,
-                className: 'home-hero__cta-ghost',
-              })}
+              className={marketingButtonPresets.heroGhostOnDark('home-hero__cta-ghost')}
             >
               {t('browsePrograms')}
             </LocalizedLinkServer>

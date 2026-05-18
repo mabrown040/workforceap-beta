@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
-import { marketingPrimaryButtonClasses } from '@/lib/marketing/buttonClasses';
+import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
@@ -273,7 +273,7 @@ export default function EmployerContactForm() {
       ) : null}
       <button
         type="submit"
-        className={marketingPrimaryButtonClasses({ radius: 'md', className: 'btn-full-width' })}
+        className={marketingButtonPresets.formSubmitPrimary('btn-full-width')}
         disabled={status === 'sending'}
       >
         {status === 'sending' ? 'Sending…' : 'Submit employer intake'}

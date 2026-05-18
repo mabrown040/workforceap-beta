@@ -6,7 +6,7 @@ import ThemeToggle from '@/components/theme/ThemeToggle';
 import LanguageToggle from '@/components/portal/LanguageToggle';
 import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
-import { marketingPrimaryButtonClasses } from '@/lib/marketing/buttonClasses';
+import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { usePathname } from 'next/navigation';
 import { splitLocalePrefix } from '@/lib/i18n/config';
 import { useState, useEffect, useCallback, useRef, useId } from 'react';
@@ -435,7 +435,7 @@ export default function MainNav() {
             <LocalizedLink
               href="/apply"
               prefetch={true}
-              className={marketingPrimaryButtonClasses({ radius: 'md', className: 'nav-cta' })}
+              className={marketingButtonPresets.navApplyCta()}
               onClick={closeMobile}
             >
               {translateLabel('Apply Now')}

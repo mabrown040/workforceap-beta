@@ -1,6 +1,6 @@
 'use client';
 
-import { marketingPrimaryButtonClasses } from '@/lib/marketing/buttonClasses';
+import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -234,9 +234,7 @@ export default function PlacementSurveyForm({
 
       <button
         type="submit"
-        className={marketingPrimaryButtonClasses({
-          radius: 'md',
-        })}
+        className={marketingButtonPresets.formSubmitPrimary()}
         disabled={submitStatus === 'loading'}
         aria-busy={submitStatus === 'loading'}
       >

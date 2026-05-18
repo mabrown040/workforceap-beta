@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { marketingNumPillClasses } from '@/lib/marketing/buttonClasses';
+import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 
 interface ProcessStepProps {
   step: string;
@@ -13,7 +13,9 @@ export function ProcessStep({ step, icon, title, description, centered = false }
   return (
     <div style={{ textAlign: centered ? 'center' : 'left', padding: '0 1rem', position: 'relative', zIndex: 1 }}>
       <div
-        className={`${marketingNumPillClasses()} marketing-process-step__badge${centered ? ' marketing-process-step__badge--centered' : ' marketing-process-step__badge--left'}`}
+        className={marketingButtonPresets.stepNumPill(
+          `marketing-process-step__badge${centered ? ' marketing-process-step__badge--centered' : ' marketing-process-step__badge--left'}`,
+        )}
       >
         {step}
       </div>

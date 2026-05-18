@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
 import { trackApplyFunnel } from '@/lib/analytics/events';
+import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { APPLY_FLOW_DRAFT_KEY, type ApplyFlowDraftV1 } from '@/lib/apply/applyProgramStorage';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
@@ -388,10 +389,10 @@ export default function ApplyEligibilityClient() {
         )}
 
         <div className="apply-step1-actions">
-          <button type="submit" className="btn btn-primary apply-step1-actions__primary">
+          <button type="submit" className={marketingButtonPresets.formSubmitPrimary('apply-step1-actions__primary')}>
             {t('continueToPrograms')}
           </button>
-          <button type="button" className="btn btn-outline apply-step1-actions__secondary" onClick={handleSaveLater}>
+          <button type="button" className={marketingButtonPresets.formOutlineSecondary('apply-step1-actions__secondary')} onClick={handleSaveLater}>
             {t('saveContinueLater')}
           </button>
         </div>

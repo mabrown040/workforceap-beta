@@ -363,11 +363,11 @@ export default async function CounselorStudentsPage() {
                       <p style={{ margin: '0 0 0.2rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
                         {action.member.fullName ?? t('member')}
                       </p>
-                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-amber)' }}>{action.title}</p>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-marketing-gold-on-light)' }}>{action.title}</p>
                       <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)' }}>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-marketing-gold-on-light)' }}>
                         {formatHotQueueTime(action.createdAt, t)}
                       </p>
                       <span className="btn btn-primary btn-sm">{t('openMember')}</span>

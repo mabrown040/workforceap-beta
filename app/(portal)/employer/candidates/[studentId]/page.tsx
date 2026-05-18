@@ -191,7 +191,7 @@ export default async function EmployerCandidateProfilePage({
                 ))}
               </div>
               {selectedMatch ? (
-                <div style={{ padding: '0.85rem', borderRadius: '0.75rem', background: 'color-mix(in srgb, var(--color-accent) 8%, white)' }}>
+                <div style={{ padding: '0.85rem', borderRadius: '0.75rem', background: 'color-mix(in srgb, var(--color-accent) 8%, var(--surface-container-lowest))' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', alignItems: 'flex-start' }}>
                     <div style={{ minWidth: 0 }}>
                       <p style={{ margin: 0, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
@@ -459,7 +459,7 @@ export default async function EmployerCandidateProfilePage({
                     ) : null}
                   </div>
                   {selectedMatch ? (
-                    <div style={{ minWidth: '8.5rem', padding: '0.9rem 1rem', borderRadius: '0.9rem', background: 'color-mix(in srgb, var(--color-accent) 10%, white)' }}>
+                    <div style={{ minWidth: '8.5rem', padding: '0.9rem 1rem', borderRadius: '0.9rem', background: 'color-mix(in srgb, var(--color-accent) 10%, var(--surface-container-lowest))' }}>
                       <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-accent)' }}>{topMatchPct}%</div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>top match</div>
                     </div>

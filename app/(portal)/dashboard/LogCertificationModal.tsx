@@ -44,7 +44,7 @@ export default function LogCertificationModal() {
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '0.9rem',
-          background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 7%, white) 0%, white 100%)',
+          background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 7%, var(--surface-container-lowest)) 0%, var(--surface-container-lowest) 100%)',
           border: '1px solid color-mix(in srgb, var(--color-accent) 12%, var(--outline-variant))',
         }}
       >

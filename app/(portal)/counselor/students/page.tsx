@@ -327,7 +327,7 @@ export default async function CounselorStudentsPage() {
               style={{
                 padding: '1.25rem',
                 border: '1px solid color-mix(in srgb, var(--color-amber) 40%, transparent)',
-                background: 'linear-gradient(180deg, var(--color-amber-light) 0%, #ffffff 100%)',
+                background: 'linear-gradient(180deg, var(--color-amber-light) 0%, var(--surface-container-lowest) 100%)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.875rem' }}>
@@ -356,7 +356,7 @@ export default async function CounselorStudentsPage() {
                       border: '1px solid color-mix(in srgb, var(--color-amber) 15%, transparent)',
                       borderRadius: '0.9rem',
                       padding: '0.9rem 1rem',
-                      background: '#fff',
+                      background: 'var(--surface-container-lowest)',
                     }}
                   >
                     <div style={{ minWidth: 0 }}>

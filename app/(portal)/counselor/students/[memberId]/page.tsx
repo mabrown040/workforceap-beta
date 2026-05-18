@@ -353,7 +353,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         <div style={{ padding: '1rem' }}>
           <div
             style={{
-              background: '#fff',
+              background: 'var(--surface-container-lowest)',
               borderRadius: '1rem',
               padding: '1.25rem',
               border: '1px solid var(--outline-variant)',
@@ -444,7 +444,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         <div style={{ padding: '0 1rem 1rem' }}>
           <div
             style={{
-              background: '#fff',
+              background: 'var(--surface-container-lowest)',
               borderRadius: '0.75rem',
               padding: '1.25rem',
               border: '1px solid var(--outline-variant)',
@@ -519,7 +519,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           <div style={{ padding: '0 1rem 1rem' }}>
             <div
               style={{
-                background: '#fff',
+                background: 'var(--surface-container-lowest)',
                 borderRadius: '0.75rem',
                 padding: '1.25rem',
                 border: '1px solid var(--outline-variant)',
@@ -575,7 +575,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         <div style={{ padding: '0 1rem 1rem' }}>
           <div
             style={{
-              background: '#fff',
+              background: 'var(--surface-container-lowest)',
               borderRadius: '0.75rem',
               padding: '1.25rem',
               border: '1px solid var(--outline-variant)',
@@ -647,7 +647,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         <div style={{ padding: '0 1rem 1.5rem' }}>
           <div
             style={{
-              background: '#fff',
+              background: 'var(--surface-container-lowest)',
               borderRadius: '0.75rem',
               padding: '1.25rem',
               border: '1px solid var(--outline-variant)',
@@ -664,7 +664,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         <div style={{ padding: '0 1rem 1.5rem' }}>
           <div
             style={{
-              background: '#fff',
+              background: 'var(--surface-container-lowest)',
               borderRadius: '0.75rem',
               padding: '1.25rem',
               border: '1px solid var(--outline-variant)',

@@ -101,7 +101,6 @@ help_outline
 history
 history_edu
 home
-home_work
 hourglass_empty
 how_to_reg
 hub
@@ -114,7 +113,6 @@ library_books
 lightbulb
 link
 local_fire_department
-local_hospital
 location_city
 location_on
 lock
@@ -123,7 +121,6 @@ mail
 manage_accounts
 mark_email_read
 mark_email_unread
-medical_services
 memory
 menu_book
 merge_type
@@ -149,9 +146,7 @@ piano
 picture_as_pdf
 play_arrow
 play_circle
-policy
 post_add
-precision_manufacturing
 priority_high
 progress_activity
 psychology
@@ -169,7 +164,6 @@ report
 restart_alt
 rocket_launch
 route
-salesforce
 save
 schedule
 schedule_send
@@ -184,7 +178,6 @@ shield
 shield_person
 smart_toy
 sort
-speed
 stars
 stop_circle
 summarize

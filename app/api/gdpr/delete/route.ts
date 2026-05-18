@@ -14,6 +14,14 @@ export const POST = withApiGuc(async (request: Request) => {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  if (!user.email) {
+    // Password re-authentication requires an email on the account.
+    // Accounts without an email (e.g. phone-only auth) must use a different deletion flow.
+    return NextResponse.json(
+      { error: 'Account has no email on file; password re-authentication is not possible.' },
+      { status: 400 },
+    );
+  }
 
   let body: { password?: string };
   try {

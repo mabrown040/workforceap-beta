@@ -1739,7 +1739,11 @@
     "backToJobs": "Voltar para vagas",
     "pipelineNew": "Novo",
     "pipelineContact": "Contato",
-    "noProgram": "Sem programa"
+    "noProgram": "Sem programa",
+    "postNewJobMetaTitle": "Publicar nova vaga",
+    "postNewJobMetaDesc": "Crie uma nova publicação de vaga.",
+    "createJobPosting": "Criar Publicação de Vaga",
+    "createJobDesc": "Crie uma publicação de vaga. Salve como rascunho ou envie para revisão do administrador."
   },
   "auth": {
     "login": {

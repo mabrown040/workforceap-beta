@@ -1739,7 +1739,11 @@
     "backToJobs": "Retour aux emplois",
     "pipelineNew": "Nouveau",
     "pipelineContact": "Contact",
-    "noProgram": "Aucun programme"
+    "noProgram": "Aucun programme",
+    "postNewJobMetaTitle": "Publier une nouvelle offre",
+    "postNewJobMetaDesc": "Créez une nouvelle offre d'emploi.",
+    "createJobPosting": "Créer une offre d'emploi",
+    "createJobDesc": "Créez une offre d'emploi. Enregistrez comme brouillon ou soumettez pour révision administrative."
   },
   "auth": {
     "login": {

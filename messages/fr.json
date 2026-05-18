@@ -1726,7 +1726,11 @@
     "employerMessagesMetaTitle": "Messages",
     "employerMessagesMetaDesc": "Message candidates and the WorkforceAP team.",
     "employerMessagesSubtitleMobile": "Candidates and WorkforceAP team",
-    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring."
+    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring.",
+    "employerWorkQueueMetaTitle": "File de travail employeur",
+    "employerWorkQueueMetaDesc": "Actions de recrutement prioritaires et files d'attente de type SLA.",
+    "workQueue": "File de travail",
+    "employerWorkQueueSubtitle": "À réviser aujourd'hui, candidatures obsolètes et suivis d'entretiens — avec déplacements en un clic lorsque c'est sûr."
   },
   "auth": {
     "login": {

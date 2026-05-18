@@ -1726,7 +1726,11 @@
     "employerMessagesMetaTitle": "Messages",
     "employerMessagesMetaDesc": "Message candidates and the WorkforceAP team.",
     "employerMessagesSubtitleMobile": "Candidates and WorkforceAP team",
-    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring."
+    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring.",
+    "employerWorkQueueMetaTitle": "Fila de trabalho do empregador",
+    "employerWorkQueueMetaDesc": "Ações de contratação priorizadas e filas estilo SLA.",
+    "workQueue": "Fila de trabalho",
+    "employerWorkQueueSubtitle": "Necessita revisão hoje, candidaturas obsoletas e acompanhamentos de entrevistas — com movimentos de um clique onde for seguro."
   },
   "auth": {
     "login": {

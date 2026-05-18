@@ -1725,7 +1725,11 @@
     "employerMessagesMetaTitle": "Messages",
     "employerMessagesMetaDesc": "Message candidates and the WorkforceAP team.",
     "employerMessagesSubtitleMobile": "Candidates and WorkforceAP team",
-    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring."
+    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring.",
+    "employerWorkQueueMetaTitle": "Cola de trabajo del empleador",
+    "employerWorkQueueMetaDesc": "Acciones de contratación prioritarias y colas estilo SLA.",
+    "workQueue": "Cola de trabajo",
+    "employerWorkQueueSubtitle": "Necesita revisión hoy, solicitudes obsoletas y seguimientos de entrevistas — con movimientos de un clic donde sea seguro."
   },
   "auth": {
     "login": {

@@ -1725,7 +1725,11 @@
     "employerMessagesMetaTitle": "Messages",
     "employerMessagesMetaDesc": "Message candidates and the WorkforceAP team.",
     "employerMessagesSubtitleMobile": "Candidates and WorkforceAP team",
-    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring."
+    "employerMessagesSubtitleDesktop": "Chat with applicants, candidates, and the WorkforceAP team about jobs and hiring.",
+    "employerWorkQueueMetaTitle": "Employer work queue",
+    "employerWorkQueueMetaDesc": "Prioritized hiring actions and SLA-style queues.",
+    "workQueue": "Work Queue",
+    "employerWorkQueueSubtitle": "Needs review today, stale applications, and interview follow-ups — with one-click moves where safe."
   },
   "auth": {
     "login": {

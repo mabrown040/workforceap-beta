@@ -406,7 +406,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                       fontSize: '0.7rem',
                       fontWeight: 700,
                       background: 'color-mix(in srgb, #f59e0b 18%, transparent)',
-                      color: 'var(--color-marketing-gold-on-light)',
+                      color: 'var(--color-warning-on-surface)',
                       border: '1px solid color-mix(in srgb, #f59e0b 32%, transparent)',
                     }}
                   >
@@ -791,7 +791,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                     fontSize: '0.7rem',
                     fontWeight: 700,
                     background: 'color-mix(in srgb, #f59e0b 18%, transparent)',
-                    color: 'var(--color-marketing-gold-on-light)',
+                    color: 'var(--color-warning-on-surface)',
                     border: '1px solid color-mix(in srgb, #f59e0b 32%, transparent)',
                   }}
                 >

@@ -888,7 +888,14 @@
     "placed": "Placed",
     "failed": "Failed",
     "placementRecordedSuccess": "Placement recorded successfully!",
-    "failedToRecordPlacement": "Failed to record placement"
+    "failedToRecordPlacement": "Failed to record placement",
+    "triageQueueTitle": "Triage queue",
+    "triageQueueSubtitle": "Members the system thinks you should look at today, grouped by urgency. Flags are sourced from live activity, training progress, message threads, and milestone events.",
+    "triage": "Triage",
+    "couldntLoadTriageQueue": "Couldn't load triage queue",
+    "triageQueueLoadErrorDesc": "The queue data failed to load. This is a temporary issue — try refreshing the page.",
+    "queueIsClear": "Queue is clear",
+    "queueIsClearDesc": "No member matches any triage flag right now. The queue refreshes automatically as activity, messages, training, and milestones change."
   },
   "workspace": {
     "publicSite": "Site WorkforceAP",

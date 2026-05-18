@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
@@ -19,9 +20,9 @@ import { getProgramBySlug } from '@/lib/content/programs';
 export const dynamic = 'force-dynamic';
 
 const PRIORITY_DESCRIPTIONS = {
-  red: 'Urgent — requires action today.',
-  yellow: 'Watch — touch base this week.',
-  blue: 'Celebrate — reinforce a recent win.',
+  red: 'Urgent - requires action today.',
+  yellow: 'Watch - touch base this week.',
+  blue: 'Celebrate - reinforce a recent win.',
 } as const;
 
 const PRIORITY_COLORS = {
@@ -37,6 +38,8 @@ export default async function CounselorTriagePage() {
   const counselor = await isCounselor(user.id);
   const admin = await isAdmin(user.id);
   if (!counselor && !admin) redirect('/dashboard');
+
+  const t = await getTranslations('counselor');
 
   let queue: TriageQueue;
   let loadError = false;
@@ -69,11 +72,11 @@ export default async function CounselorTriagePage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Triage queue"
-        subtitle="Members the system thinks you should look at today, grouped by urgency. Flags are sourced from live activity, training progress, message threads, and milestone events."
+        title={t('triageQueueTitle')}
+        subtitle={t('triageQueueSubtitle')}
         breadcrumbs={[
-          { label: 'Counselor Portal', href: '/counselor' },
-          { label: 'Triage' },
+          { label: t('counselorPortal'), href: '/counselor' },
+          { label: t('triage') },
         ]}
       />
 
@@ -93,16 +96,16 @@ export default async function CounselorTriagePage() {
             }}
           >
             <p style={{ margin: 0, fontWeight: 600, color: 'var(--color-accent, #b00020)' }}>
-              Couldn’t load triage queue
+              {t('couldntLoadTriageQueue')}
             </p>
             <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-              The queue data failed to load. This is a temporary issue — try refreshing the page.
+              {t('triageQueueLoadErrorDesc')}
             </p>
           </div>
         ) : queue.totals.total === 0 ? (
           <PortalEmptyState
-            title="Queue is clear"
-            description="No member matches any triage flag right now. The queue refreshes automatically as activity, messages, training, and milestones change."
+            title={t('queueIsClear')}
+            description={t('queueIsClearDesc')}
             icon={
               <span
                 className="material-symbols-outlined"
@@ -112,8 +115,8 @@ export default async function CounselorTriagePage() {
                 done_all
               </span>
             }
-            primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-            secondaryAction={{ label: 'Back to Dashboard', href: '/counselor' }}
+            primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+            secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
           />
         ) : null}
       </section>

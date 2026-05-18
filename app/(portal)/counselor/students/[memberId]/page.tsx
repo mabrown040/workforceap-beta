@@ -405,9 +405,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                       borderRadius: '9999px',
                       fontSize: '0.7rem',
                       fontWeight: 700,
-                      background: 'color-mix(in srgb, #f59e0b 12%, transparent)',
-                      color: '#92400e',
-                      border: '1px solid color-mix(in srgb, #f59e0b 25%, transparent)',
+                      background: 'color-mix(in srgb, #f59e0b 18%, transparent)',
+                      color: 'var(--color-marketing-gold-on-light)',
+                      border: '1px solid color-mix(in srgb, #f59e0b 32%, transparent)',
                     }}
                   >
                     {bt.replace(/_/g, ' ')}
@@ -475,7 +475,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                       <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
                         Grade (avg, scored courses)
                       </span>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgb(79, 70, 229)' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-blue)' }}>
                         {trainingView.averageGradePercentDisplay}%
                       </span>
                     </div>
@@ -790,9 +790,9 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                     borderRadius: '9999px',
                     fontSize: '0.7rem',
                     fontWeight: 700,
-                    background: 'color-mix(in srgb, #f59e0b 12%, transparent)',
-                    color: '#92400e',
-                    border: '1px solid color-mix(in srgb, #f59e0b 25%, transparent)',
+                    background: 'color-mix(in srgb, #f59e0b 18%, transparent)',
+                    color: 'var(--color-marketing-gold-on-light)',
+                    border: '1px solid color-mix(in srgb, #f59e0b 32%, transparent)',
                   }}
                 >
                   {bt.replace(/_/g, ' ')}

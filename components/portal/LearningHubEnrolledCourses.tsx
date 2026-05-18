@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import TrainingCourseList from '@/components/portal/TrainingCourseList';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import type { ProgramCourse } from '@/lib/content/programs';
 
 type LearningHubEnrolledCoursesProps = {
@@ -27,39 +28,12 @@ export default function LearningHubEnrolledCourses({
   if (!programTitle || courses.length === 0) {
     return (
       <section style={wrapStyle}>
-        <div
-          className="wa-bg-[#f2eeed] md:wa-bg-[var(--surface-container)]"
-          style={{
-            padding: '1.25rem',
-            borderRadius: '0.75rem',
-            border: isMobile ? undefined : '1px solid var(--outline-variant)',
-          }}
-        >
-          <h3
-            className={isMobile ? 'wa-text-lg wa-font-bold wa-text-[#1c1b1b]' : undefined}
-            style={
-              isMobile
-                ? { marginBottom: '0.5rem' }
-                : { fontSize: 'var(--font-size-h4)', fontWeight: 'var(--font-weight-bold)', marginBottom: 'var(--space-2)' }
-            }
-          >
-            Enrolled classes
-          </h3>
-          <p
-            className={isMobile ? 'wa-text-sm wa-text-[#584144]' : undefined}
-            style={isMobile ? { marginBottom: '1rem' } : { color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}
-          >
-            When you enroll in a program, your Coursera course list appears here with progress. Choose a track on{' '}
-            <strong>My Program</strong> to get started.
-          </p>
-          <Link
-            href="/dashboard/program"
-            className={isMobile ? 'wa-inline-flex wa-items-center wa-gap-2 wa-bg-[#8c0f37] wa-text-white wa-font-semibold wa-px-4 wa-py-3 wa-rounded-lg' : 'btn btn-primary'}
-            style={isMobile ? { textDecoration: 'none' } : undefined}
-          >
-            Go to My Program
-          </Link>
-        </div>
+        <PortalEmptyState
+          title="No enrolled classes yet"
+          description="When you enroll in a program, your course list appears here with progress. Choose a track to get started."
+          icon={<span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">school</span>}
+          primaryAction={{ label: 'Go to My Program', href: '/dashboard/program' }}
+        />
       </section>
     );
   }

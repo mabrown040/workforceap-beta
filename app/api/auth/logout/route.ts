@@ -6,11 +6,24 @@ import { getAdminMfaTrustCookieName } from '@/lib/auth/mfaTrust';
 
 export async function POST(request: Request) {
   try {
-    // CSRF guard: reject cross-origin logout requests (AUDIT §H-S10).
+    // CSRF guard: when an Origin header is present, require its host to
+    // match the request's Host header. This is the textbook same-origin
+    // check — independent of NEXT_PUBLIC_SITE_URL, so it works under any
+    // deploy URL (apex vs www, preview vs prod, custom domains).
+    // Missing Origin is allowed: same-origin POSTs from older browsers
+    // and same-origin fetches via SameSite=Lax cookies often omit it,
+    // and a CSRF attacker cannot suppress Origin in a cross-site context.
     const origin = request.headers.get('origin');
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-    if (origin && siteUrl && !origin.startsWith(siteUrl)) {
-      return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
+    if (origin) {
+      const host = request.headers.get('host');
+      try {
+        const originHost = new URL(origin).host;
+        if (!host || originHost !== host) {
+          return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
+        }
+      } catch {
+        return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
+      }
     }
 
     const supabase = await createSupabaseServerClient();

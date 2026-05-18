@@ -10,13 +10,15 @@ import PageHeader from '@/components/portal/PageHeader';
 import EmployerMatchHistoryClient from '@/components/employer/EmployerMatchHistoryClient';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: 'Match history',
-  description: 'Suggested candidates and your hiring pipeline actions.',
-  path: '/employer/matches',
-});
+    title: t('matchHistoryMetaTitle'),
+    description: t('matchHistoryMetaDesc'),
+    path: '/employer/matches',
+  });
 }
 
 export default async function EmployerMatchesPage() {
@@ -25,6 +27,8 @@ export default async function EmployerMatchesPage() {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const matches = await prisma.aIJobMatch.findMany({
     take: 5000,
@@ -87,18 +91,18 @@ export default async function EmployerMatchesPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Match History"
+        title={t('matchHistory')}
         subtitle={
           <>
-            <span className="wa-block md:wa-hidden">Suggested candidates for your roles</span>
-            <span className="wa-hidden md:wa-block">Track suggested members and update your pipeline status as you move from outreach to hire.</span>
+            <span className="wa-block md:wa-hidden">{t('matchHistorySubtitleMobile')}</span>
+            <span className="wa-hidden md:wa-block">{t('matchHistorySubtitleDesktop')}</span>
           </>
         }
       />
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         {uniqueJobs.length > 1 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.75rem' }}>
-            <span className="stitch-badge stitch-badge--accent">All Roles</span>
+            <span className="stitch-badge stitch-badge--accent">{t('allRoles')}</span>
             {uniqueJobs.map(([jobId, title]) => (
               <span key={jobId} className="stitch-badge stitch-badge--subtle">{title}</span>
             ))}
@@ -108,10 +112,10 @@ export default async function EmployerMatchesPage() {
           {initialRows.length === 0 ? (
             <div className="portal-card portal-card--flat" style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '0.75rem' }}>auto_awesome</span>
-              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>No matches yet</p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>AI candidate matches will appear here once your jobs are live.</p>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>{t('noMatchesYet')}</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>{t('noMatchesDesc')}</p>
               <Link href="/employer/jobs/new" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>Post a Job
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>{t('postAJobBtn')}
               </Link>
             </div>
           ) : (
@@ -132,16 +136,16 @@ export default async function EmployerMatchesPage() {
                       {pct >= 60 ? (
                         <>
                           <div style={{ fontSize: '1rem', fontWeight: 800, color: matchScoreColor(pct), lineHeight: 1.2 }}>{pct}%</div>
-                          <div style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>match</div>
+                          <div style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t('match')}</div>
                         </>
                       ) : (
-                        <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', lineHeight: 1.3 }}>Possible<br />fit</div>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', lineHeight: 1.3 }}>{t('possibleFit')}</div>
                       )}
                     </div>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '0.5rem' }}>
-                    <Link href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`} style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} className="active:wa-scale-95 wa-transition-transform">View Profile</Link>
-                    <Link href="/employer/messages" style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} className="active:wa-scale-95 wa-transition-transform">Contact</Link>
+                    <Link href={`/employer/candidates/${row.studentId}?jobId=${encodeURIComponent(row.jobId)}`} style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: 'var(--surface-container)', color: 'var(--color-on-surface)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} className="active:wa-scale-95 wa-transition-transform">{t('viewProfile')}</Link>
+                    <Link href="/employer/messages" style={{ textAlign: 'center', padding: '0.75rem 0.5rem', background: 'var(--surface-container-low)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.775rem', fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} className="active:wa-scale-95 wa-transition-transform">{t('contact')}</Link>
                   </div>
                 </div>
               );
@@ -153,9 +157,9 @@ export default async function EmployerMatchesPage() {
         {initialRows.length === 0 ? (
           <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>auto_awesome</span>
-            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>No matches yet</h3>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>AI candidate matches will appear here once your jobs are live.</p>
-            <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Post your first job</Link>
+            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('noMatchesYet')}</h3>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>{t('noMatchesDesc')}</p>
+            <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>{t('postYourFirstJob')}</Link>
           </div>
         ) : (
           <EmployerMatchHistoryClient initialRows={initialRows} />

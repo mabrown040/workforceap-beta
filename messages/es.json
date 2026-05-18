@@ -1773,7 +1773,19 @@
     "jobDetailsMetaTitle": "Detalles del empleo",
     "jobDetailsMetaDesc": "Ver y editar detalles de la publicación de empleo.",
     "jobDetails": "Detalles del empleo",
-    "jobDetailsSubtitle": "Afina la publicación, corrige secciones débiles y mantén el pipeline de contratación en movimiento."
+    "jobDetailsSubtitle": "Afina la publicación, corrige secciones débiles y mantén el pipeline de contratación en movimiento.",
+    "matchHistoryMetaTitle": "Historial de coincidencias",
+    "matchHistoryMetaDesc": "Candidatos sugeridos y acciones de tu pipeline de contratación.",
+    "matchHistory": "Historial de coincidencias",
+    "matchHistorySubtitleMobile": "Candidatos sugeridos para tus roles",
+    "matchHistorySubtitleDesktop": "Rastrea miembros sugeridos y actualiza el estado de tu pipeline a medida que avanzas.",
+    "allRoles": "Todos los roles",
+    "noMatchesYet": "Aún no hay coincidencias",
+    "noMatchesDesc": "Las coincidencias de candidatos por IA aparecerán aquí una vez que tus empleos estén activos.",
+    "match": "coincidencia",
+    "possibleFit": "Posible ajuste",
+    "viewProfile": "Ver perfil",
+    "contact": "Contactar"
   },
   "auth": {
     "login": {

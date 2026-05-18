@@ -1773,7 +1773,19 @@
     "jobDetailsMetaTitle": "Job Details",
     "jobDetailsMetaDesc": "View and edit job posting details.",
     "jobDetails": "Job Details",
-    "jobDetailsSubtitle": "Tighten the posting, fix thin sections, and keep the hiring pipeline moving."
+    "jobDetailsSubtitle": "Tighten the posting, fix thin sections, and keep the hiring pipeline moving.",
+    "matchHistoryMetaTitle": "Match History",
+    "matchHistoryMetaDesc": "Suggested candidates and your hiring pipeline actions.",
+    "matchHistory": "Match History",
+    "matchHistorySubtitleMobile": "Suggested candidates for your roles",
+    "matchHistorySubtitleDesktop": "Track suggested members and update your pipeline status as you move from outreach to hire.",
+    "allRoles": "All Roles",
+    "noMatchesYet": "No matches yet",
+    "noMatchesDesc": "AI candidate matches will appear here once your jobs are live.",
+    "match": "match",
+    "possibleFit": "Possible fit",
+    "viewProfile": "View Profile",
+    "contact": "Contact"
   },
   "auth": {
     "login": {

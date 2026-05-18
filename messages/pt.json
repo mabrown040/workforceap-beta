@@ -1774,7 +1774,19 @@
     "jobDetailsMetaTitle": "Detalhes da vaga",
     "jobDetailsMetaDesc": "Ver e editar detalhes da publicação de vaga.",
     "jobDetails": "Detalhes da vaga",
-    "jobDetailsSubtitle": "Ajuste a publicação, corrija seções fracas e mantenha o pipeline de contratação em movimento."
+    "jobDetailsSubtitle": "Ajuste a publicação, corrija seções fracas e mantenha o pipeline de contratação em movimento.",
+    "matchHistoryMetaTitle": "Histórico de correspondências",
+    "matchHistoryMetaDesc": "Candidatos sugeridos e ações do seu pipeline de contratação.",
+    "matchHistory": "Histórico de correspondências",
+    "matchHistorySubtitleMobile": "Candidatos sugeridos para suas vagas",
+    "matchHistorySubtitleDesktop": "Acompanhe membros sugeridos e atualize o status do pipeline conforme avança.",
+    "allRoles": "Todos os cargos",
+    "noMatchesYet": "Ainda não há correspondências",
+    "noMatchesDesc": "As correspondências de candidatos por IA aparecerão aqui assim que suas vagas estiverem ativas.",
+    "match": "correspondência",
+    "possibleFit": "Ajuste possível",
+    "viewProfile": "Ver perfil",
+    "contact": "Contatar"
   },
   "auth": {
     "login": {

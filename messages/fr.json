@@ -1774,7 +1774,19 @@
     "jobDetailsMetaTitle": "Détails de l'offre",
     "jobDetailsMetaDesc": "Voir et modifier les détails de l'offre d'emploi.",
     "jobDetails": "Détails de l'offre",
-    "jobDetailsSubtitle": "Resserrez la publication, corrigez les sections faibles et gardez le pipeline de recrutement en mouvement."
+    "jobDetailsSubtitle": "Resserrez la publication, corrigez les sections faibles et gardez le pipeline de recrutement en mouvement.",
+    "matchHistoryMetaTitle": "Historique des correspondances",
+    "matchHistoryMetaDesc": "Candidats suggérés et actions de votre pipeline d'embauche.",
+    "matchHistory": "Historique des correspondances",
+    "matchHistorySubtitleMobile": "Candidats suggérés pour vos rôles",
+    "matchHistorySubtitleDesktop": "Suivez les membres suggérés et mettez à jour le statut de votre pipeline au fur et à mesure.",
+    "allRoles": "Tous les rôles",
+    "noMatchesYet": "Aucune correspondance pour l'instant",
+    "noMatchesDesc": "Les correspondances de candidats par IA apparaîtront ici une fois vos offres actives.",
+    "match": "correspondance",
+    "possibleFit": "Ajustement possible",
+    "viewProfile": "Voir le profil",
+    "contact": "Contacter"
   },
   "auth": {
     "login": {

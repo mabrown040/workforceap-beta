@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { notFound, redirect } from 'next/navigation';
@@ -33,11 +34,12 @@ const SessionRunClient = dynamic(() => import('@/components/portal/sessions/Sess
 });
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('counselor');
   return buildPageMetadataAsync({
-  title: 'Session run',
-  description: 'Build resume, cover letter, and interview prep with a member in one session.',
-  path: '/counselor/sessions',
-});
+    title: t('sessionRunMetaTitle'),
+    description: t('sessionRunMetaDesc'),
+    path: '/counselor/sessions',
+  });
 }
 
 type SearchParams = { sid?: string; fresh?: string };

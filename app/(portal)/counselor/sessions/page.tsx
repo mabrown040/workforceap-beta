@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -6,11 +7,12 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import SessionsIndexBody from '@/components/portal/sessions/SessionsIndexBody';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('counselor');
   return buildPageMetadataAsync({
-  title: 'In-office sessions',
-  description: 'Run a guided 30-minute session with a member. Build profile, resume, cover letter, and interview prep together.',
-  path: '/counselor/sessions',
-});
+    title: t('inOfficeSessionsMetaTitle'),
+    description: t('inOfficeSessionsMetaDesc'),
+    path: '/counselor/sessions',
+  });
 }
 
 /**

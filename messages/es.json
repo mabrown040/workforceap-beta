@@ -895,7 +895,19 @@
     "couldntLoadTriageQueue": "Couldn't load triage queue",
     "triageQueueLoadErrorDesc": "The queue data failed to load. This is a temporary issue — try refreshing the page.",
     "queueIsClear": "Queue is clear",
-    "queueIsClearDesc": "No member matches any triage flag right now. The queue refreshes automatically as activity, messages, training, and milestones change."
+    "queueIsClearDesc": "No member matches any triage flag right now. The queue refreshes automatically as activity, messages, training, and milestones change.",
+    "inOfficeSessionsMetaTitle": "In-office sessions",
+    "inOfficeSessionsMetaDesc": "Run a guided 30-minute session with a member. Build profile, resume, cover letter, and interview prep together.",
+    "sessionRunMetaTitle": "Session run",
+    "sessionRunMetaDesc": "Build resume, cover letter, and interview prep with a member in one session.",
+    "walkInSessionMetaTitle": "Walk-in session",
+    "walkInSessionMetaDesc": "Create a new member and run a guided 30-minute session — resume, cover letter, interview prep, all in one.",
+    "walkInSessionTitle": "Walk-In Session",
+    "walkInSessionSubtitle": "Brand new member sitting with you. Start with their basics — we'll create their account and walk through resume, cover letter, and interview prep together.",
+    "inOfficeSessions": "In-Office Sessions",
+    "walkInSession": "Walk-In Session",
+    "notificationCenter": "Notification Center",
+    "notificationCenterSubtitle": "Stay updated on your members' activity"
   },
   "workspace": {
     "publicSite": "Sitio de WorkforceAP",

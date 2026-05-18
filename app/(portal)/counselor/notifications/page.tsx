@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
@@ -29,9 +30,11 @@ export default async function CounselorNotificationsPage() {
     .filter(Boolean)
     .sort((a, b) => (a.fullName ?? '').localeCompare(b.fullName ?? ''));
 
+  const t = await getTranslations('counselor');
+
   return (
     <PortalPageFrame>
-      <PageHeader title="Notification Center" subtitle="Stay updated on your members' activity" />
+      <PageHeader title={t('notificationCenter')} subtitle={t('notificationCenterSubtitle')} />
       <CounselorNotificationCenter members={members} />
     </PortalPageFrame>
   );

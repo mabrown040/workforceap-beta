@@ -1,6 +1,8 @@
-import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { MEMBER_ONLY_EXCLUDED_EMAILS, MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import type { FunderProgramSummaryRow } from '@/lib/admin/funderProgramSummaryCsv';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { Prisma } from '@prisma/client';
+
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { THRESHOLDS } from '@/lib/member/atRiskScoring';
@@ -22,7 +24,7 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const [users, activeMembers, atRiskAlerts] = await Promise.all([
+  const [users, activeRows, atRiskByProgramRows] = await Promise.all([
     withTenantScope(orgId, (db) =>
       db.user.findMany({
         where: {
@@ -42,46 +44,32 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
         },
       }),
     ),
-    prisma.memberEvent.findMany({
-      take: 500,
-      where: {
-        createdAt: { gte: thirtyDaysAgo },
-        user: { organizationId: orgId },
-      },
-      distinct: ['userId'],
-      select: { userId: true },
-    }),
-    prisma.atRiskAlert.findMany({
-      take: 500,
-      where: {
-        status: { in: ['open', 'acknowledged'] },
-        score: { gte: THRESHOLDS.HIGH },
-        user: {
-          deletedAt: null,
-          enrolledProgram: { not: null },
-          organizationId: orgId,
-          ...MEMBER_ONLY_WHERE,
-        },
-      },
-      select: {
-        userId: true,
-        user: { select: { enrolledProgram: true } },
-      },
-    }),
+    prisma.$queryRaw<Array<{ user_id: string }>>`
+      SELECT DISTINCT me.user_id
+      FROM member_events me
+      INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
+      WHERE me.created_at >= ${thirtyDaysAgo}
+    `,
+    prisma.$queryRaw<Array<{ slug: string | null; cnt: number }>>`
+      SELECT u.enrolled_program AS slug, COUNT(DISTINCT a.user_id)::int AS cnt
+      FROM at_risk_alerts a
+      INNER JOIN users u ON u.id = a.user_id AND u.organization_id = ${orgId}
+      INNER JOIN profiles p ON p.user_id = u.id AND p.role = 'member'
+      WHERE a.status IN ('open', 'acknowledged')
+        AND a.score >= ${THRESHOLDS.HIGH}
+        AND u.deleted_at IS NULL
+        AND u.enrolled_program IS NOT NULL
+        AND u.email NOT IN (${Prisma.join([...MEMBER_ONLY_EXCLUDED_EMAILS])})
+      GROUP BY u.enrolled_program
+    `,
   ]);
 
-  const active30dSet = new Set(activeMembers.map((r) => r.userId));
+  const active30dSet = new Set(activeRows.map((r) => r.user_id));
 
-  const atRiskByProgram = new Map<string, Set<string>>();
-  for (const alert of atRiskAlerts) {
-    const slug = alert.user.enrolledProgram;
-    if (!slug) continue;
-    let set = atRiskByProgram.get(slug);
-    if (!set) {
-      set = new Set();
-      atRiskByProgram.set(slug, set);
-    }
-    set.add(alert.userId);
+  const atRiskByProgram = new Map<string, number>();
+  for (const row of atRiskByProgramRows) {
+    if (!row.slug) continue;
+    atRiskByProgram.set(row.slug, row.cnt);
   }
 
   type Agg = {
@@ -122,7 +110,7 @@ export async function getFunderProgramSummaryRows(orgId: string): Promise<{
 
   for (const slug of sortedSlugs) {
     const agg = aggBySlug.get(slug)!;
-    const atRisk = atRiskByProgram.get(slug)?.size ?? 0;
+    const atRisk = atRiskByProgram.get(slug) ?? 0;
     const completionPct =
       agg.totalEnrolled > 0 ? Math.round((agg.completed / agg.totalEnrolled) * 100) : 0;
     const placementPct =

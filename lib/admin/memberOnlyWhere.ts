@@ -1,6 +1,10 @@
 import type { Prisma } from '@prisma/client';
 
-const FIXTURE_EMAILS = ['member.success@workforceap.org', 'mbrown@hsconglomerates.com'];
+/** Fixture / demo accounts excluded from grant and funder aggregates. */
+export const MEMBER_ONLY_EXCLUDED_EMAILS = [
+  'member.success@workforceap.org',
+  'mbrown@hsconglomerates.com',
+] as const;
 
 /**
  * Strict member filter used by funder / grant exports (WIOA cohort CSV, etc.)
@@ -8,7 +12,7 @@ const FIXTURE_EMAILS = ['member.success@workforceap.org', 'mbrown@hsconglomerate
  */
 export const MEMBER_ONLY_WHERE = {
   profile: { role: 'member' },
-  email: { notIn: FIXTURE_EMAILS },
+  email: { notIn: [...MEMBER_ONLY_EXCLUDED_EMAILS] },
 } satisfies Prisma.UserWhereInput;
 
 /**
@@ -23,5 +27,5 @@ export const MEMBER_ONLY_WHERE = {
  */
 export const MEMBER_OR_DOGFOOD_WHERE = {
   profile: { role: { in: ['member', 'admin', 'super_admin'] } },
-  email: { notIn: FIXTURE_EMAILS },
+  email: { notIn: [...MEMBER_ONLY_EXCLUDED_EMAILS] },
 } satisfies Prisma.UserWhereInput;

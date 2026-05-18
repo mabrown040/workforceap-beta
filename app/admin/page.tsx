@@ -683,6 +683,28 @@ export default async function AdminPage() {
       <section className="md:wa-hidden" style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>
         <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]" style={{ marginBottom: '0.75rem' }}>Quick Actions</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <a
+            href="/api/admin/funder-program-summary"
+            className="active:scale-[0.97] wa-transition-transform"
+            style={{
+              gridColumn: '1 / -1',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              padding: '0.85rem 1rem',
+              borderRadius: '0.75rem',
+              textDecoration: 'none',
+              background: 'var(--surface-container-lowest)',
+              border: '1px solid var(--outline-variant)',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)' }} aria-hidden="true">
+              download
+            </span>
+            <span className="wa-text-[11px] wa-font-bold wa-text-[var(--color-on-surface)] wa-tracking-tight">Export funder CSV</span>
+          </a>
           {[
             { icon: 'people', label: 'All Members', href: '/admin/members' },
             { icon: 'business', label: 'Employers', href: '/admin/employers' },

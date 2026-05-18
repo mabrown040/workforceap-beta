@@ -8,11 +8,16 @@ export type ProgramsJourneyStep = 'quiz' | 'programs' | 'detail' | 'compare' | '
 
 function pathToStep(pathname: string | null): ProgramsJourneyStep {
   if (!pathname) return 'programs';
-  if (pathname === '/find-your-path') return 'quiz';
-  if (pathname === '/programs') return 'programs';
-  if (pathname.startsWith('/programs/')) return 'detail';
-  if (pathname === '/program-comparison') return 'compare';
-  if (pathname === '/salary-guide') return 'salary';
+  // Strip the next-intl locale prefix so /en/salary-guide matches the same
+  // step as /salary-guide. Without this, the production URLs (always locale-
+  // prefixed) never match any case and fall through to the 'programs' default
+  // — making "Browse Programs" appear active on every page.
+  const path = pathname.replace(/^\/(en|es|fr|pt)(?=\/|$)/, '');
+  if (path === '/find-your-path') return 'quiz';
+  if (path === '/programs') return 'programs';
+  if (path.startsWith('/programs/')) return 'detail';
+  if (path === '/program-comparison') return 'compare';
+  if (path === '/salary-guide') return 'salary';
   return 'programs';
 }
 
@@ -178,8 +183,13 @@ export default function ProgramsDecisionJourneyNav({
 
         @media (max-width: 639px) {
           .pdj-nav {
-            position: relative;
-            top: auto;
+            /* Keep the sticky + hide-on-scroll-down / show-on-scroll-up
+               behavior on mobile too. Previously this block set
+               position: relative which put the nav in document flow,
+               so the translateY(-120%) hide animation looked broken
+               (the nav would scroll out with the page and then jitter
+               on scroll-up). Now matches desktop: stick below the
+               main header and slide cleanly. */
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;

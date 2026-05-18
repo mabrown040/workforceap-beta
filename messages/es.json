@@ -1804,7 +1804,9 @@
     "backToDashboard": "Volver al panel",
     "employerGuideTitle": "Guía para empleadores",
     "employerGuideHeadline": "Cómo funciona WorkforceAP para empleadores",
-    "employerGuideBody": "Accede a talento verificado y listo para trabajar — en unos simples pasos."
+    "employerGuideBody": "Accede a talento verificado y listo para trabajar — en unos simples pasos.",
+    "importJobsMetaTitle": "Importar empleos",
+    "importJobsMetaDesc": "Importa publicaciones de empleo desde URLs, LinkedIn o páginas de carreras como borradores editables."
   },
   "auth": {
     "login": {

@@ -1805,7 +1805,9 @@
     "backToDashboard": "Retour au tableau de bord",
     "employerGuideTitle": "Guide employeur",
     "employerGuideHeadline": "Comment WorkforceAP fonctionne pour les employeurs",
-    "employerGuideBody": "Accédez à des talents vérifiés et prêts à travailler — en quelques étapes simples."
+    "employerGuideBody": "Accédez à des talents vérifiés et prêts à travailler — en quelques étapes simples.",
+    "importJobsMetaTitle": "Importer des offres",
+    "importJobsMetaDesc": "Importez des offres d'emploi depuis des URLs, LinkedIn ou des pages carrières comme brouillons modifiables."
   },
   "auth": {
     "login": {

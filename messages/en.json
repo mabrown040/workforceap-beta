@@ -1804,7 +1804,9 @@
     "backToDashboard": "Back to dashboard",
     "employerGuideTitle": "Employer Guide",
     "employerGuideHeadline": "How WorkforceAP Works for Employers",
-    "employerGuideBody": "Access vetted, job-ready talent — in a few simple steps."
+    "employerGuideBody": "Access vetted, job-ready talent — in a few simple steps.",
+    "importJobsMetaTitle": "Import jobs",
+    "importJobsMetaDesc": "Import job postings from URLs, LinkedIn, or careers pages as editable drafts."
   },
   "auth": {
     "login": {

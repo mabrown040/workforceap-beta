@@ -822,7 +822,14 @@
     "available": "Disponible",
     "messages": "Mensajes",
     "hotQueueHoursAgo": "{count}h",
-    "hotQueueDaysAgo": "{count}d"
+    "hotQueueDaysAgo": "{count}d",
+    "workQueueSubtitle": "Miembros esperando una respuesta por más de 24 horas. Ordenados del más antiguo al más reciente.",
+    "workQueueLoadError": "No se pudo cargar la cola de trabajo",
+    "workQueueLoadErrorDesc": "Algo salió mal al obtener la cola. Intenta refrescar la página.",
+    "retry": "Reintentar",
+    "workQueueEmptyDesc": "Ningún miembro está esperando más de 24 horas por una respuesta. Buen trabajo.",
+    "backToDashboard": "Volver al panel",
+    "workQueueMembersAwaiting": "{count} miembro{count, plural, =1 {} other {s}} esperando respuesta"
   },
   "workspace": {
     "publicSite": "Sitio de WorkforceAP",

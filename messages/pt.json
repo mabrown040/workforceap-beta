@@ -822,7 +822,14 @@
     "atRiskNoAlerts": "Nenhum alerta de risco no momento. Ótimo trabalho!",
     "atRiskRecentAlerts": "Alertas recentes",
     "atRiskSummaryTitle": "Alertas de Risco",
-    "atRiskViewAll": "Ver todos"
+    "atRiskViewAll": "Ver todos",
+    "workQueueSubtitle": "Membros aguardando uma resposta há mais de 24 horas. Ordenados do mais antigo ao mais recente.",
+    "workQueueLoadError": "Não foi possível carregar a fila de trabalho",
+    "workQueueLoadErrorDesc": "Algo deu errado ao buscar a fila. Tente atualizar a página.",
+    "retry": "Tentar novamente",
+    "workQueueEmptyDesc": "Nenhum membro está aguardando uma resposta há mais de 24 horas. Bom trabalho.",
+    "backToDashboard": "Voltar ao painel",
+    "workQueueMembersAwaiting": "{count} membro{count, plural, =1 {} other {s}} aguardando resposta"
   },
   "workspace": {
     "publicSite": "Site WorkforceAP",

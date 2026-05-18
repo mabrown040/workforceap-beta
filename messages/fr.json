@@ -822,7 +822,14 @@
     "atRiskNoAlerts": "Aucune alerte à risque pour le moment. Bon travail !",
     "atRiskRecentAlerts": "Alertes récentes",
     "atRiskSummaryTitle": "Alertes à risque",
-    "atRiskViewAll": "Voir tout"
+    "atRiskViewAll": "Voir tout",
+    "workQueueSubtitle": "Membres attendant une réponse depuis plus de 24 heures. Triés du plus ancien au plus récent.",
+    "workQueueLoadError": "Impossible de charger la file d'attente",
+    "workQueueLoadErrorDesc": "Une erreur s'est produite lors de la récupération de la file d'attente. Essayez d'actualiser la page.",
+    "retry": "Réessayer",
+    "workQueueEmptyDesc": "Aucun membre n'attend une réponse depuis plus de 24 heures. Bon travail.",
+    "backToDashboard": "Retour au tableau de bord",
+    "workQueueMembersAwaiting": "{count} membre{count, plural, =1 {} other {s}} en attente de réponse"
   },
   "workspace": {
     "publicSite": "Site WorkforceAP",

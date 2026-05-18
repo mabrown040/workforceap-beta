@@ -25,6 +25,7 @@ function getSystemTheme(): 'light' | 'dark' {
 
 function applyTheme(theme: Theme): void {
   const root = document.documentElement;
+  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   if (theme === 'dark') {
     root.classList.add('dark');
     root.setAttribute('data-theme', 'dark');
@@ -32,7 +33,9 @@ function applyTheme(theme: Theme): void {
     root.classList.remove('dark');
     root.setAttribute('data-theme', 'light');
   } else {
-    root.classList.remove('dark');
+    // system — mirror OS preference so html.dark selectors still work
+    if (systemDark) root.classList.add('dark');
+    else root.classList.remove('dark');
     root.removeAttribute('data-theme');
   }
   try {
@@ -80,8 +83,12 @@ export function useTheme() {
 
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
     const onMediaChange = () => {
+      const systemTheme = getSystemTheme();
       setThemeState((prev) => {
-        if (prev === 'system') setResolved(getSystemTheme());
+        if (prev === 'system') {
+          applyTheme('system');
+          setResolved(systemTheme);
+        }
         return prev;
       });
     };

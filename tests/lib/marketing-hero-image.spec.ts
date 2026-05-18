@@ -20,8 +20,8 @@ function heroTestImageConfig(): ImageConfigComplete {
 }
 
 describe('marketing hero image (sizes + srcSet)', () => {
-  it('advertises viewport width via sizes with a vw hint for Next', () => {
-    expect(MARKETING_FULL_BLEED_HERO_SIZES).toBe('100vw');
+  it('advertises viewport width with ultra-wide cap + vw hint for Next srcSet', () => {
+    expect(MARKETING_FULL_BLEED_HERO_SIZES).toBe('(min-width: 1921px) 1920px, 100vw');
     expect(/\d+vw/.test(MARKETING_FULL_BLEED_HERO_SIZES)).toBe(true);
   });
 
@@ -44,16 +44,47 @@ describe('marketing hero image (sizes + srcSet)', () => {
       },
     );
 
-    expect(props.sizes).toBe('100vw');
+    expect(props.sizes).toBe('(min-width: 1921px) 1920px, 100vw');
     const parts = String(props.srcSet ?? '')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
     expect(parts.length).toBeGreaterThan(4);
     expect(parts.some((p) => /\b384w\b/.test(p))).toBe(true);
+    expect(parts.some((p) => /\b750w\b/.test(p))).toBe(true);
     expect(parts.some((p) => /\b1200w\b/.test(p))).toBe(true);
     expect(parts.some((p) => /\b1920w\b/.test(p))).toBe(true);
     // Next prefers the widest URL for `src` when emitting `kind: 'w'` srcSets.
     expect(String(props.src)).toMatch(/(^|[?&])w=1920(&|$)/);
+  });
+
+  it('does not strip small widths on a 375px-wide viewport (mobile picks ≈750w @2x)', () => {
+    const config = heroTestImageConfig();
+    const { props } = getImgProps(
+      {
+        src: '/images/hero-people.webp',
+        alt: '',
+        fill: true,
+        sizes: MARKETING_FULL_BLEED_HERO_SIZES,
+        quality: 85,
+        priority: true,
+      },
+      {
+        defaultLoader,
+        imgConf: config,
+        blurComplete: true,
+        showAltText: false,
+      },
+    );
+    const widths = String(props.srcSet ?? '')
+      .split(',')
+      .map((s) => {
+        const m = s.trim().match(/\s(\d+)w$/);
+        return m ? parseInt(m[1], 10) : NaN;
+      })
+      .filter((n) => Number.isFinite(n));
+    const mobileNeed = 375 * 2;
+    const chosen = widths.filter((w) => w >= mobileNeed).sort((a, b) => a - b)[0];
+    expect(chosen).toBe(750);
   });
 });

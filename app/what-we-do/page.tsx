@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { getTranslations } from 'next-intl/server';
 import { SectionHeader } from '@/components/marketing/ui';
+import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 import { prisma } from '@/lib/db/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -54,7 +55,7 @@ export default async function WhatWeDoPage() {
           fill
           priority
           fetchPriority="high"
-          sizes="100vw"
+          sizes={MARKETING_FULL_BLEED_HERO_SIZES}
           style={{ objectFit: 'cover', objectPosition: 'center' }}
           aria-hidden="true"
         />

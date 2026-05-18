@@ -52,8 +52,14 @@ export async function POST(request: NextRequest) {
     // Close the open-relay vector (AUDIT §H-S8): only send to addresses that
     // have a recent application or user record. An attacker rotating IPs can
     // no longer spray arbitrary inboxes with our branded confirmation email.
+    // Application has no `email` column; the applicant's email lives on the
+    // related User row (User.email is @unique). Filter through the relation
+    // so the open-relay guard still anchors on a real recent application.
     const recentApplication = await prisma.application.findFirst({
-      where: { email: parsed.data.email, createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
+      where: {
+        user: { is: { email: parsed.data.email } },
+        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      },
       orderBy: { createdAt: 'desc' },
       select: { id: true },
       take: 1,

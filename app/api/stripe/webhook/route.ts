@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { getStripe, getStripeConnectWebhookSecret } from '@/lib/stripe/client';
+import { getStripe, getStripeConnectWebhookSecret, getStripeWebhookSecret } from '@/lib/stripe/client';
 import type Stripe from 'stripe';
 
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
@@ -49,7 +49,11 @@ export async function POST(request: NextRequest) {
           }
           break;
         }
-        case 'subscription.updated': {
+        // Stripe never emits a bare `subscription.updated` / `subscription.canceled`
+        // event — the canonical event names are namespaced under `customer.*`,
+        // and the cancellation event is `deleted` (not `canceled`). Using the
+        // wrong strings meant this branch silently never matched in production.
+        case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
           const orgId = subscription.metadata?.organizationId;
           if (!orgId) break;
@@ -60,7 +64,7 @@ export async function POST(request: NextRequest) {
           });
           break;
         }
-        case 'subscription.canceled': {
+        case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
           const orgId = subscription.metadata?.organizationId;
           if (!orgId) break;
@@ -72,7 +76,7 @@ export async function POST(request: NextRequest) {
         }
         case 'invoice.payment_failed': {
           const invoice = event.data.object as Stripe.Invoice;
-          const orgId = invoice.metadata?.organizationId ?? invoice.subscription_details?.metadata?.organizationId;
+          const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
           if (!orgId) break;
           await prisma.organization.update({
             where: { id: orgId },
@@ -82,7 +86,7 @@ export async function POST(request: NextRequest) {
         }
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as Stripe.Invoice;
-          const orgId = invoice.metadata?.organizationId ?? invoice.subscription_details?.metadata?.organizationId;
+          const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
           if (!orgId) break;
           await prisma.organization.update({
             where: { id: orgId },

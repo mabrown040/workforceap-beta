@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import LocalizedLink from '@/components/LocalizedLink';
+import { ValueCard } from '@/components/marketing/ui';
 import { getProgramComparisonTracks } from '@/lib/content/programComparisonTracks';
 import ProgramComparisonClient from './ProgramComparisonClient';
 import ExperimentedCtaLink from '@/components/analytics/ExperimentedCtaLink';
@@ -60,45 +61,43 @@ export default function ProgramComparisonPage() {
 
       <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.25rem 4rem' }}>
         <div className="program-comparison-bottom-grid" style={{ display: 'grid', gap: '1.5rem' }}>
-          <div style={{
-            background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
-            padding: '2rem', border: '1px solid var(--surface-container-highest)',
-            display: 'flex', flexDirection: 'column', gap: '1rem',
-          }}>
-            <div style={{ width: '3rem', height: '3rem', borderRadius: 'var(--radius-lg)', background: 'rgba(173,44,77,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)' }}>
-              <span className="material-symbols-outlined" aria-hidden="true">route</span>
-            </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Need a personalized path?</h3>
-            <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, fontSize: '0.95rem', margin: 0 }}>
-              Our career advisors can help you map a custom program sequence based on your background, goals, and timeline. No cost, no obligation.
-            </p>
-            <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <LocalizedLink href="/find-your-path" className="btn btn-primary btn-small">Take the Quiz</LocalizedLink>
-              <LocalizedLink href="/programs" className="btn btn-outline btn-small">Explore Programs</LocalizedLink>
-            </div>
-          </div>
+          <ValueCard
+            variant="elevated"
+            icon={
+              <div style={{ width: '3rem', height: '3rem', borderRadius: 'var(--radius-lg)', background: 'rgba(173,44,77,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)' }}>
+                <span className="material-symbols-outlined" aria-hidden="true">route</span>
+              </div>
+            }
+            title="Need a personalized path?"
+            description="Our career advisors can help you map a custom program sequence based on your background, goals, and timeline. No cost, no obligation."
+            action={
+              <>
+                <LocalizedLink href="/find-your-path" className="btn btn-primary btn-small">Take the Quiz</LocalizedLink>
+                <LocalizedLink href="/programs" className="btn btn-outline btn-small">Explore Programs</LocalizedLink>
+              </>
+            }
+          />
 
-          <div style={{
-            background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)',
-            padding: '2rem', color: 'white',
-            display: 'flex', flexDirection: 'column', gap: '1rem',
-          }}>
-            <div style={{ width: '3rem', height: '3rem', borderRadius: 'var(--radius-lg)', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="material-symbols-outlined" aria-hidden="true">school</span>
-            </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>No Cost for Qualifying Members</h3>
-            <p style={{ opacity: 0.9, lineHeight: 1.7, fontSize: '0.95rem', margin: 0 }}>
-              WorkforceAP programs are offered at no cost for qualifying members. Training is available through WorkforceAP and partner-backed pathways.
-            </p>
-            <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <LocalizedLink href="/salary-guide" className="btn btn-small" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
-                View Salary Guide
-              </LocalizedLink>
-              <LocalizedLink href="/apply" className="btn btn-small" style={{ border: '1px solid rgba(255,255,255,0.35)', color: '#fff' }}>
-                Apply Now
-              </LocalizedLink>
-            </div>
-          </div>
+          <ValueCard
+            variant="accent"
+            icon={
+              <div style={{ width: '3rem', height: '3rem', borderRadius: 'var(--radius-lg)', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                <span className="material-symbols-outlined" aria-hidden="true">school</span>
+              </div>
+            }
+            title="No Cost for Qualifying Members"
+            description="WorkforceAP programs are offered at no cost for qualifying members. Training is available through WorkforceAP and partner-backed pathways."
+            action={
+              <>
+                <LocalizedLink href="/salary-guide" className="btn btn-small" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
+                  View Salary Guide
+                </LocalizedLink>
+                <LocalizedLink href="/apply" className="btn btn-small" style={{ border: '1px solid rgba(255,255,255,0.35)', color: '#fff' }}>
+                  Apply Now
+                </LocalizedLink>
+              </>
+            }
+          />
         </div>
       </section>
 

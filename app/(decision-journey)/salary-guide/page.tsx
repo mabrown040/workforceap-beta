@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import LocalizedLink from '@/components/LocalizedLink';
+import { ValueCard } from '@/components/marketing/ui';
 import { buildSalaryGuideRows, salaryGuideSummaryStats } from '@/lib/content/programSalaryOutcomes';
 import type { SalaryGuideRow } from '@/lib/content/programSalaryOutcomes';
 import SalaryTableWrapper from '@/components/portal/SalaryTableWrapper';
@@ -299,11 +300,12 @@ export default function SalaryGuidePage() {
           {/* Insights grid */}
           <div className="salary-guide-insights salary-guide-insights-grid" style={{ marginTop: '3rem' }}>
             {insights.map((item) => (
-              <div key={item.title} style={{ background: 'var(--surface-container-low)', borderRadius: 'var(--radius-lg, 12px)', padding: '1.5rem' }}>
-                <div style={{ marginBottom: '.5rem' }}><span className="material-symbols-outlined" style={{ fontSize: 24, color: 'var(--color-accent)' }} aria-hidden="true">{item.icon}</span></div>
-                <strong>{item.title}</strong>
-                <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '.9rem', marginTop: '.4rem' }}>{item.desc}</p>
-              </div>
+              <ValueCard
+                key={item.title}
+                icon={<span className="material-symbols-outlined" style={{ fontSize: 24, color: 'var(--color-accent)' }} aria-hidden="true">{item.icon}</span>}
+                title={<strong>{item.title}</strong>}
+                description={item.desc}
+              />
             ))}
           </div>
 

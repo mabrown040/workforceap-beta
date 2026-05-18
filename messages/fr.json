@@ -598,7 +598,22 @@
     "statusFootnoteDashboard": "tableau de bord membre",
     "statusFootnoteAfter": "pour tous les détails.",
     "statusFooterApply": "Commencer une candidature",
-    "statusFooterContact": "Contactez-nous"
+    "statusFooterContact": "Contactez-nous",
+    "createAccountAlready": "Vous avez déjà un compte ?",
+    "createAccountHeroBody": "Créez votre compte pour enregistrer vos choix de programmes, suivre vos progrès et connecter avec le soutien d'un conseiller.",
+    "createAccountHeroSub": "Commencez avec l'essentiel maintenant : nom, e-mail, téléphone et mot de passe. Vous pourrez ajouter l'adresse postale plus tard si nous en avons besoin. Notre équipe fera un suivi en 1–2 jours ouvrables pour votre prochaine étape.",
+    "createAccountHeroTitle": "Étape 3 sur 3 — réservez votre place et créez votre accès",
+    "createAccountLogIn": "Se connecter",
+    "createAccountMetaDescription": "Créez votre compte pour enregistrer vos choix de programmes et connecter avec vos prochaines étapes.",
+    "createAccountMetaTitle": "Réservez votre place et créez votre accès",
+    "loadingFallback": "Chargement…",
+    "applyNonprofitBadge": "Organisation à but non lucratif 501(c)(3) · EIN 41-2612389",
+    "applyNonprofitBadgeDesc": "WorkforceAP est une organisation à but non lucratif enregistrée. Les programmes sont offerts sans frais aux membres qualifiés par le biais de la Formation financée par Workforce.",
+    "resultsBackStep1": "Retour à l'étape 1",
+    "resultsHeroBody": "Classez jusqu'à trois programmes par ordre de préférence. Vous créerez votre compte à l'étape suivante pour que nous puissions enregistrer vos choix et faire un suivi.",
+    "resultsHeroTitle": "Étape 2 sur 3 — choisissez vos programmes",
+    "resultsMetaDescription": "Examinez votre adéquation probable, classez jusqu'à trois programmes et continuez vers la création de compte.",
+    "resultsMetaTitle": "Choisissez vos programmes"
   },
   "training": {
     "myTraining": "Ma Formation",

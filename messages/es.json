@@ -599,7 +599,21 @@
     "statusFootnoteDashboard": "panel de miembro",
     "statusFootnoteAfter": "para todos los detalles.",
     "statusFooterApply": "Iniciar una solicitud",
-    "statusFooterContact": "Contáctanos"
+    "statusFooterContact": "Contáctanos",
+    "createAccountAlready": "¿Ya tienes una cuenta?",
+    "createAccountHeroBody": "Crea tu cuenta para guardar tus opciones de programas, dar seguimiento a tu progreso y conectar con el apoyo de un consejero.",
+    "createAccountHeroSub": "Empieza con lo básico ahora: nombre, correo, teléfono y contraseña. Puedes agregar detalles de dirección postal más tarde si los necesitamos. Nuestro equipo dará seguimiento en 1–2 días hábiles con tu siguiente paso.",
+    "createAccountHeroTitle": "Paso 3 de 3 — guarda tu lugar y crea tu acceso",
+    "createAccountLogIn": "Iniciar sesión",
+    "createAccountMetaDescription": "Crea tu cuenta para guardar tus opciones de programas y conectar con tus siguientes pasos.",
+    "createAccountMetaTitle": "Guarda tu lugar y crea tu acceso",
+    "loadingFallback": "Cargando…",
+    "applyNonprofitBadge": "Organización 501(c)(3) · EIN 41-2612389",
+    "applyNonprofitBadgeDesc": "WorkforceAP es una organización sin fines de lucro registrada. Los programas se ofrecen sin costo a miembros calificados a través de Capacitación Financiada por Workforce.",
+    "resultsHeroBody": "Ordena hasta tres programas según preferencia. Crearás tu cuenta en el siguiente paso para que podamos guardar tus elecciones y dar seguimiento.",
+    "resultsHeroTitle": "Paso 2 de 3 — elige tus programas",
+    "resultsMetaDescription": "Revisa tu posible adecuación, ordena hasta tres programas y continúa a la creación de cuenta.",
+    "resultsMetaTitle": "Elige tus programas"
   },
   "training": {
     "myTraining": "Mi Entrenamiento",

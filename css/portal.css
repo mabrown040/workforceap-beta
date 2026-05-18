@@ -1167,10 +1167,10 @@
   margin-bottom: 0.5rem;
 }
 .resume-analysis-preview-doc {
-  background: #fff;
-  color: #1a1a1a;
+  background: var(--surface-container-lowest);
+  color: var(--color-on-surface);
   border-radius: var(--radius-lg, 0.75rem);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--outline-variant);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   max-height: min(520px, 70vh);
   overflow: auto;

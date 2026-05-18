@@ -327,7 +327,7 @@ export default async function CounselorStudentsPage() {
               style={{
                 padding: '1.25rem',
                 border: '1px solid color-mix(in srgb, var(--color-amber) 40%, transparent)',
-                background: 'linear-gradient(180deg, var(--color-amber-light) 0%, #ffffff 100%)',
+                background: 'linear-gradient(180deg, var(--color-amber-light) 0%, var(--surface-container-lowest) 100%)',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.875rem' }}>
@@ -356,18 +356,18 @@ export default async function CounselorStudentsPage() {
                       border: '1px solid color-mix(in srgb, var(--color-amber) 15%, transparent)',
                       borderRadius: '0.9rem',
                       padding: '0.9rem 1rem',
-                      background: '#fff',
+                      background: 'var(--surface-container-lowest)',
                     }}
                   >
                     <div style={{ minWidth: 0 }}>
                       <p style={{ margin: '0 0 0.2rem', fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
                         {action.member.fullName ?? t('member')}
                       </p>
-                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-amber)' }}>{action.title}</p>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-warning-on-surface)' }}>{action.title}</p>
                       <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>{action.description}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-amber)' }}>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-warning-on-surface)' }}>
                         {formatHotQueueTime(action.createdAt, t)}
                       </p>
                       <span className="btn btn-primary btn-sm">{t('openMember')}</span>

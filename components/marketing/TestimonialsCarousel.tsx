@@ -41,7 +41,8 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
         <div
           key={t.id}
           style={{
-            background: '#fff',
+            background: 'var(--surface-container-lowest)',
+            border: '1px solid var(--outline-variant)',
             borderRadius: '0.75rem',
             padding: '1.5rem',
             display: 'flex',

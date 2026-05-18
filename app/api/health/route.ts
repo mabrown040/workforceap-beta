@@ -20,6 +20,11 @@ let cache: {
   until: number;
 } | null = null;
 
+/** Test-only: clear the in-memory health cache. */
+export function __resetHealthCache() {
+  cache = null;
+}
+
 type CheckStatus = 'ok' | 'degraded' | 'skipped';
 
 type CheckResult = {

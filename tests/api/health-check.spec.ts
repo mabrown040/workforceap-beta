@@ -41,7 +41,7 @@ vi.mock('@/lib/db/withRequestGuc', () => ({
 }));
 
 // ─── Imports after mocks ───
-import { GET as healthGET, OPTIONS as healthOPTIONS } from '@/app/api/health/route';
+import { GET as healthGET, OPTIONS as healthOPTIONS, __resetHealthCache } from '@/app/api/health/route';
 import { prisma } from '@/lib/db/prisma';
 import { checkPublicHealthRateLimit } from '@/lib/rate-limit';
 
@@ -50,6 +50,7 @@ describe('GET /api/health', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    __resetHealthCache();
     vi.mocked(checkPublicHealthRateLimit).mockResolvedValue({ success: true });
     vi.mocked(prisma.$queryRaw).mockResolvedValue([{ '?column?': 1 }]);
 

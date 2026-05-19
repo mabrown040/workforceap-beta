@@ -10,7 +10,7 @@ import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
  * Cron endpoint to send Day 3 follow-up emails to applicants.
  * Finds applications submitted 3+ days ago with status still PENDING.
  * Also pings admin with count of stale pending applications.
- * Runs every 3 days (e.g. via Vercel Cron: "0 11 */3 * *" for 11 AM CT).
+ * Runs every 3 days (scheduled via Vercel Cron).
  * Uses a 3–6 day submission window so each applicant receives at most one follow-up.
  * Protected with CRON_SECRET header.
  */

@@ -8,6 +8,7 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
+import { prefillGapAnalyzer, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -32,9 +33,23 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       );
     }
   
-    const { resume, subjectMemberId, sessionId } = parsed.data;
+    const { resume, subjectMemberId, sessionId, prefill: shouldPrefill } = parsed.data;
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
     if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+  
+    let finalResume = resume?.trim();
+  
+    // If no resume provided, try to prefill from member state
+    if (!finalResume || finalResume.length < 40) {
+      if (shouldPrefill) {
+        const prefill = await prefillGapAnalyzer(onBehalf.subjectUserId);
+        if (!prefill.resume || prefill.resume.length < 40) {
+          const err = honestNoResumeError();
+          return NextResponse.json({ error: err.error }, { status: err.status });
+        }
+        finalResume = prefill.resume;
+      }
+    }
   
     const systemPrompt = `You are a career coach specializing in resume gaps. Analyze a resume for employment gaps and provide actionable framing.
   
@@ -59,7 +74,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   
     const userPrompt = `Resume:
   ---
-  ${resume}
+  ${finalResume ?? resume}
   ---
   
   Identify any employment gaps and provide framing language for each.`;
@@ -75,7 +90,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   
       if (!output) return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
   
-      const summary = resume.slice(0, 80) + (resume.length > 80 ? '...' : '');
+      const summary = finalResume?.slice(0, 80) + ((finalResume?.length ?? 0) > 80 ? '...' : '');
       try {
         await ensureUserInDb(user);
         await saveAIToolResult(onBehalf.subjectUserId, 'gap_analyzer', summary, output, {

@@ -117,6 +117,135 @@ export async function prefillInterviewPractice(userId: string): Promise<Intervie
   return { role, experienceLevel, resumeContext: resumeContext.slice(0, 6000) };
 }
 
+// ─── Cover Letter ────────────────────────────────────────────────────────────
+
+export type CoverLetterPrefill = {
+  resume: string;
+  jobTarget: string | null;
+  companyName: string | null;
+};
+
+export async function prefillCoverLetter(userId: string): Promise<CoverLetterPrefill> {
+  const state = await getMemberState(userId);
+  const resume = await getMemberResumePlainText(userId, 12000, { preferOriginal: true })
+    ?? await prisma.aIToolResult.findFirst({
+        where: { userId, toolType: 'resume_analysis' },
+        orderBy: { createdAt: 'desc' },
+        select: { output: true },
+      }).then(r => r?.output ?? '');
+
+  return {
+    resume: resume.slice(0, 12000),
+    jobTarget: state.inferredTargetRole,
+    companyName: null,
+  };
+}
+
+// ─── Gap Analyzer ────────────────────────────────────────────────────────────
+
+export type GapAnalyzerPrefill = {
+  resume: string;
+  jobTarget: string | null;
+};
+
+export async function prefillGapAnalyzer(userId: string): Promise<GapAnalyzerPrefill> {
+  const state = await getMemberState(userId);
+  const resume = await getMemberResumePlainText(userId, 12000, { preferOriginal: true })
+    ?? await prisma.aIToolResult.findFirst({
+        where: { userId, toolType: 'resume_analysis' },
+        orderBy: { createdAt: 'desc' },
+        select: { output: true },
+      }).then(r => r?.output ?? '');
+
+  return {
+    resume: resume.slice(0, 12000),
+    jobTarget: state.inferredTargetRole,
+  };
+}
+
+// ─── LinkedIn Headline ───────────────────────────────────────────────────────
+
+export type LinkedInHeadlinePrefill = {
+  name: string;
+  targetRole: string;
+  strengths: string;
+};
+
+export async function prefillLinkedInHeadline(userId: string): Promise<LinkedInHeadlinePrefill> {
+  const state = await getMemberState(userId);
+  return {
+    name: state.fullName ?? state.email.split('@')[0],
+    targetRole: state.inferredTargetRole ?? 'your target role',
+    strengths:
+      state.careerRecommendation?.topOccupations?.[0]?.skills?.join(', ') ??
+      state.trainingView?.completedSlugsAuthoritative?.join(', ') ??
+      '',
+  };
+}
+
+// ─── LinkedIn About ──────────────────────────────────────────────────────────
+
+export type LinkedInAboutPrefill = {
+  name: string;
+  targetRole: string;
+  resume: string;
+};
+
+export async function prefillLinkedInAbout(userId: string): Promise<LinkedInAboutPrefill> {
+  const state = await getMemberState(userId);
+  const resume = await getMemberResumePlainText(userId, 6000, { preferOriginal: true })
+    ?? await prisma.aIToolResult.findFirst({
+        where: { userId, toolType: 'resume_analysis' },
+        orderBy: { createdAt: 'desc' },
+        select: { output: true },
+      }).then(r => r?.output ?? '');
+
+  return {
+    name: state.fullName ?? state.email.split('@')[0],
+    targetRole: state.inferredTargetRole ?? 'your target role',
+    resume: resume.slice(0, 6000),
+  };
+}
+
+// ─── Salary Negotiation ──────────────────────────────────────────────────────
+
+export type SalaryNegotiationPrefill = {
+  targetRole: string;
+  targetSalary: string | null;
+  experienceLevel: 'entry' | 'mid' | 'senior';
+};
+
+export async function prefillSalaryNegotiation(userId: string): Promise<SalaryNegotiationPrefill> {
+  const state = await getMemberState(userId);
+  return {
+    targetRole: state.inferredTargetRole ?? 'your target role',
+    targetSalary: null,
+    experienceLevel: inferExperienceLevel(state),
+  };
+}
+
+// ─── Job Match Scorer ───────────────────────────────────────────────────────
+
+export type JobMatchScorerPrefill = {
+  resume: string;
+  jobTarget: string | null;
+};
+
+export async function prefillJobMatchScorer(userId: string): Promise<JobMatchScorerPrefill> {
+  const state = await getMemberState(userId);
+  const resume = await getMemberResumePlainText(userId, 12000, { preferOriginal: true })
+    ?? await prisma.aIToolResult.findFirst({
+        where: { userId, toolType: 'resume_analysis' },
+        orderBy: { createdAt: 'desc' },
+        select: { output: true },
+      }).then(r => r?.output ?? '');
+
+  return {
+    resume: resume.slice(0, 12000),
+    jobTarget: state.inferredTargetRole,
+  };
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function inferExperienceLevel(state: Awaited<ReturnType<typeof getMemberState>>): 'entry' | 'mid' | 'senior' {

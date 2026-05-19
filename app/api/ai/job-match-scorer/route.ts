@@ -15,6 +15,7 @@ import {
 import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
+import { prefillJobMatchScorer, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -211,9 +212,23 @@ function parseMatchAnalysis(aiOutput: string): MatchAnalysisOutput {
       );
     }
   
-    const { resume, jobDescription, jobUrl, subjectMemberId, sessionId } = parsed.data;
+    const { resume, jobDescription, jobUrl, subjectMemberId, sessionId, prefill: shouldPrefill } = parsed.data;
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
     if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+  
+    let finalResume = resume?.trim();
+  
+    // If no resume provided, try to prefill from member state
+    if (!finalResume || finalResume.length < 40) {
+      if (shouldPrefill) {
+        const prefill = await prefillJobMatchScorer(onBehalf.subjectUserId);
+        if (!prefill.resume || prefill.resume.length < 40) {
+          const err = honestNoResumeError();
+          return NextResponse.json({ error: err.error }, { status: err.status });
+        }
+        finalResume = prefill.resume;
+      }
+    }
   
     // Validate that at least one job source is provided
     if (!jobDescription?.trim() && !jobUrl?.trim()) {
@@ -335,7 +350,7 @@ function parseMatchAnalysis(aiOutput: string): MatchAnalysisOutput {
   
   Candidate's resume:
   ---
-  ${resume}
+  ${finalResume}
   ---
   
   Analyze the match and output in the format above.`;

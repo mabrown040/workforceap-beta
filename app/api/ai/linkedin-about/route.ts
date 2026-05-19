@@ -9,6 +9,7 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
+import { prefillLinkedInAbout } from '@/lib/ai/prefillFromMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -33,9 +34,21 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       );
     }
   
-    const { role, bullets, subjectMemberId, sessionId } = parsed.data;
+    const { role, bullets, subjectMemberId, sessionId, prefill: shouldPrefill } = parsed.data;
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
     if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+  
+    let finalRole = role?.trim();
+    let finalBullets = bullets?.trim();
+  
+    // If no role/bullets provided, try to prefill from member state
+    if (!finalRole || !finalBullets) {
+      if (shouldPrefill) {
+        const prefill = await prefillLinkedInAbout(onBehalf.subjectUserId);
+        if (!finalRole) finalRole = prefill.targetRole;
+        if (!finalBullets) finalBullets = prefill.resume;
+      }
+    }
   
     let resumeContext = '';
     try {
@@ -61,11 +74,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   - Output plain text, no headers or labels`;
   
     const userPrompt =
-      `Target role: ${role}
+      `Target role: ${finalRole || 'Not specified'}
   
   Highlights / bullet points (member-provided):
   ---
-  ${bullets}
+  ${finalBullets || 'Not specified'}
   ---
   ` +
       (resumeContext
@@ -91,7 +104,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   
       if (!output) return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
   
-      const summary = `${role} — ${bullets.slice(0, 50)}${bullets.length > 50 ? '...' : ''}${resumeContext ? ' [+resume]' : ''}`;
+      const summary = `${finalRole || 'LinkedIn About'} — ${(finalBullets || '').slice(0, 50)}${(finalBullets || '').length > 50 ? '...' : ''}${resumeContext ? ' [+resume]' : ''}`;
       try {
         await ensureUserInDb(user);
         await saveAIToolResult(onBehalf.subjectUserId, 'linkedin_about', summary, output, {

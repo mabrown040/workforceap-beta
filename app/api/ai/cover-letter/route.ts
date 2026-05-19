@@ -8,6 +8,7 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
+import { prefillCoverLetter, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -32,12 +33,29 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       );
     }
   
-    const { resume, jobDescription, companyName, tone, subjectMemberId, sessionId } = parsed.data;
+    const { resume, jobDescription, companyName, tone, subjectMemberId, sessionId, prefill: shouldPrefill } = parsed.data;
   
     // Resolve subject (counselor/admin In-Office Session — see actAsSubject).
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
     if (!onBehalf.ok) {
       return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
+    }
+  
+    let finalResume = resume?.trim();
+    let finalJobDescription = jobDescription?.trim();
+    let finalCompanyName = companyName?.trim();
+  
+    // If no resume provided, try to prefill from member state
+    if (!finalResume || finalResume.length < 40) {
+      if (shouldPrefill) {
+        const prefill = await prefillCoverLetter(onBehalf.subjectUserId);
+        if (!prefill.resume || prefill.resume.length < 40) {
+          const err = honestNoResumeError();
+          return NextResponse.json({ error: err.error }, { status: err.status });
+        }
+        finalResume = prefill.resume;
+        if (!finalJobDescription) finalJobDescription = prefill.jobTarget ?? '';
+      }
     }
   
     const toneInstructions: Record<string, string> = {
@@ -49,17 +67,17 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   
     const systemPrompt = `You are a professional cover letter writer. Create a compelling, tailored cover letter that connects the candidate's experience to the job requirements. ${toneInstruction} Format as plain text with a greeting, 2-3 body paragraphs, and a closing. Do not invent experience—only use what the candidate provided.`;
   
-    const userPrompt = `Company: ${companyName}
+    const userPrompt = `Company: ${finalCompanyName || 'Not specified'}
   Tone: ${tone}
   
   Job description:
   ---
-  ${jobDescription}
+  ${finalJobDescription}
   ---
   
   Candidate's resume/experience:
   ---
-  ${resume}
+  ${finalResume}
   ---
   
   Write a tailored cover letter.`;
@@ -75,7 +93,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   
       if (!output) return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
   
-      const summary = `${companyName} — ${jobDescription.slice(0, 60)}${jobDescription.length > 60 ? '...' : ''}`;
+      const summary = `${finalCompanyName || 'Cover letter'} — ${finalJobDescription.slice(0, 60)}${finalJobDescription.length > 60 ? '...' : ''}`;
       try {
         await ensureUserInDb(user);
         await saveAIToolResult(

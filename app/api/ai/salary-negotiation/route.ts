@@ -8,6 +8,7 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
+import { prefillSalaryNegotiation } from '@/lib/ai/prefillFromMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -32,10 +33,26 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       );
     }
   
-    const { currentOffer, targetSalary, jobTitle, companyName, deliveryMethod, subjectMemberId, sessionId } = parsed.data;
+    const { currentOffer, targetSalary, jobTitle, companyName, deliveryMethod, subjectMemberId, sessionId, prefill: shouldPrefill } = parsed.data;
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
     if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
     const isPhone = deliveryMethod === 'phone';
+  
+    let finalJobTitle = jobTitle?.trim();
+    let finalTargetSalary = targetSalary;
+  
+    // If no job title provided, try to prefill from member state
+    if (!finalJobTitle) {
+      if (shouldPrefill) {
+        const prefill = await prefillSalaryNegotiation(onBehalf.subjectUserId);
+        if (!finalJobTitle) finalJobTitle = prefill.targetRole;
+        if (!finalTargetSalary && prefill.targetSalary) {
+          // Try to parse numeric salary from string like "$60,000 - $80,000"
+          const match = prefill.targetSalary.replace(/[^0-9]/g, '').slice(0, 6);
+          if (match) finalTargetSalary = parseInt(match, 10);
+        }
+      }
+    }
   
     const systemPrompt = `You are a salary negotiation coach. Create a word-for-word script for a candidate to use when negotiating.
   
@@ -46,9 +63,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   Format: Plain text, easy to follow. Include [PAUSE] or [WAIT FOR RESPONSE] for phone. For email, include a suggested subject line.`;
   
     const userPrompt = `Current offer: $${currentOffer.toLocaleString()}
-  Target salary: $${targetSalary.toLocaleString()}
-  Job title: ${jobTitle}
-  Company: ${companyName}
+  Target salary: $${(finalTargetSalary ?? targetSalary).toLocaleString()}
+  Job title: ${finalJobTitle || jobTitle || 'Not specified'}
+  Company: ${companyName || 'Not specified'}
   Delivery: ${isPhone ? 'Phone call' : 'Email'}
   
   Write a ${isPhone ? 'phone call' : 'email'} script they can use word-for-word.`;
@@ -64,7 +81,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   
       if (!output) return NextResponse.json({ error: 'We could not generate a response. Please try again.' }, { status: 500 });
   
-      const summary = `${companyName} — ${jobTitle} — $${currentOffer} → $${targetSalary}`;
+      const summary = `${companyName || 'Salary negotiation'} — ${finalJobTitle || jobTitle || 'Not specified'} — $${currentOffer} → $${finalTargetSalary ?? targetSalary}`;
       try {
         await ensureUserInDb(user);
         await saveAIToolResult(onBehalf.subjectUserId, 'salary_negotiation', summary, output, {

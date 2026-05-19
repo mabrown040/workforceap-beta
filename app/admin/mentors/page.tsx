@@ -3,9 +3,11 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
-import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { getUser, withAuthGuc } from '@/lib/auth/server';
+import { getProfileRole, requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { logAuditEvent } from '@/lib/audit/log';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -18,26 +20,50 @@ export async function generateMetadata(): Promise<Metadata> {
 async function updateMentorAction(formData: FormData) {
   'use server';
 
-  const user = await getUser();
-  if (!user) return;
-  await requireAdmin(user.id);
+  return withAuthGuc(async () => {
+    const user = await getUser();
+    if (!user) return;
+    await requireAdmin(user.id);
 
-  const mentorId = String(formData.get('mentorId') || '');
-  const action = String(formData.get('action') || '');
+    const mentorId = String(formData.get('mentorId') || '');
+    const action = String(formData.get('action') || '');
 
-  if (!mentorId) return;
+    if (!mentorId) return;
 
-  if (action === 'approve') {
-    await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true, approvedAt: new Date() } });
-  }
+    const orgId = await getActorOrganizationId(user.id);
+    const profileRole = await getProfileRole(user.id);
 
-  if (action === 'deactivate') {
-    await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: false } });
-  }
+    if (action === 'approve') {
+      await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true, approvedAt: new Date() } });
+      await logAuditEvent({
+        user: { id: user.id, role: profileRole ?? undefined },
+        verb: 'approved',
+        object: { type: 'Mentor', id: mentorId },
+        orgId,
+      }).catch((err) => console.error('[audit] mentor approve:', err));
+    }
 
-  if (action === 'activate') {
-    await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true } });
-  }
+    if (action === 'deactivate') {
+      await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: false } });
+      await logAuditEvent({
+        user: { id: user.id, role: profileRole ?? undefined },
+        verb: 'voided',
+        object: { type: 'Mentor', id: mentorId },
+        orgId,
+      }).catch((err) => console.error('[audit] mentor deactivate:', err));
+    }
+
+    if (action === 'activate') {
+      await prisma.mentor.update({ where: { id: mentorId }, data: { isActive: true } });
+      await logAuditEvent({
+        user: { id: user.id, role: profileRole ?? undefined },
+        verb: 'approved',
+        object: { type: 'Mentor', id: mentorId },
+        result: { extensions: { reactivated: true } },
+        orgId,
+      }).catch((err) => console.error('[audit] mentor activate:', err));
+    }
+  });
 }
 
 function getMentorStatusLabel(mentor: {

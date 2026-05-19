@@ -1,14 +1,19 @@
 'use server';
 
 import { prisma } from '@/lib/db/prisma';
-import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { getUser, withAuthGuc } from '@/lib/auth/server';
+import { getProfileRole, isAdmin } from '@/lib/auth/roles';
 import { revalidatePath } from 'next/cache';
 import { getOrCreateEmployerMessageThread } from '@/lib/messages/portalThreads';
+import { logAuditEvent } from '@/lib/audit/log';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 export async function introduceMemberToEmployer(memberId: string, jobId: string) {
+  return withAuthGuc(async () => {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) throw new Error('Unauthorized');
+
+  const orgId = await getActorOrganizationId(user.id);
 
   const [job, member] = await Promise.all([
     prisma.job.findUnique({
@@ -68,6 +73,16 @@ export async function introduceMemberToEmployer(memberId: string, jobId: string)
     data: { status: 'contacted', statusUpdatedAt: new Date() },
   });
 
+  const profileRole = await getProfileRole(user.id);
+  await logAuditEvent({
+    user: { id: user.id, role: profileRole ?? undefined },
+    verb: 'launched',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { jobId, threadId: thread.id } },
+    orgId,
+  }).catch((err) => console.error('[audit] employer introduction:', err));
+
   revalidatePath(`/admin/members/${memberId}`);
   revalidatePath('/admin/messages');
+  });
 }

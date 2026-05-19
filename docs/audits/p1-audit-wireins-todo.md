@@ -7,6 +7,9 @@
 | `app/api/admin/partners/[id]/approve/route.ts` | `approved` | `Partner` |
 | `app/api/admin/members/[id]/delete/route.ts` | `deleted` | `User` |
 | `app/admin/pipeline/remindAction.ts` | `launched` | `Application` |
+| `app/admin/members/[id]/introduceAction.ts` | `launched` | `User` |
+| `app/admin/mentors/page.tsx` (`updateMentorAction`) | `approved` / `voided` | `Mentor` |
+| `app/api/admin/invites/[id]/revoke/route.ts` | `voided` | `Invitation` |
 
 ## API routes (`app/api/admin/**/route.ts`)
 
@@ -19,7 +22,7 @@ Wire **mutations** (POST/PATCH/PUT/DELETE) after a successful write. Pass `orgId
 - [ ] `program-change-requests/[id]/route.ts` — `approved` / `voided`, `ProgramChangeRequest`
 - [ ] `employers/[id]/approve/route.ts`, `reject`, `deactivate`, `reactivate`
 - [ ] `partners/[id]/reject`, `deactivate`, `reactivate`
-- [ ] `invites/[id]/revoke/route.ts`
+- [x] `invites/[id]/revoke/route.ts`
 - [ ] `users/[id]/route.ts`, `users/[id]/restore/route.ts`
 
 ### Exports & bulk (PII access)
@@ -41,8 +44,8 @@ Wire **mutations** (POST/PATCH/PUT/DELETE) after a successful write. Pass `orgId
 
 Portal admin actions live under `app/admin/**` (not `app/(portal)/admin`). Wire the same pattern: `withAuthGuc` + `logAuditEvent` after success.
 
-- [ ] `app/admin/members/[id]/introduceAction.ts`
-- [ ] Other `*Action.ts` files under `app/admin/**`
+- [x] `app/admin/members/[id]/introduceAction.ts`
+- [x] `app/admin/mentors/page.tsx` (`updateMentorAction` approve / deactivate / activate)
 
 ## Legacy `auditLog()` (`lib/audit.ts`)
 

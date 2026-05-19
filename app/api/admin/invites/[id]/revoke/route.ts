@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { getProfileRole, isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (
-  _request: Request,
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+export const PATCH = withApiGuc(async (
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
@@ -40,6 +43,16 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
       where: { id, invitedBy: { organizationId: orgId } },
       data: { status: 'revoked' },
     });
+
+    const profileRole = await getProfileRole(user.id);
+    await logAuditEvent({
+      user: { id: user.id, role: profileRole ?? undefined },
+      verb: 'voided',
+      object: { type: 'Invitation', id },
+      result: { success: true },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] invite revoke:', err));
 
     return NextResponse.json({ ok: true, message: 'Invitation revoked.' });
   } catch (error) {

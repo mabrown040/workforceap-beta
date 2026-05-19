@@ -7,6 +7,7 @@ export type EventName =
   | 'dashboard_viewed'
   | 'member_dashboard_viewed'
   | 'member_dashboard_action_clicked'
+  | 'first_value_panel_rendered'
   | 'goal_created'
   | 'goal_updated'
   | 'goal_completed'

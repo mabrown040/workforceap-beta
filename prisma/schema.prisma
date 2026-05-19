@@ -42,6 +42,7 @@ model Organization {
   preScreenings     PreScreeningResponse[]
   courseEnrollments CourseEnrollment[]
   courses           Course[]
+  auditEvents       AuditEvent[]
 
   @@map("organizations")
 }
@@ -123,6 +124,7 @@ model User {
   userCertifications     UserCertification[]
   userRoles              UserRole[]
   auditLogs              AuditLog[]              @relation("ActorAuditLogs")
+  auditEvents            AuditEvent[]            @relation("ActorAuditEvents")
   goals                  Goal[]
   resourceProgress       ResourceProgress[]
   memberEvents           MemberEvent[]
@@ -1163,6 +1165,31 @@ model AuditLog {
   @@index([targetType, targetId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+/// xAPI 1.0.3-shaped admin action audit trail (org-scoped via RLS).
+model AuditEvent {
+  id            String   @id @default(uuid())
+  actorUserId   String   @map("actor_user_id")
+  actorRole     String   @map("actor_role")
+  verb          String
+  objectType    String   @map("object_type")
+  objectId      String   @map("object_id")
+  orgId         String   @map("org_id")
+  statementJson Json     @map("statement_json")
+  createdAt     DateTime @default(now()) @map("created_at")
+  ip            String?
+  ua            String?  @db.Text
+
+  actor        User         @relation("ActorAuditEvents", fields: [actorUserId], references: [id], onDelete: Restrict)
+  organization Organization @relation(fields: [orgId], references: [id], onDelete: Restrict)
+
+  @@index([actorUserId])
+  @@index([orgId, createdAt])
+  @@index([objectType, objectId])
+  @@index([verb])
+  @@index([createdAt])
+  @@map("audit_events")
 }
 
 // --- Admin Invitations ---

@@ -137,6 +137,27 @@ export default function DashboardHomeClient({
     });
   };
 
+  const handlePrimaryCtaClick = (cardId: string, cardLabel: string, href: string) => {
+    trackFunnelEvent('member_dashboard', 'dashboard_primary_cta_clicked', {
+      state,
+      card_id: cardId,
+      card_label: cardLabel,
+      href,
+      route: typeof window !== 'undefined' ? window.location.pathname : '/dashboard',
+    });
+    void postMemberEvent({
+      eventName: 'member_dashboard_action_clicked',
+      sourcePage: '/dashboard',
+      metadata: {
+        state,
+        action: 'dashboard_primary_cta_clicked',
+        card_id: cardId,
+        card_label: cardLabel,
+        href,
+      },
+    });
+  };
+
   const progressPct =
     typeof blendedTrainingProgressPct === 'number' && Number.isFinite(blendedTrainingProgressPct)
       ? Math.max(0, Math.min(100, Math.round(blendedTrainingProgressPct)))
@@ -315,7 +336,12 @@ export default function DashboardHomeClient({
                       Ready to get started? Your application takes about 10 minutes — and programs are available at no cost to members.
                     </p>
                   </div>
-                  <Link href="/apply" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                  <Link
+                    href="/apply"
+                    className="btn btn-primary"
+                    style={{ width: '100%', justifyContent: 'center' }}
+                    onClick={() => handlePrimaryCtaClick('state_a_start_application', 'Start your application', '/apply')}
+                  >
                     Start your application
                   </Link>
                 </div>

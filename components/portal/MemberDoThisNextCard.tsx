@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 import { trackFunnelEvent } from '@/lib/analytics/events';
+import { postMemberEvent } from '@/lib/events/client';
 
 type MemberDoThisNextCardProps = {
   action: NextBestAction | null;
@@ -52,10 +53,22 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem' }: Memb
             href={action.href}
             className="btn"
             onClick={() => {
-              trackFunnelEvent('member_dashboard', 'primary_cta_clicked', {
+              trackFunnelEvent('member_dashboard', 'dashboard_primary_cta_clicked', {
                 action_id: action.id,
                 action_label: action.cta,
+                href: action.href,
                 route: typeof window !== 'undefined' ? window.location.pathname : undefined,
+              });
+              void postMemberEvent({
+                eventName: 'member_dashboard_action_clicked',
+                entityType: 'next_best_action',
+                sourcePage: '/dashboard',
+                metadata: {
+                  action: 'dashboard_primary_cta_clicked',
+                  action_id: action.id,
+                  action_label: action.cta,
+                  href: action.href,
+                },
               });
             }}
             style={{

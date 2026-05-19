@@ -8,6 +8,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { getProfileRole } from '@/lib/auth/roles';
 
 export const POST = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
@@ -54,6 +56,16 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
         },
       }),
     );
+
+    const profileRole = await getProfileRole(user.id);
+    await logAuditEvent({
+      user: { id: user.id, role: profileRole ?? undefined },
+      verb: 'approved',
+      object: { type: 'Partner', id },
+      result: { success: true },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] partner approve:', err));
 
     // Send approval email
     const resendKey = process.env.RESEND_API_KEY;

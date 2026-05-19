@@ -1,57 +1,75 @@
 'use server';
 
 import { prisma } from '@/lib/db/prisma';
-import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { getUser, withAuthGuc } from '@/lib/auth/server';
+import { getProfileRole, isAdmin } from '@/lib/auth/roles';
 import { revalidatePath } from 'next/cache';
 import { sendApplicantFollowupEmail } from '@/lib/email';
+import { logAuditEvent } from '@/lib/audit/log';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 export async function remindStaleApplication(applicationId: string, userId: string) {
-  const user = await getUser();
-  if (!user || !(await isAdmin(user.id))) throw new Error('Unauthorized');
+  return withAuthGuc(async () => {
+    const user = await getUser();
+    if (!user || !(await isAdmin(user.id))) throw new Error('Unauthorized');
 
-  const application = await prisma.application.findUnique({
-    where: { id: applicationId },
-    include: {
-      user: {
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
+    const orgId = await getActorOrganizationId(user.id);
+
+    const application = await prisma.application.findFirst({
+      where: { id: applicationId, userId, user: { organizationId: orgId } },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  if (!application || application.userId !== userId) {
-    throw new Error('Application not found');
-  }
+    if (!application || application.userId !== userId) {
+      throw new Error('Application not found');
+    }
 
-  if (application.status !== 'PENDING') {
-    throw new Error('Application is no longer pending');
-  }
+    if (application.status !== 'PENDING') {
+      throw new Error('Application is no longer pending');
+    }
 
-  const emailResult = await sendApplicantFollowupEmail({
-    to: application.user.email,
-    fullName: application.user.fullName ?? 'there',
-    expectedDate: 'within the next 2 business days',
-  });
+    const emailResult = await sendApplicantFollowupEmail({
+      to: application.user.email,
+      fullName: application.user.fullName ?? 'there',
+      expectedDate: 'within the next 2 business days',
+    });
 
-  await prisma.memberEvent.create({
-    data: {
-      userId,
-      eventName: 'APPLICATION_REMINDER_SENT',
-      entityType: 'Application',
-      entityId: applicationId,
-      metadata: {
-        note: 'System sent a reminder for a stale application.',
-        emailOk: emailResult.ok,
-        emailError: emailResult.error ?? null,
+    await prisma.memberEvent.create({
+      data: {
+        userId,
+        eventName: 'APPLICATION_REMINDER_SENT',
+        entityType: 'Application',
+        entityId: applicationId,
+        metadata: {
+          note: 'System sent a reminder for a stale application.',
+          emailOk: emailResult.ok,
+          emailError: emailResult.error ?? null,
+        },
+        sourcePage: '/admin/pipeline',
       },
-      sourcePage: '/admin/pipeline',
-    },
-  });
+    });
 
-  revalidatePath('/admin/pipeline');
-  revalidatePath('/admin');
+    const profileRole = await getProfileRole(user.id);
+    await logAuditEvent({
+      user: { id: user.id, role: profileRole ?? undefined },
+      verb: 'launched',
+      object: { type: 'Application', id: applicationId },
+      result: {
+        success: emailResult.ok,
+        extensions: { emailError: emailResult.error ?? null },
+      },
+      orgId,
+    }).catch((err) => console.error('[audit] application reminder:', err));
+
+    revalidatePath('/admin/pipeline');
+    revalidatePath('/admin');
+  });
 }

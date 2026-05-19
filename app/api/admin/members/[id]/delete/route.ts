@@ -6,8 +6,12 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
-  _request: Request,
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { getProfileRole } from '@/lib/auth/roles';
+
+export const POST = withApiGuc(async (
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
@@ -62,6 +66,16 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     if (error) {
       console.error('[admin/members/[id]/delete] Supabase auth delete error:', error.message);
     }
+
+    const profileRole = await getProfileRole(user.id);
+    await logAuditEvent({
+      user: { id: user.id, role: profileRole ?? undefined },
+      verb: 'deleted',
+      object: { type: 'User', id },
+      result: { success: true },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] member delete:', err));
 
     return NextResponse.json({ ok: true, originalEmail: existing.email });
   } catch (error) {

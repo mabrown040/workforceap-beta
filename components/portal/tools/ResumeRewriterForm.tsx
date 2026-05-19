@@ -7,6 +7,8 @@ import { trackToolLaunch } from '@/lib/analytics/events';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import ExportPdfButton from './ExportPdfButton';
 import AiToolLanguageSelector, { type AiToolLanguage } from './AiToolLanguageSelector';
+import { useRetryableFetch } from '@/hooks/useRetryableFetch';
+import AiToolError from './AiToolError';
 import ToolFollowThrough from './ToolFollowThrough';
 
 const SALARY_RANGES = [
@@ -76,34 +78,44 @@ export default function ResumeRewriterForm({
   const [atsOptimize, setAtsOptimize] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { copy, copied } = useCopyToClipboard();
+  const { execute, clearRetry, retryState } = useRetryableFetch();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const doSubmit = async () => {
     setError('');
     setOutput('');
     setLoading(true);
     trackToolLaunch('resume-rewriter', 'Resume Rewriter');
 
-    try {
-      const res = await fetch('/api/ai/resume-rewriter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume, jobTarget, targetSalary: targetSalary || undefined, targetLocation: targetLocation.trim() || undefined, tone, atsOptimize, language }),
-      });
+    await execute(
+      async () => {
+        const res = await fetch('/api/ai/resume-rewriter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resume,
+            jobTarget,
+            targetSalary: targetSalary || undefined,
+            targetLocation: targetLocation.trim() || undefined,
+            tone,
+            atsOptimize,
+            language,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
+        return data;
+      },
+      (data) => setOutput(data.output ?? ''),
+      (err) => setError(err),
+    );
 
-      const data = await res.json();
+    setLoading(false);
+  };
 
-      if (!res.ok) {
-        setError(data.error ?? 'Something went wrong');
-        return;
-      }
-
-      setOutput(data.output ?? '');
-    } catch {
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    clearRetry();
+    void doSubmit();
   };
 
   const handleCopy = () => {
@@ -246,8 +258,14 @@ export default function ResumeRewriterForm({
         />
       </div>
       {error && (
-        <div className="form-error" role="alert">
-          {error}
+        <div style={{ marginBottom: '1rem' }}>
+          <AiToolError
+            error={error}
+            onRetry={retryState.isRetrying ? undefined : doSubmit}
+            isRetrying={retryState.isRetrying}
+            nextRetryIn={retryState.nextRetryIn}
+            retryCount={retryState.retryCount}
+          />
         </div>
       )}
       <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>

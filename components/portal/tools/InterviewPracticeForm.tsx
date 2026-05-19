@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRetryableFetch } from '@/hooks/useRetryableFetch';
+import AiToolError from './AiToolError';
 import ToolFollowThrough from './ToolFollowThrough';
 import { Loader2 } from 'lucide-react';
 import { trackToolLaunch } from '@/lib/analytics/events';
@@ -34,6 +36,7 @@ export default function InterviewPracticeForm({ memberId, initialData }: { membe
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { copy, copied } = useCopyToClipboard();
+  const { execute, clearRetry, retryState } = useRetryableFetch();
 
   const FOCUS_OPTIONS = [
     { id: 'behavioral', icon: 'psychology', label: 'Behavioral' },
@@ -49,43 +52,44 @@ export default function InterviewPracticeForm({ memberId, initialData }: { membe
 
   useHydrateMemberResumePlainText(setResumeContext, memberId);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const doSubmit = async () => {
     setError('');
     setQuestions([]);
     setStarByIndex({});
     setLoading(true);
     trackToolLaunch('interview-practice', 'Interview Practice Generator');
 
-    try {
-      const res = await fetch('/api/ai/interview-practice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          role,
-          experienceLevel,
-          focusAreas: focusAreas.length ? focusAreas : undefined,
-          difficulty,
-          count: 8,
-          resumeContext: resumeContext.trim() || undefined,
-          language,
-          ...(memberId ? { subjectMemberId: memberId } : {}),
-        }),
-      });
+    await execute(
+      async () => {
+        const res = await fetch('/api/ai/interview-practice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            role,
+            experienceLevel,
+            focusAreas: focusAreas.length ? focusAreas : undefined,
+            difficulty,
+            count: 8,
+            resumeContext: resumeContext.trim() || undefined,
+            language,
+            ...(memberId ? { subjectMemberId: memberId } : {}),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? 'Something went wrong');
+        return data;
+      },
+      (data) => setQuestions(data.questions ?? []),
+      (err) => setError(err),
+    );
 
-      const data = await res.json();
+    setLoading(false);
+  };
 
-      if (!res.ok) {
-        setError(data.error ?? 'Something went wrong');
-        return;
-      }
-
-      setQuestions(data.questions ?? []);
-    } catch {
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    clearRetry();
+    void doSubmit();
   };
 
   const buildSessionTranscript = () => {
@@ -254,8 +258,14 @@ export default function InterviewPracticeForm({ memberId, initialData }: { membe
       </div>
 
       {error && (
-        <div className="form-error" role="alert">
-          {error}
+        <div style={{ marginBottom: '1rem' }}>
+          <AiToolError
+            error={error}
+            onRetry={retryState.isRetrying ? undefined : doSubmit}
+            isRetrying={retryState.isRetrying}
+            nextRetryIn={retryState.nextRetryIn}
+            retryCount={retryState.retryCount}
+          />
         </div>
       )}
       <button type="submit" className="btn btn-primary" disabled={loading} aria-busy={loading}>

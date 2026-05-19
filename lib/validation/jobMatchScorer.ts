@@ -58,13 +58,14 @@ function isSafePublicHttpUrl(value: string): boolean {
 }
 
 export const jobMatchScorerSchema = z.object({
-  resume: z.string().min(100, 'Resume must be at least 100 characters').max(15000),
+  resume: z.string().min(100, 'Resume must be at least 100 characters').max(15000).optional(),
   jobDescription: optionalNonEmptyString(
     z.string().min(50, 'Job description must be at least 50 characters').max(8000)
   ),
   jobUrl: optionalNonEmptyString(
     z.string().url('Please enter a valid URL')
   ),
+  prefill: z.boolean().optional(),
   subjectMemberId: z.string().uuid().optional(),
   sessionId: z.string().uuid().optional(),
 }).refine((data) => isSafePublicHttpUrl(data.jobUrl ?? ''), {

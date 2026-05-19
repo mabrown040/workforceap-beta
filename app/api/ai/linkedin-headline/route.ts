@@ -8,6 +8,7 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 
+import { prefillLinkedInHeadline } from '@/lib/ai/prefillFromMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -32,14 +33,26 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       );
     }
   
-    const { role, keySkills, yearsExperience, subjectMemberId, sessionId } = parsed.data;
+    const { role, keySkills, yearsExperience, subjectMemberId, sessionId, prefill: shouldPrefill } = parsed.data;
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
     if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
   
+    let finalRole = role?.trim();
+    let finalKeySkills = keySkills?.trim();
+  
+    // If no role/skills provided, try to prefill from member state
+    if (!finalRole || !finalKeySkills) {
+      if (shouldPrefill) {
+        const prefill = await prefillLinkedInHeadline(onBehalf.subjectUserId);
+        if (!finalRole) finalRole = prefill.targetRole;
+        if (!finalKeySkills) finalKeySkills = prefill.strengths;
+      }
+    }
+  
     const systemPrompt = `You are a LinkedIn profile expert. Generate 3 compelling LinkedIn headline options. Each must be under 120 characters. Include the target role and key value props. Format as a JSON array of strings: ["headline1", "headline2", "headline3"]. Return ONLY the JSON array.`;
   
-    const userPrompt = `Role: ${role}
-  Key skills: ${keySkills}
+    const userPrompt = `Role: ${finalRole || 'Not specified'}
+  Key skills: ${finalKeySkills || 'Not specified'}
   ${yearsExperience ? `Experience: ${yearsExperience}` : ''}
   
   Generate 3 LinkedIn headline options.`;
@@ -64,7 +77,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       }
   
       const output = JSON.stringify(headlines.slice(0, 5));
-      const summary = `${role} — ${keySkills.slice(0, 40)}${keySkills.length > 40 ? '...' : ''}`;
+      const summary = `${finalRole || 'LinkedIn headline'} — ${(finalKeySkills || '').slice(0, 40)}${(finalKeySkills || '').length > 40 ? '...' : ''}`;
       try {
         await ensureUserInDb(user);
         await saveAIToolResult(onBehalf.subjectUserId, 'linkedin_headline', summary, output, {

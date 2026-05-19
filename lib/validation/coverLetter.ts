@@ -5,6 +5,8 @@ export const coverLetterSchema = z.object({
   jobDescription: z.string().min(20, 'Job description is required').max(5000),
   companyName: z.string().min(1, 'Company name is required').max(200).optional().default('the company'),
   tone: z.enum(['formal', 'confident', 'conversational']).optional().default('formal'),
+  /** If true and resume is missing, prefill from member state. */
+  prefill: z.boolean().optional(),
   /** Counselor/admin In-Office Session: run on behalf of this member. */
   subjectMemberId: z.string().uuid().optional(),
   /** Group multiple tool runs into one session. */

@@ -1,47 +1,39 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { logger } from '@/lib/observability/logger';
 
 /**
  * GET /api/health/slo
  *
- * Internal SLO snapshot endpoint. Returns the current value, target, and
- * within/breaching status for each committed SLO over a rolling window.
+ * Admin-only SLO snapshot. Sprint P2 (observability uplift) replaced the
+ * Sprint D.1 stub helpers with real measurements. Every metric either
+ * returns a real value (computed from our own DB) or honestly reports
+ * `current: null` / `status: 'unknown'` with a configuration note — we
+ * still never emit synthetic numbers (see NOTE TO MAINTAINERS below).
  *
- * Auth: ADMIN-ONLY. Unlike /api/health (which is public and reports only
- * configuration presence + DB reachability), this endpoint surfaces
- * quantitative performance data — latency p95s, error rates, email
- * delivery percentages — that we don't want scraped into competitive
- * intelligence. The public-facing /status page (Sprint D.2) consumes a
- * curated, summarized view of this data, not the raw response.
+ * Auth: ADMIN-ONLY. Same posture as before: the data here (latencies,
+ * error rates, isolation status) is operational and we don't want it
+ * scraped. /api/health remains the public probe.
  *
- * See docs/SLO-AND-STATUS.md for:
- *   - The committed SLO targets and rationale
- *   - Where each SLO is measured (Sentry / Vercel / DB / synthetic)
- *   - Burn-rate alert thresholds and incident response flow
- *   - The status-page recommendation
+ * Sources, post Sprint P2:
+ *   - Latency p95s: Vercel Analytics REST API IFF `VERCEL_ANALYTICS_TOKEN`
+ *     (and `VERCEL_PROJECT_ID` + `VERCEL_TEAM_ID` if applicable) are set.
+ *     Otherwise the SLO is reported as `unknown` with a "not configured"
+ *     note — we do not fabricate a number.
+ *   - Error rate: `member_events` rows in the last 24h where eventName
+ *     ends in `_failed` / `_error`, divided by total events in the window.
+ *     This is a real number computed from our own DB; it is not perfectly
+ *     correlated with HTTP 5xx (the next iteration will join /api/health
+ *     and Sentry) but it is honest.
+ *   - DB pool utilization: `pg_stat_activity` via `prisma.$queryRaw`,
+ *     returning current backend count vs `max_connections`.
  *
- * Sprint D.1 status: response shape is final; underlying numbers are
- * STUBBED. Each measurement helper returns `current: null` and
- * `status: 'unknown'` with an explanatory `note` — no synthetic numbers
- * are ever emitted. Each helper carries a TODO comment marking where
- * Sprint D.2 will wire in the real Sentry / Vercel / DB queries.
- *
- * @deprecated No current consumers in the repo (verified by grep across
- * `app/`, `components/`, `lib/`, and tests). The only references are in
- * `docs/SLO-AND-STATUS.md`, which describes the intended Sprint D.2
- * status-page consumer that has not yet been implemented. Because every
- * field is honestly null (never synthetic) and the route is admin-gated,
- * leaving it in place is safe — but if Sprint D.2 has been deprioritized
- * or dropped, this route should be removed rather than left as dead
- * code. Re-evaluate at the start of the next planning cycle: either wire
- * it (Sprint D.2 lands and the /status page goes live) or delete it.
- *
- * NOTE TO MAINTAINERS: do not "fill in" the stub helpers with synthetic
- * numbers to make a dashboard look populated. Either wire to a real
- * source or keep returning `current: null`. Synthetic SLO numbers shown
- * to a funder or buyer would be a trust violation. Wiring real APIs is
- * explicitly Sprint D.2 work and is out of scope for this PR.
+ * NOTE TO MAINTAINERS: do not "fill in" any helper with synthetic numbers
+ * to make a dashboard look populated. Either wire to a real source or keep
+ * returning `current: null`. Synthetic SLO numbers shown to a funder or
+ * buyer would be a trust violation.
  */
 
 export const dynamic = 'force-dynamic';
@@ -49,19 +41,12 @@ export const dynamic = 'force-dynamic';
 type SloStatus = 'within' | 'breaching' | 'unknown';
 
 type SloReport = {
-  /** Stable identifier — safe to use as a dashboard key. */
   id: string;
-  /** Human-readable name. */
   name: string;
-  /** Target string as documented in SLO-AND-STATUS.md (e.g. "99.9%", "< 500 ms"). */
   target: string;
-  /** Current measured value, formatted for display. May be null if unknown. */
   current: string | null;
-  /** Within target / breaching target / unknown (data not yet wired). */
   status: SloStatus;
-  /** Where the SLI is computed. Helpful for an admin reading raw JSON. */
   source: string;
-  /** Optional human note (e.g. "wiring deferred to Sprint D.2"). */
   note?: string;
 };
 
@@ -71,14 +56,226 @@ type SloEnvelope = {
   slos: SloReport[];
 };
 
+// ---------------------------------------------------------------------------
+// Latency: Vercel Analytics REST API. Only attempts the fetch when the env
+// is configured; otherwise returns a clear "not configured" status.
+// ---------------------------------------------------------------------------
+
+interface VercelAnalyticsConfig {
+  token: string;
+  projectId: string;
+  teamId?: string;
+}
+
+function readVercelAnalyticsConfig(): VercelAnalyticsConfig | null {
+  const token = process.env.VERCEL_ANALYTICS_TOKEN;
+  const projectId = process.env.VERCEL_PROJECT_ID;
+  if (!token || !projectId) return null;
+  return {
+    token,
+    projectId,
+    teamId: process.env.VERCEL_TEAM_ID,
+  };
+}
+
 /**
- * SLO #1 — Overall uptime.
- * Target: 99.9% over rolling 30 days, measured via /api/health probes.
- *
- * TODO: wire to real Sentry / Vercel APIs in Sprint D.2.
- *   - Pull last-30-day probe success ratio from Better Uptime API, OR
- *   - Aggregate from a self-hosted uptime log table.
+ * Fetch a p95 latency in milliseconds for a given route from Vercel
+ * Analytics. The Vercel REST shape varies by plan; we treat any non-2xx
+ * response or unexpected shape as "unknown" and never throw to the caller.
  */
+async function fetchVercelP95Ms(
+  config: VercelAnalyticsConfig,
+  route: string,
+  windowDays: number,
+): Promise<number | null> {
+  const since = Date.now() - windowDays * 24 * 60 * 60 * 1000;
+  const params = new URLSearchParams({
+    projectId: config.projectId,
+    since: String(since),
+    until: String(Date.now()),
+    filter: `route:${route}`,
+    metric: 'p95',
+  });
+  if (config.teamId) params.set('teamId', config.teamId);
+  const url = `https://api.vercel.com/v1/web-analytics/timing?${params.toString()}`;
+  try {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${config.token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { p95?: number; value?: number };
+    if (typeof data.p95 === 'number') return data.p95;
+    if (typeof data.value === 'number') return data.value;
+    return null;
+  } catch (err) {
+    logger.warn('vercel analytics fetch failed', { err, route });
+    return null;
+  }
+}
+
+function evaluateLatencySlo(
+  id: string,
+  name: string,
+  route: string,
+  thresholdMs: number,
+  ms: number | null,
+  configured: boolean,
+): SloReport {
+  if (!configured) {
+    return {
+      id,
+      name,
+      target: `< ${thresholdMs} ms`,
+      current: null,
+      status: 'unknown',
+      source: `Vercel Analytics — route:${route}, p95`,
+      note: 'VERCEL_ANALYTICS_TOKEN / VERCEL_PROJECT_ID not set — measurement unavailable',
+    };
+  }
+  if (ms == null) {
+    return {
+      id,
+      name,
+      target: `< ${thresholdMs} ms`,
+      current: null,
+      status: 'unknown',
+      source: `Vercel Analytics — route:${route}, p95`,
+      note: 'Vercel Analytics returned no usable value (insufficient traffic or API error)',
+    };
+  }
+  return {
+    id,
+    name,
+    target: `< ${thresholdMs} ms`,
+    current: `${Math.round(ms)} ms`,
+    status: ms < thresholdMs ? 'within' : 'breaching',
+    source: `Vercel Analytics — route:${route}, p95`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Error rate: MemberEvent rows in the last 24h.
+// ---------------------------------------------------------------------------
+
+async function measureMemberEventErrorRate(): Promise<SloReport> {
+  const id = 'event_error_rate_24h';
+  const name = 'Member event error rate (24h)';
+  const target = '< 1%';
+  const source = 'member_events table — count(eventName ~ "_failed|_error") / count(*) over 24h';
+  try {
+    const rows = await prisma.$queryRaw<
+      Array<{ total: bigint | number; errors: bigint | number }>
+    >`
+      SELECT
+        COUNT(*) FILTER (
+          WHERE created_at > NOW() - INTERVAL '24 hours'
+        ) AS total,
+        COUNT(*) FILTER (
+          WHERE created_at > NOW() - INTERVAL '24 hours'
+            AND (event_name LIKE '%_failed' OR event_name LIKE '%_error')
+        ) AS errors
+      FROM member_events
+    `;
+    const row = rows[0];
+    const total = Number(row?.total ?? 0);
+    const errors = Number(row?.errors ?? 0);
+    if (total === 0) {
+      return {
+        id,
+        name,
+        target,
+        current: null,
+        status: 'unknown',
+        source,
+        note: 'No member events recorded in the last 24h',
+      };
+    }
+    const rate = errors / total;
+    const pct = (rate * 100).toFixed(2);
+    return {
+      id,
+      name,
+      target,
+      current: `${pct}%`,
+      status: rate < 0.01 ? 'within' : 'breaching',
+      source,
+    };
+  } catch (err) {
+    logger.error('slo: member event error rate query failed', { err });
+    return {
+      id,
+      name,
+      target,
+      current: null,
+      status: 'unknown',
+      source,
+      note: 'Query failed — see server logs',
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// DB pool utilization: pg_stat_activity vs max_connections.
+// ---------------------------------------------------------------------------
+
+async function measureDbPoolUtilization(): Promise<SloReport> {
+  const id = 'db_pool_utilization';
+  const name = 'Database connection pool utilization';
+  const target = '< 80%';
+  const source = 'pg_stat_activity / max_connections';
+  try {
+    const rows = await prisma.$queryRaw<
+      Array<{ current: bigint | number; max_conn: bigint | number }>
+    >`
+      SELECT
+        (SELECT COUNT(*) FROM pg_stat_activity)::bigint AS current,
+        (current_setting('max_connections'))::bigint AS max_conn
+    `;
+    const row = rows[0];
+    const current = Number(row?.current ?? 0);
+    const max = Number(row?.max_conn ?? 0);
+    if (max <= 0) {
+      return {
+        id,
+        name,
+        target,
+        current: null,
+        status: 'unknown',
+        source,
+        note: 'max_connections unavailable',
+      };
+    }
+    const util = current / max;
+    const pct = (util * 100).toFixed(1);
+    return {
+      id,
+      name,
+      target,
+      current: `${current}/${max} (${pct}%)`,
+      status: util < 0.8 ? 'within' : 'breaching',
+      source,
+    };
+  } catch (err) {
+    logger.error('slo: db pool utilization query failed', { err });
+    return {
+      id,
+      name,
+      target,
+      current: null,
+      status: 'unknown',
+      source,
+      note: 'Query failed — see server logs',
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Uptime, email delivery, cross-tenant isolation, Coursera ingestion all
+// still depend on external sources we haven't wired yet. Keep them honest:
+// unknown with a clear note.
+// ---------------------------------------------------------------------------
+
 function measureUptime(): SloReport {
   return {
     id: 'uptime',
@@ -87,81 +284,10 @@ function measureUptime(): SloReport {
     current: null,
     status: 'unknown',
     source: 'External uptime monitor (Better Uptime) hitting /api/health',
-    note: 'Stub — wiring deferred to Sprint D.2',
+    note: 'External monitor not yet wired — measurement unavailable',
   };
 }
 
-/**
- * SLO #2 — /dashboard p95 server render latency.
- * Target: p95 < 500 ms over rolling 7 days.
- *
- * TODO: wire to real Sentry / Vercel APIs in Sprint D.2.
- *   - Sentry Performance: filter transactions by `transaction:/dashboard`,
- *     query p95 over 7d window via the Discover API.
- */
-function measureDashboardLatency(): SloReport {
-  return {
-    id: 'dashboard_latency_p95',
-    name: 'Dashboard p95 latency',
-    target: '< 500 ms',
-    current: null,
-    status: 'unknown',
-    source: 'Sentry Performance — transaction:/dashboard, p95',
-    note: 'Stub — wiring deferred to Sprint D.2',
-  };
-}
-
-/**
- * SLO #3 — /admin/outcomes p95 server render latency.
- * Target: p95 < 500 ms over rolling 7 days.
- *
- * TODO: wire to real Sentry / Vercel APIs in Sprint D.2.
- *   - Sentry Performance: filter transactions by `transaction:/admin/outcomes`,
- *     query p95 over 7d window.
- */
-function measureOutcomesLatency(): SloReport {
-  return {
-    id: 'outcomes_latency_p95',
-    name: '/admin/outcomes p95 latency',
-    target: '< 500 ms',
-    current: null,
-    status: 'unknown',
-    source: 'Sentry Performance — transaction:/admin/outcomes, p95',
-    note: 'Stub — wiring deferred to Sprint D.2',
-  };
-}
-
-/**
- * SLO #4 — Email delivery within 5 minutes.
- * Target: 99% of Email rows show a Resend "delivered" event within 5 min
- * of `queuedAt` over rolling 7 days.
- *
- * TODO: wire to real Sentry / Vercel APIs in Sprint D.2.
- *   - Query: count(Email where deliveredAt is not null and (deliveredAt - queuedAt) <= 5min)
- *           / count(Email where queuedAt > now() - 7d)
- *   - Requires the Resend delivery webhook to be writing `deliveredAt` on Email rows.
- */
-function measureEmailDelivery(): SloReport {
-  return {
-    id: 'email_delivered_5min',
-    name: 'Email delivered within 5 min',
-    target: '99% in 5 min',
-    current: null,
-    status: 'unknown',
-    source: 'Email table + Resend delivery webhook',
-    note: 'Stub — wiring deferred to Sprint D.2 (also gated on Resend webhook backfill)',
-  };
-}
-
-/**
- * SLO #5 — Cross-tenant isolation. Binary SLO.
- * Target: 0 leaks from the synthetic check probing Org A endpoints with Org B credentials.
- *
- * TODO: wire to real Sentry / Vercel APIs in Sprint D.2.
- *   - Until Track A.3 ships the runtime synthetic probe, this is conditional.
- *   - For now, this reports "unknown" and points at the CI per-endpoint test as the
- *     interim assurance.
- */
 function measureCrossTenantIsolation(): SloReport {
   return {
     id: 'cross_tenant_leaks',
@@ -170,18 +296,10 @@ function measureCrossTenantIsolation(): SloReport {
     current: null,
     status: 'unknown',
     source: 'Synthetic monitor (Track A.3 deliverable); interim: CI isolation tests',
-    note: 'Stub — depends on Track A.3 synthetic probe landing',
+    note: 'Runtime synthetic probe not yet wired — interim assurance is CI isolation tests',
   };
 }
 
-/**
- * SLO #6 — Coursera xAPI ingestion success rate.
- * Target: 99.5% of inbound xAPI statements persist within 60 s over rolling 7 days.
- *
- * TODO: wire to real Sentry / Vercel APIs in Sprint D.2.
- *   - Query XapiIngestionLog for success/error counts in the last 7d.
- *   - Cross-check with Sentry exceptions thrown from the xAPI route.
- */
 function measureCourseraIngestion(): SloReport {
   return {
     id: 'coursera_xapi_ingestion',
@@ -190,48 +308,79 @@ function measureCourseraIngestion(): SloReport {
     current: null,
     status: 'unknown',
     source: 'XapiIngestionLog table + Sentry exceptions on /api/coursera/xapi',
-    note: 'Stub — wiring deferred to Sprint D.2',
+    note: 'XapiIngestionLog not yet aggregated here — measurement deferred',
+  };
+}
+
+function measureEmailDelivery(): SloReport {
+  return {
+    id: 'email_delivered_5min',
+    name: 'Email delivered within 5 min',
+    target: '99% in 5 min',
+    current: null,
+    status: 'unknown',
+    source: 'Email table + Resend delivery webhook',
+    note: 'Resend delivery webhook backfill not yet wired — measurement unavailable',
   };
 }
 
 export async function GET() {
   try {
-  // Auth: admin-only. Mirrors the pattern used by every /api/admin/* route.
-  // We deliberately do NOT mirror /api/health's public posture — see the
-  // header comment and docs/SLO-AND-STATUS.md for the rationale.
-  const user = await getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  if (!(await isAdmin(user.id))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!(await isAdmin(user.id))) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-  const generatedAt = new Date().toISOString();
+    const generatedAt = new Date().toISOString();
+    const vercelConfig = readVercelAnalyticsConfig();
 
-  const slos: SloReport[] = [
-    measureUptime(),
-    measureDashboardLatency(),
-    measureOutcomesLatency(),
-    measureEmailDelivery(),
-    measureCrossTenantIsolation(),
-    measureCourseraIngestion(),
-  ];
+    const [dashboardMs, outcomesMs, errorRate, dbPool] = await Promise.all([
+      vercelConfig ? fetchVercelP95Ms(vercelConfig, '/dashboard', 7) : Promise.resolve(null),
+      vercelConfig ? fetchVercelP95Ms(vercelConfig, '/admin/outcomes', 7) : Promise.resolve(null),
+      measureMemberEventErrorRate(),
+      measureDbPoolUtilization(),
+    ]);
 
-  const body: SloEnvelope = {
-    generatedAt,
-    window: 'last 7 days',
-    slos,
-  };
+    const slos: SloReport[] = [
+      measureUptime(),
+      evaluateLatencySlo(
+        'dashboard_latency_p95',
+        'Dashboard p95 latency',
+        '/dashboard',
+        500,
+        dashboardMs,
+        Boolean(vercelConfig),
+      ),
+      evaluateLatencySlo(
+        'outcomes_latency_p95',
+        '/admin/outcomes p95 latency',
+        '/admin/outcomes',
+        500,
+        outcomesMs,
+        Boolean(vercelConfig),
+      ),
+      measureEmailDelivery(),
+      measureCrossTenantIsolation(),
+      measureCourseraIngestion(),
+      errorRate,
+      dbPool,
+    ];
 
-  return NextResponse.json(body, {
-    status: 200,
-    headers: { 'Cache-Control': 'no-store' },
-  });
+    const body: SloEnvelope = {
+      generatedAt,
+      window: 'last 7 days (latency) / last 24h (errors) / live (db pool)',
+      slos,
+    };
 
+    return NextResponse.json(body, {
+      status: 200,
+      headers: { 'Cache-Control': 'no-store' },
+    });
   } catch (error) {
-    console.error('/health/slo error:', error);
+    logger.error('/health/slo error', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

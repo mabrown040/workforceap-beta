@@ -9,6 +9,7 @@ import { getAdminMfaTrustCookieName, verifyAdminMfaTrustToken } from '@/lib/auth
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { getSupabaseEnv } from '@/lib/supabase/env';
+import { logger } from '@/lib/observability/logger';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -170,7 +171,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);
 
   } catch (error) {
-    console.error('/auth/login error:', error);
+    logger.error('/auth/login error', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });

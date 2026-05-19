@@ -21,6 +21,7 @@ import {
   WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER,
   shouldReserveMobileBottomNavClearance,
 } from '@/lib/nav/mobileBottomNavLayout';
+import { REQUEST_ID_HEADER, resolveRequestId } from '@/lib/observability/requestId';
 
 /** Header forwarded to server components / API routes when middleware found a cached org. */
 const WAP_ORG_ID_HEADER = 'x-wap-org-id';
@@ -93,6 +94,14 @@ export async function middleware(request: NextRequest) {
   requestHeaders.delete(WAP_HOST_HEADER);
   requestHeaders.delete(WAP_USER_ID_HEADER);
 
+  // Mint or forward an `x-request-id` for end-to-end correlation. We set
+  // this on BOTH the forwarded request headers (so server components, API
+  // routes, and the structured logger can read it) and the eventual
+  // response below (so the client and intermediate proxies can echo it
+  // back when filing bug reports).
+  const { requestId } = resolveRequestId(request.headers);
+  requestHeaders.set(REQUEST_ID_HEADER, requestId);
+
   const { locale: prefixLocale, pathnameWithoutLocale } = splitLocalePrefix(pathname);
   const effectivePath = prefixLocale ? pathnameWithoutLocale : pathname;
   requestHeaders.set('x-pathname', effectivePath);
@@ -149,6 +158,10 @@ export async function middleware(request: NextRequest) {
   let response = rewriteUrl
     ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
     : NextResponse.next({ request: { headers: requestHeaders } });
+
+  // Echo the request ID on the response so the client and intermediate
+  // logs can correlate to server-side logs/Sentry events.
+  response.headers.set(REQUEST_ID_HEADER, requestId);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

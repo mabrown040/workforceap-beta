@@ -8,6 +8,7 @@ import {
   issueAdminMfaTrustToken,
 } from '@/lib/auth/mfaTrust';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
+import { logger } from '@/lib/observability/logger';
 import { checkVerifyMfaRateLimit } from '@/lib/rate-limit';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
@@ -114,7 +115,7 @@ export async function POST(request: Request) {
   return NextResponse.json({ ok: true, aal: 'aal2' }, { headers: { 'Cache-Control': 'no-store' } });
 
   } catch (error) {
-    console.error('/auth/verify-mfa error:', error);
+    logger.error('/auth/verify-mfa error', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

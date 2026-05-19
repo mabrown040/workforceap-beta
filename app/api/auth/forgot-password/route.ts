@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { checkForgotPasswordRateLimit, checkForgotPasswordEmailRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { logger } from '@/lib/observability/logger';
 
 export async function POST(request: Request) {
   try {
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
       message: 'If an account exists for that email, you will receive reset instructions shortly.',
     });
   } catch (error) {
-    console.error('/auth/forgot-password:', error);
+    logger.error('/auth/forgot-password', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

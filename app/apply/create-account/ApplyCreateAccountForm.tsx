@@ -55,6 +55,15 @@ const US_STATES: { abbr: string; name: string }[] = [
   { abbr: 'WV', name: 'West Virginia' }, { abbr: 'WI', name: 'Wisconsin' }, { abbr: 'WY', name: 'Wyoming' },
 ];
 
+function getPasswordStrengthScore(password: string): number {
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  return score; // 0-4
+}
+
 export default function ApplyCreateAccountForm() {
   const t = useTranslations('apply');
   const tForm = useTranslations('form');
@@ -98,6 +107,15 @@ export default function ApplyCreateAccountForm() {
   const errorSummaryRef = useRef<HTMLDivElement | null>(null);
   const completedRef = useRef(false);
   const dropoffRef = useRef({ startedFields: 0, smsOptIn: false, program_slugs: null as string[] | null });
+  const passwordStrengthScore = getPasswordStrengthScore(password);
+  const passwordStrengthTone =
+    passwordStrengthScore <= 1
+      ? t('accountPasswordStrengthWeak')
+      : passwordStrengthScore === 2
+        ? t('accountPasswordStrengthFair')
+        : passwordStrengthScore === 3
+          ? t('accountPasswordStrengthGood')
+          : t('accountPasswordStrengthStrong');
 
   useEffect(() => {
     trackApplyFunnel(3, 'account_create_view');
@@ -768,6 +786,42 @@ export default function ApplyCreateAccountForm() {
           </button>
         </div>
         <p id="password-hint" className="apply-field-hint">{t('accountPasswordHint')}</p>
+        {password.length > 0 ? (
+          <div aria-live="polite" style={{ marginTop: '0.5rem' }}>
+            <div
+              aria-label={`${t('accountPasswordStrengthLabel')}: ${passwordStrengthTone}`}
+              style={{ display: 'flex', gap: '0.35rem', marginBottom: '0.35rem' }}
+            >
+              {[0, 1, 2, 3].map((index) => {
+                const active = index < passwordStrengthScore;
+                const background =
+                  !active
+                    ? 'var(--outline-variant)'
+                    : passwordStrengthScore <= 1
+                      ? 'var(--color-accent)'
+                      : passwordStrengthScore === 2
+                        ? 'var(--color-gold)'
+                        : 'var(--color-green)';
+                return (
+                  <span
+                    key={index}
+                    aria-hidden="true"
+                    style={{
+                      flex: 1,
+                      height: '0.35rem',
+                      borderRadius: '999px',
+                      background,
+                      transition: 'background 160ms ease',
+                    }}
+                  />
+                );
+              })}
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
+              <strong>{t('accountPasswordStrengthLabel')}:</strong> {passwordStrengthTone}
+            </p>
+          </div>
+        ) : null}
         {fieldErrors.password ? <p id="password-error" className="form-error" role="alert">{fieldErrors.password}</p> : null}
       </div>
       <div className="form-group">

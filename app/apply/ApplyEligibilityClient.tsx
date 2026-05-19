@@ -117,6 +117,7 @@ export default function ApplyEligibilityClient() {
     phoneDigits.length >= 10;
 
   const canContinue = contactOk && q1 !== null && q2 !== null && q3 !== null;
+  const missingEligibilityAnswers = [q1, q2, q3].filter((answer) => answer === null).length;
   const yesCount = [q1, q2, q3].filter((answer) => answer === 'yes').length;
   const qualifies = yesCount >= 2;
 
@@ -392,13 +393,26 @@ export default function ApplyEligibilityClient() {
         )}
 
         <div className="apply-step1-actions">
-          <button type="submit" className={marketingButtonPresets.formSubmitPrimary('apply-step1-actions__primary')}>
+          <button
+            type="submit"
+            className={marketingButtonPresets.formSubmitPrimary('apply-step1-actions__primary')}
+            aria-describedby={attemptedContinue && !canContinue ? 'apply-eligibility-summary-error apply-eligibility-continue-hint' : 'apply-eligibility-continue-hint'}
+          >
             {t('continueToPrograms')}
           </button>
           <button type="button" className={marketingButtonPresets.formOutlineSecondary('apply-step1-actions__secondary')} onClick={handleSaveLater}>
             {t('saveContinueLater')}
           </button>
         </div>
+        {attemptedContinue && !canContinue ? (
+          <p id="apply-eligibility-summary-error" className="apply-eligibility-field-error" role="alert">
+            {!contactOk && missingEligibilityAnswers > 0
+              ? `${t('contactIncompleteError')} ${t('eligibilityRadioError')}`
+              : !contactOk
+                ? t('contactIncompleteError')
+                : t('eligibilityRadioError')}
+          </p>
+        ) : null}
         <p className="apply-consent-line" style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.75rem 0 0', lineHeight: 1.5 }}>
           {t('applyConsentLine')}{' '}
           <LocalizedLink href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>

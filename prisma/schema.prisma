@@ -188,6 +188,7 @@ model User {
   memberProgramProgress    MemberProgramProgress[]
 
   courseraCourseProgress   CourseraCourseProgress[]
+  courseraEnrollments      CourseraEnrollment[]
   courseraBadgeProgress    CourseraBadgeProgress[]
   courseraSkillsetProgress CourseraSkillsetProgress[]
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
@@ -2088,6 +2089,28 @@ model CourseraIdentityMapping {
   @@index([userId])
   @@index([actorIdentifier, actorHomePage])
   @@map("coursera_identity_mappings")
+}
+
+/// Per-member Coursera course enrollment tracked by the completion engine
+/// (webhook progress + future Enrollment API sync). Distinct from portal
+/// `CourseEnrollment` (program slug) and CSV `CourseraCourseProgress`.
+model CourseraEnrollment {
+  id              String    @id @default(uuid())
+  userId          String    @map("user_id")
+  courseId        String    @map("course_id")
+  enrolledAt      DateTime  @map("enrolled_at")
+  lastProgressPct Int       @default(0) @map("last_progress_pct")
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([completedAt])
+  @@map("coursera_enrollments")
 }
 
 /// Per-learner-per-badge (specialization) progress imported from the Coursera

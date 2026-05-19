@@ -143,3 +143,80 @@ export async function fetchCourseraLearnerSkillsetProgress(args: {
     pagesFetched: pages,
   };
 }
+
+// --- Coursera Enrollment API (completion engine stub) ---
+
+const DEFAULT_ENROLLMENT_API_BASE_URL = 'https://api.coursera.com/ent/api/rest/v1';
+
+export type CourseraEnrollmentApiRecord = {
+  enrollmentId: string;
+  userId: string;
+  courseId: string;
+  enrolledAt: string;
+  progressPercent: number;
+  completedAt: string | null;
+};
+
+export type CourseraEnrollmentListResponse = {
+  elements: CourseraEnrollmentApiRecord[];
+  pagination: { total: number; nextPage: string | null } | null;
+};
+
+export class CourseraEnrollmentApiNotConfiguredError extends Error {
+  constructor() {
+    super('Coursera Enrollment API is not configured (set COURSERA_API_KEY)');
+    this.name = 'CourseraEnrollmentApiNotConfiguredError';
+  }
+}
+
+export class CourseraEnrollmentApiNotImplementedError extends Error {
+  constructor(operation: string) {
+    super(`Coursera Enrollment API ${operation} is not wired yet`);
+    this.name = 'CourseraEnrollmentApiNotImplementedError';
+  }
+}
+
+export function getCourseraEnrollmentApiConfig() {
+  return {
+    apiKey: process.env.COURSERA_API_KEY?.trim() || '',
+    apiBaseUrl:
+      process.env.COURSERA_ENROLLMENT_API_BASE_URL?.trim() || DEFAULT_ENROLLMENT_API_BASE_URL,
+  };
+}
+
+export function isCourseraEnrollmentApiConfigured(): boolean {
+  return Boolean(getCourseraEnrollmentApiConfig().apiKey);
+}
+
+function assertEnrollmentApiConfigured(): void {
+  if (!isCourseraEnrollmentApiConfigured()) {
+    throw new CourseraEnrollmentApiNotConfiguredError();
+  }
+}
+
+/** Typed wrapper for Coursera Enrollment API — stub until live HTTP is enabled. */
+export async function listCourseraEnrollments(_args: {
+  userId?: string;
+  courseId?: string;
+  page?: number;
+  limit?: number;
+}): Promise<CourseraEnrollmentListResponse> {
+  assertEnrollmentApiConfigured();
+  throw new CourseraEnrollmentApiNotImplementedError('listCourseraEnrollments');
+}
+
+export async function getCourseraEnrollment(_args: {
+  userId: string;
+  courseId: string;
+}): Promise<CourseraEnrollmentApiRecord> {
+  assertEnrollmentApiConfigured();
+  throw new CourseraEnrollmentApiNotImplementedError('getCourseraEnrollment');
+}
+
+export async function createCourseraEnrollment(_args: {
+  userId: string;
+  courseId: string;
+}): Promise<CourseraEnrollmentApiRecord> {
+  assertEnrollmentApiConfigured();
+  throw new CourseraEnrollmentApiNotImplementedError('createCourseraEnrollment');
+}

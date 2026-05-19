@@ -9,17 +9,7 @@ import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage } from '@/l
 import { buildCsv, csvDate } from '@/lib/csv';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 
-/**
- * GET /api/admin/export/members
- *
- * State-agnostic member training export for workforce reporting.
- * Supports query-param filters: state, stage, program, wioaStatus, dateFrom, dateTo, courseraStatus
- *
- * Designed to satisfy any state's workforce training qualification reporting —
- * columns cover demographics, enrollment, course progress, Coursera access,
- * WIOA qualification, certifications, and placement outcomes.
- */
-export async function GET(req: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -279,5 +269,5 @@ export async function GET(req: NextRequest) {
     console.error('/admin/export/members error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

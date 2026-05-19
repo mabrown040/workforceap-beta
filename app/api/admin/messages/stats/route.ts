@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { countMessageThreadsWithActivity, countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
 
-export async function GET() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -24,4 +24,4 @@ export async function GET() {
     console.error('[admin/messages/stats GET] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

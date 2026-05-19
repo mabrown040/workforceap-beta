@@ -23,6 +23,8 @@ import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { invalidateCache } from '@/lib/cache';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 function tailFromObjectId(objectId: string | null | undefined): string | null {
   if (!objectId) return null;
   try {
@@ -84,9 +86,7 @@ function extractRawStatementActorFields(raw: Record<string, unknown>): {
     actorAccountName,
     actorHomePage,
   };
-}
-
-export async function POST(request: Request) {
+}async function _POST(request: Request) {
   try {
     const ip = getClientIpFromRequest(request);
     const { success: withinLimit } = await checkXapiStatementsPostRateLimit(ip);
@@ -217,8 +217,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function GET() {
+export const POST = withRouteObservability(_POST);async function _GET() {
   try {
     return NextResponse.json(
       {
@@ -232,3 +231,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withRouteObservability(_GET);

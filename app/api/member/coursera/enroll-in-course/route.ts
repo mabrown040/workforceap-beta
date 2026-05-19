@@ -21,39 +21,7 @@ import {
 } from '@/lib/coursera/enrollState';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-/**
- * POST /api/member/coursera/enroll-in-course
- * Body: `{ courseraCourseId: string }` — that's all the client sends.
- * The server resolves the active program, B4B org, and invite/membership/
- * enroll path from the authenticated session.
- *
- * Eligibility rules (server-enforced — never trust the client):
- *   1. `User.courseraEnrollmentApproved` must be `true` → otherwise 403.
- *      The flag is set by the counselor approval / admin toggle paths
- *      documented in `docs/COURSERA-ENROLLMENT-FLOW.md`.
- *   2. `User.enrolledProgram` must be set (member has chosen a program) →
- *      otherwise 400.
- *   3. The requested `courseraCourseId` must belong to the user's enrolled
- *      program (cross-program click protection) → otherwise 400.
- *
- * State graph (delegated to `lib/coursera/enrollState.ts`):
- *   - Not in B4B roster        → invite (Coursera emails them) → 'invited'
- *   - In roster, not in program → membership + enroll          → 'membership-created-and-enrolled'
- *   - In program, not in course → enroll                        → 'enrolled'
- *   - Already enrolled          → 200 + 'already-enrolled' (idempotent re-clicks)
- *
- * Every B4B write produces an `audit_logs` row whose actor is the
- * authenticated user (the member is the actor for self-service enrolls).
- * We chose `audit_logs` rather than inventing a new table because the
- * existing infra already records WIOA reviews, role changes, and admin
- * impersonation — the Coursera seat-spend trail belongs in the same place.
- *
- * 4xx behavior: a 4xx from Coursera (e.g. "already enrolled") is folded
- * into a 200 status='already-enrolled' so a double-click doesn't surface
- * an error toast. 5xx and unknown 4xx propagate as 502 with the audit
- * trail of whatever did succeed before the failure.
- */
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -274,7 +242,7 @@ export async function POST(request: Request) {
     console.error('/member/coursera/enroll-in-course:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 /**
  * Map an `EnrollAuditEvent` to a row in `audit_logs`. The schema columns

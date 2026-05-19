@@ -7,6 +7,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { detectCompletionMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Admin-only synthetic cascade trigger. Inserts a `pending_draft` row for the
  * caller (or a specified userId) so we can exercise the drafting cron +
@@ -31,9 +33,7 @@ const bodySchema = z.object({
   courseName: z.string().min(1).max(200).optional(),
   programSlug: z.string().min(1).max(120).optional(),
   completedCount: z.number().int().min(0).max(100).optional(),
-});
-
-export async function POST(req: NextRequest) {
+});export const POST = withRouteObservability(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -86,4 +86,4 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+});

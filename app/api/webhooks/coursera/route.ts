@@ -15,6 +15,8 @@ import { claimCourseraRestWebhookStatement, markXapiStatementProcessed } from '@
 
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Coursera REST completion / progress webhook.
  *
@@ -87,11 +89,7 @@ function buildSyntheticParsed(
     resultProgressPercent: data.progressPercent ?? null,
     rawStatement: rawForAudit,
   };
-}
-
-// Same withSystemGuc-misuse fix as Stripe + learning-completion webhooks.
-// The factory ran the callback at module load; wrap in a real handler.
-export async function POST(request: Request) {
+}export const POST = withRouteObservability(async (request: Request) => {
   return withSystemGuc(async () => {
   const startTime = Date.now();
   let rawBody = '';
@@ -342,4 +340,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
   });
-}
+});

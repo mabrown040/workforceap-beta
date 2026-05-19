@@ -5,12 +5,9 @@ import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 
-const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'placed'] as const;
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
-/** GET /api/partner/dashboard
- *  Returns partner stats, referrals, and earnings summary.
- */
-export async function GET() {
+const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'placed'] as const;export const GET = withRouteObservability(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -53,4 +50,4 @@ export async function GET() {
     console.error('/partner/dashboard error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

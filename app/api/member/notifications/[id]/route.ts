@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-type Props = { params: Promise<{ id: string }> };
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
-export async function DELETE(_request: Request, { params }: Props) {
+type Props = { params: Promise<{ id: string }> };export const DELETE = withRouteObservability(async (_request: Request, { params }: Props) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -34,4 +34,4 @@ export async function DELETE(_request: Request, { params }: Props) {
     console.error('/member/notifications/[id] delete error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

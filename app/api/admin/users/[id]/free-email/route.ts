@@ -4,23 +4,10 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-/**
- * Rewrite a soft-deleted user's email to the sentinel form so the
- * original address is freed for re-signup. Idempotent — does nothing
- * if the email is already in the sentinel form.
- *
- * Sentinel form (must match app/api/admin/members/[id]/delete/route.ts):
- *   deleted_{userId}_{timestampMs}_{originalEmail}@deleted.invalid
- *
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 4).
- * Lookup + update go through `withTenantScope` so an admin from Org A
- * cannot free an Org B user's email by guessing the UUID. `update`
- * becomes `updateMany` so the proxy can scope the where clause.
- */
-export async function POST(
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
-) {
+) => {
   try {
   const actor = await getUser();
   if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -57,5 +44,5 @@ export async function POST(
     console.error('/admin/users/[id]/free-email error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

@@ -4,6 +4,8 @@ import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { buildPublicWioaPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { checkPublicVoiceSessionRateLimit } from '@/lib/rate-limit';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const payloadSchema = z.object({
   fullName: z.string().trim().max(120).optional(),
   email: z.string().trim().max(200).optional(),
@@ -17,9 +19,7 @@ function getClientIp(request: NextRequest): string {
     request.headers.get('x-real-ip') ||
     'unknown'
   );
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
     const { success: rateOk } = await checkPublicVoiceSessionRateLimit(`public-wioa-voice:${ip}`);
@@ -62,4 +62,4 @@ export async function POST(request: NextRequest) {
     console.error('/public/wioa-qualification/voice-session:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

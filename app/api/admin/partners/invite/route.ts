@@ -4,9 +4,9 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { brandedEmailLayout } from '@/lib/email/template';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
-export async function POST(request: NextRequest) {
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -57,4 +57,4 @@ export async function POST(request: NextRequest) {
     console.error('/admin/partners/invite:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

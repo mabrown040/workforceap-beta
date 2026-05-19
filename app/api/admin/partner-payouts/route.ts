@@ -5,9 +5,9 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
-const PAYOUT_PER_PLACEMENT = 500;
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
-export async function GET(req: NextRequest) {
+const PAYOUT_PER_PLACEMENT = 500;export const GET = withRouteObservability(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -70,4 +70,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

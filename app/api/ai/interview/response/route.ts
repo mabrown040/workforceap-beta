@@ -4,9 +4,9 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { interviewSessions } from '../start/route';
 
-const MAX_QUESTIONS = 5;
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
-export async function POST(request: Request) {
+const MAX_QUESTIONS = 5;export const POST = withRouteObservability(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -116,4 +116,4 @@ Return ONLY a JSON object with these exact keys:
     console.error('/ai/interview/response:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -5,9 +5,9 @@ import { awardPoints } from '@/lib/member/points';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-type Props = { params: Promise<{ id: string }> };
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
-export async function POST(request: Request, { params }: Props) {
+type Props = { params: Promise<{ id: string }> };export const POST = withRouteObservability(async (request: Request, { params }: Props) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -51,5 +51,5 @@ export async function POST(request: Request, { params }: Props) {
     console.error('/admin/members/[id]/award-points error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

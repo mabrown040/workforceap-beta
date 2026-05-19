@@ -6,6 +6,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Build the per-actor scope filter on `memberFeedback.user`. Without scope
  * a counselor or non-super tenant admin who reached this endpoint
@@ -52,9 +54,7 @@ const querySchema = z.object({
   to: z.string().datetime().optional(),
   take: z.coerce.number().int().min(1).max(500).default(100),
   skip: z.coerce.number().int().min(0).default(0),
-});
-
-export async function GET(request: NextRequest) {
+});export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
     const auth = await requireAdminOrCounselor(request);
     if (!auth.ok) {
@@ -132,4 +132,4 @@ export async function GET(request: NextRequest) {
     console.error('/admin/feedback:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

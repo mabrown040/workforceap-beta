@@ -4,7 +4,7 @@ import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { checkXapiOAuthTokenRateLimit } from '@/lib/rate-limit';
 import { issueXapiAccessToken, parseBasicAuth } from '@/lib/xapi/token';
 
-export async function GET() {
+import { withRouteObservability } from '@/lib/api/routeObservability';async function _GET() {
   try {
   return NextResponse.json(
     { error: 'Method not allowed' },
@@ -16,9 +16,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function POST(request: Request) {
+export const GET = withRouteObservability(_GET);async function _POST(request: Request) {
   try {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkXapiOAuthTokenRateLimit(ip);
@@ -67,4 +65,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withRouteObservability(_POST);
 

@@ -6,6 +6,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { unstable_cache } from 'next/cache';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 function computeOutcomes(orgId: string) {
   return withTenantScope(orgId, async (db) => {
       const totalMembers = await db.user.count({ where: { deletedAt: null, userRoles: { some: { role: { name: 'member' } } } } });
@@ -80,9 +82,7 @@ function computeOutcomes(orgId: string) {
         })),
       };
     });
-}
-
-export async function GET(req: NextRequest) {
+}export const GET = withRouteObservability(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
@@ -105,5 +105,5 @@ export async function GET(req: NextRequest) {
     console.error('/admin/outcomes error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

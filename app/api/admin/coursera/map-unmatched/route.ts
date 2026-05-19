@@ -5,17 +5,7 @@ import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 
-/**
- * Inline "Map to WAP user" action used from the Coursera-only learners list.
- *
- * Combines two side effects in one round-trip:
- *   1. Upsert a coursera_identity_mappings row binding userId ↔ courseraEmail
- *      so the next ingest run, xAPI event, etc. resolves automatically.
- *   2. Backfill `user_id` on existing coursera_course_progress and
- *      coursera_badge_progress rows for that email so the new mapping is
- *      reflected immediately on the admin page without needing a re-import.
- */
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -73,4 +63,4 @@ export async function POST(request: Request) {
     console.error('/admin/coursera/map-unmatched:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

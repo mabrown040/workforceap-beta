@@ -10,6 +10,8 @@ import { prisma } from '@/lib/db/prisma';
 
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 export const webhookSchema = z.object({
   memberId: z.string().trim().min(1),
   courseName: z.string().trim().min(1),
@@ -83,13 +85,7 @@ export async function checkIdempotency(dedupeKey: string): Promise<'fresh' | 'al
     }
     throw error;
   }
-}
-
-// withSystemGuc(fn) EXECUTES the callback immediately. The previous
-// `export const POST = withSystemGuc(...)` ran the inner function at
-// module load with `req` undefined. Wrap in a real handler so the
-// callback fires per-request and `req` is bound correctly.
-export async function POST(req: Request) {
+}export const POST = withRouteObservability(async (req: Request) => {
   return withSystemGuc(async () => {
   const startTime = Date.now();
   let rawBody = '';
@@ -249,4 +245,4 @@ export async function POST(req: Request) {
     );
     }
   });
-}
+});

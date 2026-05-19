@@ -4,10 +4,10 @@ import { getMemberResources } from '@/lib/content/memberResources';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-export async function GET(
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -41,5 +41,5 @@ export async function GET(
     console.error('/member/resources/[id]/download error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

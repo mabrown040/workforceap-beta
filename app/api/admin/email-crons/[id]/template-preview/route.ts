@@ -9,6 +9,8 @@ import { adminWeeklyRecapHtml } from '@/emails/admin-weekly-recap';
 import { partnerWeeklyDigestHtml } from '@/emails/partner-weekly-digest';
 import { courseCompletedHtml } from '@/emails/course-completed';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 export type TemplatePreviewResponse = {
   cronId: string;
   cronName: string;
@@ -16,9 +18,7 @@ export type TemplatePreviewResponse = {
   html: string;
 };
 
-type RouteContext = { params: Promise<{ id: string }> };
-
-export async function GET(req: NextRequest, ctx: RouteContext) {
+type RouteContext = { params: Promise<{ id: string }> };export const GET = withRouteObservability(async (req: NextRequest, ctx: RouteContext) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
     console.error('/admin/email-crons/[id]/template-preview error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 
 function buildPreview(id: string): TemplatePreviewResponse | null {

@@ -3,15 +3,15 @@ import { checkCareersRecommendRateLimit } from '@/lib/rate-limit';
 import { buildCareerMatchResult } from '@/lib/onet/recommend';
 import { quizAnswersSchema } from '@/lib/onet/quizSchema';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 function getClientIp(request: NextRequest): string {
   return (
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     'unknown'
   );
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
   const ip = getClientIp(request);
   const { success: rateOk } = await checkCareersRecommendRateLimit(ip);
@@ -42,5 +42,5 @@ export async function POST(request: NextRequest) {
     console.error('/careers/recommend error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

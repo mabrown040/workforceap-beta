@@ -9,6 +9,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { formatPhone } from '@/lib/formatPhone';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const MAX_MEMBERS = 500;
 
 const bodySchema = z.object({
@@ -19,9 +21,7 @@ function csvEscape(s: string | number | null | undefined): string {
   const str = s == null ? '' : String(s);
   if (/[",\n]/.test(str)) return `"${str.replace(/"/g, '""')}"`;
   return str;
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -200,4 +200,4 @@ export async function POST(request: NextRequest) {
     console.error('/admin/members/bulk-export error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

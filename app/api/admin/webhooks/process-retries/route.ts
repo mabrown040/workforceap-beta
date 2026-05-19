@@ -3,13 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getPendingRetryEvents, markWebhookForRetry, updateWebhookEventStatus } from '@/lib/webhooks/retry';
 
-/**
- * Admin endpoint to process pending webhook retries.
- * Can be invoked by cron or manually from the admin UI.
- *
- * Returns summary of processed retries without exposing raw payload data.
- */
-export async function POST(request: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -56,11 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to process retries' }, { status: 500 });
   }
 }
-
-/**
- * GET pending retry count for dashboard badges / monitoring.
- */
-export async function GET(request: NextRequest) {
+export const POST = withRouteObservability(_POST);async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -90,3 +80,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to load pending retries' }, { status: 500 });
   }
 }
+export const GET = withRouteObservability(_GET);

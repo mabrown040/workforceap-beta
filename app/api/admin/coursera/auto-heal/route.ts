@@ -3,15 +3,15 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { autoHealUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 async function requireAdminUser() {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
     return null;
   }
   return user;
-}
-
-export async function POST() {
+}async function _POST() {
   try {
     const user = await requireAdminUser();
     if (!user) {
@@ -34,8 +34,7 @@ export async function POST() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function GET() {
+export const POST = withRouteObservability(_POST);async function _GET() {
   try {
     return NextResponse.json(
       { error: 'Use POST to trigger auto-heal' },
@@ -46,3 +45,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withRouteObservability(_GET);

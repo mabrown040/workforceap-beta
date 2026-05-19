@@ -7,6 +7,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * GET /api/admin/coursera/reconcile?programId=<courseraProgramId>&limit=<n>
  *
@@ -56,9 +58,7 @@ type ReconcileResponse = {
 
 function normEmail(value: string | null | undefined) {
   return (value ?? '').trim().toLowerCase();
-}
-
-export async function GET(request: NextRequest) {
+}export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -254,4 +254,4 @@ export async function GET(request: NextRequest) {
     console.error('/admin/coursera/reconcile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

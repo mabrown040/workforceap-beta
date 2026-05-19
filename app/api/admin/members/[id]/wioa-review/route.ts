@@ -6,6 +6,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -22,9 +24,7 @@ const bodySchema = z.object({
   notes: z.string().max(8000).optional().nullable(),
 });
 
-type Props = { params: Promise<{ id: string }> };
-
-export async function PATCH(request: NextRequest, { params }: Props) {
+type Props = { params: Promise<{ id: string }> };export const PATCH = withRouteObservability(async (request: NextRequest, { params }: Props) => {
   try {
   const actor = await getUser();
   if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -81,5 +81,5 @@ export async function PATCH(request: NextRequest, { params }: Props) {
     console.error('/admin/members/[id]/wioa-review error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

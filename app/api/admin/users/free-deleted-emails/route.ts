@@ -5,21 +5,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-/**
- * Batch-rewrite every soft-deleted user's email to the sentinel form
- * if it isn't already. Backfills the deletes that happened before
- * #757 added per-row email rewriting on delete.
- *
- * Sentinel form (must match app/api/admin/members/[id]/delete/route.ts):
- *   deleted_{userId}_{timestampMs}_{originalEmail}@deleted.invalid
- *
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 4).
- * The list + per-row update go through `withTenantScope` so an admin
- * from Org A only backfills their own tenant's soft-deletes. A super-
- * admin who needs to do this platform-wide should run the operation
- * once per tenant.
- */
-export async function POST() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async () => {
   try {
     const actor = await getUser();
     if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -60,4 +46,4 @@ export async function POST() {
     console.error('/admin/users/free-deleted-emails:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

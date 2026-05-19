@@ -4,15 +4,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-/**
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
- * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
- *
- * Both the lookup and the status update against `Employer` are wrapped
- * in `withTenantScope`. An Org A admin can no longer deactivate an Org
- * B employer by guessing its UUID.
- */
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -46,5 +38,5 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     console.error('/admin/employers/[id]/deactivate error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

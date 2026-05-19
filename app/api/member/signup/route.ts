@@ -7,15 +7,15 @@ import { memberSignupSchema } from '@/lib/validation/member';
 import { checkSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 function getClientIp(request: NextRequest): string {
   return (
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     'unknown'
   );
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
   
@@ -185,4 +185,4 @@ export async function POST(request: NextRequest) {
     console.error('/member/signup:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -5,6 +5,8 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -16,12 +18,10 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 const tierSchema = z.object({
   tier: z.enum(['basic', 'partner']),
-});
-
-export async function PATCH(
+});export const PATCH = withRouteObservability(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -58,5 +58,5 @@ export async function PATCH(
     console.error('/admin/employers/[id]/tier error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

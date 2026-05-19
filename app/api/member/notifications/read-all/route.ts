@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-export async function POST() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -27,4 +27,4 @@ export async function POST() {
     console.error('/member/notifications/read-all error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -5,7 +5,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET(req: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -81,5 +81,5 @@ export async function GET(req: NextRequest) {
     console.error('/admin/pipeline error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

@@ -7,6 +7,8 @@ import { sendJobRejectedEmail } from '@/lib/email';
 import { invalidateJobListings } from '@/app/api/(portal)/dashboard/jobs/route';
 import { z } from 'zod';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -18,12 +20,10 @@ import { z } from 'zod';
  */
 const rejectSchema = z.object({
   reason: z.string().min(1).max(1000),
-});
-
-export async function POST(
+});export const POST = withRouteObservability(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -72,4 +72,4 @@ export async function POST(
     console.error('[admin/jobs/[id]/reject POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

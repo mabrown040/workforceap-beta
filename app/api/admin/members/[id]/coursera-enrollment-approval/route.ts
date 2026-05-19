@@ -7,6 +7,8 @@ import { auditLog } from '@/lib/audit';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * PATCH /api/admin/members/[id]/coursera-enrollment-approval
  * Body: `{ approved: boolean }`
@@ -26,12 +28,10 @@ import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/o
  */
 const patchSchema = z.object({
   approved: z.boolean(),
-});
-
-export async function PATCH(
+});export const PATCH = withRouteObservability(async (
   request: Request,
   { params }: { params: Promise<{ id: string }> },
-) {
+) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -95,5 +95,5 @@ export async function PATCH(
     console.error('/admin/members/[id]/coursera-enrollment-approval error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

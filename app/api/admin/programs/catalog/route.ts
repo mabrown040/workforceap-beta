@@ -8,6 +8,8 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { seedOrganizationProgramCatalog } from '@/lib/platform/seedProgramCatalog';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -42,9 +44,7 @@ const catalogRowSchema = z.object({
   featured: z.boolean().optional().default(false),
   programStartDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
   programEndDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
-});
-
-export async function GET() {
+});async function _GET() {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -83,8 +83,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function POST(request: NextRequest) {
+export const GET = withRouteObservability(_GET);async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -153,12 +152,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withRouteObservability(_POST);
 
 const patchSchema = catalogRowSchema.partial().extend({
   id: z.string().uuid(),
-});
-
-export async function PATCH(request: NextRequest) {
+});async function _PATCH(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -229,3 +227,4 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withRouteObservability(_PATCH);

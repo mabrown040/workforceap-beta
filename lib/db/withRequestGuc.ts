@@ -7,6 +7,7 @@ import {
 } from './gucContext';
 import type { GucContext } from './gucContext';
 import { resolveAuthGucContext } from '@/lib/auth/server';
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
 /**
  * Resolve the minimal GucContext from a Supabase User object.
@@ -94,10 +95,10 @@ export function withAnonymousGuc<T>(fn: () => Promise<T>): Promise<T> {
 export function withApiGuc<T, R extends Request = Request, C = unknown>(
   handler: (request: R, context: C) => Promise<T>,
 ): (request?: Request, context?: C) => Promise<T> {
-  return async (request?: Request, context?: C) => {
+  return withRouteObservability(async (request: R, context: C) => {
     const ctx = await resolveAuthGucContext();
-    return runWithGucContext(ctx, () => handler(request as R, context as C));
-  };
+    return runWithGucContext(ctx, () => handler(request, context));
+  });
 }
 
 /**
@@ -111,11 +112,11 @@ export function withApiGuc<T, R extends Request = Request, C = unknown>(
 export function withAuthenticatedApiGuc<T, R extends Request = Request, C = unknown>(
   handler: (request: R, userId: string, context: C) => Promise<T>,
 ): (request?: Request, context?: C) => Promise<T> {
-  return async (request?: Request, context?: C) => {
+  return withRouteObservability(async (request: R, context: C) => {
     const ctx = await resolveAuthGucContext();
     if (ctx.role === 'anonymous') {
       return Response.json({ error: 'Unauthorized' }, { status: 401 }) as unknown as T;
     }
-    return runWithGucContext(ctx, () => handler(request as R, ctx.userId!, context as C));
-  };
+    return runWithGucContext(ctx, () => handler(request, ctx.userId!, context));
+  });
 }

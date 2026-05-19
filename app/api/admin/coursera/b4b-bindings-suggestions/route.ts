@@ -7,22 +7,7 @@ import { renderPatchHint } from '@/lib/coursera/b4bBindingSuggestions';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-/**
- * GET /api/admin/coursera/b4b-bindings-suggestions
- *
- * Returns name-match suggestions between the static `PROGRAMS` catalog and
- * the live B4B program directory. Each row carries a confidence level
- * (exact / partial / none) plus an `alreadyBound` flag so the admin UI can
- * highlight rows that need attention.
- *
- * Also returns `patchHint` — a copy-pasteable TypeScript snippet that
- * populates `Program.courseraB4BProgramId` for every exact match. Engineers
- * paste it into `lib/content/programs.ts` (or the future DB-backed
- * bindings table) to lock in the match.
- *
- * Auth: super_admin OR admin in the actor's org.
- */
-export async function GET() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async () => {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -64,4 +49,4 @@ export async function GET() {
     console.error('/admin/coursera/b4b-bindings-suggestions:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

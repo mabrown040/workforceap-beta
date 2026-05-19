@@ -14,6 +14,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
 import { checkBulkEmailRateLimit } from '@/lib/rate-limit';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const MAX_MEMBERS = 100;
 const MAX_SUBJECT = 200;
 const MAX_BODY = 8000;
@@ -32,9 +34,7 @@ function getFrom(): string {
 
 function substituteVars(template: string, vars: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_match, key) => vars[key] ?? '');
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -176,4 +176,4 @@ export async function POST(request: NextRequest) {
     console.error('/admin/members/bulk-email error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

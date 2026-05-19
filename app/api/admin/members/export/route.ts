@@ -10,7 +10,7 @@ import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { formatPhone } from '@/lib/formatPhone';
 import { auditLog } from '@/lib/audit';
 
-export async function GET(request: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -239,4 +239,4 @@ export async function GET(request: NextRequest) {
     console.error('[admin/members/export] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -14,6 +14,8 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -68,9 +70,7 @@ const bodySchema = z.object({
   jobDescription: z.string().max(8000).optional(),
   companyName: z.string().max(200).optional(),
   interviewLevel: z.enum(['entry', 'mid', 'senior']).optional(),
-});
-
-export async function POST(req: NextRequest) {
+});export const POST = withRouteObservability(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -175,4 +175,4 @@ export async function POST(req: NextRequest) {
       { status: 503 },
     );
   }
-}
+});

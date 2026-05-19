@@ -5,14 +5,14 @@ import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { z } from 'zod';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const querySchema = z.object({
   type: z.enum(['training', 'counselor', 'platform', 'program', 'general']).optional(),
   rating: z.coerce.number().int().min(1).max(5).optional(),
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),
-});
-
-export async function GET(request: NextRequest) {
+});export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
     const auth = await requireAdminOrCounselor(request);
     if (!auth.ok) {
@@ -73,4 +73,4 @@ export async function GET(request: NextRequest) {
     console.error('[admin/feedback/export] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

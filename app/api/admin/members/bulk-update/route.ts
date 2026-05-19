@@ -9,6 +9,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 import type { PipelineBoardStage } from '@prisma/client';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const MAX_MEMBERS = 100;
 
 const stageValues = ['applied', 'enrolled', 'in_training', 'certified', 'job_searching', 'placed'] as const;
@@ -18,9 +20,7 @@ const bodySchema = z.object({
   pipelineStage: z.enum(stageValues).nullable().optional(),
   counselorUserId: z.string().uuid().nullable().optional(),
   programSlug: z.string().min(1).nullable().optional(),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -195,4 +195,4 @@ export async function POST(request: NextRequest) {
     console.error('/admin/members/bulk-update error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

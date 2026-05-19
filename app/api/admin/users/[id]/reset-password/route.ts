@@ -5,16 +5,10 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
-/**
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
- * The `user.findUnique` goes through `withTenantScope` so an admin
- * from Org A cannot trigger a reset email for an Org B user by guessing
- * their UUID.
- */
-export async function POST(
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const admin = await getUser();
     if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -43,4 +37,4 @@ export async function POST(
     console.error('/admin/users/[id]/reset-password:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

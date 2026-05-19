@@ -6,7 +6,7 @@ import { fetchCounselorPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalC
 import { cookies } from 'next/headers';
 import { getAppLocaleFromCookieStore } from '@/lib/i18n/cookieLocale';
 
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,4 +39,4 @@ export async function POST(request: Request) {
     console.error('/counselor/session:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

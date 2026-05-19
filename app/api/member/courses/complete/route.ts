@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
 
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -36,4 +36,4 @@ export async function POST(request: Request) {
     console.error('/member/courses/complete:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

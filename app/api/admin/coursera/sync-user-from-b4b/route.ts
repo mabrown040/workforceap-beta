@@ -8,6 +8,8 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * POST /api/admin/coursera/sync-user-from-b4b
  *
@@ -33,9 +35,7 @@ const bodySchema = z.object({
 
 function normEmail(value: string | null | undefined): string {
   return (value ?? '').trim().toLowerCase();
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -114,4 +114,4 @@ export async function POST(request: NextRequest) {
     console.error('/admin/coursera/sync-user-from-b4b:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

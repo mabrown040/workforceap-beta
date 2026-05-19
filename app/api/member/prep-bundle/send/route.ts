@@ -3,13 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { fetchInterviewPrepBundle } from '@/lib/member/interviewPrepBundle';
 import { sendInterviewPrepBundleEmail } from '@/lib/email';
 
-/**
- * POST /api/member/prep-bundle/send
- * Body: { memberEmail?: string, selectedToolTypes?: string[] }
- * Sends selected AI tool results as a pre-interview prep bundle email.
- * If selectedToolTypes is omitted, sends all items.
- */
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -59,5 +53,5 @@ export async function POST(request: Request) {
     console.error('/member/prep-bundle/send error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

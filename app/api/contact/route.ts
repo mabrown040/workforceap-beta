@@ -5,6 +5,8 @@ import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml } from '@/lib/email/escapeHtml';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const CONTACT_EMAIL_TO = 'info@workforceap.org';
 
 function getClientIp(request: NextRequest): string {
@@ -13,9 +15,7 @@ function getClientIp(request: NextRequest): string {
     request.headers.get('x-real-ip') ||
     'unknown'
   );
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
     const { success: rateOk } = await checkContactRateLimit(ip);
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     console.error('/contact:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 function parseBody(body: unknown): {
   firstName: string;

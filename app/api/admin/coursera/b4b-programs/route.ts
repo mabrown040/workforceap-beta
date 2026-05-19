@@ -6,6 +6,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { listPrograms, type B4BProgram } from '@/lib/coursera/b4bClient';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * GET /api/admin/coursera/b4b-programs
  *
@@ -39,9 +41,7 @@ const querySchema = z.object({
   limit: z.coerce.number().int().min(1).max(500).optional(),
 });
 
-type B4BProgramWithUrl = B4BProgram & { url?: string; contentCount?: number };
-
-export async function GET(request: Request) {
+type B4BProgramWithUrl = B4BProgram & { url?: string; contentCount?: number };export const GET = withRouteObservability(async (request: Request) => {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -85,4 +85,4 @@ export async function GET(request: Request) {
     console.error('/admin/coursera/b4b-programs:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -2,13 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { buildMemberExport } from '@/lib/member/exportData';
 
-/**
- * GET /api/member/export-data
- *
- * Returns a comprehensive JSON export of all personal data for the authenticated member.
- * Used for GDPR data portability / right of access.
- */
-export async function GET() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -30,4 +24,4 @@ export async function GET() {
     }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

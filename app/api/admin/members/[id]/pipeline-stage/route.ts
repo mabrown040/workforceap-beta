@@ -7,6 +7,8 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { captureApiError } from '@/lib/observability/captureApiError';
 import type { PipelineBoardStage } from '@prisma/client';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
@@ -22,12 +24,10 @@ const bodySchema = z.object({
   stage: z
     .enum(['applied', 'enrolled', 'in_training', 'certified', 'job_searching', 'placed'])
     .nullable(),
-});
-
-export async function PATCH(
+});export const PATCH = withRouteObservability(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,4 +65,4 @@ export async function PATCH(
     captureApiError(error, { route: 'PATCH /api/admin/members/[id]/pipeline-stage' });
     return NextResponse.json({ error: 'Failed to update pipeline stage' }, { status: 500 });
   }
-}
+});

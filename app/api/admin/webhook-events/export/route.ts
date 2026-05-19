@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import type { Prisma } from '@prisma/client';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 function buildWhere(
   q: string,
   source: string,
@@ -39,9 +41,7 @@ function buildWhere(
       },
     ],
   };
-}
-
-export async function GET(request: NextRequest) {
+}export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -86,4 +86,4 @@ export async function GET(request: NextRequest) {
     console.error('[admin/webhook-events/export] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

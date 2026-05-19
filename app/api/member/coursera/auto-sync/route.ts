@@ -10,6 +10,8 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * POST /api/member/coursera/auto-sync
  *
@@ -36,9 +38,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
  *  refreshes a few times in quick succession we don't want to fan out N B4B
  *  pulls. The cron / manual admin path remains the right tool for "force a
  *  refresh now". */
-const AUTO_SYNC_BACKOFF_MS = 60 * 60 * 1000;
-
-export async function POST() {
+const AUTO_SYNC_BACKOFF_MS = 60 * 60 * 1000;export const POST = withRouteObservability(async () => {
   try {
     const user = await getUser();
     if (!user) {
@@ -176,4 +176,4 @@ export async function POST() {
     console.error('/member/coursera/auto-sync:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

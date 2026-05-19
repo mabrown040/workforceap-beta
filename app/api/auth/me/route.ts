@@ -10,7 +10,7 @@ import {
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-export async function GET() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async () => {
   try {
     if (!hasSupabaseServerEnv()) {
       return NextResponse.json(
@@ -71,4 +71,4 @@ export async function GET() {
     captureApiError(err, { route: 'auth/me' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

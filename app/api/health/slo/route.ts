@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * GET /api/health/slo
  *
@@ -192,9 +194,7 @@ function measureCourseraIngestion(): SloReport {
     source: 'XapiIngestionLog table + Sentry exceptions on /api/coursera/xapi',
     note: 'Stub — wiring deferred to Sprint D.2',
   };
-}
-
-export async function GET() {
+}export const GET = withRouteObservability(async () => {
   try {
   // Auth: admin-only. Mirrors the pattern used by every /api/admin/* route.
   // We deliberately do NOT mirror /api/health's public posture — see the
@@ -233,5 +233,5 @@ export async function GET() {
     console.error('/health/slo error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

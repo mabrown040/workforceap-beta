@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getNavBadgeCountsForUser, isValidPortalBadgeRole } from '@/lib/portal/navBadges';
 
-export async function GET(request: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -28,5 +28,5 @@ export async function GET(request: NextRequest) {
     console.error('/portal/nav-badges error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

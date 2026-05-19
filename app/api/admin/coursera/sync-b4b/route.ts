@@ -5,21 +5,13 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 async function requireAdminUser() {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) return null;
   return user;
-}
-
-/**
- * POST /api/admin/coursera/sync-b4b
- *
- * One-time admin trigger: pulls all enrollment reports from Coursera B4B API
- * and writes/upserts them into CourseProgress + MemberProgramProgress.
- *
- * Auth: requires an active admin session (same as /admin/coursera).
- */
-export async function POST() {
+}export const POST = withRouteObservability(async () => {
   try {
     const user = await requireAdminUser();
     if (!user) {
@@ -40,4 +32,4 @@ export async function POST() {
     console.error('/admin/coursera/sync-b4b:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

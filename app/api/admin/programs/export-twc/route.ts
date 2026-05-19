@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 4).
  * The TWC catalog export goes through `withTenantScope` so an admin
@@ -24,9 +26,7 @@ function formatDate(d: Date | null | undefined): string {
   } catch {
     return 'Rolling';
   }
-}
-
-export async function GET() {
+}export const GET = withRouteObservability(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -99,4 +99,4 @@ export async function GET() {
     console.error('/admin/programs/export-twc:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

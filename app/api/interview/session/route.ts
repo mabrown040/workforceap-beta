@@ -7,16 +7,9 @@ import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/ele
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { aiResponseLanguageInstruction, firstInterviewPromptForLanguage, nextInterviewPromptForLanguage, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
 
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
-/**
- * POST /api/interview/session
- *
- * Two modes:
- * 1. ElevenLabs voice: returns a signed conversation URL when ELEVENLABS_API_KEY is set
- * 2. Groq text fallback: returns the first AI question as plain text
- */
-export async function POST(req: NextRequest) {
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;export const POST = withRouteObservability(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -106,4 +99,4 @@ export async function POST(req: NextRequest) {
     console.error('/interview/session:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

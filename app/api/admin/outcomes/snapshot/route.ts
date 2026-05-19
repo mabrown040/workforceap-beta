@@ -2,25 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 import {
   getBoardSnapshot,
   formatBoardSnapshotMarkdown,
   type BoardOutcomesPeriod,
 } from '@/lib/admin/boardOutcomes';
 
-const VALID_PERIODS: BoardOutcomesPeriod[] = ['all-time', 'ytd', 'q-current', 'q-prev'];
-
-/**
- * GET /api/admin/outcomes/snapshot?period=all-time|ytd|q-current|q-prev
- *
- * Single-page Markdown summary of every external-facing outcome metric.
- * This is the artifact Dad walks into TWC, AAUL, or a corporate co-funder
- * room with. Every number is timestamped and sourced from a documented
- * Prisma query (see docs/OUTCOMES-METHODOLOGY.md).
- *
- * Admin-only.
- */
-export async function GET(req: NextRequest) {
+const VALID_PERIODS: BoardOutcomesPeriod[] = ['all-time', 'ytd', 'q-current', 'q-prev'];export const GET = withRouteObservability(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -58,4 +48,4 @@ export async function GET(req: NextRequest) {
     console.error('/admin/outcomes/snapshot:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

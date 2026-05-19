@@ -5,20 +5,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-/**
- * Reference migration for Track A — Tenant Isolation Hardening (Sprint A.1).
- * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
- *
- * The Prisma `job.findMany` call is wrapped in `withTenantScope(orgId, ...)`
- * which auto-injects `where: { organizationId: orgId }` — so this endpoint
- * is provably scoped to a single tenant. A test in
- * `tests/tenant-isolation.test.ts` (future) asserts the invariant.
- *
- * For now `orgId` resolves via `getActorOrganizationId()` (production is
- * single-tenant). When the multi-tenant resolver lands in Sprint A.2,
- * `orgId` will come from the authenticated user's `User.organizationId`.
- */
-export async function GET(request: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -58,4 +45,4 @@ export async function GET(request: NextRequest) {
     captureApiError(error, { route: 'admin/jobs GET' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -3,10 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 
-/** GET /api/partner/members
- *  Returns members referred by the partner.
- */
-export async function GET() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -38,4 +35,4 @@ export async function GET() {
     console.error('/partner/members error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

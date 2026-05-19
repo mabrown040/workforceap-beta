@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { buildCronsWhere } from '../route';
 
-export async function GET(request: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -49,4 +49,4 @@ export async function GET(request: NextRequest) {
     console.error('[admin/crons/export] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -8,15 +8,15 @@ import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/ra
 import { sendEmployerWelcomeEmail, sendEmployerSignupAdminAlertEmail } from '@/lib/email';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 function getClientIp(request: NextRequest): string {
   return (
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     'unknown'
   );
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
 
@@ -196,4 +196,4 @@ export async function POST(request: NextRequest) {
     console.error('/employer/signup:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

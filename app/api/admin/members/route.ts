@@ -5,8 +5,7 @@ import type { Prisma } from '@prisma/client';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
-/** List members for admin (e.g. subgroup add-member search). Supports ?q= for search, ?limit= for max results. */
-export async function GET(request: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,5 +48,5 @@ export async function GET(request: NextRequest) {
     console.error('/admin/members error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

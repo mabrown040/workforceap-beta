@@ -3,13 +3,13 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { generateWioaReport, type WioaReport } from '@/lib/cron/wioa-report';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * In-memory store for the last generated WIOA report.
  * MVP — no DB table needed. Survives as long as the lambda is warm.
  */
-let lastReport: WioaReport | null = null;
-
-export async function POST(req: NextRequest) {
+let lastReport: WioaReport | null = null;async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -37,8 +37,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-export async function GET(req: NextRequest) {
+export const POST = withRouteObservability(_POST);async function _GET(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -54,3 +53,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withRouteObservability(_GET);

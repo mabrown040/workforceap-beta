@@ -8,20 +8,10 @@ import { sendJobApprovedEmail } from '@/lib/email';
 import { runAiMatchForLiveJob } from '@/lib/employer/triggerEmployerJobAiMatch';
 import { invalidateJobListings } from '@/app/api/(portal)/dashboard/jobs/route';
 
-/**
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
- * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
- *
- * The `job.findUnique` and `job.update` calls go through `withTenantScope`
- * so an admin from Org A cannot approve an Org B job by guessing its
- * UUID. The findUnique becomes findFirst because the proxy adds
- * `organizationId` to the where clause and the Prisma `findUnique`
- * accepts only the unique constraint.
- */
-export async function POST(
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -69,4 +59,4 @@ export async function POST(
     console.error('[admin/jobs/[id]/approve POST] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

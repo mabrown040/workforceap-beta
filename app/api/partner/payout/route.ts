@@ -9,12 +9,12 @@ import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 import { isPayoutEligibleType } from '@/lib/partner/partnerType';
 import { z } from 'zod';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const payoutSchema = z.object({
   partnerId: z.string().uuid(),
   placementId: z.string().uuid(),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -88,4 +88,4 @@ export async function POST(request: NextRequest) {
     console.error('[partner/payout] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -7,6 +7,8 @@ import {
 } from '@/lib/rate-limit';
 import { z } from 'zod';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const schema = z.object({
   email: z.string().email(),
   fullName: z.string().min(1),
@@ -20,9 +22,7 @@ function getClientIp(request: NextRequest) {
     request.headers.get('x-vercel-forwarded-for') ??
     'unknown'
   );
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const { success } = await checkConfirmationEmailRateLimit(getClientIp(request));
     if (!success) {
@@ -77,4 +77,4 @@ export async function POST(request: NextRequest) {
     console.error('[app/api/apply/confirmation-email] unexpected error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

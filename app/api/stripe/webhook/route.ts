@@ -4,6 +4,7 @@ import { getStripe, getStripeConnectWebhookSecret, getStripeWebhookSecret } from
 import type Stripe from 'stripe';
 
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
 // withSystemGuc(fn) EXECUTES fn immediately and returns a Promise — it's
 // not a route-handler factory like withApiGuc. The previous `export const
@@ -11,7 +12,7 @@ import { withSystemGuc } from '@/lib/db/withRequestGuc';
 // at module-load time with `request` undefined and exported a Promise
 // instead of a callable handler. Wrap with a real handler that defers
 // execution until Next.js actually invokes POST with the request.
-export async function POST(request: NextRequest) {
+export const POST = withRouteObservability(async (request: NextRequest) => {
   return withSystemGuc(async () => {
   try {
     const payload = await request.text();
@@ -154,4 +155,4 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
   });
-}
+});

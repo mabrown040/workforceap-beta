@@ -12,13 +12,7 @@ import { checkVerifyMfaRateLimit } from '@/lib/rate-limit';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
-/**
- * POST /api/auth/verify-mfa
- * Verifies TOTP code after initial password login.
- * Expects: { code: string } in body.
- * Requires active session with aal1 (from password login).
- */
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: Request) => {
   try {
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({ error: 'MFA verification is currently disabled.' }, { status: 404 });
@@ -117,5 +111,5 @@ export async function POST(request: Request) {
     console.error('/auth/verify-mfa error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

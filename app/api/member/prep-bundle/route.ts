@@ -2,11 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { fetchInterviewPrepBundle } from '@/lib/member/interviewPrepBundle';
 
-/**
- * GET /api/member/prep-bundle
- * Returns the prep bundle data for display (no email sent).
- */
-export async function GET() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async () => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -27,5 +23,5 @@ export async function GET() {
     console.error('/member/prep-bundle error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

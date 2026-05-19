@@ -4,7 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -76,4 +76,4 @@ export async function POST(request: Request) {
     console.error('/admin/members/enhance-resume:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

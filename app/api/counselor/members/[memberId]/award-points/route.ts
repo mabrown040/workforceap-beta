@@ -4,9 +4,9 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { awardPoints } from '@/lib/member/points';
 
-type Props = { params: Promise<{ memberId: string }> };
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
-export async function POST(request: Request, { params }: Props) {
+type Props = { params: Promise<{ memberId: string }> };export const POST = withRouteObservability(async (request: Request, { params }: Props) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -44,5 +44,5 @@ export async function POST(request: Request, { params }: Props) {
     console.error('/counselor/members/[memberId]/award-points error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

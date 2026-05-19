@@ -8,16 +8,7 @@ import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { apiError } from '@/lib/http/errorResponse';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 
-/**
- * POST /api/auth/setup-mfa
- * Enrolls a new TOTP factor for the current user.
- * Returns: { qr, secret, factorId } — client shows QR, user confirms with code.
- * 
- * PATCH /api/auth/setup-mfa
- * Confirms MFA enrollment with initial TOTP code.
- * Body: { factorId, code }
- */
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';async function _POST(request: Request) {
   try {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkAuthRateLimit(`setup-mfa:${ip}`);
@@ -82,9 +73,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(request: Request) {
+export const POST = withRouteObservability(_POST);async function _PATCH(request: Request) {
   try {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkAuthRateLimit(`setup-mfa:${ip}`);
@@ -150,4 +139,5 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withRouteObservability(_PATCH);
 

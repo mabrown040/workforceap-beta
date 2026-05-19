@@ -5,6 +5,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { analyzeAIEfficacy, type AIEfficacyReport } from '@/lib/analytics/aiToolEfficacy';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 function parseDateRange(req: NextRequest): { start: Date; end: Date } {
   const { searchParams } = new URL(req.url);
   const startParam = searchParams.get('startDate');
@@ -27,9 +29,7 @@ function parseDateRange(req: NextRequest): { start: Date; end: Date } {
 
 async function computeAIEfficacyPayload(orgId: string, start: Date, end: Date): Promise<AIEfficacyReport> {
   return analyzeAIEfficacy(orgId, { start, end });
-}
-
-export async function GET(req: NextRequest) {
+}export const GET = withRouteObservability(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -55,4 +55,4 @@ export async function GET(req: NextRequest) {
     console.error('/admin/analytics/ai-efficacy error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -3,16 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { generateSpeech } from '@/lib/ai/elevenlabs';
 
-/**
- * POST /api/ai/interview-voice
- *
- * Generate AI interviewer voice audio using ElevenLabs.
- * Used by the Interview Simulator for text-to-speech.
- *
- * Body: { text: string, voiceId?: string }
- * Returns: audio/mpeg stream
- */
-export async function POST(req: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -59,4 +50,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

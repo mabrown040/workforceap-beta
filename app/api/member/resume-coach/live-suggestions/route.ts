@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { parseResumeCoachSuggestionsFromTranscript } from '@/lib/ai/parseResumeCoachSuggestions';
 
-/**
- * POST — parse the in-progress voice transcript into live resume suggestions.
- * Input: { transcript: Array<{ speaker: 'agent' | 'user'; text: string }> }
- * Output: { suggestions: Array<{ original?: string; suggested: string; context: string }> }
- */
-export async function POST(req: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -27,5 +22,5 @@ export async function POST(req: NextRequest) {
     console.error('/member/resume-coach/live-suggestions error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

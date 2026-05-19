@@ -3,7 +3,7 @@ import { checkForgotPasswordRateLimit, checkForgotPasswordEmailRateLimit } from 
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: Request) => {
   try {
     const ip = getClientIpFromRequest(request);
     const { success: withinIpLimit } = await checkForgotPasswordRateLimit(ip);
@@ -56,4 +56,4 @@ export async function POST(request: Request) {
     console.error('/auth/forgot-password:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

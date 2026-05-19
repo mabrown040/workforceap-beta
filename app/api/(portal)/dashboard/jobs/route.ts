@@ -6,13 +6,12 @@ import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jo
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /** Invalidate cached job listings (called after admin approval/rejection) */
 export async function invalidateJobListings(): Promise<void> {
   await invalidateCache('jobs:list:*');
-}
-
-/** Public jobs listing - only live jobs for students */
-export async function GET(request: NextRequest) {
+}export const GET = withRouteObservability(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
     const keyword = searchParams.get('q')?.trim() || undefined;
@@ -143,4 +142,4 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return handleApiError(error, 'GET /api/jobs');
   }
-}
+});

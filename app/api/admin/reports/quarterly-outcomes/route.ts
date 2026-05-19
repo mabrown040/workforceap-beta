@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 import {
   generateQuarterlyOutcomes,
   getDefaultQuarter,
@@ -20,9 +22,7 @@ function parseYearParam(raw: string | null): number | null {
   const n = parseInt(raw, 10);
   if (Number.isNaN(n) || n < 2020 || n > 2100) return null;
   return n;
-}
-
-export async function GET(req: NextRequest) {
+}export const GET = withRouteObservability(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -53,4 +53,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

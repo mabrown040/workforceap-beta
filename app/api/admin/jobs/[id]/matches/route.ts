@@ -5,10 +5,10 @@ import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { createAdminJobMatchesPrismaDeps } from '@/lib/admin/adminJobMatchesPrismaDeps';
 import { runAdminJobMatchesGet } from '@/lib/admin/runAdminJobMatchesGet';
 
-export async function GET(
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -42,4 +42,4 @@ export async function GET(
     console.error('[admin/jobs/[id]/matches GET] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -8,17 +8,17 @@ import { syncCuratedJobToTracker } from '@/lib/jobs/syncCuratedJobToTracker';
 import { awardPoints } from '@/lib/member/points';
 import { handleApiError, ApiError } from '@/lib/api/errors';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
   resumeUrl: z.string().url().optional(),
   shareProfile: z.boolean(),
   shareResume: z.boolean().optional(),
-});
-
-export async function POST(
+});export const POST = withRouteObservability(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const authUser = await getUser();
     if (!authUser) throw ApiError.unauthorized();
@@ -109,4 +109,4 @@ export async function POST(
   } catch (error) {
     return handleApiError(error, 'POST /api/jobs/[id]/apply');
   }
-}
+});

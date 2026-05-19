@@ -5,21 +5,10 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
-/**
- * POST /api/admin/members/[id]/reset-password
- *
- * Sends a password-reset email to the member via Supabase Auth.
- * Super-admin only.
- *
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
- * The `user.findUnique` goes through `withTenantScope` so a super
- * admin from Org A cannot trigger a reset email for an Org B member by
- * guessing their UUID.
- */
-export async function POST(
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const admin = await getUser();
     if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -51,4 +40,4 @@ export async function POST(
     console.error('/admin/members/[id]/reset-password:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

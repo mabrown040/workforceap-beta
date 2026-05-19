@@ -3,9 +3,9 @@ import { getUser } from '@/lib/auth/server';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { interviewSessions } from '../start/route';
 
-const CATEGORIES = ['communication', 'leadership', 'problem_solving', 'teamwork', 'adaptability'] as const;
+import { withRouteObservability } from '@/lib/api/routeObservability';
 
-export async function GET(request: Request) {
+const CATEGORIES = ['communication', 'leadership', 'problem_solving', 'teamwork', 'adaptability'] as const;export const GET = withRouteObservability(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -107,4 +107,4 @@ Return ONLY a JSON object with these exact keys:
     console.error('/ai/interview/results:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -4,18 +4,10 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-/**
- * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
- * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
- *
- * The `job.findUnique` call is wrapped in `withTenantScope(orgId, ...)`
- * so the org filter is auto-injected. An admin from Org A can no
- * longer load an Org B job by guessing its UUID.
- */
-export async function GET(
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -41,4 +33,4 @@ export async function GET(
     console.error('[admin/jobs/[id] GET] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

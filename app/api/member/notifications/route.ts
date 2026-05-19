@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -48,4 +48,4 @@ export async function GET(request: Request) {
     console.error('/member/notifications error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

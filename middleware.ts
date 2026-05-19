@@ -21,6 +21,7 @@ import {
   WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER,
   shouldReserveMobileBottomNavClearance,
 } from '@/lib/nav/mobileBottomNavLayout';
+import { REQUEST_ID_HEADER } from '@/lib/api/requestId';
 
 /** Header forwarded to server components / API routes when middleware found a cached org. */
 const WAP_ORG_ID_HEADER = 'x-wap-org-id';
@@ -79,9 +80,16 @@ function resolvePreferredLocale(request: NextRequest): { locale: AppLocale; from
   return { locale: pickLocaleFromAcceptLanguage(request.headers.get('accept-language')), fromQuery: false };
 }
 
+function attachRequestId(response: NextResponse, requestId: string): NextResponse {
+  response.headers.set(REQUEST_ID_HEADER, requestId);
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const requestHeaders = new Headers(request.headers);
+  const requestId = requestHeaders.get(REQUEST_ID_HEADER)?.trim() || crypto.randomUUID();
+  requestHeaders.set(REQUEST_ID_HEADER, requestId);
 
   // Codex P1 catch on PR #1046: `new Headers(request.headers)` preserves any
   // client-supplied values for the headers we treat as trusted downstream.
@@ -133,10 +141,10 @@ export async function middleware(request: NextRequest) {
         maxAge: 60 * 60 * 24 * 365,
         sameSite: 'lax',
       });
-      return redirectResponse;
+      return attachRequestId(redirectResponse, requestId);
     }
     target.search = request.nextUrl.search;
-    return NextResponse.redirect(target, 308);
+    return attachRequestId(NextResponse.redirect(target, 308), requestId);
   }
 
   // Strip locale prefix internally (URL bar still shows /es/…)
@@ -146,9 +154,12 @@ export async function middleware(request: NextRequest) {
     rewriteUrl.search = request.nextUrl.search;
   }
 
-  let response = rewriteUrl
-    ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
-    : NextResponse.next({ request: { headers: requestHeaders } });
+  let response = attachRequestId(
+    rewriteUrl
+      ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
+      : NextResponse.next({ request: { headers: requestHeaders } }),
+    requestId,
+  );
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -157,7 +168,7 @@ export async function middleware(request: NextRequest) {
     if (isProtectedPath(effectivePath)) {
       const loginUrl = new URL(localizedLoginPath(prefixLocale ?? inferredLocale), request.url);
       loginUrl.searchParams.set('redirectTo', requestedPathWithSearch(request));
-      return NextResponse.redirect(loginUrl);
+      return attachRequestId(NextResponse.redirect(loginUrl), requestId);
     }
     return response;
   }
@@ -206,7 +217,7 @@ export async function middleware(request: NextRequest) {
   if (isProtectedPath(effectivePath) && !user) {
     const loginUrl = new URL(localizedLoginPath(prefixLocale ?? inferredLocale), request.url);
     loginUrl.searchParams.set('redirectTo', requestedPathWithSearch(request));
-    return NextResponse.redirect(loginUrl);
+    return attachRequestId(NextResponse.redirect(loginUrl), requestId);
   }
 
   if (isStaffMfaEnforcementEnabled() && (isAdminPath(effectivePath) || isAdminApiPath(effectivePath)) && user) {
@@ -224,12 +235,12 @@ export async function middleware(request: NextRequest) {
       }
 
       if (isAdminApiPath(effectivePath)) {
-        return NextResponse.json({ error: 'MFA required' }, { status: 403 });
+        return attachRequestId(NextResponse.json({ error: 'MFA required' }, { status: 403 }), requestId);
       }
 
       if (!effectivePath.startsWith('/verify-mfa') && !effectivePath.startsWith('/setup-mfa')) {
         const verifyUrl = new URL('/verify-mfa', request.url);
-        return NextResponse.redirect(verifyUrl);
+        return attachRequestId(NextResponse.redirect(verifyUrl), requestId);
       }
     }
   }

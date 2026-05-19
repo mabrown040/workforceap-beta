@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 import {
   detectCourseraCsvKind,
   parseCourseActivityCsv,
@@ -56,9 +58,7 @@ async function readCsvFromRequest(request: NextRequest): Promise<{ content: stri
     error: 'Unsupported Content-Type. Send multipart/form-data with a "csv" file field, or raw text/csv.',
     status: 415,
   };
-}
-
-export async function POST(request: NextRequest) {
+}export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await requireAdminUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -152,4 +152,4 @@ export async function POST(request: NextRequest) {
     console.error('/admin/coursera/csv-import:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

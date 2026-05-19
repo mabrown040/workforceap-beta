@@ -9,15 +9,15 @@ import {
 import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 async function requireAdminUser() {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
     return null;
   }
   return user;
-}
-
-export async function GET(request: Request) {
+}async function _GET(request: Request) {
   try {
     const user = await requireAdminUser();
     if (!user) {
@@ -49,8 +49,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function POST(request: Request) {
+export const GET = withRouteObservability(_GET);async function _POST(request: Request) {
   try {
     const user = await requireAdminUser();
     if (!user) {
@@ -142,3 +141,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withRouteObservability(_POST);

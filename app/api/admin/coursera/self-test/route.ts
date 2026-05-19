@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getXapiConfig, getXapiReadiness } from '@/lib/xapi/config';
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 import {
   _resetTokenCacheForTesting,
   getCourseGradebookReports,
@@ -386,9 +388,7 @@ function buildRecommendations(result: SelfTestResult): string[] {
   }
 
   return recs;
-}
-
-export async function GET() {
+}export const GET = withRouteObservability(async () => {
   try {
     const user = await requireAdmin();
     if (!user) {
@@ -550,4 +550,4 @@ export async function GET() {
     console.error('/admin/coursera/self-test:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

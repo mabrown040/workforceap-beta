@@ -6,7 +6,7 @@ import { sendEmployerApprovedEmail } from '@/lib/email';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -73,4 +73,4 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.error('Approve employer error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

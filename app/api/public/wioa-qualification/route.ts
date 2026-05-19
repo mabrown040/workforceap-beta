@@ -5,13 +5,13 @@ import { sendWioaScreeningNotification } from '@/lib/wioa/wioaNotification';
 import { checkPublicWioaQualificationRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const publicLeadSchema = z.object({
   fullName: z.string().trim().min(2, 'Please enter your full name').max(120),
   email: z.string().trim().email('Please enter a valid email').max(200),
   phone: z.string().trim().max(40).optional().or(z.literal('')),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkPublicWioaQualificationRateLimit(ip);
@@ -69,5 +69,5 @@ export async function POST(request: NextRequest) {
     console.error('/public/wioa-qualification error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isOnetConfigured } from '@/lib/onet/client';
 import { fetchAllMiniIpQuestions } from '@/lib/onet/interestProfiler';
 
-export async function GET() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -27,4 +27,4 @@ export async function GET() {
     console.error('/member/interest-profiler/questions:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

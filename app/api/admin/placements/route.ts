@@ -6,7 +6,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 
-export async function GET(req: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';async function _GET(req: NextRequest) {
   try {
   const user = await getUser();
   if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -38,9 +38,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function POST(req: NextRequest) {
+export const GET = withRouteObservability(_GET);async function _POST(req: NextRequest) {
   try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
@@ -73,9 +71,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-export async function PATCH(req: NextRequest) {
+export const POST = withRouteObservability(_POST);async function _PATCH(req: NextRequest) {
   try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
@@ -117,6 +113,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withRouteObservability(_PATCH);
 
 
 function daysSince(date: Date) {

@@ -7,21 +7,7 @@ import { loadB4BContents } from '@/lib/coursera/programContentsCache';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-/**
- * POST /api/admin/coursera/seed-canonical-mappings-from-b4b
- *
- * Companion to `seed-canonical-mappings-from-catalog` that pulls the live
- * B4B program directory (`listPrograms({ excludeContent: false })`) and
- * upserts a `CourseraCanonicalCourseMapping` for every course in every
- * matched program. See `lib/coursera/seedCanonicalMappingsFromB4B.ts` for
- * the matching logic.
- *
- * Auth: super_admin OR admin in the actor's org. Mirrors the catalog seeder.
- *
- * Returns a per-program breakdown so the UI can show which catalog programs
- * still need attention (manual `courseraB4BProgramId` binding).
- */
-export async function POST(_request: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (_request: NextRequest) => {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -61,4 +47,4 @@ export async function POST(_request: NextRequest) {
     console.error('/admin/coursera/seed-canonical-mappings-from-b4b:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

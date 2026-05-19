@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { runWithGucContext, SYSTEM_GUC_CONTEXT } from '@/lib/db/gucContext';
+import { withRouteObservability } from '@/lib/api/routeObservability';
 import { authorizeCronRequest } from './authorizeCronRequest';
 import { isCronEnabled } from './isCronEnabled';
 import { startCronExecution, completeCronExecution, runWithCronExecution } from './cronExecution';
@@ -17,7 +18,7 @@ export function withCronLogging(
   workflowKey: string,
   handler: (request: any) => Promise<any>,
 ) {
-  return async function (request: any): Promise<any> {
+  return withRouteObservability(async (request: any) => {
     const unauthorized = authorizeCronRequest(request);
     if (unauthorized) return unauthorized;
 
@@ -49,5 +50,5 @@ export function withCronLogging(
         );
       }
     });
-  };
+  });
 }

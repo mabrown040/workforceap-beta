@@ -7,14 +7,14 @@ import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 const feedbackSchema = z.object({
   type: z.enum(['training', 'counselor', 'platform', 'program', 'general']),
   rating: z.number().int().min(1).max(5),
   comment: z.string().max(5000).optional(),
   metadata: z.record(z.unknown()).optional(),
-});
-
-export async function POST(request: NextRequest) {
+});export const POST = withRouteObservability(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -63,4 +63,4 @@ export async function POST(request: NextRequest) {
     console.error('/member/feedback:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

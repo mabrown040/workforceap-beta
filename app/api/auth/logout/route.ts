@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from '@/lib/auth/server';
 import { SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { getAdminMfaTrustCookieName } from '@/lib/auth/mfaTrust';
 
-export async function POST(request: Request) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (request: Request) => {
   try {
     // CSRF guard: when an Origin header is present, require its host to
     // match the request's Host header. This is the textbook same-origin
@@ -52,4 +52,4 @@ export async function POST(request: Request) {
     console.error('[auth/logout] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -14,6 +14,8 @@ import {
 } from '@/lib/milestoneCascade/types';
 import { dispatchApprovedCascade } from '@/lib/milestoneCascade/sendApprovedCascade';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Build a where-fragment that restricts a milestone_cascade lookup to the
  * staff user's tenant. Super-admins pass through with no filter; tenant
@@ -56,12 +58,10 @@ const editedDraftSchema = z.object({
 
 const bodySchema = z.object({
   editedDrafts: z.record(z.string(), editedDraftSchema).optional(),
-});
-
-export async function POST(
+});export const POST = withRouteObservability(async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -212,4 +212,4 @@ export async function POST(
       { status: 500 },
     );
   }
-}
+});

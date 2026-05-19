@@ -6,7 +6,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 
-export async function GET(req: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
     console.error('/admin/reports/wioa error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 
 function getQuarterRange(year: number, quarter: string) {

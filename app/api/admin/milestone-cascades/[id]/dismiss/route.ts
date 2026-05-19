@@ -8,6 +8,8 @@ import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * Dismiss a cascade without sending. Reason is optional but encouraged —
  * dismissal text is the highest-signal feedback we get on prompt quality.
@@ -28,12 +30,10 @@ async function resolveCascadeUserFilter(staffUserId: string): Promise<object> {
 
 const bodySchema = z.object({
   reason: z.string().max(1000).optional(),
-});
-
-export async function POST(
+});export const POST = withRouteObservability(async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -107,4 +107,4 @@ export async function POST(
       { status: 500 },
     );
   }
-}
+});

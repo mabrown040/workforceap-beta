@@ -6,31 +6,7 @@ import { seedCanonicalMappingsFromCatalog } from '@/lib/coursera/seedCanonicalMa
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-/**
- * POST /api/admin/coursera/seed-canonical-mappings-from-catalog
- *
- * One-click action that walks the program catalog (`courses` table) and
- * upserts a `CourseraCanonicalCourseMapping` row for every Course with a real
- * (non-`TODO_…`, non-empty) Coursera course id. This is the production fix
- * for an empty mapping table — without it, every inbound xAPI event from
- * Coursera bounces with `completion_status='ignored'` and never promotes to
- * `course_progress`. The /admin/coursera/health page flags the empty state in
- * red; this endpoint resolves it from data we already have.
- *
- * Auth: super_admin OR admin in the actor's org. Mirrors
- * `app/api/admin/coursera/sync-user-from-b4b/route.ts`.
- *
- * Body: none. (The seeder always walks the entire catalog — there's no row
- * filter to expose.)
- *
- * Response: the SeedCanonicalMappingsSummary returned by the lib function:
- *   { scanned, upsertedCreated, upsertedUpdated, skippedPlaceholder, skippedNoProgram }
- *
- * Idempotent — running twice is safe (each row is upserted on the unique
- * `courseraCourseId` column).
- */
-
-export async function POST(_request: NextRequest) {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const POST = withRouteObservability(async (_request: NextRequest) => {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -69,4 +45,4 @@ export async function POST(_request: NextRequest) {
     console.error('/admin/coursera/seed-canonical-mappings-from-catalog:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

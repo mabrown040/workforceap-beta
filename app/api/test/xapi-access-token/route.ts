@@ -1,15 +1,7 @@
 import { NextResponse } from 'next/server';
 import { issueXapiAccessToken } from '@/lib/xapi/token';
 
-/**
- * Issues a short-lived HS256 xAPI access token using the same secret as
- * `/api/xapi/oauth/token`. **Never enable in production.**
- *
- * Enabled when `NODE_ENV === 'test'` or when `E2E_ISSUE_XAPI_TOKEN=1` with
- * `NODE_ENV !== 'production'` (local Playwright + `.env.local` — never set on
- * deployed production).
- */
-export async function GET() {
+import { withRouteObservability } from '@/lib/api/routeObservability';export const GET = withRouteObservability(async () => {
   try {
   // Hard-disable on any Vercel-deployed environment (preview or production).
   // VERCEL_ENV is set by Vercel for every deploy and is not user-settable,
@@ -33,5 +25,5 @@ export async function GET() {
     console.error('/test/xapi-access-token error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

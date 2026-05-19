@@ -4,6 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getUser } from '@/lib/auth/server';
 
+import { withRouteObservability } from '@/lib/api/routeObservability';
+
 /**
  * POST /api/ai/export-pdf
  * Body: {
@@ -374,9 +376,7 @@ function drawFooter(
   page.drawLine({ start: { x: MARGIN, y: FOOTER_H + 8 }, end: { x: PAGE_W - MARGIN, y: FOOTER_H + 8 }, thickness: 0.5, color: RULE });
   const txt = `Workforce Advancement Project · workforceap.org · Page ${pageNum} of ${pageCount}`;
   page.drawText(txt, { x: MARGIN, y: FOOTER_H - 2, font, size: 7, color: MUTED });
-}
-
-export async function POST(req: NextRequest) {
+}export const POST = withRouteObservability(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -583,4 +583,4 @@ export async function POST(req: NextRequest) {
     console.error('[ai/export-pdf] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
 
 const PAYOUT_PER_PLACEMENT = 500;
 
@@ -61,6 +62,23 @@ export async function GET(req: NextRequest) {
         payoutPerPlacement: PAYOUT_PER_PLACEMENT,
       };
     });
+
+    // AUDIT §H-DEP4 / PLAN-2026-Q3 §P4: partner payout reads surface
+    // dollar amounts tied to placement outcomes; every read leaves an
+    // audit trail. Wrapped so a logging failure never blocks the read.
+    await auditLog({
+      actorUserId: user.id,
+      action: 'admin.export.partner_payouts',
+      targetType: 'PartnerPayoutReport',
+      metadata: {
+        rowCount: payouts.length,
+        organizationId: orgId,
+        totalEarned: payouts.reduce((sum, p) => sum + p.earned, 0),
+        payoutPerPlacement: PAYOUT_PER_PLACEMENT,
+      },
+    }).catch((err) =>
+      console.error('[admin/partner-payouts] audit log failed:', err),
+    );
 
     return NextResponse.json({ payouts });
   } catch (error) {

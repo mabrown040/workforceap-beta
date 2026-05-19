@@ -8,14 +8,15 @@
  *
  * GDPR right-to-erasure is handled separately via the admin erase endpoint.
  *
- * AUDIT-2026-05-16 §H-B1: WIOA participant records (eligibility, placement,
- * fund changes, exports, retention surveys) require a 3-year retention
- * window under 20 CFR 677 / §116. The audit-log table also receives "
- * non-sensitive" admin actions like role views and config reads that don't
- * need three years. The CRITICAL_AUDIT_ACTION_PREFIXES list below opts
- * specific action prefixes into the longer retention; everything else
- * keeps the 90-day default. The cleanup job consults this list before
- * deleting an audit row.
+ * AUDIT-2026-05-16 §H-B1 + PLAN-2026-Q3 §P4: WIOA participant records
+ * (eligibility, placement, fund changes, exports, retention surveys)
+ * require a 3-year retention window under 20 CFR 677 / §116. As of
+ * Sprint P4 the audit log default is itself bumped to 3 years so that
+ * federal-funding auditors see a consistent trail across every audit row,
+ * not just the prefix-matched subset. CRITICAL_AUDIT_ACTION_PREFIXES is
+ * preserved for forward-compat — a future bucket needing an even longer
+ * hold (e.g. 7-year fraud trail) can opt in via CRITICAL_AUDIT_RETENTION_DAYS
+ * without touching the default sweep. Today the two windows are equal.
  */
 
 export type RetentionTableConfig = {
@@ -55,15 +56,30 @@ export const CRITICAL_AUDIT_ACTION_PREFIXES: readonly string[] = [
   'member.gdpr_erase',
 ];
 
-/** Retention period applied to audit rows whose action matches a critical prefix. */
-export const CRITICAL_AUDIT_RETENTION_DAYS = 365 * 3 + 1;
+/**
+ * Default retention period for the audit_logs table.
+ *
+ * PLAN-2026-Q3 §P4: bumped from 90d → 3y so the entire audit trail meets
+ * the WIOA federal-funding standard, not just the prefix-matched subset.
+ * 365 * 3 + 1 = include a one-day buffer for leap-year drift.
+ */
+export const RETENTION_AUDIT_DAYS = 365 * 3 + 1;
+
+/**
+ * Retention period applied to audit rows whose action matches a critical prefix.
+ *
+ * Currently equal to RETENTION_AUDIT_DAYS — kept as a separate constant so
+ * a future "extended hold" bucket (fraud trail, litigation hold) can be
+ * lengthened without touching the default sweep.
+ */
+export const CRITICAL_AUDIT_RETENTION_DAYS = RETENTION_AUDIT_DAYS;
 
 export const RETENTION_TABLES: RetentionTableConfig[] = [
   {
     model: 'auditLog',
     dateColumn: 'createdAt',
-    days: 90,
-    description: 'Admin action audit trail (default 90d; critical actions retained 3y — see CRITICAL_AUDIT_ACTION_PREFIXES)',
+    days: RETENTION_AUDIT_DAYS,
+    description: 'Admin action audit trail (3y minimum for WIOA / 20 CFR 677 compliance — see RETENTION_AUDIT_DAYS)',
   },
   {
     model: 'xapiStatement',

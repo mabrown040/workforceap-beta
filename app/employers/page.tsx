@@ -20,10 +20,15 @@ import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.employers');
+  // TODO(design): designer needs to produce `/public/images/og/employers.webp`
+  // (1200x630). Referenced here so social shares of /employers don't fall
+  // back to the generic homepage OG; until the asset lands, social cards
+  // will 404 the image and degrade to no preview.
   return buildPageMetadataAsync({
     title: t('title'),
     description: t('description'),
     path: '/employers',
+    image: '/images/og/employers.webp',
   });
 }
 

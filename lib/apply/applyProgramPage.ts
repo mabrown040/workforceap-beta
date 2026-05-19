@@ -48,12 +48,19 @@ export async function buildApplyPageMetadata(programParam: string | undefined): 
   const program = slug ? getProgramBySlug(slug) : undefined;
   const locale = await getRequestLocale();
 
+  // TODO(design): designer needs to produce `/public/images/og/apply.webp`
+  // (1200x630). Referenced here so social shares of /apply don't fall back
+  // to the generic homepage OG. Applied to both the generic and program-
+  // pre-filled variants of the page.
+  const applyOgImage = '/images/og/apply.webp';
+
   if (!program) {
     return buildPageMetadataAsync({
       title: 'Apply for Career Training',
       description:
         'Apply for career certification training at no cost to members. CompTIA, Google, IBM, AWS, and more. Serving communities nationwide. We follow up with next steps in 1 to 2 business days.',
       path: '/apply',
+      image: applyOgImage,
     });
   }
 
@@ -62,6 +69,7 @@ export async function buildApplyPageMetadata(programParam: string | undefined): 
     title,
     description,
     path: '/apply',
+    image: applyOgImage,
   });
   const localizedApply = withLocalePrefix('/apply', locale);
   return {

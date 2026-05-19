@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
+import { updateCoachMemoryFromTranscript, type CoachTranscriptTurn } from '@/lib/ai/coachMemory';
 import { prisma } from '@/lib/db/prisma';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
@@ -55,7 +56,11 @@ function buildHistoryOutput(transcript: TranscriptTurn[]) {
         'Career and business coach voice session',
         buildHistoryOutput(transcript)
       );
-  
+
+      void updateCoachMemoryFromTranscript(user.id, transcript as CoachTranscriptTurn[]).catch((err) => {
+        console.error('[career-business-coach completion] coach memory update failed:', err);
+      });
+
       try {
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },

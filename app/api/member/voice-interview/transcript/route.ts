@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 import { completeCareerOsInterviewActions } from '@/lib/workflows/completeCareerOsActions';
+import { updateCoachMemoryFromTranscript, type CoachTranscriptTurn } from '@/lib/ai/coachMemory';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -93,11 +94,15 @@ function hasMeaningfulUserPractice(transcript: TranscriptTurn[]) {
         });
       }
   
+      void updateCoachMemoryFromTranscript(user.id, transcript as CoachTranscriptTurn[]).catch((err) => {
+        console.error('[voice-interview transcript] coach memory update failed:', err);
+      });
+
       const dbUser = await prisma.user.findUnique({
         where: { id: user.id },
         select: { fullName: true, email: true },
       });
-  
+
       const recipients = getVoiceCoachTranscriptRecipients();
       if (recipients.length > 0) {
         await sendVoiceCoachTranscriptEmail({

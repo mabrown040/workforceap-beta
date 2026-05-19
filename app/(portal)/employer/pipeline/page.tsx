@@ -15,11 +15,13 @@ import { matchScoreAsPercent } from '@/lib/employer/matchScoreDisplay';
 import { getProgramBySlug } from '@/lib/content/programs';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { employerAiMatchStatusBadgeVariant, employerMatchPipelineLabel } from '@/lib/employer/aiMatchPipelineLabels';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-    title: 'Candidate pipeline',
-    description: 'AI-suggested matches for your open roles.',
+    title: t('candidatePipelineMetaTitle'),
+    description: t('candidatePipelineMetaDesc'),
     path: '/employer/pipeline',
   });
 }
@@ -30,6 +32,8 @@ export default async function EmployerPipelinePage() {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const jobs = await prisma.job.findMany({
     take: 5000,
@@ -75,7 +79,7 @@ export default async function EmployerPipelinePage() {
     if (student.enrolledProgram) {
       return getProgramBySlug(student.enrolledProgram)?.title ?? student.enrolledProgram;
     }
-    return 'No program';
+    return t('noProgram');
   }
 
   const byJob = new Map<string, typeof allMatches>();
@@ -87,14 +91,14 @@ export default async function EmployerPipelinePage() {
 
   const PIPELINE_STRIP = [
     {
-      label: 'New',
+      label: t('pipelineNew'),
       count: allMatches.filter((m) =>
         ['suggested', 'employer_notified', 'student_notified'].includes(m.status)
       ).length,
     },
-    { label: 'Contact', count: allMatches.filter((m) => m.status === 'contacted').length },
-    { label: 'Interview', count: allMatches.filter((m) => m.status === 'interviewing').length },
-    { label: 'Hired', count: allMatches.filter((m) => m.status === 'hired').length },
+    { label: t('pipelineContact'), count: allMatches.filter((m) => m.status === 'contacted').length },
+    { label: t('interview'), count: allMatches.filter((m) => m.status === 'interviewing').length },
+    { label: t('hired'), count: allMatches.filter((m) => m.status === 'hired').length },
   ];
 
   const getInitials = (name: string) =>
@@ -108,15 +112,15 @@ export default async function EmployerPipelinePage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Candidate Pipeline"
-        breadcrumbs={[{ label: 'Employer Portal', href: '/employer' }, { label: 'Candidate Pipeline' }]}
+        title={t('candidatePipeline')}
+        breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('candidatePipeline') }]}
         subtitle={
           <>
-            <span className="wa-block md:wa-hidden">Suggested candidates across your open roles</span>
-            <span className="wa-hidden md:wa-block">Suggested matches from WorkforceAP. Update status as you progress intros and decisions.</span>
+            <span className="wa-block md:wa-hidden">{t('candidatePipelineSubtitleMobile')}</span>
+            <span className="wa-hidden md:wa-block">{t('candidatePipelineSubtitleDesktop')}</span>
           </>
         }
-        action={<Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>Back to jobs</Link>}
+        action={<Link href="/employer/jobs" style={{ padding: '0.625rem 1.25rem', background: 'var(--surface-container-high)', color: 'var(--color-accent)', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>{t('backToJobs')}</Link>}
       />
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.875rem' }}>

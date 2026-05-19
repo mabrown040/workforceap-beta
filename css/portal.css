@@ -6,6 +6,8 @@
  * do not duplicate ~400 bytes of @font-face-adjacent rules in the portal chunk.
  */
 
+@import './portal-main-extracted.css';
+
 /* Portal form controls (shared by FormField primitives): ≥14px copy; mobile uses 16px to reduce iOS zoom-on-focus */
 .portal-form-control {
   box-sizing: border-box;

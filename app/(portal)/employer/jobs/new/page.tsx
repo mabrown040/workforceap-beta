@@ -10,13 +10,15 @@ import { getActivePrograms } from '@/lib/platform/programCatalog';
 import JobForm from '@/components/employer/JobForm';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-  title: 'Post New Job',
-  description: 'Create a new job posting.',
-  path: '/employer/jobs/new',
-});
+    title: t('postNewJobMetaTitle'),
+    description: t('postNewJobMetaDesc'),
+    path: '/employer/jobs/new',
+  });
 }
 
 export default async function NewJobPage() {
@@ -25,6 +27,8 @@ export default async function NewJobPage() {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const employer = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
@@ -37,11 +41,11 @@ export default async function NewJobPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Create Job Posting"
-        subtitle="Create a job posting. Save as draft or submit for admin review."
+        title={t('createJobPosting')}
+        subtitle={t('createJobDesc')}
         breadcrumbs={[
-          { label: 'Job Postings', href: '/employer/jobs' },
-          { label: 'Create Job Posting' },
+          { label: t('jobPostings'), href: '/employer/jobs' },
+          { label: t('createJobPosting') },
         ]}
       />
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>

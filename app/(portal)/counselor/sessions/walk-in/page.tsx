@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -7,11 +8,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import WalkInSessionClient from '@/components/portal/sessions/WalkInSessionClient';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('counselor');
   return buildPageMetadataAsync({
-  title: 'Walk-in session',
-  description: 'Create a new member and run a guided 30-minute session — resume, cover letter, interview prep, all in one.',
-  path: '/counselor/sessions/walk-in',
-});
+    title: t('walkInSessionMetaTitle'),
+    description: t('walkInSessionMetaDesc'),
+    path: '/counselor/sessions/walk-in',
+  });
 }
 
 export default async function WalkInSessionPage() {
@@ -25,15 +27,17 @@ export default async function WalkInSessionPage() {
     redirect('/dashboard');
   }
 
+  const t = await getTranslations('counselor');
+
   return (
     <>
       <PageHeader
-        title="Walk-In Session"
-        subtitle="Brand new member sitting with you. Start with their basics — we'll create their account and walk through resume, cover letter, and interview prep together."
+        title={t('walkInSessionTitle')}
+        subtitle={t('walkInSessionSubtitle')}
         breadcrumbs={[
-          { label: 'Counselor', href: '/counselor' },
-          { label: 'In-Office Sessions', href: '/counselor/sessions' },
-          { label: 'Walk-In Session' },
+          { label: t('counselor'), href: '/counselor' },
+          { label: t('inOfficeSessions'), href: '/counselor/sessions' },
+          { label: t('walkInSession') },
         ]}
       />
       <WalkInSessionClient counselorName={user.email ?? 'your counselor'} />

@@ -13,12 +13,14 @@ import JobReadinessIssueList from '@/components/employer/JobReadinessIssueList';
 import { assessJobPostingReadiness, readinessLabel } from '@/lib/employer/jobReadiness';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import { getTranslations } from 'next-intl/server';
 
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const fallback = await buildPageMetadataAsync({ title: 'Edit Job', description: 'Edit job posting.', path: `/employer/jobs/${id}` });
+  const t = await getTranslations('employer');
+  const fallback = await buildPageMetadataAsync({ title: t('jobDetailsMetaTitle'), description: t('jobDetailsMetaDesc'), path: `/employer/jobs/${id}` });
   const user = await getUser();
   if (!user) return fallback;
   const ctx = await getEmployerForUser(user.id);
@@ -28,8 +30,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     select: { title: true },
   });
   return buildPageMetadataAsync({
-    title: job ? `Edit: ${job.title}` : 'Edit Job',
-    description: 'Edit job posting.',
+    title: job ? `${job.title}` : t('jobDetailsMetaTitle'),
+    description: t('jobDetailsMetaDesc'),
     path: `/employer/jobs/${id}`,
   });
 }
@@ -49,6 +51,8 @@ export default async function EmployerJobDetailPage({ params }: Props) {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const { id } = await params;
   const job = await prisma.job.findFirst({
@@ -109,17 +113,17 @@ export default async function EmployerJobDetailPage({ params }: Props) {
       <article className="employer-job-edit wa-pb-24 md:wa-pb-0">
         <PortalPageFrame>
           <PageHeader
-            title="Job Details"
-            subtitle="Tighten the posting, fix thin sections, and keep the hiring pipeline moving."
+            title={t('jobDetails')}
+            subtitle={t('jobDetailsSubtitle')}
             action={
               <Link href="/employer/jobs" className="btn btn-outline btn-sm">
-                Back to jobs
+                {t('backToJobs')}
               </Link>
             }
           />
 
           <div className="employer-job-edit__back">
-            <Link href="/employer/jobs">← My Jobs</Link>
+            <Link href="/employer/jobs">← {t('myJobs')}</Link>
           </div>
 
           <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'minmax(0, 1.25fr) minmax(320px, 0.75fr)', alignItems: 'start' }}>

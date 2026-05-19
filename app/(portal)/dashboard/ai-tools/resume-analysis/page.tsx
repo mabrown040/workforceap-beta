@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -8,11 +9,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Resume Analysis',
-  description: 'Breakdown of your resume strength, structure, and quick wins — without a job description.',
-  path: '/dashboard/ai-tools/resume-analysis',
-});
+    title: t('resumeAnalysisMetaTitle'),
+    description: t('resumeAnalysisMetaDesc'),
+    path: '/dashboard/ai-tools/resume-analysis',
+  });
 }
 
 export default async function ResumeAnalysisPage() {

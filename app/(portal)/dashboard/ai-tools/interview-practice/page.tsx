@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -10,11 +11,12 @@ import InterviewPracticeSaved from '@/components/portal/tools/InterviewPracticeS
 import PageHeader from '@/components/portal/PageHeader';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Interview Practice Generator',
-  description: 'Generate role-specific interview questions with answer frameworks.',
-  path: '/dashboard/ai-tools/interview-practice',
-});
+    title: t('interviewPracticeMetaTitle'),
+    description: t('interviewPracticeMetaDesc'),
+    path: '/dashboard/ai-tools/interview-practice',
+  });
 }
 
 type SearchParams = Promise<{ prefill?: string; role?: string }>;

@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -9,11 +10,12 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'AI Tool History',
-  description: 'View your past AI tool results.',
-  path: '/dashboard/ai-tools/history',
-});
+    title: t('historyMetaTitle'),
+    description: t('historyMetaDesc'),
+    path: '/dashboard/ai-tools/history',
+  });
 }
 
 const TOOL_LABELS: Record<string, string> = {

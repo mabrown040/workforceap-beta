@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -9,11 +10,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Resume Rewriter',
-  description: 'Rewrite your resume to match your target job.',
-  path: '/dashboard/ai-tools/resume-rewriter',
-});
+    title: t('resumeRewriterMetaTitle'),
+    description: t('resumeRewriterMetaDesc'),
+    path: '/dashboard/ai-tools/resume-rewriter',
+  });
 }
 
 type SearchParams = Promise<{ prefill?: string }>;

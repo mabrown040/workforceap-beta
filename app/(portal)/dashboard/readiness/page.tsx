@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -12,11 +13,12 @@ import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSecti
 import '@/css/counselor.css';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Job Readiness Checklist',
-  description: 'Track your progress toward being job-ready.',
-  path: '/dashboard/readiness',
-});
+    title: t('readinessMetaTitle'),
+    description: t('readinessMetaDesc'),
+    path: '/dashboard/readiness',
+  });
 }
 
 /**

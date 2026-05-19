@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
@@ -27,11 +28,12 @@ const SkillMapperClient = dynamic(() => import('@/components/portal/tools/SkillM
 });
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Skill Mapper',
-  description: 'Explore occupation skills from O*NET. Visualize competency radar charts and top skills for any career path.',
-  path: '/dashboard/ai-tools/skill-mapper',
-});
+    title: t('skillMapperMetaTitle'),
+    description: t('skillMapperMetaDesc'),
+    path: '/dashboard/ai-tools/skill-mapper',
+  });
 }
 
 export default async function SkillMapperPage() {

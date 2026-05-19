@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
@@ -39,6 +40,7 @@ function PortalListSkeleton({ label }: { label: string }) {
 }
 
 export default function PlacementsPage() {
+  const t = useTranslations('counselor');
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -93,15 +95,15 @@ export default function PlacementsPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Failed');
+        throw new Error(err.error || t('failed'));
       }
 
-      setMessage('Placement recorded successfully!');
+      setMessage(t('placementRecordedSuccess'));
       setShowAddForm(false);
       resetForm();
       loadPlacements();
     } catch (e: unknown) {
-      setMessage(e instanceof Error ? e.message : 'Failed to record placement');
+      setMessage(e instanceof Error ? e.message : t('failedToRecordPlacement'));
     } finally {
       setSubmitting(false);
     }
@@ -132,12 +134,12 @@ export default function PlacementsPage() {
   return (
     <div style={{ width: '100%', maxWidth: 'var(--max-width, 80rem)', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 1.5rem) 2rem' }}>
       <PageHeader
-        title="Placement tracking"
-        subtitle="Record and track member job placements."
-        breadcrumbs={[{ label: 'Counselor Portal', href: '/counselor' }, { label: 'Placements' }]}
+        title={t('placementTrackingTitle')}
+        subtitle={t('placementTrackingSubtitle')}
+        breadcrumbs={[{ label: t('counselorPortal'), href: '/counselor' }, { label: t('placements') }]}
         action={
           <button type="button" className="btn btn-primary" onClick={() => setShowAddForm(!showAddForm)}>
-            {showAddForm ? 'Cancel' : 'Record placement'}
+            {showAddForm ? t('cancel') : t('recordPlacement')}
           </button>
         }
       />
@@ -173,33 +175,33 @@ export default function PlacementsPage() {
             marginBottom: '1.5rem',
           }}
         >
-          <SectionHeader title="New placement" density="compact" />
+          <SectionHeader title={t('newPlacement')} density="compact" />
           <div style={{ display: 'grid', gap: '0 1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-            <FormField label="Member ID" required>
+            <FormField label={t('memberId')} required>
               <TextInput type="text" value={memberId} onChange={(e) => setMemberId(e.target.value)} required aria-required />
             </FormField>
-            <FormField label="Employer" required>
+            <FormField label={t('employer')} required>
               <TextInput type="text" value={employerName} onChange={(e) => setEmployerName(e.target.value)} required aria-required />
             </FormField>
-            <FormField label="Job title" required>
+            <FormField label={t('jobTitle')} required>
               <TextInput type="text" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} required aria-required />
             </FormField>
-            <FormField label="Start date">
+            <FormField label={t('startDate')}>
               <TextInput type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
             </FormField>
-            <FormField label="Salary (annual)">
+            <FormField label={t('salaryAnnual')}>
               <TextInput type="number" value={salary} onChange={(e) => setSalary(e.target.value)} placeholder="50000" inputMode="numeric" />
             </FormField>
-            <FormField label="Program">
+            <FormField label={t('program')}>
               <TextInput type="text" value={programSlug} onChange={(e) => setProgramSlug(e.target.value)} placeholder="program-slug" />
             </FormField>
           </div>
-          <FormField label="Notes">
+          <FormField label={t('notes')}>
             <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
           </FormField>
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <button type="submit" disabled={submitting} className="btn btn-primary" style={{ opacity: submitting ? 0.7 : 1 }}>
-              {submitting ? 'Recording…' : 'Record placement'}
+              {submitting ? t('recording') : t('recordPlacement')}
             </button>
             <button
               type="button"
@@ -209,20 +211,20 @@ export default function PlacementsPage() {
                 resetForm();
               }}
             >
-              Cancel
+              {t('cancel')}
             </button>
           </div>
         </form>
       ) : null}
 
-      {loading ? <PortalListSkeleton label="Loading placements…" /> : null}
+      {loading ? <PortalListSkeleton label={t('loadingPlacements')} /> : null}
 
       {!loading && placements.length === 0 ? (
         <PortalEmptyState
-          title="No placements yet"
-          description="When you record a placement, it will appear in this list for your team."
+          title={t('noPlacementsYet')}
+          description={t('noPlacementsDesc')}
           icon={<span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-on-surface-variant)' }} aria-hidden>work</span>}
-          primaryAction={{ label: 'Record placement', onClick: () => setShowAddForm(true) }}
+          primaryAction={{ label: t('recordPlacement'), onClick: () => setShowAddForm(true) }}
         />
       ) : null}
 
@@ -238,8 +240,8 @@ export default function PlacementsPage() {
           <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--outline-variant)' }}>
             <SectionHeader
               density="compact"
-              title="Recorded placements"
-              subtitle={`${placements.length} total`}
+              title={t('recordedPlacements')}
+              subtitle={`${placements.length} ${t('total')}`}
             />
           </div>
           <DataTable
@@ -251,31 +253,31 @@ export default function PlacementsPage() {
             columns={[
               {
                 key: 'member',
-                header: 'Member',
+                header: t('member'),
                 cell: (p) => (
                   <>
                     <div style={{ fontWeight: 600 }}>{p.member_email}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{p.program_slug || 'No program'}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{p.program_slug || t('noProgram')}</div>
                   </>
                 ),
               },
-              { key: 'employer', header: 'Employer', cell: (p) => <span style={{ fontWeight: 500 }}>{p.employer_name}</span> },
-              { key: 'job', header: 'Job title', cell: (p) => p.job_title },
+              { key: 'employer', header: t('employer'), cell: (p) => <span style={{ fontWeight: 500 }}>{p.employer_name}</span> },
+              { key: 'job', header: t('jobTitle'), cell: (p) => p.job_title },
               {
                 key: 'start',
-                header: 'Start date',
+                header: t('startDate'),
                 cell: (p) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{formatDate(p.start_date)}</span>,
               },
               {
                 key: 'salary',
-                header: 'Salary',
+                header: t('salary'),
                 cell: (p) => (
                   <span style={{ fontWeight: 600, color: 'var(--color-green)' }}>{formatCurrency(p.salary_offered)}</span>
                 ),
               },
               {
                 key: 'placed',
-                header: 'Placed',
+                header: t('placed'),
                 cell: (p) => <span style={{ color: 'var(--color-on-surface-variant)' }}>{formatDate(p.placed_at)}</span>,
               },
             ]}

@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -9,11 +10,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Member guide',
-  description: 'Your step-by-step guide to getting from enrolled to employed with WorkforceAP.',
-  path: '/dashboard/guide',
-});
+    title: t('guideMetaTitle'),
+    description: t('guideMetaDesc'),
+    path: '/dashboard/guide',
+  });
 }
 
 const JOURNEY_STEPS = [

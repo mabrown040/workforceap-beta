@@ -1,14 +1,16 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'AI Readiness Coach',
-  description: 'Talk through your career readiness plan with an AI coach — interviews, certifications, and next steps.',
-  path: '/dashboard/ai-tools/readiness-coach',
-});
+    title: t('readinessCoachMetaTitle'),
+    description: t('readinessCoachMetaDesc'),
+    path: '/dashboard/ai-tools/readiness-coach',
+  });
 }
 
 export default async function ReadinessCoachPage() {

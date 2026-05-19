@@ -1,15 +1,23 @@
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PageHeader from '@/components/portal/PageHeader';
 import Link from 'next/link';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
-import CareerCounselor from '@/components/portal/tools/CareerCounselor';
+import MobileBottomNav from '@/components/MobileBottomNav';
 import { studentCounselorVoiceSurface } from '@/lib/portal/voice';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getTranslations } from 'next-intl/server';
-import MobileBottomNav from '@/components/MobileBottomNav';
+
+const CareerCounselor = dynamic(() => import('@/components/portal/tools/CareerCounselor'), {
+  loading: () => (
+    <div className="portal-card portal-card--flat" style={{ padding: '2rem' }}>
+      <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>Loading voice counselor…</p>
+    </div>
+  ),
+});
 
 function parseActionPlan(output: string | null): string[] {
   if (!output) return [];

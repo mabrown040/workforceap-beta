@@ -103,3 +103,64 @@ export function marketingNumPillClasses(options?: { className?: string }): strin
     className: [marketingButton.modifiers.numPill, options?.className].filter(Boolean).join(' '),
   });
 }
+
+/**
+ * Shared compositions for header / hero / forms / step indices.
+ * All use `.btn` (min-height 44px), variant colors, and `btn-radius-*` ladder.
+ */
+export const marketingButtonPresets = {
+  /** Header “Apply Now” and equivalent nav CTAs */
+  navApplyCta: (className = '') =>
+    marketingPrimaryButtonClasses({
+      radius: 'md',
+      className: ['nav-cta', className].filter(Boolean).join(' '),
+    }),
+
+  heroPrimary: (className = '') =>
+    marketingButtonClasses({
+      variant: 'primary',
+      radius: 'lg',
+      large: true,
+      className,
+    }),
+
+  heroSecondaryOnDark: (className = '') =>
+    marketingButtonClasses({
+      variant: 'secondary',
+      radius: 'lg',
+      large: true,
+      onDarkSecondary: true,
+      className,
+    }),
+
+  heroGhostOnDark: (className = '') =>
+    marketingButtonClasses({
+      variant: 'ghost',
+      radius: 'md',
+      large: true,
+      onDarkGhost: true,
+      className,
+    }),
+
+  /** Numbered hero step row — outline capsule on photo scrim */
+  heroStepCapsuleOnDark: (className = '') =>
+    marketingButtonClasses({
+      variant: 'secondary',
+      radius: 'full',
+      onDarkSecondary: true,
+      className,
+    }),
+
+  /** Marketing/public form primary submit — `btn-large` tap target + typography */
+  formSubmitPrimaryLarge: (className = '') =>
+    marketingPrimaryButtonClasses({ radius: 'md', large: true, className }),
+
+  /** Marketing/public form primary submit */
+  formSubmitPrimary: (className = '') => marketingPrimaryButtonClasses({ radius: 'md', className }),
+
+  /** Full-width outline next to primary (apply funnel, etc.) */
+  formOutlineSecondary: (className = '') => marketingSecondaryButtonClasses({ radius: 'md', className }),
+
+  /** Circular step index inside hero / process */
+  stepNumPill: (className = '') => marketingNumPillClasses({ className }),
+} as const;

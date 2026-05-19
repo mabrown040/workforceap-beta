@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
@@ -46,17 +47,19 @@ export default async function CounselorResourcesPage() {
 
   const admin = await isAdmin(user.id);
 
+  const t = await getTranslations('counselor');
+
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Counselor Resources"
-        subtitle="Program context, member-facing pages, and tools you use most often in sessions."
+        title={t('counselorResourcesTitle')}
+        subtitle={t('counselorResourcesSubtitle')}
       />
       {/* Mobile View */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <section style={{ marginBottom: '1.75rem' }}>
           <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
-            Counseling Workflow
+            {t('counselingWorkflow')}
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {WORKFLOW_LINKS.map((link) => (
@@ -67,7 +70,7 @@ export default async function CounselorResourcesPage() {
 
         <section style={{ marginBottom: '1.75rem' }}>
           <h2 className="portal-section-title" style={{ marginBottom: '0.75rem' }}>
-            Member-Facing Reference
+            {t('memberFacingReference')}
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {REFERENCE_LINKS.map((link) => (

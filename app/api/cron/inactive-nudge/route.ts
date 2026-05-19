@@ -8,18 +8,22 @@ import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
 /**
  * Cron endpoint to send inactive member nudge emails.
- * Run daily (e.g. via Vercel Cron: "0 10 * * *" for 10 AM).
- * Sends to members inactive for 7+ days who have notificationsReminders enabled.
- * Protected with CRON_SECRET header.
- *
- * PERF: Instead of scanning the entire member_events table with an unfiltered
- * groupBy, we query only events from the last 7 days to find ACTIVE users,
- * then find eligible members NOT in that set. This bounds the scan to a 7-day
- * window regardless of table size.
+ * Weekly nudge to members inactive for 7+ days.
+ * Runs Monday 10 AM UTC. Deduplicates against memberEvents from the
+ * last 7 days so no one receives more than one nudge per week.
+ * Secured with CRON_SECRET.
+
  */
 async function handle(_request: Request) {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  // Find users who already received an inactive nudge in the last 7 days.
+  const recentlyNudged = await prisma.memberEvent.groupBy({
+    by: ['userId'],
+    where: { eventName: 'inactive_nudge_sent', createdAt: { gte: sevenDaysAgo } },
+  });
+  const nudgedUserIds = new Set(recentlyNudged.map((r) => r.userId));
 
   // Find users who HAVE had activity in the last 7 days (bounded scan).
   const recentlyActive = await prisma.memberEvent.groupBy({
@@ -28,12 +32,12 @@ async function handle(_request: Request) {
   });
   const activeUserIds = new Set(recentlyActive.map((r) => r.userId));
 
-  // Find eligible members who are NOT in the active set (capped to 1000 per run).
+  // Find eligible members who are NOT active AND NOT recently nudged (capped to 1000 per run).
   const members = await prisma.user.findMany({
     where: {
       deletedAt: null,
       notificationsReminders: true,
-      id: { notIn: [...activeUserIds] },
+      id: { notIn: [...activeUserIds, ...nudgedUserIds] },
     },
     select: { id: true, email: true, fullName: true },
     take: 1000,
@@ -46,13 +50,24 @@ async function handle(_request: Request) {
         to: member.email,
         fullName: member.fullName,
       });
-      if (result.ok) sent++;
+      if (result.ok) {
+        sent++;
+        // Record that we sent a nudge so we don't email again this week.
+        await prisma.memberEvent.create({
+          data: {
+            userId: member.id,
+            eventName: 'inactive_nudge_sent',
+            entityType: 'cron',
+            metadata: { source: 'inactive-nudge', weekOf: sevenDaysAgo.toISOString() },
+          },
+        }).catch(() => { /* non-fatal */ });
+      }
     } catch (err) {
       captureApiError(err, { route: 'cron/inactive-nudge', extra: { userId: member.id } });
     }
   }
 
-  const runResult = { ok: true, checkedAt: new Date().toISOString(), recentlyActiveCount: activeUserIds.size, inactiveEmailsSent: sent };
+  const runResult = { ok: true, checkedAt: new Date().toISOString(), recentlyActiveCount: activeUserIds.size, recentlyNudgedCount: nudgedUserIds.size, inactiveEmailsSent: sent };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_inactive_nudge', runResult);
   return NextResponse.json(runResult);

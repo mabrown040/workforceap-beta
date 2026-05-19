@@ -4,22 +4,25 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import ApplyPageSkeleton from '../ApplyPageSkeleton';
 import ApplyResultsClient from './ApplyResultsClient';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('apply');
   return buildPageMetadataAsync({
-  title: 'Choose Your Programs',
-  description: 'Review your likely fit, rank up to three programs, and continue to account creation.',
-  path: '/apply/results',
-});
+    title: t('resultsMetaTitle'),
+    description: t('resultsMetaDescription'),
+    path: '/apply/results',
+  });
 }
 
-export default function ApplyResultsPage() {
+export default async function ApplyResultsPage() {
+  const t = await getTranslations('apply');
   return (
     <div className="inner-page">
       <section className="page-hero">
         <div className="page-hero-content">
-          <h1>Step 2 of 3 — choose your programs</h1>
-          <p>Rank up to three programs in order of preference. You&rsquo;ll create your account on the next step so we can save your choices and follow up.</p>
+          <h1>{t('resultsHeroTitle')}</h1>
+          <p>{t('resultsHeroBody')}</p>
         </div>
       </section>
 

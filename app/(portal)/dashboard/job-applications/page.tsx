@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
@@ -27,11 +28,12 @@ const JobApplicationsTracker = dynamic(() => import('@/components/portal/JobAppl
 });
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Application tracker',
-  description: 'Track your job applications and interview progress from the Jobs workflow.',
-  path: '/dashboard/job-applications',
-});
+    title: t('jobApplicationsMetaTitle'),
+    description: t('jobApplicationsMetaDesc'),
+    path: '/dashboard/job-applications',
+  });
 }
 
 export default async function JobApplicationsPage() {

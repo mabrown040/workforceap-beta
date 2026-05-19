@@ -5,10 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import LocalizedLink from '@/components/LocalizedLink';
 import Footer from '@/components/Footer';
 import { CTABand, HeroSection, PageSection, PartnershipCard, SectionHeader, ValueCard } from '@/components/marketing/ui';
-import {
-  marketingGhostButtonClasses,
-  marketingPrimaryButtonClasses,
-} from '@/lib/marketing/buttonClasses';
+import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { getTranslations } from 'next-intl/server';
@@ -105,22 +102,14 @@ export default async function PartnersPage() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginTop: '2.5rem' }}>
           <LocalizedLink
             href={partnerSignupHref}
-            className={marketingPrimaryButtonClasses({
-              radius: 'lg',
-              large: true,
-            })}
+            className={marketingButtonPresets.heroPrimary()}
           >
             {t('heroCta')}
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
           </LocalizedLink>
           <LocalizedLink
             href="#partner-types"
-            className={marketingGhostButtonClasses({
-              radius: 'md',
-              large: true,
-              onDarkGhost: true,
-              className: 'marketing-inline-ghost-link',
-            })}
+            className={marketingButtonPresets.heroGhostOnDark('marketing-inline-ghost-link')}
           >
             {t('heroSecondary')}
           </LocalizedLink>

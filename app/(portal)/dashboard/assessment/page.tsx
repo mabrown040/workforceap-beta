@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -9,11 +10,12 @@ import Link from 'next/link';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Skills Snapshot',
-  description: 'A quick 10-minute skills snapshot before your Coursera courses are activated.',
-  path: '/dashboard/assessment',
-});
+    title: t('assessmentMetaTitle'),
+    description: t('assessmentMetaDesc'),
+    path: '/dashboard/assessment',
+  });
 }
 
 export default async function AssessmentPage({

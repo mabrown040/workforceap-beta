@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
@@ -14,9 +15,10 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
+  const t = await getTranslations('employer');
   const fallback = await buildPageMetadataAsync({
-    title: 'Applicants',
-    description: 'Review applicants for this job.',
+    title: t('applicantsMetaTitle'),
+    description: t('applicantsMetaDesc'),
     path: `/employer/jobs/${id}/applicants`,
   });
   const user = await getUser();
@@ -28,8 +30,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     select: { title: true },
   });
   return buildPageMetadataAsync({
-    title: job ? `Applicants: ${job.title}` : 'Applicants',
-    description: 'Review applicants for this job.',
+    title: job ? `${t('applicantsFor')}: ${job.title}` : t('applicantsMetaTitle'),
+    description: t('applicantsMetaDesc'),
     path: `/employer/jobs/${id}/applicants`,
   });
 }
@@ -40,6 +42,8 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const { id } = await params;
   const job = await prisma.job.findFirst({
@@ -69,16 +73,16 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
   return (
     <PortalPageFrame>
       <PageHeader
-        title={`Applicants: ${job.title}`}
-        subtitle={`${applicants.length} candidate${applicants.length === 1 ? '' : 's'} applied`}
+        title={`${t('applicantsFor')}: ${job.title}`}
+        subtitle={`${applicants.length} ${applicants.length === 1 ? t('applicant') : t('applicants')}`}
         breadcrumbs={[
-          { label: 'Job Postings', href: '/employer/jobs' },
+          { label: t('jobPostings'), href: '/employer/jobs' },
           { label: job.title, href: `/employer/jobs/${id}` },
-          { label: 'Applicants' },
+          { label: t('applicantsMetaTitle') },
         ]}
         action={
           <Link href={`/employer/jobs/${id}`} className="btn btn-outline btn-sm">
-            Back to job
+            {t('backToJob')}
           </Link>
         }
       />

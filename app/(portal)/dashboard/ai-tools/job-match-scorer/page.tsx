@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -8,11 +9,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Job Match Scorer',
-  description: 'See how well your resume matches a job and get specific gaps to address.',
-  path: '/dashboard/ai-tools/job-match-scorer',
-});
+    title: t('jobMatchScorerMetaTitle'),
+    description: t('jobMatchScorerMetaDesc'),
+    path: '/dashboard/ai-tools/job-match-scorer',
+  });
 }
 
 export default async function JobMatchScorerPage() {

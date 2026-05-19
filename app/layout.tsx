@@ -8,7 +8,6 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
-import ScrollAnimationsWrapper from '@/components/ScrollAnimationsWrapper';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
 import { getRequestOrgBranding } from '@/lib/platform/defaultOrgTheme';
@@ -24,8 +23,7 @@ import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
 import '@/css/marketing-a11y.css';
-import DeferredAnalytics from '@/components/DeferredAnalytics';
-import CookieConsentBanner from '@/components/CookieConsentBanner';
+import DeferredRootChrome from '@/components/DeferredRootChrome';
 
 const WAP_USER_ID_HEADER = 'x-wap-user-id';
 
@@ -60,6 +58,8 @@ function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMes
     apply: m.apply,
     admin: m.admin,
     findYourPath: m.findYourPath,
+    counselor: m.counselor,
+    employer: m.employer,
   };
   if (mk && mk.programs !== undefined) {
     out.marketing = { programs: mk.programs };
@@ -199,9 +199,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <ConditionalMarketingNav />
         <main id="main-content">{children}</main>
         </NextIntlClientProvider>
-        <ScrollAnimationsWrapper />
-        <DeferredAnalytics />
-        <CookieConsentBanner />
+        <DeferredRootChrome />
       </body>
     </html>
   ));

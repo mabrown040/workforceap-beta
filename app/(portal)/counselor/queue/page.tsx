@@ -11,6 +11,7 @@ import {
   getCounselorWorkQueue,
   previewMessageBody,
 } from '@/lib/counselor/workQueue';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,14 +33,16 @@ export default async function CounselorWorkQueuePage() {
     error = true;
   }
 
+  const t = await getTranslations('counselor');
+
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Work Queue"
-        subtitle={`Members waiting on a reply for more than 24 hours. Sorted oldest first.`}
+        title={t('workQueue')}
+        subtitle={t('workQueueSubtitle')}
         breadcrumbs={[
-          { label: 'Counselor Portal', href: '/counselor' },
-          { label: 'Work Queue' },
+          { label: t('counselorPortalBreadcrumb'), href: '/counselor' },
+          { label: t('workQueue') },
         ]}
       />
 
@@ -62,19 +65,19 @@ export default async function CounselorWorkQueuePage() {
               error
             </span>
             <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>
-              Could not load work queue
+              {t('workQueueLoadError')}
             </h3>
             <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-              Something went wrong fetching the queue. Try refreshing the page.
+              {t('workQueueLoadErrorDesc')}
             </p>
             <Link href="/counselor/queue" className="btn btn-primary">
-              Retry
+              {t('retry')}
             </Link>
           </div>
         ) : rows.length === 0 ? (
           <PortalEmptyState
-            title="All caught up"
-            description="No member is waiting more than 24 hours for a reply. Nice work."
+            title={t('allCaughtUp')}
+            description={t('workQueueEmptyDesc')}
             icon={
               <span
                 className="material-symbols-outlined"
@@ -84,8 +87,8 @@ export default async function CounselorWorkQueuePage() {
                 done_all
               </span>
             }
-            primaryAction={{ label: 'Open Messages', href: '/counselor/messages' }}
-            secondaryAction={{ label: 'Back to Dashboard', href: '/counselor' }}
+            primaryAction={{ label: t('openMessages'), href: '/counselor/messages' }}
+            secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
           />
         ) : (
           <>
@@ -105,7 +108,7 @@ export default async function CounselorWorkQueuePage() {
                   fontWeight: 600,
                 }}
               >
-                {rows.length} member{rows.length === 1 ? '' : 's'} awaiting reply
+                {t('workQueueMembersAwaiting', { count: rows.length })}
               </p>
               <Link
                 href="/counselor/messages"
@@ -115,7 +118,7 @@ export default async function CounselorWorkQueuePage() {
                   color: 'var(--color-accent)',
                 }}
               >
-                Open Messages →
+                {t('openMessages')} →
               </Link>
             </div>
 

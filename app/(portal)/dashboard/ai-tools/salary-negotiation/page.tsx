@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -8,11 +9,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Salary Negotiation Script',
-  description: 'Get a word-for-word script to negotiate your offer—phone or email.',
-  path: '/dashboard/ai-tools/salary-negotiation',
-});
+    title: t('salaryNegotiationMetaTitle'),
+    description: t('salaryNegotiationMetaDesc'),
+    path: '/dashboard/ai-tools/salary-negotiation',
+  });
 }
 
 export default async function SalaryNegotiationPage() {

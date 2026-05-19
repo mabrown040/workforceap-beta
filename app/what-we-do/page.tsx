@@ -6,6 +6,8 @@ import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { getTranslations } from 'next-intl/server';
 import { SectionHeader } from '@/components/marketing/ui';
+import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
+import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { prisma } from '@/lib/db/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -54,7 +56,7 @@ export default async function WhatWeDoPage() {
           fill
           priority
           fetchPriority="high"
-          sizes="100vw"
+          sizes={MARKETING_FULL_BLEED_HERO_SIZES}
           style={{ objectFit: 'cover', objectPosition: 'center' }}
           aria-hidden="true"
         />
@@ -140,48 +142,13 @@ export default async function WhatWeDoPage() {
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            <LocalizedLink
-              href="/programs"
-              className="wwd-photo-hero__cta-primary"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: 'var(--color-accent)',
-                color: '#ffffff',
-                padding: '1rem 2rem',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 700,
-                textDecoration: 'none',
-                transition: 'var(--transition-base)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
-              }}
-            >
+            <LocalizedLink href="/programs" className={marketingButtonPresets.heroPrimary('wwd-photo-hero__cta-primary')}>
               {t('heroCta1')}
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'inherit' }} aria-hidden>
                 arrow_forward
               </span>
             </LocalizedLink>
-            <LocalizedLink
-              href="/contact?topic=partnership"
-              className="wwd-photo-hero__cta-secondary"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                background: 'rgba(255,255,255,0.12)',
-                backdropFilter: 'var(--glass-blur)',
-                border: '1px solid rgba(255,255,255,0.28)',
-                color: '#ffffff',
-                padding: '1rem 2rem',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 700,
-                textDecoration: 'none',
-                transition: 'var(--transition-base)',
-                textShadow: '0 1px 10px rgba(0,0,0,0.45)',
-                boxShadow: '0 2px 16px rgba(0,0,0,0.2)',
-              }}
-            >
+            <LocalizedLink href="/contact?topic=partnership" className={marketingButtonPresets.heroSecondaryOnDark('wwd-photo-hero__cta-secondary')}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'inherit' }} aria-hidden>
                 handshake
               </span>

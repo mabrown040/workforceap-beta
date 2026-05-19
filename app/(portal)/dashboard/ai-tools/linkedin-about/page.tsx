@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -7,11 +8,12 @@ import PageHeader from '@/components/portal/PageHeader';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'LinkedIn About Section Generator',
-  description: 'Create a polished LinkedIn About section from your role and resume or bullet points.',
-  path: '/dashboard/ai-tools/linkedin-about',
-});
+    title: t('linkedinAboutMetaTitle'),
+    description: t('linkedinAboutMetaDesc'),
+    path: '/dashboard/ai-tools/linkedin-about',
+  });
 }
 
 export default async function LinkedInAboutPage() {

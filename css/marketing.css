@@ -63,8 +63,8 @@ html {
 
   /*
    * Single global inset under `#main-content` whenever the fixed MobileBottomNav is reserved
-   * (middleware first paint) or mounted — covers marketing and WorkspaceShell portals without
-   * relying on inner scroll regions missing `.workspace-shell-main` padding.
+   * (middleware first paint) or mounted — marketing stays on `<main>`; WorkspaceShell adds the
+   * same inset on `.workspace-shell-main` (see below) so the scrolling column clears the fixed bar.
    */
   html.wap-reserve-mobile-bottom-nav main#main-content,
   html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) main#main-content {
@@ -77,6 +77,27 @@ html {
   html.wap-portal-chrome-compact:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) main#main-content {
     padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
     scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
+  }
+
+  /*
+   * WorkspaceShell (employer / partner / counselor / admin): `#main-content` padding sits after a
+   * tall flex column — on mobile WebKit the last in-flow controls can still sit under the fixed nav.
+   * Drop duplicate inset from `<main>` and reserve clearance on the scrolling column instead.
+   */
+  html.wap-reserve-mobile-bottom-nav main#main-content:has(.workspace-shell-root),
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) main#main-content:has(.workspace-shell-root) {
+    padding-bottom: 0;
+    scroll-padding-bottom: 0;
+  }
+
+  html.wap-reserve-mobile-bottom-nav .workspace-shell-main,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main {
+    padding-bottom: calc(1.25rem + var(--wap-mobile-bottom-nav-clearance));
+  }
+
+  html.wap-portal-chrome-compact.wap-reserve-mobile-bottom-nav .workspace-shell-main,
+  html.wap-portal-chrome-compact:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main {
+    padding-bottom: calc(1.25rem + var(--wap-portal-mobile-bottom-clearance-compact));
   }
 
   /*

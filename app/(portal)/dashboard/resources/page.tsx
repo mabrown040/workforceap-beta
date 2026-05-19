@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -11,11 +12,12 @@ import ResourcesClient from './ResourcesClient';
 import PageHeader from '@/components/portal/PageHeader';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'Program Resources',
-  description: 'AI career tools, external guides, and program-specific resources for your track.',
-  path: '/dashboard/resources',
-});
+    title: t('resourcesMetaTitle'),
+    description: t('resourcesMetaDesc'),
+    path: '/dashboard/resources',
+  });
 }
 
 const CATEGORY_LABELS: Record<string, string> = {

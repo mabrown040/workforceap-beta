@@ -1,12 +1,17 @@
 /**
  * Shared `sizes` for full-bleed marketing heroes (`next/image` + `fill` + cover).
  *
- * The photo spans the viewport, so browsers should interpret the layout width as ~100vw
- * and pair that with devicePixelRatio when choosing from `srcSet`. Use a literal `vw`
- * token here so Next derives multiple optimizer widths (`get-img-props` parses `NNvw`).
+ * Below ultra-wide breakpoints the slot is the viewport (`100vw`), so mobile (e.g. 375px)
+ * pairs with DPR when choosing from `srcSet` (typically ≈750w @2x, ≈1200w @3x — not 1920).
+ * From `(min-width: 1921px)` the art is still full-bleed but never wider than 1920px in
+ * layout terms, matching `images.deviceSizes` max and avoiding over-large slot hints.
  *
- * The largest rendition is still capped by `images.deviceSizes` in `next.config.ts`
- * (currently 1920). Note: Next sets `<img src>` to the widest candidate for legacy
- * fallbacks—actual bytes should follow `sizes` + `srcSet`; verify in Network, not only `src`.
+ * Include a literal `vw` token so Next derives multiple optimizer widths (`get-img-props`
+ * parses `NNvw` for `srcSet` generation).
+ *
+ * Note: Next sets `<img src>` to the widest `srcSet` candidate for legacy fallbacks and
+ * Safari ordering — the **selected** download follows `sizes` + `srcSet` (see Network
+ * “currentSrc”, not only the `src` URL).
  */
-export const MARKETING_FULL_BLEED_HERO_SIZES = '100vw';
+export const MARKETING_FULL_BLEED_HERO_SIZES =
+  '(min-width: 1921px) 1920px, 100vw';

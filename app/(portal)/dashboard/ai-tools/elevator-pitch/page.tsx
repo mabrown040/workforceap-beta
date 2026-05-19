@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -9,11 +10,12 @@ import { prefillElevatorPitch } from '@/lib/ai/prefillFromMemberState';
 import ToolHistoryPanel from '@/components/portal/ToolHistoryPanel';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
-  title: 'AI Elevator Introduction',
-  description: 'AI-crafted 10-20 second elevator introduction with saved history, email delivery, and voice rehearsal recording.',
-  path: '/dashboard/ai-tools/elevator-pitch',
-});
+    title: t('elevatorPitchMetaTitle'),
+    description: t('elevatorPitchMetaDesc'),
+    path: '/dashboard/ai-tools/elevator-pitch',
+  });
 }
 
 type SearchParams = Promise<{ prefill?: string }>;

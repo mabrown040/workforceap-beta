@@ -9,11 +9,13 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { EMPLOYER_TIERS } from '@/lib/stripe/client';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('employer');
   return buildPageMetadataAsync({
-    title: 'Billing',
-    description: 'Manage your subscription and billing.',
+    title: t('billingMetaTitle'),
+    description: t('billingMetaDesc'),
     path: '/employer/billing',
   });
 }
@@ -24,6 +26,8 @@ export default async function EmployerBillingPage() {
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
+
+  const t = await getTranslations('employer');
 
   const employer = await prisma.employer.findUnique({
     where: { id: ctx.employerId },
@@ -52,29 +56,29 @@ export default async function EmployerBillingPage() {
   return (
     <PortalPageFrame>
       <PageHeader
-        title="Billing"
-        subtitle="Manage your subscription, usage, and upgrades."
+        title={t('billing')}
+        subtitle={t('manageSubscription')}
       />
 
       <div className="portal-card portal-card--flat portal-card--padded" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>
-              Current plan
+              {t('currentPlan')}
             </p>
             <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0 }}>
               {currentTier.name}
             </p>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: '0.25rem 0 0' }}>
-              {isSubscribed ? 'Active subscription' : employer.stripeCustomerId ? 'Subscription not active' : 'No subscription'}
+              {isSubscribed ? t('activeSubscription') : employer.stripeCustomerId ? t('subscriptionNotActive') : t('noSubscription')}
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
             <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>
-              Job usage
+              {t('jobUsage')}
             </p>
             <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
-              {jobCount} / {jobLimit === Infinity ? 'Unlimited' : jobLimit}
+              {jobCount} / {jobLimit === Infinity ? t('unlimited') : jobLimit}
             </p>
           </div>
         </div>
@@ -113,7 +117,7 @@ export default async function EmployerBillingPage() {
                     color: '#fff',
                   }}
                 >
-                  Current
+                  {t('current')}
                 </span>
               )}
             </div>
@@ -122,7 +126,7 @@ export default async function EmployerBillingPage() {
             </p>
             <ul style={{ margin: '0 0 1rem', padding: 0, listStyle: 'none' }}>
               <li style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>
-                {tier.jobLimit === Infinity ? 'Unlimited active jobs' : `Up to ${tier.jobLimit} active job${tier.jobLimit !== 1 ? 's' : ''}`}
+                {tier.jobLimit === Infinity ? t('unlimitedActiveJobs') : t('upToNActiveJobs', { count: tier.jobLimit })}
               </li>
               {tier.features.map((feature) => (
                 <li key={feature} style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.25rem' }}>
@@ -151,7 +155,7 @@ export default async function EmployerBillingPage() {
                   className="btn btn-primary"
                   style={{ width: '100%' }}
                 >
-                  {currentTierKey === 'basic' ? 'Upgrade' : tier.key === 'basic' ? 'Downgrade' : 'Switch'}
+                  {currentTierKey === 'basic' ? t('upgrade') : tier.key === 'basic' ? t('downgrade') : t('switch')}
                 </button>
               </form>
             )}

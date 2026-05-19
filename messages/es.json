@@ -1734,6 +1734,14 @@
       "applyCta": "Solicita",
       "testimonialsTitle": "Historias de miembros",
       "testimonialsSubtitle": "Resultados reales de miembros reales"
+    },
+    "testimonials": {
+      "sectionTitle": "Escucha a nuestros miembros",
+      "sectionSubtitle": "Cambios profesionales reales de personas que empezaron donde tú estás.",
+      "regionLabel": "Testimonios de miembros",
+      "salaryLiftLabel": "Aumento salarial",
+      "viewMore": "Ver más historias",
+      "readFullStory": "Leer historia completa"
     }
   },
   "findYourPath": {

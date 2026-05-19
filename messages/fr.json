@@ -1733,6 +1733,14 @@
       "programsTitle": "Programmes",
       "subtitle": "Métriques d'impact WorkforceAP issues de nos systèmes opérationnels — partagées avec un court intervalle de cache pour la transparence publique.",
       "title": "Impact public · Workforce Advancement Project"
+    },
+    "testimonials": {
+      "sectionTitle": "Écoutez nos membres",
+      "sectionSubtitle": "De vraies évolutions de carrière, par des personnes qui ont commencé là où vous êtes.",
+      "regionLabel": "Témoignages de membres",
+      "salaryLiftLabel": "Hausse de salaire",
+      "viewMore": "Voir plus de témoignages",
+      "readFullStory": "Lire le témoignage complet"
     }
   },
   "findYourPath": {

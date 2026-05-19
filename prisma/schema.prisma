@@ -191,6 +191,7 @@ model User {
   courseraSkillsetProgress CourseraSkillsetProgress[]
   courseraCanonicalCourseMappingsCreated CourseraCanonicalCourseMapping[] @relation("CourseraCanonicalCourseMappingCreatedBy")
   atRiskAlerts             AtRiskAlert[]
+  memberNudgeLogs          MemberNudgeLog[]
   placementSurveys       PlacementSurvey[]
   milestoneCascades        MilestoneCascade[]
   testimonials           Testimonial[]
@@ -2139,6 +2140,26 @@ model AtRiskAlert {
   @@index([status, score])
   @@index([counselorId])
   @@map("at_risk_alerts")
+}
+
+/// Tracks nudge emails sent to members for the G5 retention loop so we don't
+/// re-fire the same tier within the cooldown window (default 7 days).
+/// `tier` matches the at-risk classification: 'yellow' | 'red'.
+/// `kind` identifies the specific template ('check_in' | 'come_back' | 'stuck').
+model MemberNudgeLog {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tier      String   // 'yellow' | 'red'
+  kind      String   // 'check_in' | 'come_back' | 'stuck'
+  reasons   Json?    // snapshot of reasons[] from classifyMember()
+  sentAt    DateTime @default(now()) @map("sent_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind, sentAt])
+  @@index([userId, tier, sentAt])
+  @@index([sentAt])
+  @@map("member_nudge_logs")
 }
 
 enum PlacementSurveyWave {

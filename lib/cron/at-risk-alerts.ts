@@ -9,14 +9,211 @@
 
 import { prisma } from '@/lib/db/prisma';
 import {
+  buildMemberClassificationInput,
   calculateAllAtRiskScores,
+  classifyMember,
   getRiskLevel,
   THRESHOLDS,
   type AtRiskScore,
+  type AtRiskTier,
+  type ClassifyMemberResult,
 } from '@/lib/member/atRiskScoring';
-import { sendCounselorAtRiskAlertEmail } from '@/lib/email';
+import {
+  sendCounselorAtRiskAlertEmail,
+  sendMemberCheckInEmail,
+  sendMemberComeBackEmail,
+  sendMemberStuckEmail,
+} from '@/lib/email';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+const NUDGE_COOLDOWN_DAYS = 7;
+const NUDGE_COOLDOWN_MS = NUDGE_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+
+type NudgeKind = 'check_in' | 'come_back' | 'stuck';
+
+function firstNameOf(fullName: string | null | undefined): string {
+  if (!fullName) return 'there';
+  const trimmed = fullName.trim().split(/\s+/)[0];
+  return trimmed || 'there';
+}
+
+function chooseNudge(
+  classification: ClassifyMemberResult,
+): { kind: NudgeKind; tier: AtRiskTier } | null {
+  if (classification.tier === 'green') return null;
+  const stuck = classification.reasons.some(
+    (r) =>
+      r.toLowerCase().includes('stalled') ||
+      r.toLowerCase().includes('coursera progress'),
+  );
+  if (classification.tier === 'red') {
+    // 14d+ stall or no login >=14 → stuck; else come_back
+    const heavy =
+      classification.daysSinceLogin >= 14 ||
+      classification.reasons.some((r) => /14 days|stalled for/i.test(r));
+    if (heavy || stuck) return { kind: 'stuck', tier: 'red' };
+    return { kind: 'come_back', tier: 'red' };
+  }
+  // yellow
+  return { kind: 'check_in', tier: 'yellow' };
+}
+
+export type RetentionNudgeResult = {
+  success: boolean;
+  scanned: number;
+  sentCheckIn: number;
+  sentComeBack: number;
+  sentStuck: number;
+  skippedCooldown: number;
+  skippedNoEmail: number;
+  errors: number;
+};
+
+/**
+ * G5 retention loop: classify members, send tiered nudge emails, respect
+ * the per-tier 7-day cooldown via `MemberNudgeLog`.
+ *
+ * Idempotent — re-running within the cooldown window is a no-op for any
+ * member who already received a nudge of that tier in the window.
+ */
+export async function runMemberRetentionNudges(): Promise<RetentionNudgeResult> {
+  const candidates = await prisma.user.findMany({
+    take: 500,
+    where: {
+      deletedAt: null,
+      placementRecord: null,
+    },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      counselorAssignments: {
+        where: { active: true },
+        take: 1,
+        select: {
+          counselor: {
+            select: { user: { select: { fullName: true } } },
+          },
+        },
+      },
+    },
+  });
+
+  let scanned = 0;
+  let sentCheckIn = 0;
+  let sentComeBack = 0;
+  let sentStuck = 0;
+  let skippedCooldown = 0;
+  let skippedNoEmail = 0;
+  let errors = 0;
+
+  const cooldownCutoff = new Date(Date.now() - NUDGE_COOLDOWN_MS);
+
+  for (const member of candidates) {
+    scanned++;
+    if (!member.email) {
+      skippedNoEmail++;
+      continue;
+    }
+
+    let classification: ClassifyMemberResult;
+    try {
+      const input = await buildMemberClassificationInput(member.id);
+      classification = classifyMember(input);
+    } catch (err) {
+      console.error(`[retention-nudges] classify failed for ${member.id}:`, err);
+      errors++;
+      continue;
+    }
+
+    const choice = chooseNudge(classification);
+    if (!choice) continue;
+
+    // Cooldown: don't send same tier again within window
+    const recent = await prisma.memberNudgeLog.findFirst({
+      where: {
+        userId: member.id,
+        tier: choice.tier,
+        sentAt: { gte: cooldownCutoff },
+      },
+      select: { id: true },
+    });
+    if (recent) {
+      skippedCooldown++;
+      continue;
+    }
+
+    const firstName = firstNameOf(member.fullName);
+    const counselorName =
+      member.counselorAssignments[0]?.counselor?.user?.fullName?.trim() ||
+      'Your WorkforceAP counselor';
+
+    let sent = false;
+    try {
+      if (choice.kind === 'check_in') {
+        const result = await sendMemberCheckInEmail({
+          to: member.email,
+          firstName,
+          dashboardUrl: `${SITE_URL}/dashboard`,
+        });
+        if (result.ok) {
+          sentCheckIn++;
+          sent = true;
+        } else errors++;
+      } else if (choice.kind === 'come_back') {
+        const result = await sendMemberComeBackEmail({
+          to: member.email,
+          firstName,
+          counselorName,
+          nextBestActionUrl: `${SITE_URL}/dashboard`,
+        });
+        if (result.ok) {
+          sentComeBack++;
+          sent = true;
+        } else errors++;
+      } else {
+        const result = await sendMemberStuckEmail({
+          to: member.email,
+          firstName,
+          counselorName,
+        });
+        if (result.ok) {
+          sentStuck++;
+          sent = true;
+        } else errors++;
+      }
+    } catch (err) {
+      console.error(`[retention-nudges] send failed for ${member.id}:`, err);
+      errors++;
+    }
+
+    if (sent) {
+      try {
+        await prisma.memberNudgeLog.create({
+          data: {
+            userId: member.id,
+            tier: choice.tier,
+            kind: choice.kind,
+            reasons: classification.reasons as unknown as object,
+          },
+        });
+      } catch (err) {
+        console.error(`[retention-nudges] log write failed for ${member.id}:`, err);
+      }
+    }
+  }
+
+  return {
+    success: true,
+    scanned,
+    sentCheckIn,
+    sentComeBack,
+    sentStuck,
+    skippedCooldown,
+    skippedNoEmail,
+    errors,
+  };
+}
 
 export type CounselorAlertResult = {
   counselorId: string;

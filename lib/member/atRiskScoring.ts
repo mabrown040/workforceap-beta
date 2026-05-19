@@ -207,6 +207,198 @@ function buildRecommendedAction(score: number, factors: AtRiskFactor[]): string 
 
 // ─── Batch Scoring ──────────────────────────────────────────────────────────
 
+// ─── Tiered Classification (G5 retention loop) ──────────────────────────────
+//
+// Wraps the existing scoring helpers + getMemberState/staleTrainingCron data
+// to produce a 3-tier label the nudge cron + counselor queue can switch on.
+// Rules (PLAN-2026-Q3 §1.2 + §2.1 G5):
+//   - green   active in last 3 days OR training on track
+//   - yellow  3–7 days since login OR training stalled (no Coursera progress 5+ days)
+//   - red     7+ days since login OR training stalled 14+ days
+//             OR cert earned 30+ days ago with 0 job applications
+
+export type AtRiskTier = 'green' | 'yellow' | 'red';
+
+export type ClassifyMemberInput = {
+  userId: string;
+  /** ms since epoch of last portal login, or null. */
+  lastLoginAt: Date | null;
+  /** When the daily cron first flagged stalled training, or null. */
+  staleTrainingDetectedAt: Date | null;
+  /** Most recent training activity timestamp from memberProgramTrainingView. */
+  lastTrainingActivityAt: Date | null;
+  /** True once all enrolled program courses are complete. */
+  allCoursesComplete: boolean;
+  /** Earliest cert earnedAt (UserCertification.earnedAt) we've seen, or null. */
+  earliestCertEarnedAt: Date | null;
+  /** Total submitted job applications. */
+  jobApplicationCount: number;
+};
+
+export type ClassifyMemberResult = {
+  tier: AtRiskTier;
+  reasons: string[];
+  daysSinceLogin: number;
+};
+
+const DAY_MS = 86_400_000;
+
+function daysBetween(from: Date | null, to: Date): number {
+  if (!from) return Number.POSITIVE_INFINITY;
+  return Math.floor((to.getTime() - from.getTime()) / DAY_MS);
+}
+
+/**
+ * Classify a member into green/yellow/red for the G5 retention loop.
+ *
+ * Pure function — pass the snapshot from {@link buildMemberClassificationInput}
+ * (or any other source). No DB calls; safe to call in hot loops.
+ */
+export function classifyMember(input: ClassifyMemberInput): ClassifyMemberResult {
+  const now = new Date();
+  const daysSinceLogin = daysBetween(input.lastLoginAt, now);
+  const daysStale = daysBetween(input.staleTrainingDetectedAt, now);
+  const daysSinceTraining = daysBetween(input.lastTrainingActivityAt, now);
+  const daysSinceCert = daysBetween(input.earliestCertEarnedAt, now);
+
+  const reasons: string[] = [];
+  const state: { tier: AtRiskTier } = { tier: 'green' };
+
+  const bump = (next: AtRiskTier, reason: string) => {
+    reasons.push(reason);
+    if (next === 'red') state.tier = 'red';
+    else if (next === 'yellow' && state.tier === 'green') state.tier = 'yellow';
+  };
+
+  // Red conditions
+  if (Number.isFinite(daysSinceLogin) && daysSinceLogin >= 7) {
+    bump('red', `No login in ${daysSinceLogin} days`);
+  } else if (!Number.isFinite(daysSinceLogin)) {
+    bump('red', 'Never logged into the portal');
+  }
+
+  if (input.staleTrainingDetectedAt && daysStale >= 14) {
+    bump('red', `Training stalled for ${daysStale} days`);
+  }
+
+  if (
+    input.earliestCertEarnedAt &&
+    daysSinceCert >= 30 &&
+    input.jobApplicationCount === 0
+  ) {
+    bump(
+      'red',
+      `Cert earned ${daysSinceCert} days ago with no job applications submitted`,
+    );
+  }
+
+  // Yellow conditions (only escalate if not already red)
+  if (
+    state.tier !== 'red' &&
+    Number.isFinite(daysSinceLogin) &&
+    daysSinceLogin >= 3 &&
+    daysSinceLogin < 7
+  ) {
+    bump('yellow', `${daysSinceLogin} days since last login`);
+  }
+
+  if (
+    state.tier !== 'red' &&
+    input.lastTrainingActivityAt &&
+    daysSinceTraining >= 5 &&
+    !input.allCoursesComplete
+  ) {
+    bump('yellow', `No Coursera progress in ${daysSinceTraining} days`);
+  }
+
+  if (
+    state.tier !== 'red' &&
+    input.staleTrainingDetectedAt &&
+    daysStale >= 1 &&
+    daysStale < 14
+  ) {
+    bump('yellow', `Training flagged stale (${daysStale}d ago)`);
+  }
+
+  if (state.tier === 'green' && reasons.length === 0) {
+    reasons.push(
+      Number.isFinite(daysSinceLogin)
+        ? `Active ${daysSinceLogin}d ago`
+        : 'Active recently',
+    );
+  }
+
+  return {
+    tier: state.tier,
+    reasons,
+    daysSinceLogin: Number.isFinite(daysSinceLogin) ? daysSinceLogin : 999,
+  };
+}
+
+/**
+ * Pull the snapshot needed by {@link classifyMember} for a single user.
+ * Wraps existing helpers (getMemberEngagementSignals, loadMemberProgramTrainingView)
+ * so callers don't have to re-implement the data fetch.
+ */
+export async function buildMemberClassificationInput(
+  userId: string,
+): Promise<ClassifyMemberInput> {
+  const [user, engagement] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        enrolledProgram: true,
+        staleTrainingDetectedAt: true,
+        userCertifications: {
+          orderBy: { earnedAt: 'asc' },
+          select: { earnedAt: true },
+          take: 1,
+        },
+        _count: { select: { jobApplications: true } },
+      },
+    }),
+    getMemberEngagementSignals(userId),
+  ]);
+
+  if (!user) {
+    throw new Error(`Member not found: ${userId}`);
+  }
+
+  let lastTrainingActivityAt: Date | null = null;
+  let allCoursesComplete = false;
+
+  if (user.enrolledProgram) {
+    const courseraProgramId =
+      DISCOVERED_COURSERA_PROGRAMS[user.enrolledProgram]?.courseraProgramId;
+    const b4bProgress = user.email?.trim()
+      ? await fetchLearnerProgressFromB4B(user.email, {
+          programId: courseraProgramId,
+        }).catch(() => new Map())
+      : new Map();
+    const trainingView = await loadMemberProgramTrainingView({
+      userId,
+      programSlug: user.enrolledProgram,
+      b4bProgress,
+    });
+    if (trainingView) {
+      lastTrainingActivityAt = trainingView.lastTrainingActivityAt ?? null;
+      allCoursesComplete = trainingView.allCoursesComplete;
+    }
+  }
+
+  return {
+    userId,
+    lastLoginAt: engagement.lastLoginAt,
+    staleTrainingDetectedAt: user.staleTrainingDetectedAt,
+    lastTrainingActivityAt,
+    allCoursesComplete,
+    earliestCertEarnedAt: user.userCertifications[0]?.earnedAt ?? null,
+    jobApplicationCount: user._count.jobApplications,
+  };
+}
+
 export async function calculateAllAtRiskScores(): Promise<AtRiskScore[]> {
   const activeMembers = await prisma.user.findMany({
     take: 500,

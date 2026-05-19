@@ -20,6 +20,7 @@ export type ResolvedXapiUser = {
 type MappingRow = {
   id: string;
   userId: string;
+  organizationId: string | null;
   courseraEmail: string | null;
   actorIdentifier: string | null;
   actorHomePage: string | null;
@@ -51,6 +52,7 @@ export async function ensureCourseraMappingTables() {
         CREATE TABLE IF NOT EXISTS coursera_identity_mappings (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
           user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          organization_id TEXT,
           coursera_email TEXT,
           actor_identifier TEXT,
           actor_home_page TEXT,
@@ -64,6 +66,14 @@ export async function ensureCourseraMappingTables() {
             coursera_email IS NOT NULL OR actor_identifier IS NOT NULL
           )
         )
+      `);
+
+      // Idempotent column add for environments where the table pre-existed
+      // without organization_id (Sprint P1 / AUDIT §C-S5). See migration
+      // 20260519050000_xapi_organization_id.
+      await prisma.$executeRawUnsafe(`
+        ALTER TABLE coursera_identity_mappings
+        ADD COLUMN IF NOT EXISTS organization_id TEXT
       `);
 
       await prisma.$executeRawUnsafe(`
@@ -94,6 +104,7 @@ export async function ensureCourseraMappingTables() {
           course_name TEXT,
           verb_id TEXT,
           matched_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+          organization_id TEXT,
           mapping_method TEXT,
           completion_status TEXT NOT NULL DEFAULT 'received',
           error TEXT,
@@ -101,6 +112,11 @@ export async function ensureCourseraMappingTables() {
           received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
           updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
+      `);
+
+      await prisma.$executeRawUnsafe(`
+        ALTER TABLE coursera_xapi_events
+        ADD COLUMN IF NOT EXISTS organization_id TEXT
       `);
 
       await prisma.$executeRawUnsafe(`
@@ -116,11 +132,17 @@ export async function ensureCourseraMappingTables() {
       await prisma.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS coursera_unmatched_actor_alerts (
           actor_email_lower TEXT PRIMARY KEY,
+          organization_id TEXT,
           first_seen_at TIMESTAMPTZ NOT NULL DEFAULT now(),
           first_statement_id TEXT,
           last_event_at TIMESTAMPTZ NOT NULL DEFAULT now(),
           email_notified_at TIMESTAMPTZ
         )
+      `);
+
+      await prisma.$executeRawUnsafe(`
+        ALTER TABLE coursera_unmatched_actor_alerts
+        ADD COLUMN IF NOT EXISTS organization_id TEXT
       `);
 
       await prisma.$executeRawUnsafe(`
@@ -139,6 +161,7 @@ export async function ensureCourseraMappingTables() {
 async function notifyIfNewUnmatchedActorEmail(args: {
   actorEmailLower: string;
   statementId: string | null;
+  organizationId?: string | null;
 }): Promise<void> {
   await ensureCourseraMappingTables();
 
@@ -146,10 +169,11 @@ async function notifyIfNewUnmatchedActorEmail(args: {
   if (!emailLower) return;
 
   const sid = args.statementId?.trim() || null;
+  const orgId = args.organizationId?.trim() || null;
 
   const inserted = await prisma.$queryRaw<Array<{ one: number }>>`
-    INSERT INTO coursera_unmatched_actor_alerts (actor_email_lower, first_statement_id)
-    VALUES (${emailLower}, ${sid})
+    INSERT INTO coursera_unmatched_actor_alerts (actor_email_lower, first_statement_id, organization_id)
+    VALUES (${emailLower}, ${sid}, ${orgId})
     ON CONFLICT (actor_email_lower) DO NOTHING
     RETURNING 1 AS one
   `;
@@ -195,6 +219,7 @@ async function getMappingByActor(identity: XapiIdentity): Promise<MappingRow | n
     SELECT
       cim.id,
       cim.user_id AS "userId",
+      cim.organization_id AS "organizationId",
       cim.coursera_email AS "courseraEmail",
       cim.actor_identifier AS "actorIdentifier",
       cim.actor_home_page AS "actorHomePage",
@@ -223,6 +248,7 @@ async function getMappingByEmail(identity: XapiIdentity): Promise<MappingRow | n
     SELECT
       cim.id,
       cim.user_id AS "userId",
+      cim.organization_id AS "organizationId",
       cim.coursera_email AS "courseraEmail",
       cim.actor_identifier AS "actorIdentifier",
       cim.actor_home_page AS "actorHomePage",
@@ -344,6 +370,22 @@ export async function recordXapiEvent(args: {
   const error = normalizeActorValue(args.error);
   const rawPayload = JSON.stringify(args.rawPayload ?? {});
 
+  // Resolve organization_id from the matched user when we have one. This
+  // closes AUDIT §C-S5: cross-tenant xAPI ingest leak.
+  let organizationId: string | null = null;
+  if (matchedUserId) {
+    try {
+      const userRow = await prisma.user.findUnique({
+        where: { id: matchedUserId },
+        select: { organizationId: true },
+      });
+      organizationId = userRow?.organizationId ?? null;
+    } catch (err) {
+      // Non-fatal: event still records, organization_id stays NULL.
+      console.warn('[recordXapiEvent] org lookup failed:', err);
+    }
+  }
+
   if (statementId) {
     await prisma.$executeRaw`
       INSERT INTO coursera_xapi_events (
@@ -355,6 +397,7 @@ export async function recordXapiEvent(args: {
         course_name,
         verb_id,
         matched_user_id,
+        organization_id,
         mapping_method,
         completion_status,
         error,
@@ -369,6 +412,7 @@ export async function recordXapiEvent(args: {
         ${courseName}::text,
         ${verbId}::text,
         ${matchedUserId ? matchedUserId : null}::text,
+        ${organizationId}::text,
         ${mappingMethod}::text,
         ${args.completionStatus}::text,
         ${error}::text,
@@ -383,6 +427,7 @@ export async function recordXapiEvent(args: {
         course_name = EXCLUDED.course_name,
         verb_id = EXCLUDED.verb_id,
         matched_user_id = EXCLUDED.matched_user_id,
+        organization_id = EXCLUDED.organization_id,
         mapping_method = EXCLUDED.mapping_method,
         completion_status = EXCLUDED.completion_status,
         error = EXCLUDED.error,
@@ -399,6 +444,7 @@ export async function recordXapiEvent(args: {
         course_name,
         verb_id,
         matched_user_id,
+        organization_id,
         mapping_method,
         completion_status,
         error,
@@ -412,6 +458,7 @@ export async function recordXapiEvent(args: {
         ${courseName}::text,
         ${verbId}::text,
         ${matchedUserId ? matchedUserId : null}::text,
+        ${organizationId}::text,
         ${mappingMethod}::text,
         ${args.completionStatus}::text,
         ${error}::text,
@@ -429,6 +476,7 @@ export async function recordXapiEvent(args: {
     void notifyIfNewUnmatchedActorEmail({
       actorEmailLower: actorEmail,
       statementId: statementId ?? null,
+      organizationId,
     }).catch((err) => {
       console.error('[recordXapiEvent] unmatched actor alert failed:', err);
     });
@@ -442,6 +490,7 @@ export async function listCourseraIdentityMappings() {
     SELECT
       cim.id,
       cim.user_id AS "userId",
+      cim.organization_id AS "organizationId",
       cim.coursera_email AS "courseraEmail",
       cim.actor_identifier AS "actorIdentifier",
       cim.actor_home_page AS "actorHomePage",
@@ -466,6 +515,7 @@ export async function listCourseraIdentityMappingsForUser(userId: string) {
     SELECT
       cim.id,
       cim.user_id AS "userId",
+      cim.organization_id AS "organizationId",
       cim.coursera_email AS "courseraEmail",
       cim.actor_identifier AS "actorIdentifier",
       cim.actor_home_page AS "actorHomePage",
@@ -655,7 +705,7 @@ export async function upsertCourseraIdentityMapping(args: {
 
   const user = await prisma.user.findUnique({
     where: { id: args.userId },
-    select: { id: true, email: true, fullName: true },
+    select: { id: true, email: true, fullName: true, organizationId: true },
   });
 
   if (!user) throw new Error('User not found');
@@ -686,6 +736,7 @@ export async function upsertCourseraIdentityMapping(args: {
       UPDATE coursera_identity_mappings
       SET
         user_id = ${args.userId}::text,
+        organization_id = ${user.organizationId}::text,
         coursera_email = ${courseraEmail}::text,
         actor_identifier = ${actorIdentifier}::text,
         actor_home_page = ${actorHomePage}::text,
@@ -700,6 +751,7 @@ export async function upsertCourseraIdentityMapping(args: {
     await prisma.$executeRaw`
       INSERT INTO coursera_identity_mappings (
         user_id,
+        organization_id,
         coursera_email,
         actor_identifier,
         actor_home_page,
@@ -709,6 +761,7 @@ export async function upsertCourseraIdentityMapping(args: {
         last_seen_at
       ) VALUES (
         ${args.userId}::text,
+        ${user.organizationId}::text,
         ${courseraEmail}::text,
         ${actorIdentifier}::text,
         ${actorHomePage}::text,
@@ -724,6 +777,7 @@ export async function upsertCourseraIdentityMapping(args: {
     SELECT
       cim.id,
       cim.user_id AS "userId",
+      cim.organization_id AS "organizationId",
       cim.coursera_email AS "courseraEmail",
       cim.actor_identifier AS "actorIdentifier",
       cim.actor_home_page AS "actorHomePage",

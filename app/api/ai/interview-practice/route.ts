@@ -6,6 +6,7 @@ import { interviewPracticeSchema } from '@/lib/validation/interviewPractice';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { prefillInterviewPractice } from '@/lib/ai/prefillFromMemberState';
+import { getAICoachContext, renderCoachContextForPrompt } from '@/lib/ai/aiCoachContext';
 import { aiResponseLanguageInstruction } from '@/lib/ai/responseLanguage';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText, cleanSpokenLine } from '@/lib/ai/postProcess';
@@ -47,7 +48,7 @@ const LEVEL_PROMPTS = {
       );
     }
   
-    const { role, experienceLevel, count, resumeContext, language, subjectMemberId, sessionId } = parsed.data;
+    const { role, experienceLevel, count, resumeContext, language, subjectMemberId, sessionId, parentToolResultId } = parsed.data;
   
     // Resolve subject FIRST so we know who to prefill for
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
@@ -83,9 +84,23 @@ const LEVEL_PROMPTS = {
     }
   
     const levelDesc = LEVEL_PROMPTS[finalExperienceLevel];
-  
+
+    // Sprint R2 — load AI coach context so the question set adapts to what
+    // the candidate has already worked on with us.
+    let coachContextBlock = '';
+    try {
+      const ctx = await getAICoachContext(onBehalf.subjectUserId);
+      coachContextBlock = `\n\n${renderCoachContextForPrompt(ctx)}`;
+    } catch (ctxErr) {
+      console.error('[interview-practice] coach context load failed', ctxErr);
+    }
+    if (parentToolResultId) {
+      coachContextBlock += `\n- The member asked to regenerate with a different angle from prior practice — avoid repeating the same questions verbatim.`;
+    }
+
     const systemPrompt = `You are a career coach and interview preparation expert. Generate interview questions for job seekers.
-  
+  ${coachContextBlock}
+
   ${aiResponseLanguageInstruction(language)}
   
   Format your response as a JSON array of objects. Each object must have:
@@ -140,6 +155,7 @@ const LEVEL_PROMPTS = {
             actorUserId: onBehalf.actorUserId,
             actorName: onBehalf.actorName,
             sessionId: sessionId ?? null,
+            parentToolResultId: parentToolResultId ?? null,
           }
         );
       } catch (saveErr) {

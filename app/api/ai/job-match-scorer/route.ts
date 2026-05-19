@@ -16,6 +16,7 @@ import { sanitizeScrapedJobText } from '@/lib/ai/parseJob';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 
 import { prefillJobMatchScorer, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
+import { getAICoachContext, renderCoachContextForPrompt } from '@/lib/ai/aiCoachContext';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -212,7 +213,7 @@ function parseMatchAnalysis(aiOutput: string): MatchAnalysisOutput {
       );
     }
   
-    const { resume, jobDescription, jobUrl, subjectMemberId, sessionId, prefill: shouldPrefill } = parsed.data;
+    const { resume, jobDescription, jobUrl, subjectMemberId, sessionId, prefill: shouldPrefill, parentToolResultId } = parsed.data;
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
     if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
   
@@ -321,7 +322,19 @@ function parseMatchAnalysis(aiOutput: string): MatchAnalysisOutput {
       );
     }
   
-    const systemPrompt = `You are a career coach and ATS expert. Analyze how well a candidate's resume matches a job description.
+    // Sprint R2 — coach context block.
+    let coachContextBlock = '';
+    try {
+      const ctx = await getAICoachContext(onBehalf.subjectUserId);
+      coachContextBlock = `\n\n${renderCoachContextForPrompt(ctx)}`;
+    } catch (ctxErr) {
+      console.error('[job-match-scorer] coach context load failed', ctxErr);
+    }
+    if (parentToolResultId) {
+      coachContextBlock += `\n- The member asked to regenerate from a prior match score — feel free to compare and recommend new quick wins.`;
+    }
+
+    const systemPrompt = `You are a career coach and ATS expert. Analyze how well a candidate's resume matches a job description.${coachContextBlock}
   
   Your response MUST follow this exact format:
   
@@ -375,6 +388,7 @@ function parseMatchAnalysis(aiOutput: string): MatchAnalysisOutput {
           actorUserId: onBehalf.actorUserId,
           actorName: onBehalf.actorName,
           sessionId,
+          parentToolResultId: parentToolResultId ?? null,
         });
       } catch (saveErr) {
         console.error('Job match scorer: failed to save result', saveErr);

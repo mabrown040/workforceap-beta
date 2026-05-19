@@ -18,10 +18,26 @@ export async function saveAIToolResult(
   toolType: AIToolType,
   inputSummary: string,
   output: string,
-  actor?: { actorUserId: string; actorName: string | null; sessionId?: string | null }
+  actor?: {
+    actorUserId: string;
+    actorName: string | null;
+    sessionId?: string | null;
+    /**
+     * Sprint R2 — when a member regenerates a result "with a different angle"
+     * we thread the new row back to the prior one so the tool can read its
+     * own lineage on the next run.
+     */
+    parentToolResultId?: string | null;
+  }
 ) {
   const result = await prisma.aIToolResult.create({
-    data: { userId, toolType, inputSummary, output },
+    data: {
+      userId,
+      toolType,
+      inputSummary,
+      output,
+      parentToolResultId: actor?.parentToolResultId ?? null,
+    },
     select: { id: true },
   });
   const onBehalf = actor && actor.actorUserId !== userId;
@@ -30,6 +46,10 @@ export async function saveAIToolResult(
     baseMetadata.actorUserId = actor.actorUserId;
     baseMetadata.actorName = actor.actorName;
     baseMetadata.runOnBehalf = true;
+  }
+  if (actor?.parentToolResultId) {
+    baseMetadata.parentToolResultId = actor.parentToolResultId;
+    baseMetadata.regenerated = true;
   }
   trackEvent({
     userId,

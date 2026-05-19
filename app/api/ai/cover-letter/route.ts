@@ -9,6 +9,7 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 import { prefillCoverLetter, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
+import { getAICoachContext, renderCoachContextForPrompt } from '@/lib/ai/aiCoachContext';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -40,7 +41,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       );
     }
   
-    const { resume, jobDescription, companyName, tone, subjectMemberId, sessionId, prefill: shouldPrefill } = parsed.data;
+    const { resume, jobDescription, companyName, tone, subjectMemberId, sessionId, prefill: shouldPrefill, parentToolResultId } = parsed.data;
   
     // Resolve subject (counselor/admin In-Office Session — see actAsSubject).
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
@@ -79,8 +80,21 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       conversational: 'Use a warm, conversational tone. Approachable but still professional. Slightly more personal.',
     };
     const toneInstruction = toneInstructions[tone] ?? toneInstructions.formal;
-  
-    const systemPrompt = `You are a professional cover letter writer. Create a compelling, tailored cover letter that connects the candidate's experience to the job requirements. ${toneInstruction} Format as plain text with a greeting, 2-3 body paragraphs, and a closing. Do not invent experience—only use what the candidate provided.`;
+
+    // Sprint R2 — pull AI coach context so the cover letter knows about prior
+    // tool runs (resume rewrite, interview practice) instead of starting blind.
+    let coachContextBlock = '';
+    try {
+      const ctx = await getAICoachContext(onBehalf.subjectUserId);
+      coachContextBlock = `\n\n${renderCoachContextForPrompt(ctx)}`;
+    } catch (ctxErr) {
+      console.error('[cover-letter] coach context load failed', ctxErr);
+    }
+    if (parentToolResultId) {
+      coachContextBlock += `\n- The member asked for a regeneration with a different angle from a prior cover letter — vary structure and phrasing.`;
+    }
+
+    const systemPrompt = `You are a professional cover letter writer. Create a compelling, tailored cover letter that connects the candidate's experience to the job requirements. ${toneInstruction} Format as plain text with a greeting, 2-3 body paragraphs, and a closing. Do not invent experience—only use what the candidate provided.${coachContextBlock}`;
   
     const userPrompt = `Company: ${finalCompanyName || 'Not specified'}
   Tone: ${tone}
@@ -120,6 +134,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
             actorUserId: onBehalf.actorUserId,
             actorName: onBehalf.actorName,
             sessionId: sessionId ?? null,
+            parentToolResultId: parentToolResultId ?? null,
           }
         );
       } catch (saveErr) {

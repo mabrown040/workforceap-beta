@@ -11,6 +11,8 @@ export const coverLetterSchema = z.object({
   subjectMemberId: z.string().uuid().optional(),
   /** Group multiple tool runs into one session. */
   sessionId: z.string().uuid().optional(),
+  /** Sprint R2: thread this run back to a prior result for "regenerate with a different angle". */
+  parentToolResultId: z.string().uuid().optional(),
 });
 
 export type CoverLetterInput = z.infer<typeof coverLetterSchema>;

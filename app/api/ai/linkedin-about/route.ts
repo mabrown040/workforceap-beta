@@ -10,6 +10,7 @@ import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText'
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 import { prefillLinkedInAbout } from '@/lib/ai/prefillFromMemberState';
+import { getAICoachContext, renderCoachContextForPrompt } from '@/lib/ai/aiCoachContext';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -34,7 +35,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       );
     }
   
-    const { role, bullets, subjectMemberId, sessionId, prefill: shouldPrefill } = parsed.data;
+    const { role, bullets, subjectMemberId, sessionId, prefill: shouldPrefill, parentToolResultId } = parsed.data;
     const onBehalf = await resolveActOnBehalf(user.id, subjectMemberId);
     if (!onBehalf.ok) return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
   
@@ -60,8 +61,20 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       /* optional context */
     }
   
+    // Sprint R2 — coach context block.
+    let coachContextBlock = '';
+    try {
+      const ctx = await getAICoachContext(onBehalf.subjectUserId);
+      coachContextBlock = `\n\n${renderCoachContextForPrompt(ctx)}`;
+    } catch (ctxErr) {
+      console.error('[linkedin-about] coach context load failed', ctxErr);
+    }
+    if (parentToolResultId) {
+      coachContextBlock += `\n- The member asked to regenerate with a different angle from a prior About section — vary opening hook and emphasis.`;
+    }
+
     const systemPrompt = `You are a LinkedIn profile expert. Write a polished 3-paragraph LinkedIn About section.
-  
+
   Guidelines:
   - First paragraph: Hook with value proposition—who you are, what you do, and what makes you unique
   - Second paragraph: Key experience, skills, and achievements (from the bullets provided)
@@ -71,7 +84,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   - Professional but approachable tone
   - No fluff or clichés
   - Total length: 200-400 words (LinkedIn limit is 2600 chars, so we have room)
-  - Output plain text, no headers or labels`;
+  - Output plain text, no headers or labels${coachContextBlock}`;
   
     const userPrompt =
       `Target role: ${finalRole || 'Not specified'}
@@ -111,6 +124,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           actorUserId: onBehalf.actorUserId,
           actorName: onBehalf.actorName,
           sessionId,
+          parentToolResultId: parentToolResultId ?? null,
         });
       } catch (saveErr) {
         console.error('LinkedIn about: failed to save result', saveErr);

@@ -698,19 +698,26 @@ model AutomationRule {
 }
 
 model AIToolResult {
-  id           String     @id @default(uuid())
-  userId       String     @map("user_id")
-  toolType     AIToolType @map("tool_type")
-  inputSummary String     @map("input_summary")
-  output       String     @db.Text
-  createdAt    DateTime   @default(now()) @map("created_at")
+  id                 String     @id @default(uuid())
+  userId             String     @map("user_id")
+  toolType           AIToolType @map("tool_type")
+  inputSummary       String     @map("input_summary")
+  output             String     @db.Text
+  createdAt          DateTime   @default(now()) @map("created_at")
+  /// Sprint R2 (2026-Q3) — AI Coach memory. When a member regenerates a tool
+  /// run "with a different angle" we link the new result back to the prior
+  /// one so the tool can read the lineage instead of starting cold.
+  parentToolResultId String?    @map("parent_tool_result_id")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   primaryForApplicationFeedbacks ApplicationAiFeedback[] @relation("PrimaryAiToolResult")
+  parentResult AIToolResult?  @relation("AIToolResultChildren", fields: [parentToolResultId], references: [id], onDelete: SetNull)
+  childResults AIToolResult[] @relation("AIToolResultChildren")
 
   @@index([userId])
   @@index([userId, toolType])
   @@index([userId, createdAt])
+  @@index([parentToolResultId])
   @@map("ai_tool_results")
 }
 

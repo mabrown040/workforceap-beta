@@ -10,6 +10,7 @@ import { trackEvent } from '@/lib/events/track';
 import { ApplicationStatus } from '@prisma/client';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { logger } from '@/lib/observability/logger';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 import {
@@ -324,7 +325,7 @@ const applySignupSchema = z.object({
         to: user.email!,
         fullName,
       }).catch((err) => {
-        console.error('Member application confirmation email failed:', err);
+        logger.error('Member application confirmation email failed', { err });
         captureApiError(err, {
           route: 'POST /api/apply/signup#applicationConfirmation',
           extra: { userId: user.id },
@@ -338,7 +339,7 @@ const applySignupSchema = z.object({
           programInterest: programInterestSummary,
           applicationId: createdApplicationId,
         }).catch((err) => {
-          console.error('Admin new-application alert email failed:', err);
+          logger.error('Admin new-application alert email failed', { err });
           captureApiError(err, {
             route: 'POST /api/apply/signup#newApplicationAdmin',
             extra: { userId: user.id, applicationId: createdApplicationId },
@@ -360,7 +361,7 @@ const applySignupSchema = z.object({
       redirectTo: '/login',
     });
   } catch (error) {
-    console.error('/apply/signup:', error);
+    logger.error('/apply/signup', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });

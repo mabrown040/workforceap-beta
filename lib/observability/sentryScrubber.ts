@@ -22,30 +22,71 @@
 import type * as Sentry from '@sentry/nextjs';
 
 const PII_KEY_PATTERN =
-  /(email|phone|ssn|dob|birth|tax_id|household|income|ethnic|disab|veteran|address|zip|postcode|password|token|secret|api[_-]?key|authorization|cookie|session|otp|reset)/i;
+  /(email|phone|ssn|dob|birth|tax_id|household|income|ethnic|disab|veteran|address|street|city|zip|postcode|password|token|secret|api[_-]?key|authorization|cookie|session|otp|reset|first[_-]?name|last[_-]?name|full[_-]?name)/i;
 
 const PII_QUERY_PARAM_PATTERN =
   /(token|email|phone|password|otp|reset|code|session)/i;
 
 const REDACTED = '[REDACTED]';
 
+/**
+ * Value-shaped PII patterns, applied to string values inside `extra`,
+ * `contexts`, breadcrumb data, and request bodies. We deliberately keep
+ * these tight so we don't mangle stack traces or error messages —
+ * scrubbing here is in addition to key-based redaction, not a substitute.
+ */
+const SSN_PATTERN = /\b\d{3}-\d{2}-\d{4}\b/g;
+// E.164 or formatted US phone: tolerate spaces, dashes, dots, parens.
+const PHONE_PATTERN =
+  /\b(?:\+?1[\s.\-]*)?\(?\d{3}\)?[\s.\-]*\d{3}[\s.\-]*\d{4}\b/g;
+const EMAIL_PATTERN =
+  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
+// ISO-ish DOB: 1980-01-15 / 01/15/1980 / 15-01-1980 — narrow to avoid
+// eating timestamps in stack traces (those have time components).
+const DOB_PATTERN =
+  /\b(?:(?:19|20)\d{2}[-/](?:0?[1-9]|1[0-2])[-/](?:0?[1-9]|[12]\d|3[01])|(?:0?[1-9]|1[0-2])[/-](?:0?[1-9]|[12]\d|3[01])[/-](?:19|20)\d{2})\b/g;
+
+/** Redact PII patterns from a free-form string value. */
+function redactStringValue(value: string): string {
+  if (!value) return value;
+  return value
+    .replace(SSN_PATTERN, '[REDACTED_SSN]')
+    .replace(EMAIL_PATTERN, '[REDACTED_EMAIL]')
+    .replace(PHONE_PATTERN, '[REDACTED_PHONE]')
+    .replace(DOB_PATTERN, '[REDACTED_DOB]');
+}
+
 function isPiiKey(key: string): boolean {
   return PII_KEY_PATTERN.test(key);
 }
 
-/** Recursively redact PII-shaped keys in an object. Mutates in place. */
+/**
+ * Recursively redact PII-shaped keys AND PII-shaped string values in an
+ * object. Mutates in place. Over-scrubs by design: better to lose a
+ * formatted timestamp from a debug context than to ship an SSN to Sentry.
+ */
 function redactObject(obj: unknown, depth = 0): void {
   if (depth > 6 || obj === null || typeof obj !== 'object') return;
   if (Array.isArray(obj)) {
-    for (const item of obj) redactObject(item, depth + 1);
+    for (let i = 0; i < obj.length; i++) {
+      const item = obj[i];
+      if (typeof item === 'string') {
+        obj[i] = redactStringValue(item);
+      } else {
+        redactObject(item, depth + 1);
+      }
+    }
     return;
   }
   for (const key of Object.keys(obj as Record<string, unknown>)) {
     const rec = obj as Record<string, unknown>;
+    const value = rec[key];
     if (isPiiKey(key)) {
       rec[key] = REDACTED;
-    } else if (typeof rec[key] === 'object') {
-      redactObject(rec[key], depth + 1);
+    } else if (typeof value === 'string') {
+      rec[key] = redactStringValue(value);
+    } else if (typeof value === 'object') {
+      redactObject(value, depth + 1);
     }
   }
 }

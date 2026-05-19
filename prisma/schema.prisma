@@ -556,6 +556,7 @@ model MemberEvent {
   metadata   Json?
   sourcePage String?  @map("source_page")
   sessionId  String?  @map("session_id")
+  requestId  String?  @map("request_id")
   createdAt  DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -565,6 +566,7 @@ model MemberEvent {
   @@index([createdAt])
   @@index([userId, createdAt])
   @@index([userId, eventName, createdAt])
+  @@index([requestId])
   @@map("member_events")
 }
 

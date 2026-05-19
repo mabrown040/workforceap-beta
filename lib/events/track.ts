@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
+import { getRequestId } from '@/lib/observability/requestId';
+import { logger } from '@/lib/observability/logger';
 
 export type EventName =
   | 'member_logged_in'
@@ -62,12 +64,19 @@ type TrackEventParams = {
   metadata?: Record<string, unknown>;
   sourcePage?: string;
   sessionId?: string;
+  /**
+   * Optional override. When omitted the current request's `x-request-id`
+   * is read from AsyncLocalStorage so we don't have to thread it through
+   * every callsite.
+   */
+  requestId?: string;
 };
 
 /**
  * Track a member event. Non-blocking - logs errors but does not throw.
  */
 export async function trackEvent(params: TrackEventParams): Promise<void> {
+  const requestId = params.requestId ?? getRequestId() ?? null;
   try {
     await prisma.memberEvent.create({
       data: {
@@ -78,9 +87,14 @@ export async function trackEvent(params: TrackEventParams): Promise<void> {
         metadata: params.metadata ? JSON.parse(JSON.stringify(params.metadata)) : undefined,
         sourcePage: params.sourcePage ?? null,
         sessionId: params.sessionId ?? null,
+        requestId,
       },
     });
   } catch (err) {
-    console.error('[trackEvent]', err);
+    logger.error('trackEvent failed', {
+      eventName: params.eventName,
+      userId: params.userId,
+      err,
+    });
   }
 }

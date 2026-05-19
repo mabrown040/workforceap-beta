@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/auth/server';
 import { SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { getAdminMfaTrustCookieName } from '@/lib/auth/mfaTrust';
+import { logger } from '@/lib/observability/logger';
 
 export async function POST(request: Request) {
   try {
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
-    console.error('[auth/logout] error:', error);
+    logger.error('[auth/logout] error', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -4,30 +4,34 @@ require('./ensure-prisma-env.cjs');
  * safe-migrate.cjs — wraps `prisma migrate deploy` with operator-controlled
  * recovery for partial migration failures.
  *
- * AUDIT-2026-05-16 §C-D3: the previous version auto-resolved any P3018 /
- * P3009 / "already exists" failure by silently marking the failed migration
- * as applied and retrying up to 5×. That papered over real partial-success
- * migrations (a migration that created 3 of 4 tables, failed on the 4th,
- * got marked done with the 4th table missing) and is the root cause of
- * the multiple "fix_schema_drift" rescue migrations in `prisma/migrations/`.
+ * AUDIT-2026-05-16 §C-D3 / PLAN-2026-Q3 §0: the previous version auto-resolved
+ * any P3018 / P3009 / "already exists" failure by silently marking the failed
+ * migration as applied and retrying up to 5×. That papered over real
+ * partial-success migrations (a migration that created 3 of 4 tables, failed
+ * on the 4th, got marked done with the 4th table missing) and is the root
+ * cause of the multiple "fix_schema_drift" rescue migrations in
+ * `prisma/migrations/`.
  *
- * Default behavior now:
+ * Default behavior:
  *   - Run `prisma migrate deploy`.
- *   - On failure, print the error and exit non-zero. No auto-resolve.
+ *   - On success, run `prisma generate` and exit 0.
+ *   - On failure, print the full Prisma error to stderr and exit non-zero.
+ *     NO auto-resolve. NO silent retries.
  *
- * Explicit recovery (operator only, after reading the failed migration's
- * SQL and confirming the DB state is what the migration intended):
- *   PRISMA_FORCE_RESOLVE=1 node scripts/safe-migrate.cjs
+ * Explicit recovery (operator only, after reading the failed migration's SQL
+ * and confirming the DB state is what the migration intended):
  *
- *   - Auto-resolve only failures that look like "already exists" race
- *     conditions on idempotent SQL (CREATE … IF NOT EXISTS variants).
- *     Retries up to 5×.
- *   - Still NOT auto-resolves bare P3018 / P3009 — those need human
- *     review.
+ *   node scripts/safe-migrate.cjs --force-resolve <migration-name>
  *
- * The intent is that the default deploy path is the safe one. Anyone
- * needing the old auto-resolve must opt in via env var, which leaves an
- * audit trail (Vercel build log will show the flag was set).
+ *   - Runs `prisma migrate resolve --applied <migration-name>` exactly once.
+ *   - Echoes a loud warning to stderr before doing so.
+ *   - Refuses if the name is empty or contains shell metacharacters.
+ *
+ * The intent is that the default deploy path is the safe one. Anyone needing
+ * to force-resolve must do so explicitly, leaving an audit trail in the
+ * Vercel build log (or shell history).
+ *
+ * Called from `package.json`'s `build:with-migrate` script.
  */
 
 if (process.env.__PRISMA_PLACEHOLDER_DB === '1') {
@@ -36,6 +40,37 @@ if (process.env.__PRISMA_PLACEHOLDER_DB === '1') {
 }
 
 const { spawnSync } = require('child_process');
+
+// ---------------------------------------------------------------------------
+// argv parsing
+// ---------------------------------------------------------------------------
+
+function parseArgs(argv) {
+  const args = { forceResolve: null };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--force-resolve') {
+      args.forceResolve = argv[i + 1] ?? '';
+      i++;
+    } else if (a.startsWith('--force-resolve=')) {
+      args.forceResolve = a.slice('--force-resolve='.length);
+    }
+  }
+  return args;
+}
+
+// Allow only the characters Prisma migration directory names actually use:
+// digits, letters, underscores, hyphens. Reject anything else (spaces, ;, &,
+// |, $, backticks, quotes, parens, redirects, glob chars, etc.).
+const SAFE_MIGRATION_NAME = /^[A-Za-z0-9_-]+$/;
+
+function isSafeMigrationName(name) {
+  return typeof name === 'string' && name.length > 0 && SAFE_MIGRATION_NAME.test(name);
+}
+
+// ---------------------------------------------------------------------------
+// prisma wrappers
+// ---------------------------------------------------------------------------
 
 function runMigrateDeploy() {
   const r = spawnSync('npx', ['prisma', 'migrate', 'deploy'], {
@@ -47,11 +82,22 @@ function runMigrateDeploy() {
   const stderr = (r.stderr ?? '').toString();
   process.stdout.write(stdout);
   process.stderr.write(stderr);
-  return { status: r.status ?? 1, output: stdout + stderr };
+  return { status: r.status ?? 1, stdout, stderr };
 }
 
-function resolveAsApplied(migrationName) {
-  console.log(`safe-migrate: marking "${migrationName}" as applied (PRISMA_FORCE_RESOLVE=1 set)`);
+function runPrismaGenerate() {
+  const r = spawnSync('npx', ['prisma', 'generate'], {
+    stdio: 'inherit',
+    env: process.env,
+    shell: true,
+  });
+  return r.status ?? 1;
+}
+
+function runForceResolve(migrationName) {
+  // We've already validated migrationName against SAFE_MIGRATION_NAME, but pass
+  // it as a discrete argv element (not interpolated into a shell string) so
+  // there's no way for it to be re-parsed.
   const r = spawnSync('npx', ['prisma', 'migrate', 'resolve', '--applied', migrationName], {
     stdio: 'inherit',
     env: process.env,
@@ -60,76 +106,59 @@ function resolveAsApplied(migrationName) {
   return r.status ?? 1;
 }
 
-console.log('safe-migrate: running prisma migrate deploy...');
-const first = runMigrateDeploy();
+// ---------------------------------------------------------------------------
+// main
+// ---------------------------------------------------------------------------
 
-if (first.status === 0) {
-  console.log('safe-migrate: migrations applied successfully');
+const args = parseArgs(process.argv.slice(2));
+
+if (args.forceResolve !== null) {
+  const name = args.forceResolve;
+  if (!isSafeMigrationName(name)) {
+    console.error(
+      'safe-migrate: refusing --force-resolve: migration name is empty or contains disallowed characters.',
+    );
+    console.error('  Migration names must match /^[A-Za-z0-9_-]+$/ (the chars Prisma actually uses).');
+    process.exit(2);
+  }
+  console.error('');
+  console.error('⚠️  FORCING RESOLVE — this skips schema integrity checks.');
+  console.error('   Make sure you\'ve manually verified the schema state.');
+  console.error(`   Marking migration "${name}" as applied.`);
+  console.error('');
+  const status = runForceResolve(name);
+  if (status !== 0) {
+    console.error(`safe-migrate: prisma migrate resolve --applied ${name} failed with status ${status}`);
+    process.exit(status);
+  }
+  console.log(`safe-migrate: migration "${name}" marked as applied. Re-run deploy to apply remaining migrations.`);
   process.exit(0);
 }
 
-const forceResolve = process.env.PRISMA_FORCE_RESOLVE === '1';
-if (!forceResolve) {
+console.log('safe-migrate: running prisma migrate deploy...');
+const result = runMigrateDeploy();
+
+if (result.status !== 0) {
   console.error('');
   console.error('safe-migrate: prisma migrate deploy FAILED.');
   console.error('');
   console.error('  No auto-resolve will be attempted. Inspect the failing migration:');
   console.error('    - Check whether the DDL it tried to run is partially applied.');
-  console.error('    - If yes, write a follow-up migration that idempotently brings the');
-  console.error('      schema to the intended state, and `prisma migrate resolve --rolled-back`');
-  console.error('      the failed one.');
-  console.error('    - If you are SURE the partial state is what the migration intended,');
-  console.error("      re-run with PRISMA_FORCE_RESOLVE=1 to auto-mark 'already exists'");
-  console.error('      failures as applied. This still will NOT mark bare P3018/P3009');
-  console.error('      failures as applied without a name match.');
+  console.error('    - If yes, write a follow-up migration that idempotently brings');
+  console.error('      the schema to the intended state, and run');
+  console.error('        npx prisma migrate resolve --rolled-back <name>');
+  console.error('      against the failed one.');
+  console.error('    - If you are CERTAIN the partial state is what the migration');
+  console.error('      intended, re-run this script with:');
+  console.error('        node scripts/safe-migrate.cjs --force-resolve <migration-name>');
   console.error('');
-  process.exit(first.status);
+  process.exit(result.status);
 }
 
-// PRISMA_FORCE_RESOLVE=1 — auto-resolve only "already exists" race conditions
-// (CREATE TABLE IF NOT EXISTS variants). Bare P3018/P3009 still need a name
-// match in the output to be resolved, but operator has opted in explicitly.
-function extractAlreadyExistsName(output) {
-  const m =
-    output.match(/type "([^"]+)" already exists/) ||
-    output.match(/relation "([^"]+)" already exists/) ||
-    output.match(/column "([^"]+)" of relation "([^"]+)" already exists/);
-  return m ? m[1] : null;
+console.log('safe-migrate: migrations applied successfully. Running prisma generate...');
+const genStatus = runPrismaGenerate();
+if (genStatus !== 0) {
+  console.error(`safe-migrate: prisma generate failed with status ${genStatus}`);
+  process.exit(genStatus);
 }
-
-function extractFailedMigrationName(output) {
-  const m =
-    output.match(/Migration name:\s*(\S+)/) ||
-    output.match(/The `([^`]+)` migration started at .* failed/);
-  return m ? m[1] : null;
-}
-
-let current = first;
-for (let attempt = 0; attempt < 5; attempt++) {
-  // Prefer the failed-migration name (more accurate than the "already exists"
-  // object name) when both are present.
-  const failedName = extractFailedMigrationName(current.output);
-  const objectName = extractAlreadyExistsName(current.output);
-  const stuck = failedName || objectName;
-  if (!stuck) {
-    console.error('safe-migrate: PRISMA_FORCE_RESOLVE set but no recognizable failure pattern — refusing to auto-resolve');
-    process.exit(current.status);
-  }
-  if (!objectName) {
-    console.error(`safe-migrate: failed migration "${stuck}" but no "already exists" evidence — refusing to auto-resolve. Fix manually.`);
-    process.exit(current.status);
-  }
-  console.log(`safe-migrate: PRISMA_FORCE_RESOLVE auto-resolving "${stuck}" (attempt ${attempt + 1}/5)`);
-  const resolveStatus = resolveAsApplied(stuck);
-  if (resolveStatus !== 0) {
-    console.error('safe-migrate: resolve failed — cannot continue');
-    process.exit(1);
-  }
-  current = runMigrateDeploy();
-  if (current.status === 0) {
-    console.log('safe-migrate: migrations applied successfully after resolving stuck entries');
-    process.exit(0);
-  }
-}
-
-process.exit(current.status);
+process.exit(0);

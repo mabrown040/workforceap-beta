@@ -370,6 +370,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 
 export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/counselor', label: 'Overview', group: 'primary', Icon: Home },
+  { href: '/counselor/inbox', label: 'Inbox zero', group: 'workflows', Icon: ListChecks },
   { href: '/counselor/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
   { href: '/counselor/students', label: 'My members', group: 'workflows', Icon: Users },
   { href: '/counselor/messages', label: 'Messages', group: 'workflows', Icon: MessageSquare },

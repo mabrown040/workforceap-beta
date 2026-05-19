@@ -33,3 +33,6 @@ export { employerSignupAdminAlertHtml } from './employer-signup-admin-alert';
 export { employerApprovedHtml } from './employer-approved';
 export { employerRejectedHtml } from './employer-rejected';
 export { wioaReportHtml } from './wioa-report';
+export { memberCheckInHtml, memberCheckInSubject } from './member-check-in';
+export { memberComeBackHtml, memberComeBackSubject } from './member-come-back';
+export { memberStuckHtml, memberStuckSubject } from './member-stuck';

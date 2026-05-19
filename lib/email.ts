@@ -40,6 +40,12 @@ import {
   employerApprovedHtml,
   employerRejectedHtml,
   wioaReportHtml,
+  memberCheckInHtml,
+  memberCheckInSubject,
+  memberComeBackHtml,
+  memberComeBackSubject,
+  memberStuckHtml,
+  memberStuckSubject,
 } from '@/emails';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -1837,6 +1843,126 @@ export async function sendCounselorAtRiskAlertEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendCounselorAtRiskAlertEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+// ─── G5 retention nudge sends ───────────────────────────────────────────────
+
+/**
+ * Member check-in nudge (yellow tier, day ~4).
+ */
+export async function sendMemberCheckInEmail(params: {
+  to: string;
+  firstName: string;
+  dashboardUrl: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendMemberCheckInEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'Quick check-in',
+    bodyHtml: memberCheckInHtml({
+      firstName: params.firstName,
+      dashboardUrl: params.dashboardUrl,
+    }),
+    ctaText: 'Open my dashboard',
+    ctaUrl: params.dashboardUrl,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(memberCheckInSubject),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendMemberCheckInEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/**
+ * Member come-back nudge (red tier, day 7+).
+ */
+export async function sendMemberComeBackEmail(params: {
+  to: string;
+  firstName: string;
+  counselorName: string;
+  nextBestActionUrl: string;
+  nextBestActionLabel?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendMemberComeBackEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'A quick question',
+    bodyHtml: memberComeBackHtml({
+      firstName: params.firstName,
+      counselorName: params.counselorName,
+      nextBestActionUrl: params.nextBestActionUrl,
+      nextBestActionLabel: params.nextBestActionLabel,
+    }),
+    ctaText: params.nextBestActionLabel ?? 'Take the next step',
+    ctaUrl: params.nextBestActionUrl,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(memberComeBackSubject(params.counselorName)),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendMemberComeBackEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/**
+ * Member stuck nudge (red 14d+ or stalled training).
+ */
+export async function sendMemberStuckEmail(params: {
+  to: string;
+  firstName: string;
+  counselorName: string;
+  calendarUrl?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendMemberStuckEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const calendarUrl =
+    params.calendarUrl ||
+    process.env.COUNSELOR_BOOKING_URL ||
+    'https://www.workforceap.org/counselor/book-15';
+  const html = brandedEmailLayout({
+    title: "Let's get unstuck",
+    bodyHtml: memberStuckHtml({
+      firstName: params.firstName,
+      counselorName: params.counselorName,
+      calendarUrl,
+    }),
+    ctaText: 'Book 15 minutes',
+    ctaUrl: calendarUrl,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(memberStuckSubject),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendMemberStuckEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

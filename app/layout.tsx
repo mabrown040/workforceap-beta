@@ -10,6 +10,8 @@ import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
+import UtmCapture from '@/components/marketing/UtmCapture';
+import { Suspense } from 'react';
 import { getRequestOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import { WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER } from '@/lib/nav/mobileBottomNavLayout';
 import {
@@ -195,6 +197,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           </>
         )}
         <JsonLd />
+        {/* Capture UTM + referrer on every entry point, not just /apply,
+            /login, /signup. Paid clicks that land on /en, /programs, etc.
+            and then click through to /apply otherwise arrive without
+            attribution. Suspense boundary required because UtmCapture
+            uses useSearchParams. */}
+        <Suspense fallback={null}>
+          <UtmCapture />
+        </Suspense>
         <NextIntlClientProvider messages={messages}>
         <ConditionalMarketingNav />
         <main id="main-content">{children}</main>

@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { readMarketingAttribution, clearMarketingAttribution } from '@/lib/marketing/utmCapture';
 import {
   APPLY_FLOW_DRAFT_KEY,
   APPLY_PROGRAM_RANKED_KEY,
@@ -332,6 +333,7 @@ export default function ApplyCreateAccountForm() {
       }
 
       const careerPayload = typeof window !== 'undefined' ? getCareerQuizPayloadFromStorage() : null;
+      const attribution = readMarketingAttribution();
 
       const res = await fetch('/api/apply/signup', {
         method: 'POST',
@@ -355,6 +357,12 @@ export default function ApplyCreateAccountForm() {
           recommendedCareerTitle: careerPayload?.recommendedCareerTitle ?? undefined,
           careerRecommendationJson: careerPayload?.careerRecommendationJson ?? undefined,
           needsComputerSupportFollowUp: careerPayload?.needsComputerSupportFollowUp ?? undefined,
+          utmSource: attribution.utmSource,
+          utmMedium: attribution.utmMedium,
+          utmCampaign: attribution.utmCampaign,
+          utmContent: attribution.utmContent,
+          utmTerm: attribution.utmTerm,
+          referrer: attribution.referrer,
         }),
       });
       const data = await res.json();
@@ -405,6 +413,7 @@ export default function ApplyCreateAccountForm() {
       }
       try {
         sessionStorage.removeItem(APPLY_REFERRAL_SESSION_KEY);
+        clearMarketingAttribution();
       } catch {
         /* ignore */
       }

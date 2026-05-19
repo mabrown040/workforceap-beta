@@ -7,6 +7,8 @@ import { getProfileRole } from '@/lib/auth/roles';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import LoginForm from './LoginForm';
+import UtmCapture from '@/components/marketing/UtmCapture';
+import { Suspense } from 'react';
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = await buildPageMetadataAsync({
@@ -36,5 +38,12 @@ export default async function LoginPage({
     redirect(`${withLocalePrefix('/login', locale)}?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
   }
 
-  return <LoginForm initialRedirectTo={normalizedRedirect} />;
+  return (
+    <>
+      <Suspense fallback={null}>
+        <UtmCapture />
+      </Suspense>
+      <LoginForm initialRedirectTo={normalizedRedirect} />
+    </>
+  );
 }

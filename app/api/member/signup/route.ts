@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { memberSignupSchema } from '@/lib/validation/member';
 import { checkSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
+import { trackEvent } from '@/lib/events/track';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -149,7 +150,33 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-  
+
+    // Persist marketing attribution + signup conversion before the client
+    // clears its sessionStorage. Mirrors /api/apply/signup so the attribution
+    // surface is the same for both signup paths.
+    const attributionMetadata: Record<string, string> = {};
+    if (data.utmSource) attributionMetadata.utm_source = data.utmSource;
+    if (data.utmMedium) attributionMetadata.utm_medium = data.utmMedium;
+    if (data.utmCampaign) attributionMetadata.utm_campaign = data.utmCampaign;
+    if (data.utmContent) attributionMetadata.utm_content = data.utmContent;
+    if (data.utmTerm) attributionMetadata.utm_term = data.utmTerm;
+    if (data.referrer) attributionMetadata.referrer = data.referrer;
+
+    try {
+      await trackEvent({
+        userId: user.id,
+        eventName: 'apply_signup_completed',
+        metadata: {
+          program_interest: data.programInterest,
+          ...attributionMetadata,
+        },
+        sourcePage: '/signup',
+      });
+    } catch (err) {
+      // Don't block signup on telemetry failures.
+      console.error('Signup event tracking failed:', err);
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Check your email to verify your account.',

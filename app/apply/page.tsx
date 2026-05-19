@@ -6,6 +6,7 @@ import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
 import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
+import UtmCapture from '@/components/marketing/UtmCapture';
 import { buildApplyPageMetadata, getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
 import { getTranslations } from 'next-intl/server';
 
@@ -273,6 +274,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
 
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyRefCapture />
+            <UtmCapture />
           </Suspense>
 
           <div className="apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">

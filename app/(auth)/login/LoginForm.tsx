@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { splitLocalePrefix } from '@/lib/i18n/config';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 
 /* ─── portal destination data (unchanged business logic) ─── */
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
@@ -359,9 +360,16 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
       setPasswordError('Please enter your password.');
       hasFieldError = true;
     }
-    if (hasFieldError) return;
+    if (hasFieldError) {
+      trackFunnelEvent('member_login', 'validation_failed');
+      return;
+    }
 
     setLoading(true);
+    trackFunnelEvent('member_login', 'started', {
+      destination: canonicalRedirectTo,
+      remember_me: rememberMe,
+    });
 
     try {
       const res = await fetchAuth('/api/auth/login', {
@@ -379,12 +387,14 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
 
       // MFA required — redirect to verification page
       if (data.mfaRequired && data.redirectTo) {
+        trackFunnelEvent('member_login', 'mfa_required');
         window.location.href = new URL(data.redirectTo, window.location.origin).href;
         return;
       }
 
       // MFA setup required for staff — redirect to setup page
       if (data.mfaSetupRequired && data.redirectTo) {
+        trackFunnelEvent('member_login', 'mfa_setup_required');
         window.location.href = new URL(data.redirectTo, window.location.origin).href;
         return;
       }
@@ -408,14 +418,20 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
 
       if (!res.ok) {
         setError(data.error ?? "We couldn't sign you in right now. Try again in a moment.");
+        trackFunnelEvent('member_login', 'failed', {
+          status_code: res.status,
+          error_message: typeof data?.error === 'string' ? data.error.slice(0, 120) : 'unknown',
+        });
         setLoading(false);
         return;
       }
 
+      trackFunnelEvent('member_login', 'completed', { destination: canonicalRedirectTo });
       const nextLocation = typeof data?.redirectTo === 'string' ? data.redirectTo : redirectTo;
       window.location.href = new URL(nextLocation, window.location.origin).href;
     } catch {
       setError("We couldn't connect. Check your connection and try again.");
+      trackFunnelEvent('member_login', 'network_error');
       setLoading(false);
     }
   };

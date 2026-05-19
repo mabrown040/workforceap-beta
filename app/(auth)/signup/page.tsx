@@ -5,6 +5,8 @@ import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import SignupForm from './SignupForm';
+import UtmCapture from '@/components/marketing/UtmCapture';
+import { Suspense } from 'react';
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = await buildPageMetadataAsync({
@@ -28,5 +30,12 @@ export default async function SignupPage({
     redirect(`${withLocalePrefix('/signup', locale)}?redirectTo=${encodeURIComponent(normalizedRedirect)}`);
   }
 
-  return <SignupForm initialRedirectTo={normalizedRedirect} />;
+  return (
+    <>
+      <Suspense fallback={null}>
+        <UtmCapture />
+      </Suspense>
+      <SignupForm initialRedirectTo={normalizedRedirect} />
+    </>
+  );
 }

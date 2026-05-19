@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
+import { auditLog } from '@/lib/audit';
 
 export async function GET(request: NextRequest) {
   try {
@@ -65,6 +66,23 @@ export async function GET(request: NextRequest) {
       rows,
       { reportTitle: 'Partner Directory Export', notes: 'Workforce Advancement Project' },
     );
+
+    // AUDIT §H-DEP4 / PLAN-2026-Q3 §P4: federal-grant exports must leave
+    // an audit trail. Wrapped so logging failures never block the export.
+    await auditLog({
+      actorUserId: user.id,
+      action: 'admin.export.partners',
+      targetType: 'PartnerDirectoryExport',
+      metadata: {
+        rowCount: partners.length,
+        truncated: partners.length >= 500,
+        limit: 500,
+        filters: {
+          status: statusFilter || null,
+          search: search || null,
+        },
+      },
+    }).catch((err) => console.error('[admin/partners/export] audit log failed:', err));
 
     return csvDownloadResponse(csv, exportFilename('partners'), { truncated: partners.length >= 5000, limit: 5000 });
   } catch (error) {

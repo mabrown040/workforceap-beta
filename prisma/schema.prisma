@@ -1151,6 +1151,14 @@ model CounselorNote {
 model AuditLog {
   id          String   @id @default(uuid())
   actorUserId String?  @map("actor_user_id")
+  /// PLAN-2026-Q3 §P4: snapshot of the actor's email at write time. The
+  /// `actor` FK uses onDelete: SetNull, so when a user is deleted the
+  /// audit row would otherwise lose attribution. These snapshot columns
+  /// keep the row self-contained for WIOA / federal-funding audits.
+  actorEmailSnapshot String? @map("actor_email_snapshot")
+  /// Snapshot of the actor's primary role name at write time (admin,
+  /// counselor, partner, etc). NULL if the actor had no role assignment.
+  actorRoleSnapshot  String? @map("actor_role_snapshot")
   action      String
   targetType  String   @map("target_type")
   targetId    String?  @map("target_id")

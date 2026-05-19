@@ -17,7 +17,7 @@ export const MAGIC_BYTES: Array<{ ext: string; bytes: number[] }> = [
 ];
 
 export function validateFileType(
-  buffer: Buffer,
+  buffer: Buffer | Uint8Array,
   mimeType: string,
   fileName: string,
   options?: { allowTxt?: boolean }
@@ -88,19 +88,20 @@ export function validateFileType(
  *   0  uint32  signature           0x06054b50
  *   16 uint32  offset of central directory
  */
-function isDocxArchive(buffer: Buffer): boolean {
+function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
   const REQUIRED_ENTRIES = ['[Content_Types].xml', 'word/document.xml'];
 
   try {
-    const eocdOffset = findEocd(buffer);
+    const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    const eocdOffset = findEocd(buffer, view);
     if (eocdOffset < 0) return false;
 
     // EOCD must have at least 22 bytes available
     if (eocdOffset + 22 > buffer.length) return false;
 
-    const cdOffset = buffer.readUInt32LE(eocdOffset + 16);
-    const cdSize = buffer.readUInt32LE(eocdOffset + 12);
-    const totalEntries = buffer.readUInt16LE(eocdOffset + 10);
+    const cdOffset = view.getUint32(eocdOffset + 16, true);
+    const cdSize = view.getUint32(eocdOffset + 12, true);
+    const totalEntries = view.getUint16(eocdOffset + 10, true);
 
     if (cdOffset >= buffer.length || cdOffset + cdSize > buffer.length) {
       return false;
@@ -116,17 +117,24 @@ function isDocxArchive(buffer: Buffer): boolean {
 
     for (let i = 0; i < maxEntries; i++) {
       if (cursor + HEADER_FIXED_LEN > cdEnd) break;
-      const sig = buffer.readUInt32LE(cursor);
+      const sig = view.getUint32(cursor, true);
       if (sig !== CENTRAL_DIR_SIGNATURE) break;
 
-      const nameLen = buffer.readUInt16LE(cursor + 28);
-      const extraLen = buffer.readUInt16LE(cursor + 30);
-      const commentLen = buffer.readUInt16LE(cursor + 32);
+      const nameLen = view.getUint16(cursor + 28, true);
+      const extraLen = view.getUint16(cursor + 30, true);
+      const commentLen = view.getUint16(cursor + 32, true);
       const nameStart = cursor + HEADER_FIXED_LEN;
       const nameEnd = nameStart + nameLen;
       if (nameEnd > cdEnd) break;
 
-      const name = buffer.toString('utf8', nameStart, nameEnd);
+      const nameBytes = new Uint8Array(buffer.buffer, buffer.byteOffset + nameStart, nameLen);
+      let name = '';
+      if (typeof TextDecoder !== 'undefined') {
+        name = new TextDecoder('utf-8').decode(nameBytes);
+      } else {
+        for (let k = 0; k < nameLen; k++) name += String.fromCharCode(nameBytes[k]);
+      }
+
       if (REQUIRED_ENTRIES.includes(name)) {
         found.add(name);
         if (found.size === REQUIRED_ENTRIES.length) return true;
@@ -146,11 +154,11 @@ function isDocxArchive(buffer: Buffer): boolean {
  * by scanning backwards from the end of the buffer. The EOCD lives in
  * the last 22 + up-to-65535 bytes (its trailing comment is variable).
  */
-function findEocd(buffer: Buffer): number {
+function findEocd(buffer: Buffer | Uint8Array, view: DataView): number {
   const EOCD_SIGNATURE = 0x06054b50;
   const minOffset = Math.max(0, buffer.length - (22 + 0xffff));
   for (let i = buffer.length - 22; i >= minOffset; i--) {
-    if (buffer.readUInt32LE(i) === EOCD_SIGNATURE) {
+    if (view.getUint32(i, true) === EOCD_SIGNATURE) {
       return i;
     }
   }

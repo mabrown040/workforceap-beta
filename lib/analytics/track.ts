@@ -25,3 +25,13 @@ export function trackXapiBatchProcessed(extra: { statementsHandled: number; comp
     completionCount: extra.completionCount ?? 0,
   });
 }
+
+/** Supabase auth callback confirmed the member's email (server-side funnel). */
+export function trackEmailVerified(payload: {
+  user_id: string;
+  email_domain: string | null;
+  ts: string;
+  source: string;
+}) {
+  log('email_verified', payload);
+}

@@ -38,6 +38,7 @@ export type EventName =
   | 'apply_step_completed'
   | 'apply_signup_started'
   | 'apply_signup_completed'
+  | 'email_verified'
   | 'employer_import_started'
   | 'employer_import_succeeded'
   | 'employer_import_fallback_used'

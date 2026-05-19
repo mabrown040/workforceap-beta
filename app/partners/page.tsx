@@ -40,10 +40,14 @@ const PARTNER_LOGO_PLACEHOLDERS = [
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.partners');
+  // TODO(design): designer needs to produce `/public/images/og/partners.webp`
+  // (1200x630). Referenced here so social shares of /partners don't fall
+  // back to the generic homepage OG.
   return buildPageMetadataAsync({
     title: t('title'),
     description: t('description'),
     path: '/partners',
+    image: '/images/og/partners.webp',
   });
 }
 

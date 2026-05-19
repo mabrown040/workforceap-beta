@@ -9,6 +9,7 @@ import { getProgramDescription } from '@/lib/content/programDescriptions';
 import { getProgramExtra } from '@/lib/content/programExtras';
 import ProgramDetailClient from './ProgramDetailClient';
 import JsonLdCourse from '@/components/JsonLdCourse';
+import JsonLdBreadcrumb from '@/components/JsonLdBreadcrumb';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import { getRelatedPrograms } from '@/lib/content/relatedPrograms';
 import { ArrowRight } from 'lucide-react';
@@ -33,10 +34,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? ` Earn your ${displayPartner}-recognized certification.`
     : '';
   const description = `Training in ${displayTitle} offered at no cost for qualifying members. ${program.duration}.${certClause} Starting salary ${salaryRange}. Funded pathways available. Apply today.`;
+  // TODO(design): designer needs to produce per-category OG images at
+  // `/public/images/og/programs/<category>.webp` (1200x630). The path
+  // is keyed on `program.category` so the social card mirrors the
+  // category color shown in the program hero. Until the assets land,
+  // the SEO helper falls back to the default OG.
   return buildPageMetadataAsync({
     title: `${displayTitle} Training & Certification`,
     description,
     path: `/programs/${slug}`,
+    image: `/images/og/programs/${program.category}.webp`,
   });
 }
 
@@ -62,6 +69,14 @@ export default async function ProgramPage({ params }: Props) {
   return (
     <div className="inner-page program-detail-page">
       <JsonLdCourse program={program} />
+      <JsonLdBreadcrumb
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Programs', path: '/programs' },
+          { name: displayTitle },
+        ]}
+        currentPath={`/programs/${slug}`}
+      />
       <section className="page-hero">
         <div className="page-hero-content">
           <span

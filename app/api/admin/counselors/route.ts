@@ -33,8 +33,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
       email: c.user.email,
       title: c.title,
       active: c.active,
+      affiliation: c.affiliation,
       partnerId: c.partnerId,
       partnerName: c.partner?.name ?? null,
+      // UI label: independent advisors display as "Advisor", others as "Counselor"
+      label: c.affiliation === 'independent' ? 'advisor' : 'counselor',
     })),
   });
 
@@ -49,6 +52,7 @@ export const GET = withApiGuc(_GET);
 const createBody = z.object({
   userId: z.string().uuid(),
   partnerId: z.string().uuid().nullable().optional(),
+  affiliation: z.enum(['wap_staff', 'partner', 'independent']).optional(),
   title: z.string().max(120).optional().nullable(),
 });async function _POST(request: NextRequest) {
   try {
@@ -67,7 +71,7 @@ const createBody = z.object({
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const { userId, partnerId, title } = parsed.data;
+  const { userId, partnerId, affiliation, title } = parsed.data;
 
   const orgId = await getActorOrganizationId(user.id);
 
@@ -86,6 +90,17 @@ const createBody = z.object({
   );
   if (!targetUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
+  // Resolve affiliation: default to wap_staff if not provided
+  const resolvedAffiliation = affiliation ?? (partnerId ? 'partner' : 'wap_staff');
+
+  // Validate partner linkage consistency
+  if (resolvedAffiliation === 'partner' && !partnerId) {
+    return NextResponse.json({ error: 'Partner affiliation requires a partnerId' }, { status: 400 });
+  }
+  if (resolvedAffiliation === 'independent' && partnerId) {
+    return NextResponse.json({ error: 'Independent advisors cannot be linked to a partner org' }, { status: 400 });
+  }
+
   if (partnerId) {
     await assertSameTenant('partner', partnerId, orgId);
     const p = await withTenantScope(orgId, (db) =>
@@ -99,6 +114,7 @@ const createBody = z.object({
       data: {
         userId,
         partnerId: partnerId ?? null,
+        affiliation: resolvedAffiliation,
         title: title?.trim() || null,
         active: true,
       },

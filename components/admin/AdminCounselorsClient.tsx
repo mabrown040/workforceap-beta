@@ -9,15 +9,25 @@ type Row = {
   email: string;
   title: string | null;
   active: boolean;
+  affiliation: string;
   partnerId: string | null;
   partnerName: string | null;
+  label: string;
 };
 type PartnerOpt = { id: string; name: string };
+
+type Affiliation = 'wap_staff' | 'partner' | 'independent';
+const AFFILIATION_LABELS: Record<Affiliation, string> = {
+  wap_staff: 'WorkforceAP Staff',
+  partner: 'Partner Org',
+  independent: 'Independent Advisor',
+};
 
 export default function AdminCounselorsClient({ partners }: { partners: PartnerOpt[] }) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState('');
+  const [affiliation, setAffiliation] = useState<Affiliation>('wap_staff');
   const [partnerId, setPartnerId] = useState('');
   const [title, setTitle] = useState('');
   const [saving, setSaving] = useState(false);
@@ -39,17 +49,19 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     if (!userId.trim()) { setMsg({ type: 'err', text: 'Enter the user ID of the account to promote.' }); return; }
+    if (affiliation === 'partner' && !partnerId) { setMsg({ type: 'err', text: 'Select a partner organization for partner-affiliated counselors.' }); return; }
     setSaving(true); setMsg(null);
     try {
       const r = await fetch('/api/admin/counselors', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: userId.trim(), partnerId: partnerId || null, title: title.trim() || null }),
+        body: JSON.stringify({ userId: userId.trim(), partnerId: partnerId || null, affiliation, title: title.trim() || null }),
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) { setMsg({ type: 'err', text: typeof data.error === 'string' ? data.error : 'Save failed' }); return; }
-      setMsg({ type: 'ok', text: 'Counselor added. They can now sign in via the Counselor portal.' });
-      setUserId(''); setTitle('');
+      const typeLabel = affiliation === 'independent' ? 'Advisor' : 'Counselor';
+      setMsg({ type: 'ok', text: `${typeLabel} added. They can now sign in via the ${typeLabel === 'Advisor' ? 'Advisor' : 'Counselor'} portal.` });
+      setUserId(''); setTitle(''); setAffiliation('wap_staff'); setPartnerId('');
       void load();
     } catch { setMsg({ type: 'err', text: 'Network error' }); }
     finally { setSaving(false); }
@@ -63,7 +75,7 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
           Add Counselor
         </h2>
         <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.55 }}>
-          Link an existing WorkforceAP user. Choose <strong>WorkforceAP</strong> for internal staff or select a partner for affiliated counselors.
+          Link an existing WorkforceAP user. Choose <strong>WorkforceAP Staff</strong> for internal team, <strong>Partner Org</strong> for affiliated counselors, or <strong>Independent Advisor</strong> for solo practitioners.
         </p>
         {msg && (
           <div style={{ padding: '0.625rem 0.875rem', borderRadius: '0.625rem', background: msg.type === 'ok' ? 'rgba(74,155,79,0.1)' : 'rgba(173,44,77,0.1)', color: msg.type === 'ok' ? 'var(--color-green, #4a9b4f)' : 'var(--color-accent)', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
@@ -83,12 +95,27 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
           ))}
           <div>
             <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>Affiliation</label>
-            <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)}
+            <select value={affiliation} onChange={(e) => {
+              const a = e.target.value as Affiliation;
+              setAffiliation(a);
+              if (a !== 'partner') setPartnerId('');
+            }}
               style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
-              <option value="">WorkforceAP (internal)</option>
-              {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              <option value="wap_staff">{AFFILIATION_LABELS.wap_staff}</option>
+              <option value="partner">{AFFILIATION_LABELS.partner}</option>
+              <option value="independent">{AFFILIATION_LABELS.independent}</option>
             </select>
           </div>
+          {affiliation === 'partner' && (
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>Partner Organization</label>
+              <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)}
+                style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
+                <option value="">Select a partner…</option>
+                {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </div>
+          )}
           <button type="submit" className="btn btn-primary btn-sm" disabled={saving} aria-busy={saving} style={{ alignSelf: 'flex-start' }}>
             <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               {saving ? (
@@ -97,7 +124,7 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
                   Adding…
                 </>
               ) : (
-                'Add Counselor'
+                'Add ' + (affiliation === 'independent' ? 'Advisor' : 'Counselor')
               )}
             </span>
           </button>
@@ -134,13 +161,18 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
                     <div style={{ minWidth: 0 }}>
                       <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0 }}>{r.fullName}</p>
                       <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {r.email} · {r.partnerName ?? 'WorkforceAP'}{r.title ? ` · ${r.title}` : ''}
+                        {r.email} · {r.affiliation === 'independent' ? 'Independent Advisor' : (r.partnerName ?? 'WorkforceAP')}{r.title ? ` · ${r.title}` : ''}
                       </p>
                     </div>
                   </div>
-                  <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '9999px', background: r.active ? 'rgba(74,155,79,0.12)' : 'var(--surface-container-high)', color: r.active ? 'var(--color-green, #4a9b4f)' : 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0 }}>
-                    {r.active ? 'Active' : 'Inactive'}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                    <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '9999px', background: r.affiliation === 'independent' ? 'rgba(30,58,138,0.12)' : 'var(--surface-container-high)', color: r.affiliation === 'independent' ? '#1e3a8a' : 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                      {r.affiliation === 'independent' ? 'Advisor' : 'Counselor'}
+                    </span>
+                    <span style={{ fontSize: '0.625rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '9999px', background: r.active ? 'rgba(74,155,79,0.12)' : 'var(--surface-container-high)', color: r.active ? 'var(--color-green, #4a9b4f)' : 'var(--color-on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                      {r.active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
                 </div>
               );
             })}

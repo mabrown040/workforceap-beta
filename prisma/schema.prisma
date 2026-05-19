@@ -861,7 +861,10 @@ model PartnerUser {
 
 model Counselor {
   id        String   @id @default(uuid())
-  // Null partnerId = WorkforceAP org counselor; set when tied to a partner org
+  // Affiliation distinguishes WorkforceAP staff counselors, partner-org
+  // counselors, and independent advisors who work on their own.
+  affiliation CounselorAffiliation @default(wap_staff) @map("affiliation")
+  // Null partnerId = not affiliated with a partner org (wap_staff or independent)
   partnerId String?  @map("partner_id")
   userId    String   @unique @map("user_id") // links to User (must have role = counselor)
   title     String?
@@ -874,7 +877,16 @@ model Counselor {
   assignments CounselorAssignment[]
 
   @@index([partnerId])
+  @@index([affiliation])
   @@map("counselors")
+}
+
+enum CounselorAffiliation {
+  wap_staff
+  partner
+  independent
+
+  @@map("counselor_affiliations")
 }
 
 model CounselorAssignment {

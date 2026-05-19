@@ -9,8 +9,8 @@ import AdminCounselorsClient from '@/components/admin/AdminCounselorsClient';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Counselors',
-  description: 'Manage WorkforceAP and partner counselors.',
+  title: 'Counselors & Advisors',
+  description: 'Manage WorkforceAP staff, partner counselors, and independent advisors.',
   path: '/admin/counselors',
 });
 }
@@ -30,7 +30,7 @@ export default async function AdminCounselorsPage() {
 
   return (
     <div className="admin-main-content">
-      <PageHeader title="Counselors" subtitle="Add organization counselors or partner-affiliated counselors." />
+      <PageHeader title="Counselors & Advisors" subtitle="Manage WorkforceAP staff, partner-affiliated counselors, and independent advisors." />
       <AdminCounselorsClient partners={partners} />
     </div>
   );

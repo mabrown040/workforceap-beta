@@ -278,12 +278,15 @@ export default function ApplyEligibilityClient() {
                 name="phone"
                 autoComplete="tel"
                 inputMode="tel"
+                placeholder="(512) 555-0100"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 required
                 minLength={10}
                 aria-invalid={attemptedContinue && phone.replace(/\D/g, '').length < 10}
+                aria-describedby="apply-phone-hint"
               />
+              <p id="apply-phone-hint" className="apply-field-hint">{t('eligibilityPhoneHint')}</p>
             </div>
           </div>
           {attemptedContinue && !contactOk && (

@@ -19,6 +19,9 @@ import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import VoiceSectionErrorBoundary from '@/components/portal/VoiceSectionErrorBoundary';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberFirstValuePanel from '@/components/portal/MemberFirstValuePanel';
+import { buildFirstValueActions } from '@/lib/member/firstValueActions';
+import { isNewMember, secondsSinceAccountCreation } from '@/lib/member/isNewMember';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
@@ -474,6 +477,22 @@ async function renderMemberDashboard(
   }
   nextBestActions = nextBestActions.slice(0, 4);
   const dominantNextAction = nextBestActions[0] ?? null;
+
+  const showFirstValuePanel = isNewMember(dbUser.createdAt);
+  const firstValueActions = showFirstValuePanel
+    ? buildFirstValueActions({
+        state: dashboardState,
+        noApplicationOnFile,
+        application: applicationStatusView,
+        enrolledProgram: enrolledProgramSlug,
+        assessmentCompleted,
+        hasResume: memberState.hasResume,
+        profileCompletenessPct,
+        careerRecommendation: memberState.careerRecommendation,
+      })
+    : [];
+  const firstValueSecondsSinceSignup = secondsSinceAccountCreation(dbUser.createdAt);
+
   const mobileStripActions =
     dominantNextAction && nextBestActions[0]?.id === dominantNextAction.id
       ? nextBestActions.slice(1)
@@ -635,6 +654,15 @@ async function renderMemberDashboard(
 
       {/* ΓöÇΓöÇ Mobile-only dashboard (Γëñ767px) ΓöÇΓöÇ */}
       <div className="md:wa-hidden portal-mobile-content">
+
+        {showFirstValuePanel && firstValueActions.length > 0 ? (
+          <section style={{ padding: '1rem 1.25rem 0' }}>
+            <MemberFirstValuePanel
+              actions={firstValueActions}
+              secondsSinceSignup={firstValueSecondsSinceSignup}
+            />
+          </section>
+        ) : null}
 
         {/* ΓöÇΓöÇ Hero: greeting + progress ring ΓöÇΓöÇ */}
         <section aria-label="Dashboard hero" style={{ padding: '1.25rem 1.25rem 1rem' }}>
@@ -1190,6 +1218,9 @@ async function renderMemberDashboard(
                   noApplicationOnFile={noApplicationOnFile}
                   age={userAge}
                   isMinor={isMinor}
+                  showFirstValuePanel={showFirstValuePanel}
+                  firstValueActions={firstValueActions}
+                  firstValueSecondsSinceSignup={firstValueSecondsSinceSignup}
                   />
                 </Suspense>
               </ErrorBoundary>

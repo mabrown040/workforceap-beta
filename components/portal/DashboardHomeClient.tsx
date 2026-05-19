@@ -14,6 +14,8 @@ import YouthDashboardNotice from '@/components/portal/YouthDashboardNotice';
 import { formatPortalDate, formatPortalDateTime } from '@/lib/formatDate';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberFirstValuePanel from '@/components/portal/MemberFirstValuePanel';
+import type { FirstValueAction } from '@/lib/member/firstValueActions';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 import PortalMetricCard from '@/components/portal/ui/PortalMetricCard';
@@ -68,6 +70,9 @@ type DashboardHomeClientProps = {
   interviewCompletedAt?: Date | null;
   starterProfileReviewRequired?: boolean;
   starterProfileMissingFields?: string[];
+  showFirstValuePanel?: boolean;
+  firstValueActions?: FirstValueAction[];
+  firstValueSecondsSinceSignup?: number | null;
 };
 
 import { useTranslations } from 'next-intl';
@@ -102,6 +107,9 @@ export default function DashboardHomeClient({
   starterProfileMissingFields = [],
   age = null,
   isMinor = false,
+  showFirstValuePanel = false,
+  firstValueActions = [],
+  firstValueSecondsSinceSignup = null,
 }: DashboardHomeClientProps) {
   const t = useTranslations('dashboard');
   const primaryAction = recommendedActions[0];
@@ -277,6 +285,13 @@ export default function DashboardHomeClient({
   return (
     <div className="portal-member-dashboard-home">
       {age !== null && age < 18 ? <YouthDashboardNotice age={age} /> : null}
+
+      {showFirstValuePanel && firstValueActions.length > 0 ? (
+        <MemberFirstValuePanel
+          actions={firstValueActions}
+          secondsSinceSignup={firstValueSecondsSinceSignup}
+        />
+      ) : null}
 
       {/* ── Page Header ── */}
       <header className="portal-dash-header portal-dash-inset">

@@ -259,6 +259,8 @@
     "stepUpcoming": "{label}: upcoming",
     "recommendedNextStep": "Recommended next step",
     "yourNextStepsTitle": "Your next steps",
+    "firstValuePanelTitle": "Your next 3 actions",
+    "firstValuePanelSubtitle": "Personalized for where you are now",
     "startHereBasedOnProgress": "Start here based on your progress",
     "pickedForYou": "Picked for you based on your progress",
     "dismissAction": "Dismiss \"{title}\"",

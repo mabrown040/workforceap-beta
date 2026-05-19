@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 import { postMemberEvent } from '@/lib/events/client';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -30,7 +31,7 @@ export default function MemberNextStepsStrip({
     }
   }, []);
 
-  const trackClick = useCallback((id: string, href: string) => {
+  const trackClick = useCallback((id: string, href: string, label: string) => {
     void postMemberEvent({
       eventName: 'member_dashboard_action_clicked',
       entityType: 'next_best_action',
@@ -38,10 +39,15 @@ export default function MemberNextStepsStrip({
       metadata: { action_id: id, href },
       sourcePage: '/dashboard',
     });
+    trackFunnelEvent('member_dashboard', 'primary_cta_clicked', {
+      action_id: id,
+      action_label: label,
+      route: typeof window !== 'undefined' ? window.location.pathname : undefined,
+    });
   }, []);
 
-  const completeAndOpen = useCallback(async (id: string, href: string) => {
-    trackClick(id, href);
+  const completeAndOpen = useCallback(async (id: string, href: string, label: string) => {
+    trackClick(id, href, label);
     if (!UUID_RE.test(id)) {
       router.push(href);
       return;
@@ -205,11 +211,11 @@ export default function MemberNextStepsStrip({
               className="btn btn-primary"
               onClick={(e) => {
                 if (!UUID_RE.test(a.id)) {
-                  trackClick(a.id, a.href);
+                  trackClick(a.id, a.href, a.cta);
                   return;
                 }
                 e.preventDefault();
-                void completeAndOpen(a.id, a.href);
+                void completeAndOpen(a.id, a.href, a.cta);
               }}
               style={{
                 alignSelf: 'flex-start',

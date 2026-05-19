@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db/prisma';
 export type EventName =
   | 'member_logged_in'
   | 'member_logged_out'
+  | 'email_verified'
   | 'dashboard_viewed'
   | 'member_dashboard_viewed'
   | 'member_dashboard_action_clicked'

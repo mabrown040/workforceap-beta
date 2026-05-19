@@ -1,7 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
 import type { NextBestAction } from '@/lib/member/nextBestActions';
+import { trackFunnelEvent } from '@/lib/analytics/events';
 
 type MemberDoThisNextCardProps = {
   action: NextBestAction | null;
@@ -48,6 +51,13 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem' }: Memb
           <Link
             href={action.href}
             className="btn"
+            onClick={() => {
+              trackFunnelEvent('member_dashboard', 'primary_cta_clicked', {
+                action_id: action.id,
+                action_label: action.cta,
+                route: typeof window !== 'undefined' ? window.location.pathname : undefined,
+              });
+            }}
             style={{
               marginTop: '0.25rem',
               alignSelf: 'flex-start',

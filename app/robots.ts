@@ -28,6 +28,8 @@ export default function robots(): MetadataRoute.Robots {
         '/apply/confirmation',
         '/apply/results',
         '/apply/status',
+        '/partner-signup',
+        '/org/onboard',
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

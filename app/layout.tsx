@@ -85,9 +85,6 @@ export const metadata: Metadata = {
   },
   description:
     'Occupational and career training, industry certifications, and support in Technology, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: 'Workforce Advancement Project',
     description:

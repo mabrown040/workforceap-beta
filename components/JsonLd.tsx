@@ -5,24 +5,6 @@ function safeJsonLdStringify(data: any) {
 }
 
 export default function JsonLd() {
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Workforce Advancement Project',
-    url: SITE_URL,
-    logo: `${SITE_URL}/images/wap_logo.png`,
-    description:
-      'Occupational and career training, industry certifications, and support in Technology, Data, AI, Healthcare, Manufacturing, and Skilled Trades.',
-    email: 'info@workforceap.org',
-    telephone: '+1-512-777-1808',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Austin',
-      addressRegion: 'TX',
-    },
-    sameAs: ['https://www.linkedin.com/company/workforceap'],
-  };
-
   const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -46,15 +28,9 @@ export default function JsonLd() {
   };
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(organizationSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(websiteSchema) }}
-      />
-    </>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(websiteSchema) }}
+    />
   );
 }

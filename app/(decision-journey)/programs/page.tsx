@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
+import JsonLdBreadcrumbList from '@/components/JsonLdBreadcrumbList';
 import { buildPageMetadataAsync } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
 import { CTABand, JourneyStep, SplitHero } from '@/components/marketing/ui';
@@ -28,6 +29,12 @@ export default async function ProgramsPage() {
 
   return (
     <div className="inner-page programs-page marketing-stack marketing-stack--enter">
+      <JsonLdBreadcrumbList
+        items={[
+          { name: 'Home', path: '/' },
+          { name: 'Programs', path: '/programs' },
+        ]}
+      />
       {/* ══════════════════════════════════════════════
           MOBILE LAYOUT ≤640px — Stitch-aligned
           ══════════════════════════════════════════════ */}

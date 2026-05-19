@@ -8,6 +8,8 @@ import ApplyProgramIntro from '@/components/apply/ApplyProgramIntro';
 import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
 import UtmCapture from '@/components/marketing/UtmCapture';
 import { buildApplyPageMetadata, getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
+import ApplyFAQSection from '@/components/apply/ApplyFAQSection';
+import JsonLdApplyFAQPage from '@/components/JsonLdApplyFAQPage';
 import { getTranslations } from 'next-intl/server';
 
 type PageProps = { searchParams?: Promise<{ program?: string }> };
@@ -183,6 +185,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
   const t = await getTranslations('apply');
   return (
     <div style={sPage.wrapper}>
+      <JsonLdApplyFAQPage />
       {/* ── Hero ── */}
       <section style={sPage.hero}>
         <div style={sPage.heroLabel}>
@@ -320,6 +323,8 @@ export default async function ApplyPage({ searchParams }: PageProps) {
           </Suspense>
         </div>
       </div>
+
+      <ApplyFAQSection />
 
       {/* ── Supplemental cards ── */}
       <div className="apply-supp-row" role="region" aria-label="Program information" style={sPage.suppRow}>

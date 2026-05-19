@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { buildPageMetadataAsync } from '@/app/seo';
+import JsonLdOrganization from '@/components/JsonLdOrganization';
 import LocalizedLinkServer from '@/components/LocalizedLinkServer';
 import Image from 'next/image';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
@@ -95,6 +96,7 @@ export default async function HomePage() {
 
   return (
     <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
+      <JsonLdOrganization />
 
       {/* ===== HERO: Full-bleed background image with gradient overlay (all viewports) ===== */}
       <section className="home-hero" style={{

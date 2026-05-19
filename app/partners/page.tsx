@@ -1,15 +1,42 @@
+/**
+ * /partners — Marketing landing page (Sprint G4, PLAN-2026-Q3.md §2.1)
+ *
+ * Cold partner traffic (referral orgs, workforce boards, nonprofits, conferences,
+ * ads) lands here and self-serves into the partner channel. The portal already
+ * works; this page is the marketing front door.
+ *
+ * Intentional TODOs left for follow-up before launch:
+ *   - Logos band: placeholder text-logo cards. Swap in real partner logos at
+ *     the `PARTNER_LOGO_PLACEHOLDERS` array below once written permission is in.
+ *   - Stats band: placeholder numbers (450 / 83% / 340). Replace from the
+ *     analytics dashboard before public launch.
+ *   - Live demo embed: links to a TODO URL. Swap for the real 2-min walkthrough
+ *     when video production lands (see plan G4 deliverables).
+ */
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { UsersRound, GraduationCap, Building2, Heart, Bot, BarChart3, ShieldCheck } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import LocalizedLink from '@/components/LocalizedLink';
 import Footer from '@/components/Footer';
-import { CTABand, HeroSection, PageSection, PartnershipCard, SectionHeader, ValueCard } from '@/components/marketing/ui';
-import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
+import { HeroSection, PageSection, PartnershipCard, ProcessStep, SectionHeader, StatBand, ValueCard } from '@/components/marketing/ui';
+import {
+  marketingGhostButtonClasses,
+  marketingPrimaryButtonClasses,
+} from '@/lib/marketing/buttonClasses';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { getTranslations } from 'next-intl/server';
 import PartnerSignupForm from '@/components/partner/PartnerSignupForm';
+
+// TODO(G4): replace with real partner logos once permissions are signed.
+const PARTNER_LOGO_PLACEHOLDERS = [
+  'logosPlaceholder1',
+  'logosPlaceholder2',
+  'logosPlaceholder3',
+  'logosPlaceholder4',
+  'logosPlaceholder5',
+] as const;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.partners');
@@ -83,7 +110,7 @@ export default async function PartnersPage() {
         subheadline={
           <>
             <p style={{ fontSize: '1.25rem', color: 'rgba(255,255,255,0.75)', maxWidth: '36rem', lineHeight: 1.6, margin: 0 }}>
-              {t('heroCopy')}
+              {t('heroSubtitle')}
             </p>
             <p
               style={{
@@ -102,19 +129,323 @@ export default async function PartnersPage() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginTop: '2.5rem' }}>
           <LocalizedLink
             href={partnerSignupHref}
-            className={marketingButtonPresets.heroPrimary()}
+            className={marketingPrimaryButtonClasses({
+              radius: 'lg',
+              large: true,
+            })}
+            style={{ minHeight: '44px' }}
           >
-            {t('heroCta')}
+            {t('heroCtaPrimary')}
             <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
           </LocalizedLink>
           <LocalizedLink
-            href="#partner-types"
-            className={marketingButtonPresets.heroGhostOnDark('marketing-inline-ghost-link')}
+            href={`${withLocalePrefix('/login', locale)}?redirectTo=/partner`}
+            className={marketingGhostButtonClasses({
+              radius: 'md',
+              large: true,
+              onDarkGhost: true,
+              className: 'marketing-inline-ghost-link',
+            })}
+            style={{ minHeight: '44px' }}
           >
-            {t('heroSecondary')}
+            {t('heroCtaSecondary')}
           </LocalizedLink>
         </div>
       </HeroSection>
+
+      {/* ── Partner logos band ──
+          TODO(G4): swap PARTNER_LOGO_PLACEHOLDERS values for real partner logos
+          (image components) once written marketing permissions are in. */}
+      <section
+        aria-label="Partner organizations"
+        style={{
+          padding: '2.5rem 0',
+          background: 'var(--surface-container)',
+          borderBottom: '1px solid var(--outline-variant)',
+        }}
+      >
+        <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
+          <p
+            style={{
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'var(--color-on-surface-variant)',
+              textAlign: 'center',
+              margin: '0 0 1.5rem',
+            }}
+          >
+            {t('logosLabel')}
+          </p>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem 2.5rem',
+            }}
+          >
+            {PARTNER_LOGO_PLACEHOLDERS.map((key) => (
+              <span
+                key={key}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '0.75rem 1.25rem',
+                  background: 'var(--surface-container-low)',
+                  border: '1px solid var(--outline-variant)',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: '0.875rem',
+                  fontWeight: 700,
+                  color: 'var(--color-on-surface-variant)',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {t(key)}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats band ──
+          TODO(G4): replace placeholder values (450 / 83% / 340) with real
+          numbers pulled from the partner analytics dashboard before launch. */}
+      <PageSection padding="md">
+        <p
+          style={{
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--color-accent)',
+            textAlign: 'center',
+            margin: '0 0 1rem',
+          }}
+        >
+          {t('statsEyebrow')}
+        </p>
+        <StatBand
+          variant="dark"
+          stats={[
+            { value: t('stat1Value'), label: t('stat1Label') },
+            { value: t('stat2Value'), label: t('stat2Label') },
+            { value: t('stat3Value'), label: t('stat3Label') },
+          ]}
+        />
+      </PageSection>
+
+      {/* ── How it works (3-step) ── */}
+      <section style={{ padding: '5rem 0' }}>
+        <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2
+              style={{
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-on-surface)',
+                margin: '0 0 0.75rem',
+              }}
+            >
+              {t('howTitle')}
+            </h2>
+            <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '36rem', margin: '0 auto' }}>
+              {t('howSubtitle')}
+            </p>
+          </div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+              gap: '2rem',
+            }}
+          >
+            <ProcessStep
+              step="1"
+              icon="mail"
+              title={t('howStep1Title')}
+              description={t('howStep1Desc')}
+              centered
+            />
+            <ProcessStep
+              step="2"
+              icon="key"
+              title={t('howStep2Title')}
+              description={t('howStep2Desc')}
+              centered
+            />
+            <ProcessStep
+              step="3"
+              icon="rocket_launch"
+              title={t('howStep3Title')}
+              description={t('howStep3Desc')}
+              centered
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Why partners pick WorkforceAP ── */}
+      <section style={{ padding: '5rem 0', background: 'var(--surface-container-low)' }}>
+        <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2
+              style={{
+                fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-on-surface)',
+                margin: '0 0 0.75rem',
+              }}
+            >
+              {t('whyTitle')}
+            </h2>
+            <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '36rem', margin: '0 auto' }}>
+              {t('whySubtitle')}
+            </p>
+          </div>
+          <div
+            className="partners-why-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+              gap: '1.5rem',
+            }}
+          >
+            <ValueCard
+              variant="elevated"
+              icon={
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '2rem', color: 'var(--color-accent)' }}
+                  aria-hidden="true"
+                >
+                  monitoring
+                </span>
+              }
+              title={t('whyValue1Title')}
+              description={t('whyValue1Desc')}
+            />
+            <ValueCard
+              variant="elevated"
+              icon={
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '2rem', color: 'var(--color-accent)' }}
+                  aria-hidden="true"
+                >
+                  insert_chart
+                </span>
+              }
+              title={t('whyValue2Title')}
+              description={t('whyValue2Desc')}
+            />
+            <ValueCard
+              variant="elevated"
+              icon={
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '2rem', color: 'var(--color-accent)' }}
+                  aria-hidden="true"
+                >
+                  lock
+                </span>
+              }
+              title={t('whyValue3Title')}
+              description={t('whyValue3Desc')}
+            />
+            <ValueCard
+              variant="elevated"
+              icon={
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: '2rem', color: 'var(--color-accent)' }}
+                  aria-hidden="true"
+                >
+                  payments
+                </span>
+              }
+              title={t('whyValue4Title')}
+              description={t('whyValue4Desc')}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Live demo embed (placeholder) ──
+          TODO(G4): replace the href below with the production 2-min walkthrough
+          URL (or swap for a real <iframe>/<video> embed) once it ships. */}
+      <section style={{ padding: '4rem 0' }}>
+        <div className="container" style={{ maxWidth: '760px' }}>
+          <div
+            style={{
+              padding: 'clamp(1.5rem, 4vw, 2.5rem)',
+              borderRadius: 'var(--radius-xl)',
+              background: 'var(--surface-container)',
+              border: '1px solid var(--outline-variant)',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '1.5rem',
+            }}
+          >
+            <span
+              className="material-symbols-outlined"
+              style={{
+                fontSize: '2.5rem',
+                color: 'var(--color-accent)',
+                background: 'var(--surface-container-low)',
+                borderRadius: 'var(--radius-full)',
+                padding: '0.85rem',
+              }}
+              aria-hidden="true"
+            >
+              play_circle
+            </span>
+            <div style={{ flex: 1, minWidth: '220px' }}>
+              <p
+                style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-accent)',
+                  margin: '0 0 0.4rem',
+                }}
+              >
+                {t('demoEyebrow')}
+              </p>
+              <h2
+                style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 700,
+                  color: 'var(--color-on-surface)',
+                  margin: '0 0 0.4rem',
+                }}
+              >
+                {t('demoTitle')}
+              </h2>
+              <p style={{ fontSize: '0.9375rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.55 }}>
+                {t('demoCopy')}
+              </p>
+            </div>
+            <a
+              href="#partner-demo-video-todo"
+              className={marketingPrimaryButtonClasses({ radius: 'md' })}
+              style={{ minHeight: '44px' }}
+              aria-label={t('demoCta')}
+            >
+              {t('demoCta')}
+              <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
+                arrow_forward
+              </span>
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* ── Partnership Types Bento Grid ── */}
       <section id="partner-types" style={{ padding: '6rem 0' }}>
@@ -435,24 +766,28 @@ export default async function PartnersPage() {
 
           <div className="faq-list">
             <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
-              <summary style={{ fontWeight: 600 }}>{t('faq1q')}</summary>
-              <p>{t('faq1a')}</p>
+              <summary style={{ fontWeight: 600 }}>{t('faqCobrandQ')}</summary>
+              <p>{t('faqCobrandA')}</p>
             </details>
             <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
-              <summary style={{ fontWeight: 600 }}>{t('faq2q')}</summary>
-              <p>{t('faq2a')}</p>
+              <summary style={{ fontWeight: 600 }}>{t('faqContactQ')}</summary>
+              <p>{t('faqContactA')}</p>
             </details>
             <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
-              <summary style={{ fontWeight: 600 }}>{t('faq3q')}</summary>
-              <p>{t('faq3a')}</p>
+              <summary style={{ fontWeight: 600 }}>{t('faqNotificationsQ')}</summary>
+              <p>{t('faqNotificationsA')}</p>
             </details>
             <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
-              <summary style={{ fontWeight: 600 }}>{t('faq4q')}</summary>
-              <p>{t('faq4a')}</p>
+              <summary style={{ fontWeight: 600 }}>{t('faqBulkQ')}</summary>
+              <p>{t('faqBulkA')}</p>
             </details>
             <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
-              <summary style={{ fontWeight: 600 }}>{t('faq5q')}</summary>
-              <p>{t('faq5a')}</p>
+              <summary style={{ fontWeight: 600 }}>{t('faqFeeQ')}</summary>
+              <p>{t('faqFeeA')}</p>
+            </details>
+            <details className="faq-item" style={{ marginBottom: '0.75rem' }}>
+              <summary style={{ fontWeight: 600 }}>{t('faqReportsQ')}</summary>
+              <p>{t('faqReportsA')}</p>
             </details>
           </div>
         </div>

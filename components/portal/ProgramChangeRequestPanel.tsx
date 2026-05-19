@@ -179,8 +179,15 @@ export default function ProgramChangeRequestPanel({
             </p>
           )}
 
-          <button type="submit" className="btn btn-primary" disabled={submitting || reason.trim().length < 10}>
-            {submitting ? 'Submitting…' : 'Submit request'}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={submitting || reason.trim().length < 10}
+            aria-busy={submitting}
+          >
+            <span aria-live="polite">
+              {submitting ? 'Submitting…' : 'Submit request'}
+            </span>
           </button>
         </form>
       )}

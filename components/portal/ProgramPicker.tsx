@@ -124,9 +124,12 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
               className="btn btn-primary"
               onClick={handleConfirm}
               disabled={!!loading}
+              aria-busy={loading === selectedProgram.slug}
               style={{ minHeight: '48px' }}
             >
-              {loading === selectedProgram.slug ? 'Confirming…' : 'Confirm program'}
+              <span aria-live="polite">
+                {loading === selectedProgram.slug ? 'Confirming…' : 'Confirm program'}
+              </span>
             </button>
             <button
               type="button"
@@ -189,8 +192,11 @@ export default function ProgramPicker({ programs }: ProgramPickerProps) {
                 style={{ width: '100%', padding: '0.6rem' }}
                 onClick={() => setSelectedSlug(p.slug)}
                 disabled={!!loading}
+                aria-busy={loading === p.slug}
               >
-                {isSelected ? 'Ready to confirm above' : 'Review selection'}
+                <span aria-live="polite">
+                  {isSelected ? 'Ready to confirm above' : 'Review selection'}
+                </span>
               </button>
             </div>
           );

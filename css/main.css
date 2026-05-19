@@ -7445,6 +7445,53 @@ body { animation: fadeIn 0.4s ease; }
     text-decoration: underline;
     text-underline-offset: 2px;
 }
+.apply-docs-checklist {
+    margin-bottom: 1.25rem;
+}
+.apply-docs-checklist > summary {
+    list-style: none;
+    cursor: pointer;
+}
+.apply-docs-checklist > summary::-webkit-details-marker {
+    display: none;
+}
+.apply-docs-checklist__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.apply-docs-checklist__summary::after {
+    content: '';
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
+    transform: rotate(45deg);
+    margin-top: -0.2rem;
+    transition: transform 0.15s ease;
+}
+.apply-docs-checklist[open] > .apply-docs-checklist__summary::after {
+    transform: rotate(-135deg);
+    margin-top: 0.15rem;
+}
+.apply-docs-checklist__title {
+    margin: 0;
+}
+.apply-docs-checklist__body {
+    margin-top: 0.65rem;
+}
+.apply-docs-checklist__lead,
+.apply-docs-checklist__note {
+    font-size: 0.9rem;
+    line-height: var(--line-height-normal);
+    color: var(--color-gray-700);
+    margin: 0 0 0.65rem;
+}
+.apply-docs-checklist__note {
+    margin: 0.65rem 0 0;
+}
 .apply-step-desc { color: var(--color-on-surface-variant); margin-bottom: 1.5rem; }
 .funding-questions {
     background: var(--color-light);

@@ -275,38 +275,6 @@ export default async function ApplyPage({ searchParams }: PageProps) {
             <ApplyRefCapture />
           </Suspense>
 
-          <div className="apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">
-            <h2 id="apply-docs-checklist-heading" className="apply-foundational-support__title">
-              {t('docsChecklistTitle')}
-            </h2>
-            <p
-              style={{
-                fontSize: '0.9rem',
-                lineHeight: 'var(--line-height-normal)',
-                color: 'var(--color-gray-700)',
-                margin: '0 0 0.65rem',
-              }}
-            >
-              {t('docsChecklistLead')}
-            </p>
-            <ul className="apply-foundational-support__list">
-              <li>{t('docsChecklistItem1')}</li>
-              <li>{t('docsChecklistItem2')}</li>
-              <li>{t('docsChecklistItem3')}</li>
-              <li>{t('docsChecklistItem4')}</li>
-            </ul>
-            <p
-              style={{
-                fontSize: '0.9rem',
-                lineHeight: 'var(--line-height-normal)',
-                color: 'var(--color-gray-700)',
-                margin: '0.65rem 0 0',
-              }}
-            >
-              {t('docsChecklistNote')}
-            </p>
-          </div>
-
           <noscript
             dangerouslySetInnerHTML={{
               __html: `<div><h2>${t('startYourApplication')}</h2><p>${t('ifFormDoesntLoad')} <a href="tel:+15127771808">(512) 777-1808</a> ${t('orEmail')} <a href="mailto:info@workforceap.org">info@workforceap.org</a>.</p></div>`,

@@ -10,6 +10,7 @@ import { CardSkeleton } from '@/components/ui/Skeleton';
 import { ProgramIcon } from '@/components/ProgramIcon';
 import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
+import ApplyDocsChecklist from '@/components/apply/ApplyDocsChecklist';
 
 const FYP_RESULTS_KEY = 'find_your_path_results';
 
@@ -215,6 +216,7 @@ export default function ApplyResultsClient() {
         <p className="apply-step-back-nav">
           <LocalizedLink href="/apply">{t('resultsBackStep1')}</LocalizedLink>
         </p>
+        <ApplyDocsChecklist />
         <p className="apply-step-kicker">{t('resultsKicker')}</p>
         <div className="apply-transition-card" role="note" aria-label={t('resultsTransitionAria')}>
           <strong>{t('resultsBeforeStrong')}</strong>

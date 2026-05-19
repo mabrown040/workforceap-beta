@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { getSupabaseEnv } from '@/lib/supabase/env';
+import { emitEmailVerifiedFromCallback } from '@/lib/events/emailVerified';
 
 // Handles Supabase email confirmation and OAuth redirects.
 // Supabase sends ?code=xxx (PKCE); we exchange it for a session then redirect.
@@ -46,6 +47,11 @@ export async function GET(request: NextRequest) {
             select: { role: true },
           })
         : null;
+
+      if (userId) {
+        void emitEmailVerifiedFromCallback(userId, userData.user?.email ?? null);
+      }
+
       const destination = resolveRoleAwarePostLoginRedirect(safeNext, profile?.role);
       try {
         const destPath = new URL(destination, 'https://internal.invalid').pathname;

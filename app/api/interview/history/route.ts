@@ -3,6 +3,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { getUser } from '@/lib/auth/server';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { claudeChat } from '@/lib/ai/anthropicChat';
+import { updateCoachMemoryFromTranscript, type CoachTranscriptTurn } from '@/lib/ai/coachMemory';
 import { prisma } from '@/lib/db/prisma';
 import { sendVoiceInterviewTranscriptEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -159,7 +160,19 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
         `${interviewType} interview feedback for ${role}`,
         JSON.stringify({ sessionId, role, interviewType, answers, questions, transcriptTurns, feedback })
       );
-  
+
+      const memoryTranscript: CoachTranscriptTurn[] =
+        transcriptTurns.length > 0
+          ? transcriptTurns
+          : answers.flatMap((answer, index) => [
+              { role: 'agent' as const, text: questions[index] ?? `Question ${index + 1}` },
+              { role: 'user' as const, text: answer },
+            ]);
+
+      void updateCoachMemoryFromTranscript(user.id, memoryTranscript).catch((err) => {
+        console.error('[interview/history] coach memory update failed:', err);
+      });
+
       try {
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },

@@ -4,6 +4,7 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { awardPoints } from '@/lib/member/points';
 import { claudeChat } from '@/lib/ai/anthropicChat';
+import { updateCoachMemoryFromTranscript, type CoachTranscriptTurn } from '@/lib/ai/coachMemory';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -122,7 +123,11 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
       );
   
       awardPoints(user.id, 'counselor_session', resultId).catch(() => {});
-  
+
+      void updateCoachMemoryFromTranscript(user.id, transcript as CoachTranscriptTurn[]).catch((err) => {
+        console.error('[counselor/feedback] coach memory update failed:', err);
+      });
+
       try {
         const orgId = await getActorOrganizationId(user.id);
         const dbUser = await withTenantScope(orgId, (db) =>

@@ -7,7 +7,9 @@ import Link from 'next/link';
 import { counselorAffiliationLabel } from '@/lib/counselor/counselorLabels';
 import { getCounselorCommandCenter } from '@/lib/counselor/commandCenter';
 import CounselorCommandCenter from '@/components/portal/counselor/CounselorCommandCenter';
+import CounselorPriorityQueue from '@/components/portal/counselor/CounselorPriorityQueue';
 import AtRiskSummaryWidget from '@/components/portal/counselor/AtRiskSummaryWidget';
+import { getCounselorPriorityQueue } from '@/lib/counselor/priorityQueue';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorPortalVoiceBlock from '@/components/portal/CounselorPortalVoiceBlock';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
@@ -132,6 +134,21 @@ export default async function CounselorPortalPage() {
     commandCenter = { needsReply: [], atRisk: [], interviewing: [], totals: { needsReplyCount: 0, atRiskCount: 0, interviewingCount: 0, slaBreachCount: 0 } };
   }
 
+  // Sprint R5 — tactical priority queue (red/yellow/green) that augments the
+  // hot-queue strip below. Falls back to an empty queue if the underlying
+  // triage query fails so the page never blows up.
+  let priorityQueue: Awaited<ReturnType<typeof getCounselorPriorityQueue>> = {
+    rows: [],
+    totals: { critical: 0, warning: 0, ontrack: 0, total: 0 },
+  };
+  try {
+    priorityQueue = await getCounselorPriorityQueue(user.id, {
+      isAdmin: isAdminUser && !counselor,
+    });
+  } catch (err) {
+    console.error('[counselor] priority queue failed:', err);
+  }
+
   const statCards = [
     { icon: 'groups', label: t('yourMembers'), value: assignments.length, bg: 'color-mix(in srgb, var(--color-accent) 10%, transparent)', iconColor: 'var(--color-accent)' },
     { icon: 'mark_email_unread', label: t('awaitingReply'), value: messagesNeedingReply, bg: 'color-mix(in srgb, var(--color-blue) 12%, transparent)', iconColor: 'var(--color-blue)' },
@@ -144,6 +161,13 @@ export default async function CounselorPortalPage() {
       <h1 className="wa-sr-only">
         {t('counselorDashboard')} — {firstName}
       </h1>
+
+      {/* ── Sprint R5: tactical priority queue (CRITICAL / WARNING / ON TRACK).
+          Mounted ABOVE the hot-queue strip — different abstraction (tactical
+          view + bulk-send templates) vs the alert feed below. ── */}
+      <div style={{ padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
+        <CounselorPriorityQueue rows={priorityQueue.rows} totals={priorityQueue.totals} />
+      </div>
 
       {/* ── Today's priorities — Counselor Command Center.
           Sits above both mobile + desktop layouts so it shows everywhere.

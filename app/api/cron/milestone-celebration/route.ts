@@ -1,18 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { sendCourseCompletedEmail } from '@/lib/email';
+import { sendCertCelebrationEmail } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { getProgramBySlug, getProgramDisplayTitle } from '@/lib/content/programs';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import { awardPoints } from '@/lib/member/points';
+import { TESTIMONIALS } from '@/content/testimonials';
 
 /**
  * GET /api/cron/milestone-celebration
  *
- * Sends a celebration email when a member completes all courses in their program.
- * Runs daily to catch completions from the previous day. Secured by CRON_SECRET.
+ * Sprint R3 (PLAN-2026-Q3.md) — redesigned certification celebration.
+ * Subject leads with cert name + earned date (per the open-rate hypothesis,
+ * 35% -> 55%). Body points the member at the AI interview practice tool,
+ * surfaces the +25 point bump, and pulls a random peer testimonial when one
+ * matches the member's program.
  *
- * Deploy with Vercel Cron: schedule "0 11 * * *" (daily 11AM UTC)
+ * Sends fire-and-forget per cert; idempotency lives in the
+ * `certification_celebration_sent` MemberEvent row scoped to the milestone's
+ * programSlug + completion date.
+ *
+ * Vercel cron: 0 11 * * * (daily 11AM UTC). Secured by CRON_SECRET.
  */
 async function handle(_req: NextRequest) {
   const yesterday = new Date();
@@ -45,14 +54,32 @@ async function handle(_req: NextRequest) {
       })
     : [];
 
-  const latestMilestoneByMember = new Map<string, { programSlug: string }>();
+  const latestMilestoneByMember = new Map<string, { programSlug: string; completedAt: Date }>();
   for (const m of milestones) {
     if (!latestMilestoneByMember.has(m.userId)) {
-      latestMilestoneByMember.set(m.userId, { programSlug: m.programSlug });
+      latestMilestoneByMember.set(m.userId, {
+        programSlug: m.programSlug,
+        completedAt: m.completedAt ?? new Date(),
+      });
     }
   }
 
+  // Bulk-check idempotency: skip members we've already celebrated for this
+  // exact (program, day) milestone.
+  const alreadySent = memberIds.length
+    ? await prisma.memberEvent.findMany({
+        where: {
+          userId: { in: memberIds },
+          eventName: 'certification_celebration_sent',
+          createdAt: { gte: yesterday },
+        },
+        select: { userId: true, entityId: true },
+      })
+    : [];
+  const sentKeys = new Set(alreadySent.map((r) => `${r.userId}::${r.entityId ?? ''}`));
+
   let sent = 0;
+  let pointsAwardedCount = 0;
 
   for (const member of completed) {
     try {
@@ -69,18 +96,60 @@ async function handle(_req: NextRequest) {
         ? getProgramDisplayTitle(program)
         : programSlug ?? 'your program';
 
-      await sendCourseCompletedEmail({
+      const idempotencyKey = `${member.id}::${programSlug ?? 'unknown'}`;
+      if (sentKeys.has(idempotencyKey)) continue;
+
+      // +25 point bump for cert celebration (Sprint R3 — ties milestone to a
+      // points-widget update). `awardPoints` is idempotent on the
+      // (userId, event, entityId) triple, so retries don't double-credit.
+      const pointsResult = await awardPoints(
+        member.id,
+        'certification_earned',
+        programSlug ?? '',
+        25,
+        { note: `Cert celebration: ${programName}` },
+      ).catch(() => ({ awarded: false, points: 0 }));
+      if (pointsResult.awarded) pointsAwardedCount++;
+
+      // Pick a peer testimonial. Prefer one matching the member's program;
+      // fall back to any. The testimonials file currently ships placeholder
+      // quotes (TODO replace with real, consented quotes before launch — see
+      // content/testimonials.ts header).
+      const programMatch = TESTIMONIALS.find(
+        (t) => t.program && programSlug && t.program.toLowerCase().includes(programSlug.toLowerCase()),
+      );
+      const testimonial =
+        programMatch ?? (TESTIMONIALS[Math.floor(Math.random() * TESTIMONIALS.length)] ?? null);
+
+      await sendCertCelebrationEmail({
         to: member.email,
         fullName: member.fullName ?? member.email,
-        courseName: programName,
+        certName: programName,
+        earnedAt: milestone?.completedAt ?? member.assessmentCompletedAt ?? new Date(),
+        pointsAwarded: 25,
+        testimonial: testimonial
+          ? { quote: testimonial.quote, name: testimonial.name, role: testimonial.role }
+          : null,
       });
       sent++;
+
+      await prisma.memberEvent
+        .create({
+          data: {
+            userId: member.id,
+            eventName: 'certification_celebration_sent',
+            entityType: 'course_progress',
+            entityId: programSlug,
+            metadata: { programName, pointsAwarded: 25 },
+          },
+        })
+        .catch(() => { /* non-fatal — idempotency degrades to "may resend once" */ });
     } catch {
       /* non-fatal */
     }
   }
 
-  const runResult = { sent, total: completed.length };
+  const runResult = { sent, total: completed.length, pointsAwardedCount };
   await setCronRecordsProcessed(sent);
   await logCronRun('cron_milestone_celebration', runResult);
   return NextResponse.json(runResult);

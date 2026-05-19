@@ -13,7 +13,10 @@ import {
   applicationRejectedHtml,
   newApplicationAlertHtml,
   courseEnrolledHtml,
+  courseKickoffHtml,
+  courseAccountabilityHtml,
   courseCompletedHtml,
+  certCelebrationV2Html,
   weeklyRecapHtml,
   inactiveNudgeHtml,
   invitationHtml,
@@ -742,6 +745,135 @@ export async function sendCourseEnrolledEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendCourseEnrolledEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/**
+ * Sprint R3 — sent fire-and-forget right after a new CourseEnrollment row
+ * commits. The caller is responsible for idempotency (logs a `course_kickoff_email_sent`
+ * MemberEvent or relies on the unique-per-enrollment send path).
+ */
+export async function sendCourseKickoffEmail(params: {
+  to: string;
+  fullName: string;
+  programName: string;
+  deepLink?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendCourseKickoffEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const subject = `Your ${params.programName} course starts soon — block 30 minutes this week`;
+  const html = brandedEmailLayout({
+    title: `Let's get ${params.programName} started`,
+    bodyHtml: courseKickoffHtml({ firstName: first, programName: params.programName }),
+    ctaText: 'Open lesson one',
+    ctaUrl: params.deepLink ?? `${SITE_URL}/dashboard/training`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(subject),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendCourseKickoffEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/**
+ * Sprint R3 — day-5 accountability nudge for enrollees who have zero Coursera
+ * progress. The cron path is idempotent against `course_accountability_sent`
+ * MemberEvent rows scoped to the enrollment id.
+ */
+export async function sendCourseAccountabilityEmail(params: {
+  to: string;
+  fullName: string;
+  programName: string;
+  deepLink?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendCourseAccountabilityEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const subject = `${first}, your ${params.programName} course is paid for — let's get started`;
+  const html = brandedEmailLayout({
+    title: `Your ${params.programName} seat is waiting`,
+    bodyHtml: courseAccountabilityHtml({ firstName: first, programName: params.programName }),
+    ctaText: 'Open lesson one',
+    ctaUrl: params.deepLink ?? `${SITE_URL}/dashboard/training`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(subject),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendCourseAccountabilityEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/**
+ * Sprint R3 redesigned certification celebration. Subject leads with the cert
+ * name + date (per PLAN-2026-Q3.md open-rate hypothesis), body points members
+ * at interview-practice, includes a peer testimonial when available, and
+ * surfaces the +25 point bump the caller awards.
+ */
+export async function sendCertCelebrationEmail(params: {
+  to: string;
+  fullName: string;
+  certName: string;
+  earnedAt: Date;
+  pointsAwarded: number;
+  testimonial?: { quote: string; name: string; role?: string } | null;
+  interviewPracticeUrl?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendCertCelebrationEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const first = params.fullName.trim().split(/\s+/)[0] || 'there';
+  const earnedDateLabel = params.earnedAt.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  const subject = `${params.certName} earned ${earnedDateLabel} — what's next`;
+  const html = brandedEmailLayout({
+    title: `Congrats on earning ${params.certName}`,
+    bodyHtml: certCelebrationV2Html({
+      firstName: first,
+      certName: params.certName,
+      earnedDateLabel,
+      pointsAwarded: params.pointsAwarded,
+      testimonial: params.testimonial ?? null,
+    }),
+    ctaText: 'Run a 15-minute mock interview',
+    ctaUrl: params.interviewPracticeUrl ?? `${SITE_URL}/dashboard/ai-tools/interview-practice`,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(subject),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendCertCelebrationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

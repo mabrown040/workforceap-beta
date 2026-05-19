@@ -9,6 +9,7 @@ import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -141,6 +142,7 @@ const ETHNICITY_OPTIONS = [
   
     const organizationId = await getActorOrganizationId(user.id);
   
+    let createdEnrollmentId: string | null = null;
     try {
       await prisma.$transaction(async (tx) => {
         const enrolledAt = new Date();
@@ -160,7 +162,7 @@ const ETHNICITY_OPTIONS = [
         // The member self-enrollment flow (POST /api/member/enroll) does this in a
         // transaction. Admin creation must do the same.
         // Multi-program: admin-created member's first row is primary.
-        await tx.courseEnrollment.create({
+        const newEnrollment = await tx.courseEnrollment.create({
           data: {
             organizationId,
             userId: authUser.id,
@@ -169,7 +171,9 @@ const ETHNICITY_OPTIONS = [
             enrolledAt,
             enrolledByAdminId: user.id,
           },
+          select: { id: true },
         });
+        createdEnrollmentId = newEnrollment.id;
   
         await tx.profile.create({
           data: {
@@ -238,6 +242,17 @@ const ETHNICITY_OPTIONS = [
     sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
       Program: program.title,
     }).catch((err) => console.error('Partner milestone email failed:', err));
+
+    // Sprint R3 — fire-and-forget kickoff email (idempotent per enrollment row).
+    if (createdEnrollmentId) {
+      maybeSendCourseKickoffEmail({
+        userId: authUser.id,
+        enrollmentId: createdEnrollmentId,
+        programSlug,
+        email: authUser.email!,
+        fullName,
+      }).catch(() => { /* already logged inside */ });
+    }
   
     // Track enrollment for funnel analytics
     await trackEvent({

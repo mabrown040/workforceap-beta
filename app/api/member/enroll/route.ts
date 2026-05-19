@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { sendCourseEnrolledEmail } from '@/lib/email';
+import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
 import { trackEvent } from '@/lib/events/track';
 import { getActivePrograms, isProgramSlugActiveInCatalog } from '@/lib/platform/programCatalog';
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
@@ -90,7 +91,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     // duplicate (userId, programSlug) rows if the request retries.
     // Code above this transaction blocks if existing.enrolledProgram is
     // already set, so there shouldn't be a competing primary row.
-    await tx.courseEnrollment.upsert({
+    const enrollment = await tx.courseEnrollment.upsert({
       where: { userId_programSlug: { userId: user.id, programSlug: slug } },
       create: {
         organizationId: u.organizationId,
@@ -105,8 +106,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         enrolledAt: now,
         enrolledByAdminId: null,
       },
+      select: { id: true },
     });
-    return u;
+    return { user: u, enrollmentId: enrollment.id };
   });
 
   awardPoints(user.id, 'program_enrolled', slug).catch(() => {});
@@ -125,10 +127,19 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   }).catch((err) => console.error('Partner milestone email failed:', err));
 
   sendCourseEnrolledEmail({
-    to: updatedUser.email,
-    fullName: updatedUser.fullName,
+    to: updatedUser.user.email,
+    fullName: updatedUser.user.fullName,
     programName: programTitle,
   }).catch((err) => console.error('Course enrolled email failed:', err));
+
+  // Sprint R3 — fire-and-forget kickoff email (idempotent per enrollment row).
+  maybeSendCourseKickoffEmail({
+    userId: user.id,
+    enrollmentId: updatedUser.enrollmentId,
+    programSlug: slug,
+    email: updatedUser.user.email,
+    fullName: updatedUser.user.fullName,
+  }).catch(() => { /* already logged inside */ });
 
   // Invalidate cached member state so dashboard reflects enrollment immediately
   await invalidateMemberState(user.id);

@@ -10,6 +10,7 @@ import { crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -208,6 +209,7 @@ const bodySchema = z.object({
             },
           });
   
+          let enrollmentId: string | null = null;
           if (programSlug) {
             // Inside crossTenantOK( ... ) above; orgId pinned to the actor's
             // tenant via `actorOrgId`. withTenantScope cannot wrap a Prisma
@@ -215,7 +217,7 @@ const bodySchema = z.object({
             // Multi-program: this is the user's first row, mark it primary
             // so /dashboard/training and the xAPI pipeline (via
             // User.enrolledProgram) credit progress against it.
-            await tx.courseEnrollment.create({
+            const newEnrollment = await tx.courseEnrollment.create({
               data: {
                 organizationId: actorOrgId,
                 userId: createdUser.id,
@@ -224,10 +226,12 @@ const bodySchema = z.object({
                 enrolledAt,
                 enrolledByAdminId: user.id,
               },
+              select: { id: true },
             });
+            enrollmentId = newEnrollment.id;
           }
-  
-          return createdUser;
+
+          return { ...createdUser, enrollmentId };
         }),
       );
   
@@ -243,7 +247,18 @@ const bodySchema = z.object({
         source: 'coursera-reconcile-add-to-wap',
         notes: `Added via Coursera reconcile UI. Coursera programId=${programId}.`,
       });
-  
+
+      // Sprint R3 — fire-and-forget kickoff email (idempotent per enrollment row).
+      if (result.enrollmentId && programSlug) {
+        maybeSendCourseKickoffEmail({
+          userId: result.id,
+          enrollmentId: result.enrollmentId,
+          programSlug,
+          email: result.email,
+          fullName: result.fullName,
+        }).catch(() => { /* already logged inside */ });
+      }
+
       return NextResponse.json({
         ok: true,
         userId: result.id,

@@ -9,7 +9,7 @@ import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dy
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 
 import { getTranslations } from 'next-intl/server';
-import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
+import { marketingButtonPresets, marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 const LanguageToggle = dynamic(() => import('@/components/portal/LanguageToggle'));
@@ -171,6 +171,20 @@ export default async function HomePage() {
             }}>
               {t('heroBody2')}
             </p>
+
+            {/* Mobile-only primary CTA pill (≥44px tap target, ≥1.05rem font, accent fill, white text).
+                Hidden on desktop via CSS — the canonical primary CTA below the step pills covers that. */}
+            <LocalizedLinkServer
+              href="/apply"
+              className={marketingButtonClasses({
+                variant: 'primary',
+                radius: 'lg',
+                large: true,
+                className: 'home-hero__mobile-primary-cta',
+              })}
+            >
+              {t('heroMobilePrimaryCta')}
+            </LocalizedLinkServer>
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '2rem', maxWidth: '720px' }}>

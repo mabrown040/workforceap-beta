@@ -249,6 +249,26 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
 }
 
 /*
+ * Sprint G1 P0 (PLAN-2026-Q3 §1.1): mobile-only primary CTA pill rendered inside the hero copy block,
+ * directly under the subhead. Cold ad clicks on <640px viewports were landing with no visible primary
+ * CTA above the fold (the canonical primary sits below the 3 step pills, which wrap on mobile and push
+ * it down). On desktop the canonical primary is already visible — so we hide this duplicate ≥640px.
+ */
+.home-hero__mobile-primary-cta {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .home-hero__mobile-primary-cta {
+    display: inline-flex;
+    margin-top: 0.5rem;
+    min-height: 44px;
+    font-size: 1.05rem;
+    align-self: flex-start;
+  }
+}
+
+/*
  * /what-we-do (desktop): full-bleed photo hero. Never use var(--color-white) for hero copy — in html.dark,
  * --color-white maps to a dark surface and text disappears on the scrim. Inline styles use #fff; rules
  * below reinforce contrast for nested links/icons.

@@ -1699,19 +1699,42 @@
       "ctaApply": "Candidatar-se Agora",
       "ctaLearn": "Saiba Como Funciona"
     },
+    "privacy": {
+      "title": "Política de Privacidade",
+      "description": "Política de Privacidade do Workforce Advancement Project — como coletamos, usamos, compartilhamos e protegemos suas informações, incluindo a lista completa de sub-processadores.",
+      "heading": "Política de Privacidade",
+      "lastUpdatedLabel": "Última atualização",
+      "englishOnlyBanner": "Esta Política de Privacidade está atualmente publicada em inglês. Para obter um resumo ou interpretação em outro idioma, entre em contato em"
+    },
+    "terms": {
+      "title": "Termos de Serviço",
+      "description": "Termos de Serviço do Workforce Advancement Project — funções de membro, empregador e parceiro, uso de ferramentas de IA, lei aplicável e resolução de disputas.",
+      "heading": "Termos de Serviço",
+      "lastUpdatedLabel": "Última atualização",
+      "englishOnlyBanner": "Estes Termos de Serviço estão atualmente publicados em inglês. Para obter um resumo ou interpretação em outro idioma, entre em contato em"
+    },
     "accessibility": {
       "title": "Declaração de Acessibilidade",
-      "description": "Leia os compromissos de acessibilidade do Workforce Advancement Project e como solicitar ajuda para usar o site.",
+      "description": "Leia os compromissos de acessibilidade do Workforce Advancement Project, nossa meta WCAG 2.1 AA, exceções conhecidas e como relatar uma barreira de acessibilidade.",
       "eyebrow": "Acessibilidade",
       "heading": "Declaração de Acessibilidade",
       "intro": "O Workforce Advancement Project trabalha para tornar este site mais fácil de usar para membros, parceiros, empregadores e apoiadores da comunidade. Nosso objetivo é fornecer conteúdo claro, layouts legíveis, navegação utilizável por teclado e acesso móvel em dispositivos lentos e conexões limitadas.",
+      "lastReviewedLabel": "Última revisão",
+      "commitmentTitle": "Nosso compromisso de conformidade",
+      "commitmentCopy1": "Buscamos conformidade com as Diretrizes de Acessibilidade para Conteúdo Web (WCAG) 2.1 Nível AA tanto no site público quanto no portal do membro. Isso inclui estrutura de página significativa, texto de link descritivo, operabilidade por teclado, contraste de cor suficiente, texto alternativo para imagens informativas, legendas ou transcrições para mídia pré-gravada que publicamos e campos de formulário com rótulos associados e mensagens de erro que leitores de tela podem anunciar.",
+      "commitmentCopy2": "Testamos esse objetivo com ferramentas automatizadas em cada pull request e com revisão manual periódica por leitor de tela. Quando um componente de terceiros é incorporado, trabalhamos com esse provedor para resolver problemas ou substituir o componente.",
+      "exceptionsTitle": "Exceções conhecidas que estamos corrigindo ativamente",
+      "exceptionsCopy": "Rastreamos todas as lacunas de acessibilidade conhecidas. Os itens a seguir estão abertos na data de revisão indicada acima e estão em nossa lista ativa:",
+      "exception1": "Algumas tabelas de dados somente de administrador são renderizadas como tabelas HTML brutas sem semântica completa de cabeçalho. Elas não são acessíveis aos membros e estão sendo migradas para nosso componente de tabela acessível padrão.",
+      "exception2": "Uma imagem de marketing carece de texto alternativo significativo e atualmente é apresentada como decorativa. O texto de substituição está na fila para a próxima revisão de conteúdo.",
+      "exception3": "Algumas saídas geradas por IA (rascunhos de currículo, feedback de entrevista) ainda não incluem estrutura de marcos consistente com o restante do portal. Estamos adicionando wrappers semânticos às visualizações de resultados das ferramentas de IA.",
       "helpTitle": "Se precisar de ajuda para usar este site",
-      "helpCopy": "Se você encontrar uma barreira ao usar o WorkforceAP.org, entre em contato conosco e faremos o possível para fornecer as informações ou o suporte necessário em outro formato.",
+      "helpCopy": "Se você encontrar uma barreira ao usar o WorkforceAP.org — qualquer coisa que impeça você de concluir uma inscrição, ler conteúdo ou usar uma ferramenta — entre em contato conosco. Responderemos em até cinco dias úteis e faremos o possível para fornecer a informação ou suporte necessário em outro formato enquanto trabalhamos em uma correção permanente.",
       "helpEmail": "E-mail:",
       "helpPhone": "Telefone:",
-      "helpForm": "Formulário de contato",
+      "helpForm": "Relatar um problema de acessibilidade através do nosso formulário de contato",
       "improvementsTitle": "Melhorias contínuas",
-      "improvementsCopy1": "Continuamos melhorando a clareza do conteúdo, o contraste de cores, os alvos de toque e o comportamento responsivo nas páginas públicas e voltadas para membros.",
+      "improvementsCopy1": "Continuamos melhorando a clareza do conteúdo, o contraste de cores, os alvos de toque e o comportamento responsivo. Novos componentes são entregues com uma lista de verificação de acessibilidade; superfícies existentes são auditadas em ciclo contínuo.",
       "improvementsCopy2": "Se algo for difícil de ler, navegar ou concluir, por favor nos informe. Esse feedback nos ajuda a melhorar o acesso para as pessoas que este trabalho pretende servir."
     },
     "mentor": {

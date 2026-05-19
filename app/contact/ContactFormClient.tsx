@@ -22,6 +22,8 @@ function getPrefilledTopic(topicParam: string | null): string {
     tour: 'Schedule a tour',
     media: 'Media or press inquiry',
     press: 'Media or press inquiry',
+    accessibility: 'Accessibility issue',
+    a11y: 'Accessibility issue',
     other: 'Other',
   };
 
@@ -322,6 +324,7 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
           <option>Schedule a tour</option>
           <option>Partnership or sponsorship</option>
           <option>Media or press inquiry</option>
+          <option>Accessibility issue</option>
           <option>Other</option>
         </select>
         {fieldErrors.topic && (

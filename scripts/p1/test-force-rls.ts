@@ -180,9 +180,9 @@ async function seedPersonas(client: PrismaClient): Promise<void> {
 
   // Organizations
   await client.$executeRawUnsafe(
-    `INSERT INTO organizations (id, name, slug) VALUES
-       ($1, 'Org A', 'org-a'),
-       ($2, 'Org B', 'org-b')
+    `INSERT INTO organizations (id, name, slug, updated_at) VALUES
+       ($1, 'Org A', 'org-a', CURRENT_TIMESTAMP),
+       ($2, 'Org B', 'org-b', CURRENT_TIMESTAMP)
      ON CONFLICT (id) DO NOTHING`,
     SEED.orgA,
     SEED.orgB,
@@ -200,8 +200,8 @@ async function seedPersonas(client: PrismaClient): Promise<void> {
   ];
   for (const [id, orgId, email, name] of userRows) {
     await client.$executeRawUnsafe(
-      `INSERT INTO users (id, organization_id, email, full_name)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO users (id, organization_id, email, full_name, updated_at)
+       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
        ON CONFLICT (id) DO NOTHING`,
       id,
       orgId,
@@ -231,13 +231,15 @@ async function seedPersonas(client: PrismaClient): Promise<void> {
 
   // Counselor rows
   await client.$executeRawUnsafe(
-    `INSERT INTO counselors (id, user_id, active) VALUES ($1, $2, true)
+    `INSERT INTO counselors (id, user_id, active, updated_at)
+     VALUES ($1, $2, true, CURRENT_TIMESTAMP)
      ON CONFLICT (user_id) DO NOTHING`,
     SEED.counselorARow,
     SEED.counselorAUser,
   );
   await client.$executeRawUnsafe(
-    `INSERT INTO counselors (id, user_id, active) VALUES ($1, $2, true)
+    `INSERT INTO counselors (id, user_id, active, updated_at)
+     VALUES ($1, $2, true, CURRENT_TIMESTAMP)
      ON CONFLICT (user_id) DO NOTHING`,
     SEED.counselorBRow,
     SEED.counselorBUser,
@@ -254,8 +256,8 @@ async function seedPersonas(client: PrismaClient): Promise<void> {
 
   // Partner + partner_user + referral (Partner A referred Member M1)
   await client.$executeRawUnsafe(
-    `INSERT INTO partners (id, organization_id, name, slug, referral_code, active, status)
-     VALUES ($1, $2, 'Partner A', 'partner-a', 'PA001', true, 'active')
+    `INSERT INTO partners (id, organization_id, name, slug, referral_code, active, status, updated_at)
+     VALUES ($1, $2, 'Partner A', 'partner-a', 'PA001', true, 'active', CURRENT_TIMESTAMP)
      ON CONFLICT (id) DO NOTHING`,
     SEED.partnerARow,
     SEED.orgA,

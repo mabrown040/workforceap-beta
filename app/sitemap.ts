@@ -57,6 +57,10 @@ const routes = [
   '/mentor/apply',
   '/accessibility',
   '/outcomes',
+  // Member-only data-rights surface; surfaced in sitemap so the
+  // privacy policy's "request / delete your data" links are
+  // discoverable and indexable for legal-disclosure purposes.
+  '/account/privacy',
 ] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

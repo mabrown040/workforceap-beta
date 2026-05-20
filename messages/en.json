@@ -1701,19 +1701,42 @@
       "ctaApply": "Apply Now",
       "ctaLearn": "Learn How It Works"
     },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Privacy Policy for the Workforce Advancement Project — how we collect, use, share, and protect your information, including the full list of sub-processors.",
+      "heading": "Privacy Policy",
+      "lastUpdatedLabel": "Last updated",
+      "englishOnlyBanner": "This Privacy Policy is currently published in English. For a summary or interpretation in another language, please contact us at"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "Terms of Service for the Workforce Advancement Project — member, employer, and partner roles, AI tool use, governing law, and dispute resolution.",
+      "heading": "Terms of Service",
+      "lastUpdatedLabel": "Last updated",
+      "englishOnlyBanner": "These Terms of Service are currently published in English. For a summary or interpretation in another language, please contact us at"
+    },
     "accessibility": {
       "title": "Accessibility Statement",
-      "description": "Read Workforce Advancement Project accessibility commitments and how to request help using the site.",
+      "description": "Read Workforce Advancement Project accessibility commitments, our WCAG 2.1 AA target, known exceptions, and how to report an accessibility barrier.",
       "eyebrow": "Accessibility",
       "heading": "Accessibility Statement",
       "intro": "Workforce Advancement Project works to make this site easier to use for members, partners, employers, and community supporters. We aim to provide clear content, readable layouts, keyboard-usable navigation, and mobile-friendly access on slow devices and limited connections.",
+      "lastReviewedLabel": "Last reviewed",
+      "commitmentTitle": "Our conformance commitment",
+      "commitmentCopy1": "We target conformance with the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA across both the public marketing site and the member portal. That includes meaningful page structure, descriptive link text, keyboard operability, sufficient color contrast, alternative text for informational images, captions or transcripts for prerecorded media we publish, and form fields with associated labels and error messaging that screen readers can announce.",
+      "commitmentCopy2": "We test against this target with automated tooling on every pull request and with periodic manual screen-reader review. Where a third-party component or partner system is embedded in our pages, we work with that provider to surface accessibility issues to them and to substitute components when a fix is not available.",
+      "exceptionsTitle": "Known exceptions we are actively fixing",
+      "exceptionsCopy": "We track every known accessibility gap. The following items are open as of the last reviewed date above and are on our active burn-down list:",
+      "exception1": "A small number of admin-only data tables are rendered as bare HTML tables without full header semantics. These are not member-facing. Tracked in our internal QA queue and being migrated to our standard accessible table component.",
+      "exception2": "One marketing image is missing meaningful alternative text and is currently presented as decorative. Replacement copy is queued for the next content review.",
+      "exception3": "Some AI-generated outputs (resume drafts, interview feedback) may not yet include landmark structure consistent with the rest of the portal. We are adding semantic wrappers to the AI-tool result views.",
       "helpTitle": "If you need help using this site",
-      "helpCopy": "If you run into a barrier while using WorkforceAP.org, contact us and we will do our best to provide the information or support you need in another format.",
+      "helpCopy": "If you run into a barrier while using WorkforceAP.org — anything that prevents you from completing an application, reading content, or using a tool — please contact us. We will respond within five business days and will do our best to provide the information or support you need in another format while we work on a permanent fix.",
       "helpEmail": "Email:",
       "helpPhone": "Phone:",
-      "helpForm": "Contact form",
+      "helpForm": "Report an accessibility issue via our contact form",
       "improvementsTitle": "Ongoing improvements",
-      "improvementsCopy1": "We continue improving content clarity, color contrast, tap targets, and responsive behavior across public and member-facing pages.",
+      "improvementsCopy1": "We continue improving content clarity, color contrast, tap targets, and responsive behavior across public and member-facing pages. New components ship with an accessibility review checklist; existing surfaces are audited on a rolling basis.",
       "improvementsCopy2": "If something is hard to read, navigate, or complete, please tell us. That feedback helps us improve access for the people this work is meant to serve."
     },
     "mentor": {

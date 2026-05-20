@@ -10,14 +10,19 @@ const MainNav = dynamic(() => import('./MainNav'), {
   loading: () => <div className="main-nav-layout-spacer" aria-hidden="true" />,
 });
 
+type ConditionalMarketingNavProps = {
+  /** Server-detected paid `/apply` landing (UTM-driven). */
+  forceHidden?: boolean;
+};
+
 /**
  * Renders MainNav only on public marketing routes.
  * Hidden inside any portal (one-shell rule) so portal nav is the only chrome.
  * Spacer reserves in-flow height so fixed nav does not cover page content (all breakpoints).
  */
-export default function ConditionalMarketingNav() {
+export default function ConditionalMarketingNav({ forceHidden = false }: ConditionalMarketingNavProps) {
   const pathname = usePathname();
-  const hidden = isMarketingChromeHidden(pathname);
+  const hidden = forceHidden || isMarketingChromeHidden(pathname);
 
   useEffect(() => {
     const root = document.documentElement;

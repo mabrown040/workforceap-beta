@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
-import { getProfileRole, requireAdmin } from '@/lib/auth/roles';
+import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
@@ -136,9 +136,9 @@ export const PATCH = withApiGuc(async (
     },
   });
 
-  const profileRole = await getProfileRole(user.id);
+  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
   await logAuditEvent({
-    user: { id: user.id, role: profileRole ?? undefined },
+    user: { id: user.id, role: actorRole },
     verb: resolveApplicationStatusVerb(status),
     object: { type: 'Application', id },
     result: {

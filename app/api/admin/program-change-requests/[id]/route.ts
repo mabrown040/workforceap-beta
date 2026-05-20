@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
-import { getProfileRole, isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
@@ -157,9 +157,9 @@ export const PATCH = withApiGuc(async (
     }).catch(() => {});
   }
 
-  const profileRole = await getProfileRole(user.id);
+  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
   await logAuditEvent({
-    user: { id: user.id, role: profileRole ?? undefined },
+    user: { id: user.id, role: actorRole },
     verb: nextStatus === 'APPROVED' ? 'approved' : 'voided',
     object: { type: 'ProgramChangeRequest', id },
     result: {

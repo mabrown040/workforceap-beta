@@ -1,3 +1,4 @@
+-- Renamed from 20260504120000_xapi_course_progress on 2026-05-20 to resolve timestamp collision; if running against an environment that already applied 20260504120000_xapi_course_progress, manually update `_prisma_migrations.migration_name`.
 -- xAPI storage, per-course progress, and program-level rollup for training pipeline
 
 CREATE TABLE "xapi_statements" (

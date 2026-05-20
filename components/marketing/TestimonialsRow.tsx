@@ -76,7 +76,6 @@ export default function TestimonialsRow({
       </header>
 
       <ul
-        role="list"
         className="testimonials-row__track"
         style={{
           listStyle: 'none',

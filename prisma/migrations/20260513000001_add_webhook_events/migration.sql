@@ -1,3 +1,4 @@
+-- Renamed from 20260513000000_add_webhook_events on 2026-05-20 to resolve timestamp collision; if running against an environment that already applied 20260513000000_add_webhook_events, manually update `_prisma_migrations.migration_name`.
 -- CreateTable
 CREATE TABLE "webhook_events" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),

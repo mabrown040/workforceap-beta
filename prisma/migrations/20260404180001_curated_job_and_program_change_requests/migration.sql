@@ -1,3 +1,4 @@
+-- Renamed from 20260404180000_curated_job_and_program_change_requests on 2026-05-20 to resolve timestamp collision; if running against an environment that already applied 20260404180000_curated_job_and_program_change_requests, manually update `_prisma_migrations.migration_name`.
 -- Curated job board ↔ application tracker
 ALTER TABLE "job_applications" ADD COLUMN IF NOT EXISTS "curated_job_id" TEXT;
 CREATE INDEX IF NOT EXISTS "job_applications_curated_job_id_idx" ON "job_applications"("curated_job_id");

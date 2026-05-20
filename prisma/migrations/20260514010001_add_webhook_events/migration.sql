@@ -1,3 +1,4 @@
+-- Renamed from 20260514010000_add_webhook_events on 2026-05-20 to resolve timestamp collision; if running against an environment that already applied 20260514010000_add_webhook_events, manually update `_prisma_migrations.migration_name`.
 -- Adds the `webhook_events` table that backs the Prisma `WebhookEvent`
 -- model. This PR (#1188) added the model + a retention page/API that
 -- calls `prisma.webhookEvent.findMany`, but no CREATE TABLE migration

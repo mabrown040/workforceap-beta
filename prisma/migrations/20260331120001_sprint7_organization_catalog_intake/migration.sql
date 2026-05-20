@@ -1,3 +1,4 @@
+-- Renamed from 20260331120000_sprint7_organization_catalog_intake on 2026-05-20 to resolve timestamp collision; if running against an environment that already applied 20260331120000_sprint7_organization_catalog_intake, manually update `_prisma_migrations.migration_name`.
 -- Sprint 7: multi-tenant foundation (default org), program catalog, pre-screening, profile gate fields
 
 CREATE TABLE IF NOT EXISTS "organizations" (

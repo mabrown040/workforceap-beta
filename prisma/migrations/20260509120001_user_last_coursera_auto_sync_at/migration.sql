@@ -1,3 +1,4 @@
+-- Renamed from 20260509120000_user_last_coursera_auto_sync_at on 2026-05-20 to resolve timestamp collision; if running against an environment that already applied 20260509120000_user_last_coursera_auto_sync_at, manually update `_prisma_migrations.migration_name`.
 -- Add `users.last_coursera_auto_sync_at` so the dashboard auto-sync trigger
 -- (POST /api/member/coursera/auto-sync) can de-dupe per-user. The dashboard
 -- home fires the auto-sync as a fail-soft background promise on first visit;

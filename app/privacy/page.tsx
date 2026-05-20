@@ -270,6 +270,9 @@ export default async function PrivacyPage() {
 
             <div style={{ overflowX: 'auto' }}>
               <table style={tableStyle} aria-label="Sub-processors that process WorkforceAP member data">
+                <caption className="sr-only">
+                  Sub-processors that process WorkforceAP member data, including what is shared, the purpose, and links to each vendor&apos;s DPA or privacy policy.
+                </caption>
                 <thead>
                   <tr>
                     <th scope="col" style={headerCellStyle}>Vendor</th>

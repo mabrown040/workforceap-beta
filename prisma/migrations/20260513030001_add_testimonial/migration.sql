@@ -1,3 +1,4 @@
+-- Renamed from 20260513030000_add_testimonial on 2026-05-20 to resolve timestamp collision; if running against an environment that already applied 20260513030000_add_testimonial, manually update `_prisma_migrations.migration_name`.
 -- Add testimonial pipeline: table, enums, and indexes
 -- Sources: SURVEY (from post-placement survey), MANUAL (admin-entered), INTERVIEW (recorded interview)
 -- Statuses: PENDING → APPROVED → PUBLISHED, or PENDING → REJECTED

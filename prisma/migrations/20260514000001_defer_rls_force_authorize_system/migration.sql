@@ -1,3 +1,4 @@
+-- Renamed from 20260514000000_defer_rls_force_authorize_system on 2026-05-20 to resolve timestamp collision; if running against an environment that already applied 20260514000000_defer_rls_force_authorize_system, manually update `_prisma_migrations.migration_name`.
 -- ===========================================================================
 -- Defer FORCE ROW LEVEL SECURITY + authorize 'system' role in RLS helpers
 -- ===========================================================================

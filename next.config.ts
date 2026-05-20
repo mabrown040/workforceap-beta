@@ -29,13 +29,12 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   poweredByHeader: false,
   serverExternalPackages: ['pdf-parse', 'mammoth'],
-  // Build-time ESLint stays off for now: the codebase has a small set of
-  // known lint errors (bare <table> elements in 3 admin components + 1
-  // missing alt). CI runs `npm run lint` as report-only so the errors are
-  // visible on every PR; once burned down, drop this flag and flip the CI
-  // step to required. tsc runs as a required CI gate and at build time
-  // (Vercel builds will fail on type errors).
-  eslint: { ignoreDuringBuilds: true },
+  // Build-time ESLint is now a required gate (burned down 2026-05-20 — see
+  // PLAN-2026-Q3 §7 / AGENTS.md). The known lint errors (bare <table>s + 1
+  // missing alt) have been fixed or moved under the documented legacy
+  // ignores in eslint.config.mjs. Vercel builds will fail on new ESLint
+  // errors going forward.
+  eslint: { ignoreDuringBuilds: false },
   async headers() {
     return [
       {

@@ -1,3 +1,4 @@
+-- Renamed from 20260504130000_coursera_skillset_progress on 2026-05-20 to resolve timestamp collision; if running against an environment that already applied 20260504130000_coursera_skillset_progress, manually update `_prisma_migrations.migration_name`.
 -- CreateTable: coursera_skillset_progress
 -- Snapshot of Coursera Enterprise skillset progress for a member, written by
 -- the /api/cron/coursera-sync active-pull cron. One row per (user_id, skillset_id).

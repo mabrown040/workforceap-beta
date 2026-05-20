@@ -1,24 +1,17 @@
 name: FORCE RLS Shadow Rehearsal
 
 # Runs the FORCE RLS staging rehearsal harness against a disposable
-# Postgres service container on every PR that touches RLS-sensitive
-# surfaces (migrations or API routes). See
+# Postgres service container. See
 # docs/runbooks/force-rls-staging-rehearsal.md for context.
 #
-# Status: report-only. The job uploads its markdown summary as an
-# artifact and never fails the PR. Flip `continue-on-error: false` and
-# add to branch protection after 30 consecutive clean runs.
+# Status: report-only, manual-only. The harness needs tuning runs
+# before it can auto-trigger on every PR without producing false
+# negatives — the seed data and policy assertions need to be
+# validated against the live policy set first. Triggered manually
+# via workflow_dispatch until the runbook's "promotion to required"
+# section is satisfied (30 consecutive clean runs).
 
 on:
-  pull_request:
-    branches: [master]
-    paths:
-      - 'prisma/migrations/**'
-      - 'app/api/**'
-      - 'lib/db/**'
-      - 'lib/auth/**'
-      - 'scripts/p1/test-force-rls.ts'
-      - '.github/workflows/force-rls-shadow.yml'
   workflow_dispatch:
 
 concurrency:

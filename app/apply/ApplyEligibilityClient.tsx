@@ -5,10 +5,9 @@ import LocalizedLink from '@/components/LocalizedLink';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
-import { trackApplyFunnel, trackFunnelEvent } from '@/lib/analytics/events';
+import { trackApplyFunnel } from '@/lib/analytics/events';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { APPLY_FLOW_DRAFT_KEY, type ApplyFlowDraftV1 } from '@/lib/apply/applyProgramStorage';
-import { UTM_SESSION_KEYS } from '@/lib/marketing/utmCapture';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
 
@@ -63,7 +62,8 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
   }
 }
 
-export default function ApplyEligibilityClient() {
+export default function ApplyEligibilityClient({ variant = 'organic' }: { variant?: 'organic' | 'paid' }) {
+  const isPaid = variant === 'paid';
   const t = useTranslations('apply');
   const tForm = useTranslations('form');
   const router = useRouter();
@@ -81,15 +81,9 @@ export default function ApplyEligibilityClient() {
   const [q3, setQ3] = useState<'yes' | 'no' | null>(null);
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const [saveNotice, setSaveNotice] = useState('');
-  // Paid-traffic variant: rendered when a `wa_utm_source` was captured
-  // earlier in the session by `lib/marketing/utmCapture.ts` (which is
-  // hydrated by `<UtmCapture />` on the parent server page). Organic /
-  // direct visitors get the existing form unchanged.
-  const [paidUtmSource, setPaidUtmSource] = useState<string | null>(null);
   const completedRef = useRef(false);
   const answeredCountRef = useRef(0);
   const hydratedRef = useRef(false);
-  const paidVariantFiredRef = useRef(false);
 
   useEffect(() => {
     if (hydratedRef.current) return;
@@ -131,28 +125,6 @@ export default function ApplyEligibilityClient() {
   useEffect(() => {
     trackApplyFunnel(1, 'started');
     trackApplyFunnel(1, 'eligibility_view');
-  }, []);
-
-  // Detect a paid-traffic visitor by reading the UTM source previously
-  // stashed in sessionStorage. Runs once on mount (client only). If a
-  // non-empty source is present we flip into the paid variant render
-  // path and fire the variant-rendered funnel event exactly once.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    let source: string | null = null;
-    try {
-      const raw = sessionStorage.getItem(UTM_SESSION_KEYS.source);
-      source = raw && raw.trim().length > 0 ? raw.trim() : null;
-    } catch {
-      source = null;
-    }
-    if (source) {
-      setPaidUtmSource(source);
-      if (!paidVariantFiredRef.current) {
-        paidVariantFiredRef.current = true;
-        trackFunnelEvent('apply_paid_variant', 'rendered', { utm_source: source });
-      }
-    }
   }, []);
 
   useEffect(() => {
@@ -219,119 +191,12 @@ export default function ApplyEligibilityClient() {
     router.push(localizeHref(resultsPath, locale));
   };
 
-  const isPaid = paidUtmSource !== null;
-
   return (
     <div className={`apply-flow apply-flow--step1${isPaid ? ' apply-flow--paid' : ''}`} data-variant={isPaid ? 'paid' : 'organic'}>
-      <div className="apply-progress-bar" aria-label={t('progressAriaLabel')}>
-        <div className="apply-progress-fill" style={{ width: '33%' }} />
-        <p className="apply-progress-label">{t('step1ProgressLabel')}</p>
-      </div>
-
-      {isPaid ? (
-        <div
-          className="apply-paid-hero"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--space-3)',
-            padding: 'var(--space-5) var(--space-5)',
-            marginBottom: 'var(--space-5)',
-            borderRadius: 'var(--radius-lg)',
-            background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)',
-            color: 'var(--color-white)',
-            textAlign: 'center',
-          }}
-        >
-          <h2
-            style={{
-              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
-              margin: 0,
-              color: 'var(--color-white)',
-            }}
-          >
-            Apply in 5 minutes &mdash; no cost
-          </h2>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 'var(--font-size-base)',
-              lineHeight: 'var(--line-height-normal)',
-              color: 'rgba(255,255,255,0.92)',
-            }}
-          >
-            Fill in your contact info and three quick eligibility questions. We&rsquo;ll route you to a funded
-            training program with placement support.
-          </p>
-          <a
-            href="#apply-first-name"
-            className={marketingButtonPresets.heroPrimary('apply-paid-hero__cta')}
-            style={{
-              alignSelf: 'center',
-              background: 'var(--color-white)',
-              color: 'var(--color-accent)',
-              borderColor: 'var(--color-white)',
-              marginTop: 'var(--space-2)',
-            }}
-          >
-            Start now &mdash; it&rsquo;s free
-          </a>
-        </div>
-      ) : null}
-
-      {isPaid ? (
-        <div
-          className="apply-paid-social-proof"
-          role="note"
-          aria-label="Member outcomes"
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 'var(--space-3)',
-            padding: 'var(--space-3) var(--space-4)',
-            marginBottom: 'var(--space-4)',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--surface-container)',
-            border: '1px solid var(--outline-variant)',
-            color: 'var(--color-on-surface-variant)',
-            fontSize: 'var(--font-size-sm)',
-          }}
-        >
-          <span style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>Members hired at:</span>
-          {/* TODO(growth): swap placeholder logos for the real ones once the
-              G3 employer logo strip lands. For now we render plain text
-              tokens that still convey the "name-brand employers" signal. */}
-          <span style={{ fontWeight: 700 }}>Google</span>
-          <span aria-hidden="true">&middot;</span>
-          <span style={{ fontWeight: 700 }}>IBM</span>
-          <span aria-hidden="true">&middot;</span>
-          <span style={{ fontWeight: 700 }}>AWS</span>
-        </div>
-      ) : null}
-
-      {isPaid ? (
-        <div
-          className="apply-paid-salary-strip"
-          role="note"
-          style={{
-            padding: 'var(--space-3) var(--space-4)',
-            marginBottom: 'var(--space-5)',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--surface-container-low)',
-            border: '1px solid var(--outline-variant)',
-            color: 'var(--color-on-surface)',
-            fontSize: 'var(--font-size-sm)',
-            textAlign: 'center',
-          }}
-        >
-          {/* TODO(growth): replace placeholder outcome numbers with real
-              90-day placement metrics once `lib/admin/outcomes.ts` exposes
-              a stable public-facing aggregate. */}
-          <strong>Avg starting salary $58K</strong> &middot; 90-day placement support
+      {!isPaid ? (
+        <div className="apply-progress-bar" aria-label={t('progressAriaLabel')}>
+          <div className="apply-progress-fill" style={{ width: '33%' }} />
+          <p className="apply-progress-label">{t('step1ProgressLabel')}</p>
         </div>
       ) : null}
 
@@ -345,26 +210,30 @@ export default function ApplyEligibilityClient() {
           handleContinue();
         }}
       >
-        <p className="apply-social-proof" role="note">
-          {t('applySocialProof')}
-        </p>
-        <p className="apply-step-kicker">{t('step1Kicker')}</p>
-        <h2 className="apply-step-title">{t('step1Title')}</h2>
-        <p className="apply-step-desc">{t('step1Lead')}</p>
         {!isPaid ? (
-          <p className="apply-step-desc apply-eligibility-exception-note">
-            {t('eligibilityExceptionLead')}{' '}
-            <LocalizedLink href="/faq" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-              FAQ
-            </LocalizedLink>
-            {t('eligibilityExceptionSuffix')}
-          </p>
-        ) : null}
+          <>
+            <p className="apply-social-proof" role="note">
+              {t('applySocialProof')}
+            </p>
+            <p className="apply-step-kicker">{t('step1Kicker')}</p>
+            <h2 className="apply-step-title">{t('step1Title')}</h2>
+            <p className="apply-step-desc">{t('step1Lead')}</p>
+            <p className="apply-step-desc apply-eligibility-exception-note">
+              {t('eligibilityExceptionLead')}{' '}
+              <LocalizedLink href="/faq" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                FAQ
+              </LocalizedLink>
+              {t('eligibilityExceptionSuffix')}
+            </p>
 
-        <div className="apply-transition-card" role="note" aria-label={t('transitionCardAriaWhatNext')}>
-          <strong>{t('step1WhatNextStrong')}</strong>
-          <span> {t('step1WhatNextBody')}</span>
-        </div>
+            <div className="apply-transition-card" role="note" aria-label={t('transitionCardAriaWhatNext')}>
+              <strong>{t('step1WhatNextStrong')}</strong>
+              <span> {t('step1WhatNextBody')}</span>
+            </div>
+          </>
+        ) : (
+          <h2 className="apply-step-title">{t('step1Title')}</h2>
+        )}
 
         <div className="apply-personal-block">
           <h3 className="apply-personal-block__title">{t('personalSectionTitle')}</h3>

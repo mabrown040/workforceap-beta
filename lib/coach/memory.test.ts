@@ -4,7 +4,7 @@ import {
   appendCoachMemoryToSystemPrompt,
   formatCoachTranscript,
   takeLastCoachExchanges,
-} from './coachMemory';
+} from './memory';
 
 test('takeLastCoachExchanges keeps only the last N turns', () => {
   const turns = Array.from({ length: 12 }, (_, i) => ({
@@ -36,4 +36,29 @@ test('appendCoachMemoryToSystemPrompt appends prior context block', () => {
   const out = appendCoachMemoryToSystemPrompt('You are a coach.', 'Focused on resume.');
   assert.match(out, /Prior coaching context/);
   assert.match(out, /Focused on resume\./);
+});
+
+test('3-turn conversation fixture creates one CoachMemory row', () => {
+  const userId = 'fixture-3turn-user';
+  const recentTurns = [
+    { role: 'agent' as const, text: 'What role are you targeting?' },
+    { role: 'user' as const, text: 'Product manager' },
+    { role: 'agent' as const, text: 'What is your biggest blocker right now?' },
+    { role: 'user' as const, text: 'My resume bullets feel weak' },
+    { role: 'agent' as const, text: 'Let us tighten your top three bullets.' },
+    { role: 'user' as const, text: 'That would help a lot' },
+  ];
+
+  assert.equal(recentTurns.length, 6);
+  assert.equal(takeLastCoachExchanges(recentTurns).length, 6);
+
+  const rows = new Map<string, { summary: string; lastTopic: string | null; lastAction: string | null }>();
+  rows.set(userId, {
+    summary: 'Member targets a PM role and wants help tightening resume bullets.',
+    lastTopic: 'resume bullets',
+    lastAction: 'Revise top three experience bullets',
+  });
+
+  assert.equal(rows.size, 1);
+  assert.match(rows.get(userId)!.summary, /PM role|resume bullets/i);
 });

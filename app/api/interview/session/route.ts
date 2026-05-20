@@ -5,7 +5,7 @@ import { chatCompletion } from '@/lib/ai/groq';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
-import { appendCoachMemoryToSystemPrompt } from '@/lib/ai/coachMemory';
+import { appendCoachMemoryToSystemPrompt, loadCoachMemory } from '@/lib/coach/memory';
 import { aiResponseLanguageInstruction, firstInterviewPromptForLanguage, nextInterviewPromptForLanguage, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -76,11 +76,14 @@ export const POST = withApiGuc(async (req: NextRequest) => {
     }
   
     // ── Mode 2: Groq text fallback ────────────────────────────────────────────
-    const memberContext = await fetchMemberPortalDynamicVariables(user.id);
+    const [memberContext, memorySummary] = await Promise.all([
+      fetchMemberPortalDynamicVariables(user.id),
+      loadCoachMemory(user.id),
+    ]);
     const baseSystemPrompt = `You are a professional job interviewer conducting a ${interviewType} interview for a ${role} position. ${aiResponseLanguageInstruction(language)} Ask one realistic interview question at a time. Be concise and direct. Do not add preamble or commentary — just the question.`;
     const systemPrompt = appendCoachMemoryToSystemPrompt(
       baseSystemPrompt,
-      memberContext.coach_memory_summary
+      memorySummary ?? memberContext.coach_memory_summary
     );
   
     const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [

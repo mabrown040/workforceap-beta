@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
-import { updateCoachMemoryFromTranscript, type CoachTranscriptTurn } from '@/lib/ai/coachMemory';
+import { updateCoachMemory, type CoachTurn } from '@/lib/coach/memory';
 import { prisma } from '@/lib/db/prisma';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
@@ -57,7 +57,7 @@ function buildHistoryOutput(transcript: TranscriptTurn[]) {
         buildHistoryOutput(transcript)
       );
 
-      void updateCoachMemoryFromTranscript(user.id, transcript as CoachTranscriptTurn[]).catch((err) => {
+      void updateCoachMemory({ userId: user.id, recentTurns: transcript as CoachTurn[] }).catch((err) => {
         console.error('[career-business-coach completion] coach memory update failed:', err);
       });
 

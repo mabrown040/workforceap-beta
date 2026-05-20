@@ -12,7 +12,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
-import { getCoachMemoryDynamicVariables } from '@/lib/ai/coachMemory';
+import { getCoachMemoryDynamicVariables } from '@/lib/coach/memory';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getCounselorForUser, getEmployerForUser, getPartnerForUser } from '@/lib/auth/roles';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';

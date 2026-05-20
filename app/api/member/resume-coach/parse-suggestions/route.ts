@@ -7,7 +7,7 @@ import {
   parseResumeCoachSuggestionsFromTranscript,
 } from '@/lib/ai/parseResumeCoachSuggestions';
 import { prisma } from '@/lib/db/prisma';
-import { updateCoachMemoryFromTranscript, type CoachTranscriptTurn } from '@/lib/ai/coachMemory';
+import { updateCoachMemory, type CoachTurn } from '@/lib/coach/memory';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -64,11 +64,11 @@ function buildHistoryOutput(transcript: ResumeTranscriptTurn[], suggestions: Arr
       const output = buildHistoryOutput(transcript, suggestions);
       await saveAIToolResult(user.id, 'resume_rewriter', inputSummary, output);
 
-      const coachTranscript: CoachTranscriptTurn[] = transcript.map((turn) => ({
+      const coachTranscript: CoachTurn[] = transcript.map((turn) => ({
         role: turn.speaker === 'agent' ? 'agent' : 'user',
         text: turn.text,
       }));
-      void updateCoachMemoryFromTranscript(user.id, coachTranscript).catch((err) => {
+      void updateCoachMemory({ userId: user.id, recentTurns: coachTranscript }).catch((err) => {
         console.error('[parse-suggestions] coach memory update failed:', err);
       });
 

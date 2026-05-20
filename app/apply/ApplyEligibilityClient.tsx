@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
 import { trackApplyFunnel } from '@/lib/analytics/events';
+import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { APPLY_FLOW_DRAFT_KEY, type ApplyFlowDraftV1 } from '@/lib/apply/applyProgramStorage';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';

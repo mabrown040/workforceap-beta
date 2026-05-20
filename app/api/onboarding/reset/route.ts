@@ -35,7 +35,12 @@ const bodySchema = z.object({
   if (portal === 'member') {
     await prisma.user.update({
       where: { id: user.id },
-      data: { onboardingCompletedAt: null, onboardingPortal: null, tourCompletedAt: null },
+      data: {
+        onboardingCompletedAt: null,
+        onboardingPortal: null,
+        tourCompletedAt: null,
+        tourDismissedAt: null,
+      },
     });
   } else if (portal === 'employer') {
     const ctx = await getEmployerForUser(user.id);

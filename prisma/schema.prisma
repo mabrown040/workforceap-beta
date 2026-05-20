@@ -77,6 +77,7 @@ model User {
   onboardingCompletedAt        DateTime?           @map("onboarding_completed_at")
   onboardingPortal             String?             @map("onboarding_portal")
   tourCompletedAt              DateTime?           @map("tour_completed_at")
+  tourDismissedAt              DateTime?           @map("tour_dismissed_at")
   workspaceEmail               String?             @map("workspace_email")
   workspaceEmailProvisioned    Boolean             @default(false) @map("workspace_email_provisioned")
   /// Set when career quiz indicates no reliable computer; counselors can follow up.

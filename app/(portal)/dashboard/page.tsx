@@ -15,10 +15,20 @@ import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { canBypassMemberAssessment, isSuperAdmin } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
+import MemberTourAutoStart from '@/components/onboarding/MemberTourAutoStart';
+import {
+  ONBOARDING_TOUR_DISMISSED_COOKIE,
+  readOnboardingTourDismissedUserId,
+} from '@/lib/onboarding/onboardingTourDismiss';
+import { cookies } from 'next/headers';
+import { isFirstDayMember } from '@/lib/member/isFirstDayMember';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import VoiceSectionErrorBoundary from '@/components/portal/VoiceSectionErrorBoundary';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberFirstValuePanel from '@/components/portal/MemberFirstValuePanel';
+import { buildFirstValueActions } from '@/lib/member/firstValueActions';
+import { isNewMember, secondsSinceAccountCreation } from '@/lib/member/isNewMember';
 import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
@@ -184,6 +194,7 @@ async function renderMemberDashboard(
       preScreeningResponse: { select: { id: true } },
       onboardingCompletedAt: true,
       tourCompletedAt: true,
+      tourDismissedAt: true,
       assessmentCompletedAt: true,
       fullName: true,
       phone: true,
@@ -354,9 +365,19 @@ async function renderMemberDashboard(
       })
     : null;
 
+  const cookieStore = await cookies();
+  const tourDismissedCookieUserId = readOnboardingTourDismissedUserId(
+    cookieStore.get(ONBOARDING_TOUR_DISMISSED_COOKIE)?.value
+  );
+  const tourDismissedByCookie = tourDismissedCookieUserId === user.id;
+
   const showMemberOnboarding = intakeExtra?.onboardingCompletedAt == null;
   const showMemberTour =
-    intakeExtra?.onboardingCompletedAt != null && intakeExtra?.tourCompletedAt == null;
+    isFirstDayMember(dbUser.createdAt) &&
+    intakeExtra?.onboardingCompletedAt != null &&
+    intakeExtra?.tourCompletedAt == null &&
+    intakeExtra?.tourDismissedAt == null &&
+    !tourDismissedByCookie;
   const wizardProgramInterest =
     memberState.application?.programInterest ?? intakeExtra?.programInterest ?? '';
 
@@ -474,6 +495,22 @@ async function renderMemberDashboard(
   }
   nextBestActions = nextBestActions.slice(0, 4);
   const dominantNextAction = nextBestActions[0] ?? null;
+
+  const showFirstValuePanel = isNewMember(dbUser.createdAt);
+  const firstValueActions = showFirstValuePanel
+    ? buildFirstValueActions({
+        state: dashboardState,
+        noApplicationOnFile,
+        application: applicationStatusView,
+        enrolledProgram: enrolledProgramSlug,
+        assessmentCompleted,
+        hasResume: memberState.hasResume,
+        profileCompletenessPct,
+        careerRecommendation: memberState.careerRecommendation,
+      })
+    : [];
+  const firstValueSecondsSinceSignup = secondsSinceAccountCreation(dbUser.createdAt);
+
   const mobileStripActions =
     dominantNextAction && nextBestActions[0]?.id === dominantNextAction.id
       ? nextBestActions.slice(1)
@@ -616,6 +653,12 @@ async function renderMemberDashboard(
 
       <PWAInstallPrompt />
 
+      <MemberTourAutoStart
+        showTour={showMemberTour}
+        tourStorageUserId={user.id}
+        tourSteps={MEMBER_PORTAL_TOUR_STEPS}
+      />
+
       {staffViewer && (
         <div style={{ padding: '0.75rem 1rem 0' }}>
           <StaffViewBanner page="dashboard" />
@@ -636,8 +679,21 @@ async function renderMemberDashboard(
       {/* ΓöÇΓöÇ Mobile-only dashboard (Γëñ767px) ΓöÇΓöÇ */}
       <div className="md:wa-hidden portal-mobile-content">
 
+        {showFirstValuePanel && firstValueActions.length > 0 ? (
+          <section style={{ padding: '1rem 1.25rem 0' }}>
+            <MemberFirstValuePanel
+              actions={firstValueActions}
+              secondsSinceSignup={firstValueSecondsSinceSignup}
+            />
+          </section>
+        ) : null}
+
         {/* ΓöÇΓöÇ Hero: greeting + progress ring ΓöÇΓöÇ */}
-        <section aria-label="Dashboard hero" style={{ padding: '1.25rem 1.25rem 1rem' }}>
+        <section
+          aria-label="Dashboard hero"
+          data-tour="tour-progress-card"
+          style={{ padding: '1.25rem 1.25rem 1rem' }}
+        >
           <div
             style={{
               borderRadius: '1.5rem',
@@ -1190,6 +1246,9 @@ async function renderMemberDashboard(
                   noApplicationOnFile={noApplicationOnFile}
                   age={userAge}
                   isMinor={isMinor}
+                  showFirstValuePanel={showFirstValuePanel}
+                  firstValueActions={firstValueActions}
+                  firstValueSecondsSinceSignup={firstValueSecondsSinceSignup}
                   />
                 </Suspense>
               </ErrorBoundary>

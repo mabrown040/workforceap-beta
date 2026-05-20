@@ -37,7 +37,13 @@ export default function MemberPortalTopNav({
     { href: '/dashboard/ai-tools', label: t('careerToolkit'), icon: 'auto_awesome', matches: (p: string) => p.startsWith('/dashboard/ai-tools') },
     { href: '/dashboard/messages', label: t('counselorChat'), icon: 'chat', matches: (p: string) => p.startsWith('/dashboard/messages'), badgeKey: 'counselor_messages_unread' as NavBadgeKey },
     { href: '/dashboard/jobs', label: t('jobBoard'), icon: 'work', matches: (p: string) => p.startsWith('/dashboard/jobs') },
-    { href: '/dashboard/counselor', label: t('aiCounselor'), icon: 'support_agent', matches: (p: string) => p.startsWith('/dashboard/counselor') },
+    {
+      href: '/dashboard/counselor',
+      label: t('coach'),
+      icon: 'support_agent',
+      matches: (p: string) => p.startsWith('/dashboard/counselor'),
+      tourTarget: 'tour-coach',
+    },
   ];
 
   return (
@@ -46,6 +52,7 @@ export default function MemberPortalTopNav({
         {tabs.map((tab) => {
           const active = tab.matches(pathname);
           const badge = tab.badgeKey ? badgeCounts?.[tab.badgeKey] : undefined;
+          const tourTarget = 'tourTarget' in tab ? tab.tourTarget : undefined;
           return (
             <li key={tab.href} className="member-portal-top-nav__item">
               <Link
@@ -53,6 +60,7 @@ export default function MemberPortalTopNav({
                 prefetch={tab.href === '/dashboard'}
                 className={`member-portal-top-nav__link${active ? ' member-portal-top-nav__link--active' : ''}`}
                 aria-current={active ? 'page' : undefined}
+                {...(tourTarget ? { 'data-tour': tourTarget } : {})}
               >
                 <span className="material-symbols-outlined member-portal-top-nav__icon" aria-hidden="true">
                   {tab.icon}

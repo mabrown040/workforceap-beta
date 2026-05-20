@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState, type ComponentProps } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTour } from './TourContext';
+import { hasOnboardingTourDismissedCookie } from '@/lib/onboarding/onboardingTourDismiss';
 import OnboardingDevReset from '@/components/onboarding/OnboardingDevReset';
 import type { TourStep } from './PortalTour';
 
@@ -81,8 +82,9 @@ export default function PortalEntryClient(props: PortalEntryClientProps) {
         (window.localStorage.getItem(tourAutoStartKey) === '1' ||
           window.sessionStorage.getItem(tourAutoStartKey) === '1');
       if (alreadyAutoStarted) return;
+      if (portal === 'member' && hasOnboardingTourDismissedCookie(tourStorageUserId)) return;
       const timer = setTimeout(() => {
-        startTour(tourSteps, portal);
+        startTour(tourSteps, portal, { userId: tourStorageUserId });
         if (typeof window !== 'undefined') {
           window.localStorage.setItem(tourAutoStartKey, '1');
           window.sessionStorage.setItem(tourAutoStartKey, '1');

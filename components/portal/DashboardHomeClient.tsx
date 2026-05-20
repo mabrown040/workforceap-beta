@@ -15,6 +15,8 @@ import { formatPortalDate, formatPortalDateTime } from '@/lib/formatDate';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
+import MemberFirstValuePanel from '@/components/portal/MemberFirstValuePanel';
+import type { FirstValueAction } from '@/lib/member/firstValueActions';
 import type { NextBestAction } from '@/lib/member/nextBestActions';
 import PortalMetricCard from '@/components/portal/ui/PortalMetricCard';
 
@@ -68,6 +70,9 @@ type DashboardHomeClientProps = {
   interviewCompletedAt?: Date | null;
   starterProfileReviewRequired?: boolean;
   starterProfileMissingFields?: string[];
+  showFirstValuePanel?: boolean;
+  firstValueActions?: FirstValueAction[];
+  firstValueSecondsSinceSignup?: number | null;
 };
 
 import { useTranslations } from 'next-intl';
@@ -102,6 +107,9 @@ export default function DashboardHomeClient({
   starterProfileMissingFields = [],
   age = null,
   isMinor = false,
+  showFirstValuePanel = false,
+  firstValueActions = [],
+  firstValueSecondsSinceSignup = null,
 }: DashboardHomeClientProps) {
   const t = useTranslations('dashboard');
   const primaryAction = recommendedActions[0];
@@ -257,6 +265,13 @@ export default function DashboardHomeClient({
     <div className="portal-member-dashboard-home">
       {age !== null && age < 18 ? <YouthDashboardNotice age={age} /> : null}
 
+      {showFirstValuePanel && firstValueActions.length > 0 ? (
+        <MemberFirstValuePanel
+          actions={firstValueActions}
+          secondsSinceSignup={firstValueSecondsSinceSignup}
+        />
+      ) : null}
+
       {/* ── Page Header ── */}
       <header className="portal-dash-header portal-dash-inset">
         <p className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', letterSpacing: '0.08em', fontSize: '0.75rem', marginBottom: '0.375rem' }}>
@@ -301,6 +316,7 @@ export default function DashboardHomeClient({
         <div className="portal-dash-inset" style={{ marginBottom: '1.5rem' }}>
           <section
             className="portal-card portal-card--flat"
+            data-tour="tour-progress-card"
             style={{ borderLeft: '4px solid var(--color-accent)' }}
           >
             <div className="portal-card__body">
@@ -444,7 +460,7 @@ export default function DashboardHomeClient({
 
         {/* ── Main Progress Card (state B: onboarding milestones) ── */}
         {state === 'B' && programTitle && (
-          <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
+          <section className="portal-card portal-card--flat" data-tour="tour-progress-card" style={{ gridColumn: 'span 12' }}>
             <div className="portal-card__body">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', gap: '1rem' }}>
                 <div style={{ minWidth: 0 }}>

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser, getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-
+import { trackEvent } from '@/lib/events/track';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const bodySchema = z.object({
@@ -32,6 +32,12 @@ const bodySchema = z.object({
     await prisma.user.update({
       where: { id: user.id },
       data: { tourCompletedAt: now },
+    });
+    void trackEvent({
+      userId: user.id,
+      eventName: 'onboarding_tour_completed',
+      sourcePage: '/dashboard',
+      metadata: { portal: 'member' },
     });
   } else if (portal === 'employer') {
     const ctx = await getEmployerForUser(user.id);

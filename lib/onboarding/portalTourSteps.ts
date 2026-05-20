@@ -1,35 +1,24 @@
 import type { TourStep } from '@/components/onboarding/PortalTour';
 
+/** Three-step first-visit tour for members created within the last 24 hours. */
 export const MEMBER_PORTAL_TOUR_STEPS: TourStep[] = [
   {
-    targetId: 'tour-dashboard',
-    title: 'Dashboard',
-    body: 'Your overview: applications, interviews, and shortcuts. Use My Training in the menu for your course list, Coursera, and live training progress.',
-    placement: 'right',
+    targetId: 'tour-progress-card',
+    title: 'Welcome',
+    body: 'Your dashboard shows where you are — track application status, training progress, and your next milestone here.',
+    placement: 'bottom',
   },
   {
-    targetId: 'tour-ai-tools',
-    title: 'AI Tools',
-    body: 'Power up your job search with AI — resume help, cover letters, interview practice, and more.',
-    placement: 'right',
+    targetId: 'tour-first-value',
+    title: "Pick what's next",
+    body: 'These three actions are picked for you right now. Tap any card to jump straight into your highest-impact next step.',
+    placement: 'bottom',
   },
   {
-    targetId: 'tour-learning',
-    title: 'Learning',
-    body: 'Access your courses, training materials, and skill-building resources.',
-    placement: 'right',
-  },
-  {
-    targetId: 'tour-messages',
-    title: 'Messages',
-    body: 'Stay connected with your counselor and the WorkforceAP team.',
-    placement: 'right',
-  },
-  {
-    targetId: 'tour-profile',
-    title: 'Profile',
-    body: 'Keep your profile up to date so we can match you with the best opportunities.',
-    placement: 'right',
+    targetId: 'tour-coach',
+    title: 'Need help?',
+    body: 'Tap Coach anytime for AI guidance on applications, training, interviews, and career questions.',
+    placement: 'bottom',
   },
 ];
 

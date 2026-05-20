@@ -151,7 +151,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
   { href: '/dashboard/ai-tools', label: 'Career Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
-  { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },
+  { href: '/dashboard/counselor', label: 'Coach', group: 'workflows', tab: 'me', Icon: Mic, tourTarget: 'tour-coach' },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',

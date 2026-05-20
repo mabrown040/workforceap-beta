@@ -26,6 +26,7 @@ import {
   Library,
   ListChecks,
   MessageSquare,
+  Mic,
   PlusCircle,
   Settings,
   Shield,
@@ -75,6 +76,7 @@ export const MEMBER_PORTAL_NAV_ITEMS_I18N: PortalNavItem[] = [
   { href: '/dashboard/resume', label: 'nav:resume', group: 'workflows', tab: 'jobs', Icon: FileText },
   { href: '/dashboard/readiness', label: 'nav:myProgress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   { href: '/dashboard/ai-tools', label: 'nav:aiToolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/counselor', label: 'nav:coach', group: 'workflows', tab: 'me', Icon: Mic, tourTarget: 'tour-coach' },
   {
     href: '/dashboard/learning',
     label: 'nav:learningHub',

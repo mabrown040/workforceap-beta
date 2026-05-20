@@ -78,7 +78,7 @@ function layoutPopover(
 }
 
 export default function PortalTour() {
-  const { isOpen, currentStep, steps, endTour, completeTour, nextStep, prevStep, goToStep } = useTour();
+  const { isOpen, currentStep, steps, dismissTour, completeTour, nextStep, prevStep, goToStep } = useTour();
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [popover, setPopover] = useState<PopoverLayout | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -143,11 +143,11 @@ export default function PortalTour() {
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') endTour();
+      if (e.key === 'Escape') void dismissTour();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [endTour, isOpen]);
+  }, [dismissTour, isOpen]);
 
   if (!isOpen || !step || total === 0) return null;
 
@@ -170,7 +170,7 @@ export default function PortalTour() {
         type="button"
         className="wa-fixed wa-inset-0 wa-z-[90] wa-cursor-default wa-border-0 wa-p-0"
         aria-label="Close tour"
-        onClick={() => endTour()}
+        onClick={() => void dismissTour()}
         style={{
           background: 'rgba(18, 20, 22, 0.65)',
           backdropFilter: 'blur(2px)',
@@ -255,7 +255,7 @@ export default function PortalTour() {
             <div className="wa-order-3 wa-flex wa-w-full wa-flex-wrap wa-items-center wa-justify-stretch wa-gap-2 sm:wa-order-2 sm:wa-w-auto sm:wa-justify-end">
               <button
                 type="button"
-                onClick={() => endTour()}
+                onClick={() => void dismissTour()}
                 className="wa-min-h-[40px] wa-flex-1 wa-rounded-lg wa-border wa-px-3 wa-py-2 wa-text-sm wa-font-medium wa-transition-colors sm:wa-flex-initial"
                 style={{
                   background: 'transparent',

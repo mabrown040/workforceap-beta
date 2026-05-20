@@ -97,6 +97,9 @@ const createBody = z.object({
   if (resolvedAffiliation === 'partner' && !partnerId) {
     return NextResponse.json({ error: 'Partner affiliation requires a partnerId' }, { status: 400 });
   }
+  if (resolvedAffiliation === 'wap_staff' && partnerId) {
+    return NextResponse.json({ error: 'WAP staff cannot be linked to a partner org' }, { status: 400 });
+  }
   if (resolvedAffiliation === 'independent' && partnerId) {
     return NextResponse.json({ error: 'Independent advisors cannot be linked to a partner org' }, { status: 400 });
   }
@@ -141,4 +144,3 @@ const createBody = z.object({
   }
 }
 export const POST = withApiGuc(_POST);
-

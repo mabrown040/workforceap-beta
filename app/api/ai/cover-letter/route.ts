@@ -25,7 +25,14 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
   
-    const parsed = coverLetterSchema.safeParse(body);
+    const parsed = (
+      typeof body === 'object' &&
+      body !== null &&
+      'prefill' in body &&
+      body.prefill === true
+        ? coverLetterSchema.extend({ resume: coverLetterSchema.shape.resume.optional() })
+        : coverLetterSchema
+    ).safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.errors[0]?.message ?? 'Validation failed' },
@@ -56,6 +63,14 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         finalResume = prefill.resume;
         if (!finalJobDescription) finalJobDescription = prefill.jobTarget ?? '';
       }
+    }
+
+    const resumeValidation = coverLetterSchema.shape.resume.safeParse(finalResume);
+    if (!resumeValidation.success) {
+      return NextResponse.json(
+        { error: resumeValidation.error.errors[0]?.message ?? 'Validation failed' },
+        { status: 400 }
+      );
     }
   
     const toneInstructions: Record<string, string> = {

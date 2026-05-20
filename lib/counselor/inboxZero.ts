@@ -29,6 +29,9 @@ export const LAST_CONTACT_DAYS = 7;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export const INBOX_ZERO_DISMISS_ACTION = 'counselor.inbox_zero.dismiss';
+export const INBOX_ZERO_CONTACTED_ACTION = 'counselor.inbox_zero.contacted';
+export const INBOX_ZERO_REASSIGN_ACTION = 'counselor.inbox_zero.reassign';
+export const INBOX_ZERO_FOLLOW_UP_ACTION = 'counselor.inbox_zero.follow_up';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -204,25 +207,40 @@ async function resolveMemberIds(
   return assignments.map((a) => a.memberId);
 }
 
-async function getDismissedMemberIdsToday(
+async function getHandledMemberIdsToday(
   counselorUserId: string,
+  actions: string[],
   now: Date,
 ): Promise<Set<string>> {
-  const dismissed = new Set<string>();
+  const handled = new Set<string>();
   const dayStart = startOfLocalDay(now);
   const logs = await prisma.auditLog.findMany({
     where: {
       actorUserId: counselorUserId,
-      action: INBOX_ZERO_DISMISS_ACTION,
+      action: { in: actions },
       createdAt: { gte: dayStart },
     },
     select: { metadata: true },
   });
   for (const log of logs) {
     const meta = log.metadata as { memberId?: string } | null;
-    if (meta?.memberId) dismissed.add(meta.memberId);
+    if (meta?.memberId) handled.add(meta.memberId);
   }
-  return dismissed;
+  return handled;
+}
+
+async function getDismissedMemberIdsToday(
+  counselorUserId: string,
+  now: Date,
+): Promise<Set<string>> {
+  return getHandledMemberIdsToday(counselorUserId, [INBOX_ZERO_DISMISS_ACTION], now);
+}
+
+async function getContactedMemberIdsToday(
+  counselorUserId: string,
+  now: Date,
+): Promise<Set<string>> {
+  return getHandledMemberIdsToday(counselorUserId, [INBOX_ZERO_CONTACTED_ACTION], now);
 }
 
 /**
@@ -238,9 +256,10 @@ export async function getInboxZeroQueue(
     return emptyInboxQueue();
   }
 
-  const [dismissedToday, assignmentRows, members, applications, atRiskAlerts, lastStaffMsgByThread] =
+  const [dismissedToday, contactedToday, assignmentRows, members, applications, atRiskAlerts, lastStaffMsgByThread] =
     await Promise.all([
       getDismissedMemberIdsToday(counselorUserId, now),
+      getContactedMemberIdsToday(counselorUserId, now),
       prisma.counselorAssignment.findMany({
         where: { memberId: { in: memberIds }, active: true },
         select: { memberId: true, assignedAt: true },
@@ -324,7 +343,7 @@ export async function getInboxZeroQueue(
   const rows: InboxZeroRow[] = [];
 
   for (const m of members) {
-    if (dismissedToday.has(m.id)) continue;
+    if (dismissedToday.has(m.id) || contactedToday.has(m.id)) continue;
 
     const flags: InboxZeroFlagType[] = [];
     const context: InboxZeroContext = {};

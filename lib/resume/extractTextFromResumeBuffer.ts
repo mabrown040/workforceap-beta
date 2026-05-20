@@ -14,7 +14,7 @@ export async function extractTextFromResumeBuffer(buffer: Buffer, ext: string): 
       return (data.text?.trim() || '') as string;
     } catch (err) {
       console.error('Error parsing PDF:', err);
-      const raw = buffer.toString('utf-8');
+      const raw = buffer.toString('binary');
       return raw
         .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
         .replace(/\s{3,}/g, '\n')
@@ -30,7 +30,7 @@ export async function extractTextFromResumeBuffer(buffer: Buffer, ext: string): 
       return (result.value?.trim() || '') as string;
     } catch (err) {
       console.error(`Error parsing ${e}:`, err);
-      const raw = buffer.toString('utf-8');
+      const raw = buffer.toString('binary');
       return raw
         .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
         .replace(/\s{3,}/g, '\n')

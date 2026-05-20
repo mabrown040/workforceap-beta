@@ -1,0 +1,82 @@
+name: FORCE RLS Shadow Rehearsal
+
+# Runs the FORCE RLS staging rehearsal harness against a disposable
+# Postgres service container. See
+# docs/runbooks/force-rls-staging-rehearsal.md for context.
+#
+# Status: report-only, manual-only. The harness needs tuning runs
+# before it can auto-trigger on every PR without producing false
+# negatives — the seed data and policy assertions need to be
+# validated against the live policy set first. Triggered manually
+# via workflow_dispatch until the runbook's "promotion to required"
+# section is satisfied (30 consecutive clean runs).
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: force-rls-shadow-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shadow-rehearsal:
+    name: FORCE RLS shadow rehearsal (report-only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: rls
+          POSTGRES_PASSWORD: rls
+          POSTGRES_DB: wap_shadow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rls"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      SHADOW_DATABASE_URL: "postgresql://rls:rls@localhost:5432/wap_shadow"
+      # Prisma needs a DATABASE_URL at generate-time; same shadow target.
+      DATABASE_URL: "postgresql://rls:rls@localhost:5432/wap_shadow"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: node scripts/prisma-env.js prisma generate
+
+      - name: Run FORCE RLS rehearsal harness
+        id: rehearsal
+        run: |
+          set -o pipefail
+          pnpm tsx scripts/p1/test-force-rls.ts | tee force-rls-summary.md
+
+      - name: Upload summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: force-rls-summary
+          path: force-rls-summary.md
+          if-no-files-found: warn

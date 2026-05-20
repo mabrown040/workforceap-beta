@@ -2,14 +2,40 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import AiResultRenderer from './AiResultRenderer';
 import { formatPortalDate } from '@/lib/formatDate';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 
 type Row = { id: string; toolType: string; inputSummary: string; output: string; createdAt: string };
 
+// Sprint R2 — map a saved tool type to the dashboard page that owns it.
+// "Regenerate with a different angle" sends the member back to that tool's
+// page with `?regenerateFrom=<id>` so the form can repopulate from the
+// prior run and POST with `parentToolResultId` set.
+const TOOL_TYPE_TO_TOOL_PAGE: Record<string, string> = {
+  resume_rewriter: '/dashboard/ai-tools/resume-rewriter',
+  resume_analysis: '/dashboard/ai-tools/resume-rewriter',
+  cover_letter: '/dashboard/ai-tools/cover-letter',
+  interview_practice: '/dashboard/ai-tools/interview-practice',
+  linkedin_about: '/dashboard/ai-tools/linkedin-about',
+  linkedin_headline: '/dashboard/ai-tools/linkedin-headline',
+  job_match_scorer: '/dashboard/ai-tools/job-match-scorer',
+  salary_negotiation: '/dashboard/ai-tools/salary-negotiation',
+  gap_analyzer: '/dashboard/ai-tools/gap-analyzer',
+  skill_mapper: '/dashboard/ai-tools/skill-mapper',
+  elevator_pitch: '/dashboard/ai-tools/elevator-pitch',
+};
+
+function getRegenerateHref(toolType: string, priorResultId: string): string | null {
+  const page = TOOL_TYPE_TO_TOOL_PAGE[toolType];
+  if (!page) return null;
+  return `${page}?regenerateFrom=${encodeURIComponent(priorResultId)}`;
+}
+
 export default function ToolHistoryPanelClient({ rows }: { rows: Row[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const t = useTranslations('dashboard');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -50,6 +76,7 @@ export default function ToolHistoryPanelClient({ rows }: { rows: Row[] }) {
                     inputSummary: row.inputSummary,
                     output: row.output,
                   });
+                  const regenerateHref = getRegenerateHref(row.toolType, row.id);
                   return (
                     <div style={{ marginTop: '0.875rem', borderLeft: '4px solid var(--color-accent)', background: 'var(--surface-container)', borderRadius: '0.75rem', padding: '0.875rem' }}>
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.6875rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
@@ -61,9 +88,20 @@ export default function ToolHistoryPanelClient({ rows }: { rows: Row[] }) {
                       <p style={{ margin: '0 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)' }}>
                         {next.body}
                       </p>
-                      <Link href={next.href} className="btn btn-outline">
-                        {next.cta}
-                      </Link>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <Link href={next.href} className="btn btn-outline">
+                          {next.cta}
+                        </Link>
+                        {regenerateHref && (
+                          <Link
+                            href={regenerateHref}
+                            className="btn btn-outline"
+                            aria-label={t('regenerateDifferentAngle')}
+                          >
+                            {t('regenerateDifferentAngle')}
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   );
                 })()}

@@ -68,6 +68,8 @@ export const jobMatchScorerSchema = z.object({
   prefill: z.boolean().optional(),
   subjectMemberId: z.string().uuid().optional(),
   sessionId: z.string().uuid().optional(),
+  /** Sprint R2: thread this run back to a prior result. */
+  parentToolResultId: z.string().uuid().optional(),
 }).refine((data) => isSafePublicHttpUrl(data.jobUrl ?? ''), {
   message: 'Please enter a public HTTP(S) job posting URL',
   path: ['jobUrl'],

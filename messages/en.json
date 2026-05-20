@@ -159,6 +159,7 @@
     "counselorNote": "Note from your counselor",
     "weeklyGoal": "Weekly goal",
     "viewAll": "View all",
+    "regenerateDifferentAngle": "Regenerate with a different angle",
     "seeMore": "See more",
     "errorTitle": "We couldn't load your dashboard",
     "errorBody": "Something went wrong while loading this page. This is usually temporary. Try again, or open another section from the menu.",

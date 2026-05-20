@@ -7,6 +7,8 @@ export const linkedinAboutSchema = z.object({
   prefill: z.boolean().optional(),
   subjectMemberId: z.string().uuid().optional(),
   sessionId: z.string().uuid().optional(),
+  /** Sprint R2: thread this run back to a prior result. */
+  parentToolResultId: z.string().uuid().optional(),
 });
 
 export type LinkedInAboutInput = z.infer<typeof linkedinAboutSchema>;

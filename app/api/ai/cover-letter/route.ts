@@ -26,14 +26,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
   
-    const parsed = (
-      typeof body === 'object' &&
-      body !== null &&
-      'prefill' in body &&
-      body.prefill === true
-        ? coverLetterSchema.extend({ resume: coverLetterSchema.shape.resume.optional() })
-        : coverLetterSchema
-    ).safeParse(body);
+    const parsed = coverLetterSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.errors[0]?.message ?? 'Validation failed' },
@@ -51,8 +44,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   
     let finalResume = resume?.trim();
     let finalJobDescription = jobDescription?.trim();
-    let finalCompanyName = companyName?.trim();
-  
+    const finalCompanyName = companyName?.trim();
+
     // If no resume provided, try to prefill from member state
     if (!finalResume || finalResume.length < 40) {
       if (shouldPrefill) {
@@ -63,13 +56,23 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         }
         finalResume = prefill.resume;
         if (!finalJobDescription) finalJobDescription = prefill.jobTarget ?? '';
+      } else {
+        // Defensive — schema refine should have caught this, but be explicit.
+        const err = honestNoResumeError();
+        return NextResponse.json({ error: err.error }, { status: err.status });
       }
     }
 
-    const resumeValidation = coverLetterSchema.shape.resume.safeParse(finalResume);
-    if (!resumeValidation.success) {
+    if (!finalResume || finalResume.length < 50) {
       return NextResponse.json(
-        { error: resumeValidation.error.errors[0]?.message ?? 'Validation failed' },
+        { error: 'Resume/experience must be at least 50 characters' },
+        { status: 400 }
+      );
+    }
+
+    if (!finalJobDescription || finalJobDescription.length < 20) {
+      return NextResponse.json(
+        { error: 'Job description is required' },
         { status: 400 }
       );
     }

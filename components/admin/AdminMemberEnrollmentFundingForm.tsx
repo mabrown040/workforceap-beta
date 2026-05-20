@@ -158,10 +158,20 @@ export default function AdminMemberEnrollmentFundingForm({
       <button
         type="submit"
         disabled={saving}
+        aria-busy={saving}
         className="btn btn-primary"
         style={{ alignSelf: 'flex-start' }}
       >
-        {saving ? 'Saving…' : 'Save'}
+        <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          {saving ? (
+            <>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+              Saving…
+            </>
+          ) : (
+            'Save'
+          )}
+        </span>
       </button>
     </form>
   );

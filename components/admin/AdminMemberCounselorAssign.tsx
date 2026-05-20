@@ -71,8 +71,17 @@ export default function AdminMemberCounselorAssign({
           ))}
         </select>
       </div>
-      <button type="submit" className="btn btn-primary btn-sm" disabled={saving || counselors.length === 0}>
-        {saving ? 'Saving…' : 'Save assignment & notify member'}
+      <button type="submit" className="btn btn-primary btn-sm" disabled={saving || counselors.length === 0} aria-busy={saving}>
+        <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          {saving ? (
+            <>
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+              Saving…
+            </>
+          ) : (
+            'Save assignment & notify member'
+          )}
+        </span>
       </button>
       {counselors.length === 0 ? (
         <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>

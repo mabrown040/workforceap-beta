@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import { splitLocalePrefix } from '@/lib/i18n/config';
 
 export const PAID_APPLY_UTM_SOURCES = [
@@ -40,7 +39,10 @@ export function resolvePaidApplyUtmSource(
   return candidate.toLowerCase() as PaidApplyUtmSource;
 }
 
+/** Server-only: persists the UTM source cookie. Import from `paidApplyUtm.server` instead. */
 export async function persistUtmSourceCookie(value: string): Promise<void> {
+  // Dynamic import so `next/headers` is never loaded in client bundles.
+  const { cookies } = await import('next/headers');
   const store = await cookies();
   store.set(UTM_SOURCE_COOKIE, value.toLowerCase(), {
     path: '/',

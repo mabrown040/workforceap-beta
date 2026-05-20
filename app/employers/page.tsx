@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import EmployerContactForm from './EmployerContactForm';
-import EmployerHiringPartnerCta from './EmployerHiringPartnerCta';
+import EmployersHeroCtaExperiment from '@/components/marketing/employers/EmployersHeroCtaExperiment';
 import {
   HeroSection,
   PageSection,
@@ -18,8 +18,10 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { getTranslations } from 'next-intl/server';
 import {
   formatEmployerTrustStat,
+  getEmployerHiringPartnerCtaHref,
   getEmployerPlacementFeeDisplay,
   getEmployerTrustPlaceholders,
+  isEmployerHiringPartnerCtaExternal,
   loadEmployerLandingTrustMetrics,
 } from '@/lib/marketing/employerLanding';
 
@@ -54,6 +56,8 @@ export default async function EmployersPage() {
   const trust = await loadEmployerLandingTrustMetrics();
   const placeholders = getEmployerTrustPlaceholders();
   const placementFee = getEmployerPlacementFeeDisplay();
+  const hiringPartnerCtaHref = getEmployerHiringPartnerCtaHref();
+  const hiringPartnerCtaExternal = isEmployerHiringPartnerCtaExternal();
 
   const membersPlacedLabel = formatEmployerTrustStat(
     trust.membersPlaced,
@@ -113,7 +117,13 @@ export default async function EmployersPage() {
         }
       >
         <div className="employers-landing__hero-cta">
-          <EmployerHiringPartnerCta label={t('primaryCta')} onDark />
+          <EmployersHeroCtaExperiment
+            controlLabel={t('primaryCta')}
+            variantALabel={t('primaryCtaVariantA')}
+            href={hiringPartnerCtaHref}
+            external={hiringPartnerCtaExternal}
+            onDark
+          />
         </div>
       </HeroSection>
 
@@ -243,7 +253,12 @@ export default async function EmployersPage() {
         <div className="container employers-final-cta__inner">
           <h2 className="employers-final-cta__title">{t('finalCtaTitle')}</h2>
           <p className="employers-final-cta__copy">{t('finalCtaCopy')}</p>
-          <EmployerHiringPartnerCta label={t('primaryCta')} />
+          <EmployersHeroCtaExperiment
+            controlLabel={t('primaryCta')}
+            variantALabel={t('primaryCtaVariantA')}
+            href={hiringPartnerCtaHref}
+            external={hiringPartnerCtaExternal}
+          />
         </div>
       </section>
 

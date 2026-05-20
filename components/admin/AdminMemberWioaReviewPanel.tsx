@@ -150,8 +150,17 @@ export default function AdminMemberWioaReviewPanel({
           </p>
         ) : null}
 
-        <button type="button" className="btn btn-primary" onClick={() => void onSave()} disabled={saving}>
-          {saving ? 'Saving…' : 'Save review'}
+        <button type="button" className="btn btn-primary" onClick={() => void onSave()} disabled={saving} aria-busy={saving}>
+          <span aria-live="polite" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            {saving ? (
+              <>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
+                Saving…
+              </>
+            ) : (
+              'Save review'
+            )}
+          </span>
         </button>
 
         {savedAt && (

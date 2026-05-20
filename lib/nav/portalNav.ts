@@ -354,6 +354,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/coursera', label: 'Coursera', group: 'insights', Icon: Library },
   { href: '/admin/training-progress', label: 'Training progress', group: 'insights', Icon: Table2 },
   { href: '/admin/metrics', label: 'Metrics', group: 'insights', Icon: LineChart },
+  { href: '/admin/growth', label: 'Growth (paid)', group: 'insights', Icon: TrendingUp },
   { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
   { href: '/admin/ai-tools', label: 'AI tools', group: 'insights', Icon: Sparkles },
   { href: '/admin/analytics/ai-efficacy', label: 'AI Efficacy', group: 'insights', Icon: Target },

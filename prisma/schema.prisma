@@ -43,6 +43,7 @@ model Organization {
   courseEnrollments CourseEnrollment[]
   courses           Course[]
   auditEvents       AuditEvent[]
+  adSpendDays       AdSpendDay[]
 
   @@map("organizations")
 }
@@ -2474,4 +2475,23 @@ model Notification {
   @@index([readAt])
   @@index([createdAt])
   @@map("notifications")
+}
+
+/// Daily ad spend by UTM source/campaign for paid-traffic CPA/ROAS dashboard.
+model AdSpendDay {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  source         String
+  campaign       String   @default("")
+  date           DateTime @db.Date
+  cents          Int
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, source, campaign, date])
+  @@index([organizationId, date])
+  @@index([organizationId, source, date])
+  @@map("ad_spend_days")
 }

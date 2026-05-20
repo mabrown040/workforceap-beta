@@ -70,7 +70,11 @@ pnpm tsx scripts/p1/test-force-rls.ts
 The harness will:
 
 1. Refuse to run if `SHADOW_DATABASE_URL` looks like prod.
-2. Run `prisma migrate deploy` against the shadow DB.
+2. Run `prisma db push` against the disposable shadow DB so the schema
+   matches the current Prisma datamodel, then apply the RLS policy
+   migrations required for this rehearsal. This intentionally avoids
+   replaying the full historical migration chain, which contains early
+   sprint migrations that are not cleanly replayable from empty.
 3. Seed 5 personas across 2 orgs (idempotent — safe to rerun).
 4. Toggle `FORCE ROW LEVEL SECURITY` on these **10 high-stakes tables**:
    - `job_posting_applications`

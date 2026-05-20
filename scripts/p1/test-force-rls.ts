@@ -10,7 +10,11 @@
  * What this script does (idempotent, non-destructive against shadow):
  *   1. Connects to the shadow DB (SHADOW_DATABASE_URL env var) and
  *      *refuses* to run against anything resembling production.
- *   2. Runs `prisma migrate deploy` so the shadow schema matches main.
+ *   2. Runs `prisma db push` so the shadow schema matches the current
+ *      Prisma datamodel, then applies the RLS policy migrations needed
+ *      for this rehearsal. Historical migrations are not replayable from
+ *      empty because a few early sprint migrations were shipped out of
+ *      order after production had already drifted past them.
  *   3. Toggles `FORCE ROW LEVEL SECURITY` on the top 10 high-stakes
  *      tables (selected by policy count from migration
  *      20260513040000_add_rls_policies).
@@ -84,6 +88,17 @@ const FORCE_RLS_TABLES = [
   'invitations',
   'employers',
 ] as const;
+
+const RLS_POLICY_MIGRATIONS = [
+  'prisma/migrations/20260513040000_add_rls_policies/migration.sql',
+  'prisma/migrations/20260514000000_defer_rls_force_authorize_system/migration.sql',
+  'prisma/migrations/20260514020000_rls_goals_writes_mentor_sessions_enable/migration.sql',
+  'prisma/migrations/20260514040000_rls_milestone_cascades/migration.sql',
+] as const;
+
+function runPrisma(command: string, env: NodeJS.ProcessEnv): void {
+  execSync(command, { stdio: 'inherit', env });
+}
 
 // ----------------------------------------------------------------------
 // Persona seed identifiers (stable so reruns are idempotent).
@@ -315,15 +330,24 @@ async function main(): Promise<number> {
 
   // Point Prisma at the shadow DB for both migrate and runtime.
   process.env.DATABASE_URL = shadowUrl;
+  process.env.POSTGRES_PRISMA_URL = shadowUrl;
+  process.env.POSTGRES_URL_NON_POOLING = shadowUrl;
+  const prismaEnv = {
+    ...process.env,
+    DATABASE_URL: shadowUrl,
+    POSTGRES_PRISMA_URL: shadowUrl,
+    POSTGRES_URL_NON_POOLING: shadowUrl,
+  };
 
-  console.log('[force-rls] Running `prisma migrate deploy` against shadow DB...');
+  console.log('[force-rls] Syncing current Prisma schema to shadow DB...');
   try {
-    execSync('npx prisma migrate deploy', {
-      stdio: 'inherit',
-      env: { ...process.env, DATABASE_URL: shadowUrl },
-    });
+    runPrisma('npx prisma db push --accept-data-loss --skip-generate', prismaEnv);
+    for (const migrationFile of RLS_POLICY_MIGRATIONS) {
+      console.log(`[force-rls] Applying ${migrationFile}...`);
+      runPrisma(`npx prisma db execute --schema prisma/schema.prisma --file ${migrationFile}`, prismaEnv);
+    }
   } catch (err) {
-    console.error('[force-rls] prisma migrate deploy failed:', err);
+    console.error('[force-rls] shadow schema/RLS setup failed:', err);
     return 1;
   }
 

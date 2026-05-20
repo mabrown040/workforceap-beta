@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { isSuperAdmin, requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
@@ -9,6 +9,7 @@ import { ApplicationStatus } from '@prisma/client';
 import { sendEnrollmentConfirmationEmail, sendApplicationRejectedEmail } from '@/lib/email';
 import { getProgramByInterestValue } from '@/lib/content/programs';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -23,7 +24,15 @@ function getClientIp(request: NextRequest): string {
 const statusSchema = z.object({
   status: z.enum(['PENDING', 'APPROVED', 'DENIED', 'NEEDS_INFO']),
   notes: z.string().optional(),
-});export const PATCH = withApiGuc(async (
+});
+
+function resolveApplicationStatusVerb(status: ApplicationStatus): string {
+  if (status === 'APPROVED') return 'approved';
+  if (status === 'DENIED') return 'voided';
+  return 'status-changed';
+}
+
+export const PATCH = withApiGuc(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -127,6 +136,23 @@ const statusSchema = z.object({
     },
   });
 
+  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+  await logAuditEvent({
+    user: { id: user.id, role: actorRole },
+    verb: resolveApplicationStatusVerb(status),
+    object: { type: 'Application', id },
+    result: {
+      success: true,
+      extensions: {
+        previousStatus,
+        newStatus: status,
+        userId: application.userId,
+      },
+    },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] application status change:', err));
+
   return NextResponse.json({ success: true });
 
   } catch (error) {
@@ -134,4 +160,3 @@ const statusSchema = z.object({
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

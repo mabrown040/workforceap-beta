@@ -15,8 +15,8 @@ Wire **mutations** (POST/PATCH/PUT/DELETE) after a successful write. Pass `orgId
 ### High priority (destructive / compliance)
 
 - [ ] `members/[id]/erase/route.ts` — `deleted` / `voided`, `User`
-- [ ] `members/[id]/status/route.ts` — migrate from legacy `auditLog()` to `logAuditEvent`
-- [ ] `program-change-requests/[id]/route.ts` — `approved` / `voided`, `ProgramChangeRequest`
+- [x] `members/[id]/status/route.ts` — xAPI wire-in added; legacy `auditLog()` kept during transition
+- [x] `program-change-requests/[id]/route.ts` — `approved` / `voided`, `ProgramChangeRequest`
 - [ ] `employers/[id]/approve/route.ts`, `reject`, `deactivate`, `reactivate`
 - [ ] `partners/[id]/reject`, `deactivate`, `reactivate`
 - [ ] `invites/[id]/revoke/route.ts`

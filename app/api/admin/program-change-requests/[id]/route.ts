@@ -7,11 +7,14 @@ import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const patchSchema = z.object({
   status: z.enum(['APPROVED', 'DENIED']),
   adminNote: z.string().max(4000).optional().nullable(),
-});export const PATCH = withApiGuc(async (
+});
+
+export const PATCH = withApiGuc(async (
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -40,7 +43,7 @@ const patchSchema = z.object({
   }
   const existing = await prisma.programChangeRequest.findFirst({
     where: { id, ...tenantFilter },
-    include: { user: { select: { id: true, enrolledProgram: true } } },
+    include: { user: { select: { id: true, enrolledProgram: true, organizationId: true } } },
   });
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   if (existing.status !== 'PENDING') {
@@ -48,6 +51,7 @@ const patchSchema = z.object({
   }
 
   const nextStatus = parsed.data.status;
+  const orgId = existing.user.organizationId;
 
   await prisma.$transaction(async (tx) => {
     await tx.programChangeRequest.update({
@@ -153,6 +157,24 @@ const patchSchema = z.object({
     }).catch(() => {});
   }
 
+  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+  await logAuditEvent({
+    user: { id: user.id, role: actorRole },
+    verb: nextStatus === 'APPROVED' ? 'approved' : 'voided',
+    object: { type: 'ProgramChangeRequest', id },
+    result: {
+      success: true,
+      extensions: {
+        previousStatus: existing.status,
+        newStatus: nextStatus,
+        userId: existing.userId,
+        requestedProgramSlug: existing.requestedProgramSlug,
+      },
+    },
+    request: auditRequestMeta(req),
+    orgId,
+  }).catch((err) => console.error('[audit] program change review:', err));
+
   const updated = await prisma.programChangeRequest.findUnique({
     where: { id },
     include: {
@@ -168,4 +190,3 @@ const patchSchema = z.object({
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

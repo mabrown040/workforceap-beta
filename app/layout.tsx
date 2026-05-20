@@ -14,6 +14,7 @@ import UtmCapture from '@/components/marketing/UtmCapture';
 import { Suspense } from 'react';
 import { getRequestOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import { WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER } from '@/lib/nav/mobileBottomNavLayout';
+import { WAP_PAID_APPLY_HEADER } from '@/lib/apply/paidApplyUtm';
 import {
   gucContextStorage,
   buildGucContext,
@@ -120,6 +121,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const htmlDir = isRtlLocale(htmlLang) ? 'rtl' : 'ltr';
   const messages = pickRootClientMessages(await getMessages());
   const reserveMobileBottomNav = h.get(WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER) === '1';
+  const hidePaidApplyMarketingNav = Boolean(h.get(WAP_PAID_APPLY_HEADER));
   const htmlClassName = reserveMobileBottomNav ? 'wap-reserve-mobile-bottom-nav' : undefined;
 
   return await gucContextStorage.run(gucCtx, async () => (
@@ -206,7 +208,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <UtmCapture />
         </Suspense>
         <NextIntlClientProvider messages={messages}>
-        <ConditionalMarketingNav />
+        <ConditionalMarketingNav forceHidden={hidePaidApplyMarketingNav} />
         <main id="main-content">{children}</main>
         </NextIntlClientProvider>
         <DeferredRootChrome />

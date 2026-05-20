@@ -21,6 +21,12 @@ import {
   WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER,
   shouldReserveMobileBottomNavClearance,
 } from '@/lib/nav/mobileBottomNavLayout';
+import {
+  isPaidUtmSource,
+  UTM_SOURCE_COOKIE,
+  UTM_SOURCE_COOKIE_MAX_AGE,
+  WAP_PAID_APPLY_HEADER,
+} from '@/lib/apply/paidApplyUtm';
 import { REQUEST_ID_HEADER, resolveRequestId } from '@/lib/observability/requestId';
 
 /** Header forwarded to server components / API routes when middleware found a cached org. */
@@ -113,6 +119,15 @@ export async function middleware(request: NextRequest) {
     requestHeaders.set(WAP_RESERVE_MOBILE_BOTTOM_NAV_HEADER, '1');
   }
 
+  if (effectivePath === '/apply') {
+    const fromQuery = request.nextUrl.searchParams.get('utm_source');
+    const fromCookie = request.cookies.get(UTM_SOURCE_COOKIE)?.value;
+    const candidate = fromQuery ?? fromCookie;
+    if (isPaidUtmSource(candidate)) {
+      requestHeaders.set(WAP_PAID_APPLY_HEADER, candidate!.toLowerCase());
+    }
+  }
+
   // Custom-domain → organization resolution (Track E.1).
   // We CANNOT call Prisma from Edge runtime, so middleware only consults
   // an in-process cache populated by Node-runtime resolvers (see
@@ -158,6 +173,17 @@ export async function middleware(request: NextRequest) {
   let response = rewriteUrl
     ? NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } })
     : NextResponse.next({ request: { headers: requestHeaders } });
+
+  if (effectivePath === '/apply') {
+    const fromQuery = request.nextUrl.searchParams.get('utm_source');
+    if (fromQuery && isPaidUtmSource(fromQuery)) {
+      response.cookies.set(UTM_SOURCE_COOKIE, fromQuery.toLowerCase(), {
+        path: '/',
+        maxAge: UTM_SOURCE_COOKIE_MAX_AGE,
+        sameSite: 'lax',
+      });
+    }
+  }
 
   // Echo the request ID on the response so the client and intermediate
   // logs can correlate to server-side logs/Sentry events.

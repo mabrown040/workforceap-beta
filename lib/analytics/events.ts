@@ -208,3 +208,10 @@ export function trackCtaExperimentClick(
     cta_target_href: targetHref,
   });
 }
+
+export function trackPaidApplyVariantRendered(utmSource: string) {
+  pushEvent({
+    event: 'paid_apply_variant_rendered',
+    utm_source: utmSource,
+  });
+}

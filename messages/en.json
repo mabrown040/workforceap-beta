@@ -1769,6 +1769,62 @@
       "salaryLiftLabel": "Salary lift",
       "viewMore": "View more stories",
       "readFullStory": "Read full story"
+    },
+    "thankYou": {
+      "apply": {
+        "metaTitle": "Application received",
+        "metaDescription": "Your WorkforceAP application is in. Here is what happens next.",
+        "title": "You're in.",
+        "lead": "We'll email next steps within 1 business day.",
+        "bullet1Title": "Counselor review",
+        "bullet1Desc": "A WorkforceAP counselor reviews your application and program fit.",
+        "bullet2Title": "Email with next steps",
+        "bullet2Desc": "You'll get a concrete next step — paperwork, a call, or enrollment instructions.",
+        "bullet3Title": "Training kickoff",
+        "bullet3Desc": "Once enrolled, you start milestones with counselor support through placement.",
+        "ctaDashboard": "Open your dashboard",
+        "ctaPrograms": "Browse programs",
+        "ctaHome": "Back to home"
+      },
+      "employer": {
+        "metaTitle": "Inquiry received",
+        "metaDescription": "Thanks for reaching out. Our employer team will follow up shortly.",
+        "title": "Got it.",
+        "lead": "Our team will reach out within 24 hours.",
+        "resourceLabel": "Outcomes one-pager",
+        "ctaEmployers": "Employer overview",
+        "ctaHome": "Back to home"
+      },
+      "partners": {
+        "metaTitle": "Partner signup received",
+        "metaDescription": "Thanks for signing up. We will activate your partner portal soon.",
+        "title": "Welcome aboard.",
+        "lead": "Our partnerships team will reach out within 1–2 business days.",
+        "bullet1Title": "Account review",
+        "bullet1Desc": "We verify your organization details and referral capacity.",
+        "bullet2Title": "Portal activation",
+        "bullet2Desc": "You'll get login access to track referrals, progress, and placements.",
+        "bullet3Title": "Onboarding call",
+        "bullet3Desc": "A quick walkthrough of referral workflows and support resources.",
+        "resourceLabel": "Partner referral flyer",
+        "ctaPortal": "Open partner portal",
+        "ctaPartners": "Partner overview",
+        "ctaHome": "Back to home"
+      },
+      "careers": {
+        "metaTitle": "Introduction received",
+        "metaDescription": "Thanks for your interest in working at WorkforceAP.",
+        "title": "Thanks — we got your note.",
+        "lead": "Our team reviews every careers introduction and will email you if there is a fit.",
+        "bullet1Title": "Application review",
+        "bullet1Desc": "We read every introduction against open roles and upcoming needs.",
+        "bullet2Title": "Follow-up email",
+        "bullet2Desc": "If there is a match now or soon, we'll reach out to schedule a conversation.",
+        "bullet3Title": "Talent pool",
+        "bullet3Desc": "Strong fits may stay on file for future counselor, engineering, or ops openings.",
+        "ctaCareers": "View careers page",
+        "ctaHome": "Back to home"
+      }
     }
   },
   "findYourPath": {

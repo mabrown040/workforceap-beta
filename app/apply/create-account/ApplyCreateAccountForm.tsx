@@ -436,18 +436,14 @@ export default function ApplyCreateAccountForm() {
         /* ignore */
       }
       completedRef.current = true;
-      trackApplyFunnel(3, 'account_created', { program_slugs: programRankedSlugs, redirect_to: data.redirectTo ?? '/dashboard' });
+      trackApplyFunnel(3, 'account_created', { program_slugs: programRankedSlugs, redirect_to: '/apply/thank-you' });
 
-      // If the API returned a verification message (no session yet), show the verify-email screen
       if (data.message) {
-        setVerifyEmail(email.trim().toLowerCase());
-        setVerifyEmailMode(true);
-        setLoading(false);
+        window.location.href = '/apply/thank-you';
         return;
       }
 
-      const dest = typeof data.redirectTo === 'string' && data.redirectTo.startsWith('/') ? data.redirectTo : '/dashboard';
-      window.location.href = dest;
+      window.location.href = '/apply/thank-you';
     } catch {
       setError(t('errNetwork'));
       trackApplyFunnel(3, 'account_create_error', { program_slugs: programRankedSlugs, error_message: 'network_or_unknown' });

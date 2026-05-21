@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 
@@ -38,6 +39,7 @@ const INTEREST_USE_CASE = [
 ];
 
 export default function EmployerContactForm() {
+  const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   useEffect(() => {
@@ -123,6 +125,7 @@ export default function EmployerContactForm() {
         open_roles: openRoles || undefined,
       });
       form.reset();
+      router.push('/employer/thank-you');
     } catch {
       setStatus('error');
       trackLeadFormEvent('employer_intake', 'errored', { reason: 'network_error' });
@@ -131,32 +134,7 @@ export default function EmployerContactForm() {
   }
 
   if (status === 'success') {
-    return (
-      <div
-        style={{
-          background: 'var(--surface-container)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '2rem',
-        }}
-      >
-        <div
-          style={{
-            padding: '2rem',
-            background: 'rgba(74, 155, 79, 0.1)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid rgba(74, 155, 79, 0.3)',
-            textAlign: 'center',
-          }}
-        >
-          <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-            Thank you — we received your inquiry
-          </p>
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>
-            We&rsquo;ll reach out within 1–2 business days.
-          </p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

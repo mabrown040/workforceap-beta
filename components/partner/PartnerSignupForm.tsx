@@ -83,13 +83,7 @@ export default function PartnerSignupForm() {
       setStatus('success');
       trackLeadFormEvent('partner_signup', 'succeeded', { org_type: payload.orgType, expected_monthly: payload.expectedMonthly });
       form.reset();
-
-      if (data.redirectTo) {
-        // Small delay so user sees the success state briefly
-        setTimeout(() => {
-          router.push(data.redirectTo);
-        }, 800);
-      }
+      router.push('/partners/thank-you');
     } catch {
       setStatus('error');
       trackLeadFormEvent('partner_signup', 'errored', { reason: 'network_error' });
@@ -98,23 +92,7 @@ export default function PartnerSignupForm() {
   }
 
   if (status === 'success') {
-    return (
-      <div
-        className="partner-signup-success"
-        style={{
-          padding: '2rem',
-          background: 'rgba(74, 155, 79, 0.1)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid rgba(74, 155, 79, 0.3)',
-          textAlign: 'center',
-        }}
-      >
-        <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>Welcome aboard!</p>
-        <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>
-          Your account has been created. Taking you to your partner portal…
-        </p>
-      </div>
-    );
+    return null;
   }
 
   return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
@@ -18,11 +18,10 @@ const PAID_APPLY_ELIGIBILITY_ID = 'paid-apply-eligibility';
 type PaidApplyVariantProps = {
   utmSource: PaidApplyUtmSource;
   program?: string;
+  trustStrip?: ReactNode;
 };
 
-const TRUST_PILLS = ['WIOA-funded', '0 cost', '850+ placed in TX'] as const;
-
-export default function PaidApplyVariant({ utmSource }: PaidApplyVariantProps) {
+export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVariantProps) {
   const [showStickyCta, setShowStickyCta] = useState(false);
 
   useEffect(() => {
@@ -58,14 +57,6 @@ export default function PaidApplyVariant({ utmSource }: PaidApplyVariantProps) {
         </button>
       </section>
 
-      <div className="paid-apply-trust-row" role="list" aria-label="Program highlights">
-        {TRUST_PILLS.map((pill) => (
-          <span key={pill} className="paid-apply-trust-pill" role="listitem">
-            {pill}
-          </span>
-        ))}
-      </div>
-
       <section
         id={PAID_APPLY_ELIGIBILITY_ID}
         className="paid-apply-form-section"
@@ -75,6 +66,7 @@ export default function PaidApplyVariant({ utmSource }: PaidApplyVariantProps) {
           <ApplyRefCapture />
           <UtmCapture />
         </Suspense>
+        {trustStrip}
         <Suspense fallback={<ApplyPageSkeleton />}>
           <ApplyEligibilityClient variant="paid" />
         </Suspense>
@@ -123,29 +115,6 @@ export default function PaidApplyVariant({ utmSource }: PaidApplyVariantProps) {
 
         .paid-apply-hero__cta {
           min-width: min(100%, 320px);
-        }
-
-        .paid-apply-trust-row {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: var(--space-3);
-          padding: var(--space-5) var(--space-6);
-          background: var(--surface-container);
-          border-bottom: 1px solid var(--outline-variant);
-        }
-
-        .paid-apply-trust-pill {
-          display: inline-flex;
-          align-items: center;
-          padding: var(--space-2) var(--space-4);
-          border-radius: var(--radius-full);
-          background: var(--surface-container-low);
-          border: 1px solid var(--outline-variant);
-          font-size: var(--font-size-sm);
-          font-weight: 700;
-          color: var(--color-on-surface);
-          white-space: nowrap;
         }
 
         .paid-apply-form-section {

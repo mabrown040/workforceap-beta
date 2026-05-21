@@ -8,6 +8,7 @@ import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
 import UtmCapture from '@/components/marketing/UtmCapture';
 import { getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
 import { getTranslations } from 'next-intl/server';
+import TrustStrip from '@/components/marketing/TrustStrip';
 
 type OrganicApplyPageProps = { program?: string };
 
@@ -307,6 +308,8 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
               __html: `<div><h2>${t('startYourApplication')}</h2><p>${t('ifFormDoesntLoad')} <a href="tel:+15127771808">(512) 777-1808</a> ${t('orEmail')} <a href="mailto:info@workforceap.org">info@workforceap.org</a>.</p></div>`,
             }}
           />
+
+          <TrustStrip variant="apply" />
 
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyEligibilityClient />

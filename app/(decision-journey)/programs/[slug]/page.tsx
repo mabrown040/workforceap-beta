@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import LocalizedLink from '@/components/LocalizedLink';
 import { notFound } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
+import { buildOgImageUrl } from '@/lib/seo/siteEnvironment';
 import { PROGRAMS, getProgramBySlug, getProgramDisplayPartner, getProgramDisplayTitle } from '@/lib/content/programs';
 import { PROGRAM_COMPARISON_FEATURED } from '@/lib/content/programComparisonTracks';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
@@ -34,16 +35,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? ` Earn your ${displayPartner}-recognized certification.`
     : '';
   const description = `Training in ${displayTitle} offered at no cost for qualifying members. ${program.duration}.${certClause} Starting salary ${salaryRange}. Funded pathways available. Apply today.`;
-  // TODO(design): designer needs to produce per-category OG images at
-  // `/public/images/og/programs/<category>.webp` (1200x630). The path
-  // is keyed on `program.category` so the social card mirrors the
-  // category color shown in the program hero. Until the assets land,
-  // the SEO helper falls back to the default OG.
+  const pageTitle = `${displayTitle} Training & Certification`;
   return buildPageMetadataAsync({
-    title: `${displayTitle} Training & Certification`,
+    title: pageTitle,
     description,
     path: `/programs/${slug}`,
-    image: `/images/og/programs/${program.category}.webp`,
+    image: buildOgImageUrl(pageTitle, description),
   });
 }
 

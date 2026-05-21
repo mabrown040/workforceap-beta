@@ -5,11 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import { fetchWithTimeout } from '@/lib/fetchWithTimeout';
-import {
-  INBOX_FLAG_LABELS,
-  type InboxZeroQueue,
-  type InboxZeroRow,
-} from '@/lib/counselor/inboxZero';
+import type { InboxZeroFlagType, InboxZeroQueue, InboxZeroRow } from '@/lib/counselor/inboxZero';
 import {
   listFollowUpTemplates,
   templateMatchesFlags,
@@ -20,6 +16,13 @@ import { getProgramBySlug } from '@/lib/content/programs';
 type Props = { initialQueue: InboxZeroQueue };
 type CounselorOption = { userId: string; fullName: string };
 type BulkAction = 'follow_up' | 'mark_contacted' | 'reassign' | 'dismiss';
+
+const INBOX_FLAG_LABELS: Record<InboxZeroFlagType, string> = {
+  doc_missing: 'Resume missing 3+ days',
+  application_stalled: 'Application stalled 5+ days',
+  at_risk: 'At-risk alert open',
+  last_contact: 'No counselor contact 7+ days',
+};
 
 export default function InboxZeroClient({ initialQueue }: Props) {
   const t = useTranslations('counselor');

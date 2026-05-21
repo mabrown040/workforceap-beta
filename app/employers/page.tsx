@@ -6,13 +6,14 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import EmployerContactForm from './EmployerContactForm';
 import EmployersHeroCtaExperiment from '@/components/marketing/employers/EmployersHeroCtaExperiment';
+import EmployerCaseStudyCard from '@/components/marketing/EmployerCaseStudyCard';
 import {
   HeroSection,
   PageSection,
   ProcessStep,
-  QuoteCard,
   SectionHeader,
 } from '@/components/marketing/ui';
+import { EMPLOYER_CASE_STUDIES } from '@/lib/content/employer-case-studies';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { getTranslations } from 'next-intl/server';
@@ -74,21 +75,6 @@ export default async function EmployersPage() {
     placeholders.partnerCompaniesLabel,
     (n) => String(n),
   );
-
-  const caseStudies = [
-    {
-      label: t('caseStudy1Label'),
-      quote: t('caseStudy1Quote'),
-    },
-    {
-      label: t('caseStudy2Label'),
-      quote: t('caseStudy2Quote'),
-    },
-    {
-      label: t('caseStudy3Label'),
-      quote: t('caseStudy3Quote'),
-    },
-  ];
 
   return (
     <div className="inner-page employers-landing">
@@ -206,12 +192,11 @@ export default async function EmployersPage() {
       <PageSection padding="lg" className="employers-outcomes">
         <SectionHeader title={t('outcomesTitle')} subtitle={t('outcomesSubtitle')} />
         <div className="employers-outcomes__grid">
-          {caseStudies.map((study, i) => (
-            <QuoteCard
-              key={study.label}
+          {EMPLOYER_CASE_STUDIES.map((study, i) => (
+            <EmployerCaseStudyCard
+              key={study.company}
+              study={study}
               variant={i === 0 ? 'accent' : 'default'}
-              label={study.label}
-              quote={study.quote}
             />
           ))}
         </div>
@@ -550,7 +535,7 @@ export default async function EmployersPage() {
           .employers-outcomes__grid {
             grid-template-columns: repeat(2, 1fr);
           }
-          .employers-outcomes__grid .quote-card:first-child {
+          .employers-outcomes__grid .employer-case-study-card:first-child {
             grid-column: 1 / -1;
           }
         }
@@ -566,7 +551,7 @@ export default async function EmployersPage() {
           .employers-outcomes__grid {
             grid-template-columns: repeat(3, 1fr);
           }
-          .employers-outcomes__grid .quote-card:first-child {
+          .employers-outcomes__grid .employer-case-study-card:first-child {
             grid-column: auto;
           }
         }

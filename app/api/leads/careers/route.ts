@@ -1,0 +1,160 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { Resend } from 'resend';
+import { checkContactRateLimit } from '@/lib/rate-limit';
+import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
+import { brandedEmailLayout } from '@/lib/email/template';
+import { escapeHtml } from '@/lib/email/escapeHtml';
+
+const CAREERS_EMAIL_TO = 'careers@workforceap.org';
+
+function getClientIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const ip = getClientIp(request);
+    const { success: rateOk } = await checkContactRateLimit(ip);
+    if (!rateOk) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please try again in an hour.' },
+        { status: 429 },
+      );
+    }
+
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    }
+
+    const parsed = parseBody(body);
+    if (!parsed) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const { firstName, lastName, email, interestArea, message, turnstileToken } = parsed;
+
+    const captchaEnabled = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
+    if (captchaEnabled) {
+      const secret = process.env.TURNSTILE_SECRET_KEY;
+      if (!secret?.trim()) {
+        console.error('TURNSTILE_SECRET_KEY missing while NEXT_PUBLIC_CAPTCHA_ENABLED=true');
+        return NextResponse.json(
+          { error: 'Form is temporarily unavailable. Please try again later.' },
+          { status: 503 },
+        );
+      }
+      const tok = turnstileToken?.trim() ?? '';
+      if (!tok) {
+        return NextResponse.json({ error: 'Please complete the security check.' }, { status: 400 });
+      }
+      const ok = await verifyTurnstileResponse(secret, tok, ip !== 'unknown' ? ip : undefined);
+      if (!ok) {
+        return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
+      }
+    }
+
+    const resendKey = process.env.RESEND_API_KEY;
+    const emailFrom = process.env.EMAIL_FROM || 'noreply@workforceap.org';
+
+    if (!resendKey) {
+      console.error('RESEND_API_KEY not configured');
+      return NextResponse.json(
+        { error: 'Email service is not configured. Please try again later.' },
+        { status: 503 },
+      );
+    }
+
+    const interestLabel = formatInterestArea(interestArea);
+    const subject = `Careers interest: ${firstName} ${lastName}${interestLabel ? ` — ${interestLabel}` : ''}`;
+    const text = [
+      `From: ${firstName} ${lastName}`,
+      `Email: ${email}`,
+      `Interest area: ${interestLabel || 'Not specified'}`,
+      '',
+      'Message:',
+      message,
+      '',
+      `Submitted: ${new Date().toISOString()}`,
+    ].join('\n');
+
+    const html = brandedEmailLayout({
+      title: 'Careers interest form',
+      bodyHtml: `
+        <p><strong>From:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
+        <p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
+        <p><strong>Interest area:</strong> ${escapeHtml(interestLabel || 'Not specified')}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 1rem 0;" />
+        <p><strong>Message:</strong></p>
+        <p style="white-space: pre-wrap;">${escapeHtml(message)}</p>
+        <p style="color: #888; font-size: 0.85rem; margin-top: 1.5rem;">Submitted: ${new Date().toISOString()}</p>
+      `,
+    });
+
+    try {
+      const resend = new Resend(resendKey);
+      await resend.emails.send({
+        from: emailFrom,
+        to: CAREERS_EMAIL_TO,
+        replyTo: email,
+        subject,
+        text,
+        html,
+      });
+    } catch (err) {
+      console.error('Careers lead email failed:', err);
+      return NextResponse.json(
+        { error: 'Failed to send message. Please try again later.' },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error('/api/leads/careers:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+function formatInterestArea(value?: string): string {
+  switch (value) {
+    case 'counselor':
+      return 'Counseling / member success';
+    case 'engineering':
+      return 'Engineering / product';
+    case 'operations':
+      return 'Operations';
+    case 'other':
+      return 'Other';
+    default:
+      return '';
+  }
+}
+
+function parseBody(body: unknown): {
+  firstName: string;
+  lastName: string;
+  email: string;
+  interestArea?: string;
+  message: string;
+  turnstileToken?: string;
+} | null {
+  if (!body || typeof body !== 'object') return null;
+  const o = body as Record<string, unknown>;
+  const firstName = typeof o.first_name === 'string' ? o.first_name.trim() : null;
+  const lastName = typeof o.last_name === 'string' ? o.last_name.trim() : null;
+  const email = typeof o.email === 'string' ? o.email.trim() : null;
+  const interestArea =
+    typeof o.interest_area === 'string' && o.interest_area.trim() ? o.interest_area.trim() : undefined;
+  const message = typeof o.message === 'string' ? o.message.trim() : null;
+  const turnstileToken =
+    typeof o.cf_turnstile_response === 'string' ? o.cf_turnstile_response.trim() || undefined : undefined;
+  if (!firstName || !lastName || !email || !message) return null;
+  return { firstName, lastName, email, interestArea, message, turnstileToken };
+}

@@ -49,6 +49,7 @@ export const LOCALEABLE_PATH_PREFIXES: readonly string[] = [
   '/partner-signup',
   '/impact',
   '/outcomes',
+  '/careers',
 ];
 
 export function isLocaleableMarketingPath(pathname: string): boolean {

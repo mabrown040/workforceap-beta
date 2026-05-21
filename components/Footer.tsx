@@ -66,6 +66,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
             <li><LocalizedLink href="/leadership" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('leadershipTeam')}</LocalizedLink></li>
             <li><LocalizedLink href="/employers" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('forEmployers')}</LocalizedLink></li>
             <li><LocalizedLink href="/partners" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('partners')}</LocalizedLink></li>
+            <li><LocalizedLink href="/careers" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('careers')}</LocalizedLink></li>
           </ul>
         </div>
 

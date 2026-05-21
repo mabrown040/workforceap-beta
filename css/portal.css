@@ -7,6 +7,7 @@
  */
 
 @import './portal-main-extracted.css';
+@import './portal-ui-kit.css';
 
 /* Portal form controls (shared by FormField primitives): ≥14px copy; mobile uses 16px to reduce iOS zoom-on-focus */
 .portal-form-control {
@@ -2587,12 +2588,16 @@ html.dark .employer-applications-table.admin-table thead th {
   }
 }
 
-/* KPI card upgrade */
+/* KPI card upgrade (canonical — do not duplicate in css/main.css) */
 .portal-kpi-card {
-  padding: 1.25rem;
+  padding: 1.25rem 1.5rem;
   background: var(--surface-container-low);
   border-radius: var(--radius-xl, 16px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid color-mix(in srgb, var(--outline-variant) 55%, transparent);
+  box-shadow: none;
+}
+html.dark .portal-kpi-card {
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .portal-kpi-card__label {

@@ -8,7 +8,7 @@ import type { Config } from 'tailwindcss';
  * Plain CSS selectors in css/main.css (everything above `@tailwind utilities`)
  * intentionally ship intact — Next.js does not tree‑shake stylesheet rules —
  * alongside marketing.css from app/layout.tsx. Portal/dashboard-only plain CSS
- * lives in css/portal-main-extracted.css (imported from portal.css).
+ * lives in css/portal-main-extracted.css and css/portal-ui-kit.css (portal.css).
  */
 const config: Config = {
   darkMode: 'class',

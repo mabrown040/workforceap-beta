@@ -216,6 +216,13 @@ export function trackPaidApplyVariantRendered(utmSource: string) {
   });
 }
 
+export function trackMemberLoggedIn(extra?: Record<string, unknown>) {
+  pushEvent({
+    event: 'member_logged_in',
+    ...extra,
+  });
+}
+
 export type ThankYouFunnel = 'apply' | 'employer' | 'partners' | 'careers';
 
 /** Post-conversion thank-you page views (GTM / GA4 custom events). */
@@ -225,4 +232,3 @@ export function trackThankYouViewed(funnel: ThankYouFunnel) {
     thank_you_funnel: funnel,
   });
 }
-

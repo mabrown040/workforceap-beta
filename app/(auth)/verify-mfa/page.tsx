@@ -4,7 +4,7 @@ import { fetchAuth } from '@/lib/fetchWithTimeout';
 import { useState, useEffect } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
-import { trackFunnelEvent } from '@/lib/analytics/events';
+import { trackFunnelEvent, trackMemberLoggedIn } from '@/lib/analytics/events';
 
 function getMfaNextPath() {
   if (typeof window === 'undefined') return '/dashboard';
@@ -71,6 +71,7 @@ export default function VerifyMfaPage() {
       trackFunnelEvent('member_login_mfa', 'verify_completed', {
         trust_device: trustDevice,
       });
+      trackMemberLoggedIn({ destination: nextPath, mfa_verified: true, trust_device: trustDevice });
       setSuccess(true);
       // Redirect to the intended staff portal after brief delay
       setTimeout(() => {

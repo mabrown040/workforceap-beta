@@ -10,6 +10,7 @@ import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 import { logger } from '@/lib/observability/logger';
+import { trackEvent } from '@/lib/events/track';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -153,6 +154,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     });
 
     if (trustedDevice) {
+      trackEvent({
+        userId: data.user.id,
+        eventName: 'member_logged_in',
+        metadata: { destination: roleAwareRedirect, remember_me: rememberMe, mfa_trusted: true },
+        sourcePage: '/login',
+      }).catch(() => {});
+
       if (request.headers.get('x-wap-login-flow') === 'client') {
         return NextResponse.json({ ok: true, redirectTo: roleAwareRedirect, mfaTrusted: true }, { headers: { 'Cache-Control': 'no-store' } });
       }
@@ -164,6 +172,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   }
 
   const noStore = { 'Cache-Control': 'no-store' };
+  trackEvent({
+    userId: data.user.id,
+    eventName: 'member_logged_in',
+    metadata: { destination: roleAwareRedirect, remember_me: rememberMe },
+    sourcePage: '/login',
+  }).catch(() => {});
+
   if (request.headers.get('x-wap-login-flow') === 'client') {
     return NextResponse.json({ ok: true, redirectTo: roleAwareRedirect }, { headers: noStore });
   }
@@ -175,4 +190,3 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

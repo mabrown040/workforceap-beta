@@ -24,6 +24,18 @@ export const CONVERSION_VALUE_USD = {
 
 export type ConversionEventName = keyof typeof CONVERSION_VALUE_USD;
 
+export function getConversionValuePayload(eventName: ConversionEventName): {
+  conversion_event: ConversionEventName;
+  conversion_value_usd: number;
+  currency: 'USD';
+} {
+  return {
+    conversion_event: eventName,
+    conversion_value_usd: CONVERSION_VALUE_USD[eventName],
+    currency: 'USD',
+  };
+}
+
 /**
  * Push a conversion event to the dataLayer with an attached dollar value.
  * GTM picks this up and forwards to Google Ads "Import conversions with
@@ -33,11 +45,8 @@ export function trackConversionWithValue(
   eventName: ConversionEventName,
   extra?: Record<string, unknown>,
 ): void {
-  const value = CONVERSION_VALUE_USD[eventName];
   trackFunnelEvent('conversion_with_value', eventName, {
-    conversion_event: eventName,
-    conversion_value_usd: value,
-    currency: 'USD',
+    ...getConversionValuePayload(eventName),
     ...extra,
   });
 }

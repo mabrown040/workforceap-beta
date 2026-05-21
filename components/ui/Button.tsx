@@ -1,49 +1,75 @@
 'use client';
 
 import { ButtonHTMLAttributes, forwardRef } from 'react';
+import {
+  buttonClasses,
+  type ButtonRadius,
+  type ButtonVariant,
+} from '@/lib/ui/buttonClasses';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** `outline`/`tertiary` map onto secondary/ghost for backwards compatibility */
-  variant?: 'primary' | 'secondary' | 'ghost' | 'dark' | 'muted' | 'outline' | 'tertiary';
+  variant?: ButtonVariant | 'dark' | 'muted' | 'outline' | 'tertiary';
+  radius?: ButtonRadius;
   size?: 'small' | 'default' | 'large';
   fullWidth?: boolean;
   loading?: boolean;
+  onDarkSecondary?: boolean;
+  onDarkGhost?: boolean;
 }
 
-function buttonVariantClasses(variant: NonNullable<ButtonProps['variant']>): string {
+function legacyVariantClass(variant: NonNullable<ButtonProps['variant']>): string {
   if (variant === 'outline') return 'btn-secondary';
   if (variant === 'tertiary') return 'btn-ghost';
   return `btn-${variant}`;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    variant = 'primary', 
-    size = 'default', 
-    fullWidth = false,
-    loading = false,
-    className = '', 
-    children, 
-    disabled,
-    ...props 
-  }, ref) => {
-    const baseClasses = 'btn';
-    const variantClasses = buttonVariantClasses(variant);
-    const sizeClasses = size === 'large' ? 'btn-large' : size === 'small' ? 'btn-small' : '';
-    const widthClasses = fullWidth ? 'btn-full-width' : '';
-    const loadingClasses = loading ? 'btn-loading' : '';
-
-    const combinedClasses = [
-      baseClasses,
-      variantClasses,
-      sizeClasses,
-      widthClasses,
-      loadingClasses,
+  (
+    {
+      variant = 'primary',
+      radius = 'md',
+      size = 'default',
+      fullWidth = false,
+      loading = false,
+      onDarkSecondary = false,
+      onDarkGhost = false,
+      className = '',
+      children,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
+    const modifiers = [
+      size === 'small' ? 'btn-small' : '',
+      size === 'large' ? 'btn-large' : '',
+      fullWidth ? 'btn-full-width' : '',
+      loading ? 'btn-loading' : '',
       className,
-    ].filter(Boolean).join(' ');
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    const isCoreVariant =
+      variant === 'primary' || variant === 'secondary' || variant === 'ghost';
+
+    const combinedClasses = isCoreVariant
+      ? buttonClasses({
+          variant,
+          radius,
+          large: size === 'large',
+          onDarkSecondary,
+          onDarkGhost,
+          className: modifiers,
+        })
+      : ['btn', legacyVariantClass(variant), radius !== 'md' ? `btn-radius-${radius}` : '', modifiers]
+          .filter(Boolean)
+          .join(' ');
 
     return (
-      <button type="button"
+      <button
+        type="button"
         ref={ref}
         className={combinedClasses}
         disabled={disabled || loading}
@@ -53,7 +79,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {loading && (
           <span className="btn-spinner" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="30 10" opacity="0.4">
+              <circle
+                cx="8"
+                cy="8"
+                r="6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeDasharray="30 10"
+                opacity="0.4"
+              >
                 <animateTransform
                   attributeName="transform"
                   type="rotate"

@@ -2318,14 +2318,13 @@ body.mobile-nav-open {
 .btn.marketing-btn-num-pill::after {
     display: none;
 }
-/* Variant: primary — solid brand magenta */
+/* Variant: primary — solid brand magenta (radius via .btn / btn-radius-*) */
 .btn-primary,
 a.btn-primary,
 button.btn-primary {
     background: var(--color-accent);
     color: var(--color-white);
     border: none;
-    border-radius: var(--radius-md);
 }
 .btn-primary:hover {
     background: var(--color-accent-dark);
@@ -2364,7 +2363,7 @@ a.btn-tertiary {
 .btn-tertiary:hover {
     text-decoration: underline;
 }
-/* Variant: secondary — outline */
+/* Variant: secondary — outline (radius via .btn / btn-radius-*) */
 .btn-secondary,
 a.btn-secondary,
 .btn-outline,
@@ -2372,7 +2371,6 @@ a.btn-outline {
     background: transparent;
     color: var(--color-primary);
     border: 1px solid var(--outline-variant);
-    border-radius: var(--radius-md);
 }
 .btn-secondary:hover,
 a.btn-secondary:hover,
@@ -2414,7 +2412,7 @@ a.btn-secondary--on-dark:focus-visible {
 a.btn-secondary--on-dark::after {
     display: none;
 }
-/* Variant: ghost — text-only (no fill, no border) */
+/* Variant: ghost — text-only (no fill, no border; radius via .btn / btn-radius-*) */
 .btn-ghost,
 a.btn-ghost,
 .btn-ghost-text,
@@ -2422,7 +2420,6 @@ a.btn-ghost-text {
     background: transparent;
     color: var(--color-accent);
     border: none;
-    border-radius: var(--radius-md);
     font-weight: 600;
     box-shadow: none;
 }

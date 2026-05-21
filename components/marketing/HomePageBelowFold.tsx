@@ -2,6 +2,11 @@ import Image from 'next/image';
 import LocalizedLinkServer from '@/components/LocalizedLinkServer';
 import { MARKETING_JOURNEY_STEPS, type MarketingJourneyStep } from '@/lib/content/marketingJourneySteps';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
+import {
+  buttonPresets,
+  primaryButtonClasses,
+  secondaryButtonClasses,
+} from '@/lib/ui/buttonClasses';
 import { getTranslations } from 'next-intl/server';
 
 export type HomeProgramShowcaseCard = {
@@ -234,10 +239,16 @@ export default async function HomePageBelowFold({
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                <LocalizedLinkServer href="/apply" className="btn btn-primary btn-small">
+                <LocalizedLinkServer
+                  href="/apply"
+                  className={primaryButtonClasses({ radius: 'md', className: 'btn-small' })}
+                >
                   {t('memberCardCta')}
                 </LocalizedLinkServer>
-                <LocalizedLinkServer href="/wioa-qualification" className="btn btn-secondary btn-small">
+                <LocalizedLinkServer
+                  href="/wioa-qualification"
+                  className={secondaryButtonClasses({ radius: 'md', className: 'btn-small' })}
+                >
                   {t('memberCardCta2')}
                 </LocalizedLinkServer>
               </div>
@@ -283,7 +294,10 @@ export default async function HomePageBelowFold({
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
-                <LocalizedLinkServer href="/partners" className="btn btn-primary btn-small">
+                <LocalizedLinkServer
+                  href="/partners"
+                  className={primaryButtonClasses({ radius: 'md', className: 'btn-small' })}
+                >
                   {t('partnerCardCta')}
                 </LocalizedLinkServer>
               </div>
@@ -329,7 +343,10 @@ export default async function HomePageBelowFold({
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
-                <LocalizedLinkServer href="/employers" className="btn btn-primary btn-small">
+                <LocalizedLinkServer
+                  href="/employers"
+                  className={primaryButtonClasses({ radius: 'md', className: 'btn-small' })}
+                >
                   {t('employerCardCta')}
                 </LocalizedLinkServer>
               </div>
@@ -474,7 +491,7 @@ export default async function HomePageBelowFold({
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <LocalizedLinkServer href="/how-it-works" className="btn btn-secondary">
+          <LocalizedLinkServer href="/how-it-works" className={secondaryButtonClasses({ radius: 'md' })}>
             {t('journeyCta')}
           </LocalizedLinkServer>
         </div>
@@ -567,7 +584,7 @@ export default async function HomePageBelowFold({
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <LocalizedLinkServer href="/programs" className="btn btn-secondary">
+          <LocalizedLinkServer href="/programs" className={secondaryButtonClasses({ radius: 'md' })}>
             {t('programsCta', { count: programCount })}
           </LocalizedLinkServer>
         </div>
@@ -587,7 +604,7 @@ export default async function HomePageBelowFold({
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '2rem' }}>
           {t('aiVoice')}
         </p>
-        <LocalizedLinkServer href="/apply" className="btn btn-primary">
+        <LocalizedLinkServer href="/apply" className={primaryButtonClasses({ radius: 'md' })}>
           {t('aiCta')}
         </LocalizedLinkServer>
       </section>
@@ -604,13 +621,13 @@ export default async function HomePageBelowFold({
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', fontSize: '1.125rem' }}>{t('ctaCopy')}</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
-            <LocalizedLinkServer href="/apply" className="btn btn-large" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>
+            <LocalizedLinkServer href="/apply" className={buttonPresets.footerCtaPrimary()}>
               {t('ctaApply')}
             </LocalizedLinkServer>
-            <LocalizedLinkServer href="/find-your-path" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '2px solid white', fontWeight: 700 }}>
+            <LocalizedLinkServer href="/find-your-path" className={buttonPresets.footerCtaSecondary()}>
               {t('ctaFind')}
             </LocalizedLinkServer>
-            <LocalizedLinkServer href="/programs" className="btn btn-large" style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.55)', fontWeight: 600 }}>
+            <LocalizedLinkServer href="/programs" className={buttonPresets.footerCtaGhost()}>
               {t('ctaViewPrograms')}
             </LocalizedLinkServer>
           </div>

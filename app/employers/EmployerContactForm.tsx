@@ -273,8 +273,9 @@ export default function EmployerContactForm() {
       ) : null}
       <button
         type="submit"
-        className={marketingButtonPresets.formSubmitPrimary('btn-full-width')}
+        className={marketingButtonPresets.formOutlineSecondary('btn-full-width')}
         disabled={status === 'sending'}
+        data-cta="employer-intake-submit"
       >
         {status === 'sending' ? 'Sending…' : 'Submit employer intake'}
       </button>

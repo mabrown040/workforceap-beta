@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import EmployerContactForm from './EmployerContactForm';
-import EmployersHeroCtaExperiment from '@/components/marketing/employers/EmployersHeroCtaExperiment';
+import EmployerHiringPartnerCta from './EmployerHiringPartnerCta';
 import {
   HeroSection,
   PageSection,
@@ -18,10 +18,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { getTranslations } from 'next-intl/server';
 import {
   formatEmployerTrustStat,
-  getEmployerHiringPartnerCtaHref,
   getEmployerPlacementFeeDisplay,
   getEmployerTrustPlaceholders,
-  isEmployerHiringPartnerCtaExternal,
   loadEmployerLandingTrustMetrics,
 } from '@/lib/marketing/employerLanding';
 
@@ -56,8 +54,6 @@ export default async function EmployersPage() {
   const trust = await loadEmployerLandingTrustMetrics();
   const placeholders = getEmployerTrustPlaceholders();
   const placementFee = getEmployerPlacementFeeDisplay();
-  const hiringPartnerCtaHref = getEmployerHiringPartnerCtaHref();
-  const hiringPartnerCtaExternal = isEmployerHiringPartnerCtaExternal();
 
   const membersPlacedLabel = formatEmployerTrustStat(
     trust.membersPlaced,
@@ -117,13 +113,7 @@ export default async function EmployersPage() {
         }
       >
         <div className="employers-landing__hero-cta">
-          <EmployersHeroCtaExperiment
-            controlLabel={t('primaryCta')}
-            variantALabel={t('primaryCtaVariantA')}
-            href={hiringPartnerCtaHref}
-            external={hiringPartnerCtaExternal}
-            onDark
-          />
+          <EmployerHiringPartnerCta label={t('primaryCta')} onDark dataCta="primary-hiring-partner" />
         </div>
       </HeroSection>
 
@@ -253,11 +243,10 @@ export default async function EmployersPage() {
         <div className="container employers-final-cta__inner">
           <h2 className="employers-final-cta__title">{t('finalCtaTitle')}</h2>
           <p className="employers-final-cta__copy">{t('finalCtaCopy')}</p>
-          <EmployersHeroCtaExperiment
-            controlLabel={t('primaryCta')}
-            variantALabel={t('primaryCtaVariantA')}
-            href={hiringPartnerCtaHref}
-            external={hiringPartnerCtaExternal}
+          <EmployerHiringPartnerCta
+            label={t('finalCtaLink')}
+            variant="text"
+            dataCta="final-hiring-partner-link"
           />
         </div>
       </section>
@@ -501,6 +490,19 @@ export default async function EmployersPage() {
           margin: 0 0 1.5rem;
           font-size: 1.05rem;
           line-height: 1.6;
+          color: rgba(255, 255, 255, 0.9);
+        }
+        .employers-hiring-partner-cta--text {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          font-size: 1rem;
+          font-weight: 600;
+          color: #fff;
+          text-decoration: underline;
+          text-underline-offset: 0.2em;
+        }
+        .employers-hiring-partner-cta--text:hover {
           color: rgba(255, 255, 255, 0.9);
         }
 

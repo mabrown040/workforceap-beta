@@ -1581,8 +1581,9 @@
       "heroHeadline": "Hire pre-vetted talent",
       "heroHeadlineAccent": "without recruiting fees",
       "heroSubhead": "Pre-vetted, certified workers ready in 2–4 weeks. No recruiting fees.",
-      "primaryCta": "Become a Hiring Partner — Schedule a 20-min call",
+      "primaryCta": "Become a Hiring Partner",
       "primaryCtaVariantA": "Contrate talentos pré-selecionados em 14 dias",
+      "finalCtaLink": "Agendar uma chamada de parceria de 20 minutos",
       "trustAriaLabel": "Employer outcomes and partners",
       "trustLogosLabel": "Employers hiring through WorkforceAP",
       "trustStatPlaced": "members placed",
@@ -1628,7 +1629,7 @@
       "finalCtaCopy": "Book a 20-minute call. We will confirm role fit, timeline, and contingent pricing — no recruiting fees upfront.",
       "intakeAriaLabel": "Employer intake form",
       "intakeTitle": "Prefer email over scheduling?",
-      "intakeCopy": "Submit intake details and we will follow up within 1–2 business days. This form is not a second checkout — use the button above to book a call first."
+      "intakeCopy": "Submit intake details and we will follow up within 1–2 business days. Prefer to talk first? Use Become a Hiring Partner above or the schedule link in the closing section."
     },
     "outcomes": {
       "title": "Resumo de resultados",

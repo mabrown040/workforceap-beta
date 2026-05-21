@@ -121,6 +121,7 @@ model User {
   benefitRequests        BenefitRequest[]
   learningProgress       LearningProgress[]
   aiToolResults          AIToolResult[]
+  coachMemory            CoachMemory?
   userCertifications     UserCertification[]
   userRoles              UserRole[]
   auditLogs              AuditLog[]              @relation("ActorAuditLogs")
@@ -719,6 +720,19 @@ model AIToolResult {
   @@index([userId, createdAt])
   @@index([parentToolResultId])
   @@map("ai_tool_results")
+}
+
+/// Rolling per-member summary for AI voice/text coaches (R2 — coach memory).
+model CoachMemory {
+  userId      String   @id @map("user_id")
+  summary     String   @default("") @db.Text
+  lastTopic   String?  @map("last_topic")
+  lastAction  String?  @map("last_action")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("coach_memories")
 }
 
 /// Member self-report: after logging a job application, did they use AI-prepared materials?

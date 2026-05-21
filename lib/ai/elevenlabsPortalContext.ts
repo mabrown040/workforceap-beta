@@ -12,6 +12,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { getCoachMemoryDynamicVariables } from '@/lib/coach/memory';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getCounselorForUser, getEmployerForUser, getPartnerForUser } from '@/lib/auth/roles';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
@@ -30,10 +31,13 @@ function withVoiceDefaults(vars: Record<string, string>): Record<string, string>
 /** Core member context: program, org, eligibility — use for readiness, interview, resume coach (plus resume fields). */
 export async function fetchMemberPortalDynamicVariables(userId: string): Promise<Record<string, string>> {
   try {
-    const dbUser = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { organization: { select: { name: true, slug: true } } },
-    });
+    const [dbUser, coachMemory] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        include: { organization: { select: { name: true, slug: true } } },
+      }),
+      getCoachMemoryDynamicVariables(userId),
+    ]);
     if (!dbUser) {
       return {};
     }
@@ -48,6 +52,7 @@ export async function fetchMemberPortalDynamicVariables(userId: string): Promise
       organization_name: dbUser.organization?.name ?? '',
       organization_slug: dbUser.organization?.slug ?? '',
       interview_eligible: dbUser.interviewEligible ? 'true' : 'false',
+      ...coachMemory,
     });
   } catch (err) {
     console.error('[elevenlabsPortalContext] member context error:', err);

@@ -5,7 +5,9 @@ import { chatCompletion } from '@/lib/ai/groq';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
+import { appendCoachMemoryToSystemPrompt, loadCoachMemory } from '@/lib/coach/memory';
 import { aiResponseLanguageInstruction, firstInterviewPromptForLanguage, nextInterviewPromptForLanguage, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
@@ -16,7 +18,7 @@ const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
  * 1. ElevenLabs voice: returns a signed conversation URL when ELEVENLABS_API_KEY is set
  * 2. Groq text fallback: returns the first AI question as plain text
  */
-export async function POST(req: NextRequest) {
+export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -74,7 +76,15 @@ export async function POST(req: NextRequest) {
     }
   
     // ── Mode 2: Groq text fallback ────────────────────────────────────────────
-    const systemPrompt = `You are a professional job interviewer conducting a ${interviewType} interview for a ${role} position. ${aiResponseLanguageInstruction(language)} Ask one realistic interview question at a time. Be concise and direct. Do not add preamble or commentary — just the question.`;
+    const [memberContext, memorySummary] = await Promise.all([
+      fetchMemberPortalDynamicVariables(user.id),
+      loadCoachMemory(user.id),
+    ]);
+    const baseSystemPrompt = `You are a professional job interviewer conducting a ${interviewType} interview for a ${role} position. ${aiResponseLanguageInstruction(language)} Ask one realistic interview question at a time. Be concise and direct. Do not add preamble or commentary — just the question.`;
+    const systemPrompt = appendCoachMemoryToSystemPrompt(
+      baseSystemPrompt,
+      memorySummary ?? memberContext.coach_memory_summary
+    );
   
     const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
       { role: 'system', content: systemPrompt },
@@ -106,4 +116,4 @@ export async function POST(req: NextRequest) {
     console.error('/interview/session:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

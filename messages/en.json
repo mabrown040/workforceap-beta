@@ -1802,6 +1802,8 @@
     "analytics": "Analytics",
     "platformEngagement": "Platform engagement, enrollment, and placement outcomes.",
     "exportFunderCsv": "Export funder CSV",
+    "exportFunderCsvTitle": "Funder program summary",
+    "exportFunderCsvDescription": "Per-program enrollment, 30-day activity, completion, placements, at-risk counts, and completion/placement rates for grant reporting.",
     "totalMembers": "Total Members",
     "weeklyActive": "Weekly Active",
     "placements": "Placements",

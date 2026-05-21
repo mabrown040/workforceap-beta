@@ -1800,6 +1800,8 @@
     "analytics": "Analíticas",
     "platformEngagement": "Participación en la plataforma, inscripciones y resultados de colocación.",
     "exportFunderCsv": "Exportar CSV para financiador",
+    "exportFunderCsvTitle": "Resumen de programas para financiadores",
+    "exportFunderCsvDescription": "Inscripción por programa, actividad de 30 días, finalización, colocaciones, miembros en riesgo y tasas de finalización/colocación para informes de subvenciones.",
     "totalMembers": "Total de Miembros",
     "weeklyActive": "Activos Semanalmente",
     "placements": "Colocaciones",

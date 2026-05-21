@@ -322,7 +322,7 @@ export default async function AdminOutcomesPage() {
         </section>
 
         <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-          Methodology: <Link href="/docs/OUTCOMES-METHODOLOGY.md">docs/OUTCOMES-METHODOLOGY.md</Link>{' '}
+          Methodology: <Link href="/admin/outcomes/methodology">Outcomes methodology</Link>{' '}
           · Public mirror: <Link href="/outcomes">/outcomes</Link>
         </p>
       </div>

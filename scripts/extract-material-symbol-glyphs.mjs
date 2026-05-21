@@ -15,7 +15,19 @@ const ROOT = path.join(__dirname, '..');
 const SKIP_DIRS = new Set(['node_modules', '.next', 'out', '.git', 'playwright-report', 'test-results']);
 
 /** Only scan first-party source trees (avoids rare huge symlinked dirs under repo root). */
-const SCAN_TOP = ['app', 'components', 'lib'].map((d) => path.join(ROOT, d)).filter((p) => fs.existsSync(p));
+const SCAN_TOP = ['app', 'components', 'lib', 'css']
+  .map((d) => path.join(ROOT, d))
+  .filter((p) => fs.existsSync(p));
+
+/** Local const maps whose string values are Material icon ligature names. */
+const ICON_MAP_NAMES = [
+  'LEVEL_ICONS',
+  'MODULE_ICONS',
+  'STAGE_ICONS',
+  'INTEREST_ICONS',
+  'SECTION_ICONS',
+  'TOOL_ICONS',
+];
 
 /** @type {Set<string>} */
 const glyphs = new Set();
@@ -28,7 +40,7 @@ function walk(dir, acc = []) {
     if (ent.isDirectory()) {
       if (SKIP_DIRS.has(ent.name)) continue;
       walk(p, acc);
-    } else if (/\.(tsx|ts)$/.test(ent.name)) acc.push(p);
+    } else if (/\.(tsx|ts|css)$/.test(ent.name)) acc.push(p);
   }
   return acc;
 }
@@ -51,10 +63,38 @@ function addPathwayIconArrays(content) {
   }
 }
 
+function addIconMapGlyphs(content) {
+  for (const name of ICON_MAP_NAMES) {
+    const re = new RegExp(`${name}\\s*[:=][\\s\\S]*?\\{([\\s\\S]*?)\\}`, 'g');
+    let m;
+    while ((m = re.exec(content))) {
+      for (const x of m[1].matchAll(/['"]([a-z][a-z0-9_]*)['"]/g)) {
+        glyphs.add(x[1]);
+      }
+    }
+  }
+}
+
+/** CSS pseudo-elements that render Material Symbols via `content: 'icon_name'`. */
+function addCssContentGlyphs(content) {
+  if (!content.includes('Material Symbols Outlined')) return;
+  for (const m of content.matchAll(/content:\s*['"]([a-z][a-z0-9_]*)['"]/g)) {
+    glyphs.add(m[1]);
+  }
+}
+
+function addQuotedIconCandidates(inner, add) {
+  /** Drop comparison operands (`=== 'loading'`) and i18n keys (`t('completed')`). */
+  const stripped = inner
+    .replace(/(?:===|!==)\s*['"][^'"]+['"]/g, '')
+    .replace(/\bt\(\s*['"][^'"]+['"]\s*\)/g, '');
+  for (const sm of stripped.matchAll(/['"]([a-z][a-z0-9_]*)['"]/g)) {
+    add(sm[1]);
+  }
+}
+
 function addMaterialSymbolSpans(content) {
   const spanRe = /<span[^>]*material-symbols-outlined[^>]*>([\s\S]*?)<\/span>/gi;
-  /** Material icon ligature snippets in JSX (`star`, `check_circle`) */
-  const iconStrRe = /\b(?:'|")([a-z][a-z0-9_]*)['"]\b/g;
 
   let m;
   while ((m = spanRe.exec(content))) {
@@ -64,11 +104,7 @@ function addMaterialSymbolSpans(content) {
       continue;
     }
     /** Ternaries like `{filled ? 'star' : 'star_border'}`, template fragments, etc. */
-    iconStrRe.lastIndex = 0;
-    let sm;
-    while ((sm = iconStrRe.exec(inner))) {
-      glyphs.add(sm[1]);
-    }
+    addQuotedIconCandidates(inner, (name) => glyphs.add(name));
   }
 }
 
@@ -77,6 +113,10 @@ for (const top of SCAN_TOP) {
     const content = fs.readFileSync(file, 'utf8');
     addIconPropGlyphs(content);
     addPathwayIconArrays(content);
+    addIconMapGlyphs(content);
+    if (file.endsWith('.css')) {
+      addCssContentGlyphs(content);
+    }
     if (content.includes('material-symbols-outlined')) {
       addMaterialSymbolSpans(content);
     }

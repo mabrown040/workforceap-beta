@@ -1,7 +1,9 @@
 /**
- * WorkforceAP Service Worker v6 — PWA offline support + push notifications.
- * Caches shell assets and Google Fonts; push events show branded notifications.
+ * WorkforceAP Service Worker v7 — PWA offline support + push notifications.
+ * Caches shell assets; push events show branded notifications.
  *
+ * v7: stop caching fonts.googleapis.com / fonts.gstatic.com (icons are self-hosted).
+ *     Bumps CACHE_NAME so clients drop any stale full Material Symbols from Google.
  * v6: strip locale prefix before matching authenticated routes so
  *     `/es/dashboard` etc. aren't accidentally cached. Bumps CACHE_NAME so
  *     `activate` purges any v5 cache that may have stored localized
@@ -11,18 +13,15 @@
  *     stale JS/CSS bundles from the service worker cache on mobile clients.
  */
 
-const CACHE_NAME = 'workforceap-v6';
-const FONT_CACHE = 'workforceap-fonts-v2';
+const CACHE_NAME = 'workforceap-v7';
 const OFFLINE_PAGE = '/offline.html';
 const STATIC_ASSETS = [
   '/images/wap_logo.png',
   '/images/icon-192x192.png',
   '/images/icon-512x512.png',
+  '/fonts/material-symbols-outlined.woff2',
   OFFLINE_PAGE,
 ];
-
-// Google Fonts origins that should be cached for offline icon support
-const FONT_ORIGINS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
 // Install: pre-cache key assets, skip waiting immediately
 self.addEventListener('install', (event) => {
@@ -34,7 +33,7 @@ self.addEventListener('install', (event) => {
 
 // Activate: remove ALL old caches, claim all clients
 self.addEventListener('activate', (event) => {
-  const keep = new Set([CACHE_NAME, FONT_CACHE]);
+  const keep = new Set([CACHE_NAME]);
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => !keep.has(k)).map((k) => caches.delete(k)))
@@ -97,33 +96,6 @@ self.addEventListener('fetch', (event) => {
           return res;
         })
         .catch(() => caches.match(OFFLINE_PAGE))
-    );
-    return;
-  }
-
-  // Google Fonts: stale-while-revalidate — serve cached if available but always refresh
-  if (FONT_ORIGINS.includes(url.hostname)) {
-    event.respondWith(
-      caches.open(FONT_CACHE).then((cache) =>
-        cache.match(event.request).then((cached) => {
-          const networkFetch = fetch(event.request).then((res) => {
-            // Cache both normal (200) and opaque (0) responses — font CSS
-            // from <link> tags can be opaque cross-origin responses
-            if (res.status === 200 || res.type === 'opaque') {
-              cache.put(event.request, res.clone());
-            }
-            return res;
-          }).catch(() => cached); // Offline fallback to cache
-          // If we have a cached version, serve it but update in background
-          if (cached) {
-            // Fire-and-forget update
-            networkFetch.catch(() => {});
-            return cached;
-          }
-          // No cache yet — wait for network
-          return networkFetch;
-        })
-      )
     );
     return;
   }

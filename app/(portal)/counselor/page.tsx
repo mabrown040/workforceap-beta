@@ -459,6 +459,7 @@ export default async function CounselorPortalPage() {
             <h3 className="portal-section-title" style={{ marginBottom: '1rem' }}>Quick Links</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
+                { href: '/counselor/inbox', icon: 'inbox', title: t('inboxZero'), desc: t('inboxZeroSubtitle'), accent: 'accent' },
                 { href: '/counselor/at-risk', icon: 'notification_important', title: t('atRiskMembers'), desc: t('membersFlaggedByRisk'), accent: 'error' },
                 { href: '/counselor/triage', icon: 'priority_high', title: t('triageQueue'), desc: t('membersFlaggedForAction'), accent: 'accent' },
                 { href: '/counselor/queue', icon: 'pending_actions', title: t('workQueue'), desc: t('membersWaiting24h'), accent: 'accent' },

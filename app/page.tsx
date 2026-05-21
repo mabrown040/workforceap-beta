@@ -7,6 +7,7 @@ import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE, FUNDING_SOURCES, FUNDING_COLORS } from '@/lib/content/programs';
 import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
+import TrustStrip from '@/components/marketing/TrustStrip';
 
 import { getTranslations } from 'next-intl/server';
 import { marketingButtonPresets, marketingButtonClasses } from '@/lib/marketing/buttonClasses';
@@ -304,6 +305,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <TrustStrip variant="home" />
 
       <HomePageBelowFold homeProgramShowcase={homeProgramShowcase} programCount={programCount} />
 

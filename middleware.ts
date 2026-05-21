@@ -52,7 +52,15 @@ const PORTAL_PATHS = [
 const ADMIN_PATHS = ['/admin'];
 const ADMIN_API_PATHS = ['/api/admin'];
 
+/** Public post-conversion pages under portal URL prefixes (no auth gate). */
+const PUBLIC_THANK_YOU_PATHS = new Set(['/employer/thank-you']);
+
+function isPublicThankYouPath(pathname: string) {
+  return PUBLIC_THANK_YOU_PATHS.has(pathname);
+}
+
 function isPortalPath(pathname: string) {
+  if (isPublicThankYouPath(pathname)) return false;
   return PORTAL_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 

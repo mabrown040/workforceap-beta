@@ -37,7 +37,7 @@ export function trackFunnelEvent(
 }
 
 export function trackLeadFormEvent(
-  formType: 'contact' | 'employer_intake' | 'partner_signup',
+  formType: 'contact' | 'employer_intake' | 'partner_signup' | 'careers',
   phase: 'viewed' | 'submitted' | 'succeeded' | 'errored',
   extra?: Record<string, unknown>
 ) {
@@ -215,3 +215,14 @@ export function trackPaidApplyVariantRendered(utmSource: string) {
     utm_source: utmSource,
   });
 }
+
+export type ThankYouFunnel = 'apply' | 'employer' | 'partners' | 'careers';
+
+/** Post-conversion thank-you page views (GTM / GA4 custom events). */
+export function trackThankYouViewed(funnel: ThankYouFunnel) {
+  pushEvent({
+    event: `${funnel}_thank_you_viewed`,
+    thank_you_funnel: funnel,
+  });
+}
+

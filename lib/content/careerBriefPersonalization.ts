@@ -195,7 +195,7 @@ export function assembleCareerBriefContext(
     recommendedActions.push({ label: 'Log your first application', href: '/dashboard/job-applications' });
   }
   if (!scoreBreakdown.complete2Resources.done) {
-    recommendedActions.push({ label: 'Complete 2 resources', href: '/resources' });
+    recommendedActions.push({ label: 'Complete 2 resources', href: '/dashboard/career-library' });
   }
   if (!scoreBreakdown.setGoals.done) {
     recommendedActions.push({ label: 'Set your goals', href: '/dashboard' });

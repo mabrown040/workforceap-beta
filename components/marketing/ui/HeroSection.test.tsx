@@ -4,8 +4,8 @@ import { HeroSection } from './HeroSection';
 
 vi.mock('next/image', () => ({
   default: (props: React.ImgHTMLAttributes<HTMLImageElement> & { fill?: boolean; priority?: boolean }) => {
-    const { fill, priority, ...rest } = props;
-    return <img {...rest} data-fill={fill} data-priority={priority} />;
+    const { fill, priority, alt, ...rest } = props;
+    return <img {...rest} alt={alt ?? ''} data-fill={fill} data-priority={priority} />;
   },
 }));
 

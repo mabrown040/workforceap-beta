@@ -347,6 +347,9 @@ export default function QuarterlyOutcomesClient() {
               </h2>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                  <caption className="sr-only">
+                    Per-program quarterly breakdown of enrollment, completion, and placement counts.
+                  </caption>
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--outline-variant)' }}>
                       <th scope="col" style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>
@@ -395,6 +398,9 @@ export default function QuarterlyOutcomesClient() {
               </h2>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                  <caption className="sr-only">
+                    Individual placements for the quarter with job title, employer, salary, and placement date.
+                  </caption>
                   <thead>
                     <tr style={{ borderBottom: '1px solid var(--outline-variant)' }}>
                       <th scope="col" style={{ textAlign: 'left', padding: '0.5rem', color: 'var(--color-on-surface-variant)' }}>

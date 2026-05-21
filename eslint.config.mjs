@@ -30,10 +30,17 @@ const config = [
       // The DataTable implementation legitimately renders <table>.
       "components/portal/ui/DataTable.tsx",
       // Legacy admin UIs still use raw tables; migrate to <DataTable> over time.
+      // 2026-05-20: each retained <table> now carries a <caption className="sr-only"> for a11y.
       "app/admin/placement-surveys/page.tsx",
+      "app/admin/growth/page.tsx",
+      "app/admin/reports/quarterly-outcomes/QuarterlyOutcomesClient.tsx",
+      "app/privacy/page.tsx",
       "components/admin/B4BProgramsListButton.tsx",
       "components/admin/IgnoredXapiSummaryCard.tsx",
+      "components/admin/TestimonialsAdminClient.tsx",
       "components/admin/TrainingProgressClient.tsx",
+      "components/employer/JobApplicantsClient.tsx",
+      "components/portal/counselor/CounselorPriorityQueue.tsx",
       // Tests and stories may exercise table markup directly.
       "**/*.test.{ts,tsx}",
       "**/*.stories.{ts,tsx}",

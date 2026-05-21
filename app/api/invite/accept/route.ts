@@ -233,17 +233,27 @@ async function ensureCourseEnrollmentForInvite(
 }
 
 async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: string | null) {
+  // Derive affiliation from partner linkage. The DB column defaults to
+  // 'wap_staff', which silently misclassifies partner-invited counselors when
+  // the caller does not set affiliation explicitly. Always set it here.
+  const affiliation: 'partner' | 'wap_staff' = partnerId ? 'partner' : 'wap_staff';
+
   const existing = await tx.counselor.findFirst({
     where: { userId },
-    select: { id: true, partnerId: true, active: true },
+    select: { id: true, partnerId: true, active: true, affiliation: true },
   });
 
   if (existing) {
-    if (existing.partnerId !== partnerId || !existing.active) {
+    if (
+      existing.partnerId !== partnerId ||
+      !existing.active ||
+      existing.affiliation !== affiliation
+    ) {
       await tx.counselor.update({
         where: { id: existing.id },
         data: {
           partnerId,
+          affiliation,
           active: true,
         },
       });
@@ -255,6 +265,7 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
     data: {
       userId,
       partnerId,
+      affiliation,
       active: true,
     },
   });

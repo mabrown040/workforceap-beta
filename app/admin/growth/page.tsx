@@ -181,6 +181,9 @@ export default async function AdminGrowthPage() {
           </p>
         ) : (
           <table style={tableStyle}>
+            <caption className="sr-only">
+              Last 7 days of signups grouped by UTM source, medium, and campaign with the latest signup timestamp.
+            </caption>
             <thead>
               <tr>
                 <th style={thStyle}>Source</th>
@@ -237,6 +240,9 @@ export default async function AdminGrowthPage() {
           <p style={{ margin: 0, color: 'var(--color-on-surface-variant)' }}>No apply_* events in the last 24h.</p>
         ) : (
           <table style={tableStyle}>
+            <caption className="sr-only">
+              Apply funnel MemberEvents recorded in the last 24 hours, grouped by event name with counts.
+            </caption>
             <thead>
               <tr>
                 <th style={thStyle}>Event name</th>

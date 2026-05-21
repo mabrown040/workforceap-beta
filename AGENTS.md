@@ -35,13 +35,13 @@ Open `http://localhost:3000` in a browser.
 ### Lint / Test / Build
 
 ```bash
-npm run lint          # ESLint (4 pre-existing errors: bare <table> usage)
+npm run lint          # ESLint (~~5 known errors~~ — Burned down 2026-05-20, gate flipped)
 npm run typecheck     # TypeScript type-checking (tsc --noEmit)
 npm run test:unit     # Node.js test runner (lib/**/*.test.ts) — 424 pass, 3 pre-existing failures
 npm run build         # Full production build (Prisma generate + next build)
 ```
 
-Note: `npm run build` skips TypeScript and ESLint checks at build time (see `next.config.ts`). Use `npm run typecheck` and `npm run lint` separately.
+Note: `npm run build` runs ESLint at build time (gate flipped 2026-05-20 — `eslint.ignoreDuringBuilds: false`). Use `npm run typecheck` and `npm run lint` separately for faster feedback during development.
 
 ### Environment notes
 

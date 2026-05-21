@@ -242,6 +242,9 @@ export default function TestimonialsAdminClient() {
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', fontSize: '0.875rem', borderCollapse: 'collapse', background: '#fff', borderRadius: '0.625rem', overflow: 'hidden' }}>
+            <caption className="sr-only">
+              Member testimonials with content, rating, publication status, source, and moderation actions.
+            </caption>
             <thead>
               <tr style={{ background: 'var(--surface-container-low, #f8f5f3)' }}>
                 <th style={{ padding: '0.75rem 1rem', textAlign: 'left', fontWeight: 700, fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)' }}>Member</th>

@@ -148,6 +148,9 @@ export default function JobApplicantsClient({
       <div className="wa-hidden md:wa-block">
         <div className="portal-card portal-card--flat" style={{ overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+            <caption className="sr-only">
+              Job applicants with candidate name, application date, current status, and review actions.
+            </caption>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--outline-variant)' }}>
                 <th style={{ padding: '0.875rem 1rem', textAlign: 'left', fontWeight: 700, color: 'var(--color-on-surface-variant)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>

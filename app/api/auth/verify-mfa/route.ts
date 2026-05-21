@@ -12,6 +12,7 @@ import { logger } from '@/lib/observability/logger';
 import { checkVerifyMfaRateLimit } from '@/lib/rate-limit';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { trackEvent } from '@/lib/events/track';
 
 /**
  * POST /api/auth/verify-mfa
@@ -112,6 +113,13 @@ export async function POST(request: Request) {
   }
 
   // Success — session now has aal2
+  trackEvent({
+    userId: verifyData.user.id,
+    eventName: 'member_logged_in',
+    metadata: { mfa_verified: true, trust_device: trustDevice },
+    sourcePage: '/verify-mfa',
+  }).catch(() => {});
+
   return NextResponse.json({ ok: true, aal: 'aal2' }, { headers: { 'Cache-Control': 'no-store' } });
 
   } catch (error) {
@@ -119,4 +127,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

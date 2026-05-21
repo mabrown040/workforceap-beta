@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { splitLocalePrefix } from '@/lib/i18n/config';
-import { trackFunnelEvent } from '@/lib/analytics/events';
+import { trackFunnelEvent, trackMemberLoggedIn } from '@/lib/analytics/events';
 
 /* ─── portal destination data (unchanged business logic) ─── */
 const PORTAL_DESTINATIONS: { redirectTo: string; title: string; desc: string }[] = [
@@ -427,6 +427,7 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
       }
 
       trackFunnelEvent('member_login', 'completed', { destination: canonicalRedirectTo });
+      trackMemberLoggedIn({ destination: canonicalRedirectTo, remember_me: rememberMe });
       const nextLocation = typeof data?.redirectTo === 'string' ? data.redirectTo : redirectTo;
       window.location.href = new URL(nextLocation, window.location.origin).href;
     } catch {

@@ -6,6 +6,7 @@ import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { memberSignupSchema } from '@/lib/validation/member';
 import { checkSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
+import { getConversionValuePayload } from '@/lib/analytics/conversionValue';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -168,6 +169,7 @@ export async function POST(request: NextRequest) {
         eventName: 'apply_signup_completed',
         metadata: {
           program_interest: data.programInterest,
+          ...getConversionValuePayload('apply_signup_completed'),
           ...attributionMetadata,
         },
         sourcePage: '/signup',

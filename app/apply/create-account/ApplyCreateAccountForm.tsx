@@ -5,7 +5,9 @@ import LocalizedLink from '@/components/LocalizedLink';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
+import { trackConversionWithValue } from '@/lib/analytics/conversionValue';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
+import { isPaidUtmSource } from '@/lib/apply/paidApplyUtm';
 import { readMarketingAttribution, clearMarketingAttribution } from '@/lib/marketing/utmCapture';
 import {
   APPLY_FLOW_DRAFT_KEY,
@@ -437,6 +439,17 @@ export default function ApplyCreateAccountForm() {
       }
       completedRef.current = true;
       trackApplyFunnel(3, 'account_created', { program_slugs: programRankedSlugs, redirect_to: '/apply/thank-you' });
+      if (isPaidUtmSource(attribution.utmSource)) {
+        trackConversionWithValue('apply_signup_completed', {
+          program_slugs: programRankedSlugs,
+          utm_source: attribution.utmSource,
+          utm_medium: attribution.utmMedium,
+          utm_campaign: attribution.utmCampaign,
+          utm_content: attribution.utmContent,
+          utm_term: attribution.utmTerm,
+          referrer: attribution.referrer,
+        });
+      }
 
       if (data.message) {
         window.location.href = '/apply/thank-you';

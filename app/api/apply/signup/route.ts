@@ -7,6 +7,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { z } from 'zod';
 import { checkApplySignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
+import { getConversionValuePayload } from '@/lib/analytics/conversionValue';
 import { ApplicationStatus } from '@prisma/client';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -311,6 +312,7 @@ const applySignupSchema = z.object({
         metadata: {
           smsOptIn: smsOptIn ?? false,
           program_ranked_slugs: programRankedSlugs,
+          ...getConversionValuePayload('apply_signup_completed'),
           ...attributionMetadata,
         },
         sourcePage: '/apply/create-account',

@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 /**
  * Inline "Map to WAP user" action used from the Coursera-only learners list.
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
     if (!user || !(await isAdmin(user.id))) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const organizationId = await getActorOrganizationId(user.id);
   
     let body: { userId?: string; courseraEmail?: string; actorIdentifier?: string; actorHomePage?: string };
     try {
@@ -49,6 +51,7 @@ export async function POST(request: Request) {
         createdByUserId: user.id,
         source: 'manual-admin-unmatched',
         notes: 'Mapped from Coursera-only learners list',
+        expectedOrganizationId: organizationId,
       });
   
       const backfill = courseraEmail

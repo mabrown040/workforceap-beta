@@ -19,13 +19,26 @@ export type XapiStatementAttentionRow = {
   reason: 'unprocessed' | 'identity_unmatched';
 };
 
+type TenantScopeOptions = {
+  organizationId?: string | null;
+};
+
+function normalizeOrganizationId(value: string | null | undefined): string | null {
+  const normalized = value?.trim() || '';
+  return normalized || null;
+}
+
 /**
  * Statements that still need operator attention:
  * - `processed === false` (missing external id, pipeline stuck, or not yet finalized)
  * - Rows tied to `coursera_xapi_events` in `unmatched` / `error` (identity or completion failure after ingest)
  */
-export async function listXapiStatementsNeedingAttention(limit = 100): Promise<XapiStatementAttentionRow[]> {
+export async function listXapiStatementsNeedingAttention(
+  limit = 100,
+  options: TenantScopeOptions = {},
+): Promise<XapiStatementAttentionRow[]> {
   await ensureCourseraMappingTables();
+  const organizationId = normalizeOrganizationId(options.organizationId);
 
   return prisma.$queryRaw<XapiStatementAttentionRow[]>`
     SELECT * FROM (
@@ -40,7 +53,9 @@ export async function listXapiStatementsNeedingAttention(limit = 100): Promise<X
         xs.processed,
         'unprocessed'::text AS reason
       FROM xapi_statements xs
+      LEFT JOIN users actor_user ON LOWER(actor_user.email) = LOWER(xs.actor_email)
       WHERE xs.processed = false
+        AND (${organizationId}::text IS NULL OR actor_user.organization_id = ${organizationId}::text)
       UNION
       SELECT
         xs.id,
@@ -54,28 +69,45 @@ export async function listXapiStatementsNeedingAttention(limit = 100): Promise<X
         'identity_unmatched'::text AS reason
       FROM xapi_statements xs
       INNER JOIN coursera_xapi_events cxe ON cxe.statement_id = xs.statement_id
+      LEFT JOIN users actor_user ON LOWER(actor_user.email) = LOWER(xs.actor_email)
       WHERE cxe.completion_status IN ('unmatched', 'error')
         AND xs.statement_id IS NOT NULL
+        AND (
+          ${organizationId}::text IS NULL
+          OR cxe.organization_id = ${organizationId}::text
+          OR actor_user.organization_id = ${organizationId}::text
+        )
     ) u
     ORDER BY u."createdAt" DESC
     LIMIT ${limit}
   `;
 }
 
-export async function countXapiStatementsNeedingAttention(): Promise<number> {
+export async function countXapiStatementsNeedingAttention(
+  options: TenantScopeOptions = {},
+): Promise<number> {
   await ensureCourseraMappingTables();
+  const organizationId = normalizeOrganizationId(options.organizationId);
 
   const rows = await prisma.$queryRaw<Array<{ count: bigint }>>`
     SELECT COUNT(*)::bigint AS count FROM (
       SELECT xs.id
       FROM xapi_statements xs
+      LEFT JOIN users actor_user ON LOWER(actor_user.email) = LOWER(xs.actor_email)
       WHERE xs.processed = false
+        AND (${organizationId}::text IS NULL OR actor_user.organization_id = ${organizationId}::text)
       UNION
       SELECT xs.id
       FROM xapi_statements xs
       INNER JOIN coursera_xapi_events cxe ON cxe.statement_id = xs.statement_id
+      LEFT JOIN users actor_user ON LOWER(actor_user.email) = LOWER(xs.actor_email)
       WHERE cxe.completion_status IN ('unmatched', 'error')
         AND xs.statement_id IS NOT NULL
+        AND (
+          ${organizationId}::text IS NULL
+          OR cxe.organization_id = ${organizationId}::text
+          OR actor_user.organization_id = ${organizationId}::text
+        )
     ) t
   `;
   return Number(rows[0]?.count ?? 0);
@@ -87,18 +119,33 @@ export type CourseraSyncStatus = {
   attentionStatementCount: number;
 };
 
-export async function getCourseraSyncStatus(): Promise<CourseraSyncStatus> {
-  const [maxCreated, progressUsers, attentionCount] = await Promise.all([
-    prisma.xapiStatement.aggregate({ _max: { createdAt: true } }),
+export async function getCourseraSyncStatus(
+  options: TenantScopeOptions = {},
+): Promise<CourseraSyncStatus> {
+  const organizationId = normalizeOrganizationId(options.organizationId);
+  const [maxCreatedRows, progressUsers, attentionCount] = await Promise.all([
+    prisma.$queryRaw<Array<{ latest: Date | null }>>`
+      SELECT MAX(xs.created_at) AS latest
+      FROM xapi_statements xs
+      LEFT JOIN coursera_xapi_events cxe ON cxe.statement_id = xs.statement_id
+      LEFT JOIN users actor_user ON LOWER(actor_user.email) = LOWER(xs.actor_email)
+      WHERE (
+        ${organizationId}::text IS NULL
+        OR cxe.organization_id = ${organizationId}::text
+        OR actor_user.organization_id = ${organizationId}::text
+      )
+    `,
     prisma.courseProgress.groupBy({
       by: ['userId'],
+      ...(organizationId ? { where: { user: { organizationId } } } : {}),
+      orderBy: { userId: 'asc' },
       _count: { userId: true },
     }),
-    countXapiStatementsNeedingAttention(),
+    countXapiStatementsNeedingAttention({ organizationId }),
   ]);
 
   return {
-    lastXapiReceivedAt: maxCreated._max.createdAt ?? null,
+    lastXapiReceivedAt: maxCreatedRows[0]?.latest ?? null,
     distinctMembersWithCourseProgress: progressUsers.length,
     attentionStatementCount: attentionCount,
   };

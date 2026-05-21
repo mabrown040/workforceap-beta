@@ -17,6 +17,7 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/lib/auth/server', () => ({ getUser: vi.fn() }));
 vi.mock('@/lib/auth/roles', () => ({ isAdmin: vi.fn() }));
+vi.mock('@/lib/tenant/organization', () => ({ getActorOrganizationId: vi.fn() }));
 
 vi.mock('@/lib/xapi/mappings', () => ({
   listCourseraIdentityMappings: vi.fn(),
@@ -36,6 +37,7 @@ vi.mock('@/lib/coursera/replayPendingXapi', () => ({
 import { GET, POST } from '@/app/api/admin/coursera/mappings/route';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   listCourseraIdentityMappings,
   listRecentUnmatchedXapiEvents,
@@ -50,6 +52,12 @@ const postReq = (body: unknown) =>
     headers: { 'content-type': 'application/json' },
     body: typeof body === 'string' ? body : JSON.stringify(body),
   });
+
+function mockAdmin() {
+  vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
+  vi.mocked(isAdmin).mockResolvedValue(true);
+  vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+}
 
 describe('GET /api/admin/coursera/mappings', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -72,8 +80,7 @@ describe('GET /api/admin/coursera/mappings', () => {
   });
 
   it('returns mappings and unmatched events for admin', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
     vi.mocked(listCourseraIdentityMappings).mockResolvedValue([
       { userId: 'u1', courseraEmail: 'c1@example.com' },
     ] as any);
@@ -86,12 +93,12 @@ describe('GET /api/admin/coursera/mappings', () => {
     const body = await res.json();
     expect(body.mappings).toHaveLength(1);
     expect(body.unmatchedEvents).toHaveLength(1);
-    expect(listRecentUnmatchedXapiEvents).toHaveBeenCalledWith(50);
+    expect(listCourseraIdentityMappings).toHaveBeenCalledWith({ organizationId: 'org-1' });
+    expect(listRecentUnmatchedXapiEvents).toHaveBeenCalledWith(50, { organizationId: 'org-1' });
   });
 
   it('respects unmatchedLimit query param', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
     vi.mocked(listCourseraIdentityMappings).mockResolvedValue([] as any);
     vi.mocked(listRecentUnmatchedXapiEvents).mockResolvedValue([] as any);
 
@@ -99,29 +106,27 @@ describe('GET /api/admin/coursera/mappings', () => {
       new Request('http://localhost:3000/api/admin/coursera/mappings?unmatchedLimit=10')
     );
     expect(res.status).toBe(200);
-    expect(listRecentUnmatchedXapiEvents).toHaveBeenCalledWith(10);
+    expect(listRecentUnmatchedXapiEvents).toHaveBeenCalledWith(10, { organizationId: 'org-1' });
   });
 
   it('clamps unmatchedLimit to 1-200 range', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
     vi.mocked(listCourseraIdentityMappings).mockResolvedValue([] as any);
     vi.mocked(listRecentUnmatchedXapiEvents).mockResolvedValue([] as any);
 
     await GET(
       new Request('http://localhost:3000/api/admin/coursera/mappings?unmatchedLimit=0')
     );
-    expect(listRecentUnmatchedXapiEvents).toHaveBeenCalledWith(1);
+    expect(listRecentUnmatchedXapiEvents).toHaveBeenCalledWith(1, { organizationId: 'org-1' });
 
     await GET(
       new Request('http://localhost:3000/api/admin/coursera/mappings?unmatchedLimit=999')
     );
-    expect(listRecentUnmatchedXapiEvents).toHaveBeenCalledWith(200);
+    expect(listRecentUnmatchedXapiEvents).toHaveBeenCalledWith(200, { organizationId: 'org-1' });
   });
 
   it('returns 500 when mapping service throws', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
     vi.mocked(listCourseraIdentityMappings).mockRejectedValue(new Error('DB error'));
 
     const res = await GET(new Request('http://localhost:3000/api/admin/coursera/mappings'));
@@ -150,8 +155,7 @@ describe('POST /api/admin/coursera/mappings', () => {
   });
 
   it('returns 400 for invalid JSON', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
 
     const res = await POST(postReq('not-json'));
     expect(res.status).toBe(400);
@@ -159,8 +163,7 @@ describe('POST /api/admin/coursera/mappings', () => {
   });
 
   it('returns 400 when userId is missing', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
 
     const res = await POST(postReq({ courseraEmail: 'c@example.com' }));
     expect(res.status).toBe(400);
@@ -168,8 +171,7 @@ describe('POST /api/admin/coursera/mappings', () => {
   });
 
   it('returns 400 when neither courseraEmail nor actorIdentifier provided', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
 
     const res = await POST(postReq({ userId: 'u1' }));
     expect(res.status).toBe(400);
@@ -179,8 +181,7 @@ describe('POST /api/admin/coursera/mappings', () => {
   });
 
   it('creates mapping with courseraEmail and reprocesses events', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
     vi.mocked(upsertCourseraIdentityMapping).mockResolvedValue({
       id: 'map-1',
       userId: 'u1',
@@ -210,13 +211,13 @@ describe('POST /api/admin/coursera/mappings', () => {
         courseraEmail: 'c@example.com',
         createdByUserId: 'admin-1',
         source: 'manual-admin-api',
+        expectedOrganizationId: 'org-1',
       })
     );
   });
 
   it('creates mapping with actorIdentifier instead of courseraEmail', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
     vi.mocked(upsertCourseraIdentityMapping).mockResolvedValue({
       id: 'map-2',
       userId: 'u1',
@@ -244,8 +245,7 @@ describe('POST /api/admin/coursera/mappings', () => {
   });
 
   it('returns 400 when upsert throws', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
     vi.mocked(upsertCourseraIdentityMapping).mockRejectedValue(new Error('Duplicate mapping'));
 
     const res = await POST(postReq({ userId: 'u1', courseraEmail: 'c@example.com' }));
@@ -254,8 +254,7 @@ describe('POST /api/admin/coursera/mappings', () => {
   });
 
   it('survives reprocess failure and still returns success', async () => {
-    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
-    vi.mocked(isAdmin).mockResolvedValue(true);
+    mockAdmin();
     vi.mocked(upsertCourseraIdentityMapping).mockResolvedValue({ id: 'map-1' } as any);
     vi.mocked(reprocessUnmatchedXapiEvents).mockRejectedValue(new Error('Reprocess crash'));
     vi.mocked(replayUnresolvedXapiStatementsForIdentity).mockRejectedValue(new Error('Replay crash'));

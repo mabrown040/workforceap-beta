@@ -11,8 +11,9 @@ import ErrorBoundary from '@/components/error/ErrorBoundary';
 import { getTranslations } from 'next-intl/server';
 import { marketingButtonPresets, marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
-
 const LanguageToggle = dynamic(() => import('@/components/portal/LanguageToggle'));
+
+const HomeCompetitorContrast = dynamic(() => import('@/components/marketing/HomeCompetitorContrast'));
 
 const HomePageBelowFold = dynamic(() => import('@/components/marketing/HomePageBelowFold'));
 
@@ -304,6 +305,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <HomeCompetitorContrast />
 
       <HomePageBelowFold homeProgramShowcase={homeProgramShowcase} programCount={programCount} />
 

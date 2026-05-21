@@ -1,5 +1,6 @@
-﻿import { Suspense } from 'react';
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -8,9 +9,7 @@ import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
 import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
-import MemberCareerPathSection from '@/components/portal/MemberCareerPathSection';
 import type { CareerMatchResult } from '@/lib/onet/types';
-import MatchedRoles from '@/components/portal/MatchedRoles';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { canBypassMemberAssessment, isSuperAdmin } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
@@ -45,13 +44,29 @@ import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import RequestHelpButton from '@/components/portal/RequestHelpButton';
 import MemberFeedbackButton from '@/components/portal/MemberFeedbackButton';
-import LogCertificationModal from './LogCertificationModal';
-import PlacementConfirmationStrip from './PlacementConfirmationStrip';
-import PointsWidget from '@/components/portal/PointsWidget';
-import PWAInstallPrompt from '@/components/pwa/PWAInstallPrompt';
 import { getMemberPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 import { getTranslations } from 'next-intl/server';
+
+const MemberCareerPathSection = dynamic(
+  () => import('@/components/portal/MemberCareerPathSection'),
+  { loading: () => null }
+);
+const MatchedRoles = dynamic(() => import('@/components/portal/MatchedRoles'), {
+  loading: () => <JobsSkeleton count={4} />,
+});
+const LogCertificationModal = dynamic(() => import('./LogCertificationModal'), {
+  loading: () => null,
+});
+const PlacementConfirmationStrip = dynamic(() => import('./PlacementConfirmationStrip'), {
+  loading: () => null,
+});
+const PointsWidget = dynamic(() => import('@/components/portal/PointsWidget'), {
+  loading: () => null,
+});
+const PWAInstallPrompt = dynamic(() => import('@/components/pwa/PWAInstallPrompt'), {
+  loading: () => null,
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');

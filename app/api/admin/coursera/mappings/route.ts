@@ -8,6 +8,7 @@ import {
 } from '@/lib/xapi/mappings';
 import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 async function requireAdminUser() {
   const user = await getUser();
@@ -17,10 +18,19 @@ async function requireAdminUser() {
   return user;
 }
 
+async function requireAdminContext() {
+  const user = await requireAdminUser();
+  if (!user) return null;
+  return {
+    user,
+    organizationId: await getActorOrganizationId(user.id),
+  };
+}
+
 export async function GET(request: Request) {
   try {
-    const user = await requireAdminUser();
-    if (!user) {
+    const ctx = await requireAdminContext();
+    if (!ctx) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   
@@ -32,8 +42,8 @@ export async function GET(request: Request) {
   
     try {
       const [mappings, unmatchedEvents] = await Promise.all([
-        listCourseraIdentityMappings(),
-        listRecentUnmatchedXapiEvents(unmatchedLimit),
+        listCourseraIdentityMappings({ organizationId: ctx.organizationId }),
+        listRecentUnmatchedXapiEvents(unmatchedLimit, { organizationId: ctx.organizationId }),
       ]);
   
       return NextResponse.json({
@@ -52,8 +62,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = await requireAdminUser();
-    if (!user) {
+    const ctx = await requireAdminContext();
+    if (!ctx) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   
@@ -86,8 +96,9 @@ export async function POST(request: Request) {
         actorIdentifier: body.actorIdentifier,
         actorHomePage: body.actorHomePage,
         notes: body.notes,
-        createdByUserId: user.id,
+        createdByUserId: ctx.user.id,
         source: 'manual-admin-api',
+        expectedOrganizationId: ctx.organizationId,
       });
   
       // Re-process unmatched xAPI events that might now match this mapping.

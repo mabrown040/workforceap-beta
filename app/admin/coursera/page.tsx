@@ -20,6 +20,7 @@ import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getDiscoveredProgram, getProgramBySlug } from '@/lib/content/programs';
 import {
   getCourseraSyncStatus,
@@ -321,6 +322,7 @@ export default async function AdminCourseraPage({
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/coursera');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
+  const organizationId = await getActorOrganizationId(user.id);
 
   const sp = (await searchParams) ?? {};
   const auditEmailRaw = typeof sp.auditEmail === 'string' ? sp.auditEmail : '';
@@ -332,6 +334,7 @@ export default async function AdminCourseraPage({
   const members = await prisma.user.findMany({
     where: {
       deletedAt: null,
+      organizationId,
       OR: [
         { profile: { is: null } },
         { profile: { role: 'member' } },
@@ -376,10 +379,10 @@ export default async function AdminCourseraPage({
 
   try {
     [mappings, xapiAttention, syncStatus, unmatchedActorAlerts] = await Promise.all([
-      listCourseraIdentityMappings(),
-      listXapiStatementsNeedingAttention(100),
-      getCourseraSyncStatus(),
-      getCourseraUnmatchedActorAlertStats().catch((error) => {
+      listCourseraIdentityMappings({ organizationId }),
+      listXapiStatementsNeedingAttention(100, { organizationId }),
+      getCourseraSyncStatus({ organizationId }),
+      getCourseraUnmatchedActorAlertStats({ organizationId }).catch((error) => {
         console.error('[admin/coursera] unmatched actor alert stats failed:', error);
         return {
           distinctUnmatchedActorEmails: 0,
@@ -402,7 +405,7 @@ export default async function AdminCourseraPage({
   const hiddenTestAccountCount = showTestAccounts
     ? 0
     : await countHiddenTestAccountUnmatchedLearners();
-  const skillsetProgress = await getCourseraSkillsetProgressSummary(10);
+  const skillsetProgress = await getCourseraSkillsetProgressSummary(10, { organizationId });
 
   if (auditEmailRaw.trim().length > 0) {
     try {

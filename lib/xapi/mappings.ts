@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { sendCourseraUnmatchedActorAlertEmail } from '@/lib/email';
 
@@ -33,6 +34,10 @@ type MappingRow = {
   userFullName: string;
 };
 
+type TenantScopeOptions = {
+  organizationId?: string | null;
+};
+
 let ensureTablesPromise: Promise<void> | null = null;
 
 function normalizeEmail(value: string | null | undefined) {
@@ -43,6 +48,16 @@ function normalizeEmail(value: string | null | undefined) {
 function normalizeActorValue(value: string | null | undefined) {
   const normalized = value?.trim() || '';
   return normalized || null;
+}
+
+function normalizeOrganizationId(value: string | null | undefined) {
+  const normalized = value?.trim() || '';
+  return normalized || null;
+}
+
+function orgScopeSql(columnSql: Prisma.Sql, organizationId: string | null | undefined) {
+  const orgId = normalizeOrganizationId(organizationId);
+  return orgId ? Prisma.sql`AND ${columnSql} = ${orgId}::text` : Prisma.empty;
 }
 
 export async function ensureCourseraMappingTables() {
@@ -483,8 +498,9 @@ export async function recordXapiEvent(args: {
   }
 }
 
-export async function listCourseraIdentityMappings() {
+export async function listCourseraIdentityMappings(options: TenantScopeOptions = {}) {
   await ensureCourseraMappingTables();
+  const orgFilter = orgScopeSql(Prisma.sql`COALESCE(cim.organization_id, u.organization_id)`, options.organizationId);
 
   return prisma.$queryRaw<MappingRow[]>`
     SELECT
@@ -503,6 +519,8 @@ export async function listCourseraIdentityMappings() {
       u.full_name AS "userFullName"
     FROM coursera_identity_mappings cim
     JOIN users u ON u.id = cim.user_id
+    WHERE 1=1
+      ${orgFilter}
     ORDER BY cim.updated_at DESC, cim.created_at DESC
     LIMIT 200
   `;
@@ -551,18 +569,22 @@ export type CourseraSkillsetProgressSummary = {
 };
 
 export async function getCourseraSkillsetProgressSummary(
-  topLimit = 10
+  topLimit = 10,
+  options: TenantScopeOptions = {},
 ): Promise<CourseraSkillsetProgressSummary> {
   // The CourseraSkillsetProgress table is owned by Prisma and may not exist yet
   // in environments that haven't run `prisma migrate deploy`. Treat any access
   // failure as a soft-empty so the admin page still renders.
   try {
+    const organizationId = normalizeOrganizationId(options.organizationId);
     const [aggregate, top] = await Promise.all([
       prisma.courseraSkillsetProgress.aggregate({
+        ...(organizationId ? { where: { user: { organizationId } } } : {}),
         _count: { _all: true },
         _max: { lastSyncedAt: true },
       }),
       prisma.courseraSkillsetProgress.findMany({
+        ...(organizationId ? { where: { user: { organizationId } } } : {}),
         orderBy: [{ progressPct: 'desc' }, { lastSyncedAt: 'desc' }],
         take: topLimit,
         select: {
@@ -609,8 +631,12 @@ export type CourseraUnmatchedActorAlertStats = {
  * Admin surfacing: distinct unmatched actor inboxes in `coursera_xapi_events`, plus
  * dedupe rows from `coursera_unmatched_actor_alerts` (first-seen tracking for alerts).
  */
-export async function getCourseraUnmatchedActorAlertStats(): Promise<CourseraUnmatchedActorAlertStats> {
+export async function getCourseraUnmatchedActorAlertStats(
+  options: TenantScopeOptions = {},
+): Promise<CourseraUnmatchedActorAlertStats> {
   await ensureCourseraMappingTables();
+  const eventOrgFilter = orgScopeSql(Prisma.sql`organization_id`, options.organizationId);
+  const alertOrgFilter = orgScopeSql(Prisma.sql`organization_id`, options.organizationId);
 
   const [distinctRow, recentRows, weekRow] = await Promise.all([
     prisma.$queryRaw<Array<{ c: bigint | number }>>`
@@ -620,10 +646,13 @@ export async function getCourseraUnmatchedActorAlertStats(): Promise<CourseraUnm
         AND mapping_method IS NULL
         AND actor_email IS NOT NULL
         AND TRIM(actor_email) <> ''
+        ${eventOrgFilter}
     `,
     prisma.$queryRaw<Array<{ actorEmailLower: string; firstSeenAt: Date }>>`
       SELECT actor_email_lower AS "actorEmailLower", first_seen_at AS "firstSeenAt"
       FROM coursera_unmatched_actor_alerts
+      WHERE 1=1
+        ${alertOrgFilter}
       ORDER BY first_seen_at DESC
       LIMIT 8
     `,
@@ -631,6 +660,7 @@ export async function getCourseraUnmatchedActorAlertStats(): Promise<CourseraUnm
       SELECT COUNT(*)::bigint AS c
       FROM coursera_unmatched_actor_alerts
       WHERE first_seen_at >= now() - interval '7 days'
+        ${alertOrgFilter}
     `,
   ]);
 
@@ -644,8 +674,12 @@ export async function getCourseraUnmatchedActorAlertStats(): Promise<CourseraUnm
   };
 }
 
-export async function listRecentUnmatchedXapiEvents(limit = 50) {
+export async function listRecentUnmatchedXapiEvents(
+  limit = 50,
+  options: TenantScopeOptions = {},
+) {
   await ensureCourseraMappingTables();
+  const orgFilter = orgScopeSql(Prisma.sql`organization_id`, options.organizationId);
 
   return prisma.$queryRaw<Array<{
     id: string;
@@ -676,6 +710,7 @@ export async function listRecentUnmatchedXapiEvents(limit = 50) {
       updated_at AS "updatedAt"
     FROM coursera_xapi_events
     WHERE completion_status IN ('unmatched', 'error')
+      ${orgFilter}
     ORDER BY received_at DESC
     LIMIT ${limit}
   `;
@@ -689,6 +724,7 @@ export async function upsertCourseraIdentityMapping(args: {
   notes?: string | null;
   createdByUserId?: string | null;
   source?: string;
+  expectedOrganizationId?: string | null;
 }) {
   await ensureCourseraMappingTables();
 
@@ -709,6 +745,13 @@ export async function upsertCourseraIdentityMapping(args: {
   });
 
   if (!user) throw new Error('User not found');
+  const expectedOrganizationId = normalizeOrganizationId(args.expectedOrganizationId);
+  if (expectedOrganizationId && user.organizationId !== expectedOrganizationId) {
+    throw new Error('User is outside your organization');
+  }
+  const expectedOrgFilter = expectedOrganizationId
+    ? Prisma.sql`AND (organization_id = ${expectedOrganizationId}::text OR organization_id IS NULL)`
+    : Prisma.empty;
 
   const actorMatch = actorIdentifier
     ? await prisma.$queryRaw<Array<{ id: string }>>`
@@ -716,6 +759,7 @@ export async function upsertCourseraIdentityMapping(args: {
         FROM coursera_identity_mappings
         WHERE actor_identifier = ${actorIdentifier}::text
           AND COALESCE(actor_home_page, '') = COALESCE(${actorHomePage}::text, '')
+          ${expectedOrgFilter}
         LIMIT 1
       `
     : [];
@@ -725,6 +769,7 @@ export async function upsertCourseraIdentityMapping(args: {
         SELECT id
         FROM coursera_identity_mappings
         WHERE LOWER(coursera_email) = ${courseraEmail}::text
+          ${expectedOrgFilter}
         LIMIT 1
       `
     : [];

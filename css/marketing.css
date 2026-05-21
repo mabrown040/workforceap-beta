@@ -328,6 +328,27 @@ html.dark .wwd-photo-hero h1.wwd-photo-hero__title {
   z-index: 1;
 }
 
+.employers-hero-cta__label {
+  min-width: 0;
+}
+
+.employers-hero-cta__icon {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 480px) {
+  .employers-landing__hero-cta .btn {
+    width: 100%;
+    justify-content: space-between;
+    padding-inline: 1.25rem;
+    text-align: left;
+  }
+
+  .employers-hero-cta__label {
+    overflow-wrap: anywhere;
+  }
+}
+
 /* ── Marketing chips / badges: AA contrast (gold & rose on light; accent on #121416-family dark) ── */
 
 .marketing-chip-text--gold {

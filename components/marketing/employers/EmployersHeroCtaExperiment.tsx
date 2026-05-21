@@ -82,9 +82,13 @@ export default function EmployersHeroCtaExperiment({
 
   const content = (
     <>
-      {label}
-      <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
-        calendar_month
+      <span className="employers-hero-cta__label">{label}</span>
+      <span
+        className="material-symbols-outlined employers-hero-cta__icon"
+        style={{ fontSize: '1.125rem' }}
+        aria-hidden="true"
+      >
+        calendar_today
       </span>
     </>
   );

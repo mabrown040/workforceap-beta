@@ -1,18 +1,10 @@
 import type { MetadataRoute } from 'next';
-import { PROGRAMS } from '@/lib/content/programs';
 import { LEADERS } from '@/lib/content/leadership';
 import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
+import { getActiveProgramSlugsForSitemap } from '@/lib/seo/activeProgramSlugs';
+import { getSiteUrl } from '@/lib/seo/siteEnvironment';
 
-const SITE_URL = 'https://www.workforceap.org';
-
-/**
- * Locales whose URL prefixes should appear in `alternates.languages` per
- * sitemap entry (cursor audit item 14). The default locale's URL is the
- * canonical (un-prefixed) form; alternates inform Google which other
- * URLs serve the same content in another language. Stay aligned with
- * the picker in `components/portal/LanguageToggle.tsx`.
- */
 const SITEMAP_LOCALES: { code: string; prefix: string }[] = [
   { code: 'en', prefix: '' },
   { code: 'es', prefix: '/es' },
@@ -20,66 +12,69 @@ const SITEMAP_LOCALES: { code: string; prefix: string }[] = [
   { code: 'pt', prefix: '/pt' },
 ];
 
-function buildAlternates(path: string) {
+type PublicRouteConfig = {
+  path: string;
+  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'];
+  priority: number;
+  lastModified?: Date;
+};
+
+function buildAlternates(path: string, siteUrl: string) {
   const languages: Record<string, string> = {};
   for (const { code, prefix } of SITEMAP_LOCALES) {
-    languages[code] = `${SITE_URL}${prefix}${path}`;
+    languages[code] = `${siteUrl}${prefix}${path}`;
   }
-  // x-default points at the canonical (default-locale) URL so search
-  // engines have a fallback for unrecognized locales.
-  languages['x-default'] = `${SITE_URL}${path}`;
+  languages['x-default'] = `${siteUrl}${path}`;
   return { languages };
 }
 
 export const dynamic = 'force-dynamic';
 
-const routes = [
-  '/',
-  '/apply',
-  '/blog',
-  '/contact',
-  '/employers',
-  '/faq',
-  '/find-your-path',
-  '/how-it-works',
-  '/impact',
-  '/leadership',
-  '/partners',
-  '/partner-signup',
-  '/program-comparison',
-  '/programs',
-  '/salary-guide',
-  '/terms',
-  '/what-we-do',
-  '/wioa-qualification',
-  '/privacy',
-  '/mentor',
-  '/mentor/apply',
-  '/accessibility',
-  '/outcomes',
-  // Member-only data-rights surface; surfaced in sitemap so the
-  // privacy policy's "request / delete your data" links are
-  // discoverable and indexable for legal-disclosure purposes.
-  '/account/privacy',
-] as const;
+const PUBLIC_ROUTES: PublicRouteConfig[] = [
+  { path: '/', changeFrequency: 'weekly', priority: 1 },
+  { path: '/apply', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/blog', changeFrequency: 'weekly', priority: 0.8 },
+  { path: '/contact', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/employers', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/faq', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/find-your-path', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/how-it-works', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/impact', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/leadership', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/partners', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/program-comparison', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/programs', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/salary-guide', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/terms', changeFrequency: 'yearly', priority: 0.5 },
+  { path: '/what-we-do', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/wioa-qualification', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/privacy', changeFrequency: 'yearly', priority: 0.5 },
+  { path: '/mentor', changeFrequency: 'monthly', priority: 0.7 },
+  { path: '/mentor/apply', changeFrequency: 'monthly', priority: 0.7 },
+  { path: '/accessibility', changeFrequency: 'yearly', priority: 0.5 },
+  { path: '/outcomes', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/account/privacy', changeFrequency: 'yearly', priority: 0.4 },
+];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+  const siteUrl = getSiteUrl();
+  const fallbackModified = new Date();
 
-  const mainPages = routes.map((path) => ({
-    url: `${SITE_URL}${path}`,
-    lastModified: now,
-    changeFrequency: path === '/' ? ('weekly' as const) : ('monthly' as const),
-    priority: path === '/' ? 1 : 0.8,
-    alternates: buildAlternates(path),
+  const mainPages: MetadataRoute.Sitemap = PUBLIC_ROUTES.map(({ path, changeFrequency, priority, lastModified }) => ({
+    url: `${siteUrl}${path}`,
+    lastModified: lastModified ?? fallbackModified,
+    changeFrequency,
+    priority,
+    alternates: buildAlternates(path, siteUrl),
   }));
 
-  const programPages = PROGRAMS.map((p) => ({
-    url: `${SITE_URL}/programs/${p.slug}`,
-    lastModified: now,
+  const activePrograms = await getActiveProgramSlugsForSitemap();
+  const programPages: MetadataRoute.Sitemap = activePrograms.map(({ slug, lastModified }) => ({
+    url: `${siteUrl}/programs/${slug}`,
+    lastModified,
     changeFrequency: 'monthly' as const,
     priority: 0.8,
-    alternates: buildAlternates(`/programs/${p.slug}`),
+    alternates: buildAlternates(`/programs/${slug}`, siteUrl),
   }));
 
   let blogPages: MetadataRoute.Sitemap = [];
@@ -90,24 +85,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         select: { slug: true, updatedAt: true },
         take: 1000,
       });
-      blogPages = blogPosts.map((p) => ({
-        url: `${SITE_URL}/blog/${p.slug}`,
-        lastModified: p.updatedAt,
+      blogPages = blogPosts.map((post) => ({
+        url: `${siteUrl}/blog/${post.slug}`,
+        lastModified: post.updatedAt,
         changeFrequency: 'weekly' as const,
         priority: 0.7,
-        alternates: buildAlternates(`/blog/${p.slug}`),
+        alternates: buildAlternates(`/blog/${post.slug}`, siteUrl),
       }));
     } catch {
       // DB unavailable at build/runtime.
     }
   }
 
-  const leadershipPages = LEADERS.map((l) => ({
-    url: `${SITE_URL}/leadership/${l.slug}`,
-    lastModified: now,
+  const leadershipPages: MetadataRoute.Sitemap = LEADERS.map((leader) => ({
+    url: `${siteUrl}/leadership/${leader.slug}`,
+    lastModified: fallbackModified,
     changeFrequency: 'monthly' as const,
     priority: 0.6,
-    alternates: buildAlternates(`/leadership/${l.slug}`),
+    alternates: buildAlternates(`/leadership/${leader.slug}`, siteUrl),
   }));
 
   return [...mainPages, ...programPages, ...leadershipPages, ...blogPages];

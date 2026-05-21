@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { APP_LOCALES, DEFAULT_LOCALE, type AppLocale, withLocalePrefix } from '@/lib/i18n/config';
 import { getRequestLocale } from '@/lib/i18n/server';
+import { buildOgImageUrl, getSiteUrl } from '@/lib/seo/siteEnvironment';
 
-export const SITE_URL = 'https://www.workforceap.org';
+export const SITE_URL = getSiteUrl();
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/hero-people.webp`;
 
 type PageSeoInput = {
@@ -36,7 +37,7 @@ function ogLocaleTag(locale: AppLocale): string {
 }
 
 export function buildPageMetadata({ title, description, path, locale = DEFAULT_LOCALE, image, robots }: PageSeoInput): Metadata {
-  const ogImage = image ?? DEFAULT_OG_IMAGE;
+  const ogImage = image ?? buildOgImageUrl(title, description);
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   const canonicalPath = withLocalePrefix(normalizedPath === '' ? '/' : normalizedPath, locale);
   const fullUrl = absoluteUrl(canonicalPath);

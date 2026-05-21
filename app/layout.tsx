@@ -142,6 +142,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        {/* Self-hosted subset (~19 KB woff2); preload so icons render without waiting on main.css parse */}
+        <link
+          rel="preload"
+          href="/fonts/material-symbols-outlined.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         {/* Material Symbols Outlined is self-hosted via @font-face in main.css */}
         {/* Register service worker — updateViaCache:'none' ensures browser always fetches fresh sw.js */}
         <Script id="sw-register" strategy="lazyOnload">

@@ -4,6 +4,8 @@ import PortalLayoutClient from '@/components/portal/PortalLayoutClient';
 import '@/css/portal.css';
 import '@/css/portal-a11y.css';
 import '@/css/dark-mode.css';
+import '@/css/counselor.css';
+import '@/css/language-toggle.css';
 
 export const metadata: Metadata = {
   title: 'Portal',

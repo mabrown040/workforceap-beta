@@ -5,7 +5,6 @@ import Link from "next/link";
 import dynamic from 'next/dynamic';
 
 const MarkdownPreview = dynamic(() => import('@/components/MarkdownPreview'), { ssr: false });
-import "@/css/counselor.css";
 import { uploadMemberResumeFile } from "@/lib/portal/memberResumeUpload";
 import { trackFunnelEvent } from "@/lib/analytics/events";
 

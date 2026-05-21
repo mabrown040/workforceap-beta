@@ -10,6 +10,8 @@ import { getDefaultOrgBranding } from '@/lib/platform/defaultOrgTheme';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import '@/css/portal.css';
+import '@/css/counselor.css';
+import '@/css/language-toggle.css';
 
 export const dynamic = 'force-dynamic';
 

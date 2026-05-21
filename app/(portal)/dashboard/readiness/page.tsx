@@ -10,8 +10,6 @@ import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCa
 import CompactReadinessCoach from '@/components/portal/CompactReadinessCoach';
 import ReadinessCoachReturnButton from '@/components/portal/ReadinessCoachReturnButton';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
-import '@/css/counselor.css';
-
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({

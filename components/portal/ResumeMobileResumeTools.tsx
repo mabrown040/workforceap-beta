@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import '@/css/counselor.css';
 import { uploadMemberResumeFile } from '@/lib/portal/memberResumeUpload';
 
 type Props = {

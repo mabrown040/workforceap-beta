@@ -7,8 +7,6 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import ReadinessCounselorClient from './ReadinessCounselorClient';
-import '@/css/counselor.css';
-
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
   title: 'Readiness Checklist',

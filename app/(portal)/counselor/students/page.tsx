@@ -11,7 +11,7 @@ import { getTranslations } from 'next-intl/server';
 import CounselorStudentsRosterClient from '@/components/portal/counselor/CounselorStudentsRosterClient';
 import { loadCounselorRosterRiskAndActivity } from '@/lib/counselor/counselorStudentsRoster';
 import CounselorAnalyticsCards, { CounselorAnalyticsCardsDesktop } from '@/components/portal/counselor/CounselorAnalyticsCards';
-import ProgressDistributionChart from '@/components/portal/counselor/ProgressDistributionChart';
+import ProgressDistributionChart from '@/components/portal/counselor/ProgressDistributionChartLazy';
 import AtRiskMemberList from '@/components/portal/counselor/AtRiskMemberList';
 import RecentActivityFeed from '@/components/portal/counselor/RecentActivityFeed';
 

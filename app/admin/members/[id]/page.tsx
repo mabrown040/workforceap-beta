@@ -37,8 +37,6 @@ import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import { loadLearnerProgressByUserId } from '@/lib/coursera/progressQueries';
 import { getBoardSnapshot, SMALL_SAMPLE_THRESHOLD } from '@/lib/admin/boardOutcomes';
 import MemberCourseraDiagnoseButton from '@/components/admin/MemberCourseraDiagnoseButton';
-import '@/css/counselor.css';
-
 type AdminCourseProgressRow = {
   courseSlug: string;
   courseId: string | null;

@@ -33,10 +33,23 @@
 /*
  * Mirrors theme foreground on <html> only. `.marketing-mobile` overrides `--color-on-surface` for its
  * subtree; dark-mode stripes need resolved document colors via `--wap-doc-*` (inherited, not circular).
+ *
+ * `--wap-marketing-mobile-*-resolved` on `html` / `html.dark` replace the old
+ * `.marketing-mobile, html.dark .marketing-mobile { color: #1c1b1b }` pair so dark mode never
+ * inherits a light-only default.
  */
 html {
   --wap-doc-on-surface: var(--color-on-surface);
   --wap-doc-on-surface-variant: var(--color-on-surface-variant);
+  --wap-marketing-mobile-text-resolved: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface-resolved: var(--wap-marketing-light-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant-resolved: var(--wap-marketing-light-on-surface-variant);
+}
+
+html.dark {
+  --wap-marketing-mobile-text-resolved: var(--wap-doc-on-surface);
+  --wap-marketing-mobile-c-on-surface-resolved: var(--wap-doc-on-surface);
+  --wap-marketing-mobile-c-on-surface-variant-resolved: var(--wap-doc-on-surface-variant);
 }
 
 @media (max-width: 767px) {
@@ -141,28 +154,12 @@ html.dark .partner-logos-small span {
  * Cream stripes opt in via `marketing-mobile--on-light-marketing-surface`; dark stripes use `--wap-marketing-dark-on-surface*`.
  */
 .marketing-mobile {
-  color: var(--wap-marketing-mobile-text, var(--wap-doc-on-surface));
-  --color-on-surface: var(--wap-marketing-mobile-c-on-surface, var(--wap-doc-on-surface));
+  color: var(--wap-marketing-mobile-text, var(--wap-marketing-mobile-text-resolved));
+  --color-on-surface: var(--wap-marketing-mobile-c-on-surface, var(--wap-marketing-mobile-c-on-surface-resolved));
   --color-on-surface-variant: var(
     --wap-marketing-mobile-c-on-surface-variant,
-    var(--wap-doc-on-surface-variant)
+    var(--wap-marketing-mobile-c-on-surface-variant-resolved)
   );
-}
-
-html:not(.dark)
-  .marketing-mobile:not(.marketing-mobile--on-theme-surface):not(.marketing-mobile--on-dark-marketing-surface) {
-  --wap-marketing-mobile-text: var(--wap-marketing-light-on-surface);
-  --wap-marketing-mobile-c-on-surface: var(--wap-marketing-light-on-surface);
-  --wap-marketing-mobile-c-on-surface-variant: var(--wap-marketing-light-on-surface-variant);
-}
-
-html.dark
-  .marketing-mobile:not(.marketing-mobile--on-theme-surface):not(
-    .marketing-mobile--on-dark-marketing-surface
-  ):not(.marketing-mobile--on-light-marketing-surface) {
-  --wap-marketing-mobile-text: var(--wap-doc-on-surface);
-  --wap-marketing-mobile-c-on-surface: var(--wap-doc-on-surface);
-  --wap-marketing-mobile-c-on-surface-variant: var(--wap-doc-on-surface-variant);
 }
 
 html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {

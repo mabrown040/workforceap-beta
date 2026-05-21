@@ -7,6 +7,7 @@ import { PROGRAMS } from '@/lib/content/programs';
 import { PIPELINE_STAGE_LABELS } from '@/lib/pipeline/stage';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
+import { getTranslations } from 'next-intl/server';
 import AdminExportForm from './AdminExportForm';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -27,6 +28,7 @@ export default async function AdminExportsPage() {
     value,
     label,
   }));
+  const t = await getTranslations('admin');
 
   return (
     <PortalPageFrame>
@@ -56,6 +58,41 @@ export default async function AdminExportsPage() {
             </div>
 
             <AdminExportForm programs={programs} stages={stages} />
+          </div>
+        </section>
+
+        {/* Funder program summary (grant reporting) */}
+        <section style={{ marginBottom: '2.5rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ padding: '0.5rem', background: 'rgba(128,217,159,0.15)', borderRadius: '0.5rem' }}>
+                <span
+                  className="material-symbols-outlined"
+                  style={{ color: '#80d99f', fontSize: '1.25rem' }}
+                  aria-hidden="true"
+                >
+                  analytics
+                </span>
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-on-surface)', margin: 0 }}>
+                  {t('exportFunderCsvTitle')}
+                </h2>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0.125rem 0 0' }}>
+                  {t('exportFunderCsvDescription')}
+                </p>
+              </div>
+            </div>
+            <a
+              href="/api/admin/funder-program-summary"
+              className="btn btn-outline"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+                download
+              </span>
+              {t('exportFunderCsv')}
+            </a>
           </div>
         </section>
 

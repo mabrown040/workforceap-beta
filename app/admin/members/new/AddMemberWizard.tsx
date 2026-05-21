@@ -16,8 +16,6 @@ const FUNDING_SOURCE_OPTIONS = [
   { value: 'SELF', label: 'Self-Pay' },
   { value: 'OTHER', label: 'Other' },
 ];
-import '@/css/counselor.css';
-
 const EMPLOYMENT = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
 const INCOME = ['Under $20K', '$20K–$40K', '$40K–$60K', 'Over $60K'];

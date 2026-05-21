@@ -9,7 +9,7 @@ import LocalizedLink from '@/components/LocalizedLink';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { usePathname } from 'next/navigation';
 import { splitLocalePrefix } from '@/lib/i18n/config';
-import { useState, useEffect, useCallback, useRef, useId } from 'react';
+import { useState, useEffect, useCallback, useRef, useId, useMemo } from 'react';
 
 const navItems = [
   {
@@ -101,6 +101,18 @@ export default function MainNav() {
   const navContainerRef = useRef<HTMLDivElement>(null);
   const tNav = useTranslations('nav');
   const tCta = useTranslations('cta');
+  /** Static `tCta` keys so each flyout row stays distinct (Member / Counselor / … Sign In). */
+  const guestSignInLabels = useMemo(
+    () =>
+      ({
+        memberSignIn: tCta('memberSignIn'),
+        counselorSignIn: tCta('counselorSignIn'),
+        employerSignIn: tCta('employerSignIn'),
+        partnerSignIn: tCta('partnerSignIn'),
+        adminSignIn: tCta('adminSignIn'),
+      }) satisfies Record<GuestSignInCTAKey, string>,
+    [tCta],
+  );
   const translateLabel = (label: string): string => {
     const navMap: Record<string, string> = {
       'Programs': tNav('programs'),
@@ -132,7 +144,9 @@ export default function MainNav() {
   };
 
   const portalSubmenuLabel = (item: PortalSubmenuItem): string =>
-    item.submenuKind === 'guestSignIn' ? tCta(item.signInCtaKey) : translateLabel(item.label);
+    item.submenuKind === 'guestSignIn'
+      ? guestSignInLabels[item.signInCtaKey]
+      : translateLabel(item.label);
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);

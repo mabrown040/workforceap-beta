@@ -27,7 +27,7 @@ function loadMethodologyMarkdown(): string {
 export default async function OutcomesMethodologyPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/outcomes/methodology');
-  if (!isAdmin(user)) redirect('/dashboard');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const markdown = loadMethodologyMarkdown();
 

@@ -13,7 +13,6 @@ export type EmployerCaseStudy = {
   quote: string;
   attribution_name: string;
   attribution_title: string;
-  attribution_avatar: string;
 };
 
 export const EMPLOYER_CASE_STUDIES: EmployerCaseStudy[] = [
@@ -28,7 +27,6 @@ export const EMPLOYER_CASE_STUDIES: EmployerCaseStudy[] = [
       'Our helpdesk and junior neteng hires were productive in week two — they walked in with CompTIA basics and ticket-queue discipline. We cut ramp time in half compared to our last agency search.',
     attribution_name: 'Jamie Nguyen',
     attribution_title: 'Director of IT Operations',
-    attribution_avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Jamie%20Nguyen',
   },
   {
     company: 'Hill Country Logistics',
@@ -41,7 +39,6 @@ export const EMPLOYER_CASE_STUDIES: EmployerCaseStudy[] = [
       'Twelve dispatch and ops coordinators over eleven months, and we have had one voluntary turnover. They show up, they communicate, and our on-time delivery metrics have not slipped.',
     attribution_name: 'Rosa Delgado',
     attribution_title: 'VP of Operations',
-    attribution_avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Rosa%20Delgado',
   },
   {
     company: 'Texas Health Coop',
@@ -54,6 +51,5 @@ export const EMPLOYER_CASE_STUDIES: EmployerCaseStudy[] = [
       'Five hires across IT support and patient coordination — every one passed HIPAA readiness and fits our team culture. We stopped gambling on résumés and started interviewing people trained for our environment.',
     attribution_name: 'Kenji Oka',
     attribution_title: 'Chief People Officer',
-    attribution_avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Kenji%20Oka',
   },
 ];

@@ -109,3 +109,20 @@ html.dark .language-toggle-select option {
   opacity: 0.45;
   user-select: none;
 }
+
+.home-hero .language-toggle--compact {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.78);
+}
+
+.home-hero .language-toggle__link,
+.home-hero .language-toggle__current {
+  opacity: 1;
+  background: rgba(18, 20, 22, 0.58);
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+}
+
+.home-hero .language-toggle__link:hover {
+  background: rgba(18, 20, 22, 0.78);
+}

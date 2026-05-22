@@ -4,7 +4,7 @@
   "sitelinks": [
     {
       "text": "Apply Now",
-      "description_line_1": "Start your free application",
+      "description_line_1": "Start your no-cost application",
       "description_line_2": "Takes about 10 minutes",
       "final_url": "https://workforceap.org/apply?utm_source=google_ads&utm_medium=extension&utm_content=sitelink_apply"
     },
@@ -22,16 +22,16 @@
     },
     {
       "text": "Outcomes",
-      "description_line_1": "Placement & salary impact",
-      "description_line_2": "See member success data",
+      "description_line_1": "Program reporting context",
+      "description_line_2": "See how outcomes are handled",
       "final_url": "https://workforceap.org/what-we-do?utm_source=google_ads&utm_medium=extension&utm_content=sitelink_outcomes"
     }
   ],
   "callouts": [
-    "Free",
-    "WIOA-funded",
-    "850+ Placed",
-    "No Cost to You",
+    "No-Cost to Members",
+    "WIOA Funding May Apply",
+    "Eligibility Support",
+    "No Cost if Eligible",
     "Austin-Based Support",
     "Employer Connections"
   ],
@@ -52,7 +52,7 @@
         "Career coaching",
         "Resume support",
         "Interview prep",
-        "Job placement",
+        "Job search support",
         "WIOA eligibility help"
       ]
     },

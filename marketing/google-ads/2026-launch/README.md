@@ -68,7 +68,7 @@ All campaigns ship **PAUSED** so nothing spends until Mike flips them live.
    https://workforceap.org/apply?utm_source=google_ads&utm_campaign={campaign}&utm_term={keyword}
    ```
    (Use `{campaign}` / `{keyword}` ValueTrack parameters supported by Google Ads.)
-5. `path_1` / `path_2` are set to `Apply` / `Free` where supported.
+5. `path_1` / `path_2` are set to `Apply` / `NoCost` where supported.
 6. Post and run **Check changes** for policy or character-limit warnings (headlines ≤ 30 chars, descriptions ≤ 90).
 
 ### Step 4 — Add extensions (manual)
@@ -77,7 +77,7 @@ All campaigns ship **PAUSED** so nothing spends until Mike flips them live.
 
 1. **Account-level extensions** (recommended so all 5 campaigns inherit):
    - **Ads & assets → Sitelinks** — add the four sitelinks from `extensions.json` (Apply, Programs, Employer Page, Outcomes).
-   - **Callouts** — add: `Free`, `WIOA-funded`, `850+ Placed`, plus the extras listed in the file.
+   - **Callouts** — add the eligibility-safe phrases listed in the file. Avoid unsupported placement counts and blanket `Free` claims.
    - **Structured snippets** — Programs, Services, Types headers with the value lists in the file.
 2. Optionally enable **Call** extension `(512) 777-1808` if phone leads are a goal.
 3. Associate extensions with all launch campaigns (or account-default).
@@ -89,6 +89,7 @@ All campaigns ship **PAUSED** so nothing spends until Mike flips them live.
 - [ ] Geo targets match funding/eligibility (Austin vs. Texas vs. US).
 - [ ] Negative keyword lists added at account/campaign level (not in this bundle — add separately).
 - [ ] Billing & daily budgets confirmed.
+- [ ] Creative still says `no-cost` / `eligible` and does not claim guaranteed jobs, wages, placements, or timelines.
 - [ ] Change campaign + ad group status from **Paused** → **Enabled** when ready.
 - [ ] Post changes from Editor → **Account → Post**.
 

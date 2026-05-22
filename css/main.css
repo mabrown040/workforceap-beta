@@ -1703,7 +1703,7 @@ h4 { font-size: var(--font-size-h4); font-weight: var(--font-weight-medium); }
     }
 }
 
-/* Legacy hook: clearance is handled globally in marketing.css (`#main-content`). */
+/* Legacy hook: mobile bottom nav clearance is global in marketing.css (`#main-content`, `.workspace-shell-main`). */
 @media (max-width: 767px) {
   .mobile-bottom-nav-spacer {
     padding-bottom: 0;

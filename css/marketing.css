@@ -11,12 +11,16 @@
  */
 :root {
   /*
-   * Fixed MobileBottomNav (~64px row + captions) + device home indicator + buffer so CTAs stay tappable.
-   * Compact portal chrome (`html.wap-portal-chrome-compact`) hides captions but the bar still uses
-   * min 44px tap targets plus vertical padding; a smaller clearance token under-counted vs. the real
-   * nav height on notched devices — keep compact inset equal to the default.
+   * Fixed MobileBottomNav: ~64px icon row + captions + vertical padding, plus device home indicator
+   * and a small buffer so the last in-flow button stays tappable. Compact portal chrome hides
+   * captions but keeps 44px targets — use the same clearance token (do not under-count).
    */
-  --wap-mobile-bottom-nav-clearance: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+  --wap-mobile-bottom-nav-bar-height: 4rem; /* ~64px primary row */
+  --wap-mobile-bottom-nav-clearance-buffer: 2.25rem; /* captions + vertical padding + tap margin */
+  --wap-mobile-bottom-nav-clearance: calc(
+    var(--wap-mobile-bottom-nav-bar-height) + var(--wap-mobile-bottom-nav-clearance-buffer) +
+      env(safe-area-inset-bottom, 0px)
+  );
   --wap-portal-mobile-bottom-clearance-compact: var(--wap-mobile-bottom-nav-clearance);
   /*
    * Foregrounds for Stitch marketing stripes / pale surfaces (#fcf9f8).
@@ -111,6 +115,27 @@ html.dark {
   html.wap-portal-chrome-compact.wap-reserve-mobile-bottom-nav .workspace-shell-main,
   html.wap-portal-chrome-compact:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main {
     padding-bottom: calc(1.25rem + var(--wap-portal-mobile-bottom-clearance-compact));
+  }
+
+  /* Scrolling column inner + hash targets: keep last controls / scroll-into-view above the fixed bar */
+  html.wap-reserve-mobile-bottom-nav .workspace-shell-main-inner,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main-inner {
+    scroll-padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+  }
+
+  html.wap-portal-chrome-compact.wap-reserve-mobile-bottom-nav .workspace-shell-main-inner,
+  html.wap-portal-chrome-compact:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .workspace-shell-main-inner {
+    scroll-padding-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
+  }
+
+  html.wap-reserve-mobile-bottom-nav #main-content [id],
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) #main-content [id] {
+    scroll-margin-bottom: var(--wap-mobile-bottom-nav-clearance);
+  }
+
+  html.wap-portal-chrome-compact.wap-reserve-mobile-bottom-nav #main-content [id],
+  html.wap-portal-chrome-compact:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) #main-content [id] {
+    scroll-margin-bottom: var(--wap-portal-mobile-bottom-clearance-compact);
   }
 
   /*

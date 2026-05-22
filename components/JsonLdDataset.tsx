@@ -15,7 +15,7 @@ export default function JsonLdDataset({ stats }: { stats: StatRow[] }) {
     '@type': 'Dataset',
     name: 'Workforce Advancement Project Public Impact Stats',
     description:
-      'Live WorkforceAP outcomes: members served, training completion, job placement, program results, and employer partnership statistics.',
+      'Live WorkforceAP metrics: members served, training completion, placement records, program results, and employer partnership statistics.',
     url: `${SITE_URL}/impact`,
     creator: {
       '@type': 'Organization',

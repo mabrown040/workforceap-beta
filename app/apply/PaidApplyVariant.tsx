@@ -46,7 +46,7 @@ export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVar
     <div className="paid-apply-landing">
       <section className="paid-apply-hero" aria-labelledby="paid-apply-hero-heading">
         <h1 id="paid-apply-hero-heading" className="paid-apply-hero__heading">
-          No-cost IT certification — start in 30 minutes.
+          No-cost IT training — start eligibility in 30 minutes.
         </h1>
         <button
           type="button"
@@ -93,7 +93,7 @@ export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVar
         }
 
         .paid-apply-hero {
-          padding: var(--space-10) var(--space-6) var(--space-8);
+          padding: var(--space-12) var(--space-6) var(--space-8);
           text-align: center;
           background: linear-gradient(
             165deg,
@@ -107,7 +107,7 @@ export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVar
         .paid-apply-hero__heading {
           font-size: clamp(2rem, 6vw, 3rem);
           font-weight: 800;
-          letter-spacing: -0.03em;
+          letter-spacing: 0;
           line-height: 1.1;
           max-width: 720px;
           margin: 0 auto var(--space-6);
@@ -120,7 +120,7 @@ export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVar
         .paid-apply-form-section {
           max-width: 640px;
           margin: 0 auto;
-          padding: var(--space-8) var(--space-6) var(--space-10);
+          padding: var(--space-8) var(--space-6) var(--space-12);
         }
 
         .paid-apply-sticky-cta {

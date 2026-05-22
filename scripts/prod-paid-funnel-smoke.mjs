@@ -1,0 +1,161 @@
+#!/usr/bin/env node
+
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+const DEFAULT_BASE_URL = 'https://www.workforceap.org';
+const DEFAULT_BROWSE_BIN = `${process.env.HOME}/.claude/skills/gstack/browse/dist/browse`;
+const DEFAULT_VIEWPORT = '390x844';
+
+const baseUrl = (process.env.SMOKE_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, '');
+const browseBin = process.env.GBROWSE_BIN || DEFAULT_BROWSE_BIN;
+const viewport = process.env.SMOKE_VIEWPORT || DEFAULT_VIEWPORT;
+const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+const outputDir = process.env.SMOKE_OUTPUT_DIR || `/tmp/wap-prod-smoke-${stamp}`;
+
+const paidApplyPath =
+  '/apply?utm_source=google_ads&utm_medium=cpc&utm_campaign=launch_smoke';
+
+const routes = [
+  { name: 'home', path: '/', requiredText: /no-cost|workforce advancement project/i },
+  { name: 'apply', path: '/apply', requiredText: /tell us how to reach you|start eligibility/i },
+  {
+    name: 'apply-paid',
+    path: paidApplyPath,
+    requiredText: /no-cost|start eligibility|tell us how to reach you/i,
+  },
+  { name: 'programs', path: '/programs', requiredText: /find the right program|browse programs/i },
+  { name: 'employers', path: '/employers', requiredText: /meet role-ready talent|hiring partner/i },
+  { name: 'login', path: '/login', requiredText: /sign in|log in|email/i },
+];
+
+const riskyPublicClaimPattern =
+  /120\+|\$58K|850\+ placed|14 days|2[–-]4 weeks|under three weeks|ten days|No agency spend|Illustrative figures|Apply Now\s+[—-]\s+Free/i;
+
+function runBrowseChain(route) {
+  const screenshotPath = join(outputDir, `${route.name}-${viewport}.png`);
+  const url = `${baseUrl}${route.path}`;
+  const chain = [
+    ['viewport', viewport],
+    ['goto', url],
+    ['wait', '--networkidle'],
+    ['screenshot', '--viewport', screenshotPath],
+    [
+      'js',
+      `JSON.stringify({
+        url: location.href,
+        title: document.title,
+        h1: document.querySelector('h1')?.innerText ?? null,
+        bodyText: document.body.innerText,
+        bodyLength: document.body.innerText.length
+      })`,
+    ],
+    ['console', '--errors'],
+  ];
+
+  const proc = spawnSync(browseBin, ['chain'], {
+    input: `${JSON.stringify(chain)}\n`,
+    encoding: 'utf8',
+    maxBuffer: 20 * 1024 * 1024,
+  });
+
+  const stdout = proc.stdout || '';
+  const stderr = proc.stderr || '';
+  const combined = `${stdout}\n${stderr}`;
+  const statusMatch = stdout.match(/\[goto\] Navigated to .+ \((\d{3})\)/);
+  const status = statusMatch ? Number(statusMatch[1]) : null;
+  const jsMatch = stdout.match(/\[js\]\s+({[\s\S]*?})\n\n\[console\]/);
+  let page = null;
+  try {
+    page = jsMatch ? JSON.parse(jsMatch[1]) : null;
+  } catch {
+    page = null;
+  }
+
+  const consoleBlock = stdout.match(/\[console\]([\s\S]*)$/)?.[1] || '';
+  const consoleErrors =
+    !consoleBlock.includes('(no console errors)') &&
+    !consoleBlock.includes('no console errors');
+  const bodyText = page?.bodyText || '';
+  const requiredTextFound = route.requiredText.test(bodyText);
+  const riskyClaimFound = riskyPublicClaimPattern.test(bodyText);
+  const ok =
+    proc.status === 0 &&
+    status === 200 &&
+    page?.bodyLength > 0 &&
+    requiredTextFound &&
+    !consoleErrors &&
+    !riskyClaimFound;
+
+  return {
+    name: route.name,
+    url,
+    finalUrl: page?.url ?? null,
+    status,
+    ok,
+    requiredTextFound,
+    consoleErrors,
+    riskyClaimFound,
+    screenshotPath,
+    h1: page?.h1 ?? null,
+    title: page?.title ?? null,
+    exitCode: proc.status,
+    stderr: stderr.trim(),
+    outputTail: combined.slice(-3000),
+  };
+}
+
+mkdirSync(outputDir, { recursive: true });
+
+const startedAt = new Date().toISOString();
+const results = routes.map(runBrowseChain);
+const failed = results.filter((r) => !r.ok);
+const report = {
+  startedAt,
+  finishedAt: new Date().toISOString(),
+  baseUrl,
+  viewport,
+  outputDir,
+  paidApplyPath,
+  passed: failed.length === 0,
+  results,
+};
+
+writeFileSync(join(outputDir, 'summary.json'), `${JSON.stringify(report, null, 2)}\n`);
+
+const lines = [
+  `# WorkforceAP production paid-funnel smoke`,
+  ``,
+  `- Started: ${report.startedAt}`,
+  `- Finished: ${report.finishedAt}`,
+  `- Base URL: ${baseUrl}`,
+  `- Viewport: ${viewport}`,
+  `- Output: ${outputDir}`,
+  `- Result: ${report.passed ? 'PASS' : 'FAIL'}`,
+  ``,
+  `| Route | Status | Result | Final URL | Screenshot |`,
+  `| --- | ---: | --- | --- | --- |`,
+  ...results.map((r) =>
+    `| ${r.name} | ${r.status ?? 'n/a'} | ${r.ok ? 'PASS' : 'FAIL'} | ${r.finalUrl ?? ''} | ${r.screenshotPath} |`,
+  ),
+  ``,
+];
+
+if (failed.length > 0) {
+  lines.push(`## Failures`, ``);
+  for (const r of failed) {
+    lines.push(
+      `- ${r.name}: status=${r.status ?? 'n/a'}, requiredText=${r.requiredTextFound}, consoleErrors=${r.consoleErrors}, riskyClaim=${r.riskyClaimFound}, exit=${r.exitCode}`,
+    );
+  }
+  lines.push(``);
+}
+
+writeFileSync(join(outputDir, 'summary.md'), `${lines.join('\n')}\n`);
+
+console.log(lines.join('\n'));
+
+if (!report.passed) {
+  process.exitCode = 1;
+}

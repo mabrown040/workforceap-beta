@@ -28,6 +28,9 @@ const routes = [
   { name: 'programs', path: '/programs', requiredText: /find the right program|browse programs/i },
   { name: 'find-your-path', path: '/find-your-path', requiredText: /find your path|career path quiz/i },
   { name: 'employers', path: '/employers', requiredText: /meet role-ready talent|hiring partner/i },
+  { name: 'employers-es', path: '/es/employers', requiredText: /meet role-ready talent|hiring partner/i },
+  { name: 'employers-fr', path: '/fr/employers', requiredText: /meet role-ready talent|hiring partner/i },
+  { name: 'employers-pt', path: '/pt/employers', requiredText: /meet role-ready talent|hiring partner/i },
   { name: 'login', path: '/login', requiredText: /sign in|log in|email/i },
 ];
 

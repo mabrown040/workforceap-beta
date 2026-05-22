@@ -37,7 +37,7 @@ export const FAQ_DATA: Record<FaqCategoryKey, FaqItem[]> = {
       a: 'Workforce Advancement Project (WorkforceAP) is a national nonprofit and 501(c)(3) that helps members explore career training, industry credentials, and next-step support. Programs are offered through WorkforceAP and partner-backed pathways.',
       link: { text: 'Learn About Our Mission', href: '/what-we-do' },
     },
-    { q: 'Is it really free?', a: 'Programs are available at no cost to members. Exact eligibility and funding path can vary by program and situation, and WorkforceAP will walk you through the right next step during intake.', link: { text: 'View Programs', href: '/programs' } },
+    { q: 'Is it really no-cost to members?', a: 'Programs are available at no cost to members. Exact eligibility and funding path can vary by program and situation, and WorkforceAP will walk you through the right next step during intake.', link: { text: 'View Programs', href: '/programs' } },
     { q: 'Who qualifies?', a: "Eligibility depends on the program, funding path, location, and your situation. If you're unsure, start with the application or WIOA screening and WorkforceAP can help you understand the best next step.", link: { text: 'Check WIOA Screening', href: '/wioa-qualification' } },
     { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. Everything is designed so you can participate while working, parenting, or managing other commitments.', link: { text: 'View Programs', href: '/programs' } },
     { q: 'Can I talk to someone before I apply?', a: 'Yes. If you have questions or want to talk through whether this is a good fit, reach out. WorkforceAP can help you understand your options before you commit to anything.', link: { text: 'Contact Us', href: '/contact' } },
@@ -70,7 +70,7 @@ export const FAQ_DATA: Record<FaqCategoryKey, FaqItem[]> = {
   ],
   'For Members': [
     { q: 'What support do I get during training?', a: 'You receive a dedicated counselor, access to our member portal with career readiness tools (resume help, interview practice), and job-search guidance as you move toward job readiness.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
-    { q: 'Is there a counselor or advisor assigned to me?', a: 'Yes. Each member is assigned a counselor who supports you from intake through job placement. Your counselor helps with program pacing, career goals, and connecting you to resources.', link: { text: 'Meet the Team', href: '/leadership' } },
+    { q: 'Is there a counselor or advisor assigned to me?', a: 'Yes. Each member is assigned a counselor who supports you from intake through training and job-search preparation. Your counselor helps with program pacing, career goals, and connecting you to resources.', link: { text: 'Meet the Team', href: '/leadership' } },
     { q: 'Can I work while enrolled?', a: 'Yes. Programs are designed to be flexible for working adults. Most programs are paced for about 10 hours per week, and Digital Literacy is lighter at roughly 5 hours per week.', link: { text: 'Check Program Flexibility', href: '/programs' } },
     { q: 'What if I fall behind?', a: "Your counselor will work with you to adjust your pace. We're invested in your completion — not just your enrollment. Life happens, and we'll help you get back on track.", link: { text: 'Meet the Team', href: '/leadership' } },
     { q: 'Is this too good to be true?', a: "We get it. Training at no cost to members can feel hard to trust at first. We're funded by grants, employer partnerships, and community support. Our success metric is your employment, not collecting fees from members.", link: { text: 'Meet the Team', href: '/leadership' } },
@@ -82,4 +82,3 @@ export const FAQ_DATA: Record<FaqCategoryKey, FaqItem[]> = {
     { q: 'Is this legitimate?', a: "Yes. WorkforceAP is a nonprofit and 501(c)(3) with public-facing leadership, real contact paths, and partner-backed training pathways. If you want to talk through fit or partnership questions, our team can help.", link: { text: 'Partner With Us', href: '/partners' } },
   ],
 };
-

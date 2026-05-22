@@ -209,6 +209,7 @@ export default async function EmployersPage() {
             />
           ))}
         </div>
+        <p className="employers-outcomes__disclaimer">{t('outcomesDisclaimer')}</p>
       </PageSection>
 
       {/* ── Pricing: one model ── */}
@@ -405,6 +406,13 @@ export default async function EmployersPage() {
           display: grid;
           grid-template-columns: 1fr;
           gap: 1.25rem;
+        }
+        .employers-outcomes__disclaimer {
+          margin: 1.25rem 0 0;
+          max-width: 42rem;
+          font-size: 0.8125rem;
+          line-height: 1.6;
+          color: var(--color-on-surface-variant);
         }
 
         .employers-pricing__card {

@@ -41,6 +41,22 @@ export const EMPTY_PUBLIC_IMPACT_STATS: PublicImpactStats = {
   asOfLabel: 'Impact data unavailable',
 };
 
+/** True when at least one public impact metric has recorded activity. */
+export function hasPublicImpactLiveData(stats: PublicImpactStats): boolean {
+  return (
+    stats.membersServed > 0 ||
+    stats.programs.length > 0 ||
+    stats.employersPartnered > 0 ||
+    stats.jobsPosted > 0 ||
+    stats.hiresMade > 0
+  );
+}
+
+/** True when enrolled program cohorts exist for rate calculations. */
+export function hasPublicImpactEnrolledCohort(stats: PublicImpactStats): boolean {
+  return stats.programs.length > 0;
+}
+
 function memberUserWhere(orgId: string): Prisma.UserWhereInput {
   return {
     organizationId: orgId,

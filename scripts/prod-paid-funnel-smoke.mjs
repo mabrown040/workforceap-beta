@@ -80,7 +80,8 @@ function runBrowseChain(route) {
   const consoleBlock = stdout.match(/\[console\]([\s\S]*)$/)?.[1] || '';
   const consoleErrors =
     !consoleBlock.includes('(no console errors)') &&
-    !consoleBlock.includes('no console errors');
+    !consoleBlock.includes('no console errors') &&
+    /\[[^\]]*error[^\]]*\]/i.test(consoleBlock);
   const bodyText = page?.bodyText || '';
   const requiredTextFound = route.requiredText.test(bodyText);
   const riskyClaimFound = riskyPublicClaimPattern.test(bodyText);

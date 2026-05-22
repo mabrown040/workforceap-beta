@@ -42,7 +42,7 @@ const routes = [
 ];
 
 const riskyPublicClaimPattern =
-  /120\+|\$58K|850\+ placed|14 days|2[–-]4 weeks|under three weeks|ten days|start in 30 minutes|until you land|trained, certified, and placed|actively hiring program completers|graduates average strong starting salaries|Real outcomes for real people|Real outcomes from real members|Is it really free\?|from intake through job placement|No agency spend|replacement guarantee|Job posts are free|Create Free Account|no-cost to you|no-cost training pipeline|Illustrative figures|Apply Now\s+[—-]\s+Free/i;
+  /120\+|\$58K|850\+ placed|\d+\s+partner compan(?:y|ies)|14 days|2[–-]4 weeks|under three weeks|ten days|start in 30 minutes|until you land|trained, certified, and placed|actively hiring program completers|graduates average strong starting salaries|Real outcomes for real people|Real outcomes from real members|Is it really free\?|from intake through job placement|No agency spend|replacement guarantee|Job posts are free|Create Free Account|no-cost to you|no-cost training pipeline|Illustrative figures|Apply Now\s+[—-]\s+Free/i;
 
 function runBrowseChain(route) {
   const screenshotPath = join(outputDir, `${route.name}-${viewport}.png`);

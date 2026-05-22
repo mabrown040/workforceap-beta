@@ -1,32 +1,60 @@
 import { prisma } from '@/lib/db/prisma';
-import { TestimonialStatus } from '@prisma/client';
+import { Prisma, TestimonialStatus } from '@prisma/client';
 import { Quote, Star } from 'lucide-react';
+
+type PublishedTestimonial = Prisma.TestimonialGetPayload<{
+  include: {
+    member: {
+      select: {
+        fullName: true;
+        enrolledProgram: true;
+      };
+    };
+  };
+}>;
 
 /**
  * Server component: fetch approved/published testimonials and render
  * a simple grid. Used on public marketing pages like /impact.
  */
 export default async function TestimonialsCarousel({ limit = 6 }: { limit?: number }) {
-  const testimonials = await prisma.testimonial.findMany({
-    where: {
-      status: TestimonialStatus.PUBLISHED,
-      deletedAt: null,
-      consentGiven: true,
-    },
-    orderBy: { createdAt: 'desc' },
-    take: limit,
-    include: {
-      member: {
-        select: {
-          fullName: true,
-          enrolledProgram: true,
+  let testimonials: PublishedTestimonial[];
+
+  try {
+    testimonials = await prisma.testimonial.findMany({
+      where: {
+        status: TestimonialStatus.PUBLISHED,
+        deletedAt: null,
+        consentGiven: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: {
+        member: {
+          select: {
+            fullName: true,
+            enrolledProgram: true,
+          },
         },
       },
-    },
-  });
+    });
+  } catch {
+    testimonials = [];
+  }
 
   if (testimonials.length === 0) {
-    return null;
+    return (
+      <p
+        style={{
+          margin: 0,
+          maxWidth: '42rem',
+          color: 'var(--color-on-surface-variant)',
+          lineHeight: 1.6,
+        }}
+      >
+        No member stories are published yet. WorkforceAP only shows member stories after consent and staff review.
+      </p>
+    );
   }
 
   return (

@@ -265,7 +265,7 @@ export default async function ImpactPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <SectionHeader
             title="Member Stories"
-            subtitle="Real outcomes from real members"
+            subtitle="Consented stories will appear here after staff review."
             align="left"
             marginBottom="1.5rem"
           />

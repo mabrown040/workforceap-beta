@@ -1,6 +1,8 @@
 # WorkforceAP — 10 Sprint Plan (2026-Q3 → 2026-Q4)
 
-**Canonical plan:** This document supersedes `PLAN-2026-Q3.md`, `docs/plans/WORKFORCEAP-ROLLOUT-PLAN-2026.md` sprint sections, and parallel 8-week schedules in `docs/plans/SEPARATE-SPRINTS.md` for execution purposes.  
+> **⚠️ DEPRECATED — 2026-05-21:** Superseded by **[`PLAN-2026-Q3-Q4-10-SPRINT-V2.md`](./PLAN-2026-Q3-Q4-10-SPRINT-V2.md)** (resequenced per [`ceo-10sprint-review-2026-05-21.md`](./reviews/ceo-10sprint-review-2026-05-21.md)). Do not execute from this document.
+
+**Canonical plan:** ~~This document~~ **V2** supersedes `PLAN-2026-Q3.md`, `docs/plans/WORKFORCEAP-ROLLOUT-PLAN-2026.md` sprint sections, and parallel 8-week schedules in `docs/plans/SEPARATE-SPRINTS.md` for execution purposes.  
 **Authored:** 2026-05-21  
 **Baseline:** `master` @ `fe481b7fd`  
 **Horizon:** 10 × 2-week sprints (~20 weeks, through 2026-10-07)  

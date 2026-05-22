@@ -35,6 +35,8 @@ vi.mock('@/lib/db/prisma', () => ({
 import {
   getPublicImpactStats,
   EMPTY_PUBLIC_IMPACT_STATS,
+  hasPublicImpactEnrolledCohort,
+  hasPublicImpactLiveData,
   type PublicImpactStats,
 } from '@/lib/marketing/publicImpactStats';
 import { prisma } from '@/lib/db/prisma';
@@ -74,6 +76,35 @@ describe('Impact Page — getPublicImpactStats', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (shouldSkipOptionalDbQueriesAtBuild as any).mockReturnValue(false);
+  });
+
+  describe('public impact presentation helpers', () => {
+    it('hasPublicImpactLiveData is false for empty stats', () => {
+      expect(hasPublicImpactLiveData(EMPTY_PUBLIC_IMPACT_STATS)).toBe(false);
+    });
+
+    it('hasPublicImpactLiveData is true when any core metric is recorded', () => {
+      expect(hasPublicImpactLiveData({ ...EMPTY_PUBLIC_IMPACT_STATS, membersServed: 1 })).toBe(true);
+      expect(hasPublicImpactLiveData({ ...EMPTY_PUBLIC_IMPACT_STATS, employersPartnered: 2 })).toBe(true);
+    });
+
+    it('hasPublicImpactEnrolledCohort follows program rows', () => {
+      expect(hasPublicImpactEnrolledCohort(EMPTY_PUBLIC_IMPACT_STATS)).toBe(false);
+      expect(
+        hasPublicImpactEnrolledCohort({
+          ...EMPTY_PUBLIC_IMPACT_STATS,
+          programs: [
+            {
+              programSlug: 'digital-literacy-empowerment-class',
+              programTitle: 'Digital Literacy',
+              enrolled: 1,
+              completed: 0,
+              avgDaysToComplete: null,
+            },
+          ],
+        }),
+      ).toBe(true);
+    });
   });
 
   describe('live stats shape', () => {

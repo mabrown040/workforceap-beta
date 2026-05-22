@@ -10,6 +10,8 @@ import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import {
   EMPTY_PUBLIC_IMPACT_STATS,
   getPublicImpactStats,
+  hasPublicImpactEnrolledCohort,
+  hasPublicImpactLiveData,
   type ImpactProgramRow,
 } from '@/lib/marketing/publicImpactStats';
 import JsonLdDataset from '@/components/JsonLdDataset';
@@ -46,7 +48,7 @@ export default async function ImpactPage() {
   }
 
   const salaryValue =
-    stats.avgSalaryIncreaseDollars != null && stats.salaryIncreaseSampleSize > 0 ? (
+    stats.salaryIncreaseSampleSize > 0 && stats.avgSalaryIncreaseDollars != null ? (
       <>
         +$
         {Math.round(stats.avgSalaryIncreaseDollars).toLocaleString('en-US')}
@@ -71,6 +73,40 @@ export default async function ImpactPage() {
         </span>
       </>
     );
+
+  const hasLiveData = hasPublicImpactLiveData(stats);
+  const hasEnrolledCohort = hasPublicImpactEnrolledCohort(stats);
+
+  const membersServedValue = hasLiveData ? formatThousands(stats.membersServed) : '—';
+
+  const rateFootnoteStyle = {
+    display: 'block',
+    marginTop: '0.5rem',
+    fontSize: '0.8rem',
+    fontWeight: 400,
+  } as const;
+
+  const completionValue = hasEnrolledCohort ? `${stats.completionRatePct}%` : '—';
+  const completionLabel = hasEnrolledCohort ? (
+    t('completionRateLabel')
+  ) : (
+    <>
+      {t('completionRateLabel')}
+      <span style={rateFootnoteStyle}>{t('cohortRateInsufficient')}</span>
+    </>
+  );
+
+  const placementValue = hasEnrolledCohort ? `${stats.placementRatePct}%` : '—';
+  const placementLabel = hasEnrolledCohort ? (
+    t('placementRateLabel')
+  ) : (
+    <>
+      {t('placementRateLabel')}
+      <span style={rateFootnoteStyle}>{t('cohortRateInsufficient')}</span>
+    </>
+  );
+
+  const formatOptionalCount = (value: number) => (hasLiveData ? formatThousands(value) : '—');
 
   const programColumns: DataTableColumn<ImpactProgramRow>[] = [
     {
@@ -168,6 +204,20 @@ export default async function ImpactPage() {
             marginBottom="2rem"
           />
 
+          {!hasLiveData ? (
+            <p
+              style={{
+                margin: '0 0 1.5rem',
+                maxWidth: '42rem',
+                fontSize: '0.92rem',
+                lineHeight: 1.6,
+                color: 'var(--color-on-surface-variant)',
+              }}
+            >
+              {t('dataLightNote')}
+            </p>
+          ) : null}
+
           <div
             className="portal-card portal-card--flat"
             style={{
@@ -185,7 +235,7 @@ export default async function ImpactPage() {
                 lineHeight: 1,
               }}
             >
-              {formatThousands(stats.membersServed)}
+              {membersServedValue}
             </p>
             <p style={{ margin: '0.75rem 0 0', fontWeight: 700, fontSize: '1.125rem' }}>
               {t('membersServedLabel')}
@@ -213,8 +263,8 @@ export default async function ImpactPage() {
               marginBottom: '3rem',
             }}
           >
-            <StatCard value={`${stats.completionRatePct}%`} label={t('completionRateLabel')} />
-            <StatCard value={`${stats.placementRatePct}%`} label={t('placementRateLabel')} />
+            <StatCard value={completionValue} label={completionLabel} />
+            <StatCard value={placementValue} label={placementLabel} />
             <StatCard value={salaryValue} label={salaryLabel} />
           </div>
         </div>
@@ -254,18 +304,18 @@ export default async function ImpactPage() {
               gap: '1rem',
             }}
           >
-            <StatCard value={formatThousands(stats.employersPartnered)} label={t('employerPartnersLabel')} />
-            <StatCard value={formatThousands(stats.jobsPosted)} label={t('jobsPostedLabel')} />
-            <StatCard value={formatThousands(stats.hiresMade)} label={t('hiresLabel')} />
+            <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
+            <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
+            <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
           </div>
         </div>
       </PageSection>
 
-      <PageSection padding="md" ariaLabel={t('testimonialsTitle') ?? 'Member stories'}>
+      <PageSection padding="md" ariaLabel={t('testimonialsTitle')}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <SectionHeader
-            title="Member Stories"
-            subtitle="Consented stories will appear here after staff review."
+            title={t('testimonialsTitle')}
+            subtitle={t('testimonialsSubtitle')}
             align="left"
             marginBottom="1.5rem"
           />

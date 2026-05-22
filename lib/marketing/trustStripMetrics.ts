@@ -14,7 +14,7 @@ export type TrustStripMetrics = {
 };
 
 export const TRUST_STRIP_PLACEHOLDER_LINE =
-  '850+ placed · 40+ Texas employers · $48K avg starting wage';
+  'Training-aligned candidates · counselor-supported readiness · no-cost to members';
 
 function formatStartingWage(amount: number): string {
   if (amount >= 1000) {

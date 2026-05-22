@@ -1,14 +1,13 @@
 /**
- * Employer case studies — shared by /employers outcomes section.
- * Placeholder-but-believable stories until verified partner quotes are approved.
+ * Employer scenario cards — shared by /employers outcomes section.
+ * Keep these anonymized until verified partner quotes and outcomes are approved.
  */
 
 export type EmployerCaseStudy = {
   company: string;
   industry: string;
   location: string;
-  members_hired: number;
-  avg_tenure_months: number;
+  outcome_summary: string;
   role_filled: string;
   quote: string;
   attribution_name: string;
@@ -17,39 +16,36 @@ export type EmployerCaseStudy = {
 
 export const EMPLOYER_CASE_STUDIES: EmployerCaseStudy[] = [
   {
-    company: 'Lone Star IT Services',
+    company: 'Regional IT services partner',
     industry: 'IT Services',
-    location: 'Austin, TX',
-    members_hired: 8,
-    avg_tenure_months: 14,
-    role_filled: 'Helpdesk + Junior NetEng',
+    location: 'Central Texas',
+    outcome_summary: 'Helpdesk and junior network support roles',
+    role_filled: 'Helpdesk + junior network support',
     quote:
-      'Our helpdesk and junior neteng hires were productive in week two — they walked in with CompTIA basics and ticket-queue discipline. We cut ramp time in half compared to our last agency search.',
-    attribution_name: 'Jamie Nguyen',
-    attribution_title: 'Director of IT Operations',
+      'WorkforceAP helps us focus interviews on candidates who have already completed structured technical training and readiness review.',
+    attribution_name: 'Hiring partner',
+    attribution_title: 'IT operations',
   },
   {
-    company: 'Hill Country Logistics',
+    company: 'Operations hiring partner',
     industry: 'Logistics',
-    location: 'San Antonio, TX',
-    members_hired: 12,
-    avg_tenure_months: 11,
-    role_filled: 'Dispatch + Ops Coordinator',
+    location: 'Texas',
+    outcome_summary: 'Coordinator and operations support roles',
+    role_filled: 'Dispatch + operations coordinator',
     quote:
-      'Twelve dispatch and ops coordinators over eleven months, and we have had one voluntary turnover. They show up, they communicate, and our on-time delivery metrics have not slipped.',
-    attribution_name: 'Rosa Delgado',
-    attribution_title: 'VP of Operations',
+      'The intake process gives us a clearer view of skills, schedule fit, and support needs before we commit interview time.',
+    attribution_name: 'Hiring partner',
+    attribution_title: 'Operations leadership',
   },
   {
-    company: 'Texas Health Coop',
+    company: 'Healthcare support partner',
     industry: 'Healthcare',
-    location: 'Dallas, TX',
-    members_hired: 5,
-    avg_tenure_months: 18,
-    role_filled: 'IT Support + Patient Coord',
+    location: 'Texas',
+    outcome_summary: 'IT support and patient coordination pathways',
+    role_filled: 'IT support + patient coordination',
     quote:
-      'Five hires across IT support and patient coordination — every one passed HIPAA readiness and fits our team culture. We stopped gambling on résumés and started interviewing people trained for our environment.',
-    attribution_name: 'Kenji Oka',
-    attribution_title: 'Chief People Officer',
+      'We can review candidates against the requirements that matter to us, including readiness, communication, and role-specific training.',
+    attribution_name: 'Hiring partner',
+    attribution_title: 'People operations',
   },
 ];

@@ -141,17 +141,23 @@ export default async function EmployersPage() {
             <div className="employers-trust__stats">
               <div className="employers-trust__stat">
                 <span className="employers-trust__stat-value">{membersPlacedLabel}</span>
-                <span className="employers-trust__stat-label">{t('trustStatPlaced')}</span>
+                <span className="employers-trust__stat-label">
+                  {trust.hasLiveData ? t('trustStatPlaced') : t('trustPlaceholderFit')}
+                </span>
               </div>
               <div className="employers-trust__stat-divider" aria-hidden="true" />
               <div className="employers-trust__stat">
                 <span className="employers-trust__stat-value">{avgWageLabel}</span>
-                <span className="employers-trust__stat-label">{t('trustStatWage')}</span>
+                <span className="employers-trust__stat-label">
+                  {trust.hasLiveData ? t('trustStatWage') : t('trustPlaceholderSkills')}
+                </span>
               </div>
               <div className="employers-trust__stat-divider" aria-hidden="true" />
               <div className="employers-trust__stat">
                 <span className="employers-trust__stat-value">{partnersLabel}</span>
-                <span className="employers-trust__stat-label">{t('trustStatPartners')}</span>
+                <span className="employers-trust__stat-label">
+                  {trust.hasLiveData ? t('trustStatPartners') : t('trustPlaceholderTerms')}
+                </span>
               </div>
             </div>
           )}

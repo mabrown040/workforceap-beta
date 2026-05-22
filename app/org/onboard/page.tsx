@@ -368,7 +368,7 @@ export default function OrgOnboardPage() {
               <div style={{ padding: '32px 24px', flex: 1 }}>
                 <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800 }}>Career Training at No Cost to Members</h2>
                 <p style={{ color: '#444', marginTop: 8, fontSize: '0.9rem' }}>
-                  Get trained, certified, and placed — at no cost to members.
+                  Get training, certification support, and career help — at no cost to members.
                 </p>
                 <div style={{ marginTop: 20 }}>
                   <div style={{ display: 'inline-block', padding: '10px 18px', borderRadius: 8, background: primaryColor, color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Apply Now</div>

@@ -130,7 +130,7 @@ export default function EmployerSignupPage() {
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your Employer Account</h1>
               <p className="text-gray-600">
-                Post jobs, review applicants, and build your pipeline — no-cost to you.
+                Post roles, review applicants, and build your pipeline without an upfront recruiting retainer.
               </p>
             </div>
 
@@ -332,7 +332,7 @@ export default function EmployerSignupPage() {
                     Creating account...
                   </>
                 ) : (
-                  'Create Free Account'
+                  'Create Employer Account'
                 )}
               </button>
 

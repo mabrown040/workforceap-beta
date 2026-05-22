@@ -178,7 +178,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
   return (
     <div style={sPage.wrapper}>
       {/* ── Hero ── */}
-      <section style={sPage.hero}>
+      <section className="apply-hero" style={sPage.hero}>
         <div style={sPage.heroLabel}>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">assured_workload</span>
           {t('heroLabel')}
@@ -309,11 +309,13 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             }}
           />
 
-          <TrustStrip variant="apply" />
+          <div className="apply-main-form__primary">
+            <TrustStrip variant="apply" />
 
-          <Suspense fallback={<ApplyPageSkeleton />}>
-            <ApplyEligibilityClient />
-          </Suspense>
+            <Suspense fallback={<ApplyPageSkeleton />}>
+              <ApplyEligibilityClient />
+            </Suspense>
+          </div>
         </div>
       </div>
 
@@ -341,21 +343,45 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
 
       <Footer />
 
-      {/* Responsive overrides */}
+      {/* Responsive overrides — mobile: form first, docs after submit area */}
       <style>{`
         @media (max-width: 768px) {
+          .apply-hero {
+            padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-6) !important;
+          }
           .apply-grid-layout {
             grid-template-columns: 1fr !important;
+            padding: var(--space-6) var(--space-4) !important;
+            gap: var(--space-4) !important;
+          }
+          .apply-main-form {
+            order: -1;
+            padding: var(--space-5) var(--space-4) !important;
+            display: flex;
+            flex-direction: column;
+          }
+          .apply-main-form__primary {
+            order: 1;
+          }
+          .apply-foundational-support {
+            order: 2;
+            margin-top: var(--space-4);
+            margin-bottom: 0;
+          }
+          .apply-program-intro {
+            order: 0;
           }
           .apply-sidebar {
             position: static !important;
-            order: 0;
-          }
-          .apply-main-form {
             order: 1;
           }
           .apply-supp-row {
             grid-template-columns: 1fr !important;
+            padding-inline: var(--space-4) !important;
+          }
+          /* Hero already shows social proof — avoid duplicate above the form */
+          .apply-flow--step1:not(.apply-flow--paid) .apply-social-proof {
+            display: none;
           }
         }
       `}</style>

@@ -41,9 +41,9 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
     homePhase: 1,
     title: 'Membership Enrollment',
     shortDesc:
-      'Join at no cost to you. You’ll get your member portal, resources, and support — with no surprise fees.',
+      'Qualifying members can join through funded pathways. You’ll get your member portal, resources, and support — with no surprise fees.',
     longDesc:
-      'Join at no cost to members. All members get access to resources, support, and training — without hidden fees.',
+      'Qualifying members can access training through funded pathways. All members get clear next steps, resources, and support — without hidden fees.',
     why: 'We remove money as a barrier so you can focus on learning.',
   },
   {

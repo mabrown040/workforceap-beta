@@ -5,7 +5,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
     title: 'Employer Sign Up',
     description:
-      'Create your WorkforceAP employer account to post jobs, review certified candidates, and hire from our no-cost training pipeline.',
+      'Create your WorkforceAP employer account to post jobs, review training-aligned candidates, and build a hiring pipeline without an upfront recruiting retainer.',
     path: '/employers/signup',
   });
 }

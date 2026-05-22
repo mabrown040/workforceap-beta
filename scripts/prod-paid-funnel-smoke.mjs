@@ -31,7 +31,7 @@ const routes = [
 ];
 
 const riskyPublicClaimPattern =
-  /120\+|\$58K|850\+ placed|14 days|2[–-]4 weeks|under three weeks|ten days|No agency spend|Illustrative figures|Apply Now\s+[—-]\s+Free/i;
+  /120\+|\$58K|850\+ placed|14 days|2[–-]4 weeks|under three weeks|ten days|No agency spend|replacement guarantee|Job posts are free|Illustrative figures|Apply Now\s+[—-]\s+Free/i;
 
 function runBrowseChain(route) {
   const screenshotPath = join(outputDir, `${route.name}-${viewport}.png`);

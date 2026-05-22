@@ -45,6 +45,10 @@ const PLACEHOLDER_TRUST = {
   partnerCompaniesLabel: 'Clear terms',
 } as const;
 
+// Public employer marketing should not imply a partner-company network until
+// WorkforceAP has real external partner companies it is comfortable naming or counting.
+const PUBLIC_PARTNER_COMPANIES_ENABLED = false;
+
 export function formatEmployerTrustStat(
   liveValue: number | null,
   placeholder: string,
@@ -106,11 +110,11 @@ export async function getEmployerLandingTrustMetrics(
     }));
 
     const membersPlaced = impact.hiresMade;
-    const partnerCompanies = impact.employersPartnered;
+    const partnerCompanies = PUBLIC_PARTNER_COMPANIES_ENABLED ? impact.employersPartnered : 0;
     const avgStartingWage =
       avgStarting._avg.salaryOffered != null ? Math.round(avgStarting._avg.salaryOffered) : null;
 
-    const hasLiveData = membersPlaced > 0 || partnerCompanies > 0 || avgStartingWage != null || logos.length > 0;
+    const hasLiveData = membersPlaced > 0 || avgStartingWage != null || logos.length > 0;
 
     return {
       membersPlaced,

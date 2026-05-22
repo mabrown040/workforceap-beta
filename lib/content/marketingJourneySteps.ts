@@ -101,19 +101,19 @@ export const MARKETING_JOURNEY_STEPS: MarketingJourneyStep[] = [
     homePhase: 3,
     title: 'Job Readiness & Placement Assistance',
     shortDesc:
-      'We stay with you through resume feedback, interview practice, employer introductions, and job-search support until you land.',
+      'We support you with resume feedback, interview practice, employer-facing prep, and job-search guidance after training.',
     longDesc:
-      'Resume review, interview prep, employer connections, and job search support until you land. We don’t disappear after you graduate.',
-    why: 'We’re invested in your first hire, not just your last exam.',
+      'Resume review, interview prep, employer-facing support, and job-search guidance after training. We stay focused on practical next steps after you graduate.',
+    why: 'We’re invested in your job-search readiness, not just your last exam.',
   },
   {
     num: 10,
     homePhase: 3,
     title: 'Career Opportunities & Growth',
     shortDesc:
-      'Step into your role with encouragement behind you — and keep growing toward raises, promotions, and a career that lasts.',
+      'Move toward roles with support behind you — then keep building toward raises, promotions, and a career that lasts.',
     longDesc:
-      'A career that pays. Graduates average strong starting salaries in their new field — with room to grow in the years ahead.',
+      'Build toward a career that pays. Wage outcomes vary by role, market, experience, and employer, so we focus on helping you show credible skills and keep growing.',
     why: 'This is the outcome we’re both working toward.',
   },
 ];

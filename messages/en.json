@@ -1760,9 +1760,9 @@
     },
     "publicImpact": {
       "title": "Public impact · Workforce Advancement Project",
-      "description": "Live WorkforceAP outcomes: members served, training completion, job placement, program results, and employer partnership stats.",
+      "description": "Live WorkforceAP metrics: members served, training completion, placement records, program results, and employer partnership stats.",
       "eyebrow": "Live statistics",
-      "heading": "Real outcomes for real people",
+      "heading": "Measured progress, published carefully",
       "subtitle": "WorkforceAP impact metrics drawn from our operational systems—shared on a short cache interval for public transparency.",
       "membersServedLabel": "Members served",
       "membersServedDesc": "Active member accounts (profile role \"member\"), default WorkforceAP organization. Test fixtures are excluded.",
@@ -1788,11 +1788,11 @@
       "fundersTitle": "Funders",
       "nonprofitModelEyebrow": "Nonprofit model",
       "grantFundedTitle": "Grant-funded access",
-      "grantFundedDesc": "WorkforceAP is a 501(c)(3) nonprofit. Funded by grants and partners, no cost to qualifying members.",
+      "grantFundedDesc": "WorkforceAP is a 501(c)(3) nonprofit. Funded by grants and partners, no-cost for qualifying members.",
       "outcomesLink": "Placement outcomes detail",
       "applyCta": "Apply",
       "testimonialsTitle": "Member stories",
-      "testimonialsSubtitle": "Real outcomes from real members"
+      "testimonialsSubtitle": "Consented member stories appear only after staff review."
     },
     "testimonials": {
       "sectionTitle": "Hear from our members",

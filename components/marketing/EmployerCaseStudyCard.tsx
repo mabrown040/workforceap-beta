@@ -5,6 +5,15 @@ type EmployerCaseStudyCardProps = {
   variant?: 'default' | 'accent';
 };
 
+function getInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
 export default function EmployerCaseStudyCard({
   study,
   variant = 'default',
@@ -18,6 +27,8 @@ export default function EmployerCaseStudyCard({
   const nameColor = isAccent ? '#fff' : 'var(--color-on-surface)';
   const titleColor = isAccent ? 'rgba(255,255,255,0.8)' : 'var(--color-on-surface-variant)';
   const statColor = isAccent ? 'rgba(255,255,255,0.85)' : 'var(--color-on-surface)';
+  const avatarBg = isAccent ? 'rgba(255,255,255,0.15)' : 'color-mix(in srgb, var(--color-accent) 12%, var(--surface-container-high))';
+  const avatarColor = isAccent ? '#fff' : 'var(--color-accent)';
 
   const stats = `${study.members_hired} hired · ${study.avg_tenure_months}mo avg tenure · ${study.role_filled}`;
 
@@ -86,21 +97,24 @@ export default function EmployerCaseStudyCard({
           marginTop: 'auto',
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={study.attribution_avatar}
-          alt=""
-          width={44}
-          height={44}
+        <div
+          aria-hidden="true"
           style={{
             width: '2.75rem',
             height: '2.75rem',
             borderRadius: '9999px',
-            objectFit: 'cover',
             flexShrink: 0,
-            background: isAccent ? 'rgba(255,255,255,0.15)' : 'var(--surface-container-high)',
+            background: avatarBg,
+            color: avatarColor,
+            display: 'grid',
+            placeItems: 'center',
+            fontSize: '0.8rem',
+            fontWeight: 800,
+            letterSpacing: '0.02em',
           }}
-        />
+        >
+          {getInitials(study.attribution_name)}
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <span style={{ fontWeight: 700, fontSize: '0.9375rem', color: nameColor }}>
             {study.attribution_name}

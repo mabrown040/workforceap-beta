@@ -4971,6 +4971,31 @@ body.inner-page {
 }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
+/* RootLayout renders skip links before route-specific CSS loads. Keep the
+   base rule in the global bundle so marketing/apply pages hide them until
+   keyboard focus, while preserving the visible focus affordance. */
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0.75rem;
+    z-index: 10000;
+    padding: 0.5rem 1rem;
+    background: var(--color-primary);
+    color: var(--color-white);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    box-shadow: var(--shadow-lg);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+    left: 0.75rem;
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
 /* Apply form: radio button groups */
 .form-radio-group {
     display: flex;

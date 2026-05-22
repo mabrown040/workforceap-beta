@@ -33,16 +33,12 @@ export function formatTrustStripLine(metrics: TrustStripMetrics): string {
     metrics.membersPlaced > 0
       ? `${metrics.membersPlaced.toLocaleString('en-US')} members placed`
       : null;
-  const partners =
-    metrics.partnerCompanies > 0
-      ? `${metrics.partnerCompanies.toLocaleString('en-US')} partner companies`
-      : null;
   const wage =
     metrics.avgStartingWage != null && metrics.avgStartingWage > 0
       ? `${formatStartingWage(metrics.avgStartingWage)} avg starting wage`
       : null;
 
-  const segments = [placed, partners, wage].filter(Boolean);
+  const segments = [placed, wage].filter(Boolean);
   return segments.length > 0 ? segments.join(' · ') : TRUST_STRIP_PLACEHOLDER_LINE;
 }
 
@@ -78,8 +74,7 @@ export async function getTrustStripMetrics(
     const avgStartingWage =
       avgStarting._avg.salaryOffered != null ? Math.round(avgStarting._avg.salaryOffered) : null;
 
-    const hasLiveData =
-      membersPlaced > 0 || partnerCompanies > 0 || (avgStartingWage != null && avgStartingWage > 0);
+    const hasLiveData = membersPlaced > 0 || (avgStartingWage != null && avgStartingWage > 0);
 
     return {
       membersPlaced,

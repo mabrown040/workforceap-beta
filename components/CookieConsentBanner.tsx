@@ -11,6 +11,7 @@ import {
 export default function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [hasMobileBottomNav, setHasMobileBottomNav] = useState(false);
 
   useEffect(() => {
     const existing = readConsent();
@@ -24,7 +25,10 @@ export default function CookieConsentBanner() {
         setVisible(true);
       }
     }
-    const syncViewport = () => setIsMobileViewport(window.innerWidth < 768);
+    const syncViewport = () => {
+      setIsMobileViewport(window.innerWidth < 768);
+      setHasMobileBottomNav(Boolean(document.getElementById('mobile-bottom-nav')));
+    };
     syncViewport();
     window.addEventListener('resize', syncViewport);
     return () => window.removeEventListener('resize', syncViewport);
@@ -33,12 +37,16 @@ export default function CookieConsentBanner() {
   useEffect(() => {
     const previousPadding = document.body.style.paddingBottom;
     if (visible) {
-      document.body.style.paddingBottom = isMobileViewport ? '11rem' : '8rem';
+      document.body.style.paddingBottom = isMobileViewport
+        ? hasMobileBottomNav
+          ? '11rem'
+          : '6rem'
+        : '8rem';
     }
     return () => {
       document.body.style.paddingBottom = previousPadding;
     };
-  }, [visible, isMobileViewport]);
+  }, [visible, isMobileViewport, hasMobileBottomNav]);
 
   const accept = () => {
     writeConsent('accepted');
@@ -58,7 +66,11 @@ export default function CookieConsentBanner() {
     <div
       style={{
         position: 'fixed',
-        bottom: isMobileViewport ? '5.25rem' : 0,
+        bottom: isMobileViewport
+          ? hasMobileBottomNav
+            ? '5.25rem'
+            : 'calc(0.75rem + env(safe-area-inset-bottom, 0px))'
+          : 0,
         left: isMobileViewport ? '0.75rem' : 0,
         right: isMobileViewport ? '0.75rem' : 0,
         background: 'var(--surface-container-high)',

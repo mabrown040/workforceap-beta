@@ -40,9 +40,9 @@ export type EmployerLandingTrustMetrics = {
 };
 
 const PLACEHOLDER_TRUST = {
-  membersPlacedLabel: '120+',
-  avgStartingWageLabel: '$58K',
-  partnerCompaniesLabel: '40+',
+  membersPlacedLabel: 'Verified fit',
+  avgStartingWageLabel: 'Certified skills',
+  partnerCompaniesLabel: 'Clear terms',
 } as const;
 
 export function formatEmployerTrustStat(

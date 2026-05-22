@@ -31,7 +31,7 @@ const SESSION_DEDUPE_PREFIX = 'wa_exp_seen:';
  *
  * Variants:
  *   - control   → existing "Get Started" copy.
- *   - variant_a → "Hire pre-screened talent in 14 days".
+ *   - variant_a → hiring-ready talent consultation copy.
  *
  * Server-rendered fallback uses `control`. After hydration we resolve the
  * stable visitor variant via `getExperimentVariant` and swap the copy.

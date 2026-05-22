@@ -30,8 +30,6 @@ export default function EmployerCaseStudyCard({
   const avatarBg = isAccent ? 'rgba(255,255,255,0.15)' : 'color-mix(in srgb, var(--color-accent) 12%, var(--surface-container-high))';
   const avatarColor = isAccent ? '#fff' : 'var(--color-accent)';
 
-  const stats = `${study.members_hired} hired · ${study.avg_tenure_months}mo avg tenure · ${study.role_filled}`;
-
   return (
     <article
       className="employer-case-study-card"
@@ -71,7 +69,7 @@ export default function EmployerCaseStudyCard({
           color: statColor,
         }}
       >
-        {stats}
+          {study.outcome_summary} · {study.role_filled}
       </p>
 
       <blockquote

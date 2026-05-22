@@ -40,7 +40,8 @@
     "coursera:backfill-catalog": "node scripts/backfill-coursera-courseids.cjs",
     "email": "email dev -p 3001",
     "analyze": "ANALYZE=true npm run build",
-    "fonts:subset-material-symbols": "bash scripts/subset-material-symbols.sh"
+    "fonts:subset-material-symbols": "bash scripts/subset-material-symbols.sh",
+    "smoke:prod": "node scripts/prod-paid-funnel-smoke.mjs"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

@@ -111,15 +111,15 @@ async function handle(_req: NextRequest) {
       ).catch(() => ({ awarded: false, points: 0 }));
       if (pointsResult.awarded) pointsAwardedCount++;
 
-      // Pick a peer testimonial. Prefer one matching the member's program;
-      // fall back to any. The testimonials file currently ships placeholder
-      // quotes (TODO replace with real, consented quotes before launch — see
-      // content/testimonials.ts header).
-      const programMatch = TESTIMONIALS.find(
+      // Only include real, consented testimonials in member-facing email.
+      // Placeholder stories remain in content/testimonials.ts for UI review,
+      // but must never leave the machine as social proof.
+      const launchSafeTestimonials = TESTIMONIALS.filter((t) => !t.id.startsWith('placeholder-'));
+      const programMatch = launchSafeTestimonials.find(
         (t) => t.program && programSlug && t.program.toLowerCase().includes(programSlug.toLowerCase()),
       );
       const testimonial =
-        programMatch ?? (TESTIMONIALS[Math.floor(Math.random() * TESTIMONIALS.length)] ?? null);
+        programMatch ?? (launchSafeTestimonials[Math.floor(Math.random() * launchSafeTestimonials.length)] ?? null);
 
       await sendCertCelebrationEmail({
         to: member.email,

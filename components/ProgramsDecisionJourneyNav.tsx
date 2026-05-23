@@ -49,11 +49,11 @@ export default function ProgramsDecisionJourneyNav({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const steps: { id: ProgramsJourneyStep; label: string; icon: string; href: string }[] = [
-    { id: 'quiz', label: 'Find Your Path', icon: 'explore', href: '/find-your-path' },
-    { id: 'programs', label: 'Browse Programs', icon: 'school', href: '/programs' },
-    { id: 'compare', label: 'Compare Tracks', icon: 'compare_arrows', href: '/program-comparison' },
-    { id: 'salary', label: 'Salary Context', icon: 'payments', href: '/salary-guide' },
+  const steps: { id: ProgramsJourneyStep; label: string; mobileLabel: string; icon: string; href: string }[] = [
+    { id: 'quiz', label: 'Find Your Path', mobileLabel: 'Path', icon: 'explore', href: '/find-your-path' },
+    { id: 'programs', label: 'Browse Programs', mobileLabel: 'Programs', icon: 'school', href: '/programs' },
+    { id: 'compare', label: 'Compare Tracks', mobileLabel: 'Compare', icon: 'compare_arrows', href: '/program-comparison' },
+    { id: 'salary', label: 'Salary Context', mobileLabel: 'Salary', icon: 'payments', href: '/salary-guide' },
   ];
 
   return (
@@ -82,7 +82,8 @@ export default function ProgramsDecisionJourneyNav({
                 >
                   {s.icon}
                 </span>
-                <span className="pdj-nav__label">{s.label}</span>
+                <span className="pdj-nav__label pdj-nav__label--desktop">{s.label}</span>
+                <span className="pdj-nav__label pdj-nav__label--mobile">{s.mobileLabel}</span>
               </LocalizedLink>
             </li>
           );
@@ -169,6 +170,10 @@ export default function ProgramsDecisionJourneyNav({
           flex-shrink: 0;
         }
 
+        .pdj-nav__label--mobile {
+          display: none;
+        }
+
         .pdj-nav__tab--active .pdj-nav__icon {
           color: var(--color-accent);
         }
@@ -196,12 +201,13 @@ export default function ProgramsDecisionJourneyNav({
             border-radius: var(--radius-lg);
             margin: 0.75rem 0.5rem 1rem;
             max-width: none;
+            padding: 0.5rem 0.375rem;
           }
           .pdj-nav::-webkit-scrollbar { display: none; }
 
           .pdj-nav__list {
             flex-wrap: nowrap;
-            min-width: min-content;
+            min-width: 100%;
           }
 
           .pdj-nav__label {
@@ -209,9 +215,17 @@ export default function ProgramsDecisionJourneyNav({
             letter-spacing: 0;
           }
 
+          .pdj-nav__label--desktop {
+            display: none;
+          }
+
+          .pdj-nav__label--mobile {
+            display: inline;
+          }
+
           .pdj-nav__tab {
-            flex: 0 0 auto;
-            padding: 0.5rem 0.625rem;
+            flex: 1 1 0;
+            padding: 0.5rem 0.25rem;
             min-width: auto;
             flex-direction: column;
             gap: 0.2rem;

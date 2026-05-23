@@ -134,7 +134,7 @@ export default function OrgOnboardPage() {
               <legend style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: 20 }}>Organization Details</legend>
 
               <label style={{ display: 'block', marginBottom: 16 }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface-muted, rgba(242,242,245,0.7))' }}>Organization Name</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface, #f2f2f5)' }}>Organization Name</span>
                 <input
                   type="text"
                   value={name}
@@ -156,7 +156,7 @@ export default function OrgOnboardPage() {
               </label>
 
               <label style={{ display: 'block', marginBottom: 16 }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface-muted, rgba(242,242,245,0.7))' }}>Subdomain</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface, #f2f2f5)' }}>Subdomain</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                   <input
                     type="text"
@@ -177,7 +177,7 @@ export default function OrgOnboardPage() {
               </label>
 
               <label style={{ display: 'block', marginBottom: 16 }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface-muted, rgba(242,242,245,0.7))' }}>Custom Domain (optional)</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface, #f2f2f5)' }}>Custom Domain (optional)</span>
                 <input
                   type="text"
                   value={domain}
@@ -197,7 +197,7 @@ export default function OrgOnboardPage() {
               </label>
 
               <label style={{ display: 'block', marginBottom: 16 }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface-muted, rgba(242,242,245,0.7))' }}>Your Email</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface, #f2f2f5)' }}>Your Email</span>
                 <input
                   type="email"
                   value={email}
@@ -218,7 +218,7 @@ export default function OrgOnboardPage() {
               </label>
 
               <div style={{ marginBottom: 16 }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface-muted, rgba(242,242,245,0.7))', display: 'block', marginBottom: 8 }}>Plan</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface, #f2f2f5)', display: 'block', marginBottom: 8 }}>Plan</span>
                 <div style={{ display: 'grid', gap: 8 }}>
                   {TIERS.map((t) => (
                     <label
@@ -253,7 +253,7 @@ export default function OrgOnboardPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
                 <label style={{ display: 'block' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface-muted, rgba(242,242,245,0.7))' }}>Primary Color</span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface, #f2f2f5)' }}>Primary Color</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                     <input
                       type="color"
@@ -280,7 +280,7 @@ export default function OrgOnboardPage() {
                   </div>
                 </label>
                 <label style={{ display: 'block' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface-muted, rgba(242,242,245,0.7))' }}>Accent Color</span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-on-surface, #f2f2f5)' }}>Accent Color</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                     <input
                       type="color"

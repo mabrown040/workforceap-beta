@@ -3,9 +3,9 @@ import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
+import ProgramsMobileBrowseNav from '@/components/marketing/ProgramsMobileBrowseNav';
 import { CTABand, JourneyStep, SplitHero } from '@/components/marketing/ui';
-import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
-import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content/programSubgroup';
+import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,13 +18,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ProgramsPage() {
   const t = await getTranslations('marketing.programs');
-  const mobileBrowseChips = [
-    { href: '#program-catalog', label: 'All' },
-    ...orderedSubgroupIdsWithPrograms(PROGRAMS).map((id) => ({
-      href: `#subgroup-${id}`,
-      label: PROGRAM_SUBGROUPS.find((s) => s.id === id)?.shortLabel ?? id,
-    })),
-  ];
 
   return (
     <div className="inner-page programs-page marketing-stack marketing-stack--enter">
@@ -166,6 +159,8 @@ export default async function ProgramsPage() {
           </div>
         </div>
       </section>
+
+      <ProgramsMobileBrowseNav />
 
       {/* ══════════════════════════════════════════════
           HOW TO CHOOSE + TOOL ROUTING — desktop only

@@ -299,6 +299,7 @@ export default function TestimonialsAdminClient() {
                             onClick={() => updateStatus(t.id, 'APPROVED')}
                             style={actionBtnStyle('green')}
                             title="Approve"
+                            aria-label="Approve"
                           >
                             <CheckCircle className="w-3.5 h-3.5" />
                           </button>
@@ -310,6 +311,7 @@ export default function TestimonialsAdminClient() {
                             }}
                             style={actionBtnStyle('red')}
                             title="Reject"
+                            aria-label="Reject"
                           >
                             <XCircle className="w-3.5 h-3.5" />
                           </button>
@@ -321,6 +323,7 @@ export default function TestimonialsAdminClient() {
                           onClick={() => updateStatus(t.id, 'PUBLISHED')}
                           style={actionBtnStyle('blue')}
                           title="Publish"
+                          aria-label="Publish"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -331,6 +334,7 @@ export default function TestimonialsAdminClient() {
                           onClick={() => updateStatus(t.id, 'PENDING')}
                           style={actionBtnStyle('amber')}
                           title="Reset to pending"
+                          aria-label="Reset to pending"
                         >
                           <Clock className="w-3.5 h-3.5" />
                         </button>
@@ -340,6 +344,7 @@ export default function TestimonialsAdminClient() {
                         onClick={() => handleDelete(t.id)}
                         style={actionBtnStyle('gray')}
                         title="Delete"
+                        aria-label="Delete"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

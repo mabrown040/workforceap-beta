@@ -37,10 +37,12 @@ export default function CookieConsentBanner() {
   useEffect(() => {
     const previousPadding = document.body.style.paddingBottom;
     if (visible) {
+      // Generous padding to ensure banner + bottom nav never overlap CTAs/forms.
+      // Banner height ~70px + bottom nav ~84px + safety gap = ~220px+.
       document.body.style.paddingBottom = isMobileViewport
         ? hasMobileBottomNav
-          ? '11rem'
-          : '6rem'
+          ? '14rem'
+          : '8rem'
         : '8rem';
     }
     return () => {
@@ -68,7 +70,7 @@ export default function CookieConsentBanner() {
         position: 'fixed',
         bottom: isMobileViewport
           ? hasMobileBottomNav
-            ? '5.25rem'
+            ? '5.5rem'
             : 'calc(0.75rem + env(safe-area-inset-bottom, 0px))'
           : 0,
         left: isMobileViewport ? '0.75rem' : 0,

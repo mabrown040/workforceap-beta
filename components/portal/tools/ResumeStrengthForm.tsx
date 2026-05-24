@@ -3,16 +3,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
+import { getResumeExtractionWarning } from '@/lib/resume/extractionQuality';
 import ResumeAnalysisPanel from './ResumeAnalysisPanel';
 import ResumeScoreBreakdown, { type ResumeScorePayload } from './ResumeScoreBreakdown';
 import ToolFollowThrough from './ToolFollowThrough';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
-
-function parseOverallScore(text: string): number {
-  const m = text.match(/OVERALL SCORE:\s*(\d+)\s*%/i);
-  if (m) return Math.min(100, Math.max(0, parseInt(m[1], 10)));
-  return 68;
-}
 
 const sectionAuditCards = [
   {
@@ -70,6 +65,7 @@ export default function ResumeStrengthForm() {
   const [resume, setResume] = useState('');
   const [output, setOutput] = useState('');
   const [scorePayload, setScorePayload] = useState<ResumeScorePayload | null>(null);
+  const [extractionWarning, setExtractionWarning] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
@@ -100,6 +96,7 @@ export default function ResumeStrengthForm() {
     setError('');
     setOutput('');
     setScorePayload(null);
+    setExtractionWarning(getResumeExtractionWarning(resume));
     setLoading(true);
     trackToolLaunch('resume-analysis', 'Resume Analysis');
     trackAIToolRun('started', 'resume-analysis');
@@ -152,6 +149,7 @@ export default function ResumeStrengthForm() {
       const data = await res.json();
       if (res.ok && data.text) {
         setResume(data.text);
+        setExtractionWarning(getResumeExtractionWarning(data.text));
       } else {
         setError(data.error ?? 'Could not extract text');
       }
@@ -163,7 +161,7 @@ export default function ResumeStrengthForm() {
     }
   };
 
-  const scorePercent = output ? parseOverallScore(output) : 0;
+  const scorePercent = scorePayload?.composite ?? 0;
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="portal-ai-tool-form">
@@ -214,6 +212,7 @@ export default function ResumeStrengthForm() {
             resumePreview={resume}
             scorePercent={scorePercent}
             gaugeLabel="Overall strength"
+            extractionWarning={extractionWarning}
             matchedSkills={['ATS-friendly structure', 'Clear sections', 'Action-oriented language']}
             missingSkills={['See priority improvements in analysis']}
             analysisText={output}

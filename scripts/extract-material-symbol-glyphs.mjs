@@ -52,6 +52,13 @@ function addIconPropGlyphs(content) {
   }
 }
 
+/** JSX props like `<ContactInfoCard icon="call" />` that later render in a Material Symbols span. */
+function addJsxIconAttributeGlyphs(content) {
+  for (const m of content.matchAll(/\bicon\s*=\s*['"]([a-z0-9_]+)['"]/g)) {
+    glyphs.add(m[1]);
+  }
+}
+
 /** Pathway milestones use const arrays without `icon:` keys. */
 function addPathwayIconArrays(content) {
   for (const m of content.matchAll(
@@ -112,6 +119,7 @@ for (const top of SCAN_TOP) {
   for (const file of walk(top)) {
     const content = fs.readFileSync(file, 'utf8');
     addIconPropGlyphs(content);
+    addJsxIconAttributeGlyphs(content);
     addPathwayIconArrays(content);
     addIconMapGlyphs(content);
     if (file.endsWith('.css')) {

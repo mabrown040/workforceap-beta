@@ -22,6 +22,7 @@ type Props = {
   scorePercent: number;
   /** Label under the score (e.g. job match vs. overall resume strength). */
   gaugeLabel?: string;
+  extractionWarning?: string | null;
   matchedSkills: string[];
   missingSkills: string[];
   analysisText: string;
@@ -39,6 +40,7 @@ export default function ResumeAnalysisPanel({
   resumePreview,
   scorePercent,
   gaugeLabel = 'Target alignment',
+  extractionWarning,
   matchedSkills,
   missingSkills,
   analysisText,
@@ -71,6 +73,24 @@ export default function ResumeAnalysisPanel({
           </button>
           <ExportPdfButton text={analysisText} title={exportTitle} toolName={pdfToolName} />
         </div>
+
+        {extractionWarning && (
+          <div
+            role="alert"
+            style={{
+              marginTop: '1rem',
+              padding: '0.875rem 1rem',
+              borderRadius: '0.75rem',
+              border: '1px solid rgba(237, 139, 0, 0.28)',
+              background: 'linear-gradient(180deg, rgba(237, 139, 0, 0.12), rgba(237, 139, 0, 0.06))',
+              color: 'var(--color-on-surface)',
+              fontSize: '0.875rem',
+              lineHeight: 1.45,
+            }}
+          >
+            {extractionWarning}
+          </div>
+        )}
 
         <div style={{ display: 'flex', justifyContent: 'center', margin: '1.5rem 0' }}>
           <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden>

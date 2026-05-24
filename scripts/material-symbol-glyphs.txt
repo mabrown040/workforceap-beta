@@ -30,6 +30,7 @@ business
 business_center
 calendar_month
 calendar_today
+call
 campaign
 cancel
 category
@@ -114,6 +115,7 @@ info
 insert_chart
 insights
 interests
+key
 landscape
 library_books
 lightbulb
@@ -177,6 +179,7 @@ route
 save
 schedule
 schedule_send
+schema
 school
 science
 search
@@ -211,6 +214,7 @@ toggle_off
 toggle_on
 track_changes
 translate
+trending_down
 trending_up
 troubleshoot
 tune
@@ -222,6 +226,7 @@ visibility
 visibility_off
 volunteer_activism
 warning
+webhook
 wifi_tethering
 window
 work

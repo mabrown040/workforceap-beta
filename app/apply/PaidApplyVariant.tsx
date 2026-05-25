@@ -46,7 +46,7 @@ export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVar
     <div className="paid-apply-landing">
       <section className="paid-apply-hero" aria-labelledby="paid-apply-hero-heading">
         <h1 id="paid-apply-hero-heading" className="paid-apply-hero__heading">
-          No-cost IT training — start eligibility in 30 minutes.
+          No-cost IT training — start with a quick eligibility check.
         </h1>
         <button
           type="button"

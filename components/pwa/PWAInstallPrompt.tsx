@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 const VISIT_KEY = 'wap:pwa-visits';
 const DISMISSED_KEY = 'wap:pwa-install-dismissed';
@@ -12,6 +13,7 @@ type BeforeInstallPromptEvent = Event & {
 };
 
 export default function PWAInstallPrompt() {
+  const t = useTranslations('dashboard');
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -95,10 +97,10 @@ export default function PWAInstallPrompt() {
       />
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9375rem', lineHeight: 1.3 }}>
-          Install WorkforceAP
+          {t('pwaInstallTitle')}
         </p>
         <p style={{ margin: '0.15rem 0 0', fontSize: '0.8125rem', opacity: 0.88, lineHeight: 1.4 }}>
-          Add to your home screen for quick access.
+          {t('pwaInstallBody')}
         </p>
       </div>
       <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
@@ -115,7 +117,7 @@ export default function PWAInstallPrompt() {
             cursor: 'pointer',
           }}
         >
-          Not now
+          {t('pwaInstallDismiss')}
         </button>
         <button
           onClick={handleInstall}
@@ -130,7 +132,7 @@ export default function PWAInstallPrompt() {
             cursor: 'pointer',
           }}
         >
-          Install
+          {t('pwaInstallCta')}
         </button>
       </div>
     </div>

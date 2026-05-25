@@ -1569,7 +1569,7 @@
       "faqBulkQ": "¿Podemos importar referidos en lote?",
       "faqBulkA": "Sí — subida CSV con mapeo de columnas. Validamos filas, evitamos duplicados con miembros existentes y mostramos errores fila por fila antes de guardar.",
       "faqFeeQ": "¿Hay alguna cuota para ser socio?",
-      "faqFeeA": "No. El portal, los enlaces de referido, los paneles y los informes son gratis. Nunca cobramos a socios ni a miembros por referir.",
+      "faqFeeA": "No. No cobramos a los socios por referir. Los servicios para miembros se financian con subvenciones y alianzas, así que no tienen costo para los miembros.",
       "faqReportsQ": "¿Cómo funcionan los informes?",
       "faqReportsA": "Genera informes de colocación, finalización y demografía directamente desde tu panel de socio. Programa exportaciones mensuales a tu correo o al almacén de datos de tu financiador."
     },

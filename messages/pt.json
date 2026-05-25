@@ -1570,7 +1570,7 @@
       "faqBulkQ": "Podemos importar indicações em lote?",
       "faqBulkA": "Sim — upload de CSV com mapeamento de colunas. Validamos linhas, evitamos duplicatas com membros existentes e mostramos erros linha por linha antes de salvar.",
       "faqFeeQ": "Há alguma taxa para ser parceiro?",
-      "faqFeeA": "Não. Portal, links de indicação, painéis e relatórios são gratuitos. Nunca cobramos parceiros nem membros para indicar.",
+      "faqFeeA": "Não. Não cobramos parceiros para indicar. Os serviços para membros são financiados por subsídios e parcerias, então não têm custo para os membros.",
       "faqReportsQ": "Como funcionam os relatórios?",
       "faqReportsA": "Gere relatórios de colocação, conclusão e demografia direto no painel do parceiro. Agende exportações mensais para seu e-mail ou para o data warehouse do financiador."
     },

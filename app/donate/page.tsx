@@ -4,7 +4,7 @@ import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import LocalizedLink from '@/components/LocalizedLink';
 import { HeroSection, InfoCard, PageSection, SectionHeader, QuoteCard } from '@/components/marketing/ui';
-import { marketingPrimaryButtonClasses, marketingSecondaryButtonClasses } from '@/lib/marketing/buttonClasses';
+import { marketingButtonPresets, marketingPrimaryButtonClasses, marketingSecondaryButtonClasses } from '@/lib/marketing/buttonClasses';
 
 const DONATION_EMAIL = 'info@workforceap.org';
 const DONATION_PHONE = '(512) 777-1808';
@@ -64,21 +64,67 @@ export default function DonatePage() {
         priority
         minHeight="min(100vh, 42rem)"
         overlayGradient="linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.76) 52%, rgba(173,44,77,0.26) 100%)"
-        eyebrow="Support WorkforceAP"
-        headline="Fund real training, real support, and real job outcomes"
-        subheadline="Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work."
+        eyebrow={
+          <span
+            style={{
+              display: 'inline-block',
+              padding: '0.375rem 0.9rem',
+              borderRadius: '999px',
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              color: 'var(--color-gold)',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Support WorkforceAP
+          </span>
+        }
+        headline={
+          <h1
+            style={{
+              margin: 0,
+              color: 'var(--color-white)',
+              lineHeight: 1.02,
+              letterSpacing: '-0.03em',
+              fontSize: 'clamp(2.4rem, 7vw, 4.75rem)',
+              maxWidth: '14ch',
+              textWrap: 'balance',
+            }}
+          >
+            Fund real training, real support, and real job outcomes
+          </h1>
+        }
+        subheadline={
+          <p
+            style={{
+              margin: 0,
+              maxWidth: '42rem',
+              color: 'rgba(245, 245, 248, 0.9)',
+              fontSize: 'clamp(1rem, 1.25vw, 1.2rem)',
+              lineHeight: 1.7,
+              textShadow: '0 1px 2px rgba(0,0,0,0.22)',
+            }}
+          >
+            Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work.
+          </p>
+        }
       >
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.5rem' }}>
           <a
             href={`mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`}
-            className={marketingPrimaryButtonClasses()}
+            className={marketingButtonPresets.heroPrimary()}
             style={{ display: 'inline-flex' }}
           >
             Start a donation by email
           </a>
           <LocalizedLink
             href="/contact?topic=partnership"
-            className={marketingSecondaryButtonClasses()}
+            className={marketingButtonPresets.heroSecondaryOnDark()}
             style={{ display: 'inline-flex' }}
           >
             Talk about corporate giving

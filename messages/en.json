@@ -1606,7 +1606,7 @@
       "faqBulkQ": "Can we bulk-import referrals?",
       "faqBulkA": "Yes — CSV upload with column mapping. We validate rows, deduplicate against existing members, and surface errors row-by-row before commit.",
       "faqFeeQ": "Is there a fee to be a partner?",
-      "faqFeeA": "No. The portal, referral links, dashboards, and reports are free. We never charge partners or members to refer.",
+      "faqFeeA": "No. We do not charge partners to refer. Member services are funded by grants and partnerships, so there is no cost to members.",
       "faqReportsQ": "How do reports work?",
       "faqReportsA": "Pull placement, completion, and demographic reports straight from your partner dashboard. Schedule monthly exports to your inbox or your funder's data warehouse."
     },

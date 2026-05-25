@@ -1570,7 +1570,7 @@
       "faqBulkQ": "Pouvons-nous importer des référés en lot ?",
       "faqBulkA": "Oui — import CSV avec correspondance de colonnes. Nous validons les lignes, détectons les doublons et affichons les erreurs ligne par ligne avant validation.",
       "faqFeeQ": "Y a-t-il des frais pour être partenaire ?",
-      "faqFeeA": "Non. Le portail, les liens de référence, les tableaux de bord et les rapports sont gratuits. Nous ne facturons jamais les partenaires ni les membres pour référer.",
+      "faqFeeA": "Non. Nous ne facturons pas les partenaires pour les recommandations. Les services aux membres sont financés par des subventions et des partenariats, donc ils sont sans coût pour les membres.",
       "faqReportsQ": "Comment fonctionnent les rapports ?",
       "faqReportsA": "Générez les rapports de placement, complétion et démographie directement dans votre tableau de bord. Programmez des exports mensuels vers votre boîte mail ou l'entrepôt de données du bailleur."
     },

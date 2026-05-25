@@ -60,7 +60,7 @@ For historical / superseded docs, see [`docs/archive/`](./docs/archive/).
 | [`docs/TESTING-STATUS.md`](./docs/TESTING-STATUS.md) | Current test coverage and known gaps. |
 | [`AI-TOOLS-BACKLOG.md`](./AI-TOOLS-BACKLOG.md) | Status of the AI tools surface. |
 | [`TODOS.md`](./TODOS.md) | Active design/UX debt. |
-| [`WORKING.md`](./WORKING.md) | Currently-in-progress branch state. |
+| [`WORKING.md`](./WORKING.md) | Current migration caveats and temporary working notes. |
 | [`DESIGN.md`](./DESIGN.md) | Design notes. |
 | [`ENG_REVIEW_i18n.md`](./ENG_REVIEW_i18n.md) | i18n engineering review. |
 

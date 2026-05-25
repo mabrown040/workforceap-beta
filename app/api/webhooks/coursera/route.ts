@@ -14,6 +14,7 @@ import { isXapiCompletionVerb, type ParsedXapiStatement } from '@/lib/xapi/state
 import { claimCourseraRestWebhookStatement, markXapiStatementProcessed } from '@/lib/xapi/storage';
 
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
+import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 
 /**
  * Coursera REST completion / progress webhook.
@@ -145,6 +146,7 @@ export async function POST(request: Request) {
     const data = parsed.data;
     const rawAudit = redactBodyForAudit(body as Record<string, unknown>);
     const dedupeKey = buildDedupeStatementId(data, rawBody);
+    const organizationId = await resolveOrgFromRequest(request.headers);
   
     let memberId: string | null = null;
     let mappingMethod: string | undefined;
@@ -167,7 +169,7 @@ export async function POST(request: Request) {
         email: data.email ?? undefined,
         actorIdentifier: data.actorIdentifier,
         actorHomePage: data.actorHomePage,
-      });
+      }, { organizationId });
       if (resolved) {
         memberId = resolved.userId;
         mappingMethod = resolved.mappingMethod;
@@ -185,6 +187,7 @@ export async function POST(request: Request) {
       await recordXapiEvent({
         statementId: dedupeKey,
         identity,
+        organizationId,
         courseSlug: data.courseSlug,
         courseName: data.courseName,
         completionStatus: 'unmatched',
@@ -226,6 +229,7 @@ export async function POST(request: Request) {
           courseSlug: data.courseSlug,
           courseName: data.courseName,
           matchedUserId: memberId,
+          organizationId,
           mappingMethod,
           completionStatus: shouldComplete ? 'error' : 'ignored',
           error: shouldComplete ? 'No program enrolled' : undefined,
@@ -267,6 +271,7 @@ export async function POST(request: Request) {
           courseSlug: data.courseSlug,
           courseName: data.courseName,
           matchedUserId: memberId,
+          organizationId,
           mappingMethod,
           completionStatus: 'ignored',
           rawPayload: rawAudit,
@@ -295,6 +300,7 @@ export async function POST(request: Request) {
         courseSlug: data.courseSlug,
         courseName: data.courseName,
         matchedUserId: memberId,
+        organizationId,
         mappingMethod,
         completionStatus: 'completed',
         rawPayload: rawAudit,
@@ -318,6 +324,7 @@ export async function POST(request: Request) {
         courseSlug: data.courseSlug,
         courseName: data.courseName,
         matchedUserId: memberId,
+        organizationId,
         mappingMethod,
         completionStatus: 'error',
         error: message,

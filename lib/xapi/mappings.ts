@@ -226,9 +226,17 @@ async function notifyIfNewUnmatchedActorEmail(args: {
 }
 
 async function getMappingByActor(identity: XapiIdentity): Promise<MappingRow | null> {
+  return getMappingByActorInOrg(identity, null);
+}
+
+async function getMappingByActorInOrg(
+  identity: XapiIdentity,
+  organizationId: string | null | undefined,
+): Promise<MappingRow | null> {
   const actorIdentifier = normalizeActorValue(identity.actorIdentifier);
   if (!actorIdentifier) return null;
   const actorHomePage = normalizeActorValue(identity.actorHomePage) || '';
+  const orgFilter = orgScopeSql(Prisma.sql`COALESCE(cim.organization_id, u.organization_id)`, organizationId);
 
   const rows = await prisma.$queryRaw<MappingRow[]>`
     SELECT
@@ -249,6 +257,7 @@ async function getMappingByActor(identity: XapiIdentity): Promise<MappingRow | n
     JOIN users u ON u.id = cim.user_id
     WHERE cim.actor_identifier = ${actorIdentifier}
       AND COALESCE(cim.actor_home_page, '') = ${actorHomePage}
+      ${orgFilter}
     LIMIT 1
   `;
 
@@ -256,8 +265,16 @@ async function getMappingByActor(identity: XapiIdentity): Promise<MappingRow | n
 }
 
 async function getMappingByEmail(identity: XapiIdentity): Promise<MappingRow | null> {
+  return getMappingByEmailInOrg(identity, null);
+}
+
+async function getMappingByEmailInOrg(
+  identity: XapiIdentity,
+  organizationId: string | null | undefined,
+): Promise<MappingRow | null> {
   const email = normalizeEmail(identity.email);
   if (!email) return null;
+  const orgFilter = orgScopeSql(Prisma.sql`COALESCE(cim.organization_id, u.organization_id)`, organizationId);
 
   const rows = await prisma.$queryRaw<MappingRow[]>`
     SELECT
@@ -277,16 +294,21 @@ async function getMappingByEmail(identity: XapiIdentity): Promise<MappingRow | n
     FROM coursera_identity_mappings cim
     JOIN users u ON u.id = cim.user_id
     WHERE LOWER(cim.coursera_email) = ${email}
+      ${orgFilter}
     LIMIT 1
   `;
 
   return rows[0] ?? null;
 }
 
-export async function resolveXapiUser(identity: XapiIdentity): Promise<ResolvedXapiUser | null> {
+export async function resolveXapiUser(
+  identity: XapiIdentity,
+  options: TenantScopeOptions = {},
+): Promise<ResolvedXapiUser | null> {
   await ensureCourseraMappingTables();
+  const organizationId = normalizeOrganizationId(options.organizationId);
 
-  const actorMapping = await getMappingByActor(identity);
+  const actorMapping = await getMappingByActorInOrg(identity, organizationId);
   if (actorMapping) {
     await prisma.$executeRaw`
       UPDATE coursera_identity_mappings
@@ -303,7 +325,7 @@ export async function resolveXapiUser(identity: XapiIdentity): Promise<ResolvedX
     };
   }
 
-  const emailMapping = await getMappingByEmail(identity);
+  const emailMapping = await getMappingByEmailInOrg(identity, organizationId);
   if (emailMapping) {
     await prisma.$executeRaw`
       UPDATE coursera_identity_mappings
@@ -327,6 +349,7 @@ export async function resolveXapiUser(identity: XapiIdentity): Promise<ResolvedX
   // platform accounts resolve the same way as members for xAPI ingest.
   const user = await prisma.user.findFirst({
     where: {
+      ...(organizationId ? { organizationId } : {}),
       email: {
         equals: email,
         mode: 'insensitive',
@@ -345,6 +368,7 @@ export async function resolveXapiUser(identity: XapiIdentity): Promise<ResolvedX
       actorIdentifier: identity.actorIdentifier ?? null,
       actorHomePage: identity.actorHomePage ?? null,
       source: 'auto-direct-email',
+      expectedOrganizationId: organizationId,
     });
   } catch (mappingError) {
     // Non-fatal: direct match still works even if mapping save fails
@@ -366,6 +390,7 @@ export async function recordXapiEvent(args: {
   courseName?: string;
   verbId?: string;
   matchedUserId?: string;
+  organizationId?: string | null;
   mappingMethod?: string;
   completionStatus: 'completed' | 'ignored' | 'unmatched' | 'error';
   error?: string;
@@ -387,7 +412,7 @@ export async function recordXapiEvent(args: {
 
   // Resolve organization_id from the matched user when we have one. This
   // closes AUDIT §C-S5: cross-tenant xAPI ingest leak.
-  let organizationId: string | null = null;
+  let organizationId = normalizeOrganizationId(args.organizationId);
   if (matchedUserId) {
     try {
       const userRow = await prisma.user.findUnique({

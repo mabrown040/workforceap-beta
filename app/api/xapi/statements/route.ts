@@ -22,6 +22,8 @@ import { persistXapiStatement } from '@/lib/xapi/storage';
 import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { invalidateCache } from '@/lib/cache';
+import { withSystemGuc } from '@/lib/db/withRequestGuc';
+import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 
 function tailFromObjectId(objectId: string | null | undefined): string | null {
   if (!objectId) return null;
@@ -87,6 +89,7 @@ function extractRawStatementActorFields(raw: Record<string, unknown>): {
 }
 
 export async function POST(request: Request) {
+  return withSystemGuc(async () => {
   try {
     const ip = getClientIpFromRequest(request);
     const { success: withinLimit } = await checkXapiStatementsPostRateLimit(ip);
@@ -117,6 +120,8 @@ export async function POST(request: Request) {
     if (rawStatements.length === 0) {
       return NextResponse.json({ received: true, processed: 0, completions: [] }, { status: 201 });
     }
+
+    const organizationId = await resolveOrgFromRequest(request.headers);
   
     const completions: Array<Record<string, unknown>> = [];
     let statementsHandled = 0;
@@ -182,7 +187,7 @@ export async function POST(request: Request) {
         // Duplicate statementId (retries / races): row exists — skip completion side effects.
         if (persisted === 'skipped') continue;
   
-        const { completions: batch } = await handleInboundParsedStatement(parsed);
+        const { completions: batch } = await handleInboundParsedStatement(parsed, { organizationId });
         completions.push(...batch);
         statementsHandled += 1;
       } catch (err) {
@@ -216,6 +221,7 @@ export async function POST(request: Request) {
     console.error('/xapi/statements:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+  });
 }
 
 export async function GET() {

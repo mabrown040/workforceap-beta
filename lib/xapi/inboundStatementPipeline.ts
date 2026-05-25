@@ -19,6 +19,7 @@ export type InboundStatementRunResult = {
  */
 export async function handleInboundParsedStatement(
   parsed: ParsedXapiStatement,
+  options: { organizationId?: string | null } = {},
 ): Promise<InboundStatementRunResult> {
   const completions: Array<Record<string, unknown>> = [];
 
@@ -28,12 +29,13 @@ export async function handleInboundParsedStatement(
     actorHomePage: parsed.actorHomePage,
   };
 
-  const resolvedUser = await resolveXapiUser(identity);
+  const resolvedUser = await resolveXapiUser(identity, { organizationId: options.organizationId });
 
   if (!resolvedUser) {
     await recordXapiEvent({
       statementId: parsed.statementId,
       identity,
+      organizationId: options.organizationId,
       courseSlug: parsed.courseSlug,
       courseName: parsed.courseName,
       verbId: parsed.verbId,
@@ -75,6 +77,7 @@ export async function handleInboundParsedStatement(
       courseName: parsed.courseName,
       verbId: parsed.verbId,
       matchedUserId: resolvedUser.userId,
+      organizationId: options.organizationId,
       mappingMethod: resolvedUser.mappingMethod,
       completionStatus: isXapiCompletionVerb(parsed) ? 'error' : 'ignored',
       error: isXapiCompletionVerb(parsed) ? message : undefined,
@@ -109,6 +112,7 @@ export async function handleInboundParsedStatement(
       courseName: parsed.courseName,
       verbId: parsed.verbId,
       matchedUserId: resolvedUser.userId,
+      organizationId: options.organizationId,
       mappingMethod: resolvedUser.mappingMethod,
       completionStatus: 'ignored',
       rawPayload: parsed.rawStatement,
@@ -133,6 +137,7 @@ export async function handleInboundParsedStatement(
       courseName: parsed.courseName,
       verbId: parsed.verbId,
       matchedUserId: resolvedUser.userId,
+      organizationId: options.organizationId,
       mappingMethod: resolvedUser.mappingMethod,
       completionStatus: 'completed',
       rawPayload: parsed.rawStatement,
@@ -156,6 +161,7 @@ export async function handleInboundParsedStatement(
       courseName: parsed.courseName,
       verbId: parsed.verbId,
       matchedUserId: resolvedUser.userId,
+      organizationId: options.organizationId,
       mappingMethod: resolvedUser.mappingMethod,
       completionStatus: 'error',
       error: message,

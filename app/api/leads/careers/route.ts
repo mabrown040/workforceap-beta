@@ -4,6 +4,7 @@ import { checkContactRateLimit } from '@/lib/rate-limit';
 import { verifyTurnstileResponse } from '@/lib/turnstile/verifyTurnstile';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml } from '@/lib/email/escapeHtml';
+import { validateCareersLeadPayload } from '@/lib/validation/careersLead';
 
 const CAREERS_EMAIL_TO = 'careers@workforceap.org';
 
@@ -33,12 +34,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    const parsed = parseBody(body);
-    if (!parsed) {
+    const parsed = validateCareersLeadPayload(body);
+    if (!parsed.ok) {
+      if (parsed.fieldErrors.email === 'invalid_email') {
+        return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400 });
+      }
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const { firstName, lastName, email, interestArea, message, turnstileToken } = parsed;
+    const { firstName, lastName, email, interestArea, message, roleTitle, turnstileToken } = parsed.data;
 
     const captchaEnabled = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
     if (captchaEnabled) {
@@ -72,10 +76,16 @@ export async function POST(request: NextRequest) {
     }
 
     const interestLabel = formatInterestArea(interestArea);
-    const subject = `Careers interest: ${firstName} ${lastName}${interestLabel ? ` — ${interestLabel}` : ''}`;
+    const subjectParts = [
+      `Careers interest: ${firstName} ${lastName}`,
+      roleTitle || null,
+      interestLabel || null,
+    ].filter(Boolean);
+    const subject = subjectParts.join(' — ');
     const text = [
       `From: ${firstName} ${lastName}`,
       `Email: ${email}`,
+      `Role of interest: ${roleTitle || 'Not specified'}`,
       `Interest area: ${interestLabel || 'Not specified'}`,
       '',
       'Message:',
@@ -89,6 +99,7 @@ export async function POST(request: NextRequest) {
       bodyHtml: `
         <p><strong>From:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
         <p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
+        <p><strong>Role of interest:</strong> ${escapeHtml(roleTitle || 'Not specified')}</p>
         <p><strong>Interest area:</strong> ${escapeHtml(interestLabel || 'Not specified')}</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 1rem 0;" />
         <p><strong>Message:</strong></p>
@@ -135,26 +146,4 @@ function formatInterestArea(value?: string): string {
     default:
       return '';
   }
-}
-
-function parseBody(body: unknown): {
-  firstName: string;
-  lastName: string;
-  email: string;
-  interestArea?: string;
-  message: string;
-  turnstileToken?: string;
-} | null {
-  if (!body || typeof body !== 'object') return null;
-  const o = body as Record<string, unknown>;
-  const firstName = typeof o.first_name === 'string' ? o.first_name.trim() : null;
-  const lastName = typeof o.last_name === 'string' ? o.last_name.trim() : null;
-  const email = typeof o.email === 'string' ? o.email.trim() : null;
-  const interestArea =
-    typeof o.interest_area === 'string' && o.interest_area.trim() ? o.interest_area.trim() : undefined;
-  const message = typeof o.message === 'string' ? o.message.trim() : null;
-  const turnstileToken =
-    typeof o.cf_turnstile_response === 'string' ? o.cf_turnstile_response.trim() || undefined : undefined;
-  if (!firstName || !lastName || !email || !message) return null;
-  return { firstName, lastName, email, interestArea, message, turnstileToken };
 }

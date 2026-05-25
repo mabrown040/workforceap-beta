@@ -67,11 +67,12 @@ deploy. There are currently several real duplicate-timestamp collisions in
 `prisma/migrations/` flagged by this script; those need to be re-timestamped
 as a follow-up before the check can gate merges.
 
-**Parked (2026-05-21):** PR #1366 proposed re-timestamping 10 colliding
-migration directories (+1s on the second name). That slice is **not**
-merged here. Prisma keys applied migrations by directory name in
-`_prisma_migrations`; renaming dirs would make Prisma replay already-applied
-SQL and break prod/staging deploys. Coordinate any future renames with a
-manual `UPDATE _prisma_migrations SET migration_name = ...` runbook per
-environment before deploy. `npm run check-migrations` remains informational
-until then.
+**Current status (2026-05-25):** PR #1366 was merged on 2026-05-21, but the
+duplicate-timestamp re-timing slice it described is still intentionally
+parked. Prisma keys applied migrations by directory name in
+`_prisma_migrations`; renaming already-applied directories would make Prisma
+replay SQL and risk breaking prod/staging deploys. Any future rename still
+needs a coordinated `UPDATE _prisma_migrations SET migration_name = ...`
+runbook per environment before deploy. Until that runbook exists and the
+collisions are resolved safely, `npm run check-migrations` remains
+informational rather than merge-blocking.

@@ -39,6 +39,54 @@ const PREVIEW_EMPLOYER_EMAIL = 'employer-preview@example.com';
 const PREVIEW_EMPLOYER_NAME = 'WorkforceAP Example Employer';
 const PREVIEW_JOB_PREFIX = '[Preview] ';
 
+const WAP_JOB_SEEDS = [
+  {
+    id: 'a1000001-0000-4000-8000-000000000001',
+    title: 'Senior Counselor',
+    location: 'Austin, TX (hybrid)',
+    type: 'FT',
+    descriptionMd:
+      "Guide members through workforce training, WIOA eligibility, and job placement. Partner with employers and community organizations while using our AI-native platform to deliver high-touch coaching at scale.\n\n**What you'll do**\n- Coach members through training and job search\n- Review progress data and personalize support\n- Collaborate with ops and engineering on member outcomes",
+    applyUrl: 'mailto:careers@workforceap.org?subject=Application%3A%20Senior%20Counselor',
+  },
+  {
+    id: 'a1000001-0000-4000-8000-000000000002',
+    title: 'Senior Engineer',
+    location: 'Remote (US)',
+    type: 'FT',
+    descriptionMd:
+      "Build the workforce engine that gets people to work. Ship product across our Next.js portal, Prisma data layer, and AI tooling that counselors and members rely on every day.\n\n**What you'll do**\n- Own features end-to-end across the stack\n- Improve reliability, performance, and accessibility\n- Partner with counselors and ops to ship member-facing impact",
+    applyUrl: 'mailto:careers@workforceap.org?subject=Application%3A%20Senior%20Engineer',
+  },
+  {
+    id: 'a1000001-0000-4000-8000-000000000003',
+    title: 'Operations Lead',
+    location: 'Austin, TX',
+    type: 'FT',
+    descriptionMd:
+      "Run the operational backbone of a national workforce nonprofit — program logistics, partner coordination, and the systems that keep members moving from intake to placement.\n\n**What you'll do**\n- Own day-to-day program operations and partner workflows\n- Improve processes with clear metrics and feedback loops\n- Coordinate across counseling, engineering, and employer teams",
+    applyUrl: 'mailto:careers@workforceap.org?subject=Application%3A%20Operations%20Lead',
+  },
+] as const;
+
+async function seedWapJobs() {
+  for (const job of WAP_JOB_SEEDS) {
+    await prisma.wapJob.upsert({
+      where: { id: job.id },
+      create: { ...job, status: 'open' },
+      update: {
+        title: job.title,
+        location: job.location,
+        type: job.type,
+        descriptionMd: job.descriptionMd,
+        applyUrl: job.applyUrl,
+        status: 'open',
+      },
+    });
+  }
+  console.log('Seeded WAP careers roles:', WAP_JOB_SEEDS.length);
+}
+
 /**
  * Ensures a few live jobs exist for the public /jobs board without SEED_TEST_ACCOUNTS.
  * Idempotent: skips if enough [Demo] live jobs already exist for the demo employer.
@@ -363,6 +411,7 @@ async function main() {
 
   await seedPublicDemoJobs(defaultOrgId);
   await seedPreviewEmployer(defaultOrgId);
+  await seedWapJobs();
 
   if (process.env.SEED_TEST_ACCOUNTS === 'true') {
     const memberRole = await prisma.role.findUnique({ where: { name: 'member' } });

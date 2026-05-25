@@ -206,8 +206,6 @@ const nextConfig: NextConfig = {
       { source: '/about/', destination: '/what-we-do', permanent: true },
       { source: '/services', destination: '/what-we-do', permanent: true },
       { source: '/services/', destination: '/what-we-do', permanent: true },
-      { source: '/careers', destination: '/find-your-path', permanent: true },
-      { source: '/careers/', destination: '/find-your-path', permanent: true },
       { source: '/confirmation', destination: '/apply/confirmation', permanent: false },
       { source: '/confirmation/', destination: '/apply/confirmation', permanent: false },
       { source: '/apply.html', destination: '/apply', permanent: true },

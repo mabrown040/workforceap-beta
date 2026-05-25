@@ -51,6 +51,14 @@ vi.mock('@/lib/observability/captureApiError', () => ({
   captureApiError: vi.fn(),
 }));
 
+vi.mock('@/lib/db/withRequestGuc', () => ({
+  withSystemGuc: vi.fn((fn: () => Promise<unknown>) => fn()),
+}));
+
+vi.mock('@/lib/tenant/resolveOrgFromRequest', () => ({
+  resolveOrgFromRequest: vi.fn(),
+}));
+
 // ─── Imports after mocks ───
 import { POST } from '@/app/api/xapi/statements/route';
 import { prisma } from '@/lib/db/prisma';
@@ -59,6 +67,7 @@ import { handleInboundParsedStatement } from '@/lib/xapi/inboundStatementPipelin
 import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
 import { trackXapiBatchProcessed } from '@/lib/analytics/track';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 
 const validToken = 'valid-jwt-token';
 
@@ -121,6 +130,7 @@ describe('POST /api/xapi/statements', () => {
     vi.mocked(handleInboundParsedStatement).mockResolvedValue({ completions: [{ ok: true }] });
     vi.mocked(prisma.xapiStatement.create).mockResolvedValue({ id: 'db-id-1' } as any);
     vi.mocked(prisma.xapiStatement.updateMany).mockResolvedValue({ count: 1 } as any);
+    vi.mocked(resolveOrgFromRequest).mockResolvedValue('org-default');
   });
 
   it('returns 401 when authorization header is missing', async () => {
@@ -325,6 +335,15 @@ describe('POST /api/xapi/statements', () => {
       statementsHandled: 2,
       completionCount: 1,
     });
+  });
+
+  it('passes resolved organization scope into the inbound statement pipeline', async () => {
+    await POST(makeRequest(sampleStatement, { token: validToken }));
+    expect(resolveOrgFromRequest).toHaveBeenCalled();
+    expect(handleInboundParsedStatement).toHaveBeenCalledWith(
+      expect.any(Object),
+      { organizationId: 'org-default' },
+    );
   });
 
   it('marks processed false by default for new statements', async () => {

@@ -152,6 +152,17 @@ async function loadLatestResumeText(userId: string): Promise<string | null> {
   return null;
 }
 
+async function loadHasCompletedInterviewPractice(userId: string): Promise<boolean> {
+  const event = await prisma.$transaction((tx) =>
+    tx.memberEvent.findFirst({
+      where: { userId, eventName: 'career_os.interview_practice_completed' },
+      select: { id: true },
+    })
+  );
+
+  return !!event;
+}
+
 function inferTargetRole(
   careerRec: CareerMatchResult | null,
   programInterest: string | null,
@@ -191,10 +202,11 @@ async function _getMemberStateUncached(
     activeProgramSlug?: string | null;
   } = {},
 ): Promise<MemberState> {
-  const [user, engagement, latestResumeText] = await Promise.all([
+  const [user, engagement, latestResumeText, hasCompletedInterviewPractice] = await Promise.all([
     loadMemberCore(userId),
     loadEngagement(userId),
     loadLatestResumeText(userId),
+    loadHasCompletedInterviewPractice(userId),
   ]);
 
   if (!user) {
@@ -279,7 +291,7 @@ async function _getMemberStateUncached(
     starterProfileReviewRequired: false,
     starterProfileMissingFields: [],
     hasResume: !!latestResumeText,
-    hasCompletedInterviewPractice: false, // TODO: query memberEvent
+    hasCompletedInterviewPractice,
     profileCompletenessPct,
     profileMissingFields,
     jobApplicationCount: user._count?.jobApplications ?? 0,
@@ -315,7 +327,7 @@ async function _getMemberStateUncached(
       educationLevel: profile.educationLevel ?? null,
     } : null,
     hasResume: !!latestResumeText,
-    hasCompletedInterviewPractice: false, // TODO: query memberEvent
+    hasCompletedInterviewPractice,
     jobApplicationCount: user._count?.jobApplications ?? 0,
     counselorUnreadCount: engagement.counselorUnreadCount,
     weeklyRecapUnopened: engagement.weeklyRecapUnopened,

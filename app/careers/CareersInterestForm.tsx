@@ -4,14 +4,18 @@ import { useEffect, useId, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
+import {
+  type CareersLeadErrorCode,
+  type CareersLeadFieldKey,
+  validateCareersLeadPayload,
+} from '@/lib/validation/careersLead';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
 const CAPTCHA_ENABLED = process.env.NEXT_PUBLIC_CAPTCHA_ENABLED === 'true';
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
-
-type FieldKey = 'first_name' | 'last_name' | 'email' | 'interest_area' | 'message';
 
 const INTEREST_AREAS = [
   { value: '', labelKey: 'interestSelect' as const },
@@ -21,44 +25,18 @@ const INTEREST_AREAS = [
   { value: 'other', labelKey: 'interestOther' as const },
 ];
 
-function validateFields(data: {
-  first_name: unknown;
-  last_name: unknown;
-  email: unknown;
-  message: unknown;
-}): Partial<Record<FieldKey, string>> {
-  const errors: Partial<Record<FieldKey, string>> = {};
-  const first = typeof data.first_name === 'string' ? data.first_name.trim() : '';
-  const last = typeof data.last_name === 'string' ? data.last_name.trim() : '';
-  const email = typeof data.email === 'string' ? data.email.trim() : '';
-  const message = typeof data.message === 'string' ? data.message.trim() : '';
-
-  if (!first) errors.first_name = 'Enter your first name.';
-  if (!last) errors.last_name = 'Enter your last name.';
-  if (!email) {
-    errors.email = 'Enter your email address.';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errors.email = 'Enter a valid email address.';
-  }
-  if (!message) {
-    errors.message = 'Tell us a bit about your background and interests.';
-  } else if (message.length < 20) {
-    errors.message = 'Please add a bit more detail (at least 20 characters).';
-  }
-
-  return errors;
-}
-
 export default function CareersInterestForm() {
   const t = useTranslations('marketing.careers.form');
   const tForm = useTranslations('form');
   const tCommon = useTranslations('common');
+  const searchParams = useSearchParams();
   const formId = useId();
   const errorId = `${formId}-error`;
+  const roleTitle = searchParams?.get('role')?.trim() || '';
 
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<CareersLeadFieldKey, CareersLeadErrorCode>>>({});
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -78,12 +56,13 @@ export default function CareersInterestForm() {
       email: fd.get('email'),
       interest_area: fd.get('interest_area'),
       message: fd.get('message'),
+      role_title: roleTitle,
       cf_turnstile_response: turnstileToken,
     };
 
-    const errors = validateFields(payload);
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
+    const validation = validateCareersLeadPayload(payload);
+    if (!validation.ok) {
+      setFieldErrors(validation.fieldErrors);
       setStatus('error');
       setErrorMsg(t('validationSummary'));
       trackLeadFormEvent('careers', 'errored', { reason: 'validation' });
@@ -144,8 +123,39 @@ export default function CareersInterestForm() {
     fontSize: '1rem',
   };
 
+  function getFieldErrorMessage(field: CareersLeadFieldKey, code: CareersLeadErrorCode): string {
+    switch (field) {
+      case 'first_name':
+        return t('errors.firstNameRequired');
+      case 'last_name':
+        return t('errors.lastNameRequired');
+      case 'email':
+        return t(code === 'required' ? 'errors.emailRequired' : 'errors.emailInvalid');
+      case 'message':
+        return t(code === 'required' ? 'errors.messageRequired' : 'errors.messageTooShort');
+      default:
+        return t('validationSummary');
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} noValidate aria-describedby={errorMsg ? errorId : undefined}>
+      {roleTitle ? (
+        <div
+          role="status"
+          style={{
+            marginBottom: '1rem',
+            padding: '0.75rem 1rem',
+            borderRadius: '0.5rem',
+            background: 'rgba(173, 44, 77, 0.08)',
+            color: 'var(--color-on-surface)',
+            fontSize: '0.9rem',
+          }}
+        >
+          <strong>{t('applyingForLabel')}</strong> {roleTitle}
+        </div>
+      ) : null}
+
       {errorMsg && (
         <div
           id={errorId}
@@ -178,7 +188,9 @@ export default function CareersInterestForm() {
             aria-invalid={fieldErrors.first_name ? 'true' : undefined}
           />
           {fieldErrors.first_name && (
-            <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>{fieldErrors.first_name}</p>
+            <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>
+              {getFieldErrorMessage('first_name', fieldErrors.first_name)}
+            </p>
           )}
         </div>
         <div>
@@ -195,7 +207,9 @@ export default function CareersInterestForm() {
             aria-invalid={fieldErrors.last_name ? 'true' : undefined}
           />
           {fieldErrors.last_name && (
-            <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>{fieldErrors.last_name}</p>
+            <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>
+              {getFieldErrorMessage('last_name', fieldErrors.last_name)}
+            </p>
           )}
         </div>
       </div>
@@ -214,7 +228,9 @@ export default function CareersInterestForm() {
           aria-invalid={fieldErrors.email ? 'true' : undefined}
         />
         {fieldErrors.email && (
-          <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>{fieldErrors.email}</p>
+          <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>
+            {getFieldErrorMessage('email', fieldErrors.email)}
+          </p>
         )}
       </div>
 
@@ -245,7 +261,9 @@ export default function CareersInterestForm() {
           placeholder={t('messagePlaceholder')}
         />
         {fieldErrors.message && (
-          <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>{fieldErrors.message}</p>
+          <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>
+            {getFieldErrorMessage('message', fieldErrors.message)}
+          </p>
         )}
       </div>
 

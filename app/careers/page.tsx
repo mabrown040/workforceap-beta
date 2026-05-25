@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
@@ -111,21 +112,32 @@ export default async function CareersPage() {
                 >
                   <ReactMarkdown>{job.descriptionMd}</ReactMarkdown>
                 </div>
-                <a
-                  href={job.applyUrl}
-                  className={marketingPrimaryButtonClasses()}
-                  style={{ marginTop: '1.25rem', display: 'inline-flex' }}
-                  {...(job.applyUrl.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                >
-                  {t('applyCta')}
-                </a>
+                {job.applyUrl.startsWith('http') ? (
+                  <a
+                    href={job.applyUrl}
+                    className={marketingPrimaryButtonClasses()}
+                    style={{ marginTop: '1.25rem', display: 'inline-flex' }}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t('applyCta')}
+                  </a>
+                ) : (
+                  <Link
+                    href={`?role=${encodeURIComponent(job.title)}#careers-interest`}
+                    className={marketingPrimaryButtonClasses()}
+                    style={{ marginTop: '1.25rem', display: 'inline-flex' }}
+                  >
+                    {t('applyCta')}
+                  </Link>
+                )}
               </article>
             ))}
           </div>
         )}
       </PageSection>
 
-      <PageSection style={{ borderTop: '1px solid rgba(88,65,68,0.1)' }}>
+      <PageSection id="careers-interest" style={{ borderTop: '1px solid rgba(88,65,68,0.1)' }}>
         <SectionHeader eyebrow={t('interestEyebrow')} title={t('interestTitle')} subtitle={t('interestSubtitle')} align="left" />
         <div
           className="portal-card portal-card--flat"

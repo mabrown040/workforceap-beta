@@ -175,29 +175,17 @@ const nextConfig: NextConfig = {
       // Legacy .html redirects
       { source: '/index.html', destination: '/', permanent: true },
 
-      // Legacy fund/donate entry points → /impact#donate (anchor on `app/impact/page.tsx`)
-      { source: '/fund', destination: '/impact#donate', permanent: true },
-      { source: '/fund/', destination: '/impact#donate', permanent: true },
-      { source: '/donate', destination: '/impact#donate', permanent: true },
-      { source: '/donate/', destination: '/impact#donate', permanent: true },
+      // Legacy fund entry points → live donate page.
+      { source: '/fund', destination: '/donate', permanent: true },
+      { source: '/fund/', destination: '/donate', permanent: true },
       {
         source: '/:locale(en|es|fr|pt)/fund',
-        destination: '/:locale/impact#donate',
+        destination: '/:locale/donate',
         permanent: true,
       },
       {
         source: '/:locale(en|es|fr|pt)/fund/',
-        destination: '/:locale/impact#donate',
-        permanent: true,
-      },
-      {
-        source: '/:locale(en|es|fr|pt)/donate',
-        destination: '/:locale/impact#donate',
-        permanent: true,
-      },
-      {
-        source: '/:locale(en|es|fr|pt)/donate/',
-        destination: '/:locale/impact#donate',
+        destination: '/:locale/donate',
         permanent: true,
       },
 

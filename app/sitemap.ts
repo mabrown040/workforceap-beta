@@ -37,6 +37,7 @@ const PUBLIC_ROUTES: PublicRouteConfig[] = [
   { path: '/apply', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/blog', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/contact', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/donate', changeFrequency: 'monthly', priority: 0.9 },
   { path: '/careers', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/employers', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/faq', changeFrequency: 'monthly', priority: 0.8 },

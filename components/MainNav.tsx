@@ -27,6 +27,7 @@ const navItems = [
   { href: '/partners', label: 'Partners' },
   { href: '/employers', label: 'Employers' },
   { href: '/blog', label: 'Blog' },
+  { href: '/donate', label: 'Donate' },
   { href: '/contact', label: 'Contact Us' },
 ];
 
@@ -121,6 +122,7 @@ export default function MainNav() {
       'Partners': tNav('partners'),
       'Employers': tNav('employers'),
       'Blog': tNav('blog'),
+      'Donate': 'Donate',
       'Contact Us': tNav('contactUs'),
       'About Us': tNav('aboutUs'),
       'What We Do': tNav('whatWeDo'),

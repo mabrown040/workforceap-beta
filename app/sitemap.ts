@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { getActiveProgramSlugsForSitemap } from '@/lib/seo/activeProgramSlugs';
 import { getSiteUrl } from '@/lib/seo/siteEnvironment';
+import { getPublicImpactStats, hasPublicImpactLiveData, EMPTY_PUBLIC_IMPACT_STATS } from '@/lib/marketing/publicImpactStats';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 const SITEMAP_LOCALES: { code: string; prefix: string }[] = [
   { code: 'en', prefix: '' },
@@ -39,7 +41,6 @@ const PUBLIC_ROUTES: PublicRouteConfig[] = [
   { path: '/faq', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/find-your-path', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/how-it-works', changeFrequency: 'monthly', priority: 0.8 },
-  { path: '/impact', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/leadership', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/partners', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/program-comparison', changeFrequency: 'monthly', priority: 0.8 },
@@ -105,5 +106,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     alternates: buildAlternates(`/leadership/${leader.slug}`, siteUrl),
   }));
 
-  return [...mainPages, ...programPages, ...leadershipPages, ...blogPages];
+  let impactPages: MetadataRoute.Sitemap = [];
+  if (!shouldSkipOptionalDbQueriesAtBuild()) {
+    try {
+      const orgId = await getDefaultOrganizationId();
+      const impactStats = await getPublicImpactStats(orgId);
+      if (hasPublicImpactLiveData(impactStats)) {
+        impactPages = [{
+          url: `${siteUrl}/impact`,
+          lastModified: fallbackModified,
+          changeFrequency: 'monthly' as const,
+          priority: 0.8,
+          alternates: buildAlternates('/impact', siteUrl),
+        }];
+      }
+    } catch {
+      // Impact data unavailable — omit from sitemap.
+    }
+  }
+
+  return [...mainPages, ...programPages, ...leadershipPages, ...blogPages, ...impactPages];
 }

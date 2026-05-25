@@ -19,10 +19,21 @@ import TestimonialsCarousel from '@/components/marketing/TestimonialsCarousel';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.publicImpact');
+  const stats = await (async () => {
+    if (shouldSkipOptionalDbQueriesAtBuild()) return EMPTY_PUBLIC_IMPACT_STATS;
+    try {
+      const orgId = await getDefaultOrganizationId();
+      return await getPublicImpactStats(orgId);
+    } catch {
+      return EMPTY_PUBLIC_IMPACT_STATS;
+    }
+  })();
+  const hasLiveData = hasPublicImpactLiveData(stats);
   return buildPageMetadataAsync({
     title: t('title'),
     description: t('description'),
     path: '/impact',
+    robots: hasLiveData ? undefined : { index: false },
   });
 }
 
@@ -86,8 +97,8 @@ export default async function ImpactPage() {
     fontWeight: 400,
   } as const;
 
-  const completionValue = hasEnrolledCohort ? `${stats.completionRatePct}%` : '—';
-  const completionLabel = hasEnrolledCohort ? (
+  const completionValue = hasEnrolledCohort && stats.completionRatePct > 0 ? `${stats.completionRatePct}%` : '—';
+  const completionLabel = hasEnrolledCohort && stats.completionRatePct > 0 ? (
     t('completionRateLabel')
   ) : (
     <>
@@ -96,8 +107,8 @@ export default async function ImpactPage() {
     </>
   );
 
-  const placementValue = hasEnrolledCohort ? `${stats.placementRatePct}%` : '—';
-  const placementLabel = hasEnrolledCohort ? (
+  const placementValue = hasEnrolledCohort && stats.placementRatePct > 0 ? `${stats.placementRatePct}%` : '—';
+  const placementLabel = hasEnrolledCohort && stats.placementRatePct > 0 ? (
     t('placementRateLabel')
   ) : (
     <>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import TrustStrip from '@/components/marketing/TrustStrip';
+import PaidApplyProofBlock from '@/components/apply/PaidApplyProofBlock';
 import OrganicApplyPage from './OrganicApplyPage';
 import PaidApplyVariant from './PaidApplyVariant';
 import { buildApplyPageMetadata } from '@/lib/apply/applyProgramPage';
@@ -28,7 +28,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       <PaidApplyVariant
         utmSource={paidUtmSource}
         program={sp.program}
-        trustStrip={<TrustStrip variant="apply" />}
+        proofBlock={<PaidApplyProofBlock />}
       />
     );
   }

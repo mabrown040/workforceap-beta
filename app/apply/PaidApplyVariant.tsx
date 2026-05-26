@@ -18,10 +18,11 @@ const PAID_APPLY_ELIGIBILITY_ID = 'paid-apply-eligibility';
 type PaidApplyVariantProps = {
   utmSource: PaidApplyUtmSource;
   program?: string;
+  proofBlock?: ReactNode;
   trustStrip?: ReactNode;
 };
 
-export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVariantProps) {
+export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: PaidApplyVariantProps) {
   const [showStickyCta, setShowStickyCta] = useState(false);
 
   useEffect(() => {
@@ -48,6 +49,9 @@ export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVar
         <h1 id="paid-apply-hero-heading" className="paid-apply-hero__heading">
           No-cost IT training — start with a quick eligibility check.
         </h1>
+        <p className="paid-apply-hero__subhead">
+          About 2 minutes · 501(c)(3) nonprofit · advisor follow-up within 1–2 business days
+        </p>
         <button
           type="button"
           className={marketingButtonPresets.heroPrimary('paid-apply-hero__cta')}
@@ -66,6 +70,7 @@ export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVar
           <ApplyRefCapture />
           <UtmCapture />
         </Suspense>
+        {proofBlock}
         {trustStrip}
         <Suspense fallback={<ApplyPageSkeleton />}>
           <ApplyEligibilityClient variant="paid" />
@@ -110,7 +115,15 @@ export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVar
           letter-spacing: 0;
           line-height: 1.1;
           max-width: 720px;
+          margin: 0 auto var(--space-4);
+        }
+
+        .paid-apply-hero__subhead {
+          max-width: 560px;
           margin: 0 auto var(--space-6);
+          font-size: clamp(0.9375rem, 2.5vw, 1.05rem);
+          line-height: var(--line-height-normal);
+          color: rgba(255, 255, 255, 0.88);
         }
 
         .paid-apply-hero__cta {
@@ -153,6 +166,54 @@ export default function PaidApplyVariant({ utmSource, trustStrip }: PaidApplyVar
 
         .apply-flow--paid .apply-personal-grid {
           grid-template-columns: 1fr;
+        }
+
+        .paid-apply-proof {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-4);
+          margin-bottom: var(--space-6);
+        }
+
+        .paid-apply-proof__card {
+          padding: var(--space-5);
+          border-radius: var(--radius-lg);
+          border: 1px solid var(--outline-variant);
+          background: var(--surface-container);
+          display: flex;
+          align-items: flex-start;
+          gap: var(--space-3);
+        }
+
+        .paid-apply-proof__badge-icon {
+          font-size: 1.5rem;
+          color: var(--color-green);
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+
+        .paid-apply-proof__title {
+          margin: 0 0 var(--space-2);
+          font-size: var(--font-size-sm);
+          font-weight: 700;
+          color: var(--color-on-surface);
+        }
+
+        .paid-apply-proof__body {
+          margin: 0 0 var(--space-4);
+          font-size: var(--font-size-sm);
+          line-height: var(--line-height-normal);
+          color: var(--color-on-surface-variant);
+        }
+
+        .paid-apply-proof__actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--space-3);
+        }
+
+        .paid-apply-proof__help-link {
+          min-height: 44px;
         }
       `}</style>
     </div>

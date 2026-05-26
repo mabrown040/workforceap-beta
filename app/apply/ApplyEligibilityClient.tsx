@@ -232,7 +232,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
             </div>
           </>
         ) : (
-          <h2 className="apply-step-title">{t('step1Title')}</h2>
+          <>
+            <h2 className="apply-step-title">{t('step1Title')}</h2>
+            <p className="apply-step-desc">{t('paidStep1Lead')}</p>
+          </>
         )}
 
         <div className="apply-personal-block">

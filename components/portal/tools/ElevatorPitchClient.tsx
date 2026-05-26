@@ -160,12 +160,14 @@ export default function ElevatorPitchClient({ initialData }: { initialData?: { n
 
         {genError && <p style={{ color: 'var(--color-accent)', fontSize: '0.875rem', margin: 0 }}>{genError}</p>}
 
-        <button type="submit" className="btn btn-primary" disabled={generating || !name.trim() || !targetRole.trim()}>
-          {generating ? (
-            <><span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span> Writing your pitch…</>
-          ) : (
-            <><span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">auto_awesome</span> Write My Elevator Pitch</>
-          )}
+        <button type="submit" className="btn btn-primary" disabled={generating || !name.trim() || !targetRole.trim()} aria-busy={generating}>
+          <span aria-live="polite">
+            {generating ? (
+              <><span className="material-symbols-outlined" style={{ fontSize: '1rem', animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span> Writing your pitch…</>
+            ) : (
+              <><span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">auto_awesome</span> Write My Elevator Pitch</>
+            )}
+          </span>
         </button>
       </form>
     );

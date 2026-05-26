@@ -3,9 +3,9 @@ import { buildPageMetadataAsync } from '@/app/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = await buildPageMetadataAsync({
-    title: 'Launch Your Branded Career Portal',
+    title: 'Request WorkforceAP Partner Access',
     description:
-      'WorkforceAP powers nonprofits, workforce boards, and community colleges with a white-labeled training and job-matching platform.',
+      'WorkforceAP partner onboarding is currently invite-only. Request access to explore a fit review for your organization.',
     path: '/org/onboard',
   });
   return { ...base, robots: { index: false, follow: false } };

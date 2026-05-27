@@ -114,6 +114,8 @@ const SEED = {
   partnerAUser: '00000000-0000-0000-0000-0000000000a5',
   partnerARow: '00000000-0000-0000-0000-0000000000a6',
   partnerAUserRow: '00000000-0000-0000-0000-0000000000a7',
+  employerA: '00000000-0000-0000-0000-0000000000a8',
+  employerB: '00000000-0000-0000-0000-0000000000b5',
   adminB: '00000000-0000-0000-0000-0000000000b1',
   counselorBUser: '00000000-0000-0000-0000-0000000000b2',
   counselorBRow: '00000000-0000-0000-0000-0000000000b3',
@@ -276,6 +278,24 @@ async function seedPersonas(client: PrismaClient): Promise<void> {
      ON CONFLICT (partner_id, member_id) DO NOTHING`,
     SEED.partnerARow,
     SEED.memberM1,
+  );
+
+  // Employers (Org A + Org B)
+  await client.$executeRawUnsafe(
+    `INSERT INTO employers (id, organization_id, user_id, company_name, contact_name, contact_email, status, tier, created_at, updated_at)
+     VALUES ($1, $2, $3, 'Employer A', 'Contact A', 'a@example.test', 'pending_approval', 'basic', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.employerA,
+    SEED.orgA,
+    SEED.adminA,
+  );
+  await client.$executeRawUnsafe(
+    `INSERT INTO employers (id, organization_id, user_id, company_name, contact_name, contact_email, status, tier, created_at, updated_at)
+     VALUES ($1, $2, $3, 'Employer B', 'Contact B', 'b@example.test', 'pending_approval', 'basic', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.employerB,
+    SEED.orgB,
+    SEED.adminB,
   );
 
   await setForceRls(client, true);
@@ -473,6 +493,24 @@ async function main(): Promise<number> {
       'cannot see Org B users',
       partnerACtx,
       (c) => c.user.count({ where: { organizationId: SEED.orgB } }),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // -- Employer cross-org isolation --
+    await assertCount(
+      'Admin Org A',
+      'can see Org A employers (>=1)',
+      adminACtx,
+      (c) => c.employer.count({ where: { organizationId: SEED.orgA } }),
+      { gte: 1 },
+      realPrisma,
+    );
+    await assertCount(
+      'Admin Org A',
+      'cannot see Org B employers',
+      adminACtx,
+      (c) => c.employer.count({ where: { organizationId: SEED.orgB } }),
       { eq: 0 },
       realPrisma,
     );

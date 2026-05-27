@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   _req: Request,
@@ -74,6 +76,23 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       throw err;
     }
   
+    await auditLog({
+      actorUserId: actor.id,
+      action: 'user_restore',
+      targetType: 'user',
+      targetId: id,
+      metadata: { orgId, restoredEmail },
+    });
+    const actorRole = (await isSuperAdmin(actor.id)) ? 'super_admin' : 'admin';
+    await logAuditEvent({
+      user: { id: actor.id, role: actorRole },
+      verb: 'approved',
+      object: { type: 'User', id },
+      result: { success: true, extensions: { restoredEmail, orgId } },
+      request: auditRequestMeta(_req),
+      orgId,
+    }).catch((err) => console.error('[audit] user restore:', err));
+
     return NextResponse.json({ ok: true, restoredEmail });
   } catch (error) {
     console.error('/admin/users/[id]/restore:', error);

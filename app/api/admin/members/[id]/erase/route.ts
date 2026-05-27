@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -86,6 +88,23 @@ export const POST = withApiGuc(async (
         anonymizedBy: user.id,
       }, 'ok');
 
+      await auditLog({
+        actorUserId: user.id,
+        action: 'member_anonymize',
+        targetType: 'user',
+        targetId: id,
+        metadata: { orgId, action: 'anonymize' },
+      });
+      const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+      await logAuditEvent({
+        user: { id: user.id, role: actorRole },
+        verb: 'voided',
+        object: { type: 'User', id },
+        result: { success: true, extensions: { action: 'anonymize', orgId } },
+        request: auditRequestMeta(request),
+        orgId,
+      }).catch((err) => console.error('[audit] member anonymize:', err));
+
       return NextResponse.json({ ok: true, action: 'anonymize', memberId: id });
     }
 
@@ -105,6 +124,23 @@ export const POST = withApiGuc(async (
       deletedBy: user.id,
       force,
     }, 'ok');
+
+    await auditLog({
+      actorUserId: user.id,
+      action: 'member_hard_delete',
+      targetType: 'user',
+      targetId: id,
+      metadata: { orgId, action: 'hard_delete', force },
+    });
+    const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+    await logAuditEvent({
+      user: { id: user.id, role: actorRole },
+      verb: 'deleted',
+      object: { type: 'User', id },
+      result: { success: true, extensions: { action: 'hard_delete', force, orgId } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] member hard_delete:', err));
 
     return NextResponse.json({ ok: true, action: 'hard_delete', memberId: id });
   } catch (error) {

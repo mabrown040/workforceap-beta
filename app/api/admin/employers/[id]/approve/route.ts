@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { sendEmployerApprovedEmail } from '@/lib/email';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+export const POST = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -68,9 +72,26 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }).catch((err) => console.error('Employer approval email failed:', err));
     }
 
+    await auditLog({
+      actorUserId: user.id,
+      action: 'employer_approve',
+      targetType: 'employer',
+      targetId: employerId,
+      metadata: { orgId, previousStatus: employer.status },
+    });
+    const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+    await logAuditEvent({
+      user: { id: user.id, role: actorRole },
+      verb: 'approved',
+      object: { type: 'Employer', id: employerId },
+      result: { success: true, extensions: { previousStatus: employer.status, orgId } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] employer approve:', err));
+
     return NextResponse.json({ success: true, employer: updated });
   } catch (err) {
     console.error('Approve employer error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

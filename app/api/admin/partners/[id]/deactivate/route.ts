@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -81,6 +83,23 @@ const bodySchema = z.object({
       data: { active: false },
     });
   });
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'partner_deactivate',
+    targetType: 'partner',
+    targetId: partnerId,
+    metadata: { orgId, reassignToPartnerId },
+  });
+  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+  await logAuditEvent({
+    user: { id: user.id, role: actorRole },
+    verb: 'voided',
+    object: { type: 'Partner', id: partnerId },
+    result: { success: true, extensions: { reassignToPartnerId, orgId } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] partner deactivate:', err));
 
   return NextResponse.json({ ok: true, active: false });
 

@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (
   _request: Request,
@@ -40,6 +42,23 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
       where: { id, invitedBy: { organizationId: orgId } },
       data: { status: 'revoked' },
     });
+
+    await auditLog({
+      actorUserId: user.id,
+      action: 'invitation_revoke',
+      targetType: 'invitation',
+      targetId: id,
+      metadata: { orgId },
+    });
+    const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+    await logAuditEvent({
+      user: { id: user.id, role: actorRole },
+      verb: 'voided',
+      object: { type: 'Invitation', id },
+      result: { success: true, extensions: { orgId } },
+      request: auditRequestMeta(_request),
+      orgId,
+    }).catch((err) => console.error('[audit] invitation revoke:', err));
 
     return NextResponse.json({ ok: true, message: 'Invitation revoked.' });
   } catch (error) {

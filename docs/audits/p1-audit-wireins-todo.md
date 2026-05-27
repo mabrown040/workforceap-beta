@@ -14,13 +14,13 @@ Wire **mutations** (POST/PATCH/PUT/DELETE) after a successful write. Pass `orgId
 
 ### High priority (destructive / compliance)
 
-- [ ] `members/[id]/erase/route.ts` — `deleted` / `voided`, `User`
+- [x] `members/[id]/erase/route.ts` — `deleted` / `voided`, `User`
 - [x] `members/[id]/status/route.ts` — xAPI wire-in added; legacy `auditLog()` kept during transition
 - [x] `program-change-requests/[id]/route.ts` — `approved` / `voided`, `ProgramChangeRequest`
-- [ ] `employers/[id]/approve/route.ts`, `reject`, `deactivate`, `reactivate`
-- [ ] `partners/[id]/reject`, `deactivate`, `reactivate`
-- [ ] `invites/[id]/revoke/route.ts`
-- [ ] `users/[id]/route.ts`, `users/[id]/restore/route.ts`
+- [x] `employers/[id]/approve/route.ts`, `reject`, `deactivate`, `reactivate`
+- [x] `partners/[id]/reject`, `deactivate`, `reactivate`
+- [x] `invites/[id]/revoke/route.ts`
+- [x] `users/[id]/route.ts`, `users/[id]/restore/route.ts`
 
 ### Exports & bulk (PII access)
 
@@ -41,7 +41,7 @@ Wire **mutations** (POST/PATCH/PUT/DELETE) after a successful write. Pass `orgId
 
 Portal admin actions live under `app/admin/**` (not `app/(portal)/admin`). Wire the same pattern: `withAuthGuc` + `logAuditEvent` after success.
 
-- [ ] `app/admin/members/[id]/introduceAction.ts`
+- [x] `app/admin/members/[id]/introduceAction.ts`
 - [ ] Other `*Action.ts` files under `app/admin/**`
 
 ## Legacy `auditLog()` (`lib/audit.ts`)

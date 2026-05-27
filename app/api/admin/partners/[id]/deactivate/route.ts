@@ -79,7 +79,7 @@ const bodySchema = z.object({
       }
     }
     await tx.partner.update({
-      where: { id: partnerId },
+      where: { id: partnerId, organizationId: orgId },
       data: { active: false },
     });
   });

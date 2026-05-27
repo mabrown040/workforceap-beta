@@ -1913,6 +1913,7 @@ body.mobile-nav-open .main-nav::after {
     font-weight: 500;
     transition: color var(--transition-fast);
     position: relative;
+    white-space: nowrap;
 }
 .nav-menu a::after {
     content: '';
@@ -1945,6 +1946,7 @@ body.mobile-nav-open .main-nav::after {
     min-height: 44px;
     margin: 0;
     -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
 }
 .nav-menu .dropdown .dropdown-trigger::after {
     content: '';
@@ -2035,6 +2037,7 @@ html:not(.dark) .main-nav.scrolled .nav-menu .dropdown .dropdown-trigger.active 
     font-weight: 500;
     text-decoration: none;
     color: var(--color-on-surface);
+    white-space: nowrap;
 }
 .nav-menu .nav-login-primary::after {
     bottom: -2px;

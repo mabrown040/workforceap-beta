@@ -200,8 +200,10 @@ export default function ResumeMobileResumeTools({
             for a better resume. You can still generate now.
           </p>
         )}
-        <button type="button" className="btn btn-primary" onClick={handleGenerate} disabled={generating} style={{ width: '100%' }}>
-          {generating ? 'Generating…' : 'Generate Resume'}
+        <button type="button" className="btn btn-primary" onClick={handleGenerate} disabled={generating} aria-busy={generating} style={{ width: '100%' }}>
+          <span aria-live="polite">
+            {generating ? 'Generating…' : 'Generate Resume'}
+          </span>
         </button>
         {generateError && <p style={{ color: '#c00', marginTop: '0.5rem', fontSize: '0.8125rem' }}>{generateError}</p>}
         {hasEnhanced && resumeData?.enhancedUrl && (

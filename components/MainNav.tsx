@@ -21,9 +21,14 @@ const navItems = [
       { href: '/faq', label: 'FAQ' },
     ],
   },
-  { href: '/programs', label: 'Programs' },
+  {
+    label: 'Programs',
+    children: [
+      { href: '/programs', label: 'Programs' },
+      { href: '/find-your-path', label: 'Find Your Path' },
+    ],
+  },
   { href: '/wioa-qualification', label: 'Check Eligibility' },
-  { href: '/find-your-path', label: 'Find Your Path' },
   { href: '/partners', label: 'Partners' },
   { href: '/employers', label: 'Employers' },
   { href: '/blog', label: 'Blog' },

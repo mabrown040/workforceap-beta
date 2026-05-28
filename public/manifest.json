@@ -1,6 +1,6 @@
 {
   "name": "WorkforceAP",
-  "short_name": "WAP",
+  "short_name": "WorkforceAP",
   "description": "Career training, certifications, and job placement support.",
   "start_url": "/dashboard",
   "display": "standalone",

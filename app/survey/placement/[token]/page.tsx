@@ -89,7 +89,7 @@ export default async function PlacementSurveyTokenPage(props: {
       ? "About 2 minutes. We want to make sure you're still employed and catch any challenges early."
       : survey.wave === 'ninety_day'
         ? 'About 2 minutes. Final salary confirmation and satisfaction check for grant reporting.'
-        : "About 3 minutes. Your answers help us understand what worked and share real outcomes with the funders behind Workforce Funded Training.";
+        : "About 3 minutes. Your answers help us understand what worked and share real outcomes with our funding partners.";
 
   return (
     <main style={wrapStyle}>

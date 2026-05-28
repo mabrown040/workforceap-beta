@@ -88,7 +88,7 @@ export default async function PlacementSurveyPage(props: {
         How&apos;s the new job going?
       </h1>
       <p style={{ color: '#584144', lineHeight: 1.55, marginBottom: '2rem' }}>
-        About 3 minutes. Your answers help us understand what worked and share real outcomes with the funders behind Workforce Funded Training.
+        About 3 minutes. Your answers help us understand what worked and share real outcomes with our funding partners.
         {survey.user.fullName ? ` Thanks, ${survey.user.fullName.split(/\s+/)[0]}.` : ''}
       </p>
       <PlacementSurveyForm token={token!} programName={survey.user.enrolledProgram} />

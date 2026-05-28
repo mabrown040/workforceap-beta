@@ -100,7 +100,7 @@
     "communityOrganizations": "Organizações comunitárias",
     "workforceBoards": "Conselhos de força de trabalho",
     "employerPartners": "Parceiros empregadores",
-    "copyright": "© {year} Workforce Advancement Project. Treinamento profissional e suporte de prontidão para emprego através do Workforce Funded Training para membros qualificados.",
+    "copyright": "© {year} Workforce Advancement Project. Treinamento profissional e suporte de prontidão para emprego sem custo para membros qualificados.",
     "onetAttribution": "Este site incorpora informações dos Serviços Web O*NET do Departamento do Trabalho dos EUA, Administração de Emprego e Treinamento (USDOL/ETA). O*NET® é uma marca registrada do USDOL/ETA."
   },
   "form": {
@@ -201,7 +201,7 @@
     "seeWhatIsMissing": "Veja o que falta para uma vaga",
     "aiInterviewCoach": "Coach de Entrevista com IA",
     "aiToolkit": "Kit de Ferramentas de IA",
-    "aiToolkitDescription": "Ferramentas de carreira com IA para currículos, entrevistas e busca de emprego — disponíveis através do Workforce Funded Training para membros qualificados.",
+    "aiToolkitDescription": "Ferramentas de carreira com IA para currículos, entrevistas e busca de emprego — disponíveis sem custo para membros qualificados.",
     "careerCounselor": "Conselheiro de Carreira",
     "checklistAccountReady": "Conta pronta",
     "checklistCreateAccount": "Criar conta",
@@ -221,8 +221,8 @@
     "coursesMarkedComplete": "{completed} de {total} cursos marcados como concluídos.",
     "completePreassessmentToUnlock": "Conclua sua Pré-avaliação de Treinamento para desbloquear seu primeiro curso.",
     "noCoursesCompleteYet": "Nenhum curso foi marcado como concluído ainda. Abra seu primeiro curso para começar.",
-    "startApplicationToBegin": "Inicie sua candidatura para começar sua trajetória profissional. Todos os programas são oferecidos através do Workforce Funded Training para membros qualificados.",
-    "chooseProgramToBegin": "Escolha um programa para começar sua trajetória profissional. Todos os programas são oferecidos através do Workforce Funded Training para membros qualificados.",
+    "startApplicationToBegin": "Inicie sua candidatura para começar sua trajetória profissional. Todos os programas são oferecidos sem custo para membros qualificados.",
+    "chooseProgramToBegin": "Escolha um programa para começar sua trajetória profissional. Todos os programas são oferecidos sem custo para membros qualificados.",
     "completePreassessmentToStart": "Conclua sua Pré-avaliação de Treinamento para iniciar seu treinamento em {program}.",
     "keepGoingFinishNext": "Continue! Conclua {milestone} para manter o ritmo.",
     "focusOnCareerReadiness": "Foque na prontidão para o trabalho: currículo, prática de entrevista e candidaturas.",
@@ -235,7 +235,7 @@
     "noRecentAiActivity": "Nenhuma atividade recente de IA",
     "yourNextSteps": "Seus próximos passos, {firstName}.",
     "exploreCareerPaths": "Vamos explorar trajetórias de carreira e construir habilidades juntos.",
-    "letsBuildYourCareerPath": "Vamos construir sua trajetória profissional. Programas estão disponíveis através do Workforce Funded Training para membros qualificados.",
+    "letsBuildYourCareerPath": "Vamos construir sua trajetória profissional. Programas estão disponíveis sem custo para membros qualificados.",
     "enrolledCompletePreassessment": "Você está matriculado em {program}. Conclua sua Pré-avaliação de Treinamento para iniciar seu plano de treinamento.",
     "percentThroughTraining": "Você está {pct}% do {program}. Continue um passo de cada vez.",
     "pwaInstallTitle": "Instale o WorkforceAP",
@@ -275,8 +275,8 @@
     "yourNextStep": "Seu próximo passo",
     "applyNowTenMinutes": "Candidate-se agora — 10 minutos",
     "chooseYourProgram": "Escolha seu programa",
-    "careerTrainingNoCost": "Treinamento profissional através do Workforce Funded Training para membros qualificados. Um conselheiro ajudará você a escolher o programa e os próximos passos certos.",
-    "pickCareerTrack": "Escolha a trilha de carreira que se encaixa em seus objetivos. Programas estão disponíveis através do Workforce Funded Training para membros qualificados.",
+    "careerTrainingNoCost": "Treinamento profissional sem custo para membros qualificados. Um conselheiro ajudará você a escolher o programa e os próximos passos certos.",
+    "pickCareerTrack": "Escolha a trilha de carreira que se encaixa em seus objetivos. Programas estão disponíveis sem custo para membros qualificados.",
     "chooseProgramBtn": "Escolher Programa",
     "priorityAction": "Ação Prioritária",
     "takeAction": "Agir",
@@ -1337,7 +1337,7 @@
       "cardBestFor": "Ideal para:",
       "headlineMain": "Encontre o programa certo",
       "headlineAccent": "para seus objetivos",
-      "heroDesc": "Explore programas de treinamento profissional oferecidos através do Workforce Funded Training para membros qualificados, com certificações da IBM, Google, AWS, Microsoft e CompTIA.",
+      "heroDesc": "Explore programas de treinamento profissional oferecidos sem custo para membros qualificados, com certificações da IBM, Google, AWS, Microsoft e CompTIA.",
       "heroCta1": "Explorar programas",
       "heroCta2": "Encontre seu caminho",
       "journeyIntro": "O WorkforceAP apoia membros em cada etapa, desde escolher um programa até conseguir um emprego na sua área.",
@@ -1820,7 +1820,7 @@
     }
   },
   "findYourPath": {
-    "programsFootnote": "Todos os programas são oferecidos através do Workforce Funded Training para membros qualificados."
+    "programsFootnote": "Todos os programas são oferecidos sem custo para membros qualificados."
   },
   "admin": {
     "memberPipeline": "Pipeline de membros",

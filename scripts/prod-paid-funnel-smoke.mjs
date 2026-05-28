@@ -28,7 +28,7 @@ const routes = [
   { name: 'programs', path: '/programs', requiredText: /find the right program|browse programs/i },
   { name: 'find-your-path', path: '/find-your-path', requiredText: /find your path|career path quiz/i },
   { name: 'impact', path: '/impact', requiredText: /live statistics|members served/i },
-  { name: 'org-onboard', path: '/org/onboard', requiredText: /career training at no cost to members/i },
+  { name: 'org-onboard', path: '/org/onboard', requiredText: /partner onboarding|invite-only/i },
   { name: 'employers', path: '/employers', requiredText: /meet role-ready talent|hiring partner/i },
   { name: 'employers-es', path: '/es/employers', requiredText: /meet role-ready talent|hiring partner/i },
   { name: 'employers-fr', path: '/fr/employers', requiredText: /meet role-ready talent|hiring partner/i },

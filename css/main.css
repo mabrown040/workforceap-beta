@@ -2158,10 +2158,14 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
 .nav-apply-dropdown.active .nav-apply-flyout-trigger {
     background: var(--color-accent-dark);
 }
+.nav-apply-dropdown {
+    position: relative;
+}
 .nav-apply-flyout-menu {
     right: 0;
     left: auto;
     min-width: 200px;
+    z-index: 100;
 }
 .nav-apply-dropdown:not(.active) .nav-apply-flyout-menu {
     visibility: hidden;

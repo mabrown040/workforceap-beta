@@ -2097,6 +2097,85 @@ html:not(.dark) .main-nav.scrolled .nav-menu .nav-login-flyout-trigger {
     color: rgba(255, 255, 255, 0.92);
 }
 
+/* Apply Now: CTA button + chevron opens application shortcuts */
+.nav-apply-split {
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: var(--radius-md, 8px);
+}
+.nav-menu .nav-apply-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1rem 0.75rem 1.25rem;
+    min-height: 44px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--color-white);
+    background: var(--color-accent);
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    white-space: nowrap;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.nav-menu .nav-apply-primary:hover {
+    background: var(--color-accent-dark);
+    transform: translateY(-1px);
+}
+.nav-apply-flyout-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem 0 0.35rem;
+    min-width: 2rem;
+    min-height: 44px;
+    margin: 0;
+    background: var(--color-accent);
+    border: none;
+    border-left: 1px solid rgba(255,255,255,0.2);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    cursor: pointer;
+    color: var(--color-white);
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.nav-apply-flyout-trigger:hover {
+    background: var(--color-accent-dark);
+}
+.nav-apply-flyout-chevron {
+    display: block;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+    opacity: 0.7;
+    transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+.nav-apply-dropdown:hover .nav-apply-flyout-chevron,
+.nav-apply-dropdown:focus-within .nav-apply-flyout-chevron,
+.nav-apply-dropdown.active .nav-apply-flyout-chevron {
+    transform: rotate(180deg);
+    opacity: 0.9;
+}
+.nav-apply-dropdown.active .nav-apply-flyout-trigger {
+    background: var(--color-accent-dark);
+}
+.nav-apply-flyout-menu {
+    right: 0;
+    left: auto;
+    min-width: 200px;
+}
+.nav-apply-dropdown:not(.active) .nav-apply-flyout-menu {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+}
+.nav-apply-dropdown.active .nav-apply-flyout-menu {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
 /* Glassmorphic nav link styles (desktop) */
 .nav-link-glass {
     color: var(--color-on-surface);

@@ -40,11 +40,15 @@ export default function DeleteAccountButton() {
           setShowModal(true);
           setDeleteError(null);
         }}
+        aria-haspopup="dialog"
+        aria-expanded={showModal}
+        aria-controls="delete-account-dialog"
       >
         Delete Account
       </button>
       {showModal && (
         <div
+          id="delete-account-dialog"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-account-title"
@@ -84,6 +88,7 @@ export default function DeleteAccountButton() {
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder="Type DELETE to confirm"
               autoComplete="off"
+              autoFocus
               style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
             />
             {deleteError && (

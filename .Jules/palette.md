@@ -11,3 +11,7 @@
 ## 2026-05-26 - Accessible async button states using aria-live
 **Learning:** Found multiple instances where asynchronous form submission and generation buttons (e.g., "Generate Resume" and "Write My Elevator Pitch") altered their visible text dynamically during loading ("Generating..."), but without `aria-live` or `aria-busy` attributes, the status changes weren't announced to screen readers properly. While testing locally with `pnpm build` or `pnpm test`, I observed tests lacking environment support (like `tsx`), but it confirmed the UI changes are syntax-safe.
 **Action:** When a button triggers an async process, wrap the dynamic text label inside a `<span aria-live="polite">` and append `aria-busy={loading}` to the `<button>` element. This ensures the change to "Loading..." or "Generating..." is consistently announced.
+
+## 2024-05-28 - Custom Modal Accessibility
+**Learning:** Custom destructive confirmation dialogs that lack a properly linked `aria-controls` from their trigger, and lack `autoFocus` on their confirmation input, cause screen reader and keyboard users significant friction as focus isn't naturally routed into the modal's primary interaction point.
+**Action:** Always verify `aria-haspopup`, `aria-expanded`, and `aria-controls` on the trigger button. Apply `autoFocus` on the primary text input for custom modals so the user's keyboard cursor is immediately placed inside the interactive context.

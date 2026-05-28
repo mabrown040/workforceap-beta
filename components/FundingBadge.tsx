@@ -51,7 +51,7 @@ export default function FundingBadge({ source, showTooltip = true }: { source?: 
           minWidth: '200px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
         }}>
-          <p style={{ margin: '0 0 0.35rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>Workforce Funded Training</p>
+          <p style={{ margin: '0 0 0.35rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>No-cost training</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
             {FUNDING_SOURCES.map((fs) => (
               <li key={fs} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: fs === (source ?? 'WIOA') ? 700 : 400, color: fs === (source ?? 'WIOA') ? 'var(--color-accent)' : 'inherit' }}>
@@ -62,7 +62,7 @@ export default function FundingBadge({ source, showTooltip = true }: { source?: 
             ))}
           </ul>
           <p style={{ margin: '0.35rem 0 0', fontSize: '0.7rem', opacity: 0.7, lineHeight: 1.4 }}>
-            Programs are offered through Workforce Funded Training for qualified members.
+            Programs are offered at no cost to eligible members.
           </p>
         </div>
       )}

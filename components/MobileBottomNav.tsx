@@ -12,7 +12,7 @@ const MOBILE_NAV_BREAKPOINT = 768;
 
 const MARKETING_TABS = [
   { href: '/', label: 'Home', icon: 'home' },
-  { href: '/find-your-path', label: 'Quiz', icon: 'quiz' },
+  { href: '/find-your-path', label: 'Match', icon: 'explore' },
   { href: '/programs', label: 'Programs', icon: 'school' },
   { href: '/apply', label: 'Apply', icon: 'assignment_turned_in' },
 ];

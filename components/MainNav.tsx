@@ -345,6 +345,26 @@ export default function MainNav() {
               const parentActive = isParentActive(item.children);
               const subMenuId = dropdownMenuId(navMenuId, item.label);
               const isOpen = activeDropdown === item.label;
+              /* Mobile: flatten — children visible, parent is a non-interactive heading */
+              if (mobileOpen) {
+                return [
+                  <li key={`${item.label}-heading`} className="mobile-nav-group-heading">
+                    <span>{translateLabel(item.label)}</span>
+                  </li>,
+                  ...item.children.map((child) => (
+                    <li key={child.href}>
+                      <LocalizedLink
+                        href={child.href}
+                        prefetch={false}
+                        className={isActive(child.href) ? 'active' : undefined}
+                        onClick={closeMobile}
+                      >
+                        {translateLabel(child.label)}
+                      </LocalizedLink>
+                    </li>
+                  )),
+                ];
+              }
               return [
                 <li key={item.label} className={`dropdown${isOpen ? ' active' : ''}`}>
                   <button
@@ -390,6 +410,23 @@ export default function MainNav() {
               </li>,
             ];
           })}
+          {mobileOpen ? (
+            <>
+              <li className="mobile-nav-group-heading"><span>{translateLabel(portalState.primary.label)}</span></li>
+              {loginSubmenuItems.length > 0 ? loginSubmenuItems.map((item) => (
+                <li key={item.href}>
+                  <LocalizedLink
+                    href={item.href}
+                    prefetch={false}
+                    className={portalHrefActive(item.href.split('?')[0]) ? 'active' : undefined}
+                    onClick={closeMobile}
+                  >
+                    {portalSubmenuLabel(item)}
+                  </LocalizedLink>
+                </li>
+              )) : null}
+            </>
+          ) : (
           <li
             key="nav-login-portal"
             className={`dropdown nav-login-dropdown${isLoginMenuOpen ? ' active' : ''}`}
@@ -450,7 +487,31 @@ export default function MainNav() {
               </ul>
             ) : null}
           </li>
-          {!isOnApplyFunnel(pathnameWithoutLocale) && (
+          )}
+          {!isOnApplyFunnel(pathnameWithoutLocale) && (mobileOpen ? (
+            <>
+              <li className="mobile-nav-group-heading"><span>{translateLabel('Apply Now')}</span></li>
+              <li>
+                <LocalizedLink
+                  href="/wioa-qualification"
+                  prefetch={false}
+                  onClick={closeMobile}
+                >
+                  {translateLabel('Check Eligibility')}
+                </LocalizedLink>
+              </li>
+              <li>
+                <LocalizedLink
+                  href="/apply"
+                  prefetch={true}
+                  className={marketingButtonPresets.navApplyCta()}
+                  onClick={closeMobile}
+                >
+                  {translateLabel('Apply Now')}
+                </LocalizedLink>
+              </li>
+            </>
+          ) : (
           <li className={`dropdown nav-apply-dropdown${activeDropdown === '__apply__' ? ' active' : ''}`}>
             <div className="nav-apply-split">
               <LocalizedLink
@@ -495,7 +556,7 @@ export default function MainNav() {
               </li>
             </ul>
           </li>
-          )}
+          ))}
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
             <div className="nav-theme-mobile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <LanguageToggle />

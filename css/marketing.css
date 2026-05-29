@@ -320,6 +320,9 @@ html.dark .wwd-photo-hero h1.wwd-photo-hero__title {
  */
 .home-hero__inner {
   isolation: isolate;
+  min-width: 0;
+  box-sizing: border-box;
+  flex: 1 1 100%;
 }
 
 .home-hero__inner::before {

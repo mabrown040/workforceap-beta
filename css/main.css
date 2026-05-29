@@ -185,6 +185,8 @@
     font-weight: 900;
     letter-spacing: -0.02em;
     line-height: 0.95;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 .text-display-md {
     font-size: clamp(2.25rem, 4vw, 3.5rem);

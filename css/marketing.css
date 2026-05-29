@@ -843,7 +843,11 @@ html.has-marketing-main-nav {
 }
 
 .trust-strip--home .trust-strip__line {
-  color: rgba(242, 242, 245, 0.92);
+  /* Theme-aware: `.trust-strip--home` background is var(--color-background-dark),
+     which is #121416 in dark mode but #ffffff in light mode. A hardcoded light
+     color was invisible (white-on-white) in light mode, so track the active
+     theme's on-surface color instead — it pairs with the same-theme background. */
+  color: var(--color-on-surface-variant);
 }
 
 @media (max-width: 640px) {

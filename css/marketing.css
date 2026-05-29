@@ -139,19 +139,23 @@ html.dark {
   }
 
   /*
-   * Full-viewport heroes: padding on `#main-content` does not change flex-centered
-   * content — reserve space inside the hero so CTAs stay above the nav.
+   * Phones: the home hero used `min-height: min(85vh, 820px)` with centered
+   * content PLUS stacked bottom-nav clearance, leaving a large empty dark band
+   * below the trust cards above the fold. Hug the content and top-align it; the
+   * fixed bottom nav floats over mid-page content, so the hero (not the last
+   * scrollable section) only needs a small bottom gap.
    */
   html.wap-reserve-mobile-bottom-nav .home-hero,
   html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .home-hero {
-    padding-bottom: var(--wap-mobile-bottom-nav-clearance);
+    min-height: auto !important;
+    justify-content: flex-start !important;
+    padding-bottom: clamp(1.5rem, 5vw, 2.5rem);
     box-sizing: border-box;
   }
 
-  /* Extra lift for hero copy/CTAs inside the band (inline padding + nav clearance) */
   html.wap-reserve-mobile-bottom-nav .home-hero .home-hero__inner,
   html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .home-hero .home-hero__inner {
-    padding-bottom: calc(clamp(3rem, 8vw, 6rem) + var(--wap-mobile-bottom-nav-clearance)) !important;
+    padding-bottom: clamp(1.5rem, 5vw, 2.5rem) !important;
   }
 }
 
@@ -839,7 +843,7 @@ html.has-marketing-main-nav {
 }
 
 .trust-strip--home .trust-strip__line {
-  color: rgba(242, 242, 245, 0.72);
+  color: rgba(242, 242, 245, 0.92);
 }
 
 @media (max-width: 640px) {

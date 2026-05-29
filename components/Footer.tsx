@@ -74,6 +74,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         <div>
           <h6 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('support')}</h6>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <li><LocalizedLink href="/donate" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('donate')}</LocalizedLink></li>
             <li><LocalizedLink href="/contact" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('contactUs')}</LocalizedLink></li>
             <li><LocalizedLink href="/faq" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('faq')}</LocalizedLink></li>
             <li><LocalizedLink href="/blog" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('blog')}</LocalizedLink></li>

@@ -19,6 +19,7 @@ const navItems = [
       { href: '/how-it-works', label: 'How It Works' },
       { href: '/leadership', label: 'Leadership' },
       { href: '/faq', label: 'FAQ' },
+      { href: '/donate', label: 'Donate' },
     ],
   },
   {
@@ -31,7 +32,6 @@ const navItems = [
   { href: '/partners', label: 'Partners' },
   { href: '/employers', label: 'Employers' },
   { href: '/blog', label: 'Blog' },
-  { href: '/donate', label: 'Donate' },
   { href: '/contact', label: 'Contact Us' },
 ];
 

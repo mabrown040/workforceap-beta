@@ -2113,13 +2113,13 @@
       "signingIn": "Signing in…",
       "signIn": "Sign In",
       "secureLogin": "Secure login",
-      "noCostMembers": "No-cost to members",
+      "noCostMembers": "Sans frais pour les membres",
       "grantsPartnerFunded": "Grants & partner funded",
       "needPartnerAccess": "Need partner access?",
       "registerOrganization": "Register your organization",
       "staffAccountNotWorking": "Staff account not working?",
       "contactSupport": "Contact support",
-      "mobileTrustBar": "✓ No-cost to members · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808"
+      "mobileTrustBar": "✓ Sans frais pour les membres · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808"
     },
     "signup": {
       "heading": "Create an account",
@@ -2127,7 +2127,7 @@
       "nonMemberBody": "This page creates a member portal account. Staff, counselor, employer, and admin access are issued by WorkforceAP.",
       "heroTitle": "Career training at no cost for qualifying members",
       "heroBody": "Industry-recognized credentials. Career-changing programs. Funded through grants and partnerships so members are not charged.",
-      "mobileTrustBar": "✓ No-cost to members · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808",
+      "mobileTrustBar": "✓ Sans frais pour les membres · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808",
       "fullName": "Full Name",
       "fullNamePlaceholder": "Jane Doe",
       "email": "Email",

@@ -44,13 +44,13 @@ export default async function HomePageBelowFold({
 
   return (
     <>
-      {/* Competitor contrast — factual positioning (directly below hero; streamed with below-fold bundle) */}
+      {/* Why WorkforceAP — factual contrast + partner credibility (merged; directly below hero) */}
       <section
-        className="home-contrast"
+        className="home-contrast home-credibility-bar"
         aria-labelledby="home-contrast-heading"
         style={{
           background: 'var(--surface-container-low)',
-          padding: 'clamp(1.75rem, 4vw, 2.75rem) 0',
+          padding: 'clamp(2rem, 4vw, 3.25rem) 0',
           borderTop: '1px solid rgba(0,0,0,0.06)',
         }}
       >
@@ -125,23 +125,16 @@ export default async function HomePageBelowFold({
               </li>
             ))}
           </ul>
-        </div>
-      </section>
 
-      {/* ===== Social Proof / Credibility Bar ===== */}
-      <section
-        className="home-credibility-bar"
-        aria-label="Partner logos"
-        style={{ padding: '2rem 0', background: 'var(--surface-container-lowest)' }}
-      >
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
+          {/* Partner credibility — training & certification partners */}
           <p
             className="text-label-upper"
             style={{
               textAlign: 'center',
               color: 'var(--color-on-surface-variant)',
               opacity: 0.7,
-              marginBottom: '1.5rem',
+              marginTop: 'clamp(2rem, 4vw, 2.75rem)',
+              marginBottom: '1.25rem',
               fontSize: '0.625rem',
               letterSpacing: '0.2em',
             }}
@@ -588,25 +581,6 @@ export default async function HomePageBelowFold({
             {t('programsCta', { count: programCount })}
           </LocalizedLinkServer>
         </div>
-      </section>
-
-      {/* ===== AI-Powered Career Support ===== */}
-      <section aria-label="AI career support" style={{ padding: 'clamp(3rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '720px', margin: '0 auto', textAlign: 'center' }}>
-        <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-          {t('aiEyebrow')}
-        </span>
-        <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
-          {t('aiTitle')}
-        </h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-          {t('aiCopy')}
-        </p>
-        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', opacity: 0.7, marginBottom: '2rem' }}>
-          {t('aiVoice')}
-        </p>
-        <LocalizedLinkServer href="/apply" className={primaryButtonClasses({ radius: 'md' })}>
-          {t('aiCta')}
-        </LocalizedLinkServer>
       </section>
 
       {/* ===== Final CTA ===== */}

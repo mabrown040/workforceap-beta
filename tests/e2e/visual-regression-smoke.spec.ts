@@ -51,6 +51,33 @@ test.describe('Visual regression — marketing pages', () => {
 });
 
 test.describe('Visual regression — functional checks', () => {
+  test('homepage "Why WorkforceAP" band + partner logos fit mobile width', async ({ page }) => {
+    // Guards the merged contrast + partner-credibility section (PR #1441):
+    // the contrast cards must stack and the partner-logo row must wrap
+    // rather than force horizontal scroll on a narrow phone viewport.
+    await page.emulateMedia({ colorScheme: 'light' });
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/', { waitUntil: 'networkidle' });
+
+    // Merged band renders with its partner logos.
+    const band = page.locator('.home-credibility-bar');
+    await expect(band).toBeVisible();
+    await expect(page.locator('.home-credibility-bar .home-cred-logo').first()).toBeVisible();
+
+    // The band itself must not overflow horizontally on mobile.
+    const bandFits = await band.evaluate((el) => {
+      const node = el as HTMLElement;
+      return node.scrollWidth <= node.clientWidth + 1;
+    });
+    expect(bandFits, 'home credibility band overflows its width on mobile').toBeTruthy();
+
+    // And the page as a whole must not develop a horizontal scrollbar.
+    const pageFits = await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+    );
+    expect(pageFits, 'homepage overflows horizontally on mobile').toBeTruthy();
+  });
+
   test('employers AI support section does not clip on mobile', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     await page.setViewportSize({ width: 390, height: 844 });

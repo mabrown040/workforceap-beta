@@ -63,7 +63,51 @@ export function buildPortalSwitcherRoles(input: {
   }));
 }
 
-export async function getPortalSwitcherRoles(userId: string): Promise<PortalSwitcherRole[]> {
+export type PortalSwitcherInputs = {
+  superAdmin: boolean;
+  userRoleNames: string[];
+  hasEmployer: boolean;
+  hasPartner: boolean;
+  hasCounselor: boolean;
+  hasAdmin: boolean;
+};
+
+/**
+ * Resolve the portal-switcher roles for a user.
+ *
+ * Pass `precomputed` when the caller has already fetched these primitives
+ * (e.g. `/api/auth/me` computes role / partner / counselor / employer /
+ * super-admin for its own response). Supplying them skips the internal
+ * `Promise.all` of six DB lookups — several of which would otherwise
+ * duplicate queries the caller just ran — which keeps this frequently
+ * polled path from amplifying connection-pool pressure.
+ */
+export async function getPortalSwitcherRoles(
+  userId: string,
+  precomputed?: Partial<PortalSwitcherInputs>
+): Promise<PortalSwitcherRole[]> {
+  const inputs: PortalSwitcherInputs =
+    precomputed &&
+    precomputed.superAdmin !== undefined &&
+    precomputed.userRoleNames !== undefined &&
+    precomputed.hasEmployer !== undefined &&
+    precomputed.hasPartner !== undefined &&
+    precomputed.hasCounselor !== undefined &&
+    precomputed.hasAdmin !== undefined
+      ? (precomputed as PortalSwitcherInputs)
+      : await fetchPortalSwitcherInputs(userId);
+
+  if (inputs.superAdmin) {
+    return ROLE_ORDER.map((role) => ({
+      role,
+      ...ROLE_META[role as keyof typeof ROLE_META],
+    }));
+  }
+
+  return buildPortalSwitcherRoles(inputs);
+}
+
+async function fetchPortalSwitcherInputs(userId: string): Promise<PortalSwitcherInputs> {
   const [superAdmin, userRoleNames, employerNav, partnerCtx, counselorCtx, adminAccess] = await Promise.all([
     isSuperAdmin(userId),
     getUserRoles(userId),
@@ -73,18 +117,12 @@ export async function getPortalSwitcherRoles(userId: string): Promise<PortalSwit
     isAdmin(userId),
   ]);
 
-  if (superAdmin) {
-    return ROLE_ORDER.map((role) => ({
-      role,
-      ...ROLE_META[role as keyof typeof ROLE_META],
-    }));
-  }
-
-  return buildPortalSwitcherRoles({
+  return {
+    superAdmin,
     userRoleNames,
     hasEmployer: !!employerNav,
     hasPartner: !!partnerCtx,
     hasCounselor: !!counselorCtx,
     hasAdmin: adminAccess,
-  });
+  };
 }

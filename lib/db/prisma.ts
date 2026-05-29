@@ -47,6 +47,12 @@ export function buildGucSql(ctx: GucContext): string {
 function createPrismaClient(): PrismaClient {
   const client = new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    // RLS reads run inside interactive `$transaction` (see the override below),
+    // which must acquire a pooled connection. On serverless the pool gets bursty,
+    // and the 2s default `maxWait` would throw "Unable to start a transaction in
+    // the given time" (Sentry JAVASCRIPT-NEXTJS-T). Give acquisition more room;
+    // `timeout` bounds the transaction body, which for these reads is tiny.
+    transactionOptions: { maxWait: 5000, timeout: 10000 },
   });
 
   /**

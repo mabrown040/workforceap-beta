@@ -44,6 +44,40 @@ export default async function HomePageBelowFold({
 
   return (
     <>
+      {/* Member promise — no-cost career training. Moved below the vision-led hero
+          so the mission leads and the member offer follows immediately after. */}
+      <section
+        aria-label="No-cost career training"
+        style={{
+          background: 'var(--surface-container-lowest)',
+          padding: 'clamp(2.5rem, 6vw, 4.5rem) clamp(1rem, 4vw, 2rem)',
+        }}
+      >
+        <div style={{ maxWidth: '880px', margin: '0 auto', textAlign: 'center' }}>
+          <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
+            {t('memberPromiseEyebrow')}
+          </span>
+          <h2 className="text-display-sm" style={{ marginBottom: '1.25rem' }}>
+            {t('memberPromiseTitle')}{' '}
+            <span style={{ color: 'var(--color-accent)' }}>{t('memberPromiseTitleAccent')}</span>
+          </h2>
+          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1rem', fontSize: '1.05rem' }}>
+            {t('memberPromiseBody1')}
+          </p>
+          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
+            {t('memberPromiseBody2')}
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+            <LocalizedLinkServer href="/apply" className={primaryButtonClasses({ radius: 'md' })}>
+              {t('heroCtaPrimary')}
+            </LocalizedLinkServer>
+            <LocalizedLinkServer href="/find-your-path" className={secondaryButtonClasses({ radius: 'md' })}>
+              {t('heroCta')}
+            </LocalizedLinkServer>
+          </div>
+        </div>
+      </section>
+
       {/* Why WorkforceAP — factual contrast + partner credibility (merged; directly below hero) */}
       <section
         className="home-contrast home-credibility-bar"

@@ -12,6 +12,11 @@ test('admin AI tools page checks admin access before loading cohort analytics', 
 
   assert.match(src, /import \{ isAdmin \} from '@\/lib\/auth\/roles';/);
   assert.ok(src.includes(adminGuard), 'missing admin authorization guard');
+  assert.equal(
+    src.matchAll(new RegExp(adminGuard.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')).toArray().length,
+    1,
+    'admin authorization guard should only run once'
+  );
   assert.ok(
     src.indexOf(adminGuard) < src.indexOf(analyticsLoad),
     'admin guard must run before loading analytics data'

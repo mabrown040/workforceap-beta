@@ -19,7 +19,6 @@ export default async function AdminAiToolsAnalyticsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/ai-tools');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const rows = await getAiToolsCohortStats();
 

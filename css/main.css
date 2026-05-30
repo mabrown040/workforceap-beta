@@ -187,18 +187,21 @@
     line-height: 0.95;
     overflow-wrap: break-word;
     word-wrap: break-word;
+    text-wrap: balance;
 }
 .text-display-md {
     font-size: clamp(2.25rem, 4vw, 3.5rem);
     font-weight: 900;
     letter-spacing: -0.02em;
     line-height: 1;
+    text-wrap: balance;
 }
 .text-display-sm {
     font-size: clamp(1.75rem, 3vw, 2.5rem);
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.1;
+    text-wrap: balance;
 }
 .text-label-upper {
     font-size: 0.75rem;

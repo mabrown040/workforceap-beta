@@ -71,17 +71,35 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   }
 
   const { name, type, leaderId, partnerId, description } = parsed.data;
-
-  if (type === 'partner' && partnerId) {
-    const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
-    if (!partner) {
-      return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
+  const superAdmin = await isSuperAdmin(user.id);
+  let actorOrgId: string | null = null;
+  if (!superAdmin) {
+    try {
+      actorOrgId = await getActorOrganizationId(user.id);
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
   }
 
-  const leader = await prisma.user.findUnique({ where: { id: leaderId }, select: { id: true } });
+  if (type === 'partner' && partnerId) {
+    const partner = await prisma.partner.findFirst({
+      where: { id: partnerId, active: true },
+      select: { id: true, organizationId: true },
+    });
+    if (!partner) {
+      return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
+    }
+    if (actorOrgId && partner.organizationId !== actorOrgId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  }
+
+  const leader = await prisma.user.findUnique({ where: { id: leaderId }, select: { id: true, organizationId: true } });
   if (!leader) {
     return NextResponse.json({ error: 'Leader user not found' }, { status: 400 });
+  }
+  if (actorOrgId && leader.organizationId !== actorOrgId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   const subgroup = await prisma.subgroup.create({
@@ -107,4 +125,3 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   }
 }
 export const POST = withApiGuc(_POST);
-

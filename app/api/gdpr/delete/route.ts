@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { cookies } from 'next/headers';
 import { getSupabaseEnv } from '@/lib/supabase/env';
+import { deleteSupabaseAuthUser } from '@/lib/gdpr/deleteAuthUser';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -115,11 +116,15 @@ export const POST = withApiGuc(async (request: Request) => {
   `;
 
   // Delete Supabase auth user (irreversible — prevents re-login with old credentials)
-  const { error: deleteAuthError } = await supabase.auth.admin.deleteUser(userId);
+  const { error: deleteAuthError } = await deleteSupabaseAuthUser(userId);
   if (deleteAuthError) {
     console.error('[gdpr/delete] Supabase auth delete failed:', deleteAuthError);
-    // Don't fail the whole request — the DB is already anonymized and sessions revoked.
-    // Log for manual cleanup.
+    return NextResponse.json(
+      {
+        error: 'Account data was anonymized, but auth deletion failed. Please contact support to complete account deletion.',
+      },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({
@@ -132,4 +137,3 @@ export const POST = withApiGuc(async (request: Request) => {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

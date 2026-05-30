@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { Buffer } from 'node:buffer';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getSubjectOrganizationId } from "@/lib/tenant/organization";
@@ -48,6 +49,11 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     const memberId = formData.get('memberId');
     if (!memberId || typeof memberId !== 'string') {
       return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
+    }
+
+    const onBehalf = await resolveActOnBehalf(user.id, memberId);
+    if (!onBehalf.ok) {
+      return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
     }
   
     const orgId = await getSubjectOrganizationId(memberId);

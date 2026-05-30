@@ -38,6 +38,8 @@ type TenantScopeOptions = {
   organizationId?: string | null;
 };
 
+type CourseraMappingDb = typeof prisma | Prisma.TransactionClient;
+
 let ensureTablesPromise: Promise<void> | null = null;
 
 function normalizeEmail(value: string | null | undefined) {
@@ -750,7 +752,7 @@ export async function upsertCourseraIdentityMapping(args: {
   createdByUserId?: string | null;
   source?: string;
   expectedOrganizationId?: string | null;
-}) {
+}, db: CourseraMappingDb = prisma) {
   await ensureCourseraMappingTables();
 
   const courseraEmail = normalizeEmail(args.courseraEmail);
@@ -764,7 +766,7 @@ export async function upsertCourseraIdentityMapping(args: {
     throw new Error('courseraEmail or actorIdentifier is required');
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await db.user.findUnique({
     where: { id: args.userId },
     select: { id: true, email: true, fullName: true, organizationId: true },
   });
@@ -779,7 +781,7 @@ export async function upsertCourseraIdentityMapping(args: {
     : Prisma.empty;
 
   const actorMatch = actorIdentifier
-    ? await prisma.$queryRaw<Array<{ id: string }>>`
+    ? await db.$queryRaw<Array<{ id: string }>>`
         SELECT id
         FROM coursera_identity_mappings
         WHERE actor_identifier = ${actorIdentifier}::text
@@ -790,7 +792,7 @@ export async function upsertCourseraIdentityMapping(args: {
     : [];
 
   const emailMatch = !actorMatch[0] && courseraEmail
-    ? await prisma.$queryRaw<Array<{ id: string }>>`
+    ? await db.$queryRaw<Array<{ id: string }>>`
         SELECT id
         FROM coursera_identity_mappings
         WHERE LOWER(coursera_email) = ${courseraEmail}::text
@@ -802,7 +804,7 @@ export async function upsertCourseraIdentityMapping(args: {
   const existingId = actorMatch[0]?.id || emailMatch[0]?.id || null;
 
   if (existingId) {
-    await prisma.$executeRaw`
+    await db.$executeRaw`
       UPDATE coursera_identity_mappings
       SET
         user_id = ${args.userId}::text,
@@ -818,7 +820,7 @@ export async function upsertCourseraIdentityMapping(args: {
       WHERE id = ${existingId}::uuid
     `;
   } else {
-    await prisma.$executeRaw`
+    await db.$executeRaw`
       INSERT INTO coursera_identity_mappings (
         user_id,
         organization_id,
@@ -843,7 +845,7 @@ export async function upsertCourseraIdentityMapping(args: {
     `;
   }
 
-  const rows = await prisma.$queryRaw<MappingRow[]>`
+  const rows = await db.$queryRaw<MappingRow[]>`
     SELECT
       cim.id,
       cim.user_id AS "userId",

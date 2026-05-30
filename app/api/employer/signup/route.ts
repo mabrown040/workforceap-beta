@@ -134,6 +134,9 @@ export async function POST(request: NextRequest) {
       await createEmployerUser(user.id, data);
     } catch (err) {
       console.error('Employer signup creation error:', err);
+      await admin.auth.admin.deleteUser(user.id).catch((cleanupErr) => {
+        console.error('Failed to clean up auth user after employer signup error:', cleanupErr);
+      });
       return NextResponse.json(
         { error: 'Account creation failed. Please try again.' },
         { status: 500 }

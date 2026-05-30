@@ -6,12 +6,23 @@
 set -e
 
 FEATURE_BRANCH=$(git branch --show-current)
+
+# Try to detect upstream branch name
 UPSTREAM="main"
+if ! git rev-parse --verify "$UPSTREAM" >/dev/null 2>&1; then
+  UPSTREAM="master"
+fi
+
+# Skip if on upstream branch itself
+if [ "$FEATURE_BRANCH" = "$UPSTREAM" ]; then
+  echo "🔄 On $UPSTREAM branch — skipping diff review"
+  exit 0
+fi
 
 echo "🔍 Clawpatch: reviewing changes on $FEATURE_BRANCH vs $UPSTREAM..."
 
 # Only run if clawpatch is available
-if ! command -v clawpatch &>/dev/null; then
+if ! command -v clawpatch >/dev/null 2>&1; then
   echo "⚠️  clawpatch not found in PATH, skipping review"
   exit 0
 fi

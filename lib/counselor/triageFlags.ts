@@ -25,6 +25,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 // ─── Thresholds (single source of truth) ────────────────────────────────────
 
@@ -245,8 +246,9 @@ export async function getTriageQueue(
       });
       memberIds = assignments.map((a) => a.memberId);
     } else {
+      const organizationId = await getActorOrganizationId(counselorUserId);
       const allMembers = await prisma.user.findMany({
-        where: { deletedAt: null, enrolledProgram: { not: null } },
+        where: { organizationId, deletedAt: null, enrolledProgram: { not: null } },
         select: { id: true },
         take: adminCap,
       });

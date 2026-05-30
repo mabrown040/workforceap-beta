@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { isAdminInOrg } from '@/lib/auth/roles';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { auditLog } from '@/lib/audit';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 
 export async function GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    const orgId = await resolveOrgFromRequest(request.headers);
+    if (!(await isAdminInOrg(user.id, orgId))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get('status')?.trim() ?? '';
@@ -25,15 +28,17 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const employers = await prisma.employer.findMany({
-      where,
-      orderBy: { companyName: 'asc' },
-      take: 500,
-      include: {
-        user: { select: { email: true, fullName: true } },
-        _count: { select: { jobs: true } },
-      },
-    });
+    const employers = await withTenantScope(orgId, (db) =>
+      db.employer.findMany({
+        where,
+        orderBy: { companyName: 'asc' },
+        take: 500,
+        include: {
+          user: { select: { email: true, fullName: true } },
+          _count: { select: { jobs: true } },
+        },
+      }),
+    );
 
     const csv = dataToCsv(
       [
@@ -61,6 +66,7 @@ export async function GET(request: NextRequest) {
       action: 'admin.export.employers',
       targetType: 'EmployerDirectoryExport',
       metadata: {
+        orgId,
         rowCount: employers.length,
         truncated: employers.length >= 500,
         limit: 500,

@@ -245,6 +245,17 @@ function main() {
     process.exit(0);
   }
 
+  const touchedLockedFiles = changedFiles.filter((f) => lockedPatterns.includes(f));
+  for (const f of touchedLockedFiles) {
+    if (typeof lockedPatches[f] !== 'string' || lockedPatches[f].length === 0) {
+      process.stdout.write(JSON.stringify({
+        safe: false,
+        reason: `${f}: missing locked file patch — bypass requires patch text for every touched locked file.`,
+      }));
+      process.exit(0);
+    }
+  }
+
   // messages/*.json must be add-only.
   for (const [f, patch] of Object.entries(messagesPatches)) {
     const r = checkMessagesPatch(f, patch);

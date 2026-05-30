@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 /**
  * Counselor Command Center — Today's priorities.
@@ -70,8 +71,9 @@ export async function getCounselorCommandCenter(
   // Scope: which member IDs is this counselor responsible for?
   let memberIds: string[] = [];
   if (options?.isAdmin) {
+    const organizationId = await getActorOrganizationId(counselorUserId);
     const allMembers = await prisma.user.findMany({
-      where: { deletedAt: null, enrolledProgram: { not: null } },
+      where: { organizationId, deletedAt: null, enrolledProgram: { not: null } },
       select: { id: true },
       take: 200,
     });

@@ -232,7 +232,7 @@ export async function GET(request: NextRequest) {
           health: healthFilter || null,
         },
       },
-    }).catch((err) => console.error('[admin/members/export] audit log failed:', err));
+    });
 
     return csvDownloadResponse(csv, filename, { truncated: members.length >= 2000, limit: 2000 });
   } catch (error) {

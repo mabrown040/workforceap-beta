@@ -25,6 +25,9 @@ coverage/
 *.key
 *.p12
 
+# Clawpatch review tooling
+.clawpatch/
+
 # Stray local-tool logs (Codex CLI, debugger dumps, npm-debug, etc.).
 *.log
 

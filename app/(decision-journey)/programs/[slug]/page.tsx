@@ -189,7 +189,7 @@ export default async function ProgramPage({ params }: Props) {
                 className="btn btn-primary btn-large"
                 style={{ display: 'inline-block' }}
               >
-                Apply for This Program
+                Apply Now
               </LocalizedLink>
               <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
                 <LocalizedLink
@@ -290,7 +290,7 @@ export default async function ProgramPage({ params }: Props) {
               </div>
               <span className="program-sidebar-partner">{partnerBadge}</span>
               <LocalizedLink href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
-                Apply for This Program
+                Apply Now
               </LocalizedLink>
               <p className="program-sidebar-note">No-cost training for members.</p>
               <LocalizedLink href="/find-your-path" className="program-sidebar-quiz-link">

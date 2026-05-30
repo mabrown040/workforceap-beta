@@ -47,7 +47,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
 
         {/* Programs */}
         <div>
-          <h6 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('programs')}</h6>
+          <h4 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('programs')}</h4>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <li><LocalizedLink href="/programs" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('allPrograms')}</LocalizedLink></li>
             <li><LocalizedLink href="/find-your-path" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('findYourPath')}</LocalizedLink></li>
@@ -59,7 +59,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
 
         {/* About */}
         <div>
-          <h6 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('about')}</h6>
+          <h4 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('about')}</h4>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <li><LocalizedLink href="/what-we-do" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('whatWeDo')}</LocalizedLink></li>
             <li><LocalizedLink href="/how-it-works" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('howItWorks')}</LocalizedLink></li>
@@ -72,7 +72,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
 
         {/* Support */}
         <div>
-          <h6 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('support')}</h6>
+          <h4 className="text-label-upper" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('support')}</h4>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <li><LocalizedLink href="/donate" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('donate')}</LocalizedLink></li>
             <li><LocalizedLink href="/contact" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>{t('contactUs')}</LocalizedLink></li>
@@ -109,7 +109,7 @@ export default function Footer({ variant = 'inner' }: { variant?: 'home' | 'inne
         </p>
         <p style={{ fontSize: '0.625rem', color: 'var(--color-on-surface-variant)', opacity: 0.6, marginTop: '0.75rem', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
           {t('onetAttribution')}{' '}
-          <a href="https://services.onetcenter.org/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-on-surface-variant)', textDecoration: 'underline' }}>
+          <a href="https://services.onetcenter.org/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-on-surface-variant)', textDecoration: 'underline', display: 'inline-flex', alignItems: 'center', minHeight: '44px', minWidth: '44px', padding: '0.25rem 0' }}>
             O*NET Web Services
           </a>{' '}
           by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET&reg; is a trademark of USDOL/ETA.

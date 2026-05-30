@@ -135,6 +135,7 @@ export default async function HomePage() {
           maxWidth: '1400px',
           width: '100%',
           padding: 'clamp(5.5rem, 12vw, 8rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 8vw, 6rem)',
+          boxSizing: 'border-box',
         }}
         >
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
@@ -159,7 +160,7 @@ export default async function HomePage() {
               color: 'var(--home-hero-fg, #f2f2f5)',
               marginBottom: '1.5rem',
               lineHeight: 1.05,
-              fontSize: 'clamp(2.25rem, 6vw + 1rem, 4.5rem)',
+              fontSize: 'clamp(1.5rem, 4vw + 0.5rem, 4.5rem)',
             }}
           >
             {t('heroTagline')}{' '}

@@ -31,6 +31,14 @@ const fs = require('fs');
     'Recent skill mapper lookups',
   ];
 
+  const auditEmail = process.env.WAP_AUDIT_EMAIL?.trim();
+  const auditPassword = process.env.WAP_AUDIT_PASSWORD;
+  if (!auditEmail || !auditPassword) {
+    throw new Error(
+      'Missing audit login credentials. Set WAP_AUDIT_EMAIL and WAP_AUDIT_PASSWORD in the environment.',
+    );
+  }
+
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -38,8 +46,8 @@ const fs = require('fs');
   const base = 'https://www.workforceap.org';
   await page.goto(`${base}/login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
-  await page.fill('input[type="email"]', 'mabrown040@gmail.com');
-  await page.fill('input[type="password"]', 'Winner!22');
+  await page.fill('input[type="email"]', auditEmail);
+  await page.fill('input[type="password"]', auditPassword);
   await Promise.all([
     page.waitForURL('**/dashboard**', { timeout: 60000 }),
     page.click('button[type="submit"]'),

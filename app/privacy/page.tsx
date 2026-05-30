@@ -10,7 +10,7 @@ import { getRequestLocale } from '@/lib/i18n/server';
  * — especially the sub-processor list — materially changes. The displayed
  * "Last updated" string is derived from this constant.
  */
-export const PRIVACY_LAST_UPDATED_AT = '2026-05-19';
+const PRIVACY_LAST_UPDATED_AT = '2026-05-19';
 
 type SubProcessor = {
   vendor: string;

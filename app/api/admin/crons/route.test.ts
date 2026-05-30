@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { buildCronsWhere, fetchCrons } from './route';
+import { buildCronsWhere, fetchCrons } from './_cronsQuery';
 import { prisma } from '@/lib/db/prisma';
 
 test('buildCronsWhere returns empty object when no filters', () => {

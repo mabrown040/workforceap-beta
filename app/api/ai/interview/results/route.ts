@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
-import { interviewSessions } from '../start/route';
+import { interviewSessions } from '../_sessionStore';
 
 const CATEGORIES = ['communication', 'leadership', 'problem_solving', 'teamwork', 'adaptability'] as const;
 

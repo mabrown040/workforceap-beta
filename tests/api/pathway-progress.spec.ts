@@ -86,7 +86,7 @@ describe('GET /api/member/pathway-steps/progress', () => {
   it('returns 401 when user is not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
 
-    const res = await getProgress();
+    const res = await getProgress(new Request('http://localhost'));
 
     expect(res.status).toBe(401);
     const body = await res.json();
@@ -125,7 +125,7 @@ describe('GET /api/member/pathway-steps/progress', () => {
 
     vi.mocked(prisma.pathwayStepProgress.findMany).mockResolvedValue(mockProgress as any);
 
-    const res = await getProgress();
+    const res = await getProgress(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -146,7 +146,7 @@ describe('GET /api/member/pathway-steps/progress', () => {
     vi.mocked(getUser).mockResolvedValue(mockAuthUser() as any);
     vi.mocked(prisma.pathwayStepProgress.findMany).mockResolvedValue([]);
 
-    const res = await getProgress();
+    const res = await getProgress(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -185,7 +185,7 @@ describe('GET /api/member/pathway-steps/progress', () => {
 
     vi.mocked(prisma.pathwayStepProgress.findMany).mockResolvedValue(mockProgress as any);
 
-    const res = await getProgress();
+    const res = await getProgress(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -479,7 +479,7 @@ describe('GET /api/member/learning-progress', () => {
   it('returns 401 when user is not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
 
-    const res = await getLearningProgress();
+    const res = await getLearningProgress(new Request('http://localhost'));
 
     expect(res.status).toBe(401);
     const body = await res.json();
@@ -512,7 +512,7 @@ describe('GET /api/member/learning-progress', () => {
 
     vi.mocked(prisma.learningProgress.findMany).mockResolvedValue(mockProgress as any);
 
-    const res = await getLearningProgress();
+    const res = await getLearningProgress(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -533,7 +533,7 @@ describe('GET /api/member/learning-progress', () => {
     vi.mocked(getUser).mockResolvedValue(mockAuthUser() as any);
     vi.mocked(prisma.learningProgress.findMany).mockResolvedValue([]);
 
-    const res = await getLearningProgress();
+    const res = await getLearningProgress(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();

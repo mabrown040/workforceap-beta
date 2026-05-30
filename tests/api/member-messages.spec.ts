@@ -139,7 +139,7 @@ describe('GET /api/member/messages', () => {
       fullName: 'Counselor Alice',
     } as any);
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -183,7 +183,7 @@ describe('GET /api/member/messages', () => {
       fullName: 'Counselor Alice',
     } as any);
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -195,7 +195,7 @@ describe('GET /api/member/messages', () => {
   it('returns 401 for unauthenticated user', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
 
     expect(res.status).toBe(401);
     const body = await res.json();
@@ -206,7 +206,7 @@ describe('GET /api/member/messages', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(getOrCreateMemberCounselorThread).mockRejectedValue(new Error('DB connection lost'));
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
 
     expect(res.status).toBe(500);
     const body = await res.json();
@@ -373,7 +373,7 @@ describe('PATCH /api/member/messages', () => {
       memberLastReadAt: new Date('2026-05-10T12:00:00Z'),
     } as any);
 
-    const res = await PATCH();
+    const res = await PATCH(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -388,7 +388,7 @@ describe('PATCH /api/member/messages', () => {
   it('returns 401 for unauthenticated user', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await PATCH();
+    const res = await PATCH(new Request('http://localhost'));
 
     expect(res.status).toBe(401);
     const body = await res.json();
@@ -407,7 +407,7 @@ describe('PATCH /api/member/messages', () => {
     vi.mocked(getOrCreateMemberCounselorThread).mockResolvedValue(thread as any);
     vi.mocked(assertMemberCanAccessThread).mockResolvedValue(null);
 
-    const res = await PATCH();
+    const res = await PATCH(new Request('http://localhost'));
 
     expect(res.status).toBe(403);
     const body = await res.json();
@@ -418,7 +418,7 @@ describe('PATCH /api/member/messages', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(getOrCreateMemberCounselorThread).mockRejectedValue(new Error('DB write failed'));
 
-    const res = await PATCH();
+    const res = await PATCH(new Request('http://localhost'));
 
     expect(res.status).toBe(500);
     const body = await res.json();

@@ -6,18 +6,10 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { randomUUID } from 'crypto';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { interviewSessions } from '../_sessionStore';
 
 // In-memory session store (replace with Redis/DB for production)
-export const interviewSessions = new Map<
-  string,
-  {
-    userId: string;
-    questions: Array<{ question: string; type: string }>;
-    responses: Array<{ question: string; answer: string }>;
-    startedAt: Date;
-    completedAt?: Date;
-  }
->();export const POST = withApiGuc(async (request: Request) => {
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {

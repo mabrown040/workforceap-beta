@@ -58,7 +58,7 @@ describe('GET /api/member/goals', () => {
 
   it('returns 401 when unauthenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
-    const res = await goalsGET();
+    const res = await goalsGET(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -70,7 +70,7 @@ describe('GET /api/member/goals', () => {
       { id: 'g2', userId: 'user-123', goalType: 'job', title: 'Get a job', status: 'COMPLETED', createdAt: new Date('2026-02-01') },
     ] as any);
 
-    const res = await goalsGET();
+    const res = await goalsGET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.goals).toHaveLength(2);
@@ -82,7 +82,7 @@ describe('GET /api/member/goals', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(prisma.goal.findMany).mockResolvedValue([]);
 
-    const res = await goalsGET();
+    const res = await goalsGET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.goals).toEqual([]);
@@ -92,7 +92,7 @@ describe('GET /api/member/goals', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(prisma.goal.findMany).mockRejectedValue(new Error('db down'));
 
-    const res = await goalsGET();
+    const res = await goalsGET(new Request('http://localhost'));
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Failed to load goals' });
   });

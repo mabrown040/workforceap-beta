@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
-import { buildCronsWhere } from '../route';
+import { buildCronsWhere } from '../_cronsQuery';
 
 export async function GET(request: NextRequest) {
   try {

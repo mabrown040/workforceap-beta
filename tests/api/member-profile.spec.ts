@@ -96,7 +96,7 @@ describe('GET /api/member/profile', () => {
       },
     } as any);
 
-    const res = await profileGET();
+    const res = await profileGET(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -125,7 +125,7 @@ describe('GET /api/member/profile', () => {
       profile: null,
     } as any);
 
-    const res = await profileGET();
+    const res = await profileGET(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -136,7 +136,7 @@ describe('GET /api/member/profile', () => {
   it('returns 401 for unauthenticated user', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await profileGET();
+    const res = await profileGET(new Request('http://localhost'));
 
     expect(res.status).toBe(401);
     const body = await res.json();
@@ -147,7 +147,7 @@ describe('GET /api/member/profile', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-ghost', email: 'ghost@example.com' } as any);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
 
-    const res = await profileGET();
+    const res = await profileGET(new Request('http://localhost'));
 
     expect(res.status).toBe(404);
     const body = await res.json();
@@ -158,7 +158,7 @@ describe('GET /api/member/profile', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(prisma.user.findUnique).mockRejectedValue(new Error('DB connection lost'));
 
-    const res = await profileGET();
+    const res = await profileGET(new Request('http://localhost'));
 
     expect(res.status).toBe(500);
     const body = await res.json();
@@ -380,7 +380,7 @@ describe('GET /api/member/profile/completeness', () => {
       },
     } as any);
 
-    const res = await completenessGET();
+    const res = await completenessGET(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -421,7 +421,7 @@ describe('GET /api/member/profile/completeness', () => {
       },
     } as any);
 
-    const res = await completenessGET();
+    const res = await completenessGET(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -437,7 +437,7 @@ describe('GET /api/member/profile/completeness', () => {
   it('returns 401 for unauthenticated user', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await completenessGET();
+    const res = await completenessGET(new Request('http://localhost'));
 
     expect(res.status).toBe(401);
     const body = await res.json();
@@ -448,7 +448,7 @@ describe('GET /api/member/profile/completeness', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-ghost', email: 'ghost@example.com' } as any);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
 
-    const res = await completenessGET();
+    const res = await completenessGET(new Request('http://localhost'));
 
     expect(res.status).toBe(404);
     const body = await res.json();
@@ -459,7 +459,7 @@ describe('GET /api/member/profile/completeness', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(prisma.user.findUnique).mockRejectedValue(new Error('DB connection lost'));
 
-    const res = await completenessGET();
+    const res = await completenessGET(new Request('http://localhost'));
 
     expect(res.status).toBe(500);
     const body = await res.json();

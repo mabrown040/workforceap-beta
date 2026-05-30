@@ -12,7 +12,7 @@ import { getTranslations } from 'next-intl/server';
  * edited). Bump when the known-exceptions list, target conformance level,
  * or reporting channel changes.
  */
-export const ACCESSIBILITY_LAST_REVIEWED_AT = '2026-05-19';
+const ACCESSIBILITY_LAST_REVIEWED_AT = '2026-05-19';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.accessibility');

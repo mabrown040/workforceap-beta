@@ -69,7 +69,7 @@ describe('POST /api/member/delete-account', () => {
       },
     } as any);
 
-    const res = await deleteAccount();
+    const res = await deleteAccount(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
@@ -100,7 +100,7 @@ describe('POST /api/member/delete-account', () => {
       },
     } as any);
 
-    const res = await deleteAccount();
+    const res = await deleteAccount(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
@@ -124,7 +124,7 @@ describe('POST /api/member/delete-account', () => {
       },
     } as any);
 
-    const res = await deleteAccount();
+    const res = await deleteAccount(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
@@ -133,7 +133,7 @@ describe('POST /api/member/delete-account', () => {
   it('returns 401 for unauthenticated user', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
 
-    const res = await deleteAccount();
+    const res = await deleteAccount(new Request('http://localhost'));
 
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
@@ -144,7 +144,7 @@ describe('POST /api/member/delete-account', () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(prisma.user.findUnique).mockRejectedValue(new Error('DB error'));
 
-    const res = await deleteAccount();
+    const res = await deleteAccount(new Request('http://localhost'));
 
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Failed to delete account' });
@@ -161,7 +161,7 @@ describe('POST /api/member/delete-account', () => {
       },
     } as any);
 
-    const res = await deleteAccount();
+    const res = await deleteAccount(new Request('http://localhost'));
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });

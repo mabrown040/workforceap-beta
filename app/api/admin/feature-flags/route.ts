@@ -6,7 +6,7 @@ import { fetchFeatureFlags, validateCreateBody } from '@/lib/feature-flags/admin
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export { fetchFeatureFlags, validateCreateBody };async function _GET() {
+async function _GET() {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

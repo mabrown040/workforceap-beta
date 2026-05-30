@@ -102,7 +102,7 @@ describe('GET /api/counselor/analytics', () => {
       { programSlug: 'comptia-a-plus', _avg: { averagePercent: 60 }, _count: { userId: 5 } },
     ] as any);
 
-    const res = await getAnalytics();
+    const res = await getAnalytics(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.totalMembers).toBe(1);
@@ -144,7 +144,7 @@ describe('GET /api/counselor/analytics', () => {
     vi.mocked(prisma.memberEvent.findMany).mockResolvedValue([] as any);
     vi.mocked(prisma.memberProgramProgress.groupBy).mockResolvedValue([] as any);
 
-    const res = await getAnalytics();
+    const res = await getAnalytics(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.atRiskMembers).toBe(1);
@@ -159,7 +159,7 @@ describe('GET /api/counselor/analytics', () => {
     vi.mocked(isCounselor).mockResolvedValue(false);
     vi.mocked(prisma.counselor.findFirst).mockResolvedValue(null);
 
-    const res = await getAnalytics();
+    const res = await getAnalytics(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.totalMembers).toBe(0);
@@ -169,7 +169,7 @@ describe('GET /api/counselor/analytics', () => {
 
   it('returns 401 when not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
-    const res = await getAnalytics();
+    const res = await getAnalytics(new Request('http://localhost'));
     expect(res.status).toBe(401);
     const body = await res.json();
     expect(body.error).toBe('Unauthorized');
@@ -181,7 +181,7 @@ describe('GET /api/counselor/analytics', () => {
     vi.mocked(isCounselor).mockResolvedValue(false);
     vi.mocked(prisma.counselor.findFirst).mockResolvedValue(null);
 
-    const res = await getAnalytics();
+    const res = await getAnalytics(new Request('http://localhost'));
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe('Forbidden');
@@ -193,7 +193,7 @@ describe('GET /api/counselor/analytics', () => {
     vi.mocked(isCounselor).mockResolvedValue(true);
     vi.mocked(prisma.counselor.findFirst).mockResolvedValue(null);
 
-    const res = await getAnalytics();
+    const res = await getAnalytics(new Request('http://localhost'));
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe('Forbidden');
@@ -205,7 +205,7 @@ describe('GET /api/counselor/analytics', () => {
     vi.mocked(isCounselor).mockResolvedValue(true);
     vi.mocked(prisma.counselor.findFirst).mockRejectedValue(new Error('DB connection lost'));
 
-    const res = await getAnalytics();
+    const res = await getAnalytics(new Request('http://localhost'));
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.error).toBe('Internal server error');

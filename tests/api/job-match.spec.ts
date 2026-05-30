@@ -99,7 +99,7 @@ describe('GET /api/member/matched-jobs', () => {
   it('returns 401 when user is not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
 
-    const res = await getMatchedJobs();
+    const res = await getMatchedJobs(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -108,7 +108,7 @@ describe('GET /api/member/matched-jobs', () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
 
-    const res = await getMatchedJobs();
+    const res = await getMatchedJobs(new Request('http://localhost'));
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ jobs: [] });
   });
@@ -169,7 +169,7 @@ describe('GET /api/member/matched-jobs', () => {
 
     vi.mocked(prisma.job.findMany).mockResolvedValue([job1, job2, job3] as any);
 
-    const res = await getMatchedJobs();
+    const res = await getMatchedJobs(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
 
@@ -198,7 +198,7 @@ describe('GET /api/member/matched-jobs', () => {
       makeJob({ id: UUIDS.job1, location: 'Austin, TX', locationType: 'onsite' }),
     ] as any);
 
-    const res = await getMatchedJobs();
+    const res = await getMatchedJobs(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.jobs[0].location).toBe('Austin, TX');
@@ -238,7 +238,7 @@ describe('GET /api/member/matched-jobs', () => {
 
     vi.mocked(prisma.job.findMany).mockResolvedValue(manyJobs as any);
 
-    const res = await getMatchedJobs();
+    const res = await getMatchedJobs(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.jobs).toHaveLength(5);
@@ -258,7 +258,7 @@ describe('GET /api/member/matched-jobs', () => {
     vi.mocked(getProgramBySlug).mockReturnValue(undefined);
     vi.mocked(prisma.job.findMany).mockResolvedValue([] as any);
 
-    await getMatchedJobs();
+    await getMatchedJobs(new Request('http://localhost'));
 
     expect(prisma.job.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -272,7 +272,7 @@ describe('GET /api/member/matched-jobs', () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(prisma.user.findUnique).mockRejectedValue(new Error('DB failure'));
 
-    const res = await getMatchedJobs();
+    const res = await getMatchedJobs(new Request('http://localhost'));
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Internal server error' });
   });

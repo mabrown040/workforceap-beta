@@ -5,7 +5,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 
-export async function invalidateAdminStats(orgId: string): Promise<void> {
+async function invalidateAdminStats(orgId: string): Promise<void> {
   await invalidateCache(`admin:stats:${orgId}*`);
 }
 

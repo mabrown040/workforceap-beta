@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { trackEvent } from '@/lib/events/track';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { invalidateJobListings } from '@/app/api/(portal)/dashboard/jobs/route';
+import { invalidateJobListings } from '@/lib/jobs/listingCache';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 

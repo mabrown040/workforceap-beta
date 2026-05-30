@@ -417,7 +417,7 @@ describe('GET /api/partner/earnings', () => {
   it('returns 401 when user is not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
 
-    const res = await earningsGet();
+    const res = await earningsGet(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -426,7 +426,7 @@ describe('GET /api/partner/earnings', () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(getPartnerForUser).mockResolvedValue(null);
 
-    const res = await earningsGet();
+    const res = await earningsGet(new Request('http://localhost'));
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });
@@ -437,7 +437,7 @@ describe('GET /api/partner/earnings', () => {
     vi.mocked(getPartnerPlacementPayoutUsd).mockReturnValue(500);
     vi.mocked(prisma.partnerReferral.findMany).mockResolvedValue([]);
 
-    const res = await earningsGet();
+    const res = await earningsGet(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body).toMatchObject({
@@ -471,7 +471,7 @@ describe('GET /api/partner/earnings', () => {
       },
     ] as any);
 
-    const res = await earningsGet();
+    const res = await earningsGet(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.totalReferrals).toBe(2);

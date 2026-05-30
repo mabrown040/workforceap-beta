@@ -3,7 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 
-export async function invalidateCourseCatalog(userId: string): Promise<void> {
+async function invalidateCourseCatalog(userId: string): Promise<void> {
   await invalidateCache(`courses:catalog:${userId}*`);
 }
 

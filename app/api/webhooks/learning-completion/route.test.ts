@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { webhookSchema, verifyWebhookSecret, buildDedupeKey, checkIdempotency } from './route';
+import { webhookSchema, verifyWebhookSecret, buildDedupeKey, checkIdempotency } from './_webhook';
 import { prisma } from '@/lib/db/prisma';
 
 test('webhookSchema accepts valid payload', () => {

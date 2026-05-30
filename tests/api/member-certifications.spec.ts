@@ -49,7 +49,7 @@ describe('GET /api/member/certifications', () => {
 
   it('returns 401 when unauthenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(401);
   });
 
@@ -58,7 +58,7 @@ describe('GET /api/member/certifications', () => {
     vi.mocked(prisma.userCertification.findMany).mockResolvedValue([
       { certName: 'AWS', earnedAt: new Date('2026-01-01') } as any,
     ]);
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.certifications).toHaveLength(1);
@@ -68,7 +68,7 @@ describe('GET /api/member/certifications', () => {
   it('returns 500 on db error', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'u1', email: 'a@b.com' } as any);
     vi.mocked(prisma.userCertification.findMany).mockRejectedValue(new Error('boom'));
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(500);
   });
 });

@@ -55,7 +55,7 @@ describe('GET /api/admin/analytics/dashboard', () => {
   it('returns 401 when unauthenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await dashboardGET();
+    const res = await dashboardGET(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -64,7 +64,7 @@ describe('GET /api/admin/analytics/dashboard', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
 
-    const res = await dashboardGET();
+    const res = await dashboardGET(new Request('http://localhost'));
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });
@@ -82,7 +82,7 @@ describe('GET /api/admin/analytics/dashboard', () => {
     vi.mocked(prisma.placementRecord.count).mockResolvedValue(25);
     vi.mocked(prisma.$queryRaw).mockResolvedValue([{ avg: 65000 }] as any);
 
-    const res = await dashboardGET();
+    const res = await dashboardGET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.totalMembers).toBe(100);
@@ -107,7 +107,7 @@ describe('GET /api/admin/analytics/dashboard', () => {
     vi.mocked(prisma.placementRecord.count).mockResolvedValue(0);
     vi.mocked(prisma.$queryRaw).mockResolvedValue([{ avg: null }] as any);
 
-    const res = await dashboardGET();
+    const res = await dashboardGET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.completionRate).toBe(0);
@@ -120,7 +120,7 @@ describe('GET /api/admin/analytics/dashboard', () => {
     vi.mocked(isAdmin).mockResolvedValue(true);
     vi.mocked(getActorOrganizationId).mockRejectedValue(new Error('org lookup failed'));
 
-    const res = await dashboardGET();
+    const res = await dashboardGET(new Request('http://localhost'));
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Internal server error' });
   });
@@ -132,7 +132,7 @@ describe('GET /api/admin/analytics/programs', () => {
   it('returns 401 when unauthenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await programsGET();
+    const res = await programsGET(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -141,7 +141,7 @@ describe('GET /api/admin/analytics/programs', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
 
-    const res = await programsGET();
+    const res = await programsGET(new Request('http://localhost'));
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });
@@ -167,7 +167,7 @@ describe('GET /api/admin/analytics/programs', () => {
       { program: 'Data Analytics', count: 2 },
     ] as any);
 
-    const res = await programsGET();
+    const res = await programsGET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.programs).toHaveLength(3);
@@ -188,7 +188,7 @@ describe('GET /api/admin/analytics/programs', () => {
     vi.mocked(isAdmin).mockResolvedValue(true);
     vi.mocked(getActorOrganizationId).mockRejectedValue(new Error('org lookup failed'));
 
-    const res = await programsGET();
+    const res = await programsGET(new Request('http://localhost'));
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Internal server error' });
   });

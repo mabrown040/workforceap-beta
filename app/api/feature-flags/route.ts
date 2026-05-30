@@ -6,7 +6,7 @@ import { filterVisibleFlags } from '@/lib/feature-flags/publicApi';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export { filterVisibleFlags };export const GET = withApiGuc(async () => {
+export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) {

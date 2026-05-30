@@ -178,7 +178,7 @@ describe('Assessment start — questions & scoring', () => {
 
   it('returns 401 for unauthenticated user on skill-profile', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
-    const res = await getSkillProfile();
+    const res = await getSkillProfile(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -366,7 +366,7 @@ describe('GET /api/member/skill-profile', () => {
     } as any);
     vi.mocked(prisma.aIToolResult.findMany).mockResolvedValue([] as any);
 
-    const res = await getSkillProfile();
+    const res = await getSkillProfile(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.skillProfile).toBeDefined();
@@ -390,7 +390,7 @@ describe('GET /api/member/skill-profile', () => {
       },
     ] as any);
 
-    const res = await getSkillProfile();
+    const res = await getSkillProfile(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.skillProfile).toBeInstanceOf(Array);
@@ -406,7 +406,7 @@ describe('GET /api/member/skill-profile', () => {
     vi.mocked(prisma.profile.findUnique).mockResolvedValue(null as any);
     vi.mocked(prisma.aIToolResult.findMany).mockResolvedValue([] as any);
 
-    const res = await getSkillProfile();
+    const res = await getSkillProfile(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.skillProfile).toBeInstanceOf(Array);
@@ -509,7 +509,7 @@ describe('POST /api/member/assessment/reset', () => {
     vi.mocked(prisma.workflowDiagnostic.create).mockResolvedValue({ id: 'wd-1' } as any);
     vi.mocked(prisma.user.update).mockResolvedValue({ id: UUIDS.user } as any);
 
-    const res = await resetAssessment();
+    const res = await resetAssessment(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
@@ -528,7 +528,7 @@ describe('POST /api/member/assessment/reset', () => {
 
   it('returns 401 for unauthenticated user', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
-    const res = await resetAssessment();
+    const res = await resetAssessment(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -539,7 +539,7 @@ describe('POST /api/member/assessment/reset', () => {
       assessmentCompleted: false,
     } as any);
 
-    const res = await resetAssessment();
+    const res = await resetAssessment(new Request('http://localhost'));
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'Assessment not completed yet — nothing to reset' });
   });

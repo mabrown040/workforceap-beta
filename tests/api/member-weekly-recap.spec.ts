@@ -42,7 +42,7 @@ describe('GET /api/member/weekly-recap', () => {
   it('returns 401 when unauthenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -56,7 +56,7 @@ describe('GET /api/member/weekly-recap', () => {
       data: { applicationsAdded: 3, resourcesCompleted: 2 },
     } as any);
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.recap.id).toBe('recap-1');
@@ -77,7 +77,7 @@ describe('GET /api/member/weekly-recap', () => {
       data: { applicationsAdded: 1 },
     } as any);
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.recap.id).toBe('recap-new');
@@ -88,7 +88,7 @@ describe('GET /api/member/weekly-recap', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'u1', email: 'a@b.com' } as any);
     vi.mocked(prisma.weeklyRecap.findUnique).mockRejectedValue(new Error('DB error'));
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Failed to load weekly recap' });
   });
@@ -96,7 +96,7 @@ describe('GET /api/member/weekly-recap', () => {
   it('returns 500 on unexpected outer error', async () => {
     vi.mocked(getUser).mockRejectedValue(new Error('Auth failure'));
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Internal server error' });
   });
@@ -108,7 +108,7 @@ describe('POST /api/member/weekly-recap', () => {
   it('returns 401 when unauthenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await POST();
+    const res = await POST(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -122,7 +122,7 @@ describe('POST /api/member/weekly-recap', () => {
       data: { applicationsAdded: 5 },
     } as any);
 
-    const res = await POST();
+    const res = await POST(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.recap.id).toBe('recap-fresh');
@@ -137,7 +137,7 @@ describe('POST /api/member/weekly-recap', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'u1', email: 'a@b.com' } as any);
     vi.mocked(generateWeeklyRecap).mockRejectedValue(new Error('Generation failed'));
 
-    const res = await POST();
+    const res = await POST(new Request('http://localhost'));
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Failed to generate weekly recap' });
   });
@@ -145,7 +145,7 @@ describe('POST /api/member/weekly-recap', () => {
   it('returns 500 on unexpected outer error', async () => {
     vi.mocked(getUser).mockRejectedValue(new Error('Auth failure'));
 
-    const res = await POST();
+    const res = await POST(new Request('http://localhost'));
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Internal server error' });
   });

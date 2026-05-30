@@ -6,24 +6,13 @@ import { publicApiCorsHeaders } from '@/lib/http/publicApiCors';
 import { checkPublicHealthRateLimit } from '@/lib/rate-limit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { healthCache } from './_healthCache';
 
 const HEALTH_CORS = publicApiCorsHeaders('GET, HEAD, OPTIONS');
 
 export const dynamic = 'force-dynamic';
 
 const CACHE_TTL_MS = 5000;
-
-let cache: {
-  body: unknown;
-  status: number;
-  headers: Record<string, string>;
-  until: number;
-} | null = null;
-
-/** Test-only: clear the in-memory health cache. */
-export function __resetHealthCache() {
-  cache = null;
-}
 
 type CheckStatus = 'ok' | 'degraded' | 'skipped';
 
@@ -145,10 +134,11 @@ export const GET = withApiGuc(async (request: Request) => {
     const deep = url.searchParams.get('deep') === 'true';
 
     // Serve cached response if still fresh.
-    if (cache && cache.until > Date.now()) {
-      return NextResponse.json(cache.body, {
-        status: cache.status,
-        headers: cache.headers,
+    const cached = healthCache.current;
+    if (cached && cached.until > Date.now()) {
+      return NextResponse.json(cached.body, {
+        status: cached.status,
+        headers: cached.headers,
       });
     }
 
@@ -161,7 +151,7 @@ export const GET = withApiGuc(async (request: Request) => {
       'Cache-Control': 'max-age=5',
     };
 
-    cache = { body, status: httpStatus, headers, until: Date.now() + CACHE_TTL_MS };
+    healthCache.current = { body, status: httpStatus, headers, until: Date.now() + CACHE_TTL_MS };
 
     return NextResponse.json(body, { status: httpStatus, headers });
   } catch (error) {

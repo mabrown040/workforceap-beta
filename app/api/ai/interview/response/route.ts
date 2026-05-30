@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
-import { interviewSessions } from '../start/route';
+import { interviewSessions } from '../_sessionStore';
 
 const MAX_QUESTIONS = 5;
 

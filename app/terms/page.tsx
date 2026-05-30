@@ -10,7 +10,7 @@ import { getRequestLocale } from '@/lib/i18n/server';
  * materially change (new fee structure, dispute-resolution forum, new role,
  * etc.). The displayed "Last updated" string is derived from this constant.
  */
-export const TERMS_LAST_UPDATED_AT = '2026-05-19';
+const TERMS_LAST_UPDATED_AT = '2026-05-19';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.terms');

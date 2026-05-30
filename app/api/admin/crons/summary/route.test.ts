@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { fetchCronSummary } from './route';
+import { fetchCronSummary } from './_cronSummary';
 import { prisma } from '@/lib/db/prisma';
 
 test('fetchCronSummary returns stats and last run per job', async (t) => {

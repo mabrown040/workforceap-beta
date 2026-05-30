@@ -53,7 +53,7 @@ const ITEM_TYPE_LABELS: Record<string, string> = {
   ITEM_TYPE_GRADED_LAB: 'graded lab',
 };
 
-export function humaniseItemType(itemType: string | null): string {
+function humaniseItemType(itemType: string | null): string {
   if (!itemType) return 'item';
   if (ITEM_TYPE_LABELS[itemType]) return ITEM_TYPE_LABELS[itemType];
   return itemType.replace(/^ITEM_TYPE_/, '').replace(/_/g, ' ').toLowerCase();

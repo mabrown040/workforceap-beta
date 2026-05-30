@@ -91,10 +91,20 @@ export function withAnonymousGuc<T>(fn: () => Promise<T>): Promise<T> {
  *   export const GET = withApiGuc(async (request) => { ... });
  *   export const GET = withApiGuc(async (request, { params }) => { ... });
  */
+// Static routes (no dynamic segment): handler receives only the request, and
+// the exported route handler is single-arg — matches Next's RouteHandler.
+export function withApiGuc<T, R extends Request = Request>(
+  handler: (request: R) => Promise<T>,
+): (request: Request) => Promise<T>;
+// Dynamic routes: handler receives request + route context (e.g. { params }).
+// Context is required (no `| undefined`) so Next's ParamCheck<RouteContext> passes.
 export function withApiGuc<T, R extends Request = Request, C = unknown>(
   handler: (request: R, context: C) => Promise<T>,
-): (request?: Request, context?: C) => Promise<T> {
-  return async (request?: Request, context?: C) => {
+): (request: Request, context: C) => Promise<T>;
+export function withApiGuc<T, R extends Request = Request, C = unknown>(
+  handler: (request: R, context: C) => Promise<T>,
+): (request: Request, context?: C) => Promise<T> {
+  return async (request: Request, context?: C) => {
     const ctx = await resolveAuthGucContext();
     return runWithGucContext(ctx, () => handler(request as R, context as C));
   };
@@ -108,10 +118,16 @@ export function withApiGuc<T, R extends Request = Request, C = unknown>(
  * API-route wrapper that enforces authentication.
  * Returns 401 if no user is present; otherwise runs with the user's GUC context.
  */
+export function withAuthenticatedApiGuc<T, R extends Request = Request>(
+  handler: (request: R, userId: string) => Promise<T>,
+): (request: Request) => Promise<T>;
 export function withAuthenticatedApiGuc<T, R extends Request = Request, C = unknown>(
   handler: (request: R, userId: string, context: C) => Promise<T>,
-): (request?: Request, context?: C) => Promise<T> {
-  return async (request?: Request, context?: C) => {
+): (request: Request, context: C) => Promise<T>;
+export function withAuthenticatedApiGuc<T, R extends Request = Request, C = unknown>(
+  handler: (request: R, userId: string, context: C) => Promise<T>,
+): (request: Request, context?: C) => Promise<T> {
+  return async (request: Request, context?: C) => {
     const ctx = await resolveAuthGucContext();
     if (ctx.role === 'anonymous') {
       return Response.json({ error: 'Unauthorized' }, { status: 401 }) as unknown as T;

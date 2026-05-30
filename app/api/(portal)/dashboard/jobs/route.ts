@@ -4,12 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { handleApiError } from '@/lib/api/errors';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
-import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
-
-/** Invalidate cached job listings (called after admin approval/rejection) */
-export async function invalidateJobListings(): Promise<void> {
-  await invalidateCache('jobs:list:*');
-}
+import { getCacheOrFetch } from '@/lib/cache';
 
 /** Public jobs listing - only live jobs for students */
 export async function GET(request: NextRequest) {

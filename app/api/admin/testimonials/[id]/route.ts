@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { TestimonialStatus } from '@prisma/client';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export function buildTestimonialRecordWhere(id: string, orgId: string | null) {
+function buildTestimonialRecordWhere(id: string, orgId: string | null) {
   return {
     id,
     deletedAt: null,

@@ -44,7 +44,7 @@ describe('GET /api/admin/funder-program-summary', () => {
   it('returns 401 when unauthenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -53,7 +53,7 @@ describe('GET /api/admin/funder-program-summary', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-1', email: 'user@example.com' } as never);
     vi.mocked(isAdmin).mockResolvedValue(false);
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });
@@ -79,7 +79,7 @@ describe('GET /api/admin/funder-program-summary', () => {
       truncated: false,
     });
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     expect(res.headers.get('Content-Type')).toBe('text/csv; charset=utf-8');
     expect(res.headers.get('Content-Disposition')).toMatch(/funder-program-summary-\d{4}-\d{2}-\d{2}\.csv/);
@@ -97,7 +97,7 @@ describe('GET /api/admin/funder-program-summary', () => {
     vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
     vi.mocked(getFunderProgramSummaryRows).mockResolvedValue({ rows: [], truncated: true });
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost'));
     expect(res.status).toBe(200);
     expect(res.headers.get('X-Export-Truncated')).toBe('true');
     expect(res.headers.get('X-Export-Limit')).toBe('10000');

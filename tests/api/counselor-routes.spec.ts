@@ -286,7 +286,7 @@ describe('GET /api/counselor/dashboard', () => {
       totals: { needsReplyCount: 0, atRiskCount: 0, interviewingCount: 0, slaBreachCount: 0 },
     });
 
-    const res = await getDashboard();
+    const res = await getDashboard(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.assignments).toHaveLength(1);
@@ -308,7 +308,7 @@ describe('GET /api/counselor/dashboard', () => {
       totals: { needsReplyCount: 0, atRiskCount: 0, interviewingCount: 0, slaBreachCount: 0 },
     });
 
-    const res = await getDashboard();
+    const res = await getDashboard(new Request('http://localhost'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.assignments).toEqual([]);
@@ -317,7 +317,7 @@ describe('GET /api/counselor/dashboard', () => {
 
   it('returns 401 when not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
-    const res = await getDashboard();
+    const res = await getDashboard(new Request('http://localhost'));
     expect(res.status).toBe(401);
     const body = await res.json();
     expect(body.error).toBe('Unauthorized');
@@ -329,7 +329,7 @@ describe('GET /api/counselor/dashboard', () => {
     vi.mocked(isCounselor).mockResolvedValue(false);
     vi.mocked(prisma.counselor.findFirst).mockResolvedValue(null);
 
-    const res = await getDashboard();
+    const res = await getDashboard(new Request('http://localhost'));
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe('Forbidden');
@@ -341,7 +341,7 @@ describe('GET /api/counselor/dashboard', () => {
     vi.mocked(isCounselor).mockResolvedValue(true);
     vi.mocked(prisma.counselor.findFirst).mockResolvedValue(null);
 
-    const res = await getDashboard();
+    const res = await getDashboard(new Request('http://localhost'));
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe('Forbidden');
@@ -353,7 +353,7 @@ describe('GET /api/counselor/dashboard', () => {
     vi.mocked(isCounselor).mockResolvedValue(true);
     vi.mocked(prisma.counselor.findFirst).mockRejectedValue(new Error('DB connection lost'));
 
-    const res = await getDashboard();
+    const res = await getDashboard(new Request('http://localhost'));
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.error).toBe('Internal server error');

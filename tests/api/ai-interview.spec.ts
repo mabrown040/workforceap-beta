@@ -40,7 +40,7 @@ vi.mock('@/lib/ai/groq', () => ({
 import { POST as startInterview } from '@/app/api/ai/interview/start/route';
 import { POST as interviewResponse } from '@/app/api/ai/interview/response/route';
 import { GET as interviewResults } from '@/app/api/ai/interview/results/route';
-import { interviewSessions } from '@/app/api/ai/interview/start/route';
+import { interviewSessions } from '@/app/api/ai/interview/_sessionStore';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';

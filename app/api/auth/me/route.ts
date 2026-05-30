@@ -5,6 +5,8 @@ import {
   getPartnerForUser,
   getEmployerAccountForNav,
   getCounselorForUser,
+  getUserRoles,
+  isAdmin,
   isSuperAdmin,
 } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
@@ -43,14 +45,30 @@ export async function GET() {
       );
     }
 
-    const [role, partnerCtx, counselorCtx, superAdmin, employerNav, availablePortals] = await Promise.all([
-      getProfileRole(user.id),
-      getPartnerForUser(user.id),
-      getCounselorForUser(user.id),
-      isSuperAdmin(user.id),
-      getEmployerAccountForNav(user.id),
-      getPortalSwitcherRoles(user.id),
-    ]);
+    // Fetch each primitive once, then hand them to getPortalSwitcherRoles as
+    // precomputed inputs. Previously the switcher re-fetched partner / counselor
+    // / employer / roles / super-admin internally, doubling DB work on this
+    // frequently polled endpoint and amplifying connection-pool pressure
+    // (Sentry JAVASCRIPT-NEXTJS-T: "Unable to start a transaction in the given time").
+    const [role, partnerCtx, counselorCtx, superAdmin, employerNav, userRoleNames, adminAccess] =
+      await Promise.all([
+        getProfileRole(user.id),
+        getPartnerForUser(user.id),
+        getCounselorForUser(user.id),
+        isSuperAdmin(user.id),
+        getEmployerAccountForNav(user.id),
+        getUserRoles(user.id),
+        isAdmin(user.id),
+      ]);
+
+    const availablePortals = await getPortalSwitcherRoles(user.id, {
+      superAdmin,
+      userRoleNames,
+      hasEmployer: !!employerNav,
+      hasPartner: !!partnerCtx,
+      hasCounselor: !!counselorCtx,
+      hasAdmin: adminAccess,
+    });
 
     const partnerExclusive = !!partnerCtx && !superAdmin;
     const canAccessMemberDashboard = !partnerExclusive;

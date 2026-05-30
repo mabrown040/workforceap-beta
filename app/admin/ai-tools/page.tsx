@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
 import { getAiToolsCohortStats } from '@/lib/admin/cohortAnalytics';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -17,6 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminAiToolsAnalyticsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/ai-tools');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const rows = await getAiToolsCohortStats();
 

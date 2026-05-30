@@ -53,9 +53,9 @@ export const PATCH = withApiGuc(async (
   const nextStatus = parsed.data.status;
   const orgId = existing.user.organizationId;
 
-  await prisma.$transaction(async (tx) => {
-    await tx.programChangeRequest.update({
-      where: { id },
+  const review = await prisma.$transaction(async (tx) => {
+    const claim = await tx.programChangeRequest.updateMany({
+      where: { id, status: 'PENDING' },
       data: {
         status: nextStatus,
         adminNote: parsed.data.adminNote ?? null,
@@ -63,6 +63,7 @@ export const PATCH = withApiGuc(async (
         reviewedAt: new Date(),
       },
     });
+    if (claim.count !== 1) return { claimed: false };
 
     if (nextStatus === 'APPROVED') {
       // Approving a counselor-initiated program-change request is a strong
@@ -125,7 +126,12 @@ export const PATCH = withApiGuc(async (
         });
       }
     }
+
+    return { claimed: true };
   });
+  if (!review.claimed) {
+    return NextResponse.json({ error: 'Request is no longer pending' }, { status: 409 });
+  }
 
   // Lifecycle event for approved program changes
   if (nextStatus === 'APPROVED') {

@@ -22,9 +22,11 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
       studentId: user.id,
     },
     include: {
-      job: { 
-        select: { title: true },
-        include: { employer: { select: { companyName: true } } }
+      job: {
+        select: {
+          title: true,
+          employer: { select: { companyName: true } },
+        },
       },
       messages: {
         orderBy: { createdAt: 'asc' },
@@ -122,4 +124,3 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
   }
 }
 export const POST = withApiGuc(_POST);
-

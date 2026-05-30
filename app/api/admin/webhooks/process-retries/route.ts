@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { getPendingRetryEvents, markWebhookForRetry, updateWebhookEventStatus } from '@/lib/webhooks/retry';
+import { getPendingRetryEvents } from '@/lib/webhooks/retry';
+import { processRetryEvent, type RetryResult } from './_processRetries';
 
 /**
  * Admin endpoint to process pending webhook retries.
@@ -22,23 +23,10 @@ export async function POST(request: NextRequest) {
 
     const pending = await getPendingRetryEvents(source, limit);
 
-    const results: Array<{ id: string; source: string; result: 'success' | 'failed' | 'max_retries_exceeded' | 'skipped' }> = [];
+    const results: Array<{ id: string; source: string; result: RetryResult }> = [];
 
     for (const event of pending) {
-      // For now, retries are tracked but actual reprocessing requires webhook-specific logic.
-      // We mark them as failed again to trigger the next retry schedule.
-      // In production, each webhook source would have its own reprocessor.
-      const retryResult = await markWebhookForRetry(
-        event.id,
-        event.retryCount,
-        event.errorMessage ?? 'Retry attempt failed'
-      );
-
-      if (retryResult === 'max_retries_exceeded') {
-        results.push({ id: event.id, source: event.source, result: 'max_retries_exceeded' });
-      } else {
-        results.push({ id: event.id, source: event.source, result: 'failed' });
-      }
+      results.push(await processRetryEvent(event));
     }
 
     const byResult = results.reduce((acc, r) => {

@@ -93,9 +93,12 @@ export class NoopWorkspaceEmailProvider implements WorkspaceEmailProvider {
 }
 
 function readProviderId(): WorkspaceEmailProviderId {
-  const raw = (process.env.WORKSPACE_EMAIL_PROVIDER ?? 'noop').toLowerCase();
+  const configuredProvider = process.env.WORKSPACE_EMAIL_PROVIDER;
+  if (configuredProvider === undefined) return 'noop';
+
+  const raw = configuredProvider.toLowerCase();
   if (raw === 'google' || raw === 'microsoft' || raw === 'noop') return raw;
-  return 'noop';
+  throw new Error(`Invalid WORKSPACE_EMAIL_PROVIDER: ${configuredProvider}. Expected google, microsoft, or noop.`);
 }
 
 /**

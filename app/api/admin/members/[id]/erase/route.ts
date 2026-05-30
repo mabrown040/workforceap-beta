@@ -34,7 +34,12 @@ export const POST = withApiGuc(async (
 
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
-    const force = body.force === true;
+    const requestedForce = body.force === true;
+    const actorIsSuperAdmin = await isSuperAdmin(user.id);
+    if (requestedForce && !actorIsSuperAdmin) {
+      return NextResponse.json({ error: 'Super admin required for force erase' }, { status: 403 });
+    }
+    const force = requestedForce && actorIsSuperAdmin;
     const orgId = await getActorOrganizationId(user.id);
 
     // Tenant scope: lookup + write wrapped in withTenantScope so an
@@ -95,7 +100,7 @@ export const POST = withApiGuc(async (
         targetId: id,
         metadata: { orgId, action: 'anonymize' },
       });
-      const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+      const actorRole = actorIsSuperAdmin ? 'super_admin' : 'admin';
       await logAuditEvent({
         user: { id: user.id, role: actorRole },
         verb: 'voided',
@@ -132,7 +137,7 @@ export const POST = withApiGuc(async (
       targetId: id,
       metadata: { orgId, action: 'hard_delete', force },
     });
-    const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+    const actorRole = actorIsSuperAdmin ? 'super_admin' : 'admin';
     await logAuditEvent({
       user: { id: user.id, role: actorRole },
       verb: 'deleted',

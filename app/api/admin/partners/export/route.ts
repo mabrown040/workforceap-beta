@@ -4,13 +4,17 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { auditLog } from '@/lib/audit';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+    const orgId = await getActorOrganizationId(user.id);
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get('status')?.trim() ?? '';
     const search = searchParams.get('search')?.trim() ?? '';
@@ -27,19 +31,24 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const partners = await prisma.partner.findMany({
-      where,
-      orderBy: { name: 'asc' },
-      take: 500,
-      include: {
-        _count: { select: { counselors: true, referrals: true } },
-      },
-    });
+    const partners = await withTenantScope(orgId, (db) =>
+      db.partner.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        take: 500,
+        include: {
+          _count: { select: { counselors: true, referrals: true } },
+        },
+      }),
+    );
 
-    const subgroups = await prisma.subgroup.findMany({
-      where: { type: 'partner' },
-      select: { id: true, name: true, partnerId: true },
-    });
+    const partnerIds = partners.map((p) => p.id);
+    const subgroups = partnerIds.length > 0
+      ? await prisma.subgroup.findMany({
+          where: { type: 'partner', partnerId: { in: partnerIds } },
+          select: { id: true, name: true, partnerId: true },
+        })
+      : [];
 
     const rows = partners.map((p) => ({
       ...p,
@@ -90,3 +99,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const GET = withApiGuc(_GET);

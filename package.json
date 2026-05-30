@@ -83,7 +83,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
-    "@next/bundle-analyzer": "^16.2.6",
+    "@next/bundle-analyzer": "^15.5.18",
     "@playwright/test": "^1.49.1",
     "@react-email/preview-server": "^5.2.11",
     "@testing-library/jest-dom": "^6.9.1",
@@ -97,7 +97,7 @@
     "autoprefixer": "^10.4.27",
     "critters": "^0.0.25",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.6",
+    "eslint-config-next": "^15.5.18",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "jsdom": "^29.1.1",
     "postcss": "^8.5.14",

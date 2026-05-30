@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { TestimonialStatus } from '@prisma/client';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
+export function buildTestimonialRecordWhere(id: string, orgId: string | null) {
+  return {
+    id,
+    deletedAt: null,
+    ...(orgId ? { member: { organizationId: orgId } } : {}),
+  };
+}
+
+async function getTestimonialRecordWhere(userId: string, id: string) {
+  const orgId = (await isSuperAdmin(userId)) ? null : await getActorOrganizationId(userId);
+  return buildTestimonialRecordWhere(id, orgId);
+}
+
+async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -15,6 +30,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
+    const recordWhere = await getTestimonialRecordWhere(user.id, id);
     let body: Record<string, unknown>;
     try {
       body = await request.json();
@@ -22,8 +38,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
-    const existing = await prisma.testimonial.findUnique({
-      where: { id, deletedAt: null },
+    const existing = await prisma.testimonial.findFirst({
+      where: recordWhere,
     });
     if (!existing)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -120,7 +136,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const PATCH = withApiGuc(_PATCH);async function _DELETE(
+
+export const PATCH = withApiGuc(_PATCH);
+
+async function _DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -131,8 +150,9 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const existing = await prisma.testimonial.findUnique({
-      where: { id, deletedAt: null },
+    const recordWhere = await getTestimonialRecordWhere(user.id, id);
+    const existing = await prisma.testimonial.findFirst({
+      where: recordWhere,
     });
     if (!existing)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });

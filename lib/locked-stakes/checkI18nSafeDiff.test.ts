@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
+
+import { checkI18nSafeDiff } from '../../scripts/locked-stakes/check-i18n-safe-diff.mjs';
 
 test('check-i18n-safe-diff fails closed when a touched locked file has no patch', () => {
   const input = {
@@ -16,15 +17,10 @@ test('check-i18n-safe-diff fails closed when a touched locked file has no patch'
     },
   };
 
-  const result = spawnSync('node', ['scripts/locked-stakes/check-i18n-safe-diff.mjs'], {
-    input: JSON.stringify(input),
-    encoding: 'utf8',
-  });
-
-  assert.equal(result.status, 0);
-  assert.equal(result.stderr, '');
-
-  const parsed = JSON.parse(result.stdout);
+  const parsed = checkI18nSafeDiff(input);
   assert.equal(parsed.safe, false);
+  if (typeof parsed.reason !== 'string') {
+    assert.fail('expected missing-patch failure reason');
+  }
   assert.match(parsed.reason, /app\/page\.tsx: missing locked file patch/);
 });

@@ -20,6 +20,7 @@
 // Reads JSON input from stdin, writes JSON `{ safe, reason }` to stdout.
 
 import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 /**
  * Parse a unified diff patch into lines tagged as added/removed/context.
@@ -221,9 +222,7 @@ function checkMessagesPatch(filename, patch) {
   return { safe: true };
 }
 
-function main() {
-  const raw = readFileSync(0, 'utf8');
-  const input = JSON.parse(raw);
+export function checkI18nSafeDiff(input) {
   const {
     lockedPatterns = [],
     changedFiles = [],
@@ -238,21 +237,19 @@ function main() {
   for (const f of changedFiles) {
     if (lockedPatterns.includes(f)) continue;
     if (messagesRe.test(f)) continue;
-    process.stdout.write(JSON.stringify({
+    return {
       safe: false,
       reason: `Non-locked, non-i18n file changed: ${f}. Bypass only allowed when ONLY locked files + messages/*.json are touched.`,
-    }));
-    process.exit(0);
+    };
   }
 
   const touchedLockedFiles = changedFiles.filter((f) => lockedPatterns.includes(f));
   for (const f of touchedLockedFiles) {
     if (typeof lockedPatches[f] !== 'string' || lockedPatches[f].length === 0) {
-      process.stdout.write(JSON.stringify({
+      return {
         safe: false,
         reason: `${f}: missing locked file patch — bypass requires patch text for every touched locked file.`,
-      }));
-      process.exit(0);
+      };
     }
   }
 
@@ -260,8 +257,7 @@ function main() {
   for (const [f, patch] of Object.entries(messagesPatches)) {
     const r = checkMessagesPatch(f, patch);
     if (!r.safe) {
-      process.stdout.write(JSON.stringify(r));
-      process.exit(0);
+      return r;
     }
   }
 
@@ -269,26 +265,32 @@ function main() {
   // the new keys in messages/en.json.
   const newKeys = diffNewKeys(baseEn, headEn);
   if (Object.keys(newKeys).length === 0) {
-    process.stdout.write(JSON.stringify({
+    return {
       safe: false,
       reason: 'No new messages/en.json keys detected — nothing to verify rewraps against.',
-    }));
-    process.exit(0);
+    };
   }
 
   for (const [f, patch] of Object.entries(lockedPatches)) {
     const r = checkLockedPatch(f, patch, newKeys);
     if (!r.safe) {
-      process.stdout.write(JSON.stringify(r));
-      process.exit(0);
+      return r;
     }
   }
 
-  process.stdout.write(JSON.stringify({
+  return {
     safe: true,
     reason: `Verified ${Object.keys(newKeys).length} new i18n keys match removed literal values across ${Object.keys(lockedPatches).length} locked file(s).`,
-  }));
+  };
+}
+
+function main() {
+  const raw = readFileSync(0, 'utf8');
+  const input = JSON.parse(raw);
+  process.stdout.write(JSON.stringify(checkI18nSafeDiff(input)));
   process.exit(0);
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

@@ -1,5 +1,14 @@
-import nextVitals from "eslint-config-next/core-web-vitals";
+import { FlatCompat } from "@eslint/eslintrc";
 import tseslint from "typescript-eslint";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// eslint-config-next@15.x ships a legacy (eslintrc) config object, not a flat
+// config array. FlatCompat bridges it into the flat config used below.
+const compat = new FlatCompat({
+  baseDirectory: path.dirname(fileURLToPath(import.meta.url)),
+});
+const nextVitals = compat.extends("next/core-web-vitals");
 
 const NO_BARE_TABLE_MESSAGE =
   "Do not render bare <table> in product code. Use the shared <DataTable> from components/portal/ui/DataTable instead so we get consistent column hiding (hideOnMobile), horizontal scroll, density, and admin-table styling. The only exception is the DataTable implementation itself in components/portal/ui/.";

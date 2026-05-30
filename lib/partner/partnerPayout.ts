@@ -9,3 +9,7 @@ export function getPartnerPlacementPayoutUsd(): number {
   if (Number.isFinite(n) && n >= 0) return n;
   return 500;
 }
+
+export function buildPartnerPayoutIdempotencyKey(partnerId: string, placementId: string) {
+  return `partner-payout:${partnerId}:${placementId}`;
+}

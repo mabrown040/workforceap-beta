@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { createPayoutTransfer } from '@/lib/stripe/connect';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
-import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
+import { buildPartnerPayoutIdempotencyKey, getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 import { isPayoutEligibleType } from '@/lib/partner/partnerType';
 import { z } from 'zod';
 
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     const payoutAmount = getPartnerPlacementPayoutUsd();
     const amountCents = Math.round(payoutAmount * 100);
-    const idempotencyKey = `partner-payout:${partnerId}:${placementId}:${Math.floor(Date.now() / 1000 / 60)}`;
+    const idempotencyKey = buildPartnerPayoutIdempotencyKey(partnerId, placementId);
 
     const transfer = await createPayoutTransfer(amountCents, partner.stripeConnectId, {
       partnerId,

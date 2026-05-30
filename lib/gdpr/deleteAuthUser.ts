@@ -4,7 +4,12 @@ type SupabaseAdminClient = ReturnType<typeof getSupabaseAdmin>;
 
 export async function deleteSupabaseAuthUser(
   userId: string,
-  supabaseAdmin: SupabaseAdminClient = getSupabaseAdmin(),
+  supabaseAdmin?: SupabaseAdminClient,
 ) {
-  return supabaseAdmin.auth.admin.deleteUser(userId);
+  try {
+    const admin = supabaseAdmin ?? getSupabaseAdmin();
+    return await admin.auth.admin.deleteUser(userId);
+  } catch (error) {
+    return { error };
+  }
 }

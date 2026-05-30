@@ -89,7 +89,7 @@ export default async function HomePageBelowFold({
         }}
       >
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
-          <h2
+          <span
             id="home-contrast-heading"
             className="text-label-upper"
             style={{
@@ -101,7 +101,7 @@ export default async function HomePageBelowFold({
             }}
           >
             {t('contrastEyebrow')}
-          </h2>
+          </span>
           <ul
             style={{
               listStyle: 'none',

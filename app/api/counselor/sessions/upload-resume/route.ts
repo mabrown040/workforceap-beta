@@ -55,11 +55,12 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     if (!onBehalf.ok) {
       return NextResponse.json({ error: onBehalf.error }, { status: onBehalf.status });
     }
+    const authorizedMemberId = onBehalf.subjectUserId;
   
-    const orgId = await getSubjectOrganizationId(memberId);
+    const orgId = await getSubjectOrganizationId(authorizedMemberId);
     const member = await withTenantScope(orgId, (db) =>
       db.user.findFirst({
-        where: { id: memberId },
+        where: { id: authorizedMemberId },
         select: { id: true },
       }),
     );
@@ -79,7 +80,7 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     }
   
     const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
-    const path = `${memberId}/resume-original.${ext}`;
+    const path = `${authorizedMemberId}/resume-original.${ext}`;
     const supabase = getSupabaseAdmin();
   
     const { error: storageError } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
@@ -93,8 +94,8 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     }
   
     await prisma.profile.upsert({
-      where: { userId: memberId },
-      create: { userId: memberId, resumeOriginalPath: path },
+      where: { userId: authorizedMemberId },
+      create: { userId: authorizedMemberId, resumeOriginalPath: path },
       update: { resumeOriginalPath: path },
     });
   

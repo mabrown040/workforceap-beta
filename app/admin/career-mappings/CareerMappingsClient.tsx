@@ -269,7 +269,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
       {/* Search */}
       <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '0.75rem 1rem', borderRadius: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.25rem' }}>search</span>
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.25rem' }}>search</span>
           <input
             ref={searchRef}
             type="search"
@@ -279,8 +279,8 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
             style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}
           />
           {searchQ && (
-            <button type="button" onClick={() => { setSearchQ(''); setSearchResults([]); setSearchError(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-on-surface-variant)', display: 'flex' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>close</span>
+            <button type="button" aria-label="Clear search" onClick={() => { setSearchQ(''); setSearchResults([]); setSearchError(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-on-surface-variant)', display: 'flex' }}>
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>close</span>
             </button>
           )}
         </div>
@@ -326,7 +326,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
               <div key={p.slug} className="portal-card portal-card--flat" style={{ padding: '1.125rem' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.75rem' }}>
                   <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem', background: p.categoryColor ? `${p.categoryColor}22` : 'rgba(173,44,77,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: p.categoryColor ?? 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>school</span>
+                    <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.125rem', color: p.categoryColor ?? 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>school</span>
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>{p.category ?? 'Program'}</p>
@@ -355,7 +355,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                   style={{ marginTop: '0.875rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                 >
                   Find O*NET matches
-                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>search</span>
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.875rem' }}>search</span>
                 </button>
               </div>
             ))}
@@ -373,7 +373,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                   onClick={() => { setSelectedOcc(null); setMappings([]); setAutoMatches([]); setMessage(null); setSearchError(null); }}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-accent)', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.8125rem', fontWeight: 700 }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>arrow_back</span>
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>arrow_back</span>
                   All programs
                 </button>
                 <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 700, color: 'var(--color-on-surface-variant)', background: 'var(--surface-container)', padding: '0.15rem 0.4rem', borderRadius: '0.25rem' }}>
@@ -390,9 +390,10 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
               disabled={syncLoading}
               className="btn btn-outline btn-sm"
               style={{ flexShrink: 0 }}
+              aria-busy={syncLoading}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>sync</span>
-              {syncLoading ? 'Syncing…' : 'Sync from O*NET'}
+              <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>sync</span>
+              <span aria-live="polite">{syncLoading ? 'Syncing…' : 'Sync from O*NET'}</span>
             </button>
           </div>
 
@@ -417,7 +418,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                   </div>
                 ) : autoMatches.length === 0 ? (
                   <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', textAlign: 'center' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }}>auto_awesome</span>
+                    <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '2rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem' }}>auto_awesome</span>
                     <p style={{ color: 'var(--color-on-surface-variant)', margin: 0, fontSize: '0.875rem' }}>
                       No AI matches found. Try syncing the occupation from O*NET first, then add mappings manually.
                     </p>
@@ -431,7 +432,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                         <div key={match.programSlug} className="portal-card portal-card--flat" style={{ padding: '1rem', display: 'flex', alignItems: 'flex-start', gap: '1rem', opacity: already ? 0.6 : 1 }}>
                           {/* Program icon */}
                           <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.625rem', background: prog?.categoryColor ? `${prog.categoryColor}22` : 'rgba(173,44,77,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: prog?.categoryColor ?? 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>school</span>
+                            <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1.125rem', color: prog?.categoryColor ?? 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>school</span>
                           </div>
                           {/* Info */}
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -456,7 +457,7 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                             </div>
                             {already ? (
                               <span style={{ fontSize: '0.75rem', color: 'var(--color-green, #4a9b4f)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                                 Mapped
                               </span>
                             ) : (
@@ -466,20 +467,22 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                                   onClick={() => void approveAutoMatch(match)}
                                   disabled={loading || approvingSlug === match.programSlug}
                                   style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.375rem 0.875rem', borderRadius: '0.5rem', background: 'var(--color-accent)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}
+                                  aria-busy={approvingSlug === match.programSlug}
                                 >
                                   {approvingSlug === match.programSlug ? (
-                                    <><span className="material-symbols-outlined" style={{ fontSize: '0.875rem', animation: 'spin 1s linear infinite' }}>progress_activity</span>Approving…</>
+                                    <><span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.875rem', animation: 'spin 1s linear infinite' }}>progress_activity</span><span aria-live="polite">Approving…</span></>
                                   ) : (
-                                    <><span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>check</span>Approve</>
+                                    <><span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>check</span>Approve</>
                                   )}
                                 </button>
                                 <button
                                   type="button"
+                                  aria-label="Dismiss suggestion"
                                   onClick={() => rejectAutoMatch(match)}
                                   title="Dismiss suggestion"
                                   style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.375rem 0.625rem', borderRadius: '0.5rem', background: 'transparent', color: 'var(--color-on-surface-variant)', border: '1px solid var(--outline-variant)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                                 >
-                                  <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>close</span>
+                                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '0.875rem' }}>close</span>
                                 </button>
                               </div>
                             )}
@@ -542,12 +545,14 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                   type="button"
                   onClick={() => setShowManualForm((v) => !v)}
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'none', border: 'none', cursor: 'pointer', marginBottom: showManualForm ? '1rem' : 0 }}
+                  aria-expanded={showManualForm}
+                  aria-controls="manual-mapping-form"
                 >
                   <h3 style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: 0 }}>Add Manual Mapping</h3>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: showManualForm ? 'rotate(180deg)' : 'none' }}>expand_more</span>
+                  <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', transition: 'transform 0.2s', transform: showManualForm ? 'rotate(180deg)' : 'none' }}>expand_more</span>
                 </button>
                 {showManualForm && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+                  <div id="manual-mapping-form" style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
                     <div>
                       <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Program</label>
                       <select
@@ -608,8 +613,9 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                       disabled={loading}
                       className="btn btn-primary"
                       style={{ width: '100%' }}
+                      aria-busy={loading}
                     >
-                      {loading ? 'Saving…' : 'Save Mapping'}
+                      <span aria-live="polite">{loading ? 'Saving…' : 'Save Mapping'}</span>
                     </button>
                   </div>
                 )}

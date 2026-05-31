@@ -54,7 +54,7 @@ const patchSchema = z.object({
         return NextResponse.json({ ok: true });
       }
   
-      const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
+      const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true, organizationId: orgId } });
       if (!partner) {
         return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
       }

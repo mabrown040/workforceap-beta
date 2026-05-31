@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
+import { createHash, timingSafeEqual } from 'crypto';
 import {
   runDailyAtRiskCounselorAlerts,
   runMemberRetentionNudges,
 } from '@/lib/cron/at-risk-alerts';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+
+function verifyCronSecret(req: Request): boolean {
+  const provided = req.headers.get('x-cron-secret') || '';
+  const expected = process.env.CRON_SECRET || '';
+  if (!expected || !provided) return false;
+  const expectedHash = createHash('sha256').update(expected, 'utf8').digest();
+  const actualHash = createHash('sha256').update(provided, 'utf8').digest();
+  return timingSafeEqual(actualHash, expectedHash);
+}
 
 /**
  * POST /api/cron/at-risk-alerts
@@ -20,6 +30,10 @@ import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
  * Vercel Cron schedule: 0 13 * * * (1pm UTC = 8am CDT)
  */
 async function handle(_request: Request) {
+  if (!verifyCronSecret(_request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const counselorResult = await runDailyAtRiskCounselorAlerts();
   const nudgeResult = await runMemberRetentionNudges();
   const recordsProcessed =

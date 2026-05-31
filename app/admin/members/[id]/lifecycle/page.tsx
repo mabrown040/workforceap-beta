@@ -4,7 +4,7 @@ import { redirect, notFound } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 import StatusBadge from '@/components/portal/StatusBadge';
 
@@ -26,10 +26,11 @@ export default async function AdminMemberLifecyclePage({
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const { id: memberId } = await params;
+  const orgId = await getActorOrganizationId(user.id);
 
   const [member, enrollment, events] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: memberId },
+    prisma.user.findFirst({
+      where: { id: memberId, organizationId: orgId },
       select: {
         id: true,
         fullName: true,

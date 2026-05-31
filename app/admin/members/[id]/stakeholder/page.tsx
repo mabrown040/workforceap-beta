@@ -8,6 +8,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { loadLearnerProgressByUserId } from '@/lib/coursera/progressQueries';
 
 import PageHeader from '@/components/portal/PageHeader';
@@ -68,11 +69,12 @@ export default async function AdminMemberStakeholderPage({
   if (!hasAdmin) redirect('/dashboard');
 
   const { id } = await params;
+  const orgId = await getActorOrganizationId(user.id);
 
   // Mirror the admin detail page select shape so the two views never
   // diverge on what counts as "current state".
-  const member = await prisma.user.findUnique({
-    where: { id },
+  const member = await prisma.user.findFirst({
+    where: { id, organizationId: orgId },
     select: {
       id: true,
       email: true,

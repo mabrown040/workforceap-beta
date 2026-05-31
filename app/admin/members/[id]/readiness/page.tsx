@@ -5,7 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getProgramBySlug } from '@/lib/content/programs';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import ReadinessCounselorClient from './ReadinessCounselorClient';
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -27,9 +27,10 @@ export default async function AdminMemberReadinessPage({
   if (!hasAdmin) redirect('/dashboard');
 
   const { id } = await params;
+  const orgId = await getActorOrganizationId(user.id);
 
-  const member = await prisma.user.findUnique({
-    where: { id },
+  const member = await prisma.user.findFirst({
+    where: { id, organizationId: orgId },
   });
 
   if (!member || member.deletedAt) notFound();

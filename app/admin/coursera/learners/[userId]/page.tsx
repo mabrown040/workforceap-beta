@@ -78,8 +78,15 @@ export default async function AdminCourseraLearnerPage({
   if (!actor) redirect(`/login?redirectTo=/admin/coursera/learners/${userId}`);
   if (!(await isAdmin(actor.id))) redirect('/dashboard');
 
+  const actorOrgId = await getActorOrganizationId(actor.id);
+  const isSuper = await isSuperAdmin(actor.id);
+
   const member = await prisma.user.findUnique({
-    where: { id: userId, deletedAt: null },
+    where: {
+      id: userId,
+      deletedAt: null,
+      ...(isSuper ? {} : { organizationId: actorOrgId }),
+    },
     select: {
       id: true,
       fullName: true,

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { cleanupCreatedEmployerSignupAuthUser } from './route';
+import { cleanupCreatedEmployerSignupAuthUser } from './_signupCleanup';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 test('cleanupCreatedEmployerSignupAuthUser deletes the created auth user', async () => {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getUser } from '@/lib/auth/server';
-import { isAdminInOrg } from '@/lib/auth/roles';
+import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
 import {
   getCourseGradebookReports,
   getEnrollmentReports,

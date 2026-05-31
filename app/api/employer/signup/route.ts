@@ -7,6 +7,7 @@ import { employerSignupSchema } from '@/lib/validation/employer';
 import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { sendEmployerWelcomeEmail, sendEmployerSignupAdminAlertEmail } from '@/lib/email';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { cleanupCreatedEmployerSignupAuthUser } from './_signupCleanup';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -14,20 +15,6 @@ function getClientIp(request: NextRequest): string {
     request.headers.get('x-real-ip') ||
     'unknown'
   );
-}
-
-export async function cleanupCreatedEmployerSignupAuthUser(
-  admin: ReturnType<typeof getSupabaseAdmin>,
-  userId: string
-): Promise<void> {
-  try {
-    const { error } = await admin.auth.admin.deleteUser(userId);
-    if (error) {
-      console.error('Employer signup auth cleanup failed:', error);
-    }
-  } catch (cleanupError) {
-    console.error('Employer signup auth cleanup failed:', cleanupError);
-  }
 }
 
 export async function POST(request: NextRequest) {

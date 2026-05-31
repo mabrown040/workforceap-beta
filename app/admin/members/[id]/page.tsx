@@ -72,7 +72,6 @@ export default async function AdminMemberDetailPage({
   if (!hasAdmin) redirect('/dashboard');
 
   const { id } = await params;
-  const orgId = await getActorOrganizationId(user.id);
 
   const fullMemberSelect = {
     id: true,
@@ -165,10 +164,10 @@ export default async function AdminMemberDetailPage({
     updatedAt: true,
   } as const;
 
-  const sharedQueries = (actorOrgId: string) => [
+  const sharedQueries = () => [
     prisma.partner.findMany({
       take: 5000,
-      where: { active: true, organizationId: actorOrgId },
+      where: { active: true },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     }),
@@ -178,7 +177,6 @@ export default async function AdminMemberDetailPage({
     }),
     prisma.subgroup.findMany({
       take: 5000,
-      where: { organizationId: actorOrgId },
       orderBy: { name: 'asc' },
       select: { id: true, name: true, type: true },
     }),
@@ -189,7 +187,7 @@ export default async function AdminMemberDetailPage({
     }),
     prisma.counselor.findMany({
       take: 5000,
-      where: { active: true, organizationId: actorOrgId },
+      where: { active: true },
       orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
       include: {
         user: { select: { fullName: true } },
@@ -234,8 +232,8 @@ export default async function AdminMemberDetailPage({
   try {
     [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment, pendingPlacementEvents] =
       await Promise.all([
-        prisma.user.findFirst({ where: { id, organizationId: orgId }, select: fullMemberSelect }),
-        ...sharedQueries(orgId),
+        prisma.user.findUnique({ where: { id }, select: fullMemberSelect }),
+        ...sharedQueries(),
       ]);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error ?? '');
@@ -250,8 +248,8 @@ export default async function AdminMemberDetailPage({
 
     [member, partners, partnerReferral, subgroups, memberSubgroups, counselorRows, activeCounselorAssign, placedOutcomeRow, courseEnrollment, pendingPlacementEvents] =
       await Promise.all([
-        prisma.user.findFirst({ where: { id, organizationId: orgId }, select: fallbackMemberSelect }),
-        ...sharedQueries(orgId),
+        prisma.user.findUnique({ where: { id }, select: fallbackMemberSelect }),
+        ...sharedQueries(),
       ]);
 
     if (member) {
@@ -284,9 +282,10 @@ export default async function AdminMemberDetailPage({
     where: { userId: member.id },
   });
 
+  const organizationId = await getActorOrganizationId(user.id);
   const catalogPrograms = await prisma.organizationProgramCatalog.findMany({
     take: 5000,
-    where: { organizationId: orgId },
+    where: { organizationId },
     orderBy: [{ displayOrder: 'asc' }, { name: 'asc' }],
     select: { programSlug: true, name: true, status: true },
   });

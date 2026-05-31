@@ -182,7 +182,6 @@ export async function POST(
         where: { id, status: 'approved' },
         data: {
           status: 'dispatch_failed',
-          dispatchError: dispatchErr instanceof Error ? dispatchErr.message : 'unknown',
         },
       });
       return NextResponse.json(

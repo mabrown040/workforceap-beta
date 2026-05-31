@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { buildPageMetadata } from '@/app/seo';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { isSuperAdmin } from '@/lib/auth/roles';
 import { getUser } from '@/lib/auth/server';
 import { getProfileRole, isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';

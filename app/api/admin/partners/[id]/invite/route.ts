@@ -22,6 +22,20 @@ async function ensurePartnerUserLink(userId: string, partnerId: string) {
 
   if (existing) {
     if (existing.partnerId !== partnerId) {
+      // Block cross-org partner moves: verify the new partner is in the
+      // same organization as the existing partner before relinking.
+      const [oldPartner, newPartner] = await Promise.all([
+        prisma.partner.findFirst({ where: { id: existing.partnerId }, select: { organizationId: true } }),
+        prisma.partner.findFirst({ where: { id: partnerId }, select: { organizationId: true } }),
+      ]);
+      if (oldPartner?.organizationId && newPartner?.organizationId &&
+          oldPartner.organizationId !== newPartner.organizationId) {
+        throw new Error(
+          `Cross-tenant partner relink blocked: existing partner ${existing.partnerId} ` +
+          `is in org ${oldPartner.organizationId}, target partner ${partnerId} ` +
+          `is in org ${newPartner.organizationId}.`
+        );
+      }
       await prisma.partnerUser.update({
         where: { id: existing.id },
         data: { partnerId },
@@ -43,10 +57,18 @@ async function ensurePartnerInviteUser(params: {
 }) {
   const existing = await prisma.user.findFirst({
     where: { id: params.userId },
-    select: { id: true },
+    select: { id: true, organizationId: true },
   });
 
   if (existing) {
+    // Block cross-organization moves: if the user already exists in a
+    // different org, reject instead of silently overwriting their tenant.
+    if (existing.organizationId && existing.organizationId !== params.organizationId) {
+      throw new Error(
+        `User already belongs to organization ${existing.organizationId}. ` +
+        `Cross-tenant partner invites are not allowed.`
+      );
+    }
     await prisma.user.update({
       where: { id: params.userId },
       data: {

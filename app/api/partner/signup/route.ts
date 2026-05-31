@@ -243,7 +243,14 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       );
     }
 
-    // Sign in to create session (set cookies)
+    // Build response early so Supabase setAll can set cookies on it
+    let response = NextResponse.json({
+      ok: true,
+      redirectTo: '/partner',
+      message: 'Your partner account has been created. You can now access your portal.',
+    });
+
+    // Sign in to create session (set cookies via Supabase SSR)
     const cookieStore = await cookies();
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookieOptions: getSupabaseCookieOptions(),
@@ -252,7 +259,9 @@ export const POST = withApiGuc(async (request: NextRequest) => {
           return cookieStore.getAll();
         },
         setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
-          // We'll forward cookies via response headers below
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+          });
         },
       },
     });
@@ -276,24 +285,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       );
     }
 
-    // Build response with session cookies
-    const response = NextResponse.json({
-      ok: true,
-      redirectTo: '/partner',
-      message: 'Your partner account has been created. You can now access your portal.',
-    });
-
-    // Set Supabase session cookies on the response
-    const { session } = signInData;
-    const cookieOptions = getSupabaseCookieOptions();
-    response.cookies.set('sb-access-token', session.access_token, {
-      ...cookieOptions,
-      maxAge: session.expires_in,
-    });
-    response.cookies.set('sb-refresh-token', session.refresh_token, {
-      ...cookieOptions,
-      maxAge: 60 * 60 * 24 * 30,
-    });
+    // Session cookies are already set by Supabase SSR setAll above
+    // No need for manual cookie setting
 
     // Send welcome email
     const resendKey = process.env.RESEND_API_KEY;

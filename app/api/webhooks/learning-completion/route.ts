@@ -107,7 +107,7 @@ export async function POST(req: Request) {
     eventId = data.eventId;
     const dedupeKey = buildDedupeKey(data, rawBody);
 
-    const idempotency = await checkIdempotency(dedupeKey);
+    const idempotency = await checkIdempotency(dedupeKey, data);
     if (idempotency === 'already_processed') {
       await logWebhookEvent({
         source: 'learning-completion',

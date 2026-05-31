@@ -96,11 +96,15 @@ type XapiCourseLogMember = {
 };
 
 async function loadXapiCourseProgressSummary(
+  organizationId: string,
   members: XapiCourseLogMember[]
 ): Promise<XapiCourseProgressSummary | null> {
   try {
     const summaryRows = await prisma.$queryRaw<Array<{ total: bigint; latest: Date | null }>>`
-      SELECT COUNT(*)::bigint AS total, MAX(last_updated_at) AS latest FROM course_progress
+      SELECT COUNT(*)::bigint AS total, MAX(cp.last_updated_at) AS latest
+      FROM course_progress cp
+      JOIN users u ON u.id = cp.user_id
+      WHERE u.organization_id = ${organizationId}
     `;
     const top = await prisma.$queryRaw<
       Array<{
@@ -131,6 +135,7 @@ async function loadXapiCourseProgressSummary(
         cp.last_activity_at AS "lastActivityAt"
       FROM course_progress cp
       JOIN users u ON u.id = cp.user_id
+      WHERE u.organization_id = ${organizationId}
       ORDER BY cp.last_updated_at DESC
       LIMIT 10
     `;
@@ -209,10 +214,13 @@ async function loadXapiCourseProgressSummary(
   }
 }
 
-async function loadCourseProgressSummary(): Promise<CourseProgressSummary | null> {
+async function loadCourseProgressSummary(organizationId: string): Promise<CourseProgressSummary | null> {
   try {
     const summaryRows = await prisma.$queryRaw<Array<{ total: bigint | number; latest: Date | null }>>`
-      SELECT COUNT(*)::bigint AS total, MAX(last_synced_at) AS latest FROM coursera_course_progress
+      SELECT COUNT(*)::bigint AS total, MAX(ccp.last_synced_at) AS latest
+      FROM coursera_course_progress ccp
+      JOIN users u ON u.id = ccp.user_id
+      WHERE u.organization_id = ${organizationId}
     `;
     const top = await prisma.$queryRaw<Array<{
       id: string;
@@ -240,7 +248,8 @@ async function loadCourseProgressSummary(): Promise<CourseProgressSummary | null
         u.full_name AS "userFullName",
         u.email AS "userEmail"
       FROM coursera_course_progress ccp
-      LEFT JOIN users u ON u.id = ccp.user_id
+      JOIN users u ON u.id = ccp.user_id
+      WHERE u.organization_id = ${organizationId}
       ORDER BY ccp.overall_progress DESC, ccp.last_activity_time DESC NULLS LAST
       LIMIT 10
     `;
@@ -396,8 +405,8 @@ export default async function AdminCourseraPage({
     console.error('[admin/coursera] failed to load mapping data:', error);
   }
 
-  const courseProgress = await loadCourseProgressSummary();
-  const xapiCourseProgress = await loadXapiCourseProgressSummary(members);
+  const courseProgress = await loadCourseProgressSummary(organizationId);
+  const xapiCourseProgress = await loadXapiCourseProgressSummary(organizationId, members);
   const badgeProgress = await loadBadgeProgressSummary();
   const unmatchedLearners = await loadUnmatchedLearners(100, {
     includeTestAccounts: showTestAccounts,

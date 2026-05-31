@@ -35,7 +35,10 @@ const postSchema = z.object({
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const subgroup = await prisma.subgroup.findUnique({ where: { id: parsed.data.subgroupId } });
+  const subgroup = await prisma.subgroup.findFirst({
+    where: { id: parsed.data.subgroupId, leader: { organizationId: orgId } },
+    select: { id: true },
+  });
   if (!subgroup) {
     return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
   }
@@ -77,13 +80,32 @@ export const POST = withApiGuc(_POST);async function _DELETE(
   }
 
   const { id: memberId } = await params;
+  const orgId = await getActorOrganizationId(user.id);
   const subgroupId = request.nextUrl.searchParams.get('subgroup');
   if (!subgroupId) {
     return NextResponse.json({ error: 'subgroup query param required' }, { status: 400 });
   }
 
+  const member = await prisma.user.findFirst({ where: { id: memberId, organizationId: orgId }, select: { id: true, deletedAt: true } });
+  if (!member || member.deletedAt) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+  }
+
+  const subgroup = await prisma.subgroup.findFirst({
+    where: { id: subgroupId, leader: { organizationId: orgId } },
+    select: { id: true },
+  });
+  if (!subgroup) {
+    return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
+  }
+
   const deleted = await prisma.memberSubgroup.deleteMany({
-    where: { memberId, subgroupId },
+    where: {
+      memberId,
+      subgroupId,
+      member: { organizationId: orgId },
+      subgroup: { leader: { organizationId: orgId } },
+    },
   });
 
   if (deleted.count === 0) {
@@ -98,4 +120,3 @@ export const POST = withApiGuc(_POST);async function _DELETE(
   }
 }
 export const DELETE = withApiGuc(_DELETE);
-

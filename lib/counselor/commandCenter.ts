@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db/prisma';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { resolveAdminEnrolledMemberIds } from '@/lib/counselor/adminMemberScope';
 
 /**
  * Counselor Command Center — Today's priorities.
@@ -71,13 +71,7 @@ export async function getCounselorCommandCenter(
   // Scope: which member IDs is this counselor responsible for?
   let memberIds: string[] = [];
   if (options?.isAdmin) {
-    const organizationId = await getActorOrganizationId(counselorUserId);
-    const allMembers = await prisma.user.findMany({
-      where: { organizationId, deletedAt: null, enrolledProgram: { not: null } },
-      select: { id: true },
-      take: 200,
-    });
-    memberIds = allMembers.map((m) => m.id);
+    memberIds = await resolveAdminEnrolledMemberIds(counselorUserId, 200);
   } else {
     const counselor = await prisma.counselor.findFirst({
       where: { userId: counselorUserId, active: true },

@@ -7,6 +7,7 @@ import { memberSignupSchema } from '@/lib/validation/member';
 import { checkSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { trackEvent } from '@/lib/events/track';
 import { getConversionValuePayload } from '@/lib/analytics/conversionValue';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const databaseUrl =
       process.env.POSTGRES_PRISMA_URL || process.env.DATABASE_URL;
   
@@ -78,6 +80,16 @@ export async function POST(request: NextRequest) {
         {
           error:
             'Database is not configured. The Supabase integration should add POSTGRES_PRISMA_URL. If missing, add it in Vercel (from Supabase Dashboard → Project Settings → Database).',
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!supabaseServiceRoleKey) {
+      return NextResponse.json(
+        {
+          error:
+            'Supabase admin operations are not configured. Add SUPABASE_SERVICE_ROLE_KEY in your Vercel project settings.',
         },
         { status: 500 }
       );
@@ -146,6 +158,11 @@ export async function POST(request: NextRequest) {
       await createMember(user.id, data);
     } catch (err) {
       console.error('Signup member creation error:', err);
+      await getSupabaseAdmin()
+        .auth.admin.deleteUser(user.id)
+        .catch((cleanupErr) => {
+          console.error('Failed to clean up auth user after member creation error:', cleanupErr);
+        });
       return NextResponse.json(
         { error: 'Account creation failed. Please try again.' },
         { status: 500 }

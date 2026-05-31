@@ -30,7 +30,10 @@ export function buildDedupeKey(data: z.infer<typeof webhookSchema>, rawBody: str
   return `wh:learning-completion:${createHash('sha256').update(rawBody, 'utf8').digest('hex')}`;
 }
 
-export async function checkIdempotency(dedupeKey: string): Promise<'fresh' | 'already_processed'> {
+export async function checkIdempotency(
+  dedupeKey: string,
+  payload?: z.infer<typeof webhookSchema>
+): Promise<'fresh' | 'already_processed'> {
   // Use xapi_statement table for idempotency tracking (synthetic verb)
   const existing = await prisma.xapiStatement.findUnique({
     where: { statementId: dedupeKey },
@@ -54,11 +57,12 @@ export async function checkIdempotency(dedupeKey: string): Promise<'fresh' | 'al
         actorEmail: null,
         verb: 'workforceap.learning-completion.webhook',
         courseId: null,
-        courseName: null,
+        courseName: payload?.courseName.trim() ?? null,
         resultScoreScaled: null,
         resultScoreRaw: null,
         resultCompletion: null,
         resultSuccess: null,
+        payload: payload ?? undefined,
         processed: false,
       },
     });

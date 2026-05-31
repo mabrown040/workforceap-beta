@@ -231,22 +231,19 @@ const bodySchema = z.object({
             enrollmentId = newEnrollment.id;
           }
 
+          await upsertCourseraIdentityMapping({
+            userId: createdUser.id,
+            courseraEmail: email,
+            actorIdentifier: externalIdToUse,
+            actorHomePage: 'coursera.org',
+            createdByUserId: user.id,
+            source: 'coursera-reconcile-add-to-wap',
+            notes: `Added via Coursera reconcile UI. Coursera programId=${programId}.`,
+          }, tx);
+
           return { ...createdUser, enrollmentId };
         }),
       );
-  
-      // Identity mapping is in its own raw-SQL helper (lives outside the
-      // Prisma client) — call it after the transaction so the helper sees
-      // the committed user row.
-      await upsertCourseraIdentityMapping({
-        userId: result.id,
-        courseraEmail: email,
-        actorIdentifier: externalIdToUse,
-        actorHomePage: 'coursera.org',
-        createdByUserId: user.id,
-        source: 'coursera-reconcile-add-to-wap',
-        notes: `Added via Coursera reconcile UI. Coursera programId=${programId}.`,
-      });
 
       // Sprint R3 — fire-and-forget kickoff email (idempotent per enrollment row).
       if (result.enrollmentId && programSlug) {

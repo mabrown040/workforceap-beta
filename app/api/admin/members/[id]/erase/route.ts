@@ -35,6 +35,15 @@ export const POST = withApiGuc(async (
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
     const force = body.force === true;
+    
+    // Force erase is only allowed for super-admins
+    if (force && !(await isSuperAdmin(user.id))) {
+      return NextResponse.json(
+        { error: 'Forbidden: force erase requires super-admin privileges' },
+        { status: 403 }
+      );
+    }
+
     const orgId = await getActorOrganizationId(user.id);
 
     // Tenant scope: lookup + write wrapped in withTenantScope so an

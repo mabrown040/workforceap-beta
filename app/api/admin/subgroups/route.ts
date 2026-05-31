@@ -70,18 +70,28 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
+  const orgId = await getActorOrganizationId(user.id);
+
   const { name, type, leaderId, partnerId, description } = parsed.data;
 
   if (type === 'partner' && partnerId) {
-    const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
+    const partner = await prisma.partner.findFirst({
+      where: { id: partnerId, active: true, ...(await isSuperAdmin(user.id) ? {} : { organizationId: orgId }) },
+    });
     if (!partner) {
-      return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid, inactive, or cross-tenant partner' }, { status: 400 });
     }
   }
 
-  const leader = await prisma.user.findUnique({ where: { id: leaderId }, select: { id: true } });
+  const leader = await prisma.user.findFirst({
+    where: {
+      id: leaderId,
+      ...(await isSuperAdmin(user.id) ? {} : { organizationId: orgId }),
+    },
+    select: { id: true },
+  });
   if (!leader) {
-    return NextResponse.json({ error: 'Leader user not found' }, { status: 400 });
+    return NextResponse.json({ error: 'Leader user not found or not in your organization' }, { status: 400 });
   }
 
   const subgroup = await prisma.subgroup.create({

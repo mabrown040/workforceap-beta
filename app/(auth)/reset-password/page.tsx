@@ -26,7 +26,7 @@ function ResetPasswordForm() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (!active) return;
-      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+      if (event === 'PASSWORD_RECOVERY') {
         setVerifyError(null);
         setStage('ready');
       }
@@ -72,6 +72,12 @@ function ResetPasswordForm() {
       }
 
       if (code) {
+        const codeType = searchParams?.get('type');
+        if (codeType !== 'recovery') {
+          setVerifyError(invalidLinkMessage);
+          setStage('error');
+          return;
+        }
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!active) return;
         if (error) {
@@ -81,16 +87,6 @@ function ResetPasswordForm() {
           setVerifyError(null);
           setStage('ready');
         }
-        return;
-      }
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!active) return;
-      if (session) {
-        setVerifyError(null);
-        setStage('ready');
         return;
       }
 

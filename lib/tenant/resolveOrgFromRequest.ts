@@ -80,9 +80,11 @@ export async function resolveOrgFromRequest(
   const lookup = options.lookup ?? defaultLookup;
   const fallback = options.defaultOrgId ?? getDefaultOrganizationId;
 
-  // 1. Middleware already attached an orgId — trust it.
+  // 1. Middleware already attached an orgId — trust it ONLY when
+  // x-wap-host is also present (proves middleware ran, not client spoofing).
   const directOrgId = headers.get(WAP_ORG_ID_HEADER);
-  if (directOrgId) return directOrgId;
+  const hostHeader = headers.get(WAP_HOST_HEADER);
+  if (directOrgId && hostHeader) return directOrgId;
 
   // 2. Try to resolve via the host header set by middleware.
   const host = normalizeHost(headers.get(WAP_HOST_HEADER) ?? headers.get('host'));
@@ -115,8 +117,11 @@ export async function tryResolveOrgFromRequest(
   const cache = options.cache ?? customDomainCache;
   const lookup = options.lookup ?? defaultLookup;
 
+  // 1. Middleware already attached an orgId — trust it ONLY when
+  // x-wap-host is also present (proves middleware ran, not client spoofing).
   const directOrgId = headers.get(WAP_ORG_ID_HEADER);
-  if (directOrgId) return directOrgId;
+  const hostHeader = headers.get(WAP_HOST_HEADER);
+  if (directOrgId && hostHeader) return directOrgId;
 
   const host = normalizeHost(headers.get(WAP_HOST_HEADER) ?? headers.get('host'));
   if (!host || isCanonicalHost(host)) return null;

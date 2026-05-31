@@ -181,6 +181,8 @@ export async function POST(request: NextRequest) {
 
     if (signInError || !signInData.session) {
       console.error('Employer auto-login failed:', signInError);
+      // Clean up orphaned auth user since employer profile was not fully created
+      await cleanupCreatedEmployerSignupAuthUser(admin, user.id);
       // Fallback: return success without session, ask them to log in
       return NextResponse.json({
         success: true,

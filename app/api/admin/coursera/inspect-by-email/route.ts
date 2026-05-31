@@ -44,7 +44,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
  *
  * Pagination cap:
  *   - Coursera roster pagination capped at `ROSTER_PAGE_CAP` pages of
- *     1000 — if the email isn't found within that window we report
+ *     1000 - if the email isn't found within that window we report
  *     `foundInRoster=false` plus a soft "did-not-find-within-cap" note
  *     in `diagnosis` rather than throwing.
  */
@@ -140,7 +140,7 @@ function epochToIso(value: number | null | undefined): string | null {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-  
+
     let orgId: string;
     try {
       orgId = await getActorOrganizationId(user.id);
@@ -148,11 +148,11 @@ function epochToIso(value: number | null | undefined): string | null {
       captureApiError(err, { route: 'admin/coursera/inspect-by-email' });
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  
+
     if (!(await isAdminInOrg(user.id, orgId))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  
+
     const url = new URL(request.url);
     const rawEmail = url.searchParams.get('email') ?? '';
     const email = normEmail(rawEmail);
@@ -162,12 +162,12 @@ function epochToIso(value: number | null | undefined): string | null {
         { status: 400 },
       );
     }
-  
+
     const programId =
       url.searchParams.get('programId')?.trim() ||
       process.env.COURSERA_PROGRAM_ID?.trim() ||
       DEFAULT_PROGRAM_ID;
-  
+
     // ────────────── WAP side ──────────────
     // Tenant-scoped lookup against the actor's org. Use findFirst with case-
     // insensitive equals because the emails Coursera returns may not match
@@ -187,7 +187,7 @@ function epochToIso(value: number | null | undefined): string | null {
           userRoles: { include: { role: { select: { name: true } } } },
           // Multi-program: pull all the user's enrollments (primary first) for
           // the inspect card. The card today only renders the legacy
-          // `wapEnrollments` (CourseProgress rows), so this is informational —
+          // `wapEnrollments` (CourseProgress rows), so this is informational -
           // a future PR will surface the full enrollment list.
           courseEnrollments: {
             select: {
@@ -201,7 +201,7 @@ function epochToIso(value: number | null | undefined): string | null {
         },
       }),
     );
-  
+
     // CourseProgress + MemberProgramProgress: pulled per-user (these tables
     // inherit tenant via the User FK; once we have the userId it's safe).
     let wapEnrollments: InspectResponse['wap']['enrollments'] = [];
@@ -230,31 +230,59 @@ function epochToIso(value: number | null | undefined): string | null {
         lastActivityAt: row.lastUpdatedAt ? row.lastUpdatedAt.toISOString() : null,
       }));
     }
-  
+
     const profileRole = wapUser?.profile?.role ?? null;
     const extraRoles = wapUser
       ? wapUser.userRoles.map((ur) => ur.role.name).filter(Boolean)
       : [];
     const isMember = (wapEnrollments.length > 0) || memberProgramProgressCount > 0;
-  
+
     // ────────────── Identity mappings ──────────────
+    // Only return identity mappings for users in the caller's organization.
+    // If no WAP user exists in this org, local mapping/xAPI data is empty
+    // (super-admins bypass and see all data).
+    const isSuper = await isSuperAdmin(user.id);
     await ensureCourseraMappingTables();
-    const mappingRows = await prisma.$queryRaw<IdentityMappingRow[]>`
-      SELECT
-        id,
-        coursera_email AS "courseraEmail",
-        actor_identifier AS "actorIdentifier",
-        source,
-        notes,
-        created_at AS "createdAt",
-        last_seen_at AS "lastSeenAt"
-      FROM coursera_identity_mappings
-      WHERE LOWER(coursera_email) = ${email}
-         OR (${wapUser?.id ?? null}::text IS NOT NULL AND user_id = ${wapUser?.id ?? null}::text)
-      ORDER BY created_at DESC
-      LIMIT 50
-    `;
-  
+    let mappingRows: IdentityMappingRow[] = [];
+    if (wapUser || isSuper) {
+      if (isSuper) {
+        mappingRows = await prisma.$queryRaw<IdentityMappingRow[]>`
+          SELECT
+            id,
+            coursera_email AS "courseraEmail",
+            actor_identifier AS "actorIdentifier",
+            source,
+            notes,
+            created_at AS "createdAt",
+            last_seen_at AS "lastSeenAt"
+          FROM coursera_identity_mappings
+          WHERE LOWER(coursera_email) = ${email}
+             OR (${wapUser?.id ?? null}::text IS NOT NULL AND user_id = ${wapUser?.id ?? null}::text)
+          ORDER BY created_at DESC
+          LIMIT 50
+        `;
+      } else {
+        mappingRows = await prisma.$queryRaw<IdentityMappingRow[]>`
+          SELECT
+            id,
+            coursera_email AS "courseraEmail",
+            actor_identifier AS "actorIdentifier",
+            source,
+            notes,
+            created_at AS "createdAt",
+            last_seen_at AS "lastSeenAt"
+          FROM coursera_identity_mappings
+          WHERE user_id IN (SELECT id FROM users WHERE organization_id = ${orgId} AND deleted_at IS NULL)
+            AND (
+              LOWER(coursera_email) = ${email}
+              OR (${wapUser?.id ?? null}::text IS NOT NULL AND user_id = ${wapUser?.id ?? null}::text)
+            )
+          ORDER BY created_at DESC
+          LIMIT 50
+        `;
+      }
+    }
+
     // ────────────── Coursera roster lookup ──────────────
     let rosterMatch: B4BUser | null = null;
     let rosterCapHit = false;
@@ -273,7 +301,7 @@ function epochToIso(value: number | null | undefined): string | null {
       });
       rosterError = err instanceof Error ? err.message : 'Coursera roster fetch failed';
     }
-  
+
     // ────────────── Coursera enrollment + gradebook reports ──────────────
     let enrollmentReports: B4BEnrollmentReport[] = [];
     let gradebookReports: B4BGradebookReport[] = [];
@@ -292,7 +320,7 @@ function epochToIso(value: number | null | undefined): string | null {
         getEnrollmentReports({ byProgramId: true, programId, limit: 1000 }),
         getCourseGradebookReports({ emailOrExternalId: email, limit: 200 }),
       ]);
-  
+
       if (byUser.status === 'fulfilled') {
         enrollmentReports.push(...byUser.value.elements);
       }
@@ -314,11 +342,11 @@ function epochToIso(value: number | null | undefined): string | null {
           }
         }
       }
-  
+
       if (gradebook.status === 'fulfilled') {
         gradebookReports = gradebook.value.elements;
       }
-  
+
       // Surface any partial failure but don't fail the whole route.
       const failures = [byUser, byProgram, gradebook].filter(
         (r) => r.status === 'rejected',
@@ -335,34 +363,58 @@ function epochToIso(value: number | null | undefined): string | null {
       });
       courseraReportsError = err instanceof Error ? err.message : 'Coursera reports fetch failed';
     }
-  
+
     // ────────────── xAPI activity ──────────────
-    const [statementAgg, statementLatest] = await Promise.all([
-      prisma.xapiStatement.count({
-        where: { actorEmail: { equals: email, mode: 'insensitive' } },
-      }),
-      prisma.xapiStatement.findFirst({
-        where: { actorEmail: { equals: email, mode: 'insensitive' } },
-        orderBy: { createdAt: 'desc' },
-        select: { createdAt: true },
-      }),
-    ]);
-  
-    // The XapiStatement table has `processed`/`processedAt`, while the
-    // mapping pipeline tracks per-event status in `coursera_xapi_events`
-    // under `completion_status`. Count the latter (matched is the success
-    // state) for the "unprocessed/needs-attention" tally.
-    const unprocessedRows = await prisma.$queryRaw<Array<{ count: bigint }>>`
-      SELECT COUNT(*)::bigint AS count
-      FROM coursera_xapi_events
-      WHERE LOWER(actor_email) = ${email}
-        AND completion_status IS DISTINCT FROM 'matched'
-    `;
-    const unprocessedCount = Number(unprocessedRows[0]?.count ?? 0);
-  
+    // Scope xAPI queries to the WAP user's organization. If no WAP user in
+    // this org, only super-admins see xAPI data (empty for regular admins).
+    let statementAgg = 0;
+    let statementLatest: { createdAt: Date } | null = null;
+    let unprocessedCount = 0;
+
+    if (wapUser || isSuper) {
+      const userIdFilter = wapUser?.id ?? null;
+      const orgFilter = isSuper ? null : orgId;
+
+      // Pre-compute org-scoped user IDs for xAPI queries
+      let orgUserIds: string[] | undefined;
+      if (orgFilter) {
+        const orgUsers = await prisma.user.findMany({
+          where: { organizationId: orgFilter, deletedAt: null },
+          select: { id: true },
+        });
+        orgUserIds = orgUsers.map((u) => u.id);
+      }
+
+      [statementAgg, statementLatest] = await Promise.all([
+        prisma.xapiStatement.count({
+          where: {
+            actorEmail: { equals: email, mode: 'insensitive' },
+            ...(orgUserIds ? { userId: { in: orgUserIds } } : {}),
+          },
+        }),
+        prisma.xapiStatement.findFirst({
+          where: {
+            actorEmail: { equals: email, mode: 'insensitive' },
+            ...(orgUserIds ? { userId: { in: orgUserIds } } : {}),
+          },
+          orderBy: { createdAt: 'desc' },
+          select: { createdAt: true },
+        }),
+      ]);
+
+      const unprocessedRows = await prisma.$queryRaw<Array<{ count: bigint }>>`
+        SELECT COUNT(*)::bigint AS count
+        FROM coursera_xapi_events
+        WHERE LOWER(actor_email) = ${email}
+          AND completion_status IS DISTINCT FROM 'matched'
+          ${orgFilter ? prisma.$queryRaw`AND user_id IN (SELECT id FROM users WHERE organization_id = ${orgFilter} AND deleted_at IS NULL)` : prisma.$queryRaw``}
+      `;
+      unprocessedCount = Number(unprocessedRows[0]?.count ?? 0);
+    }
+
     // ────────────── Diagnosis narrative ──────────────
     const diagnosis: string[] = [];
-  
+
     if (!wapUser) {
       diagnosis.push(
         `No WAP user exists for ${email} in this organization. They have never signed up here, or were deleted.`,
@@ -380,7 +432,7 @@ function epochToIso(value: number | null | undefined): string | null {
         `User exists in WAP as role "${profileRole ?? 'member'}" but has no CourseEnrollment / MemberProgramProgress rows yet.`,
       );
     }
-  
+
     if (rosterError) {
       diagnosis.push(`Coursera roster could not be fetched: ${rosterError}.`);
     } else if (rosterMatch) {
@@ -392,7 +444,7 @@ function epochToIso(value: number | null | undefined): string | null {
       );
       if (wapUser && !isMember) {
         diagnosis.push(
-          `User exists in Coursera roster but has no WAP CourseEnrollment rows. Their /dashboard/training will show 0% — they need a WAP enrollment (or this is intentional for staff).`,
+          `User exists in Coursera roster but has no WAP CourseEnrollment rows. Their /dashboard/training will show 0% - they need a WAP enrollment (or this is intentional for staff).`,
         );
       }
       if (!wapUser) {
@@ -412,11 +464,11 @@ function epochToIso(value: number | null | undefined): string | null {
       }
       if (mappingRows.length > 0) {
         diagnosis.push(
-          `Identity mapping exists but Coursera roster does not include this email — the mapping is dead until the learner is added to Coursera.`,
+          `Identity mapping exists but Coursera roster does not include this email - the mapping is dead until the learner is added to Coursera.`,
         );
       }
     }
-  
+
     if (enrollmentReports.length > 0) {
       const completed = enrollmentReports.filter((r) => r.isCompleted).length;
       const avg =
@@ -430,13 +482,13 @@ function epochToIso(value: number | null | undefined): string | null {
         `Coursera roster has them but no enrollmentReports rows came back for program ${programId}. They may be in a different program or not yet started any course.`,
       );
     }
-  
+
     if (statementAgg > 0) {
       diagnosis.push(
         `xAPI: ${statementAgg} statement(s) received locally; ${unprocessedCount} have not been matched.`,
       );
     }
-  
+
     if (
       wapUser &&
       isMember &&
@@ -449,11 +501,11 @@ function epochToIso(value: number | null | undefined): string | null {
         `User is fully reconciled. Coursera + WAP + xAPI all agree.`,
       );
     }
-  
+
     if (courseraReportsError) {
       diagnosis.push(`Coursera reports fetch had a failure: ${courseraReportsError}.`);
     }
-  
+
     // ────────────── Response shape ──────────────
     const response: InspectResponse = {
       email,
@@ -540,7 +592,7 @@ function epochToIso(value: number | null | undefined): string | null {
       },
       diagnosis,
     };
-  
+
     return NextResponse.json(response);
   } catch (error) {
     console.error('/admin/coursera/inspect-by-email:', error);

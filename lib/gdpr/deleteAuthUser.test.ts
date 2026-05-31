@@ -37,3 +37,20 @@ test('deleteSupabaseAuthUser returns admin delete failures to caller', async () 
 
   assert.equal(result.error, deleteError);
 });
+
+test('deleteSupabaseAuthUser returns thrown admin delete failures to caller', async () => {
+  const deleteError = new Error('service role unavailable');
+  const supabaseAdmin = {
+    auth: {
+      admin: {
+        deleteUser: async () => {
+          throw deleteError;
+        },
+      },
+    },
+  } as unknown as ReturnType<typeof getSupabaseAdmin>;
+
+  const result = await deleteSupabaseAuthUser('user-123', supabaseAdmin);
+
+  assert.equal(result.error, deleteError);
+});

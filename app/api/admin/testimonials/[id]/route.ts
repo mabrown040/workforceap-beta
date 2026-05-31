@@ -108,9 +108,15 @@ async function _PATCH(
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
     }
 
-    const updated = await prisma.testimonial.update({
-      where: { id },
+    const updateResult = await prisma.testimonial.updateMany({
+      where: recordWhere,
       data: update,
+    });
+    if (updateResult.count === 0)
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    const updated = await prisma.testimonial.findFirst({
+      where: recordWhere,
       include: {
         member: {
           select: {
@@ -129,6 +135,8 @@ async function _PATCH(
         },
       },
     });
+    if (!updated)
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     return NextResponse.json({ testimonial: updated });
   } catch (error) {
@@ -157,10 +165,12 @@ async function _DELETE(
     if (!existing)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    await prisma.testimonial.update({
-      where: { id },
+    const updateResult = await prisma.testimonial.updateMany({
+      where: recordWhere,
       data: { deletedAt: new Date() },
     });
+    if (updateResult.count === 0)
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

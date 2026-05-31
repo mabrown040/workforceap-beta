@@ -465,6 +465,7 @@ export default function WorkspaceShell({
 
       <div className="workspace-shell-body">
         <aside
+          id="workspace-sidebar"
           ref={trapRef}
           className={`workspace-sidebar ${drawerOpen ? 'open' : ''} ${isCollapsedDesktop ? 'workspace-sidebar--collapsed' : ''}`}
         >

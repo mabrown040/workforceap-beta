@@ -84,6 +84,7 @@ export default function DeleteAccountButton() {
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder="Type DELETE to confirm"
               autoComplete="off"
+              autoFocus
               style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
             />
             {deleteError && (

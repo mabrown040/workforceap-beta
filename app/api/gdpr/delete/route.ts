@@ -116,7 +116,14 @@ export const POST = withApiGuc(async (request: Request) => {
   `;
 
   // Delete Supabase auth user (irreversible — prevents re-login with old credentials)
-  const { error: deleteAuthError } = await deleteSupabaseAuthUser(userId);
+  let deleteAuthError: unknown = null;
+  try {
+    const result = await deleteSupabaseAuthUser(userId);
+    deleteAuthError = result.error;
+  } catch (error) {
+    deleteAuthError = error;
+  }
+
   if (deleteAuthError) {
     console.error('[gdpr/delete] Supabase auth delete failed:', deleteAuthError);
     return NextResponse.json(

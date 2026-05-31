@@ -76,6 +76,10 @@ const ETHNICITY_OPTIONS = [
     if (!programSlug) {
       return NextResponse.json({ error: 'Program selection is required' }, { status: 400 });
     }
+    const parsedDob = dob ? new Date(dob) : null;
+    if (dob && Number.isNaN(parsedDob?.getTime())) {
+      return NextResponse.json({ error: 'Invalid date of birth' }, { status: 400 });
+    }
   
     const program = getProgramBySlug(programSlug);
     if (!program) {
@@ -180,7 +184,7 @@ const ETHNICITY_OPTIONS = [
             userId: authUser.id,
             profilePhone: phone || null,
             profileAddress: address || null,
-            dob: dob ? new Date(dob) : null,
+            dob: parsedDob,
             veteranStatus: veteranStatus || null,
             employmentStatus: employmentStatus || null,
             educationLevel: educationLevel || null,
@@ -236,6 +240,9 @@ const ETHNICITY_OPTIONS = [
       });
     } catch (dbError) {
       console.error('Admin create member DB error:', dbError);
+      await supabase.auth.admin.deleteUser(authUser.id).catch((cleanupError) => {
+        console.error('Failed to clean up auth user after member DB error:', cleanupError);
+      });
       return NextResponse.json({ error: 'Failed to create member. Please try again.' }, { status: 500 });
     }
   

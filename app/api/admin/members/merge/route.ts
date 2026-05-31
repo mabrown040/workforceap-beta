@@ -14,7 +14,6 @@ async function assertMergeTenantOk(
   primaryId: string,
   secondaryId: string
 ): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
-  if (await isSuperAdmin(adminUserId)) return { ok: true };
   const rows = await prisma.user.findMany({
     where: { id: { in: [primaryId, secondaryId] } },
     select: { id: true, organizationId: true },
@@ -26,6 +25,8 @@ async function assertMergeTenantOk(
   if (!a.organizationId || a.organizationId !== b.organizationId) {
     return { ok: false, status: 403, error: 'Members must belong to the same organization' };
   }
+  // Super admins bypass the admin-in-org authorization check, but NOT the same-tenant validation
+  if (await isSuperAdmin(adminUserId)) return { ok: true };
   if (!(await isAdminInOrg(adminUserId, a.organizationId))) {
     return { ok: false, status: 403, error: 'Forbidden' };
   }

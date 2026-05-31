@@ -12,7 +12,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { resolveAdminEnrolledMemberIds } from '@/lib/counselor/adminMemberScope';
 
 function riskLevelFromScore(score: number): 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' {
   if (score >= 70) return 'CRITICAL';
@@ -187,13 +187,7 @@ async function resolveMemberIds(
       });
       return assignments.map((a) => a.memberId);
     }
-    const organizationId = await getActorOrganizationId(counselorUserId);
-    const allMembers = await prisma.user.findMany({
-      where: { organizationId, deletedAt: null, enrolledProgram: { not: null } },
-      select: { id: true },
-      take: adminCap,
-    });
-    return allMembers.map((m) => m.id);
+    return resolveAdminEnrolledMemberIds(counselorUserId, adminCap);
   }
 
   const counselor = await prisma.counselor.findFirst({

@@ -10,6 +10,7 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { EMPLOYER_TIERS } from '@/lib/stripe/client';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import TierCheckoutForm from './TierCheckoutForm';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');
@@ -135,29 +136,13 @@ export default async function EmployerBillingPage() {
               ))}
             </ul>
             {!tier.isCurrent && (
-              <form
-                action="/api/employer/checkout"
-                method="POST"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const res = await fetch('/api/employer/checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tier: tier.key }),
-                  });
-                  const data = await res.json();
-                  if (data.url) window.location.href = data.url;
-                  else alert(data.error || 'Something went wrong');
-                }}
-              >
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ width: '100%' }}
-                >
-                  {currentTierKey === 'basic' ? t('upgrade') : tier.key === 'basic' ? t('downgrade') : t('switch')}
-                </button>
-              </form>
+              <TierCheckoutForm
+                tierKey={tier.key}
+                currentTierKey={currentTierKey}
+                upgradeLabel={t('upgrade')}
+                downgradeLabel={t('downgrade')}
+                switchLabel={t('switch')}
+              />
             )}
           </div>
         ))}

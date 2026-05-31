@@ -23,8 +23,7 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
     },
     include: {
       job: { 
-        select: { title: true },
-        include: { employer: { select: { companyName: true } } }
+        select: { title: true, employer: { select: { companyName: true } } }
       },
       messages: {
         orderBy: { createdAt: 'asc' },

@@ -7,6 +7,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { buildPartnerPayoutIdempotencyKey, getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 import { isPayoutEligibleType } from '@/lib/partner/partnerType';
+import { getPlacementPayoutRejection } from '@/lib/partner/payoutEligibility';
 import { z } from 'zod';
 
 const payoutSchema = z.object({
@@ -70,6 +71,57 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Partner Stripe account is not active' }, { status: 400 });
     }
 
+    const placement = await withTenantScope(orgId, (db) =>
+      db.placementRecord.findFirst({
+        where: {
+          id: placementId,
+          user: {
+            organizationId: orgId,
+            partnerReferrals: { some: { partnerId } },
+          },
+        },
+        select: {
+          id: true,
+          userId: true,
+          placedAt: true,
+          startDateVerified: true,
+          user: {
+            select: {
+              memberEvents: {
+                where: {
+                  eventName: 'PARTNER_PAYOUT_SENT',
+                  entityType: 'PlacementRecord',
+                  entityId: placementId,
+                },
+                take: 1,
+                select: { id: true },
+              },
+            },
+          },
+        },
+      }),
+    );
+
+    if (!placement) {
+      const notFound = getPlacementPayoutRejection(null) ?? {
+        error: 'Placement not found for this partner',
+        status: 404 as const,
+      };
+      return NextResponse.json({ error: notFound.error }, { status: notFound.status });
+    }
+
+    const payoutRejection = getPlacementPayoutRejection({
+      id: placement.id,
+      userId: placement.userId,
+      placedAt: placement.placedAt,
+      startDateVerified: placement.startDateVerified,
+      paidEvent: placement.user.memberEvents[0] ?? null,
+    });
+
+    if (payoutRejection) {
+      return NextResponse.json({ error: payoutRejection.error }, { status: payoutRejection.status });
+    }
+
     const payoutAmount = getPartnerPlacementPayoutUsd();
     const amountCents = Math.round(payoutAmount * 100);
     const idempotencyKey = buildPartnerPayoutIdempotencyKey(partnerId, placementId);
@@ -79,6 +131,22 @@ export async function POST(request: NextRequest) {
       placementId,
       triggeredBy: user.id,
     }, idempotencyKey);
+
+    await prisma.memberEvent.create({
+      data: {
+        userId: placement.userId,
+        eventName: 'PARTNER_PAYOUT_SENT',
+        entityType: 'PlacementRecord',
+        entityId: placementId,
+        metadata: {
+          partnerId,
+          transferId: transfer.id,
+          amountCents,
+          triggeredBy: user.id,
+        },
+        sourcePage: '/api/partner/payout',
+      },
+    });
 
     return NextResponse.json({
       transferId: transfer.id,

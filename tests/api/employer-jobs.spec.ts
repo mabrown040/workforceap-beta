@@ -25,6 +25,7 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(async () => ({ userId: null, orgId: null, role: 'anonymous' })),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
@@ -100,6 +101,11 @@ const UUIDS = {
   org: '550e8400-e29b-41d4-a716-446655440003',
   job1: '550e8400-e29b-41d4-a716-446655440004',
   job2: '550e8400-e29b-41d4-a716-446655440005',
+};
+
+const approvedEmployerCtx = {
+  employerId: UUIDS.employer,
+  employer: { status: 'approved' },
 };
 
 function makeJob(overrides: Record<string, unknown> = {}) {
@@ -204,7 +210,7 @@ describe('POST /api/employer/jobs', () => {
 
   it('creates a job posting for authenticated employer', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
-    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue(approvedEmployerCtx as any);
     vi.mocked(prisma.employer.findUnique).mockResolvedValue({
       id: UUIDS.employer,
       companyName: 'Acme Inc',
@@ -242,7 +248,7 @@ describe('POST /api/employer/jobs', () => {
 
   it('sends email and tracks event when status is pending', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
-    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue(approvedEmployerCtx as any);
     vi.mocked(prisma.employer.findUnique).mockResolvedValue({
       id: UUIDS.employer,
       companyName: 'Acme Inc',
@@ -458,7 +464,7 @@ describe('PATCH /api/employer/jobs/[id]', () => {
 
   it('updates job posting for authenticated employer', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
-    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue(approvedEmployerCtx as any);
     vi.mocked(prisma.job.findFirst).mockResolvedValue(makeJob() as any);
     vi.mocked(prisma.job.update).mockResolvedValue(makeJob({ title: 'Updated Title' }) as any);
 
@@ -496,7 +502,7 @@ describe('PATCH /api/employer/jobs/[id]', () => {
 
   it('sends email when transitioning draft to pending', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
-    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue(approvedEmployerCtx as any);
     vi.mocked(prisma.job.findFirst).mockResolvedValue(makeJob({ status: 'draft' }) as any);
     vi.mocked(prisma.job.update).mockResolvedValue(makeJob({ status: 'pending' }) as any);
     vi.mocked(prisma.employer.findUnique).mockResolvedValue({
@@ -509,6 +515,23 @@ describe('PATCH /api/employer/jobs/[id]', () => {
     });
     expect(res.status).toBe(200);
     expect(sendJobSubmittedEmail).toHaveBeenCalled();
+  });
+
+  it.each(['approved', 'live'])('rejects employer transition to %s', async (status) => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({
+      employerId: UUIDS.employer,
+      employer: { status: 'approved' },
+    } as any);
+    vi.mocked(prisma.job.findFirst).mockResolvedValue(makeJob({ status: 'draft' }) as any);
+
+    const res = await updateJob(makePatchRequest(UUIDS.job1, { status }), {
+      params: makeParams(UUIDS.job1),
+    });
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Job approval and publishing require admin review.' });
+    expect(prisma.job.update).not.toHaveBeenCalled();
   });
 });
 

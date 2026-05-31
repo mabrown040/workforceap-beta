@@ -89,6 +89,9 @@ export const GET = withApiGuc(_GET);async function _PATCH(
 
   const data = parsed.data as Record<string, unknown>;
   const status = data.status as string | undefined;
+  if ((status === 'approved' || status === 'live') && status !== existing.status) {
+    return NextResponse.json({ error: 'Job approval and publishing require admin review.' }, { status: 403 });
+  }
   if (status === 'pending' && existing.status === 'draft') {
     data.status = 'pending';
   }
@@ -211,4 +214,3 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   }
 }
 export const DELETE = withApiGuc(_DELETE);
-

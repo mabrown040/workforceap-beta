@@ -3,8 +3,11 @@ import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
+import { buildPlacementsQuery } from '@/lib/counselor/placementsQuery';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(request: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+async function _GET(request: Request) {
   try {
   const user = await getUser();
   if (!user) {
@@ -24,28 +27,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(request
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  let query = `
-    SELECT 
-      pr.*,
-      u.email as member_email
-    FROM placement_records pr
-    JOIN users u ON u.id = pr.user_id
-    WHERE 1=1
-  `;
-  
-  const params: any[] = [];
-  
-  if (memberId) {
-    query += ` AND pr.user_id = $${params.length + 1}`;
-    params.push(memberId);
-  }
-  
-  if (days > 0) {
-    query += ` AND pr.placed_at >= $${params.length + 1}`;
-    params.push(new Date(Date.now() - days * 24 * 60 * 60 * 1000));
-  }
-  
-  query += ` ORDER BY pr.placed_at DESC`;
+  const { query, params } = buildPlacementsQuery({
+    staffUserId: user.id,
+    isAdmin: admin,
+    memberId,
+    days,
+  });
 
   const placements = await prisma.$queryRawUnsafe(query, ...params);
 
@@ -129,4 +116,3 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   }
 }
 export const POST = withApiGuc(_POST);
-

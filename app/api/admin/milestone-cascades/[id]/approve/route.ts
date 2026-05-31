@@ -168,11 +168,33 @@ export async function POST(
     }
 
     // Dispatch outbound (sends emails, transitions to `sent`).
-    const dispatchResult = await dispatchApprovedCascade({
-      cascadeId: id,
-      drafts: finalDrafts,
-      recipientEmail: cascade.user?.email ?? '',
-    });
+    let dispatchResult: { emailsSent: number; emailsFailed: number; advisoryCount: number };
+    try {
+      dispatchResult = await dispatchApprovedCascade({
+        cascadeId: id,
+        drafts: finalDrafts,
+        recipientEmail: cascade.user?.email ?? '',
+      });
+    } catch (dispatchErr) {
+      console.error('[milestone-cascade approve] dispatch failed:', dispatchErr);
+      // Transition to dispatch_failed so the cascade can be retried
+      await prisma.milestoneCascade.updateMany({
+        where: { id, status: 'approved' },
+        data: {
+          status: 'dispatch_failed',
+          dispatchError: dispatchErr instanceof Error ? dispatchErr.message : 'unknown',
+        },
+      });
+      return NextResponse.json(
+        {
+          error: 'Approval saved but dispatch failed',
+          detail: dispatchErr instanceof Error ? dispatchErr.message : 'unknown',
+          code: 'dispatch_failed',
+          retryable: true,
+        },
+        { status: 502 },
+      );
+    }
 
     // Audit trail.
     await auditLog({

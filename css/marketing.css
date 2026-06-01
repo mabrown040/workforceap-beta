@@ -852,6 +852,17 @@ html.has-marketing-main-nav {
   background: var(--surface-container);
 }
 
+@media (max-width: 768px) {
+  .trust-strip--apply {
+    margin-bottom: var(--space-4);
+  }
+
+  .trust-strip--apply .trust-strip__line {
+    padding-inline: var(--space-4);
+    font-size: var(--font-size-xs, 0.8125rem);
+  }
+}
+
 .trust-strip__line {
   margin: 0;
   padding: var(--space-3) var(--space-6);

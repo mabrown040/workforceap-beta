@@ -1833,6 +1833,9 @@
       "membersServedLabel": "Membros atendidos",
       "noData": "—",
       "noPrograms": "Nenhuma turma de programa inscrita registrada ainda.",
+      "noProgramsTitle": "Turmas de programas ainda não registradas",
+      "employerMetricsEmptyTitle": "Métricas de empregadores ainda não publicadas",
+      "employerMetricsEmpty": "Contagens de parceiros, vagas publicadas e registros de placement aparecem aqui quando houver atividade de empregadores ativa registrada.",
       "nonprofitModelEyebrow": "Modelo sem fins lucrativos",
       "outcomesLink": "Detalhe dos resultados de placement",
       "placementRateLabel": "Taxa de placement (turma inscrita)",
@@ -1840,6 +1843,10 @@
       "programsSubtitle": "Inscrição por programa, conclusão do currículo e tempo típico de conclusão (quando os carimbos de conclusão estão disponíveis).",
       "programsTitle": "Programas",
       "subtitle": "Métricas de impacto do WorkforceAP extraídas de nossos sistemas operacionais — compartilhadas com um curto intervalo de cache para transparência pública.",
+      "testimonialsTitle": "Histórias de membros",
+      "testimonialsSubtitle": "Histórias de membros com consentimento aparecem somente após revisão da equipe.",
+      "testimonialsEmptyTitle": "Nenhuma história de membro publicada ainda",
+      "testimonialsEmptyDesc": "O WorkforceAP mostra histórias de membros somente após consentimento e revisão da equipe.",
       "title": "Impacto público"
     },
     "testimonials": {

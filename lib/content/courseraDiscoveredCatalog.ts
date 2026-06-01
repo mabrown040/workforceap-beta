@@ -82,7 +82,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "ai-professional-developer-certificate-ibm": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "vjCRy6uOReCwkcurjsXg3Q",
-    title: "AI Professional Practitioner Certificate",
+    title: "AI and Software Development Professional Certificate (IBM)",
     courses: [
       { courseId: "2lNHAASEe-djM5IiFKtc", slug: "introduction-to-ai", name: "Introduction to Artificial Intelligence (AI)", partner: "IBM" },
       { courseId: "3oOIBBTEe-ekN6JjGLud", slug: "artificial-intelligence-an-overview", name: "Artificial Intelligence: An Overview", partner: "Politecnico di Milano" },
@@ -176,7 +176,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "aws-cloud-technology-amazon": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "q5z39pYDSM6c9_aWA4jOLw",
-    title: "AWS Cloud Technology (Amazon)",
+    title: "AWS Cloud Technology Certificate",
     courses: [
       { courseId: "gRUEQ0kLEe68aRLfH8OQLw", slug: "information-technology-and-aws", name: "Introduction to Information Technology and AWS Cloud", partner: "Amazon Web Services" },
       { courseId: "gEIVp0wWEe68aRLfH8OQLw", slug: "technical-support-for-aws-workloads", name: "Providing Technical Support for AWS Workloads", partner: "Amazon Web Services" },
@@ -208,7 +208,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "it-automation-with-python-google": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "QnQ2KKmHTmu0Niiphy5rsQ",
-    title: "IT Automation with Python (Google)",
+    title: "IT Automation with Python Certificate (Google)",
     courses: [
       { courseId: "8D3R5HiaEeioIg7r4jw_PA", slug: "python-crash-course", name: "Crash Course on Python", partner: "Google" },
       { courseId: "3XMnuVFsEemYkgoCaF1HCg", slug: "python-operating-system", name: "Using Python to Interact with the Operating System", partner: "Google" },
@@ -248,7 +248,7 @@ const DISCOVERED_COURSERA_PROGRAMS_INNER = {
   "cybersecurity-professional-certificate-google": {
     courseraProgramId: "TpIlAogTQ8-SJQKIE8PP9w",
     learningPathId: "gCtwKvPFS36rcCrzxSt-Yg",
-    title: "Cybersecurity Professional Certificate (Google)",
+    title: "Cyber Security and Networking Professional Certificate (Network+, Sec+)",
     courses: [
       { courseId: "f6gZrWUIEe2piwrmyBNtEQ", slug: "foundations-of-cybersecurity", name: "Foundations of Cybersecurity", partner: "Google" },
       { courseId: "y6mmi2UIEe21jBLFGcIQ1w", slug: "manage-security-risks", name: "Play It Safe: Manage Security Risks", partner: "Google" },

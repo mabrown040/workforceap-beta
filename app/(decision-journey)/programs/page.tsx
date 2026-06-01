@@ -75,6 +75,10 @@ export default async function ProgramsPage() {
         </div>
       </section>
 
+      {/* Mobile: sticky category chips sit directly under the hero so members can
+          jump to the catalog without scrolling past quick-start cards first. */}
+      <ProgramsMobileBrowseNav />
+
       <section style={{ padding: '2rem 0 0' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
           <div
@@ -159,8 +163,6 @@ export default async function ProgramsPage() {
           </div>
         </div>
       </section>
-
-      <ProgramsMobileBrowseNav />
 
       {/* ══════════════════════════════════════════════
           HOW TO CHOOSE + TOOL ROUTING — desktop only

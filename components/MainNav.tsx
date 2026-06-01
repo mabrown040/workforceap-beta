@@ -498,8 +498,8 @@ export default function MainNav() {
               <li className="mobile-nav-group-heading"><span>{translateLabel('Apply Now')}</span></li>
               <li>
                 <LocalizedLink
-                  href="/wioa-qualification"
-                  prefetch={false}
+                  href="/apply"
+                  prefetch={true}
                   onClick={closeMobile}
                 >
                   {translateLabel('Check Eligibility')}
@@ -544,8 +544,8 @@ export default function MainNav() {
             <ul className="dropdown-menu nav-apply-flyout-menu" role="menu">
               <li role="none">
                 <LocalizedLink
-                  href="/wioa-qualification"
-                  prefetch={false}
+                  href="/apply"
+                  prefetch={true}
                   role="menuitem"
                   onClick={closeMobile}
                 >

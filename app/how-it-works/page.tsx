@@ -104,7 +104,7 @@ export default async function HowItWorksPage() {
                 <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>{t('whoCanApplyTitle')}</p>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: 0 }}>
                   {t('whoCanApplyBody')}{' '}
-                  <LocalizedLink href="/wioa-qualification" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
+                  <LocalizedLink href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
                     {t('wioaLink')}
                   </LocalizedLink>
                 </p>

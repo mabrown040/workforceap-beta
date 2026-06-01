@@ -208,7 +208,7 @@ export default function BlogListingClient({
           <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.95 }} aria-hidden />
           <h3>Ready to take the next step?</h3>
           <p>
-            WorkforceAP offers no-cost career training paths for <LocalizedLink href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</LocalizedLink> — with guided tools, counselor support, and employer-aligned credentials.
+            WorkforceAP offers no-cost career training paths for <LocalizedLink href="/apply" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</LocalizedLink> — with guided tools, counselor support, and employer-aligned credentials.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <LocalizedLink href="/find-your-path" className="btn blog-listing-bottom-cta__secondary">

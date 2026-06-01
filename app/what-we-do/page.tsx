@@ -169,7 +169,7 @@ export default async function WhatWeDoPage() {
           <a href="/find-your-path" className="btn btn-accent btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
             {t('findPathCta')}
           </a>
-          <LocalizedLink href="/wioa-qualification" className="btn btn-muted btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
+          <LocalizedLink href="/apply" className="btn btn-muted btn-lg" style={{ fontSize: '1.1rem', padding: '0.875rem 2rem' }}>
             Check WIOA Options
           </LocalizedLink>
         </div>

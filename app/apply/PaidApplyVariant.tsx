@@ -50,7 +50,7 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
           No-cost IT training — start with a quick eligibility check.
         </h1>
         <p className="paid-apply-hero__subhead">
-          About 2 minutes · 501(c)(3) nonprofit · advisor follow-up within 1–2 business days
+          About 5 minutes · 501(c)(3) nonprofit · advisor follow-up within 1–2 business days
         </p>
         <button
           type="button"

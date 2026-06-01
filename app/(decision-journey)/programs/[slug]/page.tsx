@@ -181,7 +181,7 @@ export default async function ProgramPage({ params }: Props) {
                 Ready to start your career in {program.categoryLabel}?
               </h3>
               <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
-                Applications take about 10 minutes. No cost for <LocalizedLink href="/wioa-qualification" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</LocalizedLink>.
+                Applications take about 5 minutes. No cost for <LocalizedLink href="/apply" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</LocalizedLink>.
                 We respond within 1–2 business days.
               </p>
               <LocalizedLink

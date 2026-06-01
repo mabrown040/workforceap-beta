@@ -272,12 +272,6 @@ export default async function HomePageBelowFold({
                 >
                   {t('memberCardCta')}
                 </LocalizedLinkServer>
-                <LocalizedLinkServer
-                  href="/wioa-qualification"
-                  className={secondaryButtonClasses({ radius: 'md', className: 'btn-small' })}
-                >
-                  {t('memberCardCta2')}
-                </LocalizedLinkServer>
               </div>
             </div>
 
@@ -318,6 +312,12 @@ export default async function HomePageBelowFold({
                     check_circle
                   </span>
                   {t('partnerCardImpact')}
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-blue, #2b7bb9)' }} aria-hidden="true">
+                    check_circle
+                  </span>
+                  {t('partnerCardSystem')}
                 </li>
               </ul>
               <div style={{ marginTop: '1.5rem' }}>
@@ -361,6 +361,12 @@ export default async function HomePageBelowFold({
                     check_circle
                   </span>
                   {t('employerCardTraining')}
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                  <span className="material-symbols-outlined marketing-chip-text--gold" style={{ fontSize: '1rem' }} aria-hidden="true">
+                    check_circle
+                  </span>
+                  {t('employerCardBenefit')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined marketing-chip-text--gold" style={{ fontSize: '1rem' }} aria-hidden="true">

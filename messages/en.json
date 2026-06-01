@@ -1864,6 +1864,9 @@
       "days": "{count} days",
       "noData": "—",
       "noPrograms": "No enrolled program cohorts recorded yet.",
+      "noProgramsTitle": "Program cohorts not recorded yet",
+      "employerMetricsEmptyTitle": "Employer metrics not published yet",
+      "employerMetricsEmpty": "Partnership counts, job posts, and placement records appear here once active employer activity is on file.",
       "employersTitle": "Employers",
       "employersSubtitle": "Employer partners and roles moving through the curated job pipeline (excludes draft and pending review).",
       "employerPartnersLabel": "Employer partners (active)",
@@ -1876,7 +1879,9 @@
       "outcomesLink": "Placement outcomes detail",
       "applyCta": "Apply",
       "testimonialsTitle": "Member stories",
-      "testimonialsSubtitle": "Consented member stories appear only after staff review."
+      "testimonialsSubtitle": "Consented member stories appear only after staff review.",
+      "testimonialsEmptyTitle": "No member stories published yet",
+      "testimonialsEmptyDesc": "WorkforceAP shows member stories only after consent and staff review."
     },
     "testimonials": {
       "sectionTitle": "Hear from our members",

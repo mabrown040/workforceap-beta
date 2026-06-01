@@ -1829,6 +1829,9 @@
       "days": "{count} días",
       "noData": "—",
       "noPrograms": "Aún no hay cohortes de programas inscritos registradas.",
+      "noProgramsTitle": "Cohortes de programas aún no registradas",
+      "employerMetricsEmptyTitle": "Métricas de empleadores aún no publicadas",
+      "employerMetricsEmpty": "Los conteos de socios, empleos publicados y registros de colocación aparecen aquí cuando hay actividad de empleadores activa registrada.",
       "employersTitle": "Empleadores",
       "employersSubtitle": "Socios empleadores y roles avanzando por el canal de empleo curado (excluye borradores y pendientes de revisión).",
       "employerPartnersLabel": "Socios empleadores (activos)",
@@ -1841,7 +1844,9 @@
       "outcomesLink": "Detalle de resultados de colocación",
       "applyCta": "Solicita",
       "testimonialsTitle": "Historias de miembros",
-      "testimonialsSubtitle": "Resultados reales de miembros reales"
+      "testimonialsSubtitle": "Las historias de miembros con consentimiento aparecen solo después de revisión del personal.",
+      "testimonialsEmptyTitle": "Aún no hay historias de miembros publicadas",
+      "testimonialsEmptyDesc": "WorkforceAP muestra historias de miembros solo después del consentimiento y la revisión del personal."
     },
     "testimonials": {
       "sectionTitle": "Escucha a nuestros miembros",

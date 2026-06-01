@@ -141,7 +141,9 @@ export default async function EmployersPage() {
               </ul>
             </div>
           ) : (
-            <div className="employers-trust__stats">
+            <div
+              className={`employers-trust__stats${trust.hasLiveData ? '' : ' employers-trust__stats--placeholder'}`}
+            >
               <div className="employers-trust__stat">
                 <span className="employers-trust__stat-value">{membersPlacedLabel}</span>
                 <span className="employers-trust__stat-label">
@@ -381,6 +383,17 @@ export default async function EmployersPage() {
         }
         .employers-trust__stat-divider {
           display: none;
+        }
+        .employers-trust__stats--placeholder .employers-trust__stat-value {
+          font-size: clamp(1rem, 3vw, 1.25rem);
+          font-weight: 700;
+          letter-spacing: 0;
+          color: var(--color-on-surface);
+          line-height: 1.35;
+        }
+        .employers-trust__stats--placeholder .employers-trust__stat-label {
+          font-size: 0.75rem;
+          font-weight: 500;
         }
         .employers-trust__as-of {
           margin: 1.25rem 0 0;

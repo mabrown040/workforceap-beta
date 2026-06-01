@@ -87,6 +87,8 @@ export default async function ImpactPage() {
 
   const hasLiveData = hasPublicImpactLiveData(stats);
   const hasEnrolledCohort = hasPublicImpactEnrolledCohort(stats);
+  const hasEmployerMetrics =
+    stats.employersPartnered > 0 || stats.jobsPosted > 0 || stats.hiresMade > 0;
 
   const membersServedValue = hasLiveData ? formatThousands(stats.membersServed) : '—';
 
@@ -204,7 +206,7 @@ export default async function ImpactPage() {
 
   return (
     <div className="inner-page marketing-mobile-pb-for-bottom-nav">
-      <JsonLdDataset stats={datasetStats} />
+      {hasLiveData ? <JsonLdDataset stats={datasetStats} /> : null}
       <PageSection padding="lg" variant="default">
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <SectionHeader
@@ -261,9 +263,11 @@ export default async function ImpactPage() {
             >
               {t('membersServedDesc')}
             </p>
-            <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-              {stats.asOfLabel}
-            </p>
+            {hasLiveData ? (
+              <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+                {stats.asOfLabel}
+              </p>
+            ) : null}
           </div>
 
           <div
@@ -289,7 +293,7 @@ export default async function ImpactPage() {
           marginBottom="1.5rem"
         />
         {stats.programs.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>{t('noPrograms')}</p>
+          <InfoCard variant="bordered" title={t('noProgramsTitle')} description={t('noPrograms')} />
         ) : (
           <DataTable<ImpactProgramRow>
             rows={stats.programs}
@@ -308,17 +312,21 @@ export default async function ImpactPage() {
             align="left"
             marginBottom="1.5rem"
           />
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '1rem',
-            }}
-          >
-            <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
-            <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
-            <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
-          </div>
+          {hasEmployerMetrics ? (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '1rem',
+              }}
+            >
+              <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
+              <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
+              <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
+            </div>
+          ) : (
+            <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
+          )}
         </div>
       </PageSection>
 

@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/db/prisma';
 import { Prisma, TestimonialStatus } from '@prisma/client';
 import { Quote, Star } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+import { InfoCard } from '@/components/marketing/ui';
 
 type PublishedTestimonial = Prisma.TestimonialGetPayload<{
   include: {
@@ -18,6 +20,7 @@ type PublishedTestimonial = Prisma.TestimonialGetPayload<{
  * a simple grid. Used on public marketing pages like /impact.
  */
 export default async function TestimonialsCarousel({ limit = 6 }: { limit?: number }) {
+  const t = await getTranslations('marketing.publicImpact');
   let testimonials: PublishedTestimonial[];
 
   try {
@@ -44,16 +47,11 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
 
   if (testimonials.length === 0) {
     return (
-      <p
-        style={{
-          margin: 0,
-          maxWidth: '42rem',
-          color: 'var(--color-on-surface-variant)',
-          lineHeight: 1.6,
-        }}
-      >
-        No member stories are published yet. WorkforceAP only shows member stories after consent and staff review.
-      </p>
+      <InfoCard
+        variant="bordered"
+        title={t('testimonialsEmptyTitle')}
+        description={t('testimonialsEmptyDesc')}
+      />
     );
   }
 

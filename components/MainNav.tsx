@@ -517,52 +517,15 @@ export default function MainNav() {
               </li>
             </>
           ) : (
-          <li
-            className={`dropdown nav-apply-dropdown${activeDropdown === '__apply__' ? ' active' : ''}`}
-            onMouseLeave={() => { if (window.innerWidth > 900) setActiveDropdown((cur) => (cur === '__apply__' ? null : cur)); }}
-          >
-            <div className="nav-apply-split">
-              <LocalizedLink
-                href="/apply"
-                prefetch={true}
-                className={`${marketingButtonPresets.navApplyCta()} nav-apply-primary`}
-                onClick={closeMobile}
-              >
-                {translateLabel('Apply Now')}
-              </LocalizedLink>
-              <button
-                type="button"
-                className={`nav-apply-flyout-trigger${activeDropdown === '__apply__' ? ' active' : ''}`}
-                aria-expanded={activeDropdown === '__apply__'}
-                aria-haspopup="true"
-                onClick={() => setActiveDropdown(activeDropdown === '__apply__' ? null : '__apply__')}
-                aria-label="More application options"
-              >
-                <span className="nav-apply-flyout-chevron" aria-hidden />
-              </button>
-            </div>
-            <ul className="dropdown-menu nav-apply-flyout-menu" role="menu">
-              <li role="none">
-                <LocalizedLink
-                  href="/apply"
-                  prefetch={true}
-                  role="menuitem"
-                  onClick={closeMobile}
-                >
-                  {translateLabel('Check Eligibility')}
-                </LocalizedLink>
-              </li>
-              <li role="none">
-                <LocalizedLink
-                  href="/apply"
-                  prefetch={true}
-                  role="menuitem"
-                  onClick={closeMobile}
-                >
-                  {translateLabel('Apply Now')}
-                </LocalizedLink>
-              </li>
-            </ul>
+          <li>
+            <LocalizedLink
+              href="/apply"
+              prefetch={true}
+              className={marketingButtonPresets.navApplyCta()}
+              onClick={closeMobile}
+            >
+              {translateLabel('Apply Now')}
+            </LocalizedLink>
           </li>
           ))}
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">

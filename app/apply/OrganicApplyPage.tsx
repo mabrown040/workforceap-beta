@@ -225,7 +225,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
         {/* Sidebar (4-col) */}
         <aside className="apply-sidebar" aria-label="Application steps" style={sPage.sidebar}>
           {/* Progress steps */}
-          <div style={sPage.sidebarSteps}>
+          <div className="apply-sidebar-progress" style={sPage.sidebarSteps}>
             <h2 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}>
               {t('applicationProgress')}
             </h2>
@@ -260,20 +260,23 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             </ol>
           </div>
 
-          {/* Info card */}
-          <div style={sPage.infoCard}>
-            <h3 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-2)' }}>{t('whatHappensNext')}</h3>
-            <ol style={{ margin: 0, paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-sm)', lineHeight: 'var(--line-height-normal)' }}>
-              <li>{t('nextStep1')}</li>
-              <li>{t('nextStep2')}</li>
-              <li>{t('nextStep3')}</li>
-              <li>{t('nextStep4')}</li>
-              <li>{t('nextStep5')}</li>
-            </ol>
-            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
-              {t('questionsCall')} <a href="tel:+15127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
-            </p>
-          </div>
+          {/* Info card — collapsible on mobile to reduce post-form scroll */}
+          <details className="apply-sidebar-next-steps" style={sPage.infoCard}>
+            <summary className="apply-sidebar-next-steps__summary">{t('whatHappensNext')}</summary>
+            <div className="apply-sidebar-next-steps__body">
+              <h3 className="apply-sidebar-next-steps__heading">{t('whatHappensNext')}</h3>
+              <ol style={{ margin: 0, paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: 'var(--font-size-sm)', lineHeight: 'var(--line-height-normal)' }}>
+                <li>{t('nextStep1')}</li>
+                <li>{t('nextStep2')}</li>
+                <li>{t('nextStep3')}</li>
+                <li>{t('nextStep4')}</li>
+                <li>{t('nextStep5')}</li>
+              </ol>
+              <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)', marginTop: 'var(--space-3)', marginBottom: 0 }}>
+                {t('questionsCall')} <a href="tel:+15127771808" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>(512) 777-1808</a>
+              </p>
+            </div>
+          </details>
         </aside>
 
         {/* Main form area (8-col) */}
@@ -331,10 +334,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             </Suspense>
           </div>
         </div>
-      </div>
 
-      <div className="apply-hero-help-mobile" aria-label={t('helpTitle')}>
-        {helpCard}
+        <div className="apply-hero-help-mobile" aria-label={t('helpTitle')}>
+          {helpCard}
+        </div>
       </div>
 
       {/* ── Supplemental cards ── */}
@@ -425,6 +428,22 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           border-color: var(--outline-variant) !important;
         }
 
+        @media (min-width: 769px) {
+          .apply-sidebar-next-steps__summary {
+            display: none;
+          }
+          .apply-sidebar-next-steps__heading {
+            font-size: var(--font-size-sm);
+            font-weight: 700;
+            color: var(--color-on-surface);
+            margin: 0 0 var(--space-2);
+          }
+          .apply-sidebar-next-steps__body {
+            display: block;
+            margin-top: 0;
+          }
+        }
+
         @media (max-width: 768px) {
           .apply-hero {
             padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-5) !important;
@@ -466,9 +485,37 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           .apply-program-intro {
             order: 0;
           }
+          .apply-hero-help-mobile {
+            order: 0;
+          }
           .apply-sidebar {
             position: static !important;
             order: 1;
+          }
+          .apply-sidebar-progress {
+            display: none;
+          }
+          .apply-sidebar-next-steps__summary {
+            display: list-item;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: 700;
+            color: var(--color-on-surface);
+            min-height: 44px;
+            padding: var(--space-1) 0;
+            list-style-position: outside;
+          }
+          .apply-sidebar-next-steps__summary::-webkit-details-marker {
+            color: var(--color-accent);
+          }
+          .apply-sidebar-next-steps__heading {
+            display: none;
+          }
+          .apply-sidebar-next-steps__body {
+            margin-top: var(--space-2);
+          }
+          .apply-supp-row > div:nth-child(2) {
+            display: none;
           }
           .apply-supp-row {
             grid-template-columns: 1fr !important;

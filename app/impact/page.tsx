@@ -8,6 +8,7 @@ import { SectionHeader, StatCard, InfoCard, PageSection } from '@/components/mar
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import {
+  buildPublishedImpactJsonLdStats,
   EMPTY_PUBLIC_IMPACT_STATS,
   getPublicImpactStats,
   hasPublicImpactEnrolledCohort,
@@ -122,73 +123,41 @@ export default async function ImpactPage() {
 
   const formatOptionalCount = (value: number) => (hasLiveData ? formatThousands(value) : '—');
 
+  const programColumnHeaderStyle = {
+    fontSize: '0.75rem',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    color: 'var(--color-on-surface-variant)',
+  } as const;
+
   const programColumns: DataTableColumn<ImpactProgramRow>[] = [
     {
       key: 'program',
-      header: (
-        <span
-          style={{
-            fontSize: '0.75rem',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            color: 'var(--color-on-surface-variant)',
-          }}
-        >
-          {t('programColumn')}
-        </span>
-      ),
+      header: <span style={programColumnHeaderStyle}>{t('programColumn')}</span>,
+      cellDataLabel: t('programColumn'),
       rowHeader: true,
       cell: (row) => <span style={{ fontWeight: 600 }}>{row.programTitle}</span>,
     },
     {
       key: 'enrolled',
       align: 'right',
-      header: (
-        <span
-          style={{
-            fontSize: '0.75rem',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            color: 'var(--color-on-surface-variant)',
-          }}
-        >
-          {t('enrolledColumn')}
-        </span>
-      ),
+      header: <span style={programColumnHeaderStyle}>{t('enrolledColumn')}</span>,
+      cellDataLabel: t('enrolledColumn'),
       cell: (row) => row.enrolled,
     },
     {
       key: 'completed',
       align: 'right',
-      header: (
-        <span
-          style={{
-            fontSize: '0.75rem',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            color: 'var(--color-on-surface-variant)',
-          }}
-        >
-          {t('completedColumn')}
-        </span>
-      ),
+      header: <span style={programColumnHeaderStyle}>{t('completedColumn')}</span>,
+      cellDataLabel: t('completedColumn'),
       cell: (row) => row.completed,
     },
     {
       key: 'avg',
       align: 'right',
-      header: (
-        <span
-          style={{
-            fontSize: '0.75rem',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            color: 'var(--color-on-surface-variant)',
-          }}
-        >
-          {t('avgTimeColumn')}
-        </span>
-      ),
+      hideOnMobile: true,
+      header: <span style={programColumnHeaderStyle}>{t('avgTimeColumn')}</span>,
+      cellDataLabel: t('avgTimeColumn'),
       cell: (row) =>
         row.avgDaysToComplete != null
           ? t('days', { count: Math.round(row.avgDaysToComplete) })
@@ -196,18 +165,19 @@ export default async function ImpactPage() {
     },
   ];
 
-  const datasetStats = [
-    { label: t('membersServedLabel'), value: formatThousands(stats.membersServed) },
-    { label: t('completionRateLabel'), value: `${stats.completionRatePct}%` },
-    { label: t('placementRateLabel'), value: `${stats.placementRatePct}%` },
-    { label: t('employerPartnersLabel'), value: formatThousands(stats.employersPartnered) },
-    { label: t('jobsPostedLabel'), value: formatThousands(stats.jobsPosted) },
-    { label: t('hiresLabel'), value: formatThousands(stats.hiresMade) },
-  ];
+  const datasetStats = buildPublishedImpactJsonLdStats(stats, {
+    membersServed: t('membersServedLabel'),
+    completionRate: t('completionRateLabel'),
+    placementRate: t('placementRateLabel'),
+    avgSalaryIncrease: t('avgSalaryIncreaseLabel'),
+    employerPartners: t('employerPartnersLabel'),
+    jobsPosted: t('jobsPostedLabel'),
+    hires: t('hiresLabel'),
+  });
 
   return (
     <div className="inner-page marketing-mobile-pb-for-bottom-nav">
-      {hasLiveData ? <JsonLdDataset stats={datasetStats} /> : null}
+      {datasetStats.length > 0 ? <JsonLdDataset stats={datasetStats} /> : null}
       <PageSection padding="lg" variant="default">
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <SectionHeader

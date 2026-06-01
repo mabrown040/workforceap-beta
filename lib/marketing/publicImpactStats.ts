@@ -57,6 +57,80 @@ export function hasPublicImpactEnrolledCohort(stats: PublicImpactStats): boolean
   return stats.programs.length > 0;
 }
 
+export type PublishedImpactStatRow = {
+  label: string;
+  value: string;
+};
+
+type PublishedImpactJsonLdLabels = {
+  membersServed: string;
+  completionRate: string;
+  placementRate: string;
+  avgSalaryIncrease: string;
+  employerPartners: string;
+  jobsPosted: string;
+  hires: string;
+};
+
+/** Only metrics that are visibly published on /impact — omit 0% rates and empty cohorts. */
+export function buildPublishedImpactJsonLdStats(
+  stats: PublicImpactStats,
+  labels: PublishedImpactJsonLdLabels,
+): PublishedImpactStatRow[] {
+  const rows: PublishedImpactStatRow[] = [];
+
+  if (stats.membersServed > 0) {
+    rows.push({
+      label: labels.membersServed,
+      value: stats.membersServed.toLocaleString('en-US'),
+    });
+  }
+
+  if (hasPublicImpactEnrolledCohort(stats) && stats.completionRatePct > 0) {
+    rows.push({
+      label: labels.completionRate,
+      value: `${stats.completionRatePct}%`,
+    });
+  }
+
+  if (hasPublicImpactEnrolledCohort(stats) && stats.placementRatePct > 0) {
+    rows.push({
+      label: labels.placementRate,
+      value: `${stats.placementRatePct}%`,
+    });
+  }
+
+  if (stats.salaryIncreaseSampleSize > 0 && stats.avgSalaryIncreaseDollars != null) {
+    rows.push({
+      label: labels.avgSalaryIncrease,
+      value: `+$${Math.round(stats.avgSalaryIncreaseDollars).toLocaleString('en-US')}`,
+    });
+  }
+
+  if (stats.employersPartnered > 0) {
+    rows.push({
+      label: labels.employerPartners,
+      value: stats.employersPartnered.toLocaleString('en-US'),
+    });
+  }
+
+  if (stats.jobsPosted > 0) {
+    rows.push({
+      label: labels.jobsPosted,
+      value: stats.jobsPosted.toLocaleString('en-US'),
+    });
+  }
+
+  if (stats.hiresMade > 0) {
+    rows.push({
+      label: labels.hires,
+      value: stats.hiresMade.toLocaleString('en-US'),
+    });
+  }
+
+  return rows;
+}
+
 function memberUserWhere(orgId: string): Prisma.UserWhereInput {
   return {
     organizationId: orgId,

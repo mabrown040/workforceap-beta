@@ -1405,6 +1405,8 @@
       "heroDesc": "Explore career training programs offered at no cost for qualifying members, with certifications from IBM, Google, AWS, Microsoft, and CompTIA.",
       "heroCta1": "Browse programs",
       "heroCta2": "Find your path",
+      "catalogTitle": "Browse all {count} programs",
+      "catalogLead": "Search by name, skill, partner, or topic — or use the category chips to narrow the list.",
       "quickStart": "Quick start",
       "quickStartBody": "Start with the lane that fits you best.",
       "notSure": "Not sure? Take the 2-minute pathfinder",

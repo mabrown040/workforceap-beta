@@ -1372,6 +1372,8 @@
       "heroDesc": "Explore programas de treinamento profissional oferecidos sem custo para membros qualificados, com certificações da IBM, Google, AWS, Microsoft e CompTIA.",
       "heroCta1": "Explorar programas",
       "heroCta2": "Encontre seu caminho",
+      "catalogTitle": "Explorar todos os {count} programas",
+      "catalogLead": "Pesquise por nome, habilidade, parceiro ou tema — ou use os filtros de categoria para refinar a lista.",
       "journeyIntro": "O WorkforceAP apoia membros em cada etapa, desde escolher um programa até conseguir um emprego na sua área.",
       "journeyStep1Title": "Encontre seu caminho",
       "journeyStep1Desc": "Use o guia de descoberta para alinhar seus interesses, cronograma e objetivos com o programa certo.",

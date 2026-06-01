@@ -234,9 +234,19 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
     return bySubgroup.filter((p) => programMatchesSearchQuery(p, searchQuery));
   }, [activeSubgroup, searchQuery]);
 
+  const t = useTranslations('marketing.programs');
+
   return (
     <section id={sectionId ?? undefined} className="content-section">
       <div className="container">
+        <div className="program-catalog-intro" style={{ marginBottom: '1.25rem' }}>
+          <h2 className="text-display-sm" style={{ margin: '0 0 0.5rem', color: 'var(--color-on-surface)' }}>
+            {t('catalogTitle', { count: WORKFORCEAP_PROGRAM_CATALOG_SIZE })}
+          </h2>
+          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6, maxWidth: '42rem' }}>
+            {t('catalogLead')}
+          </p>
+        </div>
         <div className="program-catalog-search-row" style={{ marginBottom: '1.25rem' }}>
           <label htmlFor="program-catalog-search" className="sr-only">
             Search programs

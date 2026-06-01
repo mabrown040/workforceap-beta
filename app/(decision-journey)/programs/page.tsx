@@ -295,7 +295,7 @@ export default async function ProgramsPage() {
       </div>{/* end how-to-choose */}
 
       {/* Full catalog — one anchor `#program-catalog` for mobile + desktop + deep links */}
-      <div id="program-catalog" className="programs-page-catalog-anchor" style={{ scrollMarginTop: '0.75rem' }}>
+      <div id="program-catalog" className="programs-page-catalog-anchor">
         <ProgramsContent sectionId={null} />
       </div>
 

@@ -3,6 +3,8 @@ import type { EmployerCaseStudy } from '@/lib/content/employer-case-studies';
 type EmployerCaseStudyCardProps = {
   study: EmployerCaseStudy;
   variant?: 'default' | 'accent';
+  /** Short trust cue that the card is illustrative, not verified proof. */
+  scenarioLabel?: string;
 };
 
 function getInitials(name: string) {
@@ -17,6 +19,7 @@ function getInitials(name: string) {
 export default function EmployerCaseStudyCard({
   study,
   variant = 'default',
+  scenarioLabel,
 }: EmployerCaseStudyCardProps) {
   const isAccent = variant === 'accent';
   const bg = isAccent ? 'var(--color-accent)' : 'var(--surface-container-lowest)';
@@ -46,6 +49,25 @@ export default function EmployerCaseStudyCard({
       }}
     >
       <header style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+        {scenarioLabel ? (
+          <span
+            className="text-label-upper"
+            style={{
+              display: 'inline-flex',
+              alignSelf: 'flex-start',
+              fontSize: '0.625rem',
+              letterSpacing: '0.08em',
+              color: isAccent ? 'rgba(255,255,255,0.95)' : 'var(--color-on-surface-variant)',
+              fontWeight: 700,
+              padding: '0.2rem 0.55rem',
+              borderRadius: 'var(--radius-full, 9999px)',
+              border: `1px solid ${isAccent ? 'rgba(255,255,255,0.35)' : 'var(--outline-variant)'}`,
+              background: isAccent ? 'rgba(255,255,255,0.08)' : 'var(--surface-container-high)',
+            }}
+          >
+            {scenarioLabel}
+          </span>
+        ) : null}
         <span
           className="text-label-upper"
           style={{

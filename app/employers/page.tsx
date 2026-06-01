@@ -208,6 +208,7 @@ export default async function EmployersPage() {
               key={study.company}
               study={study}
               variant={i === 0 ? 'accent' : 'default'}
+              scenarioLabel={t('outcomesScenarioLabel')}
             />
           ))}
         </div>

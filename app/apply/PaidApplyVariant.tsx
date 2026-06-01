@@ -131,6 +131,8 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
         }
 
         .paid-apply-form-section {
+          display: flex;
+          flex-direction: column;
           max-width: 640px;
           margin: 0 auto;
           padding: var(--space-8) var(--space-6) var(--space-12);
@@ -222,11 +224,27 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
           }
 
           .paid-apply-form-section {
-            padding: var(--space-6) var(--space-4) var(--space-10);
+            padding: var(--space-6) var(--space-4) calc(var(--space-10) + 4.5rem + env(safe-area-inset-bottom, 0px));
           }
 
-          .paid-apply-proof {
+          /* Form first on mobile — proof card stays below the fold until after eligibility */
+          .paid-apply-form-section .trust-strip--apply {
+            order: 0;
             margin-bottom: var(--space-4);
+          }
+
+          .paid-apply-form-section .apply-flow--paid {
+            order: 1;
+          }
+
+          .paid-apply-form-section .paid-apply-proof {
+            order: 2;
+            margin-top: var(--space-6);
+            margin-bottom: 0;
+          }
+
+          .apply-flow--paid .apply-step1-actions {
+            scroll-margin-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
           }
 
           #paid-apply-eligibility {

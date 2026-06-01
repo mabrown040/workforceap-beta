@@ -91,6 +91,7 @@ export default async function ImpactPage() {
     stats.employersPartnered > 0 || stats.jobsPosted > 0 || stats.hiresMade > 0;
 
   const membersServedValue = hasLiveData ? formatThousands(stats.membersServed) : '—';
+  const isUnpublishedValue = (value: string) => value === '—';
 
   const rateFootnoteStyle = {
     display: 'block',
@@ -218,70 +219,78 @@ export default async function ImpactPage() {
           />
 
           {!hasLiveData ? (
-            <p
+            <div style={{ marginBottom: '2.5rem', borderLeft: '4px solid var(--color-accent)' }}>
+              <InfoCard
+                variant="bordered"
+                title={t('membersServedEmptyTitle')}
+                description={t('dataLightNote')}
+              />
+            </div>
+          ) : (
+            <div
+              className="portal-card portal-card--flat"
               style={{
-                margin: '0 0 1.5rem',
-                maxWidth: '42rem',
-                fontSize: '0.92rem',
-                lineHeight: 1.6,
-                color: 'var(--color-on-surface-variant)',
+                padding: 'clamp(1.5rem, 3vw, 2.5rem)',
+                marginBottom: '2.5rem',
+                borderLeft: '4px solid var(--color-accent)',
               }}
             >
-              {t('dataLightNote')}
-            </p>
-          ) : null}
-
-          <div
-            className="portal-card portal-card--flat"
-            style={{
-              padding: 'clamp(1.5rem, 3vw, 2.5rem)',
-              marginBottom: '2.5rem',
-              borderLeft: '4px solid var(--color-accent)',
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                fontSize: 'clamp(2.75rem, 6vw, 4rem)',
-                fontWeight: 900,
-                color: 'var(--color-accent)',
-                lineHeight: 1,
-              }}
-            >
-              {membersServedValue}
-            </p>
-            <p style={{ margin: '0.75rem 0 0', fontWeight: 700, fontSize: '1.125rem' }}>
-              {t('membersServedLabel')}
-            </p>
-            <p
-              style={{
-                margin: '0.5rem 0 0',
-                fontSize: '0.92rem',
-                color: 'var(--color-on-surface-variant)',
-                lineHeight: 1.6,
-              }}
-            >
-              {t('membersServedDesc')}
-            </p>
-            {hasLiveData ? (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 'clamp(2.75rem, 6vw, 4rem)',
+                  fontWeight: 900,
+                  color: 'var(--color-accent)',
+                  lineHeight: 1,
+                }}
+              >
+                {membersServedValue}
+              </p>
+              <p style={{ margin: '0.75rem 0 0', fontWeight: 700, fontSize: '1.125rem' }}>
+                {t('membersServedLabel')}
+              </p>
+              <p
+                style={{
+                  margin: '0.5rem 0 0',
+                  fontSize: '0.92rem',
+                  color: 'var(--color-on-surface-variant)',
+                  lineHeight: 1.6,
+                }}
+              >
+                {t('membersServedDesc')}
+              </p>
               <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
                 {stats.asOfLabel}
               </p>
-            ) : null}
-          </div>
+            </div>
+          )}
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: '1rem',
-              marginBottom: '3rem',
-            }}
-          >
-            <StatCard value={completionValue} label={completionLabel} />
-            <StatCard value={placementValue} label={placementLabel} />
-            <StatCard value={salaryValue} label={salaryLabel} />
-          </div>
+          {hasLiveData ? (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: '1rem',
+                marginBottom: '3rem',
+              }}
+            >
+              <StatCard
+                value={completionValue}
+                label={completionLabel}
+                unpublished={isUnpublishedValue(String(completionValue))}
+              />
+              <StatCard
+                value={placementValue}
+                label={placementLabel}
+                unpublished={isUnpublishedValue(String(placementValue))}
+              />
+              <StatCard
+                value={salaryValue}
+                label={salaryLabel}
+                unpublished={salaryValue === '—'}
+              />
+            </div>
+          ) : null}
         </div>
       </PageSection>
 

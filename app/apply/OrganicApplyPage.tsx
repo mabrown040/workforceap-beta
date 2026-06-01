@@ -201,6 +201,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
         </div>
         <h1 style={sPage.heroHeading}>{t('heroHeading')}</h1>
         <p className="apply-hero-social" style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{t('applySocialProof')}</p>
+        <p className="apply-hero-no-cost-callout apply-hero-no-cost-mobile">
+          <strong>{t('heroDescHighlight')}</strong>{' '}
+          <span>{t('step1Kicker')}</span>
+        </p>
         <p className="apply-hero-desc-full" style={sPage.heroDesc}>
           {t('heroDesc')}
           <strong> {t('heroDescHighlight')}</strong>
@@ -359,10 +363,17 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
 
       {/* Responsive overrides — mobile: shorter hero, form first, help below form */}
       <style>{`
+        .apply-hero-no-cost-mobile,
         .apply-hero-help-compact,
         .apply-hero-start-cta,
         .apply-hero-help-mobile {
           display: none;
+        }
+
+        .apply-hero-no-cost-mobile {
+          max-width: 640px;
+          margin: var(--space-3) auto 0;
+          text-align: left;
         }
 
         .apply-hero-help-compact {
@@ -422,6 +433,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           .apply-hero-help-desktop {
             display: none !important;
           }
+          .apply-hero-no-cost-mobile,
           .apply-hero-help-compact,
           .apply-hero-start-cta,
           .apply-hero-help-mobile {

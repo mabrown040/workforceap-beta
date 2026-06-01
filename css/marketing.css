@@ -705,6 +705,14 @@ html.has-marketing-main-nav {
   .programs-page-catalog-anchor {
     padding-bottom: 5.5rem;
   }
+
+  /*
+   * Tool routing + "How to choose" repeat quick-start and catalog guidance;
+   * hide on mobile so sticky browse nav sits directly above the catalog.
+   */
+  .programs-page-desktop-only {
+    display: none;
+  }
 }
 
 /*

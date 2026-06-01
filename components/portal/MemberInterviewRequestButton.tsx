@@ -36,8 +36,10 @@ export default function MemberInterviewRequestButton() {
   return (
     <div>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button type="button" className="btn btn-primary" disabled={loading} onClick={() => void submit()}>
-        {loading ? 'Sending…' : 'Request interview'}
+      <button type="button" className="btn btn-primary" disabled={loading} onClick={() => void submit()} aria-busy={loading}>
+        <span aria-live="polite">
+          {loading ? 'Sending…' : 'Request interview'}
+        </span>
       </button>
       <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem' }}>
         Opens scheduling by email on our side — you’ll hear from a counselor.

@@ -208,8 +208,10 @@ export default function PartnerInviteMemberButton({ compact = false }: Props) {
                 <button type="button" className="btn btn-outline" onClick={() => setOpen(false)} disabled={submitting}>
                   {tCommon('cancel')}
                 </button>
-                <button type="submit" className="btn btn-primary" disabled={submitting || !email.trim()}>
-                  {submitting ? 'Sending…' : 'Send Invite'}
+                <button type="submit" className="btn btn-primary" disabled={submitting || !email.trim()} aria-busy={submitting}>
+                  <span aria-live="polite">
+                    {submitting ? 'Sending…' : 'Send Invite'}
+                  </span>
                 </button>
               </div>
             </form>

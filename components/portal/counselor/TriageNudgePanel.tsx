@@ -161,8 +161,11 @@ export default function TriageNudgePanel({ memberId, memberName, templates, mile
           className="btn btn-primary"
           style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
           disabled={isPending || !selected}
+          aria-busy={isPending}
         >
-          {isPending ? 'Sending…' : 'Send'}
+          <span aria-live="polite">
+            {isPending ? 'Sending…' : 'Send'}
+          </span>
         </button>
       </div>
     </div>

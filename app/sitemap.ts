@@ -50,7 +50,6 @@ const PUBLIC_ROUTES: PublicRouteConfig[] = [
   { path: '/salary-guide', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/terms', changeFrequency: 'yearly', priority: 0.5 },
   { path: '/what-we-do', changeFrequency: 'monthly', priority: 0.8 },
-  { path: '/wioa-qualification', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/privacy', changeFrequency: 'yearly', priority: 0.5 },
   { path: '/mentor', changeFrequency: 'monthly', priority: 0.7 },
   { path: '/mentor/apply', changeFrequency: 'monthly', priority: 0.7 },

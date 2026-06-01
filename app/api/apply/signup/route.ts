@@ -46,6 +46,11 @@ const applySignupSchema = z.object({
   recommendedCareerTitle: z.string().max(200).optional().nullable(),
   careerRecommendationJson: z.any().optional().nullable(),
   needsComputerSupportFollowUp: z.boolean().optional(),
+  ageGroup: z.enum(['18_24', '25_50', '50_plus']).optional().nullable(),
+  county: z.string().trim().max(100).optional().nullable(),
+  primaryBarrier: z.string().trim().max(100).optional().nullable(),
+  eligibilityQualifies: z.boolean().optional().nullable(),
+  eligibilityYesCount: z.number().int().min(0).max(3).optional().nullable(),
   // Marketing attribution captured at first ad-landing visit. Stored on
   // the apply_signup_completed MemberEvent metadata so downstream analytics
   // (GA4, BigQuery, internal cohort queries) can attribute conversion to
@@ -97,6 +102,11 @@ const applySignupSchema = z.object({
       recommendedCareerTitle,
       careerRecommendationJson,
       needsComputerSupportFollowUp,
+      ageGroup,
+      county,
+      primaryBarrier,
+      eligibilityQualifies,
+      eligibilityYesCount,
       utmSource,
       utmMedium,
       utmCampaign,
@@ -129,6 +139,18 @@ const applySignupSchema = z.object({
       .filter(Boolean) as string[];
     const programInterestSummary =
       secondaryTitles.length > 0 ? `${program.title} (preferences: ${secondaryTitles.join(', ')})` : program.title;
+    const normalizedPrimaryBarrier = primaryBarrier?.trim() || null;
+    const profileBarrierTypes =
+      normalizedPrimaryBarrier && normalizedPrimaryBarrier !== 'none' ? [normalizedPrimaryBarrier] : [];
+    const applicationNotes = [
+      ageGroup ? `Age group: ${ageGroup}` : null,
+      city?.trim() ? `City: ${city.trim()}` : null,
+      state?.trim() ? `State: ${state.trim()}` : null,
+      zip?.trim() ? `ZIP: ${zip.trim()}` : null,
+      county?.trim() ? `County: ${county.trim()}` : null,
+      normalizedPrimaryBarrier ? `Primary barrier: ${normalizedPrimaryBarrier}` : null,
+      typeof eligibilityQualifies === 'boolean' ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0}/3)` : null,
+    ].filter(Boolean).join('\n');
   
     let referralPartnerId: string | null = null;
     let referralSource: string | null = null;
@@ -260,6 +282,8 @@ const applySignupSchema = z.object({
             state: state?.trim() || null,
             zip: zip?.trim() || null,
             smsOptIn: smsOptIn ?? false,
+            hasEmploymentBarrier: profileBarrierTypes.length > 0,
+            barrierTypes: profileBarrierTypes,
             role: 'member',
           },
           update: {
@@ -269,6 +293,8 @@ const applySignupSchema = z.object({
             state: state?.trim() || null,
             zip: zip?.trim() || null,
             smsOptIn: smsOptIn ?? false,
+            hasEmploymentBarrier: profileBarrierTypes.length > 0,
+            barrierTypes: profileBarrierTypes,
             role: 'member',
           },
         });
@@ -281,6 +307,7 @@ const applySignupSchema = z.object({
             programRankedSlugs,
             recommendedOnetCode: recommendedOnetCode ?? null,
             recommendedCareerTitle: recommendedCareerTitle ?? null,
+            notes: applicationNotes || null,
             submittedAt: new Date(),
             referralSource,
             referralPartnerId,

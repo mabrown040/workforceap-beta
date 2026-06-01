@@ -16,6 +16,12 @@ export type ApplyFlowDraftV1 = {
   lastName: string;
   email: string;
   phone: string;
+  ageGroup?: '18_24' | '25_50' | '50_plus' | '';
+  city?: string;
+  state?: string;
+  zip?: string;
+  county?: string;
+  primaryBarrier?: string;
   q1: 'yes' | 'no' | null;
   q2: 'yes' | 'no' | null;
   q3: 'yes' | 'no' | null;

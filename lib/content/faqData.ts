@@ -38,7 +38,7 @@ export const FAQ_DATA: Record<FaqCategoryKey, FaqItem[]> = {
       link: { text: 'Learn About Our Mission', href: '/what-we-do' },
     },
     { q: 'Is it really no-cost to members?', a: 'Programs are available at no cost to members. Exact eligibility and funding path can vary by program and situation, and WorkforceAP will walk you through the right next step during intake.', link: { text: 'View Programs', href: '/programs' } },
-    { q: 'Who qualifies?', a: "Eligibility depends on the program, funding path, location, and your situation. If you're unsure, start with the application or WIOA screening and WorkforceAP can help you understand the best next step.", link: { text: 'Check WIOA Screening', href: '/wioa-qualification' } },
+    { q: 'Who qualifies?', a: "Eligibility depends on the program, funding path, location, and your situation. If you're unsure, start with the application and WorkforceAP can help you understand the best next step.", link: { text: 'Start the application', href: '/apply' } },
     { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. Everything is designed so you can participate while working, parenting, or managing other commitments.', link: { text: 'View Programs', href: '/programs' } },
     { q: 'Can I talk to someone before I apply?', a: 'Yes. If you have questions or want to talk through whether this is a good fit, reach out. WorkforceAP can help you understand your options before you commit to anything.', link: { text: 'Contact Us', href: '/contact' } },
   ],
@@ -52,7 +52,7 @@ export const FAQ_DATA: Record<FaqCategoryKey, FaqItem[]> = {
   ],
   'Cost & Funding': [
     { q: 'How much does the program cost?', a: 'Our programs are available at no cost to members. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.', link: { text: 'View Programs', href: '/programs' } },
-    { q: "What does 'qualifying' mean?", a: 'It means eligibility is reviewed based on the pathway, funding source, and your situation. If you are not sure, apply or use the WIOA screening flow and WorkforceAP can help clarify your options.', link: { text: 'Check WIOA Screening', href: '/wioa-qualification' } },
+    { q: "What does 'qualifying' mean?", a: 'It means eligibility is reviewed based on the pathway, funding source, and your situation. If you are not sure, apply and WorkforceAP can help clarify your options.', link: { text: 'Start the application', href: '/apply' } },
     { q: 'Do I need to pay anything back?', a: 'No. This is not a loan. Training is funded through grants and partnerships. WorkforceAP does not use income-sharing agreements (ISAs) or member loans for these pathways.', link: { text: 'Read Success Stories', href: '/blog' } },
     { q: 'Are certification exam fees included?', a: 'Certification support can vary by program and funding path. WorkforceAP can explain what is included for the pathway you are considering.', link: { text: 'View Programs', href: '/programs' } },
   ],

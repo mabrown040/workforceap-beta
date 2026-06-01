@@ -156,7 +156,7 @@ export default function SalaryGuidePage() {
           </span>
           <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>Program Salary Guide</h1>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, maxWidth: '640px' }}>
-            Starting salary ranges for all 19 programs — the same numbers shown on each program page. Salary matters, but so does fit, time commitment, support available, and how steep the skill ramp is. Use this guide to weigh all of it.
+            Starting salary ranges for all 20 programs — the same numbers shown on each program page. Salary matters, but so does fit, time commitment, support available, and how steep the skill ramp is. Use this guide to weigh all of it.
           </p>
         </section>
 
@@ -243,7 +243,7 @@ export default function SalaryGuidePage() {
           <div className="salary-guide-stats-row" style={{ marginTop: '2rem' }}>
             {[
               { value: guideStats.highestSalary, label: 'Top of published range', sub: guideStats.highestProgram },
-              { value: guideStats.avgMidpointLabel, label: 'Typical midpoint (all 19)', sub: 'Average of range midpoints' },
+              { value: guideStats.avgMidpointLabel, label: 'Typical midpoint (all 20)', sub: 'Average of range midpoints' },
               {
                 value: String(guideStats.over100Count),
                 label: 'Tracks topping ~$100K',
@@ -259,7 +259,7 @@ export default function SalaryGuidePage() {
           </div>
 
           {/* ===== Role Cards Grid ===== */}
-          <h2 style={{ marginTop: '3rem', marginBottom: '1.5rem' }}>Program starting ranges (all 19)</h2>
+          <h2 style={{ marginTop: '3rem', marginBottom: '1.5rem' }}>Program starting ranges (all 20)</h2>
           <p className="salary-guide-table-intro">
             Same published ranges as each program card on /programs. Framed for early-career (roughly 0-1 year in-role).
           </p>

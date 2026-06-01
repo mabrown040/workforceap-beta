@@ -17,6 +17,22 @@ const ELIGIBILITY_KEYS = [
   { legendKey: 'eligibilityQ3Legend', promptKey: 'eligibilityQ3Prompt' as const },
 ] as const;
 
+const AGE_GROUPS = [
+  { value: '18_24', label: '18–24' },
+  { value: '25_50', label: '25–50' },
+  { value: '50_plus', label: '50+' },
+] as const;
+
+const PRIMARY_BARRIERS = [
+  { value: 'none', label: 'No barrier right now' },
+  { value: 'employment_gap', label: 'Employment gap' },
+  { value: 'limited_work_history', label: 'Limited work history' },
+  { value: 'justice_involved', label: 'Background / justice involvement' },
+  { value: 'disability', label: 'Disability or health barrier' },
+  { value: 'housing_instability', label: 'Housing instability' },
+  { value: 'other', label: 'Other barrier' },
+] as const;
+
 const APPLY_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 function readDraft(): ApplyFlowDraftV1 | null {
@@ -52,6 +68,12 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
       lastName: payload.lastName,
       email: payload.email,
       phone: payload.phone,
+      ageGroup: payload.ageGroup,
+      city: payload.city,
+      state: payload.state,
+      zip: payload.zip,
+      county: payload.county,
+      primaryBarrier: payload.primaryBarrier,
       q1: payload.q1,
       q2: payload.q2,
       q3: payload.q3,
@@ -75,6 +97,12 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [ageGroup, setAgeGroup] = useState<ApplyFlowDraftV1['ageGroup']>('');
+  const [city, setCity] = useState('');
+  const [stateVal, setStateVal] = useState('');
+  const [zip, setZip] = useState('');
+  const [county, setCounty] = useState('');
+  const [primaryBarrier, setPrimaryBarrier] = useState('');
 
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
@@ -94,6 +122,12 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     setLastName(draft.lastName ?? '');
     setEmail(draft.email ?? '');
     setPhone(draft.phone ?? '');
+    setAgeGroup(draft.ageGroup ?? '');
+    setCity(draft.city ?? '');
+    setStateVal(draft.state ?? '');
+    setZip(draft.zip ?? '');
+    setCounty(draft.county ?? '');
+    setPrimaryBarrier(draft.primaryBarrier ?? '');
     setQ1(draft.q1 ?? null);
     setQ2(draft.q2 ?? null);
     setQ3(draft.q3 ?? null);
@@ -117,7 +151,16 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     phone.trim().length > 0 &&
     phoneDigits.length >= 10;
 
-  const canContinue = contactOk && q1 !== null && q2 !== null && q3 !== null;
+  const zipOk = /^\d{5}(-\d{4})?$/.test(zip.trim());
+  const screeningDetailsOk =
+    !!ageGroup &&
+    city.trim().length > 0 &&
+    stateVal.trim().length > 0 &&
+    zipOk &&
+    county.trim().length > 0 &&
+    primaryBarrier.trim().length > 0;
+
+  const canContinue = contactOk && screeningDetailsOk && q1 !== null && q2 !== null && q3 !== null;
   const missingEligibilityAnswers = [q1, q2, q3].filter((answer) => answer === null).length;
   const yesCount = [q1, q2, q3].filter((answer) => answer === 'yes').length;
   const qualifies = yesCount >= 2;
@@ -145,7 +188,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   }, []);
 
   const persistDraft = () => {
-    writeDraft({ firstName, lastName, email, phone, q1, q2, q3 });
+    writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarrier, q1, q2, q3 });
   };
 
   const handleSaveLater = () => {
@@ -184,6 +227,12 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phone.replace(/\D/g, ''),
+          ageGroup,
+          city: city.trim(),
+          state: stateVal.trim(),
+          zip: zip.trim(),
+          county: county.trim(),
+          primaryBarrier,
         })
       );
     }
@@ -309,6 +358,102 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
           )}
         </div>
 
+        <div className="apply-personal-block">
+          <h3 className="apply-personal-block__title">Eligibility screening details</h3>
+          <div className="apply-personal-grid">
+            <div className="form-group apply-form-group--full">
+              <label htmlFor="apply-age-group">Age group *</label>
+              <select
+                id="apply-age-group"
+                name="ageGroup"
+                value={ageGroup}
+                onChange={(e) => setAgeGroup(e.target.value as ApplyFlowDraftV1['ageGroup'])}
+                required
+                aria-invalid={attemptedContinue && !ageGroup}
+              >
+                <option value="">Select age group</option>
+                {AGE_GROUPS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group apply-form-group--full">
+              <label htmlFor="apply-city">City *</label>
+              <input
+                id="apply-city"
+                type="text"
+                name="city"
+                autoComplete="address-level2"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                required
+                aria-invalid={attemptedContinue && !city.trim()}
+              />
+            </div>
+            <div className="form-group apply-form-group--full">
+              <label htmlFor="apply-state">State *</label>
+              <input
+                id="apply-state"
+                type="text"
+                name="state"
+                autoComplete="address-level1"
+                value={stateVal}
+                onChange={(e) => setStateVal(e.target.value)}
+                required
+                maxLength={50}
+                aria-invalid={attemptedContinue && !stateVal.trim()}
+              />
+            </div>
+            <div className="form-group apply-form-group--full">
+              <label htmlFor="apply-zip">ZIP code *</label>
+              <input
+                id="apply-zip"
+                type="text"
+                name="zip"
+                autoComplete="postal-code"
+                inputMode="numeric"
+                value={zip}
+                onChange={(e) => setZip(e.target.value)}
+                required
+                aria-invalid={attemptedContinue && !zipOk}
+              />
+            </div>
+            <div className="form-group apply-form-group--full">
+              <label htmlFor="apply-county">County *</label>
+              <input
+                id="apply-county"
+                type="text"
+                name="county"
+                value={county}
+                onChange={(e) => setCounty(e.target.value)}
+                required
+                aria-invalid={attemptedContinue && !county.trim()}
+              />
+            </div>
+            <div className="form-group apply-form-group--full">
+              <label htmlFor="apply-primary-barrier">Primary barrier *</label>
+              <select
+                id="apply-primary-barrier"
+                name="primaryBarrier"
+                value={primaryBarrier}
+                onChange={(e) => setPrimaryBarrier(e.target.value)}
+                required
+                aria-invalid={attemptedContinue && !primaryBarrier}
+              >
+                <option value="">Select one</option>
+                {PRIMARY_BARRIERS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {attemptedContinue && !screeningDetailsOk && (
+            <p className="apply-eligibility-field-error" role="alert">
+              Please complete age group, city, state, ZIP, county, and primary barrier.
+            </p>
+          )}
+        </div>
+
         <div className="funding-questions">
           <fieldset className="form-group apply-eligibility-fieldset">
             <legend className="apply-eligibility-legend">{t(ELIGIBILITY_KEYS[0].legendKey)}</legend>
@@ -420,10 +565,12 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         </div>
         {attemptedContinue && !canContinue ? (
           <p id="apply-eligibility-summary-error" className="apply-eligibility-field-error" role="alert">
-            {!contactOk && missingEligibilityAnswers > 0
-              ? `${t('contactIncompleteError')} ${t('eligibilityRadioError')}`
+            {(!contactOk || !screeningDetailsOk) && missingEligibilityAnswers > 0
+              ? `${!contactOk ? t('contactIncompleteError') : 'Please complete the required screening details.'} ${t('eligibilityRadioError')}`
               : !contactOk
                 ? t('contactIncompleteError')
+                : !screeningDetailsOk
+                  ? 'Please complete the required screening details.'
                 : t('eligibilityRadioError')}
           </p>
         ) : null}

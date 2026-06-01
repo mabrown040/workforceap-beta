@@ -344,7 +344,7 @@ export default function ProgramComparisonClient({ tracks }: Props) {
         </ul>
         <p className="program-comparison-starters-more">
           <LocalizedLink href="/find-your-path">Take the 2-minute quiz</LocalizedLink> for ranked matches →{' '}
-          <LocalizedLink href="/programs">browse all 19 programs</LocalizedLink>.
+          <LocalizedLink href="/programs">browse all 20 programs</LocalizedLink>.
         </p>
       </section>
 

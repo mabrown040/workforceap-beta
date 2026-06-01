@@ -13,8 +13,6 @@ import { getTranslations } from 'next-intl/server';
 import { marketingButtonPresets, marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
-const LanguageToggle = dynamic(() => import('@/components/portal/LanguageToggle'));
-
 const HomePageBelowFold = dynamic(() => import('@/components/marketing/HomePageBelowFold'));
 
 // Product stake: lead with a plain-English member promise; keep the brand line
@@ -138,10 +136,6 @@ export default async function HomePage() {
           boxSizing: 'border-box',
         }}
         >
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
-            <LanguageToggle compact />
-          </div>
-
           <p
             className="text-label-upper"
             style={{

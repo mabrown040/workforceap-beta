@@ -139,6 +139,12 @@ export default function ApplyCreateAccountForm() {
         lastName?: string;
         email?: string;
         phone?: string;
+        ageGroup?: string;
+        city?: string;
+        state?: string;
+        zip?: string;
+        county?: string;
+        primaryBarrier?: string;
       };
       let elig: EligStored | null = null;
       try {
@@ -178,9 +184,20 @@ export default function ApplyCreateAccountForm() {
         if (draft.city) {
           setCity(draft.city);
           setOptionalAddressOpen(true);
+        } else if (elig?.city) {
+          setCity(elig.city);
+          setOptionalAddressOpen(true);
         }
-        if (draft.state) setStateVal(draft.state);
-        if (draft.zip) setZip(draft.zip);
+        if (draft.state) {
+          setStateVal(draft.state);
+        } else if (elig?.state) {
+          setStateVal(elig.state);
+        }
+        if (draft.zip) {
+          setZip(draft.zip);
+        } else if (elig?.zip) {
+          setZip(elig.zip);
+        }
         if (typeof draft.smsOptIn === 'boolean') setSmsOptIn(draft.smsOptIn);
         if (typeof draft.contactConsent === 'boolean') setContactConsent(draft.contactConsent);
         return;
@@ -198,6 +215,12 @@ export default function ApplyCreateAccountForm() {
             setPhone(elig.phone);
           }
         }
+        if (elig.city) {
+          setCity(elig.city);
+          setOptionalAddressOpen(true);
+        }
+        if (elig.state) setStateVal(elig.state);
+        if (elig.zip) setZip(elig.zip);
       }
     } catch {
       /* ignore corrupt draft */
@@ -354,6 +377,24 @@ export default function ApplyCreateAccountForm() {
 
       const careerPayload = typeof window !== 'undefined' ? getCareerQuizPayloadFromStorage() : null;
       const attribution = readMarketingAttribution();
+      let eligibilityPayload: {
+        ageGroup?: string;
+        city?: string;
+        state?: string;
+        zip?: string;
+        county?: string;
+        primaryBarrier?: string;
+        qualifies?: boolean;
+        yesCount?: number;
+      } | null = null;
+      if (typeof window !== 'undefined') {
+        try {
+          const rawEligibility = sessionStorage.getItem('apply_eligibility');
+          eligibilityPayload = rawEligibility ? JSON.parse(rawEligibility) : null;
+        } catch {
+          eligibilityPayload = null;
+        }
+      }
 
       const res = await fetch('/api/apply/signup', {
         method: 'POST',
@@ -377,6 +418,11 @@ export default function ApplyCreateAccountForm() {
           recommendedCareerTitle: careerPayload?.recommendedCareerTitle ?? undefined,
           careerRecommendationJson: careerPayload?.careerRecommendationJson ?? undefined,
           needsComputerSupportFollowUp: careerPayload?.needsComputerSupportFollowUp ?? undefined,
+          ageGroup: eligibilityPayload?.ageGroup,
+          county: eligibilityPayload?.county,
+          primaryBarrier: eligibilityPayload?.primaryBarrier,
+          eligibilityQualifies: eligibilityPayload?.qualifies,
+          eligibilityYesCount: eligibilityPayload?.yesCount,
           utmSource: attribution.utmSource,
           utmMedium: attribution.utmMedium,
           utmCampaign: attribution.utmCampaign,

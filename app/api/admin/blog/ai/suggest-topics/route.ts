@@ -30,7 +30,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       .map((p) => `${p.title} (${p.category}) — ${p.publishedAt?.toISOString().slice(0, 10)}`)
       .join('\n');
   
-    const systemPrompt = `You are a content strategist for WorkforceAP, a workforce development organization in Austin TX. We offer 19 career programs (tech, healthcare, business, skilled trades). Our blog covers career tips, program spotlights, success stories, and local Austin job market insights.
+    const systemPrompt = `You are a content strategist for WorkforceAP, a workforce development organization in Austin TX. We offer 20 career programs (tech, healthcare, business, skilled trades). Our blog covers career tips, program spotlights, success stories, and local Austin job market insights.
   
   Output exactly 3 JSON objects in a JSON array. Each object must have:
   - title: string (blog post title)

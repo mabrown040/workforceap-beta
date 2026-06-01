@@ -36,7 +36,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       }
     }
   
-    const systemPrompt = `You are a blog writer for WorkforceAP, a workforce development organization in Austin TX. We offer 19 career programs (tech, healthcare, business, skilled trades). Our blog is warm, practical, and aimed at job seekers considering career change.
+    const systemPrompt = `You are a blog writer for WorkforceAP, a workforce development organization in Austin TX. We offer 20 career programs (tech, healthcare, business, skilled trades). Our blog is warm, practical, and aimed at job seekers considering career change.
   
   Write a full blog post in Markdown. Requirements:
   - 350-450 words

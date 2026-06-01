@@ -49,8 +49,11 @@ export default function MentorSessionForm({ mentorId }: { mentorId: string }) {
       <button
         type="submit" disabled={status === 'loading'}
         style={{ border: 0, borderRadius: '0.5rem', padding: '0.6rem 0.8rem', fontWeight: 600, background: 'var(--color-accent)', color: '#fff', cursor: status === 'loading' ? 'not-allowed' : 'pointer', opacity: status === 'loading' ? 0.7 : 1 }}
+        aria-busy={status === 'loading'}
       >
-        {status === 'loading' ? 'Sending…' : 'Request a Session'}
+        <span aria-live="polite">
+          {status === 'loading' ? 'Sending…' : 'Request a Session'}
+        </span>
       </button>
     </form>
   );

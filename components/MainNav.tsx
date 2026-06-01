@@ -366,7 +366,11 @@ export default function MainNav() {
                 ];
               }
               return [
-                <li key={item.label} className={`dropdown${isOpen ? ' active' : ''}`}>
+                <li
+                  key={item.label}
+                  className={`dropdown${isOpen ? ' active' : ''}`}
+                  onMouseLeave={() => { if (window.innerWidth > 900) setActiveDropdown((cur) => (cur === item.label ? null : cur)); }}
+                >
                   <button
                     type="button"
                     id={`${subMenuId}-trigger`}
@@ -430,6 +434,7 @@ export default function MainNav() {
           <li
             key="nav-login-portal"
             className={`dropdown nav-login-dropdown${isLoginMenuOpen ? ' active' : ''}`}
+            onMouseLeave={() => { if (window.innerWidth > 900) setActiveDropdown((cur) => (cur === '__login__' ? null : cur)); }}
           >
             <div className="nav-login-split">
               <LocalizedLink
@@ -512,7 +517,10 @@ export default function MainNav() {
               </li>
             </>
           ) : (
-          <li className={`dropdown nav-apply-dropdown${activeDropdown === '__apply__' ? ' active' : ''}`}>
+          <li
+            className={`dropdown nav-apply-dropdown${activeDropdown === '__apply__' ? ' active' : ''}`}
+            onMouseLeave={() => { if (window.innerWidth > 900) setActiveDropdown((cur) => (cur === '__apply__' ? null : cur)); }}
+          >
             <div className="nav-apply-split">
               <LocalizedLink
                 href="/apply"

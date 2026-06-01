@@ -19,7 +19,7 @@ import { UsersRound, GraduationCap, Building2, Heart, Bot, BarChart3, ShieldChec
 import { buildPageMetadataAsync } from '@/app/seo';
 import LocalizedLink from '@/components/LocalizedLink';
 import Footer from '@/components/Footer';
-import { HeroSection, PageSection, PartnershipCard, ProcessStep, SectionHeader, StatBand, ValueCard } from '@/components/marketing/ui';
+import { HeroSection, PartnershipCard, ProcessStep, SectionHeader, ValueCard } from '@/components/marketing/ui';
 import {
   marketingGhostButtonClasses,
   marketingPrimaryButtonClasses,
@@ -214,32 +214,8 @@ export default async function PartnersPage() {
         </div>
       </section>
 
-      {/* ── Stats band ──
-          TODO(G4): replace placeholder values (450 / 83% / 340) with real
-          numbers pulled from the partner analytics dashboard before launch. */}
-      <PageSection padding="md">
-        <p
-          style={{
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--color-accent)',
-            textAlign: 'center',
-            margin: '0 0 1rem',
-          }}
-        >
-          {t('statsEyebrow')}
-        </p>
-        <StatBand
-          variant="dark"
-          stats={[
-            { value: t('stat1Value'), label: t('stat1Label') },
-            { value: t('stat2Value'), label: t('stat2Label') },
-            { value: t('stat3Value'), label: t('stat3Label') },
-          ]}
-        />
-      </PageSection>
+      {/* Stats band removed pre-launch — placeholder figures (450 / 83% / 340)
+          would misrepresent results before any real partner data exists. */}
 
       {/* ── How it works (3-step) ── */}
       <section style={{ padding: '5rem 0' }}>

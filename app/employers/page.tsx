@@ -79,6 +79,22 @@ export default async function EmployersPage() {
   const hasAvgWage = trust.avgStartingWage != null && trust.avgStartingWage > 0;
   const hasPartnerCompanies = trust.partnerCompanies > 0;
 
+  type TrustStatItem = { value: string; label: string };
+
+  const liveTrustStats: TrustStatItem[] = [
+    hasMembersPlaced ? { value: membersPlacedLabel, label: t('trustStatPlaced') } : null,
+    hasAvgWage ? { value: avgWageLabel, label: t('trustStatWage') } : null,
+    hasPartnerCompanies ? { value: partnersLabel, label: t('trustStatPartners') } : null,
+  ].filter((item): item is TrustStatItem => item != null);
+
+  const placeholderTrustStats: TrustStatItem[] = [
+    { value: placeholders.membersPlacedLabel, label: t('trustPlaceholderFit') },
+    { value: placeholders.avgStartingWageLabel, label: t('trustPlaceholderSkills') },
+    { value: placeholders.partnerCompaniesLabel, label: t('trustPlaceholderTerms') },
+  ];
+
+  const trustStatsToShow = trust.hasLiveData && liveTrustStats.length > 0 ? liveTrustStats : placeholderTrustStats;
+
   return (
     <div className="inner-page employers-landing">
       {/* ── Hero: single primary CTA ── */}
@@ -144,26 +160,15 @@ export default async function EmployersPage() {
             <div
               className={`employers-trust__stats${trust.hasLiveData ? '' : ' employers-trust__stats--placeholder'}`}
             >
-              <div className="employers-trust__stat">
-                <span className="employers-trust__stat-value">{membersPlacedLabel}</span>
-                <span className="employers-trust__stat-label">
-                  {hasMembersPlaced ? t('trustStatPlaced') : t('trustPlaceholderFit')}
-                </span>
-              </div>
-              <div className="employers-trust__stat-divider" aria-hidden="true" />
-              <div className="employers-trust__stat">
-                <span className="employers-trust__stat-value">{avgWageLabel}</span>
-                <span className="employers-trust__stat-label">
-                  {hasAvgWage ? t('trustStatWage') : t('trustPlaceholderSkills')}
-                </span>
-              </div>
-              <div className="employers-trust__stat-divider" aria-hidden="true" />
-              <div className="employers-trust__stat">
-                <span className="employers-trust__stat-value">{partnersLabel}</span>
-                <span className="employers-trust__stat-label">
-                  {hasPartnerCompanies ? t('trustStatPartners') : t('trustPlaceholderTerms')}
-                </span>
-              </div>
+              {trustStatsToShow.map((stat, index) => (
+                <div key={stat.label} className="employers-trust__stat-group">
+                  {index > 0 ? <div className="employers-trust__stat-divider" aria-hidden="true" /> : null}
+                  <div className="employers-trust__stat">
+                    <span className="employers-trust__stat-value">{stat.value}</span>
+                    <span className="employers-trust__stat-label">{stat.label}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
           {trust.hasLiveData ? (
@@ -362,6 +367,9 @@ export default async function EmployersPage() {
           align-items: stretch;
           gap: 1.25rem;
         }
+        .employers-trust__stat-group {
+          display: contents;
+        }
         .employers-trust__stat {
           text-align: center;
           padding: 0.5rem 0;
@@ -549,6 +557,12 @@ export default async function EmployersPage() {
             align-items: center;
             justify-content: center;
             gap: 0;
+          }
+          .employers-trust__stat-group {
+            display: flex;
+            flex: 1 1 0;
+            align-items: center;
+            min-width: 0;
           }
           .employers-trust__stat {
             flex: 1 1 0;

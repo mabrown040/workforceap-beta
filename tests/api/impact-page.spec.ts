@@ -35,6 +35,7 @@ vi.mock('@/lib/db/prisma', () => ({
 import {
   getPublicImpactStats,
   EMPTY_PUBLIC_IMPACT_STATS,
+  buildPublishedImpactJsonLdStats,
   hasPublicImpactEnrolledCohort,
   hasPublicImpactLiveData,
   type PublicImpactStats,
@@ -104,6 +105,66 @@ describe('Impact Page — getPublicImpactStats', () => {
           ],
         }),
       ).toBe(true);
+    });
+
+    it('buildPublishedImpactJsonLdStats omits unpublished 0% rates and empty metrics', () => {
+      const labels = {
+        membersServed: 'Members served',
+        completionRate: 'Completion rate',
+        placementRate: 'Placement rate',
+        avgSalaryIncrease: 'Avg. salary increase',
+        employerPartners: 'Employer partners',
+        jobsPosted: 'Jobs posted',
+        hires: 'Hires',
+      };
+
+      expect(buildPublishedImpactJsonLdStats(EMPTY_PUBLIC_IMPACT_STATS, labels)).toEqual([]);
+
+      expect(
+        buildPublishedImpactJsonLdStats(
+          {
+            ...EMPTY_PUBLIC_IMPACT_STATS,
+            membersServed: 12,
+            completionRatePct: 0,
+            placementRatePct: 0,
+          },
+          labels,
+        ),
+      ).toEqual([{ label: 'Members served', value: '12' }]);
+
+      expect(
+        buildPublishedImpactJsonLdStats(
+          {
+            ...EMPTY_PUBLIC_IMPACT_STATS,
+            membersServed: 8,
+            completionRatePct: 40,
+            placementRatePct: 25,
+            programs: [
+              {
+                programSlug: 'digital-literacy-empowerment-class',
+                programTitle: 'Digital Literacy',
+                enrolled: 5,
+                completed: 2,
+                avgDaysToComplete: 30,
+              },
+            ],
+            salaryIncreaseSampleSize: 2,
+            avgSalaryIncreaseDollars: 12500,
+            employersPartnered: 3,
+            jobsPosted: 10,
+            hiresMade: 4,
+          },
+          labels,
+        ),
+      ).toEqual([
+        { label: 'Members served', value: '8' },
+        { label: 'Completion rate', value: '40%' },
+        { label: 'Placement rate', value: '25%' },
+        { label: 'Avg. salary increase', value: '+$12,500' },
+        { label: 'Employer partners', value: '3' },
+        { label: 'Jobs posted', value: '10' },
+        { label: 'Hires', value: '4' },
+      ]);
     });
   });
 

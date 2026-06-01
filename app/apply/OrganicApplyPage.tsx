@@ -175,6 +175,22 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
   const programSlug = resolveApplyProgramSlug(programParam);
   const program = programSlug ? getProgramBySlug(programSlug) : undefined;
   const t = await getTranslations('apply');
+
+  const helpCard = (
+    <div className="apply-hero-help-card" style={sPage.heroFallback}>
+      <p style={sPage.heroFallbackTitle}>{t('helpTitle')}</p>
+      <p style={sPage.heroFallbackText}>{t('helpBody')}</p>
+      <div style={sPage.heroFallbackActions}>
+        <LocalizedLink href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
+          {t('helpCta1')}
+        </LocalizedLink>
+        <a href="tel:+15127771808" className="btn btn-primary" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
+          {t('helpCta2')}
+        </a>
+      </div>
+    </div>
+  );
+
   return (
     <div style={sPage.wrapper}>
       {/* ── Hero ── */}
@@ -184,26 +200,20 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           {t('heroLabel')}
         </div>
         <h1 style={sPage.heroHeading}>{t('heroHeading')}</h1>
-        <p style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{t('applySocialProof')}</p>
-        <p style={sPage.heroDesc}>
+        <p className="apply-hero-social" style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{t('applySocialProof')}</p>
+        <p className="apply-hero-desc-full" style={sPage.heroDesc}>
           {t('heroDesc')}
           <strong> {t('heroDescHighlight')}</strong>
           <span> {t('heroDescSuffix')}</span>
         </p>
-        <div style={sPage.heroFallback}>
-          <p style={sPage.heroFallbackTitle}>{t('helpTitle')}</p>
-          <p style={sPage.heroFallbackText}>
-            {t('helpBody')}
-          </p>
-          <div style={sPage.heroFallbackActions}>
-            <LocalizedLink href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
-              {t('helpCta1')}
-            </LocalizedLink>
-            <a href="tel:+15127771808" className="btn btn-primary" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
-              {t('helpCta2')}
-            </a>
-          </div>
-        </div>
+        <p className="apply-hero-help-compact">
+          {t('questionsCall')}{' '}
+          <a href="tel:+15127771808" className="apply-hero-help-compact__link">(512) 777-1808</a>
+        </p>
+        <a href="#apply-form-start" className="btn btn-primary apply-hero-start-cta">
+          {t('startYourApplication')}
+        </a>
+        <div className="apply-hero-help-desktop">{helpCard}</div>
       </section>
 
       {/* ── 12-col grid: sidebar + form ── */}
@@ -309,7 +319,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             }}
           />
 
-          <div className="apply-main-form__primary">
+          <div id="apply-form-start" className="apply-main-form__primary">
             <TrustStrip variant="apply" />
 
             <Suspense fallback={<ApplyPageSkeleton />}>
@@ -317,6 +327,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             </Suspense>
           </div>
         </div>
+      </div>
+
+      <div className="apply-hero-help-mobile" aria-label={t('helpTitle')}>
+        {helpCard}
       </div>
 
       {/* ── Supplemental cards ── */}
@@ -343,11 +357,80 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
 
       <Footer />
 
-      {/* Responsive overrides — mobile: form first, docs after submit area */}
+      {/* Responsive overrides — mobile: shorter hero, form first, help below form */}
       <style>{`
+        .apply-hero-help-compact,
+        .apply-hero-start-cta,
+        .apply-hero-help-mobile {
+          display: none;
+        }
+
+        .apply-hero-help-compact {
+          margin: var(--space-4) auto 0;
+          max-width: 640px;
+          font-size: var(--font-size-sm);
+          line-height: var(--line-height-normal);
+          color: rgba(255, 255, 255, 0.88);
+        }
+
+        .apply-hero-help-compact__link {
+          color: var(--color-gold);
+          font-weight: 700;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+        }
+
+        .apply-hero-start-cta {
+          margin: var(--space-5) auto 0;
+          min-width: min(100%, 320px);
+          min-height: 48px;
+          background: var(--color-gold);
+          color: var(--color-on-surface);
+          font-weight: 700;
+        }
+
+        .apply-hero-help-mobile {
+          max-width: var(--max-width);
+          margin: 0 auto var(--space-6);
+          padding: 0 var(--space-4);
+        }
+
+        .apply-hero-help-mobile .apply-hero-help-card {
+          background: var(--surface-container);
+          border-color: var(--outline-variant);
+          color: var(--color-on-surface);
+        }
+
+        .apply-hero-help-mobile .apply-hero-help-card p:first-of-type {
+          color: var(--color-on-surface);
+        }
+
+        .apply-hero-help-mobile .apply-hero-help-card p:nth-of-type(2) {
+          color: var(--color-on-surface-variant);
+        }
+
+        .apply-hero-help-mobile .apply-hero-help-card .btn-outline {
+          color: var(--color-on-surface) !important;
+          border-color: var(--outline-variant) !important;
+        }
+
         @media (max-width: 768px) {
           .apply-hero {
-            padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-6) !important;
+            padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-5) !important;
+          }
+          .apply-hero-desc-full,
+          .apply-hero-help-desktop {
+            display: none !important;
+          }
+          .apply-hero-help-compact,
+          .apply-hero-start-cta,
+          .apply-hero-help-mobile {
+            display: block;
+          }
+          .apply-hero-start-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
           }
           .apply-grid-layout {
             grid-template-columns: 1fr !important;
@@ -382,6 +465,13 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           /* Hero already shows social proof — avoid duplicate above the form */
           .apply-flow--step1:not(.apply-flow--paid) .apply-social-proof {
             display: none;
+          }
+          /* Sidebar covers next steps — keep step 1 form scannable */
+          .apply-flow--step1:not(.apply-flow--paid) .apply-transition-card {
+            display: none;
+          }
+          #apply-form-start {
+            scroll-margin-top: calc(var(--nav-height-default, 80px) + var(--space-4));
           }
         }
       `}</style>

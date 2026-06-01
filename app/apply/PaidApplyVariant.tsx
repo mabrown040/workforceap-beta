@@ -98,7 +98,7 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
         }
 
         .paid-apply-hero {
-          padding: var(--space-12) var(--space-6) var(--space-8);
+          padding: calc(var(--nav-height-default, 80px) + var(--space-8)) var(--space-6) var(--space-8);
           text-align: center;
           background: linear-gradient(
             165deg,
@@ -214,6 +214,24 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
 
         .paid-apply-proof__help-link {
           min-height: 44px;
+        }
+
+        @media (max-width: 768px) {
+          .paid-apply-hero {
+            padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-6);
+          }
+
+          .paid-apply-form-section {
+            padding: var(--space-6) var(--space-4) var(--space-10);
+          }
+
+          .paid-apply-proof {
+            margin-bottom: var(--space-4);
+          }
+
+          #paid-apply-eligibility {
+            scroll-margin-top: calc(var(--nav-height-default, 80px) + var(--space-4));
+          }
         }
       `}</style>
     </div>

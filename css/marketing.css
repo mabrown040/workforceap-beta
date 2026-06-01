@@ -292,6 +292,16 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
     font-size: 1.05rem;
     align-self: flex-start;
   }
+
+  /*
+   * Mobile primary CTA sits directly under hero copy; hide the duplicate canonical
+   * primary below the step pills and the legacy text-link apply path so cold mobile
+   * traffic sees one clear apply action above the fold.
+   */
+  .home-hero__cta-primary,
+  .home-hero-mobile-apply {
+    display: none !important;
+  }
 }
 
 /*
@@ -757,7 +767,8 @@ html.has-marketing-main-nav {
     outline-offset: 2px;
   }
 
-  /* Clear sticky nav + fixed main nav when jumping to subgroup anchors */
+  /* Clear sticky browse nav + fixed main nav when jumping to catalog anchors */
+  .programs-page-catalog-anchor,
   .programs-subgroup-section,
   #all-programs {
     scroll-margin-top: calc(var(--main-nav-layout-height, 64px) + 3.75rem);

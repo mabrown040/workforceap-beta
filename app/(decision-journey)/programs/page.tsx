@@ -165,7 +165,7 @@ export default async function ProgramsPage() {
       {/* ══════════════════════════════════════════════
           HOW TO CHOOSE + TOOL ROUTING — desktop only
           ══════════════════════════════════════════════ */}
-      <div>
+      <div className="programs-page-desktop-only">
 
       {/* ── Tool Routing ── */}
       <section style={{ padding: '3rem 0 0' }}>

@@ -289,6 +289,18 @@ export default function WioaQualificationClient({
               <PortalVoiceSession
                 sessionEndpoint={voiceSessionEndpoint}
                 sessionPayload={voicePayload}
+                completionEndpoint={isPublic ? '/api/public/wioa-qualification/voice-completion' : undefined}
+                completionPayload={
+                  isPublic
+                    ? {
+                        fullName: fullName.trim(),
+                        email: email.trim(),
+                        phone: phone.trim(),
+                        countyOrZip: countyOrZip.trim(),
+                        screeningSource: 'public_page',
+                      }
+                    : undefined
+                }
                 title="WIOA pre-check"
                 description="Talk through your work goals, barriers, and likely eligibility before the formal review."
                 accent="#0d9488"

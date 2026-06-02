@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ProgramCourse } from '@/lib/content/programs';
 import { getDiscoveredProgram } from '@/lib/content/programs';
+import type { DiscoveredCourseraCourse } from '@/lib/content/courseraDiscoveredCatalog';
 
 type TrainingCourseListProps = {
   courses: ProgramCourse[];
@@ -27,7 +28,7 @@ export default function TrainingCourseList({ courses, completedSlugs, programSlu
     const discoveredProgram = getDiscoveredProgram(programSlug);
     if (!discoveredProgram) return 'https://coursera.org';
     
-    const discoveredCourse = discoveredProgram.courses.find(c => c.slug === courseSlug);
+    const discoveredCourse = discoveredProgram.courses.find((c: DiscoveredCourseraCourse) => c.slug === courseSlug);
     if (!discoveredCourse) return 'https://coursera.org';
     
     // Use the course's public URL if available, otherwise construct from course ID

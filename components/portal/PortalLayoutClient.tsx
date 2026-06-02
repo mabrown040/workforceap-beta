@@ -1,6 +1,5 @@
 'use client';
 
-import { appWithTranslation } from 'next-i18next';
 import '@/css/language-toggle.css';
 import PartnerExclusiveServerGate from '@/components/portal/PartnerExclusiveServerGate';
 import PortalShell from '@/components/portal/PortalShell';
@@ -19,4 +18,4 @@ function PortalLayoutClient({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default appWithTranslation(PortalLayoutClient);
+export default PortalLayoutClient;

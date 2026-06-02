@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   _req: NextRequest,
@@ -74,10 +75,18 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       },
     });
   
+    await auditLog({
+      actorUserId: user.id,
+      action: 'email_cron_manual_trigger',
+      targetType: 'email_cron',
+      targetId: id,
+      metadata: { workflow: cron.workflowKey, ok, durationMs, error: errorMsg },
+    });
+
     if (!ok) {
       return NextResponse.json({ ok: false, error: errorMsg, result }, { status: 200 });
     }
-  
+
     return NextResponse.json({ ok: true, result, durationMs });
   } catch (error) {
     console.error('/admin/email-crons/[id]/trigger:', error);

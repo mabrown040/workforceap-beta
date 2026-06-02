@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   req: NextRequest,
@@ -35,6 +36,14 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       summary: `Cron ${enabled ? 'enabled' : 'disabled'} by admin`,
       metadata: { enabled, toggledBy: user.id, toggledAt: new Date().toISOString() },
     },
+  });
+
+  await auditLog({
+    actorUserId: user.id,
+    action: enabled ? 'email_cron_enable' : 'email_cron_disable',
+    targetType: 'email_cron',
+    targetId: id,
+    metadata: { workflow: cron.workflowKey, enabled },
   });
 
   return NextResponse.json({ ok: true, id, enabled });

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { checkAdminInviteRateLimit } from '@/lib/rate-limit';
 import { sendInvitationEmail } from '@/lib/email';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
 import { randomBytes } from 'crypto';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -121,6 +122,14 @@ const INVITE_EXPIRY_DAYS = 7;export const POST = withApiGuc(async (
         { status: 500 }
       );
     }
+
+    await auditLog({
+      actorUserId: user.id,
+      action: 'invitation_resend',
+      targetType: 'invitation',
+      targetId: id,
+      metadata: { orgId, role: invitation.role, email: invitation.email },
+    });
 
     return NextResponse.json({ ok: true, message: 'Invitation resent.', emailSent: true });
   } catch (error) {

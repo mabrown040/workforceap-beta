@@ -440,7 +440,7 @@ function QuizResultsView({
           <>
             <p>Not seeing what you expected?</p>
             <LocalizedLink href="/programs" className="btn btn-outline">
-              Browse All 19 Programs →
+              Browse All 20 Programs →
             </LocalizedLink>
           </>
         )}

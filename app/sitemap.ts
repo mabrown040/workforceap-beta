@@ -30,7 +30,10 @@ function buildAlternates(path: string, siteUrl: string) {
   return { languages };
 }
 
-export const revalidate = 60 * 60 * 24;
+// Next.js requires this export to be a literal numeric constant —
+// `60 * 60 * 24` parsed at build time triggers "Unsupported node
+// type BinaryExpression at revalidate" and fails prod build.
+export const revalidate = 86400;
 
 const PUBLIC_ROUTES: PublicRouteConfig[] = [
   { path: '/', changeFrequency: 'weekly', priority: 1 },

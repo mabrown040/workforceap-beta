@@ -250,7 +250,7 @@ export default async function ProgramPage({ params }: Props) {
             )}
 
             {/* ── Career Pathway ── */}
-            {extra?.jobOutcomes?.length > 0 && (
+            {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
               <div
                 style={{
                   marginBottom: '1.5rem',

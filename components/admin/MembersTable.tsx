@@ -24,6 +24,8 @@ type Member = {
   profile: { profilePhone?: string | null } | null;
   enrolledProgram: string | null;
   enrolledAt: Date | string | null;
+  createdAt: Date | string;
+  staleTrainingDetectedAt: Date | string | null;
   assessmentScorePct: number | null;
   assessmentCompleted: boolean | null;
   updatedAt: Date | string;
@@ -73,6 +75,137 @@ function formatTraining(m: Member, variant: 'table' | 'card' = 'table'): string 
   return '—';
 }
 
+const NEW_MEMBER_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+
+function toTime(value: Date | string | null | undefined): number {
+  if (value == null) return 0;
+  const d = typeof value === 'string' || typeof value === 'number' ? new Date(value) : value;
+  const t = d.getTime();
+  return Number.isNaN(t) ? 0 : t;
+}
+
+/** A member is "not in a course" when they have no enrolled program and no enrollment rows. */
+function isNotInCourse(m: Member): boolean {
+  return !m.enrolledProgram && m.enrollmentProgramSlugs.length === 0;
+}
+
+function isNewMember(m: Member): boolean {
+  const t = toTime(m.createdAt);
+  return t > 0 && Date.now() - t <= NEW_MEMBER_WINDOW_MS;
+}
+
+/**
+ * "Needs attention" surfaces members dad should look at, derived from existing
+ * row signals only: red health (at-risk/inactive) OR stale training detected OR
+ * not enrolled in any course OR a brand-new signup. A sensible default he can refine.
+ */
+function attentionReasons(m: Member): string[] {
+  const reasons: string[] = [];
+  if (m.healthStatus === 'red') reasons.push('Inactive');
+  if (m.staleTrainingDetectedAt) reasons.push('Stale training');
+  if (isNotInCourse(m)) reasons.push('No course');
+  if (isNewMember(m)) reasons.push('New');
+  return reasons;
+}
+
+function needsAttention(m: Member): boolean {
+  return attentionReasons(m).length > 0;
+}
+
+function AttentionBadge({ reasons }: { reasons: string[] }) {
+  if (reasons.length === 0) return <span style={{ color: '#9ca3af' }}>—</span>;
+  const isNewOnly = reasons.length === 1 && reasons[0] === 'New';
+  const color = isNewOnly ? '#2563eb' : '#dc2626';
+  const bg = isNewOnly ? '#eff6ff' : '#fef2f2';
+  return (
+    <span
+      title={reasons.join(' · ')}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.25rem',
+        padding: '0.15rem 0.5rem',
+        borderRadius: '50px',
+        fontSize: '0.72rem',
+        fontWeight: 700,
+        color,
+        background: bg,
+        border: `1px solid ${color}25`,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {reasons[0]}
+      {reasons.length > 1 ? ` +${reasons.length - 1}` : ''}
+    </span>
+  );
+}
+
+type SortKey = 'name' | 'enrolled' | 'created' | 'fit' | 'health' | 'lastActive' | 'score';
+type SortDir = 'asc' | 'desc';
+
+const HEALTH_RANK: Record<string, number> = { red: 0, yellow: 1, green: 2 };
+
+function compareMembers(a: Member, b: Member, key: SortKey): number {
+  switch (key) {
+    case 'name':
+      return (a.fullName ?? '').localeCompare(b.fullName ?? '');
+    case 'enrolled':
+      return toTime(a.enrolledAt) - toTime(b.enrolledAt);
+    case 'created':
+      return toTime(a.createdAt) - toTime(b.createdAt);
+    case 'fit':
+      return (a.fitScore ?? -1) - (b.fitScore ?? -1);
+    case 'health':
+      return (HEALTH_RANK[a.healthStatus ?? ''] ?? 99) - (HEALTH_RANK[b.healthStatus ?? ''] ?? 99);
+    case 'lastActive':
+      return toTime(a.updatedAt) - toTime(b.updatedAt);
+    case 'score':
+      return (a.assessmentScorePct ?? -1) - (b.assessmentScorePct ?? -1);
+    default:
+      return 0;
+  }
+}
+
+function SortHeader({
+  label,
+  sortKey,
+  active,
+  dir,
+  onSort,
+}: {
+  label: string;
+  sortKey: SortKey;
+  active: boolean;
+  dir: SortDir;
+  onSort: (key: SortKey) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(sortKey)}
+      className="admin-members-sort-header"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.25rem',
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        font: 'inherit',
+        fontWeight: 'inherit',
+        color: 'inherit',
+        cursor: 'pointer',
+      }}
+      aria-label={`Sort by ${label}${active ? (dir === 'asc' ? ', ascending' : ', descending') : ''}`}
+    >
+      {label}
+      <span style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
+        {active ? (dir === 'asc' ? '▲' : '▼') : '▲'}
+      </span>
+    </button>
+  );
+}
+
 function HeaderSelectAll({
   filtered,
   selectedIds,
@@ -109,22 +242,60 @@ export default function MembersTable({ members }: MembersTableProps) {
   const [programFilter, setProgramFilter] = useState('');
   const [partnerFilter, setPartnerFilter] = useState('');
   const [healthFilter, setHealthFilter] = useState('');
+  const [notInCourseFilter, setNotInCourseFilter] = useState(false);
+  const [needsAttentionFilter, setNeedsAttentionFilter] = useState(false);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
+  // Default sort matches the server's fit-score-desc ordering.
+  const [sortKey, setSortKey] = useState<SortKey>('fit');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [bulkHint, setBulkHint] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const filtered = useMemo(() => {
-    return members.filter((m) => {
+    const rows = members.filter((m) => {
       const q = search.toLowerCase();
       const matchSearch = !search || m.fullName?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q);
       const matchProgram = !programFilter || m.enrollmentProgramSlugs.includes(programFilter);
       const matchPartner = !partnerFilter || (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
       const matchHealth = !healthFilter || m.healthStatus === healthFilter;
-      return matchSearch && matchProgram && matchPartner && matchHealth;
+      const matchNotInCourse = !notInCourseFilter || isNotInCourse(m);
+      const matchAttention = !needsAttentionFilter || needsAttention(m);
+      return matchSearch && matchProgram && matchPartner && matchHealth && matchNotInCourse && matchAttention;
     });
-  }, [members, search, programFilter, partnerFilter, healthFilter]);
+    const dir = sortDir === 'asc' ? 1 : -1;
+    // Stable sort with a fit-score tiebreaker so equal keys keep a sensible order.
+    return rows
+      .map((m, i) => [m, i] as const)
+      .sort(([a, ia], [b, ib]) => {
+        const primary = compareMembers(a, b, sortKey) * dir;
+        if (primary !== 0) return primary;
+        const tie = (b.fitScore ?? -1) - (a.fitScore ?? -1);
+        return tie !== 0 ? tie : ia - ib;
+      })
+      .map(([m]) => m);
+  }, [
+    members,
+    search,
+    programFilter,
+    partnerFilter,
+    healthFilter,
+    notInCourseFilter,
+    needsAttentionFilter,
+    sortKey,
+    sortDir,
+  ]);
+
+  function onSort(key: SortKey) {
+    if (key === sortKey) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      // Names default ascending (A→Z); numeric/date columns default descending (newest/highest first).
+      setSortDir(key === 'name' ? 'asc' : 'desc');
+    }
+  }
 
   const programs = useMemo(() => {
     const titleBySlug = new Map<string, string>();
@@ -149,7 +320,12 @@ export default function MembersTable({ members }: MembersTableProps) {
   );
 
   const activeFilterCount =
-    (search.trim() ? 1 : 0) + (programFilter ? 1 : 0) + (partnerFilter ? 1 : 0) + (healthFilter ? 1 : 0);
+    (search.trim() ? 1 : 0) +
+    (programFilter ? 1 : 0) +
+    (partnerFilter ? 1 : 0) +
+    (healthFilter ? 1 : 0) +
+    (notInCourseFilter ? 1 : 0) +
+    (needsAttentionFilter ? 1 : 0);
 
   const selectedInCurrentView = useMemo(
     () => filtered.filter((m) => selectedIds.has(m.id)).length,
@@ -163,6 +339,8 @@ export default function MembersTable({ members }: MembersTableProps) {
     setProgramFilter('');
     setPartnerFilter('');
     setHealthFilter('');
+    setNotInCourseFilter(false);
+    setNeedsAttentionFilter(false);
   }
 
   function toggleSelect(id: string) {
@@ -300,6 +478,44 @@ export default function MembersTable({ members }: MembersTableProps) {
               <option value="red">Inactive</option>
             </select>
           </label>
+          <label className="admin-members-filter-field admin-members-filter-field--check" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.4rem' }}>
+            <input
+              type="checkbox"
+              checked={needsAttentionFilter}
+              onChange={(e) => setNeedsAttentionFilter(e.target.checked)}
+            />
+            <span>Needs attention</span>
+          </label>
+          <label className="admin-members-filter-field admin-members-filter-field--check" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.4rem' }}>
+            <input
+              type="checkbox"
+              checked={notInCourseFilter}
+              onChange={(e) => setNotInCourseFilter(e.target.checked)}
+            />
+            <span>Not in a course</span>
+          </label>
+          <label className="admin-members-filter-field">
+            <span>Sort by</span>
+            <select
+              value={`${sortKey}:${sortDir}`}
+              onChange={(e) => {
+                const [k, d] = e.target.value.split(':') as [SortKey, SortDir];
+                setSortKey(k);
+                setSortDir(d);
+              }}
+              className="admin-members-filter-select"
+            >
+              <option value="fit:desc">Best fit first</option>
+              <option value="created:desc">Newest first</option>
+              <option value="created:asc">Oldest first</option>
+              <option value="enrolled:desc">Recently enrolled</option>
+              <option value="lastActive:desc">Most recently active</option>
+              <option value="lastActive:asc">Least recently active</option>
+              <option value="health:asc">Health (worst first)</option>
+              <option value="score:desc">Highest assessment %</option>
+              <option value="name:asc">Name (A→Z)</option>
+            </select>
+          </label>
           {activeFilterCount > 0 ? (
             <div className="admin-members-filter-actions">
               <button type="button" className="btn btn-ghost btn-sm" onClick={clearAllFilters}>
@@ -384,8 +600,15 @@ export default function MembersTable({ members }: MembersTableProps) {
               ),
             },
             {
+              key: 'attn',
+              header: 'Priority',
+              cell: (m) => <AttentionBadge reasons={attentionReasons(m)} />,
+            },
+            {
               key: 'name',
-              header: 'Name',
+              header: (
+                <SortHeader label="Name" sortKey="name" active={sortKey === 'name'} dir={sortDir} onSort={onSort} />
+              ),
               cell: (m) => {
                 const rawPhone = m.profile?.profilePhone ?? m.phone;
                 const phoneDisplay = formatPhone(rawPhone);
@@ -420,12 +643,14 @@ export default function MembersTable({ members }: MembersTableProps) {
             { key: 'partner', header: 'Partner', cell: (m) => m.partnerName ?? '—' },
             {
               key: 'fit',
-              header: 'Fit',
+              header: <SortHeader label="Fit" sortKey="fit" active={sortKey === 'fit'} dir={sortDir} onSort={onSort} />,
               cell: (m) => (m.fitScore != null ? <FitScoreBadge score={m.fitScore} /> : '—'),
             },
             {
               key: 'health',
-              header: 'Health',
+              header: (
+                <SortHeader label="Health" sortKey="health" active={sortKey === 'health'} dir={sortDir} onSort={onSort} />
+              ),
               cell: (m) =>
                 m.healthStatus ? (
                   <span
@@ -444,12 +669,16 @@ export default function MembersTable({ members }: MembersTableProps) {
             },
             {
               key: 'enrolled',
-              header: 'Enrolled',
+              header: (
+                <SortHeader label="Enrolled" sortKey="enrolled" active={sortKey === 'enrolled'} dir={sortDir} onSort={onSort} />
+              ),
               cell: (m) => formatMemberDate(m.enrolledAt) ?? '—',
             },
             {
               key: 'score',
-              header: 'Score %',
+              header: (
+                <SortHeader label="Score %" sortKey="score" active={sortKey === 'score'} dir={sortDir} onSort={onSort} />
+              ),
               cell: (m) => (
                 <span
                   className={
@@ -469,7 +698,9 @@ export default function MembersTable({ members }: MembersTableProps) {
             { key: 'training', header: 'Training', cell: (m) => formatTraining(m) },
             {
               key: 'lastMd',
-              header: 'Last Active',
+              header: (
+                <SortHeader label="Last Active" sortKey="lastActive" active={sortKey === 'lastActive'} dir={sortDir} onSort={onSort} />
+              ),
               columnClassName: 'members-col-md',
               cell: (m) => formatMemberDate(m.updatedAt) ?? '—',
             },
@@ -539,6 +770,11 @@ export default function MembersTable({ members }: MembersTableProps) {
                   </span>
                 ) : null}
               </div>
+              {attentionReasons(m).length > 0 ? (
+                <p className="admin-portal-card__row" onClick={(e) => e.stopPropagation()}>
+                  <span className="admin-portal-card__label">Priority</span> <AttentionBadge reasons={attentionReasons(m)} />
+                </p>
+              ) : null}
               <p className="admin-portal-card__meta">{m.email}</p>
               {rawPhone ? <p className="admin-portal-card__meta">{phoneDisplay}</p> : null}
               <p className="admin-portal-card__row">

@@ -73,16 +73,14 @@ export default async function ImpactPage() {
     stats.salaryIncreaseSampleSize > 0 ? (
       <>
         {t('avgSalaryIncreaseLabel')}
-        <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.8rem', fontWeight: 400 }}>
+        <span className="impact-page__stat-footnote">
           {t('avgSalaryIncreaseSample', { count: stats.salaryIncreaseSampleSize })}
         </span>
       </>
     ) : (
       <>
         {t('avgSalaryIncreaseLabel')}
-        <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.8rem', fontWeight: 400 }}>
-          {t('avgSalaryIncreaseInsufficient')}
-        </span>
+        <span className="impact-page__stat-footnote">{t('avgSalaryIncreaseInsufficient')}</span>
       </>
     );
 
@@ -94,20 +92,13 @@ export default async function ImpactPage() {
   const membersServedValue = hasLiveData ? formatThousands(stats.membersServed) : '—';
   const isUnpublishedValue = (value: string) => value === '—';
 
-  const rateFootnoteStyle = {
-    display: 'block',
-    marginTop: '0.5rem',
-    fontSize: '0.8rem',
-    fontWeight: 400,
-  } as const;
-
   const completionValue = hasEnrolledCohort && stats.completionRatePct > 0 ? `${stats.completionRatePct}%` : '—';
   const completionLabel = hasEnrolledCohort && stats.completionRatePct > 0 ? (
     t('completionRateLabel')
   ) : (
     <>
       {t('completionRateLabel')}
-      <span style={rateFootnoteStyle}>{t('cohortRateInsufficient')}</span>
+      <span className="impact-page__stat-footnote">{t('cohortRateInsufficient')}</span>
     </>
   );
 
@@ -117,7 +108,7 @@ export default async function ImpactPage() {
   ) : (
     <>
       {t('placementRateLabel')}
-      <span style={rateFootnoteStyle}>{t('cohortRateInsufficient')}</span>
+      <span className="impact-page__stat-footnote">{t('cohortRateInsufficient')}</span>
     </>
   );
 
@@ -268,7 +259,14 @@ export default async function ImpactPage() {
               <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
             </div>
           ) : (
-            <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
+            <>
+              <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
+              <p className="impact-page__section-link-wrap">
+                <LocalizedLink href="/employers" className="impact-page__section-link">
+                  {t('employerHiringLink')}
+                </LocalizedLink>
+              </p>
+            </>
           )}
         </div>
       </PageSection>
@@ -353,10 +351,34 @@ export default async function ImpactPage() {
         .impact-page__stats-grid--employers {
           margin-bottom: 0;
         }
+        .impact-page__stat-footnote {
+          display: block;
+          margin-top: 0.5rem;
+          font-size: 0.8rem;
+          font-weight: 400;
+          line-height: 1.45;
+        }
         .impact-page__methodology {
-          margin: -2rem 0 3rem;
+          margin: 0.75rem 0 2.5rem;
           font-size: 0.8125rem;
           max-width: 42rem;
+        }
+        .impact-page__section-link-wrap {
+          margin: 1rem 0 0;
+        }
+        .impact-page__section-link {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: var(--color-accent);
+          text-decoration: none;
+        }
+        .impact-page__section-link:hover {
+          text-decoration: underline;
+        }
+        .impact-page .testimonials-carousel__grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1.25rem;
         }
         @media (min-width: 640px) {
           .impact-page__stats-grid {
@@ -364,6 +386,9 @@ export default async function ImpactPage() {
           }
           .impact-page__stats-grid--employers {
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          }
+          .impact-page .testimonials-carousel__grid {
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr));
           }
         }
       `}</style>

@@ -36,7 +36,7 @@ export const EMPLOYER_CASE_STUDIES: EmployerCaseStudy[] = [
     outcome_summary: 'Coordinator and operations support roles',
     role_filled: 'Dispatch + operations coordinator',
     quote:
-      'Members are screened for scheduling fit, communication skills, and readiness before introduction. Typical placements include dispatch coordinator, inventory clerk, and operations support roles.',
+      'Members are screened for scheduling fit, communication skills, and readiness before introduction. Typical roles include dispatch coordinator, inventory clerk, and operations support.',
     attribution_name: '',
     attribution_title: '',
   },

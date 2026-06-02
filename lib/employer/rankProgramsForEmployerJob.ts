@@ -203,7 +203,6 @@ const PROGRAM_ROLE_FAMILY_ALIGNMENT: Partial<Record<string, RoleFamily[]>> = {
   'comptia-a-professional-certificate': ['it-support'],
   'comptia-network-professional-certificate': ['it-support'],
   'it-automation-with-python-google': ['it-support'],
-  'software-developer-professional-certificate-ibm': ['software-engineering'],
   'ai-professional-developer-certificate-ibm': ['software-engineering', 'data-analytics'],
   'aws-cloud-technology-amazon': ['software-engineering', 'it-support'],
   'data-analytics-professional-certificate-google': ['data-analytics'],

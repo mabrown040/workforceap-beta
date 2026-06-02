@@ -117,14 +117,6 @@ export const PROGRAM_COMPARISON_FEATURED: FeaturedEntry[] = [
     categoryLabel: 'AI & Software Dev',
     categoryOrder: 3,
   },
-  {
-    slug: 'software-developer-professional-certificate-ibm',
-    shortName: 'Software Developer',
-    demand: 'Very High',
-    certs: 'IBM Software Developer',
-    categoryLabel: 'AI & Software Dev',
-    categoryOrder: 3,
-  },
   // Business
   {
     slug: 'project-management-professional-certificate-microsoft',

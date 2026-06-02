@@ -143,7 +143,7 @@ export default function CourseraUnmatchedLearners({
         — the action creates a <code>coursera_identity_mappings</code> row, backfills CSV rows, and replays unresolved xAPI for that learner.
       </p>
 
-      <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
+      <div style={{ overflowX: 'auto', maxWidth: '100%', minWidth: 0, marginTop: '1rem', WebkitOverflowScrolling: 'touch' }}>
         <DataTable<UnmatchedLearnerView>
           density="compact"
           scrollX={false}

@@ -278,7 +278,7 @@ export default async function AdminOutcomesPage() {
               No enrolled members yet.
             </p>
           ) : (
-            <div style={{ overflowX: 'auto', marginTop: '0.5rem' }}>
+            <div style={{ overflowX: 'auto', maxWidth: '100%', minWidth: 0, marginTop: '0.5rem', WebkitOverflowScrolling: 'touch' }}>
               <DataTable
                 density="compact"
                 scrollX={false}

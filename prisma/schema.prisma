@@ -2507,3 +2507,30 @@ model WapJob {
   @@index([createdAt])
   @@map("wap_jobs")
 }
+
+// Single-use tokenized links an admin/partner generates to send a person
+// (member OR no-account prospect) to a scoped destination: the WIOA interview
+// prep tool, or a pre-filled eligibility questionnaire. Validated + consumed
+// server-side; expiry + single-use enforced.
+enum TokenLinkType {
+  interview_prep
+  eligibility_questionnaire
+}
+
+model TokenizedLink {
+  id            String        @id @default(uuid())
+  token         String        @unique
+  type          TokenLinkType
+  email         String?
+  subjectUserId String?       @map("subject_user_id")
+  expiresAt     DateTime      @map("expires_at")
+  consumedAt    DateTime?     @map("consumed_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  createdById   String        @map("created_by_id")
+  orgId         String?       @map("org_id")
+
+  @@index([token])
+  @@index([type])
+  @@index([subjectUserId])
+  @@map("tokenized_link")
+}

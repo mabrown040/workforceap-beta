@@ -18,6 +18,7 @@ import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberCourseraEnrollmentApproval from '@/components/admin/MemberCourseraEnrollmentApproval';
 import AdminMemberDbActions from '@/components/admin/AdminMemberDbActions';
 import AdminMemberQuickSummary from '@/components/admin/AdminMemberQuickSummary';
+import AdminMemberSendLinks from '@/components/admin/AdminMemberSendLinks';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
 import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
@@ -451,6 +452,12 @@ export default async function AdminMemberDetailPage({
             />
             <div style={{ marginTop: '1rem' }}>
               <AdminMemberQuickSummary memberId={id} />
+            </div>
+            <div style={{ marginTop: '1rem' }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant, #555)', margin: '0 0 0.5rem' }}>
+                Send a link to this member
+              </p>
+              <AdminMemberSendLinks memberId={id} />
             </div>
           </div>
         </section>

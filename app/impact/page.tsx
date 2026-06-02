@@ -253,11 +253,21 @@ export default async function ImpactPage() {
             marginBottom="1.5rem"
           />
           {hasEmployerMetrics ? (
-            <div className="impact-page__stats-grid impact-page__stats-grid--employers">
-              <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
-              <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
-              <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
-            </div>
+            <>
+              <div className="impact-page__stats-grid impact-page__stats-grid--employers">
+                <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
+                <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
+                <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
+              </div>
+              {hasLiveData ? (
+                <p className="impact-page__employer-as-of">{stats.asOfLabel}</p>
+              ) : null}
+              <p className="impact-page__section-link-wrap">
+                <LocalizedLink href="/employers" className="impact-page__section-link">
+                  {t('employerHiringLink')}
+                </LocalizedLink>
+              </p>
+            </>
           ) : (
             <>
               <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
@@ -362,6 +372,12 @@ export default async function ImpactPage() {
           margin: 0.75rem 0 2.5rem;
           font-size: 0.8125rem;
           max-width: 42rem;
+        }
+        .impact-page__employer-as-of {
+          margin: 0.75rem 0 0;
+          font-size: 0.8125rem;
+          color: var(--color-on-surface-variant);
+          line-height: 1.5;
         }
         .impact-page__section-link-wrap {
           margin: 1rem 0 0;

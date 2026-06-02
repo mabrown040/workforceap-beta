@@ -36,7 +36,7 @@ export default function EmployerCaseStudyCard({
   return (
     <article
       className="employer-case-study-card"
-      aria-label={`Case study from ${study.company}`}
+      aria-label={scenarioLabel ? `${scenarioLabel}: ${study.company}` : study.company}
       style={{
         background: bg,
         border: `1px solid ${borderColor}`,

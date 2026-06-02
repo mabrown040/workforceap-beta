@@ -94,6 +94,7 @@ export default function EmployerCaseStudyCard({
           {study.outcome_summary} · {study.role_filled}
       </p>
 
+      {study.quote ? (
       <blockquote
         style={{
           margin: 0,
@@ -108,7 +109,9 @@ export default function EmployerCaseStudyCard({
       >
         &ldquo;{study.quote}&rdquo;
       </blockquote>
+      ) : null}
 
+      {study.attribution_name ? (
       <footer
         style={{
           display: 'flex',
@@ -140,10 +143,11 @@ export default function EmployerCaseStudyCard({
             {study.attribution_name}
           </span>
           <span style={{ fontSize: '0.8125rem', color: titleColor }}>
-            {study.attribution_title}, {study.company}
+            {study.attribution_title}{study.attribution_title && study.company ? ', ' : ''}{study.company}
           </span>
         </div>
       </footer>
+      ) : null}
     </article>
   );
 }

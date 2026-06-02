@@ -1,6 +1,7 @@
 /**
- * Employer scenario cards — shared by /employers outcomes section.
- * Keep these anonymized until verified partner quotes and outcomes are approved.
+ * Employer role-example cards — shared by /employers outcomes section.
+ * These are example roles WorkforceAP supports, not verified testimonials.
+ * Replace with real partner quotes and verified outcomes when approved.
  */
 
 export type EmployerCaseStudy = {
@@ -9,43 +10,45 @@ export type EmployerCaseStudy = {
   location: string;
   outcome_summary: string;
   role_filled: string;
+  /** Factual description of how WorkforceAP supports this role type. No fake quotes. */
   quote: string;
+  /** Attribution only used when quote is a real, verified testimonial. */
   attribution_name: string;
   attribution_title: string;
 };
 
 export const EMPLOYER_CASE_STUDIES: EmployerCaseStudy[] = [
   {
-    company: 'Regional IT services partner',
+    company: 'Example: IT services partner',
     industry: 'IT Services',
     location: 'Central Texas',
     outcome_summary: 'Helpdesk and junior network support roles',
     role_filled: 'Helpdesk + junior network support',
     quote:
-      'WorkforceAP helps us focus interviews on candidates who have already completed structured technical training and readiness review.',
-    attribution_name: 'Hiring partner',
-    attribution_title: 'IT operations',
+      'WorkforceAP members complete structured training in IT support, hardware, operating systems, and networking before interview introductions. Typical roles include helpdesk technician, junior network support, and technical support specialist.',
+    attribution_name: '',
+    attribution_title: '',
   },
   {
-    company: 'Operations hiring partner',
+    company: 'Example: Operations hiring partner',
     industry: 'Logistics',
     location: 'Texas',
     outcome_summary: 'Coordinator and operations support roles',
     role_filled: 'Dispatch + operations coordinator',
     quote:
-      'The intake process gives us a clearer view of skills, schedule fit, and support needs before we commit interview time.',
-    attribution_name: 'Hiring partner',
-    attribution_title: 'Operations leadership',
+      'Members are screened for scheduling fit, communication skills, and readiness before introduction. Typical placements include dispatch coordinator, inventory clerk, and operations support roles.',
+    attribution_name: '',
+    attribution_title: '',
   },
   {
-    company: 'Healthcare support partner',
+    company: 'Example: Healthcare support partner',
     industry: 'Healthcare',
     location: 'Texas',
     outcome_summary: 'IT support and patient coordination pathways',
     role_filled: 'IT support + patient coordination',
     quote:
-      'We can review candidates against the requirements that matter to us, including readiness, communication, and role-specific training.',
-    attribution_name: 'Hiring partner',
-    attribution_title: 'People operations',
+      'Health Information Technology and IT Support pathways prepare members for administrative healthcare IT roles and patient coordination positions. Members complete HIPAA-aware training and medical coding fundamentals.',
+    attribution_name: '',
+    attribution_title: '',
   },
 ];

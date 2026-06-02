@@ -24,5 +24,10 @@ test.describe('Apply smoke', () => {
 
     // Contact / help link or phone
     await expect(page.locator('a[href^="tel:"]').first()).toBeVisible();
+
+    // Sticky apply CTA appears after scrolling past hero (organic mobile parity with paid)
+    await page.evaluate(() => window.scrollTo(0, 400));
+    await expect(page.locator('.apply-organic-sticky-cta')).toBeVisible();
+    await expect(page.locator('.apply-organic-sticky-cta__button')).toContainText(/start your application/i);
   });
 });

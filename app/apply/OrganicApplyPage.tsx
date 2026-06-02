@@ -8,6 +8,7 @@ import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
 import UtmCapture from '@/components/marketing/UtmCapture';
 import { getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
 import { getTranslations } from 'next-intl/server';
+import ApplyOrganicStickyCta from '@/components/apply/ApplyOrganicStickyCta';
 import TrustStrip from '@/components/marketing/TrustStrip';
 
 type OrganicApplyPageProps = { program?: string };
@@ -198,7 +199,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
   );
 
   return (
-    <div style={sPage.wrapper}>
+    <div className="apply-page-organic" style={sPage.wrapper}>
       {/* ── Hero ── */}
       <section className="apply-hero" style={sPage.hero}>
         <div style={sPage.heroLabel}>
@@ -304,6 +305,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
                   <li
                     key={step.labelKey}
                     className={`apply-mobile-step-nav__item${i === 0 ? ' apply-mobile-step-nav__item--active' : ''}`}
+                    aria-current={i === 0 ? 'step' : undefined}
                   >
                     <span className="apply-mobile-step-nav__index" aria-hidden="true">
                       {i + 1}
@@ -367,6 +369,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
       </div>
 
       <Footer />
+      <ApplyOrganicStickyCta />
 
       {/* Responsive overrides — mobile: shorter hero, form first, help below form */}
       <style>{`
@@ -464,7 +467,53 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           }
         }
 
+        .apply-organic-sticky-cta {
+          display: none;
+        }
+
         @media (max-width: 768px) {
+          .apply-page-organic {
+            padding-bottom: calc(var(--space-8) + 4.5rem + env(safe-area-inset-bottom, 0px));
+          }
+
+          .apply-organic-sticky-cta {
+            display: block;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 40;
+            padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+            background: rgba(255, 255, 255, 0.96);
+            border-top: 1px solid var(--outline-variant);
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(8px);
+          }
+
+          html.dark .apply-organic-sticky-cta {
+            background: rgba(28, 27, 31, 0.96);
+          }
+
+          .apply-organic-sticky-cta__button {
+            width: 100%;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            min-height: 48px;
+            background: var(--color-gold);
+            color: var(--color-on-surface);
+            font-weight: 700;
+          }
+
+          .apply-flow--step1:not(.apply-flow--paid) .apply-progress-bar,
+          .apply-flow--step1:not(.apply-flow--paid) .apply-step-kicker {
+            display: none;
+          }
+
+          .apply-flow--step1:not(.apply-flow--paid) .apply-step1-actions {
+            scroll-margin-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+          }
+
           .apply-mobile-step-nav {
             display: block;
             margin-bottom: var(--space-4);

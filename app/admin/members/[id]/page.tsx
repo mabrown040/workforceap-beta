@@ -17,6 +17,7 @@ import { ASSESSMENT_QUESTIONS_PUBLIC as ASSESSMENT_QUESTIONS } from '@/lib/asses
 import MemberDetailActions from '@/components/admin/MemberDetailActions';
 import MemberCourseraEnrollmentApproval from '@/components/admin/MemberCourseraEnrollmentApproval';
 import AdminMemberDbActions from '@/components/admin/AdminMemberDbActions';
+import AdminMemberQuickSummary from '@/components/admin/AdminMemberQuickSummary';
 import MemberPartnerSection from '@/components/admin/MemberPartnerSection';
 import MemberSubgroupSection from '@/components/admin/MemberSubgroupSection';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
@@ -448,6 +449,9 @@ export default async function AdminMemberDetailPage({
               currentProfileBio={member.profile?.profileBio ?? null}
               currentProfileLinkedin={member.profile?.profileLinkedin ?? null}
             />
+            <div style={{ marginTop: '1rem' }}>
+              <AdminMemberQuickSummary memberId={id} />
+            </div>
           </div>
         </section>
 

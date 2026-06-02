@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
+import { auditLog } from '@/lib/audit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
   try {
@@ -30,6 +31,16 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   }));
 
   await prisma.workflowDiagnostic.createMany({ data: records });
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'email_cron_activate_all',
+    targetType: 'email_cron',
+    metadata: {
+      count: records.length,
+      workflows: CRON_REGISTRY.map((c) => c.workflowKey),
+    },
+  });
 
   return NextResponse.json({
     ok: true,

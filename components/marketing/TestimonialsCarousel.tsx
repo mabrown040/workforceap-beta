@@ -56,13 +56,7 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
   }
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '1.25rem',
-      }}
-    >
+    <div className="testimonials-carousel__grid">
       {testimonials.map((t) => (
         <div
           key={t.id}

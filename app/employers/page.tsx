@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import LocalizedLink from '@/components/LocalizedLink';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { redirect } from 'next/navigation';
 import Footer from '@/components/Footer';
@@ -176,6 +177,11 @@ export default async function EmployersPage() {
           ) : (
             <p className="employers-trust__as-of">{t('trustPlaceholderNote')}</p>
           )}
+          <p className="employers-trust__impact-link-wrap">
+            <LocalizedLink href="/impact" className="employers-trust__impact-link">
+              {t('trustImpactLink')}
+            </LocalizedLink>
+          </p>
         </div>
       </section>
 
@@ -412,6 +418,19 @@ export default async function EmployersPage() {
           font-size: 0.75rem;
           color: var(--color-on-surface-variant);
           opacity: 0.85;
+        }
+        .employers-trust__impact-link-wrap {
+          margin: 0.75rem 0 0;
+          text-align: center;
+        }
+        .employers-trust__impact-link {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: var(--color-accent);
+          text-decoration: none;
+        }
+        .employers-trust__impact-link:hover {
+          text-decoration: underline;
         }
 
         .employers-process {

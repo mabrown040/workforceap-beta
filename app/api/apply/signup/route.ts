@@ -371,8 +371,10 @@ const applySignupSchema = z.object({
         sendNewApplicationAdminEmail({
           applicantName: fullName,
           applicantEmail: user.email!,
+          applicantPhone: phone,
           programInterest: programInterestSummary,
           applicationId: createdApplicationId,
+          applicationNotes: applicationNotes || undefined,
         }).catch((err) => {
           logger.error('Admin new-application alert email failed', { err });
           captureApiError(err, {

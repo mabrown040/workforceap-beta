@@ -689,8 +689,10 @@ export async function sendPreScreeningReadyEmail(params: {
 export async function sendNewApplicationAdminEmail(params: {
   applicantName: string;
   applicantEmail: string;
+  applicantPhone?: string;
   programInterest: string;
   applicationId: string;
+  applicationNotes?: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const resend = getResend();
   if (!resend) {

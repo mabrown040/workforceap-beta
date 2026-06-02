@@ -44,7 +44,20 @@ import {
 
 export type PortalRole = 'member' | 'employer' | 'partner' | 'admin' | 'group' | 'counselor';
 
-export type NavGroup = 'primary' | 'workflows' | 'people' | 'pipeline' | 'content' | 'insights' | 'manage';
+export type NavGroup =
+  | 'primary'
+  | 'workflows'
+  | 'people'
+  | 'pipeline'
+  | 'content'
+  | 'insights'
+  | 'manage'
+  // Admin-first, plain-language groups (non-technical owner view)
+  | 'students'
+  | 'programs'
+  | 'partnersEmployers'
+  | 'outcomes'
+  | 'advanced';
 
 export type NavTab = 'journey' | 'program' | 'jobs' | 'me';
 
@@ -98,9 +111,31 @@ export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
   content: 'Content',
   insights: 'Insights',
   manage: 'Manage',
+  // Admin-first, plain-language groups
+  students: 'Students',
+  programs: 'Programs & Training',
+  partnersEmployers: 'Partners & Employers',
+  outcomes: 'Outcomes',
+  advanced: 'Advanced / System',
 };
 
-export const GROUP_ORDER: NavGroup[] = ['primary', 'people', 'pipeline', 'content', 'workflows', 'insights', 'manage'];
+export const GROUP_ORDER: NavGroup[] = [
+  'primary',
+  // Admin daily-first groups (rendered only when items use them)
+  'students',
+  'programs',
+  'partnersEmployers',
+  'outcomes',
+  'content',
+  // Shared portal groups (members / employers / partners / counselors)
+  'people',
+  'pipeline',
+  'workflows',
+  'insights',
+  'manage',
+  // Technical / system tooling, demoted to the very bottom
+  'advanced',
+];
 
 const WIOA_AVAILABLE = process.env.NEXT_PUBLIC_WIOA_ENABLED === '1';
 
@@ -294,78 +329,80 @@ export const PARTNER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
 /** @deprecated Subgroup leader UI removed; keep empty for typing */
 export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [];
 
-/** Admin ops — grouped by function so the sidebar is scannable at a glance. */
+/**
+ * Admin ops — reorganized for a NON-technical owner.
+ * Everyday, plain-language groups lead; all technical/system tooling is
+ * demoted into a single "Advanced / System" group at the very bottom.
+ * Every existing route/href is preserved — this is a reorder + relabel only.
+ */
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  // ── Primary ──
+  // ── Overview — the home / "who needs you today" ──
   { href: '/admin', label: 'Overview', group: 'primary', Icon: BarChart3 },
 
-  // ── People — everyone in the system ──
-  { href: '/admin/members', label: 'Members', group: 'people', Icon: Users },
-  { href: '/admin/members/duplicates', label: 'Duplicate members', group: 'people', Icon: AlertTriangle },
-  { href: '/admin/users', label: 'Users', group: 'people', Icon: User },
-  { href: '/admin/employers', label: 'Employers', group: 'people', Icon: Building2 },
-  { href: '/admin/partners', label: 'Partners', group: 'people', Icon: Handshake },
-  { href: '/admin/counselors', label: 'Counselors', group: 'people', Icon: Users },
-  { href: '/admin/subgroups', label: 'Subgroups', group: 'people', Icon: UsersRound },
-  { href: '/admin/mentors', label: 'Mentors', group: 'people', Icon: GraduationCap },
+  // ── Students — the people you manage day to day ──
+  { href: '/admin/members', label: 'Students', group: 'students', Icon: Users },
+  { href: '/admin/pipeline', label: 'Applications', group: 'students', Icon: GitBranch },
+  { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'students', Icon: ListChecks },
+  { href: '/admin/members/job-ready', label: 'Job ready (70%+)', group: 'students', Icon: TrendingUp },
   {
     href: '/admin/messages',
     label: 'Messages',
-    group: 'people',
+    group: 'students',
     Icon: MessageSquare,
     requiresSuperAdminContext: true,
     badgeKey: 'counselor_sla_breach_48h',
   },
+  { href: '/admin/members/duplicates', label: 'Duplicate students', group: 'students', Icon: AlertTriangle },
 
-  // ── Pipeline — training, progress, outcomes ──
-  { href: '/admin/pipeline', label: 'Pipeline', group: 'pipeline', Icon: GitBranch },
-  { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'pipeline', Icon: ListChecks },
-  { href: '/admin/members/job-ready', label: 'Job ready (70%+)', group: 'pipeline', Icon: TrendingUp },
-  { href: '/admin/programs', label: 'Programs', group: 'pipeline', Icon: BookOpen },
+  // ── Programs & Training ──
+  { href: '/admin/programs', label: 'Programs', group: 'programs', Icon: BookOpen },
   {
     href: '/admin/program-change-requests',
     label: 'Program requests',
-    group: 'pipeline',
+    group: 'programs',
     Icon: ArrowLeftRight,
   },
-  { href: '/admin/assessments', label: 'Assessments', group: 'pipeline', Icon: ClipboardCheck },
-  { href: '/admin/wioa-screening', label: 'Funding eligibility', group: 'pipeline', Icon: ClipboardList },
-  { href: '/admin/career-mappings', label: 'Career paths', group: 'pipeline', Icon: Target },
-  { href: '/admin/employer-screening-packs', label: 'Employer screening', group: 'pipeline', Icon: ListChecks },
-  { href: '/admin/certifications', label: 'Certificates', group: 'pipeline', Icon: Award },
+  { href: '/admin/training-progress', label: 'Training progress', group: 'programs', Icon: Table2 },
+  { href: '/admin/assessments', label: 'Assessments', group: 'programs', Icon: ClipboardCheck },
+  { href: '/admin/certifications', label: 'Certificates', group: 'programs', Icon: Award },
+  { href: '/admin/career-mappings', label: 'Career paths', group: 'programs', Icon: Target },
+  { href: '/admin/wioa-screening', label: 'Funding eligibility', group: 'programs', Icon: ClipboardList },
 
-  // ── Workflows — admin-as-counselor force multiplier ──
-  // Admin has its own /admin/sessions mirror so opening "In-office
-  // sessions" from admin chrome stays in admin chrome (per user
-  // direction 2026-04-26). The underlying SessionRunClient and
-  // SessionsIndexBody components are shared with the counselor route
-  // — only the URL prefixes for breadcrumbs / "back" links differ.
-  { href: '/admin/sessions', label: 'In-office sessions', group: 'workflows', Icon: Sparkles },
+  // ── Partners & Employers ──
+  { href: '/admin/partners', label: 'Partners', group: 'partnersEmployers', Icon: Handshake },
+  { href: '/admin/employers', label: 'Employers', group: 'partnersEmployers', Icon: Building2 },
+  { href: '/admin/employer-screening-packs', label: 'Employer screening', group: 'partnersEmployers', Icon: ListChecks },
+  { href: '/admin/jobs', label: 'Jobs', group: 'partnersEmployers', Icon: Briefcase },
+  { href: '/admin/mentors', label: 'Mentors', group: 'partnersEmployers', Icon: GraduationCap },
+  { href: '/admin/counselors', label: 'Counselors', group: 'partnersEmployers', Icon: Users },
+  { href: '/admin/subgroups', label: 'Subgroups', group: 'partnersEmployers', Icon: UsersRound },
 
-  // ── Content — jobs, blog, invites ──
-  { href: '/admin/jobs', label: 'Jobs', group: 'content', Icon: Briefcase },
+  // ── Outcomes — results and reporting ──
+  { href: '/admin/board', label: 'Board outcomes', group: 'outcomes', Icon: TrendingUp },
+  { href: '/admin/outcomes', label: 'Placement outcomes', group: 'outcomes', Icon: LineChart },
+  { href: '/admin/placement-surveys', label: 'Placement surveys', group: 'outcomes', Icon: ClipboardCheck },
+  { href: '/admin/analytics', label: 'Analytics', group: 'outcomes', Icon: BarChart3 },
+
+  // ── Content — blog & invites ──
   { href: '/admin/blog', label: 'Blog', group: 'content', Icon: FileText },
   { href: '/admin/invites', label: 'Invites', group: 'content', Icon: MessageSquare },
 
-  // ── Insights — metrics and reporting ──
-  { href: '/admin/board', label: 'Board outcomes', group: 'insights', Icon: TrendingUp },
-  { href: '/admin/outcomes', label: 'Placement outcomes', group: 'insights', Icon: LineChart },
-  { href: '/admin/exports', label: 'Exports', group: 'insights', Icon: Download },
-  { href: '/admin/coursera', label: 'Coursera', group: 'insights', Icon: Library },
-  { href: '/admin/training-progress', label: 'Training progress', group: 'insights', Icon: Table2 },
-  { href: '/admin/metrics', label: 'Metrics', group: 'insights', Icon: LineChart },
-  { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'insights', Icon: BarChart3 },
-  { href: '/admin/ai-tools', label: 'AI tools', group: 'insights', Icon: Sparkles },
-  { href: '/admin/analytics/ai-efficacy', label: 'AI Efficacy', group: 'insights', Icon: Target },
-  { href: '/admin/diagnostics', label: 'Diagnostics', group: 'insights', Icon: Activity },
-  { href: '/admin/crons', label: 'Cron Monitor', group: 'insights', Icon: Timer },
-  { href: '/admin/health', label: 'System Health', group: 'insights', Icon: HeartPulse },
-  { href: '/admin/audit-logs', label: 'Audit logs', group: 'insights', Icon: Shield, requiresSuperAdminContext: true },
-  { href: '/admin/webhook-events', label: 'Webhook events', group: 'insights', Icon: Activity, requiresSuperAdminContext: true },
-  { href: '/admin/placement-surveys', label: 'Placement surveys', group: 'insights', Icon: ClipboardCheck },
-  { href: '/admin/email-crons', label: 'Email & Crons', group: 'insights', Icon: MessageSquare },
-  // ── Manage ──
-  { href: '/admin/settings', label: 'Settings', group: 'manage', Icon: Settings },
+  // ── Advanced / System — technical tooling, tucked out of the way ──
+  { href: '/admin/sessions', label: 'In-office sessions', group: 'advanced', Icon: Sparkles },
+  { href: '/admin/users', label: 'Users', group: 'advanced', Icon: User },
+  { href: '/admin/exports', label: 'Exports', group: 'advanced', Icon: Download },
+  { href: '/admin/coursera', label: 'Coursera', group: 'advanced', Icon: Library },
+  { href: '/admin/metrics', label: 'Metrics', group: 'advanced', Icon: LineChart },
+  { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'advanced', Icon: BarChart3 },
+  { href: '/admin/ai-tools', label: 'AI tools', group: 'advanced', Icon: Sparkles },
+  { href: '/admin/analytics/ai-efficacy', label: 'AI Efficacy', group: 'advanced', Icon: Target },
+  { href: '/admin/diagnostics', label: 'Diagnostics', group: 'advanced', Icon: Activity },
+  { href: '/admin/crons', label: 'Cron Monitor', group: 'advanced', Icon: Timer },
+  { href: '/admin/health', label: 'System Health', group: 'advanced', Icon: HeartPulse },
+  { href: '/admin/audit-logs', label: 'Audit logs', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
+  { href: '/admin/webhook-events', label: 'Webhook events', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
+  { href: '/admin/email-crons', label: 'Email & Crons', group: 'advanced', Icon: MessageSquare },
+  { href: '/admin/settings', label: 'Settings', group: 'advanced', Icon: Settings },
 ];
 
 export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [

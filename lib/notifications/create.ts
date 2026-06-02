@@ -2,6 +2,7 @@ import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
 import { Prisma } from '@prisma/client';
+import { notifyDiscord } from '@/lib/notify/discord';
 
 export type NotificationType =
   | 'message'
@@ -39,6 +40,13 @@ export async function createNotification(
   } catch (error) {
     console.error('[notification] create failed:', error);
   }
+  // Operator-visibility bridge (fire-and-forget, never blocks).
+  void notifyDiscord({
+    title: input.title,
+    body: input.body,
+    category: input.type,
+    fields: [{ name: 'userId', value: input.userId }],
+  });
 }
 
 /**
@@ -61,5 +69,17 @@ export async function createBulkNotifications(
     });
   } catch (error) {
     console.error('[notification] bulk create failed:', error);
+  }
+  // One aggregated Discord ping per bulk send instead of N pings —
+  // bulk broadcasts (e.g. admin announcements) would otherwise hit
+  // Discord's 30/min per-webhook rate limit on real cohort sizes.
+  const sample = inputs[0];
+  if (sample) {
+    void notifyDiscord({
+      title: `Bulk notification: ${sample.title}`,
+      body: sample.body,
+      category: sample.type,
+      fields: [{ name: 'recipients', value: String(inputs.length) }],
+    });
   }
 }

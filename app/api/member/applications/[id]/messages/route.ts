@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { notifyDiscord } from '@/lib/notify/discord';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -103,6 +104,16 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     });
 
     return msg;
+  });
+
+  void notifyDiscord({
+    title: `Member → employer message`,
+    body: parsed.data.body.trim().slice(0, 500),
+    category: 'application_message',
+    fields: [
+      { name: 'applicationId', value: applicationId },
+      { name: 'authorId', value: user.id },
+    ],
   });
 
   return NextResponse.json({

@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   req: NextRequest,
@@ -44,6 +46,16 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     targetType: 'email_cron',
     targetId: id,
     metadata: { workflow: cron.workflowKey, enabled },
+  });
+
+  const orgId = await getActorOrganizationId(user.id);
+  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+  await logAuditEvent({
+    user: { id: user.id, role: actorRole },
+    verb: 'updated',
+    object: { type: 'EmailCron', id },
+    orgId,
+    request: auditRequestMeta(req),
   });
 
   return NextResponse.json({ ok: true, id, enabled });

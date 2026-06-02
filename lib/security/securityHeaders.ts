@@ -3,21 +3,7 @@
  * Provides additional security headers beyond the basic set
  */
 
-export interface SecurityHeaders {
-  'X-RateLimit-Limit'?: string;
-  'X-RateLimit-Remaining'?: string;
-  'X-RateLimit-Reset'?: string;
-  'X-Content-Type-Options'?: string;
-  'X-Frame-Options'?: string;
-  'X-XSS-Protection'?: string;
-  'Referrer-Policy'?: string;
-  'Permissions-Policy'?: string;
-  'Strict-Transport-Security'?: string;
-  'Content-Security-Policy'?: string;
-  'X-Download-Options'?: string;
-  'X-DNS-Prefetch-Control'?: string;
-  'X-Permitted-Cross-Domain-Policies'?: string;
-}
+export type SecurityHeaders = Record<string, string>;
 
 /**
  * Get enhanced security headers for API responses

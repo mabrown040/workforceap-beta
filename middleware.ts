@@ -101,6 +101,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Add security headers for API routes
+  if (pathname.startsWith('/api/')) {
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+  }
+
   // MFA enforcement for admin UI and admin API paths
   if (isStaffMfaEnforcementEnabled() && (isAdminPath(request.nextUrl.pathname) || isAdminApiPath(request.nextUrl.pathname)) && user) {
     const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();

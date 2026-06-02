@@ -12,3 +12,10 @@ test-results/
 tmp/
 .gstack/
 .env*.local
+.claude/
+.gbrain-source
+docs/DISPATCH_BOARD.md
+docs/ENGINEER_ORCHESTRATION.md
+scripts/dispatch-board.sh
+scripts/engineer-loop.sh
+docs/plans/

@@ -6,6 +6,7 @@ import { checkAdminInviteRateLimit } from '@/lib/rate-limit';
 import { sendInvitationEmail } from '@/lib/email';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { randomBytes } from 'crypto';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -129,6 +130,14 @@ const INVITE_EXPIRY_DAYS = 7;export const POST = withApiGuc(async (
       targetType: 'invitation',
       targetId: id,
       metadata: { orgId, role: invitation.role, email: invitation.email },
+    });
+    const actorRole = actorIsSuperAdmin ? 'super_admin' : 'admin';
+    await logAuditEvent({
+      user: { id: user.id, role: actorRole },
+      verb: 'shared',
+      object: { type: 'Invitation', id },
+      orgId,
+      request: auditRequestMeta(request),
     });
 
     return NextResponse.json({ ok: true, message: 'Invitation resent.', emailSent: true });

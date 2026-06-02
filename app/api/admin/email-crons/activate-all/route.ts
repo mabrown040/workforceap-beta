@@ -1,11 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -40,6 +42,16 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       count: records.length,
       workflows: CRON_REGISTRY.map((c) => c.workflowKey),
     },
+  });
+
+  const orgId = await getActorOrganizationId(user.id);
+  const actorRole = (await isSuperAdmin(user.id)) ? 'super_admin' : 'admin';
+  await logAuditEvent({
+    user: { id: user.id, role: actorRole },
+    verb: 'activated',
+    object: { type: 'EmailCron', id: 'all' },
+    orgId,
+    request: auditRequestMeta(request),
   });
 
   return NextResponse.json({

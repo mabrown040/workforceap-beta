@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
+import { withUserGuc } from '@/lib/db/withRequestGuc';
 import { revalidatePath } from 'next/cache';
 
 export async function logExternalCertification(formData: FormData) {
@@ -15,21 +16,23 @@ export async function logExternalCertification(formData: FormData) {
     throw new Error('Missing required fields');
   }
 
-  await prisma.userCertification.upsert({
-    where: {
-      userId_certName: {
+  await withUserGuc(user, async () => {
+    await prisma.userCertification.upsert({
+      where: {
+        userId_certName: {
+          userId: user.id,
+          certName,
+        },
+      },
+      update: {
+        earnedAt: new Date(earnedAtStr),
+      },
+      create: {
         userId: user.id,
         certName,
+        earnedAt: new Date(earnedAtStr),
       },
-    },
-    update: {
-      earnedAt: new Date(earnedAtStr),
-    },
-    create: {
-      userId: user.id,
-      certName,
-      earnedAt: new Date(earnedAtStr),
-    },
+    });
   });
 
   revalidatePath('/dashboard');

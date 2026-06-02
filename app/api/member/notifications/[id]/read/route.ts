@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 type Props = { params: Promise<{ id: string }> };
 
-async function markRead(_request: Request, { params }: Props) {
+const markRead = withApiGuc(async (_request: Request, { params }: Props) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -46,7 +47,7 @@ async function markRead(_request: Request, { params }: Props) {
     console.error('/member/notifications/[id]/read error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 export const PUT = markRead;
 export const PATCH = markRead;

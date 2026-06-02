@@ -597,7 +597,7 @@ export default function CourseraMappingsAdmin({
             {progressAudit.rollups.length === 0 ? (
               <p style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>No course progress rows for this member.</p>
             ) : (
-              <div style={{ overflowX: 'auto' }}>
+              <div style={{ overflowX: 'auto', maxWidth: '100%', minWidth: 0, WebkitOverflowScrolling: 'touch' }}>
                 <DataTable
                   density="compact"
                   scrollX={false}
@@ -637,7 +637,7 @@ export default function CourseraMappingsAdmin({
             {progressAudit.courseRows.length > 0 ? (
               <div>
                 <h3 style={{ fontSize: '1rem', margin: '0 0 0.5rem' }}>Course progress rows</h3>
-                <div style={{ overflowX: 'auto' }}>
+                <div style={{ overflowX: 'auto', maxWidth: '100%', minWidth: 0, WebkitOverflowScrolling: 'touch' }}>
                   <DataTable
                     density="compact"
                     scrollX={false}

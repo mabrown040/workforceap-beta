@@ -2098,3 +2098,94 @@ export async function sendMemberStuckEmail(params: {
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }
+
+/**
+ * Send a logged-in member a link to the WIOA interview-prep tool. No token —
+ * the member logs in to the portal and uses the existing tool. Sibling of
+ * sendInvitationEmail; reuses brandedEmailLayout + org branding.
+ */
+export async function sendInterviewPrepLink(params: {
+  to: string;
+  name?: string | null;
+  url: string;
+  orgId?: string | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendInterviewPrepLink: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const branding = await getOrganizationBranding(params.orgId);
+  const greeting = params.name?.trim() ? `Hi ${escapeHtml(params.name.trim())},` : 'Hi,';
+  const title = 'Practice for your interview';
+  const html = brandedEmailLayout({
+    title,
+    bodyHtml: `
+      <p style="margin: 0 0 1rem;">${greeting}</p>
+      <p style="margin: 0 0 1rem;">Your ${escapeHtml(branding.name)} team wants you to get ready for your next interview.
+      Log in to your portal and use the interview-prep tool to practice common questions and sharpen your answers.</p>
+      <p style="margin: 0 0 1rem;">Click the button below to get started — you'll be asked to log in if you aren't already.</p>
+    `,
+    ctaText: 'Start interview prep',
+    ctaUrl: params.url,
+    branding,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`Practice for your interview with ${branding.name}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendInterviewPrepLink failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/**
+ * Send a logged-in member a link to the eligibility questionnaire portal page,
+ * where they can complete / update their WIOA eligibility info. No token —
+ * the portal page is auth-gated. Sibling of sendInvitationEmail.
+ */
+export async function sendEligibilityLink(params: {
+  to: string;
+  name?: string | null;
+  url: string;
+  orgId?: string | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEligibilityLink: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const branding = await getOrganizationBranding(params.orgId);
+  const greeting = params.name?.trim() ? `Hi ${escapeHtml(params.name.trim())},` : 'Hi,';
+  const title = 'Complete your eligibility info';
+  const html = brandedEmailLayout({
+    title,
+    bodyHtml: `
+      <p style="margin: 0 0 1rem;">${greeting}</p>
+      <p style="margin: 0 0 1rem;">To keep your ${escapeHtml(branding.name)} file up to date, please take a moment to
+      complete or update your eligibility information — your age group, location, and any barriers to employment.</p>
+      <p style="margin: 0 0 1rem;">Click the button below to open the form. It's pre-filled with what we already have, so it
+      only takes a minute. You'll be asked to log in if you aren't already.</p>
+    `,
+    ctaText: 'Update eligibility info',
+    ctaUrl: params.url,
+    branding,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine(`Complete your eligibility info for ${branding.name}`),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEligibilityLink failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}

@@ -69,6 +69,14 @@ let publicWioaQualificationRateLimiter: Ratelimit | null = null;
 let webhookRateLimiter: Ratelimit | null = null;
 let orgOnboardRateLimiter: Ratelimit | null = null;
 let courseraIdentityRateLimiter: Ratelimit | null = null;
+// Per-IP limiter for the PUBLIC tokenized eligibility-questionnaire submit
+// (POST /api/q/[token]/submit). The endpoint is reachable with no account —
+// only a valid single-use token gates it — so an attacker who harvests a
+// token (or sprays guesses) could otherwise hammer the write path. The token
+// is consumed atomically on first submit, but the rate limit caps guessing /
+// retry abuse before that. 5/min/IP covers a recipient who fat-fingers a few
+// submits without enabling a flood.
+let publicQuestionnaireSubmitRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -234,6 +242,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:coursera-identity',
+  });
+  publicQuestionnaireSubmitRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '1 m'),
+    prefix: 'ratelimit:public-questionnaire-submit',
   });
 }
 
@@ -468,6 +481,18 @@ export async function checkWebhookRateLimit(ip: string): Promise<{ success: bool
 export async function checkOrgOnboardRateLimit(ip: string): Promise<{ success: boolean }> {
   if (!orgOnboardRateLimiter) return { success: true };
   const result = await orgOnboardRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/**
+ * POST /api/q/[token]/submit — PUBLIC (no-account) tokenized eligibility
+ * questionnaire submit. Token-gated + single-use, but reachable without auth,
+ * so cap per-IP abuse. Fail-open without Redis (the single-use token consume
+ * is the hard guarantee).
+ */
+export async function checkPublicQuestionnaireSubmitRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicQuestionnaireSubmitRateLimiter) return { success: true };
+  const result = await publicQuestionnaireSubmitRateLimiter.limit(ip);
   return { success: result.success };
 }
 

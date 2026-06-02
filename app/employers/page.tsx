@@ -217,7 +217,9 @@ export default async function EmployersPage() {
             />
           ))}
         </div>
-        <p className="employers-outcomes__disclaimer">{t('outcomesDisclaimer')}</p>
+        {t('outcomesDisclaimer') ? (
+          <p className="employers-outcomes__disclaimer">{t('outcomesDisclaimer')}</p>
+        ) : null}
       </PageSection>
 
       {/* ── Pricing: one model ── */}

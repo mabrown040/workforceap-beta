@@ -55,6 +55,9 @@ export default function AdminMemberCounselorChatClient({
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const realtimeInstanceRef = useRef(0);
+  // Skip the auto-scroll on initial mount so the surrounding member detail
+  // page loads scrolled to the top instead of jumping down to the chat thread.
+  const hasMountedRef = useRef(false);
 
   const markRead = useCallback(async () => {
     try {
@@ -65,7 +68,13 @@ export default function AdminMemberCounselorChatClient({
   }, [apiBase]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (hasMountedRef.current) {
+      // Only auto-scroll the chat into view for messages that arrive after the
+      // initial render (e.g. realtime/sent messages), never on first mount.
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      hasMountedRef.current = true;
+    }
     void markRead();
   }, [messages.length, markRead]);
 

@@ -350,7 +350,7 @@ michael.brown@techvera.com
 https://www.workforceap.org
 
 **LinkedIn:**  
-https://linkedin.com/company/workforceap
+https://www.linkedin.com/company/workforce-advancement-project
 
 ---
 

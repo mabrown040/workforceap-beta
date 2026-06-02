@@ -118,7 +118,7 @@ States with streamlined ETPL processes, minimal accreditation requirements, and 
 ### **GEORGIA (GA)**
 
 **State Agency:** Georgia Department of Labor (GDOL) / Georgia's Workforce System  
-**Website:** [gdol.ga.gov](https://gdol.ga.gov)
+**Website:** [dol.georgia.gov](https://dol.georgia.gov)
 
 **WIOA Regional Boards:**  
 19 Local Workforce Development Areas:

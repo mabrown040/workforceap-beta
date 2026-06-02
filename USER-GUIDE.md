@@ -338,7 +338,7 @@ To help candidates succeed:
 **Michael Brown, Executive Director**  
 Email: michael.brown@techvera.com  
 Phone: (512) 777-1808  
-LinkedIn: [WorkforceAP](https://linkedin.com/company/workforceap)
+LinkedIn: [WorkforceAP](https://www.linkedin.com/company/workforce-advancement-project)
 
 ---
 
@@ -501,7 +501,7 @@ Email: michael.brown@techvera.com
 [www.workforceap.org](https://www.workforceap.org)
 
 **LinkedIn**  
-[linkedin.com/company/workforceap](https://linkedin.com/company/workforceap)
+[linkedin.com/company/workforce-advancement-project](https://www.linkedin.com/company/workforce-advancement-project)
 
 ---
 

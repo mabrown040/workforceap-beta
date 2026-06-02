@@ -14,6 +14,11 @@ test.describe('Apply smoke', () => {
     // Application form or eligibility client wrapper
     await expect(page.locator('.apply-main-form, form, [class*="eligibility"]').first()).toBeVisible();
 
+    // Mobile step breadcrumb (sidebar progress hidden below 768px)
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect(page.locator('.apply-mobile-step-nav')).toBeVisible();
+    await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/eligibility|you/i);
+
     // Sidebar with progress steps
     await expect(page.locator('.apply-sidebar, aside').first()).toBeVisible();
 

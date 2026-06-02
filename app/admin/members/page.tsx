@@ -58,6 +58,7 @@ export default async function AdminMembersPage() {
         phone: true,
         enrolledProgram: true,
         enrolledAt: true,
+        staleTrainingDetectedAt: true,
         assessmentScorePct: true,
         assessmentCompleted: true,
         programInterest: true,

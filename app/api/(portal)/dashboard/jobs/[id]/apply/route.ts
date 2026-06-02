@@ -30,7 +30,6 @@ export async function POST(
   if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   // Rate limiting for job applications - use careers recommend limiter
-  const 
   const { success: rateOk } = await checkJobApplicationRateLimit(authUser.id);
   if (!rateOk) {
     return NextResponse.json(

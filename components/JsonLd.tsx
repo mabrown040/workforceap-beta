@@ -20,7 +20,7 @@ export default function JsonLd() {
       addressLocality: 'Austin',
       addressRegion: 'TX',
     },
-    sameAs: ['https://www.linkedin.com/company/workforceap'],
+    sameAs: ['https://www.linkedin.com/company/workforce-advancement-project'],
   };
 
   const websiteSchema = {

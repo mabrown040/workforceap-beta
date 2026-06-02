@@ -34,11 +34,25 @@ export interface Program {
   partner: string;
 }
 
-function normalizeDiscoveredProgramTitle(title: string): string {
+export function normalizeDiscoveredProgramTitle(title: string): string {
   return title.replace('Heath Information', 'Health Information').trim();
 }
 
-function getDiscoveredProgram(program: Program | string) {
+/**
+ * Coursera / B4B sometimes stores a collection or program slug that differs from the WAP
+ * `Program.slug` used in `PROGRAMS` / `DISCOVERED_COURSERA_PROGRAMS`. Map those here so
+ * enrollments, xAPI completion, and admin views resolve to one catalog entry.
+ */
+export const ENROLLED_PROGRAM_SLUG_ALIASES: Record<string, string> = {
+  'ai-practitioner-professional-certificate': 'ai-professional-developer-certificate-ibm',
+};
+
+export function resolveEnrolledProgramSlug(slug: string): string {
+  const key = slug.trim().toLowerCase();
+  return ENROLLED_PROGRAM_SLUG_ALIASES[key] ?? slug;
+}
+
+export function getDiscoveredProgram(program: Program | string) {
   const slug = typeof program === 'string' ? program : program.slug;
   return DISCOVERED_COURSERA_PROGRAMS[slug];
 }
@@ -329,5 +343,5 @@ export function getProgramByInterestValue(interest: string): Program | undefined
  * canonical slug or a full program title). Prefer this over matching `slug` alone.
  */
 export function getProgramBySlug(slug: string): Program | undefined {
-  return getProgramByInterestValue(slug);
+  return getProgramByInterestValue(resolveEnrolledProgramSlug(slug));
 }

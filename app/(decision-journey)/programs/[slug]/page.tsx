@@ -168,6 +168,146 @@ export default async function ProgramPage({ params }: Props) {
               </div>
             </div>
             <ProgramDetailClient program={program} />
+
+            {/* ── Prerequisites & Commitment ── */}
+            {extra && (
+              <div
+                style={{
+                  marginBottom: '1.5rem',
+                  padding: '1.5rem',
+                  borderRadius: '12px',
+                  background: 'var(--surface-container-lowest)',
+                  border: '1px solid var(--outline-variant)',
+                }}
+              >
+                <div style={{ marginBottom: '1rem' }}>
+                  <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.4rem' }}>
+                    Before you apply
+                  </p>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-on-surface)' }}>
+                    What to expect from this program
+                  </h2>
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '1rem',
+                  }}
+                >
+                  <div>
+                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Difficulty level</h3>
+                    <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.5rem' }}>
+                      {[1, 2, 3].map((star) => (
+                        <span
+                          key={star}
+                          className="material-symbols-outlined"
+                          style={{
+                            fontSize: '1.25rem',
+                            color:
+                              star <= (extra.difficulty ?? 2)
+                                ? 'var(--color-accent)'
+                                : 'var(--outline-variant)',
+                          }}
+                          aria-hidden="true"
+                        >
+                          {star <= (extra.difficulty ?? 2) ? 'star' : 'star_outline'}
+                        </span>
+                      ))}
+                    </div>
+                    <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                      {extra.difficulty === 1
+                        ? 'Beginner-friendly. No prior background needed.'
+                        : extra.difficulty === 3
+                          ? 'Intermediate. Prior comfort with computers or related study helps.'
+                          : 'Some prior experience or study recommended.'}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Time commitment</h3>
+                    <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                      {program.duration}. {program.courses.length} course{program.courses.length > 1 ? 's' : ''} in the full path.
+                    </p>
+                  </div>
+                  {extra.rampNote && (
+                    <div>
+                      <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>What you should know first</h3>
+                      <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                        {extra.rampNote}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Funding</h3>
+                    <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                      {program.fundingSource
+                        ? `Available at no cost through ${program.fundingSource} funding for qualifying members.`
+                        : 'No-cost training for qualifying members.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Career Pathway ── */}
+            {extra?.jobOutcomes?.length > 0 && (
+              <div
+                style={{
+                  marginBottom: '1.5rem',
+                  padding: '1.5rem',
+                  borderRadius: '12px',
+                  background: 'var(--surface-container-low)',
+                  border: '1px solid var(--outline-variant)',
+                }}
+              >
+                <div style={{ marginBottom: '1rem' }}>
+                  <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.4rem' }}>
+                    Career outcomes
+                  </p>
+                  <h2 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-on-surface)' }}>
+                    Roles this program prepares you for
+                  </h2>
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: '0.75rem',
+                  }}
+                >
+                  {extra.jobOutcomes.map((role) => (
+                    <div
+                      key={role}
+                      style={{
+                        padding: '1rem',
+                        background: 'var(--surface-container)',
+                        borderRadius: '8px',
+                        border: '1px solid var(--outline-variant)',
+                      }}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{
+                          fontSize: '1.25rem',
+                          color: 'var(--color-accent)',
+                          display: 'block',
+                          marginBottom: '0.5rem',
+                        }}
+                        aria-hidden="true"
+                      >
+                        work
+                      </span>
+                      <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-on-surface)' }}>
+                        {role}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ margin: '1rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                  Salary range: {salaryRangeDisplay(program)}. Actual wages depend on employer, location, and experience.
+                </p>
+              </div>
+            )}
             
             {/* Bottom CTA Banner */}
             <div className="program-bottom-cta" style={{

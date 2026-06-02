@@ -30,7 +30,7 @@ function buildAlternates(path: string, siteUrl: string) {
   return { languages };
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60 * 60 * 24;
 
 const PUBLIC_ROUTES: PublicRouteConfig[] = [
   { path: '/', changeFrequency: 'weekly', priority: 1 },
@@ -60,6 +60,9 @@ const PUBLIC_ROUTES: PublicRouteConfig[] = [
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
+  // Use a deploy/revalidation-scoped timestamp for routes that do not have a
+  // content-backed update time. Per-request timestamps force unnecessary
+  // re-crawls and make Search Console think every page changed on every hit.
   const fallbackModified = new Date();
 
   const mainPages: MetadataRoute.Sitemap = PUBLIC_ROUTES.map(({ path, changeFrequency, priority, lastModified }) => ({

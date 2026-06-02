@@ -55,46 +55,15 @@ self.addEventListener('fetch', (event) => {
 
   // Navigation requests (HTML pages): network-first with offline fallback.
   //
-  // Do NOT cache authenticated routes. The previous version stored every
-  // 200 HTML response keyed by URL, which on a shared device meant that
-  // after logout (or a different user signing in) going offline and
-  // re-opening /dashboard or /admin served the previous user's
-  // server-rendered private page from the SW cache. We only cache public
-  // marketing routes; authenticated portals fall through to the offline
-  // page on failure instead.
+  // Do NOT cache HTML navigations at all. Public-route HTML caching sounds
+  // cheap, but in practice it can serve stale shells across deploys and create
+  // route/content mismatches on mobile clients after a frontend release. The
+  // site already avoids caching authenticated HTML; extend that rule to public
+  // marketing pages so fresh server HTML always matches the active JS bundle.
   if (event.request.mode === 'navigate') {
-    // Mirrors PORTAL_PATHS + ADMIN_PATHS in middleware.ts — every route the
-    // middleware gates behind auth must be excluded from this cache, or a
-    // shared device can serve a previous user's HTML offline after logout.
-    // Strip the locale segment (e.g. `/es/dashboard` → `/dashboard`) so
-    // localized portal URLs aren't accidentally cached.
-    // Keep APP_LOCALES in sync with lib/i18n/config.ts.
-    const APP_LOCALES = ['en', 'es', 'fr', 'pt'];
-    const firstSegment = url.pathname.split('/')[1] || '';
-    const pathWithoutLocale = APP_LOCALES.includes(firstSegment)
-      ? url.pathname.slice(firstSegment.length + 1) || '/'
-      : url.pathname;
-    const isAuthenticatedRoute =
-      pathWithoutLocale.startsWith('/dashboard') ||
-      pathWithoutLocale.startsWith('/admin') ||
-      pathWithoutLocale.startsWith('/counselor') ||
-      pathWithoutLocale.startsWith('/employer') ||
-      pathWithoutLocale.startsWith('/partner') ||
-      pathWithoutLocale.startsWith('/profile') ||
-      pathWithoutLocale.startsWith('/account') ||
-      pathWithoutLocale.startsWith('/applications') ||
-      pathWithoutLocale.startsWith('/resources') ||
-      pathWithoutLocale.startsWith('/help') ||
-      pathWithoutLocale.startsWith('/certifications');
     event.respondWith(
       fetch(event.request)
-        .then((res) => {
-          if (res.status === 200 && !isAuthenticatedRoute) {
-            const resClone = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
-          }
-          return res;
-        })
+        .then((res) => res)
         .catch(() => caches.match(OFFLINE_PAGE))
     );
     return;

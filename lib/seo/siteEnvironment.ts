@@ -10,6 +10,10 @@ export function getSiteUrl(): string {
 }
 
 export async function isStagingDeployment(): Promise<boolean> {
+  if (process.env.VERCEL_ENV === 'production') {
+    return false;
+  }
+
   if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production') {
     return true;
   }

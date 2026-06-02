@@ -95,20 +95,34 @@ export default function EmployerCaseStudyCard({
       </p>
 
       {study.quote ? (
-      <blockquote
-        style={{
-          margin: 0,
-          fontSize: '0.9rem',
-          color: quoteColor,
-          fontStyle: 'italic',
-          borderLeft: `2px solid ${isAccent ? 'rgba(255,255,255,0.35)' : 'var(--color-accent)'}`,
-          paddingLeft: '1rem',
-          lineHeight: 1.7,
-          flex: 1,
-        }}
-      >
-        &ldquo;{study.quote}&rdquo;
-      </blockquote>
+        study.attribution_name ? (
+          <blockquote
+            style={{
+              margin: 0,
+              fontSize: '0.9rem',
+              color: quoteColor,
+              fontStyle: 'italic',
+              borderLeft: `2px solid ${isAccent ? 'rgba(255,255,255,0.35)' : 'var(--color-accent)'}`,
+              paddingLeft: '1rem',
+              lineHeight: 1.7,
+              flex: 1,
+            }}
+          >
+            &ldquo;{study.quote}&rdquo;
+          </blockquote>
+        ) : (
+          <p
+            style={{
+              margin: 0,
+              fontSize: '0.9rem',
+              color: quoteColor,
+              lineHeight: 1.7,
+              flex: 1,
+            }}
+          >
+            {study.quote}
+          </p>
+        )
       ) : null}
 
       {study.attribution_name ? (

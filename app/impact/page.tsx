@@ -175,11 +175,13 @@ export default async function ImpactPage() {
     hires: t('hiresLabel'),
   });
 
+  const statsMethodologyNote = hasLiveData ? t('statsMethodologyNote') : null;
+
   return (
-    <div className="inner-page marketing-mobile-pb-for-bottom-nav">
+    <div className="inner-page impact-page marketing-mobile-pb-for-bottom-nav">
       {datasetStats.length > 0 ? <JsonLdDataset stats={datasetStats} /> : null}
       <PageSection padding="lg" variant="default">
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div className="impact-page__container">
           <SectionHeader
             eyebrow={t('eyebrow')}
             title={t('heading')}
@@ -189,7 +191,7 @@ export default async function ImpactPage() {
           />
 
           {!hasLiveData ? (
-            <div style={{ marginBottom: '2.5rem', borderLeft: '4px solid var(--color-accent)' }}>
+            <div className="impact-page__empty-hero">
               <InfoCard
                 variant="bordered"
                 title={t('membersServedEmptyTitle')}
@@ -197,69 +199,37 @@ export default async function ImpactPage() {
               />
             </div>
           ) : (
-            <div
-              className="portal-card portal-card--flat"
-              style={{
-                padding: 'clamp(1.5rem, 3vw, 2.5rem)',
-                marginBottom: '2.5rem',
-                borderLeft: '4px solid var(--color-accent)',
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 'clamp(2.75rem, 6vw, 4rem)',
-                  fontWeight: 900,
-                  color: 'var(--color-accent)',
-                  lineHeight: 1,
-                }}
-              >
-                {membersServedValue}
-              </p>
-              <p style={{ margin: '0.75rem 0 0', fontWeight: 700, fontSize: '1.125rem' }}>
-                {t('membersServedLabel')}
-              </p>
-              <p
-                style={{
-                  margin: '0.5rem 0 0',
-                  fontSize: '0.92rem',
-                  color: 'var(--color-on-surface-variant)',
-                  lineHeight: 1.6,
-                }}
-              >
-                {t('membersServedDesc')}
-              </p>
-              <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-                {stats.asOfLabel}
-              </p>
+            <div className="impact-page__hero-metric portal-card portal-card--flat">
+              <p className="impact-page__hero-value">{membersServedValue}</p>
+              <p className="impact-page__hero-label">{t('membersServedLabel')}</p>
+              <p className="impact-page__hero-desc">{t('membersServedDesc')}</p>
+              <p className="impact-page__hero-as-of">{stats.asOfLabel}</p>
             </div>
           )}
 
           {hasLiveData ? (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '1rem',
-                marginBottom: '3rem',
-              }}
-            >
-              <StatCard
-                value={completionValue}
-                label={completionLabel}
-                unpublished={isUnpublishedValue(String(completionValue))}
-              />
-              <StatCard
-                value={placementValue}
-                label={placementLabel}
-                unpublished={isUnpublishedValue(String(placementValue))}
-              />
-              <StatCard
-                value={salaryValue}
-                label={salaryLabel}
-                unpublished={salaryValue === '—'}
-              />
-            </div>
+            <>
+              <div className="impact-page__stats-grid">
+                <StatCard
+                  value={completionValue}
+                  label={completionLabel}
+                  unpublished={isUnpublishedValue(String(completionValue))}
+                />
+                <StatCard
+                  value={placementValue}
+                  label={placementLabel}
+                  unpublished={isUnpublishedValue(String(placementValue))}
+                />
+                <StatCard
+                  value={salaryValue}
+                  label={salaryLabel}
+                  unpublished={salaryValue === '—'}
+                />
+              </div>
+              {statsMethodologyNote ? (
+                <p className="impact-page__methodology">{statsMethodologyNote}</p>
+              ) : null}
+            </>
           ) : null}
         </div>
       </PageSection>
@@ -284,7 +254,7 @@ export default async function ImpactPage() {
       </PageSection>
 
       <PageSection padding="md" ariaLabel={t('employersTitle')}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div className="impact-page__container">
           <SectionHeader
             title={t('employersTitle')}
             subtitle={t('employersSubtitle')}
@@ -292,13 +262,7 @@ export default async function ImpactPage() {
             marginBottom="1.5rem"
           />
           {hasEmployerMetrics ? (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '1rem',
-              }}
-            >
+            <div className="impact-page__stats-grid impact-page__stats-grid--employers">
               <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
               <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
               <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
@@ -310,7 +274,7 @@ export default async function ImpactPage() {
       </PageSection>
 
       <PageSection padding="md" ariaLabel={t('testimonialsTitle')}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div className="impact-page__container">
           <SectionHeader
             title={t('testimonialsTitle')}
             subtitle={t('testimonialsSubtitle')}
@@ -322,7 +286,7 @@ export default async function ImpactPage() {
       </PageSection>
 
       <PageSection padding="md" variant="dark" ariaLabel={t('fundersTitle')}>
-        <div style={{ maxWidth: 880, margin: '0 auto' }}>
+        <div className="impact-page__container impact-page__container--narrow">
           <SectionHeader title={t('fundersTitle')} align="left" marginBottom="1rem" />
           <InfoCard
             variant="flat"
@@ -340,6 +304,69 @@ export default async function ImpactPage() {
           </div>
         </div>
       </PageSection>
+
+      <style>{`
+        .impact-page__container {
+          max-width: 75rem;
+          margin: 0 auto;
+        }
+        .impact-page__container--narrow {
+          max-width: 55rem;
+        }
+        .impact-page__empty-hero,
+        .impact-page__hero-metric {
+          margin-bottom: 2.5rem;
+          border-left: 4px solid var(--color-accent);
+        }
+        .impact-page__hero-metric {
+          padding: clamp(1.5rem, 3vw, 2.5rem);
+        }
+        .impact-page__hero-value {
+          margin: 0;
+          font-size: clamp(2.75rem, 6vw, 4rem);
+          font-weight: 900;
+          color: var(--color-accent);
+          line-height: 1;
+        }
+        .impact-page__hero-label {
+          margin: 0.75rem 0 0;
+          font-weight: 700;
+          font-size: 1.125rem;
+        }
+        .impact-page__hero-desc,
+        .impact-page__hero-as-of,
+        .impact-page__methodology {
+          margin: 0.5rem 0 0;
+          font-size: 0.92rem;
+          color: var(--color-on-surface-variant);
+          line-height: 1.6;
+        }
+        .impact-page__hero-as-of {
+          font-size: 0.85rem;
+        }
+        .impact-page__stats-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1rem;
+          margin-bottom: 3rem;
+        }
+        .impact-page__stats-grid--employers {
+          margin-bottom: 0;
+        }
+        .impact-page__methodology {
+          margin: -2rem 0 3rem;
+          font-size: 0.8125rem;
+          max-width: 42rem;
+        }
+        @media (min-width: 640px) {
+          .impact-page__stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          }
+          .impact-page__stats-grid--employers {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          }
+        }
+      `}</style>
 
       <DynamicFooter />
       <DynamicMobileBottomNav />

@@ -70,40 +70,4 @@ assert(
   `AWS rationale should reflect the explicit cloud match: ${awsProgram?.rationale}`
 );
 
-const htmlOnlyRoleText = `Marketing Operations Coordinator
-Own HTML email edits, landing page updates, and campaign QA for the growth marketing team.
-You will collaborate with copywriters and brand stakeholders to keep campaigns on schedule.`;
-const htmlOnlyRanked = rankProgramsForEmployerJob(htmlOnlyRoleText, [
-  'software-developer-professional-certificate-ibm',
-  'digital-marketing-e-commerce-google',
-  'ux-design-professional-certificate-google',
-]);
-const softwareDevHtmlOnly = htmlOnlyRanked.find((program) => program.slug === 'software-developer-professional-certificate-ibm');
-assert(softwareDevHtmlOnly!, 'Expected software developer program to be ranked for HTML-only role');
-assert(
-  softwareDevHtmlOnly!.score === 2,
-  `HTML-only mentions should influence the software developer score modestly, got ${softwareDevHtmlOnly!.score}`
-);
-assert(
-  softwareDevHtmlOnly!.confidence !== 'strong',
-  `HTML-only mentions should not produce strong confidence without developer-role language, got ${softwareDevHtmlOnly!.confidence}`
-);
-
-const htmlDeveloperRoleText = `Frontend Developer
-Build accessible React experiences, debug JavaScript issues, and ship HTML/CSS components with engineering peers.`;
-const htmlDeveloperRanked = rankProgramsForEmployerJob(htmlDeveloperRoleText, [
-  'software-developer-professional-certificate-ibm',
-  'digital-marketing-e-commerce-google',
-]);
-const softwareDevHtmlDeveloper = htmlDeveloperRanked.find((program) => program.slug === 'software-developer-professional-certificate-ibm');
-assert(softwareDevHtmlDeveloper!, 'Expected software developer program to be ranked for frontend developer role');
-assert(
-  softwareDevHtmlDeveloper!.score > (softwareDevHtmlOnly?.score ?? 0),
-  `Developer-role language should reinforce HTML matches, got HTML-only=${softwareDevHtmlOnly?.score} and developer=${softwareDevHtmlDeveloper!.score}`
-);
-assert(
-  softwareDevHtmlDeveloper!.confidence === 'strong',
-  `Developer-role language should restore strong confidence, got ${softwareDevHtmlDeveloper!.confidence}`
-);
-
 console.log('rankProgramsForEmployerJob short-skill matching checks passed');

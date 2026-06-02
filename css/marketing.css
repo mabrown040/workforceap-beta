@@ -713,6 +713,14 @@ html.has-marketing-main-nav {
   .programs-page-desktop-only {
     display: none;
   }
+
+  /*
+   * Page-level Quick Start (compact lane cards) already sits above the catalog on mobile.
+   * Hide the in-catalog "Start here" block so members are not shown the same three picks twice.
+   */
+  .programs-starter-section {
+    display: none;
+  }
 }
 
 /*

@@ -1,6 +1,8 @@
 import 'server-only';
 
+import { completeMemberCourse } from '@/lib/member/courseCompletion';
 import { prisma } from '@/lib/db/prisma';
+import { parseCompletionStatements } from '@/lib/xapi/statements';
 
 export type XapiIdentity = {
   email?: string | null;
@@ -512,4 +514,94 @@ export async function upsertCourseraIdentityMapping(args: {
   `;
 
   return rows[0] ?? null;
+}
+
+export async function listCourseraXapiEventsForUserReprocess(userId: string, limit = 100) {
+  await ensureCourseraMappingTables();
+
+  return prisma.$queryRaw<Array<{
+    id: string;
+    statementId: string | null;
+    completionStatus: string;
+    rawPayload: unknown;
+  }>>`
+    SELECT
+      id,
+      statement_id AS "statementId",
+      completion_status AS "completionStatus",
+      raw_payload AS "rawPayload"
+    FROM coursera_xapi_events
+    WHERE matched_user_id = ${userId}
+      AND completion_status IN ('error', 'ignored')
+    ORDER BY received_at ASC
+    LIMIT ${limit}
+  `;
+}
+
+/**
+ * Re-run completion processing for stored xAPI payloads (e.g. after slug extraction fixes).
+ * Only events that were already matched to a member but failed or were ignored are eligible.
+ */
+export async function reprocessCourseraXapiEventsForUser(userId: string, limit = 100) {
+  const events = await listCourseraXapiEventsForUserReprocess(userId, limit);
+  const results: Array<{ eventId: string; ok: boolean; detail?: string }> = [];
+
+  for (const ev of events) {
+    const statements = parseCompletionStatements(ev.rawPayload);
+    if (statements.length === 0) {
+      results.push({ eventId: ev.id, ok: false, detail: 'not_a_completion_statement' });
+      continue;
+    }
+
+    const st = statements[0];
+    const identity = {
+      email: st.email,
+      actorIdentifier: st.actorIdentifier,
+      actorHomePage: st.actorHomePage,
+    };
+
+    try {
+      const result = await completeMemberCourse({
+        userId,
+        courseSlug: st.courseSlug,
+        courseName: st.courseName,
+        source: 'coursera-webhook',
+      });
+
+      await recordXapiEvent({
+        statementId: st.statementId,
+        identity,
+        courseSlug: st.courseSlug,
+        courseName: st.courseName,
+        verbId: st.verbId,
+        matchedUserId: userId,
+        mappingMethod: 'reprocess-admin',
+        completionStatus: 'completed',
+        rawPayload: st.rawStatement,
+      });
+
+      results.push({
+        eventId: ev.id,
+        ok: true,
+        detail: result.alreadyCompleted ? 'already_completed' : 'completed',
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      await recordXapiEvent({
+        statementId: st.statementId,
+        identity,
+        courseSlug: st.courseSlug,
+        courseName: st.courseName,
+        verbId: st.verbId,
+        matchedUserId: userId,
+        mappingMethod: 'reprocess-admin',
+        completionStatus: 'error',
+        error: message,
+        rawPayload: st.rawStatement,
+      });
+      results.push({ eventId: ev.id, ok: false, detail: message });
+    }
+  }
+
+  return { processed: events.length, results };
 }

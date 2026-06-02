@@ -171,6 +171,12 @@ const sPage = {
 };
 
 
+const APPLY_PROGRESS_STEPS = [
+  { labelKey: 'stepPersonalInfo', icon: 'person' },
+  { labelKey: 'stepBackground', icon: 'work' },
+  { labelKey: 'stepProgramSelection', icon: 'school' },
+] as const;
+
 export default async function OrganicApplyPage({ program: programParam }: OrganicApplyPageProps) {
   const programSlug = resolveApplyProgramSlug(programParam);
   const program = programSlug ? getProgramBySlug(programSlug) : undefined;
@@ -230,11 +236,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
               {t('applicationProgress')}
             </h2>
             <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {[
-                { labelKey: 'stepPersonalInfo', icon: 'person' },
-                { labelKey: 'stepBackground', icon: 'work' },
-                { labelKey: 'stepProgramSelection', icon: 'school' },
-              ].map((step, i) => (
+              {APPLY_PROGRESS_STEPS.map((step, i) => (
                 <li key={step.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-3) 0', borderBottom: i < 2 ? '1px solid var(--outline-variant)' : 'none' }}>
                   <span style={{
                     display: 'inline-flex',
@@ -296,6 +298,26 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           />
 
           <div id="apply-form-start" className="apply-main-form__primary">
+            <nav className="apply-mobile-step-nav" aria-label={t('applicationProgress')}>
+              <ol className="apply-mobile-step-nav__list">
+                {APPLY_PROGRESS_STEPS.map((step, i) => (
+                  <li
+                    key={step.labelKey}
+                    className={`apply-mobile-step-nav__item${i === 0 ? ' apply-mobile-step-nav__item--active' : ''}`}
+                  >
+                    <span className="apply-mobile-step-nav__index" aria-hidden="true">
+                      {i + 1}
+                    </span>
+                    <span className="material-symbols-outlined apply-mobile-step-nav__icon" aria-hidden="true">
+                      {step.icon}
+                    </span>
+                    <span className="apply-mobile-step-nav__label">
+                      {t(step.labelKey as Parameters<typeof t>[0])}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </nav>
             <TrustStrip variant="apply" />
 
             <Suspense fallback={<ApplyPageSkeleton />}>
@@ -306,32 +328,14 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             <h2 id="apply-docs-checklist-heading" className="apply-foundational-support__title">
               {t('docsChecklistTitle')}
             </h2>
-            <p
-              style={{
-                fontSize: '0.9rem',
-                lineHeight: 'var(--line-height-normal)',
-                color: 'var(--color-gray-700)',
-                margin: '0 0 0.65rem',
-              }}
-            >
-              {t('docsChecklistLead')}
-            </p>
+            <p className="apply-docs-checklist__lead">{t('docsChecklistLead')}</p>
             <ul className="apply-foundational-support__list">
               <li>{t('docsChecklistItem1')}</li>
               <li>{t('docsChecklistItem2')}</li>
               <li>{t('docsChecklistItem3')}</li>
               <li>{t('docsChecklistItem4')}</li>
             </ul>
-            <p
-              style={{
-                fontSize: '0.9rem',
-                lineHeight: 'var(--line-height-normal)',
-                color: 'var(--color-gray-700)',
-                margin: '0.65rem 0 0',
-              }}
-            >
-              {t('docsChecklistNote')}
-            </p>
+            <p className="apply-docs-checklist__note">{t('docsChecklistNote')}</p>
           </div>
         </div>
 
@@ -366,6 +370,22 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
 
       {/* Responsive overrides — mobile: shorter hero, form first, help below form */}
       <style>{`
+        .apply-mobile-step-nav {
+          display: none;
+        }
+
+        .apply-docs-checklist__lead,
+        .apply-docs-checklist__note {
+          font-size: var(--font-size-sm);
+          line-height: var(--line-height-normal);
+          color: var(--color-on-surface-variant);
+          margin: 0 0 var(--space-3);
+        }
+
+        .apply-docs-checklist__note {
+          margin: var(--space-3) 0 0;
+        }
+
         .apply-hero-no-cost-mobile,
         .apply-hero-help-compact,
         .apply-hero-start-cta,
@@ -445,6 +465,77 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
         }
 
         @media (max-width: 768px) {
+          .apply-mobile-step-nav {
+            display: block;
+            margin-bottom: var(--space-4);
+          }
+
+          .apply-mobile-step-nav__list {
+            display: flex;
+            gap: var(--space-2);
+            list-style: none;
+            margin: 0;
+            padding: 0;
+          }
+
+          .apply-mobile-step-nav__item {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-2) var(--space-1);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--outline-variant);
+            background: var(--surface-container);
+            text-align: center;
+          }
+
+          .apply-mobile-step-nav__item--active {
+            border-color: var(--color-accent);
+            background: rgba(173, 44, 77, 0.06);
+          }
+
+          .apply-mobile-step-nav__index {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            font-size: var(--font-size-xs, 0.75rem);
+            font-weight: 700;
+            background: var(--surface-container-highest);
+            color: var(--color-on-surface-variant);
+          }
+
+          .apply-mobile-step-nav__item--active .apply-mobile-step-nav__index {
+            background: var(--color-accent);
+            color: var(--color-white);
+          }
+
+          .apply-mobile-step-nav__icon {
+            font-size: 1rem;
+            color: var(--color-on-surface-variant);
+          }
+
+          .apply-mobile-step-nav__item--active .apply-mobile-step-nav__icon {
+            color: var(--color-accent);
+          }
+
+          .apply-mobile-step-nav__label {
+            font-size: var(--font-size-xs, 0.75rem);
+            font-weight: 600;
+            line-height: 1.25;
+            color: var(--color-on-surface-variant);
+          }
+
+          .apply-mobile-step-nav__item--active .apply-mobile-step-nav__label {
+            color: var(--color-on-surface);
+            font-weight: 700;
+          }
+
           .apply-hero {
             padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-5) !important;
           }

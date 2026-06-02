@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import LocalizedLinkServer from '@/components/LocalizedLinkServer';
 import { MARKETING_JOURNEY_STEPS, type MarketingJourneyStep } from '@/lib/content/marketingJourneySteps';
+import { getProgramExtra } from '@/lib/content/programExtras';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import {
   buttonPresets,
@@ -25,6 +26,15 @@ function getHomepageProgramCardImage(program: HomeProgramShowcaseCard, index: nu
     '/images/image-asset.webp',
   ];
   return images[index % images.length];
+}
+
+/** One-line chooser hint from existing catalog extras — no new claims. */
+function homepageProgramCardHint(slug: string): string | undefined {
+  const extra = getProgramExtra(slug);
+  if (!extra) return undefined;
+  if (extra.rampNote) return extra.rampNote;
+  if (extra.bestFor.length <= 90) return extra.bestFor;
+  return undefined;
 }
 
 export default async function HomePageBelowFold({
@@ -542,7 +552,9 @@ export default async function HomePageBelowFold({
           <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '600px' }}>{t('programsSubtitle')}</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
-          {homeProgramShowcase.map((p, index) => (
+          {homeProgramShowcase.map((p, index) => {
+            const cardHint = homepageProgramCardHint(p.slug);
+            return (
             <LocalizedLinkServer
               key={p.slug}
               href={`/programs/${p.slug}`}
@@ -587,6 +599,22 @@ export default async function HomePageBelowFold({
               </div>
               <div style={{ padding: '1.25rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <h3 style={{ fontWeight: 700, fontSize: '1.125rem', lineHeight: 1.3 }}>{p.static?.title ?? p.name}</h3>
+                {cardHint ? (
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: '0.875rem',
+                      lineHeight: 1.55,
+                      color: 'var(--color-on-surface-variant)',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {cardHint}
+                  </p>
+                ) : null}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: 'auto' }}>
                   <span
                     style={{
@@ -614,7 +642,8 @@ export default async function HomePageBelowFold({
                 </div>
               </div>
             </LocalizedLinkServer>
-          ))}
+            );
+          })}
         </div>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <LocalizedLinkServer href="/programs" className={secondaryButtonClasses({ radius: 'md' })}>

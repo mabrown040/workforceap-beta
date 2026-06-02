@@ -145,6 +145,7 @@ export default function ApplyCreateAccountForm() {
         zip?: string;
         county?: string;
         primaryBarrier?: string;
+        primaryBarriers?: string[];
       };
       let elig: EligStored | null = null;
       try {
@@ -384,6 +385,7 @@ export default function ApplyCreateAccountForm() {
         zip?: string;
         county?: string;
         primaryBarrier?: string;
+        primaryBarriers?: string[];
         qualifies?: boolean;
         yesCount?: number;
       } | null = null;
@@ -421,6 +423,7 @@ export default function ApplyCreateAccountForm() {
           ageGroup: eligibilityPayload?.ageGroup,
           county: eligibilityPayload?.county,
           primaryBarrier: eligibilityPayload?.primaryBarrier,
+          primaryBarriers: eligibilityPayload?.primaryBarriers,
           eligibilityQualifies: eligibilityPayload?.qualifies,
           eligibilityYesCount: eligibilityPayload?.yesCount,
           utmSource: attribution.utmSource,

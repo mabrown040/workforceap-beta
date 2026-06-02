@@ -24,6 +24,7 @@ const AGE_GROUPS = [
 ] as const;
 
 const PRIMARY_BARRIERS = [
+  { value: 'seeking_skills_training', label: 'Looking to increase skills with Occupational & Professional Certificate training' },
   { value: 'none', label: 'No barrier right now' },
   { value: 'employment_gap', label: 'Employment gap' },
   { value: 'limited_work_history', label: 'Limited work history' },
@@ -73,7 +74,7 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
       state: payload.state,
       zip: payload.zip,
       county: payload.county,
-      primaryBarrier: payload.primaryBarrier,
+      primaryBarriers: payload.primaryBarriers,
       q1: payload.q1,
       q2: payload.q2,
       q3: payload.q3,
@@ -102,7 +103,9 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   const [stateVal, setStateVal] = useState('');
   const [zip, setZip] = useState('');
   const [county, setCounty] = useState('');
-  const [primaryBarrier, setPrimaryBarrier] = useState('');
+  const [primaryBarriers, setPrimaryBarriers] = useState<string[]>(['seeking_skills_training']);
+  const toggleBarrier = (v: string) =>
+    setPrimaryBarriers((cur) => (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]));
 
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
@@ -127,7 +130,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     setStateVal(draft.state ?? '');
     setZip(draft.zip ?? '');
     setCounty(draft.county ?? '');
-    setPrimaryBarrier(draft.primaryBarrier ?? '');
+    setPrimaryBarriers(draft.primaryBarriers ?? ['seeking_skills_training']);
     setQ1(draft.q1 ?? null);
     setQ2(draft.q2 ?? null);
     setQ3(draft.q3 ?? null);
@@ -158,7 +161,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     stateVal.trim().length > 0 &&
     zipOk &&
     county.trim().length > 0 &&
-    primaryBarrier.trim().length > 0;
+    primaryBarriers.length > 0;
 
   const canContinue = contactOk && screeningDetailsOk && q1 !== null && q2 !== null && q3 !== null;
   const missingEligibilityAnswers = [q1, q2, q3].filter((answer) => answer === null).length;
@@ -188,7 +191,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   }, []);
 
   const persistDraft = () => {
-    writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarrier, q1, q2, q3 });
+    writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, q3 });
   };
 
   const handleSaveLater = () => {
@@ -232,7 +235,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
           state: stateVal.trim(),
           zip: zip.trim(),
           county: county.trim(),
-          primaryBarrier,
+          primaryBarriers,
         })
       );
     }
@@ -524,20 +527,21 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-primary-barrier">Primary barrier *</label>
-              <select
-                id="apply-primary-barrier"
-                name="primaryBarrier"
-                value={primaryBarrier}
-                onChange={(e) => setPrimaryBarrier(e.target.value)}
-                required
-                aria-invalid={attemptedContinue && !primaryBarrier}
-              >
-                <option value="">Select one</option>
+              <label>Primary barrier(s) — check all that apply *</label>
+              <div role="group" aria-label="Primary barriers">
                 {PRIMARY_BARRIERS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                  <label key={option.value} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      name="primaryBarriers"
+                      value={option.value}
+                      checked={primaryBarriers.includes(option.value)}
+                      onChange={() => toggleBarrier(option.value)}
+                    />
+                    {option.label}
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
           </div>
           {attemptedContinue && !screeningDetailsOk && (
@@ -619,20 +623,21 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-primary-barrier">Primary barrier *</label>
-              <select
-                id="apply-primary-barrier"
-                name="primaryBarrier"
-                value={primaryBarrier}
-                onChange={(e) => setPrimaryBarrier(e.target.value)}
-                required
-                aria-invalid={attemptedContinue && !primaryBarrier}
-              >
-                <option value="">Select one</option>
+              <label>Primary barrier(s) — check all that apply *</label>
+              <div role="group" aria-label="Primary barriers">
                 {PRIMARY_BARRIERS.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                  <label key={option.value} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      name="primaryBarriers"
+                      value={option.value}
+                      checked={primaryBarriers.includes(option.value)}
+                      onChange={() => toggleBarrier(option.value)}
+                    />
+                    {option.label}
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
           </div>
           {attemptedContinue && !screeningDetailsOk && (

@@ -49,6 +49,7 @@ const applySignupSchema = z.object({
   ageGroup: z.enum(['18_24', '25_50', '50_plus']).optional().nullable(),
   county: z.string().trim().max(100).optional().nullable(),
   primaryBarrier: z.string().trim().max(100).optional().nullable(),
+  primaryBarriers: z.array(z.string().trim().max(100)).max(20).optional().nullable(),
   eligibilityQualifies: z.boolean().optional().nullable(),
   eligibilityYesCount: z.number().int().min(0).max(3).optional().nullable(),
   // Marketing attribution captured at first ad-landing visit. Stored on
@@ -105,6 +106,7 @@ const applySignupSchema = z.object({
       ageGroup,
       county,
       primaryBarrier,
+      primaryBarriers,
       eligibilityQualifies,
       eligibilityYesCount,
       utmSource,
@@ -139,16 +141,20 @@ const applySignupSchema = z.object({
       .filter(Boolean) as string[];
     const programInterestSummary =
       secondaryTitles.length > 0 ? `${program.title} (preferences: ${secondaryTitles.join(', ')})` : program.title;
-    const normalizedPrimaryBarrier = primaryBarrier?.trim() || null;
-    const profileBarrierTypes =
-      normalizedPrimaryBarrier && normalizedPrimaryBarrier !== 'none' ? [normalizedPrimaryBarrier] : [];
+    const rawBarriers =
+      primaryBarriers && primaryBarriers.length > 0
+        ? primaryBarriers
+        : primaryBarrier
+          ? [primaryBarrier]
+          : [];
+    const profileBarrierTypes = rawBarriers.map((b) => b.trim()).filter((b) => b && b !== 'none');
     const applicationNotes = [
       ageGroup ? `Age group: ${ageGroup}` : null,
       city?.trim() ? `City: ${city.trim()}` : null,
       state?.trim() ? `State: ${state.trim()}` : null,
       zip?.trim() ? `ZIP: ${zip.trim()}` : null,
       county?.trim() ? `County: ${county.trim()}` : null,
-      normalizedPrimaryBarrier ? `Primary barrier: ${normalizedPrimaryBarrier}` : null,
+      profileBarrierTypes.length > 0 ? `Primary barrier(s): ${profileBarrierTypes.join(', ')}` : null,
       typeof eligibilityQualifies === 'boolean' ? `Quick eligibility fit: ${eligibilityQualifies ? 'yes' : 'review'} (${eligibilityYesCount ?? 0}/3)` : null,
     ].filter(Boolean).join('\n');
   

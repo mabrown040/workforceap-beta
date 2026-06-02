@@ -21,7 +21,9 @@ export type ApplyFlowDraftV1 = {
   state?: string;
   zip?: string;
   county?: string;
+  /** @deprecated single-select legacy; kept for back-compat with old drafts */
   primaryBarrier?: string;
+  primaryBarriers?: string[];
   q1: 'yes' | 'no' | null;
   q2: 'yes' | 'no' | null;
   q3: 'yes' | 'no' | null;

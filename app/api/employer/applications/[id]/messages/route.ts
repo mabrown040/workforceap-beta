@@ -4,6 +4,7 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
+import { notifyDiscord } from '@/lib/notify/discord';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -118,6 +119,17 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     });
 
     return msg;
+  });
+
+  void notifyDiscord({
+    title: `Employer → member message`,
+    body: parsed.data.body.trim().slice(0, 500),
+    category: 'application_message',
+    fields: [
+      { name: 'applicationId', value: applicationId },
+      { name: 'authorId', value: user.id },
+      { name: 'employerId', value: employerCtx.employerId },
+    ],
   });
 
   return NextResponse.json({

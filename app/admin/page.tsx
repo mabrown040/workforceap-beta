@@ -8,8 +8,10 @@ import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
+import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
 import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
+import TriageDigestSection from '@/components/admin/TriageDigestSection';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -230,7 +232,7 @@ export default async function AdminPage() {
     return `${diffD}d ago`;
   }
 
-  const [slaBreaches48h, recentCronErrors] = await Promise.all([
+  const [slaBreaches48h, recentCronErrors, triageDigest] = await Promise.all([
     countThreadsWithSlaBreach(48).catch(() => 0),
     prisma.workflowDiagnostic.count({
       where: {
@@ -238,6 +240,10 @@ export default async function AdminPage() {
         createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
       },
     }).catch(() => 0),
+    getTriageDigest().catch((reason): TriageDigest => {
+      logPrismaReason('triageDigest', reason);
+      return { buckets: [], allClear: true };
+    }),
   ]);
 
   return (
@@ -371,6 +377,9 @@ export default async function AdminPage() {
         </div>
       )}
 
+
+      {/* ── "Who needs you today" triage ── */}
+      <TriageDigestSection digest={triageDigest} />
 
       {/* ── Metric row (single treatment — desktop + mobile) ── */}
       <section style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>

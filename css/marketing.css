@@ -786,7 +786,8 @@ html.has-marketing-main-nav {
   /* Clear sticky browse nav + fixed main nav when jumping to catalog anchors */
   .programs-page-catalog-anchor,
   .programs-subgroup-section,
-  #all-programs {
+  #all-programs,
+  #programs-quick-start {
     scroll-margin-top: calc(var(--main-nav-layout-height, 64px) + 3.75rem);
   }
 }

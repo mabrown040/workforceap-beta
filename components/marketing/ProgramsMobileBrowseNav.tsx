@@ -7,6 +7,7 @@ import { PROGRAM_SUBGROUPS, orderedSubgroupIdsWithPrograms } from '@/lib/content
  */
 export default function ProgramsMobileBrowseNav() {
   const chips = [
+    { href: '#programs-quick-start', label: 'Quick start' },
     { href: '#program-catalog', label: 'All' },
     ...orderedSubgroupIdsWithPrograms(PROGRAMS).map((id) => ({
       href: `#subgroup-${id}`,

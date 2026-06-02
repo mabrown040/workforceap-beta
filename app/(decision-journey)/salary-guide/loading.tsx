@@ -1,5 +1,5 @@
-import PortalRouteLoading from '@/components/portal/PortalRouteLoading';
+import MarketingRouteLoading from '@/components/marketing/MarketingRouteLoading';
 
 export default function Loading() {
-  return <PortalRouteLoading />;
+  return <MarketingRouteLoading />;
 }

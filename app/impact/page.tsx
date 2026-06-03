@@ -249,42 +249,42 @@ export default async function ImpactPage() {
         )}
       </PageSection>
 
-      <PageSection padding="md" ariaLabel={t('employersTitle')}>
-        <div className="impact-page__container">
-          <SectionHeader
-            title={t('employersTitle')}
-            subtitle={t('employersSubtitle')}
-            align="left"
-            marginBottom="1.5rem"
-          />
-          {hasEmployerMetrics ? (
-            <>
-              <div className="impact-page__stats-grid impact-page__stats-grid--employers">
-                <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
-                <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
-                <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
-              </div>
-              {hasLiveData ? (
+      {hasLiveData ? (
+        <PageSection padding="md" ariaLabel={t('employersTitle')}>
+          <div className="impact-page__container">
+            <SectionHeader
+              title={t('employersTitle')}
+              subtitle={t('employersSubtitle')}
+              align="left"
+              marginBottom="1.5rem"
+            />
+            {hasEmployerMetrics ? (
+              <>
+                <div className="impact-page__stats-grid impact-page__stats-grid--employers">
+                  <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
+                  <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
+                  <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
+                </div>
                 <p className="impact-page__employer-as-of">{stats.asOfLabel}</p>
-              ) : null}
-              <p className="impact-page__section-link-wrap">
-                <LocalizedLink href="/employers" className="impact-page__section-link">
-                  {t('employerHiringLink')}
-                </LocalizedLink>
-              </p>
-            </>
-          ) : (
-            <>
-              <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
-              <p className="impact-page__section-link-wrap">
-                <LocalizedLink href="/employers" className="impact-page__section-link">
-                  {t('employerHiringLink')}
-                </LocalizedLink>
-              </p>
-            </>
-          )}
-        </div>
-      </PageSection>
+                <p className="impact-page__section-link-wrap">
+                  <LocalizedLink href="/employers" className="impact-page__section-link">
+                    {t('employerHiringLink')}
+                  </LocalizedLink>
+                </p>
+              </>
+            ) : (
+              <>
+                <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
+                <p className="impact-page__section-link-wrap">
+                  <LocalizedLink href="/employers" className="impact-page__section-link">
+                    {t('employerHiringLink')}
+                  </LocalizedLink>
+                </p>
+              </>
+            )}
+          </div>
+        </PageSection>
+      ) : null}
 
       <PageSection padding="md" ariaLabel={t('testimonialsTitle')}>
         <div className="impact-page__container">
@@ -307,7 +307,7 @@ export default async function ImpactPage() {
             title={t('grantFundedTitle')}
             description={t('grantFundedDesc')}
           />
-          <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="impact-page__funder-actions">
             <LocalizedLink href="/outcomes" className="btn btn-outline">
               {t('outcomesLink')}
             </LocalizedLink>
@@ -404,6 +404,21 @@ export default async function ImpactPage() {
           display: grid;
           grid-template-columns: 1fr;
           gap: 1.25rem;
+        }
+        .impact-page__funder-actions {
+          margin-top: 1.5rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+        }
+        @media (max-width: 639px) {
+          .impact-page__funder-actions {
+            flex-direction: column;
+          }
+          .impact-page__funder-actions .btn {
+            width: 100%;
+            justify-content: center;
+          }
         }
         @media (min-width: 640px) {
           .impact-page__stats-grid {

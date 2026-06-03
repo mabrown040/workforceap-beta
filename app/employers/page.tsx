@@ -621,6 +621,19 @@ export default async function EmployersPage() {
             grid-column: auto;
           }
         }
+
+        @media (max-width: 639px) {
+          .employers-landing__hero-cta .btn,
+          .employers-final-cta__inner .btn {
+            width: 100%;
+            justify-content: center;
+          }
+          .employers-faq .faq-item summary {
+            min-height: 2.75rem;
+            display: flex;
+            align-items: center;
+          }
+        }
       `}</style>
 
       <MobileBottomNav />

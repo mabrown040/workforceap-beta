@@ -160,6 +160,21 @@ export function trackConversionRouteView(route: string) {
   });
 }
 
+export type LearningMilestone = 'course_launched' | 25 | 50 | 75 | 100;
+
+export function trackLearningMilestone(
+  milestone: LearningMilestone,
+  courseSlug: string,
+  extra?: Record<string, unknown>
+) {
+  pushEvent({
+    event: 'learning_milestone',
+    milestone: String(milestone),
+    course_slug: courseSlug,
+    ...extra,
+  });
+}
+
 /** Member / employer / partner / counselor / admin workspace views (for GA4 exploration). */
 export function trackPortalRouteView(route: string) {
   pushEvent({

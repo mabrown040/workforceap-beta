@@ -3,6 +3,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 
 import { logCourseraLaunchFromPortal } from '@/app/(portal)/dashboard/_actions/analyticsActions';
+import { trackLearningMilestone } from '@/lib/analytics/events';
 
 type TrackedCourseraLaunchLinkProps = {
   href: string;
@@ -32,6 +33,7 @@ export default function TrackedCourseraLaunchLink({
       aria-label={ariaLabel}
       onClick={() => {
         void logCourseraLaunchFromPortal(courseSlug ?? undefined);
+        trackLearningMilestone('course_launched', courseSlug ?? 'unknown');
       }}
     >
       {children}

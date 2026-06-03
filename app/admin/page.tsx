@@ -12,6 +12,7 @@ import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
 import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import TriageDigestSection from '@/components/admin/TriageDigestSection';
+import GtmSetupCheck from '@/components/admin/GtmSetupCheck';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -340,6 +341,9 @@ export default async function AdminPage() {
           </Link>
         </div>
       )}
+
+      {/* ── GTM Setup Check ── */}
+      <GtmSetupCheck />
 
       {/* ── Pending Applications Alert ── */}
       {pendingApplications > 0 && (

@@ -14,6 +14,7 @@ arrow_upward
 article
 assessment
 assignment
+assignment_ind
 assignment_turned_in
 assured_workload
 attach_money
@@ -142,6 +143,7 @@ notifications
 notifications_none
 notifications_paused
 open_in_new
+pause_circle
 payments
 pending
 pending_actions

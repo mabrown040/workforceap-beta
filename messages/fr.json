@@ -1197,7 +1197,7 @@
       "heroCta": "Trouvez votre voie",
       "heroCtaPrimary": "Commencez votre candidature — 2 minutes",
       "heroMobilePrimaryCta": "Postuler maintenant",
-      "heroSocialProof": "Rejoignez les membres qui construisent leur carrière",
+      "heroSocialProof": "Candidatures examinées par notre équipe",
       "browsePrograms": "Parcourir les programmes",
       "trustGrant": "Parcours financés par des subventions et des partenaires",
       "trustNoCard": "Aucune carte de crédit requise",
@@ -1356,7 +1356,9 @@
       "quote": "Ce n'est pas une équipe générique d'organisation à but non lucratif. Ce sont des personnes qui ont géré des programmes à grande échelle, dirigé chez Goodwill et Urban League, construit des systèmes chez IBM et Microsoft, commandé dans l'Armée et chez AWS — et qui travaillent à l'échelle nationale."
     },
     "programs": {
-      "heroTitle": "Choisissez votre voie",
+      "heroTitle": "Programmes de formation professionnelle",
+      "mobileBrowseQuickStart": "Démarrage rapide",
+      "mobileBrowseAll": "Tout le catalogue",
       "heroSubtitle": "Trouvez le bon programme",
       "heroSubtitleAccent": "pour vos objectifs.",
       "quickStart": "Démarrage rapide",

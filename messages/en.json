@@ -1236,7 +1236,7 @@
       "heroCta": "Find Your Path",
       "heroCtaPrimary": "Start your application — takes 5 minutes",
       "heroMobilePrimaryCta": "Apply now",
-      "heroSocialProof": "Join members building their careers",
+      "heroSocialProof": "Applications reviewed by our team",
       "browsePrograms": "See all programs",
       "trustGrant": "Funded pathways",
       "trustNoCard": "No credit card required",
@@ -1397,7 +1397,9 @@
       "quote": "This isn't a generic nonprofit team. These are people who've run programs at scale, led at Goodwill and Urban League, built systems at IBM and Microsoft, commanded in the Army and at AWS — and who show up nationwide."
     },
     "programs": {
-      "heroTitle": "Choose Your Path",
+      "heroTitle": "Career training programs",
+      "mobileBrowseQuickStart": "Quick start",
+      "mobileBrowseAll": "All catalog",
       "heroSubtitle": "Find the right program",
       "heroSubtitleAccent": "for your goals.",
       "headlineMain": "Find the right program",

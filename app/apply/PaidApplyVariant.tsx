@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
@@ -18,11 +19,13 @@ const PAID_APPLY_ELIGIBILITY_ID = 'paid-apply-eligibility';
 type PaidApplyVariantProps = {
   utmSource: PaidApplyUtmSource;
   program?: string;
+  stepNav?: ReactNode;
   proofBlock?: ReactNode;
   trustStrip?: ReactNode;
 };
 
-export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: PaidApplyVariantProps) {
+export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trustStrip }: PaidApplyVariantProps) {
+  const t = useTranslations('apply');
   const [showStickyCta, setShowStickyCta] = useState(false);
 
   useEffect(() => {
@@ -70,6 +73,10 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
           <ApplyRefCapture />
           <UtmCapture />
         </Suspense>
+        {stepNav}
+        <p className="paid-apply-form-kicker" role="note">
+          {t('step1Kicker')}
+        </p>
         {proofBlock}
         {trustStrip}
         <Suspense fallback={<ApplyPageSkeleton />}>
@@ -136,6 +143,17 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
           max-width: 640px;
           margin: 0 auto;
           padding: var(--space-8) var(--space-6) var(--space-12);
+        }
+
+        .paid-apply-form-kicker {
+          display: none;
+          margin: 0 0 var(--space-4);
+          font-size: var(--font-size-sm);
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          color: var(--color-accent-dark);
+          line-height: var(--line-height-normal);
         }
 
         .paid-apply-sticky-cta {
@@ -227,20 +245,33 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
             padding: var(--space-6) var(--space-4) calc(var(--space-10) + 4.5rem + env(safe-area-inset-bottom, 0px));
           }
 
+          .paid-apply-form-kicker {
+            display: block;
+            order: 1;
+          }
+
+          .paid-apply-form-section .apply-mobile-step-nav {
+            order: 0;
+          }
+
           /* Form first on mobile — proof card stays below the fold until after eligibility */
           .paid-apply-form-section .trust-strip--apply {
-            order: 0;
+            order: 2;
             margin-bottom: var(--space-4);
           }
 
           .paid-apply-form-section .apply-flow--paid {
-            order: 1;
+            order: 3;
           }
 
           .paid-apply-form-section .paid-apply-proof {
-            order: 2;
+            order: 4;
             margin-top: var(--space-6);
             margin-bottom: 0;
+          }
+
+          .paid-apply-form-section .paid-apply-form-kicker {
+            order: 1;
           }
 
           .apply-flow--paid .apply-step1-actions {

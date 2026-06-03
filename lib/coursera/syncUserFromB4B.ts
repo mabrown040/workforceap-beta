@@ -24,6 +24,7 @@ import { replayUnresolvedXapiStatementsForIdentity } from './replayPendingXapi';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { refreshMemberProgramProgressRollup } from '@/lib/member/courseProgress';
 import { invalidateLearnerProgressCacheForEmail } from '@/lib/coursera/learnerProgress';
+import { getMilestonesCrossed, trackLearningMilestoneServer } from '@/lib/analytics/track';
 import { extractGradebookCourseScoreScaled } from '@/lib/coursera/courseGradeDisplay';
 
 /**
@@ -542,6 +543,15 @@ export async function syncUserFromB4B(args: {
     });
 
     const update = computeCourseProgressUpdate(existing, merged);
+
+    // Fire analytics milestones when progress crosses 25/50/75/100 thresholds.
+    const crossed = getMilestonesCrossed(existing?.percentComplete, update.percentComplete);
+    for (const milestone of crossed) {
+      trackLearningMilestoneServer(args.wapUserId, milestone, signal.wapCourseSlug, {
+        programSlug: signal.wapProgramSlug,
+        source: 'b4b_sync',
+      });
+    }
 
     const gbRow = gradebookByCourseId.get(signal.contentId);
     const gbGradeScaled = gbRow ? extractGradebookCourseScoreScaled(gbRow) : null;

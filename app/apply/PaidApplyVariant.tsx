@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Suspense, useCallback, useEffect, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
@@ -12,6 +12,7 @@ import {
   UTM_SOURCE_COOKIE_MAX_AGE,
   type PaidApplyUtmSource,
 } from '@/lib/apply/paidApplyUtm';
+import { useApplyStickyCtaVisibility } from '@/lib/apply/useApplyStickyCtaVisibility';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 
 const PAID_APPLY_ELIGIBILITY_ID = 'paid-apply-eligibility';
@@ -26,21 +27,12 @@ type PaidApplyVariantProps = {
 
 export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trustStrip }: PaidApplyVariantProps) {
   const t = useTranslations('apply');
-  const [showStickyCta, setShowStickyCta] = useState(false);
+  const showStickyCta = useApplyStickyCtaVisibility(`#${PAID_APPLY_ELIGIBILITY_ID}`);
 
   useEffect(() => {
     document.cookie = `${UTM_SOURCE_COOKIE}=${encodeURIComponent(utmSource)};path=/;max-age=${UTM_SOURCE_COOKIE_MAX_AGE};SameSite=Lax`;
     trackPaidApplyVariantRendered(utmSource);
   }, [utmSource]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      setShowStickyCta(window.scrollY > 320);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   const scrollToEligibility = useCallback(() => {
     document.getElementById(PAID_APPLY_ELIGIBILITY_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });

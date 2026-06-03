@@ -1197,7 +1197,7 @@
       "heroCta": "Encontre seu caminho",
       "heroCtaPrimary": "Comece sua candidatura — leva 2 minutos",
       "heroMobilePrimaryCta": "Candidatar-se agora",
-      "heroSocialProof": "Junte-se a membros construindo suas carreiras",
+      "heroSocialProof": "Candidaturas revisadas pela nossa equipe",
       "browsePrograms": "Explorar programas",
       "trustGrant": "Caminhos financiados por subsídios e parceiros",
       "trustNoCard": "Não é necessário cartão de crédito",
@@ -1356,7 +1356,9 @@
       "quote": "Esta não é uma equipe genérica de organização sem fins lucrativos. São pessoas que executaram programas em escala, lideraram no Goodwill e Urban League, construíram sistemas na IBM e Microsoft, comandaram no Exército e na AWS — e que atuam em todo o país."
     },
     "programs": {
-      "heroTitle": "Escolha seu caminho",
+      "heroTitle": "Programas de formação profissional",
+      "mobileBrowseQuickStart": "Início rápido",
+      "mobileBrowseAll": "Todo o catálogo",
       "heroSubtitle": "Encontre o programa certo",
       "heroSubtitleAccent": "para seus objetivos.",
       "quickStart": "Início rápido",

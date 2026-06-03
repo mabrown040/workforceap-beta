@@ -1196,7 +1196,7 @@
       "heroCta": "Encuentra tu camino",
       "heroCtaPrimary": "Comienza tu solicitud — toma 2 minutos",
       "heroMobilePrimaryCta": "Solicitar ahora",
-      "heroSocialProof": "Únete a miembros construyendo su carrera",
+      "heroSocialProof": "Solicitudes revisadas por nuestro equipo",
       "browsePrograms": "Explorar programas",
       "trustGrant": "Rutas de capacitación financiada por Workforce para miembros calificados",
       "trustNoCard": "No se requiere tarjeta de crédito",
@@ -1355,7 +1355,9 @@
       "quote": "Este no es un equipo genérico de organización sin fines de lucro. Son personas que han ejecutado programas a gran escala, han liderado en Goodwill y Urban League, construido sistemas en IBM y Microsoft, comandado en el Ejército y en AWS — y que trabajan a nivel nacional."
     },
     "programs": {
-      "heroTitle": "Elige tu camino",
+      "heroTitle": "Programas de capacitación profesional",
+      "mobileBrowseQuickStart": "Inicio rápido",
+      "mobileBrowseAll": "Todo el catálogo",
       "heroSubtitle": "Encuentra el programa adecuado",
       "heroSubtitleAccent": "para tus metas.",
       "quickStart": "Inicio rápido",

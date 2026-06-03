@@ -52,6 +52,9 @@ const applySignupSchema = z.object({
   primaryBarriers: z.array(z.string().trim().max(100)).max(20).optional().nullable(),
   eligibilityQualifies: z.boolean().optional().nullable(),
   eligibilityYesCount: z.number().int().min(0).max(3).optional().nullable(),
+  eligibilityQ1: z.enum(['yes', 'no']).optional().nullable(),
+  eligibilityQ2: z.enum(['yes', 'no']).optional().nullable(),
+  eligibilityQ3: z.enum(['yes', 'no']).optional().nullable(),
   // Marketing attribution captured at first ad-landing visit. Stored on
   // the apply_signup_completed MemberEvent metadata so downstream analytics
   // (GA4, BigQuery, internal cohort queries) can attribute conversion to
@@ -109,6 +112,9 @@ const applySignupSchema = z.object({
       primaryBarriers,
       eligibilityQualifies,
       eligibilityYesCount,
+      eligibilityQ1,
+      eligibilityQ2,
+      eligibilityQ3,
       utmSource,
       utmMedium,
       utmCampaign,
@@ -321,6 +327,21 @@ const applySignupSchema = z.object({
           select: { id: true },
         });
         createdApplicationId = application.id;
+
+        // Persist apply-flow eligibility screening for funnel analytics.
+        if (eligibilityQ1 && eligibilityQ2 && eligibilityQ3) {
+          await tx.applyEligibilityScreening.create({
+            data: {
+              organizationId,
+              userId: user.id,
+              q1: eligibilityQ1,
+              q2: eligibilityQ2,
+              q3: eligibilityQ3,
+              qualifies: eligibilityQualifies ?? (eligibilityYesCount ?? 0) >= 2,
+              yesCount: eligibilityYesCount ?? 0,
+            },
+          });
+        }
   
         // Create partner referral record so the member shows in partner's referred members list
         if (referralPartnerId) {

@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 import { computeWioaSignal, parseWioaAnswers, type WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { sendWioaScreeningNotification } from '@/lib/wioa/wioaNotification';
 import { checkPublicWioaQualificationRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
+import { prisma } from '@/lib/db/prisma';
+import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 
 const publicLeadSchema = z.object({
   fullName: z.string().trim().min(2, 'Please enter your full name').max(120),
@@ -62,6 +65,23 @@ export async function POST(request: NextRequest) {
     snapshot,
     adminUrl: `${siteUrl}/admin/wioa-screening`,
   });
+
+  // Persist screening for analytics and counselor follow-up.
+  try {
+    const organizationId = await getDefaultOrganizationId();
+    await prisma.publicWioaScreening.create({
+      data: {
+        organizationId,
+        fullName: contact.data.fullName,
+        email: contact.data.email,
+        phone: contact.data.phone || null,
+        snapshot,
+        emailSent,
+      },
+    });
+  } catch (dbErr) {
+    console.error('PublicWioaScreening persist error:', dbErr);
+  }
 
   return NextResponse.json({ ok: true, snapshot, emailSent });
 

@@ -11,7 +11,7 @@
 
 ### Schema is multi-tenant ready
 
-Eight models carry `organizationId` as their tenant boundary:
+Ten models carry `organizationId` as their tenant boundary:
 
 | Model | Cardinality | What it scopes |
 |---|---|---|
@@ -23,6 +23,8 @@ Eight models carry `organizationId` as their tenant boundary:
 | `CourseEnrollment` | 1:N | Per-member program enrollment |
 | `OrganizationProgramCatalog` | 1:N | Org-specific program offerings |
 | `PreScreeningResponse` | 1:N | Pre-screening answers |
+| `ApplyEligibilityScreening` | 1:N | Apply-flow eligibility answers (q1/q2/q3) |
+| `PublicWioaScreening` | 1:N | Anonymous WIOA qualification submissions |
 
 **Tenant inheritance**: tables not directly scoped (`Application`, `JobApplication`, `Profile`, `MemberEvent`, `PlacementRecord`, `Message`, `MessageThread`, `CourseProgress`, `Goal`, `AIToolResult`, etc.) inherit their tenant via FK to a scoped row. E.g. `Application.userId → User.organizationId`.
 

@@ -975,4 +975,27 @@ html.has-marketing-main-nav {
     color: var(--color-on-surface);
     font-weight: 700;
   }
+
+  /* Steps 2–3: compact hero + hide duplicate in-form progress bar */
+  .apply-funnel-step-page__hero {
+    padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-5);
+  }
+
+  .apply-funnel-step-page__hero h1 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    margin-bottom: var(--space-2);
+  }
+
+  .apply-funnel-step-page__hero p {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+  }
+
+  .apply-funnel-step-page .apply-progress-bar {
+    display: none;
+  }
+
+  .apply-funnel-step-page .content-section {
+    padding-top: var(--space-4);
+  }
 }

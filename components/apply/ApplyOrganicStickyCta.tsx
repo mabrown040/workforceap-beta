@@ -1,29 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useApplyStickyCtaVisibility } from '@/lib/apply/useApplyStickyCtaVisibility';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 
-const SCROLL_SHOW_THRESHOLD = 320;
 const FORM_START_ID = 'apply-form-start';
 
 export default function ApplyOrganicStickyCta() {
   const t = useTranslations('apply');
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 768px)');
-    const onScroll = () => {
-      setVisible(mq.matches && window.scrollY > SCROLL_SHOW_THRESHOLD);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    mq.addEventListener('change', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      mq.removeEventListener('change', onScroll);
-    };
-  }, []);
+  const visible = useApplyStickyCtaVisibility(`#${FORM_START_ID}`);
 
   const scrollToForm = useCallback(() => {
     document.getElementById(FORM_START_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });

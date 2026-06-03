@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadataAsync } from '@/app/seo';
+import ApplyMobileStepNav from '@/components/apply/ApplyMobileStepNav';
 import Footer from '@/components/Footer';
 import ApplyCreateAccountForm from './ApplyCreateAccountForm';
 import { getTranslations } from 'next-intl/server';
@@ -18,8 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ApplyCreateAccountPage() {
   const t = await getTranslations('apply');
   return (
-    <div className="inner-page">
-      <section className="page-hero">
+    <div className="inner-page apply-funnel-step-page">
+      <section className="page-hero apply-funnel-step-page__hero">
         <div className="page-hero-content">
           <h1>{t('createAccountHeroTitle')}</h1>
           <p>{t('createAccountHeroBody')}</p>
@@ -32,6 +33,7 @@ export default async function ApplyCreateAccountPage() {
       <section className="content-section">
         <div className="container">
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+            <ApplyMobileStepNav activeStep={2} />
             <Suspense fallback={<p>{t('loadingFallback')}</p>}>
               <ApplyCreateAccountForm />
             </Suspense>

@@ -51,6 +51,8 @@ export const TENANT_SCOPED_MODELS = new Set<string>([
   'courseEnrollment',
   'organizationProgramCatalog',
   'preScreeningResponse',
+  'applyEligibilityScreening',
+  'publicWioaScreening',
 ]);
 
 const READ_OPS = new Set([

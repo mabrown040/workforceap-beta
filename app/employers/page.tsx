@@ -89,9 +89,9 @@ export default async function EmployersPage() {
   ].filter((item): item is TrustStatItem => item != null);
 
   const placeholderTrustStats: TrustStatItem[] = [
-    { value: placeholders.membersPlacedLabel, label: t('trustPlaceholderFit') },
-    { value: placeholders.avgStartingWageLabel, label: t('trustPlaceholderSkills') },
-    { value: placeholders.partnerCompaniesLabel, label: t('trustPlaceholderTerms') },
+    { value: t('trustPlaceholderFit'), label: t('trustPlaceholderFitTag') },
+    { value: t('trustPlaceholderSkills'), label: t('trustPlaceholderSkillsTag') },
+    { value: t('trustPlaceholderTerms'), label: t('trustPlaceholderTermsTag') },
   ];
 
   const trustStatsToShow = trust.hasLiveData && liveTrustStats.length > 0 ? liveTrustStats : placeholderTrustStats;

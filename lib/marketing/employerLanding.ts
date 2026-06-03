@@ -39,10 +39,11 @@ export type EmployerLandingTrustMetrics = {
   hasLiveData: boolean;
 };
 
+/** Fallback strings when a live metric is unavailable mid-render (not shown on the placeholder strip). */
 const PLACEHOLDER_TRUST = {
-  membersPlacedLabel: 'Verified fit',
-  avgStartingWageLabel: 'Certified skills',
-  partnerCompaniesLabel: 'Clear terms',
+  membersPlacedLabel: '—',
+  avgStartingWageLabel: '—',
+  partnerCompaniesLabel: '—',
 } as const;
 
 // Public employer marketing should not imply a partner-company network until

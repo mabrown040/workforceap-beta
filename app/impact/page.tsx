@@ -188,6 +188,11 @@ export default async function ImpactPage() {
                 title={t('membersServedEmptyTitle')}
                 description={t('dataLightNote')}
               />
+              <p className="impact-page__section-link-wrap impact-page__empty-hero-link">
+                <LocalizedLink href="/employers" className="impact-page__section-link">
+                  {t('employerHiringLink')}
+                </LocalizedLink>
+              </p>
             </div>
           ) : (
             <div className="impact-page__hero-metric portal-card portal-card--flat">
@@ -325,6 +330,10 @@ export default async function ImpactPage() {
         .impact-page__hero-metric {
           margin-bottom: 2.5rem;
           border-left: 4px solid var(--color-accent);
+        }
+        .impact-page__empty-hero-link {
+          margin: 1rem 0 0;
+          padding-left: 1rem;
         }
         .impact-page__hero-metric {
           padding: clamp(1.5rem, 3vw, 2.5rem);

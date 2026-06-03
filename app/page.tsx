@@ -248,13 +248,16 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div style={{
+          <div
+            className="home-hero__trust-cards"
+            style={{
             marginTop: '1.5rem',
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
             gap: '0.875rem',
             maxWidth: '980px',
-          }}>
+          }}
+          >
             {([
               { icon: 'group', title: t('trustReviewed'), desc: t('trustReviewedDetail') },
               { icon: 'verified_user', title: t('trustYears'), desc: t('trustYearsDetail') },

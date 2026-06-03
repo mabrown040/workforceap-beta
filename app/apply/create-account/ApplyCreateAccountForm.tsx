@@ -386,6 +386,9 @@ export default function ApplyCreateAccountForm() {
         county?: string;
         primaryBarrier?: string;
         primaryBarriers?: string[];
+        q1?: 'yes' | 'no';
+        q2?: 'yes' | 'no';
+        q3?: 'yes' | 'no';
         qualifies?: boolean;
         yesCount?: number;
       } | null = null;
@@ -424,6 +427,9 @@ export default function ApplyCreateAccountForm() {
           county: eligibilityPayload?.county,
           primaryBarrier: eligibilityPayload?.primaryBarrier,
           primaryBarriers: eligibilityPayload?.primaryBarriers,
+          eligibilityQ1: eligibilityPayload?.q1,
+          eligibilityQ2: eligibilityPayload?.q2,
+          eligibilityQ3: eligibilityPayload?.q3,
           eligibilityQualifies: eligibilityPayload?.qualifies,
           eligibilityYesCount: eligibilityPayload?.yesCount,
           utmSource: attribution.utmSource,

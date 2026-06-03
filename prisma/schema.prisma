@@ -40,6 +40,8 @@ model Organization {
   jobs              Job[]
   programCatalog    OrganizationProgramCatalog[]
   preScreenings     PreScreeningResponse[]
+  applyEligibilityScreenings ApplyEligibilityScreening[]
+  publicWioaScreenings PublicWioaScreening[]
   courseEnrollments CourseEnrollment[]
   courses           Course[]
   auditEvents       AuditEvent[]
@@ -171,6 +173,7 @@ model User {
   applicationMessagesAuthored ApplicationMessage[]
   preScreeningResponse        PreScreeningResponse?
   preScreeningDraft           PreScreeningDraft?
+  applyEligibilityScreenings  ApplyEligibilityScreening[]
   /// All program enrollments for the user (multi-program support). At most
   /// one row has `isPrimary = true` (enforced by partial unique index). Use
   /// `findFirst({ where: { userId, isPrimary: true } })` for the primary
@@ -1656,6 +1659,41 @@ model PreScreeningDraft {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("pre_screening_drafts")
+}
+
+model ApplyEligibilityScreening {
+  id             String   @id @default(uuid())
+  userId         String   @unique @map("user_id")
+  organizationId String   @map("organization_id")
+  q1             String   @map("q1") // yes | no
+  q2             String   @map("q2") // yes | no
+  q3             String   @map("q3") // yes | no
+  qualifies      Boolean  @map("qualifies")
+  yesCount       Int      @map("yes_count")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("apply_eligibility_screenings")
+}
+
+model PublicWioaScreening {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  fullName       String   @map("full_name")
+  email          String   @map("email")
+  phone          String?  @map("phone")
+  snapshot       Json     @map("snapshot") // WioaQualificationSnapshot
+  emailSent      Boolean  @default(false) @map("email_sent")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([email])
+  @@map("public_wioa_screenings")
 }
 
 enum JobPostingApplicationStatus {

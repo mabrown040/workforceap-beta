@@ -1862,7 +1862,7 @@
       "description": "Live WorkforceAP metrics: members served, training completion, placement records, program results, and employer partnership stats.",
       "eyebrow": "Live statistics",
       "heading": "Measured progress, published carefully",
-      "subtitle": "WorkforceAP impact metrics drawn from our operational systems—shared on a short cache interval for public transparency.",
+      "subtitle": "Verified metrics from WorkforceAP operations—published when there is enough data to share publicly.",
       "membersServedLabel": "Members served",
       "membersServedDesc": "Active member accounts (profile role \"member\"), default WorkforceAP organization. Test fixtures are excluded.",
       "completionRateLabel": "Completion rate (enrolled cohort)",

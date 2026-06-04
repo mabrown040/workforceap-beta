@@ -3,38 +3,35 @@
 import { useEffect, useState } from 'react';
 
 const MOBILE_MQ = '(max-width: 768px)';
-const DEFAULT_SCROLL_THRESHOLD = 320;
+const DEFAULT_HERO_SELECTOR = '.apply-hero, .paid-apply-hero';
+const FALLBACK_SCROLL_THRESHOLD = 400;
 
 /**
- * Shows a mobile sticky CTA after the user scrolls past the hero, but hides it
+ * Shows a mobile sticky CTA after the apply hero leaves the viewport, but hides it
  * when the apply form region is in view so it does not cover submit buttons.
  */
 export function useApplyStickyCtaVisibility(
   hideWhenSelector: string,
-  scrollThreshold = DEFAULT_SCROLL_THRESHOLD,
+  heroSelector = DEFAULT_HERO_SELECTOR,
 ) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_MQ);
-    const target = document.querySelector(hideWhenSelector);
-    let scrolledPast = false;
-    let targetIntersecting = false;
+    const formTarget = document.querySelector(hideWhenSelector);
+    const hero = document.querySelector(heroSelector);
+    let heroPast = false;
+    let formIntersecting = false;
 
     const recompute = () => {
-      setVisible(mq.matches && scrolledPast && !targetIntersecting);
+      setVisible(mq.matches && heroPast && !formIntersecting);
     };
 
-    const onScroll = () => {
-      scrolledPast = window.scrollY > scrollThreshold;
-      recompute();
-    };
-
-    let observer: IntersectionObserver | undefined;
-    if (target) {
-      observer = new IntersectionObserver(
+    let formObserver: IntersectionObserver | undefined;
+    if (formTarget) {
+      formObserver = new IntersectionObserver(
         ([entry]) => {
-          targetIntersecting = entry.isIntersecting;
+          formIntersecting = entry.isIntersecting;
           recompute();
         },
         {
@@ -42,19 +39,42 @@ export function useApplyStickyCtaVisibility(
           threshold: 0.05,
         },
       );
-      observer.observe(target);
+      formObserver.observe(formTarget);
     }
+
+    let heroObserver: IntersectionObserver | undefined;
+    if (hero) {
+      heroObserver = new IntersectionObserver(
+        ([entry]) => {
+          heroPast = !entry.isIntersecting;
+          recompute();
+        },
+        {
+          rootMargin: '-72px 0px 0px 0px',
+          threshold: 0,
+        },
+      );
+      heroObserver.observe(hero);
+    }
+
+    const onScroll = () => {
+      if (!hero) {
+        heroPast = window.scrollY > FALLBACK_SCROLL_THRESHOLD;
+        recompute();
+      }
+    };
 
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     mq.addEventListener('change', onScroll);
 
     return () => {
-      observer?.disconnect();
+      formObserver?.disconnect();
+      heroObserver?.disconnect();
       window.removeEventListener('scroll', onScroll);
       mq.removeEventListener('change', onScroll);
     };
-  }, [hideWhenSelector, scrollThreshold]);
+  }, [hideWhenSelector, heroSelector]);
 
   return visible;
 }

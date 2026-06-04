@@ -47,6 +47,12 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
         <p className="paid-apply-hero__subhead">
           About 5 minutes · 501(c)(3) nonprofit · advisor follow-up within 1–2 business days
         </p>
+        <p className="paid-apply-hero__help-compact">
+          {t('questionsCall')}{' '}
+          <a href="tel:+15127771808" className="paid-apply-hero__help-compact__link">
+            (512) 777-1808
+          </a>
+        </p>
         <button
           type="button"
           className={marketingButtonPresets.heroPrimary('paid-apply-hero__cta')}
@@ -123,6 +129,17 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
           font-size: clamp(0.9375rem, 2.5vw, 1.05rem);
           line-height: var(--line-height-normal);
           color: rgba(255, 255, 255, 0.88);
+        }
+
+        .paid-apply-hero__help-compact {
+          display: none;
+        }
+
+        .paid-apply-hero__help-compact__link {
+          color: var(--color-gold);
+          font-weight: 700;
+          text-decoration: underline;
+          text-underline-offset: 2px;
         }
 
         .paid-apply-hero__cta {
@@ -231,6 +248,15 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
         @media (max-width: 768px) {
           .paid-apply-hero {
             padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-6);
+          }
+
+          .paid-apply-hero__help-compact {
+            display: block;
+            max-width: 560px;
+            margin: 0 auto var(--space-4);
+            font-size: var(--font-size-sm);
+            line-height: var(--line-height-normal);
+            color: rgba(255, 255, 255, 0.88);
           }
 
           .paid-apply-form-section {

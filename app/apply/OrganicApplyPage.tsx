@@ -307,19 +307,22 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
               <ApplyEligibilityClient />
             </Suspense>
           </div>
-          <div className="apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">
-            <h2 id="apply-docs-checklist-heading" className="apply-foundational-support__title">
-              {t('docsChecklistTitle')}
-            </h2>
-            <p className="apply-docs-checklist__lead">{t('docsChecklistLead')}</p>
-            <ul className="apply-foundational-support__list">
-              <li>{t('docsChecklistItem1')}</li>
-              <li>{t('docsChecklistItem2')}</li>
-              <li>{t('docsChecklistItem3')}</li>
-              <li>{t('docsChecklistItem4')}</li>
-            </ul>
-            <p className="apply-docs-checklist__note">{t('docsChecklistNote')}</p>
-          </div>
+          <details className="apply-docs-checklist apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">
+            <summary className="apply-docs-checklist__summary">{t('docsChecklistSummary')}</summary>
+            <div className="apply-docs-checklist__body">
+              <h2 id="apply-docs-checklist-heading" className="apply-foundational-support__title apply-docs-checklist__heading">
+                {t('docsChecklistTitle')}
+              </h2>
+              <p className="apply-docs-checklist__lead">{t('docsChecklistLead')}</p>
+              <ul className="apply-foundational-support__list">
+                <li>{t('docsChecklistItem1')}</li>
+                <li>{t('docsChecklistItem2')}</li>
+                <li>{t('docsChecklistItem3')}</li>
+                <li>{t('docsChecklistItem4')}</li>
+              </ul>
+              <p className="apply-docs-checklist__note">{t('docsChecklistNote')}</p>
+            </div>
+          </details>
         </div>
 
         <div className="apply-hero-help-mobile" aria-label={t('helpTitle')}>
@@ -429,6 +432,14 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
         }
 
         @media (min-width: 769px) {
+          .apply-docs-checklist__summary {
+            display: none;
+          }
+          .apply-docs-checklist__body {
+            display: block;
+            margin-top: 0;
+          }
+
           .apply-sidebar-next-steps__summary {
             display: none;
           }
@@ -523,10 +534,30 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           .apply-main-form__primary {
             order: 1;
           }
-          .apply-foundational-support {
+          .apply-foundational-support,
+          .apply-docs-checklist {
             order: 2;
             margin-top: var(--space-4);
             margin-bottom: 0;
+          }
+          .apply-docs-checklist__summary {
+            display: list-item;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: 700;
+            color: var(--color-on-surface);
+            min-height: 44px;
+            padding: var(--space-1) 0;
+            list-style-position: outside;
+          }
+          .apply-docs-checklist__summary::-webkit-details-marker {
+            color: var(--color-green);
+          }
+          .apply-docs-checklist__heading {
+            display: none;
+          }
+          .apply-docs-checklist__body {
+            margin-top: var(--space-2);
           }
           .apply-program-intro {
             order: 0;

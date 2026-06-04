@@ -6,10 +6,12 @@ import { useApplyStickyCtaVisibility } from '@/lib/apply/useApplyStickyCtaVisibi
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 
 const FORM_START_ID = 'apply-form-start';
+/** Keep sticky hidden while any part of the form card is visible (intro, fields, docs checklist). */
+const STICKY_HIDE_SELECTOR = '.apply-main-form';
 
 export default function ApplyOrganicStickyCta() {
   const t = useTranslations('apply');
-  const visible = useApplyStickyCtaVisibility(`#${FORM_START_ID}`);
+  const visible = useApplyStickyCtaVisibility(STICKY_HIDE_SELECTOR);
 
   const scrollToForm = useCallback(() => {
     document.getElementById(FORM_START_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -455,10 +455,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         </div>
 
         <div className="apply-personal-block">
-          <h3 className="apply-personal-block__title">Eligibility screening details</h3>
+          <h3 className="apply-personal-block__title">{t('screeningSectionTitle')}</h3>
           <div className="apply-personal-grid">
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-age-group">Age group *</label>
+              <label htmlFor="apply-age-group">{t('ageGroupLabel')}</label>
               <select
                 id="apply-age-group"
                 name="ageGroup"
@@ -467,14 +467,14 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                 required
                 aria-invalid={attemptedContinue && !ageGroup}
               >
-                <option value="">Select age group</option>
+                <option value="">{t('ageGroupPlaceholder')}</option>
                 {AGE_GROUPS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-city">City *</label>
+              <label htmlFor="apply-city">{tForm('city')} *</label>
               <input
                 id="apply-city"
                 type="text"
@@ -487,7 +487,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-state">State *</label>
+              <label htmlFor="apply-state">{tForm('state')} *</label>
               <input
                 id="apply-state"
                 type="text"
@@ -501,7 +501,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-zip">ZIP code *</label>
+              <label htmlFor="apply-zip">{tForm('zip')} *</label>
               <input
                 id="apply-zip"
                 type="text"
@@ -515,7 +515,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-county">County *</label>
+              <label htmlFor="apply-county">{t('countyLabel')}</label>
               <input
                 id="apply-county"
                 type="text"
@@ -527,10 +527,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label>Primary barrier(s) — check all that apply *</label>
-              <div role="group" aria-label="Primary barriers">
+              <label>{t('primaryBarriersLabel')}</label>
+              <div className="apply-barrier-options" role="group" aria-label={t('primaryBarriersAria')}>
                 {PRIMARY_BARRIERS.map((option) => (
-                  <label key={option.value} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label key={option.value} className="apply-barrier-option">
                     <input
                       type="checkbox"
                       name="primaryBarriers"
@@ -538,7 +538,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                       checked={primaryBarriers.includes(option.value)}
                       onChange={() => toggleBarrier(option.value)}
                     />
-                    {option.label}
+                    <span className="apply-barrier-option__label">{option.label}</span>
                   </label>
                 ))}
               </div>
@@ -546,7 +546,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
           </div>
           {attemptedContinue && !screeningDetailsOk && (
             <p className="apply-eligibility-field-error" role="alert">
-              Please complete age group, city, state, ZIP, county, and primary barrier.
+              {t('screeningIncompleteError')}
             </p>
           )}
         </div>
@@ -568,11 +568,11 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         {attemptedContinue && !canContinue ? (
           <p id="apply-eligibility-summary-error" className="apply-eligibility-field-error" role="alert">
             {(!contactOk || !screeningDetailsOk) && missingEligibilityAnswers > 0
-              ? `${!contactOk ? t('contactIncompleteError') : 'Please complete the required screening details.'} ${t('eligibilityRadioError')}`
+              ? `${!contactOk ? t('contactIncompleteError') : t('screeningIncompleteError')} ${t('eligibilityRadioError')}`
               : !contactOk
                 ? t('contactIncompleteError')
                 : !screeningDetailsOk
-                  ? 'Please complete the required screening details.'
+                  ? t('screeningIncompleteError')
                 : t('eligibilityRadioError')}
           </p>
         ) : null}

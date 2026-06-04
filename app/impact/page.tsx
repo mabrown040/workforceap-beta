@@ -249,42 +249,40 @@ export default async function ImpactPage() {
         )}
       </PageSection>
 
-      {hasLiveData ? (
-        <PageSection padding="md" ariaLabel={t('employersTitle')}>
-          <div className="impact-page__container">
-            <SectionHeader
-              title={t('employersTitle')}
-              subtitle={t('employersSubtitle')}
-              align="left"
-              marginBottom="1.5rem"
-            />
-            {hasEmployerMetrics ? (
-              <>
-                <div className="impact-page__stats-grid impact-page__stats-grid--employers">
-                  <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
-                  <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
-                  <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
-                </div>
-                <p className="impact-page__employer-as-of">{stats.asOfLabel}</p>
-                <p className="impact-page__section-link-wrap">
-                  <LocalizedLink href="/employers" className="impact-page__section-link">
-                    {t('employerHiringLink')}
-                  </LocalizedLink>
-                </p>
-              </>
-            ) : (
-              <>
-                <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
-                <p className="impact-page__section-link-wrap">
-                  <LocalizedLink href="/employers" className="impact-page__section-link">
-                    {t('employerHiringLink')}
-                  </LocalizedLink>
-                </p>
-              </>
-            )}
-          </div>
-        </PageSection>
-      ) : null}
+      <PageSection padding="md" ariaLabel={t('employersTitle')}>
+        <div className="impact-page__container">
+          <SectionHeader
+            title={t('employersTitle')}
+            subtitle={t('employersSubtitle')}
+            align="left"
+            marginBottom="1.5rem"
+          />
+          {hasLiveData && hasEmployerMetrics ? (
+            <>
+              <div className="impact-page__stats-grid impact-page__stats-grid--employers">
+                <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
+                <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
+                <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
+              </div>
+              <p className="impact-page__employer-as-of">{stats.asOfLabel}</p>
+              <p className="impact-page__section-link-wrap">
+                <LocalizedLink href="/employers" className="impact-page__section-link">
+                  {t('employerHiringLink')}
+                </LocalizedLink>
+              </p>
+            </>
+          ) : (
+            <>
+              <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
+              <p className="impact-page__section-link-wrap">
+                <LocalizedLink href="/employers" className="impact-page__section-link">
+                  {t('employerHiringLink')}
+                </LocalizedLink>
+              </p>
+            </>
+          )}
+        </div>
+      </PageSection>
 
       <PageSection padding="md" ariaLabel={t('testimonialsTitle')}>
         <div className="impact-page__container">

@@ -176,7 +176,7 @@ export default async function EmployersPage() {
               ))}
             </div>
           ) : null}
-          {showVerifiedStats || (trust.hasLiveData && showLogos) ? (
+          {showVerifiedStats ? (
             <p className="employers-trust__as-of">{trust.asOfLabel}</p>
           ) : (
             <p className="employers-trust__as-of">{t('trustPlaceholderNote')}</p>

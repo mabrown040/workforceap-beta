@@ -261,6 +261,14 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
   .home-hero-outline-cta {
     display: none !important;
   }
+
+  /*
+   * Mobile hero: trust detail cards repeat the ✓ bullets and TrustStrip below;
+   * hiding them shortens the fold stack so Apply + step pills stay primary.
+   */
+  .home-hero__trust-cards {
+    display: none;
+  }
 }
 
 /* Mobile-only apply text link — hidden on desktop where the outline button is already visible */
@@ -720,6 +728,18 @@ html.has-marketing-main-nav {
    */
   .programs-starter-section {
     display: none;
+  }
+
+  /*
+   * Programs hero: sidebar photo duplicates homepage imagery and pushes browse nav +
+   * quick-start below the fold. Copy + CTAs are enough on small screens.
+   */
+  .programs-page .split-hero-sidebar {
+    display: none;
+  }
+
+  .programs-page .split-hero-headline {
+    margin-bottom: 1.25rem !important;
   }
 }
 

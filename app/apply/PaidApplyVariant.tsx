@@ -42,10 +42,10 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
     <div className="paid-apply-landing">
       <section className="paid-apply-hero" aria-labelledby="paid-apply-hero-heading">
         <h1 id="paid-apply-hero-heading" className="paid-apply-hero__heading">
-          No-cost IT training — start with a quick eligibility check.
+          {t('paidHeroHeading')}
         </h1>
         <p className="paid-apply-hero__subhead">
-          About 5 minutes · 501(c)(3) nonprofit · advisor follow-up within 1–2 business days
+          {t('paidHeroSubhead')}
         </p>
         <p className="paid-apply-hero__help-compact">
           {t('questionsCall')}{' '}
@@ -58,7 +58,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
           className={marketingButtonPresets.heroPrimary('paid-apply-hero__cta')}
           onClick={scrollToEligibility}
         >
-          Start eligibility check
+          {t('paidHeroCta')}
         </button>
       </section>
 
@@ -73,7 +73,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
         </Suspense>
         {stepNav}
         <p className="paid-apply-form-kicker" role="note">
-          {t('step1Kicker')}
+          {t('paidFormKicker')}
         </p>
         {proofBlock}
         {trustStrip}
@@ -89,7 +89,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
             className={marketingButtonPresets.heroPrimary('paid-apply-sticky-cta__button')}
             onClick={scrollToEligibility}
           >
-            Start eligibility check
+            {t('paidHeroCta')}
           </button>
         </div>
       ) : null}

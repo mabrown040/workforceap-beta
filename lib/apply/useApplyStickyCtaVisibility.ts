@@ -9,6 +9,7 @@ const FALLBACK_SCROLL_THRESHOLD = 400;
 /**
  * Shows a mobile sticky CTA after the apply hero leaves the viewport, but hides it
  * when the apply form region is in view so it does not cover submit buttons.
+ * @param hideWhenSelector CSS selector for the form card/region (e.g. `.apply-main-form`).
  */
 export function useApplyStickyCtaVisibility(
   hideWhenSelector: string,

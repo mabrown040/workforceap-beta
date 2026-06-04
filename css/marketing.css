@@ -263,6 +263,16 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
   }
 
   /*
+   * Mobile hero: heroBody1 is a dense org/501(c)(3) paragraph; the member-promise
+   * band and TrustStrip immediately below restate the offer in scannable copy.
+   * Hiding it keeps headline → next-step body → Apply as the primary scan path.
+   */
+  .home-hero__body-org,
+  .home-hero__social-proof {
+    display: none;
+  }
+
+  /*
    * Mobile hero: trust detail cards repeat the ✓ bullets and TrustStrip below;
    * hiding them shortens the fold stack so Apply + step pills stay primary.
    */
@@ -740,6 +750,22 @@ html.has-marketing-main-nav {
 
   .programs-page .split-hero-headline {
     margin-bottom: 1.25rem !important;
+  }
+
+  /*
+   * Programs hero: stack Browse + Pathfinder CTAs full-width so cold mobile
+   * traffic gets two ≥44px targets without side-by-side squeeze.
+   */
+  .programs-page .split-hero-subheadline > div {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .programs-page .split-hero-subheadline > div .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
   }
 
   /*

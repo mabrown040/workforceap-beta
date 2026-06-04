@@ -326,7 +326,9 @@ export default async function ImpactPage() {
         .impact-page__container--narrow {
           max-width: 55rem;
         }
-        .impact-page__empty-hero,
+        .impact-page__empty-hero {
+          margin-bottom: 2.5rem;
+        }
         .impact-page__hero-metric {
           margin-bottom: 2.5rem;
           border-left: 4px solid var(--color-accent);

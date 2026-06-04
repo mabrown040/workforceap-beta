@@ -1849,7 +1849,7 @@
       "statsMethodologyNote": "O traço (—) significa que uma métrica ainda não foi publicada. As taxas usam turmas de programas inscritos; as médias salariais usam salários de oferta e acompanhamento pareados quando ambos estão registrados.",
       "hiresLabel": "Contratações registradas (registros de placement)",
       "jobsPostedLabel": "Vagas publicadas (aprovadas, ativas, preenchidas ou encerradas)",
-      "membersServedDesc": "Contas de membros ativas (função de perfil \"membro\"), organização padrão do WorkforceAP. Dados de teste são excluídos.",
+      "membersServedDesc": "Contas de membros ativas no WorkforceAP. Contas internas de teste são excluídas.",
       "membersServedLabel": "Membros atendidos",
       "noData": "—",
       "membersServedEmptyTitle": "Métricas de membros ainda não publicadas",

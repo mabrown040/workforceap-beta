@@ -1864,7 +1864,7 @@
       "heading": "Measured progress, published carefully",
       "subtitle": "Verified metrics from WorkforceAP operations—published when there is enough data to share publicly.",
       "membersServedLabel": "Members served",
-      "membersServedDesc": "Active member accounts (profile role \"member\"), default WorkforceAP organization. Test fixtures are excluded.",
+      "membersServedDesc": "Active member accounts on WorkforceAP. Internal test accounts are excluded.",
       "completionRateLabel": "Completion rate (enrolled cohort)",
       "placementRateLabel": "Placement rate (enrolled cohort)",
       "avgSalaryIncreaseLabel": "Avg. salary increase",

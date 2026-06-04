@@ -741,6 +741,52 @@ html.has-marketing-main-nav {
   .programs-page .split-hero-headline {
     margin-bottom: 1.25rem !important;
   }
+
+  /*
+   * Post-catalog journey (4 steps) repeats /how-it-works and sits below the full
+   * catalog on mobile — hiding it shortens the path to the apply CTA band.
+   */
+  .programs-page section:has(.programs-journey-grid) {
+    display: none;
+  }
+}
+
+/* Homepage program showcase — clearer tap targets on small screens */
+.home-program-showcase__header {
+  margin-bottom: 3rem;
+}
+
+.home-program-card__cta {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  color: var(--color-accent);
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+@media (max-width: 767px) {
+  .home-program-showcase__header {
+    margin-bottom: 2rem;
+  }
+
+  .home-program-showcase__grid {
+    gap: 1.25rem;
+  }
+
+  .home-program-card__media {
+    height: 148px !important;
+  }
+
+  .home-program-card__body {
+    padding: 1.1rem 1.25rem !important;
+  }
+
+  .home-program-card__cta {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 /*

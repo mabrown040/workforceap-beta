@@ -94,7 +94,10 @@ export default async function EmployersPage() {
     { value: t('trustPlaceholderTerms'), label: t('trustPlaceholderTermsTag') },
   ];
 
-  const trustStatsToShow = trust.hasLiveData && liveTrustStats.length > 0 ? liveTrustStats : placeholderTrustStats;
+  const showLogos = trust.logos.length > 0;
+  const showVerifiedStats = liveTrustStats.length > 0;
+  const showPlaceholderStats = !showLogos && !showVerifiedStats;
+  const trustStatsToShow = showVerifiedStats ? liveTrustStats : placeholderTrustStats;
 
   return (
     <div className="inner-page employers-landing">
@@ -136,7 +139,7 @@ export default async function EmployersPage() {
       {/* ── Trust strip ── */}
       <section className="employers-trust" aria-label={t('trustAriaLabel')}>
         <div className="container employers-trust__inner">
-          {trust.logos.length > 0 ? (
+          {showLogos ? (
             <div className="employers-trust__logos">
               <p className="employers-trust__logos-label">{t('trustLogosLabel')}</p>
               <ul className="employers-trust__logo-list">
@@ -157,9 +160,10 @@ export default async function EmployersPage() {
                 ))}
               </ul>
             </div>
-          ) : (
+          ) : null}
+          {showVerifiedStats || showPlaceholderStats ? (
             <div
-              className={`employers-trust__stats${trust.hasLiveData ? '' : ' employers-trust__stats--placeholder'}`}
+              className={`employers-trust__stats${showVerifiedStats ? '' : ' employers-trust__stats--placeholder'}${showLogos ? ' employers-trust__stats--with-logos' : ''}`}
             >
               {trustStatsToShow.map((stat, index) => (
                 <div key={stat.label} className="employers-trust__stat-group">
@@ -171,8 +175,8 @@ export default async function EmployersPage() {
                 </div>
               ))}
             </div>
-          )}
-          {trust.hasLiveData ? (
+          ) : null}
+          {showVerifiedStats || (trust.hasLiveData && showLogos) ? (
             <p className="employers-trust__as-of">{trust.asOfLabel}</p>
           ) : (
             <p className="employers-trust__as-of">{t('trustPlaceholderNote')}</p>
@@ -374,6 +378,11 @@ export default async function EmployersPage() {
           flex-direction: column;
           align-items: stretch;
           gap: 1.25rem;
+        }
+        .employers-trust__stats--with-logos {
+          margin-top: 1.5rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid var(--outline-variant);
         }
         .employers-trust__stat-group {
           display: contents;

@@ -1836,7 +1836,7 @@
       "cohortRateInsufficient": "Se publica una vez que las cohortes de programas inscritos tengan actividad registrada.",
       "statsMethodologyNote": "El guion (—) significa que una métrica aún no está publicada. Las tasas usan cohortes de programas inscritos; los promedios salariales usan salarios de oferta y seguimiento emparejados cuando ambos están registrados.",
       "membersServedLabel": "Miembros atendidos",
-      "membersServedDesc": "Cuentas de miembros activos (rol de perfil \"miembro\"), organización predeterminada de WorkforceAP. Los datos de prueba están excluidos.",
+      "membersServedDesc": "Cuentas de miembros activos en WorkforceAP. Las cuentas internas de prueba están excluidas.",
       "completionRateLabel": "Tasa de finalización (cohorte inscrita)",
       "placementRateLabel": "Tasa de colocación (cohorte inscrita)",
       "avgSalaryIncreaseLabel": "Aumento salarial promedio",

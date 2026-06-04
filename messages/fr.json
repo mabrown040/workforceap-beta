@@ -1851,7 +1851,7 @@
       "statsMethodologyNote": "Le tiret (—) signifie qu'une métrique n'est pas encore publiée. Les taux utilisent les cohortes de programmes inscrits ; les moyennes salariales utilisent les salaires d'offre et de suivi appariés lorsque les deux sont enregistrés.",
       "hiresLabel": "Recrutements enregistrés (dossiers de placement)",
       "jobsPostedLabel": "Offres publiées (approuvées, actives, pourvues ou clôturées)",
-      "membersServedDesc": "Comptes membres actifs (rôle de profil \"membre\"), organisation WorkforceAP par défaut. Les données de test sont exclues.",
+      "membersServedDesc": "Comptes membres actifs sur WorkforceAP. Les comptes de test internes sont exclus.",
       "membersServedLabel": "Membres servis",
       "noData": "—",
       "membersServedEmptyTitle": "Métriques membres pas encore publiées",

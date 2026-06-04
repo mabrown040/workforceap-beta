@@ -59,7 +59,15 @@ export default async function MemberMessagesPage() {
 
   return (
     <>
-      <h1 className="wa-sr-only">{t('inbox')}</h1>
+      <h1 className="wa-sr-only md:wa-hidden">{t('inbox')}</h1>
+
+      <div className="wa-hidden md:wa-block">
+        <PageHeader
+          title={t('inbox')}
+          breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
+        />
+      </div>
+
       {/* ── Mobile-only messages view (≤md) ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>
         <MemberMessagesMobileClient
@@ -79,15 +87,11 @@ export default async function MemberMessagesPage() {
             lastMsgTime,
             unreadCount,
           }}
-        />      </div>
+        />
+      </div>
 
       {/* ── Desktop view ── */}
       <div className="wa-hidden md:wa-block">
-        <PageHeader
-          title={t('inbox')}
-          titleHeadingLevel={2}
-          breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
-        />
         <MemberCounselorChatClient
           initial={{
             memberUserId: user.id,

@@ -8,6 +8,11 @@ import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
 import { trackApplyFunnel } from '@/lib/analytics/events';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { APPLY_FLOW_DRAFT_KEY, type ApplyFlowDraftV1 } from '@/lib/apply/applyProgramStorage';
+import {
+  DEFAULT_PRIMARY_BARRIER,
+  normalizePrimaryBarriers,
+  PRIMARY_BARRIER_OPTIONS,
+} from '@/lib/apply/primaryBarrierOptions';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
 
@@ -21,17 +26,6 @@ const AGE_GROUPS = [
   { value: '18_24', label: '18–24' },
   { value: '25_50', label: '25–50' },
   { value: '50_plus', label: '50+' },
-] as const;
-
-const PRIMARY_BARRIERS = [
-  { value: 'seeking_skills_training', label: 'Looking to increase skills with Occupational & Professional Certificate training' },
-  { value: 'none', label: 'No barrier right now' },
-  { value: 'employment_gap', label: 'Employment gap' },
-  { value: 'limited_work_history', label: 'Limited work history' },
-  { value: 'justice_involved', label: 'Background / justice involvement' },
-  { value: 'disability', label: 'Disability or health barrier' },
-  { value: 'housing_instability', label: 'Housing instability' },
-  { value: 'other', label: 'Other barrier' },
 ] as const;
 
 const APPLY_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -103,9 +97,11 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   const [stateVal, setStateVal] = useState('');
   const [zip, setZip] = useState('');
   const [county, setCounty] = useState('');
-  const [primaryBarriers, setPrimaryBarriers] = useState<string[]>(['seeking_skills_training']);
+  const [primaryBarriers, setPrimaryBarriers] = useState<string[]>([DEFAULT_PRIMARY_BARRIER.value]);
   const toggleBarrier = (v: string) =>
-    setPrimaryBarriers((cur) => (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]));
+    setPrimaryBarriers((cur) =>
+      normalizePrimaryBarriers(cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v])
+    );
 
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
@@ -130,7 +126,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     setStateVal(draft.state ?? '');
     setZip(draft.zip ?? '');
     setCounty(draft.county ?? '');
-    setPrimaryBarriers(draft.primaryBarriers ?? ['seeking_skills_training']);
+    setPrimaryBarriers(normalizePrimaryBarriers(draft.primaryBarriers));
     setQ1(draft.q1 ?? null);
     setQ2(draft.q2 ?? null);
     setQ3(draft.q3 ?? null);
@@ -529,7 +525,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
             <div className="form-group apply-form-group--full">
               <label>{t('primaryBarriersLabel')}</label>
               <div className="apply-barrier-options" role="group" aria-label={t('primaryBarriersAria')}>
-                {PRIMARY_BARRIERS.map((option) => (
+                {PRIMARY_BARRIER_OPTIONS.map((option) => (
                   <label key={option.value} className="apply-barrier-option">
                     <input
                       type="checkbox"

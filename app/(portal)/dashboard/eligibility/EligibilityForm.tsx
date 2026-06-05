@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
 
 // Mirror the apply flow's option lists so member-supplied data stays
 // consistent with the public application (app/apply/ApplyEligibilityClient.tsx).
@@ -8,17 +9,6 @@ const AGE_GROUPS = [
   { value: '18_24', label: '18–24' },
   { value: '25_50', label: '25–50' },
   { value: '50_plus', label: '50+' },
-] as const;
-
-const PRIMARY_BARRIERS = [
-  { value: 'seeking_skills_training', label: 'Looking to increase skills with Occupational & Professional Certificate training' },
-  { value: 'none', label: 'No barrier right now' },
-  { value: 'employment_gap', label: 'Employment gap' },
-  { value: 'limited_work_history', label: 'Limited work history' },
-  { value: 'justice_involved', label: 'Background / justice involvement' },
-  { value: 'disability', label: 'Disability or health barrier' },
-  { value: 'housing_instability', label: 'Housing instability' },
-  { value: 'other', label: 'Other barrier' },
 ] as const;
 
 type AgeGroupValue = (typeof AGE_GROUPS)[number]['value'] | '';
@@ -56,13 +46,17 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
   const [state, setState] = useState(initial.state);
   const [zip, setZip] = useState(initial.zip);
   const [county, setCounty] = useState(initial.county);
-  const [barriers, setBarriers] = useState<string[]>(initial.primaryBarriers);
+  const [barriers, setBarriers] = useState<string[]>(
+    normalizePrimaryBarriers(initial.primaryBarriers),
+  );
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const toggleBarrier = (value: string) => {
     setBarriers((prev) =>
-      prev.includes(value) ? prev.filter((b) => b !== value) : [...prev, value]
+      normalizePrimaryBarriers(
+        prev.includes(value) ? prev.filter((b) => b !== value) : [...prev, value]
+      )
     );
   };
 
@@ -148,7 +142,7 @@ export default function EligibilityForm({ initial }: { initial: EligibilityIniti
       <fieldset style={{ border: 'none', margin: 0, padding: 0 }}>
         <legend style={{ ...labelStyle, marginBottom: '0.625rem' }}>Primary barriers (select all that apply)</legend>
         <div style={{ display: 'grid', gap: '0.5rem' }}>
-          {PRIMARY_BARRIERS.map((opt) => (
+          {PRIMARY_BARRIER_OPTIONS.map((opt) => (
             <label
               key={opt.value}
               style={{

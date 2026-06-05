@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const PROGRAM_INTEREST_OPTIONS = [
   'Digital Literacy Empowerment Class (6 weeks, 30 hours total)',
+  'AI Practitioner Professional Certificate',
   'AI and Software Development Professional Certificate (IBM)',
   'Software Developer Professional Certificate (IBM)',
   'CompTIA A+ Professional Certificate',
@@ -9,7 +10,7 @@ export const PROGRAM_INTEREST_OPTIONS = [
   'CompTIA Security+ Professional Certificate',
   'Cyber Security and Networking Professional Certificate (Network+, Sec+)',
   'IT Support and Entry-level Cyber Security Certificate',
-  'IT Automation with Python Certificate (Google)',
+  'IT Automation with Python Professional Certificate (Google)',
   'IT Support Professional Certificate (IBM)',
   'AWS Cloud Technology Certificate',
   'Data Analytics Professional Certificate (Google)',

@@ -69,7 +69,13 @@ export default function ResumeAnalysisPanel({
         <div className="resume-rewriter-output-header" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
           <h3 style={{ flex: '1 1 100%', margin: 0 }}>Match analysis</h3>
           <button type="button" className="btn btn-outline btn-sm" onClick={() => void copy(analysisText)}>
-            {copied ? 'Copied!' : 'Copy to clipboard'}
+              <span aria-live="polite" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: "0.9rem" }} aria-hidden="true">
+                  {copied ? "check" : "content_copy"}
+                </span>
+                {copied ? "Copied!" : "Copy to clipboard"}
+              </span>
+
           </button>
           <ExportPdfButton text={analysisText} title={exportTitle} toolName={pdfToolName} />
         </div>

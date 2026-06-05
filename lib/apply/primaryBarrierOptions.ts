@@ -4,10 +4,11 @@ export const DEFAULT_PRIMARY_BARRIER = {
 } as const;
 
 export const PRIMARY_BARRIER_OPTIONS = [
+  { value: 'seeking_skills_training', label: 'Need in-demand occupation or certificate training' },
   { value: 'no_barrier', label: 'No barrier right now' },
   { value: 'employment_gap', label: 'Employment gap' },
   { value: 'limited_work_history', label: 'Limited work history' },
-  { value: 'snap_tanf_wic', label: 'SNAP / TANF / food stamps / WIC' },
+  { value: 'snap_tanf_wic', label: 'SNAP / TANF / Food Stamps / WIC' },
   { value: 'justice_involved', label: 'Background / justice involvement' },
   { value: 'disability_health', label: 'Disability or health barrier' },
   { value: 'housing_instable', label: 'Housing instability' },

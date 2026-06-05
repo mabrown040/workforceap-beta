@@ -5102,8 +5102,8 @@ body.inner-page {
     min-width: 80px;
 }
 .form-radio-group input[type="radio"] {
-    width: 1.1rem;
-    height: 1.1rem;
+    width: 0.75rem;
+    height: 0.75rem;
     flex-shrink: 0;
     cursor: pointer;
     accent-color: #ad2c4d;
@@ -5204,8 +5204,8 @@ html:not(.dark) .apply-location-callout strong {
     pointer-events: none;
 }
 .form-radio-card .radio-dot {
-    width: 20px;
-    height: 20px;
+    width: 12px;
+    height: 12px;
     border: 2px solid var(--color-gray-300);
     border-radius: 50%;
     flex-shrink: 0;
@@ -5214,14 +5214,14 @@ html:not(.dark) .apply-location-callout strong {
 .form-radio-card.selected .radio-dot {
     border-color: var(--color-accent);
     background: var(--color-accent);
-    box-shadow: inset 0 0 0 3px var(--color-white);
+    box-shadow: inset 0 0 0 2px var(--color-white);
 }
 html.dark .form-radio-card.selected {
     border: 2px solid var(--color-accent);
     background: rgba(173, 44, 77, 0.15);
 }
 html.dark .form-radio-card.selected .radio-dot {
-    box-shadow: inset 0 0 0 3px var(--surface-container-high);
+    box-shadow: inset 0 0 0 2px var(--surface-container-high);
 }
 
 /* Apply/signup forms — mobile-friendly inputs */
@@ -7462,9 +7462,24 @@ body { animation: fadeIn 0.4s ease; }
 }
 .apply-barrier-option input {
     flex-shrink: 0;
-    width: 1rem;
-    height: 1rem;
-    accent-color: var(--color-accent);
+    width: 0.875rem;
+    height: 0.875rem;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1.5px solid var(--color-gray-400);
+    border-radius: 50%;
+    background: var(--surface-container-lowest);
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition-fast);
+}
+.apply-barrier-option input:checked {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: inset 0 0 0 2px var(--surface-container-lowest);
+}
+html.dark .apply-barrier-option input:checked {
+    box-shadow: inset 0 0 0 2px var(--surface-container-high);
 }
 .apply-barrier-option__label {
     font-size: 0.875rem;

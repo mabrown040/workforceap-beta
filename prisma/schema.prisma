@@ -2044,6 +2044,10 @@ model MemberPoints {
   userId      String   @unique @map("user_id")
   totalPoints Int      @default(0) @map("total_points")
   level       String   @default("starter")
+  // --- Daily-habit streak (additive; nullable / defaulted only) ---
+  currentStreak  Int       @default(0) @map("current_streak")
+  longestStreak  Int       @default(0) @map("longest_streak")
+  lastActiveDate DateTime? @map("last_active_date")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 

@@ -60,4 +60,21 @@ describe('PointsWidget', () => {
     render(<PointsWidget total={12345} level="champion" />);
     expect(screen.getByText('12,345')).toBeInTheDocument();
   });
+
+  it('renders a streak banner when an explicit current streak is passed', () => {
+    render(<PointsWidget total={350} level="builder" currentStreak={5} longestStreak={5} />);
+    expect(screen.getByText('5-day streak')).toBeInTheDocument();
+    expect(screen.getByText(/best streak yet/i)).toBeInTheDocument();
+  });
+
+  it('hides the streak banner when explicit streak is zero', () => {
+    render(<PointsWidget total={350} level="builder" currentStreak={0} longestStreak={0} />);
+    expect(screen.queryByText(/day streak/i)).not.toBeInTheDocument();
+  });
+
+  it('shows best-streak hint when current is below the record', () => {
+    render(<PointsWidget total={350} level="builder" currentStreak={3} longestStreak={9} />);
+    expect(screen.getByText('3-day streak')).toBeInTheDocument();
+    expect(screen.getByText(/Best: 9 days/)).toBeInTheDocument();
+  });
 });

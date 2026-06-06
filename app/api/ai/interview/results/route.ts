@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
 
 const CATEGORIES = ['communication', 'leadership', 'problem_solving', 'teamwork', 'adaptability'] as const;
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Interview session not found' }, { status: 404 });
     }
 
-    const systemPrompt = `You are a career coach reviewing a mock interview. Provide constructive feedback and scores.
+    const systemPrompt = `You are a career coach reviewing a mock interview. Provide constructive feedback and scores. Use the candidate context below to make your encouragement and improvement tips specific to their goals and situation — be warm and never discouraging.${await loadCoachContextBlock(user.id)}
 
 Return ONLY a JSON object with these exact keys:
 - "overallScore": number 0-100

@@ -6,6 +6,7 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { randomUUID } from 'crypto';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
 
 // In-memory session store (replace with Redis/DB for production)
@@ -51,7 +52,7 @@ export const POST = withApiGuc(async (request: Request) => {
 
     const sessionId = randomUUID();
 
-    const systemPrompt = `You are a career coach conducting a mock behavioral interview. Generate a warm, professional opening and the first interview question.
+    const systemPrompt = `You are a career coach conducting a mock behavioral interview. Generate a warm, professional opening and the first interview question. Use the candidate context below to keep the opening encouraging and to tailor the question to where they are — but do NOT mention sensitive personal barriers out loud in the interview.${await loadCoachContextBlock(user.id)}
 
 Return ONLY a JSON object with these exact keys:
 - "opening": a brief friendly greeting (1 sentence)

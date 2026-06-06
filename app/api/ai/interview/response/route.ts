@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
 
 const MAX_QUESTIONS = 5;
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const systemPrompt = `You are a career coach conducting a mock behavioral interview. Based on the conversation so far, ask ONE concise follow-up question.
+    const systemPrompt = `You are a career coach conducting a mock behavioral interview. Based on the conversation so far, ask ONE concise follow-up question. Use the candidate context below to keep questions relevant to their target role, but do NOT reference sensitive personal barriers in the question itself.${await loadCoachContextBlock(user.id)}
 
 Return ONLY a JSON object with these exact keys:
 - "question": the next interview question

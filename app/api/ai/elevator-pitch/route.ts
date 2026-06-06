@@ -7,6 +7,7 @@ import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { prefillElevatorPitch } from '@/lib/ai/prefillFromMemberState';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -93,10 +94,12 @@ import {
   
   Return ONLY the pitch text — no labels, no quotes, no explanation.`;
   
+    const coachContextBlock = await loadCoachContextBlock(onBehalf.subjectUserId);
+
     try {
       const pitch = await chatCompletion(
         [
-          { role: 'system', content: `You write concise, natural elevator pitches for job seekers. ${aiResponseLanguageInstruction(normalizedLanguage)} Return only the pitch, nothing else.` },
+          { role: 'system', content: `You write concise, natural elevator pitches for job seekers. ${aiResponseLanguageInstruction(normalizedLanguage)} Return only the pitch, nothing else.${coachContextBlock}` },
           { role: 'user', content: prompt },
         ],
         { maxTokens: 200, temperature: 0.7 }

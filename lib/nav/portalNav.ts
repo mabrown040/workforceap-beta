@@ -235,13 +235,17 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/guide', label: 'Member Guide', group: 'manage', tab: 'me', Icon: BookOpen },
   {
     href: '/dashboard/profile',
-    label: 'Profile & Account',
+    label: 'Profile & Settings',
     group: 'manage',
     tab: 'me',
     Icon: User,
     aliases: ['/profile', '/account', '/dashboard/settings'],
     tourTarget: 'tour-profile',
   },
+  // "My Account" is the member's home base — it lands on the dashboard, not on
+  // the profile/settings page (which surprised members). Account settings stay
+  // reachable via "Profile & Settings" above (/dashboard/profile #settings).
+  { href: '/dashboard', label: 'My Account', group: 'manage', tab: 'me', Icon: Home },
 ];
 
 export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [

@@ -163,7 +163,8 @@ export default function WorkspaceShell({
       'Resources': tNav('resources'),
       'Help & Support': tNav('help'),
       'Member Guide': tNav('memberGuide'),
-      'Profile & Account': tNav('myAccount'),
+      'Profile & Settings': tNav('profile'),
+      'My Account': tNav('myAccount'),
       'Sign out': tNav('signOut'),
     };
     if (label in navMap) return navMap[label];

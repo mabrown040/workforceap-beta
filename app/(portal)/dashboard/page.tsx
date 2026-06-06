@@ -809,8 +809,14 @@ async function renderMemberDashboard(
           </section>
         ) : null}
 
-        {/* ΓöÇΓöÇ Hero: greeting + progress ring ΓöÇΓöÇ */}
-        <section aria-label="Dashboard hero" style={{ padding: '1.25rem 1.25rem 1rem' }}>
+        {/* ΓöÇΓöÇ Program & training context ΓöÇΓöÇ
+            The greeting now lives solely in TodayHero (above). This slim card
+            preserves the still-useful pieces of the former hero: the program
+            label, the program switcher, and the My Training entry point. It is
+            only shown when there is program context or a training state to
+            surface — otherwise it stays out of the way. */}
+        {(program || (showProgramSelector && enrolledProgram) || dashboardState === 'C' || dashboardState === 'D') && (
+        <section aria-label="Program and training" style={{ padding: '1rem 1.25rem 0.5rem' }}>
           <div
             style={{
               borderRadius: '1.5rem',
@@ -837,19 +843,9 @@ async function renderMemberDashboard(
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.9rem', position: 'relative' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1, minWidth: 0, paddingRight: '0.25rem' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', alignSelf: 'flex-start', padding: '0.35rem 0.55rem', borderRadius: '999px', background: 'color-mix(in srgb, var(--surface-container-lowest) 80%, transparent)', border: '1px solid var(--outline-variant)' }}>
-                  <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.625rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', margin: 0 }}>
-                    {formatPortalDate(new Date())}
-                  </p>
-                </div>
-                <div>
-                  <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
-                    {noApplicationOnFile ? t('workforceAP') : t('memberDashboard')}
-                  </p>
-                  <h2 style={{ fontSize: '1.625rem', fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--color-on-surface)', margin: '0.2rem 0 0', lineHeight: 1.1 }}>
-                    {noApplicationOnFile ? t('welcomeFirstName', { firstName }) : t('welcomeBackFirstName', { firstName })}
-                  </h2>
-                </div>
+                <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
+                  {t('memberDashboard')}
+                </p>
                 {program && (
                   <div style={{ display: 'inline-flex', alignSelf: 'flex-start', maxWidth: '100%', padding: '0.5rem 0.7rem', borderRadius: '0.9rem', background: 'color-mix(in srgb, var(--surface-container-lowest) 90%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 10%, var(--outline-variant))' }}>
                     <p style={{ fontSize: '0.76rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.35, fontWeight: 600 }}>
@@ -924,6 +920,7 @@ async function renderMemberDashboard(
             )}
           </div>
         </section>
+        )}
 
         {/* ΓöÇΓöÇ State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ΓöÇΓöÇ */}
         {dashboardState === 'A' && (

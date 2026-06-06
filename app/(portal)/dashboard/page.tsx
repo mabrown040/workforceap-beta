@@ -25,6 +25,7 @@ import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
+import GoalsModule from '@/components/portal/GoalsModule';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberState } from '@/lib/member/getMemberState';
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
@@ -903,6 +904,13 @@ async function renderMemberDashboard(
           </div>
         </ErrorBoundary>
 
+        {/* ΓöÇΓöÇ Goals ΓåÆ steps ΓöÇΓöÇ */}
+        <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+          <section aria-label="Goals" style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
+            <GoalsModule />
+          </section>
+        </ErrorBoundary>
+
         {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
         <section aria-label="Application journey" style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
           <details className="portal-card portal-card--flat" style={{ borderRadius: '0.875rem', padding: '0.95rem 1rem' }}>
@@ -1262,6 +1270,11 @@ async function renderMemberDashboard(
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
                 <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
                   <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+                </ErrorBoundary>
+                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+                  <div role="region" aria-label="Goals" style={{ maxWidth: 520, marginBottom: 'var(--space-6)' }}>
+                    <GoalsModule />
+                  </div>
                 </ErrorBoundary>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
                   <div style={{ maxWidth: '300px' }}>

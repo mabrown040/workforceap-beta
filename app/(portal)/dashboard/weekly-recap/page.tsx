@@ -5,7 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
-import WeeklyRecapClient from '@/components/portal/WeeklyRecapClient';
+import MotivatingRecapClient, { type MotivatingRecapData } from './MotivatingRecapClient';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -50,20 +50,14 @@ export default async function WeeklyRecapPage() {
     }
   }
 
-  const recapData = recap?.recapJson as {
-    weekInReview?: { applicationsAdded?: number; resourcesCompleted?: number; aiToolsUsed?: number; pathwayStepsCompleted?: number };
-    goalsSnapshot?: Array<{ title: string; status: string }>;
-    applicationsCount?: number;
-    recommendedActions?: string[];
-    readinessScoreSnapshot?: number;
-  } | null;
+  const recapData = (recap?.recapJson ?? null) as MotivatingRecapData;
 
   return (
     <>
       <div style={{ paddingBottom: '5rem' }}>
         <PageHeader
           title="Weekly Recap"
-          subtitle="Your activity summary and recommended next actions."
+          subtitle="Celebrate your wins, see your goal progress, and get a clear plan for the week ahead."
           breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Weekly Recap' }]}
         />
         {recap === null ? (
@@ -73,7 +67,7 @@ export default async function WeeklyRecapPage() {
             </div>
           </div>
         ) : (
-          <WeeklyRecapClient
+          <MotivatingRecapClient
             recap={recap}
             recapData={recapData}
             weekStart={weekStart.toISOString()}

@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type FormEvent,
@@ -31,6 +32,78 @@ export type CoachChatGreeting = {
 };
 
 type ApiResponse = { reply?: string; error?: string };
+
+type SuggestedPrompt = {
+  /** Short label shown on the chip. */
+  label: string;
+  /** Full message sent to the coach when tapped. */
+  prompt: string;
+  /** Leading material-symbols glyph for a little visual warmth. */
+  icon: string;
+};
+
+/** Static, career-relevant starters that suit any member. */
+const BASE_PROMPTS: readonly SuggestedPrompt[] = [
+  {
+    label: 'Improve my resume',
+    prompt: 'Help me improve my resume.',
+    icon: 'description',
+  },
+  {
+    label: "What's my next step?",
+    prompt: 'Based on what you know about me, what should my next step be?',
+    icon: 'flag',
+  },
+  {
+    label: 'Practice an interview',
+    prompt: 'Practice an interview question with me.',
+    icon: 'forum',
+  },
+  {
+    label: 'Talk about an employment gap',
+    prompt: 'How do I talk about my employment gap in an interview?',
+    icon: 'schedule',
+  },
+  {
+    label: 'Find jobs that fit me',
+    prompt: 'Help me find jobs that fit my skills and goals.',
+    icon: 'work',
+  },
+] as const;
+
+/**
+ * Build up to five suggested prompts, personalizing the lead chip from the
+ * greeting data already on hand. Purely client-side — no extra server calls.
+ */
+function buildSuggestedPrompts(greeting: CoachChatGreeting): SuggestedPrompt[] {
+  const topic = greeting.lastTopic?.trim();
+  const action = greeting.lastAction?.trim();
+  const personalized: SuggestedPrompt[] = [];
+
+  if (action) {
+    personalized.push({
+      label: 'Pick up my next step',
+      prompt: `Let's work on my next step: ${action}.`,
+      icon: 'play_arrow',
+    });
+  } else if (topic) {
+    personalized.push({
+      label: `Continue: ${topic}`,
+      prompt: `Let's keep working on ${topic}.`,
+      icon: 'replay',
+    });
+  }
+
+  const seen = new Set(personalized.map((p) => p.label.toLowerCase()));
+  for (const base of BASE_PROMPTS) {
+    if (personalized.length >= 5) break;
+    if (seen.has(base.label.toLowerCase())) continue;
+    personalized.push(base);
+    seen.add(base.label.toLowerCase());
+  }
+
+  return personalized;
+}
 
 function makeId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -84,6 +157,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
 
   const inputId = useId();
   const { title, body, resumePrompt } = buildGreetingText(greeting);
+  const suggestedPrompts = useMemo(() => buildSuggestedPrompts(greeting), [greeting]);
 
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -181,6 +255,17 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
     if (resumePrompt) void sendMessage(resumePrompt);
   }, [resumePrompt, sendMessage]);
 
+  const handleChip = useCallback(
+    (prompt: string) => {
+      if (sending) return;
+      void sendMessage(prompt);
+    },
+    [sending, sendMessage]
+  );
+
+  // Show the inviting starters until the member begins the conversation.
+  const showChips = messages.length === 0 && suggestedPrompts.length > 0;
+
   const canSend = draft.trim().length > 0 && !sending;
 
   return (
@@ -252,6 +337,35 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
 
         <div ref={bottomRef} />
       </div>
+
+      {showChips ? (
+        <div className={styles.chips}>
+          <p className={styles.chipsLabel} id={`${inputId}-chips`}>
+            Try one of these to get started
+          </p>
+          <div
+            className={styles.chipRow}
+            role="group"
+            aria-labelledby={`${inputId}-chips`}
+          >
+            {suggestedPrompts.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                className={styles.chip}
+                onClick={() => handleChip(p.prompt)}
+                disabled={sending}
+                title={p.prompt}
+              >
+                <span className="material-symbols-outlined" aria-hidden>
+                  {p.icon}
+                </span>
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <label htmlFor={inputId} className="wa-sr-only">

@@ -201,6 +201,76 @@
   }
 }
 
+.chips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chipsLabel {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-on-surface-variant, #6b6566);
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-accent, #8c0f37) 24%, var(--outline-variant, #e8e0dd));
+  background: color-mix(in srgb, var(--color-accent, #8c0f37) 7%, var(--surface-container-lowest, #fff));
+  color: var(--color-accent-dark, #8c0f37);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+.chip .material-symbols-outlined {
+  font-size: 1.05rem;
+  opacity: 0.85;
+}
+
+.chip:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent, #8c0f37) 14%, #fff);
+  border-color: color-mix(in srgb, var(--color-accent, #8c0f37) 34%, transparent);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--color-accent, #8c0f37) 12%, transparent);
+}
+
+.chip:focus-visible {
+  outline: none;
+  border-color: color-mix(in srgb, var(--color-accent, #8c0f37) 40%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent, #8c0f37) 18%, transparent);
+}
+
+.chip:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+}
+
 .form {
   display: flex;
   flex-direction: column;

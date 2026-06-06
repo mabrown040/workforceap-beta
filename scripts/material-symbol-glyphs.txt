@@ -95,6 +95,7 @@ forum
 funnel
 gavel
 grading
+graphic_eq
 group
 group_add
 groups
@@ -194,6 +195,7 @@ shield
 shield_person
 smart_toy
 sort
+spa
 sprout
 star
 star_border

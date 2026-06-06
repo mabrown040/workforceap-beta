@@ -1,6 +1,60 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import type { LevelName } from '@/lib/member/pointsConfig';
 import { getLevelForPoints, getNextLevel, LEVELS, EVENT_LABELS } from '@/lib/member/pointsConfig';
+
+/**
+ * Encouraging streak banner — shown when a member has an active daily-habit
+ * streak. Tasteful, uses the design-system tokens, and degrades to nothing
+ * when there is no streak (currentStreak <= 0).
+ */
+function StreakBanner({
+  currentStreak,
+  longestStreak,
+}: {
+  currentStreak: number;
+  longestStreak: number;
+}) {
+  if (!currentStreak || currentStreak <= 0) return null;
+
+  const flame = 'var(--color-orange, #f97316)';
+  const isRecord = longestStreak > 0 && currentStreak >= longestStreak;
+  const message = isRecord
+    ? 'Your best streak yet — keep it going!'
+    : 'Come back tomorrow to keep it going!';
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.625rem',
+        background: `${flame}14`,
+        border: `1px solid ${flame}33`,
+        borderRadius: 'var(--radius-md, 0.75rem)',
+        padding: '0.625rem 0.75rem',
+        marginBottom: '1rem',
+      }}
+    >
+      <span
+        className="material-symbols-outlined"
+        aria-hidden="true"
+        style={{ fontSize: '1.5rem', color: flame, '--ms-fill': 1 } as React.CSSProperties}
+      >
+        local_fire_department
+      </span>
+      <div style={{ minWidth: 0 }}>
+        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: 'var(--color-on-surface)', letterSpacing: '-0.01em' }}>
+          {currentStreak}-day streak
+        </p>
+        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+          {message}
+          {longestStreak > currentStreak ? ` · Best: ${longestStreak} days` : ''}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 const LEVEL_ICONS: Record<LevelName, string> = {
   starter:  'sprout',
@@ -8,6 +62,33 @@ const LEVEL_ICONS: Record<LevelName, string> = {
   achiever: 'star',
   champion: 'emoji_events',
 };
+
+/**
+ * Async server child that resolves the signed-in member's streak and renders
+ * the banner. Used only when the parent does not pass streak props, so the
+ * streak surfaces wherever the widget is already mounted without the page
+ * having to thread streak data through. Lazy server imports keep this out of
+ * client/jsdom bundles. Best-effort: any failure renders nothing.
+ */
+async function ResolvedStreakBanner({ total }: { total: number }) {
+  try {
+    const [{ getUser }, { getMemberPoints }] = await Promise.all([
+      import('@/lib/auth/server'),
+      import('@/lib/member/points'),
+    ]);
+    const user = await getUser();
+    if (!user) return null;
+    // Resolve the SIGNED-IN member's own streak + points. Only render when the
+    // points shown by this widget belong to the signed-in user (their own
+    // total matches). This prevents a counselor viewing a student's widget from
+    // seeing the counselor's own streak surfaced under the student's points.
+    const mp = await getMemberPoints(user.id);
+    if (mp.total !== total) return null;
+    return <StreakBanner currentStreak={mp.currentStreak} longestStreak={mp.longestStreak} />;
+  } catch {
+    return null;
+  }
+}
 
 type RecentTransaction = {
   id: string;
@@ -22,12 +103,24 @@ export default function PointsWidget({
   level,
   recent = [],
   compact = false,
+  currentStreak,
+  longestStreak,
 }: {
   total: number;
   level: LevelName;
   recent?: RecentTransaction[];
   compact?: boolean;
+  /**
+   * Daily-habit streak. Optional + additive: when omitted the widget renders
+   * exactly as before. When the caller does not pass streak props, the widget
+   * self-resolves the signed-in member's streak (see default export wiring
+   * below) so it surfaces wherever the widget is already mounted.
+   */
+  currentStreak?: number;
+  longestStreak?: number;
 }) {
+  const streak = currentStreak ?? 0;
+  const bestStreak = longestStreak ?? 0;
   const levelMeta = getLevelForPoints(total);
   const nextLevel = getNextLevel(level);
   const pctToNext = nextLevel
@@ -92,6 +185,18 @@ export default function PointsWidget({
           {levelMeta.label}
         </span>
       </div>
+
+      {/* Daily-habit streak. When the caller passes streak props we render them
+          directly (pure). When omitted, an async server child self-resolves the
+          signed-in member's streak so it surfaces wherever the widget is already
+          mounted — without the parent page needing to thread streak data. */}
+      {currentStreak === undefined && longestStreak === undefined ? (
+        <Suspense fallback={null}>
+          <ResolvedStreakBanner total={total} />
+        </Suspense>
+      ) : (
+        <StreakBanner currentStreak={streak} longestStreak={bestStreak} />
+      )}
 
       {/* Progress to next level */}
       {nextLevel && (

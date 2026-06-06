@@ -9,6 +9,7 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 import { prefillGapAnalyzer, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -70,8 +71,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   GAP 2: ...
   ---
   
-  If no significant gaps are found, say: "No significant employment gaps detected. Your work history appears continuous."`;
-  
+  If no significant gaps are found, say: "No significant employment gaps detected. Your work history appears continuous."${await loadCoachContextBlock(onBehalf.subjectUserId)}`;
+
     const userPrompt = `Resume:
   ---
   ${finalResume ?? resume}

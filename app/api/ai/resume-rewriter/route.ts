@@ -10,6 +10,7 @@ import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { inferResumeFramework, resumeFrameworkPromptBlock, type ResumeFramework } from '@/lib/resume/inferResumeFramework';
 import { prefillResumeRewriter, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { prisma } from '@/lib/db/prisma';
 import { analyzeResume } from '@/lib/ai/resumeScore';
 
@@ -161,10 +162,12 @@ ${evidenceBlock}
 
   Reposition this resume toward the career goal above. Remember: only work with what is actually in the resume. Frame it powerfully toward the target — do not invent anything.`;
   
+    const coachContextBlock = await loadCoachContextBlock(onBehalf.subjectUserId);
+
     try {
       const output = await chatCompletion(
         [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: `${systemPrompt}${coachContextBlock}` },
           { role: 'user', content: userPrompt },
         ],
         { maxTokens: 4000, temperature: 0.7 }

@@ -9,6 +9,7 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 import { prefillSalaryNegotiation } from '@/lib/ai/prefillFromMemberState';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -60,8 +61,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   - PHONE: Conversational, natural pacing. Include when to pause, when to wait for response. Short phrases they can say one at a time. Include a brief opener and closer.
   - EMAIL: Professional, structured. Clear subject line suggestion. Opening greeting, body paragraphs, closing. Ready to copy-paste.
   
-  Format: Plain text, easy to follow. Include [PAUSE] or [WAIT FOR RESPONSE] for phone. For email, include a suggested subject line.`;
-  
+  Format: Plain text, easy to follow. Include [PAUSE] or [WAIT FOR RESPONSE] for phone. For email, include a suggested subject line.${await loadCoachContextBlock(onBehalf.subjectUserId)}`;
+
     const userPrompt = `Current offer: $${currentOffer.toLocaleString()}
   Target salary: $${(finalTargetSalary ?? targetSalary).toLocaleString()}
   Job title: ${finalJobTitle || jobTitle || 'Not specified'}

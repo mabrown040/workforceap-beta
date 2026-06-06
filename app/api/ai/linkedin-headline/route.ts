@@ -9,6 +9,7 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 
 import { prefillLinkedInHeadline } from '@/lib/ai/prefillFromMemberState';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -49,7 +50,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       }
     }
   
-    const systemPrompt = `You are a LinkedIn profile expert. Generate 3 compelling LinkedIn headline options. Each must be under 120 characters. Include the target role and key value props. Format as a JSON array of strings: ["headline1", "headline2", "headline3"]. Return ONLY the JSON array.`;
+    const systemPrompt = `You are a LinkedIn profile expert. Generate 3 compelling LinkedIn headline options. Each must be under 120 characters. Include the target role and key value props. Use the candidate context below only to better target the role and value props.${await loadCoachContextBlock(onBehalf.subjectUserId)}\n\nFormat as a JSON array of strings: ["headline1", "headline2", "headline3"]. Return ONLY the JSON array — no commentary.`;
   
     const userPrompt = `Role: ${finalRole || 'Not specified'}
   Key skills: ${finalKeySkills || 'Not specified'}

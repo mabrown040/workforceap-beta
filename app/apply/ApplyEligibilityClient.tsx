@@ -241,6 +241,68 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
 
   return (
     <div className={`apply-flow apply-flow--step1${isPaid ? ' apply-flow--paid' : ''}`} data-variant={isPaid ? 'paid' : 'organic'}>
+      {/*
+        Scoped visual polish for the eligibility funnel only. All selectors are
+        prefixed with `.apply-flow--step1` so these rules never leak to the
+        homepage/marketing foundation or to other pages that reuse
+        `.form-radio-card`, `.radio-dot`, or barrier classes. Behavior is
+        untouched — layout/sizing only.
+      */}
+      <style>{`
+        /* Yes/No answer cards: tidy single-row, smaller dot aligned to label */
+        .apply-flow--step1 .form-radio-cards { gap: 0.5rem; }
+        .apply-flow--step1 .form-radio-card {
+          align-items: center;
+          gap: 0.625rem;
+          padding: 0.75rem 1rem;
+          min-height: 44px;
+        }
+        .apply-flow--step1 .form-radio-card .radio-dot {
+          width: 16px;
+          height: 16px;
+          border-width: 2px;
+          margin-top: 0;
+        }
+        .apply-flow--step1 .form-radio-card.selected .radio-dot {
+          box-shadow: inset 0 0 0 3px var(--color-white);
+        }
+        html.dark .apply-flow--step1 .form-radio-card.selected .radio-dot {
+          box-shadow: inset 0 0 0 3px var(--surface-container-high);
+        }
+
+        /* Multi-select barrier list: small circle on the same line as the label */
+        .apply-flow--step1 .apply-barrier-options { gap: 0.125rem; }
+        .apply-flow--step1 .apply-barrier-option {
+          align-items: center;
+          gap: 0.625rem;
+          padding: 0.4rem 0.5rem;
+        }
+        .apply-flow--step1 .apply-barrier-option input {
+          width: 16px;
+          height: 16px;
+          margin-top: 0;
+        }
+        .apply-flow--step1 .apply-barrier-option__label { line-height: 1.3; }
+
+        /* Spacing rhythm: group each question with its options, even gaps */
+        .apply-flow--step1 .funding-questions {
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+          padding: 1.25rem;
+          margin-bottom: 1.25rem;
+        }
+        .apply-flow--step1 .funding-questions .form-group { margin-bottom: 0; }
+        .apply-flow--step1 .apply-eligibility-legend { margin-bottom: 0.25rem; }
+        .apply-flow--step1 .apply-eligibility-prompt { margin-bottom: 0.625rem; }
+        .apply-flow--step1 .apply-personal-block { margin-bottom: 1.25rem; }
+        .apply-flow--step1 .apply-personal-block__title { margin-bottom: 0.75rem; }
+
+        @media (max-width: 768px) {
+          .apply-flow--step1 .form-radio-card { align-items: center; }
+          .apply-flow--step1 .apply-barrier-option { align-items: center; }
+        }
+      `}</style>
       {!isPaid ? (
         <div className="apply-progress-bar" aria-label={t('progressAriaLabel')}>
           <div className="apply-progress-fill" style={{ width: '33%' }} />

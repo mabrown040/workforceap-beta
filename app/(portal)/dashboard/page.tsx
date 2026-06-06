@@ -26,6 +26,10 @@ import MemberDoThisNextCard from '@/components/portal/MemberDoThisNextCard';
 import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import GoalsModule from '@/components/portal/GoalsModule';
+import TodayHero from '@/components/portal/TodayHero';
+import { classifyMember } from '@/lib/member/atRiskScoring';
+import { buildProactiveInsights } from '@/lib/member/proactiveInsights';
+import { parseGoalDescription } from '@/lib/member/goalSteps';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberState } from '@/lib/member/getMemberState';
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
@@ -645,6 +649,128 @@ async function renderMemberDashboard(
     },
   ];
 
+  // ── Today hero + proactive "we noticed…" insights ──
+  // Additive layer at the top of the dashboard. We reuse data already loaded
+  // above (trainingView, dbUser) and pull one lightweight query for the login
+  // signal + active goals + earliest cert so the proactive cards can read the
+  // retention tier without re-running the heavier at-risk pipeline.
+  let todayHeroInsights: ReturnType<typeof buildProactiveInsights> = [];
+  let topGoalTitle: string | null = null;
+  let activeGoalCount = 0;
+  let focusLine = '';
+  try {
+    const todayData = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        lastLoginAt: true,
+        staleTrainingDetectedAt: true,
+        userCertifications: {
+          orderBy: { earnedAt: 'asc' },
+          select: { earnedAt: true },
+          take: 1,
+        },
+        goals: {
+          where: { status: 'ACTIVE' },
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+          select: { title: true, description: true },
+        },
+        _count: { select: { jobApplications: true } },
+      },
+    });
+
+    const activeGoals = todayData?.goals ?? [];
+    activeGoalCount = activeGoals.length;
+
+    // Find the goal closest to completion (most steps done, but not finished)
+    // so the proactive card + focus line can speak to real momentum.
+    let topGoalStepsDone = 0;
+    let topGoalStepsTotal = 0;
+    let bestRatio = -1;
+    for (const g of activeGoals) {
+      const { steps } = parseGoalDescription(g.description);
+      const total = steps.length;
+      const done = steps.filter((s) => s.done).length;
+      const ratio = total > 0 ? done / total : 0;
+      // Prefer in-progress goals (some done, not all) for the momentum story.
+      const score = total > 0 && done < total ? ratio + 0.01 : ratio;
+      if (score > bestRatio) {
+        bestRatio = score;
+        topGoalTitle = g.title;
+        topGoalStepsDone = done;
+        topGoalStepsTotal = total;
+      }
+    }
+    if (!topGoalTitle && activeGoals[0]) {
+      topGoalTitle = activeGoals[0].title;
+    }
+
+    const classification = classifyMember({
+      userId: user.id,
+      lastLoginAt: todayData?.lastLoginAt ?? null,
+      staleTrainingDetectedAt: todayData?.staleTrainingDetectedAt ?? null,
+      lastTrainingActivityAt: trainingView?.lastTrainingActivityAt ?? null,
+      allCoursesComplete,
+      earliestCertEarnedAt: todayData?.userCertifications?.[0]?.earnedAt ?? null,
+      jobApplicationCount: todayData?._count.jobApplications ?? 0,
+    });
+
+    todayHeroInsights = buildProactiveInsights({
+      firstName,
+      riskTier: classification.tier,
+      daysSinceLogin: classification.daysSinceLogin,
+      riskReasons: classification.reasons,
+      enrolledProgram: !!enrolledProgram,
+      totalCourses,
+      completedCourses: completedCount,
+      allCoursesComplete,
+      progressPercentDisplay,
+      activeGoalCount,
+      topGoalTitle,
+      topGoalStepsDone,
+      topGoalStepsTotal,
+    });
+  } catch (err) {
+    console.error('[dashboard] today hero signals failed', err);
+  }
+
+  // Derive a single warm "your focus today" line. Priority: the most urgent
+  // next-best-action, then an active goal, then a gentle default — never blank.
+  if (dominantNextAction) {
+    focusLine = dominantNextAction.title;
+  } else if (topGoalTitle) {
+    focusLine = `Keep moving on “${topGoalTitle}”.`;
+  } else if (noApplicationOnFile) {
+    focusLine = 'Start your application — it takes about 10 minutes.';
+  } else if (enrolledProgram && !allCoursesComplete) {
+    focusLine = nextIncompleteCourse
+      ? `Continue ${nextIncompleteCourse.name}.`
+      : 'Continue your training today.';
+  } else {
+    focusLine = 'Explore your tools or message your counselor for a next step.';
+  }
+
+  const todayHeroContextLine = program
+    ? `${program.title}${
+        enrolledProgram && totalCourses > 0 && !allCoursesComplete
+          ? ` · ${completedCount} of ${totalCourses} courses`
+          : ''
+      }`
+    : null;
+
+  const todayHero = (
+    <ErrorBoundary fallback={null}>
+      <TodayHero
+        firstName={firstName}
+        dateLabel={formatPortalDate(new Date())}
+        isNewMember={noApplicationOnFile}
+        focusLine={focusLine}
+        contextLine={todayHeroContextLine}
+        insights={todayHeroInsights}
+      />
+    </ErrorBoundary>
+  );
+
   return (
     <>
       <h1 className="wa-sr-only">{noApplicationOnFile ? `Welcome to WorkforceAP, ${firstName}` : `Welcome back, ${firstName}`}</h1>
@@ -670,6 +796,9 @@ async function renderMemberDashboard(
 
       {/* ΓöÇΓöÇ Mobile-only dashboard (Γëñ767px) ΓöÇΓöÇ */}
       <div className="md:wa-hidden portal-mobile-content">
+
+        {/* Personalized Today hero — additive layer above the existing hero. */}
+        <section style={{ padding: '1.25rem 1.25rem 0' }}>{todayHero}</section>
 
         {showFirstValuePanel && firstValueActions.length > 0 ? (
           <section style={{ padding: '1rem 1.25rem 0' }}>
@@ -906,7 +1035,7 @@ async function renderMemberDashboard(
 
         {/* ΓöÇΓöÇ Goals ΓåÆ steps ΓöÇΓöÇ */}
         <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-          <section aria-label="Goals" style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
+          <section id="goals" aria-label="Goals" style={{ padding: '0 1.25rem', marginBottom: '0.85rem', scrollMarginTop: '5rem' }}>
             <GoalsModule />
           </section>
         </ErrorBoundary>
@@ -1180,6 +1309,11 @@ async function renderMemberDashboard(
                 initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
               }}
             >
+              {/* Personalized Today hero — additive layer above the existing
+                  desktop dashboard home. */}
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '1.25rem 2rem 0' }}>
+                {todayHero}
+              </div>
               {showProgramSelector && enrolledProgram && (
                 <div
                   style={{
@@ -1272,7 +1406,7 @@ async function renderMemberDashboard(
                   <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
                 </ErrorBoundary>
                 <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-                  <div role="region" aria-label="Goals" style={{ maxWidth: 520, marginBottom: 'var(--space-6)' }}>
+                  <div id="goals" role="region" aria-label="Goals" style={{ maxWidth: 520, marginBottom: 'var(--space-6)', scrollMarginTop: '5rem' }}>
                     <GoalsModule />
                   </div>
                 </ErrorBoundary>

@@ -102,7 +102,8 @@
     "workforceBoards": "Juntas de desarrollo laboral",
     "employerPartners": "Socios empleadores",
     "copyright": "© {year} Workforce Advancement Project. Entrenamiento profesional y apoyo de preparación laboral con capacitación financiada por Workforce para miembros calificados.",
-    "onetAttribution": "Este sitio incorpora información de O*NET Web Services del Departamento de Trabajo de EE.UU., Administración de Empleo y Capacitación (USDOL/ETA). O*NET® es una marca registrada de USDOL/ETA."
+    "onetAttribution": "Este sitio incorpora información de O*NET Web Services del Departamento de Trabajo de EE.UU., Administración de Empleo y Capacitación (USDOL/ETA). O*NET® es una marca registrada de USDOL/ETA.",
+    "careers": "Carreras"
   },
   "form": {
     "fullName": "Nombre completo",
@@ -429,7 +430,9 @@
     "skillsScore": "Puntuación de Habilidades",
     "trackedApplications": "Solicitudes rastreadas",
     "uploaded": "Subido",
-    "uploadResumeHint": "Sube para empezar"
+    "uploadResumeHint": "Sube para empezar",
+    "firstValuePanelTitle": "Tus 3 próximas acciones",
+    "firstValuePanelSubtitle": "Personalizadas para donde estás ahora"
   },
   "apply": {
     "step1": "Información personal",
@@ -729,7 +732,8 @@
     "resultsHeroBody": "Ordena hasta tres programas según preferencia. Crearás tu cuenta en el siguiente paso para que podamos guardar tus elecciones y dar seguimiento.",
     "resultsHeroTitle": "Paso 2 de 3 — elige tus programas",
     "resultsMetaDescription": "Revisa tu posible adecuación, ordena hasta tres programas y continúa a la creación de cuenta.",
-    "resultsMetaTitle": "Elige tus programas"
+    "resultsMetaTitle": "Elige tus programas",
+    "paidApplyProofBody": "Revisamos tu solicitud, damos seguimiento en 1 a 2 días hábiles en la mayoría de los casos, y te ayudamos a entender la elegibilidad de financiamiento y los próximos pasos antes de que te comprometas."
   },
   "training": {
     "myTraining": "Mi Entrenamiento",
@@ -1054,7 +1058,42 @@
     "priorityQueueClear": "Limpiar",
     "priorityQueueBulkToolbar": "Barra de seguimiento en lote",
     "priorityQueueSendSuccess": "Se envió \"{template}\" a {count, plural, =1 {1 miembro} other {# miembros}}.",
-    "priorityQueueSendError": "Error al enviar para {failed, plural, =1 {1 miembro} other {# miembros}} ({sent} enviados)."
+    "priorityQueueSendError": "Error al enviar para {failed, plural, =1 {1 miembro} other {# miembros}} ({sent} enviados).",
+    "inboxZero": "Bandeja cero",
+    "inboxZeroTitle": "Bandeja cero",
+    "inboxZeroSubtitle": "Miembros que necesitan tu atención hoy — documentos faltantes, solicitudes estancadas, alertas de riesgo o contacto vencido. Ordenados por prioridad.",
+    "inboxZeroCount": "{count, plural, one {# miembro necesita atención hoy} other {# miembros necesitan atención hoy}}",
+    "inboxZeroDismissedToday": "{count, plural, one {# descartado de la lista de hoy} other {# descartados de la lista de hoy}}",
+    "inboxZeroSortHint": "Ordenados por urgencia: riesgo primero, luego currículum faltante, solicitud estancada, y contacto vencido.",
+    "inboxZeroClearTitle": "Bandeja cero",
+    "inboxZeroClearDesc": "Ningún miembro asignado necesita atención hoy. Los miembros descartados permanecen ocultos hasta mañana.",
+    "inboxZeroDismiss": "Descartar por hoy",
+    "inboxZeroDismissTitle": "Descartar a {name} por hoy",
+    "inboxZeroDismissDesc": "Agrega una breve nota sobre lo que hiciste o por qué esto puede esperar. Tu nota se guarda en el registro de auditoría.",
+    "inboxZeroDismissNoteLabel": "Nota (requerida)",
+    "inboxZeroDismissNotePlaceholder": "ej. Llamé al miembro, currículum subido, seguimiento programado…",
+    "inboxZeroDismissConfirm": "Descartar con nota",
+    "inboxZeroDismissFailed": "No se pudo descartar. Intenta de nuevo.",
+    "inboxZeroAlso": "También",
+    "inboxZeroLoadError": "No se pudo cargar la bandeja",
+    "inboxZeroLoadErrorDesc": "La cola falló al cargar. Intenta refrescar la página.",
+    "inboxZeroSelectAll": "Seleccionar todo",
+    "inboxZeroSelectMember": "Seleccionar a {name}",
+    "inboxZeroBulkSelected": "{count, plural, one {# seleccionado} other {# seleccionados}}",
+    "inboxZeroBulkTemplateLabel": "Plantilla de seguimiento",
+    "inboxZeroBulkTemplatePlaceholder": "Elige plantilla…",
+    "inboxZeroBulkSendFollowUp": "Enviar plantilla de seguimiento",
+    "inboxZeroBulkMarkContacted": "Marcar como contactado hoy",
+    "inboxZeroBulkReassignLabel": "Reasignar a consejero",
+    "inboxZeroBulkReassignPlaceholder": "Elige consejero…",
+    "inboxZeroBulkReassign": "Reasignar",
+    "inboxZeroBulkDismiss": "Descartar en grupo con nota",
+    "inboxZeroBulkDismissTitle": "Descartar {count, plural, one {# miembro} other {# miembros}} por hoy",
+    "inboxZeroBulkClear": "Borrar selección",
+    "inboxZeroBulkSelectTemplate": "Elige una plantilla de seguimiento primero.",
+    "inboxZeroBulkSelectCounselor": "Elige un consejero para reasignar.",
+    "inboxZeroBulkFailed": "La acción en grupo falló. Intenta de nuevo.",
+    "inboxZeroBulkResult": "Listo: {sent} exitoso{sent, plural, =1 {} other {s}}, {failed} fallido{failed, plural, =1 {} other {s}}."
   },
   "workspace": {
     "publicSite": "Sitio de WorkforceAP",
@@ -1274,7 +1313,9 @@
       "contrastEyebrow": "En qué nos diferenciamos",
       "contrast1": "Las bolsas de empleo publican vacantes — nosotros te formamos para ocuparlas",
       "contrast2": "Los programas intensivos cobran matrícula; a nosotros nos financian subvenciones y socios — capacitación financiada por Workforce para miembros calificados.",
-      "contrast3": "La universidad lleva años — nuestros certificados, meses"
+      "contrast3": "La universidad lleva años — nuestros certificados, meses",
+      "partnerCardSystem": "Ve la diferencia que hace un sistema de fuerza laboral",
+      "employerCardBenefit": "Programa de beneficio de capacitación para empleados At the Ready"
     },
     "whatWeDo": {
       "title": "Capacitación para el Desarrollo de la Fuerza Laboral y Certificados Industriales",
@@ -1891,6 +1932,62 @@
       "salaryLiftLabel": "Aumento salarial",
       "viewMore": "Ver más historias",
       "readFullStory": "Leer historia completa"
+    },
+    "thankYou": {
+      "apply": {
+        "metaTitle": "Solicitud recibida",
+        "metaDescription": "Tu solicitud de WorkforceAP está en proceso. Esto es lo que sigue.",
+        "title": "Estás dentro.",
+        "lead": "Te enviaremos los próximos pasos por correo en 1 día hábil.",
+        "bullet1Title": "Revisión del consejero",
+        "bullet1Desc": "Un consejero de WorkforceAP revisa tu solicitud y adecuación al programa.",
+        "bullet2Title": "Correo con próximos pasos",
+        "bullet2Desc": "Recibirás un siguiente paso concreto — documentos, una llamada, o instrucciones de inscripción.",
+        "bullet3Title": "Inicio de capacitación",
+        "bullet3Desc": "Una vez inscrito, comienzas los hitos con apoyo del consejero hasta la colocación.",
+        "ctaDashboard": "Abrir tu panel",
+        "ctaPrograms": "Explorar programas",
+        "ctaHome": "Volver al inicio"
+      },
+      "employer": {
+        "metaTitle": "Consulta recibida",
+        "metaDescription": "Gracias por contactarnos. Nuestro equipo de empleadores dará seguimiento pronto.",
+        "title": "Entendido.",
+        "lead": "Nuestro equipo te contactará en 24 horas.",
+        "resourceLabel": "Resumen de resultados",
+        "ctaEmployers": "Resumen para empleadores",
+        "ctaHome": "Volver al inicio"
+      },
+      "partners": {
+        "metaTitle": "Registro de socio recibido",
+        "metaDescription": "Gracias por registrarte. Activaremos tu portal de socios pronto.",
+        "title": "Bienvenido a bordo.",
+        "lead": "Nuestro equipo de asociaciones te contactará en 1–2 días hábiles.",
+        "bullet1Title": "Revisión de cuenta",
+        "bullet1Desc": "Verificamos los datos de tu organización y capacidad de referencia.",
+        "bullet2Title": "Activación del portal",
+        "bullet2Desc": "Recibirás acceso para rastrear referencias, progreso y colocaciones.",
+        "bullet3Title": "Llamada de orientación",
+        "bullet3Desc": "Una breve guía de los flujos de referencia y recursos de apoyo.",
+        "resourceLabel": "Folleto de referencia de socios",
+        "ctaPortal": "Abrir portal de socios",
+        "ctaPartners": "Resumen de socios",
+        "ctaHome": "Volver al inicio"
+      },
+      "careers": {
+        "metaTitle": "Introducción recibida",
+        "metaDescription": "Gracias por tu interés en trabajar en WorkforceAP.",
+        "title": "Gracias — recibimos tu mensaje.",
+        "lead": "Nuestro equipo revisa cada introducción y te enviará un correo si hay adecuación.",
+        "bullet1Title": "Revisión de aplicación",
+        "bullet1Desc": "Leemos cada introducción contra roles abiertos y necesidades próximas.",
+        "bullet2Title": "Correo de seguimiento",
+        "bullet2Desc": "Si hay adecuación ahora o pronto, te contactaremos para programar una conversación.",
+        "bullet3Title": "Banco de talento",
+        "bullet3Desc": "Las adecuaciones fuertes pueden quedar en archivo para futuras aperturas de consejero, ingeniería u operaciones.",
+        "ctaCareers": "Ver página de carreras",
+        "ctaHome": "Volver al inicio"
+      }
     }
   },
   "findYourPath": {

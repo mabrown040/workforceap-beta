@@ -45,19 +45,19 @@ function emit(level: LogLevel, message: string, context?: LogContext): void {
   // Route to stderr for warn/error so it surfaces in error log streams.
   switch (level) {
     case 'error':
-      // eslint-disable-next-line no-console
+       
       console.error(line);
       break;
     case 'warn':
-      // eslint-disable-next-line no-console
+       
       console.warn(line);
       break;
     case 'debug':
-      // eslint-disable-next-line no-console
+       
       console.debug(line);
       break;
     default:
-      // eslint-disable-next-line no-console
+       
       console.log(line);
   }
 }

@@ -214,7 +214,7 @@ test.describe('Desktop layout guardrails', () => {
 
 test.describe('Desktop portal guardrails (unauth)', () => {
   const evaluatePortalDesktopLayout = async (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     page: any,
     selectors: string[],
     centerTarget: 'viewport' | 'right-panel',

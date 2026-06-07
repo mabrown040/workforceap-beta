@@ -59,7 +59,7 @@ function RatingRow({
   error,
 }: {
   name: 'jobSatisfaction' | 'trainingRelevance' | 'supportQuality';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   register: any;
   error?: string;
 }) {

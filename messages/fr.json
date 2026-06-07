@@ -102,7 +102,8 @@
     "workforceBoards": "Conseils de main-d'œuvre",
     "employerPartners": "Partenaires employeurs",
     "copyright": "© {year} Workforce Advancement Project. Formation professionnelle et soutien à la préparation à l'emploi sans frais pour les membres éligibles.",
-    "onetAttribution": "Ce site intègre des informations des services Web O*NET du U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET® est une marque déposée de USDOL/ETA."
+    "onetAttribution": "Ce site intègre des informations des services Web O*NET du U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET® est une marque déposée de USDOL/ETA.",
+    "careers": "Careers"
   },
   "form": {
     "fullName": "Nom complet",
@@ -429,7 +430,9 @@
     "skillsScore": "Score de Compétences",
     "trackedApplications": "Candidatures suivies",
     "uploaded": "Téléchargé",
-    "uploadResumeHint": "Téléchargez pour commencer"
+    "uploadResumeHint": "Téléchargez pour commencer",
+    "firstValuePanelTitle": "Your next 3 actions",
+    "firstValuePanelSubtitle": "Personalized for where you are now"
   },
   "apply": {
     "step1": "Informations personnelles",
@@ -729,7 +732,8 @@
     "resultsHeroBody": "Classez jusqu'à trois programmes par ordre de préférence. Vous créerez votre compte à l'étape suivante pour que nous puissions enregistrer vos choix et faire un suivi.",
     "resultsHeroTitle": "Étape 2 sur 3 — choisissez vos programmes",
     "resultsMetaDescription": "Examinez votre adéquation probable, classez jusqu'à trois programmes et continuez vers la création de compte.",
-    "resultsMetaTitle": "Choisissez vos programmes"
+    "resultsMetaTitle": "Choisissez vos programmes",
+    "paidApplyProofBody": "We review your application, follow up within 1 to 2 business days in most cases, and help you understand funding fit and next steps before you commit."
   },
   "training": {
     "myTraining": "Ma Formation",
@@ -1054,7 +1058,42 @@
     "priorityQueueClear": "Effacer",
     "priorityQueueBulkToolbar": "Barre d'outils de suivi groupé",
     "priorityQueueSendSuccess": "« {template} » envoyé à {count, plural, =1 {1 membre} other {# membres}}.",
-    "priorityQueueSendError": "Échec de l'envoi pour {failed, plural, =1 {1 membre} other {# membres}} ({sent} envoyés)."
+    "priorityQueueSendError": "Échec de l'envoi pour {failed, plural, =1 {1 membre} other {# membres}} ({sent} envoyés).",
+    "inboxZero": "Inbox zero",
+    "inboxZeroTitle": "Inbox zero",
+    "inboxZeroSubtitle": "Members who need your attention today — missing docs, stalled applications, at-risk alerts, or overdue contact. Sorted by priority.",
+    "inboxZeroCount": "{count, plural, one {# member needs attention today} other {# members need attention today}}",
+    "inboxZeroDismissedToday": "{count, plural, one {# dismissed from today's list} other {# dismissed from today's list}}",
+    "inboxZeroSortHint": "Sorted by urgency: at-risk first, then missing resume, stalled application, then overdue contact.",
+    "inboxZeroClearTitle": "Inbox zero",
+    "inboxZeroClearDesc": "No assigned members need attention today. Dismissed members stay hidden until tomorrow.",
+    "inboxZeroDismiss": "Dismiss for today",
+    "inboxZeroDismissTitle": "Dismiss {name} for today",
+    "inboxZeroDismissDesc": "Add a short note about what you did or why this can wait. Your note is saved to the audit log.",
+    "inboxZeroDismissNoteLabel": "Note (required)",
+    "inboxZeroDismissNotePlaceholder": "e.g. Called member, resume uploaded, scheduled follow-up…",
+    "inboxZeroDismissConfirm": "Dismiss with note",
+    "inboxZeroDismissFailed": "Could not dismiss. Please try again.",
+    "inboxZeroAlso": "Also",
+    "inboxZeroLoadError": "Couldn't load inbox",
+    "inboxZeroLoadErrorDesc": "The queue failed to load. Try refreshing the page.",
+    "inboxZeroSelectAll": "Select all",
+    "inboxZeroSelectMember": "Select {name}",
+    "inboxZeroBulkSelected": "{count, plural, one {# selected} other {# selected}}",
+    "inboxZeroBulkTemplateLabel": "Follow-up template",
+    "inboxZeroBulkTemplatePlaceholder": "Choose template…",
+    "inboxZeroBulkSendFollowUp": "Send follow-up template",
+    "inboxZeroBulkMarkContacted": "Mark contacted today",
+    "inboxZeroBulkReassignLabel": "Reassign to counselor",
+    "inboxZeroBulkReassignPlaceholder": "Choose counselor…",
+    "inboxZeroBulkReassign": "Reassign",
+    "inboxZeroBulkDismiss": "Bulk-dismiss with note",
+    "inboxZeroBulkDismissTitle": "Dismiss {count, plural, one {# member} other {# members}} for today",
+    "inboxZeroBulkClear": "Clear selection",
+    "inboxZeroBulkSelectTemplate": "Choose a follow-up template first.",
+    "inboxZeroBulkSelectCounselor": "Choose a counselor to reassign to.",
+    "inboxZeroBulkFailed": "Bulk action failed. Please try again.",
+    "inboxZeroBulkResult": "Done: {sent} succeeded, {failed} failed."
   },
   "workspace": {
     "publicSite": "Site WorkforceAP",
@@ -1275,7 +1314,9 @@
       "contrastEyebrow": "Notre positionnement",
       "contrast1": "Les sites d’emploi listent des offres — nous vous formons pour ces postes",
       "contrast2": "Les bootcamps facturent des frais — nous sommes financés par des subventions et des partenaires, sans frais pour vous",
-      "contrast3": "Les études universitaires prennent des années — nos certificats se complètent en quelques mois"
+      "contrast3": "Les études universitaires prennent des années — nos certificats se complètent en quelques mois",
+      "partnerCardSystem": "See the difference a workforce system makes",
+      "employerCardBenefit": "At the Ready employee training benefit program"
     },
     "whatWeDo": {
       "title": "Formation en Développement de la Main-d'Œuvre et Certificats Industriels",
@@ -1892,6 +1933,62 @@
       "salaryLiftLabel": "Hausse de salaire",
       "viewMore": "Voir plus de témoignages",
       "readFullStory": "Lire le témoignage complet"
+    },
+    "thankYou": {
+      "apply": {
+        "metaTitle": "Application received",
+        "metaDescription": "Your WorkforceAP application is in. Here is what happens next.",
+        "title": "You're in.",
+        "lead": "We'll email next steps within 1 business day.",
+        "bullet1Title": "Counselor review",
+        "bullet1Desc": "A WorkforceAP counselor reviews your application and program fit.",
+        "bullet2Title": "Email with next steps",
+        "bullet2Desc": "You'll get a concrete next step — paperwork, a call, or enrollment instructions.",
+        "bullet3Title": "Training kickoff",
+        "bullet3Desc": "Once enrolled, you start milestones with counselor support through placement.",
+        "ctaDashboard": "Open your dashboard",
+        "ctaPrograms": "Browse programs",
+        "ctaHome": "Back to home"
+      },
+      "employer": {
+        "metaTitle": "Inquiry received",
+        "metaDescription": "Thanks for reaching out. Our employer team will follow up shortly.",
+        "title": "Got it.",
+        "lead": "Our team will reach out within 24 hours.",
+        "resourceLabel": "Outcomes one-pager",
+        "ctaEmployers": "Employer overview",
+        "ctaHome": "Back to home"
+      },
+      "partners": {
+        "metaTitle": "Partner signup received",
+        "metaDescription": "Thanks for signing up. We will activate your partner portal soon.",
+        "title": "Welcome aboard.",
+        "lead": "Our partnerships team will reach out within 1–2 business days.",
+        "bullet1Title": "Account review",
+        "bullet1Desc": "We verify your organization details and referral capacity.",
+        "bullet2Title": "Portal activation",
+        "bullet2Desc": "You'll get login access to track referrals, progress, and placements.",
+        "bullet3Title": "Onboarding call",
+        "bullet3Desc": "A quick walkthrough of referral workflows and support resources.",
+        "resourceLabel": "Partner referral flyer",
+        "ctaPortal": "Open partner portal",
+        "ctaPartners": "Partner overview",
+        "ctaHome": "Back to home"
+      },
+      "careers": {
+        "metaTitle": "Introduction received",
+        "metaDescription": "Thanks for your interest in working at WorkforceAP.",
+        "title": "Thanks — we got your note.",
+        "lead": "Our team reviews every careers introduction and will email you if there is a fit.",
+        "bullet1Title": "Application review",
+        "bullet1Desc": "We read every introduction against open roles and upcoming needs.",
+        "bullet2Title": "Follow-up email",
+        "bullet2Desc": "If there is a match now or soon, we'll reach out to schedule a conversation.",
+        "bullet3Title": "Talent pool",
+        "bullet3Desc": "Strong fits may stay on file for future counselor, engineering, or ops openings.",
+        "ctaCareers": "View careers page",
+        "ctaHome": "Back to home"
+      }
     }
   },
   "findYourPath": {

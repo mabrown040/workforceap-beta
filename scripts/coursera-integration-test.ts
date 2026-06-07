@@ -349,7 +349,7 @@ async function probeStatementsRetrieval(_apiBase: string, _accessToken: string) 
 function cryptoRandomUuid(): string {
   // Avoid pulling node:crypto import to keep the top of the file clean for env-checks.
   // Falls back to a simple 16-byte hex if randomUUID isn't available.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+   
   const cryptoModule = require('node:crypto') as typeof import('node:crypto');
   if (typeof cryptoModule.randomUUID === 'function') return cryptoModule.randomUUID();
   return cryptoModule.randomBytes(16).toString('hex');

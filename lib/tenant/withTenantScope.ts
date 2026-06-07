@@ -127,7 +127,7 @@ export async function assertSameTenant(
   }
   // Use the unscoped client so we can read the parent's actual organizationId
   // even if it differs from the active scope (we *want* to detect that case).
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const delegate = (prisma as any)[model];
   if (!delegate || typeof delegate.findUnique !== 'function') {
     throw new Error(`[tenant-scope] assertSameTenant: unknown delegate "${String(model)}"`);

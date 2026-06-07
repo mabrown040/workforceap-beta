@@ -594,7 +594,7 @@ export default function SkillMapperClient() {
 
   useEffect(() => {
     if (activeTab === 'profile' && !profileLoaded) loadProfile();
-  }, [activeTab, profileLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTab, profileLoaded]);  
 
   const handleAiExtract = async () => {
     setExtractingResume(true);

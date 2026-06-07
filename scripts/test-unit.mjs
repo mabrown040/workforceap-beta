@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable */
+ 
 /**
  * Wrapper around `node --test` for the project's unit tests.
  *

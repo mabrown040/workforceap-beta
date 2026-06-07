@@ -91,7 +91,7 @@ export default function PartnerOnboardingTour({ onComplete }: PartnerOnboardingT
         // last slide stays until user clicks Get started
       }, SLIDE_DURATION);
     },
-    [] // eslint-disable-line react-hooks/exhaustive-deps
+    []  
   );
 
   /* ---- auto-advance timer on mount ---- */

@@ -245,6 +245,16 @@ export default async function EmployersPage() {
             <li>{t('pricingPoint2')}</li>
             <li>{t('pricingPoint3')}</li>
           </ul>
+          <div className="employers-pricing__partner-plan">
+            <p className="employers-pricing__partner-plan-eyebrow">{t('partnerPlanEyebrow')}</p>
+            <h3 className="employers-pricing__partner-plan-title">{t('partnerPlanTitle')}</h3>
+            <p className="employers-pricing__partner-plan-copy">{t('partnerPlanCopy')}</p>
+            <ul className="employers-pricing__partner-plan-list">
+              <li>{t('partnerPlanPoint1')}</li>
+              <li>{t('partnerPlanPoint2')}</li>
+              <li>{t('partnerPlanPoint3')}</li>
+            </ul>
+          </div>
         </div>
       </PageSection>
 
@@ -517,6 +527,55 @@ export default async function EmployersPage() {
           color: var(--color-accent);
           flex-shrink: 0;
           margin-top: 0.1rem;
+        }
+        .employers-pricing__partner-plan {
+          margin-top: 1.5rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid var(--outline-variant);
+          text-align: left;
+        }
+        .employers-pricing__partner-plan-eyebrow {
+          margin: 0 0 0.4rem;
+          font-size: 0.72rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--color-accent);
+        }
+        .employers-pricing__partner-plan-title {
+          margin: 0 0 0.5rem;
+          font-size: 1.125rem;
+          font-weight: 800;
+          color: var(--color-on-surface);
+        }
+        .employers-pricing__partner-plan-copy {
+          margin: 0 0 0.85rem;
+          font-size: 0.9375rem;
+          line-height: 1.6;
+          color: var(--color-on-surface-variant);
+        }
+        .employers-pricing__partner-plan-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: grid;
+          gap: 0.55rem;
+        }
+        .employers-pricing__partner-plan-list li {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          line-height: 1.5;
+          color: var(--color-on-surface);
+        }
+        .employers-pricing__partner-plan-list li::before {
+          content: 'arrow_forward';
+          font-family: 'Material Symbols Outlined';
+          font-size: 1rem;
+          color: var(--color-accent);
+          flex-shrink: 0;
+          margin-top: 0.05rem;
         }
 
         .employers-faq {

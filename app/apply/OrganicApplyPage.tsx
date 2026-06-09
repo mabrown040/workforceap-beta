@@ -11,6 +11,7 @@ import { getTranslations } from 'next-intl/server';
 import ApplyMobileStepNav from '@/components/apply/ApplyMobileStepNav';
 import ApplyOrganicStickyCta from '@/components/apply/ApplyOrganicStickyCta';
 import TrustStrip from '@/components/marketing/TrustStrip';
+import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
 type OrganicApplyPageProps = { program?: string };
 
@@ -213,6 +214,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           <strong>{t('heroDescHighlight')}</strong>{' '}
           <span>{t('step1Kicker')}</span>
         </p>
+        {/* Pilot status — honest about limited availability */}
+        <div style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
+          <PreLaunchTag compact />
+        </div>
         <p className="apply-hero-desc-full" style={sPage.heroDesc}>
           {t('heroDesc')}
           <strong> {t('heroDescHighlight')}</strong>

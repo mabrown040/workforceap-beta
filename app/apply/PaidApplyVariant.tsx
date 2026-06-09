@@ -14,6 +14,7 @@ import {
 } from '@/lib/apply/paidApplyUtm';
 import { useApplyStickyCtaVisibility } from '@/lib/apply/useApplyStickyCtaVisibility';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
+import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
 const PAID_APPLY_ELIGIBILITY_ID = 'paid-apply-eligibility';
 
@@ -60,6 +61,9 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
         >
           {t('paidHeroCta')}
         </button>
+        <div style={{ marginTop: 'var(--space-3)' }}>
+          <PreLaunchTag compact />
+        </div>
       </section>
 
       <section

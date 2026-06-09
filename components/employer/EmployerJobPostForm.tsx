@@ -217,8 +217,10 @@ export default function EmployerJobPostForm() {
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' }}>
-        <button type="submit" className="btn btn-primary" disabled={status === 'saving'}>
-          {status === 'saving' ? 'Publishing…' : 'Publish job'}
+        <button type="submit" className="btn btn-primary" disabled={status === 'saving'} aria-busy={status === 'saving'}>
+          <span aria-live="polite">
+            {status === 'saving' ? 'Publishing…' : 'Publish job'}
+          </span>
         </button>
         <Link href="/employer/jobs" className="btn btn-outline" style={{ textDecoration: 'none' }}>
           Cancel

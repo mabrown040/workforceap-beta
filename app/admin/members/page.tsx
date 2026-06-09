@@ -10,6 +10,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import MembersTable from '@/components/admin/MembersTable';
+import MembersListNav from '@/components/admin/MembersListNav';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -271,6 +272,8 @@ export default async function AdminMembersPage() {
           </div>
         }
       />
+
+      <MembersListNav />
 
       {members.length >= 2000 && (
         <p style={{ margin: '0 0 0.75rem', padding: '0.6rem 0.9rem', background: 'rgba(173,44,77,0.07)', borderRadius: '6px', fontSize: '0.875rem', color: 'var(--color-accent)' }}>

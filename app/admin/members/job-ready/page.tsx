@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminJobReadyTable, { type JobReadyRow } from '@/components/admin/AdminJobReadyTable';
+import MembersListNav from '@/components/admin/MembersListNav';
 import { computeTrainingProgress, JOB_READY_TRAINING_PCT } from '@/lib/member/trainingProgress';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -67,6 +68,7 @@ export default async function AdminJobReadyPage() {
         title="Job ready"
         subtitle={`Members at ${JOB_READY_TRAINING_PCT}%+ training completion. Distinct from Interview ready, which gates on pre-screening for an employer interview.`}
       />
+      <MembersListNav />
       <AdminJobReadyTable rows={rows} />
     </div>
   );

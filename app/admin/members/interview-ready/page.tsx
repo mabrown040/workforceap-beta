@@ -6,6 +6,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminInterviewReadyTable from '@/components/admin/AdminInterviewReadyTable';
+import MembersListNav from '@/components/admin/MembersListNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -69,6 +70,7 @@ export default async function AdminInterviewReadyPage() {
         title="Interview ready"
         subtitle="Members who completed pre-screening. Work the queue before scheduling calls."
       />
+      <MembersListNav />
       <AdminInterviewReadyTable rows={tableRows} />
     </div>
   );

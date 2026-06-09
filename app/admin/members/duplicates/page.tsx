@@ -6,6 +6,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import MemberDuplicatesClient from '@/components/admin/MemberDuplicatesClient';
+import MembersListNav from '@/components/admin/MembersListNav';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Admin – Duplicate Members',
@@ -28,6 +29,7 @@ export default async function AdminMemberDuplicatesPage() {
           { label: 'Duplicates' },
         ]}
       />
+      <MembersListNav />
       <MemberDuplicatesClient />
     </PortalPageFrame>
   );

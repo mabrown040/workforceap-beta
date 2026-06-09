@@ -67,7 +67,7 @@ export default async function JobsPage() {
     },
     {
       label: 'Glassdoor',
-      href: `https://www.google.com/search?${new URLSearchParams({ q: `site:glassdoor.com/Job jobs ${primaryLocation}` }).toString()}`,
+      href: `https://www.glassdoor.com/Job/jobs.htm?${new URLSearchParams({ 'sc.keyword': `jobs ${primaryLocation}` }).toString()}`,
       note: 'Job listings plus salary and company review context.',
       bestFor: 'salary checks before you apply',
     },

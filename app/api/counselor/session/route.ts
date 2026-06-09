@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchCounselorPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { cookies } from 'next/headers';
@@ -10,12 +10,17 @@ export async function POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
-    const [admin, counselor] = await Promise.all([isAdmin(user.id), isCounselor(user.id)]);
-    if (!admin && !counselor) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    // Member-facing tool (/dashboard/counselor) — any authenticated member can
+    // start a session, gated by the shared voice-session rate limit.
+    const { success: voiceRateOk } = await checkVoiceSessionRateLimit(user.id);
+    if (!voiceRateOk) {
+      return NextResponse.json(
+        { error: 'Too many voice sessions. Please wait an hour before starting another.' },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
     }
-  
+
     const cookieStore = await cookies();
     const locale = getAppLocaleFromCookieStore(cookieStore);
   

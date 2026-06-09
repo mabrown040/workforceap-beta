@@ -1,3 +1,5 @@
+import { isValidPostalCode } from '@/lib/validation/postalCode';
+
 export type StarterProfileField = 'phone' | 'address' | 'city' | 'state' | 'zip' | 'referralSource';
 
 export const STARTER_PROFILE_FIELD_LABELS: Record<StarterProfileField, string> = {
@@ -33,7 +35,7 @@ export function getCounselorStarterProfileReview(input: {
   if ((input.profileAddress?.trim() || '').length < 5) missing.push('address');
   if (!(input.city?.trim() || '')) missing.push('city');
   if (!(input.state?.trim() || '')) missing.push('state');
-  if (!/^\d{5}(-\d{4})?$/.test(input.zip?.trim() || '')) missing.push('zip');
+  if (!isValidPostalCode(input.zip?.trim() || '')) missing.push('zip');
   if (!(input.referralSource?.trim() || '')) missing.push('referralSource');
 
   if (missing.length === 0) {

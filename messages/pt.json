@@ -636,7 +636,7 @@
     "errEmailInvalid": "Use um endereço de e-mail válido (inclua @ e um domínio como .com).",
     "errPhoneRequired": "Digite um número de telefone.",
     "errPhoneDigits": "Use um número de telefone com pelo menos 10 dígitos.",
-    "errZipFormat": "Por favor, digite um CEP válido de 5 dígitos",
+    "errZipFormat": "Por favor, digite um código postal válido",
     "errPasswordShort": "Use pelo menos 8 caracteres.",
     "errPasswordMismatch": "As senhas não coincidem.",
     "errContactConsent": "Por favor, confirme que concorda em ser contatado sobre sua candidatura para que um conselheiro possa fazer acompanhamento.",

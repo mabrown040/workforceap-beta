@@ -87,6 +87,13 @@ export default function DashboardProfileForm({
     e.preventDefault();
     setError('');
     setLoading(true);
+    // Accept "linkedin.com/in/..." without forcing members to type the scheme
+    const linkedinTrimmed = linkedin.trim();
+    const normalizedLinkedin = linkedinTrimmed
+      ? /^https?:\/\//i.test(linkedinTrimmed)
+        ? linkedinTrimmed
+        : `https://${linkedinTrimmed}`
+      : null;
     try {
       const res = await fetch('/api/member/dashboard-profile', {
         method: 'PATCH',
@@ -100,7 +107,7 @@ export default function DashboardProfileForm({
           state: state.trim() || null,
           zip: zip.trim() || null,
           referralSource: referralSource.trim() || null,
-          linkedin: linkedin.trim() || null,
+          linkedin: normalizedLinkedin,
           bio: bio.trim() || null,
           hasEmploymentBarrier: barrierTypes.length > 0,
           barrierTypes,
@@ -198,8 +205,8 @@ export default function DashboardProfileForm({
             <input id="state" type="text" inputMode="text" value={state} onChange={(e) => setState(e.target.value)} autoComplete="address-level1" maxLength={50} />
           </div>
           <div className="form-group">
-            <label htmlFor="zip">ZIP code</label>
-            <input id="zip" type="text" value={zip} onChange={(e) => setZip(e.target.value)} autoComplete="postal-code" inputMode="numeric" maxLength={10} />
+            <label htmlFor="zip">ZIP / postal code</label>
+            <input id="zip" type="text" value={zip} onChange={(e) => setZip(e.target.value)} autoComplete="postal-code" inputMode="text" maxLength={10} />
           </div>
         </div>
         <div className="form-group">
@@ -220,11 +227,11 @@ export default function DashboardProfileForm({
           <label htmlFor="linkedin">LinkedIn URL (optional)</label>
           <input
             id="linkedin"
-            type="url"
+            type="text"
             inputMode="url"
             value={linkedin}
             onChange={(e) => setLinkedin(e.target.value)}
-            placeholder="https://linkedin.com/in/..."
+            placeholder="linkedin.com/in/your-name"
           />
         </div>
         <div className="form-group">

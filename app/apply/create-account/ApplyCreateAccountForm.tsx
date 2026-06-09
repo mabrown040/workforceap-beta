@@ -5,6 +5,7 @@ import LocalizedLink from '@/components/LocalizedLink';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
+import { isValidPostalCode } from '@/lib/validation/postalCode';
 import { trackConversionWithValue } from '@/lib/analytics/conversionValue';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 import { isPaidUtmSource } from '@/lib/apply/paidApplyUtm';
@@ -332,7 +333,7 @@ export default function ApplyCreateAccountForm() {
     } else if (phoneDigits.length < 10) {
       nextFieldErrors.phone = t('errPhoneDigits');
     }
-    if (zip.trim() && !/^\d{5}(-\d{4})?$/.test(zip.trim())) {
+    if (zip.trim() && !isValidPostalCode(zip)) {
       nextFieldErrors.zip = t('errZipFormat');
     }
     if (password.length < 8) {
@@ -791,7 +792,7 @@ export default function ApplyCreateAccountForm() {
             <input
               id="zip"
               type="text"
-              inputMode="numeric"
+              inputMode="text"
               value={zip}
               onChange={(e) => {
                 setZip(e.target.value);

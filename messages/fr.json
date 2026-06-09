@@ -636,7 +636,7 @@
     "errEmailInvalid": "Utilisez une adresse e-mail valide (incluez @ et un domaine comme .com).",
     "errPhoneRequired": "Entrez un numéro de téléphone.",
     "errPhoneDigits": "Utilisez un numéro de téléphone d'au moins 10 chiffres.",
-    "errZipFormat": "Veuillez entrer un code postal valide de 5 chiffres",
+    "errZipFormat": "Veuillez entrer un code postal valide",
     "errPasswordShort": "Utilisez au moins 8 caractères.",
     "errPasswordMismatch": "Les mots de passe ne correspondent pas.",
     "errContactConsent": "Veuillez confirmer que vous acceptez d'être contacté au sujet de votre candidature pour qu'un conseiller puisse faire un suivi.",

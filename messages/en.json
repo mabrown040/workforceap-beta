@@ -652,7 +652,7 @@
     "errEmailInvalid": "Use a valid email address (include @ and a domain like .com).",
     "errPhoneRequired": "Enter a phone number.",
     "errPhoneDigits": "Use a phone number with at least 10 digits.",
-    "errZipFormat": "Please enter a valid 5-digit ZIP code",
+    "errZipFormat": "Please enter a valid ZIP or postal code",
     "errPasswordShort": "Use at least 8 characters.",
     "errPasswordMismatch": "Passwords do not match.",
     "errContactConsent": "Please confirm you agree to be contacted about your application so a counselor can follow up.",

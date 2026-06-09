@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
 import { trackApplyFunnel } from '@/lib/analytics/events';
+import { isValidPostalCode } from '@/lib/validation/postalCode';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { APPLY_FLOW_DRAFT_KEY, type ApplyFlowDraftV1 } from '@/lib/apply/applyProgramStorage';
 import {
@@ -150,7 +151,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     phone.trim().length > 0 &&
     phoneDigits.length >= 10;
 
-  const zipOk = /^\d{5}(-\d{4})?$/.test(zip.trim());
+  const zipOk = isValidPostalCode(zip);
   const screeningDetailsOk =
     !!ageGroup &&
     city.trim().length > 0 &&
@@ -565,7 +566,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                 type="text"
                 name="zip"
                 autoComplete="postal-code"
-                inputMode="numeric"
+                inputMode="text"
                 value={zip}
                 onChange={(e) => setZip(e.target.value)}
                 required

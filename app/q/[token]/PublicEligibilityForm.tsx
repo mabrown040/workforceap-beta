@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
+import { isValidPostalCode } from '@/lib/validation/postalCode';
 
 // Option values copied EXACTLY from app/apply/ApplyEligibilityClient.tsx so the
 // public no-account form writes the same canonical values the rest of the app
@@ -62,7 +63,7 @@ export default function PublicEligibilityForm({
       normalizePrimaryBarriers(cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v])
     );
 
-  const zipOk = /^\d{5}(-\d{4})?$/.test(zip.trim());
+  const zipOk = isValidPostalCode(zip);
   const canSubmit =
     firstName.trim().length > 0 &&
     lastName.trim().length > 0 &&
@@ -166,7 +167,7 @@ export default function PublicEligibilityForm({
       </div>
       <div style={fieldGroup}>
         <label style={labelStyle} htmlFor="q-zip">ZIP code *</label>
-        <input id="q-zip" style={inputStyle} value={zip} autoComplete="postal-code" inputMode="numeric" onChange={(e) => setZip(e.target.value)} required aria-invalid={zip.length > 0 && !zipOk} />
+        <input id="q-zip" style={inputStyle} value={zip} autoComplete="postal-code" inputMode="text" onChange={(e) => setZip(e.target.value)} required aria-invalid={zip.length > 0 && !zipOk} />
       </div>
       <div style={fieldGroup}>
         <label style={labelStyle} htmlFor="q-county">County *</label>

@@ -637,7 +637,7 @@
     "errEmailInvalid": "Usa un correo válido (incluye @ y un dominio como .com).",
     "errPhoneRequired": "Ingresa un número de teléfono.",
     "errPhoneDigits": "Usa un número con al menos 10 dígitos.",
-    "errZipFormat": "Ingresa un código postal válido de 5 dígitos",
+    "errZipFormat": "Ingresa un código postal válido",
     "errPasswordShort": "Usa al menos 8 caracteres.",
     "errPasswordMismatch": "Las contraseñas no coinciden.",
     "errContactConsent": "Confirma que aceptas ser contactado sobre tu solicitud para que un consejero pueda dar seguimiento.",

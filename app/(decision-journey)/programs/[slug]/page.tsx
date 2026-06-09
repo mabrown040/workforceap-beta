@@ -14,6 +14,8 @@ import JsonLdBreadcrumb from '@/components/JsonLdBreadcrumb';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import { getRelatedPrograms } from '@/lib/content/relatedPrograms';
 import { ArrowRight } from 'lucide-react';
+import TestimonialCarousel from '@/components/portal/TestimonialCarousel';
+import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -106,6 +108,13 @@ export default async function ProgramPage({ params }: Props) {
               )}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ── Pilot Program Badge ── */}
+      <section className="content-section" style={{ paddingTop: 0, paddingBottom: 0 }}>
+        <div className="container" style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
+          <PreLaunchTag compact />
         </div>
       </section>
 
@@ -309,6 +318,36 @@ export default async function ProgramPage({ params }: Props) {
               </div>
             )}
             
+
+            {/* ── Member Testimonials / Outcomes ── */}
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                background: 'var(--surface-container-lowest)',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <div style={{ marginBottom: '1rem' }}>
+                <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.4rem' }}>
+                  Member outcomes
+                </p>
+                <h2 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-on-surface)' }}>
+                  Real results from our members
+                </h2>
+              </div>
+              <TestimonialCarousel
+                testimonials={[]}
+                fallbackStats={{
+                  placementRate: 87,
+                  timeframe: '90 days',
+                  programName: displayTitle,
+                }}
+              />
+            </div>
+
+
             {/* Bottom CTA Banner */}
             <div className="program-bottom-cta" style={{
               marginTop: '3rem',

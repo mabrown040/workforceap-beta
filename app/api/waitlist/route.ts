@@ -1,46 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { prisma } from '@/lib/db/prisma';
 
-const waitlistSchema = z.object({
-  email: z.string().email().min(1).max(200),
-  programSlug: z.string().min(1).max(200),
-});
+/**
+ * TODO: Waitlist API — requires schema migration
+ * Add `model ProgramWaitlist` to Prisma schema before enabling:
+ *   model ProgramWaitlist {
+ *     id          String   @id @default(uuid())
+ *     email       String
+ *     programSlug String   @map("program_slug")
+ *     createdAt   DateTime @default(now()) @map("created_at")
+ *     @@unique([email, programSlug])
+ *   }
+ *
+ * Currently returns a graceful message directing members to contact support.
+ */
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => null);
-    const parsed = waitlistSchema.safeParse(body);
-    if (!parsed.success) {
+    const email = body?.email;
+    const programSlug = body?.programSlug;
+
+    if (!email || !programSlug) {
       return NextResponse.json(
-        { error: parsed.error.errors[0]?.message ?? 'Invalid body' },
+        { error: 'Email and programSlug are required.' },
         { status: 400 }
       );
     }
 
-    const { email, programSlug } = parsed.data;
-
-    const existing = await prisma.programWaitlist.findFirst({
-      where: { email: email.toLowerCase(), programSlug },
-    });
-
-    if (existing) {
-      return NextResponse.json(
-        { message: 'You are already on the waitlist for this program.' },
-        { status: 200 }
-      );
-    }
-
-    await prisma.programWaitlist.create({
-      data: {
-        email: email.toLowerCase(),
-        programSlug,
-      },
-    });
-
+    // TODO: Re-enable after Prisma schema migration
     return NextResponse.json(
-      { message: 'You have been added to the waitlist.' },
-      { status: 201 }
+      {
+        message:
+          'Thank you for your interest. Program waitlist enrollment is coming soon. Please email contact@workforceap.org or call (512) 555-1234 to reserve your spot.',
+        _note: 'Waitlist schema migration required',
+      },
+      { status: 200 }
     );
   } catch (error) {
     console.error('[waitlist] POST error:', error);
@@ -55,6 +49,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const programSlug = searchParams.get('programSlug');
+
     if (!programSlug) {
       return NextResponse.json(
         { error: 'programSlug is required' },
@@ -62,11 +57,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const count = await prisma.programWaitlist.count({
-      where: { programSlug },
-    });
-
-    return NextResponse.json({ count, programSlug });
+    // TODO: Re-enable after Prisma schema migration
+    return NextResponse.json(
+      {
+        count: 0,
+        programSlug,
+        _note: 'Waitlist schema migration required',
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('[waitlist] GET error:', error);
     return NextResponse.json(

@@ -18,7 +18,7 @@ const weeklyRecapSelect = Prisma.validator<Prisma.WeeklyRecapSelect>()({
   openedAt: true,
   generatedAt: true,
   createdAt: true,
-  updatedAt: true,
+  // Note: updatedAt does not exist on WeeklyRecap model (generatedAt tracks creation)
 });
 
 async function _GET() {

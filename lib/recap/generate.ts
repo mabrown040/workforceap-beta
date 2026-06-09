@@ -4,6 +4,7 @@ import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jo
 import { computeReadinessScore, getScoreBreakdowns } from '@/lib/readiness/score';
 import { parseGoalDescription } from '@/lib/member/goalSteps';
 import { buildNextBestActions, type NextBestActionsContext } from '@/lib/member/nextBestActions';
+import { motivatingRecapDataSchema } from '@/lib/validation/weeklyRecap';
 
 /**
  * A single celebrated win from the member's week. `value` is optional so the
@@ -794,20 +795,22 @@ export async function generateWeeklyRecaps(
     await Promise.all(
       chunk.map(async ({ userId, recapData, score }) => {
         try {
+          const validatedRecap = motivatingRecapDataSchema.safeParse(recapData);
+          const safeRecapData = validatedRecap.success ? validatedRecap.data : recapData;
           const record = await prisma.weeklyRecap.upsert({
             where: { userId_weekStartDate: { userId, weekStartDate: weekStart } },
             create: {
               userId,
               weekStartDate: weekStart,
               weekEndDate: end,
-              recapJson: recapData as RecapJsonShape,
+              recapJson: safeRecapData,
               readinessScoreSnapshot: score,
-              goalsSnapshotJson: recapData.goalsSnapshot as RecapJsonShape['goalsSnapshot'],
+              goalsSnapshotJson: safeRecapData?.goalsSnapshot ?? recapData.goalsSnapshot,
             },
             update: {
-              recapJson: recapData as RecapJsonShape,
+              recapJson: safeRecapData,
               readinessScoreSnapshot: score,
-              goalsSnapshotJson: recapData.goalsSnapshot as RecapJsonShape['goalsSnapshot'],
+              goalsSnapshotJson: safeRecapData?.goalsSnapshot ?? recapData.goalsSnapshot,
               generatedAt: new Date(),
             },
           });

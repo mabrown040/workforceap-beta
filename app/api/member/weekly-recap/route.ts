@@ -2,8 +2,22 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getWeekBounds, generateWeeklyRecap } from '@/lib/recap/generate';
+import { Prisma } from '@prisma/client';
+import { withApiGuc } from '@/lib/db/withRequestGuc';const weeklyRecapSelect = Prisma.validator<Prisma.WeeklyRecapSelect>()({
+  id: true,
+  userId: true,
+  weekStartDate: true,
+  weekEndDate: true,
+  recapJson: true,
+  goalsSnapshotJson: true,
+  readinessScoreSnapshot: true,
+  openedAt: true,
+  generatedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -13,6 +27,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
 
     let recap = await prisma.weeklyRecap.findUnique({
       where: { userId_weekStartDate: { userId: user.id, weekStartDate: start } },
+      select: weeklyRecapSelect,
     });
 
     if (!recap) {

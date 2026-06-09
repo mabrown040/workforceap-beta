@@ -5,11 +5,28 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
-
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { parseGoalDescription } from '@/lib/member/goalSteps';
 import { suggestGoalsFromCareer } from '@/lib/member/suggestGoalsFromCareer';
-import type { CareerMatchResult } from '@/lib/onet/types';
+import { careerMatchResultNullableSchema } from '@/lib/validation/careerMatchResult';
+import { createApiErrorResponse, createUnauthorizedResponse, createNotFoundResponse } from '@/lib/api-utils';
+import { withIdempotency } from '@/lib/api-utils';
+import { Prisma } from '@prisma/client';
+
+const goalSelect = Prisma.validator<Prisma.GoalSelect>()({
+  id: true,
+  goalType: true,
+  title: true,
+  description: true,
+  targetMetricType: true,
+  targetMetricValue: true,
+  targetDate: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
+  completedAt: true,
+  userId: true,
+});
 
 const createSchema = z.object({
   goalType: z.string().min(1).max(100),
@@ -21,20 +38,21 @@ const createSchema = z.object({
 });async function _GET() {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
+    if (!user) return createUnauthorizedResponse();
+
     try {
       await ensureUserInDb(user);
       const profile = await prisma.user.findUnique({
         where: { id: user.id },
         select: { careerRecommendationJson: true },
       });
-      const careerRec = (profile?.careerRecommendationJson ?? null) as CareerMatchResult | null;
+      const careerRec = careerMatchResultNullableSchema.safeParse(profile?.careerRecommendationJson).data ?? null;
       const suggestions = suggestGoalsFromCareer(careerRec);
       const rawGoals = await prisma.goal.findMany({
         where: { userId: user.id },
         orderBy: { createdAt: 'desc' },
         take: 200,
+        select: goalSelect,
       });
       // Decode the structured steps envelope from description so the client
       // gets first-class steps + a clean note (no schema change required).
@@ -50,39 +68,39 @@ const createSchema = z.object({
       return NextResponse.json({ goals, suggestions: openSuggestions });
     } catch (err) {
       captureApiError(err, { route: 'member/goals GET' });
-      return NextResponse.json({ error: 'Failed to load goals' }, { status: 500 });
+      return createApiErrorResponse('Failed to load goals', 'INTERNAL_ERROR', 500);
     }
   } catch (error) {
     console.error('/member/goals:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 }
 export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
+    if (!user) return createUnauthorizedResponse();
+
     let body: unknown;
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+      return createApiErrorResponse('Invalid JSON', 'VALIDATION_ERROR', 400);
     }
-  
+
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
+      return createApiErrorResponse(parsed.error.errors[0]?.message ?? 'Validation failed', 'VALIDATION_ERROR', 400);
     }
-  
+
     const { goalType, title, description, targetMetricType, targetMetricValue, targetDate } = parsed.data;
-  
+
     const existingCount = await prisma.goal.count({
       where: { userId: user.id, status: 'ACTIVE' },
     });
     if (existingCount >= 3) {
-      return NextResponse.json({ error: 'You can have at most 3 active goals' }, { status: 400 });
+      return createApiErrorResponse('You can have at most 3 active goals', 'VALIDATION_ERROR', 400);
     }
-  
+
     try {
       await ensureUserInDb(user);
       const goal = await prisma.goal.create({
@@ -100,11 +118,11 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       return NextResponse.json({ goal });
     } catch (err) {
       captureApiError(err, { route: 'member/goals POST' });
-      return NextResponse.json({ error: 'Failed to create goal' }, { status: 500 });
+      return createApiErrorResponse('Failed to create goal', 'INTERNAL_ERROR', 500);
     }
   } catch (error) {
     console.error('/member/goals:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 }
-export const POST = withApiGuc(_POST);
+export const POST = withApiGuc(withIdempotency(_POST));

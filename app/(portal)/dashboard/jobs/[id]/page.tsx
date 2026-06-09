@@ -5,7 +5,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHero from '@/components/PageHero';
-import JobApplyButton from './JobApplyButton';
+import MobileApplyFunnel from './MobileApplyFunnel';
 import { formatJobSalaryRange } from '@/lib/jobs/formatSalary';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import PageHeader from '@/components/portal/PageHeader';
@@ -120,7 +120,15 @@ export default async function JobDetailPage({ params }: Props) {
             </div>
           )}
 
-          <JobApplyButton jobId={job.id} authenticated={!!user} />
+          <MobileApplyFunnel
+            jobId={job.id}
+            authenticated={!!user}
+            jobTitle={job.title}
+            employerName={job.employer.companyName}
+            salaryLine={salaryLine}
+            location={job.location ?? LOCATION_LABELS[job.locationType] ?? job.locationType}
+            jobType={JOB_TYPE_LABELS[job.jobType] ?? job.jobType}
+          />
         </div>
       </section>
     </div>    </>

@@ -1,4 +1,6 @@
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { z } from 'zod';
+import { goalStepsArraySchema } from '@/lib/validation/aiInterview';
 
 /**
  * Goal steps are stored as structured JSON embedded in the existing Goal.description
@@ -126,8 +128,11 @@ function extractStringArray(raw: string): string[] | null {
   if (start === -1 || end === -1 || end <= start) return null;
   try {
     const arr = JSON.parse(raw.slice(start, end + 1));
-    if (!Array.isArray(arr)) return null;
-    return arr.map((x) => String(x).trim()).filter(Boolean);
+    const validated = goalStepsArraySchema.safeParse(arr);
+    if (validated.success) {
+      return validated.data;
+    }
+    return null;
   } catch {
     return null;
   }

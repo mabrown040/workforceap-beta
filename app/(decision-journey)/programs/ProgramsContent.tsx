@@ -13,6 +13,7 @@ import type { Program, LanguageSupport, LanguageSupportLevel } from '@/lib/conte
 import { getProgramExtra } from '@/lib/content/programExtras';
 import { salaryRangeDisplay } from '@/lib/content/programSalaryOutcomes';
 import { ProgramIcon } from '@/components/ProgramIcon';
+import ProgramStatusBadge from '@/components/ProgramStatusBadge';
 import FundingBadge from '@/components/FundingBadge';
 import { programMatchesSearchQuery } from '@/lib/content/programCatalogSearch';
 import {
@@ -116,6 +117,9 @@ function ProgramCard({ program }: { program: Program }) {
         </div>
         <span style={{ display: 'flex', alignItems: 'center' }}><ProgramIcon program={program} size={28} /></span>
       </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem' }}>
+        <ProgramStatusBadge status={program.status} estimatedOpenMonth={program.estimatedOpenMonth} size="sm" />
+      </div>
       <h3 style={{ fontSize: '1.1rem', marginBottom: '.5rem' }}>{displayTitle}</h3>
       <LanguagePills languages={program.languagesSupported} />
       {extra?.bestFor && (
@@ -193,9 +197,26 @@ function ProgramCard({ program }: { program: Program }) {
           <LocalizedLink href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             View Program
           </LocalizedLink>
-          <LocalizedLink href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
-            Get Started →
-          </LocalizedLink>
+          {program.status === 'open' && (
+            <LocalizedLink href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
+              Get Started →
+            </LocalizedLink>
+          )}
+          {program.status === 'waitlist' && (
+            <LocalizedLink href={`/programs/${program.slug}?waitlist=1`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', border: '1px solid rgba(234, 88, 12, 0.35)' }}>
+              Notify Me →
+            </LocalizedLink>
+          )}
+          {program.status === 'coming_soon' && (
+            <span className="btn btn-ghost" style={{ padding: '.5rem 1rem', fontSize: '.85rem', cursor: 'default', opacity: 0.7 }}>
+              Opening Soon
+            </span>
+          )}
+          {program.status === 'closed' && (
+            <span className="btn btn-ghost" style={{ padding: '.5rem 1rem', fontSize: '.85rem', cursor: 'default', opacity: 0.6 }}>
+              Not Accepting
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -224,14 +245,19 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
 
   const starterPrograms = useMemo(() => STARTER_PROGRAM_SLUGS
     .map((slug) => programs.find((p) => p.slug === slug))
-    .filter((p): p is Program => Boolean(p)), []);
+    .filter((p): p is Program => Boolean(p) && p.status !== 'closed'), []);
 
   const filtered = useMemo(() => {
     const bySubgroup =
       activeSubgroup === 'all'
         ? programs
         : programs.filter((p) => subgroupForProgram(p) === activeSubgroup);
-    return bySubgroup.filter((p) => programMatchesSearchQuery(p, searchQuery));
+    const bySearch = bySubgroup.filter((p) => programMatchesSearchQuery(p, searchQuery));
+    // Hide closed programs from browse by default; show in search with badge.
+    if (searchQuery.trim() === '') {
+      return bySearch.filter((p) => p.status !== 'closed');
+    }
+    return bySearch;
   }, [activeSubgroup, searchQuery]);
 
   const t = useTranslations('marketing.programs');
@@ -301,7 +327,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
             {/* Product stake: keep program groups fully expanded so members can browse visually without understanding dropdowns. */}
             {subgroupOrder.map((sgId) => {
               const meta = PROGRAM_SUBGROUPS.find((s) => s.id === sgId);
-              const inGroup = programs.filter((p) => subgroupForProgram(p) === sgId);
+              const inGroup = programs.filter((p) => subgroupForProgram(p) === sgId && p.status !== 'closed');
               if (!meta || inGroup.length === 0) return null;
               return (
                 <section

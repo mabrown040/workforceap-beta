@@ -3,6 +3,7 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getUser } from '@/lib/auth/server';
+import { createApiErrorResponse, createUnauthorizedResponse } from '@/lib/api-utils';
 
 /**
  * POST /api/ai/export-pdf
@@ -379,7 +380,7 @@ function drawFooter(
 export async function POST(req: NextRequest) {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user) return createUnauthorizedResponse();
 
     const body = await req.json();
     // Body-size cap. `text` is wrapped into PDF and `chartImage` may be a
@@ -388,10 +389,10 @@ export async function POST(req: NextRequest) {
     try {
       const bodyBytes = new TextEncoder().encode(JSON.stringify(body)).byteLength;
       if (bodyBytes > 2 * 1024 * 1024) {
-        return NextResponse.json({ error: 'Input too large' }, { status: 413 });
+        return createApiErrorResponse('Input too large', 'PAYLOAD_TOO_LARGE', 413);
       }
     } catch {
-      return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
+      return createApiErrorResponse('Invalid body', 'VALIDATION_ERROR', 400);
     }
     const { text, title, toolName, chartImage, chartData } = body as {
       text?: string;
@@ -425,7 +426,7 @@ export async function POST(req: NextRequest) {
     })();
 
     if (!text || typeof text !== 'string') {
-      return NextResponse.json({ error: 'text is required' }, { status: 400 });
+      return createApiErrorResponse('text is required', 'VALIDATION_ERROR', 400);
     }
 
     // Rewrite legacy "Ethics" axis rows to "Service" so old stored Skill Mapper
@@ -581,6 +582,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('[ai/export-pdf] error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 }

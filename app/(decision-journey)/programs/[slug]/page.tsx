@@ -14,6 +14,8 @@ import JsonLdBreadcrumb from '@/components/JsonLdBreadcrumb';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import { getRelatedPrograms } from '@/lib/content/relatedPrograms';
 import { ArrowRight } from 'lucide-react';
+import ProgramStatusBadge from '@/components/ProgramStatusBadge';
+import WaitlistSection from '@/components/WaitlistSection';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -90,6 +92,9 @@ export default async function ProgramPage({ params }: Props) {
           >
             {program.categoryLabel}
           </span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <ProgramStatusBadge status={program.status} estimatedOpenMonth={program.estimatedOpenMonth} size="lg" />
+          </div>
           <h1>{displayTitle}</h1>
           <p style={{ marginTop: '0.5rem' }}>
             {program.duration} • Starting range {salaryRangeDisplay(program)} (early-career, national framing)
@@ -309,7 +314,112 @@ export default async function ProgramPage({ params }: Props) {
               </div>
             )}
             
+            {/* ── What You Actually Get ── */}
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                background: 'var(--surface-container-lowest)',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <div style={{ marginBottom: '1rem' }}>
+                <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.4rem' }}>
+                  What you actually get
+                </p>
+                <h2 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-on-surface)' }}>
+                  Concrete outcomes from this program
+                </h2>
+              </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '1rem',
+                }}
+              >
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Training hours</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    {program.duration}. Approximately {program.courses.length > 1 ? 'multiple courses' : 'one course'} totaling {program.courses.reduce((acc, c) => acc + (c.estimatedHours || 0), 0) || 'several'} hours of instruction, practice, and assessment.
+                  </p>
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Certificate</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    An industry-recognized certificate from {partnerBadge}. This is a credential you can list on your resume and LinkedIn profile.
+                  </p>
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Counselor support</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    A dedicated counselor checks in during training, helps with resume and interview prep, and connects you to job opportunities as you approach completion.
+                  </p>
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>Job-search tools</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    Access to the member portal with AI resume review, interview practice, and the job board with employer-posted roles. Tools are free for qualifying members.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── What This Does NOT Guarantee ── */}
+            <div
+              style={{
+                marginBottom: '1.5rem',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                background: 'var(--surface-container-lowest)',
+                border: '1px solid var(--outline-variant)',
+              }}
+            >
+              <div style={{ marginBottom: '1rem' }}>
+                <p className="text-label-upper" style={{ color: 'var(--color-on-surface-variant)', margin: '0 0 0.4rem' }}>
+                  What this does NOT guarantee
+                </p>
+                <h2 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-on-surface)' }}>
+                  Honest expectations
+                </h2>
+              </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '1rem',
+                }}
+              >
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>No guaranteed job</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    We help you prepare and connect with employers, but we do not promise a job. Hiring decisions are made by employers, not WorkforceAP.
+                  </p>
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>No specific salary</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    Starting salary ranges are national estimates. Your actual pay depends on the employer, location, your experience, and the local market when you apply.
+                  </p>
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>No automatic certification</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    You must complete the coursework and pass the assessments. The certificate is earned, not given. We support you, but you do the work.
+                  </p>
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem' }}>No free laptop for everyone</h3>
+                  <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                    Laptop support is available only when funding allows and you meet the program requirements. Most members use their own computer or borrow one from a local library.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Bottom CTA Banner */}
+            {program.status === 'open' && (
             <div className="program-bottom-cta" style={{
               marginTop: '3rem',
               padding: '2rem',
@@ -346,6 +456,104 @@ export default async function ProgramPage({ params }: Props) {
                 </LocalizedLink>
               </div>
             </div>
+            )}
+            {program.status === 'waitlist' && (
+            <div className="program-bottom-cta" style={{
+              marginTop: '3rem',
+              padding: '2rem',
+              background: 'var(--surface-container-low)',
+              borderRadius: '12px',
+              textAlign: 'center',
+            }}>
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: 'var(--color-on-surface)' }}>
+                Want to join {program.categoryLabel}?
+              </h3>
+              <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
+                This program is at capacity. Join the waitlist and we’ll notify you when a spot opens. No application required.
+              </p>
+              <LocalizedLink
+                href={`/programs/${program.slug}?waitlist=1`}
+                className="btn btn-primary btn-large"
+                style={{ display: 'inline-block', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', border: '1px solid rgba(234, 88, 12, 0.35)' }}
+              >
+                Notify Me When Open
+              </LocalizedLink>
+              <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <LocalizedLink
+                  href="/find-your-path"
+                  style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
+                >
+                  Not sure this is right? Take the pathfinder quiz
+                </LocalizedLink>
+                <LocalizedLink
+                  href="/program-comparison"
+                  style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
+                >
+                  Compare programs side-by-side
+                </LocalizedLink>
+              </div>
+            </div>
+            )}
+            {program.status === 'coming_soon' && program.estimatedOpenMonth && (
+            <div className="program-bottom-cta" style={{
+              marginTop: '3rem',
+              padding: '2rem',
+              background: 'var(--surface-container-low)',
+              borderRadius: '12px',
+              textAlign: 'center',
+            }}>
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: 'var(--color-on-surface)' }}>
+                {program.categoryLabel} — Opening {program.estimatedOpenMonth}
+              </h3>
+              <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
+                This program is launching soon. Check back or explore related programs in the meantime.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <LocalizedLink
+                  href="/find-your-path"
+                  style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
+                >
+                  Explore other paths
+                </LocalizedLink>
+                <LocalizedLink
+                  href="/program-comparison"
+                  style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
+                >
+                  Compare programs side-by-side
+                </LocalizedLink>
+              </div>
+            </div>
+            )}
+            {program.status === 'closed' && (
+            <div className="program-bottom-cta" style={{
+              marginTop: '3rem',
+              padding: '2rem',
+              background: 'var(--surface-container-low)',
+              borderRadius: '12px',
+              textAlign: 'center',
+            }}>
+              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: 'var(--color-on-surface)' }}>
+                This program is currently closed
+              </h3>
+              <p style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '500px', margin: '0 auto 1.5rem' }}>
+                Enrollment is not available at this time. Explore similar programs below.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <LocalizedLink
+                  href="/find-your-path"
+                  style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
+                >
+                  Explore other paths
+                </LocalizedLink>
+                <LocalizedLink
+                  href="/program-comparison"
+                  style={{ fontSize: '0.9rem', color: 'var(--color-accent)', textDecoration: 'underline' }}
+                >
+                  Compare programs side-by-side
+                </LocalizedLink>
+              </div>
+            </div>
+            )}
 
             <ProgramRelatedSection programs={relatedPrograms} />
 
@@ -429,10 +637,34 @@ export default async function ProgramPage({ params }: Props) {
                 <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>{program.salary}</span>
               </div>
               <span className="program-sidebar-partner">{partnerBadge}</span>
-              <LocalizedLink href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
-                Apply Now
-              </LocalizedLink>
-              <p className="program-sidebar-note">No-cost training for members.</p>
+              {program.status === 'open' && (
+                <>
+                  <LocalizedLink href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center' }}>
+                    Apply Now
+                  </LocalizedLink>
+                  <p className="program-sidebar-note">No-cost training for members.</p>
+                </>
+              )}
+              {program.status === 'waitlist' && (
+                <>
+                  <LocalizedLink href={`/programs/${program.slug}?waitlist=1`} className="btn btn-primary" style={{ width: '100%', padding: '1rem', marginTop: '1rem', textAlign: 'center', background: 'rgba(234, 88, 12, 0.15)', color: '#ea580c', border: '1px solid rgba(234, 88, 12, 0.35)' }}>
+                    Notify me when open
+                  </LocalizedLink>
+                  <p className="program-sidebar-note">Join the waitlist. No application needed.</p>
+                </>
+              )}
+              {program.status === 'coming_soon' && program.estimatedOpenMonth && (
+                <div style={{ marginTop: '1rem', padding: '1rem', textAlign: 'center', background: 'rgba(43, 123, 185, 0.08)', borderRadius: '8px', border: '1px solid rgba(43, 123, 185, 0.2)' }}>
+                  <p style={{ margin: 0, fontWeight: 700, color: '#2b7bb9' }}>Opening {program.estimatedOpenMonth}</p>
+                  <p style={{ margin: '0.35rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Check back soon or explore related programs.</p>
+                </div>
+              )}
+              {program.status === 'closed' && (
+                <div style={{ marginTop: '1rem', padding: '1rem', textAlign: 'center', background: 'var(--surface-container)', borderRadius: '8px', border: '1px solid var(--outline-variant)' }}>
+                  <p style={{ margin: 0, fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>Not currently accepting</p>
+                  <p style={{ margin: '0.35rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>Browse similar programs below.</p>
+                </div>
+              )}
               <LocalizedLink href="/find-your-path" className="program-sidebar-quiz-link">
                 Not sure? Take the pathfinder quiz →
               </LocalizedLink>

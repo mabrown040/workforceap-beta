@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
-import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { checkAIToolRateLimit, checkAICoachUserRateLimit, checkAICoachIpRateLimit } from '@/lib/rate-limit';
 import { resumeRewriterSchema } from '@/lib/validation/resumeRewriter';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
@@ -14,35 +14,38 @@ import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { prisma } from '@/lib/db/prisma';
 import { analyzeResume } from '@/lib/ai/resumeScore';
 
+import { getClientIp } from '@/lib/api-utils';
+import { createApiErrorResponse, createRateLimitResponse, createServiceUnavailableResponse, createUnauthorizedResponse } from '@/lib/api-utils';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return createUnauthorizedResponse();
     }
   
     if (!isAIConfigured()) {
-      return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
+      return createServiceUnavailableResponse();
     }
   
     const { success } = await checkAIToolRateLimit(user.id);
+    const ip = getClientIp(request);
+    const userLimit = await checkAICoachUserRateLimit(user.id);
+    const ipLimit = await checkAICoachIpRateLimit(ip);
+    if (!userLimit.success || !ipLimit.success) return createRateLimitResponse();
     if (!success) {
-      return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
+      return createRateLimitResponse();
     }
   
     let body: unknown;
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+      return createApiErrorResponse('Invalid JSON', 'VALIDATION_ERROR', 400);
     }
   
     const parsed = resumeRewriterSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.errors[0]?.message ?? 'Validation failed' },
-        { status: 400 }
-      );
+      return createApiErrorResponse(parsed.error.errors[0]?.message ?? 'Validation failed', 'VALIDATION_ERROR', 400);
     }
   
     const { resume, jobTarget, targetSalary, targetLocation, language, subjectMemberId, sessionId, resumeFramework } =
@@ -209,7 +212,7 @@ ${evidenceBlock}
         return NextResponse.json({ error: 'Our AI tools are busy right now. Please try again in a minute.' }, { status: 429 });
       }
       if (message.includes('401') || message.includes('invalid') || message.includes('api_key')) {
-        return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
+        return createServiceUnavailableResponse();
       }
       return NextResponse.json(
         { error: 'We could not rewrite your resume just now. Please try again in a moment.' },
@@ -218,6 +221,6 @@ ${evidenceBlock}
     }
   } catch (error) {
     console.error('/ai/resume-rewriter:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 });

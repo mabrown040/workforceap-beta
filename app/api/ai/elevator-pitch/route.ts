@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
-import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { checkAIToolRateLimit, checkAICoachUserRateLimit, checkAICoachIpRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
@@ -11,26 +11,34 @@ import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { getClientIp } from '@/lib/api-utils';
+import { createApiErrorResponse, createRateLimitResponse, createServiceUnavailableResponse, createUnauthorizedResponse } from '@/lib/api-utils';
 
 import {
   getVoiceCoachTranscriptRecipients,
   sendElevatorSpeechEmail,
   sendVoiceCoachArtifactEmail,
-} from '@/lib/email';export const POST = withApiGuc(async (request: Request) => {
+} from '@/lib/email';
+
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user) return createUnauthorizedResponse();
   
     if (!isAIConfigured()) {
-      return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
+      return createServiceUnavailableResponse();
     }
   
     const { success } = await checkAIToolRateLimit(user.id);
-    if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
+    const ip = getClientIp(request);
+    const userLimit = await checkAICoachUserRateLimit(user.id);
+    const ipLimit = await checkAICoachIpRateLimit(ip);
+    if (!userLimit.success || !ipLimit.success) return createRateLimitResponse();
+    if (!success) return createRateLimitResponse();
   
     let body: Record<string, string>;
     try { body = await request.json() as Record<string, string>; }
-    catch { return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }); }
+    catch { return createApiErrorResponse('Invalid JSON', 'VALIDATION_ERROR', 400); }
 
     // Body-size cap. The Record<string,string> shape has no field-level
     // schema, so user could submit megabytes of free text that all flow
@@ -187,6 +195,6 @@ import {
     }
   } catch (error) {
     console.error('/ai/elevator-pitch:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 });

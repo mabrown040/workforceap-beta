@@ -7,7 +7,7 @@ import { getProfileCompleteness, getProfileMissingFields } from '@/lib/resume/pr
 import { buildNextBestActions, type NextBestAction, type NextBestActionsContext } from './nextBestActions';
 import { getMemberEngagementSignals, type MemberEngagementSignals } from './memberEngagementSignals';
 import { getMemberResumePlainText } from './getMemberResumePlainText';
-import type { CareerMatchResult } from '@/lib/onet/types';
+import { careerMatchResultNullableSchema } from '@/lib/validation/careerMatchResult';
 import type { LearnerProgressByContent } from '@/lib/coursera/learnerProgress';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -260,7 +260,7 @@ async function _getMemberStateUncached(
     assessmentCompleted: user.assessmentCompleted,
   });
 
-  const careerRecommendation = user.careerRecommendationJson as CareerMatchResult | null;
+  const careerRecommendation = careerMatchResultNullableSchema.safeParse(user.careerRecommendationJson).data ?? null;
   const inferredTargetRole = inferTargetRole(
     careerRecommendation,
     user.programInterest,

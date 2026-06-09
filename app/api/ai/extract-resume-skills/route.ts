@@ -4,8 +4,9 @@ import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
-import { checkAIToolRateLimit } from '@/lib/rate-limit';
-
+import { checkAIToolRateLimit, checkAICoachUserRateLimit, checkAICoachIpRateLimit } from '@/lib/rate-limit';
+import { getClientIp } from '@/lib/api-utils';
+import { createApiErrorResponse, createRateLimitResponse, createServiceUnavailableResponse, createUnauthorizedResponse } from '@/lib/api-utils';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -56,21 +57,26 @@ Output format (JSON only):
 }`;export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAIConfigured()) return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
+    if (!user) return createUnauthorizedResponse();
+    if (!isAIConfigured()) return createServiceUnavailableResponse();
   
     const { success } = await checkAIToolRateLimit(user.id);
-    if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
+    const ip = getClientIp(request);
+    const userLimit = await checkAICoachUserRateLimit(user.id);
+    const ipLimit = await checkAICoachIpRateLimit(ip);
+    if (!userLimit.success || !ipLimit.success) return createRateLimitResponse();
+    if (!success) return createRateLimitResponse();
   
   
     try {
       // Get resume text
       const resumeText = await getMemberResumePlainText(user.id, 6000);
       if (!resumeText || resumeText.length < 50) {
-        return NextResponse.json({
-          error: 'No resume found. Upload a resume first to extract skills.',
-          axes: RADAR_AXES.map((axis) => ({ axis, score: 0, evidence: [] })),
-        }, { status: 400 });
+        return createApiErrorResponse(
+          'No resume found. Upload a resume first to extract skills.',
+          'VALIDATION_ERROR',
+          400,
+        );
       }
   
       const output = await chatCompletion(
@@ -82,7 +88,7 @@ Output format (JSON only):
       );
   
       if (!output) {
-        return NextResponse.json({ error: 'AI extraction failed' }, { status: 500 });
+        return createApiErrorResponse('AI extraction failed', 'INTERNAL_ERROR', 500);
       }
   
       // Parse the JSON response — handle potential markdown fences
@@ -101,7 +107,7 @@ Output format (JSON only):
         if (jsonMatch) {
           parsed = JSON.parse(jsonMatch[0]);
         } else {
-          return NextResponse.json({ error: 'We could not read the AI response just now. Please try again in a moment.' }, { status: 500 });
+          return createApiErrorResponse('We could not read the AI response just now. Please try again in a moment.', 'INTERNAL_ERROR', 500);
         }
       }
   
@@ -141,10 +147,10 @@ Output format (JSON only):
       });
     } catch (error) {
       console.error('[ai/extract-resume-skills] error:', error);
-      return NextResponse.json({ error: 'Skill extraction failed' }, { status: 500 });
+      return createApiErrorResponse('Skill extraction failed', 'INTERNAL_ERROR', 500);
     }
   } catch (error) {
     console.error('/ai/extract-resume-skills:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 });

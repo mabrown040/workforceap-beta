@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import MotivatingRecapClient, { type MotivatingRecapData } from './MotivatingRecapClient';
+import { motivatingRecapDataSchema } from '@/lib/validation/weeklyRecap';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -50,7 +51,8 @@ export default async function WeeklyRecapPage() {
     }
   }
 
-  const recapData = (recap?.recapJson ?? null) as MotivatingRecapData;
+  const parsedRecap = motivatingRecapDataSchema.safeParse(recap?.recapJson);
+  const recapData: MotivatingRecapData = parsedRecap.success ? parsedRecap.data : null;
 
   return (
     <>

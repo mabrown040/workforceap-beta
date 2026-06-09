@@ -1,0 +1,445 @@
+.mobile-funnel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--surface, #ffffff);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+html.dark .mobile-funnel-overlay {
+  background: var(--surface, #1a1a1a);
+}
+
+.mobile-funnel-header {
+  flex-shrink: 0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--outline-variant, #e5e5e5);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface, #ffffff);
+  min-height: 56px;
+}
+
+html.dark .mobile-funnel-header {
+  border-bottom-color: var(--outline-variant, #333);
+  background: var(--surface, #1a1a1a);
+}
+
+.mobile-funnel-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--outline-variant, #e5e5e5);
+  background: transparent;
+  color: var(--color-on-surface, #1a1a1a);
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  padding: 0;
+  transition: background 0.15s ease;
+  touch-action: manipulation;
+}
+
+.mobile-funnel-back-btn:hover {
+  background: var(--surface-container, #f5f5f5);
+}
+
+html.dark .mobile-funnel-back-btn:hover {
+  background: var(--surface-container, #2a2a2a);
+}
+
+.mobile-funnel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-funnel-progress {
+  font-size: 0.75rem;
+  color: var(--color-on-surface-variant, #666);
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.mobile-funnel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-bottom: 140px;
+}
+
+.mobile-funnel-footer {
+  flex-shrink: 0;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--outline-variant, #e5e5e5);
+  background: var(--surface, #ffffff);
+  position: relative;
+  /* Ensure footer stays above keyboard on iOS */
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
+}
+
+html.dark .mobile-funnel-footer {
+  border-top-color: var(--outline-variant, #333);
+  background: var(--surface, #1a1a1a);
+}
+
+/* Progress bar */
+.mobile-funnel-progress-bar-container {
+  padding: 0.5rem 1rem 0;
+  flex-shrink: 0;
+}
+
+.mobile-funnel-progress-bar {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-funnel-progress-segment {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--outline-variant, #e5e5e5);
+  transition: background 0.3s ease;
+}
+
+.mobile-funnel-progress-segment.active {
+  background: var(--color-accent, #ad2c4d);
+}
+
+/* Step 1: Overview */
+.overview-card {
+  background: var(--surface-container-low, #f9f9f9);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid var(--outline-variant, #e5e5e5);
+  margin-bottom: 1rem;
+}
+
+html.dark .overview-card {
+  background: var(--surface-container-low, #222);
+  border-color: var(--outline-variant, #333);
+}
+
+.overview-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+
+.overview-meta {
+  font-size: 0.85rem;
+  color: var(--color-on-surface-variant, #666);
+  margin-bottom: 0.75rem;
+}
+
+.overview-salary {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-accent, #ad2c4d);
+  margin-bottom: 1rem;
+}
+
+.overview-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Step 2: Apply */
+.consent-card {
+  background: var(--surface-container-lowest, #fff);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid var(--outline-variant, #e5e5e5);
+  margin-bottom: 1rem;
+}
+
+html.dark .consent-card {
+  background: var(--surface-container-lowest, #1a1a1a);
+  border-color: var(--outline-variant, #333);
+}
+
+.consent-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.consent-checkbox {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  accent-color: var(--color-accent, #ad2c4d);
+}
+
+.consent-error {
+  color: var(--color-error, #c62828);
+  font-size: 0.85rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.75rem;
+  padding-left: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.consent-hint {
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant, #666);
+  margin-top: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Inline error */
+.inline-error {
+  background: rgba(198, 40, 40, 0.08);
+  border: 1px solid rgba(198, 40, 40, 0.2);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-error, #c62828);
+  line-height: 1.4;
+}
+
+.inline-error-icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* Step 3: Success */
+.success-card {
+  background: rgba(74, 155, 79, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(74, 155, 79, 0.25);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.success-title {
+  font-weight: 700;
+  color: var(--color-accent, #4a9b4f);
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.success-body {
+  margin: 0 0 0.75rem;
+  color: var(--color-on-surface-variant, #666);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.tracked-card {
+  background: var(--surface-container, #f5f5f5);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid var(--outline-variant, #e5e5e5);
+  margin-bottom: 1rem;
+}
+
+html.dark .tracked-card {
+  background: var(--surface-container, #2a2a2a);
+  border-color: var(--outline-variant, #333);
+}
+
+/* Buttons */
+.mobile-funnel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.15s ease;
+  text-decoration: none;
+  line-height: 1.2;
+  touch-action: manipulation;
+  /* Ensure tap targets are at least 48px */
+  min-height: 48px;
+}
+
+.mobile-funnel-btn:active {
+  transform: scale(0.98);
+}
+
+.mobile-funnel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mobile-funnel-btn-primary {
+  background: var(--color-accent, #ad2c4d);
+  color: #ffffff;
+}
+
+.mobile-funnel-btn-primary:hover {
+  background: var(--color-accent-dark, #8c0f37);
+}
+
+.mobile-funnel-btn-secondary {
+  background: transparent;
+  color: var(--color-accent, #ad2c4d);
+  border: 1.5px solid var(--color-accent, #ad2c4d);
+}
+
+.mobile-funnel-btn-ghost {
+  background: transparent;
+  color: var(--color-on-surface-variant, #666);
+  border: none;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  min-height: 44px;
+}
+
+/* Footer hint */
+.footer-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant, #666);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Desktop fallback */
+.desktop-apply-container {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .desktop-apply-container {
+    display: none;
+  }
+}
+
+/* Mobile-only visibility */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mobile-only {
+    display: block;
+  }
+}
+
+/* Guest state */
+.guest-card {
+  text-align: center;
+  padding: 1rem 0.5rem;
+}
+
+.guest-card .mobile-funnel-btn {
+  margin-bottom: 0.75rem;
+}
+
+.guest-text {
+  font-size: 0.85rem;
+  color: var(--color-on-surface-variant, #666);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.guest-link {
+  color: var(--color-accent, #ad2c4d);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.guest-link:hover {
+  text-decoration: underline;
+}
+
+/* Ensure CTA is above fold on 320px viewport */
+@media (max-width: 360px) {
+  .overview-card {
+    padding: 0.75rem;
+  }
+  .overview-title {
+    font-size: 1rem;
+  }
+  .overview-meta {
+    font-size: 0.8rem;
+  }
+  .overview-salary {
+    font-size: 0.9rem;
+  }
+  .mobile-funnel-btn {
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+  }
+  .mobile-funnel-header {
+    padding: 0.5rem 0.75rem;
+  }
+  .mobile-funnel-body {
+    padding: 0.75rem;
+  }
+  .mobile-funnel-footer {
+    padding: 0.5rem 0.75rem;
+  }
+  .consent-card {
+    padding: 0.75rem;
+  }
+  .consent-label {
+    font-size: 0.85rem;
+  }
+  .consent-heading {
+    font-size: 0.95rem;
+  }
+  .success-card {
+    padding: 1rem;
+  }
+  .success-title {
+    font-size: 1rem;
+  }
+  .success-body {
+    font-size: 0.9rem;
+  }
+  .inline-error {
+    font-size: 0.85rem;
+    padding: 0.6rem;
+  }
+}
+
+/* Smooth scroll for the whole funnel */
+.mobile-funnel-overlay * {
+  scroll-behavior: smooth;
+}

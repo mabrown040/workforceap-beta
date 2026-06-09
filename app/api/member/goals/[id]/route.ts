@@ -3,8 +3,23 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
-
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { Prisma } from '@prisma/client';
+
+const goalSelect = Prisma.validator<Prisma.GoalSelect>()({
+  id: true,
+  goalType: true,
+  title: true,
+  description: true,
+  targetMetricType: true,
+  targetMetricValue: true,
+  targetDate: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
+  completedAt: true,
+  userId: true,
+});
 
 const updateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -23,6 +38,7 @@ const updateSchema = z.object({
   const { id } = await params;
   const existing = await prisma.goal.findFirst({
     where: { id, userId: user.id },
+    select: goalSelect,
   });
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -77,6 +93,7 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   const { id } = await params;
   const existing = await prisma.goal.findFirst({
     where: { id, userId: user.id },
+    select: goalSelect,
   });
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -89,4 +106,3 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   }
 }
 export const DELETE = withApiGuc(_DELETE);
-

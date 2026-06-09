@@ -68,6 +68,10 @@ let placementSurveyRateLimiter: Ratelimit | null = null;
 let publicWioaQualificationRateLimiter: Ratelimit | null = null;
 let webhookRateLimiter: Ratelimit | null = null;
 let orgOnboardRateLimiter: Ratelimit | null = null;
+// AI coach endpoints: Sprint 14 — stricter per-user + per-IP limits
+// (10/min per user, 30/min per IP) alongside the existing 25/hr ai-tool bucket.
+let aiCoachUserRateLimiter: Ratelimit | null = null;
+let aiCoachIpRateLimiter: Ratelimit | null = null;
 let courseraIdentityRateLimiter: Ratelimit | null = null;
 // Per-IP limiter for the PUBLIC tokenized eligibility-questionnaire submit
 // (POST /api/q/[token]/submit). The endpoint is reachable with no account —
@@ -238,6 +242,16 @@ if (redisUrl && redisToken) {
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:org-onboard',
   });
+  aiCoachUserRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '1 m'),
+    prefix: 'ratelimit:ai-coach-user',
+  });
+  aiCoachIpRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(30, '1 m'),
+    prefix: 'ratelimit:ai-coach-ip',
+  });
   courseraIdentityRateLimiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
@@ -310,6 +324,24 @@ export async function checkAIToolRateLimit(userId: string): Promise<{ success: b
   if (!aiToolRateLimiter) return { success: true };
   const result = await aiToolRateLimiter.limit(userId);
   return { success: result.success, remaining: result.remaining };
+}
+
+/**
+ * Per-user rate limit for AI coach endpoints (10/min). Fail-open without Redis.
+ */
+export async function checkAICoachUserRateLimit(userId: string): Promise<{ success: boolean }> {
+  if (!aiCoachUserRateLimiter) return { success: true };
+  const result = await aiCoachUserRateLimiter.limit(`ai-coach-user:${userId}`);
+  return { success: result.success };
+}
+
+/**
+ * Per-IP rate limit for AI coach endpoints (30/min). Fail-open without Redis.
+ */
+export async function checkAICoachIpRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!aiCoachIpRateLimiter) return { success: true };
+  const result = await aiCoachIpRateLimiter.limit(`ai-coach-ip:${ip}`);
+  return { success: result.success };
 }
 
 export async function checkContactRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {

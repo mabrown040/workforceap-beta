@@ -2576,3 +2576,17 @@ model TokenizedLink {
   @@index([subjectUserId])
   @@map("tokenized_link")
 }
+
+// --- Program Waitlist (pre-launch notifications) ---
+
+model ProgramWaitlist {
+  id          String   @id @default(uuid())
+  email       String
+  programSlug String   @map("program_slug")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([programSlug])
+  @@index([email])
+  @@index([createdAt])
+  @@map("program_waitlist")
+}

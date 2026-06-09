@@ -9,11 +9,13 @@ import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
 import { trackEvent } from '@/lib/events/track';
-import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { checkAIToolRateLimit, checkAICoachUserRateLimit, checkAICoachIpRateLimit } from '@/lib/rate-limit';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getFallbackDesignScore } from '@/lib/content/courseSkillMap';
+import { getClientIp } from '@/lib/api-utils';
+import { createApiErrorResponse, createRateLimitResponse, createServiceUnavailableResponse, createUnauthorizedResponse } from '@/lib/api-utils';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 import {
@@ -23,7 +25,7 @@ import {
 } from '@/lib/ai/skillMapperDemo';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!user) return createUnauthorizedResponse();
   
     const { searchParams } = new URL(req.url);
     const occupation = searchParams.get('occupation')?.trim() ?? '';
@@ -31,9 +33,11 @@ import {
     const occupationTitle = searchParams.get('title')?.trim() ?? null;
   
     const { success } = await checkAIToolRateLimit(user.id);
-    if (!success) {
-      return NextResponse.json({ error: 'Rate limit exceeded. Try again later.' }, { status: 429 });
-    }
+    const ip = getClientIp(req);
+    const userLimit = await checkAICoachUserRateLimit(user.id);
+    const ipLimit = await checkAICoachIpRateLimit(ip);
+    if (!userLimit.success || !ipLimit.success) return createRateLimitResponse();
+    if (!success) return createRateLimitResponse();
   
     try {
       // If a specific occupation code is provided, return full skill data
@@ -102,12 +106,8 @@ import {
   
         if (!isOnetConfigured()) {
           if (!isDemoOccupationCode(code)) {
-            return NextResponse.json(
-              {
-                error:
-                  'O*NET is not configured. Set ONET_API_KEY to look up this occupation code, or use a demo occupation from search.',
-              },
-              { status: 503 }
+            return createServiceUnavailableResponse(
+              'O*NET is not configured. Set ONET_API_KEY to look up this occupation code, or use a demo occupation from search.'
             );
           }
           const demo = getDemoRadarForCode(code);
@@ -166,10 +166,7 @@ import {
       // Otherwise search by keyword
       if (occupation) {
         if (occupation.length < 2) {
-          return NextResponse.json(
-            { error: 'Enter at least 2 characters to search occupations.' },
-            { status: 400 }
-          );
+          return createApiErrorResponse('Enter at least 2 characters to search occupations.', 'VALIDATION_ERROR', 400);
         }
   
         if (isOnetConfigured()) {
@@ -189,18 +186,15 @@ import {
         return NextResponse.json({ occupations: [] });
       }
   
-      return NextResponse.json(
-        { error: 'Provide either ?occupation=keyword or ?code=XX-XXXX.XX' },
-        { status: 400 }
-      );
+      return createApiErrorResponse('Provide either ?occupation=keyword or ?code=XX-XXXX.XX', 'VALIDATION_ERROR', 400);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'The skill mapper is temporarily unavailable.';
       captureApiError(err, { route: 'GET /api/ai/skill-mapper', extra: { message } });
-      return NextResponse.json({ error: message }, { status: 500 });
+      return createApiErrorResponse(message, 'INTERNAL_ERROR', 500);
     }
   } catch (error) {
     console.error('/ai/skill-mapper:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 });

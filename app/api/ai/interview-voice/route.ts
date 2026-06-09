@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { checkAIToolRateLimit, checkAICoachUserRateLimit, checkAICoachIpRateLimit } from '@/lib/rate-limit';
 import { generateSpeech } from '@/lib/ai/elevenlabs';
+import { getClientIp } from '@/lib/api-utils';
+import { createApiErrorResponse, createRateLimitResponse, createServiceUnavailableResponse, createUnauthorizedResponse } from '@/lib/api-utils';
 
 /**
  * POST /api/ai/interview-voice
@@ -16,32 +18,27 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return createUnauthorizedResponse();
     }
 
     const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    const ip = getClientIp(req);
+    const userLimit = await checkAICoachUserRateLimit(user.id);
+    const ipLimit = await checkAICoachIpRateLimit(ip);
+    if (!userLimit.success || !ipLimit.success) return createRateLimitResponse();
     if (!withinLimit) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded. Please try again later.' },
-        { status: 429 }
-      );
+      return createRateLimitResponse();
     }
 
     const body = await req.json();
     const { text, voiceId } = body as { text: string; voiceId?: string };
 
     if (!text || typeof text !== 'string' || text.length > 2000) {
-      return NextResponse.json(
-        { error: 'Text is required and must be under 2000 characters' },
-        { status: 400 }
-      );
+      return createApiErrorResponse('Text is required and must be under 2000 characters', 'VALIDATION_ERROR', 400);
     }
 
     if (!process.env.ELEVENLABS_API_KEY) {
-      return NextResponse.json(
-        { error: 'ElevenLabs API key not configured' },
-        { status: 503 }
-      );
+      return createServiceUnavailableResponse('ElevenLabs API key not configured');
     }
 
     const audioBuffer = await generateSpeech(text, { voiceId });
@@ -54,9 +51,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error('[interview-voice] Error:', err);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 }

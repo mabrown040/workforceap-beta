@@ -5,7 +5,7 @@ import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { captureApiError } from '@/lib/observability/captureApiError';
-import type { CareerMatchResult } from '@/lib/onet/types';
+import { careerMatchResultNullableSchema } from '@/lib/validation/careerMatchResult';
 import {
   parseGoalDescription,
   encodeGoalDescription,
@@ -13,8 +13,28 @@ import {
   buildSteps,
 } from '@/lib/member/goalSteps';
 
+import { Prisma } from '@prisma/client';
+
+const goalSelect = Prisma.validator<Prisma.GoalSelect>()({
+  id: true,
+  goalType: true,
+  title: true,
+  description: true,
+  targetMetricType: true,
+  targetMetricValue: true,
+  targetDate: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
+  completedAt: true,
+  userId: true,
+});
+
 async function loadOwnedGoal(goalId: string, userId: string) {
-  return prisma.goal.findFirst({ where: { id: goalId, userId } });
+  return prisma.goal.findFirst({
+    where: { id: goalId, userId },
+    select: goalSelect,
+  });
 }
 
 /**
@@ -59,7 +79,7 @@ async function _POST(_request: Request, { params }: { params: Promise<{ id: stri
         where: { id: user.id },
         select: { careerRecommendationJson: true },
       });
-      const rec = (profile?.careerRecommendationJson ?? null) as CareerMatchResult | null;
+      const rec = careerMatchResultNullableSchema.safeParse(profile?.careerRecommendationJson).data ?? null;
       careerTitle = rec?.topOccupations?.[0]?.title ?? null;
     } catch {
       careerTitle = null;

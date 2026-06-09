@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { ensureUserInDb } from '@/lib/auth/ensureUser';
-import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { checkAIToolRateLimit, checkAICoachUserRateLimit, checkAICoachIpRateLimit } from '@/lib/rate-limit';
 import { linkedinAboutSchema } from '@/lib/validation/linkedinAbout';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
@@ -11,28 +11,31 @@ import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 import { prefillLinkedInAbout } from '@/lib/ai/prefillFromMemberState';
 import { getAICoachContext, renderCoachContextForPrompt } from '@/lib/ai/aiCoachContext';
+import { getClientIp } from '@/lib/api-utils';
+import { createApiErrorResponse, createRateLimitResponse, createServiceUnavailableResponse, createUnauthorizedResponse } from '@/lib/api-utils';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!isAIConfigured()) return NextResponse.json({ error: 'This feature is temporarily unavailable. Please try again soon.' }, { status: 503 });
+    if (!user) return createUnauthorizedResponse();
+    if (!isAIConfigured()) return createServiceUnavailableResponse();
   
     const { success } = await checkAIToolRateLimit(user.id);
-    if (!success) return NextResponse.json({ error: 'Rate limit exceeded. Please try again in a few minutes.' }, { status: 429 });
+    const ip = getClientIp(request);
+    const userLimit = await checkAICoachUserRateLimit(user.id);
+    const ipLimit = await checkAICoachIpRateLimit(ip);
+    if (!userLimit.success || !ipLimit.success) return createRateLimitResponse();
+    if (!success) return createRateLimitResponse();
   
     let body: unknown;
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+      return createApiErrorResponse('Invalid JSON', 'VALIDATION_ERROR', 400);
     }
   
     const parsed = linkedinAboutSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.errors[0]?.message ?? 'Validation failed' },
-        { status: 400 }
-      );
+      return createApiErrorResponse(parsed.error.errors[0]?.message ?? 'Validation failed', 'VALIDATION_ERROR', 400);
     }
   
     const { role, bullets, subjectMemberId, sessionId, prefill: shouldPrefill, parentToolResultId } = parsed.data;
@@ -140,6 +143,6 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     }
   } catch (error) {
     console.error('/ai/linkedin-about:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 });

@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { Prisma } from '@prisma/client';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { parseGoalDescription } from '@/lib/member/goalSteps';
@@ -18,6 +19,19 @@ const createSchema = z.object({
   targetMetricType: z.string().max(50).optional(),
   targetMetricValue: z.number().int().min(0).optional(),
   targetDate: z.string().datetime().optional().nullable(),
+});
+
+const goalSelect = Prisma.validator<Prisma.GoalSelect>()({
+  id: true,
+  goalType: true,
+  title: true,
+  description: true,
+  targetMetricType: true,
+  targetMetricValue: true,
+  targetDate: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
 });async function _GET() {
   try {
     const user = await getUser();
@@ -35,6 +49,7 @@ const createSchema = z.object({
         where: { userId: user.id },
         orderBy: { createdAt: 'desc' },
         take: 200,
+        select: goalSelect,
       });
       // Decode the structured steps envelope from description so the client
       // gets first-class steps + a clean note (no schema change required).

@@ -4,6 +4,7 @@ import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
+import { interviewResponseSchema } from '@/lib/validation/aiInterview';
 
 const MAX_QUESTIONS = 5;
 
@@ -93,7 +94,17 @@ Return ONLY a JSON object with these exact keys:
     };
     try {
       const jsonStr = raw.match(/\{[\s\S]*\}/)?.[0] || raw;
-      parsed = JSON.parse(jsonStr);
+      const rawParsed = JSON.parse(jsonStr);
+      const validated = interviewResponseSchema.safeParse(rawParsed);
+      if (validated.success) {
+        parsed = validated.data;
+      } else {
+        parsed = {
+          question: raw.slice(0, 300),
+          type: 'behavioral',
+          category: 'communication',
+        };
+      }
     } catch {
       parsed = {
         question: raw.slice(0, 300),

@@ -2,17 +2,36 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getWeekBounds, generateWeeklyRecap } from '@/lib/recap/generate';
+import { Prisma } from '@prisma/client';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { createApiErrorResponse, createUnauthorizedResponse } from '@/lib/api-utils';
+import { withIdempotency } from '@/lib/api-utils';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+const weeklyRecapSelect = Prisma.validator<Prisma.WeeklyRecapSelect>()({
+  id: true,
+  userId: true,
+  weekStartDate: true,
+  weekEndDate: true,
+  recapJson: true,
+  goalsSnapshotJson: true,
+  readinessScoreSnapshot: true,
+  openedAt: true,
+  generatedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+async function _GET() {
   try {
   const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user) return createUnauthorizedResponse();
 
   try {
     const { start } = getWeekBounds(new Date());
 
     let recap = await prisma.weeklyRecap.findUnique({
       where: { userId_weekStartDate: { userId: user.id, weekStartDate: start } },
+      select: weeklyRecapSelect,
     });
 
     if (!recap) {
@@ -21,31 +40,32 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
 
     return NextResponse.json({ recap });
   } catch {
-    return NextResponse.json({ error: 'Failed to load weekly recap' }, { status: 500 });
+    return createApiErrorResponse('Failed to load weekly recap', 'INTERNAL_ERROR', 500);
   }
 
   } catch (error) {
     console.error('/member/weekly-recap error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 }
-export const GET = withApiGuc(_GET);async function _POST() {
+export const GET = withApiGuc(_GET);
+
+async function _POST() {
   try {
   const user = await getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!user) return createUnauthorizedResponse();
 
   try {
     const { start, end } = getWeekBounds(new Date());
     const recap = await generateWeeklyRecap(user.id, start, end);
     return NextResponse.json({ recap });
   } catch {
-    return NextResponse.json({ error: 'Failed to generate weekly recap' }, { status: 500 });
+    return createApiErrorResponse('Failed to generate weekly recap', 'INTERNAL_ERROR', 500);
   }
 
   } catch (error) {
     console.error('/member/weekly-recap error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return createApiErrorResponse('Internal server error', 'INTERNAL_ERROR', 500);
   }
 }
-export const POST = withApiGuc(_POST);
-
+export const POST = withApiGuc(withIdempotency(_POST));

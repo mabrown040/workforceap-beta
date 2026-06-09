@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
+import { interviewResultsResponseSchema } from '@/lib/validation/aiInterview';
 
 const CATEGORIES = ['communication', 'leadership', 'problem_solving', 'teamwork', 'adaptability'] as const;
 
@@ -63,7 +64,6 @@ Return ONLY a JSON object with these exact keys:
     };
 
     if (!raw) {
-      // Fallback when AI is unavailable
       parsed = {
         overallScore: 70,
         categories: CATEGORIES.map((name) => ({
@@ -78,7 +78,23 @@ Return ONLY a JSON object with these exact keys:
     } else {
       try {
         const jsonStr = raw.match(/\{[\s\S]*\}/)?.[0] || raw;
-        parsed = JSON.parse(jsonStr);
+        const rawParsed = JSON.parse(jsonStr);
+        const validated = interviewResultsResponseSchema.safeParse(rawParsed);
+        if (validated.success) {
+          parsed = validated.data;
+        } else {
+          parsed = {
+            overallScore: 70,
+            categories: CATEGORIES.map((name) => ({
+              name,
+              score: 70,
+              feedback: `Keep practicing ${name.replace('_', ' ')} questions to build confidence.`,
+            })),
+            strengths: ['You completed the full interview.'],
+            improvements: ['Use the STAR method for behavioral questions.', 'Provide specific examples.', 'Keep answers concise and focused.'],
+            summary: 'You completed the mock interview. Keep practicing to improve your responses.',
+          };
+        }
       } catch {
         parsed = {
           overallScore: 70,

@@ -340,8 +340,9 @@ export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [];
  * Every existing route/href is preserved — this is a reorder + relabel only.
  */
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  // ── Overview — the home / "who needs you today" ──
-  { href: '/admin', label: 'Overview', group: 'primary', Icon: BarChart3 },
+  // ── Today screen — the home / "who needs you today" ──
+  { href: '/admin', label: 'Today', group: 'primary', Icon: Home },
+  { href: '/admin/overview', label: 'Detailed overview', group: 'primary', Icon: BarChart3 },
 
   // ── Students — the people you manage day to day ──
   { href: '/admin/members', label: 'Students', group: 'students', Icon: Users },
@@ -391,22 +392,25 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/blog', label: 'Blog', group: 'content', Icon: FileText },
   { href: '/admin/invites', label: 'Invites', group: 'content', Icon: MessageSquare },
 
-  // ── Advanced / System — technical tooling, tucked out of the way ──
-  { href: '/admin/sessions', label: 'In-office sessions', group: 'advanced', Icon: Sparkles },
-  { href: '/admin/users', label: 'Users', group: 'advanced', Icon: User },
-  { href: '/admin/exports', label: 'Exports', group: 'advanced', Icon: Download },
-  { href: '/admin/coursera', label: 'Coursera', group: 'advanced', Icon: Library },
-  { href: '/admin/metrics', label: 'Metrics', group: 'advanced', Icon: LineChart },
-  { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'advanced', Icon: BarChart3 },
-  { href: '/admin/ai-tools', label: 'AI tools', group: 'advanced', Icon: Sparkles },
-  { href: '/admin/analytics/ai-efficacy', label: 'AI Efficacy', group: 'advanced', Icon: Target },
-  { href: '/admin/diagnostics', label: 'Diagnostics', group: 'advanced', Icon: Activity },
-  { href: '/admin/crons', label: 'Cron Monitor', group: 'advanced', Icon: Timer },
-  { href: '/admin/health', label: 'System Health', group: 'advanced', Icon: HeartPulse },
+  // ── Advanced / System — technical tooling, super-admin only ──
+  // In-office sessions is operator-facing (counselor flow) but we keep it
+  // out of the dad-default nav for now; it's still reachable directly from
+  // /admin (sessions card) and from the detailed overview.
+  { href: '/admin/sessions', label: 'In-office sessions', group: 'advanced', Icon: Sparkles, requiresSuperAdminContext: true },
+  { href: '/admin/users', label: 'Users', group: 'advanced', Icon: User, requiresSuperAdminContext: true },
+  { href: '/admin/exports', label: 'Exports', group: 'advanced', Icon: Download, requiresSuperAdminContext: true },
+  { href: '/admin/coursera', label: 'Coursera', group: 'advanced', Icon: Library, requiresSuperAdminContext: true },
+  { href: '/admin/metrics', label: 'Metrics', group: 'advanced', Icon: LineChart, requiresSuperAdminContext: true },
+  { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'advanced', Icon: BarChart3, requiresSuperAdminContext: true },
+  { href: '/admin/ai-tools', label: 'AI tools', group: 'advanced', Icon: Sparkles, requiresSuperAdminContext: true },
+  { href: '/admin/analytics/ai-efficacy', label: 'AI Efficacy', group: 'advanced', Icon: Target, requiresSuperAdminContext: true },
+  { href: '/admin/diagnostics', label: 'Diagnostics', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
+  { href: '/admin/crons', label: 'Cron Monitor', group: 'advanced', Icon: Timer, requiresSuperAdminContext: true },
+  { href: '/admin/health', label: 'System Health', group: 'advanced', Icon: HeartPulse, requiresSuperAdminContext: true },
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/webhook-events', label: 'Webhook events', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
-  { href: '/admin/email-crons', label: 'Email & Crons', group: 'advanced', Icon: MessageSquare },
-  { href: '/admin/settings', label: 'Settings', group: 'advanced', Icon: Settings },
+  { href: '/admin/email-crons', label: 'Email & Crons', group: 'advanced', Icon: MessageSquare, requiresSuperAdminContext: true },
+  { href: '/admin/settings', label: 'Settings', group: 'advanced', Icon: Settings, requiresSuperAdminContext: true },
 ];
 
 export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [

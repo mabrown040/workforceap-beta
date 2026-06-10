@@ -11,6 +11,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
+import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -30,9 +31,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
  * Behavior:
  *   1. Verify the email is in the Coursera roster (so we never accidentally
  *      create a WAP account for someone who hasn't actually joined Coursera).
- *   2. Create the Supabase auth user (email_confirm=true, no password — the
- *      member sets one via the password-reset / first-login flow). Handle
- *      the duplicate-email collision gracefully.
+ *   2. Create the Supabase auth user via inviteUserByEmail (sends the
+ *      set-password invite email), falling back to createUser + a
+ *      password-reset email. Handle the duplicate-email collision
+ *      gracefully.
  *   3. In a Prisma `$transaction`:
  *        - create the `User` row in the actor's org
  *        - if `programSlug` was supplied, create the `CourseEnrollment` too
@@ -136,38 +138,75 @@ const bodySchema = z.object({
     const externalIdToUse =
       (courseraMatch.externalId ?? courseraMatch.id ?? courseraExternalId) || courseraExternalId;
   
-    // Step 2: create (or detect existing) Supabase auth user.
+    // Step 2: create (or detect existing) Supabase auth user. Invite first —
+    // it sends the set-password email so the learner can actually log in.
+    // Fall back to createUser + password-reset email (same pattern as
+    // /api/admin/members/create).
     let supabaseUserId: string;
     let createdSupabaseUser = false;
     try {
       const supabase = getSupabaseAdmin();
-      const { data, error } = await supabase.auth.admin.createUser({
-        email,
-        email_confirm: true,
-        user_metadata: { full_name: fullName, source: 'coursera-reconcile' },
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+
+      const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+        redirectTo: `${siteUrl}/dashboard`,
+        data: { full_name: fullName, source: 'coursera-reconcile' },
       });
-  
-      if (error) {
-        const msg = error.message?.toLowerCase() ?? '';
-        if (msg.includes('already') || msg.includes('registered') || msg.includes('exists')) {
-          // Surface as a 400 with a clear message so the UI can move on.
-          return NextResponse.json(
-            {
-              error:
-                'A Supabase auth user with this email already exists. Use the existing account or contact support.',
-            },
-            { status: 400 },
-          );
+
+      if (!inviteError && inviteData.user) {
+        supabaseUserId = inviteData.user.id;
+        createdSupabaseUser = true;
+      } else if (
+        inviteError?.message?.toLowerCase().includes('already') ||
+        inviteError?.message?.toLowerCase().includes('registered') ||
+        inviteError?.message?.toLowerCase().includes('exists') ||
+        inviteError?.code === 'user_already_exists'
+      ) {
+        // Surface as a 400 with a clear message so the UI can move on.
+        return NextResponse.json(
+          {
+            error:
+              'A Supabase auth user with this email already exists. Use the existing account or contact support.',
+          },
+          { status: 400 },
+        );
+      } else {
+        const { data, error } = await supabase.auth.admin.createUser({
+          email,
+          email_confirm: true,
+          user_metadata: { full_name: fullName, source: 'coursera-reconcile' },
+        });
+
+        if (error) {
+          const msg = error.message?.toLowerCase() ?? '';
+          if (msg.includes('already') || msg.includes('registered') || msg.includes('exists')) {
+            return NextResponse.json(
+              {
+                error:
+                  'A Supabase auth user with this email already exists. Use the existing account or contact support.',
+              },
+              { status: 400 },
+            );
+          }
+          captureApiError(error, { route: 'admin/coursera/reconcile/add-to-wap' });
+          return NextResponse.json({ error: error.message }, { status: 400 });
         }
-        captureApiError(error, { route: 'admin/coursera/reconcile/add-to-wap' });
-        return NextResponse.json({ error: error.message }, { status: 400 });
+
+        if (!data.user) {
+          return NextResponse.json({ error: 'Supabase auth user creation returned no user' }, { status: 500 });
+        }
+        supabaseUserId = data.user.id;
+        createdSupabaseUser = true;
+
+        // Invite email didn't go out on this path — send a set-password link
+        // so the account isn't created silently with no way to log in.
+        await sendPasswordResetEmail(email, '/reset-password', { orgId: actorOrgId }).catch((err) => {
+          captureApiError(err, {
+            route: 'admin/coursera/reconcile/add-to-wap',
+            extra: { stage: 'set-password-email', email },
+          });
+        });
       }
-  
-      if (!data.user) {
-        return NextResponse.json({ error: 'Supabase auth user creation returned no user' }, { status: 500 });
-      }
-      supabaseUserId = data.user.id;
-      createdSupabaseUser = true;
     } catch (err) {
       captureApiError(err, { route: 'admin/coursera/reconcile/add-to-wap' });
       return NextResponse.json(

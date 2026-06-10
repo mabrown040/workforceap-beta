@@ -2513,5 +2513,82 @@
   "applications": {
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
+  },
+  "journeyGuide": {
+    "sectionLabel": "Sua jornada profissional",
+    "pickerTitle": "Onde você está agora?",
+    "pickerSubtitle": "Escolha uma opção — mostraremos as ferramentas certas. Você pode mudar quando quiser.",
+    "yourStageTitle": "Seus melhores próximos passos",
+    "betaTag": "Beta",
+    "stepperLabel": "Etapa da jornada",
+    "minutes": "{count} min",
+    "stages": {
+      "gettingReady": {
+        "label": "Me preparando",
+        "hint": "Desenvolvendo habilidades e melhorando meu currículo",
+        "headline": "Estas ferramentas deixam seu currículo e habilidades prontos para o trabalho."
+      },
+      "applying": {
+        "label": "Me candidatando",
+        "hint": "Enviando candidaturas e cartas de apresentação",
+        "headline": "Duas coisas fazem a maior diferença quando você se candidata."
+      },
+      "interviewing": {
+        "label": "Em entrevistas",
+        "hint": "Tenho entrevistas chegando",
+        "headline": "Pratique agora — a confiança vem com a repetição."
+      },
+      "gotOffer": {
+        "label": "Recebi uma oferta",
+        "hint": "Negociando salário ou começando um emprego",
+        "headline": "Garanta que a oferta funcione para você."
+      }
+    },
+    "tools": {
+      "resumeAnalysis": {
+        "label": "Verifique a pontuação do seu currículo",
+        "hint": "Veja o que o software dos empregadores vê"
+      },
+      "skillMapper": {
+        "label": "Encontre habilidades que os empregadores querem",
+        "hint": "Para o trabalho que você quer"
+      },
+      "resumeRewriter": {
+        "label": "Fortaleça seu currículo",
+        "hint": "Reescreva linhas fracas com IA"
+      },
+      "jobMatchScorer": {
+        "label": "Verifique sua compatibilidade com uma vaga",
+        "hint": "Cole uma vaga — veja seu encaixe e lacunas"
+      },
+      "coverLetter": {
+        "label": "Escreva sua carta de apresentação",
+        "hint": "Adaptada à vaga, com suas palavras"
+      },
+      "gapAnalyzer": {
+        "label": "Veja o que falta para uma vaga",
+        "hint": "E como fechar a lacuna"
+      },
+      "interviewPractice": {
+        "label": "Pratique perguntas de entrevista",
+        "hint": "Perguntas reais para sua função"
+      },
+      "voiceInterview": {
+        "label": "Faça uma entrevista simulada por voz",
+        "hint": "Pratique em voz alta com um coach"
+      },
+      "elevatorPitch": {
+        "label": "Aperfeiçoe sua apresentação de 20 segundos",
+        "hint": "Diga quem você é com confiança"
+      },
+      "salaryNegotiation": {
+        "label": "Pratique pedir um salário melhor",
+        "hint": "Roteiros palavra por palavra que funcionam"
+      },
+      "careerCoach": {
+        "label": "Converse sobre seu próximo passo",
+        "hint": "Seu coach para as primeiras semanas"
+      }
+    }
   }
 }

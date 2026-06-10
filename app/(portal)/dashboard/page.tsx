@@ -1082,7 +1082,7 @@ async function renderMemberDashboard(
               <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
                 {t('earnPointsDescription')}
               </p>
-              <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+              <Link href="/dashboard/ai-tools/resume-studio?view=rewrite" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
                 {t('uploadImproveResume')}
               </Link>
               <Link
@@ -1217,7 +1217,7 @@ async function renderMemberDashboard(
           <div className="portal-quick-grid-2x2">
             {([
               { icon: 'school', label: t('myTrainingMetricLabel'), href: '/dashboard/learning' },
-              { icon: 'upload_file', label: t('uploadResume'), href: '/dashboard/ai-tools/resume-rewriter' },
+              { icon: 'upload_file', label: t('uploadResume'), href: '/dashboard/ai-tools/resume-studio?view=rewrite' },
               { icon: 'forum', label: t('interviewPrep'), href: '/dashboard/ai-tools/interview-practice' },
               { icon: 'auto_awesome', label: t('aiTools'), href: '/dashboard/ai-tools' },
             ] as const).map((action) => (
@@ -1276,7 +1276,7 @@ async function renderMemberDashboard(
               <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
                 {t('tryOneShortTool')}
               </p>
-              <Link href="/dashboard/ai-tools/resume-rewriter" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+              <Link href="/dashboard/ai-tools/resume-studio?view=rewrite" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
                 {t('tryResumeTool')}
               </Link>
             </div>

@@ -2514,6 +2514,27 @@
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
   },
+  "resumeStudio": {
+    "metaTitle": "Estúdio de Currículo",
+    "metaDesc": "Veja a pontuação do seu currículo, corrija os principais problemas com IA ou converse com um coach — tudo em um só lugar, sem custo para membros.",
+    "title": "Estúdio de Currículo",
+    "subtitle": "Primeiro veja a pontuação do seu currículo. Depois corrija os principais problemas com IA ou converse em voz alta com seu coach.",
+    "betaTag": "Beta",
+    "viewsLabel": "Visualizações do Estúdio de Currículo",
+    "tabs": {
+      "score": "Minha pontuação",
+      "rewrite": "Reescrever com IA",
+      "coach": "Conversar sobre isso"
+    },
+    "emptyTitle": "Ainda não tem currículo salvo? Comece aqui.",
+    "emptyStep1": "Envie ou cole seu currículo abaixo.",
+    "emptyStep2": "Veja sua pontuação e o que corrigir primeiro.",
+    "emptyStep3": "Use reescritas com IA ou converse com seu coach.",
+    "nextStepsTitle": "Pronto para deixá-lo mais forte?",
+    "ctaRewrite": "Reescrever com IA",
+    "ctaCoach": "Conversar sobre isso",
+    "rewriteHistoryTitle": "Reescritas recentes de currículo"
+  },
   "journeyGuide": {
     "sectionLabel": "Sua jornada profissional",
     "pickerTitle": "Onde você está agora?",
@@ -2545,6 +2566,10 @@
       }
     },
     "tools": {
+      "resumeStudio": {
+        "label": "Estúdio de Currículo: pontue e melhore seu currículo",
+        "hint": "Veja sua pontuação e melhore com IA"
+      },
       "resumeAnalysis": {
         "label": "Verifique a pontuação do seu currículo",
         "hint": "Veja o que o software dos empregadores vê"

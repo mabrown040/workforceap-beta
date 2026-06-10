@@ -103,7 +103,7 @@ export default function InterviewPrepBundle() {
 
   if (!bundle || bundle.empty) {
     const TOOLS = [
-      { label: 'Resume', href: '/dashboard/ai-tools/resume-rewriter', desc: 'AI-polished version of your resume' },
+      { label: 'Resume', href: '/dashboard/ai-tools/resume-studio?view=rewrite', desc: 'AI-polished version of your resume' },
       { label: 'Cover Letter', href: '/dashboard/ai-tools/cover-letter', desc: 'Tailored letter for any job posting' },
       { label: 'Elevator Pitch', href: '/dashboard/ai-tools/elevator-pitch', desc: '10–20 second intro you can rehearse' },
       { label: 'Interview Practice', href: '/dashboard/ai-tools/interview-practice', desc: 'Mock Q&A with instant feedback' },

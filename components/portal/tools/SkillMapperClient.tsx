@@ -1131,7 +1131,7 @@ export default function SkillMapperClient() {
                     <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>~10 minutes — generates your full radar from O*NET interest data</p>
                   </div>
                 </a>
-                <a href="/dashboard/ai-tools/resume-rewriter" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0.75rem', textDecoration: 'none' }}>
+                <a href="/dashboard/ai-tools/resume-studio?view=rewrite" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem', background: 'var(--surface-container-low)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0.75rem', textDecoration: 'none' }}>
                   <span className="material-symbols-outlined" style={{ color: 'var(--color-blue, #2b7bb9)', fontSize: '1.25rem', flexShrink: 0, fontVariationSettings: "'FILL' 1" }}>description</span>
                   <div>
                     <p style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--color-on-surface)', margin: '0 0 0.2rem' }}>Run the AI Resume Rewriter</p>
@@ -1241,7 +1241,7 @@ export default function SkillMapperClient() {
                     {extractingResume ? 'Re-analyzing…' : 'Reanalyze resume skills'}
                   </button>
                 )}
-                <a href="/dashboard/ai-tools/resume-rewriter" style={{ color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.78rem' }}>Update resume</a>
+                <a href="/dashboard/ai-tools/resume-studio?view=rewrite" style={{ color: 'var(--color-accent)', fontWeight: 700, fontSize: '0.78rem' }}>Update resume</a>
               </div>
             </div>
           )}

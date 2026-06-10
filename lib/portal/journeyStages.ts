@@ -31,9 +31,8 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     key: 'gettingReady',
     icon: 'menu_book',
     tools: [
-      { key: 'resumeAnalysis', href: '/dashboard/ai-tools/resume-analysis', icon: 'fact_check', minutes: 5 },
+      { key: 'resumeStudio', href: '/dashboard/ai-tools/resume-studio', icon: 'fact_check', minutes: 5 },
       { key: 'skillMapper', href: '/dashboard/ai-tools/skill-mapper', icon: 'account_tree', minutes: 5 },
-      { key: 'resumeRewriter', href: '/dashboard/ai-tools/resume-rewriter?prefill=true', icon: 'description', minutes: 10 },
     ],
   },
   {

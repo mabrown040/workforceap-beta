@@ -186,7 +186,7 @@ export function assembleCareerBriefContext(
   const recommendedActions: Array<{ label: string; href: string }> = [];
 
   if (!scoreBreakdown.buildResume.done) {
-    recommendedActions.push({ label: 'Build your resume', href: '/dashboard/ai-tools/resume-rewriter' });
+    recommendedActions.push({ label: 'Build your resume', href: '/dashboard/ai-tools/resume-studio?view=rewrite' });
   }
   if (!scoreBreakdown.practiceInterview.done) {
     recommendedActions.push({ label: 'Practice interview questions', href: '/dashboard/ai-tools/interview-practice' });

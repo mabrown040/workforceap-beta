@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   detectGpc,
   pushConsentToGtag,
@@ -8,7 +9,18 @@ import {
   writeConsent,
 } from '@/lib/consent/state';
 
+/** Authenticated workspaces — staff/member chrome, not a consent surface. */
+const PORTAL_PREFIXES = ['/admin', '/dashboard', '/counselor', '/employer', '/partner', '/group'];
+
+function isPortalPath(pathname: string | null): boolean {
+  if (!pathname) return false;
+  // Strip the locale segment (/en, /es, /fr, /pt) before matching.
+  const path = pathname.replace(/^\/(en|es|fr|pt)(?=\/|$)/, '');
+  return PORTAL_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
+}
+
 export default function CookieConsentBanner() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [hasMobileBottomNav, setHasMobileBottomNav] = useState(false);
@@ -61,6 +73,12 @@ export default function CookieConsentBanner() {
     pushConsentToGtag('declined');
     setVisible(false);
   };
+
+  // Suppress inside authenticated portals: staff/members see the banner on the
+  // public site; repeating it over workspace chrome is noise (and the body
+  // padding it adds breaks portal layouts). Consent still defaults to unset
+  // until they visit a public page.
+  if (isPortalPath(pathname)) return null;
 
   if (!visible) return null;
 

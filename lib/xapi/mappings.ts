@@ -3,6 +3,7 @@ import 'server-only';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { sendCourseraUnmatchedActorAlertEmail } from '@/lib/email';
+import { isLikelyTestAccount } from '@/lib/coursera/testAccountHeuristic';
 
 export type XapiIdentity = {
   email?: string | null;
@@ -184,6 +185,11 @@ async function notifyIfNewUnmatchedActorEmail(args: {
 
   const emailLower = args.actorEmailLower.trim().toLowerCase();
   if (!emailLower) return;
+
+  // Smoke/self/load-test actors (test-smoke@…, force-test-…, self-test@…)
+  // are not real learners; alerting on them buries the actual unmatched
+  // members the admin needs to act on.
+  if (isLikelyTestAccount(emailLower)) return;
 
   const sid = args.statementId?.trim() || null;
   const orgId = args.organizationId?.trim() || null;

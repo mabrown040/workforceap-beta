@@ -7,6 +7,11 @@ const RECOMMENDED_SECTIONS: Array<'summary' | 'certifications'> = ['summary', 'c
 
 function scoreStructure(f: ResumeFeatures): StructuralSubscore {
   const notes: string[] = [];
+  if (f.reflowed) {
+    notes.push(
+      'Your resume text arrived without line breaks (common with PDF copy/paste) — we reconstructed the layout, so formatting scores are approximate. For best results, paste with original line breaks.',
+    );
+  }
   const seen = new Set(f.sections.map((s) => s.normalized));
   let points = 0;
   const max = REQUIRED_SECTIONS.length * 20 + RECOMMENDED_SECTIONS.length * 10;

@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
- * Ensures self-hosted Material Symbols woff2 stays small (bounded transfer budget).
+ * Ensures self-hosted Material Symbols woff2 stays small (bounded transfer budget)
+ * and that the committed glyph subset covers every icon name used in source.
  */
 import fs from 'fs';
 import path from 'path';
+import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,5 +24,15 @@ try {
   }
 } catch {
   console.error(`Missing Material Symbols font: ${FONT_PATH}\nRun: npm run fonts:subset-material-symbols`);
+  process.exit(1);
+}
+
+// Coverage: fail the build if source uses an icon the committed subset lacks
+// (it would render as raw ligature text like FLIGHT_TAKEOFF in production).
+try {
+  execFileSync('node', [path.join(__dirname, 'extract-material-symbol-glyphs.mjs'), '--check'], {
+    stdio: 'inherit',
+  });
+} catch {
   process.exit(1);
 }

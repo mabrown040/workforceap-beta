@@ -133,5 +133,30 @@ for (const top of SCAN_TOP) {
 
 const sorted = [...glyphs].sort();
 const outFile = path.join(__dirname, 'material-symbol-glyphs.txt');
+
+// --check: verify the committed glyph list covers every icon used in source,
+// without rewriting it. Run by verify-material-symbols-font-size.mjs during
+// `npm run build` so a new icon can't ship rendering as raw ligature text
+// (e.g. FLIGHT_TAKEOFF) because the subset font was never regenerated.
+if (process.argv.includes('--check')) {
+  const committed = new Set(
+    fs.existsSync(outFile)
+      ? fs.readFileSync(outFile, 'utf8').split('\n').map((l) => l.trim()).filter(Boolean)
+      : [],
+  );
+  const missing = sorted.filter((name) => !committed.has(name));
+  if (missing.length > 0) {
+    console.error(
+      `Material Symbols subset is stale — ${missing.length} icon(s) used in source ` +
+        `but missing from scripts/material-symbol-glyphs.txt:\n  ${missing.join('\n  ')}\n` +
+        `These will render as raw text (e.g. "${missing[0].toUpperCase()}") in production.\n` +
+        `Fix with: npm run fonts:subset-material-symbols (then commit the txt + woff2).`,
+    );
+    process.exit(1);
+  }
+  console.log(`Material Symbols subset covers all ${sorted.length} icons in source.`);
+  process.exit(0);
+}
+
 fs.writeFileSync(outFile, `${sorted.join('\n')}\n`);
 console.log(`Wrote ${sorted.length} glyph names to ${path.relative(ROOT, outFile)}`);

@@ -150,7 +150,10 @@ export default function ApplyCreateAccountForm() {
       };
       let elig: EligStored | null = null;
       try {
-        const er = sessionStorage.getItem('apply_eligibility');
+        // sessionStorage is per-tab; fall back to the localStorage mirror so
+        // "finish later" resumes in a new tab keep the eligibility answers.
+        const er =
+          sessionStorage.getItem('apply_eligibility') ?? localStorage.getItem('apply_eligibility');
         if (er) elig = JSON.parse(er) as EligStored;
       } catch {
         elig = null;
@@ -395,7 +398,9 @@ export default function ApplyCreateAccountForm() {
       } | null = null;
       if (typeof window !== 'undefined') {
         try {
-          const rawEligibility = sessionStorage.getItem('apply_eligibility');
+          const rawEligibility =
+            sessionStorage.getItem('apply_eligibility') ??
+            localStorage.getItem('apply_eligibility');
           eligibilityPayload = rawEligibility ? JSON.parse(rawEligibility) : null;
         } catch {
           eligibilityPayload = null;
@@ -481,6 +486,11 @@ export default function ApplyCreateAccountForm() {
       sessionStorage.removeItem(APPLY_PROGRAM_SLUG_KEY);
       sessionStorage.removeItem(APPLY_PROGRAM_RANKED_KEY);
       sessionStorage.removeItem('apply_eligibility');
+      try {
+        localStorage.removeItem('apply_eligibility');
+      } catch {
+        /* ignore */
+      }
       sessionStorage.removeItem(APPLY_ACCOUNT_DRAFT_KEY);
       try {
         localStorage.removeItem(APPLY_FLOW_DRAFT_KEY);

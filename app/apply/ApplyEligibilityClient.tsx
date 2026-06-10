@@ -215,26 +215,32 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
       } catch {
         /* ignore */
       }
-      sessionStorage.setItem(
-        APPLY_STORAGE_KEY,
-        JSON.stringify({
-          q1,
-          q2,
-          q3,
-          qualifies,
-          yesCount,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          email: email.trim().toLowerCase(),
-          phone: phone.replace(/\D/g, ''),
-          ageGroup,
-          city: city.trim(),
-          state: stateVal.trim(),
-          zip: zip.trim(),
-          county: county.trim(),
-          primaryBarriers,
-        })
-      );
+      const eligibilityJson = JSON.stringify({
+        q1,
+        q2,
+        q3,
+        qualifies,
+        yesCount,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.replace(/\D/g, ''),
+        ageGroup,
+        city: city.trim(),
+        state: stateVal.trim(),
+        zip: zip.trim(),
+        county: county.trim(),
+        primaryBarriers,
+      });
+      sessionStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
+      // Also mirror to localStorage: sessionStorage is per-tab, so members who
+      // "save and finish later" (or resume in a new tab) lose their eligibility
+      // answers — the application then saves without a screening record.
+      try {
+        localStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
+      } catch {
+        /* storage full / disabled */
+      }
     }
     const resultsPath = programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results';
     router.push(localizeHref(resultsPath, locale));

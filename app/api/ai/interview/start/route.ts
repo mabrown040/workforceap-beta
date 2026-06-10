@@ -4,10 +4,11 @@ import { prisma } from '@/lib/db/prisma';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { randomUUID } from 'crypto';
-
+import { z } from 'zod';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
+import { interviewStartResponseSchema } from '@/lib/validation/aiInterview';
 
 // In-memory session store (replace with Redis/DB for production)
 export const POST = withApiGuc(async (request: Request) => {
@@ -82,7 +83,18 @@ Return ONLY a JSON object with these exact keys:
     };
     try {
       const jsonStr = raw.match(/\{[\s\S]*\}/)?.[0] || raw;
-      parsed = JSON.parse(jsonStr);
+      const rawParsed = JSON.parse(jsonStr);
+      const validated = interviewStartResponseSchema.safeParse(rawParsed);
+      if (validated.success) {
+        parsed = validated.data;
+      } else {
+        parsed = {
+          opening: "Let's get started with your mock interview.",
+          question: raw.slice(0, 300),
+          type: 'behavioral',
+          category: 'communication',
+        };
+      }
     } catch {
       parsed = {
         opening: "Let's get started with your mock interview.",

@@ -8,6 +8,7 @@ import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
+import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
 import { countThreadsWithSlaBreach } from '@/lib/messages/superAdminMessageQueries';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
@@ -117,10 +118,12 @@ export default async function AdminOverviewPage() {
       pendingApplicationsResult,
       pendingPlacementsResult,
     ] = await Promise.allSettled([
-      prisma.user.count({ where: { deletedAt: null } }),
-      prisma.user.count({ where: { assessmentCompleted: true, deletedAt: null } }),
+      prisma.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
+      prisma.user.count({
+        where: { assessmentCompleted: true, deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+      }),
       prisma.user.findMany({
-        where: { deletedAt: null },
+        where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
         orderBy: { createdAt: 'desc' },
         take: 10,
         select: {

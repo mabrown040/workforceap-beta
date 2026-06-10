@@ -21,6 +21,8 @@
  */
 import type { Resend } from 'resend';
 
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
+
 export const UNSUBSCRIBE_ADDRESS =
   process.env.EMAIL_UNSUBSCRIBE_ADDRESS || 'unsubscribe@workforceap.org';
 
@@ -77,24 +79,54 @@ export interface SendBrandedEmailArgs {
   attachments?: Array<{ filename: string; content: string | Buffer }>;
 }
 
+/**
+ * Persist a send failure to workflow diagnostics so /admin/diagnostics shows
+ * email problems instead of them dying in server logs. Fire-and-forget: the
+ * diagnostic write must never change send behavior or throw.
+ */
+function recordEmailFailure(args: SendBrandedEmailArgs, failureReason: string) {
+  void recordWorkflowDiagnostic({
+    workflow: 'email_send',
+    status: 'error',
+    summary: `Email send failed: "${args.subject}"`,
+    provider: 'resend',
+    failureReason,
+    metadata: {
+      to: Array.isArray(args.to) ? args.to : [args.to],
+      subject: args.subject,
+    },
+  });
+}
+
 export async function sendBrandedEmail(
   resend: Resend,
   args: SendBrandedEmailArgs,
 ): Promise<Awaited<ReturnType<Resend['emails']['send']>>> {
   const text = args.text && args.text.trim().length > 0 ? args.text : htmlToPlainText(args.html);
-  return resend.emails.send({
-    from: args.from,
-    to: args.to,
-    subject: args.subject,
-    html: args.html,
-    text,
-    replyTo: args.replyTo,
-    cc: args.cc,
-    bcc: args.bcc,
-    headers: {
-      ...buildDeliverabilityHeaders(),
-      ...args.headers,
-    },
-    ...(args.attachments ? { attachments: args.attachments } : {}),
-  });
+  let result: Awaited<ReturnType<Resend['emails']['send']>>;
+  try {
+    result = await resend.emails.send({
+      from: args.from,
+      to: args.to,
+      subject: args.subject,
+      html: args.html,
+      text,
+      replyTo: args.replyTo,
+      cc: args.cc,
+      bcc: args.bcc,
+      headers: {
+        ...buildDeliverabilityHeaders(),
+        ...args.headers,
+      },
+      ...(args.attachments ? { attachments: args.attachments } : {}),
+    });
+  } catch (err) {
+    recordEmailFailure(args, err instanceof Error ? err.message : 'Send threw');
+    throw err;
+  }
+  // Resend resolves with { data, error } instead of throwing on API errors.
+  if (result.error) {
+    recordEmailFailure(args, result.error.message ?? result.error.name ?? 'Resend API error');
+  }
+  return result;
 }

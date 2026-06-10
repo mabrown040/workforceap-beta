@@ -279,13 +279,10 @@ function AlertLog({ alerts }: { alerts: AlertEntry[] }) {
 export default function AdminHealthPage() {
   const { data, loading, error, refetch } = useHealthData();
 
-  // Build fake 24h sparkline history from current values (seeds for real history later)
-  const makeHistory = (base: number, variance = 0.2, points = 24) => {
-    const arr: number[] = [];
-    for (let i = 0; i < points; i++) {
-      arr.push(Math.max(0, Math.round(base * (1 + (Math.random() - 0.5) * variance))));
-    }
-    return arr;
+  // No historical store yet — render a flat line at the current value rather
+  // than fabricated variance, so the sparkline never implies trends we don't have.
+  const makeHistory = (base: number, _variance = 0.2, points = 24) => {
+    return Array.from({ length: points }, () => Math.max(0, Math.round(base)));
   };
 
   const alerts: AlertEntry[] = useMemo(() => {

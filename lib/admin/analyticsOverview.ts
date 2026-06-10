@@ -99,9 +99,13 @@ export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
       take: 5000,
       select: { id: true, enrolledAt: true },
     }),
-    prisma.placementRecord.count(),
+    prisma.placementRecord.count({
+      where: { user: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } },
+    }),
     // Member-confirmed placements still awaiting counselor verification.
-    prisma.placementRecord.count({ where: { startDateVerified: false } }),
+    prisma.placementRecord.count({
+      where: { startDateVerified: false, user: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } },
+    }),
     prisma.courseEnrollment.groupBy({
       by: ['fundingSource'],
       _count: { _all: true },

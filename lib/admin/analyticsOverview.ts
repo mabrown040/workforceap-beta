@@ -45,12 +45,28 @@ export type AnalyticsProgramRow = {
   count: number;
 };
 
+export type AnalyticsAcquisitionStep = {
+  key: string;
+  label: string;
+  hint: string;
+  count: number;
+  /** Conversion from the previous step, 0–100 (null on the first step or when previous step is 0). */
+  conversionPct: number | null;
+};
+
+export type AnalyticsAcquisition = {
+  windowDays: number;
+  steps: AnalyticsAcquisitionStep[];
+  qualifiedScreenings: number;
+};
+
 export type AnalyticsOverview = {
   funnel: AnalyticsFunnel;
   engagement: AnalyticsEngagement;
   outcomes: AnalyticsOutcomes;
   funding: AnalyticsFundingRow[];
   programs: AnalyticsProgramRow[];
+  acquisition: AnalyticsAcquisition;
 };
 
 const FUNDING_LABELS: Record<FundingSource, string> = {
@@ -81,6 +97,11 @@ export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
     pendingPlacementsResult,
     fundingResult,
     programResult,
+    newAccountsResult,
+    screeningsResult,
+    qualifiedScreeningsResult,
+    applicationsSubmittedResult,
+    applicationsApprovedResult,
   ] = await Promise.allSettled([
     loadTrainingDashboardData(),
     prisma.user.count({ where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE } }),
@@ -109,6 +130,19 @@ export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
     prisma.courseEnrollment.groupBy({
       by: ['programSlug'],
       _count: { _all: true },
+    }),
+    prisma.user.count({
+      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE, createdAt: { gte: thirtyDaysAgo } },
+    }),
+    prisma.applyEligibilityScreening.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+    prisma.applyEligibilityScreening.count({
+      where: { createdAt: { gte: thirtyDaysAgo }, qualifies: true },
+    }),
+    prisma.application.count({
+      where: { createdAt: { gte: thirtyDaysAgo }, submittedAt: { not: null } },
+    }),
+    prisma.application.count({
+      where: { createdAt: { gte: thirtyDaysAgo }, status: 'APPROVED' },
     }),
   ]);
 
@@ -202,5 +236,54 @@ export async function loadAnalyticsOverview(): Promise<AnalyticsOverview> {
     programs.sort((a, b) => b.count - a.count);
   }
 
-  return { funnel, engagement, outcomes, funding, programs };
+  // ── Acquisition funnel (last 30 days, first-party data only) ──
+  const settled = (r: PromiseSettledResult<number>) => (r.status === 'fulfilled' ? r.value : 0);
+  const newAccounts = settled(newAccountsResult);
+  const screenings = settled(screeningsResult);
+  const qualifiedScreenings = settled(qualifiedScreeningsResult);
+  const applicationsSubmitted = settled(applicationsSubmittedResult);
+  const applicationsApproved = settled(applicationsApprovedResult);
+
+  const rawSteps: Array<Omit<AnalyticsAcquisitionStep, 'conversionPct'>> = [
+    {
+      key: 'accounts',
+      label: 'Accounts created',
+      hint: 'New member accounts started in the apply flow.',
+      count: newAccounts,
+    },
+    {
+      key: 'screenings',
+      label: 'Eligibility checks finished',
+      hint: 'Members who answered the 3 eligibility questions.',
+      count: screenings,
+    },
+    {
+      key: 'applications',
+      label: 'Applications submitted',
+      hint: 'Members who picked a program and submitted.',
+      count: applicationsSubmitted,
+    },
+    {
+      key: 'approved',
+      label: 'Applications approved',
+      hint: 'Members approved and ready to enroll.',
+      count: applicationsApproved,
+    },
+  ];
+
+  const steps: AnalyticsAcquisitionStep[] = rawSteps.map((step, i) => {
+    const prev = i > 0 ? rawSteps[i - 1].count : 0;
+    return {
+      ...step,
+      conversionPct: i > 0 && prev > 0 ? Math.round((step.count / prev) * 100) : null,
+    };
+  });
+
+  const acquisition: AnalyticsAcquisition = {
+    windowDays: 30,
+    steps,
+    qualifiedScreenings,
+  };
+
+  return { funnel, engagement, outcomes, funding, programs, acquisition };
 }

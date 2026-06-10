@@ -107,6 +107,8 @@
   },
   "form": {
     "fullName": "Full name",
+    "firstName": "First name",
+    "lastName": "Last name",
     "email": "Email",
     "phone": "Phone",
     "address": "Address",
@@ -146,6 +148,42 @@
     "languageEn": "English"
   },
   "dashboard": {
+    "account": {
+      "metaTitle": "Account settings",
+      "metaDescription": "Manage your account and password.",
+      "title": "Account settings",
+      "subtitle": "Manage your account and security.",
+      "breadcrumbPortal": "Member Portal",
+      "emailHeading": "Email",
+      "emailChangeNote": "To change your email, please contact support.",
+      "passwordHeading": "Password",
+      "passwordBody": "Use the link below to reset your password. You'll receive an email with instructions.",
+      "resetPassword": "Reset password",
+      "backToProfile": "Back to profile"
+    },
+    "privacy": {
+      "title": "Privacy & Data",
+      "subtitle": "Manage your personal data and privacy preferences.",
+      "exportHeading": "Download Your Data",
+      "exportBody": "Get a copy of all your personal data stored on WorkforceAP. This includes your profile, applications, messages, course progress, and more.",
+      "exportButton": "Export My Data",
+      "exportPreparing": "Preparing export…",
+      "exportSuccess": "Your data has been exported. Check your downloads.",
+      "exportError": "Could not export data. Try again.",
+      "consentHeading": "Communication Preferences",
+      "consentLabel": "Program updates and opportunities",
+      "consentDescription": "Receive emails about new programs, workshops, and career opportunities.",
+      "deleteHeading": "Delete Account",
+      "deleteBody": "Permanently delete your account and anonymize your personal data. This action cannot be undone. Your anonymous activity data may be kept for program improvement purposes.",
+      "deleteButton": "Delete My Account",
+      "deleteConfirmPrompt": "Are you sure? This will permanently delete your account.",
+      "deleteConfirmYes": "Yes, Delete",
+      "deleteDeleting": "Deleting…",
+      "deleteCancel": "Cancel",
+      "deleteSuccess": "Account deleted. Signing out…",
+      "deleteError": "Could not delete account. Contact support.",
+      "questionsContact": "Questions? Contact us at"
+    },
     "welcome": "Welcome back",
     "progress": "Your progress",
     "nextStep": "Next step",
@@ -1766,6 +1804,7 @@
       "interestTitle": "No perfect fit but interested?",
       "interestSubtitle": "Introduce yourself — we'll keep you in mind for future roles across counseling, engineering, and operations.",
       "form": {
+        "applyingForLabel": "Applying for:",
         "interestLabel": "What kind of work interests you?",
         "interestSelect": "Select…",
         "interestCounselor": "Counseling / member success",
@@ -1778,7 +1817,15 @@
         "validationSummary": "Please fix the highlighted fields and try again.",
         "submitError": "Something went wrong. Please try again or email careers@workforceap.org.",
         "successTitle": "Thanks — we got your note.",
-        "successBody": "Our team reviews every careers introduction. If there's a fit now or soon, we'll reach out by email."
+        "successBody": "Our team reviews every careers introduction. If there's a fit now or soon, we'll reach out by email.",
+        "errors": {
+          "firstNameRequired": "Enter your first name.",
+          "lastNameRequired": "Enter your last name.",
+          "emailRequired": "Enter your email address.",
+          "emailInvalid": "Enter a valid email address.",
+          "messageRequired": "Tell us a little about yourself.",
+          "messageTooShort": "Add a bit more context so we can evaluate the fit."
+        }
       }
     },
     "outcomes": {

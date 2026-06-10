@@ -385,6 +385,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Outcomes — results and reporting ──
   { href: '/admin/board', label: 'Board outcomes', group: 'outcomes', Icon: TrendingUp },
   { href: '/admin/outcomes', label: 'Placement outcomes', group: 'outcomes', Icon: LineChart },
+  { href: '/admin/placements', label: 'Placements', group: 'outcomes', Icon: Briefcase },
   { href: '/admin/placement-surveys', label: 'Placement surveys', group: 'outcomes', Icon: ClipboardCheck },
   { href: '/admin/analytics', label: 'Analytics', group: 'outcomes', Icon: BarChart3 },
 
@@ -416,6 +417,12 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/webhook-events', label: 'Webhook events', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
   { href: '/admin/email-crons', label: 'Email & Crons', group: 'advanced', Icon: MessageSquare, requiresSuperAdminContext: true },
+  { href: '/admin/email-templates', label: 'Email templates', group: 'advanced', Icon: FileText, requiresSuperAdminContext: true },
+  { href: '/admin/feedback', label: 'Feedback', group: 'advanced', Icon: MessageSquare, requiresSuperAdminContext: true },
+  { href: '/admin/growth', label: 'Growth', group: 'advanced', Icon: TrendingUp, requiresSuperAdminContext: true },
+  { href: '/admin/feature-flags', label: 'Feature flags', group: 'advanced', Icon: Flag, requiresSuperAdminContext: true },
+  { href: '/admin/agent-inbox', label: 'Agent inbox', group: 'advanced', Icon: ListChecks, requiresSuperAdminContext: true },
+  { href: '/admin/data-retention', label: 'Data retention', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/settings', label: 'Settings', group: 'advanced', Icon: Settings, requiresSuperAdminContext: true },
 ];
 

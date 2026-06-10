@@ -249,7 +249,7 @@ export async function prefillJobMatchScorer(userId: string): Promise<JobMatchSco
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function inferExperienceLevel(state: Awaited<ReturnType<typeof getMemberState>>): 'entry' | 'mid' | 'senior' {
-  const { employmentStatus, educationLevel } = state.profile ?? {} as any;
+  const { employmentStatus, educationLevel } = state.profile ?? { employmentStatus: null, educationLevel: null };
 
   // Senior indicators
   if (employmentStatus?.includes('senior') || employmentStatus?.includes('manager') || employmentStatus?.includes('lead')) {

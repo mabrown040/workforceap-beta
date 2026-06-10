@@ -2345,6 +2345,168 @@
       "commsConsent": "I agree to receive program updates and communications via email"
     }
   },
+  "coach": {
+    "meta": {
+      "title": "AI Career Coach",
+      "description": "Chat with your persistent AI career coach. Get help with your job search, resumes, interviews, and career planning — it remembers where you left off."
+    },
+    "page": {
+      "title": "AI Career Coach",
+      "subtitle": "Chat with a coach that remembers your journey — job search, resumes, interviews, and next steps.",
+      "breadcrumb": "AI Career Coach",
+      "voiceCta": "Prefer to talk? Try the voice coach"
+    },
+    "prompts": {
+      "improveResumeLabel": "Improve my resume",
+      "improveResumePrompt": "Help me improve my resume.",
+      "nextStepLabel": "What's my next step?",
+      "nextStepPrompt": "Based on what you know about me, what should my next step be?",
+      "practiceInterviewLabel": "Practice an interview",
+      "practiceInterviewPrompt": "Practice an interview question with me.",
+      "employmentGapLabel": "Talk about an employment gap",
+      "employmentGapPrompt": "How do I talk about my employment gap in an interview?",
+      "findJobsLabel": "Find jobs that fit me",
+      "findJobsPrompt": "Help me find jobs that fit my skills and goals.",
+      "pickUpNextStepLabel": "Pick up my next step",
+      "pickUpNextStepPrompt": "Let's work on my next step: {action}.",
+      "continueTopicLabel": "Continue: {topic}",
+      "continueTopicPrompt": "Let's keep working on {topic}."
+    },
+    "greeting": {
+      "defaultName": "there",
+      "welcomeBack": "Welcome back, {name}",
+      "lastTopicWithAction": "Last time we worked on {topic}. Your next step was: {action}. Want to pick up there, or start something new?",
+      "lastTopicOnly": "Last time we worked on {topic}. Want to pick up there, or start something new?",
+      "returningDefault": "Good to see you again. What would you like to work on today?",
+      "newTitle": "Hi {name}, I'm your career coach",
+      "newBody": "I can help with your job search, resumes, interview prep, and career planning. What are you working toward right now?",
+      "resumePrompt": "Let's pick up where we left off on {topic}."
+    },
+    "error": {
+      "generic": "Something went wrong. Please try again.",
+      "noReply": "I had trouble responding just now. Could you try rephrasing that?",
+      "network": "Network error. Check your connection and try again."
+    },
+    "chat": {
+      "resumeButton": "Pick up where we left off",
+      "empty": "Your conversation will appear here. Ask me anything about your career — I'll remember what we discuss for next time.",
+      "you": "You",
+      "coach": "Coach",
+      "typingAria": "Coach is typing",
+      "conversationAria": "Coaching conversation",
+      "chipsLabel": "Try one of these to get started",
+      "inputLabel": "Message your career coach",
+      "placeholder": "Ask your coach anything…",
+      "sendAria": "Send message",
+      "hint": "Press Enter to send, Shift + Enter for a new line."
+    }
+  },
+  "streaks": {
+    "banner": {
+      "recordMessage": "Your best streak yet — keep it going!",
+      "continueMessage": "Come back tomorrow to keep it going!",
+      "dayCount": "{count}-day streak",
+      "bestRecord": " · Best: {count} days"
+    }
+  },
+  "goals": {
+    "title": "Your goals",
+    "done": "Done",
+    "markCompleteAria": "Mark {title} complete",
+    "progressAria": "{done} of {total} steps complete",
+    "stepsProgress": "{done} of {total} steps · {encouragement}",
+    "encourage": {
+      "noSteps": "Break it into steps and you're halfway there.",
+      "complete": "Every step done. Time to mark this goal complete!",
+      "close": "You're so close — keep the momentum going.",
+      "started": "Great start. One step at a time.",
+      "fresh": "Pick the first step and get moving today."
+    },
+    "generate": {
+      "building": "Building your plan…",
+      "cta": "Break this into steps",
+      "hint": "We'll turn this goal into 3–5 doable next steps."
+    },
+    "empty": {
+      "message": "Set 1–3 goals to stay focused — we'll break each one into clear next steps."
+    },
+    "suggestions": {
+      "label": "Suggested for you",
+      "adding": "Adding…"
+    },
+    "form": {
+      "customPlaceholder": "Or type a custom goal",
+      "adding": "Adding…",
+      "addGoal": "Add goal",
+      "cancel": "Cancel",
+      "addCta": "+ Add a goal"
+    },
+    "footer": "Goals shape your recommendations and weekly recap.",
+    "templates": {
+      "build_resume": "Build my resume",
+      "practice_interviews": "Practice interviews",
+      "apply_to_jobs": "Apply to jobs consistently",
+      "complete_certification": "Complete a certificate",
+      "finish_pathway": "Finish a learning pathway",
+      "linkedin_profile": "Improve my LinkedIn profile",
+      "tech_readiness": "Get ready for tech jobs",
+      "career_pivot": "Transition into a new field"
+    }
+  },
+  "weeklyRecap": {
+    "page": {
+      "title": "Weekly Recap",
+      "subtitle": "Celebrate your wins, see your goal progress, and get a clear plan for the week ahead.",
+      "breadcrumb": "Weekly Recap",
+      "notReady": "Your recap isn't ready yet — check back after your next activity or try refreshing."
+    },
+    "empty": {
+      "title": "No recap generated yet",
+      "message": "No recap generated yet. Come back after you've used the portal this week.",
+      "cta": "Go to Dashboard"
+    },
+    "week": {
+      "label": "Week of",
+      "range": "{start} – {end}"
+    },
+    "readiness": {
+      "label": "Readiness Score",
+      "short": "Readiness"
+    },
+    "stats": {
+      "applications": "Applications",
+      "resources": "Resources",
+      "aiTools": "AI Tools",
+      "pathwaySteps": "Pathway Steps"
+    },
+    "goals": {
+      "title": "Goals",
+      "progressTitle": "Progress toward your goals",
+      "reached": "Goal reached",
+      "stepsDone": "{done} of {total} steps done",
+      "metricProgress": "{current} of {target}",
+      "inProgress": "In progress"
+    },
+    "actions": {
+      "title": "Recommended Actions"
+    },
+    "nav": {
+      "dashboard": "← Dashboard",
+      "careerBrief": "Career Brief →"
+    },
+    "motivating": {
+      "headlineWithWins": "You made real progress this week. Keep it going.",
+      "headlineFresh": "Every week is a fresh start — here's a simple plan to build momentum.",
+      "winsTitle": "Your wins this week",
+      "quietWeek": "A quieter week is completely okay. One small step from the plan below is enough to get rolling again.",
+      "pointsEarned": "You earned {count} momentum point{count, plural, =1 {} other {s}} this week",
+      "pointsTotal": " — {total} total",
+      "planTitle": "Your plan for next week",
+      "planSubtitle": "A few focused steps — pick one and you're moving forward.",
+      "goalStepBadge": "Goal step",
+      "getStarted": "Get started"
+    }
+  },
   "applications": {
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."

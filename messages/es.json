@@ -2307,6 +2307,168 @@
       "commsConsent": "Acepto recibir actualizaciones del programa y comunicaciones por correo electrónico"
     }
   },
+  "coach": {
+    "meta": {
+      "title": "Coach de carrera con IA",
+      "description": "Chatea con tu coach de carrera con IA que recuerda tu progreso. Obtén ayuda con tu búsqueda de empleo, currículos, entrevistas y planificación profesional."
+    },
+    "page": {
+      "title": "Coach de carrera con IA",
+      "subtitle": "Chatea con un coach que recuerda tu camino — búsqueda de empleo, currículos, entrevistas y próximos pasos.",
+      "breadcrumb": "Coach de carrera con IA",
+      "voiceCta": "¿Prefieres hablar? Prueba el coach de voz"
+    },
+    "prompts": {
+      "improveResumeLabel": "Mejorar mi currículo",
+      "improveResumePrompt": "Ayúdame a mejorar mi currículo.",
+      "nextStepLabel": "¿Cuál es mi próximo paso?",
+      "nextStepPrompt": "Según lo que sabes de mí, ¿cuál debería ser mi próximo paso?",
+      "practiceInterviewLabel": "Practicar una entrevista",
+      "practiceInterviewPrompt": "Practica una pregunta de entrevista conmigo.",
+      "employmentGapLabel": "Hablar de un vacío laboral",
+      "employmentGapPrompt": "¿Cómo hablo de mi vacío laboral en una entrevista?",
+      "findJobsLabel": "Encontrar empleos que me encajen",
+      "findJobsPrompt": "Ayúdame a encontrar empleos que se ajusten a mis habilidades y metas.",
+      "pickUpNextStepLabel": "Retomar mi próximo paso",
+      "pickUpNextStepPrompt": "Trabajemos en mi próximo paso: {action}.",
+      "continueTopicLabel": "Continuar: {topic}",
+      "continueTopicPrompt": "Sigamos trabajando en {topic}."
+    },
+    "greeting": {
+      "defaultName": "amigo",
+      "welcomeBack": "Bienvenido de nuevo, {name}",
+      "lastTopicWithAction": "La última vez trabajamos en {topic}. Tu próximo paso era: {action}. ¿Quieres retomar ahí o empezar algo nuevo?",
+      "lastTopicOnly": "La última vez trabajamos en {topic}. ¿Quieres retomar ahí o empezar algo nuevo?",
+      "returningDefault": "Me alegra verte de nuevo. ¿En qué te gustaría trabajar hoy?",
+      "newTitle": "Hola {name}, soy tu coach de carrera",
+      "newBody": "Puedo ayudarte con tu búsqueda de empleo, currículos, preparación para entrevistas y planificación profesional. ¿Qué estás buscando lograr ahora?",
+      "resumePrompt": "Retomemos donde lo dejamos en {topic}."
+    },
+    "error": {
+      "generic": "Algo salió mal. Inténtalo de nuevo.",
+      "noReply": "Tuve problemas para responder. ¿Podrías reformularlo?",
+      "network": "Error de red. Revisa tu conexión e inténtalo de nuevo."
+    },
+    "chat": {
+      "resumeButton": "Retomar donde lo dejamos",
+      "empty": "Tu conversación aparecerá aquí. Pregúntame lo que quieras sobre tu carrera — recordaré lo que hablemos para la próxima vez.",
+      "you": "Tú",
+      "coach": "Coach",
+      "typingAria": "El coach está escribiendo",
+      "conversationAria": "Conversación de coaching",
+      "chipsLabel": "Prueba una de estas opciones para empezar",
+      "inputLabel": "Mensaje a tu coach de carrera",
+      "placeholder": "Pregunta lo que quieras a tu coach…",
+      "sendAria": "Enviar mensaje",
+      "hint": "Pulsa Enter para enviar, Mayús + Enter para una nueva línea."
+    }
+  },
+  "streaks": {
+    "banner": {
+      "recordMessage": "¡Tu mejor racha hasta ahora — sigue así!",
+      "continueMessage": "¡Vuelve mañana para mantenerla!",
+      "dayCount": "Racha de {count} días",
+      "bestRecord": " · Mejor: {count} días"
+    }
+  },
+  "goals": {
+    "title": "Tus metas",
+    "done": "Listo",
+    "markCompleteAria": "Marcar {title} como completada",
+    "progressAria": "{done} de {total} pasos completados",
+    "stepsProgress": "{done} de {total} pasos · {encouragement}",
+    "encourage": {
+      "noSteps": "Divídelo en pasos y ya vas por la mitad.",
+      "complete": "Todos los pasos listos. ¡Marca esta meta como completada!",
+      "close": "Estás muy cerca — mantén el impulso.",
+      "started": "Buen comienzo. Un paso a la vez.",
+      "fresh": "Elige el primer paso y empieza hoy."
+    },
+    "generate": {
+      "building": "Creando tu plan…",
+      "cta": "Dividir en pasos",
+      "hint": "Convertiremos esta meta en 3–5 pasos alcanzables."
+    },
+    "empty": {
+      "message": "Establece 1–3 metas para mantenerte enfocado — dividiremos cada una en pasos claros."
+    },
+    "suggestions": {
+      "label": "Sugeridas para ti",
+      "adding": "Agregando…"
+    },
+    "form": {
+      "customPlaceholder": "O escribe una meta personalizada",
+      "adding": "Agregando…",
+      "addGoal": "Agregar meta",
+      "cancel": "Cancelar",
+      "addCta": "+ Agregar una meta"
+    },
+    "footer": "Las metas dan forma a tus recomendaciones y al resumen semanal.",
+    "templates": {
+      "build_resume": "Crear mi currículo",
+      "practice_interviews": "Practicar entrevistas",
+      "apply_to_jobs": "Postular a empleos con constancia",
+      "complete_certification": "Completar un certificado",
+      "finish_pathway": "Terminar una ruta de aprendizaje",
+      "linkedin_profile": "Mejorar mi perfil de LinkedIn",
+      "tech_readiness": "Prepararme para empleos tecnológicos",
+      "career_pivot": "Transicionar a un nuevo campo"
+    }
+  },
+  "weeklyRecap": {
+    "page": {
+      "title": "Resumen Semanal",
+      "subtitle": "Celebra tus logros, revisa el progreso de tus metas y obtén un plan claro para la semana.",
+      "breadcrumb": "Resumen Semanal",
+      "notReady": "Tu resumen aún no está listo — vuelve después de tu próxima actividad o actualiza la página."
+    },
+    "empty": {
+      "title": "Aún no hay resumen",
+      "message": "Aún no hay resumen. Vuelve después de usar el portal esta semana.",
+      "cta": "Ir al panel"
+    },
+    "week": {
+      "label": "Semana del",
+      "range": "{start} – {end}"
+    },
+    "readiness": {
+      "label": "Puntuación de preparación",
+      "short": "Preparación"
+    },
+    "stats": {
+      "applications": "Solicitudes",
+      "resources": "Recursos",
+      "aiTools": "Herramientas IA",
+      "pathwaySteps": "Pasos de ruta"
+    },
+    "goals": {
+      "title": "Metas",
+      "progressTitle": "Progreso hacia tus metas",
+      "reached": "Meta alcanzada",
+      "stepsDone": "{done} de {total} pasos completados",
+      "metricProgress": "{current} de {target}",
+      "inProgress": "En progreso"
+    },
+    "actions": {
+      "title": "Acciones recomendadas"
+    },
+    "nav": {
+      "dashboard": "← Panel",
+      "careerBrief": "Resumen de carrera →"
+    },
+    "motivating": {
+      "headlineWithWins": "Lograste un progreso real esta semana. ¡Sigue así!",
+      "headlineFresh": "Cada semana es un nuevo comienzo — aquí tienes un plan sencillo para ganar impulso.",
+      "winsTitle": "Tus logros esta semana",
+      "quietWeek": "Una semana más tranquila está bien. Un pequeño paso del plan de abajo es suficiente para retomar.",
+      "pointsEarned": "Ganaste {count} punto{count, plural, =1 {} other {s}} de impulso esta semana",
+      "pointsTotal": " — {total} en total",
+      "planTitle": "Tu plan para la próxima semana",
+      "planSubtitle": "Unos pasos enfocados — elige uno y avanzarás.",
+      "goalStepBadge": "Paso de meta",
+      "getStarted": "Empezar"
+    }
+  },
   "applications": {
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."

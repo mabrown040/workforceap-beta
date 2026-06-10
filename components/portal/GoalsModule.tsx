@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 
 type Step = {
   id: string;
@@ -26,16 +27,16 @@ type Suggestion = {
   reason: string;
 };
 
-const GOAL_TEMPLATES = [
-  { type: 'build_resume', label: 'Build my resume' },
-  { type: 'practice_interviews', label: 'Practice interviews' },
-  { type: 'apply_to_jobs', label: 'Apply to jobs consistently' },
-  { type: 'complete_certification', label: 'Complete a certificate' },
-  { type: 'finish_pathway', label: 'Finish a learning pathway' },
-  { type: 'linkedin_profile', label: 'Improve my LinkedIn profile' },
-  { type: 'tech_readiness', label: 'Get ready for tech jobs' },
-  { type: 'career_pivot', label: 'Transition into a new field' },
-];
+const GOAL_TEMPLATE_TYPES = [
+  'build_resume',
+  'practice_interviews',
+  'apply_to_jobs',
+  'complete_certification',
+  'finish_pathway',
+  'linkedin_profile',
+  'tech_readiness',
+  'career_pivot',
+] as const;
 
 const ACCENT = 'var(--color-accent)';
 const ACCENT_DARK = 'var(--color-accent-dark)';
@@ -49,24 +50,33 @@ function progressFor(goal: Goal): { done: number; total: number; pct: number } {
   return { done, total, pct };
 }
 
-function encourage(pct: number, total: number): string {
-  if (total === 0) return "Break it into steps and you're halfway there.";
-  if (pct === 100) return 'Every step done. Time to mark this goal complete!';
-  if (pct >= 60) return "You're so close — keep the momentum going.";
-  if (pct > 0) return 'Great start. One step at a time.';
-  return 'Pick the first step and get moving today.';
-}
-
 export default function GoalsModule() {
+  const t = useTranslations('goals');
   const [goals, setGoals] = useState<Goal[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState('');
-  const [goalType, setGoalType] = useState('build_resume');
+  const [goalType, setGoalType] = useState<string>('build_resume');
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState<string | null>(null);
   const [addingKey, setAddingKey] = useState<string | null>(null);
+
+  const templateLabel = useCallback(
+    (type: string) => t(`templates.${type}` as 'templates.build_resume'),
+    [t],
+  );
+
+  const encourage = useCallback(
+    (pct: number, total: number): string => {
+      if (total === 0) return t('encourage.noSteps');
+      if (pct === 100) return t('encourage.complete');
+      if (pct >= 60) return t('encourage.close');
+      if (pct > 0) return t('encourage.started');
+      return t('encourage.fresh');
+    },
+    [t],
+  );
 
   const fetchGoals = useCallback(async () => {
     try {
@@ -87,8 +97,7 @@ export default function GoalsModule() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    const finalTitle =
-      (title.trim() || GOAL_TEMPLATES.find((t) => t.type === goalType)?.label) ?? goalType;
+    const finalTitle = title.trim() || templateLabel(goalType);
     setSaving(true);
     try {
       const res = await fetch('/api/member/goals', {
@@ -118,7 +127,6 @@ export default function GoalsModule() {
         const data = await res.json();
         const newId: string | undefined = data?.goal?.id;
         await fetchGoals();
-        // Immediately generate a step plan for the freshly-added goal.
         if (newId) void handleGenerateSteps(newId);
       }
     } finally {
@@ -152,7 +160,6 @@ export default function GoalsModule() {
 
   const handleToggleStep = async (goalId: string, step: Step) => {
     const nextDone = !step.done;
-    // Optimistic update.
     setGoals((prev) =>
       prev.map((g) =>
         g.id === goalId
@@ -166,7 +173,6 @@ export default function GoalsModule() {
       body: JSON.stringify({ stepId: step.id, done: nextDone }),
     });
     if (!res.ok) {
-      // Roll back on failure.
       setGoals((prev) =>
         prev.map((g) =>
           g.id === goalId
@@ -204,7 +210,7 @@ export default function GoalsModule() {
           className="goals-module-title"
           style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: SURFACE }}
         >
-          Your goals
+          {t('title')}
         </h3>
       </div>
 
@@ -231,10 +237,10 @@ export default function GoalsModule() {
                     type="button"
                     className="btn btn-outline btn-sm"
                     onClick={() => handleComplete(goal.id)}
-                    aria-label={`Mark ${goal.title} complete`}
+                    aria-label={t('markCompleteAria', { title: goal.title })}
                     style={{ flexShrink: 0 }}
                   >
-                    Done
+                    {t('done')}
                   </button>
                 </div>
 
@@ -251,7 +257,7 @@ export default function GoalsModule() {
                       aria-valuenow={pct}
                       aria-valuemin={0}
                       aria-valuemax={100}
-                      aria-label={`${done} of ${total} steps complete`}
+                      aria-label={t('progressAria', { done, total })}
                     >
                       <div
                         style={{
@@ -264,7 +270,7 @@ export default function GoalsModule() {
                       />
                     </div>
                     <p style={{ margin: '0.4rem 0 0', fontSize: '0.75rem', fontWeight: 600, color: SURFACE_VAR }}>
-                      {done} of {total} steps · {encourage(pct, total)}
+                      {t('stepsProgress', { done, total, encouragement: encourage(pct, total) })}
                     </p>
                   </div>
                 )}
@@ -307,10 +313,10 @@ export default function GoalsModule() {
                       <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '1rem' }}>
                         auto_awesome
                       </span>
-                      {isGenerating ? 'Building your plan…' : 'Break this into steps'}
+                      {isGenerating ? t('generate.building') : t('generate.cta')}
                     </button>
                     <p style={{ margin: '0.4rem 0 0', fontSize: '0.75rem', color: SURFACE_VAR }}>
-                      We&apos;ll turn this goal into 3–5 doable next steps.
+                      {t('generate.hint')}
                     </p>
                   </div>
                 )}
@@ -320,11 +326,10 @@ export default function GoalsModule() {
         </ul>
       ) : (
         <p style={{ fontSize: '0.875rem', color: SURFACE_VAR, margin: 0 }}>
-          Set 1–3 goals to stay focused — we&apos;ll break each one into clear next steps.
+          {t('empty.message')}
         </p>
       )}
 
-      {/* One-tap suggestions from the member's career recommendation. */}
       {activeGoals.length < 3 && suggestions.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
           <p
@@ -337,7 +342,7 @@ export default function GoalsModule() {
               color: SURFACE_VAR,
             }}
           >
-            Suggested for you
+            {t('suggestions.label')}
           </p>
           {suggestions.slice(0, 3 - activeGoals.length).map((s) => (
             <button
@@ -366,7 +371,7 @@ export default function GoalsModule() {
               </span>
               <span style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
                 <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: SURFACE }}>
-                  {addingKey === s.key ? 'Adding…' : s.title}
+                  {addingKey === s.key ? t('suggestions.adding') : s.title}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: SURFACE_VAR, lineHeight: 1.35 }}>{s.reason}</span>
               </span>
@@ -383,14 +388,13 @@ export default function GoalsModule() {
                 value={goalType}
                 onChange={(e) => {
                   setGoalType(e.target.value);
-                  const t = GOAL_TEMPLATES.find((x) => x.type === e.target.value);
-                  if (t) setTitle(t.label);
+                  setTitle(templateLabel(e.target.value));
                 }}
                 className="form-select"
               >
-                {GOAL_TEMPLATES.map((t) => (
-                  <option key={t.type} value={t.type}>
-                    {t.label}
+                {GOAL_TEMPLATE_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {templateLabel(type)}
                   </option>
                 ))}
               </select>
@@ -398,28 +402,28 @@ export default function GoalsModule() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Or type a custom goal"
+                placeholder={t('form.customPlaceholder')}
                 className="form-input"
               />
               <div className="goals-form-actions" style={{ display: 'flex', gap: '0.5rem' }}>
                 <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
-                  {saving ? 'Adding…' : 'Add goal'}
+                  {saving ? t('form.adding') : t('form.addGoal')}
                 </button>
                 <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowForm(false)}>
-                  Cancel
+                  {t('form.cancel')}
                 </button>
               </div>
             </form>
           ) : (
             <button type="button" className="btn btn-outline btn-sm" onClick={() => setShowForm(true)}>
-              + Add a goal
+              {t('form.addCta')}
             </button>
           )}
         </div>
       )}
 
       <p style={{ fontSize: '0.75rem', color: SURFACE_VAR, margin: 0 }}>
-        Goals shape your recommendations and weekly recap.
+        {t('footer')}
       </p>
     </div>
   );

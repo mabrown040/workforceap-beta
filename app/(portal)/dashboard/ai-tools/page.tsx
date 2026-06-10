@@ -8,6 +8,7 @@ import PortalBreadcrumb from '@/components/portal/PortalBreadcrumb';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import QueryToast from '@/components/portal/QueryToast';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
+import JourneyStageGuide from '@/components/portal/JourneyStageGuide';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -106,6 +107,9 @@ export default async function AIToolsPage() {
           </Link>
         </section>
       </div>
+
+      {/* Journey-first guided layer (beta) — additive; full grid below unchanged */}
+      <JourneyStageGuide />
 
       <section style={{ maxWidth: '1100px', margin: '0 auto 1.25rem', padding: '0 clamp(1rem, 4vw, 1.5rem)' }}>
         <PortalCard className="portal-card--flat">

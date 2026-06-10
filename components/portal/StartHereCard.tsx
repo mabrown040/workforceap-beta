@@ -3,7 +3,7 @@ import { FileText, Mic, BookOpen } from 'lucide-react';
 
 const CTAS = [
   {
-    href: '/dashboard/ai-tools/resume-rewriter',
+    href: '/dashboard/ai-tools/resume-studio?view=rewrite',
     label: 'Build Resume',
     description: 'Use AI to strengthen your resume',
     Icon: FileText,

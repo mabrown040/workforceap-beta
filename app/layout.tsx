@@ -63,6 +63,8 @@ function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMes
     findYourPath: m.findYourPath,
     counselor: m.counselor,
     employer: m.employer,
+    journeyGuide: m.journeyGuide,
+    resumeStudio: m.resumeStudio,
   };
   if (mk && mk.programs !== undefined) {
     out.marketing = { programs: mk.programs };

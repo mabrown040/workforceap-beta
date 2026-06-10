@@ -2510,5 +2510,107 @@
   "applications": {
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
+  },
+  "resumeStudio": {
+    "metaTitle": "Estudio de Currículum",
+    "metaDesc": "Obtén la puntuación de tu currículum, corrige los problemas principales con IA o habla con un coach — todo en un solo lugar, sin costo para miembros.",
+    "title": "Estudio de Currículum",
+    "subtitle": "Primero obtén la puntuación de tu currículum. Luego corrige los problemas principales con IA o habla en voz alta con tu coach.",
+    "betaTag": "Beta",
+    "viewsLabel": "Vistas del Estudio de Currículum",
+    "tabs": {
+      "score": "Mi puntuación",
+      "rewrite": "Reescribir con IA",
+      "coach": "Hablarlo"
+    },
+    "emptyTitle": "¿Aún no tienes currículum guardado? Empieza aquí.",
+    "emptyStep1": "Sube o pega tu currículum abajo.",
+    "emptyStep2": "Obtén tu puntuación y ve qué corregir primero.",
+    "emptyStep3": "Usa reescrituras con IA o habla con tu coach.",
+    "nextStepsTitle": "¿Listo para hacerlo más fuerte?",
+    "ctaRewrite": "Reescribir con IA",
+    "ctaCoach": "Hablarlo",
+    "rewriteHistoryTitle": "Reescrituras recientes de currículum"
+  },
+  "journeyGuide": {
+    "sectionLabel": "Tu camino profesional",
+    "pickerTitle": "¿En qué punto estás ahora?",
+    "pickerSubtitle": "Elige una opción — te mostraremos las herramientas adecuadas. Puedes cambiarla cuando quieras.",
+    "yourStageTitle": "Tus mejores próximos pasos",
+    "betaTag": "Beta",
+    "stepperLabel": "Etapa del camino",
+    "minutes": "{count} min",
+    "stages": {
+      "gettingReady": {
+        "label": "Preparándome",
+        "hint": "Mejorando habilidades y mi currículum",
+        "headline": "Estas herramientas preparan tu currículum y habilidades para el trabajo."
+      },
+      "applying": {
+        "label": "Postulando",
+        "hint": "Enviando solicitudes y cartas de presentación",
+        "headline": "Dos cosas marcan la mayor diferencia cuando postulas."
+      },
+      "interviewing": {
+        "label": "En entrevistas",
+        "hint": "Tengo entrevistas próximamente",
+        "headline": "Practica ahora — la confianza viene con la repetición."
+      },
+      "gotOffer": {
+        "label": "Tengo una oferta",
+        "hint": "Negociando el pago o empezando un trabajo",
+        "headline": "Asegúrate de que la oferta te convenga."
+      }
+    },
+    "tools": {
+      "resumeStudio": {
+        "label": "Estudio de Currículum: puntúa y mejora tu currículum",
+        "hint": "Obtén tu puntuación y mejóralo con IA"
+      },
+      "resumeAnalysis": {
+        "label": "Revisa la puntuación de tu currículum",
+        "hint": "Mira lo que ve el software de los empleadores"
+      },
+      "skillMapper": {
+        "label": "Encuentra habilidades que buscan los empleadores",
+        "hint": "Para el trabajo que quieres"
+      },
+      "resumeRewriter": {
+        "label": "Fortalece tu currículum",
+        "hint": "Reescribe líneas débiles con IA"
+      },
+      "jobMatchScorer": {
+        "label": "Comprueba tu compatibilidad con un empleo",
+        "hint": "Pega un empleo — mira tu ajuste y brechas"
+      },
+      "coverLetter": {
+        "label": "Escribe tu carta de presentación",
+        "hint": "Adaptada al empleo, con tus palabras"
+      },
+      "gapAnalyzer": {
+        "label": "Mira qué te falta para un empleo",
+        "hint": "Y cómo cerrar la brecha"
+      },
+      "interviewPractice": {
+        "label": "Practica preguntas de entrevista",
+        "hint": "Preguntas reales para tu puesto"
+      },
+      "voiceInterview": {
+        "label": "Haz una entrevista de práctica por voz",
+        "hint": "Practica en voz alta con un coach"
+      },
+      "elevatorPitch": {
+        "label": "Pule tu presentación de 20 segundos",
+        "hint": "Di quién eres con confianza"
+      },
+      "salaryNegotiation": {
+        "label": "Practica pedir mejor pago",
+        "hint": "Guiones palabra por palabra que funcionan"
+      },
+      "careerCoach": {
+        "label": "Habla sobre tu próximo paso",
+        "hint": "Tu coach para las primeras semanas"
+      }
+    }
   }
 }

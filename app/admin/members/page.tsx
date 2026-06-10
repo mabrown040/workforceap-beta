@@ -257,8 +257,14 @@ export default async function AdminMembersPage() {
     };
   });
 
-  // Sort by fit score descending by default
-  membersWithProgram.sort((a, b) => b.fitScore - a.fitScore);
+  // Sort by most recently active first by default (dad-safe: surfaces who needs follow-up).
+  // The client table immediately re-sorts via its `sortKey/sortDir` state on the same key,
+  // so this controls the first-paint order and matches the client's initial sort.
+  membersWithProgram.sort((a, b) => {
+    const ta = a.updatedAt instanceof Date ? a.updatedAt.getTime() : new Date(a.updatedAt).getTime();
+    const tb = b.updatedAt instanceof Date ? b.updatedAt.getTime() : new Date(b.updatedAt).getTime();
+    return (Number.isNaN(tb) ? 0 : tb) - (Number.isNaN(ta) ? 0 : ta);
+  });
 
   return (
     <PortalPageFrame>

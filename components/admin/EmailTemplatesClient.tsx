@@ -627,8 +627,9 @@ export default function EmailTemplatesClient({ templates: initialTemplates, admi
               <button
                 className="btn btn-ghost btn-sm"
                 onClick={() => setEditingId(null)}
+                aria-label="Close"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span className="material-symbols-outlined" aria-hidden="true">close</span>
               </button>
             </div>
 

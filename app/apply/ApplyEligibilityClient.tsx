@@ -253,12 +253,18 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         /* Yes/No answer cards: tidy single-row, smaller dot aligned to label */
         .apply-flow--step1 .form-radio-cards { gap: 0.5rem; }
         .apply-flow--step1 .form-radio-card {
+          /* display:flex restated here — in production the base
+             .form-radio-card rule's flex is not applied (cards compute
+             display:block) and the dot collapses to a 4px sliver. */
+          display: flex;
           align-items: center;
           gap: 0.625rem;
           padding: 0.75rem 1rem;
           min-height: 44px;
         }
         .apply-flow--step1 .form-radio-card .radio-dot {
+          display: inline-block;
+          flex-shrink: 0;
           width: 16px;
           height: 16px;
           border-width: 2px;

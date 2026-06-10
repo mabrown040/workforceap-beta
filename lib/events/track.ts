@@ -18,6 +18,7 @@ export type EventName =
   | 'resource_saved'
   | 'resource_completed'
   | 'ai_tool_opened'
+  | 'journey_stage_selected'
   | 'ai_tool_run_started'
   | 'ai_tool_submitted'
   | 'ai_tool_run_completed'

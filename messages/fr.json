@@ -2513,5 +2513,82 @@
   "applications": {
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
+  },
+  "journeyGuide": {
+    "sectionLabel": "Votre parcours professionnel",
+    "pickerTitle": "Où en êtes-vous en ce moment ?",
+    "pickerSubtitle": "Choisissez une option — nous vous montrerons les bons outils. Vous pouvez la changer à tout moment.",
+    "yourStageTitle": "Vos meilleures prochaines étapes",
+    "betaTag": "Bêta",
+    "stepperLabel": "Étape du parcours",
+    "minutes": "{count} min",
+    "stages": {
+      "gettingReady": {
+        "label": "Je me prépare",
+        "hint": "Développer mes compétences, améliorer mon CV",
+        "headline": "Ces outils préparent votre CV et vos compétences pour l'emploi."
+      },
+      "applying": {
+        "label": "Je postule",
+        "hint": "Envoi de candidatures et lettres de motivation",
+        "headline": "Deux choses font la plus grande différence quand vous postulez."
+      },
+      "interviewing": {
+        "label": "En entretien",
+        "hint": "J'ai des entretiens à venir",
+        "headline": "Entraînez-vous maintenant — la confiance vient avec la pratique."
+      },
+      "gotOffer": {
+        "label": "J'ai une offre",
+        "hint": "Négocier le salaire ou commencer un emploi",
+        "headline": "Assurez-vous que l'offre vous convient."
+      }
+    },
+    "tools": {
+      "resumeAnalysis": {
+        "label": "Vérifiez le score de votre CV",
+        "hint": "Voyez ce que voit le logiciel des employeurs"
+      },
+      "skillMapper": {
+        "label": "Trouvez les compétences recherchées",
+        "hint": "Pour l'emploi que vous visez"
+      },
+      "resumeRewriter": {
+        "label": "Renforcez votre CV",
+        "hint": "Réécrivez les lignes faibles avec l'IA"
+      },
+      "jobMatchScorer": {
+        "label": "Vérifiez votre compatibilité avec un emploi",
+        "hint": "Collez une offre — voyez vos forces et écarts"
+      },
+      "coverLetter": {
+        "label": "Rédigez votre lettre de motivation",
+        "hint": "Adaptée à l'emploi, avec vos mots"
+      },
+      "gapAnalyzer": {
+        "label": "Voyez ce qui vous manque pour un emploi",
+        "hint": "Et comment combler l'écart"
+      },
+      "interviewPractice": {
+        "label": "Entraînez-vous aux questions d'entretien",
+        "hint": "De vraies questions pour votre poste"
+      },
+      "voiceInterview": {
+        "label": "Faites un entretien blanc vocal",
+        "hint": "Entraînez-vous à voix haute avec un coach"
+      },
+      "elevatorPitch": {
+        "label": "Peaufinez votre présentation de 20 secondes",
+        "hint": "Dites qui vous êtes avec confiance"
+      },
+      "salaryNegotiation": {
+        "label": "Entraînez-vous à demander un meilleur salaire",
+        "hint": "Des scripts mot à mot qui fonctionnent"
+      },
+      "careerCoach": {
+        "label": "Parlez de votre prochaine étape",
+        "hint": "Votre coach pour les premières semaines"
+      }
+    }
   }
 }

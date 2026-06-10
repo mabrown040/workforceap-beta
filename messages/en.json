@@ -1715,71 +1715,71 @@
       "faqReportsA": "Pull placement, completion, and demographic reports straight from your partner dashboard. Schedule monthly exports to your inbox or your funder's data warehouse."
     },
     "employers": {
-  "title": "Become a Hiring Partner",
-  "description": "Meet training-aligned WorkforceAP members for roles that match their skills. Schedule a 20-minute call to become a WorkforceAP hiring partner.",
-  "heroEyebrow": "Employer hiring partners",
-  "heroHeadline": "Meet role-ready talent",
-  "heroHeadlineAccent": "with no upfront recruiting fee",
-  "heroSubhead": "Meet training-aligned candidates for roles that match their skills, certifications, schedule, and support needs.",
-  "primaryCta": "Become a Hiring Partner — Schedule a 20-min call",
-  "primaryCtaVariantA": "Talk with us about hiring-ready talent",
-  "trustAriaLabel": "Employer outcomes and partners",
-  "trustLogosLabel": "Employers hiring through WorkforceAP",
-  "trustStatPlaced": "hires on file (placement records)",
-  "trustStatWage": "avg starting wage (where recorded)",
-  "trustStatPartners": "partner companies",
-  "trustPlaceholderFit": "Training-aligned candidates",
-  "trustPlaceholderFitTag": "Candidate sourcing",
-  "trustPlaceholderSkills": "Screened for readiness",
-  "trustPlaceholderSkillsTag": "Readiness review",
-  "trustPlaceholderTerms": "No upfront recruiting fee",
-  "trustPlaceholderTermsTag": "Contingent pricing",
-  "trustPlaceholderNote": "Placement metrics update as verified outcomes are confirmed.",
-  "trustImpactLink": "View published impact metrics",
-  "howTitle": "How it works",
-  "howSubtitle": "Three steps from role requirements to qualified candidate introductions.",
-  "howStep1Title": "Tell us your roles",
-  "howStep1Desc": "Share titles, skills, locations, and hiring needs on a 20-minute call or via intake. No job-board fees to get started.",
-  "howStep2Title": "We train + match",
-  "howStep2Desc": "WorkforceAP prepares candidates through structured training, certifications where applicable, and readiness review aligned to your requirements.",
-  "howStep3Title": "You interview & hire",
-  "howStep3Desc": "You run interviews and make offers on your timeline. We support onboarding so hires stick.",
-  "outcomesTitle": "Roles we support",
-  "outcomesSubtitle": "Examples of roles where WorkforceAP can help screen for training fit, readiness, and support needs.",
-  "outcomesScenarioLabel": "Example scenario",
-  "outcomesDisclaimer": "Illustrative role examples only—not verified employer testimonials or placement guarantees. Verified partner stories publish here after consent and review.",
-  "pricingTitle": "Simple, contingent pricing",
-  "pricingLead": "$0 to post jobs. Pay only when you hire (${fee} per placement, contingent).",
-  "pricingPoint1": "No subscription tiers or per-seat job-board fees.",
-  "pricingPoint2": "Placement fee is due only after a candidate you hire starts work.",
-  "pricingPoint3": "Replacement support if a hire does not pass probation — terms in your hiring partner agreement.",
-  "partnerPlanEyebrow": "For repeat hiring teams",
-  "partnerPlanTitle": "Need ongoing support across the same roles?",
-  "partnerPlanCopy": "After we prove fit on contingent terms, we can scope a broader hiring partner plan for employers with recurring openings and steady demand.",
-  "partnerPlanPoint1": "Shared intake for repeat roles, locations, and shift patterns.",
-  "partnerPlanPoint2": "Priority matching for recurring openings where training pathways already fit.",
-  "partnerPlanPoint3": "Quarterly hiring planning by agreement — scoped after initial wins, not before.",
-  "faqTitle": "Employer FAQ",
-  "faq1Q": "How long does onboarding take?",
-  "faq1A": "Most hiring partners complete onboarding in one 20-minute call plus a short intake. Candidate timing depends on role requirements, available training pathways, and member readiness.",
-  "faq2Q": "How are candidates vetted?",
-  "faq2A": "Members complete structured training, industry certifications where applicable, counselor check-ins, and readiness review before we introduce them to your roles.",
-  "faq3Q": "What happens if a hire does not work out?",
-  "faq3A": "If a placed hire does not pass your agreed probation window, we review the role fit and next candidate options with you under the terms in your hiring partner agreement.",
-  "faq4Q": "What are the payment terms?",
-  "faq4A": "There is no cost to post roles. The contingent placement fee is invoiced after your hire starts. No upfront recruiting retainers.",
-  "faq5Q": "Do you require exclusivity?",
-  "faq5A": "No. You can keep using your existing ATS and agencies. We ask for clear role definitions and timely feedback on candidates we send.",
-  "faq6Q": "What geographic areas do you cover?",
-  "faq6A": "We partner with employers nationwide, with strongest density in Texas and remote-friendly roles. Share your locations on the intro call and we will confirm fit.",
-  "finalCtaAriaLabel": "Schedule a hiring partner call",
-  "finalCtaTitle": "Ready to hire training-aligned talent?",
-  "finalCtaCopy": "Book a 20-minute call. We will confirm role fit, timeline, and contingent pricing — no recruiting fees upfront.",
-  "intakeAriaLabel": "Employer intake form",
-  "intakeTitle": "Prefer email over scheduling?",
-  "intakeCopy": "Submit intake details and we will follow up within 1–2 business days. This form is not a second checkout — use the button above to book a call first."
-}
-    ,"careers": {
+      "title": "Become a Hiring Partner",
+      "description": "Meet training-aligned WorkforceAP members for roles that match their skills. Schedule a 20-minute call to become a WorkforceAP hiring partner.",
+      "heroEyebrow": "Employer hiring partners",
+      "heroHeadline": "Meet role-ready talent",
+      "heroHeadlineAccent": "with no upfront recruiting fee",
+      "heroSubhead": "Meet training-aligned candidates for roles that match their skills, certifications, schedule, and support needs.",
+      "primaryCta": "Become a Hiring Partner — Schedule a 20-min call",
+      "primaryCtaVariantA": "Talk with us about hiring-ready talent",
+      "trustAriaLabel": "Employer outcomes and partners",
+      "trustLogosLabel": "Employers hiring through WorkforceAP",
+      "trustStatPlaced": "hires on file (placement records)",
+      "trustStatWage": "avg starting wage (where recorded)",
+      "trustStatPartners": "partner companies",
+      "trustPlaceholderFit": "Training-aligned candidates",
+      "trustPlaceholderFitTag": "Candidate sourcing",
+      "trustPlaceholderSkills": "Screened for readiness",
+      "trustPlaceholderSkillsTag": "Readiness review",
+      "trustPlaceholderTerms": "No upfront recruiting fee",
+      "trustPlaceholderTermsTag": "Contingent pricing",
+      "trustPlaceholderNote": "Placement metrics update as verified outcomes are confirmed.",
+      "trustImpactLink": "View published impact metrics",
+      "howTitle": "How it works",
+      "howSubtitle": "Three steps from role requirements to qualified candidate introductions.",
+      "howStep1Title": "Tell us your roles",
+      "howStep1Desc": "Share titles, skills, locations, and hiring needs on a 20-minute call or via intake. No job-board fees to get started.",
+      "howStep2Title": "We train + match",
+      "howStep2Desc": "WorkforceAP prepares candidates through structured training, certifications where applicable, and readiness review aligned to your requirements.",
+      "howStep3Title": "You interview & hire",
+      "howStep3Desc": "You run interviews and make offers on your timeline. We support onboarding so hires stick.",
+      "outcomesTitle": "Roles we support",
+      "outcomesSubtitle": "Examples of roles where WorkforceAP can help screen for training fit, readiness, and support needs.",
+      "outcomesScenarioLabel": "Example scenario",
+      "outcomesDisclaimer": "Illustrative role examples only—not verified employer testimonials or placement guarantees. Verified partner stories publish here after consent and review.",
+      "pricingTitle": "Simple, contingent pricing",
+      "pricingLead": "$0 to post jobs. Pay only when you hire (${fee} per placement, contingent).",
+      "pricingPoint1": "No subscription tiers or per-seat job-board fees.",
+      "pricingPoint2": "Placement fee is due only after a candidate you hire starts work.",
+      "pricingPoint3": "Replacement support if a hire does not pass probation — terms in your hiring partner agreement.",
+      "partnerPlanEyebrow": "For repeat hiring teams",
+      "partnerPlanTitle": "Need ongoing support across the same roles?",
+      "partnerPlanCopy": "After we prove fit on contingent terms, we can scope a broader hiring partner plan for employers with recurring openings and steady demand.",
+      "partnerPlanPoint1": "Shared intake for repeat roles, locations, and shift patterns.",
+      "partnerPlanPoint2": "Priority matching for recurring openings where training pathways already fit.",
+      "partnerPlanPoint3": "Quarterly hiring planning by agreement — scoped after initial wins, not before.",
+      "faqTitle": "Employer FAQ",
+      "faq1Q": "How long does onboarding take?",
+      "faq1A": "Most hiring partners complete onboarding in one 20-minute call plus a short intake. Candidate timing depends on role requirements, available training pathways, and member readiness.",
+      "faq2Q": "How are candidates vetted?",
+      "faq2A": "Members complete structured training, industry certifications where applicable, counselor check-ins, and readiness review before we introduce them to your roles.",
+      "faq3Q": "What happens if a hire does not work out?",
+      "faq3A": "If a placed hire does not pass your agreed probation window, we review the role fit and next candidate options with you under the terms in your hiring partner agreement.",
+      "faq4Q": "What are the payment terms?",
+      "faq4A": "There is no cost to post roles. The contingent placement fee is invoiced after your hire starts. No upfront recruiting retainers.",
+      "faq5Q": "Do you require exclusivity?",
+      "faq5A": "No. You can keep using your existing ATS and agencies. We ask for clear role definitions and timely feedback on candidates we send.",
+      "faq6Q": "What geographic areas do you cover?",
+      "faq6A": "We partner with employers nationwide, with strongest density in Texas and remote-friendly roles. Share your locations on the intro call and we will confirm fit.",
+      "finalCtaAriaLabel": "Schedule a hiring partner call",
+      "finalCtaTitle": "Ready to hire training-aligned talent?",
+      "finalCtaCopy": "Book a 20-minute call. We will confirm role fit, timeline, and contingent pricing — no recruiting fees upfront.",
+      "intakeAriaLabel": "Employer intake form",
+      "intakeTitle": "Prefer email over scheduling?",
+      "intakeCopy": "Submit intake details and we will follow up within 1–2 business days. This form is not a second checkout — use the button above to book a call first."
+    },
+    "careers": {
       "title": "Careers at WorkforceAP",
       "description": "Join Workforce Advancement Project — we hire counselors, engineers, and operations leaders building the workforce engine that gets people to work.",
       "heroEyebrow": "Work at WorkforceAP",
@@ -2510,5 +2510,82 @@
   "applications": {
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
+  },
+  "journeyGuide": {
+    "sectionLabel": "Your career journey",
+    "pickerTitle": "Where are you right now?",
+    "pickerSubtitle": "Pick one — we'll show you the right tools. You can change it anytime.",
+    "yourStageTitle": "Your next best steps",
+    "betaTag": "Beta",
+    "stepperLabel": "Journey stage",
+    "minutes": "{count} min",
+    "stages": {
+      "gettingReady": {
+        "label": "Getting ready",
+        "hint": "Building skills, fixing my resume",
+        "headline": "These tools get your resume and skills job-ready."
+      },
+      "applying": {
+        "label": "Applying",
+        "hint": "Sending applications and cover letters",
+        "headline": "Two things move the needle most when you're applying."
+      },
+      "interviewing": {
+        "label": "Interviewing",
+        "hint": "I have interviews coming up",
+        "headline": "Practice now — confidence comes from reps."
+      },
+      "gotOffer": {
+        "label": "Got an offer",
+        "hint": "Negotiating pay or starting a job",
+        "headline": "Make sure the offer works for you."
+      }
+    },
+    "tools": {
+      "resumeAnalysis": {
+        "label": "Check your resume score",
+        "hint": "See what employers' software sees"
+      },
+      "skillMapper": {
+        "label": "Find skills employers want",
+        "hint": "For the job you want next"
+      },
+      "resumeRewriter": {
+        "label": "Make your resume stronger",
+        "hint": "Rewrite weak lines with AI"
+      },
+      "jobMatchScorer": {
+        "label": "Check a job match",
+        "hint": "Paste a job — see your fit and gaps"
+      },
+      "coverLetter": {
+        "label": "Write your cover letter",
+        "hint": "Tailored to the job, in your words"
+      },
+      "gapAnalyzer": {
+        "label": "See what's missing for a job",
+        "hint": "And how to close the gap"
+      },
+      "interviewPractice": {
+        "label": "Practice interview questions",
+        "hint": "Real questions for your role"
+      },
+      "voiceInterview": {
+        "label": "Do a voice mock interview",
+        "hint": "Practice out loud with a coach"
+      },
+      "elevatorPitch": {
+        "label": "Polish your 20-second intro",
+        "hint": "Say who you are with confidence"
+      },
+      "salaryNegotiation": {
+        "label": "Practice asking for better pay",
+        "hint": "Word-for-word scripts that work"
+      },
+      "careerCoach": {
+        "label": "Talk through your next move",
+        "hint": "Your coach for the first weeks"
+      }
+    }
   }
 }

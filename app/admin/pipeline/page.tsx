@@ -23,21 +23,28 @@ export default function PipelinePage() {
   const t = useTranslations('admin');
   const [data, setData] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [riskStats, setRiskStats] = useState<AtRiskStats | null>(null);
   const [riskLoading, setRiskLoading] = useState(true);
 
   useEffect(() => {
     fetch('/api/admin/pipeline')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`pipeline ${r.status}`);
+        return r.json();
+      })
       .then((d) => { setData(d.counts || {}); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch(() => { setLoadError(true); setLoading(false); });
   }, []);
 
   useEffect(() => {
     fetch('/api/admin/pipeline/at-risk-stats')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`at-risk-stats ${r.status}`);
+        return r.json();
+      })
       .then((d) => { setRiskStats(d); setRiskLoading(false); })
-      .catch(() => setRiskLoading(false));
+      .catch(() => { setLoadError(true); setRiskLoading(false); });
   }, []);
 
   const total = Object.values(data).reduce((a, b) => a + (b || 0), 0);
@@ -46,6 +53,23 @@ export default function PipelinePage() {
     <div className="admin-page">
       <h1 className="admin-page-title">{t('memberPipeline')}</h1>
       <p className="admin-page-subtitle">{t('sevenStageJourney')}</p>
+
+      {loadError ? (
+        <div
+          role="alert"
+          style={{
+            padding: '0.75rem 1rem',
+            marginBottom: '1.5rem',
+            borderRadius: '0.5rem',
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#b91c1c',
+            fontSize: '0.875rem',
+          }}
+        >
+          Some pipeline data failed to load — the numbers below may be incomplete. Refresh to retry.
+        </div>
+      ) : null}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         {STAGES.map((stage) => (

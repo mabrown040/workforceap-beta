@@ -68,6 +68,30 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         entityId: `${pathwayId}-${stepIdx}`,
         metadata: { pathwayId, stepIndex: stepIdx, stepTitle },
       });
+
+      // Funnel boundary events: first completed step starts the pathway,
+      // the final step (same condition as learningProgress.completed) ends it.
+      const completedSteps = await prisma.pathwayStepProgress.count({
+        where: { userId: user.id, pathwayId, status: 'completed' },
+      });
+      if (completedSteps === 1) {
+        await trackEvent({
+          userId: user.id,
+          eventName: 'pathway_started',
+          entityType: 'pathway',
+          entityId: pathwayId,
+          metadata: { pathwayId, firstStepIndex: stepIdx },
+        });
+      }
+      if (stepIdx === pathway.steps.length - 1) {
+        await trackEvent({
+          userId: user.id,
+          eventName: 'pathway_completed',
+          entityType: 'pathway',
+          entityId: pathwayId,
+          metadata: { pathwayId, totalSteps: pathway.steps.length, completedSteps },
+        });
+      }
   
       // Award points (idempotent per (pathway, step))
       awardPoints(user.id, 'pathway_step_completed', `${pathwayId}-${stepIdx}`).catch(() => {});

@@ -21,7 +21,7 @@ type Props = {
 };
 
 const ACTION_HREF_MAP: Array<{ keywords: string[]; href: string; icon: string }> = [
-  { keywords: ['resume'], href: '/dashboard/ai-tools/resume-rewriter', icon: 'description' },
+  { keywords: ['resume'], href: '/dashboard/ai-tools/resume-studio?view=rewrite', icon: 'description' },
   { keywords: ['interview', 'practice'], href: '/dashboard/ai-tools/interview-practice', icon: 'record_voice_over' },
   { keywords: ['application'], href: '/dashboard/job-applications', icon: 'work' },
   { keywords: ['resource', 'learning'], href: '/dashboard/resources', icon: 'menu_book' },

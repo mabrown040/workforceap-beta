@@ -2514,6 +2514,27 @@
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
   },
+  "resumeStudio": {
+    "metaTitle": "Studio CV",
+    "metaDesc": "Obtenez le score de votre CV, corrigez les problèmes principaux avec l'IA ou parlez-en avec un coach — tout au même endroit, sans frais pour les membres.",
+    "title": "Studio CV",
+    "subtitle": "Obtenez d'abord le score de votre CV. Puis corrigez les problèmes principaux avec l'IA, ou parlez-en à voix haute avec votre coach.",
+    "betaTag": "Bêta",
+    "viewsLabel": "Vues du Studio CV",
+    "tabs": {
+      "score": "Mon score",
+      "rewrite": "Réécrire avec l'IA",
+      "coach": "En parler"
+    },
+    "emptyTitle": "Pas encore de CV enregistré ? Commencez ici.",
+    "emptyStep1": "Téléversez ou collez votre CV ci-dessous.",
+    "emptyStep2": "Obtenez votre score et voyez quoi corriger en premier.",
+    "emptyStep3": "Utilisez les réécritures IA ou parlez-en avec votre coach.",
+    "nextStepsTitle": "Prêt à le rendre plus fort ?",
+    "ctaRewrite": "Réécrire avec l'IA",
+    "ctaCoach": "En parler",
+    "rewriteHistoryTitle": "Réécritures récentes de CV"
+  },
   "journeyGuide": {
     "sectionLabel": "Votre parcours professionnel",
     "pickerTitle": "Où en êtes-vous en ce moment ?",
@@ -2545,6 +2566,10 @@
       }
     },
     "tools": {
+      "resumeStudio": {
+        "label": "Studio CV : scorez et corrigez votre CV",
+        "hint": "Obtenez votre score, puis corrigez avec l'IA"
+      },
       "resumeAnalysis": {
         "label": "Vérifiez le score de votre CV",
         "hint": "Voyez ce que voit le logiciel des employeurs"

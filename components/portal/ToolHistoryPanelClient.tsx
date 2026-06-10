@@ -14,8 +14,8 @@ type Row = { id: string; toolType: string; inputSummary: string; output: string;
 // page with `?regenerateFrom=<id>` so the form can repopulate from the
 // prior run and POST with `parentToolResultId` set.
 const TOOL_TYPE_TO_TOOL_PAGE: Record<string, string> = {
-  resume_rewriter: '/dashboard/ai-tools/resume-rewriter',
-  resume_analysis: '/dashboard/ai-tools/resume-rewriter',
+  resume_rewriter: '/dashboard/ai-tools/resume-studio?view=rewrite',
+  resume_analysis: '/dashboard/ai-tools/resume-studio?view=rewrite',
   cover_letter: '/dashboard/ai-tools/cover-letter',
   interview_practice: '/dashboard/ai-tools/interview-practice',
   linkedin_about: '/dashboard/ai-tools/linkedin-about',

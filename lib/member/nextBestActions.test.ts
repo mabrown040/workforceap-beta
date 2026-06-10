@@ -92,7 +92,7 @@ describe('buildNextBestActions', () => {
     });
 
     const resumeAction = actions.find((a) => a.id === 'upload_resume');
-    expect(resumeAction?.href).toBe('/dashboard/ai-tools/resume-rewriter?prefill=true');
+    expect(resumeAction?.href).toBe('/dashboard/ai-tools/resume-studio?view=rewrite');
   });
 
   test('prioritizes starter profile review for counselor-created members', () => {

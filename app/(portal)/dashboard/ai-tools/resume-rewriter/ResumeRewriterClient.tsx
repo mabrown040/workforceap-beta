@@ -34,7 +34,7 @@ function ResumeCoachRedirectCard() {
       </span>
       <span>Prefer talking it through? </span>
       <Link
-        href="/dashboard/ai-tools/resume-coach"
+        href="/dashboard/ai-tools/resume-studio?view=coach"
         style={{ color: 'var(--color-blue)', fontWeight: 700, textDecoration: 'underline' }}
       >
         Open Resume & Experience Enhancer for the voice flow →

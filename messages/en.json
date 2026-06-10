@@ -2511,6 +2511,27 @@
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
   },
+  "resumeStudio": {
+    "metaTitle": "Resume Studio",
+    "metaDesc": "Score your resume, fix the top issues with AI, or talk it through with a coach — all in one place, no-cost to members.",
+    "title": "Resume Studio",
+    "subtitle": "Get your resume score first. Then fix the top issues with AI rewrites, or talk it through out loud with your coach.",
+    "betaTag": "Beta",
+    "viewsLabel": "Resume Studio views",
+    "tabs": {
+      "score": "My score",
+      "rewrite": "Rewrite with AI",
+      "coach": "Talk it through"
+    },
+    "emptyTitle": "No resume on file yet? Start here.",
+    "emptyStep1": "Upload or paste your resume below.",
+    "emptyStep2": "Get your score and see what to fix first.",
+    "emptyStep3": "Use AI rewrites or talk it through with your coach.",
+    "nextStepsTitle": "Ready to make it stronger?",
+    "ctaRewrite": "Rewrite with AI",
+    "ctaCoach": "Talk it through",
+    "rewriteHistoryTitle": "Recent resume rewrite runs"
+  },
   "journeyGuide": {
     "sectionLabel": "Your career journey",
     "pickerTitle": "Where are you right now?",
@@ -2542,6 +2563,10 @@
       }
     },
     "tools": {
+      "resumeStudio": {
+        "label": "Resume Studio: score and fix your resume",
+        "hint": "Get your score, then fix it with AI"
+      },
       "resumeAnalysis": {
         "label": "Check your resume score",
         "hint": "See what employers' software sees"

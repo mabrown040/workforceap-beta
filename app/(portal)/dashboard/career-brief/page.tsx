@@ -168,7 +168,7 @@ export default async function CareerBriefPage() {
         </Link>
 
         {/* Resume Status */}
-        <Link href="/dashboard/ai-tools/resume-rewriter" className="wa-no-underline">
+        <Link href="/dashboard/ai-tools/resume-studio?view=rewrite" className="wa-no-underline">
           <div className="portal-metric-card portal-card--action">
             <div
               className={`portal-metric-card__icon-wrap ${
@@ -407,7 +407,7 @@ export default async function CareerBriefPage() {
             },
             {
               label: t('uploadResume') ?? 'Upload Resume',
-              href: '/dashboard/ai-tools/resume-rewriter',
+              href: '/dashboard/ai-tools/resume-studio?view=rewrite',
               icon: 'description',
             },
             {

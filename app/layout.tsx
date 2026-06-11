@@ -22,6 +22,7 @@ import {
 } from '@/lib/db/gucContext';
 import { getProfileRole } from '@/lib/auth/roles';
 import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
@@ -113,8 +114,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const resolvedUserId = forwardedUserId ?? (await getUser())?.id ?? null;
   let gucCtx = ANONYMOUS_GUC_CONTEXT;
   if (resolvedUserId) {
-    const profileRole = await getProfileRole(resolvedUserId);
-    gucCtx = buildGucContext({ userId: resolvedUserId, orgId: null, profileRole });
+    const [profileRole, userRow] = await Promise.all([
+      getProfileRole(resolvedUserId),
+      // Resolve the user's organization so the GUC carries `app.current_org_id`.
+      // Previously orgId was hardcoded to null here, which makes every RLS
+      // policy that calls `can_access_org_row(check_org_id)` evaluate with
+      // NULL once FORCE ROW LEVEL SECURITY is enabled (AUDIT §C-T6). Mirrors
+      // resolveAuthGucContext() in lib/auth/server.ts.
+      prisma.user
+        .findUnique({ where: { id: resolvedUserId }, select: { organizationId: true } })
+        .catch(() => null),
+    ]);
+    gucCtx = buildGucContext({
+      userId: resolvedUserId,
+      orgId: userRow?.organizationId ?? null,
+      profileRole,
+    });
   }
 
   const orgBranding = await getRequestOrgBranding(h);

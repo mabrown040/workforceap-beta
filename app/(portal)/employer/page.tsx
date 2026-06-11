@@ -69,17 +69,6 @@ export default async function EmployerDashboardPage() {
     take: 25,
   });
 
-  const jobs = await prisma.job.findMany({
-    take: 5000,
-    where: { employerId: ctx.employerId },
-    include: { _count: { select: { applications: true } } },
-  });
-
-  const activeJobs = jobs.filter((j) => j.status === 'live').length;
-  const totalApplications = jobs.reduce((s, j) => s + j._count.applications, 0);
-  const inReview = jobs.filter((j) => j.status === 'pending' || j.status === 'approved').length;
-  const filledPositions = jobs.filter((j) => j.status === 'filled' || j.status === 'closed').length;
-
   const recentApplications = await prisma.jobPostingApplication.findMany({
     where: { job: { employerId: ctx.employerId } },
     orderBy: { appliedAt: 'desc' },
@@ -90,13 +79,28 @@ export default async function EmployerDashboardPage() {
     },
   });
 
-  const jobIds = jobs.map((j) => j.id);
-  const liveJobIds = jobs.filter((j) => j.status === 'live').map((j) => j.id);
-
-  const [totalMatches, interviewPipelineCount, hiredApplications, filledJobsCount, offerStageCount, screenedCount, interviewCount] = await Promise.all([
-    liveJobIds.length === 0
-      ? Promise.resolve(0)
-      : prisma.aIJobMatch.count({ where: { jobId: { in: liveJobIds } } }),
+  const [
+    jobStatusRows,
+    totalApplications,
+    totalMatches,
+    interviewPipelineCount,
+    hiredApplications,
+    filledJobsCount,
+    offerStageCount,
+    screenedCount,
+    interviewCount,
+  ] = await Promise.all([
+    prisma.job.groupBy({
+      by: ['status'],
+      where: { employerId: ctx.employerId },
+      _count: { id: true },
+    }),
+    prisma.jobPostingApplication.count({
+      where: { job: { employerId: ctx.employerId } },
+    }),
+    prisma.aIJobMatch.count({
+      where: { job: { employerId: ctx.employerId, status: 'live' } },
+    }),
     prisma.jobPostingApplication.count({
       where: {
         job: { employerId: ctx.employerId },
@@ -125,6 +129,11 @@ export default async function EmployerDashboardPage() {
     }),
   ]);
 
+  const jobCountsByStatus = new Map(jobStatusRows.map((row) => [row.status, row._count.id]));
+  const totalJobs = jobStatusRows.reduce((sum, row) => sum + row._count.id, 0);
+  const activeJobs = jobCountsByStatus.get('live') ?? 0;
+  const inReview = (jobCountsByStatus.get('pending') ?? 0) + (jobCountsByStatus.get('approved') ?? 0);
+  const filledPositions = (jobCountsByStatus.get('filled') ?? 0) + (jobCountsByStatus.get('closed') ?? 0);
   const hiresFromApplications = hiredApplications.length;
   const hiresTotal = hiresFromApplications + filledJobsCount;
 
@@ -424,7 +433,7 @@ export default async function EmployerDashboardPage() {
       </section>
 
       {/* ── Empty State (shown first for cold-start clarity) ── */}
-      {jobs.length === 0 && (
+      {totalJobs === 0 && (
         <section className="portal-section--lg">
           <PortalEmptyState
             title={t('welcomeStartWithFirstPosting')}

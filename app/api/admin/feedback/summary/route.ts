@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdminOrCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { buildFeedbackUserScope } from '../_feedbackScope';
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,30 +10,37 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
+    const userScope = await buildFeedbackUserScope(auth.userId);
+    if (userScope === null) {
+      return NextResponse.json({ totalCount: 0, summary: [], recentTrend: [] });
+    }
+
     const { searchParams } = new URL(request.url);
     const from = searchParams.get('from') ?? undefined;
     const to = searchParams.get('to') ?? undefined;
 
-    const dateFilter =
-      from || to
+    const where = {
+      ...(from || to
         ? {
             createdAt: {
               ...(from && { gte: new Date(from) }),
               ...(to && { lte: new Date(to) }),
             },
           }
-        : {};
+        : {}),
+      ...(userScope ? { user: userScope } : {}),
+    };
 
     const [totalCount, byType, recentTrend] = await Promise.all([
-      prisma.memberFeedback.count({ where: dateFilter }),
+      prisma.memberFeedback.count({ where }),
       prisma.memberFeedback.groupBy({
         by: ['type'],
-        where: dateFilter,
+        where,
         _avg: { rating: true },
         _count: { rating: true },
       }),
       prisma.memberFeedback.findMany({
-        where: dateFilter,
+        where,
         orderBy: { createdAt: 'desc' },
         take: 5,
         select: {

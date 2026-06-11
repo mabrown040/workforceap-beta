@@ -2355,7 +2355,9 @@
       "agreeToThe": "I agree to the",
       "and": "and",
       "commsConsent": "I agree to receive program updates and communications via email"
-    }
+    },
+    "accountDeletedNotice": "Esta conta foi excluída. Se você acredita que isso é um engano, fale conosco em info@workforceap.org ou (512) 777-1808.",
+    "emailVerifiedNotice": "E-mail verificado — você já pode entrar."
   },
   "coach": {
     "meta": {

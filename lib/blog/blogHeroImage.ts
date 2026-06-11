@@ -24,7 +24,7 @@ export function resolveBlogHeroImage(
     return { src: fallback.url, alt: fallback.alt };
   }
 
-  if (trimmed.startsWith('/')) {
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
     return { src: trimmed, alt: `Cover image for ${slug ?? 'blog post'}` };
   }
 

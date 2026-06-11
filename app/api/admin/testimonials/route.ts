@@ -24,6 +24,9 @@ export const GET = withApiGuc(async (req: NextRequest) => {
 
     const isSuper = await isSuperAdmin(user.id);
     const orgId = isSuper ? null : await getActorOrganizationId(user.id);
+    if (!isSuper && !orgId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const { searchParams } = new URL(req.url);
     const statusRaw = searchParams.get('status') ?? undefined;
@@ -37,7 +40,7 @@ export const GET = withApiGuc(async (req: NextRequest) => {
 
     // Tenant scope: only testimonials whose member belongs to the caller's
     // organization. Super-admins skip the scope.
-    const orgScope = orgId ? { member: { organizationId: orgId } } : {};
+    const orgScope = isSuper ? {} : { member: { organizationId: orgId! } };
 
     const where = {
       deletedAt: null,

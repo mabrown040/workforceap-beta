@@ -2,7 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function safeFilenamePart(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    || 'mentor';
+}
+
+export const GET = withApiGuc(async (req: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -27,12 +46,17 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   const totalHours = mentor.sessions.reduce((sum, s) => sum + (s.hoursLogged ?? 0), 0);
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const year = new Date().getFullYear();
+  const mentorFullName = escapeHtml(mentor.fullName);
+  const mentorTitle = escapeHtml(mentor.title);
+  const mentorCompany = escapeHtml(mentor.company);
+  const mentorFirstName = escapeHtml(mentor.fullName.split(' ')[0] || mentor.fullName);
+  const filename = safeFilenamePart(mentor.fullName);
 
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Volunteer Hour Letter — ${mentor.fullName}</title>
+  <title>Volunteer Hour Letter — ${mentorFullName}</title>
   <style>
     body { font-family: Georgia, serif; max-width: 680px; margin: 60px auto; color: #1c1b1b; line-height: 1.7; }
     .header { border-bottom: 2px solid #AD2C4D; padding-bottom: 16px; margin-bottom: 32px; }
@@ -54,16 +78,16 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
 
   <p>To Whom It May Concern,</p>
 
-  <p>This letter confirms that <strong>${mentor.fullName}</strong>, ${mentor.title} at ${mentor.company}, has volunteered their professional expertise as a career mentor with WorkforceAP during the ${year} calendar year.</p>
+  <p>This letter confirms that <strong>${mentorFullName}</strong>, ${mentorTitle} at ${mentorCompany}, has volunteered their professional expertise as a career mentor with WorkforceAP during the ${year} calendar year.</p>
 
   <p><strong>Total volunteer hours logged:</strong></p>
   <div class="hours">${totalHours.toFixed(1)} hours</div>
 
-  <p>WorkforceAP is a 501(c)(3) nonprofit organization dedicated to providing career training and job placement support to adults at no cost to members. ${mentor.fullName}&rsquo;s volunteer mentorship directly supported members working to advance their careers.</p>
+  <p>WorkforceAP is a 501(c)(3) nonprofit organization dedicated to providing career training and job placement support to adults at no cost to members. ${mentorFullName}&rsquo;s volunteer mentorship directly supported members working to advance their careers.</p>
 
   <p>Per IRS guidelines, services donated to a 501(c)(3) organization may have tax implications. We recommend consulting your tax advisor regarding the deductibility of professional services donated to nonprofit organizations.</p>
 
-  <p>We are deeply grateful for ${mentor.fullName.split(' ')[0]}&rsquo;s contribution to our members and our mission.</p>
+  <p>We are deeply grateful for ${mentorFirstName}&rsquo;s contribution to our members and our mission.</p>
 
   <p>Sincerely,</p>
   <p><strong>WorkforceAP Leadership Team</strong><br>
@@ -79,7 +103,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   return new NextResponse(html, {
     headers: {
       'Content-Type': 'text/html',
-      'Content-Disposition': `inline; filename="volunteer-letter-${mentor.fullName.replace(/\s+/g, '-').toLowerCase()}.html"`,
+      'Content-Disposition': `inline; filename="volunteer-letter-${filename}.html"`,
     },
   });
 
@@ -88,4 +112,3 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

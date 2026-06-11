@@ -73,6 +73,7 @@ export const POST = withApiGuc(async (request: Request) => {
   await prisma.$executeRaw`
     UPDATE users
     SET email = 'deleted_' || id || '@workforceap.org',
+        full_name = 'Deleted User',
         updated_at = NOW()
     WHERE id = ${userId}
   `;

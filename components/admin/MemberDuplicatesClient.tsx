@@ -203,6 +203,7 @@ export default function MemberDuplicatesClient() {
               <button
                 type="button"
                 disabled={merging || sel.primary === sel.secondary}
+                aria-busy={merging}
                 onClick={() => handleMerge(group)}
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
@@ -214,8 +215,8 @@ export default function MemberDuplicatesClient() {
                   opacity: merging || sel.primary === sel.secondary ? 0.6 : 1,
                 }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>merge_type</span>
-                {merging ? 'Merging…' : 'Merge selected'}
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1", animation: merging ? 'spin 1s linear infinite' : 'none' }} aria-hidden="true">{merging ? 'progress_activity' : 'merge_type'}</span>
+                <span aria-live="polite">{merging ? 'Merging…' : 'Merge selected'}</span>
               </button>
             </div>
           </div>

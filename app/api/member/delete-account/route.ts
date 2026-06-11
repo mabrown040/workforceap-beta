@@ -32,7 +32,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
       if (error) {
         console.error('[delete-account] Supabase auth delete error:', error.message);
-        // Don't surface Supabase errors to client — app DB deletion succeeded
+        return NextResponse.json({ error: 'Failed to delete account' }, { status: 502 });
       }
   
       return NextResponse.json({ ok: true });

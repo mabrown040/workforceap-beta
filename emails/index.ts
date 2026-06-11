@@ -32,6 +32,7 @@ export { placementSurveyHtml, placementSurveyEscalationHtml } from './placement-
 export { counselorAssignedHtml } from './counselor-assigned';
 export { partnerReferralInviteHtml } from './partner-referral-invite';
 export { employerWelcomeHtml } from './employer-welcome';
+export { employerVerifyEmailHtml } from './employer-verify-email';
 export { employerSignupAdminAlertHtml } from './employer-signup-admin-alert';
 export { employerApprovedHtml } from './employer-approved';
 export { employerRejectedHtml } from './employer-rejected';

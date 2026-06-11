@@ -148,6 +148,13 @@
     "languageEn": "Inglês"
   },
   "dashboard": {
+    "priorityAction": "Ação prioritária",
+    "priorityActionFor": "Para {program}.",
+    "yourProgram": "seu programa",
+    "readinessGreatStanding": "Excelente situação",
+    "readinessGoodStanding": "Boa situação",
+    "readinessMakingProgress": "Progredindo",
+    "readinessGettingStarted": "Começando",
     "account": {
       "metaTitle": "Configurações da conta",
       "metaDescription": "Gerencie sua conta e senha.",
@@ -540,6 +547,7 @@
     "personalSectionTitle": "Como entramos em contato",
     "contactIncompleteError": "Adicione nome, sobrenome, um e-mail válido e telefone com pelo menos 10 dígitos.",
     "saveContinueLater": "Salvar e continuar depois",
+    "autoSavedNotice": "Progresso salvo automaticamente neste dispositivo.",
     "saveContinueHint": "Salvo neste dispositivo. Você pode fechar a aba e voltar a esta página quando quiser.",
     "continueToPrograms": "Continuar — escolher programas →",
     "continueBlockedHint": "Preencha os dados de contato e as três perguntas para continuar. Problemas? Ligue (512) 777-1808.",

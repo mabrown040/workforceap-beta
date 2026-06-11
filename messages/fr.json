@@ -148,6 +148,13 @@
     "languageEn": "Anglais"
   },
   "dashboard": {
+    "priorityAction": "Action prioritaire",
+    "priorityActionFor": "Pour {program}.",
+    "yourProgram": "votre programme",
+    "readinessGreatStanding": "Excellente position",
+    "readinessGoodStanding": "Bonne position",
+    "readinessMakingProgress": "En progression",
+    "readinessGettingStarted": "Démarrage",
     "account": {
       "metaTitle": "Paramètres du compte",
       "metaDescription": "Gérez votre compte et votre mot de passe.",
@@ -540,6 +547,7 @@
     "personalSectionTitle": "Comment vous contacter",
     "contactIncompleteError": "Ajoutez prénom, nom, un e-mail valide et un téléphone d'au moins 10 chiffres.",
     "saveContinueLater": "Enregistrer et continuer plus tard",
+    "autoSavedNotice": "Progression enregistrée automatiquement sur cet appareil.",
     "saveContinueHint": "Enregistré sur cet appareil. Vous pouvez fermer l'onglet et revenir sur cette page quand vous voulez.",
     "continueToPrograms": "Continuer — choisir les programmes →",
     "continueBlockedHint": "Complétez les coordonnées et les trois questions pour continuer. Un problème ? Appelez le (512) 777-1808.",

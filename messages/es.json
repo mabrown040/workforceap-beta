@@ -148,6 +148,13 @@
     "languageEn": "Inglés"
   },
   "dashboard": {
+    "priorityAction": "Acción prioritaria",
+    "priorityActionFor": "Para {program}.",
+    "yourProgram": "tu programa",
+    "readinessGreatStanding": "Excelente progreso",
+    "readinessGoodStanding": "Buen progreso",
+    "readinessMakingProgress": "Progresando",
+    "readinessGettingStarted": "Comenzando",
     "account": {
       "metaTitle": "Configuración de la cuenta",
       "metaDescription": "Administra tu cuenta y contraseña.",
@@ -540,6 +547,7 @@
     "personalSectionTitle": "Cómo te contactamos",
     "contactIncompleteError": "Agrega nombre, apellido, un correo válido y un teléfono con al menos 10 dígitos.",
     "saveContinueLater": "Guardar y continuar después",
+    "autoSavedNotice": "Progreso guardado automáticamente en este dispositivo.",
     "saveContinueHint": "Guardado en este dispositivo. Puedes cerrar la pestaña y volver a esta página cuando quieras.",
     "continueToPrograms": "Continuar — elegir programas →",
     "continueBlockedHint": "Completa los datos de contacto y las tres preguntas para continuar. ¿Problemas? Llama al (512) 777-1808.",

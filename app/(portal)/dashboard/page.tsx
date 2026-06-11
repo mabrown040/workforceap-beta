@@ -1002,7 +1002,7 @@ async function renderMemberDashboard(
               <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <p style={{ fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.82)', margin: '0 0 0.35rem' }}>Priority Action</p>
+                    <p style={{ fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.82)', margin: '0 0 0.35rem' }}>{t('priorityAction')}</p>
                     <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.3 }}>
                       {applicationStatus.nextStep}
                     </h2>
@@ -1010,7 +1010,7 @@ async function renderMemberDashboard(
                   <span className="material-symbols-outlined wa-text-xl" style={{ color: 'var(--color-gold)', '--ms-fill': 1 }} aria-hidden>bolt</span>
                 </div>
                 <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
-                  For {program?.title ?? applicationStatus.programInterest ?? 'your program'}.
+                  {t('priorityActionFor', { program: program?.title ?? applicationStatus.programInterest ?? t('yourProgram') })}
                 </p>
                 <Link
                   href={applicationStatus.nextStepHref}

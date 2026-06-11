@@ -148,6 +148,13 @@
     "languageEn": "English"
   },
   "dashboard": {
+    "priorityAction": "Priority Action",
+    "priorityActionFor": "For {program}.",
+    "yourProgram": "your program",
+    "readinessGreatStanding": "Great Standing",
+    "readinessGoodStanding": "Good Standing",
+    "readinessMakingProgress": "Making Progress",
+    "readinessGettingStarted": "Getting Started",
     "account": {
       "metaTitle": "Account settings",
       "metaDescription": "Manage your account and password.",
@@ -555,6 +562,7 @@
     "personalSectionTitle": "How we reach you",
     "contactIncompleteError": "Add your first name, last name, a valid email, and a phone number with at least 10 digits.",
     "saveContinueLater": "Save and continue later",
+    "autoSavedNotice": "Progress saved automatically on this device.",
     "saveContinueHint": "Saved on this device. You can close the tab and return to this page anytime to finish.",
     "continueToPrograms": "Continue — choose your programs →",
     "continueBlockedHint": "Complete the contact fields and all three questions to continue. Having trouble? Call (512) 777-1808.",

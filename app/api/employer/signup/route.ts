@@ -1,8 +1,5 @@
 import { createEmployerUser } from '@/lib/employer/service';
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { employerSignupSchema } from '@/lib/validation/employer';
 import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { sendEmployerWelcomeEmail, sendEmployerSignupAdminAlertEmail } from '@/lib/email';
@@ -82,12 +79,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use admin client to create a confirmed user so we can auto-login
+    // Create the auth user unconfirmed; public signup must not grant a session
+    // until the contact proves control of the mailbox.
     const admin = getSupabaseAdmin();
     const { data: createData, error: createError } = await admin.auth.admin.createUser({
       email: data.email,
       password: data.password,
-      email_confirm: true,
       user_metadata: {
         full_name: data.contactName,
         phone: data.phone,
@@ -142,41 +139,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Auto-login: create a session and set cookies
-    const cookieStore = await cookies();
-    const cookieOpts = getSupabaseCookieOptions(false); // rememberMe = true for employer signup
-
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookieOptions: cookieOpts,
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            const opts = options as { path?: string; maxAge?: number; secure?: boolean; sameSite?: 'lax' | 'strict' | 'none'; httpOnly?: boolean } | undefined;
-            cookieStore.set(name, value, opts ?? {});
-          });
-        },
-      },
-    });
-
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
-
-    if (signInError || !signInData.session) {
-      console.error('Employer auto-login failed:', signInError);
-      // Clean up orphaned auth user since employer profile was not fully created
-      await cleanupCreatedEmployerSignupAuthUser(admin, user.id);
-      // Fallback: return success without session, ask them to log in
-      return NextResponse.json({
-        success: true,
-        message: 'Account created. Please log in to continue.',
-      });
-    }
-
     // Best-effort welcome email
     sendEmployerWelcomeEmail({
       to: data.email,
@@ -194,7 +156,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      redirectTo: '/employer',
+      message: 'Account created. Please check your email to verify your account before logging in.',
     });
   } catch (error) {
     console.error('/employer/signup:', error);

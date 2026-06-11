@@ -14,6 +14,8 @@ const bodySchema = z.object({
   email: z.string().email(),
 });
 
+class PartnerInviteConflictError extends Error {}
+
 async function ensurePartnerUserLink(userId: string, partnerId: string) {
   const existing = await prisma.partnerUser.findFirst({
     where: { userId },
@@ -30,7 +32,7 @@ async function ensurePartnerUserLink(userId: string, partnerId: string) {
       ]);
       if (oldPartner?.organizationId && newPartner?.organizationId &&
           oldPartner.organizationId !== newPartner.organizationId) {
-        throw new Error(
+        throw new PartnerInviteConflictError(
           `Cross-tenant partner relink blocked: existing partner ${existing.partnerId} ` +
           `is in org ${oldPartner.organizationId}, target partner ${partnerId} ` +
           `is in org ${newPartner.organizationId}.`
@@ -64,20 +66,18 @@ async function ensurePartnerInviteUser(params: {
     // Block cross-organization moves: if the user already exists in a
     // different org, reject instead of silently overwriting their tenant.
     if (existing.organizationId && existing.organizationId !== params.organizationId) {
-      throw new Error(
+      throw new PartnerInviteConflictError(
         `User already belongs to organization ${existing.organizationId}. ` +
         `Cross-tenant partner invites are not allowed.`
       );
     }
-    await prisma.user.update({
-      where: { id: params.userId },
-      data: {
-        organizationId: params.organizationId,
-        email: params.email,
-        fullName: params.fullName,
-      },
-      select: { id: true },
-    });
+    if (!existing.organizationId) {
+      await prisma.user.update({
+        where: { id: params.userId },
+        data: { organizationId: params.organizationId },
+        select: { id: true },
+      });
+    }
     return;
   }
 
@@ -147,6 +147,9 @@ async function ensurePartnerInviteUser(params: {
   
       await ensurePartnerUserLink(authUserId, partnerId);
     } catch (e) {
+      if (e instanceof PartnerInviteConflictError) {
+        return NextResponse.json({ error: 'User already belongs to another organization' }, { status: 409 });
+      }
       console.error('Partner invite DB error:', e);
       return NextResponse.json({ error: 'Failed to link partner user' }, { status: 500 });
     }

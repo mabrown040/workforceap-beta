@@ -379,7 +379,7 @@ export default function InterviewCoach() {
           </label>
           <div style={{ display: 'flex', gap: '0.625rem' }}>
             {INTERVIEW_TYPES.map((t) => (
-              <button type="button" key={t} onClick={() => setInterviewType(t)} style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1.5px solid', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', background: interviewType === t ? 'var(--color-accent)' : 'transparent', color: interviewType === t ? '#fff' : 'var(--color-accent)', borderColor: 'var(--color-accent)' }}>
+              <button type="button" key={t} onClick={() => setInterviewType(t)} style={{ padding: '0.5rem 1rem', borderRadius: 8, border: '1.5px solid var(--color-accent)', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', background: interviewType === t ? 'var(--color-accent)' : 'transparent', color: interviewType === t ? '#fff' : 'var(--color-accent)' }}>
                 {t}
               </button>
             ))}

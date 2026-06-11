@@ -21,6 +21,7 @@ vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     xapiStatement: {
       create: vi.fn(),
+      findUnique: vi.fn(),
       updateMany: vi.fn(),
     },
   },
@@ -49,6 +50,10 @@ vi.mock('@/lib/analytics/track', () => ({
 
 vi.mock('@/lib/observability/captureApiError', () => ({
   captureApiError: vi.fn(),
+}));
+
+vi.mock('@/lib/diagnostics', () => ({
+  recordWorkflowDiagnostic: vi.fn(),
 }));
 
 vi.mock('@/lib/db/withRequestGuc', () => ({
@@ -129,6 +134,7 @@ describe('POST /api/xapi/statements', () => {
     }));
     vi.mocked(handleInboundParsedStatement).mockResolvedValue({ completions: [{ ok: true }] });
     vi.mocked(prisma.xapiStatement.create).mockResolvedValue({ id: 'db-id-1' } as any);
+    vi.mocked(prisma.xapiStatement.findUnique).mockResolvedValue(null);
     vi.mocked(prisma.xapiStatement.updateMany).mockResolvedValue({ count: 1 } as any);
     vi.mocked(resolveOrgFromRequest).mockResolvedValue('org-default');
   });
@@ -212,10 +218,13 @@ describe('POST /api/xapi/statements', () => {
   });
 
   it('skips duplicate statements and does not run pipeline side effects', async () => {
-    const dupError = new (class extends Error {
-      code = 'P2002';
-    })('Unique constraint failed');
+    const { Prisma } = await import('@prisma/client');
+    const dupError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+      code: 'P2002',
+      clientVersion: 'mock',
+    });
     vi.mocked(prisma.xapiStatement.create).mockRejectedValueOnce(dupError);
+    vi.mocked(prisma.xapiStatement.findUnique).mockResolvedValueOnce({ processed: true } as any);
 
     const res = await POST(makeRequest(sampleStatement, { token: validToken }));
     expect(res.status).toBe(201);
@@ -223,6 +232,34 @@ describe('POST /api/xapi/statements', () => {
     expect(body.processed).toBe(0);
     expect(body.completions).toEqual([]);
     expect(handleInboundParsedStatement).not.toHaveBeenCalled();
+  });
+
+  it('retries duplicate statements whose side effects were not processed', async () => {
+    const { Prisma } = await import('@prisma/client');
+    const dupError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+      code: 'P2002',
+      clientVersion: 'mock',
+    });
+
+    vi.mocked(prisma.xapiStatement.create)
+      .mockResolvedValueOnce({ id: 'db-id-1' } as any)
+      .mockRejectedValueOnce(dupError);
+    vi.mocked(prisma.xapiStatement.findUnique).mockResolvedValueOnce({ processed: false } as any);
+    vi.mocked(handleInboundParsedStatement)
+      .mockRejectedValueOnce(new Error('Pipeline boom'))
+      .mockResolvedValueOnce({ completions: [{ ok: true }] });
+    vi.mocked(captureApiError).mockImplementation(() => {});
+
+    const first = await POST(makeRequest(sampleStatement, { token: validToken }));
+    expect(first.status).toBe(201);
+    expect((await first.json()).errors[0].message).toBe('Pipeline boom');
+
+    const retry = await POST(makeRequest(sampleStatement, { token: validToken }));
+    expect(retry.status).toBe(201);
+    const retryBody = await retry.json();
+    expect(retryBody.processed).toBe(1);
+    expect(retryBody.completions).toEqual([{ ok: true }]);
+    expect(handleInboundParsedStatement).toHaveBeenCalledTimes(2);
   });
 
   it('persists unparseable statements with fallback verb and continues', async () => {

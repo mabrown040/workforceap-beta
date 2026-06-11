@@ -8,6 +8,10 @@ import { checkInviteAcceptRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 import { Prisma } from '@prisma/client';
+import {
+  claimPendingInvitationForAccept,
+  InvitationClaimError,
+} from './_invitationClaim';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -377,6 +381,9 @@ async function acceptExistingUser(
   let txStep = 'start';
   try {
     await prisma.$transaction(async (tx) => {
+      txStep = 'claim_invitation_existing';
+      await claimPendingInvitationForAccept(tx, invitation.id, user.id);
+
       txStep = 'update_existing_user';
       await tx.user.update({
         where: { id: user.id },
@@ -457,17 +464,11 @@ async function acceptExistingUser(
         await ensureCounselorRow(tx, user.id, invitation.partnerId ?? null);
       }
 
-      txStep = 'accept_invitation_existing';
-      await tx.invitation.update({
-        where: { id: invitation.id },
-        data: {
-          status: 'accepted',
-          acceptedAt: new Date(),
-          acceptedById: user.id,
-        },
-      });
     });
   } catch (dbError) {
+    if (dbError instanceof InvitationClaimError) {
+      return NextResponse.json({ error: 'Invitation no longer valid' }, { status: 400 });
+    }
     console.error('[acceptExistingUser] transaction failed:', dbError);
     return NextResponse.json(
       { error: 'Failed to update your account with the new role. Please try again.' },
@@ -618,6 +619,9 @@ async function finishNewUserDbSetup(
     await prisma.$transaction(async (tx) => {
       inviteAcceptLog('tx:start', { invitationId });
 
+      txStep = 'claim_invitation';
+      await claimPendingInvitationForAccept(tx, invitation.id, authUserId);
+
       txStep = 'find_member_role';
       let memberRole = await findRoleByName(tx, 'member');
       if (!memberRole) {
@@ -708,18 +712,11 @@ async function finishNewUserDbSetup(
         await ensureCounselorRow(tx, authUserId, invitation.partnerId ?? null);
       }
 
-      txStep = 'accept_invitation';
-      inviteAcceptLog('tx:invitation_accept_update', { invitationId });
-      await tx.invitation.update({
-        where: { id: invitation.id },
-        data: {
-          status: 'accepted',
-          acceptedAt: new Date(),
-          acceptedById: authUserId,
-        },
-      });
     });
   } catch (dbError) {
+    if (dbError instanceof InvitationClaimError) {
+      return NextResponse.json({ error: 'Invitation no longer valid' }, { status: 400 });
+    }
     inviteAcceptLog('tx:failed', { invitationId, err: dbError });
     console.error('[finishNewUserDbSetup] transaction failed:', dbError);
     return NextResponse.json(

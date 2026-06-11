@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdminOrCounselor } from '@/lib/auth/roles';
+import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { z } from 'zod';
@@ -14,9 +14,14 @@ const querySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireAdminOrCounselor(request);
-    if (!auth.ok) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    try {
+      await requireAdmin(user.id);
+    } catch {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

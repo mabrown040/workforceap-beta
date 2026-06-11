@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { z } from 'zod';
+import { buildFeedbackUserScope } from '../_feedbackScope';
 
 const querySchema = z.object({
   type: z.enum(['training', 'counselor', 'platform', 'program', 'general']).optional(),
@@ -23,6 +24,8 @@ export async function GET(request: NextRequest) {
     } catch {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
+
+    const userScope = await buildFeedbackUserScope(user.id);
 
     const { searchParams } = new URL(request.url);
     const parsed = querySchema.safeParse({
@@ -49,15 +52,19 @@ export async function GET(request: NextRequest) {
             },
           }
         : {}),
+      ...(userScope ? { user: userScope } : {}),
     };
 
-    const items = await prisma.memberFeedback.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: { select: { fullName: true, email: true } },
-      },
-    });
+    const items =
+      userScope === null
+        ? []
+        : await prisma.memberFeedback.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+            include: {
+              user: { select: { fullName: true, email: true } },
+            },
+          });
 
     const csv = dataToCsv(
       [

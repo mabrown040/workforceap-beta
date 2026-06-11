@@ -30,12 +30,15 @@ export type PersistXapiStatementInput = {
   itemType?: string | null;
 };
 
+export type PersistXapiStatementResult = 'inserted' | 'already_processed' | 'retry_processing';
+
 /**
- * Persist a single xAPI row. When `statementId` is set and already exists, returns `skipped` (idempotent).
+ * Persist a single xAPI row.
+ * Duplicate statementIds only skip side effects after the row was marked processed.
  */
 export async function persistXapiStatement(
   input: PersistXapiStatementInput
-): Promise<'inserted' | 'skipped'> {
+): Promise<PersistXapiStatementResult> {
   const statementId = input.statementId?.trim() || null;
 
   try {
@@ -64,7 +67,11 @@ export async function persistXapiStatement(
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2002'
     ) {
-      return 'skipped';
+      const existing = await prisma.xapiStatement.findUnique({
+        where: { statementId },
+        select: { processed: true },
+      });
+      return existing?.processed ? 'already_processed' : 'retry_processing';
     }
     throw error;
   }

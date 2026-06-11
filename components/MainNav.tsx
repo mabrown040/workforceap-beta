@@ -9,7 +9,7 @@ import LocalizedLink from '@/components/LocalizedLink';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { usePathname } from 'next/navigation';
 import { splitLocalePrefix } from '@/lib/i18n/config';
-import { useState, useEffect, useCallback, useRef, useId, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 const navItems = [
   {
@@ -89,7 +89,11 @@ const PARTNER_EXCLUSIVE_LOGIN_SUBMENU: GuestLoginSubmenuItem[] =
 export default function MainNav() {
   const pathname = usePathname() ?? '/';
   const { pathnameWithoutLocale } = splitLocalePrefix(pathname);
-  const navMenuId = useId();
+  // Stable literal instead of useId(): the nav sits behind a next/dynamic
+  // boundary, so React's useId counter diverges between server and client
+  // render order, producing a hydration mismatch on every page. There is
+  // exactly one MainNav per page, so a fixed id is safe.
+  const navMenuId = 'main-nav-menu';
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);

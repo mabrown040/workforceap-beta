@@ -2540,6 +2540,32 @@
     "ctaCoach": "Talk it through",
     "rewriteHistoryTitle": "Recent resume rewrite runs"
   },
+  "trainingBridge": {
+    "metaTitle": "Training Bridge",
+    "metaDesc": "See which skills you still need for the job you want, and which training pathway covers them — no-cost to members.",
+    "title": "Training Bridge",
+    "subtitle": "Find the skills you still need for the job you want, and the training pathway that covers them.",
+    "betaTag": "Beta",
+    "basedOn": "Based on your Skill Mapper result for {occupation} from {date}.",
+    "yourLastRun": "your last run",
+    "noAssessmentTitle": "Run Skill Mapper first for a personal skill check",
+    "noAssessmentBody": "We have not seen a Skill Mapper run from you yet. Run it once and this page will compare your skills to the job you want. You can still browse jobs and pathways below.",
+    "runSkillMapper": "Open Skill Mapper",
+    "pickOccupationLabel": "What job do you want next?",
+    "assessmentMatchedHint": "Your last Skill Mapper run matched {occupation}.",
+    "missingTitle": "{count, plural, one {You're missing 1 skill for {occupation}} other {You're missing # skills for {occupation}}}",
+    "skillsNeededTitle": "Skills employers ask for: {occupation}",
+    "allCoveredTitle": "Good news — you already show the key skills for {occupation}",
+    "allCoveredBody": "Keep them sharp. The pathway below can still help you earn a certificate employers recognize.",
+    "haveTitle": "You already show these skills:",
+    "pathwayEyebrow": "This pathway covers them",
+    "pathwayMeta": "{partner} · {duration} · No-cost to members",
+    "pathwayCoversMissing": "It covers the skills you're missing: {skills}",
+    "pathwayCovers": "Skills this pathway teaches:",
+    "enrollCta": "Enroll in this pathway",
+    "viewProgram": "See program details",
+    "disclaimer": "This is a guide, not a job promise. Your counselor can help you pick the right pathway."
+  },
   "journeyGuide": {
     "sectionLabel": "Your career journey",
     "pickerTitle": "Where are you right now?",
@@ -2618,6 +2644,10 @@
       "careerCoach": {
         "label": "Talk through your next move",
         "hint": "Your coach for the first weeks"
+      },
+      "trainingBridge": {
+        "label": "Bridge to your next job",
+        "hint": "See what training closes your skill gaps"
       }
     }
   }

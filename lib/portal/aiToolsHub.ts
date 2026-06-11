@@ -26,6 +26,7 @@ const TOOL_CARDS = {
   interviewCoach: { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach', icon: 'support_agent' },
   jobMatchScorer: { label: 'See how you match a job', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats' },
   skillMapper: { label: 'Find skills employers want', href: '/dashboard/ai-tools/skill-mapper', icon: 'account_tree' },
+  trainingBridge: { label: 'Training Bridge', href: '/dashboard/ai-tools/training-bridge', icon: 'alt_route' },
   linkedInHeadline: { label: 'LinkedIn Headline', href: '/dashboard/ai-tools/linkedin-headline', icon: 'badge' },
   linkedInAbout: { label: 'Write your LinkedIn story', href: '/dashboard/ai-tools/linkedin-about', icon: 'person' },
   gapAnalyzer: { label: 'See what is missing for a job', href: '/dashboard/ai-tools/gap-analyzer', icon: 'troubleshoot' },
@@ -62,6 +63,16 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     ],
   },
   {
+    id: 'training-bridge',
+    title: TOOL_CARDS.trainingBridge.label,
+    icon: TOOL_CARDS.trainingBridge.icon,
+    badge: 'Beta',
+    description: 'See which skills you still need for the job you want, and which no-cost training pathway covers them.',
+    links: [
+      { label: 'Open Training Bridge', href: TOOL_CARDS.trainingBridge.href },
+    ],
+  },
+  {
     id: 'voice-interview',
     title: TOOL_CARDS.voiceInterview.label,
     icon: TOOL_CARDS.voiceInterview.icon,
@@ -88,7 +99,7 @@ export const AI_TOOLKIT_EXTRA_SECTIONS: AiToolkitSection[] = [
   },
   {
     title: 'Step 2: Pre-interview prep and role targeting',
-    tools: [TOOL_CARDS.interviewPractice, TOOL_CARDS.interviewCoach, TOOL_CARDS.jobMatchScorer, TOOL_CARDS.skillMapper],
+    tools: [TOOL_CARDS.interviewPractice, TOOL_CARDS.interviewCoach, TOOL_CARDS.jobMatchScorer, TOOL_CARDS.skillMapper, TOOL_CARDS.trainingBridge],
   },
   {
     title: 'Step 3: Polish your profile and job-search strategy',

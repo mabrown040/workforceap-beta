@@ -2543,6 +2543,32 @@
     "ctaCoach": "En parler",
     "rewriteHistoryTitle": "Réécritures récentes de CV"
   },
+  "trainingBridge": {
+    "metaTitle": "Passerelle Formation",
+    "metaDesc": "Découvrez les compétences qu'il vous manque pour l'emploi que vous voulez et le parcours de formation qui les couvre, sans frais pour les membres.",
+    "title": "Passerelle Formation",
+    "subtitle": "Trouvez les compétences qu'il vous manque pour l'emploi que vous voulez, et le parcours de formation qui les couvre.",
+    "betaTag": "Bêta",
+    "basedOn": "D'après votre résultat Skill Mapper pour {occupation} du {date}.",
+    "yourLastRun": "votre dernier essai",
+    "noAssessmentTitle": "Utilisez d'abord Skill Mapper pour un bilan personnel",
+    "noAssessmentBody": "Vous n'avez pas encore utilisé Skill Mapper. Faites-le une fois et cette page comparera vos compétences à l'emploi que vous voulez. Vous pouvez quand même parcourir les emplois et parcours ci-dessous.",
+    "runSkillMapper": "Ouvrir Skill Mapper",
+    "pickOccupationLabel": "Quel emploi voulez-vous ensuite ?",
+    "assessmentMatchedHint": "Votre dernier essai Skill Mapper correspond à {occupation}.",
+    "missingTitle": "{count, plural, one {Il vous manque 1 compétence pour {occupation}} other {Il vous manque # compétences pour {occupation}}}",
+    "skillsNeededTitle": "Compétences demandées par les employeurs : {occupation}",
+    "allCoveredTitle": "Bonne nouvelle : vous montrez déjà les compétences clés pour {occupation}",
+    "allCoveredBody": "Gardez-les à jour. Le parcours ci-dessous peut encore vous aider à obtenir un certificat reconnu par les employeurs.",
+    "haveTitle": "Vous montrez déjà ces compétences :",
+    "pathwayEyebrow": "Ce parcours les couvre",
+    "pathwayMeta": "{partner} · {duration} · Sans frais pour les membres",
+    "pathwayCoversMissing": "Il couvre les compétences qu'il vous manque : {skills}",
+    "pathwayCovers": "Compétences enseignées dans ce parcours :",
+    "enrollCta": "M'inscrire à ce parcours",
+    "viewProgram": "Voir les détails du programme",
+    "disclaimer": "Ceci est un guide, pas une promesse d'emploi. Votre conseiller peut vous aider à choisir le bon parcours."
+  },
   "journeyGuide": {
     "sectionLabel": "Votre parcours professionnel",
     "pickerTitle": "Où en êtes-vous en ce moment ?",
@@ -2621,6 +2647,10 @@
       "careerCoach": {
         "label": "Parlez de votre prochaine étape",
         "hint": "Votre coach pour les premières semaines"
+      },
+      "trainingBridge": {
+        "label": "Passerelle vers votre prochain emploi",
+        "hint": "Voyez quelle formation comble vos lacunes"
       }
     }
   }

@@ -2415,6 +2415,52 @@
       "hint": "Pressione Enter para enviar, Shift + Enter para nova linha."
     }
   },
+  "first90": {
+    "eyebrow": "Primeiros 90 dias",
+    "title": "Seu novo emprego na {employerName}",
+    "dayCount": "Dia {days}",
+    "stageLabel": {
+      "week_1": "Semana 1",
+      "day_30": "Dia 30",
+      "day_60": "Dia 60",
+      "day_90": "Dia 90"
+    },
+    "progressAria": "Progresso dos check-ins",
+    "question": "Como está indo o trabalho?",
+    "responses": {
+      "going_well": "Está indo bem",
+      "have_questions": "Tenho perguntas",
+      "having_trouble": "Estou com dificuldades"
+    },
+    "thanks": {
+      "going_well": "Que ótimo! Continue assim. Em breve vamos falar com você de novo.",
+      "have_questions": "Obrigado por nos contar. Seu conselheiro pode ajudar — envie uma mensagem quando quiser.",
+      "having_trouble": "Obrigado por nos contar. Avisamos seu conselheiro e ele vai entrar em contato. Você também pode escrever para ele agora."
+    },
+    "messageCounselor": "Enviar mensagem ao seu conselheiro",
+    "saveError": "Não foi possível salvar sua resposta. Tente novamente.",
+    "scriptsTitle": "Fale com seu supervisor",
+    "scriptsIntro": "Não sabe o que dizer? Experimente uma destas frases:",
+    "scripts": {
+      "week_1": {
+        "s1": "Quero fazer um bom trabalho. No que devo focar nas minhas primeiras semanas?",
+        "s2": "Tem algo que eu deva aprender primeiro para ajudar a equipe?"
+      },
+      "day_30": {
+        "s1": "Podemos conversar alguns minutos sobre como foi meu primeiro mês?",
+        "s2": "Tem algo que você gostaria que eu fizesse de forma diferente?"
+      },
+      "day_60": {
+        "s1": "Quero continuar crescendo aqui. Em quais habilidades devo trabalhar agora?",
+        "s2": "Há tarefas que eu possa assumir para ajudar mais?"
+      },
+      "day_90": {
+        "s1": "Podemos conversar sobre como foram meus primeiros 90 dias e o que vem a seguir?",
+        "s2": "O que seria preciso para eu assumir mais responsabilidades aqui?"
+      }
+    },
+    "footerNote": "Seu conselheiro está aqui para você, sem custo para os membros, durante seus primeiros 90 dias e depois."
+  },
   "streaks": {
     "banner": {
       "recordMessage": "Sua melhor sequência até agora — continue!",

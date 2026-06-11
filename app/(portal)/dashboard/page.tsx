@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import { redirect, unstable_rethrow } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -38,6 +39,14 @@ import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgra
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import { getMemberPoints } from '@/lib/member/points';
+import First90DaysCard from '@/components/portal/First90DaysCard';
+import {
+  FIRST90_CHECK_IN_EVENT,
+  buildCheckInsByStage,
+  daysSincePlacement,
+  getFirst90Stage,
+  type First90Stage,
+} from '@/lib/member/first90Days';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 import { getTranslations } from 'next-intl/server';
 import MobileProgramTrainingCard from './_components/MobileProgramTrainingCard';
@@ -235,11 +244,11 @@ async function renderMemberDashboard(
         select: { enrolledByAdminId: true, id: true },
         take: 1,
       },
-      placementRecord: { select: { placedAt: true, retentionDecision: true, onboardingWindowEnd: true } },
+      placementRecord: { select: { placedAt: true, retentionDecision: true, onboardingWindowEnd: true, employerName: true } },
     },
   });
 
-  const [intakeResult, toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult] = await Promise.allSettled([
+  const [intakeResult, toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult, first90EventsResult] = await Promise.allSettled([
     intakePromise,
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
@@ -303,6 +312,14 @@ async function renderMemberDashboard(
     prisma.memberEvent.findFirst({
       where: { userId: user.id, eventName: 'career_os.interview_practice_completed' },
       select: { id: true },
+    }),
+    // First 90 Days check-in responses (one MemberEvent per stage) — drives
+    // the post-placement coach card. See lib/member/first90Days.ts.
+    prisma.memberEvent.findMany({
+      where: { userId: user.id, eventName: FIRST90_CHECK_IN_EVENT },
+      orderBy: { createdAt: 'desc' },
+      take: 12,
+      select: { entityId: true, metadata: true, createdAt: true },
     }),
   ]);
 
@@ -445,6 +462,35 @@ async function renderMemberDashboard(
   }
 
   const hasPlacementRecord = !!intakeExtra?.placementRecord?.placedAt;
+
+  // ── First 90 Days coach card ── derived deterministically from
+  // PlacementRecord.placedAt (week 1 / day 30 / 60 / 90). Shown to both
+  // mobile + desktop, like MemberSessionCard. No schema changes — responses
+  // live in MemberEvent rows.
+  const first90Events = first90EventsResult.status === 'fulfilled' ? first90EventsResult.value : [];
+  if (first90EventsResult.status === 'rejected') {
+    console.error('[dashboard] first 90 days events query failed', first90EventsResult.reason);
+  }
+  let first90Card: ReactNode = null;
+  if (intakeExtra?.placementRecord?.placedAt) {
+    const placedAt = intakeExtra.placementRecord.placedAt;
+    const first90Stage = getFirst90Stage(placedAt);
+    if (first90Stage) {
+      const checkInsByStage = buildCheckInsByStage(first90Events);
+      const completedStages = Object.keys(checkInsByStage) as First90Stage[];
+      first90Card = (
+        <ErrorBoundary fallback={null}>
+          <First90DaysCard
+            stage={first90Stage}
+            daysSincePlacement={daysSincePlacement(placedAt)}
+            employerName={intakeExtra.placementRecord.employerName ?? ''}
+            currentStageResponse={checkInsByStage[first90Stage]?.response ?? null}
+            completedStages={completedStages}
+          />
+        </ErrorBoundary>
+      );
+    }
+  }
 
   const progressStripProps = {
     intake:
@@ -717,6 +763,10 @@ async function renderMemberDashboard(
           toolCount={latestSession.toolCount}
         />
       ) : null}
+
+      {/* ── First 90 Days coach — shown to both mobile + desktop while the
+          member's placement is inside the 90-day window. ── */}
+      {first90Card}
 
       {/* ΓöÇΓöÇ Mobile-only dashboard (Γëñ767px) ΓöÇΓöÇ */}
       <div className="md:wa-hidden portal-mobile-content">

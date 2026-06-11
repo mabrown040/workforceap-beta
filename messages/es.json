@@ -2412,6 +2412,52 @@
       "hint": "Pulsa Enter para enviar, Mayús + Enter para una nueva línea."
     }
   },
+  "first90": {
+    "eyebrow": "Primeros 90 días",
+    "title": "Tu nuevo trabajo en {employerName}",
+    "dayCount": "Día {days}",
+    "stageLabel": {
+      "week_1": "Semana 1",
+      "day_30": "Día 30",
+      "day_60": "Día 60",
+      "day_90": "Día 90"
+    },
+    "progressAria": "Progreso de los registros",
+    "question": "¿Cómo va el trabajo?",
+    "responses": {
+      "going_well": "Va bien",
+      "have_questions": "Tengo preguntas",
+      "having_trouble": "Tengo problemas"
+    },
+    "thanks": {
+      "going_well": "¡Qué bueno saberlo! Sigue así. Pronto volveremos a preguntarte.",
+      "have_questions": "Gracias por contarnos. Tu consejero puede ayudarte — envíale un mensaje cuando quieras.",
+      "having_trouble": "Gracias por contarnos. Avisamos a tu consejero y se pondrá en contacto contigo. También puedes escribirle ahora."
+    },
+    "messageCounselor": "Escribe a tu consejero",
+    "saveError": "No pudimos guardar tu respuesta. Inténtalo de nuevo.",
+    "scriptsTitle": "Habla con tu supervisor",
+    "scriptsIntro": "¿No sabes qué decir? Prueba una de estas frases:",
+    "scripts": {
+      "week_1": {
+        "s1": "Quiero hacer un buen trabajo. ¿En qué debo enfocarme en mis primeras semanas?",
+        "s2": "¿Hay algo que deba aprender primero para ayudar al equipo?"
+      },
+      "day_30": {
+        "s1": "¿Podemos hablar unos minutos sobre cómo fue mi primer mes?",
+        "s2": "¿Hay algo que le gustaría que hiciera de otra manera?"
+      },
+      "day_60": {
+        "s1": "Quiero seguir creciendo aquí. ¿Qué habilidades debo trabajar ahora?",
+        "s2": "¿Hay tareas que pueda tomar para ayudar más?"
+      },
+      "day_90": {
+        "s1": "¿Podemos hablar de cómo fueron mis primeros 90 días y qué sigue?",
+        "s2": "¿Qué necesito para asumir más responsabilidad aquí?"
+      }
+    },
+    "footerNote": "Tu consejero está aquí para ti sin costo para los miembros durante tus primeros 90 días y después."
+  },
   "streaks": {
     "banner": {
       "recordMessage": "¡Tu mejor racha hasta ahora — sigue así!",

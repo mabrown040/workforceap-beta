@@ -2412,6 +2412,52 @@
       "hint": "Press Enter to send, Shift + Enter for a new line."
     }
   },
+  "first90": {
+    "eyebrow": "First 90 Days",
+    "title": "Your new job at {employerName}",
+    "dayCount": "Day {days}",
+    "stageLabel": {
+      "week_1": "Week 1",
+      "day_30": "Day 30",
+      "day_60": "Day 60",
+      "day_90": "Day 90"
+    },
+    "progressAria": "Check-in progress",
+    "question": "How's the job going?",
+    "responses": {
+      "going_well": "Going well",
+      "have_questions": "I have questions",
+      "having_trouble": "I'm having trouble"
+    },
+    "thanks": {
+      "going_well": "Great to hear! Keep it up. We'll check in with you again soon.",
+      "have_questions": "Thanks for telling us. Your counselor can help — send them a message any time.",
+      "having_trouble": "Thanks for telling us. We let your counselor know, and they will reach out. You can also message them now."
+    },
+    "messageCounselor": "Message your counselor",
+    "saveError": "We could not save that. Please try again.",
+    "scriptsTitle": "Talk to your supervisor",
+    "scriptsIntro": "Not sure what to say? Try one of these:",
+    "scripts": {
+      "week_1": {
+        "s1": "I want to do a good job. What should I focus on in my first weeks?",
+        "s2": "Is there anything I should learn first to help the team?"
+      },
+      "day_30": {
+        "s1": "Can we talk for a few minutes about how my first month went?",
+        "s2": "Is there anything you would like me to do differently?"
+      },
+      "day_60": {
+        "s1": "I'd like to keep growing here. What skills should I work on next?",
+        "s2": "Are there tasks I could take on to help more?"
+      },
+      "day_90": {
+        "s1": "Can we talk about how my first 90 days went and what comes next?",
+        "s2": "What would it take for me to take on more responsibility here?"
+      }
+    },
+    "footerNote": "Your counselor is here for you at no-cost to members during your first 90 days and beyond."
+  },
   "streaks": {
     "banner": {
       "recordMessage": "Your best streak yet — keep it going!",

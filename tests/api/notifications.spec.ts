@@ -242,7 +242,7 @@ describe('POST /api/member/notifications/dismiss-all', () => {
     vi.mocked(prisma.notification.updateMany).mockResolvedValue({ count: 7 });
     vi.mocked(prisma.notification.count).mockResolvedValueOnce(0);
 
-    const res = await dismissAll();
+    const res = await dismissAll({} as any);
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -263,7 +263,7 @@ describe('POST /api/member/notifications/dismiss-all', () => {
     vi.mocked(prisma.notification.updateMany).mockResolvedValue({ count: 3 });
     vi.mocked(prisma.notification.count).mockResolvedValueOnce(2);
 
-    const res = await dismissAll();
+    const res = await dismissAll({} as any);
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -274,7 +274,7 @@ describe('POST /api/member/notifications/dismiss-all', () => {
   it('returns 401 for unauthenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
 
-    const res = await dismissAll();
+    const res = await dismissAll({} as any);
 
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
@@ -362,7 +362,7 @@ describe('POST /api/member/notifications/read-all', () => {
     vi.mocked(prisma.notification.updateMany).mockResolvedValue({ count: 5 });
     vi.mocked(prisma.notification.count).mockResolvedValueOnce(0);
 
-    const res = await readAll();
+    const res = await readAll({} as any);
 
     expect(res.status).toBe(200);
     const body = await res.json();

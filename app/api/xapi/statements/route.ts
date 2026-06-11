@@ -185,8 +185,8 @@ export async function POST(request: Request) {
           itemType: parsed.itemType ?? null,
         });
   
-        // Duplicate statementId (retries / races): row exists — skip completion side effects.
-        if (persisted === 'skipped') continue;
+        // Duplicate statementId: skip only after prior side effects completed.
+        if (persisted === 'already_processed') continue;
   
         const { completions: batch } = await handleInboundParsedStatement(parsed, { organizationId });
         completions.push(...batch);

@@ -23,6 +23,9 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(() =>
+    Promise.resolve({ role: 'authenticated', userId: '550e8400-e29b-41d4-a716-446655440001' })
+  ),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
@@ -108,7 +111,7 @@ describe('POST /api/member/delete-account', () => {
     expect(updateCall.data.email).toBe('already_deleted_email');
   });
 
-  it('handles Supabase auth deletion failure gracefully', async () => {
+  it('returns an error when Supabase auth deletion fails', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
       id: UUIDS.user,
@@ -126,8 +129,8 @@ describe('POST /api/member/delete-account', () => {
 
     const res = await deleteAccount(new Request('http://localhost'));
 
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: 'Failed to delete account' });
   });
 
   it('returns 401 for unauthenticated user', async () => {

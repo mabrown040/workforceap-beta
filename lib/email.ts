@@ -39,6 +39,7 @@ import {
   placementSurveyHtml,
   placementSurveyEscalationHtml,
   employerWelcomeHtml,
+  employerVerifyEmailHtml,
   employerSignupAdminAlertHtml,
   employerApprovedHtml,
   employerRejectedHtml,
@@ -1660,6 +1661,40 @@ export async function sendEmployerWelcomeEmail(params: {
     return { ok: true };
   } catch (err) {
     console.error('sendEmployerWelcomeEmail failed:', err);
+    return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
+  }
+}
+
+/** Send email-verification link to a newly self-registered employer */
+export async function sendEmployerVerificationEmail(params: {
+  to: string;
+  contactName: string;
+  verifyUrl: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('sendEmployerVerificationEmail: RESEND_API_KEY not set');
+    return { ok: false, error: 'Email not configured' };
+  }
+  const html = brandedEmailLayout({
+    title: 'Verify your email — WorkforceAP Employer Portal',
+    bodyHtml: employerVerifyEmailHtml({
+      contactName: params.contactName,
+      verifyUrl: params.verifyUrl,
+    }),
+    ctaText: 'Verify Email Address',
+    ctaUrl: params.verifyUrl,
+  });
+  try {
+    await sendBrandedEmail(resend, {
+      from: getFrom(),
+      to: params.to,
+      subject: sanitizeEmailSubjectLine('Verify your email — WorkforceAP'),
+      html,
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error('sendEmployerVerificationEmail failed:', err);
     return { ok: false, error: err instanceof Error ? err.message : 'Send failed' };
   }
 }

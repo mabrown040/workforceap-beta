@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
+import { auditLog } from '@/lib/audit';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
 
@@ -113,6 +114,41 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
       placedAt,
       programSlug,
       notes: d.notes?.trim() || null,
+    },
+  });
+
+  // WIOA grant claims need a tamper-evident change history (AUDIT H-DEP4).
+  // MemberEvent rows are mutable product analytics; AuditLog is the
+  // retained 3-year record with actor attribution.
+  await auditLog({
+    actorUserId: user.id,
+    action: prior ? 'placement_update' : 'placement_create',
+    targetType: 'placement_record',
+    targetId: placement.id,
+    metadata: {
+      memberId,
+      before: prior
+        ? {
+            employerName: prior.employerName,
+            jobTitle: prior.jobTitle,
+            salaryOffered: prior.salaryOffered,
+            placedAt: prior.placedAt.toISOString(),
+            wageAtFollowUp: prior.wageAtFollowUp,
+            retentionStatus: prior.retentionStatus,
+            startDateVerified: prior.startDateVerified,
+            fundingSource: prior.fundingSource,
+          }
+        : null,
+      after: {
+        employerName: placement.employerName,
+        jobTitle: placement.jobTitle,
+        salaryOffered: placement.salaryOffered,
+        placedAt: placement.placedAt.toISOString(),
+        wageAtFollowUp: placement.wageAtFollowUp,
+        retentionStatus: placement.retentionStatus,
+        startDateVerified: placement.startDateVerified,
+        fundingSource: placement.fundingSource,
+      },
     },
   });
 

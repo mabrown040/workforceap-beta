@@ -150,7 +150,8 @@
   "dashboard": {
     "priorityAction": "Priority Action",
     "priorityActionFor": "For {program}.",
-    "yourProgram": "your program",
+    "yourProgram": "Your program",
+    "yourProgramInline": "your program",
     "readinessGreatStanding": "Great Standing",
     "readinessGoodStanding": "Good Standing",
     "readinessMakingProgress": "Making Progress",
@@ -336,7 +337,6 @@
     "careerTrainingNoCost": "Career training at no cost for qualifying members. A counselor will help you pick the right program and next steps.",
     "pickCareerTrack": "Pick the career track that fits your goals. Programs are available at no cost for qualifying members.",
     "chooseProgramBtn": "Choose Program",
-    "priorityAction": "Priority Action",
     "takeAction": "Take action",
     "applicationJourney": "Application journey",
     "yourFirstPointsWaiting": "Your first points are waiting.",
@@ -345,7 +345,6 @@
     "recommendedPrograms": "Recommended Programs",
     "trainingLink": "My Training",
     "nextMilestones": "Next milestones",
-    "yourProgram": "Your program",
     "continueTraining": "Continue your training",
     "pickUpWhereLeftOff": "Pick up where you left off.",
     "openTrainingTrack": "Open your training track and keep progressing.",
@@ -775,6 +774,8 @@
     "statusErrorGeneric": "Something went wrong. Please try again.",
     "statusErrorUnexpected": "Unexpected response. Please try again.",
     "statusErrorNetwork": "Network error. Please try again.",
+    "statusLoginCtaLead": "Already have an account? Your live application status is always in your member portal.",
+    "statusLoginCta": "Log in to see your status",
     "statusFootnoteBefore": "Logged in already? Open your",
     "statusFootnoteDashboard": "member dashboard",
     "statusFootnoteAfter": "for full details.",
@@ -2351,7 +2352,9 @@
       "agreeToThe": "I agree to the",
       "and": "and",
       "commsConsent": "I agree to receive program updates and communications via email"
-    }
+    },
+    "accountDeletedNotice": "This account has been deleted. If you believe this is a mistake, contact us at info@workforceap.org or (512) 777-1808.",
+    "emailVerifiedNotice": "Email verified — you can log in now."
   },
   "coach": {
     "meta": {
@@ -2408,6 +2411,52 @@
       "sendAria": "Send message",
       "hint": "Press Enter to send, Shift + Enter for a new line."
     }
+  },
+  "first90": {
+    "eyebrow": "First 90 Days",
+    "title": "Your new job at {employerName}",
+    "dayCount": "Day {days}",
+    "stageLabel": {
+      "week_1": "Week 1",
+      "day_30": "Day 30",
+      "day_60": "Day 60",
+      "day_90": "Day 90"
+    },
+    "progressAria": "Check-in progress",
+    "question": "How's the job going?",
+    "responses": {
+      "going_well": "Going well",
+      "have_questions": "I have questions",
+      "having_trouble": "I'm having trouble"
+    },
+    "thanks": {
+      "going_well": "Great to hear! Keep it up. We'll check in with you again soon.",
+      "have_questions": "Thanks for telling us. Your counselor can help — send them a message any time.",
+      "having_trouble": "Thanks for telling us. We let your counselor know, and they will reach out. You can also message them now."
+    },
+    "messageCounselor": "Message your counselor",
+    "saveError": "We could not save that. Please try again.",
+    "scriptsTitle": "Talk to your supervisor",
+    "scriptsIntro": "Not sure what to say? Try one of these:",
+    "scripts": {
+      "week_1": {
+        "s1": "I want to do a good job. What should I focus on in my first weeks?",
+        "s2": "Is there anything I should learn first to help the team?"
+      },
+      "day_30": {
+        "s1": "Can we talk for a few minutes about how my first month went?",
+        "s2": "Is there anything you would like me to do differently?"
+      },
+      "day_60": {
+        "s1": "I'd like to keep growing here. What skills should I work on next?",
+        "s2": "Are there tasks I could take on to help more?"
+      },
+      "day_90": {
+        "s1": "Can we talk about how my first 90 days went and what comes next?",
+        "s2": "What would it take for me to take on more responsibility here?"
+      }
+    },
+    "footerNote": "Your counselor is here for you at no-cost to members during your first 90 days and beyond."
   },
   "streaks": {
     "banner": {
@@ -2540,6 +2589,32 @@
     "ctaCoach": "Talk it through",
     "rewriteHistoryTitle": "Recent resume rewrite runs"
   },
+  "trainingBridge": {
+    "metaTitle": "Training Bridge",
+    "metaDesc": "See which skills you still need for the job you want, and which training pathway covers them — no-cost to members.",
+    "title": "Training Bridge",
+    "subtitle": "Find the skills you still need for the job you want, and the training pathway that covers them.",
+    "betaTag": "Beta",
+    "basedOn": "Based on your Skill Mapper result for {occupation} from {date}.",
+    "yourLastRun": "your last run",
+    "noAssessmentTitle": "Run Skill Mapper first for a personal skill check",
+    "noAssessmentBody": "We have not seen a Skill Mapper run from you yet. Run it once and this page will compare your skills to the job you want. You can still browse jobs and pathways below.",
+    "runSkillMapper": "Open Skill Mapper",
+    "pickOccupationLabel": "What job do you want next?",
+    "assessmentMatchedHint": "Your last Skill Mapper run matched {occupation}.",
+    "missingTitle": "{count, plural, one {You're missing 1 skill for {occupation}} other {You're missing # skills for {occupation}}}",
+    "skillsNeededTitle": "Skills employers ask for: {occupation}",
+    "allCoveredTitle": "Good news — you already show the key skills for {occupation}",
+    "allCoveredBody": "Keep them sharp. The pathway below can still help you earn a certificate employers recognize.",
+    "haveTitle": "You already show these skills:",
+    "pathwayEyebrow": "This pathway covers them",
+    "pathwayMeta": "{partner} · {duration} · No-cost to members",
+    "pathwayCoversMissing": "It covers the skills you're missing: {skills}",
+    "pathwayCovers": "Skills this pathway teaches:",
+    "enrollCta": "Enroll in this pathway",
+    "viewProgram": "See program details",
+    "disclaimer": "This is a guide, not a job promise. Your counselor can help you pick the right pathway."
+  },
   "journeyGuide": {
     "sectionLabel": "Your career journey",
     "pickerTitle": "Where are you right now?",
@@ -2618,6 +2693,10 @@
       "careerCoach": {
         "label": "Talk through your next move",
         "hint": "Your coach for the first weeks"
+      },
+      "trainingBridge": {
+        "label": "Bridge to your next job",
+        "hint": "See what training closes your skill gaps"
       }
     }
   }

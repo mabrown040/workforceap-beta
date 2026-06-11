@@ -148,9 +148,10 @@
     "languageEn": "Inglês"
   },
   "dashboard": {
-    "priorityAction": "Ação prioritária",
+    "priorityAction": "Ação Prioritária",
     "priorityActionFor": "Para {program}.",
-    "yourProgram": "seu programa",
+    "yourProgram": "Seu programa",
+    "yourProgramInline": "seu programa",
     "readinessGreatStanding": "Excelente situação",
     "readinessGoodStanding": "Boa situação",
     "readinessMakingProgress": "Progredindo",
@@ -325,7 +326,6 @@
     "careerTrainingNoCost": "Treinamento profissional sem custo para membros qualificados. Um conselheiro ajudará você a escolher o programa e os próximos passos certos.",
     "pickCareerTrack": "Escolha a trilha de carreira que se encaixa em seus objetivos. Programas estão disponíveis sem custo para membros qualificados.",
     "chooseProgramBtn": "Escolher Programa",
-    "priorityAction": "Ação Prioritária",
     "takeAction": "Agir",
     "applicationJourney": "Jornada da candidatura",
     "yourFirstPointsWaiting": "Seus primeiros pontos estão esperando.",
@@ -334,7 +334,6 @@
     "recommendedPrograms": "Programas Recomendados",
     "trainingLink": "Meu Treinamento",
     "nextMilestones": "Próximos marcos",
-    "yourProgram": "Seu programa",
     "continueTraining": "Continue seu treinamento",
     "pickUpWhereLeftOff": "Retome de onde parou.",
     "openTrainingTrack": "Abra sua trilha de treinamento e continue progredindo.",
@@ -759,6 +758,8 @@
     "statusErrorGeneric": "Algo deu errado. Por favor, tente novamente.",
     "statusErrorUnexpected": "Resposta inesperada. Por favor, tente novamente.",
     "statusErrorNetwork": "Erro de rede. Por favor, tente novamente.",
+    "statusLoginCtaLead": "Já tem uma conta? O status atualizado da sua inscrição está sempre no seu portal de membro.",
+    "statusLoginCta": "Entre para ver seu status",
     "statusFootnoteBefore": "Já fez login? Abra seu",
     "statusFootnoteDashboard": "dashboard do membro",
     "statusFootnoteAfter": "para detalhes completos.",
@@ -2354,7 +2355,9 @@
       "agreeToThe": "I agree to the",
       "and": "and",
       "commsConsent": "I agree to receive program updates and communications via email"
-    }
+    },
+    "accountDeletedNotice": "Esta conta foi excluída. Se você acredita que isso é um engano, fale conosco em info@workforceap.org ou (512) 777-1808.",
+    "emailVerifiedNotice": "E-mail verificado — você já pode entrar."
   },
   "coach": {
     "meta": {
@@ -2411,6 +2414,52 @@
       "sendAria": "Enviar mensagem",
       "hint": "Pressione Enter para enviar, Shift + Enter para nova linha."
     }
+  },
+  "first90": {
+    "eyebrow": "Primeiros 90 dias",
+    "title": "Seu novo emprego na {employerName}",
+    "dayCount": "Dia {days}",
+    "stageLabel": {
+      "week_1": "Semana 1",
+      "day_30": "Dia 30",
+      "day_60": "Dia 60",
+      "day_90": "Dia 90"
+    },
+    "progressAria": "Progresso dos check-ins",
+    "question": "Como está indo o trabalho?",
+    "responses": {
+      "going_well": "Está indo bem",
+      "have_questions": "Tenho perguntas",
+      "having_trouble": "Estou com dificuldades"
+    },
+    "thanks": {
+      "going_well": "Que ótimo! Continue assim. Em breve vamos falar com você de novo.",
+      "have_questions": "Obrigado por nos contar. Seu conselheiro pode ajudar — envie uma mensagem quando quiser.",
+      "having_trouble": "Obrigado por nos contar. Avisamos seu conselheiro e ele vai entrar em contato. Você também pode escrever para ele agora."
+    },
+    "messageCounselor": "Enviar mensagem ao seu conselheiro",
+    "saveError": "Não foi possível salvar sua resposta. Tente novamente.",
+    "scriptsTitle": "Fale com seu supervisor",
+    "scriptsIntro": "Não sabe o que dizer? Experimente uma destas frases:",
+    "scripts": {
+      "week_1": {
+        "s1": "Quero fazer um bom trabalho. No que devo focar nas minhas primeiras semanas?",
+        "s2": "Tem algo que eu deva aprender primeiro para ajudar a equipe?"
+      },
+      "day_30": {
+        "s1": "Podemos conversar alguns minutos sobre como foi meu primeiro mês?",
+        "s2": "Tem algo que você gostaria que eu fizesse de forma diferente?"
+      },
+      "day_60": {
+        "s1": "Quero continuar crescendo aqui. Em quais habilidades devo trabalhar agora?",
+        "s2": "Há tarefas que eu possa assumir para ajudar mais?"
+      },
+      "day_90": {
+        "s1": "Podemos conversar sobre como foram meus primeiros 90 dias e o que vem a seguir?",
+        "s2": "O que seria preciso para eu assumir mais responsabilidades aqui?"
+      }
+    },
+    "footerNote": "Seu conselheiro está aqui para você, sem custo para os membros, durante seus primeiros 90 dias e depois."
   },
   "streaks": {
     "banner": {
@@ -2543,6 +2592,32 @@
     "ctaCoach": "Conversar sobre isso",
     "rewriteHistoryTitle": "Reescritas recentes de currículo"
   },
+  "trainingBridge": {
+    "metaTitle": "Ponte de Treinamento",
+    "metaDesc": "Veja quais habilidades faltam para o trabalho que você quer e qual trilha de treinamento as cobre, sem custo para membros.",
+    "title": "Ponte de Treinamento",
+    "subtitle": "Encontre as habilidades que ainda faltam para o trabalho que você quer e a trilha de treinamento que as cobre.",
+    "betaTag": "Beta",
+    "basedOn": "Com base no seu resultado do Skill Mapper para {occupation} de {date}.",
+    "yourLastRun": "seu último teste",
+    "noAssessmentTitle": "Use o Skill Mapper primeiro para um check-up pessoal",
+    "noAssessmentBody": "Você ainda não usou o Skill Mapper. Use uma vez e esta página vai comparar suas habilidades com o trabalho que você quer. Enquanto isso, veja trabalhos e trilhas abaixo.",
+    "runSkillMapper": "Abrir Skill Mapper",
+    "pickOccupationLabel": "Qual trabalho você quer em seguida?",
+    "assessmentMatchedHint": "Seu último teste do Skill Mapper combinou com {occupation}.",
+    "missingTitle": "{count, plural, one {Falta 1 habilidade para {occupation}} other {Faltam # habilidades para {occupation}}}",
+    "skillsNeededTitle": "Habilidades que os empregadores pedem: {occupation}",
+    "allCoveredTitle": "Boa notícia: você já mostra as habilidades principais para {occupation}",
+    "allCoveredBody": "Continue praticando. A trilha abaixo ainda pode ajudar você a ganhar um certificado que os empregadores reconhecem.",
+    "haveTitle": "Você já mostra estas habilidades:",
+    "pathwayEyebrow": "Esta trilha cobre essas habilidades",
+    "pathwayMeta": "{partner} · {duration} · Sem custo para membros",
+    "pathwayCoversMissing": "Ela cobre as habilidades que faltam: {skills}",
+    "pathwayCovers": "Habilidades que esta trilha ensina:",
+    "enrollCta": "Inscrever-me nesta trilha",
+    "viewProgram": "Ver detalhes do programa",
+    "disclaimer": "Isto é um guia, não uma promessa de emprego. Seu conselheiro pode ajudar você a escolher a trilha certa."
+  },
   "journeyGuide": {
     "sectionLabel": "Sua jornada profissional",
     "pickerTitle": "Onde você está agora?",
@@ -2621,6 +2696,10 @@
       "careerCoach": {
         "label": "Converse sobre seu próximo passo",
         "hint": "Seu coach para as primeiras semanas"
+      },
+      "trainingBridge": {
+        "label": "Ponte para seu próximo trabalho",
+        "hint": "Veja qual treinamento fecha suas lacunas"
       }
     }
   }

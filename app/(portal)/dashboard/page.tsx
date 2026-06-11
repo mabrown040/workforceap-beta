@@ -1,19 +1,14 @@
-import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import dynamic from 'next/dynamic';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import { redirect, unstable_rethrow } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { getProgramBySlug, PROGRAMS } from '@/lib/content/programs';
+import { getProgramBySlug } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
-import DashboardHomeClient from '@/components/portal/DashboardHomeClient';
-import type { CareerMatchResult } from '@/lib/onet/types';
-import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
-import { canBypassMemberAssessment, isSuperAdmin } from '@/lib/auth/roles';
+import { canBypassMemberAssessment, getProfileRole, isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
-import { MEMBER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import VoiceSectionErrorBoundary from '@/components/portal/VoiceSectionErrorBoundary';
@@ -33,7 +28,6 @@ import { parseGoalDescription } from '@/lib/member/goalSteps';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberState } from '@/lib/member/getMemberState';
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
-import DashboardProgramSelector from '@/components/portal/DashboardProgramSelector';
 import {
   fetchLearnerProgressFromB4B,
   type LearnerProgressByContent,
@@ -42,31 +36,37 @@ import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCa
 import { maybeAutoSyncCourseraOnDashboard } from '@/lib/coursera/dashboardAutoSync';
 import { getAIToolFollowThrough } from '@/lib/member/aiToolFollowThrough';
 import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgramTrainingView';
-import { stripMarkdownForPreview } from '@/lib/text/stripMarkdown';
-import DashboardSkeleton from '@/components/dashboard/DashboardSkeleton';
-import JobsSkeleton from '@/components/dashboard/JobsSkeleton';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
-import RequestHelpButton from '@/components/portal/RequestHelpButton';
-import MemberFeedbackButton from '@/components/portal/MemberFeedbackButton';
 import { getMemberPoints } from '@/lib/member/points';
+import First90DaysCard from '@/components/portal/First90DaysCard';
+import {
+  FIRST90_CHECK_IN_EVENT,
+  buildCheckInsByStage,
+  daysSincePlacement,
+  getFirst90Stage,
+  type First90Stage,
+} from '@/lib/member/first90Days';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 import { getTranslations } from 'next-intl/server';
+import MobileProgramTrainingCard from './_components/MobileProgramTrainingCard';
+import MobileStateANextStepCard from './_components/MobileStateANextStepCard';
+import MobilePriorityActionCard from './_components/MobilePriorityActionCard';
+import MobileJourneyTimeline from './_components/MobileJourneyTimeline';
+import MobilePointsSection from './_components/MobilePointsSection';
+import MobileDiscoverSection from './_components/MobileDiscoverSection';
+import MobileQuickActions from './_components/MobileQuickActions';
+import MobileRecentActivity from './_components/MobileRecentActivity';
+import DesktopDashboard from './_components/DesktopDashboard';
 
 const MemberCareerPathSection = dynamic(
   () => import('@/components/portal/MemberCareerPathSection'),
   { loading: () => null }
 );
-const MatchedRoles = dynamic(() => import('@/components/portal/MatchedRoles'), {
-  loading: () => <JobsSkeleton count={4} />,
-});
 const LogCertificationModal = dynamic(() => import('./LogCertificationModal'), {
   loading: () => null,
 });
 const PlacementConfirmationStrip = dynamic(() => import('./PlacementConfirmationStrip'), {
-  loading: () => null,
-});
-const PointsWidget = dynamic(() => import('@/components/portal/PointsWidget'), {
   loading: () => null,
 });
 const PWAInstallPrompt = dynamic(() => import('@/components/pwa/PWAInstallPrompt'), {
@@ -102,6 +102,9 @@ export default async function DashboardPage({
   try {
     return await renderMemberDashboard(user, t, { requestedProgramSlug });
   } catch (err) {
+    // redirect()/notFound() work by throwing — rethrow them so they keep
+    // navigating instead of being logged and rendered as the error fallback.
+    unstable_rethrow(err);
     console.error('[dashboard] unhandled render error', err);
     return (
       <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}>
@@ -128,7 +131,17 @@ async function renderMemberDashboard(
   args: { requestedProgramSlug: string | null } = { requestedProgramSlug: null },
 ) {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
-  if (!dbUser) redirect('/login');
+  if (!dbUser) {
+    // Authenticated session without a member row — staff accounts land here
+    // when something links them to /dashboard. Send them to their own portal
+    // instead of showing the login form to an already-logged-in user.
+    if (await isAdmin(user.id)) redirect('/admin');
+    const role = await getProfileRole(user.id);
+    if (role === 'counselor') redirect('/counselor');
+    if (role === 'employer') redirect('/employer');
+    if (role === 'partner') redirect('/partner');
+    redirect('/login');
+  }
 
   // ── Auto-sync trigger (fire-and-await with 5s deadline; fail-soft) ──
   // First-visit members who have a Coursera identity mapping but zero local
@@ -231,11 +244,11 @@ async function renderMemberDashboard(
         select: { enrolledByAdminId: true, id: true },
         take: 1,
       },
-      placementRecord: { select: { placedAt: true, retentionDecision: true, onboardingWindowEnd: true } },
+      placementRecord: { select: { placedAt: true, retentionDecision: true, onboardingWindowEnd: true, employerName: true } },
     },
   });
 
-  const [intakeResult, toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult] = await Promise.allSettled([
+  const [intakeResult, toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult, first90EventsResult] = await Promise.allSettled([
     intakePromise,
     prisma.aIToolResult.findMany({
       where: { userId: user.id },
@@ -299,6 +312,14 @@ async function renderMemberDashboard(
     prisma.memberEvent.findFirst({
       where: { userId: user.id, eventName: 'career_os.interview_practice_completed' },
       select: { id: true },
+    }),
+    // First 90 Days check-in responses (one MemberEvent per stage) — drives
+    // the post-placement coach card. See lib/member/first90Days.ts.
+    prisma.memberEvent.findMany({
+      where: { userId: user.id, eventName: FIRST90_CHECK_IN_EVENT },
+      orderBy: { createdAt: 'desc' },
+      take: 12,
+      select: { entityId: true, metadata: true, createdAt: true },
     }),
   ]);
 
@@ -442,6 +463,35 @@ async function renderMemberDashboard(
 
   const hasPlacementRecord = !!intakeExtra?.placementRecord?.placedAt;
 
+  // ── First 90 Days coach card ── derived deterministically from
+  // PlacementRecord.placedAt (week 1 / day 30 / 60 / 90). Shown to both
+  // mobile + desktop, like MemberSessionCard. No schema changes — responses
+  // live in MemberEvent rows.
+  const first90Events = first90EventsResult.status === 'fulfilled' ? first90EventsResult.value : [];
+  if (first90EventsResult.status === 'rejected') {
+    console.error('[dashboard] first 90 days events query failed', first90EventsResult.reason);
+  }
+  let first90Card: ReactNode = null;
+  if (intakeExtra?.placementRecord?.placedAt) {
+    const placedAt = intakeExtra.placementRecord.placedAt;
+    const first90Stage = getFirst90Stage(placedAt);
+    if (first90Stage) {
+      const checkInsByStage = buildCheckInsByStage(first90Events);
+      const completedStages = Object.keys(checkInsByStage) as First90Stage[];
+      first90Card = (
+        <ErrorBoundary fallback={null}>
+          <First90DaysCard
+            stage={first90Stage}
+            daysSincePlacement={daysSincePlacement(placedAt)}
+            employerName={intakeExtra.placementRecord.employerName ?? ''}
+            currentStageResponse={checkInsByStage[first90Stage]?.response ?? null}
+            completedStages={completedStages}
+          />
+        </ErrorBoundary>
+      );
+    }
+  }
+
   const progressStripProps = {
     intake:
       intakeExtra?.onboardingCompletedAt != null ||
@@ -564,90 +614,10 @@ async function renderMemberDashboard(
 
   /* Mobile hero uses a My Training hub link (states C/D) — training home is now /dashboard */
 
-  const AI_TOOL_LABELS: Record<string, string> = {
-    job_match_scorer: t('seeHowYouMatch'),
-    resume_analysis: t('resumeAnalysis'),
-    resume_rewriter: t('resumeRewriter'),
-    cover_letter: t('coverLetter'),
-    interview_practice: t('interviewPractice'),
-    linkedin_headline: t('linkedinHeadline'),
-    linkedin_about: t('linkedinAbout'),
-    salary_negotiation: t('salaryNegotiation'),
-    gap_analyzer: t('seeWhatIsMissing'),
-    interview_coach: t('aiInterviewCoach'),
-    career_counselor: t('careerCounselor'),
-  };
-
   const interviewCompleted = !!intakeExtra?.interviewCompletedAt;
   const interviewRequested = !!intakeExtra?.interviewRequestedAt;
   const interviewEligibleFlag = intakeExtra?.interviewEligible ?? false;
   const preScreeningDone = !!intakeExtra?.preScreeningResponse;
-
-  const mobileCarouselCardWidth = 'min(240px, calc(100vw - 3rem))';
-
-  /* Journey timeline — complete / active (next) / locked (future) */
-  const journeySteps = [
-    {
-      label: t('journeyProgramSelected'),
-      done: !!enrolledProgram,
-      active: !enrolledProgram,
-      locked: false,
-      detail: enrolledProgram ? t('programOnFile') : noApplicationOnFile ? t('startApplication') : t('chooseProgram'),
-    },
-    {
-      label: t('journeySkillsAssessment'),
-      done: assessmentCompleted,
-      active: !!enrolledProgram && !assessmentCompleted,
-      locked: !enrolledProgram,
-      detail: assessmentCompleted ? t('progressCompleted') : enrolledProgram ? t('completeToStartTraining') : t('waitingForEnrollment'),
-    },
-    {
-      label: t('journeyInterview'),
-      done: interviewCompleted,
-      active:
-        assessmentCompleted &&
-        !interviewCompleted &&
-        (interviewRequested || interviewEligibleFlag),
-      locked:
-        !assessmentCompleted ||
-        (assessmentCompleted &&
-          !interviewCompleted &&
-          !interviewRequested &&
-          !interviewEligibleFlag),
-      detail: interviewCompleted
-        ? t('interviewComplete')
-        : interviewRequested
-          ? t('interviewScheduled')
-          : interviewEligibleFlag
-            ? t('requestOrAttendInterview')
-            : preScreeningDone
-              ? t('preScreeningSubmitted')
-              : t('submitPreScreening'),
-    },
-    {
-      label: t('journeyFirstCourse'),
-      done: completedCount > 0,
-      active:
-        !!enrolledProgram &&
-        assessmentCompleted &&
-        completedCount === 0 &&
-        (!interviewEligibleFlag || interviewCompleted),
-      locked:
-        !enrolledProgram ||
-        !assessmentCompleted ||
-        (interviewEligibleFlag && !interviewCompleted),
-      detail:
-        completedCount > 0
-          ? allCoursesComplete
-            ? t('allCoursesComplete')
-            : t('coursesCompleteDetail', { count: completedCount, plural: completedCount === 1 ? '' : 's' })
-          : enrolledProgram && assessmentCompleted
-            ? interviewEligibleFlag && !interviewCompleted
-              ? t('completeInterviewFirst')
-              : t('openFirstCourse')
-            : t('completePriorStepsFirst'),
-    },
-  ];
 
   // ── Today hero + proactive "we noticed…" insights ──
   // Additive layer at the top of the dashboard. We reuse data already loaded
@@ -794,6 +764,10 @@ async function renderMemberDashboard(
         />
       ) : null}
 
+      {/* ── First 90 Days coach — shown to both mobile + desktop while the
+          member's placement is inside the 90-day window. ── */}
+      {first90Card}
+
       {/* ΓöÇΓöÇ Mobile-only dashboard (Γëñ767px) ΓöÇΓöÇ */}
       <div className="md:wa-hidden portal-mobile-content">
 
@@ -809,153 +783,20 @@ async function renderMemberDashboard(
           </section>
         ) : null}
 
-        {/* ΓöÇΓöÇ Program & training context ΓöÇΓöÇ
-            The greeting now lives solely in TodayHero (above). This slim card
-            preserves the still-useful pieces of the former hero: the program
-            label, the program switcher, and the My Training entry point. It is
-            only shown when there is program context or a training state to
-            surface — otherwise it stays out of the way. */}
-        {(program || (showProgramSelector && enrolledProgram) || dashboardState === 'C' || dashboardState === 'D') && (
-        <section aria-label="Program and training" style={{ padding: '1rem 1.25rem 0.5rem' }}>
-          <div
-            style={{
-              borderRadius: '1.5rem',
-              padding: '1rem',
-              background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 7%, var(--surface-container-lowest)) 0%, var(--surface-container-lowest) 52%)',
-              border: '1px solid color-mix(in srgb, var(--color-accent) 14%, var(--outline-variant))',
-              boxShadow: '0 16px 40px rgba(17, 24, 39, 0.08)',
-              overflow: 'hidden',
-              position: 'relative',
-            }}
-          >
-            <div
-              aria-hidden
-              style={{
-                position: 'absolute',
-                top: '-2.5rem',
-                right: '-2rem',
-                width: '8rem',
-                height: '8rem',
-                borderRadius: '999px',
-                background: 'radial-gradient(circle, color-mix(in srgb, var(--color-accent) 18%, transparent) 0%, transparent 68%)',
-                pointerEvents: 'none',
-              }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.9rem', position: 'relative' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', flex: 1, minWidth: 0, paddingRight: '0.25rem' }}>
-                <p style={{ margin: 0, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-dark)' }}>
-                  {t('memberDashboard')}
-                </p>
-                {program && (
-                  <div style={{ display: 'inline-flex', alignSelf: 'flex-start', maxWidth: '100%', padding: '0.5rem 0.7rem', borderRadius: '0.9rem', background: 'color-mix(in srgb, var(--surface-container-lowest) 90%, transparent)', border: '1px solid color-mix(in srgb, var(--color-accent) 10%, var(--outline-variant))' }}>
-                    <p style={{ fontSize: '0.76rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.35, fontWeight: 600 }}>
-                      {program.title}
-                    </p>
-                  </div>
-                )}
-                {showProgramSelector && enrolledProgram && (
-                  <DashboardProgramSelector
-                    options={programSelectorOptions}
-                    activeProgramSlug={enrolledProgram}
-                  />
-                )}
-              </div>
+        {/* Program & training context - see _components/MobileProgramTrainingCard */}
+        <MobileProgramTrainingCard
+          t={t}
+          programTitle={program?.title ?? null}
+          showProgramSelector={showProgramSelector}
+          enrolledProgram={enrolledProgram}
+          programSelectorOptions={programSelectorOptions}
+          dashboardState={dashboardState}
+          nextIncompleteCourseName={nextIncompleteCourse?.name ?? null}
+        />
 
-              {/* Training hub CTA — course-level % and Coursera live on My Training */}
-              {(dashboardState === 'C' || dashboardState === 'D') && (
-                <div
-                  style={{
-                    flexShrink: 0,
-                    width: '7.5rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'stretch',
-                    gap: '0.5rem',
-                  }}
-                >
-                  <Link
-                    href="/dashboard/learning"
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.35rem',
-                      padding: '0.65rem 0.5rem',
-                      borderRadius: '1rem',
-                      background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 12%, var(--surface-container-lowest)) 0%, var(--surface-container-lowest) 100%)',
-                      border: '1px solid color-mix(in srgb, var(--color-accent) 22%, var(--outline-variant))',
-                      boxShadow: '0 10px 28px color-mix(in srgb, var(--color-accent) 12%, transparent)',
-                      textDecoration: 'none',
-                      color: 'inherit',
-                      textAlign: 'center',
-                      minHeight: '44px',
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.35rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
-                      school
-                    </span>
-                    <span className="wa-text-[11px] wa-font-extrabold wa-uppercase wa-tracking-[0.08em] wa-text-[var(--color-accent-dark)]" style={{ lineHeight: 1.2 }}>
-                      {t('myTrainingMetricLabel')}
-                    </span>
-                    <span className="wa-text-[10px] wa-font-semibold wa-text-[var(--color-on-surface-variant)]" style={{ lineHeight: 1.3 }}>
-                      {t('myTrainingMetricValue')}
-                    </span>
-                  </Link>
-                  {nextIncompleteCourse ? (
-                    <p style={{ margin: 0, fontSize: '0.65rem', lineHeight: 1.35, color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
-                      {t('myTrainingHubNextUp', { course: nextIncompleteCourse.name })}
-                    </p>
-                  ) : null}
-                </div>
-              )}
-            </div>
-
-            {(dashboardState === 'C' || dashboardState === 'D') && (
-            <div style={{ marginTop: '0.9rem', paddingTop: '0.9rem', borderTop: '1px solid color-mix(in srgb, var(--outline-variant) 78%, var(--surface-container-lowest))' }}>
-              <p className="wa-text-xs wa-text-[var(--color-on-surface-variant)]" style={{ margin: 0, lineHeight: 1.5 }}>
-                {t('dashboardCourseProgressOnTraining')}
-              </p>
-            </div>
-            )}
-          </div>
-        </section>
-        )}
-
-        {/* ΓöÇΓöÇ State A: unmissable next-step CTA — shown before voice section when member hasn't enrolled ΓöÇΓöÇ */}
+        {/* State A: unmissable next-step CTA - shown before voice section when member hasn't enrolled */}
         {dashboardState === 'A' && (
-          <section aria-label="Next step" style={{ padding: '0 1.25rem 1.25rem' }}>
-            <Link
-              href={noApplicationOnFile ? '/apply' : '/dashboard/program'}
-              style={{
-                display: 'block',
-                borderRadius: '1rem',
-                overflow: 'hidden',
-                background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-                boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 28%, transparent)',
-                padding: '1.25rem',
-                textDecoration: 'none',
-              }}
-            >
-              <p style={{ fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.78)', margin: '0 0 0.4rem' }}>
-                {t('yourNextStep')}
-              </p>
-              <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
-                {noApplicationOnFile
-                  ? t('applyNowTenMinutes')
-                  : t('chooseYourProgram')}
-              </p>
-              <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.85)', margin: '0 0 1rem', lineHeight: 1.5 }}>
-                {noApplicationOnFile
-                  ? t('careerTrainingNoCost')
-                  : t('pickCareerTrack')}
-              </p>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
-                <span>{noApplicationOnFile ? t('startApplication') : t('chooseProgramBtn')}</span>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
-              </div>
-            </Link>
-          </section>
+          <MobileStateANextStepCard t={t} noApplicationOnFile={noApplicationOnFile} />
         )}
 
         {showStuckCounselor && (
@@ -997,30 +838,11 @@ async function renderMemberDashboard(
           <PlacementConfirmationStrip offers={jobOffers} />
         </ErrorBoundary>
         {!dominantNextAction && applicationStatus?.nextStep && (
-          <section aria-label="Priority action" style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
-            <div style={{ borderRadius: '1rem', overflow: 'hidden', background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', boxShadow: '0 6px 24px color-mix(in srgb, var(--color-accent) 30%, transparent)' }}>
-              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <p style={{ fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.82)', margin: '0 0 0.35rem' }}>{t('priorityAction')}</p>
-                    <h2 style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.3 }}>
-                      {applicationStatus.nextStep}
-                    </h2>
-                  </div>
-                  <span className="material-symbols-outlined wa-text-xl" style={{ color: 'var(--color-gold)', '--ms-fill': 1 }} aria-hidden>bolt</span>
-                </div>
-                <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
-                  {t('priorityActionFor', { program: program?.title ?? applicationStatus.programInterest ?? t('yourProgram') })}
-                </p>
-                <Link
-                  href={applicationStatus.nextStepHref}
-                  style={{ display: 'block', width: '100%', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem', borderRadius: '0.625rem', textDecoration: 'none', textAlign: 'center', fontWeight: 700, fontSize: '0.875rem', boxSizing: 'border-box', minHeight: '44px' }}
-                >
-                  {t('takeAction')}
-                </Link>
-              </div>
-            </div>
-          </section>
+          <MobilePriorityActionCard
+            t={t}
+            applicationStatus={applicationStatus}
+            programTitle={program?.title ?? null}
+          />
         )}
 
         {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
@@ -1037,203 +859,33 @@ async function renderMemberDashboard(
           </section>
         </ErrorBoundary>
 
-        {/* ΓöÇΓöÇ Application journey timeline ΓöÇΓöÇ */}
-        <section aria-label="Application journey" style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
-          <details className="portal-card portal-card--flat" style={{ borderRadius: '0.875rem', padding: '0.95rem 1rem' }}>
-            <summary style={{ cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
-              {t('applicationJourney')}
-            </summary>
-            <div className="portal-journey-timeline" style={{ marginTop: '1rem' }}>
-              {journeySteps.map((step, i) => {
-                const locked = 'locked' in step && step.locked;
-                return (
-                  <div key={i} className="portal-journey-step" style={{ opacity: locked ? 0.42 : 1 }}>
-                    <div className={`portal-journey-step__dot portal-journey-step__dot--${step.done ? 'done' : step.active ? 'active' : 'locked'}`}>
-                      {step.done && (
-                        <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '0.75rem', fontVariationSettings: "'FILL' 1" }}>check</span>
-                      )}
-                      {step.active && !step.done && <div className="portal-dot-pulse" />}
-                    </div>
-                    <div className="portal-journey-step__content">
-                      <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
-                        {step.label}
-                      </p>
-                      {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </details>
-        </section>
+        {/* Application journey timeline */}
+        <MobileJourneyTimeline
+          t={t}
+          enrolledProgram={enrolledProgram}
+          noApplicationOnFile={noApplicationOnFile}
+          assessmentCompleted={assessmentCompleted}
+          interviewCompleted={interviewCompleted}
+          interviewRequested={interviewRequested}
+          interviewEligibleFlag={interviewEligibleFlag}
+          preScreeningDone={preScreeningDone}
+          completedCount={completedCount}
+          allCoursesComplete={allCoursesComplete}
+        />
 
-        {/* ΓöÇΓöÇ Points widget ΓöÇΓöÇ */}
-        <ErrorBoundary fallback={<DashboardErrorFallback section="points" />}>
-          <section aria-label="Points and rewards" style={{ padding: '0 1.25rem', marginBottom: '1.25rem' }}>
-            {memberPoints ? (
-              <PointsWidget
-                total={memberPoints.total}
-                level={memberPoints.level}
-                recent={recentTx}
-              />
-          ) : (
-            <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
-              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('yourFirstPointsWaiting')}</p>
-              <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
-                {t('earnPointsDescription')}
-              </p>
-              <Link href="/dashboard/ai-tools/resume-studio?view=rewrite" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                {t('uploadImproveResume')}
-              </Link>
-              <Link
-                href="/dashboard/points"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.25rem',
-                  marginTop: '0.75rem',
-                  fontSize: '0.8125rem',
-                  fontWeight: 700,
-                  color: 'var(--color-accent)',
-                  textDecoration: 'none',
-                }}
-              >
-                How to earn points
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
-                  arrow_forward
-                </span>
-              </Link>
-            </div>
-          )}
-          </section>
-        </ErrorBoundary>
+        {/* Points widget */}
+        <MobilePointsSection t={t} memberPoints={memberPoints} recentTx={recentTx} />
 
-        {/* Recommended programs (only when not enrolled) OR ΓÇ£keep goingΓÇ¥ actions (when enrolled) */}
-        {!enrolledProgram ? (
-          <section aria-label="Recommended programs" style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">{t('recommendedPrograms')}</h3>
-              <a href="/programs" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>{t('viewAll')}</a>
-            </div>
-            <div style={{ display:"flex", gap:"1rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
-              {PROGRAMS.slice(0, 3).map((prog, i) => (
-                <Link
-                  key={i}
-                  href={prog.slug ? `/programs/${prog.slug}` : '/programs'}
-                  style={{ textDecoration: 'none', color: 'inherit', flexShrink: 0 }}
-                >
-                <div
-                  className="portal-card portal-card--flat"
-                  style={{
-                    width: mobileCarouselCardWidth,
-                    minWidth: mobileCarouselCardWidth,
-                    overflow:"hidden",
-                    flexShrink:0,
-                    background:"var(--surface-container-lowest)",
-                    borderRadius:"0.75rem",
-                  }}
-                >
-                  <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
-                  <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                    <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || t('workforceAP')}</p>
-                    <h3 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h3>
-                  </div>
-                </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : (
-          <section aria-label="Next milestones" style={{ marginBottom:"1.5rem", display:"flex", flexDirection:"column", gap:"0.75rem" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", padding:"0 1.5rem" }}>
-              <h3 className="wa-text-xs wa-font-bold wa-uppercase wa-tracking-[0.1em] wa-text-[var(--color-on-surface-variant)]">
-                {t('nextMilestones')}
-              </h3>
-              <a href="/dashboard/learning" className="wa-text-xs wa-font-bold wa-text-[var(--color-accent-dark)]" style={{ textDecoration:"none" }}>
-                {t('trainingLink')}
-              </a>
-            </div>
-            <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", padding:"0 1.5rem 0.5rem", scrollbarWidth:"none", msOverflowStyle:"none" }}>
-              {[
-                {
-                  eyebrow: program?.title ?? t('yourProgram'),
-                  title: nextIncompleteCourse?.name ? `Continue: ${nextIncompleteCourse.name}` : t('continueTraining'),
-                  desc: nextIncompleteCourse?.name ? t('pickUpWhereLeftOff') : t('openTrainingTrack'),
-                  href: '/dashboard/learning',
-                  icon: 'school',
-                },
-                {
-                  eyebrow: t('jobSearchTools'),
-                  title: t('practiceInterviewAnswers'),
-                  desc: t('buildConfidenceInterview'),
-                  href: '/dashboard/ai-tools/interview-practice',
-                  icon: 'record_voice_over',
-                },
-                {
-                  eyebrow: t('connect'),
-                  title: t('browseJobBoard'),
-                  desc: t('exploreRoles'),
-                  href: '/dashboard/jobs',
-                  icon: 'work',
-                },
-              ].map((card) => (
-                <a
-                  key={card.href}
-                  href={card.href}
-                  className="wa-no-underline active:scale-[0.98] wa-transition-transform"
-                  style={{ width: mobileCarouselCardWidth, minWidth: mobileCarouselCardWidth, flexShrink:0 }}
-                >
-                  <div className="portal-card portal-card--flat" style={{ borderRadius:"0.75rem" }}>
-                    <div className="portal-card__body" style={{ padding:"1rem" }}>
-                      <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"0.75rem" }}>
-                        <div style={{ minWidth:0 }}>
-                          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color:'var(--color-on-surface-variant)', margin:0 }}>
-                            {card.eyebrow}
-                          </p>
-                          <p className="wa-text-sm wa-font-bold wa-tracking-tight" style={{ color:'var(--color-on-surface)', margin:"0.35rem 0 0" }}>
-                            {card.title}
-                          </p>
-                        </div>
-                        <span className="material-symbols-outlined" style={{ color:'var(--color-accent)', fontSize:"1.1rem", flexShrink:0 }}>
-                          {card.icon}
-                        </span>
-                      </div>
-                      <p className="wa-text-xs" style={{ color:'var(--color-on-surface-variant)', margin:"0.5rem 0 0", lineHeight:1.4 }}>
-                        {card.desc}
-                      </p>
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* Recommended programs (when not enrolled) OR next-milestone actions (when enrolled) */}
+        <MobileDiscoverSection
+          t={t}
+          enrolledProgram={enrolledProgram}
+          programTitle={program?.title ?? null}
+          nextIncompleteCourseName={nextIncompleteCourse?.name ?? null}
+        />
 
-        {/* ΓöÇΓöÇ Quick Actions 2x2 ΓöÇΓöÇ */}
-        <section aria-label="Quick actions" style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }}>
-          <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">{t('quickActions')}</h3>
-          </div>
-          <div className="portal-quick-grid-2x2">
-            {([
-              { icon: 'school', label: t('myTrainingMetricLabel'), href: '/dashboard/learning' },
-              { icon: 'upload_file', label: t('uploadResume'), href: '/dashboard/ai-tools/resume-studio?view=rewrite' },
-              { icon: 'forum', label: t('interviewPrep'), href: '/dashboard/ai-tools/interview-practice' },
-              { icon: 'auto_awesome', label: t('aiTools'), href: '/dashboard/ai-tools' },
-            ] as const).map((action) => (
-              <a key={action.label} href={action.href} className="portal-quick-grid-item">
-                <div className="portal-quick-grid-item__icon">
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{action.icon}</span>
-                </div>
-                <span className="portal-quick-grid-item__label">{action.label}</span>
-              </a>
-            ))}
-          </div>
-          <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <RequestHelpButton />
-            <MemberFeedbackButton />
-          </div>
-        </section>
+        {/* Quick Actions 2x2 */}
+        <MobileQuickActions t={t} />
 
         <VoiceSectionErrorBoundary>
           <section aria-label="Career voice assistant" style={{ padding: '0 1.25rem 1.25rem' }}>
@@ -1241,202 +893,57 @@ async function renderMemberDashboard(
           </section>
         </VoiceSectionErrorBoundary>
 
-        {/* ΓöÇΓöÇ Recent AI Activity — mobile ΓöÇΓöÇ */}
-        <section style={{ padding: '0 1.25rem', marginBottom: '1.5rem' }} aria-label={t('recentAIActivity')}>
-          <div className="portal-dash-section-header">
-            <h3 className="portal-dash-section-header__title">{t('recentAIActivity')}</h3>
-            {recentTools.length > 0 && <Link href="/dashboard/ai-tools/history" className="portal-dash-section-header__action">{t('viewAllLower')}</Link>}
-          </div>
-          {recentTools.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {recentTools.map((r) => (
-                <div key={r.id} className="portal-activity-item">
-                  <div className="portal-activity-item__icon">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">smart_toy</span>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>
-                      {AI_TOOL_LABELS[r.toolType] ?? r.toolType}
-                    </p>
-                    {r.inputSummary && (
-                      <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {stripMarkdownForPreview(r.inputSummary)}
-                      </p>
-                    )}
-                  </div>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--color-on-surface-variant)', flexShrink: 0, marginLeft: '0.5rem' }}>
-                    {formatPortalDate(r.createdAt)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>
-              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('notUsedCareerToolYet')}</p>
-              <p style={{ margin: '0.35rem 0 0.75rem', fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--color-on-surface-variant)' }}>
-                {t('tryOneShortTool')}
-              </p>
-              <Link href="/dashboard/ai-tools/resume-studio?view=rewrite" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                {t('tryResumeTool')}
-              </Link>
-            </div>
-          )}
-        </section>
+        {/* Recent AI Activity - mobile */}
+        <MobileRecentActivity t={t} recentTools={recentTools} />
       </div>
 
-      {/* ΓöÇΓöÇ Desktop view (hidden on mobile) ΓöÇΓöÇ */}
-      <div className="wa-hidden md:wa-block">
-        <PortalEntryErrorBoundary>
-          <Suspense fallback={<DashboardSkeleton />}>
-            <PortalEntryClient
-              portal="member"
-              tourStorageUserId={user.id}
-              showOnboardingWizard={showMemberOnboarding}
-              showTour={showMemberTour}
-              isSuperAdmin={superAdmin}
-              tourSteps={MEMBER_PORTAL_TOUR_STEPS}
-              wizardProps={{
-                initialFullName: intakeExtra?.fullName ?? '',
-                initialPhone: intakeExtra?.profile?.profilePhone ?? intakeExtra?.phone ?? '',
-                initialAddress: intakeExtra?.profile?.profileAddress ?? '',
-                initialCity: intakeExtra?.profile?.city ?? '',
-                initialState: intakeExtra?.profile?.state ?? '',
-                initialZip: intakeExtra?.profile?.zip ?? '',
-                initialProgramInterest: wizardProgramInterest,
-                initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
-              }}
-            >
-              {/* Personalized Today hero — additive layer above the existing
-                  desktop dashboard home. */}
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '1.25rem 2rem 0' }}>
-                {todayHero}
-              </div>
-              {showProgramSelector && enrolledProgram && (
-                <div
-                  style={{
-                    maxWidth: 1200,
-                    margin: '0 auto',
-                    padding: '0.75rem 2rem 0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: '0.6875rem',
-                      fontWeight: 800,
-                      letterSpacing: '0.14em',
-                      textTransform: 'uppercase',
-                      color: 'var(--color-on-surface-variant)',
-                    }}
-                  >
-                    Active program
-                  </span>
-                  <DashboardProgramSelector
-                    options={programSelectorOptions}
-                    activeProgramSlug={enrolledProgram}
-                  />
-                </div>
-              )}
-              <ErrorBoundary fallback={<DashboardErrorFallback section="profile" />}>
-                <Suspense fallback={<DashboardSkeleton />}>
-                  <DashboardHomeClient
-                  recommendedActions={recommendedActions}
-                  jobSearchUrl={jobSearchUrl}
-                  aiToolsUsedCount={recentTools.length}
-                  firstName={firstName}
-                  dominantNextAction={dominantNextAction}
-                  showStuckCounselorStrip={showStuckCounselor}
-                  blendedTrainingProgressPct={progressPercentDisplay}
-                  nextBestActions={nextBestActions}
-                  assessmentDone={assessmentCompleted}
-                  preScreeningDone={!!intakeExtra?.preScreeningResponse}
-                  interviewEligible={intakeExtra?.interviewEligible ?? false}
-                  interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
-                  interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
-                  starterProfileReviewRequired={starterProfileReview.required}
-                  starterProfileMissingFields={starterProfileMissingLabels}
-                  state={dashboardState}
-                  programTitle={program?.title}
-                  enrolledAt={dbUser.enrolledAt}
-                  assessmentScorePct={dbUser.assessmentScorePct}
-                  completedCount={completedCount}
-                  totalCourses={totalCourses}
-                  nextMilestone={nextIncompleteCourse?.name}
-                  recentActivity={lastThree}
-                  checklist={checklist}
-                  checklistAllDone={checklistAllDone}
-                  applicationStatus={applicationStatus}
-                  noApplicationOnFile={noApplicationOnFile}
-                  age={userAge}
-                  isMinor={isMinor}
-                  showFirstValuePanel={showFirstValuePanel}
-                  firstValueActions={firstValueActions}
-                  firstValueSecondsSinceSignup={firstValueSecondsSinceSignup}
-                  />
-                </Suspense>
-              </ErrorBoundary>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
-                <VoiceSectionErrorBoundary>
-                  <MemberDashboardVoiceSectionLazy />
-                </VoiceSectionErrorBoundary>
-              </div>
-              <div
-                style={{
-                  maxWidth: 1200,
-                  margin: '0 auto',
-                  padding: '0 2rem 1.25rem',
-                }}
-              >
-                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-                  <MemberProgressStrip {...progressStripProps} />
-                </ErrorBoundary>
-              </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <RequestHelpButton />
-                <MemberFeedbackButton />
-              </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
-                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-                  <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
-                </ErrorBoundary>
-                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-                  <div id="goals" role="region" aria-label="Goals" style={{ maxWidth: 520, marginBottom: 'var(--space-6)', scrollMarginTop: '5rem' }}>
-                    <GoalsModule />
-                  </div>
-                </ErrorBoundary>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
-                  <div style={{ maxWidth: '300px' }}>
-                    <ErrorBoundary fallback={<DashboardErrorFallback section="training" />}>
-                      <LogCertificationModal />
-                    </ErrorBoundary>
-                  </div>
-                  {memberPoints && (
-                    <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
-                      <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
-                    </div>
-                  )}
-                </div>
-              </div>
-              <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
-                <PlacementConfirmationStrip offers={jobOffers} />
-              </ErrorBoundary>
-              {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
-                <ErrorBoundary fallback={<DashboardErrorFallback section="jobs" />}>
-                  <Suspense fallback={<JobsSkeleton count={4} />}>
-                    <MatchedRoles />
-                  </Suspense>
-                </ErrorBoundary>
-              )}
-              {/* Recent AI Activity is rendered in the mobile view above ΓÇö
-                  suppressed here so the same data doesn't appear twice in the DOM
-                  on wider viewports. DashboardHomeClient surfaces activity inline. */}
-            </PortalEntryClient>
-          </Suspense>
-        </PortalEntryErrorBoundary>
-      </div>
+      {/* Desktop view (hidden on mobile) - extracted to _components/DesktopDashboard */}
+      <DesktopDashboard
+        userId={user.id}
+        showMemberOnboarding={showMemberOnboarding}
+        showMemberTour={showMemberTour}
+        superAdmin={superAdmin}
+        intakeExtra={intakeExtra}
+        wizardProgramInterest={wizardProgramInterest}
+        todayHero={todayHero}
+        showProgramSelector={showProgramSelector}
+        enrolledProgram={enrolledProgram}
+        programSelectorOptions={programSelectorOptions}
+        recommendedActions={recommendedActions}
+        jobSearchUrl={jobSearchUrl}
+        aiToolsUsedCount={recentTools.length}
+        firstName={firstName}
+        dominantNextAction={dominantNextAction}
+        showStuckCounselor={showStuckCounselor}
+        progressPercentDisplay={progressPercentDisplay}
+        nextBestActions={nextBestActions}
+        assessmentCompleted={assessmentCompleted}
+        starterProfileReviewRequired={starterProfileReview.required}
+        starterProfileMissingLabels={starterProfileMissingLabels}
+        dashboardState={dashboardState}
+        programTitle={program?.title}
+        enrolledAt={dbUser.enrolledAt}
+        assessmentScorePct={dbUser.assessmentScorePct}
+        completedCount={completedCount}
+        totalCourses={totalCourses}
+        nextMilestone={nextIncompleteCourse?.name}
+        lastThree={lastThree}
+        checklist={checklist}
+        checklistAllDone={checklistAllDone}
+        applicationStatus={applicationStatus}
+        noApplicationOnFile={noApplicationOnFile}
+        userAge={userAge}
+        isMinor={isMinor}
+        showFirstValuePanel={showFirstValuePanel}
+        firstValueActions={firstValueActions}
+        firstValueSecondsSinceSignup={firstValueSecondsSinceSignup}
+        progressStripProps={progressStripProps}
+        careerMatchFromProfile={careerMatchFromProfile}
+        memberPoints={memberPoints}
+        recentTx={recentTx}
+        jobOffers={jobOffers}
+        showMatchedRoles={showMatchedRoles}
+      />
 
       {/* Bottom nav ΓÇö mobile only */}    </>
   );

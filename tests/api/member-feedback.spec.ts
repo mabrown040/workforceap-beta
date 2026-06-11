@@ -2,13 +2,33 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ─── Mocks ───
 vi.mock('next/server', () => ({
-  NextResponse: {
-    json: (body: unknown, init?: ResponseInit) =>
-      new Response(JSON.stringify(body), {
+  NextResponse: class MockNextResponse extends Response {
+    static json(body: unknown, init?: ResponseInit) {
+      return new Response(JSON.stringify(body), {
         ...init,
         headers: { 'content-type': 'application/json', ...(init?.headers || {}) },
-      }),
+      });
+    }
   },
+}));
+
+vi.mock('@/lib/csv/export', () => ({
+  dataToCsv: vi.fn((columns: any[], rows: any[]) =>
+    [
+      columns.map((c) => c.header).join(','),
+      ...rows.map((row) => columns.map((c) => c.accessor(row)).join(',')),
+    ].join('\n')
+  ),
+  csvDownloadResponse: vi.fn((csv: string, filename: string) =>
+    new Response(csv, {
+      status: 200,
+      headers: {
+        'content-type': 'text/csv; charset=utf-8',
+        'content-disposition': `attachment; filename="${filename}"`,
+      },
+    })
+  ),
+  exportFilename: vi.fn(() => 'feedback-test.csv'),
 }));
 
 vi.mock('next/headers', () => ({
@@ -27,10 +47,22 @@ vi.mock('@/lib/events/track', () => ({ trackEvent: vi.fn(() => Promise.resolve()
 vi.mock('@/lib/observability/captureApiError', () => ({ captureApiError: vi.fn() }));
 vi.mock('@/lib/auth/roles', () => ({
   requireAdminOrCounselor: vi.fn(),
+  requireAdmin: vi.fn(),
+  isAdmin: vi.fn(),
+  isSuperAdmin: vi.fn(),
+}));
+vi.mock('@/lib/tenant/organization', () => ({
+  getActorOrganizationId: vi.fn(),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
   prisma: {
+    counselor: {
+      findFirst: vi.fn(),
+    },
+    counselorAssignment: {
+      findMany: vi.fn(),
+    },
     memberFeedback: {
       create: vi.fn(),
       findMany: vi.fn(),
@@ -44,9 +76,11 @@ vi.mock('@/lib/db/prisma', () => ({
 import { POST as memberFeedbackPOST } from '@/app/api/member/feedback/route';
 import { GET as adminFeedbackGET } from '@/app/api/admin/feedback/route';
 import { GET as adminSummaryGET } from '@/app/api/admin/feedback/summary/route';
+import { GET as adminFeedbackExportGET } from '@/app/api/admin/feedback/export/route';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
-import { requireAdminOrCounselor } from '@/lib/auth/roles';
+import { requireAdmin, requireAdminOrCounselor, isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 const makePostRequest = (body?: Record<string, unknown>) =>
   new Request('http://localhost:3000/api/member/feedback', {
@@ -144,7 +178,12 @@ describe('POST /api/member/feedback', () => {
 });
 
 describe('GET /api/admin/feedback', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(isSuperAdmin).mockResolvedValue(true);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+  });
 
   it('returns 401 when unauthenticated', async () => {
     vi.mocked(requireAdminOrCounselor).mockResolvedValue({ ok: false, error: 'Unauthorized', status: 401 });
@@ -200,6 +239,64 @@ describe('GET /api/admin/feedback', () => {
     const body = await res.json();
     expect(body.feedback).toEqual([]);
     expect(body.total).toBe(0);
+  });
+});
+
+describe('GET /api/admin/feedback/export', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('returns 401 when unauthenticated', async () => {
+    vi.mocked(getUser).mockResolvedValue(null);
+
+    const res = await adminFeedbackExportGET(
+      new Request('http://localhost:3000/api/admin/feedback/export') as unknown as import('next/server').NextRequest
+    );
+
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: 'Unauthorized' });
+    expect(prisma.memberFeedback.findMany).not.toHaveBeenCalled();
+  });
+
+  it('forbids counselors before exporting feedback', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'counselor-1', email: 'counselor@example.com' } as any);
+    vi.mocked(requireAdmin).mockRejectedValue(new Error('Forbidden'));
+
+    const res = await adminFeedbackExportGET(
+      new Request('http://localhost:3000/api/admin/feedback/export') as unknown as import('next/server').NextRequest
+    );
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Forbidden' });
+    expect(prisma.memberFeedback.findMany).not.toHaveBeenCalled();
+  });
+
+  it('exports feedback CSV for admins', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1', email: 'admin@example.com' } as any);
+    vi.mocked(requireAdmin).mockResolvedValue(undefined);
+    vi.mocked(prisma.memberFeedback.findMany).mockResolvedValue([
+      {
+        id: 'fb-1',
+        userId: 'member-1',
+        type: 'training',
+        rating: 5,
+        comment: 'Excellent',
+        createdAt: new Date('2026-05-01T00:00:00Z'),
+        user: { fullName: 'Jane Doe', email: 'jane@example.com' },
+      },
+    ] as any);
+
+    const res = await adminFeedbackExportGET(
+      new Request('http://localhost:3000/api/admin/feedback/export?type=training&rating=5') as unknown as import('next/server').NextRequest
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/csv');
+    expect(await res.text()).toContain('Jane Doe');
+    expect(prisma.memberFeedback.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { type: 'training', rating: 5 },
+      })
+    );
   });
 });
 

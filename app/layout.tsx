@@ -67,6 +67,9 @@ function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMes
     employer: m.employer,
     journeyGuide: m.journeyGuide,
     resumeStudio: m.resumeStudio,
+    trainingBridge: m.trainingBridge,
+    goals: m.goals,
+    coach: m.coach,
   };
   if (mk && mk.programs !== undefined) {
     out.marketing = { programs: mk.programs };

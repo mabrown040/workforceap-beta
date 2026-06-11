@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import { getUser } from '@/lib/auth/server';
+import { getUser, withAuthGuc } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
@@ -37,7 +37,10 @@ export default async function AdminTodayPage() {
   const startOfToday = new Date();
   startOfToday.setUTCHours(0, 0, 0, 0);
 
-  const [triageDigest, sessionsTodayRows] = await Promise.all([
+  // Server components render outside the root layout's gucContextStorage.run()
+  // scope (RSC renders the returned JSX lazily), so re-establish the auth GUC
+  // context here — otherwise these queries run with anonymous RLS credentials.
+  const [triageDigest, sessionsTodayRows] = await withAuthGuc(() => Promise.all([
     getTriageDigest().catch((reason): TriageDigest => {
       const msg = reason instanceof Error ? reason.message : String(reason);
       console.error('[admin/page] triageDigest failed', msg);
@@ -57,7 +60,7 @@ export default async function AdminTodayPage() {
         console.error('[admin/page] sessionsToday failed', msg);
         return [] as Array<{ sessionId: string | null }>;
       }),
-  ]);
+  ]));
 
   const sessionsToday = new Set(
     sessionsTodayRows.map((row) => row.sessionId).filter((id): id is string => Boolean(id))

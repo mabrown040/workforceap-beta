@@ -7,6 +7,7 @@ import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { resolveCourseraProgramId, resolveCourseraSkillsetIds } from '@/lib/coursera/config';
 import { fetchCourseraLearnerSkillsetProgress } from '@/lib/coursera/client';
+import { fetchEligibleCourseraMembers, type CourseraSyncMember } from '@/lib/coursera/syncMembers';
 
 /**
  * GET/POST /api/cron/coursera-sync
@@ -31,11 +32,7 @@ const BATCH_SIZE = 4;
 const BATCH_DELAY_MS = 250;
 const WORKFLOW_KEY = 'cron_coursera_sync';
 
-type MemberRow = {
-  id: string;
-  email: string;
-  enrolledProgram: string | null;
-};
+type MemberRow = CourseraSyncMember;
 
 type MemberOutcome = {
   userId: string;
@@ -115,16 +112,7 @@ async function handle(_req: NextRequest) {
 
   // Pull active learners for Coursera polling: members, profile-less users, and
   // admin/super_admin dogfood accounts (see cron query `profile.role` clause).
-  const members = await prisma.user.findMany({
-    where: {
-      deletedAt: null,
-      email: { not: '' },
-      OR: [{ profile: { is: null } }, { profile: { role: { in: ['member', 'admin', 'super_admin'] } } }],
-    },
-    select: { id: true, email: true, enrolledProgram: true },
-    orderBy: { createdAt: 'asc' },
-    take: 100,
-  });
+  const members = await fetchEligibleCourseraMembers();
 
   // Empty-state guard: if NO program (across all members' enrolled programs +
   // the default) yields skillsets, short-circuit without any Coursera API calls.

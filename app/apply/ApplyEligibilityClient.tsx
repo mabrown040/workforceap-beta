@@ -191,6 +191,25 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, q3 });
   };
 
+  // Quiet autosave: mobile applicants get interrupted constantly, and the
+  // manual "save & continue later" button is easy to miss. Persist the
+  // draft 1.5s after they stop typing (only once something identifying is
+  // entered, so an untouched form never writes PII to storage).
+  const [autoSaved, setAutoSaved] = useState(false);
+  const autosaveSkippedInitial = useRef(false);
+  useEffect(() => {
+    if (!autosaveSkippedInitial.current) {
+      autosaveSkippedInitial.current = true;
+      return;
+    }
+    if (!firstName && !lastName && !email && !phone) return;
+    const handle = setTimeout(() => {
+      writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, q3 });
+      setAutoSaved(true);
+    }, 1500);
+    return () => clearTimeout(handle);
+  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2, q3]);
+
   const handleSaveLater = () => {
     persistDraft();
     setSaveNotice(t('saveContinueHint'));
@@ -661,6 +680,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         {saveNotice ? (
           <p className="apply-save-notice" role="status" aria-live="polite">
             {saveNotice}
+          </p>
+        ) : autoSaved ? (
+          <p className="apply-save-notice" role="status" aria-live="polite">
+            {t('autoSavedNotice')}
           </p>
         ) : null}
         {(!canContinue || attemptedContinue) && (

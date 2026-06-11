@@ -96,6 +96,7 @@ vi.mock('@/lib/db/withRequestGuc', () => ({
 vi.mock('@/lib/email', () => ({
   sendEmployerWelcomeEmail: vi.fn(),
   sendEmployerSignupAdminAlertEmail: vi.fn(),
+  sendEmployerVerificationEmail: vi.fn(),
 }));
 
 vi.mock('@/lib/supabase-admin', () => ({
@@ -177,7 +178,11 @@ import {
   checkPartnerSignupRateLimit,
   checkSignupEmailRateLimit,
 } from '@/lib/rate-limit';
-import { sendEmployerWelcomeEmail, sendEmployerSignupAdminAlertEmail } from '@/lib/email';
+import {
+  sendEmployerWelcomeEmail,
+  sendEmployerSignupAdminAlertEmail,
+  sendEmployerVerificationEmail,
+} from '@/lib/email';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { prisma } from '@/lib/db/prisma';
 import { NextRequest } from 'next/server';
@@ -211,11 +216,16 @@ function mockSupabaseAdmin() {
     data: { user: { id: UUIDS.user, email: 'jane@acme.com' } },
     error: null,
   });
+  const generateLink = vi.fn().mockResolvedValue({
+    data: { properties: { action_link: 'https://test.supabase.co/auth/v1/verify?token=abc' } },
+    error: null,
+  });
   const signInWithPassword = vi.fn();
   vi.mocked(getSupabaseAdmin).mockReturnValue({
     auth: {
       admin: {
         createUser,
+        generateLink,
       },
     },
   } as any);
@@ -234,7 +244,7 @@ function mockSupabaseAdmin() {
       },
     },
   } as any);
-  return { createUser, signInWithPassword };
+  return { createUser, generateLink, signInWithPassword };
 }
 
 // ─────────────────────────────────────────────
@@ -272,10 +282,12 @@ describe('POST /api/employer/signup', () => {
     vi.mocked(createEmployerUser).mockResolvedValue(undefined);
     vi.mocked(sendEmployerWelcomeEmail).mockResolvedValue({ ok: true });
     vi.mocked(sendEmployerSignupAdminAlertEmail).mockResolvedValue({ ok: true });
+    vi.mocked(sendEmployerVerificationEmail).mockResolvedValue({ ok: true });
   });
 
   it('creates an unconfirmed employer account without signing the user in', async () => {
-    const { createUser, signInWithPassword } = mockSupabaseAdmin();
+    const { createUser, generateLink, signInWithPassword } = mockSupabaseAdmin();
+    vi.mocked(sendEmployerVerificationEmail).mockResolvedValue({ ok: true });
 
     const res = await employerSignupPost(makeSignupRequest(validPayload));
     expect(res.status).toBe(200);
@@ -296,6 +308,20 @@ describe('POST /api/employer/signup', () => {
       })
     );
     expect(signInWithPassword).not.toHaveBeenCalled();
+
+    expect(generateLink).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'signup',
+        email: 'jane@acme.com',
+      })
+    );
+    expect(sendEmployerVerificationEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'jane@acme.com',
+        contactName: 'Jane Doe',
+        verifyUrl: 'https://test.supabase.co/auth/v1/verify?token=abc',
+      })
+    );
 
     expect(createEmployerUser).toHaveBeenCalledWith(
       UUIDS.user,
@@ -319,6 +345,18 @@ describe('POST /api/employer/signup', () => {
         contactEmail: 'jane@acme.com',
       })
     );
+  });
+
+  it('still succeeds but flags it when the verification link cannot be generated', async () => {
+    const { generateLink } = mockSupabaseAdmin();
+    generateLink.mockResolvedValue({ data: null, error: { message: 'boom' } });
+
+    const res = await employerSignupPost(makeSignupRequest(validPayload));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(body.message).toContain('could not send the verification email');
+    expect(sendEmployerVerificationEmail).not.toHaveBeenCalled();
   });
 
   it('returns 400 for duplicate email', async () => {

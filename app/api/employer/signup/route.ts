@@ -2,7 +2,11 @@ import { createEmployerUser } from '@/lib/employer/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { employerSignupSchema } from '@/lib/validation/employer';
 import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
-import { sendEmployerWelcomeEmail, sendEmployerSignupAdminAlertEmail } from '@/lib/email';
+import {
+  sendEmployerWelcomeEmail,
+  sendEmployerSignupAdminAlertEmail,
+  sendEmployerVerificationEmail,
+} from '@/lib/email';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { cleanupCreatedEmployerSignupAuthUser } from './_signupCleanup';
 
@@ -139,6 +143,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verification email is load-bearing: the unconfirmed account cannot log
+    // in until the link is clicked. Generate the Supabase confirmation link
+    // and send it through our own mailer.
+    let verificationSent = false;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+    try {
+      const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+        type: 'signup',
+        email: data.email,
+        password: data.password,
+        options: { redirectTo: `${siteUrl}/login?verified=1` },
+      });
+      const verifyUrl = linkData?.properties?.action_link;
+      if (linkError || !verifyUrl) {
+        console.error('Employer signup: verification link generation failed:', linkError);
+      } else {
+        const sent = await sendEmployerVerificationEmail({
+          to: data.email,
+          contactName: data.contactName,
+          verifyUrl,
+        });
+        verificationSent = sent.ok;
+        if (!sent.ok) {
+          console.error('Employer signup: verification email send failed:', sent.error);
+        }
+      }
+    } catch (err) {
+      console.error('Employer signup: verification email error:', err);
+    }
+
     // Best-effort welcome email
     sendEmployerWelcomeEmail({
       to: data.email,
@@ -156,7 +190,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Account created. Please check your email to verify your account before logging in.',
+      message: verificationSent
+        ? 'Account created. Please check your email to verify your account before logging in.'
+        : 'Account created, but we could not send the verification email. Contact us at (512) 777-1808 and we will activate your account.',
     });
   } catch (error) {
     console.error('/employer/signup:', error);

@@ -12,6 +12,10 @@ function isGucSetupQuery(sql: unknown): boolean {
   return typeof sql === 'string' && sql.includes("set_config('app.current_");
 }
 
+export function requiresExplicitTransactionForGucContext(ctx: GucContext | undefined, isInTransaction: boolean): boolean {
+  return Boolean(ctx && !isInTransaction);
+}
+
 export function buildGucSql(ctx: GucContext): string {
   // Use `set_config(name, value, is_local)` instead of `SET LOCAL <name> = <value>`
   // because PostgreSQL's parser rejects `SET LOCAL app.current_role = ...` —
@@ -62,18 +66,18 @@ function createPrismaClient(): PrismaClient {
    * PostgreSQL RLS policies (migration 20260513040000_add_rls_policies)
    * can read the current user, org, and role.
    *
-   * Note on `SET LOCAL` vs connection pooling:
+   * Note on `SET LOCAL` vs transaction scope:
    *   - For explicit `$transaction` calls we override `$transaction` below
    *     to inject the GUC query *inside* the transaction boundary, so
    *     `SET LOCAL` is guaranteed to be visible to every query in the batch.
-   *   - For single (non-transactional) queries the `$executeRawUnsafe`
-   *     call and the subsequent `next(params)` may land on different
-   *     connections from the pool.  This is a best-effort safeguard; for
-   *     guaranteed RLS enforcement wrap sensitive reads in `$transaction`.
+   *   - For single (non-transactional) queries a separate setup SELECT loses
+   *     its transaction-local GUCs before `next(params)` runs. Fail closed
+   *     when a GUC context is active so sensitive reads cannot run without
+   *     the RLS variables.
    *
    * Note on recursion guard:
    *   `$executeRawUnsafe` itself triggers the middleware, so we detect
-   *   GUC-setup queries by looking for `SET LOCAL app.current_` in the
+   *   GUC-setup queries by looking for `set_config('app.current_` in the
    *   raw SQL and skip them.
    *
    * Note on transaction nesting:
@@ -89,12 +93,22 @@ function createPrismaClient(): PrismaClient {
       return next(params);
     }
 
+    const inTransaction = Boolean(inTransactionStorage.getStore());
+
     // Guard 2: inside an explicit $transaction the wrapper already set GUCs.
-    if (inTransactionStorage.getStore()) {
+    if (inTransaction) {
       return next(params);
     }
 
     const ctx = getGucContext();
+
+    if (requiresExplicitTransactionForGucContext(ctx, inTransaction)) {
+      throw new Error(
+        `[prisma:guc] Query "${params.model ?? 'raw'}.${params.action}" ran with an active GUC context ` +
+          `outside an explicit $transaction. Wrap RLS-protected Prisma calls in prisma.$transaction() ` +
+          `so transaction-local GUCs remain visible to PostgreSQL policies.`,
+      );
+    }
 
     // Development-only warning when queries run outside any GUC context.
     // In production we silently fall back to anonymous so the site stays up.

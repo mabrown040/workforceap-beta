@@ -100,6 +100,35 @@ function SortHeader({
   );
 }
 
+function toIsoDate(value: Date | string | null): string {
+  if (!value) return '';
+  const d = typeof value === 'string' ? new Date(value) : value;
+  return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+}
+
+function csvField(value: string | number | null | undefined): string {
+  const s = value == null ? '' : String(value);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function buildPlacementsCsv(rows: PlacementTableRow[]): string {
+  const header = ['Member', 'Email', 'Program', 'Employer', 'Role', 'Start date', 'Wage (USD)', 'Status', 'Placed at'];
+  const lines = rows.map((r) =>
+    [
+      csvField(r.user?.fullName ?? ''),
+      csvField(r.user?.email ?? ''),
+      csvField(r.user?.enrolledProgram ?? ''),
+      csvField(r.employerName),
+      csvField(r.jobTitle),
+      csvField(toIsoDate(r.startDate)),
+      csvField(r.salaryOffered ?? ''),
+      r.startDateVerified ? 'verified' : 'pending_verification',
+      csvField(toIsoDate(r.placedAt)),
+    ].join(',')
+  );
+  return [header.join(','), ...lines].join('\n') + '\n';
+}
+
 export default function PlacementsTableClient({ placements }: { placements: PlacementTableRow[] }) {
   // null = keep the server's placedAt-desc order until a column is clicked.
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
@@ -131,8 +160,27 @@ export default function PlacementsTableClient({ placements }: { placements: Plac
     <SortHeader label={label} sortKey={key} active={sortKey === key} dir={sortDir} onSort={onSort} />
   );
 
+  function exportCsv() {
+    const csv = buildPlacementsCsv(sorted);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `placements-export-${sorted.length}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div>
+      {sorted.length > 0 ? (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem' }}>
+          <button type="button" className="btn btn-outline" onClick={exportCsv}>
+            Export CSV ({sorted.length})
+          </button>
+        </div>
+      ) : null}
+      <div style={{ overflowX: 'auto' }}>
       <DataTable
         variant="admin"
         tableClassName="admin-table"
@@ -171,6 +219,7 @@ export default function PlacementsTableClient({ placements }: { placements: Plac
           },
         ]}
       />
+      </div>
     </div>
   );
 }

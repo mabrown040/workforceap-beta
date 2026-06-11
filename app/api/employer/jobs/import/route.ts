@@ -20,6 +20,7 @@ import { buildEmployerJobCreateData, getRouteErrorDetails } from '@/lib/employer
 import { checkEmployerJobImportRateLimit } from '@/lib/rate-limit';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { trackEvent } from '@/lib/events/track';
+import { assertPublicHttpUrl, UnsafeUrlError } from '@/lib/http/safeOutboundFetch';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -76,6 +77,16 @@ async function parseDirectJobUrl(url: string) {
     const parsed = importSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Provide url or rawText' }, { status: 400 });
+    }
+    if (parsed.data.url) {
+      try {
+        parsed.data.url = assertPublicHttpUrl(parsed.data.url).toString();
+      } catch (err) {
+        if (err instanceof UnsafeUrlError) {
+          return NextResponse.json({ error: 'Provide a valid public job posting URL.' }, { status: 400 });
+        }
+        throw err;
+      }
     }
 
     await trackEvent({

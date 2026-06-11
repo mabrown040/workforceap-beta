@@ -18,6 +18,7 @@ import { WAP_PAID_APPLY_HEADER } from '@/lib/apply/paidApplyUtm';
 import {
   gucContextStorage,
   buildGucContext,
+  runWithGucContext,
   ANONYMOUS_GUC_CONTEXT,
 } from '@/lib/db/gucContext';
 import { getProfileRole } from '@/lib/auth/roles';
@@ -114,17 +115,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const resolvedUserId = forwardedUserId ?? (await getUser())?.id ?? null;
   let gucCtx = ANONYMOUS_GUC_CONTEXT;
   if (resolvedUserId) {
-    const [profileRole, userRow] = await Promise.all([
-      getProfileRole(resolvedUserId),
-      // Resolve the user's organization so the GUC carries `app.current_org_id`.
-      // Previously orgId was hardcoded to null here, which makes every RLS
-      // policy that calls `can_access_org_row(check_org_id)` evaluate with
-      // NULL once FORCE ROW LEVEL SECURITY is enabled (AUDIT §C-T6). Mirrors
-      // resolveAuthGucContext() in lib/auth/server.ts.
-      prisma.user
-        .findUnique({ where: { id: resolvedUserId }, select: { organizationId: true } })
-        .catch(() => null),
-    ]);
+    // Bootstrap lookups run inside a partial GUC context carrying the verified
+    // userId so the `users_select_own` RLS policy (`id = get_current_user_id()`)
+    // permits the self-read once FORCE ROW LEVEL SECURITY is enabled. Without
+    // it the lookup would be denied and silently degrade back to orgId null.
+    const bootstrapCtx = buildGucContext({ userId: resolvedUserId, orgId: null });
+    const [profileRole, userRow] = await runWithGucContext(bootstrapCtx, () =>
+      Promise.all([
+        getProfileRole(resolvedUserId),
+        // Resolve the user's organization so the GUC carries `app.current_org_id`.
+        // Previously orgId was hardcoded to null here, which makes every RLS
+        // policy that calls `can_access_org_row(check_org_id)` evaluate with
+        // NULL once FORCE ROW LEVEL SECURITY is enabled (AUDIT §C-T6). Mirrors
+        // resolveAuthGucContext() in lib/auth/server.ts.
+        prisma.user
+          .findUnique({ where: { id: resolvedUserId }, select: { organizationId: true } })
+          .catch(() => null),
+      ]),
+    );
     gucCtx = buildGucContext({
       userId: resolvedUserId,
       orgId: userRow?.organizationId ?? null,

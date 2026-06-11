@@ -70,6 +70,7 @@ function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMes
     trainingBridge: m.trainingBridge,
     goals: m.goals,
     coach: m.coach,
+    first90: m.first90,
   };
   if (mk && mk.programs !== undefined) {
     out.marketing = { programs: mk.programs };

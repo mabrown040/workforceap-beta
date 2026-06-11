@@ -2415,6 +2415,52 @@
       "hint": "Appuyez sur Entrée pour envoyer, Maj + Entrée pour une nouvelle ligne."
     }
   },
+  "first90": {
+    "eyebrow": "Les 90 premiers jours",
+    "title": "Votre nouvel emploi chez {employerName}",
+    "dayCount": "Jour {days}",
+    "stageLabel": {
+      "week_1": "Semaine 1",
+      "day_30": "Jour 30",
+      "day_60": "Jour 60",
+      "day_90": "Jour 90"
+    },
+    "progressAria": "Progression des points d’étape",
+    "question": "Comment se passe le travail ?",
+    "responses": {
+      "going_well": "Ça va bien",
+      "have_questions": "J’ai des questions",
+      "having_trouble": "J’ai des difficultés"
+    },
+    "thanks": {
+      "going_well": "Bonne nouvelle ! Continuez comme ça. Nous reviendrons bientôt vers vous.",
+      "have_questions": "Merci de nous l’avoir dit. Votre conseiller peut vous aider — envoyez-lui un message quand vous voulez.",
+      "having_trouble": "Merci de nous l’avoir dit. Nous avons prévenu votre conseiller, qui vous contactera. Vous pouvez aussi lui écrire dès maintenant."
+    },
+    "messageCounselor": "Écrire à votre conseiller",
+    "saveError": "Nous n’avons pas pu enregistrer votre réponse. Veuillez réessayer.",
+    "scriptsTitle": "Parler à votre superviseur",
+    "scriptsIntro": "Vous ne savez pas quoi dire ? Essayez l’une de ces phrases :",
+    "scripts": {
+      "week_1": {
+        "s1": "Je veux bien faire mon travail. Sur quoi dois-je me concentrer pendant mes premières semaines ?",
+        "s2": "Y a-t-il quelque chose que je devrais apprendre en premier pour aider l’équipe ?"
+      },
+      "day_30": {
+        "s1": "Pouvons-nous parler quelques minutes de mon premier mois ?",
+        "s2": "Y a-t-il quelque chose que vous aimeriez que je fasse différemment ?"
+      },
+      "day_60": {
+        "s1": "Je veux continuer à progresser ici. Quelles compétences devrais-je travailler maintenant ?",
+        "s2": "Y a-t-il des tâches que je pourrais prendre pour aider davantage ?"
+      },
+      "day_90": {
+        "s1": "Pouvons-nous parler de mes 90 premiers jours et de la suite ?",
+        "s2": "Que faudrait-il pour que je prenne plus de responsabilités ici ?"
+      }
+    },
+    "footerNote": "Votre conseiller est là pour vous, sans frais pour les membres, pendant vos 90 premiers jours et au-delà."
+  },
   "streaks": {
     "banner": {
       "recordMessage": "Votre meilleure série — continuez !",

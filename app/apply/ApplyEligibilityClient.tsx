@@ -222,6 +222,18 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
       trackApplyFunnel(1, 'eligibility_continue_blocked', {
         answered_count: [q1, q2, q3].filter(Boolean).length,
       });
+      // Move focus to the first invalid control so keyboard and
+      // screen-reader users land on what's blocking them instead of
+      // staying on the (apparently dead) continue button.
+      requestAnimationFrame(() => {
+        const invalid = document.querySelector<HTMLElement>(
+          'form [aria-invalid="true"], form input:invalid, form select:invalid',
+        );
+        const target = invalid?.matches('input, select, textarea, button')
+          ? invalid
+          : invalid?.querySelector<HTMLElement>('input, select, textarea');
+        (target ?? document.getElementById('apply-eligibility-continue-hint'))?.focus();
+      });
       return;
     }
 
@@ -687,7 +699,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
           </p>
         ) : null}
         {(!canContinue || attemptedContinue) && (
-          <p id="apply-eligibility-continue-hint" className="apply-continue-hint" role={attemptedContinue ? 'status' : undefined}>
+          <p id="apply-eligibility-continue-hint" className="apply-continue-hint" tabIndex={-1} role={attemptedContinue ? 'status' : undefined}>
             {attemptedContinue && !canContinue
               ? t('continueBlockedHint')
               : t('continueSoftHint')}

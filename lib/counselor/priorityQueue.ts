@@ -25,6 +25,7 @@ import {
   type TriageRow,
   type TriageFlagType,
 } from '@/lib/counselor/triageFlags';
+import { resolveAdminEnrolledMemberIds } from '@/lib/counselor/adminMemberScope';
 
 export type PriorityBucket = 'critical' | 'warning' | 'ontrack';
 
@@ -59,6 +60,32 @@ export type PriorityQueueData = {
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+async function resolvePriorityQueueMemberIds(
+  counselorUserId: string,
+  options?: { isAdmin?: boolean; adminMemberCap?: number },
+): Promise<string[]> {
+  const adminCap = options?.adminMemberCap ?? 200;
+  const counselor = await prisma.counselor.findFirst({
+    where: { userId: counselorUserId, active: true },
+    select: { id: true },
+  });
+
+  if (counselor) {
+    const assignments = await prisma.counselorAssignment.findMany({
+      take: 5000,
+      where: { counselorId: counselor.id, active: true },
+      select: { memberId: true },
+    });
+    return assignments.map((a) => a.memberId);
+  }
+
+  if (options?.isAdmin) {
+    return resolveAdminEnrolledMemberIds(counselorUserId, adminCap);
+  }
+
+  return [];
+}
 
 function bucketFor(row: TriageRow): PriorityBucket {
   if (row.primaryPriority === 'red') return 'critical';
@@ -121,45 +148,40 @@ export async function getCounselorPriorityQueue(
   // On-track: enrolled members the counselor is responsible for, not already
   // flagged. Keep this query cheap — just the roster, then exclude flagged IDs.
   let onTrackRows: PriorityQueueRow[] = [];
-  const counselor = await prisma.counselor.findFirst({
-    where: { userId: counselorUserId, active: true },
-    select: { id: true },
-  });
+  const memberIds = await resolvePriorityQueueMemberIds(counselorUserId, options);
 
-  if (counselor) {
-    const assignments = await prisma.counselorAssignment.findMany({
+  if (memberIds.length > 0) {
+    const members = await prisma.user.findMany({
       take: 5000,
-      where: { counselorId: counselor.id, active: true },
+      where: {
+        id: { in: memberIds },
+        deletedAt: null,
+        enrolledProgram: { not: null },
+      },
       select: {
-        memberId: true,
-        member: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            enrolledProgram: true,
-            lastLoginAt: true,
-          },
-        },
+        id: true,
+        fullName: true,
+        email: true,
+        enrolledProgram: true,
+        lastLoginAt: true,
       },
     });
 
-    for (const a of assignments) {
-      if (!a.member) continue;
-      if (flaggedIds.has(a.memberId)) continue;
-      const daysSinceLogin = a.member.lastLoginAt
-        ? Math.floor((now.getTime() - a.member.lastLoginAt.getTime()) / DAY_MS)
+    for (const member of members) {
+      if (flaggedIds.has(member.id)) continue;
+      const daysSinceLogin = member.lastLoginAt
+        ? Math.floor((now.getTime() - member.lastLoginAt.getTime()) / DAY_MS)
         : null;
       onTrackRows.push({
-        memberId: a.member.id,
-        memberName: a.member.fullName ?? a.member.email,
-        memberEmail: a.member.email,
-        enrolledProgram: a.member.enrolledProgram,
+        memberId: member.id,
+        memberName: member.fullName ?? member.email,
+        memberEmail: member.email,
+        enrolledProgram: member.enrolledProgram,
         bucket: 'ontrack',
         daysSinceLogin,
         hoursWaitingReply: null,
         blockerReason: 'On track',
-        lastContactAt: a.member.lastLoginAt ?? null,
+        lastContactAt: member.lastLoginAt ?? null,
         flags: [],
         threadId: null,
       });

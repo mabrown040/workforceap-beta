@@ -6,7 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { loadMemberCareerBriefBundleSafe } from '@/lib/content/careerBriefPersonalization';
 import { prisma } from '@/lib/db/prisma';
-import { canBypassMemberAssessment, isSuperAdmin } from '@/lib/auth/roles';
+import { canBypassMemberAssessment, getProfileRole, isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
@@ -122,7 +122,17 @@ async function renderMemberDashboard(
   args: { requestedProgramSlug: string | null } = { requestedProgramSlug: null },
 ) {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
-  if (!dbUser) redirect('/login');
+  if (!dbUser) {
+    // Authenticated session without a member row — staff accounts land here
+    // when something links them to /dashboard. Send them to their own portal
+    // instead of showing the login form to an already-logged-in user.
+    if (await isAdmin(user.id)) redirect('/admin');
+    const role = await getProfileRole(user.id);
+    if (role === 'counselor') redirect('/counselor');
+    if (role === 'employer') redirect('/employer');
+    if (role === 'partner') redirect('/partner');
+    redirect('/login');
+  }
 
   // ── Auto-sync trigger (fire-and-await with 5s deadline; fail-soft) ──
   // First-visit members who have a Coursera identity mapping but zero local

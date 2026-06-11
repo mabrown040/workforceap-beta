@@ -11,6 +11,7 @@ import {
   getAtRiskDigestRecipients,
 } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
+import { authorizeCronRequest } from '@/lib/cron/authorizeCronRequest';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
@@ -21,7 +22,10 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
  * Scores active members, persists alerts, sends counselor/admin digest email.
  * Vercel Cron uses GET — both GET and POST are supported.
  */
-async function handle(_request: Request) {
+async function handle(request: Request) {
+  const unauthorized = authorizeCronRequest(request);
+  if (unauthorized) return unauthorized;
+
   const startTime = Date.now();
   const scores = await calculateAllAtRiskScores();
 

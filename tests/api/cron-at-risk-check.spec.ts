@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // ─── Set env before route module loads ───
 process.env.NEXT_PUBLIC_SITE_URL = 'https://test.workforceap.org';
@@ -55,16 +55,51 @@ vi.mock('@/lib/cron/cronExecution', () => ({
 }));
 
 // ─── Imports after mocks ───
-import { GET as atRiskGET } from '@/app/api/cron/at-risk-check/route';
+import { GET as atRiskGET, POST as atRiskPOST } from '@/app/api/cron/at-risk-check/route';
 import { prisma } from '@/lib/db/prisma';
 import { calculateAllAtRiskScores, persistAtRiskAlert, getRiskLevel } from '@/lib/member/atRiskScoring';
 import { sendAtRiskAlertDigestEmail, getAtRiskDigestRecipients } from '@/lib/email';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
 
+function makeCronRequest(method = 'GET', headers: Record<string, string> = {}) {
+  return new Request('http://localhost:3000/api/cron/at-risk-check', {
+    method,
+    headers,
+  });
+}
+
+function makeAuthorizedCronRequest(method = 'GET') {
+  return makeCronRequest(method, { authorization: 'Bearer test-cron-secret' });
+}
+
 describe('GET /api/cron/at-risk-check', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.CRON_SECRET = 'test-cron-secret';
+  });
+
+  afterEach(() => {
+    delete process.env.CRON_SECRET;
+  });
+
+  it('returns 401 without cron auth and does not run side effects', async () => {
+    const res = await atRiskGET(makeCronRequest());
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: 'Unauthorized' });
+    expect(calculateAllAtRiskScores).not.toHaveBeenCalled();
+    expect(persistAtRiskAlert).not.toHaveBeenCalled();
+    expect(sendAtRiskAlertDigestEmail).not.toHaveBeenCalled();
+    expect(setCronRecordsProcessed).not.toHaveBeenCalled();
+    expect(logCronRun).not.toHaveBeenCalled();
+  });
+
+  it('returns 401 for POST without cron auth and does not run side effects', async () => {
+    const res = await atRiskPOST(makeCronRequest('POST'));
+    expect(res.status).toBe(401);
+    expect(calculateAllAtRiskScores).not.toHaveBeenCalled();
+    expect(persistAtRiskAlert).not.toHaveBeenCalled();
+    expect(sendAtRiskAlertDigestEmail).not.toHaveBeenCalled();
   });
 
   it('scores members and persists alerts for medium+ risk', async () => {
@@ -81,7 +116,7 @@ describe('GET /api/cron/at-risk-check', () => {
     ] as any);
     vi.mocked(sendAtRiskAlertDigestEmail).mockResolvedValue({ ok: true, error: undefined });
 
-    const res = await atRiskGET(new Request('http://localhost:3000/api/cron/at-risk-check'));
+    const res = await atRiskGET(makeAuthorizedCronRequest());
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.scored).toBe(3);
@@ -103,7 +138,7 @@ describe('GET /api/cron/at-risk-check', () => {
     vi.mocked(prisma.user.findMany).mockResolvedValue([] as any);
     vi.mocked(sendAtRiskAlertDigestEmail).mockResolvedValue({ ok: true, error: undefined });
 
-    const res = await atRiskGET(new Request('http://localhost:3000/api/cron/at-risk-check'));
+    const res = await atRiskGET(makeAuthorizedCronRequest());
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.alertsResolved).toBe(2);
@@ -126,7 +161,7 @@ describe('GET /api/cron/at-risk-check', () => {
     ] as any);
     vi.mocked(sendAtRiskAlertDigestEmail).mockResolvedValue({ ok: true, error: undefined });
 
-    const res = await atRiskGET(new Request('http://localhost:3000/api/cron/at-risk-check'));
+    const res = await atRiskGET(makeAuthorizedCronRequest());
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.digestEmailSent).toBe(true);
@@ -147,7 +182,7 @@ describe('GET /api/cron/at-risk-check', () => {
     vi.mocked(prisma.atRiskAlert.findMany).mockResolvedValue([] as any);
     vi.mocked(prisma.user.findMany).mockResolvedValue([] as any);
 
-    const res = await atRiskGET(new Request('http://localhost:3000/api/cron/at-risk-check'));
+    const res = await atRiskGET(makeAuthorizedCronRequest());
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.digestEmailSent).toBe(false);
@@ -166,7 +201,7 @@ describe('GET /api/cron/at-risk-check', () => {
     ] as any);
     vi.mocked(sendAtRiskAlertDigestEmail).mockResolvedValue({ ok: false, error: 'SMTP down' });
 
-    await atRiskGET(new Request('http://localhost:3000/api/cron/at-risk-check'));
+    await atRiskGET(makeAuthorizedCronRequest());
     expect(logCronRun).toHaveBeenCalledWith(
       'cron_at_risk_check',
       expect.any(Object),
@@ -186,7 +221,7 @@ describe('GET /api/cron/at-risk-check', () => {
     ] as any);
     vi.mocked(sendAtRiskAlertDigestEmail).mockResolvedValue({ ok: true, error: undefined });
 
-    await atRiskGET(new Request('http://localhost:3000/api/cron/at-risk-check'));
+    await atRiskGET(makeAuthorizedCronRequest());
     expect(sendAtRiskAlertDigestEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         members: expect.arrayContaining([

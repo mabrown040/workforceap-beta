@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import DataTable from '@/components/portal/ui/DataTable';
@@ -45,6 +45,81 @@ function effectiveStatus(inv: { status: string; expiresAt: string }): string {
   return inv.status;
 }
 
+type SortKey = 'email' | 'role' | 'status' | 'invitedBy' | 'date';
+type SortDir = 'asc' | 'desc';
+
+function toTime(value: Date | string | null | undefined): number {
+  if (value == null) return 0;
+  const d = typeof value === 'string' ? new Date(value) : value;
+  const t = d.getTime();
+  return Number.isNaN(t) ? 0 : t;
+}
+
+// The Date column shows acceptedAt for accepted invites and createdAt otherwise,
+// so sorting must use the same value the user sees.
+function displayDate(inv: Invite): string | null {
+  return inv.status === 'accepted' && inv.acceptedAt ? inv.acceptedAt : inv.createdAt;
+}
+
+// Mirrors the filter-button order so an ascending status sort reads pending → revoked.
+const STATUS_RANK: Record<string, number> = { pending: 0, accepted: 1, expired: 2, revoked: 3 };
+
+function compareInvites(a: Invite, b: Invite, key: SortKey): number {
+  switch (key) {
+    case 'email':
+      return a.email.localeCompare(b.email);
+    case 'role':
+      return (ROLE_LABELS[a.role] ?? a.role).localeCompare(ROLE_LABELS[b.role] ?? b.role);
+    case 'status':
+      return (STATUS_RANK[effectiveStatus(a)] ?? 99) - (STATUS_RANK[effectiveStatus(b)] ?? 99);
+    case 'invitedBy':
+      return a.invitedBy.fullName.localeCompare(b.invitedBy.fullName);
+    case 'date':
+      return toTime(displayDate(a)) - toTime(displayDate(b));
+    default:
+      return 0;
+  }
+}
+
+function SortHeader({
+  label,
+  sortKey,
+  active,
+  dir,
+  onSort,
+}: {
+  label: string;
+  sortKey: SortKey;
+  active: boolean;
+  dir: SortDir;
+  onSort: (key: SortKey) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(sortKey)}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.25rem',
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        font: 'inherit',
+        fontWeight: 'inherit',
+        color: 'inherit',
+        cursor: 'pointer',
+      }}
+      aria-label={`Sort by ${label}${active ? (dir === 'asc' ? ', ascending' : ', descending') : ''}`}
+    >
+      {label}
+      <span style={{ fontSize: '0.7em', opacity: active ? 1 : 0.3 }}>
+        {active ? (dir === 'asc' ? '▲' : '▼') : '▲'}
+      </span>
+    </button>
+  );
+}
+
 export default function InvitesTable({ invites }: Props) {
   const router = useRouter();
   const [filter, setFilter] = useState<string>('all');
@@ -52,8 +127,38 @@ export default function InvitesTable({ invites }: Props) {
   const [revoking, setRevoking] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [revokeTarget, setRevokeTarget] = useState<{ id: string; email: string } | null>(null);
+  // null = keep the server's order until a column is clicked.
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   const filtered = invites.filter((i) => filter === 'all' || effectiveStatus(i) === filter);
+
+  const sorted = useMemo(() => {
+    if (!sortKey) return filtered;
+    const dir = sortDir === 'asc' ? 1 : -1;
+    // Stable sort with an index tiebreaker so equal keys keep the server order.
+    return filtered
+      .map((inv, i) => [inv, i] as const)
+      .sort(([a, ia], [b, ib]) => {
+        const primary = compareInvites(a, b, sortKey) * dir;
+        return primary !== 0 ? primary : ia - ib;
+      })
+      .map(([inv]) => inv);
+  }, [filtered, sortKey, sortDir]);
+
+  function onSort(key: SortKey) {
+    if (key === sortKey) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortKey(key);
+      // Text columns default ascending (A→Z); the Date column defaults to newest first.
+      setSortDir(key === 'date' ? 'desc' : 'asc');
+    }
+  }
+
+  const header = (label: string, key: SortKey) => (
+    <SortHeader label={label} sortKey={key} active={sortKey === key} dir={sortDir} onSort={onSort} />
+  );
 
   const handleResend = async (id: string) => {
     setResending(id);
@@ -136,12 +241,12 @@ export default function InvitesTable({ invites }: Props) {
             variant="admin"
             tableClassName="admin-table"
             scrollX={false}
-            rows={filtered}
+            rows={sorted}
             rowKey={(inv) => inv.id}
             columns={[
               {
                 key: 'email',
-                header: 'Email',
+                header: header('Email', 'email'),
                 cell: (inv) => (
                   <>
                     <div style={{ fontWeight: 500 }}>{inv.email}</div>
@@ -160,12 +265,12 @@ export default function InvitesTable({ invites }: Props) {
               },
               {
                 key: 'role',
-                header: 'Role',
+                header: header('Role', 'role'),
                 cell: (inv) => ROLE_LABELS[inv.role] ?? inv.role,
               },
               {
                 key: 'status',
-                header: 'Status',
+                header: header('Status', 'status'),
                 cell: (inv) => {
                   const displayStatus = effectiveStatus(inv);
                   const statusStyle = STATUS_STYLES[displayStatus] ?? STATUS_STYLES.pending;
@@ -187,12 +292,12 @@ export default function InvitesTable({ invites }: Props) {
               },
               {
                 key: 'invitedBy',
-                header: 'Invited By',
+                header: header('Invited By', 'invitedBy'),
                 cell: (inv) => <span style={{ fontSize: '0.9rem' }}>{inv.invitedBy.fullName}</span>,
               },
               {
                 key: 'date',
-                header: 'Date',
+                header: header('Date', 'date'),
                 cell: (inv) => (
                   <span style={{ fontSize: '0.9rem' }}>
                     {inv.status === 'accepted' && inv.acceptedAt ? formatDate(inv.acceptedAt) : formatDate(inv.createdAt)}
@@ -247,7 +352,7 @@ export default function InvitesTable({ invites }: Props) {
         </div>
       )}
       <ul className="admin-portal-card-list admin-invites-cards" aria-label="Invitations (mobile layout)">
-        {filtered.map((inv) => {
+        {sorted.map((inv) => {
           const displayStatus = effectiveStatus(inv);
           const statusStyle = STATUS_STYLES[displayStatus] ?? STATUS_STYLES.pending;
           return (

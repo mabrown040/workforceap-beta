@@ -34,11 +34,16 @@ vi.mock('@/lib/observability/captureApiError', () => ({
   captureApiError: vi.fn(),
 }));
 
+vi.mock('@/lib/db/withRequestGuc', () => ({
+  withApiGuc: (handler: (request: Request) => Promise<Response>) => handler,
+}));
+
 // ─── Imports after mocks ───
 import { POST as statusLookup } from '@/app/api/apply/status-lookup/route';
 import { prisma } from '@/lib/db/prisma';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { applicationStatusForPublicLookup } from '@/lib/member/memberApplicationStatus';
+import { captureApiError } from '@/lib/observability/captureApiError';
 
 const makeRequest = (body: Record<string, unknown>): any =>
   new Request('http://localhost:3000/api/apply/status-lookup', {
@@ -47,47 +52,63 @@ const makeRequest = (body: Record<string, unknown>): any =>
     body: JSON.stringify(body),
   });
 
+const genericBody = {
+  found: false,
+  message:
+    'If we have an application on file for that email, you will receive status updates by email and SMS. Otherwise, you can submit a new application at workforceap.org/apply.',
+};
+
 describe('POST /api/apply/status-lookup', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(checkAuthRateLimit).mockResolvedValue({ success: true });
   });
 
-  it('returns application status for existing email', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' } as any);
-    vi.mocked(prisma.application.findFirst).mockResolvedValue({ status: 'UNDER_REVIEW' } as any);
-    vi.mocked(applicationStatusForPublicLookup).mockReturnValue('under_review');
+  it('returns identical public response for every valid email lookup case', async () => {
+    const lookups = [
+      {
+        email: 'applied@example.com',
+        user: { id: 'user-applied' },
+        application: { status: 'UNDER_REVIEW' },
+        publicStatus: 'under_review',
+      },
+      {
+        email: 'accepted@example.com',
+        user: { id: 'user-accepted' },
+        application: { status: 'ACCEPTED' },
+        publicStatus: 'accepted',
+      },
+      {
+        email: 'no-application@example.com',
+        user: { id: 'user-without-application' },
+        application: null,
+        publicStatus: 'applied',
+      },
+      {
+        email: 'unknown@example.com',
+        user: null,
+        application: null,
+        publicStatus: 'applied',
+      },
+    ] as const;
 
-    const res = await statusLookup(makeRequest({ email: 'test@example.com' }));
+    const bodies = [];
 
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.found).toBe(true);
-    expect(body.status).toBe('under_review');
-    expect(body.message).toContain('Under review');
-  });
+    for (const lookup of lookups) {
+      vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(lookup.user as any);
+      vi.mocked(prisma.application.findFirst).mockResolvedValueOnce(lookup.application as any);
+      vi.mocked(applicationStatusForPublicLookup).mockReturnValueOnce(lookup.publicStatus as any);
 
-  it('returns not found when user does not exist', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+      const res = await statusLookup(makeRequest({ email: lookup.email }));
 
-    const res = await statusLookup(makeRequest({ email: 'nobody@example.com' }));
+      expect(res.status).toBe(200);
+      bodies.push(await res.json());
+    }
 
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.found).toBe(false);
-    expect(body.message).toContain('could not find an application');
-  });
-
-  it('returns not found when user exists but has no application', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' } as any);
-    vi.mocked(prisma.application.findFirst).mockResolvedValue(null);
-
-    const res = await statusLookup(makeRequest({ email: 'test@example.com' }));
-
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.found).toBe(false);
-    expect(body.message).toContain('could not find an application');
+    expect(bodies).toEqual(lookups.map(() => genericBody));
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
+    expect(prisma.application.findFirst).not.toHaveBeenCalled();
+    expect(applicationStatusForPublicLookup).not.toHaveBeenCalled();
   });
 
   it('returns 429 when rate limited', async () => {
@@ -129,40 +150,14 @@ describe('POST /api/apply/status-lookup', () => {
     expect(body.error).toContain('valid email');
   });
 
-  it('handles accepted status correctly', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' } as any);
-    vi.mocked(prisma.application.findFirst).mockResolvedValue({ status: 'ACCEPTED' } as any);
-    vi.mocked(applicationStatusForPublicLookup).mockReturnValue('accepted');
-
-    const res = await statusLookup(makeRequest({ email: 'test@example.com' }));
-
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.found).toBe(true);
-    expect(body.status).toBe('accepted');
-    expect(body.message).toContain('Accepted');
-  });
-
-  it('handles rejected status correctly', async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-123' } as any);
-    vi.mocked(prisma.application.findFirst).mockResolvedValue({ status: 'REJECTED' } as any);
-    vi.mocked(applicationStatusForPublicLookup).mockReturnValue('rejected');
-
-    const res = await statusLookup(makeRequest({ email: 'test@example.com' }));
-
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.found).toBe(true);
-    expect(body.status).toBe('rejected');
-    expect(body.message).toContain('closed');
-  });
-
-  it('returns 500 on unexpected database error', async () => {
-    vi.mocked(prisma.user.findUnique).mockRejectedValue(new Error('DB down'));
+  it('returns 500 on unexpected rate-limit error', async () => {
+    const error = new Error('Redis down');
+    vi.mocked(checkAuthRateLimit).mockRejectedValue(error);
 
     const res = await statusLookup(makeRequest({ email: 'test@example.com' }));
 
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: 'Internal server error' });
+    expect(captureApiError).toHaveBeenCalledWith(error, { route: 'apply/status-lookup' });
   });
 });

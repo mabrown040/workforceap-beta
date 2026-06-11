@@ -2355,7 +2355,9 @@
       "agreeToThe": "I agree to the",
       "and": "and",
       "commsConsent": "I agree to receive program updates and communications via email"
-    }
+    },
+    "accountDeletedNotice": "Ce compte a été supprimé. Si vous pensez qu’il s’agit d’une erreur, contactez-nous à info@workforceap.org ou au (512) 777-1808.",
+    "emailVerifiedNotice": "E-mail vérifié — vous pouvez maintenant vous connecter."
   },
   "coach": {
     "meta": {

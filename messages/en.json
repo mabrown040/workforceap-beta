@@ -2352,7 +2352,9 @@
       "agreeToThe": "I agree to the",
       "and": "and",
       "commsConsent": "I agree to receive program updates and communications via email"
-    }
+    },
+    "accountDeletedNotice": "This account has been deleted. If you believe this is a mistake, contact us at info@workforceap.org or (512) 777-1808.",
+    "emailVerifiedNotice": "Email verified — you can log in now."
   },
   "coach": {
     "meta": {

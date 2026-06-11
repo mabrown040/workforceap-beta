@@ -78,22 +78,26 @@ const schema = z.object({
       );
     }
 
-    await recordPartnerWorkflowEvent({
-      partnerId: partner.id,
-      actorUserId: user.id,
-      kind: 'member_invite',
-      headline: `Invite sent · ${parsed.data.email}`,
-      detail: personalMessage,
-    });
+    try {
+      await recordPartnerWorkflowEvent({
+        partnerId: partner.id,
+        actorUserId: user.id,
+        kind: 'member_invite',
+        headline: `Invite sent · ${parsed.data.email}`,
+        detail: personalMessage,
+      });
 
-    await trackEvent({
-      userId: user.id,
-      eventName: 'partner_invite_sent',
-      entityType: 'partner',
-      entityId: partner.id,
-      metadata: { inviteeEmail: parsed.data.email },
-      sourcePage: '/partner/referred-members',
-    });
+      await trackEvent({
+        userId: user.id,
+        eventName: 'partner_invite_sent',
+        entityType: 'partner',
+        entityId: partner.id,
+        metadata: { inviteeEmail: parsed.data.email },
+        sourcePage: '/partner/referred-members',
+      });
+    } catch (error) {
+      console.error('[POST /api/partner/invitations] post-send tracking failed', error);
+    }
 
     return NextResponse.json({
       ok: true,

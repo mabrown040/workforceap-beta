@@ -1,7 +1,7 @@
 ﻿import Link from 'next/link';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
-import { isSuperAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { redirect } from 'next/navigation';
 import PartnersTableClient from '@/components/admin/PartnersTableClient';
 import PageHeader from '@/components/portal/PageHeader';
@@ -55,6 +55,7 @@ type PartnersPayload = Awaited<ReturnType<typeof loadAdminPartnersData>>;
 export default async function AdminPartnersPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/partners');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
 
   const superAdmin = await isSuperAdmin(user.id);
 

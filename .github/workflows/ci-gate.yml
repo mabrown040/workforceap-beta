@@ -51,6 +51,14 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit
 
+      # Icon font coverage — fails if source uses a Material Symbols icon
+      # missing from the committed subset (would render as raw ligature
+      # text like FLIGHT_TAKEOFF in production). The `npm run build`
+      # script runs this on Vercel, but the Build step below invokes
+      # `npx next build` directly, so gate it explicitly here.
+      - name: Verify Material Symbols subset
+        run: node scripts/verify-material-symbols-font-size.mjs
+
       # Unit tests (Node's built-in test runner via the `test:unit`
       # script, which uses tsx). 499 specs run deterministically without
       # external services; the small set that needs vitest, server-only,

@@ -181,8 +181,11 @@ test('resolveOrgFromRequest: unknown customDomain caches NO_ORG_SENTINEL and fal
 });
 
 test('resolveOrgFromRequest: x-wap-org-id header short-circuits resolution', async () => {
+  // x-wap-org-id is only trusted alongside x-wap-host (proves middleware
+  // set it rather than a spoofing client).
   const headers = makeHeaders({
     host: 'aaul.workforceap.org',
+    [WAP_HOST_HEADER]: 'aaul.workforceap.org',
     [WAP_ORG_ID_HEADER]: 'pre-resolved-org-id',
   });
   const cache = makeFakeCache();
@@ -197,6 +200,21 @@ test('resolveOrgFromRequest: x-wap-org-id header short-circuits resolution', asy
   });
   assert.equal(result, 'pre-resolved-org-id');
   assert.equal(lookupCalls, 0);
+});
+
+test('resolveOrgFromRequest: x-wap-org-id without x-wap-host is NOT trusted (spoof guard)', async () => {
+  const headers = makeHeaders({
+    host: 'aaul.workforceap.org',
+    [WAP_ORG_ID_HEADER]: 'attacker-supplied-org-id',
+  });
+  const cache = makeFakeCache();
+  const result = await resolveOrgFromRequest(headers, {
+    cache,
+    lookup: fakeLookup,
+    defaultOrgId: fakeDefaultOrgId,
+  });
+  assert.notEqual(result, 'attacker-supplied-org-id');
+  assert.equal(result, 'org-aaul-123');
 });
 
 test('resolveOrgFromRequest: prefers x-wap-host over raw host header', async () => {

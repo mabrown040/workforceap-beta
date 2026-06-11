@@ -10,6 +10,7 @@ import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 import { prefillSalaryNegotiation } from '@/lib/ai/prefillFromMemberState';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
+import { parsePrefillTargetSalary } from '@/lib/ai/salaryNegotiationSalary';
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -48,9 +49,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         const prefill = await prefillSalaryNegotiation(onBehalf.subjectUserId);
         if (!finalJobTitle) finalJobTitle = prefill.targetRole;
         if (!finalTargetSalary && prefill.targetSalary) {
-          // Try to parse numeric salary from string like "$60,000 - $80,000"
-          const match = prefill.targetSalary.replace(/[^0-9]/g, '').slice(0, 6);
-          if (match) finalTargetSalary = parseInt(match, 10);
+          const parsedTargetSalary = parsePrefillTargetSalary(prefill.targetSalary);
+          if (parsedTargetSalary) finalTargetSalary = parsedTargetSalary;
         }
       }
     }

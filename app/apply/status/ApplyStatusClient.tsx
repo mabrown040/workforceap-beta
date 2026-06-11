@@ -68,7 +68,11 @@ export default function ApplyStatusClient() {
           className={`apply-status-result${result.found ? ' apply-status-result--found' : ''}`}
           role="status"
         >
-          {result.message}
+          <p style={{ margin: 0 }}>{result.message}</p>
+          <p style={{ margin: '0.75rem 0 0.5rem' }}>{t('statusLoginCtaLead')}</p>
+          <a href="/login?redirectTo=/dashboard" className="btn btn-primary">
+            {t('statusLoginCta')}
+          </a>
         </div>
       ) : null}
       <p className="apply-status-footnote">

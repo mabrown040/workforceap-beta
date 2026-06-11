@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Resend } from 'resend';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db/prisma';
 import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
-import { getSupabaseCookieOptions } from '@/lib/supabaseCookieOptions';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -131,12 +128,12 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       );
     }
 
-    // Create Supabase auth user via admin (confirmed, no email verification gate)
+    // Create the auth user unconfirmed; public signup must not grant a
+    // usable account until the contact proves control of the mailbox.
     const supabaseAdmin = getSupabaseAdmin();
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: d.contactEmail,
       password: d.password,
-      email_confirm: true,
       user_metadata: {
         full_name: d.contactName,
         phone: phone ?? undefined,
@@ -243,50 +240,58 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       );
     }
 
-    // Build response early so Supabase setAll can set cookies on it
-    let response = NextResponse.json({
-      ok: true,
-      redirectTo: '/partner',
-      message: 'Your partner account has been created. You can now access your portal.',
-    });
-
-    // Sign in to create session (set cookies via Supabase SSR)
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookieOptions: getSupabaseCookieOptions(),
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options as Parameters<typeof response.cookies.set>[2]);
+    // Verification email is load-bearing: the unconfirmed account cannot log
+    // in until the link is clicked. Generate the Supabase confirmation link
+    // and send it through our own mailer.
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
+    let verificationSent = false;
+    try {
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'signup',
+        email: d.contactEmail,
+        password: d.password,
+        options: { redirectTo: `${siteUrl}/login?verified=1&redirectTo=/partner` },
+      });
+      const verifyUrl = linkData?.properties?.action_link;
+      if (linkError || !verifyUrl) {
+        console.error('Partner signup: verification link generation failed:', linkError);
+      } else {
+        const resendKeyForVerify = process.env.RESEND_API_KEY;
+        if (resendKeyForVerify) {
+          const resendVerify = new Resend(resendKeyForVerify);
+          await resendVerify.emails.send({
+            from: process.env.EMAIL_FROM || 'noreply@workforceap.org',
+            to: d.contactEmail,
+            subject: sanitizeEmailSubjectLine('Verify your email — WorkforceAP Partner Portal'),
+            text: [
+              `Hi ${d.contactName},`,
+              '',
+              'Thanks for signing up as a WorkforceAP partner. One quick step before you can log in: confirm this email address.',
+              '',
+              `Verify your email: ${verifyUrl}`,
+              '',
+              "If you didn't create this account, you can ignore this email — the account cannot be used until the email is verified.",
+              '',
+              'Questions? Reply to this email or contact us at info@workforceap.org.',
+              '',
+              '— WorkforceAP Team',
+            ].join('\n'),
           });
-        },
-      },
-    });
-
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: d.contactEmail,
-      password: d.password,
-    });
-
-    if (signInError || !signInData.session) {
-      console.error('Partner auto-login error:', signInError);
-      // Account created but auto-login failed — tell them to log in manually
-      return NextResponse.json(
-        {
-          ok: true,
-          needsManualLogin: true,
-          message: 'Your account was created. Please log in to access your partner portal.',
-          redirectTo: '/login?redirectTo=/partner',
-        },
-        { status: 200 }
-      );
+          verificationSent = true;
+        } else {
+          console.error('Partner signup: RESEND_API_KEY not set, verification email not sent');
+        }
+      }
+    } catch (err) {
+      console.error('Partner signup: verification email error:', err);
     }
 
-    // Session cookies are already set by Supabase SSR setAll above
-    // No need for manual cookie setting
+    const response = NextResponse.json({
+      ok: true,
+      message: verificationSent
+        ? 'Your partner account has been created. Check your email to verify your address before logging in.'
+        : 'Your partner account has been created, but we could not send the verification email. Contact info@workforceap.org and we will activate your account.',
+    });
 
     // Send welcome email
     const resendKey = process.env.RESEND_API_KEY;
@@ -305,7 +310,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
             '',
             'Thank you for signing up as a WorkforceAP partner!',
             '',
-            'Your account is currently pending approval. You can log in to your portal right away to explore onboarding materials.',
+            'Your account is currently pending approval. Once you verify your email address (see the verification email we just sent), you can log in to explore onboarding materials.',
             '',
             `Portal URL: ${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org'}/partner`,
             '',

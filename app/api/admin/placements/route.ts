@@ -5,6 +5,7 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
 
 export async function GET(req: NextRequest) {
   try {
@@ -62,9 +63,25 @@ export async function POST(req: NextRequest) {
         jobTitle,
         salaryOffered: salaryOffered ? parseInt(salaryOffered, 10) : null,
         placedAt: placedAt ? new Date(placedAt) : new Date(),
+        placedBy: user.id,
       },
     })
   );
+
+  // WIOA grant claims need a tamper-evident change history (AUDIT H-DEP4)
+  await auditLog({
+    actorUserId: user.id,
+    action: 'placement_create',
+    targetType: 'placement_record',
+    targetId: placement.id,
+    metadata: {
+      memberId: userId,
+      employerName: placement.employerName,
+      jobTitle: placement.jobTitle,
+      salaryOffered: placement.salaryOffered,
+      placedAt: placement.placedAt.toISOString(),
+    },
+  });
 
   return NextResponse.json({ placement });
 
@@ -98,9 +115,21 @@ export async function PATCH(req: NextRequest) {
   const { id, ...updates } = parsed.data;
   const orgId = await getActorOrganizationId(user.id);
 
-  // Verify placement belongs to admin's org before updating
+  // Verify placement belongs to admin's org and snapshot the fields being
+  // changed so the audit log captures before/after (AUDIT H-DEP4).
   const existing = await withTenantScope(orgId, async (db) =>
-    db.placementRecord.findUnique({ where: { id }, select: { id: true } })
+    db.placementRecord.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        userId: true,
+        placedAt: true,
+        salaryOffered: true,
+        employerName: true,
+        jobTitle: true,
+        retentionStatus: true,
+      },
+    })
   );
   if (!existing) {
     return NextResponse.json({ error: 'Placement not found' }, { status: 404 });
@@ -109,6 +138,19 @@ export async function PATCH(req: NextRequest) {
   const placement = await withTenantScope(orgId, async (db) =>
     db.placementRecord.update({ where: { id }, data: updates })
   );
+
+  const before: Record<string, unknown> = {};
+  for (const key of Object.keys(updates) as (keyof typeof updates)[]) {
+    const value = existing[key];
+    before[key] = value instanceof Date ? value.toISOString() : value ?? null;
+  }
+  await auditLog({
+    actorUserId: user.id,
+    action: 'placement_update',
+    targetType: 'placement_record',
+    targetId: id,
+    metadata: { memberId: existing.userId, before, after: updates },
+  });
 
   return NextResponse.json({ placement });
 

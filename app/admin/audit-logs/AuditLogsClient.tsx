@@ -22,11 +22,13 @@ interface AuditEvent {
 function buildAuditLogsHref(
   page: number,
   q: string,
-  event: string
+  event: string,
+  order: 'asc' | 'desc'
 ): string {
   const params = new URLSearchParams();
   if (q.trim()) params.set('q', q.trim());
   if (event.trim()) params.set('event', event.trim());
+  if (order !== 'desc') params.set('order', order);
   if (page > 1) params.set('page', String(page));
   const s = params.toString();
   return s ? `/admin/audit-logs?${s}` : '/admin/audit-logs';
@@ -40,6 +42,7 @@ export default function AuditLogsClient({
   totalMatching,
   initialQ,
   initialEvent,
+  order,
   eventTypes,
 }: {
   events: AuditEvent[];
@@ -49,6 +52,7 @@ export default function AuditLogsClient({
   totalMatching: number;
   initialQ: string;
   initialEvent: string;
+  order: 'asc' | 'desc';
   eventTypes: { name: string; count: number }[];
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -83,6 +87,7 @@ export default function AuditLogsClient({
       >
         <label style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
           <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>Search</span>
+          {order !== 'desc' ? <input type="hidden" name="order" value={order} /> : null}
           <input
             type="text"
             name="q"
@@ -157,7 +162,7 @@ export default function AuditLogsClient({
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Link
-            href={buildAuditLogsHref(Math.max(1, page - 1), initialQ, initialEvent)}
+            href={buildAuditLogsHref(Math.max(1, page - 1), initialQ, initialEvent, order)}
             aria-disabled={page <= 1}
             style={{
               pointerEvents: page <= 1 ? 'none' : undefined,
@@ -177,7 +182,7 @@ export default function AuditLogsClient({
             Page {page} / {totalPages}
           </span>
           <Link
-            href={buildAuditLogsHref(Math.min(totalPages, page + 1), initialQ, initialEvent)}
+            href={buildAuditLogsHref(Math.min(totalPages, page + 1), initialQ, initialEvent, order)}
             aria-disabled={page >= totalPages}
             style={{
               pointerEvents: page >= totalPages ? 'none' : undefined,
@@ -227,7 +232,24 @@ export default function AuditLogsClient({
           columns={[
             {
               key: 'time',
-              header: 'Time',
+              header: (
+                <Link
+                  href={buildAuditLogsHref(1, initialQ, initialEvent, order === 'desc' ? 'asc' : 'desc')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    color: 'inherit',
+                    textDecoration: 'none',
+                    font: 'inherit',
+                    fontWeight: 'inherit',
+                  }}
+                  aria-label={`Sort by time, currently ${order === 'desc' ? 'newest' : 'oldest'} first`}
+                >
+                  Time
+                  <span style={{ fontSize: '0.7em' }} aria-hidden>{order === 'desc' ? '▼' : '▲'}</span>
+                </Link>
+              ),
               cell: (e) => (
                 <span style={{ whiteSpace: 'nowrap', color: 'var(--color-on-surface-variant)' }}>{formatTime(e.createdAt)}</span>
               ),

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
-import { redirect } from 'next/navigation';
+import { redirect, unstable_rethrow } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -93,6 +93,9 @@ export default async function DashboardPage({
   try {
     return await renderMemberDashboard(user, t, { requestedProgramSlug });
   } catch (err) {
+    // redirect()/notFound() work by throwing — rethrow them so they keep
+    // navigating instead of being logged and rendered as the error fallback.
+    unstable_rethrow(err);
     console.error('[dashboard] unhandled render error', err);
     return (
       <div className="portal-error-fallback" style={{ padding: '2rem', maxWidth: '36rem', margin: '0 auto' }}>

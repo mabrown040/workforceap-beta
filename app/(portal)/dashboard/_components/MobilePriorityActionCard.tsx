@@ -27,7 +27,7 @@ export default function MobilePriorityActionCard({
                   <span className="material-symbols-outlined wa-text-xl" style={{ color: 'var(--color-gold)', '--ms-fill': 1 }} aria-hidden>bolt</span>
                 </div>
                 <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.88)', margin: 0, lineHeight: 1.5 }}>
-                  {t('priorityActionFor', { program: programTitle ?? applicationStatus.programInterest ?? t('yourProgram') })}
+                  {t('priorityActionFor', { program: programTitle ?? applicationStatus.programInterest ?? t('yourProgramInline') })}
                 </p>
                 <Link
                   href={applicationStatus.nextStepHref}

@@ -7,6 +7,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { logCronRun } from '@/lib/admin/logCronRun';
 import { withCronLogging } from '@/lib/cron/withCronLogging';
 import { setCronRecordsProcessed } from '@/lib/cron/cronExecution';
+import { getWeeklyRecapCronStatus } from './_weeklyRecapCronStatus';
 
 /**
  * GET /api/cron/weekly-recap
@@ -86,7 +87,7 @@ async function handle(_request: Request) {
 
   const runResult = { sent, failed, total: members.length };
   await setCronRecordsProcessed(sent);
-  await logCronRun('cron_weekly_recap', runResult, failed === members.length && members.length > 0 ? 'error' : 'ok');
+  await logCronRun('cron_weekly_recap', runResult, getWeeklyRecapCronStatus(failed));
   return NextResponse.json(runResult);
 }
 

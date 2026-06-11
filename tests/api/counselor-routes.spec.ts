@@ -82,6 +82,10 @@ vi.mock('@/lib/db/prisma', () => {
   const courseraSkillsetProgress = {
     findMany: vi.fn(),
   };
+  const atRiskAlert = {
+    count: vi.fn(),
+    findMany: vi.fn(),
+  };
   const $queryRaw = vi.fn();
   const $queryRawUnsafe = vi.fn();
   const $executeRaw = vi.fn();
@@ -108,6 +112,7 @@ vi.mock('@/lib/db/prisma', () => {
       courseProgress,
       memberProgramProgress,
       courseraSkillsetProgress,
+      atRiskAlert,
       $queryRaw,
       $queryRawUnsafe,
       $executeRaw,
@@ -212,6 +217,7 @@ import {
 import { POST as postNudge } from '@/app/api/counselor/nudge/route';
 import { POST as postRemind } from '@/app/api/counselor/remind-member/route';
 import { GET as getPlacements, POST as postPlacement } from '@/app/api/counselor/placements/route';
+import { GET as getPipelineAtRiskStats } from '@/app/api/admin/pipeline/at-risk-stats/route';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -357,6 +363,82 @@ describe('GET /api/counselor/dashboard', () => {
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.error).toBe('Internal server error');
+  });
+});
+
+// ─── GET /api/admin/pipeline/at-risk-stats as counselor ───
+describe('GET /api/admin/pipeline/at-risk-stats as counselor', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('scopes counts and pending counselor identities to assigned members', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.counselorUser, email: 'counselor@wap.org' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(false);
+    vi.mocked(isCounselor).mockResolvedValue(true);
+    vi.mocked(prisma.atRiskAlert.count)
+      .mockResolvedValueOnce(1)
+      .mockResolvedValueOnce(1);
+    vi.mocked(prisma.atRiskAlert.findMany).mockResolvedValue([
+      {
+        user: {
+          counselorAssignments: [
+            {
+              counselor: {
+                user: { fullName: 'Counselor Jane', email: 'counselor@wap.org' },
+              },
+            },
+          ],
+        },
+      },
+    ] as any);
+
+    const res = await getPipelineAtRiskStats(
+      makeRequest('http://localhost:3000/api/admin/pipeline/at-risk-stats')
+    );
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.criticalCount).toBe(1);
+    expect(body.alertsSentToday).toBe(1);
+    expect(body.counselorsWithPending).toEqual([
+      { name: 'Counselor Jane', email: 'counselor@wap.org', memberCount: 1 },
+    ]);
+
+    const counselorScope = {
+      user: {
+        counselorAssignments: {
+          some: {
+            active: true,
+            counselor: { active: true, userId: UUIDS.counselorUser },
+          },
+        },
+      },
+    };
+
+    expect(prisma.atRiskAlert.count).toHaveBeenNthCalledWith(1, {
+      where: expect.objectContaining(counselorScope),
+    });
+    expect(prisma.atRiskAlert.count).toHaveBeenNthCalledWith(2, {
+      where: expect.objectContaining(counselorScope),
+    });
+    expect(prisma.atRiskAlert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining(counselorScope),
+        select: expect.objectContaining({
+          user: {
+            select: {
+              counselorAssignments: expect.objectContaining({
+                where: {
+                  active: true,
+                  counselor: { active: true, userId: UUIDS.counselorUser },
+                },
+              }),
+            },
+          },
+        }),
+      })
+    );
   });
 });
 

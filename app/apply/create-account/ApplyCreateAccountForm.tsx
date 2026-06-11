@@ -5,6 +5,7 @@ import LocalizedLink from '@/components/LocalizedLink';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { trackApplyFunnel } from '@/lib/analytics/events';
+import { isValidPostalCode } from '@/lib/validation/postalCode';
 import { trackConversionWithValue } from '@/lib/analytics/conversionValue';
 import { APPLY_REFERRAL_SESSION_KEY } from '@/lib/apply/applyReferralCapture';
 import { isPaidUtmSource } from '@/lib/apply/paidApplyUtm';
@@ -149,7 +150,10 @@ export default function ApplyCreateAccountForm() {
       };
       let elig: EligStored | null = null;
       try {
-        const er = sessionStorage.getItem('apply_eligibility');
+        // sessionStorage is per-tab; fall back to the localStorage mirror so
+        // "finish later" resumes in a new tab keep the eligibility answers.
+        const er =
+          sessionStorage.getItem('apply_eligibility') ?? localStorage.getItem('apply_eligibility');
         if (er) elig = JSON.parse(er) as EligStored;
       } catch {
         elig = null;
@@ -332,7 +336,7 @@ export default function ApplyCreateAccountForm() {
     } else if (phoneDigits.length < 10) {
       nextFieldErrors.phone = t('errPhoneDigits');
     }
-    if (zip.trim() && !/^\d{5}(-\d{4})?$/.test(zip.trim())) {
+    if (zip.trim() && !isValidPostalCode(zip)) {
       nextFieldErrors.zip = t('errZipFormat');
     }
     if (password.length < 8) {
@@ -394,7 +398,9 @@ export default function ApplyCreateAccountForm() {
       } | null = null;
       if (typeof window !== 'undefined') {
         try {
-          const rawEligibility = sessionStorage.getItem('apply_eligibility');
+          const rawEligibility =
+            sessionStorage.getItem('apply_eligibility') ??
+            localStorage.getItem('apply_eligibility');
           eligibilityPayload = rawEligibility ? JSON.parse(rawEligibility) : null;
         } catch {
           eligibilityPayload = null;
@@ -480,6 +486,11 @@ export default function ApplyCreateAccountForm() {
       sessionStorage.removeItem(APPLY_PROGRAM_SLUG_KEY);
       sessionStorage.removeItem(APPLY_PROGRAM_RANKED_KEY);
       sessionStorage.removeItem('apply_eligibility');
+      try {
+        localStorage.removeItem('apply_eligibility');
+      } catch {
+        /* ignore */
+      }
       sessionStorage.removeItem(APPLY_ACCOUNT_DRAFT_KEY);
       try {
         localStorage.removeItem(APPLY_FLOW_DRAFT_KEY);
@@ -791,7 +802,7 @@ export default function ApplyCreateAccountForm() {
             <input
               id="zip"
               type="text"
-              inputMode="numeric"
+              inputMode="text"
               value={zip}
               onChange={(e) => {
                 setZip(e.target.value);

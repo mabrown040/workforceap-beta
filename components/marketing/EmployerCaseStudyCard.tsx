@@ -41,7 +41,7 @@ export default function EmployerCaseStudyCard({
         background: bg,
         border: `1px solid ${borderColor}`,
         borderRadius: 'var(--radius-xl, 1rem)',
-        padding: '2rem',
+        padding: 'clamp(1.25rem, 4vw, 2rem)',
         display: 'flex',
         flexDirection: 'column',
         gap: '1.25rem',

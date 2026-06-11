@@ -109,7 +109,7 @@ export default async function AIHistoryPage({ searchParams }: Props) {
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
               <Link
-                href="/dashboard/ai-tools/resume-rewriter"
+                href="/dashboard/ai-tools/resume-studio?view=rewrite"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
                   padding: '0.5rem 1.125rem', fontSize: '0.8125rem', fontWeight: 600,

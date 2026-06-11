@@ -26,7 +26,6 @@ import {
   isEmployerHiringPartnerCtaExternal,
   loadEmployerLandingTrustMetrics,
 } from '@/lib/marketing/employerLanding';
-import { EMPLOYER_TIERS } from '@/lib/stripe/client';
 
 export const revalidate = 600;
 
@@ -90,12 +89,15 @@ export default async function EmployersPage() {
   ].filter((item): item is TrustStatItem => item != null);
 
   const placeholderTrustStats: TrustStatItem[] = [
-    { value: placeholders.membersPlacedLabel, label: t('trustPlaceholderFit') },
-    { value: placeholders.avgStartingWageLabel, label: t('trustPlaceholderSkills') },
-    { value: placeholders.partnerCompaniesLabel, label: t('trustPlaceholderTerms') },
+    { value: t('trustPlaceholderFit'), label: t('trustPlaceholderFitTag') },
+    { value: t('trustPlaceholderSkills'), label: t('trustPlaceholderSkillsTag') },
+    { value: t('trustPlaceholderTerms'), label: t('trustPlaceholderTermsTag') },
   ];
 
-  const trustStatsToShow = trust.hasLiveData && liveTrustStats.length > 0 ? liveTrustStats : placeholderTrustStats;
+  const showLogos = trust.logos.length > 0;
+  const showVerifiedStats = liveTrustStats.length > 0;
+  const showPlaceholderStats = !showLogos && !showVerifiedStats;
+  const trustStatsToShow = showVerifiedStats ? liveTrustStats : placeholderTrustStats;
 
   return (
     <div className="inner-page employers-landing">
@@ -137,7 +139,7 @@ export default async function EmployersPage() {
       {/* ── Trust strip ── */}
       <section className="employers-trust" aria-label={t('trustAriaLabel')}>
         <div className="container employers-trust__inner">
-          {trust.logos.length > 0 ? (
+          {showLogos ? (
             <div className="employers-trust__logos">
               <p className="employers-trust__logos-label">{t('trustLogosLabel')}</p>
               <ul className="employers-trust__logo-list">
@@ -158,9 +160,10 @@ export default async function EmployersPage() {
                 ))}
               </ul>
             </div>
-          ) : (
+          ) : null}
+          {showVerifiedStats || showPlaceholderStats ? (
             <div
-              className={`employers-trust__stats${trust.hasLiveData ? '' : ' employers-trust__stats--placeholder'}`}
+              className={`employers-trust__stats${showVerifiedStats ? '' : ' employers-trust__stats--placeholder'}${showLogos ? ' employers-trust__stats--with-logos' : ''}`}
             >
               {trustStatsToShow.map((stat, index) => (
                 <div key={stat.label} className="employers-trust__stat-group">
@@ -172,8 +175,8 @@ export default async function EmployersPage() {
                 </div>
               ))}
             </div>
-          )}
-          {trust.hasLiveData ? (
+          ) : null}
+          {showVerifiedStats ? (
             <p className="employers-trust__as-of">{trust.asOfLabel}</p>
           ) : (
             <p className="employers-trust__as-of">{t('trustPlaceholderNote')}</p>
@@ -229,34 +232,29 @@ export default async function EmployersPage() {
         ) : null}
       </PageSection>
 
-      {/* ── Pricing: subscription tiers ── */}
+      {/* ── Pricing: one model ── */}
       <PageSection padding="lg" className="employers-pricing">
         <div className="employers-pricing__card">
           <span className="material-symbols-outlined employers-pricing__icon" aria-hidden="true">
             payments
           </span>
-          <h2 className="employers-pricing__title">Pipeline subscription</h2>
-          <p className="employers-pricing__lead">
-            Post jobs, review training-aligned candidates, and build your hiring pipeline with a predictable monthly plan.
-          </p>
-          <div className="employers-pricing__tiers">
-            {Object.entries(EMPLOYER_TIERS).map(([key, tier]) => (
-              <div key={key} className={`employers-pricing__tier${key === 'growth' ? ' employers-pricing__tier--featured' : ''}`}>
-                <p className="employers-pricing__tier-name">{tier.name}</p>
-                <p className="employers-pricing__tier-price">${(tier.amount / 100).toLocaleString()}<span>/mo</span></p>
-                <p className="employers-pricing__tier-jobs">{tier.jobLimit === Infinity ? 'Unlimited' : `Up to ${tier.jobLimit}`} job posting{tier.jobLimit !== 1 ? 's' : ''}</p>
-                <ul className="employers-pricing__tier-features">
-                  {tier.features.map((f) => (
-                    <li key={f}>{f}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          <h2 className="employers-pricing__title">{t('pricingTitle')}</h2>
+          <p className="employers-pricing__lead">{t('pricingLead', { fee: placementFee })}</p>
+          <ul className="employers-pricing__list">
+            <li>{t('pricingPoint1')}</li>
+            <li>{t('pricingPoint2')}</li>
+            <li>{t('pricingPoint3')}</li>
+          </ul>
+          <div className="employers-pricing__partner-plan">
+            <p className="employers-pricing__partner-plan-eyebrow">{t('partnerPlanEyebrow')}</p>
+            <h3 className="employers-pricing__partner-plan-title">{t('partnerPlanTitle')}</h3>
+            <p className="employers-pricing__partner-plan-copy">{t('partnerPlanCopy')}</p>
+            <ul className="employers-pricing__partner-plan-list">
+              <li>{t('partnerPlanPoint1')}</li>
+              <li>{t('partnerPlanPoint2')}</li>
+              <li>{t('partnerPlanPoint3')}</li>
+            </ul>
           </div>
-          <p className="employers-pricing__footnote">
-            Prefer contingent placement pricing?{' '}
-            <LocalizedLink href="/employers/signup">Talk with us</LocalizedLink> — we also offer a ${getEmployerPlacementFeeDisplay()} per-placement model for select partners.
-          </p>
         </div>
       </PageSection>
 
@@ -390,6 +388,11 @@ export default async function EmployersPage() {
           flex-direction: column;
           align-items: stretch;
           gap: 1.25rem;
+        }
+        .employers-trust__stats--with-logos {
+          margin-top: 1.5rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid var(--outline-variant);
         }
         .employers-trust__stat-group {
           display: contents;
@@ -525,77 +528,54 @@ export default async function EmployersPage() {
           flex-shrink: 0;
           margin-top: 0.1rem;
         }
-        .employers-pricing__tiers {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1rem;
-          margin: 1.5rem 0;
+        .employers-pricing__partner-plan {
+          margin-top: 1.5rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid var(--outline-variant);
           text-align: left;
         }
-        .employers-pricing__tier {
-          padding: 1.25rem;
-          border: 1px solid var(--outline-variant);
-          border-radius: var(--radius-lg);
-          background: var(--surface-container-lowest);
-        }
-        .employers-pricing__tier--featured {
-          border-color: var(--color-accent);
-          box-shadow: 0 0 0 1px var(--color-accent);
-        }
-        .employers-pricing__tier-name {
-          font-size: 0.875rem;
-          font-weight: 700;
+        .employers-pricing__partner-plan-eyebrow {
+          margin: 0 0 0.4rem;
+          font-size: 0.72rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
           text-transform: uppercase;
-          letter-spacing: 0.06em;
-          color: var(--color-on-surface-variant);
-          margin: 0 0 0.35rem;
+          color: var(--color-accent);
         }
-        .employers-pricing__tier-price {
-          font-size: 1.75rem;
+        .employers-pricing__partner-plan-title {
+          margin: 0 0 0.5rem;
+          font-size: 1.125rem;
           font-weight: 800;
           color: var(--color-on-surface);
-          margin: 0 0 0.5rem;
         }
-        .employers-pricing__tier-price span {
-          font-size: 0.875rem;
-          font-weight: 600;
+        .employers-pricing__partner-plan-copy {
+          margin: 0 0 0.85rem;
+          font-size: 0.9375rem;
+          line-height: 1.6;
           color: var(--color-on-surface-variant);
         }
-        .employers-pricing__tier-jobs {
-          font-size: 0.8125rem;
-          color: var(--color-on-surface-variant);
-          margin: 0 0 0.75rem;
-        }
-        .employers-pricing__tier-features {
+        .employers-pricing__partner-plan-list {
           list-style: none;
           margin: 0;
           padding: 0;
-          font-size: 0.8125rem;
-          color: var(--color-on-surface);
+          display: grid;
+          gap: 0.55rem;
         }
-        .employers-pricing__tier-features li {
+        .employers-pricing__partner-plan-list li {
           display: flex;
           align-items: flex-start;
-          gap: 0.4rem;
-          margin-bottom: 0.4rem;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          line-height: 1.5;
+          color: var(--color-on-surface);
         }
-        .employers-pricing__tier-features li::before {
-          content: 'check';
+        .employers-pricing__partner-plan-list li::before {
+          content: 'arrow_forward';
           font-family: 'Material Symbols Outlined';
           font-size: 1rem;
           color: var(--color-accent);
           flex-shrink: 0;
-        }
-        .employers-pricing__footnote {
-          font-size: 0.8125rem;
-          color: var(--color-on-surface-variant);
-          margin: 1rem 0 0;
-          line-height: 1.5;
-        }
-        .employers-pricing__footnote a {
-          color: var(--color-accent);
-          font-weight: 600;
-          text-decoration: underline;
+          margin-top: 0.05rem;
         }
 
         .employers-faq {
@@ -707,6 +687,19 @@ export default async function EmployersPage() {
           }
           .employers-outcomes__grid .employer-case-study-card:first-child {
             grid-column: auto;
+          }
+        }
+
+        @media (max-width: 639px) {
+          .employers-landing__hero-cta .btn,
+          .employers-final-cta__inner .btn {
+            width: 100%;
+            justify-content: center;
+          }
+          .employers-faq .faq-item summary {
+            min-height: 2.75rem;
+            display: flex;
+            align-items: center;
           }
         }
       `}</style>

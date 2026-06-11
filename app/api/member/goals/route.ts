@@ -5,8 +5,12 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { Prisma } from '@prisma/client';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { parseGoalDescription } from '@/lib/member/goalSteps';
+import { suggestGoalsFromCareer } from '@/lib/member/suggestGoalsFromCareer';
+import type { CareerMatchResult } from '@/lib/onet/types';
 
 const createSchema = z.object({
   goalType: z.string().min(1).max(100),
@@ -15,6 +19,19 @@ const createSchema = z.object({
   targetMetricType: z.string().max(50).optional(),
   targetMetricValue: z.number().int().min(0).optional(),
   targetDate: z.string().datetime().optional().nullable(),
+});
+
+const goalSelect = Prisma.validator<Prisma.GoalSelect>()({
+  id: true,
+  goalType: true,
+  title: true,
+  description: true,
+  targetMetricType: true,
+  targetMetricValue: true,
+  targetDate: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
 });async function _GET() {
   try {
     const user = await getUser();
@@ -22,12 +39,30 @@ const createSchema = z.object({
   
     try {
       await ensureUserInDb(user);
-      const goals = await prisma.goal.findMany({
+      const profile = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { careerRecommendationJson: true },
+      });
+      const careerRec = (profile?.careerRecommendationJson ?? null) as CareerMatchResult | null;
+      const suggestions = suggestGoalsFromCareer(careerRec);
+      const rawGoals = await prisma.goal.findMany({
         where: { userId: user.id },
         orderBy: { createdAt: 'desc' },
         take: 200,
+        select: goalSelect,
       });
-      return NextResponse.json({ goals });
+      // Decode the structured steps envelope from description so the client
+      // gets first-class steps + a clean note (no schema change required).
+      const goals = rawGoals.map((g) => {
+        const { note, steps } = parseGoalDescription(g.description);
+        return { ...g, description: note || null, steps };
+      });
+      // Hide suggestions whose goal-type the member already has active.
+      const activeTypes = new Set(
+        goals.filter((g) => g.status === 'ACTIVE').map((g) => g.goalType)
+      );
+      const openSuggestions = suggestions.filter((s) => !activeTypes.has(s.goalType));
+      return NextResponse.json({ goals, suggestions: openSuggestions });
     } catch (err) {
       captureApiError(err, { route: 'member/goals GET' });
       return NextResponse.json({ error: 'Failed to load goals' }, { status: 500 });

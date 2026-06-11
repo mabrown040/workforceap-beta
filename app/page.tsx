@@ -8,6 +8,7 @@ import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/progra
 import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import TrustStrip from '@/components/marketing/TrustStrip';
+import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
 import { getTranslations } from 'next-intl/server';
 import { marketingButtonPresets, marketingButtonClasses } from '@/lib/marketing/buttonClasses';
@@ -216,6 +217,11 @@ export default async function HomePage() {
             >
               {t('heroCtaPrimary')}
             </LocalizedLinkServer>
+
+            {/* Pilot program badge — honest about limited availability */}
+            <div style={{ marginLeft: '0.5rem' }}>
+              <PreLaunchTag compact />
+            </div>
             <LocalizedLinkServer
               href="/find-your-path"
               className={marketingButtonPresets.heroSecondaryOnDark('home-hero__cta-secondary home-hero-secondary-cta')}

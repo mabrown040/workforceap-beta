@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { normalizePrimaryBarriers, PRIMARY_BARRIER_OPTIONS } from '@/lib/apply/primaryBarrierOptions';
+import { isValidPostalCode } from '@/lib/validation/postalCode';
 
 // Option values copied EXACTLY from app/apply/ApplyEligibilityClient.tsx so the
 // public no-account form writes the same canonical values the rest of the app
@@ -9,17 +11,6 @@ const AGE_GROUPS = [
   { value: '18_24', label: '18–24' },
   { value: '25_50', label: '25–50' },
   { value: '50_plus', label: '50+' },
-] as const;
-
-const PRIMARY_BARRIERS = [
-  { value: 'seeking_skills_training', label: 'Looking to increase skills with Occupational & Professional Certificate training' },
-  { value: 'none', label: 'No barrier right now' },
-  { value: 'employment_gap', label: 'Employment gap' },
-  { value: 'limited_work_history', label: 'Limited work history' },
-  { value: 'justice_involved', label: 'Background / justice involvement' },
-  { value: 'disability', label: 'Disability or health barrier' },
-  { value: 'housing_instability', label: 'Housing instability' },
-  { value: 'other', label: 'Other barrier' },
 ] as const;
 
 export type PublicEligibilityPrefill = {
@@ -60,15 +51,19 @@ export default function PublicEligibilityForm({
   const [stateVal, setStateVal] = useState(prefill.state);
   const [zip, setZip] = useState(prefill.zip);
   const [county, setCounty] = useState(prefill.county);
-  const [primaryBarriers, setPrimaryBarriers] = useState<string[]>(prefill.primaryBarriers);
+  const [primaryBarriers, setPrimaryBarriers] = useState<string[]>(
+    normalizePrimaryBarriers(prefill.primaryBarriers),
+  );
 
   const [status, setStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
   const toggleBarrier = (v: string) =>
-    setPrimaryBarriers((cur) => (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]));
+    setPrimaryBarriers((cur) =>
+      normalizePrimaryBarriers(cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v])
+    );
 
-  const zipOk = /^\d{5}(-\d{4})?$/.test(zip.trim());
+  const zipOk = isValidPostalCode(zip);
   const canSubmit =
     firstName.trim().length > 0 &&
     lastName.trim().length > 0 &&
@@ -172,7 +167,7 @@ export default function PublicEligibilityForm({
       </div>
       <div style={fieldGroup}>
         <label style={labelStyle} htmlFor="q-zip">ZIP code *</label>
-        <input id="q-zip" style={inputStyle} value={zip} autoComplete="postal-code" inputMode="numeric" onChange={(e) => setZip(e.target.value)} required aria-invalid={zip.length > 0 && !zipOk} />
+        <input id="q-zip" style={inputStyle} value={zip} autoComplete="postal-code" inputMode="text" onChange={(e) => setZip(e.target.value)} required aria-invalid={zip.length > 0 && !zipOk} />
       </div>
       <div style={fieldGroup}>
         <label style={labelStyle} htmlFor="q-county">County *</label>
@@ -182,7 +177,7 @@ export default function PublicEligibilityForm({
       <fieldset style={{ ...fieldGroup, border: 'none', padding: 0, margin: 0 }}>
         <legend style={labelStyle}>Primary barrier(s) — check all that apply *</legend>
         <div role="group" aria-label="Primary barriers" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.35rem' }}>
-          {PRIMARY_BARRIERS.map((o) => (
+          {PRIMARY_BARRIER_OPTIONS.map((o) => (
             <label key={o.value} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
               <input type="checkbox" value={o.value} checked={primaryBarriers.includes(o.value)} onChange={() => toggleBarrier(o.value)} />
               {o.label}

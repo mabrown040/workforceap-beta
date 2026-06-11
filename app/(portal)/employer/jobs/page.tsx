@@ -126,24 +126,59 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
   ];
 
   return (
-    <>
-      <h1 className="wa-sr-only">{t('jobPostings')}</h1>
+    <PortalPageFrame>
+      <PageHeader
+        title={t('jobPostings')}
+        subtitle={t('managePostingsAndCandidates')}
+        action={
+          <>
+            <div className="md:wa-hidden">
+              <Link
+                href="/employer/jobs/post"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
+                {t('postJob')}
+              </Link>
+            </div>
+            <div className="wa-hidden md:wa-block">
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <Link
+                  href="/employer/jobs/import"
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    background: 'var(--surface-container-high)',
+                    color: 'var(--color-accent)',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {t('importJobsBtn')}
+                </Link>
+                <Link
+                  href="/employer/jobs/post"
+                  style={{
+                    padding: '0.625rem 1.5rem',
+                    background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark, #670024) 100%)',
+                    color: '#fff',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {t('postAJobBtn')}
+                </Link>
+              </div>
+            </div>
+          </>
+        }
+      />
+
       {/* ── Mobile section ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader
-          title={t('jobPostings')}
-          subtitle={t('managePostingsAndCandidates')}
-          action={(
-            <Link
-              href="/employer/jobs/post"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.5rem 0.875rem', background: 'linear-gradient(135deg,var(--color-accent),var(--color-accent-dark))', color: '#fff', borderRadius: '0.5rem', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>add</span>
-              {t('postJob')}
-            </Link>
-          )}
-        />
-
         {/* Filter chips */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0 1rem 0.75rem' }}>
           {FILTER_CHIPS.map((chip) => (
@@ -226,44 +261,6 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
       {/* ── Desktop section ── */}
       <div className="wa-hidden md:wa-block">
-        <PortalPageFrame>
-          <PageHeader
-            title={t('jobPostings')}
-            subtitle={t('managePostingsAndCandidates')}
-            action={(
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <Link
-                  href="/employer/jobs/import"
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    background: 'var(--surface-container-high)',
-                    color: 'var(--color-accent)',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                  }}
-                >
-                  {t('importJobsBtn')}
-                </Link>
-                <Link
-                  href="/employer/jobs/post"
-                  style={{
-                    padding: '0.625rem 1.5rem',
-                    background: 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark, #670024) 100%)',
-                    color: '#fff',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                  }}
-                >
-                  {t('postAJobBtn')}
-                </Link>
-              </div>
-            )}
-          />
-
           {totalInDb === 0 ? (
             <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>work_outline</span>
@@ -293,8 +290,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
               titleByIdInFilter={titleByIdInFilter}
             />
           )}
-        </PortalPageFrame>
       </div>
-    </>
+    </PortalPageFrame>
   );
 }

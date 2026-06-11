@@ -188,6 +188,11 @@ export default async function ImpactPage() {
                 title={t('membersServedEmptyTitle')}
                 description={t('dataLightNote')}
               />
+              <p className="impact-page__section-link-wrap impact-page__empty-hero-link">
+                <LocalizedLink href="/employers" className="impact-page__section-link">
+                  {t('employerHiringLink')}
+                </LocalizedLink>
+              </p>
             </div>
           ) : (
             <div className="impact-page__hero-metric portal-card portal-card--flat">
@@ -252,16 +257,14 @@ export default async function ImpactPage() {
             align="left"
             marginBottom="1.5rem"
           />
-          {hasEmployerMetrics ? (
+          {hasLiveData && hasEmployerMetrics ? (
             <>
               <div className="impact-page__stats-grid impact-page__stats-grid--employers">
                 <StatCard value={formatOptionalCount(stats.employersPartnered)} label={t('employerPartnersLabel')} />
                 <StatCard value={formatOptionalCount(stats.jobsPosted)} label={t('jobsPostedLabel')} />
                 <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
               </div>
-              {hasLiveData ? (
-                <p className="impact-page__employer-as-of">{stats.asOfLabel}</p>
-              ) : null}
+              <p className="impact-page__employer-as-of">{stats.asOfLabel}</p>
               <p className="impact-page__section-link-wrap">
                 <LocalizedLink href="/employers" className="impact-page__section-link">
                   {t('employerHiringLink')}
@@ -302,7 +305,7 @@ export default async function ImpactPage() {
             title={t('grantFundedTitle')}
             description={t('grantFundedDesc')}
           />
-          <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="impact-page__funder-actions">
             <LocalizedLink href="/outcomes" className="btn btn-outline">
               {t('outcomesLink')}
             </LocalizedLink>
@@ -321,10 +324,16 @@ export default async function ImpactPage() {
         .impact-page__container--narrow {
           max-width: 55rem;
         }
-        .impact-page__empty-hero,
+        .impact-page__empty-hero {
+          margin-bottom: 2.5rem;
+        }
         .impact-page__hero-metric {
           margin-bottom: 2.5rem;
           border-left: 4px solid var(--color-accent);
+        }
+        .impact-page__empty-hero-link {
+          margin: 1rem 0 0;
+          padding-left: 1rem;
         }
         .impact-page__hero-metric {
           padding: clamp(1.5rem, 3vw, 2.5rem);
@@ -395,6 +404,21 @@ export default async function ImpactPage() {
           display: grid;
           grid-template-columns: 1fr;
           gap: 1.25rem;
+        }
+        .impact-page__funder-actions {
+          margin-top: 1.5rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+        }
+        @media (max-width: 639px) {
+          .impact-page__funder-actions {
+            flex-direction: column;
+          }
+          .impact-page__funder-actions .btn {
+            width: 100%;
+            justify-content: center;
+          }
         }
         @media (min-width: 640px) {
           .impact-page__stats-grid {

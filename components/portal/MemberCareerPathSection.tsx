@@ -46,7 +46,7 @@ export default function MemberCareerPathSection({
       <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem' }}>Suggested next steps</p>
       <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.88rem' }}>
         <li>
-          <Link href="/dashboard/ai-tools/resume-rewriter">Resume Rewriter</Link>
+          <Link href="/dashboard/ai-tools/resume-studio?view=rewrite">Resume Rewriter</Link>
         </li>
         <li>
           <Link href="/dashboard/ai-tools/interview-practice">Interview Practice</Link>

@@ -1,6 +1,7 @@
 import 'server-only';
 import { prisma } from '@/lib/db/prisma';
 import { getLevelForPoints, getNextLevel, POINT_VALUES } from '@/lib/member/pointsConfig';
+import { updateStreak, getStreak } from '@/lib/member/streaks';
 
 export type { LevelName } from '@/lib/member/pointsConfig';
 export { getLevelForPoints, getNextLevel, LEVELS } from '@/lib/member/pointsConfig';
@@ -45,6 +46,10 @@ export async function awardPoints(
     await prisma.memberPoints.update({ where: { userId }, data: { level: newLevel } });
   }
 
+  // Daily-habit streak: additive + non-blocking. updateStreak swallows its own
+  // errors and never throws, so a streak failure can never break a point award.
+  await updateStreak(userId);
+
   return { awarded: true, points, total: newTotal, level: newLevel };
 }
 
@@ -57,5 +62,11 @@ export async function getMemberPoints(userId: string) {
     level: levelName,
     levelMeta: getLevelForPoints(total),
     nextLevel: getNextLevel(levelName),
+    // Daily-habit streak (additive; defaults to 0 when columns are null).
+    currentStreak: mp?.currentStreak ?? 0,
+    longestStreak: mp?.longestStreak ?? 0,
+    lastActiveDate: mp?.lastActiveDate ?? null,
   };
 }
+
+export { getStreak };

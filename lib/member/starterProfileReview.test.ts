@@ -25,13 +25,28 @@ test('starter profile review requires missing counselor-seeded fields', () => {
     profileAddress: '123 Main St',
     city: 'Austin',
     state: '',
-    zip: '787',
+    zip: '',
     referralSource: '',
   });
 
   assert.equal(gate.required, true);
   assert.deepEqual(gate.missing, ['state', 'zip', 'referralSource']);
   assert.deepEqual(getStarterProfileFieldLabels(gate.missing), ['state', 'ZIP code', 'referral source']);
+});
+
+test('starter profile review accepts international postal codes', () => {
+  const gate = getCounselorStarterProfileReview({
+    wasCounselorCreated: true,
+    phone: '2348022167878',
+    profilePhone: '2348022167878',
+    profileAddress: '12 Allen Avenue',
+    city: 'Lagos',
+    state: 'Lagos',
+    zip: '100001',
+    referralSource: 'Friend or family',
+  });
+
+  assert.equal(gate.required, false);
 });
 
 test('starter profile review clears once counselor-created member finishes cleanup', () => {

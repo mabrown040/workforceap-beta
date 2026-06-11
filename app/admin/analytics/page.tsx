@@ -115,7 +115,8 @@ export default async function AdminAnalyticsPage() {
   if (!user) redirect('/login?redirectTo=/admin/analytics');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const { funnel, engagement, outcomes, funding, programs } = await loadAnalyticsOverview();
+  const { funnel, engagement, outcomes, funding, programs, acquisition } =
+    await loadAnalyticsOverview();
 
   const funnelSteps: Array<{ label: string; value: number; hint: string }> = [
     { label: 'Total members', value: funnel.totalMembers, hint: 'Everyone in the system.' },
@@ -133,6 +134,8 @@ export default async function AdminAnalyticsPage() {
   ];
   const funnelMax = Math.max(1, ...funnelSteps.map((s) => s.value));
 
+  const acquisitionMax = Math.max(0, ...acquisition.steps.map((s) => s.count));
+
   const fundingTotal = funding.reduce((sum, f) => sum + f.count, 0);
   const topPrograms = programs.slice(0, 8);
   const programMax = Math.max(1, ...topPrograms.map((p) => p.count));
@@ -145,6 +148,52 @@ export default async function AdminAnalyticsPage() {
       />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', padding: '0 0.25rem' }}>
+        {/* ── 0. Apply funnel (acquisition, last 30 days) ── */}
+        <SectionShell
+          title={`Apply funnel (last ${acquisition.windowDays} days)`}
+          subtitle="How new applicants move from creating an account to an approved application. Percentages show conversion from the previous step."
+        >
+          {acquisitionMax === 0 ? (
+            <p style={{ margin: 0, fontSize: '0.875rem', color: MUTED }}>
+              No apply-funnel activity in the last {acquisition.windowDays} days.
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {acquisition.steps.map((step) => (
+                <div key={step.key}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'baseline',
+                      marginBottom: '0.4rem',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>
+                      {step.label}
+                    </span>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-accent)' }}>
+                      {step.count.toLocaleString()}
+                      {step.conversionPct != null ? (
+                        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: MUTED, marginLeft: '0.5rem' }}>
+                          {step.conversionPct}% of previous
+                        </span>
+                      ) : null}
+                    </span>
+                  </div>
+                  <Bar pct={(step.count / acquisitionMax) * 100} color="#3b82f6" />
+                  <p style={{ margin: '0.35rem 0 0', fontSize: '0.78rem', color: MUTED }}>{step.hint}</p>
+                </div>
+              ))}
+              <p style={{ margin: 0, fontSize: '0.78rem', color: MUTED }}>
+                {acquisition.qualifiedScreenings.toLocaleString()} of the eligibility checks qualified for
+                funded training.
+              </p>
+            </div>
+          )}
+        </SectionShell>
+
         {/* ── 1. Enrollment funnel ── */}
         <SectionShell
           title="Enrollment funnel"

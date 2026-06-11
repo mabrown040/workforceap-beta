@@ -49,8 +49,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
 
   const now = new Date();
   await prisma.$transaction(async (tx) => {
-    await tx.courseProgress.deleteMany({ where: { userId: id } });
-    await tx.memberProgramProgress.deleteMany({ where: { userId: id } });
+    await tx.courseProgress.deleteMany({ where: { userId: id, programSlug } });
+    await tx.memberProgramProgress.deleteMany({ where: { userId: id, programSlug } });
 
     const member = await tx.user.update({
       where: { id },
@@ -101,4 +101,3 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

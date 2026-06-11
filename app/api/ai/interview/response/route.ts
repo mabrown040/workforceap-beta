@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
+import { interviewResponseSchema } from '@/lib/validation/aiInterview';
 
 const MAX_QUESTIONS = 5;
 
@@ -60,7 +62,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const systemPrompt = `You are a career coach conducting a mock behavioral interview. Based on the conversation so far, ask ONE concise follow-up question.
+    const systemPrompt = `You are a career coach conducting a mock behavioral interview. Based on the conversation so far, ask ONE concise follow-up question. Use the candidate context below to keep questions relevant to their target role, but do NOT reference sensitive personal barriers in the question itself.${await loadCoachContextBlock(user.id)}
 
 Return ONLY a JSON object with these exact keys:
 - "question": the next interview question
@@ -92,7 +94,17 @@ Return ONLY a JSON object with these exact keys:
     };
     try {
       const jsonStr = raw.match(/\{[\s\S]*\}/)?.[0] || raw;
-      parsed = JSON.parse(jsonStr);
+      const rawParsed = JSON.parse(jsonStr);
+      const validated = interviewResponseSchema.safeParse(rawParsed);
+      if (validated.success) {
+        parsed = validated.data;
+      } else {
+        parsed = {
+          question: raw.slice(0, 300),
+          type: 'behavioral',
+          category: 'communication',
+        };
+      }
     } catch {
       parsed = {
         question: raw.slice(0, 300),

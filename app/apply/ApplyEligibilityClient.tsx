@@ -6,8 +6,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { localizeHref, useLocaleFromPath } from '@/lib/i18n/client';
 import { trackApplyFunnel } from '@/lib/analytics/events';
+import { isValidPostalCode } from '@/lib/validation/postalCode';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import { APPLY_FLOW_DRAFT_KEY, type ApplyFlowDraftV1 } from '@/lib/apply/applyProgramStorage';
+import {
+  DEFAULT_PRIMARY_BARRIER,
+  normalizePrimaryBarriers,
+  PRIMARY_BARRIER_OPTIONS,
+} from '@/lib/apply/primaryBarrierOptions';
 
 const APPLY_STORAGE_KEY = 'apply_eligibility';
 
@@ -21,17 +27,6 @@ const AGE_GROUPS = [
   { value: '18_24', label: '18–24' },
   { value: '25_50', label: '25–50' },
   { value: '50_plus', label: '50+' },
-] as const;
-
-const PRIMARY_BARRIERS = [
-  { value: 'seeking_skills_training', label: 'Looking to increase skills with Occupational & Professional Certificate training' },
-  { value: 'none', label: 'No barrier right now' },
-  { value: 'employment_gap', label: 'Employment gap' },
-  { value: 'limited_work_history', label: 'Limited work history' },
-  { value: 'justice_involved', label: 'Background / justice involvement' },
-  { value: 'disability', label: 'Disability or health barrier' },
-  { value: 'housing_instability', label: 'Housing instability' },
-  { value: 'other', label: 'Other barrier' },
 ] as const;
 
 const APPLY_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -103,9 +98,11 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   const [stateVal, setStateVal] = useState('');
   const [zip, setZip] = useState('');
   const [county, setCounty] = useState('');
-  const [primaryBarriers, setPrimaryBarriers] = useState<string[]>(['seeking_skills_training']);
+  const [primaryBarriers, setPrimaryBarriers] = useState<string[]>([DEFAULT_PRIMARY_BARRIER.value]);
   const toggleBarrier = (v: string) =>
-    setPrimaryBarriers((cur) => (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]));
+    setPrimaryBarriers((cur) =>
+      normalizePrimaryBarriers(cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v])
+    );
 
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
@@ -130,7 +127,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     setStateVal(draft.state ?? '');
     setZip(draft.zip ?? '');
     setCounty(draft.county ?? '');
-    setPrimaryBarriers(draft.primaryBarriers ?? ['seeking_skills_training']);
+    setPrimaryBarriers(normalizePrimaryBarriers(draft.primaryBarriers));
     setQ1(draft.q1 ?? null);
     setQ2(draft.q2 ?? null);
     setQ3(draft.q3 ?? null);
@@ -154,7 +151,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     phone.trim().length > 0 &&
     phoneDigits.length >= 10;
 
-  const zipOk = /^\d{5}(-\d{4})?$/.test(zip.trim());
+  const zipOk = isValidPostalCode(zip);
   const screeningDetailsOk =
     !!ageGroup &&
     city.trim().length > 0 &&
@@ -194,6 +191,25 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, q3 });
   };
 
+  // Quiet autosave: mobile applicants get interrupted constantly, and the
+  // manual "save & continue later" button is easy to miss. Persist the
+  // draft 1.5s after they stop typing (only once something identifying is
+  // entered, so an untouched form never writes PII to storage).
+  const [autoSaved, setAutoSaved] = useState(false);
+  const autosaveSkippedInitial = useRef(false);
+  useEffect(() => {
+    if (!autosaveSkippedInitial.current) {
+      autosaveSkippedInitial.current = true;
+      return;
+    }
+    if (!firstName && !lastName && !email && !phone) return;
+    const handle = setTimeout(() => {
+      writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, q3 });
+      setAutoSaved(true);
+    }, 1500);
+    return () => clearTimeout(handle);
+  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2, q3]);
+
   const handleSaveLater = () => {
     persistDraft();
     setSaveNotice(t('saveContinueHint'));
@@ -218,26 +234,32 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
       } catch {
         /* ignore */
       }
-      sessionStorage.setItem(
-        APPLY_STORAGE_KEY,
-        JSON.stringify({
-          q1,
-          q2,
-          q3,
-          qualifies,
-          yesCount,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          email: email.trim().toLowerCase(),
-          phone: phone.replace(/\D/g, ''),
-          ageGroup,
-          city: city.trim(),
-          state: stateVal.trim(),
-          zip: zip.trim(),
-          county: county.trim(),
-          primaryBarriers,
-        })
-      );
+      const eligibilityJson = JSON.stringify({
+        q1,
+        q2,
+        q3,
+        qualifies,
+        yesCount,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.replace(/\D/g, ''),
+        ageGroup,
+        city: city.trim(),
+        state: stateVal.trim(),
+        zip: zip.trim(),
+        county: county.trim(),
+        primaryBarriers,
+      });
+      sessionStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
+      // Also mirror to localStorage: sessionStorage is per-tab, so members who
+      // "save and finish later" (or resume in a new tab) lose their eligibility
+      // answers — the application then saves without a screening record.
+      try {
+        localStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
+      } catch {
+        /* storage full / disabled */
+      }
     }
     const resultsPath = programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results';
     router.push(localizeHref(resultsPath, locale));
@@ -245,6 +267,74 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
 
   return (
     <div className={`apply-flow apply-flow--step1${isPaid ? ' apply-flow--paid' : ''}`} data-variant={isPaid ? 'paid' : 'organic'}>
+      {/*
+        Scoped visual polish for the eligibility funnel only. All selectors are
+        prefixed with `.apply-flow--step1` so these rules never leak to the
+        homepage/marketing foundation or to other pages that reuse
+        `.form-radio-card`, `.radio-dot`, or barrier classes. Behavior is
+        untouched — layout/sizing only.
+      */}
+      <style>{`
+        /* Yes/No answer cards: tidy single-row, smaller dot aligned to label */
+        .apply-flow--step1 .form-radio-cards { gap: 0.5rem; }
+        .apply-flow--step1 .form-radio-card {
+          /* display:flex restated here — in production the base
+             .form-radio-card rule's flex is not applied (cards compute
+             display:block) and the dot collapses to a 4px sliver. */
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+          padding: 0.75rem 1rem;
+          min-height: 44px;
+        }
+        .apply-flow--step1 .form-radio-card .radio-dot {
+          display: inline-block;
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+          border-width: 2px;
+          margin-top: 0;
+        }
+        .apply-flow--step1 .form-radio-card.selected .radio-dot {
+          box-shadow: inset 0 0 0 3px var(--color-white);
+        }
+        html.dark .apply-flow--step1 .form-radio-card.selected .radio-dot {
+          box-shadow: inset 0 0 0 3px var(--surface-container-high);
+        }
+
+        /* Multi-select barrier list: small circle on the same line as the label */
+        .apply-flow--step1 .apply-barrier-options { gap: 0.125rem; }
+        .apply-flow--step1 .apply-barrier-option {
+          align-items: center;
+          gap: 0.625rem;
+          padding: 0.4rem 0.5rem;
+        }
+        .apply-flow--step1 .apply-barrier-option input {
+          width: 16px;
+          height: 16px;
+          margin-top: 0;
+        }
+        .apply-flow--step1 .apply-barrier-option__label { line-height: 1.3; }
+
+        /* Spacing rhythm: group each question with its options, even gaps */
+        .apply-flow--step1 .funding-questions {
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+          padding: 1.25rem;
+          margin-bottom: 1.25rem;
+        }
+        .apply-flow--step1 .funding-questions .form-group { margin-bottom: 0; }
+        .apply-flow--step1 .apply-eligibility-legend { margin-bottom: 0.25rem; }
+        .apply-flow--step1 .apply-eligibility-prompt { margin-bottom: 0.625rem; }
+        .apply-flow--step1 .apply-personal-block { margin-bottom: 1.25rem; }
+        .apply-flow--step1 .apply-personal-block__title { margin-bottom: 0.75rem; }
+
+        @media (max-width: 768px) {
+          .apply-flow--step1 .form-radio-card { align-items: center; }
+          .apply-flow--step1 .apply-barrier-option { align-items: center; }
+        }
+      `}</style>
       {!isPaid ? (
         <div className="apply-progress-bar" aria-label={t('progressAriaLabel')}>
           <div className="apply-progress-fill" style={{ width: '33%' }} />
@@ -455,10 +545,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         </div>
 
         <div className="apply-personal-block">
-          <h3 className="apply-personal-block__title">Eligibility screening details</h3>
+          <h3 className="apply-personal-block__title">{t('screeningSectionTitle')}</h3>
           <div className="apply-personal-grid">
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-age-group">Age group *</label>
+              <label htmlFor="apply-age-group">{t('ageGroupLabel')}</label>
               <select
                 id="apply-age-group"
                 name="ageGroup"
@@ -467,14 +557,14 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                 required
                 aria-invalid={attemptedContinue && !ageGroup}
               >
-                <option value="">Select age group</option>
+                <option value="">{t('ageGroupPlaceholder')}</option>
                 {AGE_GROUPS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-city">City *</label>
+              <label htmlFor="apply-city">{tForm('city')} *</label>
               <input
                 id="apply-city"
                 type="text"
@@ -487,7 +577,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-state">State *</label>
+              <label htmlFor="apply-state">{tForm('state')} *</label>
               <input
                 id="apply-state"
                 type="text"
@@ -501,13 +591,13 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-zip">ZIP code *</label>
+              <label htmlFor="apply-zip">{tForm('zip')} *</label>
               <input
                 id="apply-zip"
                 type="text"
                 name="zip"
                 autoComplete="postal-code"
-                inputMode="numeric"
+                inputMode="text"
                 value={zip}
                 onChange={(e) => setZip(e.target.value)}
                 required
@@ -515,7 +605,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label htmlFor="apply-county">County *</label>
+              <label htmlFor="apply-county">{t('countyLabel')}</label>
               <input
                 id="apply-county"
                 type="text"
@@ -527,10 +617,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
               />
             </div>
             <div className="form-group apply-form-group--full">
-              <label>Primary barrier(s) — check all that apply *</label>
-              <div role="group" aria-label="Primary barriers">
-                {PRIMARY_BARRIERS.map((option) => (
-                  <label key={option.value} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <label>{t('primaryBarriersLabel')}</label>
+              <div className="apply-barrier-options" role="group" aria-label={t('primaryBarriersAria')}>
+                {PRIMARY_BARRIER_OPTIONS.map((option) => (
+                  <label key={option.value} className="apply-barrier-option">
                     <input
                       type="checkbox"
                       name="primaryBarriers"
@@ -538,7 +628,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                       checked={primaryBarriers.includes(option.value)}
                       onChange={() => toggleBarrier(option.value)}
                     />
-                    {option.label}
+                    <span className="apply-barrier-option__label">{option.label}</span>
                   </label>
                 ))}
               </div>
@@ -546,7 +636,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
           </div>
           {attemptedContinue && !screeningDetailsOk && (
             <p className="apply-eligibility-field-error" role="alert">
-              Please complete age group, city, state, ZIP, county, and primary barrier.
+              {t('screeningIncompleteError')}
             </p>
           )}
         </div>
@@ -568,11 +658,11 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         {attemptedContinue && !canContinue ? (
           <p id="apply-eligibility-summary-error" className="apply-eligibility-field-error" role="alert">
             {(!contactOk || !screeningDetailsOk) && missingEligibilityAnswers > 0
-              ? `${!contactOk ? t('contactIncompleteError') : 'Please complete the required screening details.'} ${t('eligibilityRadioError')}`
+              ? `${!contactOk ? t('contactIncompleteError') : t('screeningIncompleteError')} ${t('eligibilityRadioError')}`
               : !contactOk
                 ? t('contactIncompleteError')
                 : !screeningDetailsOk
-                  ? 'Please complete the required screening details.'
+                  ? t('screeningIncompleteError')
                 : t('eligibilityRadioError')}
           </p>
         ) : null}
@@ -590,6 +680,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         {saveNotice ? (
           <p className="apply-save-notice" role="status" aria-live="polite">
             {saveNotice}
+          </p>
+        ) : autoSaved ? (
+          <p className="apply-save-notice" role="status" aria-live="polite">
+            {t('autoSavedNotice')}
           </p>
         ) : null}
         {(!canContinue || attemptedContinue) && (

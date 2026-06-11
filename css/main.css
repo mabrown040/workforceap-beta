@@ -775,9 +775,9 @@ html.dark .apply-hero-no-cost-callout strong {
     color: var(--color-gold);
 }
 html.dark .form-radio-card {
-    background: #161a1f;
-    border-color: #2d3540;
-    color: #e5e7eb;
+    background: var(--surface-container-high);
+    border-color: var(--outline-variant);
+    color: var(--color-on-surface);
 }
 html.dark .apply-results-program-card {
     background: #161a1f !important;
@@ -5102,8 +5102,8 @@ body.inner-page {
     min-width: 80px;
 }
 .form-radio-group input[type="radio"] {
-    width: 1.1rem;
-    height: 1.1rem;
+    width: 0.75rem;
+    height: 0.75rem;
     flex-shrink: 0;
     cursor: pointer;
     accent-color: #ad2c4d;
@@ -5178,7 +5178,7 @@ html:not(.dark) .apply-location-callout strong {
     align-items: center;
     gap: 0.75rem;
     padding: 1rem 1.25rem;
-    border: 1px solid var(--color-gray-200);
+    border: 1px solid var(--outline-variant);
     border-radius: var(--radius-md);
     background: var(--color-white);
     cursor: pointer;
@@ -5186,7 +5186,7 @@ html:not(.dark) .apply-location-callout strong {
     min-height: 48px;
 }
 .form-radio-card:hover {
-    border-color: var(--color-gray-300);
+    border-color: var(--color-accent);
 }
 .form-radio-card.selected {
     border: 2px solid var(--color-accent);
@@ -5204,24 +5204,25 @@ html:not(.dark) .apply-location-callout strong {
     pointer-events: none;
 }
 .form-radio-card .radio-dot {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--color-gray-300);
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--outline-variant);
     border-radius: 50%;
     flex-shrink: 0;
     transition: all var(--transition-fast);
+    margin-top: 1px;
 }
 .form-radio-card.selected .radio-dot {
     border-color: var(--color-accent);
     background: var(--color-accent);
-    box-shadow: inset 0 0 0 3px var(--color-white);
+    box-shadow: inset 0 0 0 2px var(--color-white);
 }
 html.dark .form-radio-card.selected {
     border: 2px solid var(--color-accent);
     background: rgba(173, 44, 77, 0.15);
 }
 html.dark .form-radio-card.selected .radio-dot {
-    box-shadow: inset 0 0 0 3px var(--surface-container-high);
+    box-shadow: inset 0 0 0 2px var(--surface-container-high);
 }
 
 /* Apply/signup forms — mobile-friendly inputs */
@@ -7437,6 +7438,56 @@ body { animation: fadeIn 0.4s ease; }
     grid-template-columns: 1fr;
     gap: 0.75rem;
 }
+.apply-barrier-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.apply-barrier-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: background var(--transition-fast);
+}
+.apply-barrier-option:hover {
+    background: var(--surface-container-low);
+}
+.apply-barrier-option:has(input:checked) {
+    background: rgba(173, 44, 77, 0.04);
+}
+.apply-barrier-option input {
+    flex-shrink: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1.5px solid var(--outline-variant);
+    border-radius: 50%;
+    background: var(--surface-container-lowest);
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition-fast);
+    margin-top: 0.15rem;
+}
+.apply-barrier-option input:checked {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: inset 0 0 0 1.5px var(--surface-container-lowest);
+}
+html.dark .apply-barrier-option input:checked {
+    box-shadow: inset 0 0 0 1.5px var(--surface-container-high);
+}
+.apply-barrier-option__label {
+    font-size: 0.875rem;
+    color: var(--color-on-surface);
+    font-weight: 400;
+}
 .apply-form-group--full {
     margin-bottom: 0;
 }
@@ -7463,13 +7514,18 @@ body { animation: fadeIn 0.4s ease; }
 }
 @media (max-width: 768px) {
     .apply-flow .form-radio-card {
-        min-height: 48px;
-        padding: 0.75rem 1rem;
+        min-height: 44px;
+        padding: 0.65rem 0.875rem;
         align-items: center;
     }
     .apply-flow .form-radio-cards {
         gap: 0.65rem;
     }
+    .apply-barrier-option {
+        align-items: flex-start;
+        padding: 0.35rem 0.5rem;
+    }
+
     .apply-flow input[type="text"],
     .apply-flow input[type="email"],
     .apply-flow input[type="tel"],

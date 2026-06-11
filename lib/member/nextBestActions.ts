@@ -173,7 +173,7 @@ export function buildNextBestActions(ctx: NextBestActionsContext): NextBestActio
       id: 'upload_resume',
       title: 'Add your resume',
       body: 'Upload a resume so employers and AI tools can tailor help to your background.',
-      href: '/dashboard/ai-tools/resume-rewriter?prefill=true',
+      href: '/dashboard/ai-tools/resume-studio?view=rewrite',
       cta: 'Try resume rewriter',
       variant: 'default',
       weight: 80,

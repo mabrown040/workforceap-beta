@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable */
+ 
 /**
  * Wrapper around `node --test` for the project's unit tests.
  *
@@ -63,6 +63,7 @@ const KNOWN_VITEST_SPECS = new Set([
   'lib/coursera/learnerProgress.test.ts',
   'lib/marketing/trustStripMetrics.test.ts',
   'lib/member/nextBestActions.test.ts',
+  'lib/member/streaks.test.ts',
   'lib/member/xapiVerbProgress.test.ts',
   'lib/retention/cleanup.test.ts',
   'lib/xapi/statements.test.ts',

@@ -235,13 +235,17 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/guide', label: 'Member Guide', group: 'manage', tab: 'me', Icon: BookOpen },
   {
     href: '/dashboard/profile',
-    label: 'Profile & Account',
+    label: 'Profile & Settings',
     group: 'manage',
     tab: 'me',
     Icon: User,
     aliases: ['/profile', '/account', '/dashboard/settings'],
     tourTarget: 'tour-profile',
   },
+  // "My Account" is the member's home base — it lands on the dashboard, not on
+  // the profile/settings page (which surprised members). Account settings stay
+  // reachable via "Profile & Settings" above (/dashboard/profile #settings).
+  { href: '/dashboard', label: 'My Account', group: 'manage', tab: 'me', Icon: Home },
 ];
 
 export const EMPLOYER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
@@ -336,14 +340,16 @@ export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [];
  * Every existing route/href is preserved — this is a reorder + relabel only.
  */
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  // ── Overview — the home / "who needs you today" ──
-  { href: '/admin', label: 'Overview', group: 'primary', Icon: BarChart3 },
+  // ── Today screen — the home / "who needs you today" ──
+  { href: '/admin', label: 'Today', group: 'primary', Icon: Home },
+  { href: '/admin/overview', label: 'Detailed overview', group: 'primary', Icon: BarChart3 },
 
   // ── Students — the people you manage day to day ──
+  // Single entry. The flavored sub-lists (Interview ready, Job ready,
+  // Duplicates, Applications funnel) live as chip links on /admin/members
+  // and/or in Advanced / System below — see PR #2 "consolidate student-list
+  // nav into filter chips". All underlying page.tsx routes are preserved.
   { href: '/admin/members', label: 'Students', group: 'students', Icon: Users },
-  { href: '/admin/pipeline', label: 'Applications', group: 'students', Icon: GitBranch },
-  { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'students', Icon: ListChecks },
-  { href: '/admin/members/job-ready', label: 'Job ready (70%+)', group: 'students', Icon: TrendingUp },
   {
     href: '/admin/messages',
     label: 'Messages',
@@ -352,7 +358,6 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     requiresSuperAdminContext: true,
     badgeKey: 'counselor_sla_breach_48h',
   },
-  { href: '/admin/members/duplicates', label: 'Duplicate students', group: 'students', Icon: AlertTriangle },
 
   // ── Programs & Training ──
   { href: '/admin/programs', label: 'Programs', group: 'programs', Icon: BookOpen },
@@ -380,6 +385,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Outcomes — results and reporting ──
   { href: '/admin/board', label: 'Board outcomes', group: 'outcomes', Icon: TrendingUp },
   { href: '/admin/outcomes', label: 'Placement outcomes', group: 'outcomes', Icon: LineChart },
+  { href: '/admin/placements', label: 'Placements', group: 'outcomes', Icon: Briefcase },
   { href: '/admin/placement-surveys', label: 'Placement surveys', group: 'outcomes', Icon: ClipboardCheck },
   { href: '/admin/analytics', label: 'Analytics', group: 'outcomes', Icon: BarChart3 },
 
@@ -387,22 +393,37 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/blog', label: 'Blog', group: 'content', Icon: FileText },
   { href: '/admin/invites', label: 'Invites', group: 'content', Icon: MessageSquare },
 
-  // ── Advanced / System — technical tooling, tucked out of the way ──
-  { href: '/admin/sessions', label: 'In-office sessions', group: 'advanced', Icon: Sparkles },
-  { href: '/admin/users', label: 'Users', group: 'advanced', Icon: User },
-  { href: '/admin/exports', label: 'Exports', group: 'advanced', Icon: Download },
-  { href: '/admin/coursera', label: 'Coursera', group: 'advanced', Icon: Library },
-  { href: '/admin/metrics', label: 'Metrics', group: 'advanced', Icon: LineChart },
-  { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'advanced', Icon: BarChart3 },
-  { href: '/admin/ai-tools', label: 'AI tools', group: 'advanced', Icon: Sparkles },
-  { href: '/admin/analytics/ai-efficacy', label: 'AI Efficacy', group: 'advanced', Icon: Target },
-  { href: '/admin/diagnostics', label: 'Diagnostics', group: 'advanced', Icon: Activity },
-  { href: '/admin/crons', label: 'Cron Monitor', group: 'advanced', Icon: Timer },
-  { href: '/admin/health', label: 'System Health', group: 'advanced', Icon: HeartPulse },
+  // ── Advanced / System — technical tooling, super-admin only ──
+  // In-office sessions is operator-facing (counselor flow) but we keep it
+  // out of the dad-default nav for now; it's still reachable directly from
+  // /admin (sessions card) and from the detailed overview.
+  { href: '/admin/sessions', label: 'In-office sessions', group: 'advanced', Icon: Sparkles, requiresSuperAdminContext: true },
+  // Student-list "Tools" surfaces — distinct from the main /admin/members
+  // table (different queries / data shape). Demoted from the Students group
+  // so the everyday operator sees one student list, not five. Both pages
+  // remain reachable via these entries and via chip links on /admin/members.
+  { href: '/admin/pipeline', label: 'Applications funnel', group: 'advanced', Icon: GitBranch, requiresSuperAdminContext: true },
+  { href: '/admin/members/duplicates', label: 'Find duplicate students', group: 'advanced', Icon: AlertTriangle, requiresSuperAdminContext: true },
+  { href: '/admin/users', label: 'Users', group: 'advanced', Icon: User, requiresSuperAdminContext: true },
+  { href: '/admin/exports', label: 'Exports', group: 'advanced', Icon: Download, requiresSuperAdminContext: true },
+  { href: '/admin/coursera', label: 'Coursera', group: 'advanced', Icon: Library, requiresSuperAdminContext: true },
+  { href: '/admin/metrics', label: 'Metrics', group: 'advanced', Icon: LineChart, requiresSuperAdminContext: true },
+  { href: '/admin/weekly-recap', label: 'Weekly recap', group: 'advanced', Icon: BarChart3, requiresSuperAdminContext: true },
+  { href: '/admin/ai-tools', label: 'AI tools', group: 'advanced', Icon: Sparkles, requiresSuperAdminContext: true },
+  { href: '/admin/analytics/ai-efficacy', label: 'AI Efficacy', group: 'advanced', Icon: Target, requiresSuperAdminContext: true },
+  { href: '/admin/diagnostics', label: 'Diagnostics', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
+  { href: '/admin/crons', label: 'Cron Monitor', group: 'advanced', Icon: Timer, requiresSuperAdminContext: true },
+  { href: '/admin/health', label: 'System Health', group: 'advanced', Icon: HeartPulse, requiresSuperAdminContext: true },
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/webhook-events', label: 'Webhook events', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
-  { href: '/admin/email-crons', label: 'Email & Crons', group: 'advanced', Icon: MessageSquare },
-  { href: '/admin/settings', label: 'Settings', group: 'advanced', Icon: Settings },
+  { href: '/admin/email-crons', label: 'Email & Crons', group: 'advanced', Icon: MessageSquare, requiresSuperAdminContext: true },
+  { href: '/admin/email-templates', label: 'Email templates', group: 'advanced', Icon: FileText, requiresSuperAdminContext: true },
+  { href: '/admin/feedback', label: 'Feedback', group: 'advanced', Icon: MessageSquare, requiresSuperAdminContext: true },
+  { href: '/admin/growth', label: 'Growth', group: 'advanced', Icon: TrendingUp, requiresSuperAdminContext: true },
+  { href: '/admin/feature-flags', label: 'Feature flags', group: 'advanced', Icon: Flag, requiresSuperAdminContext: true },
+  { href: '/admin/agent-inbox', label: 'Agent inbox', group: 'advanced', Icon: ListChecks, requiresSuperAdminContext: true },
+  { href: '/admin/data-retention', label: 'Data retention', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
+  { href: '/admin/settings', label: 'Settings', group: 'advanced', Icon: Settings, requiresSuperAdminContext: true },
 ];
 
 export const COUNSELOR_PORTAL_NAV_ITEMS: PortalNavItem[] = [

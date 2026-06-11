@@ -130,10 +130,11 @@ export default function ProgramChangeRequestPanel({
 
       {!pending && selectable.length > 0 && (
         <form onSubmit={submit}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
+          <label htmlFor="program-change-select" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
             Requested program
           </label>
           <select
+            id="program-change-select"
             value={requestedSlug || selectable[0]?.slug}
             onChange={(e) => setRequestedSlug(e.target.value)}
             style={{
@@ -152,10 +153,11 @@ export default function ProgramChangeRequestPanel({
             ))}
           </select>
 
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
+          <label htmlFor="program-change-reason" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
             Why are you switching? (required)
           </label>
           <textarea
+            id="program-change-reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={4}

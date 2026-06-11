@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { invalidateMemberState } from '@/lib/member/getMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { isValidPostalCode } from '@/lib/validation/postalCode';
 
 const VALID_BARRIER_TYPES = [
   'justice_involved',
@@ -42,7 +43,7 @@ const updateSchema = z.object({
     .max(20)
     .optional()
     .nullable()
-    .refine((value) => !value || /^\d{5}(-\d{4})?$/.test(value.trim()), 'Enter a valid ZIP code.'),
+    .refine((value) => !value || isValidPostalCode(value), 'Enter a valid ZIP or postal code.'),
   linkedin: z.string().max(500).nullable(),
   bio: z.string().max(2000).nullable(),
   financialAidInterest: z.boolean().optional(),

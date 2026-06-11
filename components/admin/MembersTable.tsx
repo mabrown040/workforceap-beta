@@ -245,9 +245,11 @@ export default function MembersTable({ members }: MembersTableProps) {
   const [notInCourseFilter, setNotInCourseFilter] = useState(false);
   const [needsAttentionFilter, setNeedsAttentionFilter] = useState(false);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
-  // Default sort matches the server's fit-score-desc ordering.
-  const [sortKey, setSortKey] = useState<SortKey>('fit');
+  // Dad-safe default: surface most-recently-active members first (matches server's initial sort).
+  const [sortKey, setSortKey] = useState<SortKey>('lastActive');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  // "More sort options" disclosure starts collapsed; only the 3 common sorts show until expanded.
+  const [showAdvancedSorts, setShowAdvancedSorts] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [bulkHint, setBulkHint] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -496,25 +498,60 @@ export default function MembersTable({ members }: MembersTableProps) {
           </label>
           <label className="admin-members-filter-field">
             <span>Sort by</span>
-            <select
-              value={`${sortKey}:${sortDir}`}
-              onChange={(e) => {
-                const [k, d] = e.target.value.split(':') as [SortKey, SortDir];
-                setSortKey(k);
-                setSortDir(d);
-              }}
-              className="admin-members-filter-select"
-            >
-              <option value="fit:desc">Best fit first</option>
-              <option value="created:desc">Newest first</option>
-              <option value="created:asc">Oldest first</option>
-              <option value="enrolled:desc">Recently enrolled</option>
-              <option value="lastActive:desc">Most recently active</option>
-              <option value="lastActive:asc">Least recently active</option>
-              <option value="health:asc">Health (worst first)</option>
-              <option value="score:desc">Highest assessment %</option>
-              <option value="name:asc">Name (A→Z)</option>
-            </select>
+            {(() => {
+              // Dad-safe surface: 3 common sorts always visible; remaining 6 behind a
+              // "More sort options" disclosure. If the user's current sort is one of the
+              // advanced 6, auto-expand so the dropdown reflects the active selection.
+              const currentValue = `${sortKey}:${sortDir}`;
+              const commonValues = new Set(['lastActive:desc', 'name:asc', 'created:desc']);
+              const expanded = showAdvancedSorts || !commonValues.has(currentValue);
+              return (
+                <>
+                  <select
+                    value={currentValue}
+                    onChange={(e) => {
+                      const [k, d] = e.target.value.split(':') as [SortKey, SortDir];
+                      setSortKey(k);
+                      setSortDir(d);
+                    }}
+                    className="admin-members-filter-select"
+                  >
+                    {expanded ? (
+                      <>
+                        <optgroup label="Common">
+                          <option value="lastActive:desc">Recently active</option>
+                          <option value="name:asc">Name (A→Z)</option>
+                          <option value="created:desc">Recently signed up</option>
+                        </optgroup>
+                        <optgroup label="Advanced">
+                          <option value="fit:desc">Best fit first</option>
+                          <option value="created:asc">Oldest first</option>
+                          <option value="enrolled:desc">Recently enrolled</option>
+                          <option value="lastActive:asc">Least recently active</option>
+                          <option value="health:asc">Health (worst first)</option>
+                          <option value="score:desc">Highest assessment %</option>
+                        </optgroup>
+                      </>
+                    ) : (
+                      <>
+                        <option value="lastActive:desc">Recently active</option>
+                        <option value="name:asc">Name (A→Z)</option>
+                        <option value="created:desc">Recently signed up</option>
+                      </>
+                    )}
+                  </select>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setShowAdvancedSorts((v) => !v)}
+                    aria-expanded={expanded}
+                    style={{ marginTop: '0.25rem', alignSelf: 'flex-start', fontSize: '0.78rem', padding: '0.15rem 0.4rem' }}
+                  >
+                    {expanded ? 'Fewer sort options ▴' : 'More sort options ▾'}
+                  </button>
+                </>
+              );
+            })()}
           </label>
           {activeFilterCount > 0 ? (
             <div className="admin-members-filter-actions">
@@ -526,7 +563,7 @@ export default function MembersTable({ members }: MembersTableProps) {
         </div>
       </div>
 
-      {selectedIds.size > 0 && (
+      {selectedIds.size >= 2 && (
         <div className="admin-members-bulk-bar" role="region" aria-label="Bulk actions for selected members">
           <div className="admin-members-bulk-bar__lead">
             <span className="admin-members-bulk-bar__count">{selectedIds.size}</span>

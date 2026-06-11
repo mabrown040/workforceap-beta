@@ -2,6 +2,310 @@ import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { isExcludedPublicEmployerName, isExcludedPublicJobTitle } from '@/lib/jobs/publicJobFilters';
 import { computeReadinessScore, getScoreBreakdowns } from '@/lib/readiness/score';
+import { parseGoalDescription } from '@/lib/member/goalSteps';
+import { buildNextBestActions, type NextBestActionsContext } from '@/lib/member/nextBestActions';
+
+/**
+ * A single celebrated win from the member's week. `value` is optional so the
+ * UI can render an emphasized number alongside the human label when present.
+ */
+export type RecapWin = {
+  /** Stable key for React lists + analytics. */
+  key: string;
+  /** Warm, human, past-tense label, e.g. "Completed 3 learning resources". */
+  label: string;
+  /** Optional emphasized count to render large in the UI. */
+  value?: number;
+  /** Material Symbols icon name for the win card. */
+  icon: string;
+};
+
+/** Per-goal progress snapshot for the recap (active goals only, capped). */
+export type RecapGoalProgress = {
+  id: string;
+  title: string;
+  goalType: string;
+  status: string;
+  /** Steps completed / total, from the goal's embedded step plan. */
+  stepsDone: number;
+  stepsTotal: number;
+  /** Metric-based progress (e.g. applications 2/5) when the goal defines one. */
+  currentMetricValue: number | null;
+  targetMetricValue: number | null;
+  /** 0–100 best-effort completion percent (steps preferred, metric fallback). */
+  percent: number | null;
+  /** The next not-yet-done step text, if any — used to seed the plan. */
+  nextStep: string | null;
+};
+
+/** One concrete, encouraging item in the "plan for next week" list. */
+export type RecapPlanItem = {
+  key: string;
+  title: string;
+  /** Short encouraging context line. */
+  body: string;
+  href: string;
+  cta: string;
+  /** Where this came from — drives icon + grouping in the UI. */
+  source: 'goal' | 'action';
+  icon: string;
+};
+
+const DONE_GOAL_STATUSES = new Set(['COMPLETED', 'COMPLETE', 'DONE']);
+
+function isDoneStatus(status: string): boolean {
+  return DONE_GOAL_STATUSES.has(status.trim().toUpperCase());
+}
+
+function clampPercent(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+type GoalLike = {
+  id: string;
+  goalType: string;
+  title: string;
+  status: string;
+  description: string | null;
+  currentMetricValue: number | null;
+  targetMetricValue: number | null;
+};
+
+/** Build per-goal progress from raw Goal rows (active + recently completed). */
+function buildGoalProgress(goals: GoalLike[]): RecapGoalProgress[] {
+  return goals
+    .filter((g) => {
+      const s = g.status.trim().toUpperCase();
+      return s === 'ACTIVE' || s === 'COMPLETED';
+    })
+    .slice(0, 4)
+    .map((g) => {
+      const { steps } = parseGoalDescription(g.description);
+      const stepsTotal = steps.length;
+      const stepsDone = steps.filter((s) => s.done).length;
+      const nextStep = steps.find((s) => !s.done)?.text ?? null;
+
+      let percent: number | null = null;
+      if (stepsTotal > 0) {
+        percent = clampPercent((stepsDone / stepsTotal) * 100);
+      } else if (g.targetMetricValue && g.targetMetricValue > 0) {
+        percent = clampPercent(((g.currentMetricValue ?? 0) / g.targetMetricValue) * 100);
+      }
+      if (isDoneStatus(g.status)) percent = 100;
+
+      return {
+        id: g.id,
+        title: g.title,
+        goalType: g.goalType,
+        status: g.status,
+        stepsDone,
+        stepsTotal,
+        currentMetricValue: g.currentMetricValue,
+        targetMetricValue: g.targetMetricValue,
+        percent,
+        nextStep,
+      };
+    });
+}
+
+type WinsInput = {
+  applicationsAdded: number;
+  resourcesCompleted: number;
+  pathwayStepsCompleted: number;
+  aiToolsUsed: number;
+  pointsThisWeek: number;
+  certsThisWeek: number;
+  goalStepsCompletedThisWeek: number;
+  goalsCompletedThisWeek: number;
+};
+
+/** Turn this-week activity into warm, celebratory, past-tense win lines. */
+function buildWins(w: WinsInput): RecapWin[] {
+  const wins: RecapWin[] = [];
+
+  if (w.goalsCompletedThisWeek > 0) {
+    wins.push({
+      key: 'goals_completed',
+      value: w.goalsCompletedThisWeek,
+      label: w.goalsCompletedThisWeek === 1 ? 'Reached a goal you set for yourself' : `Reached ${w.goalsCompletedThisWeek} of your goals`,
+      icon: 'emoji_events',
+    });
+  }
+  if (w.certsThisWeek > 0) {
+    wins.push({
+      key: 'certs',
+      value: w.certsThisWeek,
+      label: w.certsThisWeek === 1 ? 'Earned a new certification' : `Earned ${w.certsThisWeek} new certifications`,
+      icon: 'workspace_premium',
+    });
+  }
+  if (w.resourcesCompleted > 0) {
+    wins.push({
+      key: 'resources',
+      value: w.resourcesCompleted,
+      label: w.resourcesCompleted === 1 ? 'Completed a learning resource' : `Completed ${w.resourcesCompleted} learning resources`,
+      icon: 'menu_book',
+    });
+  }
+  if (w.pathwayStepsCompleted > 0) {
+    wins.push({
+      key: 'pathway',
+      value: w.pathwayStepsCompleted,
+      label: w.pathwayStepsCompleted === 1 ? 'Advanced a step in your learning pathway' : `Advanced ${w.pathwayStepsCompleted} steps in your learning pathway`,
+      icon: 'school',
+    });
+  }
+  if (w.goalStepsCompletedThisWeek > 0) {
+    wins.push({
+      key: 'goal_steps',
+      value: w.goalStepsCompletedThisWeek,
+      label: w.goalStepsCompletedThisWeek === 1 ? 'Checked off a step toward a goal' : `Checked off ${w.goalStepsCompletedThisWeek} steps toward your goals`,
+      icon: 'task_alt',
+    });
+  }
+  if (w.applicationsAdded > 0) {
+    wins.push({
+      key: 'applications',
+      value: w.applicationsAdded,
+      label: w.applicationsAdded === 1 ? 'Logged a job application' : `Logged ${w.applicationsAdded} job applications`,
+      icon: 'work',
+    });
+  }
+  if (w.aiToolsUsed > 0) {
+    wins.push({
+      key: 'ai_tools',
+      value: w.aiToolsUsed,
+      label: w.aiToolsUsed === 1 ? 'Used an AI career tool' : `Put ${w.aiToolsUsed} AI career tools to work`,
+      icon: 'auto_awesome',
+    });
+  }
+  if (w.pointsThisWeek > 0) {
+    wins.push({
+      key: 'points',
+      value: w.pointsThisWeek,
+      label: `Earned ${w.pointsThisWeek} momentum point${w.pointsThisWeek === 1 ? '' : 's'}`,
+      icon: 'bolt',
+    });
+  }
+
+  return wins;
+}
+
+/** A warm one-line headline that honestly reflects the week. */
+function buildHeadline(winCount: number, fullName: string | null): string {
+  const first = fullName?.trim().split(/\s+/)[0] ?? '';
+  const name = first ? `${first}, ` : '';
+  if (winCount === 0) {
+    return `${name}every week is a fresh start — here's a simple plan to build momentum.`;
+  }
+  if (winCount === 1) {
+    return `${name}you made real progress this week. Let's keep it going.`;
+  }
+  if (winCount <= 3) {
+    return `${name}you showed up and got things done this week. Nice work.`;
+  }
+  return `${name}what a week — you made progress on several fronts. Keep this energy.`;
+}
+
+const GOAL_TYPE_TO_PLAN_HREF: Record<string, { href: string; cta: string; icon: string }> = {
+  build_resume: { href: '/dashboard/ai-tools/resume-studio?view=rewrite', cta: 'Work on resume', icon: 'description' },
+  practice_interviews: { href: '/dashboard/ai-tools/interview-practice', cta: 'Practice now', icon: 'record_voice_over' },
+  apply_to_jobs: { href: '/dashboard/job-applications', cta: 'Open tracker', icon: 'work' },
+  complete_certification: { href: '/dashboard/training', cta: 'Continue training', icon: 'school' },
+  finish_pathway: { href: '/dashboard/resources', cta: 'Open pathway', icon: 'menu_book' },
+  linkedin_profile: { href: '/dashboard/profile', cta: 'Update profile', icon: 'badge' },
+  tech_readiness: { href: '/dashboard/training', cta: 'Open training', icon: 'school' },
+  career_pivot: { href: '/dashboard/career-brief', cta: 'Open career brief', icon: 'insights' },
+};
+
+/**
+ * Build a concrete, encouraging 2–3 item plan for next week:
+ * the next open step from each active goal first, then top recommended
+ * actions to fill out the list.
+ */
+function buildNextWeekPlan(
+  goalProgress: RecapGoalProgress[],
+  nbaCtx: NextBestActionsContext,
+): RecapPlanItem[] {
+  const plan: RecapPlanItem[] = [];
+  const seen = new Set<string>();
+
+  // 1. Next open step from each active (not-yet-done) goal.
+  for (const g of goalProgress) {
+    if (isDoneStatus(g.status)) continue;
+    if (!g.nextStep) continue;
+    const route = GOAL_TYPE_TO_PLAN_HREF[g.goalType] ?? {
+      href: '/dashboard/career-brief',
+      cta: 'View goal',
+      icon: 'flag',
+    };
+    const key = `goal:${g.id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    plan.push({
+      key,
+      title: g.nextStep,
+      body: `Next step toward "${g.title}".`,
+      href: route.href,
+      cta: route.cta,
+      source: 'goal',
+      icon: route.icon,
+    });
+    if (plan.length >= 3) return plan;
+  }
+
+  // 2. Fill remaining slots with prioritized next best actions.
+  const actions = buildNextBestActions(nbaCtx);
+  for (const a of actions) {
+    const key = `action:${a.id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    plan.push({
+      key,
+      title: a.title,
+      body: a.body,
+      href: a.href,
+      cta: a.cta,
+      source: 'action',
+      icon: 'arrow_forward',
+    });
+    if (plan.length >= 3) break;
+  }
+
+  return plan.slice(0, 3);
+}
+
+/**
+ * Construct a conservative NextBestActionsContext from the data already
+ * available to the recap generator. We intentionally keep this minimal and
+ * read-only (no extra DB calls) — the goal-step plan leads, and these
+ * recommended actions only fill remaining slots.
+ */
+function buildRecapNbaContext(input: {
+  enrolledProgram: string | null;
+  jobApplicationCount: number;
+  hasResume: boolean;
+  hasCompletedInterviewPractice: boolean;
+}): NextBestActionsContext {
+  const enrolled = input.enrolledProgram;
+  return {
+    // Treat recap recipients as active/training members; recipients are
+    // selected by the cron precisely because they have program activity.
+    state: enrolled ? 'D' : 'C',
+    noApplicationOnFile: false,
+    enrolledProgram: enrolled,
+    assessmentCompleted: true,
+    completedCourseCount: 1,
+    hasResume: input.hasResume,
+    hasCompletedInterviewPractice: input.hasCompletedInterviewPractice,
+    profileCompletenessPct: 100,
+    jobApplicationCount: input.jobApplicationCount,
+    counselorUnreadCount: 0,
+    weeklyRecapUnopened: false,
+    courseEnrollmentActive: true,
+  };
+}
 
 export function getWeekBounds(date: Date): { start: Date; end: Date } {
   const d = new Date(date);
@@ -55,7 +359,7 @@ export async function generateWeeklyRecap(userId: string, weekStart: Date, weekE
     programOr.push({ suggestedPrograms: { hasSome: programSlugs } });
   }
 
-  const [goals, jobApps, aiResults, resourceProgress, pathwayProgress, certs, upcomingSessions, newJobsRaw] =
+  const [goals, jobApps, aiResults, resourceProgress, pathwayProgress, certs, upcomingSessions, newJobsRaw, memberPoints, pointsTxnsThisWeek] =
     await Promise.all([
       prisma.goal.findMany({ take: 100, where: { userId }, orderBy: { createdAt: 'desc' } }),
       prisma.jobApplication.findMany({ take: 100, where: { userId }, orderBy: { createdAt: 'desc' } }),
@@ -85,6 +389,11 @@ export async function generateWeeklyRecap(userId: string, weekStart: Date, weekE
           title: true,
           employer: { select: { companyName: true } },
         },
+      }),
+      prisma.memberPoints.findUnique({ where: { userId }, select: { totalPoints: true, level: true } }),
+      prisma.pointsTransaction.aggregate({
+        where: { userId, createdAt: { gte: weekStart, lte: end } },
+        _sum: { points: true },
       }),
     ]);
 
@@ -164,6 +473,46 @@ export async function generateWeeklyRecap(userId: string, weekStart: Date, weekE
     recapData.recommendedActions.push('Keep momentum—add another application or complete a resource');
   }
 
+  // --- Motivating enrichment (additive; existing fields above untouched) ---
+  const pointsThisWeek = pointsTxnsThisWeek._sum.points ?? 0;
+  const certsThisWeek = certs.filter(
+    (c) => c.createdAt >= weekStart && c.createdAt <= end
+  ).length;
+  const goalsCompletedThisWeek = goals.filter(
+    (g) => isDoneStatus(g.status) && g.completedAt && g.completedAt >= weekStart && g.completedAt <= end
+  ).length;
+
+  const goalProgress = buildGoalProgress(goals);
+
+  const wins = buildWins({
+    applicationsAdded,
+    resourcesCompleted,
+    pathwayStepsCompleted,
+    aiToolsUsed,
+    pointsThisWeek,
+    certsThisWeek,
+    goalStepsCompletedThisWeek: 0,
+    goalsCompletedThisWeek,
+  });
+
+  const nbaCtx = buildRecapNbaContext({
+    enrolledProgram: userCtx.enrolledProgram,
+    jobApplicationCount: recapData.applicationsCount,
+    hasResume: aiResults.some((r) => r.toolType === 'resume_rewriter'),
+    hasCompletedInterviewPractice: aiResults.some((r) => r.toolType === 'interview_practice'),
+  });
+  const nextWeekPlan = buildNextWeekPlan(goalProgress, nbaCtx);
+
+  Object.assign(recapData, {
+    headline: buildHeadline(wins.length, null),
+    wins,
+    pointsThisWeek,
+    pointsTotal: memberPoints?.totalPoints ?? 0,
+    level: memberPoints?.level ?? 'starter',
+    goalProgress,
+    nextWeekPlan,
+  });
+
   const recapRecord = await prisma.weeklyRecap.upsert({
     where: { userId_weekStartDate: { userId, weekStartDate: weekStart } },
     create: {
@@ -209,6 +558,13 @@ type RecapJsonShape = {
   pathwayProgressCount: number;
   certificationsCount: number;
   recommendedActions: string[];
+  headline?: string;
+  wins?: RecapWin[];
+  pointsThisWeek?: number;
+  pointsTotal?: number;
+  level?: string;
+  goalProgress?: RecapGoalProgress[];
+  nextWeekPlan?: RecapPlanItem[];
 };
 
 /**
@@ -263,7 +619,7 @@ export async function generateWeeklyRecaps(
   }
 
   // 3. Batch fetch all related data
-  const [goalsAll, jobAppsAll, aiResultsAll, resourceProgressAll, pathwayProgressAll, certsAll, upcomingSessionsAll, newJobsAll, scoreBreakdowns] =
+  const [goalsAll, jobAppsAll, aiResultsAll, resourceProgressAll, pathwayProgressAll, certsAll, upcomingSessionsAll, newJobsAll, scoreBreakdowns, memberPointsAll, pointsTxnsThisWeekAll] =
     await Promise.all([
       prisma.goal.findMany({ take: 1000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
       prisma.jobApplication.findMany({ take: 1000, where: { userId: { in: memberIds } }, orderBy: { createdAt: 'desc' } }),
@@ -283,7 +639,19 @@ export async function generateWeeklyRecaps(
         select: { title: true, employer: { select: { companyName: true } }, organizationId: true, suggestedPrograms: true },
       }),
       getScoreBreakdowns(memberIds),
+      prisma.memberPoints.findMany({
+        where: { userId: { in: memberIds } },
+        select: { userId: true, totalPoints: true, level: true },
+      }),
+      prisma.pointsTransaction.groupBy({
+        by: ['userId'],
+        where: { userId: { in: memberIds }, createdAt: { gte: weekStart, lte: end } },
+        _sum: { points: true },
+      }),
     ]);
+
+  const memberPointsByUser = new Map(memberPointsAll.map((m) => [m.userId, m]));
+  const pointsThisWeekByUser = new Map(pointsTxnsThisWeekAll.map((p) => [p.userId, p._sum.points ?? 0]));
 
   // 4. Group by userId
   const goalsByUser = groupBy(goalsAll, 'userId');
@@ -375,6 +743,45 @@ export async function generateWeeklyRecaps(
     if (recapData.recommendedActions.length === 0) {
       recapData.recommendedActions.push('Keep momentum—add another application or complete a resource');
     }
+
+    // --- Motivating enrichment (additive) ---
+    const pointsThisWeek = pointsThisWeekByUser.get(member.id) ?? 0;
+    const mp = memberPointsByUser.get(member.id);
+    const certsThisWeek = certs.filter(
+      (c) => c.createdAt >= weekStart && c.createdAt <= end
+    ).length;
+    const goalsCompletedThisWeek = goals.filter(
+      (g) => isDoneStatus(g.status) && g.completedAt && g.completedAt >= weekStart && g.completedAt <= end
+    ).length;
+
+    const goalProgress = buildGoalProgress(goals);
+    const wins = buildWins({
+      applicationsAdded,
+      resourcesCompleted,
+      pathwayStepsCompleted,
+      aiToolsUsed,
+      pointsThisWeek,
+      certsThisWeek,
+      goalStepsCompletedThisWeek: 0,
+      goalsCompletedThisWeek,
+    });
+    const nbaCtx = buildRecapNbaContext({
+      enrolledProgram: userCtx.enrolledProgram,
+      jobApplicationCount: recapData.applicationsCount,
+      hasResume: aiResults.some((r) => r.toolType === 'resume_rewriter'),
+      hasCompletedInterviewPractice: aiResults.some((r) => r.toolType === 'interview_practice'),
+    });
+    const nextWeekPlan = buildNextWeekPlan(goalProgress, nbaCtx);
+
+    Object.assign(recapData, {
+      headline: buildHeadline(wins.length, member.fullName),
+      wins,
+      pointsThisWeek,
+      pointsTotal: mp?.totalPoints ?? 0,
+      level: mp?.level ?? 'starter',
+      goalProgress,
+      nextWeekPlan,
+    });
 
     results.push({ userId: member.id, recapData, score });
   }

@@ -102,10 +102,13 @@
     "workforceBoards": "Conseils de main-d'œuvre",
     "employerPartners": "Partenaires employeurs",
     "copyright": "© {year} Workforce Advancement Project. Formation professionnelle et soutien à la préparation à l'emploi sans frais pour les membres éligibles.",
-    "onetAttribution": "Ce site intègre des informations des services Web O*NET du U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET® est une marque déposée de USDOL/ETA."
+    "onetAttribution": "Ce site intègre des informations des services Web O*NET du U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). O*NET® est une marque déposée de USDOL/ETA.",
+    "careers": "Careers"
   },
   "form": {
     "fullName": "Nom complet",
+    "firstName": "Prénom",
+    "lastName": "Nom",
     "email": "E-mail",
     "phone": "Téléphone",
     "address": "Adresse",
@@ -145,6 +148,49 @@
     "languageEn": "Anglais"
   },
   "dashboard": {
+    "priorityAction": "Action prioritaire",
+    "priorityActionFor": "Pour {program}.",
+    "yourProgram": "votre programme",
+    "readinessGreatStanding": "Excellente position",
+    "readinessGoodStanding": "Bonne position",
+    "readinessMakingProgress": "En progression",
+    "readinessGettingStarted": "Démarrage",
+    "account": {
+      "metaTitle": "Paramètres du compte",
+      "metaDescription": "Gérez votre compte et votre mot de passe.",
+      "title": "Paramètres du compte",
+      "subtitle": "Gérez votre compte et votre sécurité.",
+      "breadcrumbPortal": "Portail des membres",
+      "emailHeading": "E-mail",
+      "emailChangeNote": "Pour changer votre e-mail, veuillez contacter le support.",
+      "passwordHeading": "Mot de passe",
+      "passwordBody": "Utilisez le lien ci-dessous pour réinitialiser votre mot de passe. Vous recevrez un e-mail avec les instructions.",
+      "resetPassword": "Réinitialiser le mot de passe",
+      "backToProfile": "Retour au profil"
+    },
+    "privacy": {
+      "title": "Confidentialité et données",
+      "subtitle": "Gérez vos données personnelles et vos préférences de confidentialité.",
+      "exportHeading": "Télécharger vos données",
+      "exportBody": "Obtenez une copie de toutes vos données personnelles stockées sur WorkforceAP. Cela inclut votre profil, vos candidatures, vos messages, votre progression de cours et plus encore.",
+      "exportButton": "Exporter mes données",
+      "exportPreparing": "Préparation de l'export…",
+      "exportSuccess": "Vos données ont été exportées. Vérifiez vos téléchargements.",
+      "exportError": "Impossible d'exporter les données. Réessayez.",
+      "consentHeading": "Préférences de communication",
+      "consentLabel": "Actualités des programmes et opportunités",
+      "consentDescription": "Recevez des e-mails sur les nouveaux programmes, ateliers et opportunités de carrière.",
+      "deleteHeading": "Supprimer le compte",
+      "deleteBody": "Supprimez définitivement votre compte et anonymisez vos données personnelles. Cette action est irréversible. Vos données d'activité anonymes peuvent être conservées pour améliorer le programme.",
+      "deleteButton": "Supprimer mon compte",
+      "deleteConfirmPrompt": "Êtes-vous sûr ? Cela supprimera définitivement votre compte.",
+      "deleteConfirmYes": "Oui, supprimer",
+      "deleteDeleting": "Suppression…",
+      "deleteCancel": "Annuler",
+      "deleteSuccess": "Compte supprimé. Déconnexion…",
+      "deleteError": "Impossible de supprimer le compte. Contactez le support.",
+      "questionsContact": "Des questions ? Contactez-nous à"
+    },
     "welcome": "Bon retour",
     "progress": "Votre progression",
     "nextStep": "Prochaine étape",
@@ -429,7 +475,9 @@
     "skillsScore": "Score de Compétences",
     "trackedApplications": "Candidatures suivies",
     "uploaded": "Téléchargé",
-    "uploadResumeHint": "Téléchargez pour commencer"
+    "uploadResumeHint": "Téléchargez pour commencer",
+    "firstValuePanelTitle": "Your next 3 actions",
+    "firstValuePanelSubtitle": "Personalized for where you are now"
   },
   "apply": {
     "step1": "Informations personnelles",
@@ -462,6 +510,14 @@
     "stepPersonalInfo": "Vous et éligibilité",
     "stepBackground": "Choix de programmes",
     "stepProgramSelection": "Compte",
+    "programIntroApplyingFor": "Vous postulez pour : {title}",
+    "programIntroExpandHint": "Voir les détails du programme",
+    "programIntroCertPartner": "Partenaire certificateur",
+    "programIntroSalaryLabel": "Fourchette salariale de départ typique :",
+    "programIntroSalaryDisclaimer": "(début de carrière, cadre national — pas une garantie)",
+    "programIntroReadOverview": "Lire la présentation complète du programme",
+    "programIntroOr": "ou",
+    "programIntroCompareAll": "comparer tous les programmes",
     "applySocialProof": "Rejoignez les membres qui construisent leur carrière",
     "eligibilityPhoneHint": "Numéro américain à 10 chiffres — votre conseiller s'en sert pour le suivi et les mises à jour de votre candidature.",
     "applyConsentLine": "En continuant, vous acceptez notre",
@@ -469,9 +525,21 @@
     "applyConsentPrivacy": "Politique de confidentialité",
     "applyConsentTerms": "Conditions",
     "step1ProgressLabel": "Étape 1 sur 3 — vos coordonnées et éligibilité",
-    "step1Kicker": "Environ 3 minutes · enregistrez et terminez plus tard sur cet appareil",
+    "step1Kicker": "Environ 5 minutes · enregistrez et terminez plus tard sur cet appareil",
     "step1Title": "Éligibilité rapide + comment vous joindre",
     "step1Lead": "Répondez d'abord à trois questions rapides pour estimer l'adéquation au financement. Ensuite indiquez vos coordonnées pour que nous puissions faire un suivi. Puis vous choisissez les programmes (étape 2) et créez votre compte (étape 3).",
+    "paidStep1Lead": "Indiquez comment vous joindre et répondez à 3 questions d'éligibilité pour commencer.",
+    "paidHeroHeading": "Formation informatique sans frais — commencez par une vérification d'éligibilité rapide.",
+    "paidHeroSubhead": "Environ 5 minutes · organisme 501(c)(3) · suivi d'un conseiller sous 1 à 2 jours ouvrables",
+    "paidHeroCta": "Commencer la vérification d'éligibilité",
+    "paidFormKicker": "Environ 5 minutes · vérification d'éligibilité uniquement",
+    "screeningSectionTitle": "Détails du dépistage d'éligibilité",
+    "ageGroupLabel": "Tranche d'âge *",
+    "ageGroupPlaceholder": "Sélectionnez une tranche d'âge",
+    "countyLabel": "Comté *",
+    "primaryBarriersLabel": "Obstacle(s) principal(aux) — cochez tout ce qui s'applique *",
+    "primaryBarriersAria": "Obstacles principaux",
+    "screeningIncompleteError": "Complétez la tranche d'âge, la ville, l'État, le code postal, le comté et au moins un obstacle principal.",
     "eligibilityExceptionLead": "Ces questions n'acceptent ni ne refusent automatiquement. Si vous êtes entre deux situations, légèrement au-dessus du seuil ou incertain, continuez quand même — nous examinons les situations réelles au cas par cas, comme dans notre",
     "eligibilityExceptionSuffix": ".",
     "step1WhatNextStrong": "La suite :",
@@ -479,6 +547,7 @@
     "personalSectionTitle": "Comment vous contacter",
     "contactIncompleteError": "Ajoutez prénom, nom, un e-mail valide et un téléphone d'au moins 10 chiffres.",
     "saveContinueLater": "Enregistrer et continuer plus tard",
+    "autoSavedNotice": "Progression enregistrée automatiquement sur cet appareil.",
     "saveContinueHint": "Enregistré sur cet appareil. Vous pouvez fermer l'onglet et revenir sur cette page quand vous voulez.",
     "continueToPrograms": "Continuer — choisir les programmes →",
     "continueBlockedHint": "Complétez les coordonnées et les trois questions pour continuer. Un problème ? Appelez le (512) 777-1808.",
@@ -487,6 +556,7 @@
     "nextStep2": "Un conseiller WorkforceAP examine vos informations et fait un suivi dans 1 à 2 jours ouvrables dans la plupart des cas.",
     "nextStep3": "Nous discutons de l'adéquation, de l'éligibilité et de la meilleure prochaine étape pour votre situation.",
     "nextStep4": "Si nécessaire, nous vous guidons vers des étapes de sélection, de documentation, d'entretien ou de préparation au programme.",
+    "docsChecklistSummary": "Documents que nous pourrions demander plus tard (pas nécessaires pour commencer)",
     "docsChecklistTitle": "Documents que nous pouvons examiner ensemble",
     "docsChecklistLead": "Pas besoin de tout pour commencer — rien à télécharger sur cette page. Si nous poursuivons ensemble, nous demandons parfois :",
     "docsChecklistItem1": "Pièce d'identité avec photo délivrée par le gouvernement",
@@ -522,7 +592,7 @@
     "transitionCardAriaWhatNext": "Que se passe-t-il après cette étape",
     "resultsTransitionAria": "Que se passe-t-il après la sélection des programmes",
     "resultsProgressLabel": "Étape 2 sur 3 — choisissez vos programmes",
-    "resultsKicker": "Environ 3 minutes • encore aucun compte requis",
+    "resultsKicker": "Environ 5 minutes • encore aucun compte requis",
     "resultsBeforeStrong": "Avant de continuer :",
     "resultsBeforePick": "Choisissez jusqu'à trois programmes par ordre de préférence (1er = celui que vous voulez le plus). Vous pouvez changer d'avis plus tard avec un conseiller. Si vous avez utilisé le",
     "resultsPathfinderQuizLink": "quiz de orientation",
@@ -612,7 +682,7 @@
     "errEmailInvalid": "Utilisez une adresse e-mail valide (incluez @ et un domaine comme .com).",
     "errPhoneRequired": "Entrez un numéro de téléphone.",
     "errPhoneDigits": "Utilisez un numéro de téléphone d'au moins 10 chiffres.",
-    "errZipFormat": "Veuillez entrer un code postal valide de 5 chiffres",
+    "errZipFormat": "Veuillez entrer un code postal valide",
     "errPasswordShort": "Utilisez au moins 8 caractères.",
     "errPasswordMismatch": "Les mots de passe ne correspondent pas.",
     "errContactConsent": "Veuillez confirmer que vous acceptez d'être contacté au sujet de votre candidature pour qu'un conseiller puisse faire un suivi.",
@@ -708,7 +778,8 @@
     "resultsHeroBody": "Classez jusqu'à trois programmes par ordre de préférence. Vous créerez votre compte à l'étape suivante pour que nous puissions enregistrer vos choix et faire un suivi.",
     "resultsHeroTitle": "Étape 2 sur 3 — choisissez vos programmes",
     "resultsMetaDescription": "Examinez votre adéquation probable, classez jusqu'à trois programmes et continuez vers la création de compte.",
-    "resultsMetaTitle": "Choisissez vos programmes"
+    "resultsMetaTitle": "Choisissez vos programmes",
+    "paidApplyProofBody": "We review your application, follow up within 1 to 2 business days in most cases, and help you understand funding fit and next steps before you commit."
   },
   "training": {
     "myTraining": "Ma Formation",
@@ -1033,7 +1104,42 @@
     "priorityQueueClear": "Effacer",
     "priorityQueueBulkToolbar": "Barre d'outils de suivi groupé",
     "priorityQueueSendSuccess": "« {template} » envoyé à {count, plural, =1 {1 membre} other {# membres}}.",
-    "priorityQueueSendError": "Échec de l'envoi pour {failed, plural, =1 {1 membre} other {# membres}} ({sent} envoyés)."
+    "priorityQueueSendError": "Échec de l'envoi pour {failed, plural, =1 {1 membre} other {# membres}} ({sent} envoyés).",
+    "inboxZero": "Inbox zero",
+    "inboxZeroTitle": "Inbox zero",
+    "inboxZeroSubtitle": "Members who need your attention today — missing docs, stalled applications, at-risk alerts, or overdue contact. Sorted by priority.",
+    "inboxZeroCount": "{count, plural, one {# member needs attention today} other {# members need attention today}}",
+    "inboxZeroDismissedToday": "{count, plural, one {# dismissed from today's list} other {# dismissed from today's list}}",
+    "inboxZeroSortHint": "Sorted by urgency: at-risk first, then missing resume, stalled application, then overdue contact.",
+    "inboxZeroClearTitle": "Inbox zero",
+    "inboxZeroClearDesc": "No assigned members need attention today. Dismissed members stay hidden until tomorrow.",
+    "inboxZeroDismiss": "Dismiss for today",
+    "inboxZeroDismissTitle": "Dismiss {name} for today",
+    "inboxZeroDismissDesc": "Add a short note about what you did or why this can wait. Your note is saved to the audit log.",
+    "inboxZeroDismissNoteLabel": "Note (required)",
+    "inboxZeroDismissNotePlaceholder": "e.g. Called member, resume uploaded, scheduled follow-up…",
+    "inboxZeroDismissConfirm": "Dismiss with note",
+    "inboxZeroDismissFailed": "Could not dismiss. Please try again.",
+    "inboxZeroAlso": "Also",
+    "inboxZeroLoadError": "Couldn't load inbox",
+    "inboxZeroLoadErrorDesc": "The queue failed to load. Try refreshing the page.",
+    "inboxZeroSelectAll": "Select all",
+    "inboxZeroSelectMember": "Select {name}",
+    "inboxZeroBulkSelected": "{count, plural, one {# selected} other {# selected}}",
+    "inboxZeroBulkTemplateLabel": "Follow-up template",
+    "inboxZeroBulkTemplatePlaceholder": "Choose template…",
+    "inboxZeroBulkSendFollowUp": "Send follow-up template",
+    "inboxZeroBulkMarkContacted": "Mark contacted today",
+    "inboxZeroBulkReassignLabel": "Reassign to counselor",
+    "inboxZeroBulkReassignPlaceholder": "Choose counselor…",
+    "inboxZeroBulkReassign": "Reassign",
+    "inboxZeroBulkDismiss": "Bulk-dismiss with note",
+    "inboxZeroBulkDismissTitle": "Dismiss {count, plural, one {# member} other {# members}} for today",
+    "inboxZeroBulkClear": "Clear selection",
+    "inboxZeroBulkSelectTemplate": "Choose a follow-up template first.",
+    "inboxZeroBulkSelectCounselor": "Choose a counselor to reassign to.",
+    "inboxZeroBulkFailed": "Bulk action failed. Please try again.",
+    "inboxZeroBulkResult": "Done: {sent} succeeded, {failed} failed."
   },
   "workspace": {
     "publicSite": "Site WorkforceAP",
@@ -1197,7 +1303,7 @@
       "heroCta": "Trouvez votre voie",
       "heroCtaPrimary": "Commencez votre candidature — 2 minutes",
       "heroMobilePrimaryCta": "Postuler maintenant",
-      "heroSocialProof": "Rejoignez les membres qui construisent leur carrière",
+      "heroSocialProof": "Candidatures examinées par notre équipe",
       "browsePrograms": "Parcourir les programmes",
       "trustGrant": "Parcours financés par des subventions et des partenaires",
       "trustNoCard": "Aucune carte de crédit requise",
@@ -1239,6 +1345,7 @@
       "programsTitle": "Explorez nos {count} programmes",
       "programsSubtitle": "Formation professionnelle qui vous prépare aux emplois que les employeurs recrutent en ce moment.",
       "programsCertBadge": "Parcours certifiant",
+      "programsCardCta": "Voir le programme",
       "programsCta": "Voir les {count} programmes",
       "aiEyebrow": "Outils IA",
       "aiTitle": "Retour sur le CV en minutes, pas en jours",
@@ -1253,7 +1360,9 @@
       "contrastEyebrow": "Notre positionnement",
       "contrast1": "Les sites d’emploi listent des offres — nous vous formons pour ces postes",
       "contrast2": "Les bootcamps facturent des frais — nous sommes financés par des subventions et des partenaires, sans frais pour vous",
-      "contrast3": "Les études universitaires prennent des années — nos certificats se complètent en quelques mois"
+      "contrast3": "Les études universitaires prennent des années — nos certificats se complètent en quelques mois",
+      "partnerCardSystem": "See the difference a workforce system makes",
+      "employerCardBenefit": "At the Ready employee training benefit program"
     },
     "whatWeDo": {
       "title": "Formation en Développement de la Main-d'Œuvre et Certificats Industriels",
@@ -1356,7 +1465,9 @@
       "quote": "Ce n'est pas une équipe générique d'organisation à but non lucratif. Ce sont des personnes qui ont géré des programmes à grande échelle, dirigé chez Goodwill et Urban League, construit des systèmes chez IBM et Microsoft, commandé dans l'Armée et chez AWS — et qui travaillent à l'échelle nationale."
     },
     "programs": {
-      "heroTitle": "Choisissez votre voie",
+      "heroTitle": "Programmes de formation professionnelle",
+      "mobileBrowseQuickStart": "Démarrage rapide",
+      "mobileBrowseAll": "Tout le catalogue",
       "heroSubtitle": "Trouvez le bon programme",
       "heroSubtitleAccent": "pour vos objectifs.",
       "quickStart": "Démarrage rapide",
@@ -1623,12 +1734,15 @@
       "primaryCtaVariantA": "Parlez-nous de vos besoins en talents prêts à embaucher",
       "trustAriaLabel": "Résultats et partenaires employeurs",
       "trustLogosLabel": "Employeurs qui recrutent via WorkforceAP",
-      "trustStatPlaced": "membres placés",
-      "trustStatWage": "salaire de départ moyen",
+      "trustStatPlaced": "embauches enregistrées (dossiers de placement)",
+      "trustStatWage": "salaire de départ moyen (si enregistré)",
       "trustStatPartners": "entreprises partenaires",
       "trustPlaceholderFit": "Candidats alignés avec la formation",
+      "trustPlaceholderFitTag": "Sourcing des candidats",
       "trustPlaceholderSkills": "Évalués pour préparation",
+      "trustPlaceholderSkillsTag": "Revue de préparation",
       "trustPlaceholderTerms": "Aucun frais de recrutement à l'avance",
+      "trustPlaceholderTermsTag": "Tarification conditionnelle",
       "trustPlaceholderNote": "Les métriques de placement sont mises à jour au fur et à mesure que les résultats vérifiés sont confirmés.",
       "trustImpactLink": "Voir les métriques d'impact publiées",
       "howTitle": "Comment ça marche",
@@ -1648,6 +1762,12 @@
       "pricingPoint1": "Aucun abonnement ni frais de job board par siège.",
       "pricingPoint2": "Les frais de placement ne sont dus qu’après le démarrage du candidat embauché.",
       "pricingPoint3": "Accompagnement de remplacement si une recrue ne passe pas la période d’essai — selon les termes de votre accord de partenaire de recrutement.",
+      "partnerPlanEyebrow": "Pour les équipes qui recrutent régulièrement",
+      "partnerPlanTitle": "Besoin d’un appui continu sur les mêmes types de postes ?",
+      "partnerPlanCopy": "Après avoir prouvé l’adéquation sur un modèle contingent, nous pouvons définir un partenariat plus large pour les employeurs ayant des ouvertures récurrentes et une demande stable.",
+      "partnerPlanPoint1": "Intake partagé pour les rôles récurrents, les lieux et les horaires.",
+      "partnerPlanPoint2": "Mise en relation prioritaire pour les ouvertures récurrentes lorsque les parcours de formation correspondent déjà.",
+      "partnerPlanPoint3": "Planification trimestrielle du recrutement par accord — définie après les premiers résultats, pas avant.",
       "faqTitle": "FAQ employeurs",
       "faq1Q": "Combien de temps prend l’onboarding ?",
       "faq1A": "La plupart des partenaires de recrutement terminent l’onboarding en un appel de 20 minutes plus un court intake. Le calendrier des candidats dépend des exigences du poste, des parcours de formation disponibles et de la préparation du membre.",
@@ -1830,10 +1950,13 @@
       "fundersTitle": "Financeurs",
       "grantFundedDesc": "WorkforceAP est une organisation à but non lucratif 501(c)(3). Financée par des subventions et des partenaires, sans frais pour les membres éligibles.",
       "grantFundedTitle": "Accès financé par subventions",
-      "heading": "Des résultats réels pour des personnes réelles",
+      "heading": "Progrès mesuré, publié avec soin",
+      "dataLightNote": "Les métriques en direct sont publiées ici au fur et à mesure que l'activité des membres et des employeurs est enregistrée. Les chiffres restent vides tant qu'il n'y a pas assez de données vérifiées à partager publiquement.",
+      "cohortRateInsufficient": "Publié une fois que les cohortes de programmes inscrits ont une activité enregistrée.",
+      "statsMethodologyNote": "Le tiret (—) signifie qu'une métrique n'est pas encore publiée. Les taux utilisent les cohortes de programmes inscrits ; les moyennes salariales utilisent les salaires d'offre et de suivi appariés lorsque les deux sont enregistrés.",
       "hiresLabel": "Recrutements enregistrés (dossiers de placement)",
       "jobsPostedLabel": "Offres publiées (approuvées, actives, pourvues ou clôturées)",
-      "membersServedDesc": "Comptes membres actifs (rôle de profil \"membre\"), organisation WorkforceAP par défaut. Les données de test sont exclues.",
+      "membersServedDesc": "Comptes membres actifs sur WorkforceAP. Les comptes de test internes sont exclus.",
       "membersServedLabel": "Membres servis",
       "noData": "—",
       "membersServedEmptyTitle": "Métriques membres pas encore publiées",
@@ -1848,7 +1971,7 @@
       "programColumn": "Programme",
       "programsSubtitle": "Inscription par programme, complétion du cursus et temps typique de complétion (lorsque les horodatages de complétion sont disponibles).",
       "programsTitle": "Programmes",
-      "subtitle": "Métriques d'impact WorkforceAP issues de nos systèmes opérationnels — partagées avec un court intervalle de cache pour la transparence publique.",
+      "subtitle": "Métriques vérifiées des opérations WorkforceAP — publiées lorsqu'il y a suffisamment de données à partager publiquement.",
       "testimonialsTitle": "Témoignages de membres",
       "testimonialsSubtitle": "Les témoignages de membres consentis apparaissent uniquement après examen par l'équipe.",
       "testimonialsEmptyTitle": "Aucun témoignage de membre publié pour le moment",
@@ -1862,6 +1985,62 @@
       "salaryLiftLabel": "Hausse de salaire",
       "viewMore": "Voir plus de témoignages",
       "readFullStory": "Lire le témoignage complet"
+    },
+    "thankYou": {
+      "apply": {
+        "metaTitle": "Application received",
+        "metaDescription": "Your WorkforceAP application is in. Here is what happens next.",
+        "title": "You're in.",
+        "lead": "We'll email next steps within 1 business day.",
+        "bullet1Title": "Counselor review",
+        "bullet1Desc": "A WorkforceAP counselor reviews your application and program fit.",
+        "bullet2Title": "Email with next steps",
+        "bullet2Desc": "You'll get a concrete next step — paperwork, a call, or enrollment instructions.",
+        "bullet3Title": "Training kickoff",
+        "bullet3Desc": "Once enrolled, you start milestones with counselor support through placement.",
+        "ctaDashboard": "Open your dashboard",
+        "ctaPrograms": "Browse programs",
+        "ctaHome": "Back to home"
+      },
+      "employer": {
+        "metaTitle": "Inquiry received",
+        "metaDescription": "Thanks for reaching out. Our employer team will follow up shortly.",
+        "title": "Got it.",
+        "lead": "Our team will reach out within 24 hours.",
+        "resourceLabel": "Outcomes one-pager",
+        "ctaEmployers": "Employer overview",
+        "ctaHome": "Back to home"
+      },
+      "partners": {
+        "metaTitle": "Partner signup received",
+        "metaDescription": "Thanks for signing up. We will activate your partner portal soon.",
+        "title": "Welcome aboard.",
+        "lead": "Our partnerships team will reach out within 1–2 business days.",
+        "bullet1Title": "Account review",
+        "bullet1Desc": "We verify your organization details and referral capacity.",
+        "bullet2Title": "Portal activation",
+        "bullet2Desc": "You'll get login access to track referrals, progress, and placements.",
+        "bullet3Title": "Onboarding call",
+        "bullet3Desc": "A quick walkthrough of referral workflows and support resources.",
+        "resourceLabel": "Partner referral flyer",
+        "ctaPortal": "Open partner portal",
+        "ctaPartners": "Partner overview",
+        "ctaHome": "Back to home"
+      },
+      "careers": {
+        "metaTitle": "Introduction received",
+        "metaDescription": "Thanks for your interest in working at WorkforceAP.",
+        "title": "Thanks — we got your note.",
+        "lead": "Our team reviews every careers introduction and will email you if there is a fit.",
+        "bullet1Title": "Application review",
+        "bullet1Desc": "We read every introduction against open roles and upcoming needs.",
+        "bullet2Title": "Follow-up email",
+        "bullet2Desc": "If there is a match now or soon, we'll reach out to schedule a conversation.",
+        "bullet3Title": "Talent pool",
+        "bullet3Desc": "Strong fits may stay on file for future counselor, engineering, or ops openings.",
+        "ctaCareers": "View careers page",
+        "ctaHome": "Back to home"
+      }
     }
   },
   "findYourPath": {
@@ -2177,8 +2356,302 @@
       "commsConsent": "I agree to receive program updates and communications via email"
     }
   },
+  "coach": {
+    "meta": {
+      "title": "Coach de carrière IA",
+      "description": "Discutez avec votre coach de carrière IA persistant. Obtenez de l'aide pour votre recherche d'emploi, vos CV, vos entretiens et votre planification de carrière — il se souvient de là où vous en étiez."
+    },
+    "page": {
+      "title": "Coach de carrière IA",
+      "subtitle": "Discutez avec un coach qui se souvient de votre parcours — recherche d'emploi, CV, entretiens et prochaines étapes.",
+      "breadcrumb": "Coach de carrière IA",
+      "voiceCta": "Vous préférez parler ? Essayez le coach vocal"
+    },
+    "prompts": {
+      "improveResumeLabel": "Améliorer mon CV",
+      "improveResumePrompt": "Aidez-moi à améliorer mon CV.",
+      "nextStepLabel": "Quelle est ma prochaine étape ?",
+      "nextStepPrompt": "D'après ce que vous savez de moi, quelle devrait être ma prochaine étape ?",
+      "practiceInterviewLabel": "Pratiquer un entretien",
+      "practiceInterviewPrompt": "Pratiquez une question d'entretien avec moi.",
+      "employmentGapLabel": "Parler d'une interruption d'activité",
+      "employmentGapPrompt": "Comment parler de mon interruption d'activité en entretien ?",
+      "findJobsLabel": "Trouver des emplois qui me conviennent",
+      "findJobsPrompt": "Aidez-moi à trouver des emplois qui correspondent à mes compétences et objectifs.",
+      "pickUpNextStepLabel": "Reprendre ma prochaine étape",
+      "pickUpNextStepPrompt": "Travaillons sur ma prochaine étape : {action}.",
+      "continueTopicLabel": "Continuer : {topic}",
+      "continueTopicPrompt": "Continuons à travailler sur {topic}."
+    },
+    "greeting": {
+      "defaultName": "ami",
+      "welcomeBack": "Bon retour, {name}",
+      "lastTopicWithAction": "La dernière fois, nous avons travaillé sur {topic}. Votre prochaine étape était : {action}. Voulez-vous reprendre là, ou commencer quelque chose de nouveau ?",
+      "lastTopicOnly": "La dernière fois, nous avons travaillé sur {topic}. Voulez-vous reprendre là, ou commencer quelque chose de nouveau ?",
+      "returningDefault": "Ravi de vous revoir. Sur quoi aimeriez-vous travailler aujourd'hui ?",
+      "newTitle": "Bonjour {name}, je suis votre coach de carrière",
+      "newBody": "Je peux vous aider avec votre recherche d'emploi, vos CV, la préparation aux entretiens et la planification de carrière. Que cherchez-vous à accomplir en ce moment ?",
+      "resumePrompt": "Reprenons là où nous nous étions arrêtés sur {topic}."
+    },
+    "error": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "noReply": "J'ai eu du mal à répondre. Pourriez-vous reformuler ?",
+      "network": "Erreur réseau. Vérifiez votre connexion et réessayez."
+    },
+    "chat": {
+      "resumeButton": "Reprendre là où nous nous étions arrêtés",
+      "empty": "Votre conversation apparaîtra ici. Posez-moi toute question sur votre carrière — je me souviendrai de ce que nous discutons pour la prochaine fois.",
+      "you": "Vous",
+      "coach": "Coach",
+      "typingAria": "Le coach écrit",
+      "conversationAria": "Conversation de coaching",
+      "chipsLabel": "Essayez l'une de ces options pour commencer",
+      "inputLabel": "Message à votre coach de carrière",
+      "placeholder": "Posez votre question au coach…",
+      "sendAria": "Envoyer le message",
+      "hint": "Appuyez sur Entrée pour envoyer, Maj + Entrée pour une nouvelle ligne."
+    }
+  },
+  "streaks": {
+    "banner": {
+      "recordMessage": "Votre meilleure série — continuez !",
+      "continueMessage": "Revenez demain pour la maintenir !",
+      "dayCount": "Série de {count} jours",
+      "bestRecord": " · Meilleure : {count} jours"
+    }
+  },
+  "goals": {
+    "title": "Vos objectifs",
+    "done": "Terminé",
+    "markCompleteAria": "Marquer {title} comme terminé",
+    "progressAria": "{done} sur {total} étapes terminées",
+    "stepsProgress": "{done} sur {total} étapes · {encouragement}",
+    "encourage": {
+      "noSteps": "Divisez-le en étapes et vous êtes à mi-chemin.",
+      "complete": "Toutes les étapes terminées. Marquez cet objectif comme terminé !",
+      "close": "Vous y êtes presque — gardez l'élan.",
+      "started": "Bon début. Une étape à la fois.",
+      "fresh": "Choisissez la première étape et avancez aujourd'hui."
+    },
+    "generate": {
+      "building": "Création de votre plan…",
+      "cta": "Diviser en étapes",
+      "hint": "Nous transformerons cet objectif en 3 à 5 étapes réalisables."
+    },
+    "empty": {
+      "message": "Fixez 1 à 3 objectifs pour rester concentré — nous décomposerons chacun en étapes claires."
+    },
+    "suggestions": {
+      "label": "Suggérés pour vous",
+      "adding": "Ajout…"
+    },
+    "form": {
+      "customPlaceholder": "Ou saisissez un objectif personnalisé",
+      "adding": "Ajout…",
+      "addGoal": "Ajouter un objectif",
+      "cancel": "Annuler",
+      "addCta": "+ Ajouter un objectif"
+    },
+    "footer": "Les objectifs façonnent vos recommandations et le récapitulatif hebdomadaire.",
+    "templates": {
+      "build_resume": "Créer mon CV",
+      "practice_interviews": "Pratiquer des entretiens",
+      "apply_to_jobs": "Postuler régulièrement",
+      "complete_certification": "Obtenir un certificat",
+      "finish_pathway": "Terminer un parcours d'apprentissage",
+      "linkedin_profile": "Améliorer mon profil LinkedIn",
+      "tech_readiness": "Me préparer aux emplois tech",
+      "career_pivot": "Transitionner vers un nouveau domaine"
+    }
+  },
+  "weeklyRecap": {
+    "page": {
+      "title": "Récapitulatif hebdomadaire",
+      "subtitle": "Célébrez vos victoires, suivez vos objectifs et obtenez un plan clair pour la semaine à venir.",
+      "breadcrumb": "Récapitulatif hebdomadaire",
+      "notReady": "Votre récapitulatif n'est pas encore prêt — revenez après votre prochaine activité ou actualisez la page."
+    },
+    "empty": {
+      "title": "Pas encore de récapitulatif",
+      "message": "Pas encore de récapitulatif. Revenez après avoir utilisé le portail cette semaine.",
+      "cta": "Aller au tableau de bord"
+    },
+    "week": {
+      "label": "Semaine du",
+      "range": "{start} – {end}"
+    },
+    "readiness": {
+      "label": "Score de préparation",
+      "short": "Préparation"
+    },
+    "stats": {
+      "applications": "Candidatures",
+      "resources": "Ressources",
+      "aiTools": "Outils IA",
+      "pathwaySteps": "Étapes du parcours"
+    },
+    "goals": {
+      "title": "Objectifs",
+      "progressTitle": "Progrès vers vos objectifs",
+      "reached": "Objectif atteint",
+      "stepsDone": "{done} sur {total} étapes terminées",
+      "metricProgress": "{current} sur {target}",
+      "inProgress": "En cours"
+    },
+    "actions": {
+      "title": "Actions recommandées"
+    },
+    "nav": {
+      "dashboard": "← Tableau de bord",
+      "careerBrief": "Résumé de carrière →"
+    },
+    "motivating": {
+      "headlineWithWins": "Vous avez fait de vrais progrès cette semaine. Continuez !",
+      "headlineFresh": "Chaque semaine est un nouveau départ — voici un plan simple pour prendre de l'élan.",
+      "winsTitle": "Vos victoires cette semaine",
+      "quietWeek": "Une semaine plus calme, c'est tout à fait normal. Une petite étape du plan ci-dessous suffit pour repartir.",
+      "pointsEarned": "Vous avez gagné {count} point{count, plural, =1 {} other {s}} d'élan cette semaine",
+      "pointsTotal": " — {total} au total",
+      "planTitle": "Votre plan pour la semaine prochaine",
+      "planSubtitle": "Quelques étapes ciblées — choisissez-en une et vous avancez.",
+      "goalStepBadge": "Étape d'objectif",
+      "getStarted": "Commencer"
+    }
+  },
   "applications": {
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
+  },
+  "resumeStudio": {
+    "metaTitle": "Studio CV",
+    "metaDesc": "Obtenez le score de votre CV, corrigez les problèmes principaux avec l'IA ou parlez-en avec un coach — tout au même endroit, sans frais pour les membres.",
+    "title": "Studio CV",
+    "subtitle": "Obtenez d'abord le score de votre CV. Puis corrigez les problèmes principaux avec l'IA, ou parlez-en à voix haute avec votre coach.",
+    "betaTag": "Bêta",
+    "viewsLabel": "Vues du Studio CV",
+    "tabs": {
+      "score": "Mon score",
+      "rewrite": "Réécrire avec l'IA",
+      "coach": "En parler"
+    },
+    "emptyTitle": "Pas encore de CV enregistré ? Commencez ici.",
+    "emptyStep1": "Téléversez ou collez votre CV ci-dessous.",
+    "emptyStep2": "Obtenez votre score et voyez quoi corriger en premier.",
+    "emptyStep3": "Utilisez les réécritures IA ou parlez-en avec votre coach.",
+    "nextStepsTitle": "Prêt à le rendre plus fort ?",
+    "ctaRewrite": "Réécrire avec l'IA",
+    "ctaCoach": "En parler",
+    "rewriteHistoryTitle": "Réécritures récentes de CV"
+  },
+  "trainingBridge": {
+    "metaTitle": "Passerelle Formation",
+    "metaDesc": "Découvrez les compétences qu'il vous manque pour l'emploi que vous voulez et le parcours de formation qui les couvre, sans frais pour les membres.",
+    "title": "Passerelle Formation",
+    "subtitle": "Trouvez les compétences qu'il vous manque pour l'emploi que vous voulez, et le parcours de formation qui les couvre.",
+    "betaTag": "Bêta",
+    "basedOn": "D'après votre résultat Skill Mapper pour {occupation} du {date}.",
+    "yourLastRun": "votre dernier essai",
+    "noAssessmentTitle": "Utilisez d'abord Skill Mapper pour un bilan personnel",
+    "noAssessmentBody": "Vous n'avez pas encore utilisé Skill Mapper. Faites-le une fois et cette page comparera vos compétences à l'emploi que vous voulez. Vous pouvez quand même parcourir les emplois et parcours ci-dessous.",
+    "runSkillMapper": "Ouvrir Skill Mapper",
+    "pickOccupationLabel": "Quel emploi voulez-vous ensuite ?",
+    "assessmentMatchedHint": "Votre dernier essai Skill Mapper correspond à {occupation}.",
+    "missingTitle": "{count, plural, one {Il vous manque 1 compétence pour {occupation}} other {Il vous manque # compétences pour {occupation}}}",
+    "skillsNeededTitle": "Compétences demandées par les employeurs : {occupation}",
+    "allCoveredTitle": "Bonne nouvelle : vous montrez déjà les compétences clés pour {occupation}",
+    "allCoveredBody": "Gardez-les à jour. Le parcours ci-dessous peut encore vous aider à obtenir un certificat reconnu par les employeurs.",
+    "haveTitle": "Vous montrez déjà ces compétences :",
+    "pathwayEyebrow": "Ce parcours les couvre",
+    "pathwayMeta": "{partner} · {duration} · Sans frais pour les membres",
+    "pathwayCoversMissing": "Il couvre les compétences qu'il vous manque : {skills}",
+    "pathwayCovers": "Compétences enseignées dans ce parcours :",
+    "enrollCta": "M'inscrire à ce parcours",
+    "viewProgram": "Voir les détails du programme",
+    "disclaimer": "Ceci est un guide, pas une promesse d'emploi. Votre conseiller peut vous aider à choisir le bon parcours."
+  },
+  "journeyGuide": {
+    "sectionLabel": "Votre parcours professionnel",
+    "pickerTitle": "Où en êtes-vous en ce moment ?",
+    "pickerSubtitle": "Choisissez une option — nous vous montrerons les bons outils. Vous pouvez la changer à tout moment.",
+    "yourStageTitle": "Vos meilleures prochaines étapes",
+    "betaTag": "Bêta",
+    "stepperLabel": "Étape du parcours",
+    "minutes": "{count} min",
+    "stages": {
+      "gettingReady": {
+        "label": "Je me prépare",
+        "hint": "Développer mes compétences, améliorer mon CV",
+        "headline": "Ces outils préparent votre CV et vos compétences pour l'emploi."
+      },
+      "applying": {
+        "label": "Je postule",
+        "hint": "Envoi de candidatures et lettres de motivation",
+        "headline": "Deux choses font la plus grande différence quand vous postulez."
+      },
+      "interviewing": {
+        "label": "En entretien",
+        "hint": "J'ai des entretiens à venir",
+        "headline": "Entraînez-vous maintenant — la confiance vient avec la pratique."
+      },
+      "gotOffer": {
+        "label": "J'ai une offre",
+        "hint": "Négocier le salaire ou commencer un emploi",
+        "headline": "Assurez-vous que l'offre vous convient."
+      }
+    },
+    "tools": {
+      "resumeStudio": {
+        "label": "Studio CV : scorez et corrigez votre CV",
+        "hint": "Obtenez votre score, puis corrigez avec l'IA"
+      },
+      "resumeAnalysis": {
+        "label": "Vérifiez le score de votre CV",
+        "hint": "Voyez ce que voit le logiciel des employeurs"
+      },
+      "skillMapper": {
+        "label": "Trouvez les compétences recherchées",
+        "hint": "Pour l'emploi que vous visez"
+      },
+      "resumeRewriter": {
+        "label": "Renforcez votre CV",
+        "hint": "Réécrivez les lignes faibles avec l'IA"
+      },
+      "jobMatchScorer": {
+        "label": "Vérifiez votre compatibilité avec un emploi",
+        "hint": "Collez une offre — voyez vos forces et écarts"
+      },
+      "coverLetter": {
+        "label": "Rédigez votre lettre de motivation",
+        "hint": "Adaptée à l'emploi, avec vos mots"
+      },
+      "gapAnalyzer": {
+        "label": "Voyez ce qui vous manque pour un emploi",
+        "hint": "Et comment combler l'écart"
+      },
+      "interviewPractice": {
+        "label": "Entraînez-vous aux questions d'entretien",
+        "hint": "De vraies questions pour votre poste"
+      },
+      "voiceInterview": {
+        "label": "Faites un entretien blanc vocal",
+        "hint": "Entraînez-vous à voix haute avec un coach"
+      },
+      "elevatorPitch": {
+        "label": "Peaufinez votre présentation de 20 secondes",
+        "hint": "Dites qui vous êtes avec confiance"
+      },
+      "salaryNegotiation": {
+        "label": "Entraînez-vous à demander un meilleur salaire",
+        "hint": "Des scripts mot à mot qui fonctionnent"
+      },
+      "careerCoach": {
+        "label": "Parlez de votre prochaine étape",
+        "hint": "Votre coach pour les premières semaines"
+      },
+      "trainingBridge": {
+        "label": "Passerelle vers votre prochain emploi",
+        "hint": "Voyez quelle formation comble vos lacunes"
+      }
+    }
   }
 }

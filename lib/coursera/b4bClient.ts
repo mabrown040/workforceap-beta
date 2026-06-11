@@ -214,7 +214,7 @@ export function getB4BOrgId(): string {
 
 function fetchImpl(): FetchLike {
   if (injectedFetch) return injectedFetch;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   return (globalThis as any).fetch as FetchLike;
 }
 

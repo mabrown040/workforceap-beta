@@ -36,6 +36,13 @@ export interface ResumeFeatures {
   };
   /** All date ranges parsed from experience bullets */
   dateRanges: Array<{ from: string; to: string; current: boolean }>;
+  /**
+   * True when the input had no usable line structure (e.g. PDF copy/paste
+   * collapsed to one blob) and sections were recovered by re-flowing the
+   * text around inline headers/bullet glyphs. Formatting scores are
+   * approximate in this mode.
+   */
+  reflowed?: boolean;
 }
 
 export interface StructuralSubscore {

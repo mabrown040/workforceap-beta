@@ -1,14 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import PageHeader from '@/components/portal/PageHeader';
 
+type StatusMessage = { kind: 'success' | 'error'; text: string };
+
 export default function PrivacySettingsPage() {
+  const t = useTranslations('dashboard.privacy');
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<StatusMessage | null>(null);
   const [consentMarketing, setConsentMarketing] = useState(false);
   const [consentLoaded, setConsentLoaded] = useState(false);
 
@@ -30,7 +33,7 @@ export default function PrivacySettingsPage() {
       const res = await fetch('/api/gdpr/export');
       if (!res.ok) throw new Error('Export failed');
       const data = await res.json();
-      
+
       // Download as JSON file
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -41,10 +44,10 @@ export default function PrivacySettingsPage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
-      setMessage('Your data has been exported. Check your downloads.');
+
+      setMessage({ kind: 'success', text: t('exportSuccess') });
     } catch {
-      setMessage('Could not export data. Try again.');
+      setMessage({ kind: 'error', text: t('exportError') });
     } finally {
       setExporting(false);
     }
@@ -56,12 +59,12 @@ export default function PrivacySettingsPage() {
     try {
       const res = await fetch('/api/gdpr/delete', { method: 'POST' });
       if (!res.ok) throw new Error('Delete failed');
-      setMessage('Account deleted. Signing out…');
+      setMessage({ kind: 'success', text: t('deleteSuccess') });
       setTimeout(() => {
         window.location.href = '/';
       }, 2000);
     } catch {
-      setMessage('Could not delete account. Contact support.');
+      setMessage({ kind: 'error', text: t('deleteError') });
       setDeleting(false);
     }
   };
@@ -82,32 +85,32 @@ export default function PrivacySettingsPage() {
   return (
     <div style={{ padding: '1.5rem', maxWidth: 720, margin: '0 auto' }}>
       <PageHeader
-        title="Privacy & Data"
-        subtitle="Manage your personal data and privacy preferences."
+        title={t('title')}
+        subtitle={t('subtitle')}
       />
 
       {message && (
-        <div style={{
+        <div role="status" style={{
           padding: '0.875rem 1rem',
           borderRadius: 'var(--radius-md)',
-          background: message.includes('deleted') || message.includes('exported') 
+          background: message.kind === 'success'
             ? 'color-mix(in srgb, var(--color-green) 10%, transparent)'
             : 'color-mix(in srgb, var(--color-error) 10%, transparent)',
-          border: `1px solid color-mix(in srgb, ${message.includes('deleted') || message.includes('exported') ? 'var(--color-green)' : 'var(--color-error)'} 20%, transparent)`,
-          color: message.includes('deleted') || message.includes('exported') ? 'var(--color-green)' : 'var(--color-error)',
+          border: `1px solid color-mix(in srgb, ${message.kind === 'success' ? 'var(--color-green)' : 'var(--color-error)'} 20%, transparent)`,
+          color: message.kind === 'success' ? 'var(--color-green)' : 'var(--color-error)',
           marginBottom: '1.5rem',
           fontSize: '0.9rem',
           fontWeight: 600,
         }}>
-          {message}
+          {message.text}
         </div>
       )}
 
       {/* Data Export */}
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>Download Your Data</h2>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>{t('exportHeading')}</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', margin: '0 0 1rem', lineHeight: 1.5 }}>
-          Get a copy of all your personal data stored on WorkforceAP. This includes your profile, applications, messages, course progress, and more.
+          {t('exportBody')}
         </p>
         <button type="button"
           onClick={handleExport}
@@ -124,13 +127,13 @@ export default function PrivacySettingsPage() {
             opacity: exporting ? 0.7 : 1,
           }}
         >
-          {exporting ? 'Preparing export…' : 'Export My Data'}
+          {exporting ? t('exportPreparing') : t('exportButton')}
         </button>
       </section>
 
       {/* Consent Management */}
       <section style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>Communication Preferences</h2>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>{t('consentHeading')}</h2>
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -149,9 +152,9 @@ export default function PrivacySettingsPage() {
             style={{ width: 20, height: 20, accentColor: 'var(--color-accent)' }}
           />
           <label htmlFor="consent-marketing" style={{ flex: 1, fontSize: '0.9rem', cursor: 'pointer' }}>
-            <div style={{ fontWeight: 600 }}>Program updates and opportunities</div>
+            <div style={{ fontWeight: 600 }}>{t('consentLabel')}</div>
             <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.15rem' }}>
-              Receive emails about new programs, workshops, and career opportunities.
+              {t('consentDescription')}
             </div>
           </label>
         </div>
@@ -159,11 +162,11 @@ export default function PrivacySettingsPage() {
 
       {/* Account Deletion */}
       <section>
-        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--color-error)' }}>Delete Account</h2>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--color-error)' }}>{t('deleteHeading')}</h2>
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', margin: '0 0 1rem', lineHeight: 1.5 }}>
-          Permanently delete your account and anonymize your personal data. This action cannot be undone. Your anonymous activity data may be kept for program improvement purposes.
+          {t('deleteBody')}
         </p>
-        
+
         {!showDeleteConfirm ? (
           <button type="button"
             onClick={() => setShowDeleteConfirm(true)}
@@ -178,7 +181,7 @@ export default function PrivacySettingsPage() {
               cursor: 'pointer',
             }}
           >
-            Delete My Account
+            {t('deleteButton')}
           </button>
         ) : (
           <div style={{
@@ -188,7 +191,7 @@ export default function PrivacySettingsPage() {
             border: '1px solid color-mix(in srgb, var(--color-error) 20%, transparent)',
           }}>
             <p style={{ color: 'var(--color-error)', fontWeight: 700, margin: '0 0 0.75rem', fontSize: '0.9rem' }}>
-              Are you sure? This will permanently delete your account.
+              {t('deleteConfirmPrompt')}
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <button type="button"
@@ -206,7 +209,7 @@ export default function PrivacySettingsPage() {
                   opacity: deleting ? 0.7 : 1,
                 }}
               >
-                {deleting ? 'Deleting…' : 'Yes, Delete'}
+                {deleting ? t('deleteDeleting') : t('deleteConfirmYes')}
               </button>
               <button type="button"
                 onClick={() => setShowDeleteConfirm(false)}
@@ -222,7 +225,7 @@ export default function PrivacySettingsPage() {
                   cursor: 'pointer',
                 }}
               >
-                Cancel
+                {t('deleteCancel')}
               </button>
             </div>
           </div>
@@ -231,7 +234,7 @@ export default function PrivacySettingsPage() {
 
       <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--outline-variant)' }}>
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>
-          Questions? Contact us at <a href="mailto:privacy@workforceap.org" style={{ color: 'var(--color-accent)' }}>privacy@workforceap.org</a>
+          {t('questionsContact')} <a href="mailto:privacy@workforceap.org" style={{ color: 'var(--color-accent)' }}>privacy@workforceap.org</a>
         </p>
       </div>
     </div>

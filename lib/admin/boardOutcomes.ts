@@ -176,7 +176,7 @@ export async function getBoardOutcomes(
 
   const [enrolledMembers, placements, profileRows] = await Promise.all([
     prisma.user.findMany({
-      take: 500,
+      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
       where: enrolledWhere,
       select: {
         id: true,
@@ -205,7 +205,7 @@ export async function getBoardOutcomes(
       },
     }),
     prisma.placementRecord.findMany({
-      take: 500,
+      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
       where: {
         ...(start ? { placedAt: { gte: start, lte: end } } : {}),
         ...(organizationId ? { user: { organizationId } } : {}),
@@ -232,7 +232,7 @@ export async function getBoardOutcomes(
       },
     }),
     prisma.profile.findMany({
-      take: 500,
+      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
       where: start
         ? { user: { ...enrolledWhere } }
         : {
@@ -534,7 +534,7 @@ export async function getBoardSnapshot(
       where: { deletedAt: null, ...(organizationId ? { organizationId } : {}) },
     }),
     prisma.memberEvent.findMany({
-      take: 500,
+      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
       where: {
         createdAt: { gte: sevenDaysAgo },
         ...(organizationId ? { user: { organizationId } } : {}),
@@ -543,7 +543,7 @@ export async function getBoardSnapshot(
       distinct: ['userId'],
     }),
     prisma.memberEvent.findMany({
-      take: 500,
+      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
       where: {
         createdAt: { gte: fourteenDaysAgo },
         ...(organizationId ? { user: { organizationId } } : {}),
@@ -552,7 +552,7 @@ export async function getBoardSnapshot(
       distinct: ['userId'],
     }),
     prisma.memberEvent.findMany({
-      take: 500,
+      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
       where: {
         createdAt: { gte: thirtyDaysAgo },
         ...(organizationId ? { user: { organizationId } } : {}),
@@ -570,7 +570,7 @@ export async function getBoardSnapshot(
       },
     }),
     prisma.userCertification.findMany({
-      take: 500,
+      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
       ...(organizationId ? { where: { user: { organizationId } } } : {}),
       select: { userId: true },
       distinct: ['userId'],

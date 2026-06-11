@@ -64,37 +64,12 @@ export default async function InterviewPracticePage({ searchParams }: { searchPa
         >
           <PageHeader
             title="Interview Practice"
+            subtitle="Role-specific questions with STAR-style answer frameworks."
             breadcrumbs={[
               { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
               { label: 'Interview Practice' },
             ]}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: 'var(--surface-container-highest)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', color: 'var(--color-accent)' }} aria-hidden>
-                psychology
-              </span>
-            </div>
-            <div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, color: 'var(--color-on-surface)' }}>
-                Interview Practice
-              </h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', margin: '0.1rem 0 0' }}>
-                Role-specific questions with STAR-style answer frameworks.
-              </p>
-            </div>
-          </div>
         </div>
 
         <div style={{ maxWidth: 1160, margin: '0 auto', padding: '1rem 1rem 2rem' }}>

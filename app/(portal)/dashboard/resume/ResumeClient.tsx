@@ -642,7 +642,7 @@ export default function ResumeClient({
             icon: "edit_document",
             title: "Resume Rewriter",
             desc: "Rewrite and polish your resume for a specific role.",
-            href: "/dashboard/ai-tools/resume-rewriter",
+            href: "/dashboard/ai-tools/resume-studio?view=rewrite",
           },
           {
             icon: "track_changes",
@@ -654,7 +654,7 @@ export default function ResumeClient({
             icon: "query_stats",
             title: "Resume Analysis",
             desc: "See what is working well and what to strengthen before you apply.",
-            href: "/dashboard/ai-tools/resume-analysis",
+            href: "/dashboard/ai-tools/resume-studio?view=score",
           },
         ].map(({ icon, title, desc, href }) => (
           <div

@@ -10,6 +10,8 @@ const CERT_SUGGESTIONS = [
   'Google IT Support',
   'Google Data Analytics',
   'Google Project Management',
+  'PMI Project Management Professional (PMP)',
+  'PMI Certified Associate in Project Management (CAPM)',
   'IBM AI Professional Practitioner',
   'AWS Cloud Practitioner',
   'Microsoft Azure Fundamentals',

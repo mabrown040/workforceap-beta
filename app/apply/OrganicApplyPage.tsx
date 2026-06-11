@@ -8,8 +8,10 @@ import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
 import UtmCapture from '@/components/marketing/UtmCapture';
 import { getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
 import { getTranslations } from 'next-intl/server';
+import ApplyMobileStepNav from '@/components/apply/ApplyMobileStepNav';
 import ApplyOrganicStickyCta from '@/components/apply/ApplyOrganicStickyCta';
 import TrustStrip from '@/components/marketing/TrustStrip';
+import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
 type OrganicApplyPageProps = { program?: string };
 
@@ -212,6 +214,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           <strong>{t('heroDescHighlight')}</strong>{' '}
           <span>{t('step1Kicker')}</span>
         </p>
+        {/* Pilot status — honest about limited availability */}
+        <div style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
+          <PreLaunchTag compact />
+        </div>
         <p className="apply-hero-desc-full" style={sPage.heroDesc}>
           {t('heroDesc')}
           <strong> {t('heroDescHighlight')}</strong>
@@ -299,46 +305,29 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           />
 
           <div id="apply-form-start" className="apply-main-form__primary">
-            <nav className="apply-mobile-step-nav" aria-label={t('applicationProgress')}>
-              <ol className="apply-mobile-step-nav__list">
-                {APPLY_PROGRESS_STEPS.map((step, i) => (
-                  <li
-                    key={step.labelKey}
-                    className={`apply-mobile-step-nav__item${i === 0 ? ' apply-mobile-step-nav__item--active' : ''}`}
-                    aria-current={i === 0 ? 'step' : undefined}
-                  >
-                    <span className="apply-mobile-step-nav__index" aria-hidden="true">
-                      {i + 1}
-                    </span>
-                    <span className="material-symbols-outlined apply-mobile-step-nav__icon" aria-hidden="true">
-                      {step.icon}
-                    </span>
-                    <span className="apply-mobile-step-nav__label">
-                      {t(step.labelKey as Parameters<typeof t>[0])}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </nav>
+            <ApplyMobileStepNav activeStep={0} />
             <TrustStrip variant="apply" />
 
             <Suspense fallback={<ApplyPageSkeleton />}>
               <ApplyEligibilityClient />
             </Suspense>
           </div>
-          <div className="apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">
-            <h2 id="apply-docs-checklist-heading" className="apply-foundational-support__title">
-              {t('docsChecklistTitle')}
-            </h2>
-            <p className="apply-docs-checklist__lead">{t('docsChecklistLead')}</p>
-            <ul className="apply-foundational-support__list">
-              <li>{t('docsChecklistItem1')}</li>
-              <li>{t('docsChecklistItem2')}</li>
-              <li>{t('docsChecklistItem3')}</li>
-              <li>{t('docsChecklistItem4')}</li>
-            </ul>
-            <p className="apply-docs-checklist__note">{t('docsChecklistNote')}</p>
-          </div>
+          <details className="apply-docs-checklist apply-foundational-support" role="region" aria-labelledby="apply-docs-checklist-heading">
+            <summary className="apply-docs-checklist__summary">{t('docsChecklistSummary')}</summary>
+            <div className="apply-docs-checklist__body">
+              <h2 id="apply-docs-checklist-heading" className="apply-foundational-support__title apply-docs-checklist__heading">
+                {t('docsChecklistTitle')}
+              </h2>
+              <p className="apply-docs-checklist__lead">{t('docsChecklistLead')}</p>
+              <ul className="apply-foundational-support__list">
+                <li>{t('docsChecklistItem1')}</li>
+                <li>{t('docsChecklistItem2')}</li>
+                <li>{t('docsChecklistItem3')}</li>
+                <li>{t('docsChecklistItem4')}</li>
+              </ul>
+              <p className="apply-docs-checklist__note">{t('docsChecklistNote')}</p>
+            </div>
+          </details>
         </div>
 
         <div className="apply-hero-help-mobile" aria-label={t('helpTitle')}>
@@ -373,10 +362,6 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
 
       {/* Responsive overrides — mobile: shorter hero, form first, help below form */}
       <style>{`
-        .apply-mobile-step-nav {
-          display: none;
-        }
-
         .apply-docs-checklist__lead,
         .apply-docs-checklist__note {
           font-size: var(--font-size-sm);
@@ -452,6 +437,14 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
         }
 
         @media (min-width: 769px) {
+          .apply-docs-checklist__summary {
+            display: none;
+          }
+          .apply-docs-checklist__body {
+            display: block;
+            margin-top: 0;
+          }
+
           .apply-sidebar-next-steps__summary {
             display: none;
           }
@@ -514,77 +507,6 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             scroll-margin-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
           }
 
-          .apply-mobile-step-nav {
-            display: block;
-            margin-bottom: var(--space-4);
-          }
-
-          .apply-mobile-step-nav__list {
-            display: flex;
-            gap: var(--space-2);
-            list-style: none;
-            margin: 0;
-            padding: 0;
-          }
-
-          .apply-mobile-step-nav__item {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: var(--space-1);
-            padding: var(--space-2) var(--space-1);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--outline-variant);
-            background: var(--surface-container);
-            text-align: center;
-          }
-
-          .apply-mobile-step-nav__item--active {
-            border-color: var(--color-accent);
-            background: rgba(173, 44, 77, 0.06);
-          }
-
-          .apply-mobile-step-nav__index {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 1.5rem;
-            height: 1.5rem;
-            border-radius: 50%;
-            font-size: var(--font-size-xs, 0.75rem);
-            font-weight: 700;
-            background: var(--surface-container-highest);
-            color: var(--color-on-surface-variant);
-          }
-
-          .apply-mobile-step-nav__item--active .apply-mobile-step-nav__index {
-            background: var(--color-accent);
-            color: var(--color-white);
-          }
-
-          .apply-mobile-step-nav__icon {
-            font-size: 1rem;
-            color: var(--color-on-surface-variant);
-          }
-
-          .apply-mobile-step-nav__item--active .apply-mobile-step-nav__icon {
-            color: var(--color-accent);
-          }
-
-          .apply-mobile-step-nav__label {
-            font-size: var(--font-size-xs, 0.75rem);
-            font-weight: 600;
-            line-height: 1.25;
-            color: var(--color-on-surface-variant);
-          }
-
-          .apply-mobile-step-nav__item--active .apply-mobile-step-nav__label {
-            color: var(--color-on-surface);
-            font-weight: 700;
-          }
-
           .apply-hero {
             padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-5) !important;
           }
@@ -617,10 +539,30 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           .apply-main-form__primary {
             order: 1;
           }
-          .apply-foundational-support {
+          .apply-foundational-support,
+          .apply-docs-checklist {
             order: 2;
             margin-top: var(--space-4);
             margin-bottom: 0;
+          }
+          .apply-docs-checklist__summary {
+            display: list-item;
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: 700;
+            color: var(--color-on-surface);
+            min-height: 44px;
+            padding: var(--space-1) 0;
+            list-style-position: outside;
+          }
+          .apply-docs-checklist__summary::-webkit-details-marker {
+            color: var(--color-green);
+          }
+          .apply-docs-checklist__heading {
+            display: none;
+          }
+          .apply-docs-checklist__body {
+            margin-top: var(--space-2);
           }
           .apply-program-intro {
             order: 0;

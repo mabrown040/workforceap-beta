@@ -11,21 +11,22 @@ export type AiToolsHubCategory = {
   icon: string;
   description: string;
   links: AiToolsHubLink[];
+  /** Optional small pill rendered next to the title (e.g. "Beta"). */
+  badge?: string;
 };
 
 const TOOL_CARDS = {
   elevatorPitch: { label: 'AI Elevator Introduction', href: '/dashboard/ai-tools/elevator-pitch?prefill=true', icon: 'record_voice_over' },
   readinessCoach: { label: 'AI Readiness Coach', href: '/dashboard/readiness', icon: 'psychology' },
-  resumeCoach: { label: 'Resume & Experience Enhancer', href: '/dashboard/ai-tools/resume-coach', icon: 'description' },
+  resumeStudio: { label: 'Resume Studio', href: '/dashboard/ai-tools/resume-studio', icon: 'description' },
   voiceInterview: { label: 'Voice Interview Practice', href: '/dashboard/ai-tools/voice-interview', icon: 'forum' },
   careerBusiness: { label: 'Career & Business Coach', href: '/dashboard/ai-tools/career-business-coach', icon: 'business_center' },
-  resumeRewriter: { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter?prefill=true', icon: 'description' },
-  resumeAnalysis: { label: 'Resume Analysis', href: '/dashboard/ai-tools/resume-analysis', icon: 'fact_check' },
   coverLetter: { label: 'Cover Letter', href: '/dashboard/ai-tools/cover-letter', icon: 'draft' },
   interviewPractice: { label: 'Interview Practice', href: '/dashboard/ai-tools/interview-practice?prefill=true', icon: 'record_voice_over' },
   interviewCoach: { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach', icon: 'support_agent' },
   jobMatchScorer: { label: 'See how you match a job', href: '/dashboard/ai-tools/job-match-scorer', icon: 'query_stats' },
   skillMapper: { label: 'Find skills employers want', href: '/dashboard/ai-tools/skill-mapper', icon: 'account_tree' },
+  trainingBridge: { label: 'Training Bridge', href: '/dashboard/ai-tools/training-bridge', icon: 'alt_route' },
   linkedInHeadline: { label: 'LinkedIn Headline', href: '/dashboard/ai-tools/linkedin-headline', icon: 'badge' },
   linkedInAbout: { label: 'Write your LinkedIn story', href: '/dashboard/ai-tools/linkedin-about', icon: 'person' },
   gapAnalyzer: { label: 'See what is missing for a job', href: '/dashboard/ai-tools/gap-analyzer', icon: 'troubleshoot' },
@@ -52,12 +53,23 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     ],
   },
   {
-    id: 'resume-coach',
-    title: TOOL_CARDS.resumeCoach.label,
-    icon: TOOL_CARDS.resumeCoach.icon,
-    description: 'Practice your story out loud and tighten your resume inside the dedicated coaching flow.',
+    id: 'resume-studio',
+    title: TOOL_CARDS.resumeStudio.label,
+    icon: TOOL_CARDS.resumeStudio.icon,
+    badge: 'Beta',
+    description: 'Get your resume score, fix the top issues with AI rewrites, or talk it through out loud — all in one place.',
     links: [
-      { label: 'Open resume enhancer', href: TOOL_CARDS.resumeCoach.href },
+      { label: 'Open Resume Studio', href: TOOL_CARDS.resumeStudio.href },
+    ],
+  },
+  {
+    id: 'training-bridge',
+    title: TOOL_CARDS.trainingBridge.label,
+    icon: TOOL_CARDS.trainingBridge.icon,
+    badge: 'Beta',
+    description: 'See which skills you still need for the job you want, and which no-cost training pathway covers them.',
+    links: [
+      { label: 'Open Training Bridge', href: TOOL_CARDS.trainingBridge.href },
     ],
   },
   {
@@ -83,11 +95,11 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
 export const AI_TOOLKIT_EXTRA_SECTIONS: AiToolkitSection[] = [
   {
     title: 'Step 1: Get your resume and applications ready',
-    tools: [TOOL_CARDS.resumeRewriter, TOOL_CARDS.resumeAnalysis, TOOL_CARDS.coverLetter],
+    tools: [TOOL_CARDS.resumeStudio, TOOL_CARDS.coverLetter],
   },
   {
     title: 'Step 2: Pre-interview prep and role targeting',
-    tools: [TOOL_CARDS.interviewPractice, TOOL_CARDS.interviewCoach, TOOL_CARDS.jobMatchScorer, TOOL_CARDS.skillMapper],
+    tools: [TOOL_CARDS.interviewPractice, TOOL_CARDS.interviewCoach, TOOL_CARDS.jobMatchScorer, TOOL_CARDS.skillMapper, TOOL_CARDS.trainingBridge],
   },
   {
     title: 'Step 3: Polish your profile and job-search strategy',

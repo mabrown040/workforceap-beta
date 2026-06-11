@@ -10,6 +10,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
 import MembersTable from '@/components/admin/MembersTable';
+import MembersListNav from '@/components/admin/MembersListNav';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -256,8 +257,14 @@ export default async function AdminMembersPage() {
     };
   });
 
-  // Sort by fit score descending by default
-  membersWithProgram.sort((a, b) => b.fitScore - a.fitScore);
+  // Sort by most recently active first by default (dad-safe: surfaces who needs follow-up).
+  // The client table immediately re-sorts via its `sortKey/sortDir` state on the same key,
+  // so this controls the first-paint order and matches the client's initial sort.
+  membersWithProgram.sort((a, b) => {
+    const ta = a.updatedAt instanceof Date ? a.updatedAt.getTime() : new Date(a.updatedAt).getTime();
+    const tb = b.updatedAt instanceof Date ? b.updatedAt.getTime() : new Date(b.updatedAt).getTime();
+    return (Number.isNaN(tb) ? 0 : tb) - (Number.isNaN(ta) ? 0 : ta);
+  });
 
   return (
     <PortalPageFrame>
@@ -271,6 +278,8 @@ export default async function AdminMembersPage() {
           </div>
         }
       />
+
+      <MembersListNav />
 
       {members.length >= 2000 && (
         <p style={{ margin: '0 0 0.75rem', padding: '0.6rem 0.9rem', background: 'rgba(173,44,77,0.07)', borderRadius: '6px', fontSize: '0.875rem', color: 'var(--color-accent)' }}>

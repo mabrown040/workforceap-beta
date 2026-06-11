@@ -1,0 +1,114 @@
+.container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.compact-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-on-accent-container);
+  background: var(--color-accent-container);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.tag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-on-accent-container);
+  background: var(--color-accent-container);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.tag-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.tag-text {
+  white-space: nowrap;
+}
+
+.tag-hint {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-left: 0.25rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.card {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  max-width: 320px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.card-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0 0 0.75rem;
+  color: var(--color-on-surface);
+}
+
+.card-body {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-on-surface-variant);
+  margin: 0 0 0.75rem;
+}
+
+.card-body:last-of-type {
+  margin-bottom: 0.5rem;
+}
+
+.card-footer {
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant);
+  margin: 0.5rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--outline-variant);
+}
+
+.card-footer a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .card {
+    max-width: 400px;
+    padding: 1.25rem;
+  }
+  
+  .card-body {
+    font-size: 0.9rem;
+  }
+}

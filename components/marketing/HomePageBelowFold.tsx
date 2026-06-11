@@ -541,8 +541,12 @@ export default async function HomePageBelowFold({
       </section>
 
       {/* ===== Available Programs ===== */}
-      <section aria-label="Available programs" style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '3rem' }}>
+      <section
+        className="home-program-showcase"
+        aria-label="Available programs"
+        style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}
+      >
+        <div className="home-program-showcase__header">
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
             {t('programsEyebrow')}
           </span>
@@ -551,14 +555,17 @@ export default async function HomePageBelowFold({
           </h2>
           <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '600px' }}>{t('programsSubtitle')}</p>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
+        <div
+          className="home-program-showcase__grid"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}
+        >
           {homeProgramShowcase.map((p, index) => {
             const cardHint = homepageProgramCardHint(p.slug);
             return (
             <LocalizedLinkServer
               key={p.slug}
               href={`/programs/${p.slug}`}
-              className="portal-card portal-card--flat"
+              className="portal-card portal-card--flat home-program-card"
               style={{
                 background: 'var(--surface-container-high)',
                 color: 'var(--color-on-surface)',
@@ -569,7 +576,10 @@ export default async function HomePageBelowFold({
                 borderRadius: 'var(--radius-xl)',
               }}
             >
-              <div style={{ position: 'relative', height: '180px', background: 'var(--surface-container-highest)', overflow: 'hidden' }}>
+              <div
+                className="home-program-card__media"
+                style={{ position: 'relative', height: '180px', background: 'var(--surface-container-highest)', overflow: 'hidden' }}
+              >
                 <Image
                   src={getHomepageProgramCardImage(p, index)}
                   alt={p.static?.title ?? p.name ?? ''}
@@ -597,7 +607,10 @@ export default async function HomePageBelowFold({
                   {p.category}
                 </span>
               </div>
-              <div style={{ padding: '1.25rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div
+                className="home-program-card__body"
+                style={{ padding: '1.25rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+              >
                 <h3 style={{ fontWeight: 700, fontSize: '1.125rem', lineHeight: 1.3 }}>{p.static?.title ?? p.name}</h3>
                 {cardHint ? (
                   <p
@@ -615,7 +628,7 @@ export default async function HomePageBelowFold({
                     {cardHint}
                   </p>
                 ) : null}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: 'auto' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <span
                     style={{
                       display: 'inline-flex',
@@ -640,6 +653,9 @@ export default async function HomePageBelowFold({
                     {t('programsCertBadge')}
                   </span>
                 </div>
+                <span className="home-program-card__cta" aria-hidden="true">
+                  {t('programsCardCta')} →
+                </span>
               </div>
             </LocalizedLinkServer>
             );

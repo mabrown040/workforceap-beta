@@ -107,6 +107,8 @@
   },
   "form": {
     "fullName": "Full name",
+    "firstName": "First name",
+    "lastName": "Last name",
     "email": "Email",
     "phone": "Phone",
     "address": "Address",
@@ -146,6 +148,49 @@
     "languageEn": "English"
   },
   "dashboard": {
+    "priorityAction": "Priority Action",
+    "priorityActionFor": "For {program}.",
+    "yourProgram": "your program",
+    "readinessGreatStanding": "Great Standing",
+    "readinessGoodStanding": "Good Standing",
+    "readinessMakingProgress": "Making Progress",
+    "readinessGettingStarted": "Getting Started",
+    "account": {
+      "metaTitle": "Account settings",
+      "metaDescription": "Manage your account and password.",
+      "title": "Account settings",
+      "subtitle": "Manage your account and security.",
+      "breadcrumbPortal": "Member Portal",
+      "emailHeading": "Email",
+      "emailChangeNote": "To change your email, please contact support.",
+      "passwordHeading": "Password",
+      "passwordBody": "Use the link below to reset your password. You'll receive an email with instructions.",
+      "resetPassword": "Reset password",
+      "backToProfile": "Back to profile"
+    },
+    "privacy": {
+      "title": "Privacy & Data",
+      "subtitle": "Manage your personal data and privacy preferences.",
+      "exportHeading": "Download Your Data",
+      "exportBody": "Get a copy of all your personal data stored on WorkforceAP. This includes your profile, applications, messages, course progress, and more.",
+      "exportButton": "Export My Data",
+      "exportPreparing": "Preparing export…",
+      "exportSuccess": "Your data has been exported. Check your downloads.",
+      "exportError": "Could not export data. Try again.",
+      "consentHeading": "Communication Preferences",
+      "consentLabel": "Program updates and opportunities",
+      "consentDescription": "Receive emails about new programs, workshops, and career opportunities.",
+      "deleteHeading": "Delete Account",
+      "deleteBody": "Permanently delete your account and anonymize your personal data. This action cannot be undone. Your anonymous activity data may be kept for program improvement purposes.",
+      "deleteButton": "Delete My Account",
+      "deleteConfirmPrompt": "Are you sure? This will permanently delete your account.",
+      "deleteConfirmYes": "Yes, Delete",
+      "deleteDeleting": "Deleting…",
+      "deleteCancel": "Cancel",
+      "deleteSuccess": "Account deleted. Signing out…",
+      "deleteError": "Could not delete account. Contact support.",
+      "questionsContact": "Questions? Contact us at"
+    },
     "welcome": "Welcome back",
     "progress": "Your progress",
     "nextStep": "Next step",
@@ -480,6 +525,14 @@
     "stepPersonalInfo": "You & eligibility",
     "stepBackground": "Program choices",
     "stepProgramSelection": "Account",
+    "programIntroApplyingFor": "You're applying for: {title}",
+    "programIntroExpandHint": "View program details",
+    "programIntroCertPartner": "Certifying partner",
+    "programIntroSalaryLabel": "Typical starting salary range:",
+    "programIntroSalaryDisclaimer": "(early-career, national framing — not a guarantee)",
+    "programIntroReadOverview": "Read the full program overview",
+    "programIntroOr": "or",
+    "programIntroCompareAll": "compare all programs",
     "applySocialProof": "Join members building their careers",
     "eligibilityPhoneHint": "10-digit US number — your counselor uses this for follow-ups and application updates.",
     "applyConsentLine": "By continuing you agree to our",
@@ -487,10 +540,21 @@
     "applyConsentPrivacy": "Privacy Policy",
     "applyConsentTerms": "Terms",
     "step1ProgressLabel": "Step 1 of 3 — your details & eligibility",
-    "step1Kicker": "About 3 minutes · save and finish later on this device",
+    "step1Kicker": "About 5 minutes · save and finish later on this device",
     "step1Title": "Quick eligibility check + how to reach you",
     "step1Lead": "Answer three quick questions first to estimate funding fit. Then share your contact details so we can follow up. Next you'll choose programs (step 2) and create your login (step 3).",
     "paidStep1Lead": "Tell us how to reach you and answer 3 quick eligibility questions to get started.",
+    "paidHeroHeading": "No-cost IT training — start with a quick eligibility check.",
+    "paidHeroSubhead": "About 5 minutes · 501(c)(3) nonprofit · advisor follow-up within 1–2 business days",
+    "paidHeroCta": "Start eligibility check",
+    "paidFormKicker": "About 5 minutes · eligibility check only",
+    "screeningSectionTitle": "Eligibility screening details",
+    "ageGroupLabel": "Age group *",
+    "ageGroupPlaceholder": "Select age group",
+    "countyLabel": "County *",
+    "primaryBarriersLabel": "Primary barrier(s) — check all that apply *",
+    "primaryBarriersAria": "Primary barriers",
+    "screeningIncompleteError": "Complete age group, city, state, ZIP, county, and at least one primary barrier.",
     "eligibilityExceptionLead": "These questions do not automatically accept or deny you. If you're between situations, slightly over the threshold, or unsure how to answer, continue anyway — we review real-life circumstances individually, consistent with our",
     "eligibilityExceptionSuffix": ".",
     "step1WhatNextStrong": "What happens next:",
@@ -498,6 +562,7 @@
     "personalSectionTitle": "How we reach you",
     "contactIncompleteError": "Add your first name, last name, a valid email, and a phone number with at least 10 digits.",
     "saveContinueLater": "Save and continue later",
+    "autoSavedNotice": "Progress saved automatically on this device.",
     "saveContinueHint": "Saved on this device. You can close the tab and return to this page anytime to finish.",
     "continueToPrograms": "Continue — choose your programs →",
     "continueBlockedHint": "Complete the contact fields and all three questions to continue. Having trouble? Call (512) 777-1808.",
@@ -506,6 +571,7 @@
     "nextStep2": "A WorkforceAP advisor reviews your information and follows up within 1–2 business days in most cases.",
     "nextStep3": "We talk through fit, eligibility, and the best next step for your situation.",
     "nextStep4": "If needed, we guide you to screening, documentation, interview, or program-readiness steps.",
+    "docsChecklistSummary": "Documents we may ask for later (not needed to start)",
     "docsChecklistTitle": "Documentation we may review together",
     "docsChecklistLead": "You don't need every document to start — nothing uploads on this page. If we move forward together, we sometimes ask for:",
     "docsChecklistItem1": "Government-issued photo ID",
@@ -542,7 +608,7 @@
     "resultsTransitionAria": "What happens after program selection",
     "resultsProgressLabel": "Step 2 of 3 — choose your programs",
     "resultsBackStep1": "← Back to eligibility",
-    "resultsKicker": "About 3 minutes • still no account required",
+    "resultsKicker": "About 5 minutes • still no account required",
     "resultsBeforeStrong": "Before you continue:",
     "resultsBeforePick": "Pick up to three programs in order of preference (1st = what you want most). You can change your mind later with a counselor. If you used the",
     "resultsPathfinderQuizLink": "pathfinder quiz",
@@ -632,7 +698,7 @@
     "errEmailInvalid": "Use a valid email address (include @ and a domain like .com).",
     "errPhoneRequired": "Enter a phone number.",
     "errPhoneDigits": "Use a phone number with at least 10 digits.",
-    "errZipFormat": "Please enter a valid 5-digit ZIP code",
+    "errZipFormat": "Please enter a valid ZIP or postal code",
     "errPasswordShort": "Use at least 8 characters.",
     "errPasswordMismatch": "Passwords do not match.",
     "errContactConsent": "Please confirm you agree to be contacted about your application so a counselor can follow up.",
@@ -1228,7 +1294,7 @@
       "statTracks": "high-demand occupational and professional certificates",
       "readyToApply": "Ready to apply? Start your application →",
       "networkTitle": "A Network Built for Success",
-      "heroBody1": "Workforce Advancement Project (WorkforceAP) is a 501(c)(3) nonprofit that equips individuals, counselors, and advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance to help secure meaningful employment, build lasting careers, and a better life at no cost to the member.",
+      "heroBody1": "Workforce Advancement Project (WorkforceAP) is a 501(c)(3) nonprofit that equips individuals, nonprofits, counselors, and community advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance to help secure meaningful employment, build lasting careers, and a better life at no cost to the member.",
       "heroBody2": "Start with Find Your Path, see programs that fit, and get counselor guidance, resume help, and job-search support.",
       "heroStep1": "Start your application (about 5 minutes)",
       "heroStep2": "See programs that match your goals",
@@ -1236,7 +1302,7 @@
       "heroCta": "Find Your Path",
       "heroCtaPrimary": "Start your application — takes 5 minutes",
       "heroMobilePrimaryCta": "Apply now",
-      "heroSocialProof": "Join members building their careers",
+      "heroSocialProof": "Applications reviewed by our team",
       "browsePrograms": "See all programs",
       "trustGrant": "Funded pathways",
       "trustNoCard": "No credit card required",
@@ -1280,6 +1346,7 @@
       "programsTitle": "Explore Our {count} Programs",
       "programsSubtitle": "Career training built around roles employers commonly hire for.",
       "programsCertBadge": "Certificate track",
+      "programsCardCta": "View program",
       "programsCta": "View All {count} Programs",
       "aiEyebrow": "AI Toolkit",
       "aiTitle": "Resume Feedback in Minutes, Not Days",
@@ -1326,7 +1393,7 @@
       "value3Desc": "Government, Employers, Non-profit & Community Organizations, and Churches — we bring the right people together so members don't have to figure it out alone.",
       "missionEyebrow": "Our Mission",
       "missionTitle": "Built for scale. Focused on people.",
-      "missionBody1": "WorkforceAP is a 501(c)(3) nonprofit that equips individuals, counselors, and advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance.",
+      "missionBody1": "WorkforceAP is a 501(c)(3) nonprofit that equips individuals, nonprofits, counselors, and community advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance.",
       "missionBody2": "We build lasting careers and better lives at no cost for qualifying members — funded by WIOA, grants, employer partners, and community partnerships.",
       "pipelineTitle": "Employers Hiring Our Graduates",
       "pipelineEmpty": "Employer pipeline details coming soon.",
@@ -1397,7 +1464,9 @@
       "quote": "This isn't a generic nonprofit team. These are people who've run programs at scale, led at Goodwill and Urban League, built systems at IBM and Microsoft, commanded in the Army and at AWS — and who show up nationwide."
     },
     "programs": {
-      "heroTitle": "Choose Your Path",
+      "heroTitle": "Career training programs",
+      "mobileBrowseQuickStart": "Quick start",
+      "mobileBrowseAll": "All catalog",
       "heroSubtitle": "Find the right program",
       "heroSubtitleAccent": "for your goals.",
       "headlineMain": "Find the right program",
@@ -1654,62 +1723,71 @@
       "faqReportsA": "Pull placement, completion, and demographic reports straight from your partner dashboard. Schedule monthly exports to your inbox or your funder's data warehouse."
     },
     "employers": {
-  "title": "Become a Hiring Partner",
-  "description": "Meet training-aligned WorkforceAP members for roles that match their skills. Schedule a 20-minute call to become a WorkforceAP hiring partner.",
-  "heroEyebrow": "Employer hiring partners",
-  "heroHeadline": "Meet role-ready talent",
-  "heroHeadlineAccent": "with no upfront recruiting fee",
-  "heroSubhead": "Meet training-aligned candidates for roles that match their skills, certifications, schedule, and support needs.",
-  "primaryCta": "Become a Hiring Partner — Schedule a 20-min call",
-  "primaryCtaVariantA": "Talk with us about hiring-ready talent",
-  "trustAriaLabel": "Employer outcomes and partners",
-  "trustLogosLabel": "Employers hiring through WorkforceAP",
-  "trustStatPlaced": "members placed",
-  "trustStatWage": "avg starting wage",
-  "trustStatPartners": "partner companies",
-  "trustPlaceholderFit": "Training-aligned candidates",
-  "trustPlaceholderSkills": "Screened for readiness",
-  "trustPlaceholderTerms": "No upfront recruiting fee",
-  "trustPlaceholderNote": "Placement metrics update as verified outcomes are confirmed.",
-  "trustImpactLink": "View published impact metrics",
-  "howTitle": "How it works",
-  "howSubtitle": "Three steps from role requirements to qualified candidate introductions.",
-  "howStep1Title": "Tell us your roles",
-  "howStep1Desc": "Share titles, skills, locations, and hiring needs on a 20-minute call or via intake. No job-board fees to get started.",
-  "howStep2Title": "We train + match",
-  "howStep2Desc": "WorkforceAP prepares candidates through structured training, certifications where applicable, and readiness review aligned to your requirements.",
-  "howStep3Title": "You interview & hire",
-  "howStep3Desc": "You run interviews and make offers on your timeline. We support onboarding so hires stick.",
-  "outcomesTitle": "Roles we support",
-  "outcomesSubtitle": "Examples of roles where WorkforceAP can help screen for training fit, readiness, and support needs.",
-  "outcomesScenarioLabel": "Example scenario",
-  "outcomesDisclaimer": "Illustrative role examples only—not verified employer testimonials or placement guarantees. Verified partner stories publish here after consent and review.",
-  "pricingTitle": "Simple, contingent pricing",
-  "pricingLead": "$0 to post jobs. Pay only when you hire (${fee} per placement, contingent).",
-  "pricingPoint1": "No subscription tiers or per-seat job-board fees.",
-  "pricingPoint2": "Placement fee is due only after a candidate you hire starts work.",
-  "pricingPoint3": "Replacement support if a hire does not pass probation — terms in your hiring partner agreement.",
-  "faqTitle": "Employer FAQ",
-  "faq1Q": "How long does onboarding take?",
-  "faq1A": "Most hiring partners complete onboarding in one 20-minute call plus a short intake. Candidate timing depends on role requirements, available training pathways, and member readiness.",
-  "faq2Q": "How are candidates vetted?",
-  "faq2A": "Members complete structured training, industry certifications where applicable, counselor check-ins, and readiness review before we introduce them to your roles.",
-  "faq3Q": "What happens if a hire does not work out?",
-  "faq3A": "If a placed hire does not pass your agreed probation window, we review the role fit and next candidate options with you under the terms in your hiring partner agreement.",
-  "faq4Q": "What are the payment terms?",
-  "faq4A": "There is no cost to post roles. The contingent placement fee is invoiced after your hire starts. No upfront recruiting retainers.",
-  "faq5Q": "Do you require exclusivity?",
-  "faq5A": "No. You can keep using your existing ATS and agencies. We ask for clear role definitions and timely feedback on candidates we send.",
-  "faq6Q": "What geographic areas do you cover?",
-  "faq6A": "We partner with employers nationwide, with strongest density in Texas and remote-friendly roles. Share your locations on the intro call and we will confirm fit.",
-  "finalCtaAriaLabel": "Schedule a hiring partner call",
-  "finalCtaTitle": "Ready to hire training-aligned talent?",
-  "finalCtaCopy": "Book a 20-minute call. We will confirm role fit, timeline, and contingent pricing — no recruiting fees upfront.",
-  "intakeAriaLabel": "Employer intake form",
-  "intakeTitle": "Prefer email over scheduling?",
-  "intakeCopy": "Submit intake details and we will follow up within 1–2 business days. This form is not a second checkout — use the button above to book a call first."
-}
-    ,"careers": {
+      "title": "Become a Hiring Partner",
+      "description": "Meet training-aligned WorkforceAP members for roles that match their skills. Schedule a 20-minute call to become a WorkforceAP hiring partner.",
+      "heroEyebrow": "Employer hiring partners",
+      "heroHeadline": "Meet role-ready talent",
+      "heroHeadlineAccent": "with no upfront recruiting fee",
+      "heroSubhead": "Meet training-aligned candidates for roles that match their skills, certifications, schedule, and support needs.",
+      "primaryCta": "Become a Hiring Partner — Schedule a 20-min call",
+      "primaryCtaVariantA": "Talk with us about hiring-ready talent",
+      "trustAriaLabel": "Employer outcomes and partners",
+      "trustLogosLabel": "Employers hiring through WorkforceAP",
+      "trustStatPlaced": "hires on file (placement records)",
+      "trustStatWage": "avg starting wage (where recorded)",
+      "trustStatPartners": "partner companies",
+      "trustPlaceholderFit": "Training-aligned candidates",
+      "trustPlaceholderFitTag": "Candidate sourcing",
+      "trustPlaceholderSkills": "Screened for readiness",
+      "trustPlaceholderSkillsTag": "Readiness review",
+      "trustPlaceholderTerms": "No upfront recruiting fee",
+      "trustPlaceholderTermsTag": "Contingent pricing",
+      "trustPlaceholderNote": "Placement metrics update as verified outcomes are confirmed.",
+      "trustImpactLink": "View published impact metrics",
+      "howTitle": "How it works",
+      "howSubtitle": "Three steps from role requirements to qualified candidate introductions.",
+      "howStep1Title": "Tell us your roles",
+      "howStep1Desc": "Share titles, skills, locations, and hiring needs on a 20-minute call or via intake. No job-board fees to get started.",
+      "howStep2Title": "We train + match",
+      "howStep2Desc": "WorkforceAP prepares candidates through structured training, certifications where applicable, and readiness review aligned to your requirements.",
+      "howStep3Title": "You interview & hire",
+      "howStep3Desc": "You run interviews and make offers on your timeline. We support onboarding so hires stick.",
+      "outcomesTitle": "Roles we support",
+      "outcomesSubtitle": "Examples of roles where WorkforceAP can help screen for training fit, readiness, and support needs.",
+      "outcomesScenarioLabel": "Example scenario",
+      "outcomesDisclaimer": "Illustrative role examples only—not verified employer testimonials or placement guarantees. Verified partner stories publish here after consent and review.",
+      "pricingTitle": "Simple, contingent pricing",
+      "pricingLead": "$0 to post jobs. Pay only when you hire (${fee} per placement, contingent).",
+      "pricingPoint1": "No subscription tiers or per-seat job-board fees.",
+      "pricingPoint2": "Placement fee is due only after a candidate you hire starts work.",
+      "pricingPoint3": "Replacement support if a hire does not pass probation — terms in your hiring partner agreement.",
+      "partnerPlanEyebrow": "For repeat hiring teams",
+      "partnerPlanTitle": "Need ongoing support across the same roles?",
+      "partnerPlanCopy": "After we prove fit on contingent terms, we can scope a broader hiring partner plan for employers with recurring openings and steady demand.",
+      "partnerPlanPoint1": "Shared intake for repeat roles, locations, and shift patterns.",
+      "partnerPlanPoint2": "Priority matching for recurring openings where training pathways already fit.",
+      "partnerPlanPoint3": "Quarterly hiring planning by agreement — scoped after initial wins, not before.",
+      "faqTitle": "Employer FAQ",
+      "faq1Q": "How long does onboarding take?",
+      "faq1A": "Most hiring partners complete onboarding in one 20-minute call plus a short intake. Candidate timing depends on role requirements, available training pathways, and member readiness.",
+      "faq2Q": "How are candidates vetted?",
+      "faq2A": "Members complete structured training, industry certifications where applicable, counselor check-ins, and readiness review before we introduce them to your roles.",
+      "faq3Q": "What happens if a hire does not work out?",
+      "faq3A": "If a placed hire does not pass your agreed probation window, we review the role fit and next candidate options with you under the terms in your hiring partner agreement.",
+      "faq4Q": "What are the payment terms?",
+      "faq4A": "There is no cost to post roles. The contingent placement fee is invoiced after your hire starts. No upfront recruiting retainers.",
+      "faq5Q": "Do you require exclusivity?",
+      "faq5A": "No. You can keep using your existing ATS and agencies. We ask for clear role definitions and timely feedback on candidates we send.",
+      "faq6Q": "What geographic areas do you cover?",
+      "faq6A": "We partner with employers nationwide, with strongest density in Texas and remote-friendly roles. Share your locations on the intro call and we will confirm fit.",
+      "finalCtaAriaLabel": "Schedule a hiring partner call",
+      "finalCtaTitle": "Ready to hire training-aligned talent?",
+      "finalCtaCopy": "Book a 20-minute call. We will confirm role fit, timeline, and contingent pricing — no recruiting fees upfront.",
+      "intakeAriaLabel": "Employer intake form",
+      "intakeTitle": "Prefer email over scheduling?",
+      "intakeCopy": "Submit intake details and we will follow up within 1–2 business days. This form is not a second checkout — use the button above to book a call first."
+    },
+    "careers": {
       "title": "Careers at WorkforceAP",
       "description": "Join Workforce Advancement Project — we hire counselors, engineers, and operations leaders building the workforce engine that gets people to work.",
       "heroEyebrow": "Work at WorkforceAP",
@@ -1734,6 +1812,7 @@
       "interestTitle": "No perfect fit but interested?",
       "interestSubtitle": "Introduce yourself — we'll keep you in mind for future roles across counseling, engineering, and operations.",
       "form": {
+        "applyingForLabel": "Applying for:",
         "interestLabel": "What kind of work interests you?",
         "interestSelect": "Select…",
         "interestCounselor": "Counseling / member success",
@@ -1746,7 +1825,15 @@
         "validationSummary": "Please fix the highlighted fields and try again.",
         "submitError": "Something went wrong. Please try again or email careers@workforceap.org.",
         "successTitle": "Thanks — we got your note.",
-        "successBody": "Our team reviews every careers introduction. If there's a fit now or soon, we'll reach out by email."
+        "successBody": "Our team reviews every careers introduction. If there's a fit now or soon, we'll reach out by email.",
+        "errors": {
+          "firstNameRequired": "Enter your first name.",
+          "lastNameRequired": "Enter your last name.",
+          "emailRequired": "Enter your email address.",
+          "emailInvalid": "Enter a valid email address.",
+          "messageRequired": "Tell us a little about yourself.",
+          "messageTooShort": "Add a bit more context so we can evaluate the fit."
+        }
       }
     },
     "outcomes": {
@@ -1849,9 +1936,9 @@
       "description": "Live WorkforceAP metrics: members served, training completion, placement records, program results, and employer partnership stats.",
       "eyebrow": "Live statistics",
       "heading": "Measured progress, published carefully",
-      "subtitle": "WorkforceAP impact metrics drawn from our operational systems—shared on a short cache interval for public transparency.",
+      "subtitle": "Verified metrics from WorkforceAP operations—published when there is enough data to share publicly.",
       "membersServedLabel": "Members served",
-      "membersServedDesc": "Active member accounts (profile role \"member\"), default WorkforceAP organization. Test fixtures are excluded.",
+      "membersServedDesc": "Active member accounts on WorkforceAP. Internal test accounts are excluded.",
       "completionRateLabel": "Completion rate (enrolled cohort)",
       "placementRateLabel": "Placement rate (enrolled cohort)",
       "avgSalaryIncreaseLabel": "Avg. salary increase",
@@ -2266,8 +2353,302 @@
       "commsConsent": "I agree to receive program updates and communications via email"
     }
   },
+  "coach": {
+    "meta": {
+      "title": "AI Career Coach",
+      "description": "Chat with your persistent AI career coach. Get help with your job search, resumes, interviews, and career planning — it remembers where you left off."
+    },
+    "page": {
+      "title": "AI Career Coach",
+      "subtitle": "Chat with a coach that remembers your journey — job search, resumes, interviews, and next steps.",
+      "breadcrumb": "AI Career Coach",
+      "voiceCta": "Prefer to talk? Try the voice coach"
+    },
+    "prompts": {
+      "improveResumeLabel": "Improve my resume",
+      "improveResumePrompt": "Help me improve my resume.",
+      "nextStepLabel": "What's my next step?",
+      "nextStepPrompt": "Based on what you know about me, what should my next step be?",
+      "practiceInterviewLabel": "Practice an interview",
+      "practiceInterviewPrompt": "Practice an interview question with me.",
+      "employmentGapLabel": "Talk about an employment gap",
+      "employmentGapPrompt": "How do I talk about my employment gap in an interview?",
+      "findJobsLabel": "Find jobs that fit me",
+      "findJobsPrompt": "Help me find jobs that fit my skills and goals.",
+      "pickUpNextStepLabel": "Pick up my next step",
+      "pickUpNextStepPrompt": "Let's work on my next step: {action}.",
+      "continueTopicLabel": "Continue: {topic}",
+      "continueTopicPrompt": "Let's keep working on {topic}."
+    },
+    "greeting": {
+      "defaultName": "there",
+      "welcomeBack": "Welcome back, {name}",
+      "lastTopicWithAction": "Last time we worked on {topic}. Your next step was: {action}. Want to pick up there, or start something new?",
+      "lastTopicOnly": "Last time we worked on {topic}. Want to pick up there, or start something new?",
+      "returningDefault": "Good to see you again. What would you like to work on today?",
+      "newTitle": "Hi {name}, I'm your career coach",
+      "newBody": "I can help with your job search, resumes, interview prep, and career planning. What are you working toward right now?",
+      "resumePrompt": "Let's pick up where we left off on {topic}."
+    },
+    "error": {
+      "generic": "Something went wrong. Please try again.",
+      "noReply": "I had trouble responding just now. Could you try rephrasing that?",
+      "network": "Network error. Check your connection and try again."
+    },
+    "chat": {
+      "resumeButton": "Pick up where we left off",
+      "empty": "Your conversation will appear here. Ask me anything about your career — I'll remember what we discuss for next time.",
+      "you": "You",
+      "coach": "Coach",
+      "typingAria": "Coach is typing",
+      "conversationAria": "Coaching conversation",
+      "chipsLabel": "Try one of these to get started",
+      "inputLabel": "Message your career coach",
+      "placeholder": "Ask your coach anything…",
+      "sendAria": "Send message",
+      "hint": "Press Enter to send, Shift + Enter for a new line."
+    }
+  },
+  "streaks": {
+    "banner": {
+      "recordMessage": "Your best streak yet — keep it going!",
+      "continueMessage": "Come back tomorrow to keep it going!",
+      "dayCount": "{count}-day streak",
+      "bestRecord": " · Best: {count} days"
+    }
+  },
+  "goals": {
+    "title": "Your goals",
+    "done": "Done",
+    "markCompleteAria": "Mark {title} complete",
+    "progressAria": "{done} of {total} steps complete",
+    "stepsProgress": "{done} of {total} steps · {encouragement}",
+    "encourage": {
+      "noSteps": "Break it into steps and you're halfway there.",
+      "complete": "Every step done. Time to mark this goal complete!",
+      "close": "You're so close — keep the momentum going.",
+      "started": "Great start. One step at a time.",
+      "fresh": "Pick the first step and get moving today."
+    },
+    "generate": {
+      "building": "Building your plan…",
+      "cta": "Break this into steps",
+      "hint": "We'll turn this goal into 3–5 doable next steps."
+    },
+    "empty": {
+      "message": "Set 1–3 goals to stay focused — we'll break each one into clear next steps."
+    },
+    "suggestions": {
+      "label": "Suggested for you",
+      "adding": "Adding…"
+    },
+    "form": {
+      "customPlaceholder": "Or type a custom goal",
+      "adding": "Adding…",
+      "addGoal": "Add goal",
+      "cancel": "Cancel",
+      "addCta": "+ Add a goal"
+    },
+    "footer": "Goals shape your recommendations and weekly recap.",
+    "templates": {
+      "build_resume": "Build my resume",
+      "practice_interviews": "Practice interviews",
+      "apply_to_jobs": "Apply to jobs consistently",
+      "complete_certification": "Complete a certificate",
+      "finish_pathway": "Finish a learning pathway",
+      "linkedin_profile": "Improve my LinkedIn profile",
+      "tech_readiness": "Get ready for tech jobs",
+      "career_pivot": "Transition into a new field"
+    }
+  },
+  "weeklyRecap": {
+    "page": {
+      "title": "Weekly Recap",
+      "subtitle": "Celebrate your wins, see your goal progress, and get a clear plan for the week ahead.",
+      "breadcrumb": "Weekly Recap",
+      "notReady": "Your recap isn't ready yet — check back after your next activity or try refreshing."
+    },
+    "empty": {
+      "title": "No recap generated yet",
+      "message": "No recap generated yet. Come back after you've used the portal this week.",
+      "cta": "Go to Dashboard"
+    },
+    "week": {
+      "label": "Week of",
+      "range": "{start} – {end}"
+    },
+    "readiness": {
+      "label": "Readiness Score",
+      "short": "Readiness"
+    },
+    "stats": {
+      "applications": "Applications",
+      "resources": "Resources",
+      "aiTools": "AI Tools",
+      "pathwaySteps": "Pathway Steps"
+    },
+    "goals": {
+      "title": "Goals",
+      "progressTitle": "Progress toward your goals",
+      "reached": "Goal reached",
+      "stepsDone": "{done} of {total} steps done",
+      "metricProgress": "{current} of {target}",
+      "inProgress": "In progress"
+    },
+    "actions": {
+      "title": "Recommended Actions"
+    },
+    "nav": {
+      "dashboard": "← Dashboard",
+      "careerBrief": "Career Brief →"
+    },
+    "motivating": {
+      "headlineWithWins": "You made real progress this week. Keep it going.",
+      "headlineFresh": "Every week is a fresh start — here's a simple plan to build momentum.",
+      "winsTitle": "Your wins this week",
+      "quietWeek": "A quieter week is completely okay. One small step from the plan below is enough to get rolling again.",
+      "pointsEarned": "You earned {count} momentum point{count, plural, =1 {} other {s}} this week",
+      "pointsTotal": " — {total} total",
+      "planTitle": "Your plan for next week",
+      "planSubtitle": "A few focused steps — pick one and you're moving forward.",
+      "goalStepBadge": "Goal step",
+      "getStarted": "Get started"
+    }
+  },
   "applications": {
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
+  },
+  "resumeStudio": {
+    "metaTitle": "Resume Studio",
+    "metaDesc": "Score your resume, fix the top issues with AI, or talk it through with a coach — all in one place, no-cost to members.",
+    "title": "Resume Studio",
+    "subtitle": "Get your resume score first. Then fix the top issues with AI rewrites, or talk it through out loud with your coach.",
+    "betaTag": "Beta",
+    "viewsLabel": "Resume Studio views",
+    "tabs": {
+      "score": "My score",
+      "rewrite": "Rewrite with AI",
+      "coach": "Talk it through"
+    },
+    "emptyTitle": "No resume on file yet? Start here.",
+    "emptyStep1": "Upload or paste your resume below.",
+    "emptyStep2": "Get your score and see what to fix first.",
+    "emptyStep3": "Use AI rewrites or talk it through with your coach.",
+    "nextStepsTitle": "Ready to make it stronger?",
+    "ctaRewrite": "Rewrite with AI",
+    "ctaCoach": "Talk it through",
+    "rewriteHistoryTitle": "Recent resume rewrite runs"
+  },
+  "trainingBridge": {
+    "metaTitle": "Training Bridge",
+    "metaDesc": "See which skills you still need for the job you want, and which training pathway covers them — no-cost to members.",
+    "title": "Training Bridge",
+    "subtitle": "Find the skills you still need for the job you want, and the training pathway that covers them.",
+    "betaTag": "Beta",
+    "basedOn": "Based on your Skill Mapper result for {occupation} from {date}.",
+    "yourLastRun": "your last run",
+    "noAssessmentTitle": "Run Skill Mapper first for a personal skill check",
+    "noAssessmentBody": "We have not seen a Skill Mapper run from you yet. Run it once and this page will compare your skills to the job you want. You can still browse jobs and pathways below.",
+    "runSkillMapper": "Open Skill Mapper",
+    "pickOccupationLabel": "What job do you want next?",
+    "assessmentMatchedHint": "Your last Skill Mapper run matched {occupation}.",
+    "missingTitle": "{count, plural, one {You're missing 1 skill for {occupation}} other {You're missing # skills for {occupation}}}",
+    "skillsNeededTitle": "Skills employers ask for: {occupation}",
+    "allCoveredTitle": "Good news — you already show the key skills for {occupation}",
+    "allCoveredBody": "Keep them sharp. The pathway below can still help you earn a certificate employers recognize.",
+    "haveTitle": "You already show these skills:",
+    "pathwayEyebrow": "This pathway covers them",
+    "pathwayMeta": "{partner} · {duration} · No-cost to members",
+    "pathwayCoversMissing": "It covers the skills you're missing: {skills}",
+    "pathwayCovers": "Skills this pathway teaches:",
+    "enrollCta": "Enroll in this pathway",
+    "viewProgram": "See program details",
+    "disclaimer": "This is a guide, not a job promise. Your counselor can help you pick the right pathway."
+  },
+  "journeyGuide": {
+    "sectionLabel": "Your career journey",
+    "pickerTitle": "Where are you right now?",
+    "pickerSubtitle": "Pick one — we'll show you the right tools. You can change it anytime.",
+    "yourStageTitle": "Your next best steps",
+    "betaTag": "Beta",
+    "stepperLabel": "Journey stage",
+    "minutes": "{count} min",
+    "stages": {
+      "gettingReady": {
+        "label": "Getting ready",
+        "hint": "Building skills, fixing my resume",
+        "headline": "These tools get your resume and skills job-ready."
+      },
+      "applying": {
+        "label": "Applying",
+        "hint": "Sending applications and cover letters",
+        "headline": "Two things move the needle most when you're applying."
+      },
+      "interviewing": {
+        "label": "Interviewing",
+        "hint": "I have interviews coming up",
+        "headline": "Practice now — confidence comes from reps."
+      },
+      "gotOffer": {
+        "label": "Got an offer",
+        "hint": "Negotiating pay or starting a job",
+        "headline": "Make sure the offer works for you."
+      }
+    },
+    "tools": {
+      "resumeStudio": {
+        "label": "Resume Studio: score and fix your resume",
+        "hint": "Get your score, then fix it with AI"
+      },
+      "resumeAnalysis": {
+        "label": "Check your resume score",
+        "hint": "See what employers' software sees"
+      },
+      "skillMapper": {
+        "label": "Find skills employers want",
+        "hint": "For the job you want next"
+      },
+      "resumeRewriter": {
+        "label": "Make your resume stronger",
+        "hint": "Rewrite weak lines with AI"
+      },
+      "jobMatchScorer": {
+        "label": "Check a job match",
+        "hint": "Paste a job — see your fit and gaps"
+      },
+      "coverLetter": {
+        "label": "Write your cover letter",
+        "hint": "Tailored to the job, in your words"
+      },
+      "gapAnalyzer": {
+        "label": "See what's missing for a job",
+        "hint": "And how to close the gap"
+      },
+      "interviewPractice": {
+        "label": "Practice interview questions",
+        "hint": "Real questions for your role"
+      },
+      "voiceInterview": {
+        "label": "Do a voice mock interview",
+        "hint": "Practice out loud with a coach"
+      },
+      "elevatorPitch": {
+        "label": "Polish your 20-second intro",
+        "hint": "Say who you are with confidence"
+      },
+      "salaryNegotiation": {
+        "label": "Practice asking for better pay",
+        "hint": "Word-for-word scripts that work"
+      },
+      "careerCoach": {
+        "label": "Talk through your next move",
+        "hint": "Your coach for the first weeks"
+      },
+      "trainingBridge": {
+        "label": "Bridge to your next job",
+        "hint": "See what training closes your skill gaps"
+      }
+    }
   }
 }

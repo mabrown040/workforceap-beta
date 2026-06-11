@@ -77,7 +77,7 @@ const EARN_ACTIONS: Array<{
   },
   {
     event: 'resume_uploaded',
-    href: '/dashboard/ai-tools/resume-rewriter',
+    href: '/dashboard/ai-tools/resume-studio?view=rewrite',
     blurb: 'Upload or build out your resume.',
   },
   {

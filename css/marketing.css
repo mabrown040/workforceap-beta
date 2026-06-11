@@ -261,6 +261,24 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
   .home-hero-outline-cta {
     display: none !important;
   }
+
+  /*
+   * Mobile hero: heroBody1 is a dense org/501(c)(3) paragraph; the member-promise
+   * band and TrustStrip immediately below restate the offer in scannable copy.
+   * Hiding it keeps headline → next-step body → Apply as the primary scan path.
+   */
+  .home-hero__body-org,
+  .home-hero__social-proof {
+    display: none;
+  }
+
+  /*
+   * Mobile hero: trust detail cards repeat the ✓ bullets and TrustStrip below;
+   * hiding them shortens the fold stack so Apply + step pills stay primary.
+   */
+  .home-hero__trust-cards {
+    display: none;
+  }
 }
 
 /* Mobile-only apply text link — hidden on desktop where the outline button is already visible */
@@ -721,6 +739,80 @@ html.has-marketing-main-nav {
   .programs-starter-section {
     display: none;
   }
+
+  /*
+   * Programs hero: sidebar photo duplicates homepage imagery and pushes browse nav +
+   * quick-start below the fold. Copy + CTAs are enough on small screens.
+   */
+  .programs-page .split-hero-sidebar {
+    display: none;
+  }
+
+  .programs-page .split-hero-headline {
+    margin-bottom: 1.25rem !important;
+  }
+
+  /*
+   * Programs hero: stack Browse + Pathfinder CTAs full-width so cold mobile
+   * traffic gets two ≥44px targets without side-by-side squeeze.
+   */
+  .programs-page .split-hero-subheadline > div {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .programs-page .split-hero-subheadline > div .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  /*
+   * Post-catalog journey (4 steps) repeats /how-it-works and sits below the full
+   * catalog on mobile — hiding it shortens the path to the apply CTA band.
+   */
+  .programs-page section:has(.programs-journey-grid) {
+    display: none;
+  }
+}
+
+/* Homepage program showcase — clearer tap targets on small screens */
+.home-program-showcase__header {
+  margin-bottom: 3rem;
+}
+
+.home-program-card__cta {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  color: var(--color-accent);
+  font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+@media (max-width: 767px) {
+  .home-program-showcase__header {
+    margin-bottom: 2rem;
+  }
+
+  .home-program-showcase__grid {
+    gap: 1.25rem;
+  }
+
+  .home-program-card__media {
+    height: 148px !important;
+  }
+
+  .home-program-card__body {
+    padding: 1.1rem 1.25rem !important;
+  }
+
+  .home-program-card__cta {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 /*
@@ -786,7 +878,8 @@ html.has-marketing-main-nav {
   /* Clear sticky browse nav + fixed main nav when jumping to catalog anchors */
   .programs-page-catalog-anchor,
   .programs-subgroup-section,
-  #all-programs {
+  #all-programs,
+  #programs-quick-start {
     scroll-margin-top: calc(var(--main-nav-layout-height, 64px) + 3.75rem);
   }
 }
@@ -895,5 +988,106 @@ html.has-marketing-main-nav {
   .trust-strip__line {
     font-size: 0.8125rem;
     padding-inline: var(--space-4);
+  }
+}
+
+/* Apply funnel — compact step progress (mobile only) */
+.apply-mobile-step-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .apply-mobile-step-nav {
+    display: block;
+    margin-bottom: var(--space-4);
+  }
+
+  .apply-mobile-step-nav__list {
+    display: flex;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .apply-mobile-step-nav__item {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-1);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--outline-variant);
+    background: var(--surface-container);
+    text-align: center;
+  }
+
+  .apply-mobile-step-nav__item--active {
+    border-color: var(--color-accent);
+    background: rgba(173, 44, 77, 0.06);
+  }
+
+  .apply-mobile-step-nav__index {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: 700;
+    background: var(--surface-container-highest);
+    color: var(--color-on-surface-variant);
+  }
+
+  .apply-mobile-step-nav__item--active .apply-mobile-step-nav__index {
+    background: var(--color-accent);
+    color: var(--color-white);
+  }
+
+  .apply-mobile-step-nav__icon {
+    font-size: 1rem;
+    color: var(--color-on-surface-variant);
+  }
+
+  .apply-mobile-step-nav__item--active .apply-mobile-step-nav__icon {
+    color: var(--color-accent);
+  }
+
+  .apply-mobile-step-nav__label {
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-on-surface-variant);
+  }
+
+  .apply-mobile-step-nav__item--active .apply-mobile-step-nav__label {
+    color: var(--color-on-surface);
+    font-weight: 700;
+  }
+
+  /* Steps 2–3: compact hero + hide duplicate in-form progress bar */
+  .apply-funnel-step-page__hero {
+    padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-5);
+  }
+
+  .apply-funnel-step-page__hero h1 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    margin-bottom: var(--space-2);
+  }
+
+  .apply-funnel-step-page__hero p {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+  }
+
+  .apply-funnel-step-page .apply-progress-bar {
+    display: none;
+  }
+
+  .apply-funnel-step-page .content-section {
+    padding-top: var(--space-4);
   }
 }

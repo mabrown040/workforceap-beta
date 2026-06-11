@@ -1,7 +1,9 @@
 import { z } from 'zod';
+import { POSTAL_CODE_REGEX } from '@/lib/validation/postalCode';
 
 export const PROGRAM_INTEREST_OPTIONS = [
   'Digital Literacy Empowerment Class (6 weeks, 30 hours total)',
+  'AI Practitioner Professional Certificate',
   'AI and Software Development Professional Certificate (IBM)',
   'Software Developer Professional Certificate (IBM)',
   'CompTIA A+ Professional Certificate',
@@ -9,7 +11,7 @@ export const PROGRAM_INTEREST_OPTIONS = [
   'CompTIA Security+ Professional Certificate',
   'Cyber Security and Networking Professional Certificate (Network+, Sec+)',
   'IT Support and Entry-level Cyber Security Certificate',
-  'IT Automation with Python Certificate (Google)',
+  'IT Automation with Python Professional Certificate (Google)',
   'IT Support Professional Certificate (IBM)',
   'AWS Cloud Technology Certificate',
   'Data Analytics Professional Certificate (Google)',
@@ -48,9 +50,9 @@ export const memberSignupSchema = z.object({
   zip: optionalTrimmedString(
     z
       .string()
-      .min(5, 'Please enter a valid ZIP code')
+      .min(3, 'Please enter a valid ZIP or postal code')
       .max(10)
-      .regex(/^\d{5}(-\d{4})?$/, 'Please enter a valid ZIP code (e.g. 78701 or 78701-1234)')
+      .regex(POSTAL_CODE_REGEX, 'Please enter a valid ZIP or postal code (e.g. 78701 or SW1A 1AA)')
   ),
   programInterest: z.enum(PROGRAM_INTEREST_OPTIONS, {
     errorMap: () => ({ message: 'Please select a program interest' }),

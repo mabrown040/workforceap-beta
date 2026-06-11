@@ -138,8 +138,8 @@ export default function CounselorNotificationCenter({ members }: { members: Memb
       {/* Filters */}
       <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: 'repeat(auto-fill, minmax(12rem, 1fr))', marginBottom: '1.25rem', padding: '1rem', borderRadius: '0.75rem', background: 'var(--surface-container-low, #1a1c1e)', border: '1px solid var(--outline-variant)' }}>
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Member</label>
-          <select value={memberId} onChange={(e) => setMemberId(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
+          <label htmlFor="cn-member-filter" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Member</label>
+          <select id="cn-member-filter" value={memberId} onChange={(e) => setMemberId(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
             <option value="">All members</option>
             {members.map((m) => (
               <option key={m.id} value={m.id}>{m.fullName ?? m.id}</option>
@@ -147,24 +147,24 @@ export default function CounselorNotificationCenter({ members }: { members: Memb
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Type</label>
-          <select value={type} onChange={(e) => setType(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
+          <label htmlFor="cn-type-filter" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Type</label>
+          <select id="cn-type-filter" value={type} onChange={(e) => setType(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
             {NOTIFICATION_TYPES.map((t) => (
               <option key={t.value} value={t.value}>{t.label}</option>
             ))}
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>From</label>
-          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }} />
+          <label htmlFor="cn-date-from" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>From</label>
+          <input id="cn-date-from" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }} />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>To</label>
-          <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }} />
+          <label htmlFor="cn-date-to" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>To</label>
+          <input id="cn-date-to" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }} />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</label>
-          <select value={readFilter} onChange={(e) => setReadFilter(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
+          <label htmlFor="cn-status-filter" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</label>
+          <select id="cn-status-filter" value={readFilter} onChange={(e) => setReadFilter(e.target.value)} style={{ width: '100%', padding: '0.5rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
             <option value="">All</option>
             <option value="unread">Unread</option>
             <option value="read">Read</option>

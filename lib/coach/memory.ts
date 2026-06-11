@@ -25,6 +25,48 @@ export function formatCoachTranscript(turns: CoachTurn[]): string {
     .join('\n');
 }
 
+/**
+ * Cheap, AI-free derivation of memory fields from a transcript. Used as a
+ * deterministic fallback when AI summarization is unavailable or returns
+ * unparseable output, so the coach's memory still compounds turn over turn
+ * instead of standing still during an AI outage.
+ */
+export function deriveCoachMemoryFallback(
+  turns: CoachTurn[],
+  prior: { summary: string | null; lastTopic: string | null; lastAction: string | null }
+): { summary: string; lastTopic: string | null; lastAction: string | null } {
+  const lastMemberMessage = [...turns].reverse().find((t) => t.role === 'user')?.text?.trim() ?? '';
+  const lastCoachReply = [...turns].reverse().find((t) => t.role === 'agent')?.text?.trim() ?? '';
+
+  const lastTopic = lastMemberMessage
+    ? lastMemberMessage.replace(/\s+/g, ' ').slice(0, 200)
+    : prior.lastTopic;
+
+  // Keep any prior action; we can't reliably extract a new one without AI.
+  const lastAction = prior.lastAction ?? null;
+
+  const priorSummary = prior.summary?.trim();
+  const exchangeNote = lastMemberMessage
+    ? `Member recently raised: "${lastMemberMessage.replace(/\s+/g, ' ').slice(0, 280)}".`
+    : '';
+  const replyNote = lastCoachReply
+    ? ` Coach responded with guidance${lastCoachReply.length > 0 ? '.' : ''}`
+    : '';
+  const merged = [priorSummary, `${exchangeNote}${replyNote}`.trim()]
+    .filter((s): s is string => !!s)
+    .join(' ')
+    .trim();
+
+  return {
+    summary: (merged || priorSummary || exchangeNote || 'First coaching session.').slice(
+      0,
+      MAX_SUMMARY_CHARS
+    ),
+    lastTopic: lastTopic ?? null,
+    lastAction,
+  };
+}
+
 export function appendCoachMemoryToSystemPrompt(
   systemPrompt: string,
   summary: string | null | undefined
@@ -109,19 +151,27 @@ export async function updateCoachMemory(params: {
     .filter((line): line is string => line !== null)
     .join('\n');
 
-  const raw = await claudeChat(MEMORY_SYSTEM_PROMPT, userPrompt, {
-    maxTokens: 700,
-    temperature: 0.2,
-  });
-  if (!raw) {
-    console.warn('[coach/memory] summarization skipped — no AI provider response');
-    return;
+  const prior = {
+    summary: existing?.summary ?? null,
+    lastTopic: existing?.lastTopic ?? null,
+    lastAction: existing?.lastAction ?? null,
+  };
+
+  let raw: string | null = null;
+  try {
+    raw = await claudeChat(MEMORY_SYSTEM_PROMPT, userPrompt, {
+      maxTokens: 700,
+      temperature: 0.2,
+    });
+  } catch (err) {
+    console.warn('[coach/memory] summarization threw — using deterministic fallback:', err);
   }
 
-  const parsed = parseMemoryResponse(raw);
+  let parsed = raw ? parseMemoryResponse(raw) : null;
   if (!parsed) {
-    console.warn('[coach/memory] failed to parse summarization JSON');
-    return;
+    // Deterministic fallback: never let an AI outage stall memory continuity.
+    console.warn('[coach/memory] AI summarization unavailable — using deterministic fallback');
+    parsed = deriveCoachMemoryFallback(recent, prior);
   }
 
   await prisma.coachMemory.upsert({

@@ -1,4 +1,7 @@
 import { prisma } from '@/lib/db/prisma';
+import type { PrismaClient } from '@prisma/client';
+
+type AuditDb = Pick<PrismaClient, 'user' | 'auditLog'>;
 
 type AuditParams = {
   actorUserId: string | null;
@@ -29,10 +32,11 @@ type AuditParams = {
  */
 async function resolveActorSnapshot(
   actorUserId: string | null,
+  db: AuditDb = prisma,
 ): Promise<{ email: string | null; role: string | null }> {
   if (!actorUserId) return { email: null, role: null };
   try {
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: { id: actorUserId },
       select: {
         email: true,
@@ -61,19 +65,19 @@ async function resolveActorSnapshot(
   }
 }
 
-export async function auditLog(params: AuditParams): Promise<void> {
+export async function auditLog(params: AuditParams, db: AuditDb = prisma): Promise<void> {
   let actorEmail = params.actorEmailSnapshot ?? null;
   let actorRole = params.actorRoleSnapshot ?? null;
   if (
     params.actorUserId &&
     (params.actorEmailSnapshot === undefined || params.actorRoleSnapshot === undefined)
   ) {
-    const snap = await resolveActorSnapshot(params.actorUserId);
+    const snap = await resolveActorSnapshot(params.actorUserId, db);
     if (params.actorEmailSnapshot === undefined) actorEmail = snap.email;
     if (params.actorRoleSnapshot === undefined) actorRole = snap.role;
   }
 
-  await prisma.auditLog.create({
+  await db.auditLog.create({
     data: {
       actorUserId: params.actorUserId,
       actorEmailSnapshot: actorEmail,

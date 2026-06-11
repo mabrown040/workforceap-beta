@@ -21,6 +21,7 @@ import {
 import { persistXapiStatement } from '@/lib/xapi/storage';
 import { parseBearerToken, verifyXapiAccessToken } from '@/lib/xapi/token';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { invalidateCache } from '@/lib/cache';
 import { withSystemGuc } from '@/lib/db/withRequestGuc';
 import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
@@ -206,6 +207,19 @@ export async function POST(request: Request) {
       statementsHandled,
       completionCount: completions.filter((c) => (c as { ok?: boolean }).ok === true).length,
     });
+
+    // Surface ingest failures on /admin/diagnostics — without this, per-statement
+    // errors only live in the HTTP response body, which Coursera discards.
+    if (ingestErrors.length > 0) {
+      void recordWorkflowDiagnostic({
+        workflow: 'xapi_ingestion',
+        status: 'error',
+        summary: `${ingestErrors.length} of ${rawStatements.length} xAPI statements failed ingestion`,
+        provider: 'coursera',
+        failureReason: ingestErrors[0].message,
+        metadata: { errors: ingestErrors.slice(0, 20) },
+      });
+    }
 
     if (statementsHandled > 0) {
       await invalidateCache('xapi:counts');

@@ -1,6 +1,7 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Suspense, useCallback, useEffect, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import ApplyEligibilityClient from './ApplyEligibilityClient';
 import ApplyPageSkeleton from './ApplyPageSkeleton';
 import ApplyRefCapture from '@/components/apply/ApplyRefCapture';
@@ -11,33 +12,28 @@ import {
   UTM_SOURCE_COOKIE_MAX_AGE,
   type PaidApplyUtmSource,
 } from '@/lib/apply/paidApplyUtm';
+import { useApplyStickyCtaVisibility } from '@/lib/apply/useApplyStickyCtaVisibility';
 import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
+import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
 const PAID_APPLY_ELIGIBILITY_ID = 'paid-apply-eligibility';
 
 type PaidApplyVariantProps = {
   utmSource: PaidApplyUtmSource;
   program?: string;
+  stepNav?: ReactNode;
   proofBlock?: ReactNode;
   trustStrip?: ReactNode;
 };
 
-export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: PaidApplyVariantProps) {
-  const [showStickyCta, setShowStickyCta] = useState(false);
+export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trustStrip }: PaidApplyVariantProps) {
+  const t = useTranslations('apply');
+  const showStickyCta = useApplyStickyCtaVisibility(`#${PAID_APPLY_ELIGIBILITY_ID}`);
 
   useEffect(() => {
     document.cookie = `${UTM_SOURCE_COOKIE}=${encodeURIComponent(utmSource)};path=/;max-age=${UTM_SOURCE_COOKIE_MAX_AGE};SameSite=Lax`;
     trackPaidApplyVariantRendered(utmSource);
   }, [utmSource]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      setShowStickyCta(window.scrollY > 320);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   const scrollToEligibility = useCallback(() => {
     document.getElementById(PAID_APPLY_ELIGIBILITY_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -47,18 +43,27 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
     <div className="paid-apply-landing">
       <section className="paid-apply-hero" aria-labelledby="paid-apply-hero-heading">
         <h1 id="paid-apply-hero-heading" className="paid-apply-hero__heading">
-          No-cost IT training — start with a quick eligibility check.
+          {t('paidHeroHeading')}
         </h1>
         <p className="paid-apply-hero__subhead">
-          About 5 minutes · 501(c)(3) nonprofit · advisor follow-up within 1–2 business days
+          {t('paidHeroSubhead')}
+        </p>
+        <p className="paid-apply-hero__help-compact">
+          {t('questionsCall')}{' '}
+          <a href="tel:+15127771808" className="paid-apply-hero__help-compact__link">
+            (512) 777-1808
+          </a>
         </p>
         <button
           type="button"
           className={marketingButtonPresets.heroPrimary('paid-apply-hero__cta')}
           onClick={scrollToEligibility}
         >
-          Start eligibility check
+          {t('paidHeroCta')}
         </button>
+        <div style={{ marginTop: 'var(--space-3)' }}>
+          <PreLaunchTag compact />
+        </div>
       </section>
 
       <section
@@ -70,6 +75,10 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
           <ApplyRefCapture />
           <UtmCapture />
         </Suspense>
+        {stepNav}
+        <p className="paid-apply-form-kicker" role="note">
+          {t('paidFormKicker')}
+        </p>
         {proofBlock}
         {trustStrip}
         <Suspense fallback={<ApplyPageSkeleton />}>
@@ -84,7 +93,7 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
             className={marketingButtonPresets.heroPrimary('paid-apply-sticky-cta__button')}
             onClick={scrollToEligibility}
           >
-            Start eligibility check
+            {t('paidHeroCta')}
           </button>
         </div>
       ) : null}
@@ -126,6 +135,17 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
           color: rgba(255, 255, 255, 0.88);
         }
 
+        .paid-apply-hero__help-compact {
+          display: none;
+        }
+
+        .paid-apply-hero__help-compact__link {
+          color: var(--color-gold);
+          font-weight: 700;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+        }
+
         .paid-apply-hero__cta {
           min-width: min(100%, 320px);
         }
@@ -136,6 +156,17 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
           max-width: 640px;
           margin: 0 auto;
           padding: var(--space-8) var(--space-6) var(--space-12);
+        }
+
+        .paid-apply-form-kicker {
+          display: none;
+          margin: 0 0 var(--space-4);
+          font-size: var(--font-size-sm);
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          color: var(--color-accent-dark);
+          line-height: var(--line-height-normal);
         }
 
         .paid-apply-sticky-cta {
@@ -223,24 +254,46 @@ export default function PaidApplyVariant({ utmSource, proofBlock, trustStrip }: 
             padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-6);
           }
 
+          .paid-apply-hero__help-compact {
+            display: block;
+            max-width: 560px;
+            margin: 0 auto var(--space-4);
+            font-size: var(--font-size-sm);
+            line-height: var(--line-height-normal);
+            color: rgba(255, 255, 255, 0.88);
+          }
+
           .paid-apply-form-section {
             padding: var(--space-6) var(--space-4) calc(var(--space-10) + 4.5rem + env(safe-area-inset-bottom, 0px));
           }
 
+          .paid-apply-form-kicker {
+            display: block;
+            order: 1;
+          }
+
+          .paid-apply-form-section .apply-mobile-step-nav {
+            order: 0;
+          }
+
           /* Form first on mobile — proof card stays below the fold until after eligibility */
           .paid-apply-form-section .trust-strip--apply {
-            order: 0;
+            order: 2;
             margin-bottom: var(--space-4);
           }
 
           .paid-apply-form-section .apply-flow--paid {
-            order: 1;
+            order: 3;
           }
 
           .paid-apply-form-section .paid-apply-proof {
-            order: 2;
+            order: 4;
             margin-top: var(--space-6);
             margin-bottom: 0;
+          }
+
+          .paid-apply-form-section .paid-apply-form-kicker {
+            order: 1;
           }
 
           .apply-flow--paid .apply-step1-actions {

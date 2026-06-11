@@ -15,3 +15,7 @@
 ## 2024-05-28 - Custom Modal Accessibility
 **Learning:** Custom destructive confirmation dialogs that lack a properly linked `aria-controls` from their trigger, and lack `autoFocus` on their confirmation input, cause screen reader and keyboard users significant friction as focus isn't naturally routed into the modal's primary interaction point.
 **Action:** Always verify `aria-haspopup`, `aria-expanded`, and `aria-controls` on the trigger button. Apply `autoFocus` on the primary text input for custom modals so the user's keyboard cursor is immediately placed inside the interactive context.
+
+## 2024-05-18 - [Accessibility on Dynamic State Buttons]
+**Learning:** Found a recurring UX/accessibility issue where `aria-live="polite"` was missing from dynamically updating texts within AI tool clipboards (e.g., toggling from "Copy to clipboard" to "Copied!" with icon change). Without `aria-live`, screen readers remain silent upon the copy action, depriving users of critical success feedback. This pattern exists due to manual copy-pasting of initial component mockups.
+**Action:** When implementing any micro-interactions where state is updated temporarily (like clipboards, loaders), ensure the updated text region is wrapped in an `aria-live="polite"` region and the parent button relies on semantic `<span aria-hidden="true">` for the visual icon rather than a blocking `aria-label`.

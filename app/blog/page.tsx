@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function BlogPage() {
   const t = await getTranslations('marketing.blog');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let posts: any[] = [];
   if (!shouldSkipOptionalDbQueriesAtBuild()) {
     try {

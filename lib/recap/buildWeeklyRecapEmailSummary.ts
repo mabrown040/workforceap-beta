@@ -19,7 +19,23 @@ export type WeeklyRecapJsonForEmail = {
   recommendedActions?: string[];
   readinessScoreSnapshot?: number | null;
   upcomingCounselorSessions?: Array<{ at: string; topic: string | null }>;
+  headline?: string;
+  wins?: Array<{ label: string }>;
+  pointsThisWeek?: number;
+  goalProgress?: Array<{
+    title: string;
+    status: string;
+    stepsDone: number;
+    stepsTotal: number;
+    percent: number | null;
+  }>;
+  nextWeekPlan?: Array<{ title: string; cta?: string }>;
 };
+
+function isDone(status: string): boolean {
+  const u = status.trim().toUpperCase();
+  return u === 'COMPLETED' || u === 'COMPLETE' || u === 'DONE';
+}
 
 function formatGoalLine(g: NonNullable<WeeklyRecapJsonForEmail['goalsSnapshot']>[number]): string {
   const metric =
@@ -40,6 +56,18 @@ export function buildWeeklyRecapEmailSummary(recapData: WeeklyRecapJsonForEmail 
 
   const lines: string[] = [];
 
+  // Lead with an encouraging headline + this week's wins.
+  if (recapData?.headline?.trim()) {
+    lines.push(recapData.headline.trim(), '');
+  }
+
+  const wins = (recapData?.wins ?? []).filter((w) => w?.label?.trim());
+  if (wins.length > 0) {
+    lines.push('Your wins this week');
+    lines.push(...wins.slice(0, 6).map((w) => `• ${w.label.trim()}`));
+    lines.push('');
+  }
+
   lines.push('This week in review');
   lines.push(
     `• Applications logged: ${applicationsAdded}`,
@@ -47,6 +75,10 @@ export function buildWeeklyRecapEmailSummary(recapData: WeeklyRecapJsonForEmail 
     `• Pathway steps completed: ${pathwayStepsCompleted}`,
     `• Distinct AI tools used: ${aiToolsUsed}`,
   );
+  const pointsThisWeek = recapData?.pointsThisWeek ?? 0;
+  if (pointsThisWeek > 0) {
+    lines.push(`• Momentum points earned: ${pointsThisWeek}`);
+  }
   if (newJobs > 0) {
     lines.push(`• New roles on the job board (aligned with your program): ${newJobs}`);
   }
@@ -54,10 +86,34 @@ export function buildWeeklyRecapEmailSummary(recapData: WeeklyRecapJsonForEmail 
     lines.push(`• Job readiness score: ${Math.round(readiness)}`);
   }
 
-  const goals = recapData?.goalsSnapshot ?? [];
-  if (goals.length > 0) {
-    lines.push('', 'Goal progress');
-    lines.push(...goals.slice(0, 4).map(formatGoalLine));
+  // Prefer the richer goalProgress when present; fall back to goalsSnapshot.
+  const goalProgress = (recapData?.goalProgress ?? []).filter((g) => g?.title?.trim());
+  if (goalProgress.length > 0) {
+    lines.push('', 'Progress toward your goals');
+    for (const g of goalProgress.slice(0, 4)) {
+      const detail =
+        g.stepsTotal > 0
+          ? `${g.stepsDone}/${g.stepsTotal} steps`
+          : g.percent != null
+            ? `${g.percent}%`
+            : isDone(g.status)
+              ? 'done'
+              : 'in progress';
+      const mark = isDone(g.status) ? '✓ ' : '• ';
+      lines.push(`${mark}${g.title.trim()} — ${detail}`);
+    }
+  } else {
+    const goals = recapData?.goalsSnapshot ?? [];
+    if (goals.length > 0) {
+      lines.push('', 'Goal progress');
+      lines.push(...goals.slice(0, 4).map(formatGoalLine));
+    }
+  }
+
+  const plan = (recapData?.nextWeekPlan ?? []).filter((p) => p?.title?.trim());
+  if (plan.length > 0) {
+    lines.push('', 'Your plan for next week');
+    lines.push(...plan.slice(0, 3).map((p) => `• ${p.title.trim()}`));
   }
 
   const sessions = recapData?.upcomingCounselorSessions ?? [];

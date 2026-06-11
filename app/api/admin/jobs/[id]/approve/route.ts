@@ -12,7 +12,7 @@ import { invalidateJobListings } from '@/lib/jobs/listingCache';
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
  *
- * The `job.findUnique` and `job.update` calls go through `withTenantScope`
+ * The `job.findUnique` and `job.updateMany` calls go through `withTenantScope`
  * so an admin from Org A cannot approve an Org B job by guessing its
  * UUID. The findUnique becomes findFirst because the proxy adds
  * `organizationId` to the where clause and the Prisma `findUnique`
@@ -42,9 +42,9 @@ export async function POST(
       return NextResponse.json({ error: 'Job is not pending approval' }, { status: 400 });
     }
 
-    await withTenantScope(orgId, (db) =>
-      db.job.update({
-        where: { id },
+    const updateResult = await withTenantScope(orgId, (db) =>
+      db.job.updateMany({
+        where: { id, status: 'pending' },
         data: {
           status: 'live',
           approvedAt: new Date(),
@@ -52,6 +52,9 @@ export async function POST(
         },
       }),
     );
+    if (updateResult.count !== 1) {
+      return NextResponse.json({ error: 'Job is no longer pending approval' }, { status: 409 });
+    }
 
     await sendJobApprovedEmail({
       to: job.employer.contactEmail,

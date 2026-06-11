@@ -2532,6 +2532,32 @@
     "ctaCoach": "Hablarlo",
     "rewriteHistoryTitle": "Reescrituras recientes de currículum"
   },
+  "trainingBridge": {
+    "metaTitle": "Puente de Capacitación",
+    "metaDesc": "Mira qué habilidades te faltan para el trabajo que quieres y qué ruta de capacitación las cubre, sin costo para miembros.",
+    "title": "Puente de Capacitación",
+    "subtitle": "Encuentra las habilidades que aún necesitas para el trabajo que quieres y la ruta de capacitación que las cubre.",
+    "betaTag": "Beta",
+    "basedOn": "Basado en tu resultado de Skill Mapper para {occupation} del {date}.",
+    "yourLastRun": "tu última prueba",
+    "noAssessmentTitle": "Primero usa Skill Mapper para un chequeo personal",
+    "noAssessmentBody": "Aún no has usado Skill Mapper. Úsalo una vez y esta página comparará tus habilidades con el trabajo que quieres. Mientras tanto, puedes ver trabajos y rutas abajo.",
+    "runSkillMapper": "Abrir Skill Mapper",
+    "pickOccupationLabel": "¿Qué trabajo quieres después?",
+    "assessmentMatchedHint": "Tu última prueba de Skill Mapper coincidió con {occupation}.",
+    "missingTitle": "{count, plural, one {Te falta 1 habilidad para {occupation}} other {Te faltan # habilidades para {occupation}}}",
+    "skillsNeededTitle": "Habilidades que piden los empleadores: {occupation}",
+    "allCoveredTitle": "Buenas noticias: ya muestras las habilidades clave para {occupation}",
+    "allCoveredBody": "Mantenlas al día. La ruta de abajo aún puede ayudarte a obtener un certificado que los empleadores reconocen.",
+    "haveTitle": "Ya muestras estas habilidades:",
+    "pathwayEyebrow": "Esta ruta las cubre",
+    "pathwayMeta": "{partner} · {duration} · Sin costo para miembros",
+    "pathwayCoversMissing": "Cubre las habilidades que te faltan: {skills}",
+    "pathwayCovers": "Habilidades que enseña esta ruta:",
+    "enrollCta": "Inscribirme en esta ruta",
+    "viewProgram": "Ver detalles del programa",
+    "disclaimer": "Esto es una guía, no una promesa de empleo. Tu consejero puede ayudarte a elegir la ruta correcta."
+  },
   "journeyGuide": {
     "sectionLabel": "Tu camino profesional",
     "pickerTitle": "¿En qué punto estás ahora?",
@@ -2610,6 +2636,10 @@
       "careerCoach": {
         "label": "Habla sobre tu próximo paso",
         "hint": "Tu coach para las primeras semanas"
+      },
+      "trainingBridge": {
+        "label": "Puente a tu próximo trabajo",
+        "hint": "Mira qué capacitación cierra tus brechas"
       }
     }
   }

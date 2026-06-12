@@ -41,8 +41,25 @@ export type WioaQualificationSnapshot = {
 export function parseWioaQualificationSnapshot(raw: unknown): WioaQualificationSnapshot | null {
   if (!raw || typeof raw !== 'object') return null;
   const o = raw as Record<string, unknown>;
-  if (o.version !== 1 || typeof o.submittedAt !== 'string' || typeof o.signal !== 'string') return null;
-  return o as unknown as WioaQualificationSnapshot;
+  const signal = o.signal;
+  if (
+    o.version !== 1 ||
+    typeof o.submittedAt !== 'string' ||
+    (signal !== 'likely' && signal !== 'possible' && signal !== 'review' && signal !== 'unclear') ||
+    !Array.isArray(o.reasons) ||
+    !o.reasons.every((reason) => typeof reason === 'string')
+  ) {
+    return null;
+  }
+  const answers = parseWioaAnswers(o.answers);
+  if (!answers) return null;
+  return {
+    answers,
+    signal,
+    reasons: o.reasons,
+    submittedAt: o.submittedAt,
+    version: 1,
+  };
 }
 
 const BARRIER_LABELS: Record<WioaBarrier, string> = {

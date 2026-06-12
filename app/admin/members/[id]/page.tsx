@@ -39,6 +39,8 @@ import MemberProgressStrip from '@/components/portal/MemberProgressStrip';
 import { loadLearnerProgressByUserId } from '@/lib/coursera/progressQueries';
 import { getBoardSnapshot, SMALL_SAMPLE_THRESHOLD } from '@/lib/admin/boardOutcomes';
 import MemberCourseraDiagnoseButton from '@/components/admin/MemberCourseraDiagnoseButton';
+import AdminMemberSkillCheckpointPanel from '@/components/admin/AdminMemberSkillCheckpointPanel';
+import { loadSkillCheckpointSummary } from '@/lib/member/skillCheckpoints';
 type AdminCourseProgressRow = {
   courseSlug: string;
   courseId: string | null;
@@ -360,6 +362,15 @@ export default async function AdminMemberDetailPage({
         return latest;
       }, null)
     : null;
+
+  const completedCourseSlugs = liveCourseProgress
+    .filter((row) => row.status === 'COMPLETED')
+    .map((row) => row.courseSlug);
+  const skillCheckpointSummary = await loadSkillCheckpointSummary({
+    userId: member.id,
+    programSlug: member.enrolledProgram ?? null,
+    completedCourseSlugs,
+  });
 
   // Outcomes snapshot scoped to the member's organization. Pulled from
   // `getBoardSnapshot()` — the single source of truth that also feeds
@@ -797,6 +808,8 @@ export default async function AdminMemberDetailPage({
           )}
           <MemberCourseraDiagnoseButton memberId={member.id} />
         </section>
+
+        <AdminMemberSkillCheckpointPanel memberId={member.id} summary={skillCheckpointSummary} />
 
         <MemberPartnerSection
           memberId={member.id}

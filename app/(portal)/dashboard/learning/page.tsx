@@ -12,7 +12,9 @@ import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
 import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledCourses';
 import FindYourCareerSection from '@/components/portal/FindYourCareerSection';
+import SkillCheckpointPanel from '@/components/portal/SkillCheckpointPanel';
 import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
+import { loadSkillCheckpointSummary } from '@/lib/member/skillCheckpoints';
 import { readinessVoiceSurface } from '@/lib/portal/voice';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -64,6 +66,11 @@ export default async function LearningPage() {
         .filter((row) => row.programSlug === enrolledProgram)
         .map((row) => row.courseSlug) ?? []
     : [];
+  const skillCheckpointSummary = await loadSkillCheckpointSummary({
+    userId: user.id,
+    programSlug: enrolledProgram,
+    completedCourseSlugs: coursesCompletedSlugs,
+  });
   const pathwayMilestones = ACTIVE_PATHWAY
     ? buildPathwayMilestones(ACTIVE_PATHWAY, allProgress)
     : [];
@@ -126,6 +133,10 @@ export default async function LearningPage() {
         completedSlugs={coursesCompletedSlugs}
         assessmentCompleted={dbUser?.assessmentCompleted ?? false}
       />
+
+      <div style={{ margin: '0 1.5rem 1.5rem' }}>
+        <SkillCheckpointPanel summary={skillCheckpointSummary} />
+      </div>
 
       <FindYourCareerSection compact />
 
@@ -283,6 +294,8 @@ export default async function LearningPage() {
         completedSlugs={coursesCompletedSlugs}
         assessmentCompleted={dbUser?.assessmentCompleted ?? false}
       />
+
+      <SkillCheckpointPanel summary={skillCheckpointSummary} />
 
       <FindYourCareerSection />
 

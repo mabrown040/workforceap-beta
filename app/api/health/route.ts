@@ -31,7 +31,7 @@ async function checkDatabase(): Promise<CheckResult> {
   const started = Date.now();
   try {
     // Must run inside $transaction — see app/api/auth/login/route.ts.
-    await prisma.$transaction([prisma.$queryRaw`SELECT 1`]);
+    await prisma.$transaction((tx) => tx.$queryRaw`SELECT 1`);
     return { status: 'ok', responseTimeMs: Date.now() - started };
   } catch {
     return { status: 'degraded', responseTimeMs: Date.now() - started };

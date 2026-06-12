@@ -41,12 +41,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
             where: { deletedAt: null, organizationId: orgId, assessmentCompleted: true },
           }),
           prisma.placementRecord.count({
-            where: { user: { organizationId: orgId } },
+            where: { user: { organizationId: orgId, deletedAt: null } },
           }),
           prisma.$queryRaw<{ avg: number | null }[]>`
             SELECT AVG(pr.salary_offered)::float as avg
             FROM placement_records pr
-            INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}::uuid
+            INNER JOIN users u ON u.id = pr.user_id AND u.organization_id = ${orgId}::uuid AND u.deleted_at IS NULL
             WHERE pr.salary_offered IS NOT NULL
           `,
         ]);

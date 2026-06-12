@@ -38,7 +38,7 @@ export const GET = withApiGuc(async (req: NextRequest) => {
       prisma.$queryRaw<{ day: string; count: number }[]>`
         SELECT DATE_TRUNC('day', me.created_at)::date::text as day, COUNT(DISTINCT me.user_id)::int as count
         FROM member_events me
-        INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId}
+        INNER JOIN users u ON u.id = me.user_id AND u.organization_id = ${orgId} AND u.deleted_at IS NULL
         WHERE me.created_at >= ${start} AND me.created_at <= ${end}
         GROUP BY DATE_TRUNC('day', me.created_at)
         ORDER BY day
@@ -46,6 +46,7 @@ export const GET = withApiGuc(async (req: NextRequest) => {
       prisma.$queryRaw<{ day: string; count: number }[]>`
         SELECT DATE_TRUNC('day', ce.created_at)::date::text as day, COUNT(*)::int as count
         FROM course_enrollments ce
+        INNER JOIN users u ON u.id = ce.user_id AND u.organization_id = ${orgId} AND u.deleted_at IS NULL
         WHERE ce.organization_id = ${orgId}
           AND ce.created_at >= ${start}
           AND ce.created_at <= ${end}

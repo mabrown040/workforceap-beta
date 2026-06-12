@@ -187,7 +187,11 @@ export default async function ImpactPage() {
 
           {!hasLiveData ? (
             <div className="impact-page__empty-hero">
-              <InfoCard variant="bordered" title={t('membersServedEmptyTitle')} />
+              <InfoCard
+                variant="bordered"
+                title={t('membersServedEmptyTitle')}
+                description={t('membersServedEmptyDesc')}
+              />
               <p className="impact-page__section-link-wrap impact-page__empty-hero-link">
                 <LocalizedLink href="/employers" className="impact-page__section-link">
                   {t('employerHiringLink')}

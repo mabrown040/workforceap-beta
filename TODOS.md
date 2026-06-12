@@ -68,6 +68,22 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-006: admin/token-links — P2 hardening follow-ups (post TODO-005)
+
+**What:** Adversarial review of PR #1657 closed the P1 but flagged P2s on `app/api/admin/token-links/route.ts`:
+1. **Existence oracle:** cross-tenant denial returns 404 only for nonexistent IDs; an existing Org-B member yields 403 (`lib/auth/actAsSubject.ts:54` vs `:94`) — lets an Org-A admin enumerate valid user UUIDs. Collapse both to 404.
+2. **No audit log on link minting** — minting a public single-use credential bound to a member profile-write should call `auditLog` (15+ comparable admin routes do).
+3. **No rate limit on minting** — precedent: `adminInviteRateLimiter` (`lib/rate-limit.ts:31`).
+4. **RLS forward-compat:** `getSubjectOrganizationId` + the fullName lookup are deliberately cross-tenant raw Prisma reads; under FORCE RLS with an actor-org GUC the super_admin path will return null → 500. Track in the Sprint 3 FORCE RLS flip checklist.
+
+**Why:** Defense-in-depth on an admin credential-minting surface; item 4 is a known FORCE RLS landmine.
+
+**Priority:** P2
+
+**Fix shape:** Same-route changes; items 1–3 are small. Item 4 belongs with the FORCE RLS flip work (GUC bypass or explicit super_admin context).
+
+---
+
 ## Completed
 
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.

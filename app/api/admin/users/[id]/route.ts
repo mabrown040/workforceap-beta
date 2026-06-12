@@ -7,6 +7,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib/admin/adminUserProvisioning';
+import { userAuthDeleteFailedResponse } from '@/lib/admin/userDeleteResponse';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
   _req: NextRequest,
@@ -52,6 +53,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
       const { error } = await supabase.auth.admin.deleteUser(id);
       if (error) {
         console.error('[admin/users/:id DELETE] Supabase delete error:', error.message);
+        return userAuthDeleteFailedResponse();
       }
   
       return NextResponse.json({ ok: true });

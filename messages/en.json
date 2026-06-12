@@ -1935,9 +1935,12 @@
     "publicImpact": {
       "title": "Public impact",
       "description": "Live WorkforceAP metrics: members served, training completion, placement records, program results, and employer partnership stats.",
+      "descriptionDataLight": "WorkforceAP impact reporting—verified metrics publish here as member and employer activity is recorded.",
       "eyebrow": "Live statistics",
+      "eyebrowDataLight": "Impact reporting",
       "heading": "Measured progress, published carefully",
       "subtitle": "Verified metrics from WorkforceAP operations—published when there is enough data to share publicly.",
+      "subtitleDataLight": "Metrics appear here once there is enough verified data to share publicly—figures stay blank until then.",
       "membersServedLabel": "Members served",
       "membersServedDesc": "Active member accounts on WorkforceAP. Internal test accounts are excluded.",
       "completionRateLabel": "Completion rate (enrolled cohort)",

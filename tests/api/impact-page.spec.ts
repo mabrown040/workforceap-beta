@@ -345,6 +345,14 @@ describe('Impact Page — getPublicImpactStats', () => {
       expect(Number(match![1])).toBe(600);
     });
 
+    it('uses data-light copy when live metrics are unavailable', () => {
+      const pagePath = path.resolve(__dirname, '../../app/impact/page.tsx');
+      const source = readFileSync(pagePath, 'utf-8');
+      expect(source).toContain("hasLiveData ? t('eyebrow') : t('eyebrowDataLight')");
+      expect(source).toContain("hasLiveData ? t('subtitle') : t('subtitleDataLight')");
+      expect(source).toContain("hasLiveData ? t('description') : t('descriptionDataLight')");
+    });
+
     it('produces deterministic results for identical inputs', async () => {
       const enrolled = [
         makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: true }),

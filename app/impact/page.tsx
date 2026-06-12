@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const hasLiveData = hasPublicImpactLiveData(stats);
   return buildPageMetadataAsync({
     title: t('title'),
-    description: t('description'),
+    description: hasLiveData ? t('description') : t('descriptionDataLight'),
     path: '/impact',
     robots: hasLiveData ? undefined : { index: false },
   });
@@ -174,9 +174,9 @@ export default async function ImpactPage() {
       <PageSection padding="lg" variant="default">
         <div className="impact-page__container">
           <SectionHeader
-            eyebrow={t('eyebrow')}
+            eyebrow={hasLiveData ? t('eyebrow') : t('eyebrowDataLight')}
             title={t('heading')}
-            subtitle={t('subtitle')}
+            subtitle={hasLiveData ? t('subtitle') : t('subtitleDataLight')}
             align="left"
             marginBottom="2rem"
           />
@@ -330,13 +330,11 @@ export default async function ImpactPage() {
         .impact-page__hero-metric {
           margin-bottom: 2.5rem;
           border-left: 4px solid var(--color-accent);
+          padding: clamp(1.5rem, 3vw, 2.5rem);
         }
         .impact-page__empty-hero-link {
           margin: 1rem 0 0;
           padding-left: 1rem;
-        }
-        .impact-page__hero-metric {
-          padding: clamp(1.5rem, 3vw, 2.5rem);
         }
         .impact-page__hero-value {
           margin: 0;

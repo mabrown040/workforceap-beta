@@ -1935,9 +1935,12 @@
     "publicImpact": {
       "title": "Impacto público",
       "description": "Resultados en vivo de WorkforceAP: miembros atendidos, finalización de capacitación, colocación laboral, resultados de programas y estadísticas de asociación con empleadores.",
+      "descriptionDataLight": "Informes de impacto de WorkforceAP: las métricas verificadas se publican aquí a medida que se registra la actividad de miembros y empleadores.",
       "eyebrow": "Estadísticas en vivo",
+      "eyebrowDataLight": "Informes de impacto",
       "heading": "Progreso medido, publicado con cuidado",
       "subtitle": "Métricas verificadas de las operaciones de WorkforceAP: se publican cuando hay datos suficientes para compartirlas públicamente.",
+      "subtitleDataLight": "Las métricas aparecen aquí cuando hay datos verificados suficientes para compartirlos públicamente; las cifras permanecen en blanco hasta entonces.",
       "dataLightNote": "Las métricas en vivo se publican aquí a medida que se registra la actividad de miembros y empleadores. Las cifras permanecen en blanco hasta que haya datos verificados suficientes para compartir públicamente.",
       "cohortRateInsufficient": "Se publica una vez que las cohortes de programas inscritos tengan actividad registrada.",
       "statsMethodologyNote": "El guion (—) significa que una métrica aún no está publicada. Las tasas usan cohortes de programas inscritos; los promedios salariales usan salarios de oferta y seguimiento emparejados cuando ambos están registrados.",

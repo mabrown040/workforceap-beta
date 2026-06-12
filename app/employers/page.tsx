@@ -98,6 +98,7 @@ export default async function EmployersPage() {
   const showVerifiedStats = liveTrustStats.length > 0;
   const showPlaceholderStats = !showLogos && !showVerifiedStats;
   const trustStatsToShow = showVerifiedStats ? liveTrustStats : placeholderTrustStats;
+  const heroEyebrowIcon = showVerifiedStats || showLogos ? 'verified' : 'handshake';
 
   return (
     <div className="inner-page employers-landing">
@@ -110,7 +111,7 @@ export default async function EmployersPage() {
         eyebrow={
           <span className="employers-landing__eyebrow">
             <span className="material-symbols-outlined" aria-hidden="true">
-              verified
+              {heroEyebrowIcon}
             </span>
             {t('heroEyebrow')}
           </span>

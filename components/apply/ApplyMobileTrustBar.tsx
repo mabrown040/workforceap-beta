@@ -26,9 +26,16 @@ export default async function ApplyMobileTrustBar() {
           <span className="apply-mobile-trust-bar__check" aria-hidden="true">
             ✓
           </span>
-          <a href={SUPPORT_PHONE_HREF} className="apply-mobile-trust-bar__phone">
-            {SUPPORT_PHONE_DISPLAY}
-          </a>
+          <span>
+            {t('questionsCall')}{' '}
+            <a
+              href={SUPPORT_PHONE_HREF}
+              className="apply-mobile-trust-bar__phone"
+              aria-label={t('mobileTrustBarPhoneAria', { phone: SUPPORT_PHONE_DISPLAY })}
+            >
+              {SUPPORT_PHONE_DISPLAY}
+            </a>
+          </span>
         </li>
       </ul>
     </div>

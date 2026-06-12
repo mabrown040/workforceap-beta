@@ -26,7 +26,7 @@ function getRemPx(): number {
 /**
  * Shows a mobile sticky CTA after the apply hero leaves the viewport, but hides it
  * when the apply form region is in view so it does not cover submit buttons.
- * @param hideWhenSelector CSS selector for the form card/region (e.g. `.apply-main-form`).
+ * @param hideWhenSelector CSS selector(s) for the form card/region (comma-separated for multiple).
  */
 export function useApplyStickyCtaVisibility(
   hideWhenSelector: string,
@@ -36,12 +36,15 @@ export function useApplyStickyCtaVisibility(
 
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_MQ);
-    const formTarget = document.querySelector(hideWhenSelector);
+    const formTargets = document.querySelectorAll(hideWhenSelector);
     const hero = document.querySelector(heroSelector);
     let heroPast = false;
-    let formIntersecting = false;
+    const formIntersectingByTarget = new Map<Element, boolean>();
 
     const recompute = () => {
+      const formIntersecting =
+        formIntersectingByTarget.size === 0 ||
+        [...formIntersectingByTarget.values()].some(Boolean);
       setVisible(mq.matches && heroPast && !formIntersecting);
     };
 
@@ -51,11 +54,11 @@ export function useApplyStickyCtaVisibility(
     const safeAreaBottom = getSafeAreaInsetBottomPx();
     const bottomMargin = -(4.5 * remPx + safeAreaBottom);
 
-    let formObserver: IntersectionObserver | undefined;
-    if (formTarget) {
-      formObserver = new IntersectionObserver(
+    const formObservers: IntersectionObserver[] = [];
+    formTargets.forEach((formTarget) => {
+      const observer = new IntersectionObserver(
         ([entry]) => {
-          formIntersecting = entry.isIntersecting;
+          formIntersectingByTarget.set(formTarget, entry.isIntersecting);
           recompute();
         },
         {
@@ -63,8 +66,9 @@ export function useApplyStickyCtaVisibility(
           threshold: 0.05,
         },
       );
-      formObserver.observe(formTarget);
-    }
+      observer.observe(formTarget);
+      formObservers.push(observer);
+    });
 
     let heroObserver: IntersectionObserver | undefined;
     if (hero) {
@@ -93,7 +97,7 @@ export function useApplyStickyCtaVisibility(
     mq.addEventListener('change', onScroll);
 
     return () => {
-      formObserver?.disconnect();
+      formObservers.forEach((observer) => observer.disconnect());
       heroObserver?.disconnect();
       window.removeEventListener('scroll', onScroll);
       mq.removeEventListener('change', onScroll);

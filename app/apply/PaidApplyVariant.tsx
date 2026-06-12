@@ -105,7 +105,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
           font-family: var(--font-family);
           background: var(--surface-container-lowest);
           min-height: 100vh;
-          padding-bottom: calc(var(--space-8) + 72px);
+          padding-bottom: calc(var(--space-8) + 4.5rem + env(safe-area-inset-bottom, 0px));
         }
 
         .paid-apply-hero {
@@ -278,8 +278,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
           }
 
           .paid-apply-form-kicker {
-            display: block;
-            order: 2;
+            display: none;
           }
 
           /* Form first on mobile — proof card stays below the fold until after eligibility */

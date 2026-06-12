@@ -7,12 +7,12 @@ describe('Employers Page — honest trust presentation', () => {
     const pagePath = path.resolve(__dirname, '../../app/employers/page.tsx');
     const source = readFileSync(pagePath, 'utf-8');
 
-    expect(source).toContain(
-      "showPlaceholderStats ? t('trustAriaLabelPlaceholder') : t('trustAriaLabel')",
-    );
+    expect(source).toContain("t('trustAriaLabelLogosOnly')");
+    expect(source).toContain('showLogosOnly');
     expect(source).toContain("t('trustPlaceholderHeading')");
     expect(source).toContain('employers-trust__stats--placeholder');
     expect(source).toContain("showVerifiedStats ? 'verified' : 'handshake'");
+    expect(source).not.toContain("showVerifiedStats || showLogos ? 'verified'");
   });
 
   it('exports revalidate = 600 (10 minutes)', () => {

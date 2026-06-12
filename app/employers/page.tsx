@@ -97,8 +97,16 @@ export default async function EmployersPage() {
   const showLogos = trust.logos.length > 0;
   const showVerifiedStats = liveTrustStats.length > 0;
   const showPlaceholderStats = !showLogos && !showVerifiedStats;
+  const showLogosOnly = showLogos && !showVerifiedStats;
   const trustStatsToShow = showVerifiedStats ? liveTrustStats : placeholderTrustStats;
-  const heroEyebrowIcon = showVerifiedStats || showLogos ? 'verified' : 'handshake';
+  const heroEyebrowIcon = showVerifiedStats ? 'verified' : 'handshake';
+  const trustAriaLabel = showPlaceholderStats
+    ? t('trustAriaLabelPlaceholder')
+    : showVerifiedStats
+      ? t('trustAriaLabel')
+      : showLogosOnly
+        ? t('trustAriaLabelLogosOnly')
+        : t('trustAriaLabelPlaceholder');
 
   return (
     <div className="inner-page employers-landing">
@@ -140,7 +148,7 @@ export default async function EmployersPage() {
       {/* ── Trust strip ── */}
       <section
         className="employers-trust"
-        aria-label={showPlaceholderStats ? t('trustAriaLabelPlaceholder') : t('trustAriaLabel')}
+        aria-label={trustAriaLabel}
       >
         <div className="container employers-trust__inner">
           {showLogos ? (

@@ -70,7 +70,21 @@ const schema = z.object({
   fullName: z.string().trim().min(1).max(200),
   email: z.string().trim().email().max(200),
   role: z.enum(ADMIN_USER_ROLES).optional(),
-});async function _PATCH(
+});
+
+async function rollbackSupabaseEmailChange(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  userId: string,
+  previousEmail: string,
+) {
+  const { error } = await supabase.auth.admin.updateUserById(userId, {
+    email: previousEmail,
+    email_confirm: true,
+  });
+  return error ?? null;
+}
+
+async function _PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -108,11 +122,13 @@ const schema = z.object({
       return NextResponse.json({ error: 'Only super admins can change roles.' }, { status: 403 });
     }
   
+    const supabase = getSupabaseAdmin();
+    const normalizedEmail = email.toLowerCase();
+    const emailChanged = normalizedEmail !== existing.email.toLowerCase();
+    let authEmailChanged = false;
+ 
     try {
-      const supabase = getSupabaseAdmin();
-      const normalizedEmail = email.toLowerCase();
-  
-      if (normalizedEmail !== existing.email.toLowerCase()) {
+      if (emailChanged) {
         const { error: authError } = await supabase.auth.admin.updateUserById(id, {
           email: normalizedEmail,
           email_confirm: true,
@@ -120,6 +136,7 @@ const schema = z.object({
         if (authError) {
           return NextResponse.json({ error: authError.message }, { status: 400 });
         }
+        authEmailChanged = true;
       }
   
       // Membership has already been verified via withTenantScope.findFirst above.
@@ -161,6 +178,24 @@ const schema = z.object({
   
       return NextResponse.json({ success: true, user: updated });
     } catch (error) {
+      if (authEmailChanged) {
+        try {
+          const rollbackError = await rollbackSupabaseEmailChange(supabase, id, existing.email);
+          if (rollbackError) {
+            console.error('[admin/users/:id PATCH] Supabase email rollback failed:', rollbackError.message);
+            return NextResponse.json(
+              { error: 'Failed to update user; auth email rollback failed.', reconciliationRequired: true },
+              { status: 500 },
+            );
+          }
+        } catch (rollbackError) {
+          console.error('[admin/users/:id PATCH] Supabase email rollback failed:', rollbackError);
+          return NextResponse.json(
+            { error: 'Failed to update user; auth email rollback failed.', reconciliationRequired: true },
+            { status: 500 },
+          );
+        }
+      }
       if (error instanceof Error && error.message === 'USER_NOT_FOUND_IN_TX') {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }

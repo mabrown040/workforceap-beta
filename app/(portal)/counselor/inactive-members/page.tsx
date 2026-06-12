@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
@@ -48,25 +48,35 @@ export default function InactiveMembersPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [sendingReminder, setSendingReminder] = useState<string | null>(null);
   const [reminderSent, setReminderSent] = useState<Set<string>>(new Set());
+  const activeLoadId = useRef(0);
 
-  useEffect(() => {
-    loadMembers();
-  }, [days]);
+  const loadMembers = useCallback(async () => {
+    const loadId = activeLoadId.current + 1;
+    activeLoadId.current = loadId;
+    const isCurrentLoad = () => activeLoadId.current === loadId;
 
-  const loadMembers = async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetchWithTimeout(`/api/counselor/inactive-members?days=${days}`, {}, 15000);
       if (!res.ok) throw new Error('Failed to load');
       const data = await res.json();
+      if (!isCurrentLoad()) return;
       setMembers(data.members || []);
     } catch {
-      setError(t('couldNotLoadInactiveMembers'));
+      if (isCurrentLoad()) {
+        setError(t('couldNotLoadInactiveMembers'));
+      }
     } finally {
-      setLoading(false);
+      if (isCurrentLoad()) {
+        setLoading(false);
+      }
     }
-  };
+  }, [days, t]);
+
+  useEffect(() => {
+    loadMembers();
+  }, [loadMembers]);
 
   const logOutreach = async (member: InactiveMember) => {
     setSendingReminder(member.id);

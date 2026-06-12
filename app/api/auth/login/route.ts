@@ -125,13 +125,15 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
 
   // Must run inside $transaction: since #1631 the Prisma middleware
   // fail-closes on queries under an active GUC context outside one.
-  // A bare findUnique here threw and 500'd every login (P0).
-  const [profile] = await prisma.$transaction([
-    prisma.profile.findUnique({
+  // Callback form — the array form returned results shifted by the injected
+  // GUC query, so `const [profile] = ...` got the set_config result and
+  // staff role resolution silently broke (MFA gate + role redirect).
+  const profile = await prisma.$transaction((tx) =>
+    tx.profile.findUnique({
       where: { userId: data.user.id },
       select: { role: true },
     }),
-  ]);
+  );
 
   const staffMfaEnabled = isStaffMfaEnforcementEnabled();
   const aalData = staffMfaEnabled

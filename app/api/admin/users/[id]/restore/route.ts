@@ -7,6 +7,7 @@ import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { isDeletedEmailMarker, parseDeletedEmail } from '../../_deletedEmail';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
   _req: Request,
@@ -35,9 +36,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     let restoredEmail: string | null = null;
     let emailToWrite = target.email;
   
-    const sentinelMatch = target.email.match(/^deleted_[0-9a-f-]{36}_\d+_(.+)@deleted\.invalid$/i);
-    if (sentinelMatch) {
-      const candidate = sentinelMatch[1];
+    const candidate = parseDeletedEmail(target.email);
+    if (candidate) {
       // User.email is @unique GLOBALLY — collisions in other tenants would
       // still trigger P2002 on the update below. Use crossTenantOK so the
       // pre-check sees them and surfaces a clean 409.
@@ -57,6 +57,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       }
       emailToWrite = candidate;
       restoredEmail = candidate;
+    } else if (isDeletedEmailMarker(target.email)) {
+      return NextResponse.json(
+        { error: 'Cannot restore: deleted email marker is invalid and the original email cannot be recovered.' },
+        { status: 409 },
+      );
     }
   
     try {

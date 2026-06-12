@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { buildDeletedEmail, isDeletedEmail } from '../../_deletedEmail';
 
 /**
  * Rewrite a soft-deleted user's email to the sentinel form so the
@@ -39,11 +40,17 @@ export async function POST(
   if (!target.deletedAt) {
     return NextResponse.json({ error: 'User is not soft-deleted; cannot free email.' }, { status: 400 });
   }
-  if (target.email.endsWith('@deleted.invalid')) {
+  if (isDeletedEmail(target.email)) {
     return NextResponse.json({ ok: true, alreadyFreed: true, currentEmail: target.email });
   }
 
-  const newEmail = `deleted_${id}_${Date.now()}_${target.email}@deleted.invalid`.slice(0, 255);
+  const newEmail = buildDeletedEmail(id, Date.now(), target.email);
+  if (!newEmail) {
+    return NextResponse.json(
+      { error: 'Cannot free email because it is too long to preserve for restore.' },
+      { status: 400 },
+    );
+  }
   await withTenantScope(orgId, (db) =>
     db.user.updateMany({
       where: { id },
@@ -58,4 +65,3 @@ export async function POST(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

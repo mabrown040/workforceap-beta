@@ -7,6 +7,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib/admin/adminUserProvisioning';
+import { buildDeletedEmail } from '../_deletedEmail';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
   _req: NextRequest,
@@ -37,9 +38,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
       // See app/api/admin/members/[id]/delete/route.ts — same pattern.
       // Rewrite the email so the @unique constraint doesn't block re-signup.
       const now = new Date();
-      const newEmail = target.deletedAt
-        ? target.email
-        : `deleted_${id}_${now.getTime()}_${target.email}@deleted.invalid`.slice(0, 255);
+      const newEmail = target.deletedAt ? target.email : buildDeletedEmail(id, now.getTime(), target.email);
+      if (!newEmail) {
+        return NextResponse.json(
+          { error: 'Cannot delete user because the email is too long to preserve for restore.' },
+          { status: 400 },
+        );
+      }
   
       await withTenantScope(orgId, (db) =>
         db.user.updateMany({

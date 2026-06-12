@@ -416,7 +416,7 @@ export default async function HomePageBelowFold({
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="home-impact-bento__stats" style={{ display: 'grid', gap: '1rem' }}>
             <div className="portal-card portal-card--flat" style={{ background: 'var(--surface-container-high)', padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <span className="marketing-chip-text--gold" style={{ fontSize: '2.5rem', fontWeight: 900, lineHeight: 1 }}>
                 2,000+

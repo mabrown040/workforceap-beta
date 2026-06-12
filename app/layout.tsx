@@ -132,9 +132,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         // policy that calls `can_access_org_row(check_org_id)` evaluate with
         // NULL once FORCE ROW LEVEL SECURITY is enabled (AUDIT §C-T6). Mirrors
         // resolveAuthGucContext() in lib/auth/server.ts.
-        prisma.user
-          .findUnique({ where: { id: resolvedUserId }, select: { organizationId: true } })
-          .catch(() => null),
+        //
+        // Must run inside an explicit $transaction: since #1631 the Prisma
+        // middleware fail-closes (throws) on queries that run with an active
+        // GUC context outside a $transaction. The previous bare findUnique
+        // always threw here and orgId silently degraded to null.
+        prisma
+          .$transaction((tx) =>
+            tx.user.findUnique({ where: { id: resolvedUserId }, select: { organizationId: true } }),
+          )
+          .catch((err) => {
+            console.error('[layout:guc] organizationId bootstrap lookup failed; GUC degrades to orgId null', err);
+            return null;
+          }),
       ]),
     );
     gucCtx = buildGucContext({

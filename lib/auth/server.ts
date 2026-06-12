@@ -117,9 +117,19 @@ export const resolveAuthGucContext = cache(async function resolveAuthGucContext(
       // is enabled (AUDIT §C-T6). Today it's masked because Prisma uses the
       // service-role connection that bypasses RLS; this lookup makes the
       // GUC ready for the forced-RLS flip.
-      prisma.user
-        .findUnique({ where: { id: user.id }, select: { organizationId: true } })
-        .catch(() => null),
+      //
+      // Must run inside an explicit $transaction: since #1631 the Prisma
+      // middleware fail-closes (throws) on queries that run with an active
+      // GUC context outside a $transaction, because session-level GUCs are
+      // not visible to policies on pooled connections.
+      prisma
+        .$transaction((tx) =>
+          tx.user.findUnique({ where: { id: user.id }, select: { organizationId: true } }),
+        )
+        .catch((err) => {
+          console.error('[auth:guc] organizationId bootstrap lookup failed; GUC degrades to orgId null', err);
+          return null;
+        }),
     ]),
   );
   return buildGucContext({

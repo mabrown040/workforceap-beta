@@ -287,6 +287,9 @@ const WAP_PROGRAM_DISCOVERED_ALIASES: Record<string, CourseraProgramSlug> = {
   'comptia-network-professional-certificate': 'comptia-network-plus-professional-certificate',
   'comptia-security-professional-certificate': 'comptia-security-plus-professional-certificate',
   'digital-marketing-e-commerce-google': 'digital-marketing-e-commerce-professional-certificate-google',
+  // Same MBCHIT Learning Path; without this alias the program built 14
+  // synthetic course slugs that can never match xAPI completions.
+  'medical-billing-and-coding-certificate': 'health-information-technology-mchit',
 };
 
 function mergeDiscoveredWithWapAliases(

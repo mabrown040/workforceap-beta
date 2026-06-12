@@ -14,6 +14,10 @@ const PROGRAMS_WITHOUT_COURSERA_DISCOVERY = new Set([
   'certified-production-technician-cpt',
   'certified-logistics-technician-clt',
   'core-construction-training-certificate',
+  // Manually-defined curriculum; no Coursera Learning Path built yet.
+  // Remove from this list once the LP exists and is captured in
+  // DISCOVERED_COURSERA_PROGRAMS_INNER.
+  'it-support-and-entry-level-cyber-security-certificate',
 ]);
 
 test('every Coursera-backed program has a discovered catalog entry', () => {

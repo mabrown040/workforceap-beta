@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage } from '@/lib/pipeline/stage';
 import { buildCsv, csvDate } from '@/lib/csv';
-import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { buildMemberExportWhere, fetchMembersForExport, MEMBER_EXPORT_LIMIT } from './_membersExportQuery';
 
 /**
  * GET /api/admin/export/members
@@ -35,119 +34,20 @@ export async function GET(req: NextRequest) {
   const filterDateTo = params.get('dateTo') || undefined;
   const filterCoursera = params.get('courseraStatus') || undefined;
 
-  // Build Prisma where clause — scoped to actual members only
-  const where: Record<string, unknown> = { deletedAt: null, ...MEMBER_ONLY_WHERE };
-
-  if (filterProgram) where.enrolledProgram = filterProgram;
-  if (filterWioa) where.wioaReviewStatus = filterWioa;
-  if (filterDateFrom || filterDateTo) {
-    const createdAt: Record<string, Date> = {};
-    if (filterDateFrom) createdAt.gte = new Date(filterDateFrom);
-    if (filterDateTo) {
-      const to = new Date(filterDateTo);
-      to.setHours(23, 59, 59, 999);
-      createdAt.lte = to;
-    }
-    where.createdAt = createdAt;
-  }
+  const where = buildMemberExportWhere({
+    state: filterState,
+    program: filterProgram,
+    wioaStatus: filterWioa,
+    dateFrom: filterDateFrom,
+    dateTo: filterDateTo,
+    courseraStatus: filterCoursera,
+  });
 
   const orgId = await getActorOrganizationId(user.id);
 
-  const EXPORT_LIMIT = 10_000;
-  const users = await withTenantScope(orgId, (db) =>
-    db.user.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: EXPORT_LIMIT,
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        phone: true,
-        enrolledProgram: true,
-        enrolledAt: true,
-        assessmentCompleted: true,
-        memberProgramProgress: {
-          select: { programSlug: true, averagePercent: true, coursesCompleted: true },
-        },
-        courseProgress: {
-          where: { status: 'COMPLETED' },
-          select: { programSlug: true, courseSlug: true },
-        },
-        assessmentScorePct: true,
-        pipelineBoardStage: true,
-        wioaQualificationJson: true,
-        wioaReviewStatus: true,
-        deletedAt: true,
-        createdAt: true,
-        profile: {
-          select: {
-            state: true,
-            city: true,
-            zip: true,
-            educationLevel: true,
-            employmentStatus: true,
-            veteranStatus: true,
-            householdIncome: true,
-            dob: true,
-            ethnicity: true,
-          },
-        },
-        placementRecord: {
-          select: {
-            employerName: true,
-            jobTitle: true,
-            salaryOffered: true,
-            placedAt: true,
-          },
-        },
-        userCertifications: {
-          select: { certName: true, earnedAt: true },
-        },
-        applications: {
-          select: { status: true, submittedAt: true },
-        },
-        // Multi-program: export uses the primary enrollment for the funding
-        // / programSlug column. Secondary enrollments are intentionally not
-        // exported here (a separate report would list all enrollments).
-        courseEnrollments: {
-          where: { isPrimary: true },
-          select: {
-            programSlug: true,
-            fundingSource: true,
-            fundingNotes: true,
-            enrolledAt: true,
-          },
-          take: 1,
-        },
-        trainingAccessRequests: {
-          select: { providerKey: true, status: true, activatedAt: true },
-        },
-      },
-    }),
+  const { rows, truncated } = await withTenantScope(orgId, (db) =>
+    fetchMembersForExport(db, where, filterStage),
   );
-
-  // Apply post-query filters that need computed fields
-  const rows: typeof users = [];
-  for (const u of users) {
-    // State filter (profile.state)
-    if (filterState && u.profile?.state !== filterState) continue;
-
-    // Pipeline stage filter
-    const stage = getPipelineStage(u as Parameters<typeof getPipelineStage>[0]);
-    if (filterStage && stage !== filterStage) continue;
-
-    // Coursera access status filter
-    if (filterCoursera) {
-      const courseraReq = u.trainingAccessRequests.find(
-        (r) => r.providerKey === 'coursera',
-      );
-      const courseraStatus = courseraReq?.status ?? 'NONE';
-      if (filterCoursera !== courseraStatus) continue;
-    }
-
-    rows.push(u);
-  }
 
   // Build CSV
   const csvColumns = [
@@ -268,9 +168,9 @@ export async function GET(req: NextRequest) {
     'Content-Disposition': `attachment; filename="${filename}"`,
     'Cache-Control': 'no-store',
   };
-  if (users.length >= EXPORT_LIMIT) {
+  if (truncated) {
     headers['X-Export-Truncated'] = `true`;
-    headers['X-Export-Limit'] = `${EXPORT_LIMIT}`;
+    headers['X-Export-Limit'] = `${MEMBER_EXPORT_LIMIT}`;
   }
 
   return new NextResponse(csv, { status: 200, headers });
@@ -280,4 +180,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

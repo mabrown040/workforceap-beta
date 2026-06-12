@@ -42,7 +42,10 @@ export default function ApplyResultsClient() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      const stored = sessionStorage.getItem(APPLY_STORAGE_KEY);
+      // sessionStorage is per-tab; the localStorage mirror covers "finish
+      // later" resumes in a new tab.
+      const stored =
+        sessionStorage.getItem(APPLY_STORAGE_KEY) ?? localStorage.getItem(APPLY_STORAGE_KEY);
       if (!stored) {
         trackApplyFunnel(2, 'results_missing_prereq');
         setPageState('missing');

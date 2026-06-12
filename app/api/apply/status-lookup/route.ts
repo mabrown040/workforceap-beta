@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { prisma } from '@/lib/db/prisma';
 import { checkAuthRateLimit } from '@/lib/rate-limit';
-import { applicationStatusForPublicLookup } from '@/lib/member/memberApplicationStatus';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -17,7 +15,17 @@ function getClientIp(request: NextRequest): string {
     request.headers.get('x-real-ip') ||
     'unknown'
   );
-}export const POST = withApiGuc(async (request: NextRequest) => {
+}
+
+const genericMessage =
+  'If we have an application on file for that email, you will receive status updates by email and SMS. Otherwise, you can submit a new application at workforceap.org/apply.';
+
+const genericResponse = {
+  found: false,
+  message: genericMessage,
+};
+
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const ip = getClientIp(request);
     const { success: rateOk } = await checkAuthRateLimit(`apply-status:${ip}`);
@@ -37,45 +45,9 @@ function getClientIp(request: NextRequest): string {
       return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
     }
 
-    const email = parsed.data.email;
-
-    const dbUser = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true },
-    });
-
     // Anti-enumeration: return identical generic response regardless of
     // whether the email exists or has an application (AUDIT §H-S4).
-    const genericMessage =
-      'If we have an application on file for that email, you will receive status updates by email and SMS. Otherwise, you can submit a new application at workforceap.org/apply.';
-
-    if (!dbUser) {
-      return NextResponse.json({ found: false, message: genericMessage });
-    }
-
-    const application = await prisma.application.findFirst({
-      where: { userId: dbUser.id },
-      orderBy: { createdAt: 'desc' },
-      select: { status: true },
-    });
-
-    if (!application) {
-      return NextResponse.json({ found: false, message: genericMessage });
-    }
-
-    const statusKey = applicationStatusForPublicLookup(application.status);
-    const labels: Record<typeof statusKey, string> = {
-      applied: 'Applied — we received your application.',
-      under_review: 'Under review — our team is evaluating your application.',
-      accepted: 'Accepted — check your email and member portal for next steps.',
-      rejected: 'Application closed — see your email for details or contact info@workforceap.org.',
-    };
-
-    return NextResponse.json({
-      found: true,
-      status: statusKey,
-      message: labels[statusKey],
-    });
+    return NextResponse.json(genericResponse);
   } catch (err) {
     captureApiError(err, { route: 'apply/status-lookup' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

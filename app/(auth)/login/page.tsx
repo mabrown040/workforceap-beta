@@ -23,13 +23,20 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ redirectTo?: string }>;
+  searchParams: Promise<{ redirectTo?: string; deleted?: string; verified?: string }>;
 }) {
   const [user, sp, locale] = await Promise.all([getUser(), searchParams, getRequestLocale()]);
   const rawRedirect = typeof sp?.redirectTo === 'string' ? sp.redirectTo : undefined;
   const normalizedRedirect = normalizePostLoginRedirect(rawRedirect, withLocalePrefix('/dashboard', locale));
 
-  if (user) {
+  const accountDeleted = sp?.deleted === '1';
+  const emailVerified = sp?.verified === '1';
+
+  // Skip the signed-in auto-redirect when arriving from the deleted-account
+  // guard: a soft-deleted member can still hold a live session, and
+  // redirecting them forward just bounces back here in a loop. Show the
+  // notice and let them re-authenticate or contact support instead.
+  if (user && !accountDeleted) {
     const profileRole = await getProfileRole(user.id);
     redirect(resolveRoleAwarePostLoginRedirect(normalizedRedirect, profileRole));
   }
@@ -43,7 +50,11 @@ export default async function LoginPage({
       <Suspense fallback={null}>
         <UtmCapture />
       </Suspense>
-      <LoginForm initialRedirectTo={normalizedRedirect} />
+      <LoginForm
+        initialRedirectTo={normalizedRedirect}
+        accountDeleted={accountDeleted}
+        emailVerified={emailVerified}
+      />
     </>
   );
 }

@@ -46,7 +46,7 @@ function buildWhere(
 }
 
 type Props = {
-  searchParams?: Promise<{ page?: string; q?: string; event?: string }>;
+  searchParams?: Promise<{ page?: string; q?: string; event?: string; order?: string }>;
 };
 
 export default async function AdminAuditLogsPage({ searchParams }: Props) {
@@ -60,6 +60,9 @@ export default async function AdminAuditLogsPage({ searchParams }: Props) {
   const page = Math.max(1, parseInt(sp.page ?? '1', 10) || 1);
   const q = (sp.q ?? '').trim();
   const eventFilter = (sp.event ?? '').trim();
+  // Time order for the event list. 'desc' (newest first) is the default;
+  // 'asc' supports incident reconstruction (read events oldest-first).
+  const order: 'asc' | 'desc' = sp.order === 'asc' ? 'asc' : 'desc';
 
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -95,7 +98,7 @@ export default async function AdminAuditLogsPage({ searchParams }: Props) {
 
   const events = await prisma.memberEvent.findMany({
     where: listWhere,
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: order },
     skip: (safePage - 1) * PAGE_SIZE,
     take: PAGE_SIZE,
     include: {
@@ -182,6 +185,7 @@ export default async function AdminAuditLogsPage({ searchParams }: Props) {
         totalMatching={totalMatching}
         initialQ={q}
         initialEvent={eventFilter}
+        order={order}
         eventTypes={eventTypesForSelect}
       />
     </>

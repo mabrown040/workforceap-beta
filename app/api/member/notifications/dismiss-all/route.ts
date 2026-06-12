@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function POST() {
+async function _POST() {
   try {
     const user = await getUser();
     if (!user) {
@@ -28,3 +29,5 @@ export async function POST() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

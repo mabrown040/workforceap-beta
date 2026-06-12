@@ -77,7 +77,7 @@ export function buildFirstValueActions(ctx: FirstValueActionsContext): FirstValu
       id: 'fv_upload_resume',
       title: 'Add your resume',
       body: 'Upload a resume so counselors and AI tools can tailor support to your background.',
-      href: '/dashboard/ai-tools/resume-rewriter?prefill=true',
+      href: '/dashboard/ai-tools/resume-studio?view=rewrite',
       cta: 'Upload resume',
       weight: 88,
     });

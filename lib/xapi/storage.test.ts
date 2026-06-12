@@ -11,24 +11,50 @@ function makeP2002() {
   });
 }
 
-test('persistXapiStatement: idempotent when statementId already exists', async (t) => {
+test('persistXapiStatement: idempotent when statementId already processed', async (t) => {
   const delegate = prisma.xapiStatement as any;
   const originalCreate = delegate.create;
+  const originalFindUnique = delegate.findUnique;
 
   t.after(() => {
     delegate.create = originalCreate;
+    delegate.findUnique = originalFindUnique;
   });
 
   delegate.create = async () => {
     throw makeP2002();
   };
+  delegate.findUnique = async () => ({ processed: true });
 
   const r = await persistXapiStatement({
     statementId: 'urn:uuid:dup-test',
     actorEmail: 'a@b.co',
     verb: 'progressed',
   });
-  assert.equal(r, 'skipped');
+  assert.equal(r, 'already_processed');
+});
+
+test('persistXapiStatement: duplicate unprocessed statement retries processing', async (t) => {
+  const delegate = prisma.xapiStatement as any;
+  const originalCreate = delegate.create;
+  const originalFindUnique = delegate.findUnique;
+
+  t.after(() => {
+    delegate.create = originalCreate;
+    delegate.findUnique = originalFindUnique;
+  });
+
+  delegate.create = async () => {
+    throw makeP2002();
+  };
+  delegate.findUnique = async () => ({ processed: false });
+
+  const r = await persistXapiStatement({
+    statementId: 'urn:uuid:retry-test',
+    actorEmail: 'a@b.co',
+    verb: 'progressed',
+  });
+  assert.equal(r, 'retry_processing');
 });
 
 test('persistXapiStatement: insert when statementId is new', async (t) => {
@@ -58,9 +84,11 @@ test('persistXapiStatement: insert when statementId is new', async (t) => {
 test('batch: 100 unique statementIds each insert once; duplicates skip', async (t) => {
   const delegate = prisma.xapiStatement as any;
   const originalCreate = delegate.create;
+  const originalFindUnique = delegate.findUnique;
 
   t.after(() => {
     delegate.create = originalCreate;
+    delegate.findUnique = originalFindUnique;
   });
 
   const persisted = new Set<string>();
@@ -72,6 +100,7 @@ test('batch: 100 unique statementIds each insert once; duplicates skip', async (
     persisted.add(sid);
     return {};
   };
+  delegate.findUnique = async () => ({ processed: true });
 
   const ids = Array.from({ length: 100 }, (_, i) => `urn:uuid:batch-${i}`);
   for (const statementId of ids) {
@@ -80,7 +109,7 @@ test('batch: 100 unique statementIds each insert once; duplicates skip', async (
   }
   for (const statementId of ids) {
     const second = await persistXapiStatement({ statementId, verb: 'progressed' });
-    assert.equal(second, 'skipped');
+    assert.equal(second, 'already_processed');
   }
   assert.equal(persisted.size, 100);
 });

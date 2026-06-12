@@ -115,20 +115,66 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unknown programSlug' }, { status: 400 });
   }
 
-  await prisma.onetOccupation.upsert({
-    where: { onetCode: data.onetCode },
-    create: {
-      onetCode: data.onetCode,
-      title: data.onetCode,
-      isActive: true,
-    },
-    update: {},
-  });
-
   if (data.id) {
-    const before = await prisma.careerProgramMapping.findUnique({ where: { id: data.id } });
-    const row = await prisma.careerProgramMapping.update({
-      where: { id: data.id },
+    const row = await prisma.$transaction(async (tx) => {
+      await tx.onetOccupation.upsert({
+        where: { onetCode: data.onetCode },
+        create: {
+          onetCode: data.onetCode,
+          title: data.onetCode,
+          isActive: true,
+        },
+        update: {},
+      });
+
+      const before = await tx.careerProgramMapping.findUnique({ where: { id: data.id } });
+      const updated = await tx.careerProgramMapping.update({
+        where: { id: data.id },
+        data: {
+          onetCode: data.onetCode,
+          programSlug: data.programSlug,
+          priority: data.priority,
+          experienceBand: data.experienceBand,
+          recommendationType: data.recommendationType,
+          whyRecommended: data.whyRecommended ?? null,
+          isActive: data.isActive ?? true,
+        },
+      });
+
+      // Pick the right action verb so a future versioned timeline reads naturally.
+      let action = 'mapping_updated';
+      if (before && before.isActive && !updated.isActive) action = 'mapping_deactivated';
+      else if (before && !before.isActive && updated.isActive) action = 'mapping_reactivated';
+
+      await auditLog({
+        actorUserId: user.id,
+        action,
+        targetType: 'career_program_mapping',
+        targetId: updated.id,
+        metadata: {
+          before: before ? snapshot(before) : null,
+          after: snapshot(updated),
+        },
+      }, tx);
+
+      return updated;
+    });
+
+    return NextResponse.json({ mapping: row });
+  }
+
+  const row = await prisma.$transaction(async (tx) => {
+    await tx.onetOccupation.upsert({
+      where: { onetCode: data.onetCode },
+      create: {
+        onetCode: data.onetCode,
+        title: data.onetCode,
+        isActive: true,
+      },
+      update: {},
+    });
+
+    const created = await tx.careerProgramMapping.create({
       data: {
         onetCode: data.onetCode,
         programSlug: data.programSlug,
@@ -140,46 +186,18 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       },
     });
 
-    // Pick the right action verb so a future versioned timeline reads naturally.
-    let action = 'mapping_updated';
-    if (before && before.isActive && !row.isActive) action = 'mapping_deactivated';
-    else if (before && !before.isActive && row.isActive) action = 'mapping_reactivated';
-
     await auditLog({
       actorUserId: user.id,
-      action,
+      action: 'mapping_created',
       targetType: 'career_program_mapping',
-      targetId: row.id,
+      targetId: created.id,
       metadata: {
-        before: before ? snapshot(before) : null,
-        after: snapshot(row),
+        before: null,
+        after: snapshot(created),
       },
-    });
+    }, tx);
 
-    return NextResponse.json({ mapping: row });
-  }
-
-  const row = await prisma.careerProgramMapping.create({
-    data: {
-      onetCode: data.onetCode,
-      programSlug: data.programSlug,
-      priority: data.priority,
-      experienceBand: data.experienceBand,
-      recommendationType: data.recommendationType,
-      whyRecommended: data.whyRecommended ?? null,
-      isActive: data.isActive ?? true,
-    },
-  });
-
-  await auditLog({
-    actorUserId: user.id,
-    action: 'mapping_created',
-    targetType: 'career_program_mapping',
-    targetId: row.id,
-    metadata: {
-      before: null,
-      after: snapshot(row),
-    },
+    return created;
   });
 
   return NextResponse.json({ mapping: row });
@@ -211,23 +229,29 @@ export const POST = withApiGuc(_POST);async function _DELETE(request: NextReques
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const before = await prisma.careerProgramMapping.findUnique({ where: { id: parsed.data.id } });
-  if (!before) {
+  const deleted = await prisma.$transaction(async (tx) => {
+    const before = await tx.careerProgramMapping.findUnique({ where: { id: parsed.data.id } });
+    if (!before) return false;
+
+    await tx.careerProgramMapping.delete({ where: { id: parsed.data.id } });
+
+    await auditLog({
+      actorUserId: user.id,
+      action: 'mapping_deleted',
+      targetType: 'career_program_mapping',
+      targetId: parsed.data.id,
+      metadata: {
+        before: snapshot(before),
+        after: null,
+      },
+    }, tx);
+
+    return true;
+  });
+
+  if (!deleted) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
-
-  await prisma.careerProgramMapping.delete({ where: { id: parsed.data.id } });
-
-  await auditLog({
-    actorUserId: user.id,
-    action: 'mapping_deleted',
-    targetType: 'career_program_mapping',
-    targetId: parsed.data.id,
-    metadata: {
-      before: snapshot(before),
-      after: null,
-    },
-  });
 
   return NextResponse.json({ ok: true });
 
@@ -237,4 +261,3 @@ export const POST = withApiGuc(_POST);async function _DELETE(request: NextReques
   }
 }
 export const DELETE = withApiGuc(_DELETE);
-

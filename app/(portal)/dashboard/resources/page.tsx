@@ -65,7 +65,7 @@ export default async function DashboardResourcesPage() {
       .slice(0, 4);
   } catch {
     suggestedAiTools = [
-      { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter' },
+      { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-studio?view=rewrite' },
       { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach' },
       { label: 'Job Match Scorer', href: '/dashboard/ai-tools/job-match-scorer' },
     ];

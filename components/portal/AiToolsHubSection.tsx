@@ -26,6 +26,25 @@ export default function AiToolsHubSection() {
               <div style={{ minWidth: 0 }}>
                 <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
                   {cat.title}
+                  {cat.badge && (
+                    <span
+                      style={{
+                        marginLeft: '0.5rem',
+                        verticalAlign: 'middle',
+                        fontSize: '0.6rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        padding: '0.2rem 0.55rem',
+                        borderRadius: '999px',
+                        background: 'rgba(173,44,77,0.12)',
+                        color: 'var(--color-accent)',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {cat.badge}
+                    </span>
+                  )}
                 </h3>
                 <p style={{ margin: '0.35rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.45 }}>
                   {cat.description}

@@ -22,11 +22,21 @@ vi.mock('@/lib/auth/server', () => ({
 vi.mock('@/lib/auth/roles', () => ({
   isAdmin: vi.fn(),
   isCounselor: vi.fn(),
+  isSuperAdmin: vi.fn(),
+}));
+
+vi.mock('@/lib/tenant/organization', () => ({
+  getActorOrganizationId: vi.fn(),
+}));
+
+vi.mock('@/lib/db/withRequestGuc', () => ({
+  withApiGuc: (handler: (request: Request, context?: unknown) => Promise<Response>) => handler,
 }));
 
 vi.mock('@/lib/db/prisma', () => {
   const testimonial = {
     findMany: vi.fn(),
+    findFirst: vi.fn(),
     findUnique: vi.fn(),
     count: vi.fn(),
     create: vi.fn(),
@@ -49,13 +59,16 @@ import { PATCH as updateTestimonial, DELETE as deleteTestimonial } from '@/app/a
 import { GET as checkSurvey, POST as submitSurvey } from '@/app/api/placement-survey/route';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { TestimonialStatus } from '@prisma/client';
 import { issuePlacementSurveyToken, verifyPlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 
 describe('GET /api/admin/testimonials', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(isSuperAdmin).mockResolvedValue(false);
+    vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
   });
 
   it('returns 403 when not admin or counselor', async () => {
@@ -66,6 +79,21 @@ describe('GET /api/admin/testimonials', () => {
     const res = await listTestimonials(new Request('http://localhost:3000/api/admin/testimonials'));
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
+  });
+
+  it('returns 403 for non-super staff without an organization', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(isCounselor).mockResolvedValue(false);
+    vi.mocked(isSuperAdmin).mockResolvedValue(false);
+    vi.mocked(getActorOrganizationId).mockResolvedValue(null as any);
+
+    const res = await listTestimonials(new Request('http://localhost:3000/api/admin/testimonials'));
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Forbidden' });
+    expect(prisma.testimonial.findMany).not.toHaveBeenCalled();
+    expect(prisma.testimonial.count).not.toHaveBeenCalled();
   });
 
   it('returns testimonials with stats for admin', async () => {

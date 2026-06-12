@@ -191,6 +191,25 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, q3 });
   };
 
+  // Quiet autosave: mobile applicants get interrupted constantly, and the
+  // manual "save & continue later" button is easy to miss. Persist the
+  // draft 1.5s after they stop typing (only once something identifying is
+  // entered, so an untouched form never writes PII to storage).
+  const [autoSaved, setAutoSaved] = useState(false);
+  const autosaveSkippedInitial = useRef(false);
+  useEffect(() => {
+    if (!autosaveSkippedInitial.current) {
+      autosaveSkippedInitial.current = true;
+      return;
+    }
+    if (!firstName && !lastName && !email && !phone) return;
+    const handle = setTimeout(() => {
+      writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, q3 });
+      setAutoSaved(true);
+    }, 1500);
+    return () => clearTimeout(handle);
+  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2, q3]);
+
   const handleSaveLater = () => {
     persistDraft();
     setSaveNotice(t('saveContinueHint'));
@@ -202,6 +221,18 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
       setAttemptedContinue(true);
       trackApplyFunnel(1, 'eligibility_continue_blocked', {
         answered_count: [q1, q2, q3].filter(Boolean).length,
+      });
+      // Move focus to the first invalid control so keyboard and
+      // screen-reader users land on what's blocking them instead of
+      // staying on the (apparently dead) continue button.
+      requestAnimationFrame(() => {
+        const invalid = document.querySelector<HTMLElement>(
+          'form [aria-invalid="true"], form input:invalid, form select:invalid',
+        );
+        const target = invalid?.matches('input, select, textarea, button')
+          ? invalid
+          : invalid?.querySelector<HTMLElement>('input, select, textarea');
+        (target ?? document.getElementById('apply-eligibility-continue-hint'))?.focus();
       });
       return;
     }
@@ -215,26 +246,32 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
       } catch {
         /* ignore */
       }
-      sessionStorage.setItem(
-        APPLY_STORAGE_KEY,
-        JSON.stringify({
-          q1,
-          q2,
-          q3,
-          qualifies,
-          yesCount,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          email: email.trim().toLowerCase(),
-          phone: phone.replace(/\D/g, ''),
-          ageGroup,
-          city: city.trim(),
-          state: stateVal.trim(),
-          zip: zip.trim(),
-          county: county.trim(),
-          primaryBarriers,
-        })
-      );
+      const eligibilityJson = JSON.stringify({
+        q1,
+        q2,
+        q3,
+        qualifies,
+        yesCount,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.replace(/\D/g, ''),
+        ageGroup,
+        city: city.trim(),
+        state: stateVal.trim(),
+        zip: zip.trim(),
+        county: county.trim(),
+        primaryBarriers,
+      });
+      sessionStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
+      // Also mirror to localStorage: sessionStorage is per-tab, so members who
+      // "save and finish later" (or resume in a new tab) lose their eligibility
+      // answers — the application then saves without a screening record.
+      try {
+        localStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
+      } catch {
+        /* storage full / disabled */
+      }
     }
     const resultsPath = programParam ? `/apply/results?program=${encodeURIComponent(programParam)}` : '/apply/results';
     router.push(localizeHref(resultsPath, locale));
@@ -253,12 +290,18 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         /* Yes/No answer cards: tidy single-row, smaller dot aligned to label */
         .apply-flow--step1 .form-radio-cards { gap: 0.5rem; }
         .apply-flow--step1 .form-radio-card {
+          /* display:flex restated here — in production the base
+             .form-radio-card rule's flex is not applied (cards compute
+             display:block) and the dot collapses to a 4px sliver. */
+          display: flex;
           align-items: center;
           gap: 0.625rem;
           padding: 0.75rem 1rem;
           min-height: 44px;
         }
         .apply-flow--step1 .form-radio-card .radio-dot {
+          display: inline-block;
+          flex-shrink: 0;
           width: 16px;
           height: 16px;
           border-width: 2px;
@@ -650,9 +693,13 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
           <p className="apply-save-notice" role="status" aria-live="polite">
             {saveNotice}
           </p>
+        ) : autoSaved ? (
+          <p className="apply-save-notice" role="status" aria-live="polite">
+            {t('autoSavedNotice')}
+          </p>
         ) : null}
         {(!canContinue || attemptedContinue) && (
-          <p id="apply-eligibility-continue-hint" className="apply-continue-hint" role={attemptedContinue ? 'status' : undefined}>
+          <p id="apply-eligibility-continue-hint" className="apply-continue-hint" tabIndex={-1} role={attemptedContinue ? 'status' : undefined}>
             {attemptedContinue && !canContinue
               ? t('continueBlockedHint')
               : t('continueSoftHint')}

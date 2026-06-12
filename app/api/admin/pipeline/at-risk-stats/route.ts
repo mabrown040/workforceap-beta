@@ -4,30 +4,52 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { THRESHOLDS } from '@/lib/member/atRiskScoring';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+export const GET = withApiGuc(async (_req: NextRequest) => {
   try {
     const user = await getUser();
-    if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
+    const [admin, counselor] = user
+      ? await Promise.all([isAdmin(user.id), isCounselor(user.id)])
+      : [false, false];
+
+    if (!user || (!admin && !counselor)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
+    const counselorScope = admin
+      ? {}
+      : {
+          user: {
+            counselorAssignments: {
+              some: {
+                active: true,
+                counselor: { active: true, userId: user.id },
+              },
+            },
+          },
+        };
+
     const [criticalCount, alertsSentToday, pendingAlerts] = await Promise.all([
       prisma.atRiskAlert.count({
         where: {
+          ...counselorScope,
           score: { gte: THRESHOLDS.CRITICAL },
           status: { in: ['open', 'acknowledged'] },
         },
       }),
       prisma.atRiskAlert.count({
         where: {
+          ...counselorScope,
           notifiedCounselorAt: { gte: todayStart },
         },
       }),
       prisma.atRiskAlert.findMany({
         where: {
+          ...counselorScope,
           score: { gte: THRESHOLDS.CRITICAL },
           status: { in: ['open', 'acknowledged'] },
         },
@@ -35,7 +57,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
           user: {
             select: {
               counselorAssignments: {
-                where: { active: true },
+                where: admin
+                  ? { active: true }
+                  : { active: true, counselor: { active: true, userId: user.id } },
                 select: {
                   counselor: {
                     select: {

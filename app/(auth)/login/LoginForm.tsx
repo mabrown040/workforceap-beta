@@ -304,9 +304,11 @@ const s = {
 
 type LoginFormProps = {
   initialRedirectTo?: string;
+  accountDeleted?: boolean;
+  emailVerified?: boolean;
 };
 
-export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFormProps) {
+export default function LoginForm({ initialRedirectTo = '/dashboard', accountDeleted = false, emailVerified = false }: LoginFormProps) {
   const tAuth = useTranslations('auth');
   /* ─── business logic (preserved exactly) ─── */
   const redirectTo = sanitizeRedirectPath(initialRedirectTo, '/dashboard');
@@ -576,6 +578,16 @@ export default function LoginForm({ initialRedirectTo = '/dashboard' }: LoginFor
             {tAuth('login.mobileTrustBar')}
           </div>
 
+          {accountDeleted && (
+            <div role="status" style={s.errorBanner}>
+              {tAuth('accountDeletedNotice')}
+            </div>
+          )}
+          {emailVerified && !accountDeleted && (
+            <div role="status" style={{ ...s.errorBanner, borderLeft: '4px solid #16a34a', background: 'color-mix(in srgb, #16a34a 10%, transparent)' }}>
+              {tAuth('emailVerifiedNotice')}
+            </div>
+          )}
           <form onSubmit={handleSubmit} noValidate>
             {/* Email */}
             <div style={s.fieldGroup}>

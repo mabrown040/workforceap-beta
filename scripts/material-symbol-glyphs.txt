@@ -3,6 +3,7 @@ account_circle
 account_tree
 add
 add_circle
+alt_route
 alternate_email
 analytics
 apartment
@@ -17,7 +18,6 @@ assignment
 assignment_ind
 assignment_turned_in
 assured_workload
-attach_money
 auto_awesome
 auto_fix_high
 auto_stories
@@ -40,7 +40,6 @@ chat
 chat_bubble
 chat_bubble_outline
 check
-check_box
 check_circle
 checklist
 chevron_right
@@ -75,6 +74,7 @@ edit_square
 emoji_events
 error
 event
+event_available
 event_note
 expand_less
 expand_more
@@ -88,6 +88,7 @@ filter_alt_off
 filter_list
 fitness_center
 flag
+flight_takeoff
 folder_open
 follow_the_signs
 format_quote
@@ -196,6 +197,7 @@ shield_person
 smart_toy
 sort
 spa
+speed
 sprout
 star
 star_border

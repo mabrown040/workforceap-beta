@@ -256,8 +256,9 @@ test('rankPrograms: token overlap still contributes as tiebreaker', () => {
     );
   }
 
-  // Software dev program should be high
-  const devHit = matches.find((m) => m.programSlug === 'software-developer-professional-certificate-ibm');
+  // Software dev program should be high (program renamed to "AI and
+  // Software Development"; slug pinned via slugOverride in programs.ts)
+  const devHit = matches.find((m) => m.programSlug === 'ai-professional-developer-certificate-ibm');
   assert.ok(devHit, 'software developer program should rank');
 });
 

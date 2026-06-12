@@ -14,6 +14,7 @@ import JsonLdBreadcrumb from '@/components/JsonLdBreadcrumb';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import { getRelatedPrograms } from '@/lib/content/relatedPrograms';
 import { ArrowRight } from 'lucide-react';
+import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -106,6 +107,13 @@ export default async function ProgramPage({ params }: Props) {
               )}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ── Pilot Program Badge ── */}
+      <section className="content-section" style={{ paddingTop: 0, paddingBottom: 0 }}>
+        <div className="container" style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
+          <PreLaunchTag compact />
         </div>
       </section>
 
@@ -308,7 +316,9 @@ export default async function ProgramPage({ params }: Props) {
                 </p>
               </div>
             )}
-            
+
+
+
             {/* Bottom CTA Banner */}
             <div className="program-bottom-cta" style={{
               marginTop: '3rem',

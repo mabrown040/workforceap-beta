@@ -11,7 +11,7 @@ import { z } from 'zod';
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
  * See `docs/PROGRAM-ENTERPRISE-GRADE.md` and `docs/TENANT-ISOLATION.md`.
  *
- * The `job.findUnique` + `job.update` calls go through `withTenantScope`
+ * The `job.findUnique` + `job.updateMany` calls go through `withTenantScope`
  * so an admin from Org A cannot reject an Org B job. `findUnique`
  * becomes `findFirst` because the proxy must inject `organizationId`
  * into the where clause.
@@ -50,12 +50,15 @@ export async function POST(
       return NextResponse.json({ error: 'Reason is required' }, { status: 400 });
     }
 
-    await withTenantScope(orgId, (db) =>
-      db.job.update({
-        where: { id },
+    const updateResult = await withTenantScope(orgId, (db) =>
+      db.job.updateMany({
+        where: { id, status: 'pending' },
         data: { status: 'closed' },
       }),
     );
+    if (updateResult.count !== 1) {
+      return NextResponse.json({ error: 'Job is no longer pending' }, { status: 409 });
+    }
 
     await sendJobRejectedEmail({
       to: job.employer.contactEmail,

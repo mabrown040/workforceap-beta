@@ -418,7 +418,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.5rem' }}>
           {[
-            { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-rewriter' },
+            { label: 'Resume Rewriter', href: '/dashboard/ai-tools/resume-studio?view=rewrite' },
             { label: 'Cover Letter', href: '/dashboard/ai-tools/cover-letter' },
             { label: 'Interview Coach', href: '/dashboard/ai-tools/interview-coach' },
             { label: 'LinkedIn Headline', href: '/dashboard/ai-tools/linkedin-headline' },

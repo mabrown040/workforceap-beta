@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { sendMatchActionEmail } from '@/lib/email';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { getMatchSuggestionsTestRecipient, isMatchSuggestionsDryRun } from '@/lib/admin/matchSuggestionsConfig';
-import { applyEmployerNotifiedAfterSuggest } from '@/lib/admin/applyEmployerNotifiedAfterSuggest';
 
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
@@ -94,18 +94,7 @@ async function recordSuggestAudit(input: {
     const testMode = Boolean(testRecipient);
     const dryRun = isMatchSuggestionsDryRun();
     const now = new Date();
-    const matchCount = job.aiMatches.length;
-
-    const emailPayload = {
-      to: actualRecipient,
-      jobTitle: job.title,
-      companyName: job.employer.companyName,
-      matches: job.aiMatches.map((m) => ({
-        name: m.student.fullName,
-        program: m.student.enrolledProgram ?? '-',
-        score: m.matchScore,
-      })),
-    };
+    let matchCount = job.aiMatches.length;
 
     if (dryRun) {
       await withTenantScope(orgId, (db) =>
@@ -136,8 +125,48 @@ async function recordSuggestAudit(input: {
       return NextResponse.json({ ok: true, dryRun: true, count: matchCount, testMode });
     }
 
+    const candidateMatchIds = job.aiMatches.map((m) => m.id);
+    const claimedRows = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+      UPDATE ai_job_matches
+      SET status = 'employer_notified'::ai_job_match_status, status_updated_at = ${now}
+      WHERE id IN (${Prisma.join(candidateMatchIds)})
+        AND job_id = ${id}
+        AND status = 'suggested'::ai_job_match_status
+      RETURNING id
+    `);
+    const claimedIds = new Set(claimedRows.map((row) => row.id));
+    const claimedMatches = job.aiMatches.filter((match) => claimedIds.has(match.id));
+    matchCount = claimedMatches.length;
+
+    if (matchCount === 0) {
+      await recordSuggestAudit({
+        actorUserId: user.id,
+        jobId: id,
+        summary: 'Attempted to send match suggestions but rows were already claimed',
+        status: 'fallback',
+        httpStatus: 409,
+        metadata: { outcome: 'no_claimed_matches', matchCount: 0 },
+      });
+      return NextResponse.json({ error: 'Match suggestions are already being sent or were sent.' }, { status: 409 });
+    }
+
+    const emailPayload = {
+      to: actualRecipient,
+      jobTitle: job.title,
+      companyName: job.employer.companyName,
+      matches: claimedMatches.map((m) => ({
+        name: m.student.fullName,
+        program: m.student.enrolledProgram ?? '-',
+        score: m.matchScore,
+      })),
+    };
+
     const sent = await sendMatchActionEmail(emailPayload);
     if (!sent.ok) {
+      await prisma.aIJobMatch.updateMany({
+        where: { id: { in: Array.from(claimedIds) }, status: 'employer_notified' },
+        data: { status: 'suggested', statusUpdatedAt: now },
+      });
       await withTenantScope(orgId, (db) =>
         db.job.update({
           where: { id },
@@ -178,16 +207,7 @@ async function recordSuggestAudit(input: {
       })
     );
 
-    const studentIds = job.aiMatches.map((m) => m.studentId);
-    const notifyResult = await applyEmployerNotifiedAfterSuggest(
-      () =>
-        prisma.aIJobMatch.updateMany({
-          where: { jobId: id, studentId: { in: studentIds } },
-          data: { status: 'employer_notified' },
-        }),
-      (msg, ctx) => console.error(msg, ctx),
-      id
-    );
+    const notifyResult = 'ok';
 
     await recordSuggestAudit({
       actorUserId: user.id,

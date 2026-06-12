@@ -90,7 +90,7 @@ export default function DataRetentionClient({
       <div className="portal-metric-strip" style={{ marginBottom: '1.5rem' }}>
         <div className="portal-metric-card">
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--blue">
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
               database
             </span>
           </div>
@@ -99,7 +99,7 @@ export default function DataRetentionClient({
         </div>
         <div className="portal-metric-card">
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--green">
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
               save
             </span>
           </div>
@@ -110,7 +110,7 @@ export default function DataRetentionClient({
         </div>
         <div className="portal-metric-card">
           <div className="portal-metric-card__icon-wrap portal-metric-card__icon-wrap--gold">
-            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">
               schedule
             </span>
           </div>

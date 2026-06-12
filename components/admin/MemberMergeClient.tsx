@@ -231,8 +231,8 @@ export default function MemberMergeClient() {
       </div>
 
       {loadingPreview && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }}>
-          <span className="material-symbols-outlined" style={{ animation: 'spin 1s linear infinite' }}>progress_activity</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.875rem' }} aria-live="polite">
+          <span className="material-symbols-outlined" style={{ animation: 'spin 1s linear infinite' }} aria-hidden="true">progress_activity</span>
           Building preview…
         </div>
       )}
@@ -312,6 +312,7 @@ export default function MemberMergeClient() {
             <button
               type="button"
               disabled={merging || preview.conflicts.length > 0}
+              aria-busy={merging}
               onClick={handleMerge}
               className="btn btn-primary"
               style={{
@@ -323,8 +324,8 @@ export default function MemberMergeClient() {
                 cursor: merging || preview.conflicts.length > 0 ? 'default' : 'pointer',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>merge_type</span>
-              {merging ? 'Merging…' : 'Confirm merge'}
+              <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1", animation: merging ? 'spin 1s linear infinite' : 'none' }} aria-hidden="true">{merging ? 'progress_activity' : 'merge_type'}</span>
+              <span aria-live="polite">{merging ? 'Merging…' : 'Confirm merge'}</span>
             </button>
           </div>
         </div>

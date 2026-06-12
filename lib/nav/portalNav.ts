@@ -345,10 +345,11 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/overview', label: 'Detailed overview', group: 'primary', Icon: BarChart3 },
 
   // ── Students — the people you manage day to day ──
+  // Single entry. The flavored sub-lists (Interview ready, Job ready,
+  // Duplicates, Applications funnel) live as chip links on /admin/members
+  // and/or in Advanced / System below — see PR #2 "consolidate student-list
+  // nav into filter chips". All underlying page.tsx routes are preserved.
   { href: '/admin/members', label: 'Students', group: 'students', Icon: Users },
-  { href: '/admin/pipeline', label: 'Applications', group: 'students', Icon: GitBranch },
-  { href: '/admin/members/interview-ready', label: 'Interview ready', group: 'students', Icon: ListChecks },
-  { href: '/admin/members/job-ready', label: 'Job ready (70%+)', group: 'students', Icon: TrendingUp },
   {
     href: '/admin/messages',
     label: 'Messages',
@@ -357,7 +358,6 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
     requiresSuperAdminContext: true,
     badgeKey: 'counselor_sla_breach_48h',
   },
-  { href: '/admin/members/duplicates', label: 'Duplicate students', group: 'students', Icon: AlertTriangle },
 
   // ── Programs & Training ──
   { href: '/admin/programs', label: 'Programs', group: 'programs', Icon: BookOpen },
@@ -385,6 +385,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Outcomes — results and reporting ──
   { href: '/admin/board', label: 'Board outcomes', group: 'outcomes', Icon: TrendingUp },
   { href: '/admin/outcomes', label: 'Placement outcomes', group: 'outcomes', Icon: LineChart },
+  { href: '/admin/placements', label: 'Placements', group: 'outcomes', Icon: Briefcase },
   { href: '/admin/placement-surveys', label: 'Placement surveys', group: 'outcomes', Icon: ClipboardCheck },
   { href: '/admin/analytics', label: 'Analytics', group: 'outcomes', Icon: BarChart3 },
 
@@ -397,6 +398,12 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // out of the dad-default nav for now; it's still reachable directly from
   // /admin (sessions card) and from the detailed overview.
   { href: '/admin/sessions', label: 'In-office sessions', group: 'advanced', Icon: Sparkles, requiresSuperAdminContext: true },
+  // Student-list "Tools" surfaces — distinct from the main /admin/members
+  // table (different queries / data shape). Demoted from the Students group
+  // so the everyday operator sees one student list, not five. Both pages
+  // remain reachable via these entries and via chip links on /admin/members.
+  { href: '/admin/pipeline', label: 'Applications funnel', group: 'advanced', Icon: GitBranch, requiresSuperAdminContext: true },
+  { href: '/admin/members/duplicates', label: 'Find duplicate students', group: 'advanced', Icon: AlertTriangle, requiresSuperAdminContext: true },
   { href: '/admin/users', label: 'Users', group: 'advanced', Icon: User, requiresSuperAdminContext: true },
   { href: '/admin/exports', label: 'Exports', group: 'advanced', Icon: Download, requiresSuperAdminContext: true },
   { href: '/admin/coursera', label: 'Coursera', group: 'advanced', Icon: Library, requiresSuperAdminContext: true },
@@ -410,6 +417,12 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/webhook-events', label: 'Webhook events', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
   { href: '/admin/email-crons', label: 'Email & Crons', group: 'advanced', Icon: MessageSquare, requiresSuperAdminContext: true },
+  { href: '/admin/email-templates', label: 'Email templates', group: 'advanced', Icon: FileText, requiresSuperAdminContext: true },
+  { href: '/admin/feedback', label: 'Feedback', group: 'advanced', Icon: MessageSquare, requiresSuperAdminContext: true },
+  { href: '/admin/growth', label: 'Growth', group: 'advanced', Icon: TrendingUp, requiresSuperAdminContext: true },
+  { href: '/admin/feature-flags', label: 'Feature flags', group: 'advanced', Icon: Flag, requiresSuperAdminContext: true },
+  { href: '/admin/agent-inbox', label: 'Agent inbox', group: 'advanced', Icon: ListChecks, requiresSuperAdminContext: true },
+  { href: '/admin/data-retention', label: 'Data retention', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/settings', label: 'Settings', group: 'advanced', Icon: Settings, requiresSuperAdminContext: true },
 ];
 

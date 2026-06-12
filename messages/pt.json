@@ -107,6 +107,8 @@
   },
   "form": {
     "fullName": "Nome completo",
+    "firstName": "Nome",
+    "lastName": "Sobrenome",
     "email": "E-mail",
     "phone": "Telefone",
     "address": "Endereço",
@@ -146,6 +148,50 @@
     "languageEn": "Inglês"
   },
   "dashboard": {
+    "priorityAction": "Ação Prioritária",
+    "priorityActionFor": "Para {program}.",
+    "yourProgram": "Seu programa",
+    "yourProgramInline": "seu programa",
+    "readinessGreatStanding": "Excelente situação",
+    "readinessGoodStanding": "Boa situação",
+    "readinessMakingProgress": "Progredindo",
+    "readinessGettingStarted": "Começando",
+    "account": {
+      "metaTitle": "Configurações da conta",
+      "metaDescription": "Gerencie sua conta e senha.",
+      "title": "Configurações da conta",
+      "subtitle": "Gerencie sua conta e segurança.",
+      "breadcrumbPortal": "Portal de membros",
+      "emailHeading": "E-mail",
+      "emailChangeNote": "Para alterar seu e-mail, entre em contato com o suporte.",
+      "passwordHeading": "Senha",
+      "passwordBody": "Use o link abaixo para redefinir sua senha. Você receberá um e-mail com instruções.",
+      "resetPassword": "Redefinir senha",
+      "backToProfile": "Voltar ao perfil"
+    },
+    "privacy": {
+      "title": "Privacidade e dados",
+      "subtitle": "Gerencie seus dados pessoais e preferências de privacidade.",
+      "exportHeading": "Baixe seus dados",
+      "exportBody": "Obtenha uma cópia de todos os seus dados pessoais armazenados no WorkforceAP. Inclui seu perfil, inscrições, mensagens, progresso de cursos e mais.",
+      "exportButton": "Exportar meus dados",
+      "exportPreparing": "Preparando exportação…",
+      "exportSuccess": "Seus dados foram exportados. Verifique seus downloads.",
+      "exportError": "Não foi possível exportar os dados. Tente novamente.",
+      "consentHeading": "Preferências de comunicação",
+      "consentLabel": "Novidades de programas e oportunidades",
+      "consentDescription": "Receba e-mails sobre novos programas, workshops e oportunidades de carreira.",
+      "deleteHeading": "Excluir conta",
+      "deleteBody": "Exclua permanentemente sua conta e anonimize seus dados pessoais. Esta ação não pode ser desfeita. Seus dados de atividade anônimos podem ser mantidos para melhoria do programa.",
+      "deleteButton": "Excluir minha conta",
+      "deleteConfirmPrompt": "Tem certeza? Isso excluirá permanentemente sua conta.",
+      "deleteConfirmYes": "Sim, excluir",
+      "deleteDeleting": "Excluindo…",
+      "deleteCancel": "Cancelar",
+      "deleteSuccess": "Conta excluída. Saindo…",
+      "deleteError": "Não foi possível excluir a conta. Contate o suporte.",
+      "questionsContact": "Dúvidas? Fale conosco em"
+    },
     "welcome": "Bem-vindo de volta",
     "progress": "Seu progresso",
     "nextStep": "Próximo passo",
@@ -280,7 +326,6 @@
     "careerTrainingNoCost": "Treinamento profissional sem custo para membros qualificados. Um conselheiro ajudará você a escolher o programa e os próximos passos certos.",
     "pickCareerTrack": "Escolha a trilha de carreira que se encaixa em seus objetivos. Programas estão disponíveis sem custo para membros qualificados.",
     "chooseProgramBtn": "Escolher Programa",
-    "priorityAction": "Ação Prioritária",
     "takeAction": "Agir",
     "applicationJourney": "Jornada da candidatura",
     "yourFirstPointsWaiting": "Seus primeiros pontos estão esperando.",
@@ -289,7 +334,6 @@
     "recommendedPrograms": "Programas Recomendados",
     "trainingLink": "Meu Treinamento",
     "nextMilestones": "Próximos marcos",
-    "yourProgram": "Seu programa",
     "continueTraining": "Continue seu treinamento",
     "pickUpWhereLeftOff": "Retome de onde parou.",
     "openTrainingTrack": "Abra sua trilha de treinamento e continue progredindo.",
@@ -502,6 +546,7 @@
     "personalSectionTitle": "Como entramos em contato",
     "contactIncompleteError": "Adicione nome, sobrenome, um e-mail válido e telefone com pelo menos 10 dígitos.",
     "saveContinueLater": "Salvar e continuar depois",
+    "autoSavedNotice": "Progresso salvo automaticamente neste dispositivo.",
     "saveContinueHint": "Salvo neste dispositivo. Você pode fechar a aba e voltar a esta página quando quiser.",
     "continueToPrograms": "Continuar — escolher programas →",
     "continueBlockedHint": "Preencha os dados de contato e as três perguntas para continuar. Problemas? Ligue (512) 777-1808.",
@@ -713,6 +758,8 @@
     "statusErrorGeneric": "Algo deu errado. Por favor, tente novamente.",
     "statusErrorUnexpected": "Resposta inesperada. Por favor, tente novamente.",
     "statusErrorNetwork": "Erro de rede. Por favor, tente novamente.",
+    "statusLoginCtaLead": "Já tem uma conta? O status atualizado da sua inscrição está sempre no seu portal de membro.",
+    "statusLoginCta": "Entre para ver seu status",
     "statusFootnoteBefore": "Já fez login? Abra seu",
     "statusFootnoteDashboard": "dashboard do membro",
     "statusFootnoteAfter": "para detalhes completos.",
@@ -2308,10 +2355,352 @@
       "agreeToThe": "I agree to the",
       "and": "and",
       "commsConsent": "I agree to receive program updates and communications via email"
+    },
+    "accountDeletedNotice": "Esta conta foi excluída. Se você acredita que isso é um engano, fale conosco em info@workforceap.org ou (512) 777-1808.",
+    "emailVerifiedNotice": "E-mail verificado — você já pode entrar."
+  },
+  "coach": {
+    "meta": {
+      "title": "Coach de carreira com IA",
+      "description": "Converse com seu coach de carreira com IA persistente. Obtenha ajuda com sua busca de emprego, currículos, entrevistas e planejamento de carreira — ele lembra onde você parou."
+    },
+    "page": {
+      "title": "Coach de carreira com IA",
+      "subtitle": "Converse com um coach que lembra sua jornada — busca de emprego, currículos, entrevistas e próximos passos.",
+      "breadcrumb": "Coach de carreira com IA",
+      "voiceCta": "Prefere falar? Experimente o coach de voz"
+    },
+    "prompts": {
+      "improveResumeLabel": "Melhorar meu currículo",
+      "improveResumePrompt": "Ajude-me a melhorar meu currículo.",
+      "nextStepLabel": "Qual é meu próximo passo?",
+      "nextStepPrompt": "Com base no que você sabe sobre mim, qual deveria ser meu próximo passo?",
+      "practiceInterviewLabel": "Praticar uma entrevista",
+      "practiceInterviewPrompt": "Pratique uma pergunta de entrevista comigo.",
+      "employmentGapLabel": "Falar sobre uma lacuna no emprego",
+      "employmentGapPrompt": "Como falo sobre minha lacuna no emprego em uma entrevista?",
+      "findJobsLabel": "Encontrar empregos que combinem comigo",
+      "findJobsPrompt": "Ajude-me a encontrar empregos que combinem com minhas habilidades e metas.",
+      "pickUpNextStepLabel": "Retomar meu próximo passo",
+      "pickUpNextStepPrompt": "Vamos trabalhar no meu próximo passo: {action}.",
+      "continueTopicLabel": "Continuar: {topic}",
+      "continueTopicPrompt": "Vamos continuar trabalhando em {topic}."
+    },
+    "greeting": {
+      "defaultName": "amigo",
+      "welcomeBack": "Bem-vindo de volta, {name}",
+      "lastTopicWithAction": "Da última vez trabalhamos em {topic}. Seu próximo passo era: {action}. Quer retomar de lá ou começar algo novo?",
+      "lastTopicOnly": "Da última vez trabalhamos em {topic}. Quer retomar de lá ou começar algo novo?",
+      "returningDefault": "Bom ver você de novo. No que gostaria de trabalhar hoje?",
+      "newTitle": "Olá {name}, sou seu coach de carreira",
+      "newBody": "Posso ajudar com sua busca de emprego, currículos, preparação para entrevistas e planejamento de carreira. O que você está buscando alcançar agora?",
+      "resumePrompt": "Vamos retomar de onde paramos em {topic}."
+    },
+    "error": {
+      "generic": "Algo deu errado. Tente novamente.",
+      "noReply": "Tive dificuldade para responder. Pode reformular?",
+      "network": "Erro de rede. Verifique sua conexão e tente novamente."
+    },
+    "chat": {
+      "resumeButton": "Retomar de onde paramos",
+      "empty": "Sua conversa aparecerá aqui. Pergunte qualquer coisa sobre sua carreira — lembrarei do que conversarmos na próxima vez.",
+      "you": "Você",
+      "coach": "Coach",
+      "typingAria": "O coach está digitando",
+      "conversationAria": "Conversa de coaching",
+      "chipsLabel": "Experimente uma destas opções para começar",
+      "inputLabel": "Mensagem para seu coach de carreira",
+      "placeholder": "Pergunte qualquer coisa ao seu coach…",
+      "sendAria": "Enviar mensagem",
+      "hint": "Pressione Enter para enviar, Shift + Enter para nova linha."
+    }
+  },
+  "first90": {
+    "eyebrow": "Primeiros 90 dias",
+    "title": "Seu novo emprego na {employerName}",
+    "dayCount": "Dia {days}",
+    "stageLabel": {
+      "week_1": "Semana 1",
+      "day_30": "Dia 30",
+      "day_60": "Dia 60",
+      "day_90": "Dia 90"
+    },
+    "progressAria": "Progresso dos check-ins",
+    "question": "Como está indo o trabalho?",
+    "responses": {
+      "going_well": "Está indo bem",
+      "have_questions": "Tenho perguntas",
+      "having_trouble": "Estou com dificuldades"
+    },
+    "thanks": {
+      "going_well": "Que ótimo! Continue assim. Em breve vamos falar com você de novo.",
+      "have_questions": "Obrigado por nos contar. Seu conselheiro pode ajudar — envie uma mensagem quando quiser.",
+      "having_trouble": "Obrigado por nos contar. Avisamos seu conselheiro e ele vai entrar em contato. Você também pode escrever para ele agora."
+    },
+    "messageCounselor": "Enviar mensagem ao seu conselheiro",
+    "saveError": "Não foi possível salvar sua resposta. Tente novamente.",
+    "scriptsTitle": "Fale com seu supervisor",
+    "scriptsIntro": "Não sabe o que dizer? Experimente uma destas frases:",
+    "scripts": {
+      "week_1": {
+        "s1": "Quero fazer um bom trabalho. No que devo focar nas minhas primeiras semanas?",
+        "s2": "Tem algo que eu deva aprender primeiro para ajudar a equipe?"
+      },
+      "day_30": {
+        "s1": "Podemos conversar alguns minutos sobre como foi meu primeiro mês?",
+        "s2": "Tem algo que você gostaria que eu fizesse de forma diferente?"
+      },
+      "day_60": {
+        "s1": "Quero continuar crescendo aqui. Em quais habilidades devo trabalhar agora?",
+        "s2": "Há tarefas que eu possa assumir para ajudar mais?"
+      },
+      "day_90": {
+        "s1": "Podemos conversar sobre como foram meus primeiros 90 dias e o que vem a seguir?",
+        "s2": "O que seria preciso para eu assumir mais responsabilidades aqui?"
+      }
+    },
+    "footerNote": "Seu conselheiro está aqui para você, sem custo para os membros, durante seus primeiros 90 dias e depois."
+  },
+  "streaks": {
+    "banner": {
+      "recordMessage": "Sua melhor sequência até agora — continue!",
+      "continueMessage": "Volte amanhã para mantê-la!",
+      "dayCount": "Sequência de {count} dias",
+      "bestRecord": " · Melhor: {count} dias"
+    }
+  },
+  "goals": {
+    "title": "Suas metas",
+    "done": "Concluído",
+    "markCompleteAria": "Marcar {title} como concluída",
+    "progressAria": "{done} de {total} passos concluídos",
+    "stepsProgress": "{done} de {total} passos · {encouragement}",
+    "encourage": {
+      "noSteps": "Divida em passos e você já está na metade.",
+      "complete": "Todos os passos concluídos. Marque esta meta como concluída!",
+      "close": "Você está perto — mantenha o impulso.",
+      "started": "Ótimo começo. Um passo de cada vez.",
+      "fresh": "Escolha o primeiro passo e comece hoje."
+    },
+    "generate": {
+      "building": "Criando seu plano…",
+      "cta": "Dividir em passos",
+      "hint": "Transformaremos esta meta em 3–5 passos realizáveis."
+    },
+    "empty": {
+      "message": "Defina 1–3 metas para manter o foco — dividiremos cada uma em passos claros."
+    },
+    "suggestions": {
+      "label": "Sugeridas para você",
+      "adding": "Adicionando…"
+    },
+    "form": {
+      "customPlaceholder": "Ou digite uma meta personalizada",
+      "adding": "Adicionando…",
+      "addGoal": "Adicionar meta",
+      "cancel": "Cancelar",
+      "addCta": "+ Adicionar uma meta"
+    },
+    "footer": "As metas moldam suas recomendações e o resumo semanal.",
+    "templates": {
+      "build_resume": "Criar meu currículo",
+      "practice_interviews": "Praticar entrevistas",
+      "apply_to_jobs": "Candidatar-se com consistência",
+      "complete_certification": "Concluir um certificado",
+      "finish_pathway": "Terminar uma trilha de aprendizagem",
+      "linkedin_profile": "Melhorar meu perfil do LinkedIn",
+      "tech_readiness": "Preparar-me para empregos de tecnologia",
+      "career_pivot": "Fazer transição para um novo campo"
+    }
+  },
+  "weeklyRecap": {
+    "page": {
+      "title": "Resumo Semanal",
+      "subtitle": "Celebre suas conquistas, veja o progresso das metas e obtenha um plano claro para a semana.",
+      "breadcrumb": "Resumo Semanal",
+      "notReady": "Seu resumo ainda não está pronto — volte após sua próxima atividade ou atualize a página."
+    },
+    "empty": {
+      "title": "Nenhum resumo gerado ainda",
+      "message": "Nenhum resumo gerado ainda. Volte depois de usar o portal esta semana.",
+      "cta": "Ir ao painel"
+    },
+    "week": {
+      "label": "Semana de",
+      "range": "{start} – {end}"
+    },
+    "readiness": {
+      "label": "Pontuação de preparação",
+      "short": "Preparação"
+    },
+    "stats": {
+      "applications": "Candidaturas",
+      "resources": "Recursos",
+      "aiTools": "Ferramentas de IA",
+      "pathwaySteps": "Passos da trilha"
+    },
+    "goals": {
+      "title": "Metas",
+      "progressTitle": "Progresso em direção às suas metas",
+      "reached": "Meta alcançada",
+      "stepsDone": "{done} de {total} passos concluídos",
+      "metricProgress": "{current} de {target}",
+      "inProgress": "Em andamento"
+    },
+    "actions": {
+      "title": "Ações recomendadas"
+    },
+    "nav": {
+      "dashboard": "← Painel",
+      "careerBrief": "Resumo de carreira →"
+    },
+    "motivating": {
+      "headlineWithWins": "Você fez um progresso real esta semana. Continue!",
+      "headlineFresh": "Cada semana é um novo começo — aqui está um plano simples para ganhar impulso.",
+      "winsTitle": "Suas conquistas esta semana",
+      "quietWeek": "Uma semana mais tranquila é totalmente normal. Um pequeno passo do plano abaixo é suficiente para retomar.",
+      "pointsEarned": "Você ganhou {count} ponto{count, plural, =1 {} other {s}} de impulso esta semana",
+      "pointsTotal": " — {total} no total",
+      "planTitle": "Seu plano para a próxima semana",
+      "planSubtitle": "Alguns passos focados — escolha um e você estará avançando.",
+      "goalStepBadge": "Passo da meta",
+      "getStarted": "Começar"
     }
   },
   "applications": {
     "applicationsMetaTitle": "Job Applications",
     "applicationsMetaDesc": "Track your job applications and interview progress."
+  },
+  "resumeStudio": {
+    "metaTitle": "Estúdio de Currículo",
+    "metaDesc": "Veja a pontuação do seu currículo, corrija os principais problemas com IA ou converse com um coach — tudo em um só lugar, sem custo para membros.",
+    "title": "Estúdio de Currículo",
+    "subtitle": "Primeiro veja a pontuação do seu currículo. Depois corrija os principais problemas com IA ou converse em voz alta com seu coach.",
+    "betaTag": "Beta",
+    "viewsLabel": "Visualizações do Estúdio de Currículo",
+    "tabs": {
+      "score": "Minha pontuação",
+      "rewrite": "Reescrever com IA",
+      "coach": "Conversar sobre isso"
+    },
+    "emptyTitle": "Ainda não tem currículo salvo? Comece aqui.",
+    "emptyStep1": "Envie ou cole seu currículo abaixo.",
+    "emptyStep2": "Veja sua pontuação e o que corrigir primeiro.",
+    "emptyStep3": "Use reescritas com IA ou converse com seu coach.",
+    "nextStepsTitle": "Pronto para deixá-lo mais forte?",
+    "ctaRewrite": "Reescrever com IA",
+    "ctaCoach": "Conversar sobre isso",
+    "rewriteHistoryTitle": "Reescritas recentes de currículo"
+  },
+  "trainingBridge": {
+    "metaTitle": "Ponte de Treinamento",
+    "metaDesc": "Veja quais habilidades faltam para o trabalho que você quer e qual trilha de treinamento as cobre, sem custo para membros.",
+    "title": "Ponte de Treinamento",
+    "subtitle": "Encontre as habilidades que ainda faltam para o trabalho que você quer e a trilha de treinamento que as cobre.",
+    "betaTag": "Beta",
+    "basedOn": "Com base no seu resultado do Skill Mapper para {occupation} de {date}.",
+    "yourLastRun": "seu último teste",
+    "noAssessmentTitle": "Use o Skill Mapper primeiro para um check-up pessoal",
+    "noAssessmentBody": "Você ainda não usou o Skill Mapper. Use uma vez e esta página vai comparar suas habilidades com o trabalho que você quer. Enquanto isso, veja trabalhos e trilhas abaixo.",
+    "runSkillMapper": "Abrir Skill Mapper",
+    "pickOccupationLabel": "Qual trabalho você quer em seguida?",
+    "assessmentMatchedHint": "Seu último teste do Skill Mapper combinou com {occupation}.",
+    "missingTitle": "{count, plural, one {Falta 1 habilidade para {occupation}} other {Faltam # habilidades para {occupation}}}",
+    "skillsNeededTitle": "Habilidades que os empregadores pedem: {occupation}",
+    "allCoveredTitle": "Boa notícia: você já mostra as habilidades principais para {occupation}",
+    "allCoveredBody": "Continue praticando. A trilha abaixo ainda pode ajudar você a ganhar um certificado que os empregadores reconhecem.",
+    "haveTitle": "Você já mostra estas habilidades:",
+    "pathwayEyebrow": "Esta trilha cobre essas habilidades",
+    "pathwayMeta": "{partner} · {duration} · Sem custo para membros",
+    "pathwayCoversMissing": "Ela cobre as habilidades que faltam: {skills}",
+    "pathwayCovers": "Habilidades que esta trilha ensina:",
+    "enrollCta": "Inscrever-me nesta trilha",
+    "viewProgram": "Ver detalhes do programa",
+    "disclaimer": "Isto é um guia, não uma promessa de emprego. Seu conselheiro pode ajudar você a escolher a trilha certa."
+  },
+  "journeyGuide": {
+    "sectionLabel": "Sua jornada profissional",
+    "pickerTitle": "Onde você está agora?",
+    "pickerSubtitle": "Escolha uma opção — mostraremos as ferramentas certas. Você pode mudar quando quiser.",
+    "yourStageTitle": "Seus melhores próximos passos",
+    "betaTag": "Beta",
+    "stepperLabel": "Etapa da jornada",
+    "minutes": "{count} min",
+    "stages": {
+      "gettingReady": {
+        "label": "Me preparando",
+        "hint": "Desenvolvendo habilidades e melhorando meu currículo",
+        "headline": "Estas ferramentas deixam seu currículo e habilidades prontos para o trabalho."
+      },
+      "applying": {
+        "label": "Me candidatando",
+        "hint": "Enviando candidaturas e cartas de apresentação",
+        "headline": "Duas coisas fazem a maior diferença quando você se candidata."
+      },
+      "interviewing": {
+        "label": "Em entrevistas",
+        "hint": "Tenho entrevistas chegando",
+        "headline": "Pratique agora — a confiança vem com a repetição."
+      },
+      "gotOffer": {
+        "label": "Recebi uma oferta",
+        "hint": "Negociando salário ou começando um emprego",
+        "headline": "Garanta que a oferta funcione para você."
+      }
+    },
+    "tools": {
+      "resumeStudio": {
+        "label": "Estúdio de Currículo: pontue e melhore seu currículo",
+        "hint": "Veja sua pontuação e melhore com IA"
+      },
+      "resumeAnalysis": {
+        "label": "Verifique a pontuação do seu currículo",
+        "hint": "Veja o que o software dos empregadores vê"
+      },
+      "skillMapper": {
+        "label": "Encontre habilidades que os empregadores querem",
+        "hint": "Para o trabalho que você quer"
+      },
+      "resumeRewriter": {
+        "label": "Fortaleça seu currículo",
+        "hint": "Reescreva linhas fracas com IA"
+      },
+      "jobMatchScorer": {
+        "label": "Verifique sua compatibilidade com uma vaga",
+        "hint": "Cole uma vaga — veja seu encaixe e lacunas"
+      },
+      "coverLetter": {
+        "label": "Escreva sua carta de apresentação",
+        "hint": "Adaptada à vaga, com suas palavras"
+      },
+      "gapAnalyzer": {
+        "label": "Veja o que falta para uma vaga",
+        "hint": "E como fechar a lacuna"
+      },
+      "interviewPractice": {
+        "label": "Pratique perguntas de entrevista",
+        "hint": "Perguntas reais para sua função"
+      },
+      "voiceInterview": {
+        "label": "Faça uma entrevista simulada por voz",
+        "hint": "Pratique em voz alta com um coach"
+      },
+      "elevatorPitch": {
+        "label": "Aperfeiçoe sua apresentação de 20 segundos",
+        "hint": "Diga quem você é com confiança"
+      },
+      "salaryNegotiation": {
+        "label": "Pratique pedir um salário melhor",
+        "hint": "Roteiros palavra por palavra que funcionam"
+      },
+      "careerCoach": {
+        "label": "Converse sobre seu próximo passo",
+        "hint": "Seu coach para as primeiras semanas"
+      },
+      "trainingBridge": {
+        "label": "Ponte para seu próximo trabalho",
+        "hint": "Veja qual treinamento fecha suas lacunas"
+      }
+    }
   }
 }

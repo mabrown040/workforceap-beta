@@ -98,3 +98,26 @@ test('empty/whitespace resume returns near-zero', () => {
   const r = scoreStructural('   \n   \n');
   assert.ok(r.composite < 20);
 });
+
+test('flat single-blob resume (PDF copy/paste) recovers via reflow instead of scoring zero', () => {
+  // Simulates PDF copy/paste stripping every newline — the exact failure that
+  // scored a real resume 19/100 with four zero subscores in production.
+  const flattened = MIKE_RESUME.replace(/\s*\n\s*/g, ' ').trim();
+  const features = parseResume(flattened);
+  assert.equal(features.reflowed, true);
+  assert.ok(features.sections.length >= 3, `expected >=3 sections, got ${features.sections.length}`);
+  assert.ok(features.bullets.length >= 3, `expected >=3 bullets, got ${features.bullets.length}`);
+
+  const r = scoreStructural(flattened);
+  assert.ok(r.composite >= 40, `reflowed composite ${r.composite} should be >=40`);
+  assert.ok(r.breakdown.quantification.score > 0, 'quantification should detect metrics after reflow');
+  assert.ok(
+    r.breakdown.structure.notes.some((n) => /line breaks/i.test(n)),
+    'structure notes should explain the reflow to the member',
+  );
+});
+
+test('reflow does not trigger on well-formatted resumes', () => {
+  const features = parseResume(MIKE_RESUME);
+  assert.ok(!features.reflowed);
+});

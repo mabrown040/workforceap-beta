@@ -41,6 +41,10 @@ vi.mock('@/lib/supabase-admin', () => {
       admin: {
         createUser: vi.fn(),
         deleteUser: vi.fn().mockResolvedValue({ data: null, error: null }),
+        generateLink: vi.fn().mockResolvedValue({
+          data: { properties: { action_link: 'https://test.supabase.co/auth/v1/verify?token=abc' } },
+          error: null,
+        }),
       },
     },
     from: vi.fn(() => ({ select: vi.fn(() => ({ eq: vi.fn(() => ({ single: vi.fn() })) })) })),
@@ -104,18 +108,20 @@ vi.mock('@/lib/db/prisma', () => ({
 
 vi.mock('@/lib/tenant/organization', () => ({
   getDefaultOrganizationId: vi.fn(() => Promise.resolve('org-1')),
+  getActorOrganizationId: vi.fn(() => Promise.resolve('org-1')),
 }));
 
 vi.mock('@/lib/email/sanitizeSubject', () => ({
   sanitizeEmailSubjectLine: vi.fn((s: string) => s),
 }));
 
+const { resendSend } = vi.hoisted(() => ({
+  resendSend: vi.fn().mockResolvedValue({ id: 'email-1' }),
+}));
 vi.mock('resend', () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: {
-      send: vi.fn().mockResolvedValue({ id: 'email-1' }),
-    },
-  })),
+  Resend: class {
+    emails = { send: resendSend };
+  },
 }));
 
 // ─── Imports after mocks ───
@@ -133,6 +139,24 @@ import { NextRequest } from 'next/server';
 vi.mock('@/lib/auth/roles', () => ({
   getPartnerForUser: vi.fn(),
   isAdmin: vi.fn(),
+  getProfileRole: vi.fn(() => Promise.resolve('admin')),
+  isSuperAdmin: vi.fn(() => Promise.resolve(true)),
+}));
+
+vi.mock('@/lib/tenant/withTenantScope', () => ({
+  withTenantScope: vi.fn(async (_orgId: string, fn: (db: unknown) => Promise<unknown>) => {
+    const { prisma } = await import('@/lib/db/prisma');
+    return fn(prisma);
+  }),
+}));
+
+vi.mock('@/lib/audit', () => ({
+  auditLog: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock('@/lib/audit/log', () => ({
+  auditRequestMeta: vi.fn(() => ({})),
+  logAuditEvent: vi.fn(() => Promise.resolve()),
 }));
 
 const UUIDS = {
@@ -157,6 +181,7 @@ describe('POST /api/partner/signup', () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://localhost:54321';
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'anon-key';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-key';
+    process.env.RESEND_API_KEY = 'test-resend-key';
     vi.clearAllMocks();
   });
 
@@ -220,7 +245,7 @@ describe('POST /api/partner/signup', () => {
     expect(body.error).toMatch(/already/i);
   });
 
-  it('creates partner account and returns 200 with redirectTo on success', async () => {
+  it('creates an unconfirmed partner account and sends a verification email', async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
     vi.mocked(supabaseAdmin.auth.admin.createUser).mockResolvedValue({
       data: { user: { id: UUIDS.user } },
@@ -262,12 +287,23 @@ describe('POST /api/partner/signup', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
-    expect(body.redirectTo).toBe('/partner');
+    expect(body.redirectTo).toBeUndefined();
+    expect(body.message).toContain('verify your address');
     expect(supabaseAdmin.auth.admin.createUser).toHaveBeenCalledWith(
       expect.objectContaining({
         email: 'new@example.com',
         password: 'securePass123',
+      })
+    );
+    expect(supabaseAdmin.auth.admin.createUser).toHaveBeenCalledWith(
+      expect.not.objectContaining({
         email_confirm: true,
+      })
+    );
+    expect(supabaseAdmin.auth.admin.generateLink).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'signup',
+        email: 'new@example.com',
       })
     );
   });
@@ -305,7 +341,7 @@ describe('POST /api/admin/partners/[id]/approve', () => {
   it('returns 404 when partner not found', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.admin } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.partner.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.partner.findFirst).mockResolvedValue(null);
 
     const res = await approvePost(
       new NextRequest('http://localhost:3000/api/admin/partners/123/approve', { method: 'POST' }),
@@ -317,7 +353,7 @@ describe('POST /api/admin/partners/[id]/approve', () => {
   it('returns 400 when partner is not pending', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.admin } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.partner.findUnique).mockResolvedValue({
+    vi.mocked(prisma.partner.findFirst).mockResolvedValue({
       id: '123',
       status: 'active',
     } as any);
@@ -334,7 +370,7 @@ describe('POST /api/admin/partners/[id]/approve', () => {
   it('approves a pending partner and sends email', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.admin } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.partner.findUnique).mockResolvedValue({
+    vi.mocked(prisma.partner.findFirst).mockResolvedValue({
       id: '123',
       status: 'pending_approval',
       contactEmail: 'partner@example.com',
@@ -385,7 +421,7 @@ describe('POST /api/admin/partners/[id]/reject', () => {
   it('rejects a pending partner with notes', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.admin } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(prisma.partner.findUnique).mockResolvedValue({
+    vi.mocked(prisma.partner.findFirst).mockResolvedValue({
       id: '123',
       status: 'pending_approval',
       contactEmail: 'partner@example.com',

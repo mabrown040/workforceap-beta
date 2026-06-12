@@ -217,9 +217,10 @@ export default function EmailTemplatesClient({ templates: initialTemplates, admi
                 textAlign: 'left',
                 padding: '0.875rem 1rem',
                 borderRadius: '0.75rem',
-                border: '1px solid',
-                borderColor:
-                  selectedId === t.id ? 'var(--color-accent)' : 'var(--outline-variant)',
+                border:
+                  selectedId === t.id
+                    ? '1px solid var(--color-accent)'
+                    : '1px solid var(--outline-variant)',
                 background:
                   selectedId === t.id
                     ? 'rgba(173,44,77,0.06)'
@@ -627,8 +628,9 @@ export default function EmailTemplatesClient({ templates: initialTemplates, admi
               <button
                 className="btn btn-ghost btn-sm"
                 onClick={() => setEditingId(null)}
+                aria-label="Close"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span className="material-symbols-outlined" aria-hidden="true">close</span>
               </button>
             </div>
 

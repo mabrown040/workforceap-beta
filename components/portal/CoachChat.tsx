@@ -10,6 +10,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from 'react';
+import { useTranslations } from 'next-intl';
 import styles from './CoachChat.module.css';
 
 type ChatRole = 'user' | 'assistant';
@@ -42,64 +43,46 @@ type SuggestedPrompt = {
   icon: string;
 };
 
-/** Static, career-relevant starters that suit any member. */
-const BASE_PROMPTS: readonly SuggestedPrompt[] = [
-  {
-    label: 'Improve my resume',
-    prompt: 'Help me improve my resume.',
-    icon: 'description',
-  },
-  {
-    label: "What's my next step?",
-    prompt: 'Based on what you know about me, what should my next step be?',
-    icon: 'flag',
-  },
-  {
-    label: 'Practice an interview',
-    prompt: 'Practice an interview question with me.',
-    icon: 'forum',
-  },
-  {
-    label: 'Talk about an employment gap',
-    prompt: 'How do I talk about my employment gap in an interview?',
-    icon: 'schedule',
-  },
-  {
-    label: 'Find jobs that fit me',
-    prompt: 'Help me find jobs that fit my skills and goals.',
-    icon: 'work',
-  },
+type CoachTranslator = ReturnType<typeof useTranslations<'coach'>>;
+
+const BASE_PROMPT_KEYS = [
+  { labelKey: 'prompts.improveResumeLabel', promptKey: 'prompts.improveResumePrompt', icon: 'description' },
+  { labelKey: 'prompts.nextStepLabel', promptKey: 'prompts.nextStepPrompt', icon: 'flag' },
+  { labelKey: 'prompts.practiceInterviewLabel', promptKey: 'prompts.practiceInterviewPrompt', icon: 'forum' },
+  { labelKey: 'prompts.employmentGapLabel', promptKey: 'prompts.employmentGapPrompt', icon: 'schedule' },
+  { labelKey: 'prompts.findJobsLabel', promptKey: 'prompts.findJobsPrompt', icon: 'work' },
 ] as const;
 
 /**
  * Build up to five suggested prompts, personalizing the lead chip from the
  * greeting data already on hand. Purely client-side — no extra server calls.
  */
-function buildSuggestedPrompts(greeting: CoachChatGreeting): SuggestedPrompt[] {
+function buildSuggestedPrompts(greeting: CoachChatGreeting, t: CoachTranslator): SuggestedPrompt[] {
   const topic = greeting.lastTopic?.trim();
   const action = greeting.lastAction?.trim();
   const personalized: SuggestedPrompt[] = [];
 
   if (action) {
     personalized.push({
-      label: 'Pick up my next step',
-      prompt: `Let's work on my next step: ${action}.`,
+      label: t('prompts.pickUpNextStepLabel'),
+      prompt: t('prompts.pickUpNextStepPrompt', { action }),
       icon: 'play_arrow',
     });
   } else if (topic) {
     personalized.push({
-      label: `Continue: ${topic}`,
-      prompt: `Let's keep working on ${topic}.`,
+      label: t('prompts.continueTopicLabel', { topic }),
+      prompt: t('prompts.continueTopicPrompt', { topic }),
       icon: 'replay',
     });
   }
 
   const seen = new Set(personalized.map((p) => p.label.toLowerCase()));
-  for (const base of BASE_PROMPTS) {
+  for (const base of BASE_PROMPT_KEYS) {
     if (personalized.length >= 5) break;
-    if (seen.has(base.label.toLowerCase())) continue;
-    personalized.push(base);
-    seen.add(base.label.toLowerCase());
+    const label = t(base.labelKey);
+    if (seen.has(label.toLowerCase())) continue;
+    personalized.push({ label, prompt: t(base.promptKey), icon: base.icon });
+    seen.add(label.toLowerCase());
   }
 
   return personalized;
@@ -112,40 +95,44 @@ function makeId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function buildGreetingText(greeting: CoachChatGreeting): {
+function buildGreetingText(
+  greeting: CoachChatGreeting,
+  t: CoachTranslator,
+): {
   title: string;
   body: string;
   resumePrompt: string | null;
 } {
-  const name = greeting.firstName?.trim() || 'there';
+  const name = greeting.firstName?.trim() || t('greeting.defaultName');
   if (greeting.returning) {
     const topic = greeting.lastTopic?.trim();
     const action = greeting.lastAction?.trim();
-    const title = `Welcome back, ${name}`;
+    const title = t('greeting.welcomeBack', { name });
     if (topic) {
       const body = action
-        ? `Last time we worked on ${topic}. Your next step was: ${action}. Want to pick up there, or start something new?`
-        : `Last time we worked on ${topic}. Want to pick up there, or start something new?`;
+        ? t('greeting.lastTopicWithAction', { topic, action })
+        : t('greeting.lastTopicOnly', { topic });
       return {
         title,
         body,
-        resumePrompt: `Let's pick up where we left off on ${topic}.`,
+        resumePrompt: t('greeting.resumePrompt', { topic }),
       };
     }
     return {
       title,
-      body: 'Good to see you again. What would you like to work on today?',
+      body: t('greeting.returningDefault'),
       resumePrompt: null,
     };
   }
   return {
-    title: `Hi ${name}, I'm your career coach`,
-    body: 'I can help with your job search, resumes, interview prep, and career planning. What are you working toward right now?',
+    title: t('greeting.newTitle', { name }),
+    body: t('greeting.newBody'),
     resumePrompt: null,
   };
 }
 
 export default function CoachChat({ greeting }: { greeting: CoachChatGreeting }) {
+  const t = useTranslations('coach');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
@@ -156,8 +143,8 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const inputId = useId();
-  const { title, body, resumePrompt } = buildGreetingText(greeting);
-  const suggestedPrompts = useMemo(() => buildSuggestedPrompts(greeting), [greeting]);
+  const { title, body, resumePrompt } = buildGreetingText(greeting, t);
+  const suggestedPrompts = useMemo(() => buildSuggestedPrompts(greeting, t), [greeting, t]);
 
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -185,7 +172,6 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
 
       setError(null);
 
-      // Snapshot history (prior turns only) for the API contract.
       const history = messages.map((m) => ({ role: m.role, content: m.content }));
       const userMessage: ChatMessage = { id: makeId(), role: 'user', content: trimmed };
 
@@ -207,7 +193,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
           setError(
             typeof data.error === 'string'
               ? data.error
-              : 'Something went wrong. Please try again.'
+              : t('error.generic')
           );
           return;
         }
@@ -215,21 +201,20 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
         const reply =
           typeof data.reply === 'string' && data.reply.trim()
             ? data.reply.trim()
-            : 'I had trouble responding just now. Could you try rephrasing that?';
+            : t('error.noReply');
 
         setMessages((prev) => [
           ...prev,
           { id: makeId(), role: 'assistant', content: reply },
         ]);
       } catch {
-        setError('Network error. Check your connection and try again.');
+        setError(t('error.network'));
       } finally {
         setSending(false);
-        // Return focus to the input for fast follow-up.
         textareaRef.current?.focus();
       }
     },
-    [messages, sending]
+    [messages, sending, t]
   );
 
   const handleSubmit = useCallback(
@@ -242,7 +227,6 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      // Enter sends; Shift+Enter inserts a newline.
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         void sendMessage(draft);
@@ -263,7 +247,6 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
     [sending, sendMessage]
   );
 
-  // Show the inviting starters until the member begins the conversation.
   const showChips = messages.length === 0 && suggestedPrompts.length > 0;
 
   const canSend = draft.trim().length > 0 && !sending;
@@ -284,7 +267,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
               onClick={handleResume}
               disabled={sending}
             >
-              Pick up where we left off
+              {t('chat.resumeButton')}
             </button>
           ) : null}
         </div>
@@ -302,12 +285,11 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
         role="log"
         aria-live="polite"
         aria-relevant="additions"
-        aria-label="Coaching conversation"
+        aria-label={t('chat.conversationAria')}
       >
         {messages.length === 0 && !sending ? (
           <p className={styles.empty}>
-            Your conversation will appear here. Ask me anything about your career —
-            I&apos;ll remember what we discuss for next time.
+            {t('chat.empty')}
           </p>
         ) : (
           messages.map((m) => {
@@ -317,7 +299,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
                 key={m.id}
                 className={`${styles.bubble} ${mine ? styles.bubbleMine : ''}`}
               >
-                <div className={styles.bubbleMeta}>{mine ? 'You' : 'Coach'}</div>
+                <div className={styles.bubbleMeta}>{mine ? t('chat.you') : t('chat.coach')}</div>
                 <div className={styles.bubbleBody}>{m.content}</div>
               </div>
             );
@@ -325,8 +307,8 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
         )}
 
         {sending ? (
-          <div className={styles.bubble} aria-label="Coach is typing">
-            <div className={styles.bubbleMeta}>Coach</div>
+          <div className={styles.bubble} aria-label={t('chat.typingAria')}>
+            <div className={styles.bubbleMeta}>{t('chat.coach')}</div>
             <div className={styles.typing} aria-hidden>
               <span />
               <span />
@@ -341,7 +323,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
       {showChips ? (
         <div className={styles.chips}>
           <p className={styles.chipsLabel} id={`${inputId}-chips`}>
-            Try one of these to get started
+            {t('chat.chipsLabel')}
           </p>
           <div
             className={styles.chipRow}
@@ -369,7 +351,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <label htmlFor={inputId} className="wa-sr-only">
-          Message your career coach
+          {t('chat.inputLabel')}
         </label>
         <div className={styles.inputRow}>
           <textarea
@@ -380,7 +362,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask your coach anything…"
+            placeholder={t('chat.placeholder')}
             maxLength={4000}
             disabled={sending}
             aria-describedby={`${inputId}-hint`}
@@ -389,7 +371,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
             type="submit"
             className={styles.sendBtn}
             disabled={!canSend}
-            aria-label="Send message"
+            aria-label={t('chat.sendAria')}
           >
             <span className="material-symbols-outlined" aria-hidden>
               send
@@ -397,7 +379,7 @@ export default function CoachChat({ greeting }: { greeting: CoachChatGreeting })
           </button>
         </div>
         <p id={`${inputId}-hint`} className={styles.hint}>
-          Press Enter to send, Shift + Enter for a new line.
+          {t('chat.hint')}
         </p>
       </form>
     </div>

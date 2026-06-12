@@ -209,7 +209,7 @@ function buildHeadline(winCount: number, fullName: string | null): string {
 }
 
 const GOAL_TYPE_TO_PLAN_HREF: Record<string, { href: string; cta: string; icon: string }> = {
-  build_resume: { href: '/dashboard/ai-tools/resume-rewriter', cta: 'Work on resume', icon: 'description' },
+  build_resume: { href: '/dashboard/ai-tools/resume-studio?view=rewrite', cta: 'Work on resume', icon: 'description' },
   practice_interviews: { href: '/dashboard/ai-tools/interview-practice', cta: 'Practice now', icon: 'record_voice_over' },
   apply_to_jobs: { href: '/dashboard/job-applications', cta: 'Open tracker', icon: 'work' },
   complete_certification: { href: '/dashboard/training', cta: 'Continue training', icon: 'school' },

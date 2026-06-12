@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 type Category = { label: string; pct: number; icon: string; color: string };
 
 type Props = {
@@ -8,14 +10,15 @@ type Props = {
   priorityAction: { label: string; href: string } | null;
 };
 
-function scoreLabel(pct: number): string {
-  if (pct >= 80) return 'Great Standing';
-  if (pct >= 60) return 'Good Standing';
-  if (pct >= 40) return 'Making Progress';
-  return 'Getting Started';
+function scoreLabelKey(pct: number) {
+  if (pct >= 80) return 'readinessGreatStanding' as const;
+  if (pct >= 60) return 'readinessGoodStanding' as const;
+  if (pct >= 40) return 'readinessMakingProgress' as const;
+  return 'readinessGettingStarted' as const;
 }
 
 export default function ReadinessMobileScoreCard({ overallScore, categories, priorityAction }: Props) {
+  const t = useTranslations('dashboard');
   const circumference = 2 * Math.PI * 68;
   const offset = circumference * (1 - overallScore / 100);
 
@@ -41,7 +44,7 @@ export default function ReadinessMobileScoreCard({ overallScore, categories, pri
             / 100
           </text>
           <text x="80" y="115" textAnchor="middle" fill="var(--color-accent)" fontSize="11" fontWeight="600">
-            {scoreLabel(overallScore)}
+            {t(scoreLabelKey(overallScore))}
           </text>
         </svg>
       </div>
@@ -81,7 +84,7 @@ export default function ReadinessMobileScoreCard({ overallScore, categories, pri
                 priority_high
               </span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: '0.9375rem', marginBottom: '0.25rem' }}>Priority Action</div>
+                <div style={{ fontWeight: 700, fontSize: '0.9375rem', marginBottom: '0.25rem' }}>{t('priorityAction')}</div>
                 <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
                   {priorityAction.label}
                 </div>

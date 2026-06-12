@@ -10,6 +10,7 @@ export default function EmployerSignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const [companyName, setCompanyName] = useState('');
@@ -77,6 +78,7 @@ export default function EmployerSignupPage() {
         router.push(data.redirectTo);
         return;
       }
+      setSuccessMessage(typeof data.message === 'string' ? data.message : '');
       setSuccess(true);
       setLoading(false);
     } catch {
@@ -115,14 +117,14 @@ export default function EmployerSignupPage() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Created</h1>
             <p className="text-gray-600 mb-6">
-              Your employer account has been created. Our team will review it shortly.
-              You can start drafting jobs now — they will go live after approval.
+              {successMessage ||
+                'Account created. Please check your email to verify your account before logging in.'}
             </p>
             <Link
               href="/login"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#1B365D] text-white rounded-lg font-medium hover:bg-[#152a49] transition-colors"
             >
-              Log in to Employer Portal
+              Go to Log In
             </Link>
           </div>
         ) : (

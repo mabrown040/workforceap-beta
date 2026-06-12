@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import type { JobStatusEnum } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -13,10 +14,14 @@ const bodySchema = z.object({
 });
 
 /** Jobs employers may remove in bulk (not visible on the public board). */
-const BULK_DELETABLE = new Set(['draft', 'pending', 'filled', 'closed']);
+const BULK_DELETABLE_STATUSES: JobStatusEnum[] = ['draft', 'pending', 'filled', 'closed'];
+const BULK_DELETABLE = new Set(BULK_DELETABLE_STATUSES);
 
 /** Jobs employers may close in bulk (only live or approved postings). */
-const BULK_CLOSABLE = new Set(['live', 'approved']);export const POST = withApiGuc(async (request: NextRequest) => {
+const BULK_CLOSABLE_STATUSES: JobStatusEnum[] = ['live', 'approved'];
+const BULK_CLOSABLE = new Set(BULK_CLOSABLE_STATUSES);
+
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -67,9 +72,13 @@ const BULK_CLOSABLE = new Set(['live', 'approved']);export const POST = withApiG
     }
 
     const result = await prisma.job.updateMany({
-      where: { id: { in: uniqueIds }, employerId: ctx.employerId },
+      where: { id: { in: uniqueIds }, employerId: ctx.employerId, status: { in: BULK_CLOSABLE_STATUSES } },
       data: { status: 'closed' },
     });
+
+    if (result.count !== uniqueIds.length) {
+      return NextResponse.json({ error: 'One or more jobs changed status. Refresh and try again.' }, { status: 409 });
+    }
 
     return NextResponse.json({
       closed: result.count,
@@ -100,8 +109,12 @@ const BULK_CLOSABLE = new Set(['live', 'approved']);export const POST = withApiG
   }
 
   const result = await prisma.job.deleteMany({
-    where: { id: { in: uniqueIds }, employerId: ctx.employerId },
+    where: { id: { in: uniqueIds }, employerId: ctx.employerId, status: { in: BULK_DELETABLE_STATUSES } },
   });
+
+  if (result.count !== uniqueIds.length) {
+    return NextResponse.json({ error: 'One or more jobs changed status. Refresh and try again.' }, { status: 409 });
+  }
 
   return NextResponse.json({
     deleted: result.count,
@@ -113,4 +126,3 @@ const BULK_CLOSABLE = new Set(['live', 'approved']);export const POST = withApiG
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

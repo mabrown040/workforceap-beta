@@ -144,10 +144,66 @@ function extractDateRanges(rawText: string): ResumeFeatures['dateRanges'] {
 }
 
 export function parseResume(rawText: string): ResumeFeatures {
-  const lines = normalizeLines(rawText);
-  const sections = detectSections(lines);
+  let lines = normalizeLines(rawText);
+  let sections = detectSections(lines);
+  let reflowed = false;
+
+  // Recovery pass: PDF copy/paste and some uploads collapse the resume into
+  // one paragraph with no newlines. A line-based parse then finds no sections
+  // and no bullets, scoring a real resume near zero. Re-flow the text around
+  // inline section headers / bullet glyphs / sentence boundaries and re-parse;
+  // keep the result only if it actually recovers structure.
+  if (sections.length === 0 && rawText.trim().length > 200) {
+    const reflowedLines = normalizeLines(reflowFlatText(rawText));
+    const reflowedSections = detectSections(reflowedLines);
+    if (reflowedSections.length >= 2) {
+      lines = reflowedLines;
+      sections = reflowedSections;
+      reflowed = true;
+    }
+  }
+
   const bullets = extractBullets(lines, sections);
   const contact = extractContact(rawText);
   const dateRanges = extractDateRanges(rawText);
-  return { rawText, lines, sections, bullets, contact, dateRanges };
+  return { rawText, lines, sections, bullets, contact, dateRanges, reflowed };
+}
+
+/** Title-case header phrases we can safely split on inside flat text (longest first). */
+const INLINE_HEADER_PHRASES = [
+  'Contact Information',
+  'Professional Summary',
+  'Professional Experience',
+  'Work Experience',
+  'Employment History',
+  'Work History',
+  'Career History',
+  'Technical Skills',
+  'Core Skills',
+  'Skills and Abilities',
+  'Education and Training',
+  'Licenses and Certifications',
+  'Selected Projects',
+  'Certifications',
+  'Competencies',
+  'Experience',
+  'Education',
+  'Summary',
+  'Skills',
+  'Projects',
+  'Objective',
+];
+
+const INLINE_HEADER_RE = new RegExp(`(?:^|\\s)(${INLINE_HEADER_PHRASES.join('|')})(?=\\s|$)`, 'g');
+
+function reflowFlatText(rawText: string): string {
+  return (
+    rawText
+      // Bullet glyphs embedded mid-text start a new line.
+      .replace(/\s*([•▪◦●○▶►])\s*/g, '\n$1 ')
+      // Known section headers become their own line.
+      .replace(INLINE_HEADER_RE, '\n$1\n')
+      // Sentence boundaries approximate bullet boundaries within sections.
+      .replace(/\.\s+(?=[A-Z])/g, '.\n')
+  );
 }

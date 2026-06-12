@@ -1,0 +1,98 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+const signInWithPassword = vi.fn();
+const signOut = vi.fn();
+
+vi.mock('next/server', () => ({
+  NextResponse: {
+    json: (body: unknown, init?: ResponseInit) =>
+      new Response(JSON.stringify(body), {
+        ...init,
+        headers: { 'content-type': 'application/json', ...(init?.headers || {}) },
+      }),
+  },
+}));
+
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(() =>
+    Promise.resolve({
+      getAll: vi.fn(() => []),
+      set: vi.fn(),
+    })
+  ),
+}));
+
+vi.mock('@supabase/ssr', () => ({
+  createServerClient: vi.fn(() => ({
+    auth: {
+      signInWithPassword,
+      signOut,
+    },
+  })),
+}));
+
+vi.mock('@/lib/auth/server', () => ({
+  getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(() => Promise.resolve({ role: 'authenticated', userId: 'user-123' })),
+}));
+
+vi.mock('@/lib/db/withRequestGuc', () => ({
+  withApiGuc: (handler: (request: Request) => Promise<Response>) => handler,
+}));
+
+vi.mock('@/lib/db/prisma', () => ({
+  prisma: {
+    $executeRaw: vi.fn(),
+  },
+}));
+
+vi.mock('@/lib/supabaseCookieOptions', () => ({
+  getSupabaseCookieOptions: vi.fn(() => ({ path: '/', sameSite: 'lax' })),
+}));
+
+vi.mock('@/lib/supabase/env', () => ({
+  getSupabaseEnv: vi.fn(() => ({ url: 'https://supabase.test', anonKey: 'anon-key' })),
+}));
+
+vi.mock('@/lib/gdpr/deleteAuthUser', () => ({
+  deleteSupabaseAuthUser: vi.fn(),
+}));
+
+import { POST } from '@/app/api/gdpr/delete/route';
+import { getUser } from '@/lib/auth/server';
+import { prisma } from '@/lib/db/prisma';
+import { deleteSupabaseAuthUser } from '@/lib/gdpr/deleteAuthUser';
+
+describe('POST /api/gdpr/delete', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getUser).mockResolvedValue({
+      id: 'user-123',
+      email: 'jane@example.com',
+    } as any);
+    signInWithPassword.mockResolvedValue({ error: null });
+    signOut.mockResolvedValue({ error: null });
+    vi.mocked(prisma.$executeRaw).mockResolvedValue(1);
+    vi.mocked(deleteSupabaseAuthUser).mockResolvedValue({ error: null } as any);
+  });
+
+  it('anonymizes user email and full name before deleting auth user', async () => {
+    const res = await POST(
+      new Request('http://localhost:3000/api/gdpr/delete', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ password: 'correct-password' }),
+      })
+    );
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ ok: true });
+
+    const userUpdateCall = vi.mocked(prisma.$executeRaw).mock.calls[0];
+    const userUpdateSql = Array.from(userUpdateCall[0] as TemplateStringsArray).join('?');
+
+    expect(userUpdateSql).toContain("email = 'deleted_' || id || '@workforceap.org'");
+    expect(userUpdateSql).toContain("full_name = 'Deleted User'");
+    expect(deleteSupabaseAuthUser).toHaveBeenCalledWith('user-123');
+  });
+});

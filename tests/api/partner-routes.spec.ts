@@ -25,10 +25,12 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(() => Promise.resolve({ role: 'authenticated', userId: 'test-user' })),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({
   getPartnerForUser: vi.fn(),
+  requireAdmin: vi.fn(),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
@@ -44,6 +46,12 @@ vi.mock('@/lib/db/prisma', () => ({
     partner: {
       findUnique: vi.fn(),
     },
+    placementRecord: {
+      findFirst: vi.fn(),
+    },
+    memberEvent: {
+      create: vi.fn(),
+    },
   },
 }));
 
@@ -54,6 +62,24 @@ vi.mock('@/lib/partner/referralBundle', () => ({
 
 vi.mock('@/lib/partner/partnerPayout', () => ({
   getPartnerPlacementPayoutUsd: vi.fn(() => 500),
+  buildPartnerPayoutIdempotencyKey: vi.fn((partnerId: string, placementId: string) =>
+    `partner-payout:${partnerId}:${placementId}`
+  ),
+}));
+
+vi.mock('@/lib/stripe/connect', () => ({
+  createPayoutTransfer: vi.fn(),
+}));
+
+vi.mock('@/lib/tenant/organization', () => ({
+  getActorOrganizationId: vi.fn(),
+}));
+
+vi.mock('@/lib/tenant/withTenantScope', () => ({
+  withTenantScope: vi.fn(async (_orgId: string, fn: (db: unknown) => Promise<unknown>) => {
+    const { prisma } = await import('@/lib/db/prisma');
+    return fn(prisma);
+  }),
 }));
 
 vi.mock('@/lib/partner/attentionQueue', () => ({
@@ -69,11 +95,14 @@ import { GET as dashboardGet } from '@/app/api/partner/dashboard/route';
 import { GET as referralsGet, POST as referralsPost } from '@/app/api/partner/referrals/route';
 import { GET as earningsGet } from '@/app/api/partner/earnings/route';
 import { GET as membersGet } from '@/app/api/partner/members/route';
+import { POST as payoutPost } from '@/app/api/partner/payout/route';
 import { getUser } from '@/lib/auth/server';
-import { getPartnerForUser } from '@/lib/auth/roles';
+import { getPartnerForUser, requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
+import { createPayoutTransfer } from '@/lib/stripe/connect';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { NextRequest } from 'next/server';
 
 const UUIDS = {
@@ -82,6 +111,7 @@ const UUIDS = {
   member: '550e8400-e29b-41d4-a716-446655440003',
   member2: '550e8400-e29b-41d4-a716-446655440004',
   org: '550e8400-e29b-41d4-a716-446655440005',
+  placement: '550e8400-e29b-41d4-a716-446655440006',
 };
 
 const partnerCtx = {
@@ -93,6 +123,7 @@ const partnerCtx = {
     slug: 'test-partner',
     logoUrl: null,
     brandColor: null,
+    partnerType: 'referral',
   },
   hasDirectPartnerLink: true,
 };
@@ -368,7 +399,7 @@ describe('POST /api/partner/referrals', () => {
   it('creates a new referral successfully', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(getPartnerForUser).mockResolvedValue(partnerCtx as any);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: UUIDS.member, fullName: 'Alice' } as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: UUIDS.member, fullName: 'Alice', organizationId: UUIDS.org } as any);
     vi.mocked(prisma.partnerReferral.create).mockResolvedValue({
       id: 'ref-123',
       partnerId: UUIDS.partner,
@@ -397,12 +428,114 @@ describe('POST /api/partner/referrals', () => {
   it('returns 409 when referral already exists', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(getPartnerForUser).mockResolvedValue(partnerCtx as any);
-    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: UUIDS.member, fullName: 'Alice' } as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: UUIDS.member, fullName: 'Alice', organizationId: UUIDS.org } as any);
     vi.mocked(prisma.partnerReferral.create).mockRejectedValue({ code: 'P2002' });
 
     const res = await referralsPost(makeRequest({ memberId: UUIDS.member }));
     expect(res.status).toBe(409);
     expect(await res.json()).toEqual({ error: 'Referral already exists for this member' });
+  });
+});
+
+// ─────────────────────────────────────────────
+// POST /api/partner/payout
+// ─────────────────────────────────────────────
+describe('POST /api/partner/payout', () => {
+  const makeRequest = (body: Record<string, unknown>) =>
+    new NextRequest('http://localhost:3000/api/partner/payout', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(requireAdmin).mockResolvedValue(undefined);
+    vi.mocked(getActorOrganizationId).mockResolvedValue(UUIDS.org);
+    vi.mocked(prisma.partner.findUnique).mockResolvedValue({
+      stripeConnectId: 'acct_test',
+      stripeConnectStatus: 'active',
+      name: 'Test Partner',
+      partnerType: 'referral',
+    } as any);
+    vi.mocked(getPartnerPlacementPayoutUsd).mockReturnValue(500);
+  });
+
+  it('rejects unknown or non-referred placements before creating a Stripe transfer', async () => {
+    vi.mocked(prisma.placementRecord.findFirst).mockResolvedValue(null);
+
+    const res = await payoutPost(makeRequest({ partnerId: UUIDS.partner, placementId: UUIDS.placement }));
+
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: 'Placement not found for this partner' });
+    expect(prisma.placementRecord.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          id: UUIDS.placement,
+          user: {
+            organizationId: UUIDS.org,
+            partnerReferrals: { some: { partnerId: UUIDS.partner } },
+          },
+        },
+      })
+    );
+    expect(createPayoutTransfer).not.toHaveBeenCalled();
+    expect(prisma.memberEvent.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects placements that already have a payout event', async () => {
+    vi.mocked(prisma.placementRecord.findFirst).mockResolvedValue({
+      id: UUIDS.placement,
+      userId: UUIDS.member,
+      placedAt: new Date('2026-05-01'),
+      startDateVerified: true,
+      user: {
+        memberEvents: [{ id: 'paid-event-1' }],
+      },
+    } as any);
+
+    const res = await payoutPost(makeRequest({ partnerId: UUIDS.partner, placementId: UUIDS.placement }));
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'Placement has already been paid out' });
+    expect(createPayoutTransfer).not.toHaveBeenCalled();
+    expect(prisma.memberEvent.create).not.toHaveBeenCalled();
+  });
+
+  it('creates a payout only for an eligible placement tied to the partner', async () => {
+    vi.mocked(prisma.placementRecord.findFirst).mockResolvedValue({
+      id: UUIDS.placement,
+      userId: UUIDS.member,
+      placedAt: new Date('2026-05-01'),
+      startDateVerified: true,
+      user: {
+        memberEvents: [],
+      },
+    } as any);
+    vi.mocked(createPayoutTransfer).mockResolvedValue({ id: 'tr_test' } as any);
+    vi.mocked(prisma.memberEvent.create).mockResolvedValue({ id: 'paid-event-1' } as any);
+
+    const res = await payoutPost(makeRequest({ partnerId: UUIDS.partner, placementId: UUIDS.placement }));
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ transferId: 'tr_test', amount: 500 });
+    expect(createPayoutTransfer).toHaveBeenCalledWith(
+      50000,
+      'acct_test',
+      { partnerId: UUIDS.partner, placementId: UUIDS.placement, triggeredBy: UUIDS.user },
+      `partner-payout:${UUIDS.partner}:${UUIDS.placement}`
+    );
+    expect(prisma.memberEvent.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          userId: UUIDS.member,
+          eventName: 'PARTNER_PAYOUT_SENT',
+          entityType: 'PlacementRecord',
+          entityId: UUIDS.placement,
+        }),
+      })
+    );
   });
 });
 

@@ -64,7 +64,7 @@ export default function VoiceCoachesPromo() {
             badge="Resume enhancer"
             title="Resume & Experience Enhancer"
             description="Open the dedicated resume coach to practice your pitch and refine your resume inside a synced workspace."
-            href="/dashboard/ai-tools/resume-coach"
+            href="/dashboard/ai-tools/resume-studio?view=coach"
             ctaLabel="Start resume enhancer"
           />
 

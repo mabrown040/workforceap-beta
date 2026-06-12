@@ -12,8 +12,7 @@ import ClearEmployerPortalContext from './ClearEmployerPortalContext';
 import EmployerStatusButton from './EmployerStatusButton';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import type { DataTableColumn } from '@/components/portal/ui/DataTable';
-import DataTable from '@/components/portal/ui/DataTable';
+import EmployersTableClient from '@/components/admin/EmployersTableClient';
 import AdminEmployerTierSelect from './AdminEmployerTierSelect';
 
 function getPartnershipTier(placementAgreementSigned: boolean, hiringPipelineActive: boolean): {
@@ -85,142 +84,11 @@ export default async function AdminEmployersPage({
     prisma.employer.count({ where: { status: 'pending_approval' } }),
   ]);
 
-  type EmployerRow = (typeof employers)[number];
-
   const tabs = [
     { key: 'all', label: 'All' },
     { key: 'pending_approval', label: `Pending${pendingCount > 0 ? ` (${pendingCount})` : ''}` },
     { key: 'active', label: 'Active' },
     { key: 'inactive', label: 'Inactive' },
-  ];
-
-  const employerColumns: DataTableColumn<EmployerRow>[] = [
-    {
-      key: 'company',
-      header: 'Company',
-      cell: (e) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div
-            style={{
-              width: '2rem',
-              height: '2rem',
-              borderRadius: '0.5rem',
-              background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              flexShrink: 0,
-            }}
-          >
-            {(e.companyName ?? '?')
-              .split(' ')
-              .map((n) => n[0])
-              .join('')
-              .slice(0, 2)
-              .toUpperCase()}
-          </div>
-          <Link href={`/admin/employers/${e.id}`} style={{ color: 'var(--color-on-surface)', fontWeight: 700, textDecoration: 'none' }}>
-            {e.companyName}
-          </Link>
-        </div>
-      ),
-    },
-    {
-      key: 'contact',
-      header: 'Contact',
-      cell: (e) => (
-        <>
-          <div style={{ fontSize: '0.875rem' }}>{e.contactName}</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.contactEmail}</div>
-        </>
-      ),
-    },
-    {
-      key: 'portalUser',
-      header: 'Portal User',
-      cell: (e) => (
-        <>
-          <div style={{ fontSize: '0.875rem' }}>{e.user.fullName}</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>{e.user.email}</div>
-        </>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      cell: (e) => {
-        const style = statusBadgeStyle(e.status);
-        return (
-          <span
-            style={{
-              padding: '0.2rem 0.5rem',
-              borderRadius: '999px',
-              fontSize: '0.75rem',
-              background: style.background,
-              color: style.color,
-              fontWeight: 600,
-            }}
-          >
-            {statusLabel(e.status)}
-          </span>
-        );
-      },
-    },
-    {
-      key: 'jobs',
-      header: 'Jobs',
-      cell: (e) => <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{e._count.jobs}</span>,
-    },
-    {
-      key: 'tier',
-      header: 'Tier',
-      cell: (e) => <AdminEmployerTierSelect employerId={e.id} initialTier={e.tier} />,
-    },
-    {
-      key: 'partnership',
-      header: 'Partnership',
-      cell: (e) => {
-        const pt = getPartnershipTier(e.placementAgreementSigned, e.hiringPipelineActive);
-        return (
-          <span
-            style={{
-              padding: '0.2rem 0.5rem',
-              borderRadius: '999px',
-              fontSize: '0.7rem',
-              background: pt.bg,
-              color: pt.color,
-              fontWeight: 600,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {pt.label}
-          </span>
-        );
-      },
-    },
-    {
-      key: 'actions',
-      header: 'Actions',
-      cell: (e) => <EmployerStatusButton employerId={e.id} status={e.status as 'active' | 'inactive' | 'pending_approval'} />,
-    },
-    ...(superAdmin
-      ? ([
-          {
-            key: 'help',
-            header: 'Help',
-            cell: (e) => (
-              <OpenEmployerPortalButton
-                employerId={e.id}
-                canOpenPortal={e.status === 'active'}
-                disabledReason="Inactive employers cannot be opened in portal preview. Reactivate the employer first."
-              />
-            ),
-          },
-        ] satisfies DataTableColumn<EmployerRow>[])
-      : []),
   ];
 
   return (
@@ -281,16 +149,7 @@ export default async function AdminEmployersPage({
       {employers.length > 0 && (
         <>
           {/* Desktop table */}
-          <div className="wa-hidden md:wa-block employer-applications-shell" style={{ overflowX: 'auto' }}>
-            <DataTable
-              variant="admin"
-              tableClassName="admin-table employer-applications-table"
-              scrollX={false}
-              rows={employers}
-              rowKey={(e) => e.id}
-              columns={employerColumns}
-            />
-          </div>
+          <EmployersTableClient employers={employers} superAdmin={superAdmin} />
 
           {/* Mobile cards */}
           <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>

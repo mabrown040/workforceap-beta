@@ -274,7 +274,7 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
 
   /*
    * Mobile hero: trust detail cards repeat the ✓ bullets and TrustStrip below;
-   * hiding them shortens the fold stack so Apply + step pills stay primary.
+   * hiding them shortens the fold stack so Apply stays primary.
    */
   .home-hero__trust-cards {
     display: none;
@@ -318,6 +318,16 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
    */
   .home-hero__cta-primary,
   .home-hero-mobile-apply {
+    display: none !important;
+  }
+
+  /*
+   * Cold mobile traffic already sees Apply directly under heroBody2; the three
+   * numbered step pills repeat that path and push Find Your Path / Programs
+   * ghost CTAs below the fold. Hide the whole row on ≤639px only — tablets
+   * (640–767px) still show pills before the canonical primary CTA.
+   */
+  .home-hero__inner > div:has(.marketing-hero-step-pill) {
     display: none !important;
   }
 }
@@ -737,6 +747,15 @@ html.has-marketing-main-nav {
    * Hide the in-catalog "Start here" block so members are not shown the same three picks twice.
    */
   .programs-starter-section {
+    display: none;
+  }
+
+  /*
+   * Sticky browse nav already jumps to quick start, full catalog, and subgroup
+   * anchors. Hiding in-catalog filter chips removes a second category UI that
+   * collapses the open catalog into a filtered grid — search still works.
+   */
+  .programs-page .program-filters {
     display: none;
   }
 

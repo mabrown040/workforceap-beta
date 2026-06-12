@@ -505,7 +505,13 @@ export default function SkillMissionPanel({ summary }: { summary: SkillMissionSu
       {activeMission && (
         <SkillMissionChallenge
           mission={activeMission}
-          onClose={() => setActiveMission(null)}
+          onClose={() => {
+            setActiveMission(null);
+            // A needs_retry result is recorded server-side even when the
+            // member closes instead of completing — refresh so the card
+            // flips from "Start Mission" to "Retry Mission" immediately.
+            router.refresh();
+          }}
           onComplete={handleComplete}
         />
       )}

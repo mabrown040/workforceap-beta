@@ -512,6 +512,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           .apply-hero {
             padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-5) !important;
           }
+          /* Vague social proof repeats below the fold — keep hero scannable on small screens */
+          .apply-hero-social {
+            display: none !important;
+          }
           .apply-hero-desc-full,
           .apply-hero-help-desktop {
             display: none !important;

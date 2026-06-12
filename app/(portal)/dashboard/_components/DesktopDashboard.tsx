@@ -44,6 +44,7 @@ export default function DesktopDashboard({
   intakeExtra,
   wizardProgramInterest,
   todayHero,
+  skillMissionTeaser,
   showProgramSelector,
   enrolledProgram,
   programSelectorOptions,
@@ -190,6 +191,11 @@ export default function DesktopDashboard({
               >
                 <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
                   <MemberProgressStrip {...progressStripProps} />
+                </ErrorBoundary>
+              </div>
+              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.25rem' }}>
+                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+                  {skillMissionTeaser}
                 </ErrorBoundary>
               </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>

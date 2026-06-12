@@ -75,6 +75,7 @@ export type DesktopDashboardProps = {
   } | null;
   wizardProgramInterest: string;
   todayHero: ReactNode;
+  skillMissionTeaser: ReactNode;
   showProgramSelector: boolean;
   enrolledProgram: string | null;
   programSelectorOptions: ProgramSelectorOption[];

@@ -138,7 +138,10 @@ export default async function EmployersPage() {
       </HeroSection>
 
       {/* ── Trust strip ── */}
-      <section className="employers-trust" aria-label={t('trustAriaLabel')}>
+      <section
+        className="employers-trust"
+        aria-label={showPlaceholderStats ? t('trustAriaLabelPlaceholder') : t('trustAriaLabel')}
+      >
         <div className="container employers-trust__inner">
           {showLogos ? (
             <div className="employers-trust__logos">
@@ -161,6 +164,9 @@ export default async function EmployersPage() {
                 ))}
               </ul>
             </div>
+          ) : null}
+          {showPlaceholderStats ? (
+            <p className="employers-trust__placeholder-heading">{t('trustPlaceholderHeading')}</p>
           ) : null}
           {showVerifiedStats || showPlaceholderStats ? (
             <div
@@ -352,6 +358,15 @@ export default async function EmployersPage() {
           padding: 0 clamp(1rem, 4vw, 2rem);
         }
         .employers-trust__logos-label {
+          margin: 0 0 1rem;
+          text-align: center;
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--color-on-surface-variant);
+        }
+        .employers-trust__placeholder-heading {
           margin: 0 0 1rem;
           text-align: center;
           font-size: 0.7rem;

@@ -182,12 +182,12 @@ export default async function ImpactPage() {
           />
 
           {!hasLiveData ? (
+            <p className="impact-page__data-light-note">{t('dataLightNote')}</p>
+          ) : null}
+
+          {!hasLiveData ? (
             <div className="impact-page__empty-hero">
-              <InfoCard
-                variant="bordered"
-                title={t('membersServedEmptyTitle')}
-                description={t('dataLightNote')}
-              />
+              <InfoCard variant="bordered" title={t('membersServedEmptyTitle')} />
               <p className="impact-page__section-link-wrap impact-page__empty-hero-link">
                 <LocalizedLink href="/employers" className="impact-page__section-link">
                   {t('employerHiringLink')}
@@ -230,7 +230,7 @@ export default async function ImpactPage() {
         </div>
       </PageSection>
 
-      <PageSection padding="md" variant="dark" ariaLabel={t('programsTitle')}>
+      <PageSection padding="md" variant={hasLiveData ? 'dark' : 'default'} ariaLabel={t('programsTitle')}>
         <SectionHeader
           title={t('programsTitle')}
           subtitle={t('programsSubtitle')}
@@ -327,6 +327,13 @@ export default async function ImpactPage() {
         .impact-page__empty-hero {
           margin-bottom: 2.5rem;
         }
+        .impact-page__data-light-note {
+          margin: 0 0 1.5rem;
+          max-width: 42rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+          color: var(--color-on-surface-variant);
+        }
         .impact-page__hero-metric {
           margin-bottom: 2.5rem;
           border-left: 4px solid var(--color-accent);
@@ -334,7 +341,6 @@ export default async function ImpactPage() {
         }
         .impact-page__empty-hero-link {
           margin: 1rem 0 0;
-          padding-left: 1rem;
         }
         .impact-page__hero-value {
           margin: 0;

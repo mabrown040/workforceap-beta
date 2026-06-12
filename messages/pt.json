@@ -1737,6 +1737,8 @@
       "primaryCta": "Torne-se um parceiro de contratação — agende uma chamada de 20 min",
       "primaryCtaVariantA": "Fale conosco sobre talentos prontos para contratar",
       "trustAriaLabel": "Resultados e parceiros empregadores",
+      "trustAriaLabelPlaceholder": "Visão geral do modelo para parceiros de contratação",
+      "trustPlaceholderHeading": "O que os parceiros de contratação podem esperar",
       "trustLogosLabel": "Empregadores contratando pela WorkforceAP",
       "trustStatPlaced": "contratações registradas (registros de placement)",
       "trustStatWage": "salário inicial médio (quando registrado)",

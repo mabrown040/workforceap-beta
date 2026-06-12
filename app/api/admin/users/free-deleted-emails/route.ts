@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { buildDeletedEmail } from '../_deletedEmail';
 
 /**
  * Batch-rewrite every soft-deleted user's email to the sentinel form
@@ -39,9 +40,14 @@ export async function POST() {
     );
   
     let freed = 0;
+    let skipped = 0;
     const ts = Date.now();
     for (const u of candidates) {
-      const newEmail = `deleted_${u.id}_${ts}_${u.email}@deleted.invalid`.slice(0, 255);
+      const newEmail = buildDeletedEmail(u.id, ts, u.email);
+      if (!newEmail) {
+        skipped += 1;
+        continue;
+      }
       try {
         await withTenantScope(orgId, (db) =>
           db.user.updateMany({
@@ -55,7 +61,7 @@ export async function POST() {
       }
     }
   
-    return NextResponse.json({ ok: true, freed, total: candidates.length });
+    return NextResponse.json({ ok: true, freed, skipped, total: candidates.length });
   } catch (error) {
     console.error('/admin/users/free-deleted-emails:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

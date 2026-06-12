@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
-import { recordMissionResult } from '@/lib/member/skillMissions';
+import { recordMissionResult, getMissionDefinitionForKey } from '@/lib/member/skillMissions';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const bodySchema = z.object({
@@ -52,14 +52,17 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: Props) =
       );
     }
 
-    // Extract courseSlug from checkpointKey format: `${programSlug}:mission:${courseSlug}`
-    const keyParts = parsed.data.checkpointKey.split(':mission:');
-    const courseSlug = keyParts[1] ?? parsed.data.checkpointKey;
+    // Validate the key against the catalog — rejects malformed keys and
+    // keys whose program doesn't match the request.
+    const missionDef = getMissionDefinitionForKey(parsed.data.checkpointKey);
+    if (!missionDef || missionDef.programSlug !== parsed.data.programSlug) {
+      return NextResponse.json({ error: 'Unknown mission for this program.' }, { status: 400 });
+    }
 
     await recordMissionResult({
       userId: memberId,
-      programSlug: parsed.data.programSlug,
-      courseSlug,
+      programSlug: missionDef.programSlug,
+      courseSlug: missionDef.courseSlug,
       result: {
         verdict: parsed.data.decision,
         coachingNote: parsed.data.notes?.trim() || 'Admin override.',

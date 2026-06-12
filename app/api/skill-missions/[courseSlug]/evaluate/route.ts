@@ -3,25 +3,40 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { prisma } from '@/lib/db/prisma';
-import { evaluateSkillMission } from '@/lib/ai/skillMissionEval';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import {
+  evaluateSkillMission,
+  MissionEvalUnavailableError,
+} from '@/lib/ai/skillMissionEval';
 import { getSkillMissionDefinition } from '@/lib/content/skillMissionCatalog';
-import { recordMissionResult } from '@/lib/member/skillMissions';
+import {
+  recordMissionResult,
+  recordMissionSubmission,
+  countRecentMissionSubmissions,
+} from '@/lib/member/skillMissions';
 import type { MissionEvalResponse } from '@/lib/ai/skillMissionEval';
 
+const MAX_ATTEMPTS_PER_DAY = 5;
+
+/* No `correct` flag and no programSlug from the client: the quiz is graded
+   server-side against the catalog, and the program is bound to the member's
+   enrollment. */
 const bodySchema = z.object({
-  programSlug: z.string().min(1).max(160),
   missionKey: z.string().min(1).max(300),
   quizAnswers: z
     .array(
       z.object({
         questionIndex: z.number().int().min(0).max(2),
         selectedIndex: z.number().int().min(0).max(3),
-        correct: z.boolean(),
       })
     )
     .length(3),
   scenarioResponse: z.string().min(20).max(4000),
 });
+
+function fail(error: string, status: number) {
+  return NextResponse.json({ ok: false, error } satisfies MissionEvalResponse, { status });
+}
 
 export const POST = withApiGuc(
   async (
@@ -29,84 +44,112 @@ export const POST = withApiGuc(
     context: { params: Promise<{ courseSlug: string }> }
   ) => {
     try {
-      // 1. Auth check
+      // 1. Auth
       const user = await getUser();
-      if (!user) {
-        return NextResponse.json({ ok: false, error: 'Unauthorized' } satisfies MissionEvalResponse, {
-          status: 401,
-        });
+      if (!user) return fail('Unauthorized', 401);
+
+      // 2. Rate limit — this endpoint makes up to 2 LLM round-trips per call
+      const { success: withinRateLimit } = await checkAIToolRateLimit(user.id);
+      if (!withinRateLimit) {
+        return fail('Rate limit exceeded. Please try again in a few minutes.', 429);
       }
 
-      // 2. Validate body
+      // 3. Validate body
       let rawBody: unknown;
       try {
         rawBody = await request.json();
       } catch {
-        return NextResponse.json({ ok: false, error: 'Invalid JSON' } satisfies MissionEvalResponse, {
-          status: 400,
-        });
+        return fail('Invalid JSON', 400);
       }
-
       const parsed = bodySchema.safeParse(rawBody);
       if (!parsed.success) {
-        return NextResponse.json(
-          {
-            ok: false,
-            error: parsed.error.errors[0]?.message ?? 'Validation failed',
-          } satisfies MissionEvalResponse,
-          { status: 400 }
-        );
+        return fail(parsed.error.errors[0]?.message ?? 'Validation failed', 400);
+      }
+      const { missionKey, quizAnswers, scenarioResponse } = parsed.data;
+
+      // Each question must be answered exactly once
+      const answeredIndexes = new Set(quizAnswers.map((a) => a.questionIndex));
+      if (answeredIndexes.size !== 3) {
+        return fail('Each quiz question must be answered exactly once.', 400);
       }
 
-      const { programSlug, missionKey, quizAnswers, scenarioResponse } = parsed.data;
-
-      // 3. Resolve courseSlug from route params
       const { courseSlug } = await context.params;
 
-      // 4. Look up the mission definition from the catalog
-      const missionDef = getSkillMissionDefinition(courseSlug, missionKey);
-      if (!missionDef) {
-        return NextResponse.json(
-          { ok: false, error: 'Mission not found' } satisfies MissionEvalResponse,
-          { status: 404 }
-        );
+      // 4. Bind the program to the member's enrollment — never to the body
+      const dbUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { enrolledProgram: true },
+      });
+      const programSlug = dbUser?.enrolledProgram ?? null;
+      if (!programSlug) {
+        return fail('You must be enrolled in a program to attempt skill missions.', 403);
       }
 
-      // 5. Verify the student has completed this course
+      // 5. Look up the mission for (enrolled program, course) and verify the
+      //    client is talking about the same mission
+      const missionDef = getSkillMissionDefinition(programSlug, courseSlug);
+      if (!missionDef || missionDef.key !== missionKey) {
+        return fail('Mission not found', 404);
+      }
+
+      // 6. Verify the student has completed this course
       const progress = await prisma.courseProgress.findFirst({
-        where: {
-          userId: user.id,
-          courseSlug,
-          status: 'COMPLETED',
-        },
+        where: { userId: user.id, courseSlug, status: 'COMPLETED' },
         select: { id: true },
       });
-
       if (!progress) {
-        return NextResponse.json(
-          {
-            ok: false,
-            error: 'You must complete this course before attempting its skill mission.',
-          } satisfies MissionEvalResponse,
-          { status: 403 }
-        );
+        return fail('You must complete this course before attempting its skill mission.', 403);
       }
 
-      // 6. Run AI evaluation
-      const evalResult = await evaluateSkillMission({
-        courseSlug,
-        programSlug,
-        missionKey,
-        courseTitle: missionDef.courseTitle,
-        skillLabels: missionDef.skillLabels,
-        scenarioPrompt: missionDef.scenarioPrompt,
-        evidenceHint: missionDef.evidenceHint,
-        quizAnswers,
-        scenarioResponse,
+      // 7. Per-mission daily attempt cap (counts AI-failed attempts too)
+      const recentAttempts = await countRecentMissionSubmissions({
         userId: user.id,
+        programSlug,
+        courseSlug,
+        sinceHours: 24,
       });
+      if (recentAttempts >= MAX_ATTEMPTS_PER_DAY) {
+        return fail(
+          'Daily attempt limit reached for this mission. Take a break and come back tomorrow.',
+          429
+        );
+      }
+      await recordMissionSubmission({ userId: user.id, programSlug, courseSlug });
 
-      // 7. Record the mission attempt event
+      // 8. Grade the quiz server-side against the catalog
+      const quizCorrectCount = quizAnswers.reduce((count, answer) => {
+        const question = missionDef.quizQuestions[answer.questionIndex];
+        return question && question.correctIndex === answer.selectedIndex ? count + 1 : count;
+      }, 0);
+
+      // 9. Run AI evaluation (throws MissionEvalUnavailableError on AI failure
+      //    — nothing is persisted in that case)
+      let evalResult;
+      try {
+        evalResult = await evaluateSkillMission({
+          courseSlug,
+          programSlug,
+          missionKey,
+          courseTitle: missionDef.courseTitle,
+          skillLabels: missionDef.skillLabels,
+          scenarioPrompt: missionDef.scenarioPrompt,
+          evidenceHint: missionDef.evidenceHint,
+          quizCorrectCount,
+          quizTotal: missionDef.quizQuestions.length,
+          scenarioResponse,
+          userId: user.id,
+        });
+      } catch (evalErr) {
+        if (evalErr instanceof MissionEvalUnavailableError) {
+          return fail(
+            'Our coach is taking a quick break — your attempt was not graded. Please try again in a few minutes.',
+            503
+          );
+        }
+        throw evalErr;
+      }
+
+      // 10. Record the verdict event
       try {
         await recordMissionResult({
           userId: user.id,
@@ -126,7 +169,7 @@ export const POST = withApiGuc(
         console.error('[skill-missions/evaluate] recordMissionResult failed:', recordErr instanceof Error ? recordErr.message : recordErr);
       }
 
-      // 8. Return the evaluation result
+      // 11. Return the evaluation result
       const response: MissionEvalResponse = {
         ok: true,
         verdict: evalResult.verdict,
@@ -134,16 +177,13 @@ export const POST = withApiGuc(
         starStory: evalResult.starStory,
         resumeBullet: evalResult.resumeBullet,
         skillsUnlocked: evalResult.skillsUnlocked,
+        quizCorrectCount,
         aiToolResultId: evalResult.aiToolResultId,
       };
-
       return NextResponse.json(response);
     } catch (err) {
       console.error('[skill-missions/evaluate] unhandled error:', err instanceof Error ? err.message : err);
-      return NextResponse.json(
-        { ok: false, error: 'Internal server error' } satisfies MissionEvalResponse,
-        { status: 500 }
-      );
+      return fail('Internal server error', 500);
     }
   }
 );

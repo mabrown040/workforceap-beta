@@ -24,7 +24,16 @@ export type MissionResult = {
   skillsUnlocked: string[];
 };
 
-export type SkillMissionSummaryItem = SkillMissionDefinition & {
+/** Quiz question as exposed to the client — correctIndex and explanation are
+    server-only so answers can't be read out of the RSC payload/page source.
+    Grading and feedback happen via the quiz-check + evaluate endpoints. */
+export type ClientQuizQuestion = {
+  text: string;
+  options: [string, string, string, string];
+};
+
+export type SkillMissionSummaryItem = Omit<SkillMissionDefinition, 'quizQuestions'> & {
+  quizQuestions: ClientQuizQuestion[];
   status: MissionStatus;
   completedAt: Date | null;
   latestResult: MissionResult | null;
@@ -144,6 +153,8 @@ export async function loadSkillMissionSummary(args: {
 
     return {
       ...def,
+      // Strip answers/explanations — see ClientQuizQuestion.
+      quizQuestions: def.quizQuestions.map((q) => ({ text: q.text, options: q.options })),
       status,
       completedAt,
       latestResult,
@@ -217,6 +228,47 @@ export async function recordMissionResult(args: {
         programSlug: args.programSlug,
         recordedAt: new Date().toISOString(),
       },
+    },
+  });
+}
+
+/** Record a submission attempt (counted toward the daily attempt cap even
+    when the AI eval fails, so failures can't be retried infinitely). */
+export async function recordMissionSubmission(args: {
+  userId: string;
+  programSlug: string;
+  courseSlug: string;
+}): Promise<void> {
+  const key = `${args.programSlug}:mission:${args.courseSlug}`;
+  await prisma.memberEvent.create({
+    data: {
+      userId: args.userId,
+      eventName: MISSION_EVENT_SUBMITTED,
+      entityType: 'skill_checkpoint',
+      entityId: key,
+      sourcePage: '/member/missions',
+      metadata: { courseSlug: args.courseSlug, programSlug: args.programSlug },
+    },
+  });
+}
+
+/** Count submissions for a mission within the trailing window — used for the
+    per-mission daily attempt cap on the LLM-backed evaluate endpoint. */
+export async function countRecentMissionSubmissions(args: {
+  userId: string;
+  programSlug: string;
+  courseSlug: string;
+  sinceHours: number;
+}): Promise<number> {
+  const key = `${args.programSlug}:mission:${args.courseSlug}`;
+  const since = new Date(Date.now() - args.sinceHours * 60 * 60 * 1000);
+  return prisma.memberEvent.count({
+    where: {
+      userId: args.userId,
+      entityType: 'skill_checkpoint',
+      entityId: key,
+      eventName: MISSION_EVENT_SUBMITTED,
+      createdAt: { gte: since },
     },
   });
 }

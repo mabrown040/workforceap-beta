@@ -27,6 +27,7 @@ type Mission = {
 };
 
 type SkillMissionSummary = {
+  programSlug: string;
   programTitle: string | null;
   totalMissions: number;
   passedCount: number;
@@ -402,7 +403,7 @@ export default function AdminMemberSkillCheckpointPanel({
               color: summary.careerReadinessPct >= 80 ? '#256b2a' : summary.careerReadinessPct >= 40 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
             }}
           >
-            {summary.careerReadinessPct}% career-ready
+            {summary.careerReadinessPct}% of missions passed
           </span>
           <div style={{ display: 'flex', gap: '0.4rem', fontSize: '0.8rem' }}>
             <span style={{ padding: '0.15rem 0.45rem', borderRadius: '9999px', background: 'rgba(74,155,79,0.12)', color: '#256b2a', fontWeight: 600 }}>
@@ -443,7 +444,7 @@ export default function AdminMemberSkillCheckpointPanel({
             key={mission.key}
             mission={mission}
             memberId={memberId}
-            programSlug={summary.programTitle ? (summary as any).programSlug ?? null : null}
+            programSlug={summary.programSlug}
             onRefresh={() => router.refresh()}
           />
         ))}

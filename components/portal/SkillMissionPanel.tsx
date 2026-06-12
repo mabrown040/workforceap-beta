@@ -16,11 +16,10 @@ type MissionResult = {
   skillsUnlocked: string[];
 };
 
+/* Answers are server-only — the summary ships question text/options only. */
 type QuizQuestion = {
   text: string;
   options: [string, string, string, string];
-  correctIndex: 0 | 1 | 2 | 3;
-  explanation: string;
 };
 
 type SkillMissionSummaryItem = {
@@ -394,7 +393,7 @@ export default function SkillMissionPanel({ summary }: { summary: SkillMissionSu
               {summary.careerReadinessPct}%
             </span>
             <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-              career-ready
+              missions passed
             </span>
           </div>
 

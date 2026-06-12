@@ -14,10 +14,16 @@ type MissionResult = {
   skillsUnlocked: string[];
 };
 
+/* Answers never ship to the client — the quiz-check endpoint grades each
+   answer and returns the explanation after the student commits. */
 type QuizQuestion = {
   text: string;
   options: [string, string, string, string];
-  correctIndex: 0 | 1 | 2 | 3;
+};
+
+type QuizCheckResponse = {
+  correct: boolean;
+  correctIndex: number;
   explanation: string;
 };
 
@@ -49,10 +55,13 @@ type MissionEvalResponse =
       starStory: string;
       resumeBullet: string;
       skillsUnlocked: string[];
+      quizCorrectCount: number;
       aiToolResultId: string | null;
     }
   | { ok: false; error: string };
 
+/* `correct` is local display state derived from the server's quiz-check
+   response — only questionIndex/selectedIndex are sent to evaluate. */
 type QuizAnswer = {
   questionIndex: number;
   selectedIndex: number;
@@ -291,16 +300,45 @@ function PhaseQuiz({
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [selectedThisQ, setSelectedThisQ] = useState<number | null>(null);
+  const [feedback, setFeedback] = useState<QuizCheckResponse | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [checkError, setCheckError] = useState<string | null>(null);
 
   const question = questions[currentQ];
-  const isAnswered = selectedThisQ !== null;
+  const isAnswered = feedback !== null;
   const isLast = currentQ === questions.length - 1;
 
-  function handleSelect(idx: number) {
-    if (selectedThisQ !== null) return;
-    const correct = idx === question.correctIndex;
+  async function handleSelect(idx: number) {
+    if (selectedThisQ !== null || checking) return;
     setSelectedThisQ(idx);
-    setAnswers((prev) => [...prev, { questionIndex: currentQ, selectedIndex: idx, correct }]);
+    setChecking(true);
+    setCheckError(null);
+    try {
+      const res = await fetch(
+        `/api/skill-missions/${encodeURIComponent(mission.courseSlug)}/quiz-check`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            missionKey: mission.key,
+            questionIndex: currentQ,
+            selectedIndex: idx,
+          }),
+        },
+      );
+      if (!res.ok) throw new Error('check failed');
+      const data = (await res.json()) as QuizCheckResponse;
+      setFeedback(data);
+      setAnswers((prev) => [
+        ...prev,
+        { questionIndex: currentQ, selectedIndex: idx, correct: data.correct },
+      ]);
+    } catch {
+      setSelectedThisQ(null);
+      setCheckError('Could not check your answer — tap to try again.');
+    } finally {
+      setChecking(false);
+    }
   }
 
   function handleNext() {
@@ -309,6 +347,7 @@ function PhaseQuiz({
     } else {
       setCurrentQ((q) => q + 1);
       setSelectedThisQ(null);
+      setFeedback(null);
     }
   }
 
@@ -341,7 +380,7 @@ function PhaseQuiz({
       {/* Options */}
       <div style={{ display: 'grid', gap: '0.5rem', marginBottom: '1rem' }}>
         {question.options.map((opt, idx) => {
-          const isCorrect = idx === question.correctIndex;
+          const isCorrect = feedback !== null && idx === feedback.correctIndex;
           const isSelected = selectedThisQ === idx;
 
           let bg = 'var(--surface-container, rgba(0,0,0,0.04))';
@@ -367,8 +406,8 @@ function PhaseQuiz({
             <button
               key={idx}
               type="button"
-              onClick={() => handleSelect(idx)}
-              disabled={isAnswered}
+              onClick={() => void handleSelect(idx)}
+              disabled={isAnswered || checking}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -408,20 +447,32 @@ function PhaseQuiz({
         })}
       </div>
 
+      {/* Checking / error states */}
+      {checking && (
+        <p style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+          Checking…
+        </p>
+      )}
+      {checkError && (
+        <p role="alert" style={{ margin: '0 0 1rem', fontSize: '0.85rem', color: 'var(--color-error, #c83232)' }}>
+          {checkError}
+        </p>
+      )}
+
       {/* Explanation */}
-      {isAnswered && (
+      {feedback && (
         <div
           style={{
             padding: '0.75rem 1rem',
             borderRadius: '0.65rem',
-            background: selectedThisQ === question.correctIndex ? 'rgba(74,155,79,0.08)' : 'rgba(194,120,0,0.08)',
-            border: selectedThisQ === question.correctIndex ? '1px solid rgba(74,155,79,0.2)' : '1px solid rgba(194,120,0,0.2)',
+            background: feedback.correct ? 'rgba(74,155,79,0.08)' : 'rgba(194,120,0,0.08)',
+            border: feedback.correct ? '1px solid rgba(74,155,79,0.2)' : '1px solid rgba(194,120,0,0.2)',
             marginBottom: '1rem',
           }}
         >
           <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.55, color: 'var(--color-on-surface)' }}>
-            <strong>{selectedThisQ === question.correctIndex ? '✅ Exactly right!' : '💡 Here\'s why:'}</strong>{' '}
-            {question.explanation}
+            <strong>{feedback.correct ? '✅ Exactly right!' : '💡 Here\'s why:'}</strong>{' '}
+            {feedback.explanation}
           </p>
         </div>
       )}
@@ -901,9 +952,12 @@ export default function SkillMissionChallenge({ mission, onClose, onComplete }: 
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            programSlug: mission.programSlug,
             missionKey: mission.key,
-            quizAnswers,
+            // Server re-grades from the catalog — only the selections go up.
+            quizAnswers: quizAnswers.map(({ questionIndex, selectedIndex }) => ({
+              questionIndex,
+              selectedIndex,
+            })),
             scenarioResponse,
           }),
         },

@@ -345,6 +345,29 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         @media (max-width: 768px) {
           .apply-flow--step1 .form-radio-card { align-items: center; }
           .apply-flow--step1 .apply-barrier-option { align-items: center; }
+
+          /* Hero + mobile step nav already set context — drop duplicate headings
+             so the first question lands above the fold sooner. */
+          .apply-flow--step1 .apply-step-title {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+          }
+          .apply-flow--step1 .apply-step-desc:not(.apply-eligibility-exception-note) {
+            display: none;
+          }
+          .apply-flow--step1 .apply-eligibility-exception-note {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.45;
+          }
         }
       `}</style>
       {!isPaid ? (

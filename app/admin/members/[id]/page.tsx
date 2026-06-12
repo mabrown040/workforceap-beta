@@ -40,7 +40,7 @@ import { loadLearnerProgressByUserId } from '@/lib/coursera/progressQueries';
 import { getBoardSnapshot, SMALL_SAMPLE_THRESHOLD } from '@/lib/admin/boardOutcomes';
 import MemberCourseraDiagnoseButton from '@/components/admin/MemberCourseraDiagnoseButton';
 import AdminMemberSkillCheckpointPanel from '@/components/admin/AdminMemberSkillCheckpointPanel';
-import { loadSkillCheckpointSummary } from '@/lib/member/skillCheckpoints';
+import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
 type AdminCourseProgressRow = {
   courseSlug: string;
   courseId: string | null;
@@ -366,7 +366,7 @@ export default async function AdminMemberDetailPage({
   const completedCourseSlugs = liveCourseProgress
     .filter((row) => row.status === 'COMPLETED')
     .map((row) => row.courseSlug);
-  const skillCheckpointSummary = await loadSkillCheckpointSummary({
+  const skillMissionSummary = await loadSkillMissionSummary({
     userId: member.id,
     programSlug: member.enrolledProgram ?? null,
     completedCourseSlugs,
@@ -809,7 +809,7 @@ export default async function AdminMemberDetailPage({
           <MemberCourseraDiagnoseButton memberId={member.id} />
         </section>
 
-        <AdminMemberSkillCheckpointPanel memberId={member.id} summary={skillCheckpointSummary} />
+        <AdminMemberSkillCheckpointPanel memberId={member.id} summary={skillMissionSummary} />
 
         <MemberPartnerSection
           memberId={member.id}

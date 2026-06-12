@@ -2,26 +2,142 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { SkillCheckpointSummary } from '@/lib/member/skillCheckpoints';
 
-export default function AdminMemberSkillCheckpointPanel({
+// Types defined locally — this is a client component and cannot import
+// from lib/member/skillMissions (server-only module).
+type MissionStatus = 'locked' | 'ready' | 'passed' | 'needs_retry';
+
+type MissionResult = {
+  verdict: string;
+  coachingNote: string;
+  starStory: string;
+  resumeBullet: string;
+  skillsUnlocked: string[];
+};
+
+type Mission = {
+  key: string;
+  courseTitle: string;
+  missionName: string;
+  status: MissionStatus;
+  completedAt: Date | null;
+  latestResult: MissionResult | null;
+  aiToolResultId: string | null;
+  skillLabels: string[];
+};
+
+type SkillMissionSummary = {
+  programTitle: string | null;
+  totalMissions: number;
+  passedCount: number;
+  readyCount: number;
+  retryCount: number;
+  streak: number;
+  careerReadinessPct: number;
+  demonstratedSkills: string[];
+  missions: Mission[];
+};
+
+const STATUS_BADGE: Record<MissionStatus, { label: string; bg: string; color: string }> = {
+  passed: { label: 'Passed', bg: 'rgba(74,155,79,0.12)', color: '#256b2a' },
+  needs_retry: { label: 'Needs retry', bg: 'rgba(200,50,50,0.1)', color: '#9b1c1c' },
+  ready: { label: 'Ready', bg: 'rgba(37,99,235,0.1)', color: '#1d4ed8' },
+  locked: { label: 'Locked', bg: 'rgba(107,114,128,0.1)', color: '#4b5563' },
+};
+
+function StatusBadge({ status }: { status: MissionStatus }) {
+  const cfg = STATUS_BADGE[status];
+  return (
+    <span
+      style={{
+        padding: '0.15rem 0.55rem',
+        borderRadius: '9999px',
+        fontSize: '0.75rem',
+        fontWeight: 700,
+        background: cfg.bg,
+        color: cfg.color,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {cfg.label}
+    </span>
+  );
+}
+
+function SkillChip({ label, variant = 'green' }: { label: string; variant?: 'green' | 'blue' }) {
+  const isGreen = variant === 'green';
+  return (
+    <span
+      style={{
+        padding: '0.15rem 0.45rem',
+        borderRadius: '9999px',
+        fontSize: '0.75rem',
+        fontWeight: 600,
+        background: isGreen ? 'rgba(74,155,79,0.1)' : 'rgba(37,99,235,0.08)',
+        color: isGreen ? '#256b2a' : '#1d4ed8',
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function StarStoryToggle({ starStory }: { starStory: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ marginTop: '0.5rem' }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          fontSize: '0.8rem',
+          color: 'var(--color-accent)',
+          fontWeight: 600,
+        }}
+      >
+        {open ? 'Hide STAR story ▲' : 'Show STAR story ▼'}
+      </button>
+      {open && (
+        <p
+          style={{
+            marginTop: '0.35rem',
+            fontSize: '0.85rem',
+            lineHeight: 1.55,
+            color: 'var(--color-on-surface-variant)',
+            borderLeft: '3px solid var(--outline-variant)',
+            paddingLeft: '0.75rem',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          {starStory}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function OverrideDropdown({
+  missionKey,
+  programSlug,
   memberId,
-  summary,
+  onDone,
 }: {
+  missionKey: string;
+  programSlug: string | null;
   memberId: string;
-  summary: SkillCheckpointSummary | null;
+  onDone: () => void;
 }) {
-  const router = useRouter();
-  const [pendingKey, setPendingKey] = useState<string | null>(null);
-  const [draftNotes, setDraftNotes] = useState<Record<string, string>>({});
-  const [error, setError] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  if (!summary || summary.totalCount === 0) return null;
-
-  async function submitDecision(checkpointKey: string, decision: 'passed' | 'needs_retry') {
-    if (!summary) return;
-    setPendingKey(checkpointKey);
-    setError(null);
+  async function submit(decision: 'passed' | 'needs_retry') {
+    setPending(true);
+    setErr(null);
     try {
       const res = await fetch(
         `/api/admin/members/${encodeURIComponent(memberId)}/skill-checkpoints`,
@@ -29,144 +145,309 @@ export default function AdminMemberSkillCheckpointPanel({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            checkpointKey,
+            checkpointKey: missionKey,
             decision,
-            programSlug: summary.programSlug,
-            notes: draftNotes[checkpointKey] ?? '',
+            programSlug: programSlug ?? '',
+            notes: '',
           }),
         },
       );
-
       if (!res.ok) {
         const payload = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(payload.error ?? 'Could not save checkpoint decision.');
+        setErr(payload.error ?? 'Override failed.');
         return;
       }
-
-      router.refresh();
+      setOpen(false);
+      onDone();
     } catch {
-      setError('Could not reach the server.');
+      setErr('Could not reach the server.');
     } finally {
-      setPendingKey(null);
+      setPending(false);
     }
   }
 
   return (
-    <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
-      <div style={{ marginBottom: '0.9rem' }}>
-        <h2 style={{ fontSize: '1.1rem', margin: '0 0 0.35rem' }}>Skill checkpoints</h2>
-        <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--color-on-surface-variant)' }}>
-          Mark milestone proof for {summary.programTitle ?? 'this program'} without waiting for a separate certification.
-        </p>
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        type="button"
+        className="btn btn-outline"
+        style={{ fontSize: '0.78rem', padding: '0.25rem 0.65rem' }}
+        onClick={() => setOpen((v) => !v)}
+      >
+        Override
+      </button>
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: '110%',
+            zIndex: 20,
+            background: 'var(--color-surface)',
+            border: '1px solid var(--outline-variant)',
+            borderRadius: '0.5rem',
+            padding: '0.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.35rem',
+            minWidth: '140px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+          }}
+        >
+          <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+            Admin override
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ fontSize: '0.78rem', padding: '0.3rem 0.65rem' }}
+            disabled={pending}
+            onClick={() => submit('passed')}
+          >
+            Force pass
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline"
+            style={{ fontSize: '0.78rem', padding: '0.3rem 0.65rem' }}
+            disabled={pending}
+            onClick={() => submit('needs_retry')}
+          >
+            Force retry
+          </button>
+          {err && (
+            <p role="alert" style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: 'var(--color-error, #c83232)' }}>
+              {err}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MissionCard({
+  mission,
+  memberId,
+  programSlug,
+  onRefresh,
+}: {
+  mission: Mission;
+  memberId: string;
+  programSlug: string | null;
+  onRefresh: () => void;
+}) {
+  const isLocked = mission.status === 'locked';
+  const isPassed = mission.status === 'passed';
+  const isRetry = mission.status === 'needs_retry';
+  const isReady = mission.status === 'ready';
+
+  return (
+    <article
+      style={{
+        borderRadius: '0.75rem',
+        border: '1px solid var(--outline-variant)',
+        background: isLocked ? 'var(--surface-container-highest)' : 'var(--color-surface)',
+        padding: '0.95rem',
+        opacity: isLocked ? 0.55 : 1,
+      }}
+    >
+      {/* Header row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p
+            style={{
+              margin: '0 0 0.2rem',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: 'var(--color-on-surface-variant)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {mission.courseTitle}
+          </p>
+          <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 700 }}>{mission.missionName}</h3>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+          <StatusBadge status={mission.status} />
+          {(isPassed || isRetry) && (
+            <OverrideDropdown
+              missionKey={mission.key}
+              programSlug={programSlug}
+              memberId={memberId}
+              onDone={onRefresh}
+            />
+          )}
+        </div>
       </div>
 
-      {summary.demonstratedSkillLabels.length > 0 ? (
+      {/* Passed: resume bullet + STAR story toggle */}
+      {isPassed && mission.latestResult && (
+        <div style={{ marginTop: '0.65rem' }}>
+          {mission.latestResult.resumeBullet && (
+            <p
+              style={{
+                margin: '0 0 0.35rem',
+                fontSize: '0.88rem',
+                fontStyle: 'italic',
+                lineHeight: 1.5,
+                color: 'var(--color-on-surface)',
+              }}
+            >
+              {mission.latestResult.resumeBullet}
+            </p>
+          )}
+          {mission.latestResult.starStory && (
+            <StarStoryToggle starStory={mission.latestResult.starStory} />
+          )}
+          {mission.completedAt && (
+            <p style={{ margin: '0.5rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
+              Passed{' '}
+              {new Date(mission.completedAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Needs retry: coaching note + skills unlocked */}
+      {isRetry && mission.latestResult && (
+        <div style={{ marginTop: '0.65rem' }}>
+          {mission.latestResult.coachingNote && (
+            <div
+              style={{
+                background: 'rgba(200,50,50,0.06)',
+                borderLeft: '3px solid rgba(200,50,50,0.4)',
+                borderRadius: '0 0.4rem 0.4rem 0',
+                padding: '0.55rem 0.75rem',
+                marginBottom: '0.5rem',
+              }}
+            >
+              <p style={{ margin: '0 0 0.2rem', fontSize: '0.75rem', fontWeight: 700, color: '#9b1c1c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                AI coaching note
+              </p>
+              <p style={{ margin: 0, fontSize: '0.87rem', lineHeight: 1.5, color: 'var(--color-on-surface)' }}>
+                {mission.latestResult.coachingNote}
+              </p>
+            </div>
+          )}
+          {mission.latestResult.skillsUnlocked.length > 0 && (
+            <div>
+              <p style={{ margin: '0 0 0.3rem', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)' }}>
+                Skills to demonstrate
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                {mission.latestResult.skillsUnlocked.map((s) => (
+                  <SkillChip key={s} label={s} variant="blue" />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Ready: awaiting submission */}
+      {isReady && (
+        <p style={{ marginTop: '0.5rem', fontSize: '0.87rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
+          Awaiting student submission
+        </p>
+      )}
+
+      {/* Locked: greyed course name already shown in header */}
+
+      {/* Skill labels (all states) */}
+      {!isLocked && mission.skillLabels.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', marginTop: '0.65rem' }}>
+          {mission.skillLabels.slice(0, 6).map((s) => (
+            <SkillChip key={s} label={s} variant="green" />
+          ))}
+        </div>
+      )}
+    </article>
+  );
+}
+
+export default function AdminMemberSkillCheckpointPanel({
+  memberId,
+  summary,
+}: {
+  memberId: string;
+  summary: SkillMissionSummary | null;
+}) {
+  const router = useRouter();
+
+  if (!summary || summary.totalMissions === 0) return null;
+
+  return (
+    <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.85rem' }}>
+        <div>
+          <h2 style={{ fontSize: '1.1rem', margin: '0 0 0.2rem' }}>Skill Missions</h2>
+          {summary.programTitle && (
+            <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
+              {summary.programTitle}
+            </p>
+          )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <span
+            style={{
+              fontSize: '1.25rem',
+              fontWeight: 800,
+              color: summary.careerReadinessPct >= 80 ? '#256b2a' : summary.careerReadinessPct >= 40 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
+            }}
+          >
+            {summary.careerReadinessPct}% career-ready
+          </span>
+          <div style={{ display: 'flex', gap: '0.4rem', fontSize: '0.8rem' }}>
+            <span style={{ padding: '0.15rem 0.45rem', borderRadius: '9999px', background: 'rgba(74,155,79,0.12)', color: '#256b2a', fontWeight: 600 }}>
+              {summary.passedCount} passed
+            </span>
+            {summary.readyCount > 0 && (
+              <span style={{ padding: '0.15rem 0.45rem', borderRadius: '9999px', background: 'rgba(37,99,235,0.1)', color: '#1d4ed8', fontWeight: 600 }}>
+                {summary.readyCount} ready
+              </span>
+            )}
+            {summary.retryCount > 0 && (
+              <span style={{ padding: '0.15rem 0.45rem', borderRadius: '9999px', background: 'rgba(200,50,50,0.1)', color: '#9b1c1c', fontWeight: 600 }}>
+                {summary.retryCount} retry
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Demonstrated skills chips */}
+      {summary.demonstratedSkills.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>
-          <p style={{ margin: '0 0 0.35rem', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            Demonstrated now
+          <p style={{ margin: '0 0 0.35rem', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)' }}>
+            Demonstrated skills
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-            {summary.demonstratedSkillLabels.slice(0, 10).map((skill) => (
-              <span
-                key={skill}
-                style={{
-                  padding: '0.15rem 0.45rem',
-                  borderRadius: '9999px',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  background: 'rgba(74,155,79,0.1)',
-                  color: '#256b2a',
-                }}
-              >
-                {skill}
-              </span>
+            {summary.demonstratedSkills.slice(0, 12).map((skill) => (
+              <SkillChip key={skill} label={skill} variant="green" />
             ))}
           </div>
         </div>
-      ) : null}
+      )}
 
+      {/* Mission cards */}
       <div style={{ display: 'grid', gap: '0.85rem' }}>
-        {summary.checkpoints.map((checkpoint) => {
-          const isPending = pendingKey === checkpoint.key;
-          return (
-            <article
-              key={checkpoint.key}
-              style={{
-                borderRadius: '0.75rem',
-                border: '1px solid var(--outline-variant)',
-                background: 'var(--color-surface)',
-                padding: '0.95rem',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '0.98rem' }}>{checkpoint.title}</h3>
-                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
-                    {checkpoint.milestoneLabel}
-                  </p>
-                </div>
-                <strong style={{ fontSize: '0.8rem' }}>{checkpoint.status.replace('_', ' ')}</strong>
-              </div>
-
-              <p style={{ margin: '0.65rem 0 0.45rem', fontSize: '0.88rem', lineHeight: 1.5 }}>
-                {checkpoint.scenarioPrompt}
-              </p>
-
-              {checkpoint.skillLabels.length > 0 ? (
-                <p style={{ margin: '0 0 0.6rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                  Skills: {checkpoint.skillLabels.slice(0, 5).join(', ')}
-                </p>
-              ) : null}
-
-              <textarea
-                value={draftNotes[checkpoint.key] ?? checkpoint.latestNotes ?? ''}
-                onChange={(event) =>
-                  setDraftNotes((current) => ({
-                    ...current,
-                    [checkpoint.key]: event.target.value,
-                  }))
-                }
-                rows={3}
-                placeholder="Add proof notes or remediation guidance"
-                style={{
-                  width: '100%',
-                  borderRadius: '0.6rem',
-                  border: '1px solid var(--outline-variant)',
-                  padding: '0.7rem 0.75rem',
-                  font: 'inherit',
-                  resize: 'vertical',
-                  marginBottom: '0.6rem',
-                }}
-              />
-
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  disabled={!checkpoint.unlocked || isPending}
-                  onClick={() => submitDecision(checkpoint.key, 'passed')}
-                >
-                  {isPending ? 'Saving…' : 'Mark passed'}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  disabled={!checkpoint.unlocked || isPending}
-                  onClick={() => submitDecision(checkpoint.key, 'needs_retry')}
-                >
-                  Needs retry
-                </button>
-              </div>
-            </article>
-          );
-        })}
+        {summary.missions.map((mission) => (
+          <MissionCard
+            key={mission.key}
+            mission={mission}
+            memberId={memberId}
+            programSlug={summary.programTitle ? (summary as any).programSlug ?? null : null}
+            onRefresh={() => router.refresh()}
+          />
+        ))}
       </div>
-
-      {error ? (
-        <p role="alert" style={{ margin: '0.75rem 0 0', color: 'var(--color-error, #c83232)' }}>
-          {error}
-        </p>
-      ) : null}
     </section>
   );
 }

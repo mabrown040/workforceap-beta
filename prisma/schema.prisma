@@ -779,6 +779,7 @@ enum AIToolType {
   gap_analyzer
   career_counselor
   skill_assessment
+  skill_mission
 }
 
 model UserCertification {

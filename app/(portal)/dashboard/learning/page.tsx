@@ -12,9 +12,9 @@ import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
 import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledCourses';
 import FindYourCareerSection from '@/components/portal/FindYourCareerSection';
-import SkillCheckpointPanel from '@/components/portal/SkillCheckpointPanel';
+import SkillMissionPanel from '@/components/portal/SkillMissionPanel';
 import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
-import { loadSkillCheckpointSummary } from '@/lib/member/skillCheckpoints';
+import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
 import { readinessVoiceSurface } from '@/lib/portal/voice';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -66,7 +66,7 @@ export default async function LearningPage() {
         .filter((row) => row.programSlug === enrolledProgram)
         .map((row) => row.courseSlug) ?? []
     : [];
-  const skillCheckpointSummary = await loadSkillCheckpointSummary({
+  const skillMissionSummary = await loadSkillMissionSummary({
     userId: user.id,
     programSlug: enrolledProgram,
     completedCourseSlugs: coursesCompletedSlugs,
@@ -135,7 +135,7 @@ export default async function LearningPage() {
       />
 
       <div style={{ margin: '0 1.5rem 1.5rem' }}>
-        <SkillCheckpointPanel summary={skillCheckpointSummary} />
+        <SkillMissionPanel summary={skillMissionSummary} />
       </div>
 
       <FindYourCareerSection compact />
@@ -295,7 +295,7 @@ export default async function LearningPage() {
         assessmentCompleted={dbUser?.assessmentCompleted ?? false}
       />
 
-      <SkillCheckpointPanel summary={skillCheckpointSummary} />
+      <SkillMissionPanel summary={skillMissionSummary} />
 
       <FindYourCareerSection />
 

@@ -4,7 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
-import { recordSkillCheckpointDecision } from '@/lib/member/skillCheckpoints';
+import { recordMissionResult } from '@/lib/member/skillMissions';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const bodySchema = z.object({
@@ -38,15 +38,8 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: Props) =
     }
 
     const member = await prisma.user.findFirst({
-      where: {
-        id: memberId,
-        deletedAt: null,
-        organizationId: orgId,
-      },
-      select: {
-        id: true,
-        enrolledProgram: true,
-      },
+      where: { id: memberId, deletedAt: null, organizationId: orgId },
+      select: { id: true, enrolledProgram: true },
     });
     if (!member) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
@@ -54,18 +47,27 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: Props) =
 
     if (member.enrolledProgram !== parsed.data.programSlug) {
       return NextResponse.json(
-        { error: 'Checkpoint program does not match the member’s active program.' },
+        { error: 'Checkpoint program does not match the member\'s active program.' },
         { status: 400 },
       );
     }
 
-    await recordSkillCheckpointDecision({
-      actorUserId: user.id,
-      checkpointKey: parsed.data.checkpointKey,
-      decision: parsed.data.decision,
-      memberId,
-      notes: parsed.data.notes,
+    // Extract courseSlug from checkpointKey format: `${programSlug}:mission:${courseSlug}`
+    const keyParts = parsed.data.checkpointKey.split(':mission:');
+    const courseSlug = keyParts[1] ?? parsed.data.checkpointKey;
+
+    await recordMissionResult({
+      userId: memberId,
       programSlug: parsed.data.programSlug,
+      courseSlug,
+      result: {
+        verdict: parsed.data.decision,
+        coachingNote: parsed.data.notes?.trim() || 'Admin override.',
+        starStory: '',
+        resumeBullet: '',
+        skillsUnlocked: [],
+      },
+      aiToolResultId: null,
     });
 
     return NextResponse.json({ ok: true });

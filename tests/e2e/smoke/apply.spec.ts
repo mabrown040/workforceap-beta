@@ -20,6 +20,7 @@ test.describe('Apply smoke', () => {
     await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/eligibility|you/i);
     await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
     await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/501\(c\)\(3\)|no cost/i);
+    await expect(page.locator('.apply-mobile-trust-bar__phone')).toHaveAttribute('href', 'tel:+15127771808');
 
     // Sidebar with progress steps
     await expect(page.locator('.apply-sidebar, aside').first()).toBeVisible();

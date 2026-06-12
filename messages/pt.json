@@ -779,6 +779,8 @@
     "applyNonprofitBadge": "Organização 501(c)(3) · EIN 41-2612389",
     "applyNonprofitBadgeDesc": "WorkforceAP é uma organização sem fins lucrativos registrada. Os programas são oferecidos sem custo a membros qualificados por meio do Treinamento Financiado pela Workforce.",
     "mobileTrustBar": "✓ Sem custo para membros · ✓ 501(c)(3) nonprofit · ✓ (512) 777-1808",
+    "mobileTrustBarNoCost": "Sem custo para membros",
+    "mobileTrustBarNonprofit": "501(c)(3) nonprofit",
     "mobileTrustBarAria": "Program credentials",
     "resultsBackStep1": "Voltar para a etapa 1",
     "resultsHeroBody": "Classifique até três programas por ordem de preferência. Você criará sua conta na próxima etapa para que possamos salvar suas escolhas e fazer um acompanhamento.",

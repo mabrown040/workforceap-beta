@@ -100,19 +100,28 @@ export const getUser = cache(async function getUser() {
 export const resolveAuthGucContext = cache(async function resolveAuthGucContext(): Promise<GucContext> {
   const user = await getUser();
   if (!user) return ANONYMOUS_GUC_CONTEXT;
-  const [profileRole, userRow] = await Promise.all([
-    getProfileRole(user.id),
-    // Resolve the user's organization so the GUC carries `app.current_org_id`.
-    // Previously orgId was hardcoded to null, which makes every RLS policy
-    // that calls `can_access_org_row(check_org_id)` evaluate with NULL —
-    // every admin RLS path silently fails once FORCE ROW LEVEL SECURITY
-    // is enabled (AUDIT §C-T6). Today it's masked because Prisma uses the
-    // service-role connection that bypasses RLS; this lookup makes the
-    // GUC ready for the forced-RLS flip.
-    prisma.user
-      .findUnique({ where: { id: user.id }, select: { organizationId: true } })
-      .catch(() => null),
-  ]);
+  // Bootstrap lookups run inside a partial GUC context carrying the verified
+  // userId so the `users_select_own` RLS policy (`id = get_current_user_id()`)
+  // permits the self-read once FORCE ROW LEVEL SECURITY is enabled. Without
+  // it the lookup would be denied and `.catch(() => null)` would silently
+  // degrade back to orgId null, defeating the fix (same seam as the root
+  // layout, fixed in #1615).
+  const bootstrapCtx = buildGucContext({ userId: user.id, orgId: null });
+  const [profileRole, userRow] = await runWithGucContext(bootstrapCtx, () =>
+    Promise.all([
+      getProfileRole(user.id),
+      // Resolve the user's organization so the GUC carries `app.current_org_id`.
+      // Previously orgId was hardcoded to null, which makes every RLS policy
+      // that calls `can_access_org_row(check_org_id)` evaluate with NULL —
+      // every admin RLS path silently fails once FORCE ROW LEVEL SECURITY
+      // is enabled (AUDIT §C-T6). Today it's masked because Prisma uses the
+      // service-role connection that bypasses RLS; this lookup makes the
+      // GUC ready for the forced-RLS flip.
+      prisma.user
+        .findUnique({ where: { id: user.id }, select: { organizationId: true } })
+        .catch(() => null),
+    ]),
+  );
   return buildGucContext({
     userId: user.id,
     orgId: userRow?.organizationId ?? null,

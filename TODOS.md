@@ -68,18 +68,25 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
-## Completed
+## TODO-006: admin/token-links — P2 hardening follow-ups (post TODO-005)
 
-- **TODO-003: Coursera Hub — "NOW" Badge Font Size** — `font-size` changed from `0.65rem` → `0.75rem`. Completed 2026-05-05, PR split/pr2-coursera-launch-hardening.
+**What:** Adversarial review of PR #1657 closed the P1 but flagged P2s on `app/api/admin/token-links/route.ts`:
+1. **Existence oracle:** cross-tenant denial returns 404 only for nonexistent IDs; an existing Org-B member yields 403 (`lib/auth/actAsSubject.ts:54` vs `:94`) — lets an Org-A admin enumerate valid user UUIDs. Collapse both to 404.
+2. **No audit log on link minting** — minting a public single-use credential bound to a member profile-write should call `auditLog` (15+ comparable admin routes do).
+3. **No rate limit on minting** — precedent: `adminInviteRateLimiter` (`lib/rate-limit.ts:31`).
+4. **RLS forward-compat:** `getSubjectOrganizationId` + the fullName lookup are deliberately cross-tenant raw Prisma reads; under FORCE RLS with an actor-org GUC the super_admin path will return null → 500. Track in the Sprint 3 FORCE RLS flip checklist.
+
+**Why:** Defense-in-depth on an admin credential-minting surface; item 4 is a known FORCE RLS landmine.
+
+**Priority:** P2
+
+**Fix shape:** Same-route changes; items 1–3 are small. Item 4 belongs with the FORCE RLS flip work (GUC bypass or explicit super_admin context).
 
 ---
 
-## TODO-005: admin/token-links — cross-tenant subjectUserId minting
+## Completed
 
-**What:** `app/api/admin/token-links/route.ts` calls `getSubjectOrganizationId(subjectUserId)` without the act-on-behalf gate that helper requires (`lib/tenant/organization.ts:62-67`). An Org-A admin can pass any Org-B `subjectUserId`, mint an eligibility link bound to that member, and leak their `fullName` via the unscoped lookup. The `.catch(() => null)` also silently degrades orgId to null.
+- **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
+- **TODO-003: Coursera Hub — "NOW" Badge Font Size** — `font-size` changed from `0.65rem` → `0.75rem`. Completed 2026-05-05, PR split/pr2-coursera-launch-hardening.
 
-**Why:** Cross-tenant write + PII leak on an admin surface. Found by adversarial review on the tenant-route guardrail expansion (2026-06-12); the guardrail deliberately does NOT assert this route until fixed (see note in `scripts/verify-high-risk-tenant-routes.cjs`).
-
-**Priority:** P1
-
-**Fix shape:** Verify `subjectUserId` belongs to the actor's org (or goes through `resolveActOnBehalf`) before minting; fail loudly instead of `.catch(() => null)`. Then add the route to the guardrail.
+---

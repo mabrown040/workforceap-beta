@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { createTokenizedLink } from '@/lib/tokenizedLink';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
+import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { sendEligibilityLink } from '@/lib/email';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -54,10 +55,24 @@ export const POST = withApiGuc(async (request: Request) => {
     }
     const { email, subjectUserId } = parsed.data;
 
+    // When binding the link to a member, the actor must have authority over
+    // that member (org admin in the member's org, or super_admin). Without
+    // this gate, getSubjectOrganizationId is an unscoped cross-tenant lookup:
+    // an Org-A admin could mint a link bound to any Org-B member and leak
+    // their name via the email path (TODO-005).
+    if (subjectUserId) {
+      const behalf = await resolveActOnBehalf(user.id, subjectUserId);
+      if (!behalf.ok) {
+        return NextResponse.json({ error: behalf.error }, { status: behalf.status });
+      }
+    }
+
     // Scope the link to the subject member's org when bound, else the actor's.
+    // Fail loudly on lookup errors (outer catch -> 500) instead of silently
+    // degrading orgId to null, which would mint an unscoped link.
     const orgId = subjectUserId
-      ? await getSubjectOrganizationId(subjectUserId).catch(() => null)
-      : await getActorOrganizationId(user.id).catch(() => null);
+      ? await getSubjectOrganizationId(subjectUserId)
+      : await getActorOrganizationId(user.id);
 
     const { token } = await createTokenizedLink({
       type: 'eligibility_questionnaire',

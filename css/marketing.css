@@ -248,6 +248,16 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
   }
 }
 
+.home-impact-bento__stats {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 480px) {
+  .home-impact-bento__stats {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .home-employer-elevated {
     transform: none !important;

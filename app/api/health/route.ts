@@ -30,7 +30,8 @@ type HealthChecks = {
 async function checkDatabase(): Promise<CheckResult> {
   const started = Date.now();
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    // Must run inside $transaction — see app/api/auth/login/route.ts.
+    await prisma.$transaction([prisma.$queryRaw`SELECT 1`]);
     return { status: 'ok', responseTimeMs: Date.now() - started };
   } catch {
     return { status: 'degraded', responseTimeMs: Date.now() - started };

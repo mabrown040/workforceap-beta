@@ -214,9 +214,27 @@ assertContains(
   'counselor member detail goes through staff access gate',
 );
 
-// NOTE (2026-06-12): app/api/admin/token-links/route.ts deliberately NOT
-// asserted yet — its getSubjectOrganizationId(subjectUserId) call runs without
-// the act-on-behalf gate that helper requires, so an Org-A admin can mint a
-// link against an Org-B member. Assert it only after that route is fixed.
+// token-links: getSubjectOrganizationId is a cross-tenant lookup that is only
+// safe behind resolveActOnBehalf (TODO-005 fix, 2026-06-12). The gate must run
+// BEFORE the org resolution, and the silent `.catch(() => null)` orgId
+// degradation must stay gone.
+{
+  const rel = 'app/api/admin/token-links/route.ts';
+  const src = read(rel);
+  const gateIdx = src.indexOf('resolveActOnBehalf(user.id, subjectUserId)');
+  const lookupIdx = src.indexOf('getSubjectOrganizationId(subjectUserId)');
+  if (gateIdx === -1) {
+    fail(`${rel} missing act-on-behalf gate: expected "resolveActOnBehalf(user.id, subjectUserId)"`);
+  }
+  if (lookupIdx === -1) {
+    fail(`${rel} missing scoped org resolution: expected "getSubjectOrganizationId(subjectUserId)"`);
+  }
+  if (gateIdx > lookupIdx) {
+    fail(`${rel}: resolveActOnBehalf gate must run BEFORE getSubjectOrganizationId`);
+  }
+  if (src.includes('getSubjectOrganizationId(subjectUserId).catch') || src.includes('getActorOrganizationId(user.id).catch')) {
+    fail(`${rel}: orgId resolution must fail loudly, not degrade to null via .catch()`);
+  }
+}
 
 console.log('[verify-high-risk-tenant-routes] OK');

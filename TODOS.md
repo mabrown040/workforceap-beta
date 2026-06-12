@@ -70,16 +70,7 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ## Completed
 
+- **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-003: Coursera Hub — "NOW" Badge Font Size** — `font-size` changed from `0.65rem` → `0.75rem`. Completed 2026-05-05, PR split/pr2-coursera-launch-hardening.
 
 ---
-
-## TODO-005: admin/token-links — cross-tenant subjectUserId minting
-
-**What:** `app/api/admin/token-links/route.ts` calls `getSubjectOrganizationId(subjectUserId)` without the act-on-behalf gate that helper requires (`lib/tenant/organization.ts:62-67`). An Org-A admin can pass any Org-B `subjectUserId`, mint an eligibility link bound to that member, and leak their `fullName` via the unscoped lookup. The `.catch(() => null)` also silently degrades orgId to null.
-
-**Why:** Cross-tenant write + PII leak on an admin surface. Found by adversarial review on the tenant-route guardrail expansion (2026-06-12); the guardrail deliberately does NOT assert this route until fixed (see note in `scripts/verify-high-risk-tenant-routes.cjs`).
-
-**Priority:** P1
-
-**Fix shape:** Verify `subjectUserId` belongs to the actor's org (or goes through `resolveActOnBehalf`) before minting; fail loudly instead of `.catch(() => null)`. Then add the route to the guardrail.

@@ -9,6 +9,7 @@ import UtmCapture from '@/components/marketing/UtmCapture';
 import { getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
 import { getTranslations } from 'next-intl/server';
 import ApplyMobileStepNav from '@/components/apply/ApplyMobileStepNav';
+import ApplyMobileTrustBar from '@/components/apply/ApplyMobileTrustBar';
 import ApplyOrganicStickyCta from '@/components/apply/ApplyOrganicStickyCta';
 import TrustStrip from '@/components/marketing/TrustStrip';
 import PreLaunchTag from '@/components/portal/PreLaunchTag';
@@ -306,6 +307,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
 
           <div id="apply-form-start" className="apply-main-form__primary">
             <ApplyMobileStepNav activeStep={0} />
+            <ApplyMobileTrustBar />
             <TrustStrip variant="apply" />
 
             <Suspense fallback={<ApplyPageSkeleton />}>

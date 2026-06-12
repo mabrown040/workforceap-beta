@@ -22,11 +22,12 @@ type PaidApplyVariantProps = {
   utmSource: PaidApplyUtmSource;
   program?: string;
   stepNav?: ReactNode;
+  mobileTrustBar?: ReactNode;
   proofBlock?: ReactNode;
   trustStrip?: ReactNode;
 };
 
-export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trustStrip }: PaidApplyVariantProps) {
+export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, proofBlock, trustStrip }: PaidApplyVariantProps) {
   const t = useTranslations('apply');
   const showStickyCta = useApplyStickyCtaVisibility(`#${PAID_APPLY_ELIGIBILITY_ID}`);
 
@@ -76,6 +77,7 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
           <UtmCapture />
         </Suspense>
         {stepNav}
+        {mobileTrustBar}
         <p className="paid-apply-form-kicker" role="note">
           {t('paidFormKicker')}
         </p>
@@ -267,13 +269,17 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
             padding: var(--space-6) var(--space-4) calc(var(--space-10) + 4.5rem + env(safe-area-inset-bottom, 0px));
           }
 
-          .paid-apply-form-kicker {
-            display: block;
+          .paid-apply-form-section .apply-mobile-step-nav {
+            order: 0;
+          }
+
+          .paid-apply-form-section .apply-mobile-trust-bar {
             order: 1;
           }
 
-          .paid-apply-form-section .apply-mobile-step-nav {
-            order: 0;
+          .paid-apply-form-kicker {
+            display: block;
+            order: 2;
           }
 
           /* Form first on mobile — proof card stays below the fold until after eligibility */
@@ -290,10 +296,6 @@ export default function PaidApplyVariant({ utmSource, stepNav, proofBlock, trust
             order: 4;
             margin-top: var(--space-6);
             margin-bottom: 0;
-          }
-
-          .paid-apply-form-section .paid-apply-form-kicker {
-            order: 1;
           }
 
           .apply-flow--paid .apply-step1-actions {

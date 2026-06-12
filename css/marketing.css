@@ -958,6 +958,24 @@ html.has-marketing-main-nav {
     margin-bottom: var(--space-4);
   }
 
+  /* Mobile trust bar carries nonprofit + no-cost + phone at form entry */
+  .trust-strip--apply {
+    display: none;
+  }
+
+  .apply-mobile-trust-bar {
+    display: block;
+    margin: 0 0 var(--space-4);
+    padding: var(--space-2) var(--space-3);
+    background: var(--surface-container-high);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--outline-variant);
+    text-align: center;
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant);
+    line-height: 1.4;
+  }
+
   .trust-strip--apply .trust-strip__line {
     padding-inline: var(--space-4);
     font-size: var(--font-size-xs, 0.8125rem);
@@ -993,6 +1011,10 @@ html.has-marketing-main-nav {
 
 /* Apply funnel — compact step progress (mobile only) */
 .apply-mobile-step-nav {
+  display: none;
+}
+
+.apply-mobile-trust-bar {
   display: none;
 }
 

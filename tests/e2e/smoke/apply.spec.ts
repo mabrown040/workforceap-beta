@@ -18,6 +18,8 @@ test.describe('Apply smoke', () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await expect(page.locator('.apply-mobile-step-nav')).toBeVisible();
     await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/eligibility|you/i);
+    await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
+    await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/501\(c\)\(3\)|no cost/i);
 
     // Sidebar with progress steps
     await expect(page.locator('.apply-sidebar, aside').first()).toBeVisible();

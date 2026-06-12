@@ -123,10 +123,15 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     });
   }
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: data.user.id },
-    select: { role: true },
-  });
+  // Must run inside $transaction: since #1631 the Prisma middleware
+  // fail-closes on queries under an active GUC context outside one.
+  // A bare findUnique here threw and 500'd every login (P0).
+  const [profile] = await prisma.$transaction([
+    prisma.profile.findUnique({
+      where: { userId: data.user.id },
+      select: { role: true },
+    }),
+  ]);
 
   const staffMfaEnabled = isStaffMfaEnforcementEnabled();
   const aalData = staffMfaEnabled

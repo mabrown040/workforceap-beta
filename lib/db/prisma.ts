@@ -103,7 +103,15 @@ function createPrismaClient(): PrismaClient {
     const ctx = getGucContext();
 
     if (requiresExplicitTransactionForGucContext(ctx, inTransaction)) {
-      throw new Error(
+      // FAIL-OPEN (P0 hotfix): #1631 made this throw, which 500'd every
+      // withApiGuc route still using bare prisma calls — including
+      // /api/auth/login — for ~24h in prod. RLS is enabled but NOT forced
+      // (relforcerowsecurity=false) and the app connects as table owner, so
+      // the transaction-local GUC is not yet load-bearing for authorization.
+      // Log loudly so the $transaction migration can continue, and flip this
+      // back to a throw in the same change that flips FORCE ROW LEVEL
+      // SECURITY — at that point fail-open would mean silent empty reads.
+      console.error(
         `[prisma:guc] Query "${params.model ?? 'raw'}.${params.action}" ran with an active GUC context ` +
           `outside an explicit $transaction. Wrap RLS-protected Prisma calls in prisma.$transaction() ` +
           `so transaction-local GUCs remain visible to PostgreSQL policies.`,

@@ -49,7 +49,11 @@ function sanitizeSuggestions(
 
 export async function parseResumeCoachSuggestionsFromTranscript(
   input: Array<{ speaker?: string; text?: string }>,
-  options?: { maxSuggestions?: number; maxAgentChars?: number }
+  options?: {
+    maxSuggestions?: number;
+    maxAgentChars?: number;
+    aiChat?: typeof claudeChat;
+  }
 ): Promise<ResumeCoachSuggestion[]> {
   const transcript = normalizeResumeCoachTranscript(input);
   if (!transcript.length) return [];
@@ -72,9 +76,12 @@ export async function parseResumeCoachSuggestionsFromTranscript(
     'Extract resume improvement suggestions from a voice coaching transcript. Return strict JSON array of objects with keys: original (the text to change, if quoted), suggested (the improved version), context (brief explanation). If no concrete suggestions exist, return empty array. Only include actionable resume text changes.';
   const userPrompt = `Voice coach transcript (agent lines only):\n\n${agentLines}`;
 
-  const text = await claudeChat(systemPrompt, userPrompt, { maxTokens: 1200, temperature: 0.1 });
-  if (text) {
-    try {
+  try {
+    const text = await (options?.aiChat ?? claudeChat)(systemPrompt, userPrompt, {
+      maxTokens: 1200,
+      temperature: 0.1,
+    });
+    if (text) {
       const jsonMatch = text.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]) as Array<{
@@ -84,9 +91,9 @@ export async function parseResumeCoachSuggestionsFromTranscript(
         }>;
         suggestions = sanitizeSuggestions(parsed, maxSuggestions);
       }
-    } catch (err) {
-      console.error('[resume-coach-suggestions] AI parse error:', err);
     }
+  } catch (err) {
+    console.error('[resume-coach-suggestions] AI parse error:', err);
   }
 
   return suggestions;

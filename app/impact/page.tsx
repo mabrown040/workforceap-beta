@@ -182,10 +182,6 @@ export default async function ImpactPage() {
           />
 
           {!hasLiveData ? (
-            <p className="impact-page__data-light-note">{t('dataLightNote')}</p>
-          ) : null}
-
-          {!hasLiveData ? (
             <div className="impact-page__empty-hero">
               <InfoCard
                 variant="bordered"
@@ -330,13 +326,6 @@ export default async function ImpactPage() {
         }
         .impact-page__empty-hero {
           margin-bottom: 2.5rem;
-        }
-        .impact-page__data-light-note {
-          margin: 0 0 1.5rem;
-          max-width: 42rem;
-          font-size: 0.92rem;
-          line-height: 1.6;
-          color: var(--color-on-surface-variant);
         }
         .impact-page__hero-metric {
           margin-bottom: 2.5rem;

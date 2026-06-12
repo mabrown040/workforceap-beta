@@ -153,7 +153,9 @@ export default async function EmployersPage() {
         <div className="container employers-trust__inner">
           {showLogos ? (
             <div className="employers-trust__logos">
-              <p className="employers-trust__logos-label">{t('trustLogosLabel')}</p>
+              <p className="employers-trust__logos-label">
+                {showLogosOnly ? t('trustLogosOnlyLabel') : t('trustLogosLabel')}
+              </p>
               <ul className="employers-trust__logo-list">
                 {trust.logos.map((logo) => (
                   <li key={logo.companyName}>
@@ -194,7 +196,9 @@ export default async function EmployersPage() {
           {showVerifiedStats ? (
             <p className="employers-trust__as-of">{trust.asOfLabel}</p>
           ) : (
-            <p className="employers-trust__as-of">{t('trustPlaceholderNote')}</p>
+            <p className="employers-trust__as-of">
+              {showLogosOnly ? t('trustLogosOnlyNote') : t('trustPlaceholderNote')}
+            </p>
           )}
           <p className="employers-trust__impact-link-wrap">
             <LocalizedLink href="/impact" className="employers-trust__impact-link">

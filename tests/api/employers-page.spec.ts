@@ -8,7 +8,8 @@ describe('Employers Page — honest trust presentation', () => {
     const source = readFileSync(pagePath, 'utf-8');
 
     expect(source).toContain("t('trustAriaLabelLogosOnly')");
-    expect(source).toContain('showLogosOnly');
+    expect(source).toContain("showLogosOnly ? t('trustLogosOnlyLabel')");
+    expect(source).toContain("showLogosOnly ? t('trustLogosOnlyNote')");
     expect(source).toContain("t('trustPlaceholderHeading')");
     expect(source).toContain('employers-trust__stats--placeholder');
     expect(source).toContain("showVerifiedStats ? 'verified' : 'handshake'");

@@ -780,6 +780,7 @@ enum AIToolType {
   career_counselor
   skill_assessment
   skill_mission
+  job_tailor
 }
 
 model UserCertification {

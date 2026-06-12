@@ -782,6 +782,7 @@
     "mobileTrustBar": "✓ Capacitación financiada por Workforce para miembros calificados · ✓ organización 501(c)(3) · ✓ (512) 777-1808",
     "mobileTrustBarNoCost": "Capacitación financiada por Workforce para miembros calificados",
     "mobileTrustBarNonprofit": "organización 501(c)(3)",
+    "mobileTrustBarPhoneAria": "¿Preguntas? Llama al {phone}",
     "mobileTrustBarAria": "Credenciales del programa",
     "resultsHeroBody": "Ordena hasta tres programas según preferencia. Crearás tu cuenta en el siguiente paso para que podamos guardar tus elecciones y dar seguimiento.",
     "resultsHeroTitle": "Paso 2 de 3 — elige tus programas",

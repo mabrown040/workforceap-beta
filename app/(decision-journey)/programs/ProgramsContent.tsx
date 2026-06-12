@@ -243,8 +243,17 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
           <h2 className="text-display-sm" style={{ margin: '0 0 0.5rem', color: 'var(--color-on-surface)' }}>
             {t('catalogTitle', { count: WORKFORCEAP_PROGRAM_CATALOG_SIZE })}
           </h2>
-          <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6, maxWidth: '42rem' }}>
+          <p
+            className="program-catalog-lead program-catalog-lead--desktop"
+            style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6, maxWidth: '42rem' }}
+          >
             {t('catalogLead')}
+          </p>
+          <p
+            className="program-catalog-lead program-catalog-lead--mobile"
+            style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.6, maxWidth: '42rem' }}
+          >
+            {t('catalogLeadMobile')}
           </p>
         </div>
         <div className="program-catalog-search-row" style={{ marginBottom: '1.25rem' }}>
@@ -255,7 +264,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
             id="program-catalog-search"
             type="search"
             className="program-catalog-search-input"
-            placeholder="Search programs by name, skill, partner, or topic…"
+            placeholder={t('catalogSearchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             autoComplete="off"

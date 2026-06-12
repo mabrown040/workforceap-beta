@@ -1490,6 +1490,8 @@
       "heroCta2": "Haz la guía de 2 minutos",
       "catalogTitle": "Ver los {count} programas",
       "catalogLead": "Busca por nombre, habilidad, socio o tema — o explora por categoría.",
+      "catalogLeadMobile": "Toca una categoría arriba para saltar, o busca abajo por nombre, habilidad, socio o tema.",
+      "catalogSearchPlaceholder": "Buscar programas por nombre, habilidad, socio o tema…",
       "headlineMain": "Encuentra el programa adecuado",
       "headlineAccent": "para tus metas.",
       "quickStartCard1Eyebrow": "Apto para principiantes",

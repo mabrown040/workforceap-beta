@@ -770,6 +770,18 @@ html.has-marketing-main-nav {
   }
 
   /*
+   * Catalog lead copy references filter chips on desktop; on mobile the sticky
+   * browse nav replaces them — swap to mobile-specific guidance.
+   */
+  .program-catalog-lead--desktop {
+    display: none;
+  }
+
+  .program-catalog-lead--mobile {
+    display: block;
+  }
+
+  /*
    * Programs hero: sidebar photo duplicates homepage imagery and pushes browse nav +
    * quick-start below the fold. Copy + CTAs are enough on small screens.
    */
@@ -848,6 +860,10 @@ html.has-marketing-main-nav {
  * /programs: mobile category jump chips — sticky below fixed main nav so members can
  * skip past intro blocks to catalog subgroups without learning filter UI first.
  */
+.program-catalog-lead--mobile {
+  display: none;
+}
+
 .programs-mobile-browse {
   display: none;
 }

@@ -164,7 +164,14 @@ function createPrismaClient(): PrismaClient {
       const promises = args[0] as Promise<unknown>[];
       const options = args[1];
       const gucPromise = (client as any).$executeRawUnsafe(gucSql);
-      return inTransactionStorage.run(true, () => originalTransaction([gucPromise, ...promises], options));
+      return inTransactionStorage.run(true, async () => {
+        // Strip the injected GUC query's result so callers see exactly the
+        // results of the queries THEY passed — without this, destructuring
+        // like `const [row] = await prisma.$transaction([q])` silently gets
+        // the set_config result instead of the row.
+        const results = await originalTransaction([gucPromise, ...promises], options);
+        return Array.isArray(results) ? results.slice(1) : results;
+      });
     }
 
     // Fallback for any other signature.

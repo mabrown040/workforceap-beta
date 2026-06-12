@@ -65,12 +65,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
 
     if (user) {
       // Must run inside $transaction — see app/api/auth/login/route.ts.
-      const [profile] = await prisma.$transaction([
-        prisma.profile.findUnique({
+      // Callback form: array-form results were shifted by the injected GUC query.
+      const profile = await prisma.$transaction((tx) =>
+        tx.profile.findUnique({
           where: { userId: user.id },
           select: { role: true },
         }),
-      ]);
+      );
 
       const isStaff =
         profile?.role === 'super_admin' ||

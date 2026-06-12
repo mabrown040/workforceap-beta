@@ -1061,6 +1061,8 @@ html.has-marketing-main-nav {
     font-weight: 600;
     line-height: 1.25;
     color: var(--color-on-surface-variant);
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
 
   .apply-mobile-step-nav__item--active .apply-mobile-step-nav__label {

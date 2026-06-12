@@ -38,7 +38,7 @@ export const POST = withApiGuc(
 
       const { id } = await context.params;
 
-      const member = await prisma.user.findUnique({
+      const member = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id },
         select: {
           fullName: true,
@@ -82,7 +82,7 @@ export const POST = withApiGuc(
             },
           },
         },
-      });
+      }));
 
       if (!member || member.deletedAt) {
         return NextResponse.json({ error: 'Member not found' }, { status: 404 });

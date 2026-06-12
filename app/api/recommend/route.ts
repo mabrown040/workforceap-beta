@@ -18,10 +18,10 @@ export const GET = withApiGuc(async () => {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const row = await prisma.user.findUnique({
+  const row = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: { careerRecommendationJson: true },
-  });
+  }));
 
   const careerRecommendation = (row?.careerRecommendationJson ?? null) as CareerMatchResult | null;
   const slugs = resolveRecommendedProgramSlugs(careerRecommendation, 3);

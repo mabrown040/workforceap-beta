@@ -14,9 +14,9 @@ const markRead = withApiGuc(async (_request: Request, { params }: Props) => {
 
     const { id } = await params;
 
-    const existing = await prisma.notification.findUnique({
+    const existing = await prisma.$transaction((tx) => tx.notification.findUnique({
       where: { id },
-    });
+    }));
 
     if (!existing) {
       return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
@@ -26,10 +26,10 @@ const markRead = withApiGuc(async (_request: Request, { params }: Props) => {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const updated = await prisma.notification.update({
+    const updated = await prisma.$transaction((tx) => tx.notification.update({
       where: { id },
       data: { readAt: new Date() },
-    });
+    }));
 
     return NextResponse.json({
       ok: true,

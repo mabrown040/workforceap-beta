@@ -100,13 +100,13 @@ function shortVerb(verbId: string | null): string | null {
     } catch {
       return NextResponse.json({ items: [], totals: { items: 0 } });
     }
-    const targetUser = await prisma.user.findFirst({
+    const targetUser = await prisma.$transaction((tx) => tx.user.findFirst({
       where: {
         email: { equals: emailParam, mode: 'insensitive' },
         organizationId: orgId,
       },
       select: { id: true },
-    });
+    }));
     if (!targetUser) {
       // Don't leak whether the email exists in another tenant.
       return NextResponse.json({ items: [], totals: { items: 0 } });
@@ -118,7 +118,7 @@ function shortVerb(verbId: string | null): string | null {
   // (a single course is ~10–100 items, each with ≤a-few-dozen statements),
   // and the in-memory rollup makes the "latest verb / latest score" logic
   // trivial without window-function gymnastics.
-  const statements = await prisma.xapiStatement.findMany({
+  const statements = await prisma.$transaction((tx) => tx.xapiStatement.findMany({
     where: {
       actorEmail: emailParam,
       courseId: courseraCourseId,
@@ -135,7 +135,7 @@ function shortVerb(verbId: string | null): string | null {
     },
     orderBy: { createdAt: 'asc' },
     take: 100,
-  });
+  }));
 
   type Acc = {
     itemType: string | null;

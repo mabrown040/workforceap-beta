@@ -198,14 +198,14 @@ export const POST = withApiGuc(async (request: Request) => {
             targetId: memberId,
             metadata: { memberId, contactedAt: new Date().toISOString() },
           });
-          await prisma.memberEvent
+          await prisma.$transaction((tx) => tx.memberEvent
             .create({
               data: {
                 userId: memberId,
                 eventName: 'counselor_inbox_zero_contacted',
                 metadata: { markedBy: user.id },
               },
-            })
+            }))
             .catch((e) => console.error('[bulk contacted] memberEvent:', e));
           await logInboxZeroBulkAuditEvent({
             actorUserId: user.id,
@@ -228,14 +228,15 @@ export const POST = withApiGuc(async (request: Request) => {
 
     if (parsed.data.action === 'reassign') {
       const orgId = await getActorOrganizationId(user.id);
-      const targetCounselor = await prisma.counselor.findFirst({
+      const reassignCounselorUserId = parsed.data.counselorUserId;
+      const targetCounselor = await prisma.$transaction((tx) => tx.counselor.findFirst({
         where: {
-          userId: parsed.data.counselorUserId,
+          userId: reassignCounselorUserId,
           active: true,
           user: { organizationId: orgId },
         },
         include: { user: { select: { id: true, fullName: true } } },
-      });
+      }));
       if (!targetCounselor) {
         return NextResponse.json({ error: 'Counselor not found or inactive' }, { status: 400 });
       }
@@ -259,11 +260,11 @@ export const POST = withApiGuc(async (request: Request) => {
             continue;
           }
 
-          const existingPair = await prisma.counselorAssignment.findUnique({
+          const existingPair = await prisma.$transaction((tx) => tx.counselorAssignment.findUnique({
             where: {
               counselorId_memberId: { counselorId: targetCounselor.id, memberId },
             },
-          });
+          }));
 
           await prisma.$transaction(async (tx) => {
             await tx.counselorAssignment.updateMany({
@@ -283,10 +284,10 @@ export const POST = withApiGuc(async (request: Request) => {
           });
 
           const thread = await getOrCreateMemberCounselorThread(memberId);
-          await prisma.messageThread.update({
+          await prisma.$transaction((tx) => tx.messageThread.update({
             where: { id: thread.id },
             data: { counselorUserId: targetCounselor.userId },
-          });
+          }));
 
           await auditLog({
             actorUserId: user.id,
@@ -349,7 +350,8 @@ export const POST = withApiGuc(async (request: Request) => {
             bulk: true,
           },
         });
-        await prisma.memberEvent
+        const dismissFlags = parsed.data.flags ?? [];
+        await prisma.$transaction((tx) => tx.memberEvent
           .create({
             data: {
               userId: memberId,
@@ -357,11 +359,11 @@ export const POST = withApiGuc(async (request: Request) => {
               metadata: {
                 dismissedBy: user.id,
                 reason: trimmedReason,
-                flags: parsed.data.flags ?? [],
+                flags: dismissFlags,
                 bulk: true,
               },
             },
-          })
+          }))
           .catch((e) => console.error('[bulk dismiss] memberEvent:', e));
         await logInboxZeroBulkAuditEvent({
           actorUserId: user.id,

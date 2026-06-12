@@ -63,7 +63,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     const durationMs = Date.now() - startedAt;
   
     // Record in WorkflowDiagnostic for history
-    await prisma.workflowDiagnostic.create({
+    await prisma.$transaction((tx) => tx.workflowDiagnostic.create({
       data: {
         workflow: cron.workflowKey,
         status: ok ? 'ok' : 'error',
@@ -75,7 +75,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         failureReason: errorMsg ?? undefined,
         metadata: { ...result, durationMs, triggeredBy: user.id, manual: true },
       },
-    });
+    }));
   
     await auditLog({
       actorUserId: user.id,

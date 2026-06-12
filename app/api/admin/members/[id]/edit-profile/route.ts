@@ -64,7 +64,7 @@ const schema = z.object({
   
       // Update profile fields if any profile data provided
       if (profilePhone !== undefined || profileAddress !== undefined || profileBio !== undefined || profileLinkedin !== undefined) {
-        await prisma.profile.upsert({
+        await prisma.$transaction((tx) => tx.profile.upsert({
           where: { userId: id },
           create: {
             userId: id,
@@ -79,7 +79,7 @@ const schema = z.object({
             ...(profileBio !== undefined ? { profileBio } : {}),
             ...(profileLinkedin !== undefined ? { profileLinkedin: profileLinkedin || null } : {}),
           },
-        });
+        }));
       }
   
       // Invalidate cached member state so dashboard reflects changes immediately

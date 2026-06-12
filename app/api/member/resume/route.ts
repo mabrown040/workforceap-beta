@@ -38,10 +38,10 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
       }
       // Counselors: verify assignment
       if (counselor && !admin) {
-        const assignment = await prisma.counselorAssignment.findFirst({
+        const assignment = await prisma.$transaction((tx) => tx.counselorAssignment.findFirst({
           where: { memberId: targetUserId, active: true },
           include: { counselor: { select: { userId: true } } },
-        });
+        }));
         if (!assignment || assignment.counselor.userId !== user.id) {
           return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
@@ -49,9 +49,9 @@ function storageErrorMessage(error: { message?: string } | null, action: 'sign' 
     }
   
     try {
-      const profile = await prisma.profile.findUnique({
+      const profile = await prisma.$transaction((tx) => tx.profile.findUnique({
         where: { userId: targetUserId },
-      });
+      }));
   
       const originalPath = profile?.resumeOriginalPath;
       const enhancedPath = profile?.resumeEnhancedPath;

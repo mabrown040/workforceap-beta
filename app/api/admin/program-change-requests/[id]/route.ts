@@ -41,10 +41,10 @@ export const PATCH = withApiGuc(async (
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
   }
-  const existing = await prisma.programChangeRequest.findFirst({
+  const existing = await prisma.$transaction((tx) => tx.programChangeRequest.findFirst({
     where: { id, ...tenantFilter },
     include: { user: { select: { id: true, enrolledProgram: true, organizationId: true } } },
-  });
+  }));
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   if (existing.status !== 'PENDING') {
     return NextResponse.json({ error: 'Request is no longer pending' }, { status: 409 });
@@ -181,13 +181,13 @@ export const PATCH = withApiGuc(async (
     orgId,
   }).catch((err) => console.error('[audit] program change review:', err));
 
-  const updated = await prisma.programChangeRequest.findUnique({
+  const updated = await prisma.$transaction((tx) => tx.programChangeRequest.findUnique({
     where: { id },
     include: {
       user: { select: { id: true, email: true, fullName: true, enrolledProgram: true } },
       reviewedBy: { select: { id: true, email: true, fullName: true } },
     },
-  });
+  }));
 
   return NextResponse.json({ request: updated });
 

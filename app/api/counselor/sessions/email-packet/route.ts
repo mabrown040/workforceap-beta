@@ -200,7 +200,7 @@ async function generatePdfBuffer(title: string, text: string): Promise<Buffer> {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
-    const events = await prisma.memberEvent.findMany({
+    const events = await prisma.$transaction((tx) => tx.memberEvent.findMany({
       where: {
         userId: memberId,
         sessionId,
@@ -211,7 +211,7 @@ async function generatePdfBuffer(title: string, text: string): Promise<Buffer> {
       orderBy: { createdAt: 'asc' },
       select: { entityId: true, createdAt: true },
       take: 100,
-    });
+    }));
 
     if (events.length === 0) {
       return NextResponse.json(
@@ -221,11 +221,11 @@ async function generatePdfBuffer(title: string, text: string): Promise<Buffer> {
     }
 
     const resultIds = events.map((e) => e.entityId).filter((id): id is string => !!id);
-    const results = await prisma.aIToolResult.findMany({
+    const results = await prisma.$transaction((tx) => tx.aIToolResult.findMany({
       where: { id: { in: resultIds }, userId: memberId },
       select: { id: true, toolType: true, inputSummary: true, output: true, createdAt: true },
       take: 100,
-    });
+    }));
 
     const orderedResults = events
       .map((e) => results.find((r) => r.id === e.entityId))
@@ -335,13 +335,13 @@ async function generatePdfBuffer(title: string, text: string): Promise<Buffer> {
 
     // Update profile if we gathered info (e.g. elevator pitch to bio)
     if (profileBioAppends.length > 0) {
-      const existingProfile = await prisma.profile.findUnique({ where: { userId: memberId } });
+      const existingProfile = await prisma.$transaction((tx) => tx.profile.findUnique({ where: { userId: memberId } }));
       const newBio = [existingProfile?.profileBio, ...profileBioAppends].filter(Boolean).join('\n\n');
-      await prisma.profile.upsert({
+      await prisma.$transaction((tx) => tx.profile.upsert({
         where: { userId: memberId },
         create: { userId: memberId, profileBio: newBio },
         update: { profileBio: newBio },
-      });
+      }));
     }
 
     const firstName = member.fullName?.trim().split(/\s+/)[0] ?? 'there';

@@ -9,10 +9,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const row = await prisma.user.findUnique({
+  const row = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: { wioaQualificationJson: true },
-  });
+  }));
 
   return NextResponse.json({ snapshot: row?.wioaQualificationJson ?? null });
 
@@ -47,7 +47,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     reasons,
   };
 
-  await prisma.user.update({
+  await prisma.$transaction((tx) => tx.user.update({
     where: { id: user.id },
     data: {
       wioaQualificationJson: snapshot as object,
@@ -56,12 +56,12 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       wioaReviewedByUserId: null,
       wioaReviewNotes: null,
     },
-  });
+  }));
 
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: { email: true, fullName: true },
-  });
+  }));
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||

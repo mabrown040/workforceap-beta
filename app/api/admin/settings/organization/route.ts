@@ -25,7 +25,7 @@ const patchSchema = z.object({
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const organizationId = await getActorOrganizationId(user.id);
-  const org = await prisma.organization.findUnique({
+  const org = await prisma.$transaction((tx) => tx.organization.findUnique({
     where: { id: organizationId },
     select: {
       id: true,
@@ -35,7 +35,7 @@ const patchSchema = z.object({
       primaryColor: true,
       overviewVideoUrl: true,
     },
-  });
+  }));
   if (!org) return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
   return NextResponse.json({
     ...org,
@@ -60,7 +60,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: NextRequest) 
   }
 
   const organizationId = await getActorOrganizationId(user.id);
-  const org = await prisma.organization.update({
+  const org = await prisma.$transaction((tx) => tx.organization.update({
     where: { id: organizationId },
     data: {
       ...(parsed.data.overviewVideoUrl !== undefined ? { overviewVideoUrl: parsed.data.overviewVideoUrl } : {}),
@@ -75,7 +75,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: NextRequest) 
       primaryColor: true,
       overviewVideoUrl: true,
     },
-  });
+  }));
 
   return NextResponse.json({
     ...org,

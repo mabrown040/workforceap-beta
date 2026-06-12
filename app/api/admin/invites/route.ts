@@ -46,7 +46,7 @@ function generateToken(): string {
     }
   }
 
-  const invites = await prisma.invitation.findMany({
+  const invites = await prisma.$transaction((tx) => tx.invitation.findMany({
     where,
     take: 1000,
     orderBy: { createdAt: 'desc' },
@@ -55,7 +55,7 @@ function generateToken(): string {
       subgroup: { select: { id: true, name: true } },
       partner: { select: { id: true, name: true } },
     },
-  });
+  }));
 
   return NextResponse.json({ invites });
 
@@ -157,10 +157,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   }
 
   if (inviteRole === 'partner' && subgroupId) {
-    const subgroup = await prisma.subgroup.findUnique({
+    const subgroup = await prisma.$transaction((tx) => tx.subgroup.findUnique({
       where: { id: subgroupId },
       include: { leader: { select: { organizationId: true } } },
-    });
+    }));
     if (!subgroup) {
       return respondError('Invalid subgroup', 400);
     }
@@ -170,10 +170,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   }
 
   if (inviteRole === 'counselor' && partnerId) {
-    const p = await prisma.partner.findUnique({
+    const p = await prisma.$transaction((tx) => tx.partner.findUnique({
       where: { id: partnerId },
       select: { id: true, organizationId: true },
-    });
+    }));
     if (!p) {
       return respondError('Invalid partner', 400);
     }
@@ -189,9 +189,9 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     }
   }
 
-  const existingPending = await prisma.invitation.findFirst({
+  const existingPending = await prisma.$transaction((tx) => tx.invitation.findFirst({
     where: { email, status: 'pending' },
-  });
+  }));
   if (existingPending) {
     return respondError('A pending invitation already exists for this email.', 400);
   }
@@ -200,7 +200,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   expiresAt.setDate(expiresAt.getDate() + INVITE_EXPIRY_DAYS);
   const token = generateToken();
 
-  const invitation = await prisma.invitation.create({
+  const invitation = await prisma.$transaction((tx) => tx.invitation.create({
     data: {
       email,
       role: inviteRole,
@@ -216,7 +216,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     include: {
       invitedBy: { select: { fullName: true } },
     },
-  });
+  }));
 
   const inviteUrl = `${SITE_URL}/invite?token=${token}`;
   const roleLabel =

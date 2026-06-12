@@ -26,10 +26,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
   if (notificationsUpdates !== undefined) data.notificationsUpdates = notificationsUpdates;
   if (notificationsReminders !== undefined) data.notificationsReminders = notificationsReminders;
 
-  await prisma.user.update({
+  await prisma.$transaction((tx) => tx.user.update({
     where: { id: user.id },
     data,
-  });
+  }));
 
   return NextResponse.json({ ok: true });
 

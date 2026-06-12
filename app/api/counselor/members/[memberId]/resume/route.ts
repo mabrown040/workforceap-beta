@@ -36,10 +36,10 @@ type Props = { params: Promise<{ memberId: string }> };export const GET = withAp
     }
   
     try {
-      const profile = await prisma.profile.findUnique({
+      const profile = await prisma.$transaction((tx) => tx.profile.findUnique({
         where: { userId: memberId },
         select: { resumeOriginalPath: true, resumeEnhancedPath: true },
-      });
+      }));
   
       const originalPath = profile?.resumeOriginalPath ?? null;
       const enhancedPath = profile?.resumeEnhancedPath ?? null;

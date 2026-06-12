@@ -43,9 +43,9 @@ function storageErrorMessage(error: { message?: string } | null): string {
     }
   
     // Verify the cert exists for this user
-    const cert = await prisma.userCertification.findUnique({
+    const cert = await prisma.$transaction((tx) => tx.userCertification.findUnique({
       where: { userId_certName: { userId: user.id, certName } },
-    });
+    }));
     if (!cert) {
       return NextResponse.json({ error: 'Certificate not found — add it first' }, { status: 404 });
     }

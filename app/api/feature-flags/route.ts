@@ -20,10 +20,10 @@ export const GET = withApiGuc(async () => {
 
     const allRoles = Array.from(new Set([profileRole, ...userRoles]));
 
-    const flags = await prisma.featureFlag.findMany({
+    const flags = await prisma.$transaction((tx) => tx.featureFlag.findMany({
       where: { enabled: true },
       take: 500,
-    });
+    }));
 
     const visibleFlags = filterVisibleFlags(flags, user.id, allRoles);
 

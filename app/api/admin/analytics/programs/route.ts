@@ -16,13 +16,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
 
     const orgId = await getActorOrganizationId(user.id);
 
-    const programs = await prisma.organizationProgramCatalog.findMany({
+    const programs = await prisma.$transaction((tx) => tx.organizationProgramCatalog.findMany({
       take: 500,
       where: { organizationId: orgId },
       select: { id: true, name: true },
-    });
+    }));
 
-    const enrollments = await prisma.user.groupBy({
+    const enrollments = await prisma.$transaction((tx) => tx.user.groupBy({
       by: ['enrolledProgram'],
       where: {
         organizationId: orgId,
@@ -30,15 +30,15 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         enrolledProgram: { not: null },
       },
       _count: { id: true },
-    });
+    }));
 
-    const completions = await prisma.$queryRaw<{ program: string; count: number }[]>`
+    const completions = await prisma.$transaction((tx) => tx.$queryRaw<{ program: string; count: number }[]>`
       SELECT ce.program as program, COUNT(DISTINCT ce.user_id)::int as count
       FROM course_enrollments ce
       INNER JOIN users u ON u.id = ce.user_id AND u.organization_id = ${orgId}::uuid AND u.deleted_at IS NULL
       WHERE ce.completed_at IS NOT NULL
       GROUP BY ce.program
-    `;
+    `);
 
     const completionMap = new Map(completions.map((c) => [c.program, c.count]));
     const enrollmentMap = new Map(enrollments.map((e) => [e.enrolledProgram, e._count.id]));

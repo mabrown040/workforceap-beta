@@ -29,7 +29,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
 
   const enabled = body.enabled !== false;
 
-  await prisma.workflowDiagnostic.create({
+  await prisma.$transaction((tx) => tx.workflowDiagnostic.create({
     data: {
       workflow: cron.workflowKey,
       status: 'inspection',
@@ -38,7 +38,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       summary: `Cron ${enabled ? 'enabled' : 'disabled'} by admin`,
       metadata: { enabled, toggledBy: user.id, toggledAt: new Date().toISOString() },
     },
-  });
+  }));
 
   await auditLog({
     actorUserId: user.id,

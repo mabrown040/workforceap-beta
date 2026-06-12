@@ -91,12 +91,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         if (toDate) eventWhere.createdAt.lte = toDate;
       }
   
-      const events = await prisma.memberEvent.findMany({
+      const events = await prisma.$transaction((tx) => tx.memberEvent.findMany({
         where: eventWhere,
         orderBy: { createdAt: 'desc' },
         take: 200,
         include: { user: { select: { fullName: true } } },
-      });
+      }));
   
       for (const ev of events) {
         let label = ev.eventName;

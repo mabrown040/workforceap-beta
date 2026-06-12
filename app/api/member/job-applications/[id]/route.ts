@@ -64,10 +64,10 @@ function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
     try {
       await ensureUserInDb(user);
   
-      const existing = await prisma.jobApplication.findFirst({
+      const existing = await prisma.$transaction((tx) => tx.jobApplication.findFirst({
         where: { id, userId: user.id },
         select: { id: true, status: true },
-      });
+      }));
   
       if (!existing) {
         return NextResponse.json({ error: 'Application not found' }, { status: 404 });
@@ -137,10 +137,10 @@ function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
         }
       }
   
-      const application = await prisma.jobApplication.update({
+      const application = await prisma.$transaction((tx) => tx.jobApplication.update({
         where: { id },
         data,
-      });
+      }));
   
       if (data.status && data.status !== existing.status) {
         await trackEvent({

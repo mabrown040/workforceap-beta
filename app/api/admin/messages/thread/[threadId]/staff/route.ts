@@ -68,13 +68,13 @@ export const POST = withApiGuc(_POST);async function _PATCH(_request: NextReques
   if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const now = new Date();
-  await prisma.messageThread.update({
+  await prisma.$transaction((tx) => tx.messageThread.update({
     where: { id: threadId },
     data: {
       staffLastReadAt: now,
       staffUserId: user.id,
     },
-  });
+  }));
 
   return NextResponse.json({ ok: true, staffLastReadAt: now.toISOString() });
 

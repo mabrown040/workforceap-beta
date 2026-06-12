@@ -25,10 +25,10 @@ const updateSchema = z.object({
   const { id } = await params;
 
   // Verify this application belongs to this employer
-  const application = await prisma.jobPostingApplication.findFirst({
+  const application = await prisma.$transaction((tx) => tx.jobPostingApplication.findFirst({
     where: { id, job: { employerId: ctx.employerId } },
     select: { id: true, status: true },
-  });
+  }));
   if (!application) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   let body: Record<string, unknown>;
@@ -57,10 +57,10 @@ const updateSchema = z.object({
     updates.interviewScheduledAt = parsed.data.interviewScheduledAt ? new Date(parsed.data.interviewScheduledAt) : null;
   }
 
-  const updated = await prisma.jobPostingApplication.update({
+  const updated = await prisma.$transaction((tx) => tx.jobPostingApplication.update({
     where: { id },
     data: updates,
-  });
+  }));
 
   return NextResponse.json({ ok: true, application: updated });
 

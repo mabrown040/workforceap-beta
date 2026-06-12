@@ -31,23 +31,23 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           }
 
           // Idempotency: skip if employer already has this subscription + tier
-          const existing = await prisma.employer.findUnique({
+          const existing = await prisma.$transaction((tx) => tx.employer.findUnique({
             where: { id: employerId },
             select: { tier: true, stripeSubscriptionId: true },
-          });
+          }));
           if (existing?.tier === tier && existing?.stripeSubscriptionId === subscriptionId) {
             console.log('[employer/webhook] checkout.session.completed — already applied, skipping');
             break;
           }
 
-          await prisma.employer.update({
+          await prisma.$transaction((tx) => tx.employer.update({
             where: { id: employerId },
             data: {
               tier,
               stripeSubscriptionId: subscriptionId ?? null,
               stripeSubscriptionStatus: subscriptionId ? 'active' : null,
             },
-          });
+          }));
           break;
         }
         case 'invoice.payment_succeeded': {
@@ -56,18 +56,18 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           if (!subscriptionId) break;
 
           // Idempotency: skip if all matching employers are already active
-          const stale = await prisma.employer.count({
+          const stale = await prisma.$transaction((tx) => tx.employer.count({
             where: { stripeSubscriptionId: subscriptionId, stripeSubscriptionStatus: { not: 'active' } },
-          });
+          }));
           if (stale === 0) {
             console.log('[employer/webhook] invoice.payment_succeeded — already active, skipping');
             break;
           }
 
-          await prisma.employer.updateMany({
+          await prisma.$transaction((tx) => tx.employer.updateMany({
             where: { stripeSubscriptionId: subscriptionId },
             data: { stripeSubscriptionStatus: 'active' },
-          });
+          }));
           break;
         }
         case 'invoice.payment_failed': {
@@ -76,25 +76,25 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           if (!subscriptionId) break;
 
           // Idempotency: skip if all matching employers are already past_due
-          const stale = await prisma.employer.count({
+          const stale = await prisma.$transaction((tx) => tx.employer.count({
             where: { stripeSubscriptionId: subscriptionId, stripeSubscriptionStatus: { not: 'past_due' } },
-          });
+          }));
           if (stale === 0) {
             console.log('[employer/webhook] invoice.payment_failed — already past_due, skipping');
             break;
           }
 
-          await prisma.employer.updateMany({
+          await prisma.$transaction((tx) => tx.employer.updateMany({
             where: { stripeSubscriptionId: subscriptionId },
             data: { stripeSubscriptionStatus: 'past_due' },
-          });
+          }));
           break;
         }
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
 
           // Idempotency: skip if all matching employers are already canceled + basic
-          const stale = await prisma.employer.count({
+          const stale = await prisma.$transaction((tx) => tx.employer.count({
             where: {
               stripeSubscriptionId: subscription.id,
               OR: [
@@ -102,16 +102,16 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
                 { tier: { not: 'basic' } },
               ],
             },
-          });
+          }));
           if (stale === 0) {
             console.log('[employer/webhook] customer.subscription.deleted — already applied, skipping');
             break;
           }
 
-          await prisma.employer.updateMany({
+          await prisma.$transaction((tx) => tx.employer.updateMany({
             where: { stripeSubscriptionId: subscription.id },
             data: { tier: 'basic', stripeSubscriptionStatus: 'canceled' },
-          });
+          }));
           break;
         }
         default:

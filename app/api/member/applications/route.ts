@@ -23,11 +23,11 @@ const createSchema = z.object({
   
     try {
       await ensureUserInDb(user);
-      const applications = await prisma.jobApplication.findMany({
+      const applications = await prisma.$transaction((tx) => tx.jobApplication.findMany({
         where: { userId: user.id },
         orderBy: { createdAt: 'desc' },
         take: 200,
-      });
+      }));
       return NextResponse.json({ applications });
     } catch (err) {
       captureApiError(err, { route: 'member/applications GET' });
@@ -59,7 +59,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   
     try {
       await ensureUserInDb(user);
-      const app = await prisma.jobApplication.create({
+      const app = await prisma.$transaction((tx) => tx.jobApplication.create({
         data: {
           userId: user.id,
           company,
@@ -69,7 +69,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
           notes: notes || null,
           url: url || null,
         },
-      });
+      }));
       await trackEvent({ userId: user.id, eventName: 'application_added', entityType: 'job_application', entityId: app.id });
       // Award points only when the row represents a REAL application, not a
       // saved lead. Codex P2 catch on PR #1061 — schema defaults to `SAVED`, so

@@ -22,9 +22,9 @@ const schema = z.object({
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const row = await prisma.preScreeningResponse.findUnique({
+  const row = await prisma.$transaction((tx) => tx.preScreeningResponse.findUnique({
     where: { userId: user.id },
-  });
+  }));
   return NextResponse.json({ response: row });
 
   } catch (error) {
@@ -37,18 +37,18 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: { assessmentCompleted: true },
-  });
+  }));
   if (!dbUser?.assessmentCompleted) {
     return NextResponse.json({ error: 'Complete your assessment first.' }, { status: 400 });
   }
 
-  const existing = await prisma.preScreeningResponse.findUnique({
+  const existing = await prisma.$transaction((tx) => tx.preScreeningResponse.findUnique({
     where: { userId: user.id },
     select: { id: true },
-  });
+  }));
   if (existing) {
     return NextResponse.json({ error: 'Pre-screening already submitted.' }, { status: 400 });
   }
@@ -103,10 +103,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     });
   });
 
-  const dbAfter = await prisma.user.findUnique({
+  const dbAfter = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: { fullName: true, email: true },
-  });
+  }));
 
   sendPreScreeningReadyEmail({
     memberName: dbAfter?.fullName ?? undefined,

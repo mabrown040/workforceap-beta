@@ -37,10 +37,10 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: Props) =
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid input' }, { status: 400 });
     }
 
-    const member = await prisma.user.findFirst({
+    const member = await prisma.$transaction((tx) => tx.user.findFirst({
       where: { id: memberId, deletedAt: null, organizationId: orgId },
       select: { id: true, enrolledProgram: true },
-    });
+    }));
     if (!member) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }

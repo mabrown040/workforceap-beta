@@ -29,7 +29,7 @@ const patchSchema = z.object({
   
     const { id: memberId } = await params;
     const orgId = await getActorOrganizationId(user.id);
-    const member = await prisma.user.findFirst({ where: { id: memberId, organizationId: orgId }, select: { id: true, deletedAt: true } });
+    const member = await prisma.$transaction((tx) => tx.user.findFirst({ where: { id: memberId, organizationId: orgId }, select: { id: true, deletedAt: true } }));
     if (!member || member.deletedAt) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
@@ -50,11 +50,11 @@ const patchSchema = z.object({
   
     try {
       if (!partnerId) {
-        await prisma.partnerReferral.deleteMany({ where: { memberId } });
+        await prisma.$transaction((tx) => tx.partnerReferral.deleteMany({ where: { memberId } }));
         return NextResponse.json({ ok: true });
       }
   
-      const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true, organizationId: orgId } });
+      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: partnerId, active: true, organizationId: orgId } }));
       if (!partner) {
         return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
       }

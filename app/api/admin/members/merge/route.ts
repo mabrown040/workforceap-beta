@@ -14,10 +14,10 @@ async function assertMergeTenantOk(
   primaryId: string,
   secondaryId: string
 ): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
-  const rows = await prisma.user.findMany({
+  const rows = await prisma.$transaction((tx) => tx.user.findMany({
     where: { id: { in: [primaryId, secondaryId] } },
     select: { id: true, organizationId: true },
-  });
+  }));
   if (rows.length !== 2) {
     return { ok: false, status: 404, error: 'One or both members not found' };
   }

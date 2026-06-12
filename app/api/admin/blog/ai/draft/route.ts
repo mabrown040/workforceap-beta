@@ -71,10 +71,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         .replace(/^-|-$/g, '');
       const slugFinal = slugClean || `blog-${Date.now()}`;
   
-      const existing = await prisma.blogPost.findUnique({ where: { slug: slugFinal } });
+      const existing = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { slug: slugFinal } }));
       const slugUnique = existing ? `${slugFinal}-${Date.now().toString(36)}` : slugFinal;
   
-      const post = await prisma.blogPost.create({
+      const post = await prisma.$transaction((tx) => tx.blogPost.create({
         data: {
           slug: slugUnique,
           title: title.trim(),
@@ -85,7 +85,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           category: category?.trim() || null,
           published: false,
         },
-      });
+      }));
   
       return NextResponse.json({ post: { id: post.id, slug: post.slug } });
     } catch (err) {

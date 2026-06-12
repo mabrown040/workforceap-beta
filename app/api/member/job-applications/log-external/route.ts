@@ -75,7 +75,7 @@ function toCanonicalSource(source: keyof typeof SOURCE_DETAIL_LABELS): 'INDEED' 
       notes?.trim() || null,
     ].filter(Boolean).join('\n');
 
-    const application = await prisma.jobApplication.create({
+    const application = await prisma.$transaction((tx) => tx.jobApplication.create({
       data: {
         userId: user.id,
         company: company.trim(),
@@ -86,7 +86,7 @@ function toCanonicalSource(source: keyof typeof SOURCE_DETAIL_LABELS): 'INDEED' 
         url: url?.trim() || null,
         notes: normalizedNotes || null,
       },
-    });
+    }));
 
     trackEvent({
       userId: user.id,
@@ -113,13 +113,13 @@ function toCanonicalSource(source: keyof typeof SOURCE_DETAIL_LABELS): 'INDEED' 
     try {
       const thread = await getOrCreateMemberCounselorThread(user.id);
       const link = url ? ` (${url})` : '';
-      await prisma.message.create({
+      await prisma.$transaction((tx) => tx.message.create({
         data: {
           threadId: thread.id,
           authorId: user.id,
           body: `Applied to ${role.trim()} at ${company.trim()} via ${sourceLabel}${link}. Logged from the Job Board.`,
         },
-      });
+      }));
     } catch (notifyErr) {
       console.error('[apply-loop:log-external] counselor notify failed', notifyErr);
     }

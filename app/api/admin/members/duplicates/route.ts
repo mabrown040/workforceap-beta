@@ -12,20 +12,20 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   }
 
   // Raw query: group by lower(email) having count > 1
-  const rows = await prisma.$queryRaw<Array<{ email: string; ids: string[] }>>`
+  const rows = await prisma.$transaction((tx) => tx.$queryRaw<Array<{ email: string; ids: string[] }>>`
     SELECT lower(email) AS email,
            array_agg(id ORDER BY created_at DESC) AS ids
     FROM users
     WHERE deleted_at IS NULL
     GROUP BY lower(email)
     HAVING count(*) > 1
-  `;
+  `);
 
   // Single findMany over all duplicate IDs, then group by lower(email) in JS.
   // This collapses the previous N+1 (one query per duplicate group) into one query.
   const allIds = rows.flatMap((r) => r.ids);
   const allMembers = allIds.length
-    ? await prisma.user.findMany({
+    ? await prisma.$transaction((tx) => tx.user.findMany({
         where: { id: { in: allIds } },
         orderBy: { createdAt: 'desc' },
         select: {
@@ -71,7 +71,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
           },
         },
         take: 100,
-      })
+      }))
     : [];
 
   // Bucket members by lowercased email. The findMany above already returns

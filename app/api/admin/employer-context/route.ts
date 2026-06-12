@@ -27,10 +27,10 @@ const cookieOpts = {
     const id = store.get(SUPER_ADMIN_EMPLOYER_COOKIE)?.value;
     if (!id) return NextResponse.json({ employer: null });
 
-    const employer = await prisma.employer.findFirst({
+    const employer = await prisma.$transaction((tx) => tx.employer.findFirst({
       where: { id, status: 'active' },
       select: { id: true, companyName: true },
-    });
+    }));
     return NextResponse.json({ employer });
   } catch (error) {
     console.error('[admin/employer-context GET] error:', error);
@@ -55,10 +55,11 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       return NextResponse.json({ ok: true, employer: null });
     }
 
-    const employer = await prisma.employer.findFirst({
-      where: { id: parsed.data.employerId },
+    const employerId = parsed.data.employerId;
+    const employer = await prisma.$transaction((tx) => tx.employer.findFirst({
+      where: { id: employerId },
       select: { id: true, companyName: true, status: true },
-    });
+    }));
     if (!employer) return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
     if (employer.status !== 'active') {
       return NextResponse.json(

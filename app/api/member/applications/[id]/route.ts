@@ -27,9 +27,9 @@ const updateSchema = z.object({
     try {
       await ensureUserInDb(user);
   
-      const existing = await prisma.jobApplication.findFirst({
+      const existing = await prisma.$transaction((tx) => tx.jobApplication.findFirst({
         where: { id, userId: user.id },
-      });
+      }));
       if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   
       let body: unknown;
@@ -52,10 +52,10 @@ const updateSchema = z.object({
       if (parsed.data.notes !== undefined) data.notes = parsed.data.notes || null;
       if (parsed.data.url !== undefined) data.url = parsed.data.url || null;
   
-      const app = await prisma.jobApplication.update({
+      const app = await prisma.$transaction((tx) => tx.jobApplication.update({
         where: { id },
         data,
-      });
+      }));
   
       // Award points on the SAVED → real-application transition. Codex P2 catch
       // on PR #1061 — POST awards only for non-SAVED creates, so a row created
@@ -92,12 +92,12 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   
     try {
       await ensureUserInDb(user);
-      const existing = await prisma.jobApplication.findFirst({
+      const existing = await prisma.$transaction((tx) => tx.jobApplication.findFirst({
         where: { id, userId: user.id },
-      });
+      }));
       if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   
-      await prisma.jobApplication.delete({ where: { id } });
+      await prisma.$transaction((tx) => tx.jobApplication.delete({ where: { id } }));
       return NextResponse.json({ success: true });
     } catch (err) {
       console.error('[DELETE /api/member/applications/:id]', err);

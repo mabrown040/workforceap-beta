@@ -35,7 +35,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   // Strict member filter: WIOA / funder cohort exports must never include
   // admin-dogfood rows. Use MEMBER_OR_DOGFOOD_WHERE only on internal admin
   // surfaces.
-  const users = await prisma.user.findMany({
+  const users = await prisma.$transaction((tx) => tx.user.findMany({
     where: {
       deletedAt: null,
       enrolledProgram: slug,
@@ -81,7 +81,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         },
       },
     },
-  });
+  }));
 
   const totalCourses = program.courses.length;
 

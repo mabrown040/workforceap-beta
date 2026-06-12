@@ -24,7 +24,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     try {
       await ensureUserInDb(user);
   
-      const result = await prisma.aIToolResult.create({
+      const result = await prisma.$transaction((tx) => tx.aIToolResult.create({
         data: {
           userId: user.id,
           toolType: AIToolType.skill_assessment,
@@ -36,7 +36,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
             skills: parsed.data.skills,
           }),
         },
-      });
+      }));
   
       await trackEvent({
         userId: user.id,

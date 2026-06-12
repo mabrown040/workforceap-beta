@@ -37,7 +37,7 @@ async function _GET() {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: {
         fullName: true,
@@ -45,7 +45,7 @@ async function _GET() {
         wioaQualificationJson: true,
         profile: { select: { city: true, state: true, zip: true, barrierTypes: true } },
       },
-    });
+    }));
     if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
     const snapshot = (dbUser.wioaQualificationJson ?? null) as Record<string, unknown> | null;

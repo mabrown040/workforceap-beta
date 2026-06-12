@@ -16,7 +16,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: Re
     const status = searchParams.get('status') ?? undefined;
   
     try {
-      const alerts = await prisma.atRiskAlert.findMany({
+      const alerts = await prisma.$transaction((tx) => tx.atRiskAlert.findMany({
         where: {
           score: { gte: threshold },
           ...(status ? { status } : { status: { in: ['open', 'acknowledged', 'escalated'] } }),
@@ -43,17 +43,17 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: Re
             },
           },
         },
-      });
+      }));
   
       const userIds = [...new Set(alerts.map((a) => a.userId))];
       const activityAgg =
         userIds.length === 0
           ? []
-          : await prisma.memberEvent.groupBy({
+          : await prisma.$transaction((tx) => tx.memberEvent.groupBy({
               by: ['userId'],
               where: { userId: { in: userIds } },
               _max: { createdAt: true },
-            });
+            }));
       const lastActivityByUser = new Map(activityAgg.map((r) => [r.userId, r._max.createdAt]));
   
       const results = alerts.map((alert) => {
@@ -116,7 +116,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(req: Request) {
         return NextResponse.json({ error: 'Invalid alertId or status' }, { status: 400 });
       }
   
-      const alert = await prisma.atRiskAlert.update({
+      const alert = await prisma.$transaction((tx) => tx.atRiskAlert.update({
         where: { id: alertId },
         data: {
           status,
@@ -126,7 +126,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(req: Request) {
               ? { resolvedAt: new Date() }
               : { escalatedAt: new Date(), counselorId: auth.userId }),
         },
-      });
+      }));
   
       return NextResponse.json({ success: true, alert });
     } catch (error) {

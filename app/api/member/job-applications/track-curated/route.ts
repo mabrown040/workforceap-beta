@@ -22,10 +22,10 @@ const bodySchema = z.object({
       return NextResponse.json({ error: 'Invalid body', details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const job = await prisma.job.findFirst({
+    const job = await prisma.$transaction((tx) => tx.job.findFirst({
       where: { id: parsed.data.jobId, status: 'live' },
       include: { employer: { select: { companyName: true } } },
-    });
+    }));
     if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
 
     const row = await syncCuratedJobToTracker(

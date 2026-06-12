@@ -38,9 +38,9 @@ async function _PATCH(
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
-    const existing = await prisma.testimonial.findFirst({
+    const existing = await prisma.$transaction((tx) => tx.testimonial.findFirst({
       where: recordWhere,
-    });
+    }));
     if (!existing)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -108,14 +108,14 @@ async function _PATCH(
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
     }
 
-    const updateResult = await prisma.testimonial.updateMany({
+    const updateResult = await prisma.$transaction((tx) => tx.testimonial.updateMany({
       where: recordWhere,
       data: update,
-    });
+    }));
     if (updateResult.count === 0)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const updated = await prisma.testimonial.findFirst({
+    const updated = await prisma.$transaction((tx) => tx.testimonial.findFirst({
       where: recordWhere,
       include: {
         member: {
@@ -134,7 +134,7 @@ async function _PATCH(
           },
         },
       },
-    });
+    }));
     if (!updated)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -159,16 +159,16 @@ async function _DELETE(
 
     const { id } = await params;
     const recordWhere = await getTestimonialRecordWhere(user.id, id);
-    const existing = await prisma.testimonial.findFirst({
+    const existing = await prisma.$transaction((tx) => tx.testimonial.findFirst({
       where: recordWhere,
-    });
+    }));
     if (!existing)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const updateResult = await prisma.testimonial.updateMany({
+    const updateResult = await prisma.$transaction((tx) => tx.testimonial.updateMany({
       where: recordWhere,
       data: { deletedAt: new Date() },
-    });
+    }));
     if (updateResult.count === 0)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 

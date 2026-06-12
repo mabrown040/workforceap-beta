@@ -19,11 +19,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
 
   const thread = await getOrCreateEmployerMessageThread(ctx.employerId);
 
-  const messages = await prisma.message.findMany({
+  const messages = await prisma.$transaction((tx) => tx.message.findMany({
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
     take: 500,
-  });
+  }));
 
   return NextResponse.json({
     thread: {
@@ -110,10 +110,10 @@ export const POST = withApiGuc(_POST);async function _PATCH() {
   if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const now = new Date();
-  await prisma.messageThread.update({
+  await prisma.$transaction((tx) => tx.messageThread.update({
     where: { id: thread.id },
     data: { portalUserLastReadAt: now },
-  });
+  }));
 
   return NextResponse.json({ ok: true, portalUserLastReadAt: now.toISOString() });
 

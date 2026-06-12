@@ -22,27 +22,27 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
   const { id: memberId } = await params;
   const orgId = await getActorOrganizationId(user.id);
 
-  const member = await prisma.user.findFirst({
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({
     where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: { id: true, fullName: true },
-  });
+  }));
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
   const access = await assertStaffCanAccessThread(user.id, thread.id);
   if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const messages = await prisma.message.findMany({
+  const messages = await prisma.$transaction((tx) => tx.message.findMany({
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
     take: 500,
-  });
+  }));
 
-  const names = await prisma.user.findMany({
+  const names = await prisma.$transaction((tx) => tx.user.findMany({
     where: { id: { in: [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))] } },
     select: { id: true, fullName: true },
     take: 100,
-  });
+  }));
   const nameById = new Map(names.map((n) => [n.id, n.fullName]));
 
   return NextResponse.json({
@@ -74,10 +74,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
   const { id: memberId } = await params;
   const orgId = await getActorOrganizationId(user.id);
 
-  const member = await prisma.user.findFirst({
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({
     where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: { id: true },
-  });
+  }));
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   let body: unknown;
@@ -131,10 +131,10 @@ export const POST = withApiGuc(_POST);async function _PATCH(_request: NextReques
   const { id: memberId } = await params;
   const orgId = await getActorOrganizationId(user.id);
 
-  const member = await prisma.user.findFirst({
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({
     where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: { id: true },
-  });
+  }));
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
@@ -142,13 +142,13 @@ export const POST = withApiGuc(_POST);async function _PATCH(_request: NextReques
   if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const now = new Date();
-  await prisma.messageThread.update({
+  await prisma.$transaction((tx) => tx.messageThread.update({
     where: { id: thread.id },
     data: {
       counselorLastReadAt: now,
       counselorUserId: thread.counselorUserId ?? user.id,
     },
-  });
+  }));
 
   return NextResponse.json({ ok: true, counselorLastReadAt: now.toISOString() });
 

@@ -24,32 +24,32 @@ const patchSchema = z.object({
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
 
-  const referral = await prisma.partnerReferral.findUnique({
+  const referral = await prisma.$transaction((tx) => tx.partnerReferral.findUnique({
     where: { partnerId_memberId: { partnerId: partnerCtx.partnerId, memberId } },
     include: { member: { select: { fullName: true } } },
-  });
+  }));
   if (!referral) return NextResponse.json({ error: 'Referral not found' }, { status: 404 });
 
   const { assignedPartnerUserId } = parsed.data;
   if (assignedPartnerUserId) {
-    const pu = await prisma.partnerUser.findFirst({
+    const pu = await prisma.$transaction((tx) => tx.partnerUser.findFirst({
       where: { partnerId: partnerCtx.partnerId, userId: assignedPartnerUserId },
-    });
+    }));
     if (!pu) {
       return NextResponse.json({ error: 'Assignee must be a user on this partner account' }, { status: 400 });
     }
   }
 
-  await prisma.partnerReferral.update({
+  await prisma.$transaction((tx) => tx.partnerReferral.update({
     where: { id: referral.id },
     data: { assignedPartnerUserId },
-  });
+  }));
 
   const assignee = assignedPartnerUserId
-    ? await prisma.user.findUnique({
+    ? await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id: assignedPartnerUserId },
         select: { fullName: true },
-      })
+      }))
     : null;
 
   await recordPartnerWorkflowEvent({

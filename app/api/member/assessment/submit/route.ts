@@ -39,7 +39,7 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
   
     const { raw, pct } = scoreAssessment(answersTyped);
   
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: {
         assessmentCompleted: true,
@@ -62,7 +62,7 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
           },
         },
       },
-    });
+    }));
   
     if (!dbUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -92,7 +92,7 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
       );
     }
   
-    await prisma.user.update({
+    await prisma.$transaction((tx) => tx.user.update({
       where: { id: user.id },
       data: {
         assessmentCompleted: true,
@@ -102,7 +102,7 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
         programInterest,
         assessmentAnswers: answersTyped as unknown as object,
       },
-    });
+    }));
   
     awardPoints(user.id, 'assessment_completed').catch(() => {});
   

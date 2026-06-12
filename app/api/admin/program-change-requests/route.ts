@@ -21,7 +21,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       }
     }
 
-    const rows = await prisma.programChangeRequest.findMany({
+    const rows = await prisma.$transaction((tx) => tx.programChangeRequest.findMany({
       take: 500,
       where: tenantFilter,
       orderBy: { createdAt: 'desc' },
@@ -29,7 +29,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         user: { select: { id: true, email: true, fullName: true, enrolledProgram: true } },
         reviewedBy: { select: { id: true, email: true, fullName: true } },
       },
-    });
+    }));
 
     return NextResponse.json({ requests: rows });
   } catch (error) {

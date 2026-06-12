@@ -22,10 +22,10 @@ function storageErrorMessage(error: { message?: string } | null): string {
 
   const variant = req.nextUrl.searchParams.get('variant') === 'enhanced' ? 'enhanced' : 'original';
 
-  const profile = await prisma.profile.findUnique({
+  const profile = await prisma.$transaction((tx) => tx.profile.findUnique({
     where: { userId: user.id },
     select: { resumeOriginalPath: true, resumeEnhancedPath: true },
-  });
+  }));
 
   const path =
     variant === 'enhanced' ? profile?.resumeEnhancedPath : profile?.resumeOriginalPath;

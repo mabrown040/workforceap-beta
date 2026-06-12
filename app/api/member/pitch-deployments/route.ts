@@ -7,12 +7,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const deployments = await prisma.memberEvent.findMany({
+  const deployments = await prisma.$transaction((tx) => tx.memberEvent.findMany({
     where: { userId: user.id, eventName: 'pitch_deployed' },
     orderBy: { createdAt: 'desc' },
     take: 20,
     select: { id: true, metadata: true, createdAt: true },
-  });
+  }));
 
   return NextResponse.json({ deployments });
 
@@ -44,7 +44,7 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid outcome' }, { status: 400 });
   }
 
-  const event = await prisma.memberEvent.create({
+  const event = await prisma.$transaction((tx) => tx.memberEvent.create({
     data: {
       userId: user.id,
       eventName: 'pitch_deployed',
@@ -57,7 +57,7 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       },
     },
     select: { id: true, metadata: true, createdAt: true },
-  });
+  }));
 
   return NextResponse.json({ deployment: event });
 

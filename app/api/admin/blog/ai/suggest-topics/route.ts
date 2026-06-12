@@ -15,12 +15,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     if (!isAIConfigured())
       return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
   
-    const posts = await prisma.blogPost.findMany({
+    const posts = await prisma.$transaction((tx) => tx.blogPost.findMany({
       where: { published: true },
       select: { title: true, category: true, excerpt: true, publishedAt: true },
       orderBy: { publishedAt: 'desc' },
       take: 20,
-    });
+    }));
   
     const programSummary = PROGRAMS.slice(0, 15).map(
       (p) => `${p.title} (${p.category}) — ${p.salary}`

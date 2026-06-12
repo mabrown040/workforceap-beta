@@ -7,10 +7,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const progress = await prisma.pathwayStepProgress.findMany({
+  const progress = await prisma.$transaction((tx) => tx.pathwayStepProgress.findMany({
     where: { userId: user.id },
     take: 500,
-  });
+  }));
   const byPathway = progress.reduce((acc, p) => {
     if (!acc[p.pathwayId]) acc[p.pathwayId] = [];
     acc[p.pathwayId].push(p);

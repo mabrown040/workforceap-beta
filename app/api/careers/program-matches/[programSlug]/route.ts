@@ -27,7 +27,7 @@ type Params = { params: Promise<{ programSlug: string }> };export const GET = wi
         return NextResponse.json({ error: 'Unknown program' }, { status: 404 });
       }
   
-      const rows = await prisma.careerProgramMapping.findMany({
+      const rows = await prisma.$transaction((tx) => tx.careerProgramMapping.findMany({
         where: { programSlug, isActive: true },
         include: {
           occupation: {
@@ -41,7 +41,7 @@ type Params = { params: Promise<{ programSlug: string }> };export const GET = wi
         },
         orderBy: [{ onetCode: 'asc' }, { experienceBand: 'asc' }, { priority: 'asc' }],
         take: 100,
-      });
+      }));
   
       return NextResponse.json({
         programSlug,

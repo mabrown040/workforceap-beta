@@ -23,10 +23,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });
     }
 
-    const employer = await prisma.employer.findUnique({
+    const employer = await prisma.$transaction((tx) => tx.employer.findUnique({
       where: { id: ctx.employerId },
       select: { organizationId: true, stripeCustomerId: true, contactEmail: true, companyName: true },
-    });
+    }));
     if (!employer) {
       return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
     }

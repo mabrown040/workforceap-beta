@@ -108,7 +108,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       const slugUnique = await uniqueSlug(slugRaw);
       const content = parsed.content?.trim() || '';
   
-      const post = await prisma.blogPost.create({
+      const post = await prisma.$transaction((tx) => tx.blogPost.create({
         data: {
           slug: slugUnique,
           title,
@@ -118,7 +118,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           category: parsed.category?.trim() || null,
           published: false,
         },
-      });
+      }));
   
       return NextResponse.json({ post: { id: post.id, slug: post.slug } });
     } catch (err) {
@@ -135,7 +135,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
 });
 
 async function uniqueSlug(base: string): Promise<string> {
-  const existing = await prisma.blogPost.findUnique({ where: { slug: base } });
+  const existing = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { slug: base } }));
   if (!existing) return base;
   return `${base}-${Date.now().toString(36)}`;
 }

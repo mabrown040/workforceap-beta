@@ -19,7 +19,7 @@ type Props = { params: Promise<{ id: string }> };
 // the org filter, an Org A admin could provision a workspace email for
 // an Org B member by guessing their UUID.
 async function loadMemberOr404(memberId: string, orgId: string) {
-  return prisma.user.findFirst({
+  return prisma.$transaction((tx) => tx.user.findFirst({
     where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: {
       id: true,
@@ -28,7 +28,7 @@ async function loadMemberOr404(memberId: string, orgId: string) {
       workspaceEmail: true,
       workspaceEmailProvisioned: true,
     },
-  });
+  }));
 }async function _POST(request: NextRequest, { params }: Props) {
   try {
     const user = await getUser();
@@ -78,13 +78,13 @@ async function loadMemberOr404(memberId: string, orgId: string) {
       );
     }
   
-    await prisma.user.update({
+    await prisma.$transaction((tx) => tx.user.update({
       where: { id: memberId },
       data: {
         workspaceEmail: result.workspaceEmail,
         workspaceEmailProvisioned: true,
       },
-    });
+    }));
   
     await auditLog({
       actorUserId: user.id,
@@ -135,13 +135,13 @@ export const POST = withApiGuc(_POST);async function _DELETE(_request: NextReque
       );
     }
   
-    await prisma.user.update({
+    await prisma.$transaction((tx) => tx.user.update({
       where: { id: memberId },
       data: {
         workspaceEmail: null,
         workspaceEmailProvisioned: false,
       },
-    });
+    }));
   
     await auditLog({
       actorUserId: user.id,

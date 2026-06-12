@@ -31,7 +31,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     const { searchParams } = new URL(req.url);
     const limit = Math.min(parseInt(searchParams.get('limit') ?? '20', 10), 100);
 
-    const events = await prisma.memberEvent.findMany({
+    const events = await prisma.$transaction((tx) => tx.memberEvent.findMany({
       where: { userId: memberId },
       orderBy: { createdAt: 'desc' },
       take: limit,
@@ -42,7 +42,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         metadata: true,
         createdAt: true,
       },
-    });
+    }));
 
     return NextResponse.json({ events });
   } catch (error) {

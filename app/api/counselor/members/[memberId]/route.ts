@@ -37,7 +37,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     }
 
     // ── 1. Member + profile + enrollments (single query, eager-loaded) ──
-    const member = await prisma.user.findFirst({
+    const member = await prisma.$transaction((tx) => tx.user.findFirst({
       where: { id: memberId, deletedAt: null },
       select: {
         id: true,
@@ -70,7 +70,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
           },
         },
       },
-    });
+    }));
 
     if (!member) {
       return NextResponse.json(
@@ -88,7 +88,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       pitchDeployments,
       skillsetProgress,
     ] = await Promise.all([
-      prisma.jobPostingApplication.findMany({
+      prisma.$transaction((tx) => tx.jobPostingApplication.findMany({
         take: 500,
         where: { studentId: memberId },
         orderBy: { appliedAt: 'desc' },
@@ -101,8 +101,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
             },
           },
         },
-      }),
-      prisma.aIJobMatch.findMany({
+      })),
+      prisma.$transaction((tx) => tx.aIJobMatch.findMany({
         take: 500,
         where: { studentId: memberId },
         orderBy: { matchScore: 'desc' },
@@ -115,9 +115,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
             },
           },
         },
-      }),
+      })),
       getMemberPoints(memberId).catch(() => null),
-      prisma.pointsTransaction
+      prisma.$transaction((tx) => tx.pointsTransaction
         .findMany({
           where: { userId: memberId },
           orderBy: { createdAt: 'desc' },
@@ -129,22 +129,22 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
             note: true,
             createdAt: true,
           },
-        })
+        }))
         .catch(() => []),
-      prisma.memberEvent
+      prisma.$transaction((tx) => tx.memberEvent
         .findMany({
           where: { userId: memberId, eventName: 'pitch_deployed' },
           orderBy: { createdAt: 'desc' },
           take: 5,
           select: { id: true, metadata: true, createdAt: true },
-        })
+        }))
         .catch(() => []),
       loadMemberSkillsetProgress(member.id),
     ]);
 
     // ── 3. Thread + messages with eager-loaded authors (single query) ──
     const thread = await getOrCreateMemberCounselorThread(memberId);
-    const messages = await prisma.message.findMany({
+    const messages = await prisma.$transaction((tx) => tx.message.findMany({
       where: { threadId: thread.id },
       orderBy: { createdAt: 'asc' },
       take: 500,
@@ -153,7 +153,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
           select: { id: true, fullName: true },
         },
       },
-    });
+    }));
 
     // ── 4. Training progress (conditional, single call) ──
     let trainingView = null;
@@ -181,10 +181,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     // ── 5. WIOA reviewer name (single lookup only when needed) ──
     let wioaReviewerName: string | null = null;
     if (member.wioaReviewedByUserId) {
-      const rev = await prisma.user.findUnique({
-        where: { id: member.wioaReviewedByUserId },
+      const wioaReviewedByUserId = member.wioaReviewedByUserId;
+      const rev = await prisma.$transaction((tx) => tx.user.findUnique({
+        where: { id: wioaReviewedByUserId },
         select: { fullName: true },
-      });
+      }));
       wioaReviewerName = rev?.fullName ?? null;
     }
 

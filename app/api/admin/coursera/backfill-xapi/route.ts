@@ -59,10 +59,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
 }
 export const POST = withApiGuc(_POST);
 
-async function runBackfill(email: string) {  const member = await prisma.user.findFirst({
+async function runBackfill(email: string) {  const member = await prisma.$transaction((tx) => tx.user.findFirst({
     where: { email: { mode: 'insensitive', equals: email } },
     select: { id: true, email: true, fullName: true, enrolledProgram: true },
-  });
+  }));
   if (!member) {
     return NextResponse.json({ ok: false, error: 'Member not found' }, { status: 404 });
   }
@@ -70,11 +70,11 @@ async function runBackfill(email: string) {  const member = await prisma.user.fi
     return NextResponse.json({ ok: false, error: 'Member has no enrolled program' }, { status: 400 });
   }
 
-  const statements = await prisma.xapiStatement.findMany({
+  const statements = await prisma.$transaction((tx) => tx.xapiStatement.findMany({
     where: { actorEmail: email },
     orderBy: { createdAt: 'asc' },
     take: 100,
-  });
+  }));
 
   if (statements.length === 0) {
     return NextResponse.json({ ok: false, error: 'No xAPI statements found' }, { status: 404 });

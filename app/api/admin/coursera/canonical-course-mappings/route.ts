@@ -68,7 +68,7 @@ async function requireAdminUser() {
     );
   }
 
-  const mapping = await prisma.courseraCanonicalCourseMapping.upsert({
+  const mapping = await prisma.$transaction((tx) => tx.courseraCanonicalCourseMapping.upsert({
     where: { courseraCourseId },
     create: {
       courseraCourseId,
@@ -84,19 +84,19 @@ async function requireAdminUser() {
       canonicalCourseSlug,
       notes: notes ?? null,
     },
-  });
+  }));
 
   // Re-run the raw → canonical promotion for every learner who has a row in
   // coursera_course_progress for this courseraCourseId. Without this, the
   // mapping wouldn't take effect on existing progress until the next CSV
   // import or B4B refresh — admins expect the dashboard to update right
   // after they hit "Save mapping".
-  const affectedUsers = await prisma.courseraCourseProgress.findMany({
+  const affectedUsers = await prisma.$transaction((tx) => tx.courseraCourseProgress.findMany({
     where: { courseraCourseId, userId: { not: null } },
     select: { userId: true },
     distinct: ['userId'],
     take: 100,
-  });
+  }));
   let promoted = 0;
   for (const { userId } of affectedUsers) {
     if (!userId) continue;
@@ -129,9 +129,9 @@ export const POST = withApiGuc(_POST);async function _DELETE(request: Request) {
     return NextResponse.json({ error: 'courseraCourseId query param is required' }, { status: 400 });
   }
 
-  await prisma.courseraCanonicalCourseMapping.deleteMany({
+  await prisma.$transaction((tx) => tx.courseraCanonicalCourseMapping.deleteMany({
     where: { courseraCourseId },
-  });
+  }));
 
   return NextResponse.json({ ok: true });
 

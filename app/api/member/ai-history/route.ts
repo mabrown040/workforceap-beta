@@ -29,7 +29,7 @@ const TOOL_LABELS: Record<string, string> = {
   const toolType = searchParams.get('tool');
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);
 
-  const results = await prisma.aIToolResult.findMany({
+  const results = await prisma.$transaction((tx) => tx.aIToolResult.findMany({
     where: {
       userId: user.id,
       ...(toolType && toolType in TOOL_LABELS ? { toolType: toolType as AIToolType } : {}),
@@ -43,7 +43,7 @@ const TOOL_LABELS: Record<string, string> = {
       output: true,
       createdAt: true,
     },
-  });
+  }));
 
   return NextResponse.json({
     results: results.map((r) => ({

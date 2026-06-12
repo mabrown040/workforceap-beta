@@ -28,7 +28,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
   const d = parsed.data;
   const website = d.companyWebsite?.trim() || null;
 
-  const updated = await prisma.employer.update({
+  const updated = await prisma.$transaction((tx) => tx.employer.update({
     where: { id: ctx.employerId },
     data: {
       companyName: d.companyName,
@@ -41,7 +41,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
       contactPhone: d.contactPhone?.trim() || null,
       ...(d.logoUrl !== undefined && { logoUrl: d.logoUrl?.trim() || null }),
     },
-  });
+  }));
 
   return NextResponse.json({
     id: updated.id,

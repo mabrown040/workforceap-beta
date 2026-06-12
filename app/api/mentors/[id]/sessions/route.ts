@@ -8,11 +8,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(_req: N
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { id: mentorId } = await params;
 
-  const sessions = await prisma.mentorSession.findMany({
+  const sessions = await prisma.$transaction((tx) => tx.mentorSession.findMany({
     where: { mentorId, memberId: user.id },
     orderBy: { scheduledAt: 'desc' },
     take: 100,
-  });
+  }));
 
   return NextResponse.json({ sessions });
 
@@ -28,7 +28,7 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest, { par
   const { id: mentorId } = await params;
   const body = await req.json() as { scheduledAt: string; topic?: string; durationMin?: number };
 
-  const session = await prisma.mentorSession.create({
+  const session = await prisma.$transaction((tx) => tx.mentorSession.create({
     data: {
       mentorId,
       memberId: user.id,
@@ -37,7 +37,7 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest, { par
       notes: body.topic ?? null,
       status: 'PENDING',
     },
-  });
+  }));
 
   return NextResponse.json({ session }, { status: 201 });
 

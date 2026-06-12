@@ -29,7 +29,7 @@ const patchSchema = z.object({
     return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
   }
 
-  const updated = await prisma.partner.update({
+  const updated = await prisma.$transaction((tx) => tx.partner.update({
     where: { id: ctx.partnerId },
     data,
     select: {
@@ -38,7 +38,7 @@ const patchSchema = z.object({
       notifyOnCertified: true,
       notifyOnPlaced: true,
     },
-  });
+  }));
 
   return NextResponse.json({ ok: true, preferences: updated });
 

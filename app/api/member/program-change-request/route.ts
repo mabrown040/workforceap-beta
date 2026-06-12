@@ -15,7 +15,7 @@ const createSchema = z.object({
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const rows = await prisma.programChangeRequest.findMany({
+    const rows = await prisma.$transaction((tx) => tx.programChangeRequest.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
       select: {
@@ -29,7 +29,7 @@ const createSchema = z.object({
         reviewedAt: true,
       },
       take: 100,
-    });
+    }));
 
     return NextResponse.json({ requests: rows });
   } catch (error) {
@@ -49,14 +49,14 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid data', details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { enrolledProgram: true },
-    });
+    }));
 
-    const pending = await prisma.programChangeRequest.findFirst({
+    const pending = await prisma.$transaction((tx) => tx.programChangeRequest.findFirst({
       where: { userId: user.id, status: 'PENDING' },
-    });
+    }));
     if (pending) {
       return NextResponse.json(
         { error: 'You already have a pending program change request.' },
@@ -64,14 +64,14 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       );
     }
 
-    const row = await prisma.programChangeRequest.create({
+    const row = await prisma.$transaction((tx) => tx.programChangeRequest.create({
       data: {
         userId: user.id,
         currentProgramSlug: dbUser?.enrolledProgram ?? null,
         requestedProgramSlug: parsed.data.requestedProgramSlug,
         reason: parsed.data.reason,
       },
-    });
+    }));
 
     return NextResponse.json({ ok: true, id: row.id });
   } catch (error) {

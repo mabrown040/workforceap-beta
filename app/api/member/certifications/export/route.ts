@@ -8,12 +8,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const certs = await prisma.userCertification.findMany({
+  const certs = await prisma.$transaction((tx) => tx.userCertification.findMany({
     where: { userId: user.id },
     orderBy: { earnedAt: 'desc' },
     select: { certName: true, earnedAt: true },
     take: 100,
-  });
+  }));
 
   const rows = [
     'Certificate Name,Earned Date',

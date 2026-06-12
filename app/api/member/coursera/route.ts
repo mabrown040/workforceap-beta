@@ -10,7 +10,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: {
       enrolledProgram: true,
@@ -20,7 +20,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         select: { programSlug: true, courseSlug: true },
       },
     },
-  });
+  }));
 
   const enrolledProgram = dbUser?.enrolledProgram ?? null;
   const program = enrolledProgram ? getProgramBySlug(enrolledProgram) : null;

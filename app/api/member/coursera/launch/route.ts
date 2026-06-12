@@ -21,7 +21,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     return NextResponse.redirect(loginUrl);
   }
 
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: {
       enrolledProgram: true,
@@ -31,7 +31,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         select: { programSlug: true, courseSlug: true },
       },
     },
-  });
+  }));
 
   // Use the same active-program resolution as `/dashboard/training` and
   // the home dashboard so the launch button never disagrees with what the
@@ -54,7 +54,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     // (`learn` vs `specialization`) and just centralize the host through
     // `localFallbackUrl` so it stays in one place.
     if (dbUser?.organizationId) {
-      const course = await prisma.course.findUnique({
+      const course = await prisma.$transaction((tx) => tx.course.findUnique({
         where: {
           organizationId_programSlug_courseSlug: {
             organizationId: dbUser.organizationId,
@@ -62,7 +62,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
             courseSlug: requestedSlug,
           }
         }
-      });
+      }));
 
       if (course && course.courseraSlug) {
         const urlType = course.courseraUrlType || 'learn';
@@ -163,7 +163,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     );
   };
   if (isUselessProgramFallback(safeUrl) && enrolledProgram && dbUser?.organizationId) {
-    const firstCourse = await prisma.course.findFirst({
+    const firstCourse = await prisma.$transaction((tx) => tx.course.findFirst({
       where: {
         organizationId: dbUser.organizationId,
         programSlug: enrolledProgram,
@@ -171,7 +171,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       },
       orderBy: { displayOrder: 'asc' },
       select: { courseraSlug: true, courseraUrlType: true },
-    });
+    }));
     if (firstCourse?.courseraSlug) {
       const urlType = firstCourse.courseraUrlType || 'learn';
       const kind =

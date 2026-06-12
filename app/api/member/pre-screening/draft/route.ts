@@ -20,17 +20,17 @@ const draftSchema = z.object({
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const existing = await prisma.preScreeningResponse.findUnique({
+  const existing = await prisma.$transaction((tx) => tx.preScreeningResponse.findUnique({
     where: { userId: user.id },
     select: { id: true },
-  });
+  }));
   if (existing) {
     return NextResponse.json({ draft: null });
   }
 
-  const row = await prisma.preScreeningDraft.findUnique({
+  const row = await prisma.$transaction((tx) => tx.preScreeningDraft.findUnique({
     where: { userId: user.id },
-  });
+  }));
   return NextResponse.json({ draft: row });
 
   } catch (error) {
@@ -43,18 +43,18 @@ export const GET = withApiGuc(_GET);async function _PUT(request: Request) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: { assessmentCompleted: true },
-  });
+  }));
   if (!dbUser?.assessmentCompleted) {
     return NextResponse.json({ error: 'Complete your assessment first.' }, { status: 400 });
   }
 
-  const submitted = await prisma.preScreeningResponse.findUnique({
+  const submitted = await prisma.$transaction((tx) => tx.preScreeningResponse.findUnique({
     where: { userId: user.id },
     select: { id: true },
-  });
+  }));
   if (submitted) {
     return NextResponse.json({ error: 'Pre-screening already submitted.' }, { status: 400 });
   }
@@ -75,7 +75,7 @@ export const GET = withApiGuc(_GET);async function _PUT(request: Request) {
   const wa =
     d.workforceAssistance === 'yes' ? true : d.workforceAssistance === 'no' ? false : undefined;
 
-  await prisma.preScreeningDraft.upsert({
+  await prisma.$transaction((tx) => tx.preScreeningDraft.upsert({
     where: { userId: user.id },
     create: {
       userId: user.id,
@@ -100,7 +100,7 @@ export const GET = withApiGuc(_GET);async function _PUT(request: Request) {
       ...(d.phone !== undefined ? { phone: d.phone || null } : {}),
       ...(d.address !== undefined ? { address: d.address || null } : {}),
     },
-  });
+  }));
 
   return NextResponse.json({ ok: true });
 

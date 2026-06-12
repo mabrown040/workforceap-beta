@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
-import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import {
+  withTenantScope,
+  assertSameTenant,
+  memberInOrg,
+  TenantScopeViolation,
+} from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
@@ -17,6 +22,8 @@ export async function GET(req: NextRequest) {
   const orgId = await getActorOrganizationId(user.id);
   const placements = await withTenantScope(orgId, async (db) =>
     db.placementRecord.findMany({
+      // PlacementRecord has no organizationId — scope through the member FK.
+      where: memberInOrg(orgId),
       orderBy: { placedAt: 'desc' },
       take: 500,
       include: {
@@ -55,6 +62,18 @@ export async function POST(req: NextRequest) {
   }
 
   const orgId = await getActorOrganizationId(user.id);
+
+  // PlacementRecord inherits its tenant through the member FK; reject
+  // user-controlled userIds that point at another org (Invariant I-5).
+  try {
+    await assertSameTenant('user', userId, orgId);
+  } catch (e) {
+    if (e instanceof TenantScopeViolation) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+    }
+    throw e;
+  }
+
   const placement = await withTenantScope(orgId, async (db) =>
     db.placementRecord.create({
       data: {
@@ -118,8 +137,8 @@ export async function PATCH(req: NextRequest) {
   // Verify placement belongs to admin's org and snapshot the fields being
   // changed so the audit log captures before/after (AUDIT H-DEP4).
   const existing = await withTenantScope(orgId, async (db) =>
-    db.placementRecord.findUnique({
-      where: { id },
+    db.placementRecord.findFirst({
+      where: { id, ...memberInOrg(orgId) },
       select: {
         id: true,
         userId: true,

@@ -164,4 +164,59 @@ assertContains(
   'admin/reports/wioa emits an auditLog (AUDIT §H-DEP4)',
 );
 
+// --- Sprint 3 FORCE RLS prep expansion (plan #1393): money paths, PII exports, staff access ---
+
+assertContains(
+  'app/api/admin/partner-payouts/route.ts',
+  ['getActorOrganizationId', 'withTenantScope'],
+  'admin partner-payouts list/mark-paid is tenant-scoped (money path)',
+);
+
+assertContains(
+  'app/api/partner/payout/route.ts',
+  ['getActorOrganizationId(user.id)', 'withTenantScope', 'organizationId: orgId'],
+  'partner payout request scopes partner + placement to actor org (money path)',
+);
+
+assertContains(
+  'app/api/admin/placements/route.ts',
+  ['memberInOrg(orgId)', "assertSameTenant('user', userId, orgId)"],
+  'admin placements scoped through member FK (PlacementRecord has no organizationId; withTenantScope alone is a no-op here)',
+);
+
+assertContains(
+  'app/api/admin/users/route.ts',
+  ['getActorOrganizationId', 'withTenantScope'],
+  'admin users list/create is tenant-scoped (PII)',
+);
+
+assertContains(
+  'app/api/partner/export/referrals/route.ts',
+  ['loadPartnerReferralBundle(ctx.partnerId, ctx.partner.organizationId)'],
+  'partner referral export uses tenant-filtered bundle (PII export)',
+);
+
+assertContains(
+  'app/api/employer/applications/route.ts',
+  ['job: { employerId: ctx.employerId }'],
+  'employer applications list scopes by owning employer (applicant PII)',
+);
+
+assertContains(
+  'app/api/partner/earnings/route.ts',
+  ['partnerId: ctx.partnerId', 'isReferralPartner'],
+  'partner earnings scoped to own partner + referral-partner gate (money path)',
+);
+
+assertContains(
+  'app/api/counselor/members/[memberId]/route.ts',
+  ['assertStaffCanAccessMemberRecord'],
+  'counselor member detail goes through staff access gate',
+);
+
+// NOTE (2026-06-12): app/api/admin/token-links/route.ts deliberately NOT
+// asserted yet — its getSubjectOrganizationId(subjectUserId) call runs without
+// the act-on-behalf gate that helper requires, so an Org-A admin can mint a
+// link against an Org-B member. Assert it only after that route is fixed.
+
 console.log('[verify-high-risk-tenant-routes] OK');

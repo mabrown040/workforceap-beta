@@ -1736,6 +1736,8 @@
       "primaryCta": "Conviértete en socio de contratación — agenda una llamada de 20 min",
       "primaryCtaVariantA": "Habla con nosotros sobre talento listo para contratar",
       "trustAriaLabel": "Resultados y socios empleadores",
+      "trustAriaLabelPlaceholder": "Resumen del modelo para socios de contratación",
+      "trustPlaceholderHeading": "Qué pueden esperar los socios de contratación",
       "trustLogosLabel": "Empleadores que contratan a través de WorkforceAP",
       "trustStatPlaced": "contrataciones registradas (registros de colocación)",
       "trustStatWage": "salario inicial promedio (cuando consta)",

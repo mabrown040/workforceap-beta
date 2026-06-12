@@ -1737,6 +1737,8 @@
       "primaryCta": "Devenez partenaire de recrutement — planifiez un appel de 20 min",
       "primaryCtaVariantA": "Parlez-nous de vos besoins en talents prêts à embaucher",
       "trustAriaLabel": "Résultats et partenaires employeurs",
+      "trustAriaLabelPlaceholder": "Aperçu du modèle partenaire employeur",
+      "trustPlaceholderHeading": "Ce que les partenaires employeurs peuvent attendre",
       "trustLogosLabel": "Employeurs qui recrutent via WorkforceAP",
       "trustStatPlaced": "embauches enregistrées (dossiers de placement)",
       "trustStatWage": "salaire de départ moyen (si enregistré)",

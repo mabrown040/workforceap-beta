@@ -144,6 +144,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard', label: 'Home', group: 'primary', tab: 'journey', Icon: Home, tourTarget: 'tour-dashboard' },
   // ── Program tab ──
   { href: '/dashboard/program', label: 'My Program', group: 'primary', tab: 'program', Icon: BookOpen, tourTarget: 'tour-programs' },
+  { href: '/dashboard/missions', label: 'Skill Missions', group: 'primary', tab: 'program', Icon: Target },
   {
     href: '/dashboard/program/start',
     label: 'Path to certification',

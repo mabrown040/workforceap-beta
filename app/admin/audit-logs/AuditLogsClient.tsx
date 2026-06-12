@@ -217,6 +217,25 @@ export default function AuditLogsClient({
               if (e.metadata) setExpandedId(expandedId === e.id ? null : e.id);
             },
           })}
+          renderSubRow={(e) =>
+            expandedId === e.id && e.metadata ? (
+              <pre
+                style={{
+                  margin: 0,
+                  padding: '0.5rem',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'var(--surface-container-highest)',
+                  fontSize: '0.75rem',
+                  overflow: 'auto',
+                  maxHeight: '240px',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                }}
+              >
+                {JSON.stringify(e.metadata, null, 2)}
+              </pre>
+            ) : null
+          }
           emptyState={
             <div
               style={{

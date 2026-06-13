@@ -44,6 +44,29 @@ export function isValidQuizAnswers(raw: string | null | undefined): boolean {
 }
 
 /**
+ * Encode the user's top interest areas into a short, shareable URL slug
+ * (e.g. ['Investigative','Social'] → "investigative-social"). Used to personalize
+ * the share card without persisting anything server-side.
+ */
+export function areasToTypeSlug(areas: (string | undefined)[]): string {
+  const valid = (RIASEC_AREAS as readonly string[]).map((a) => a.toLowerCase());
+  return areas
+    .map((a) => (a ?? '').toLowerCase())
+    .filter((a) => valid.includes(a))
+    .slice(0, 2)
+    .join('-');
+}
+
+/** Decode a `?type=` slug back into display labels, e.g. "Investigative & Social". Null if invalid. */
+export function typeSlugToLabel(slug: string | null | undefined): string | null {
+  if (!slug) return null;
+  const valid = (RIASEC_AREAS as readonly string[]).map((a) => a.toLowerCase());
+  const parts = slug.toLowerCase().split('-').filter((p) => valid.includes(p)).slice(0, 2);
+  if (parts.length === 0) return null;
+  return parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(' & ');
+}
+
+/**
  * Expand the 6 area ratings into the 30-character O*NET answer string.
  *
  * @param quizAnswers  6 chars [1-5], one per area in RIASEC_AREAS order.

@@ -8,6 +8,8 @@ import {
   QUIZ_QUESTIONS,
   isValidQuizAnswers,
   areaScoresToOnetAnswers,
+  areasToTypeSlug,
+  typeSlugToLabel,
 } from './careerQuizRules';
 
 /** A valid 30-item area order: 5 items per area, in RIASEC order. */
@@ -56,5 +58,28 @@ describe('areaScoresToOnetAnswers', () => {
   it('rejects bad answer strings and wrong-length area arrays', () => {
     assert.equal(areaScoresToOnetAnswers('bad', GROUPED_30), null);
     assert.equal(areaScoresToOnetAnswers('543215', GROUPED_30.slice(0, 29)), null);
+  });
+});
+
+describe('share type slug round-trip', () => {
+  it('encodes top-2 areas to a slug', () => {
+    assert.equal(areasToTypeSlug(['Investigative', 'Social']), 'investigative-social');
+    assert.equal(areasToTypeSlug(['Realistic', 'Conventional', 'Artistic']), 'realistic-conventional'); // capped at 2
+  });
+
+  it('drops unknown areas', () => {
+    assert.equal(areasToTypeSlug(['Bogus', 'Social']), 'social');
+    assert.equal(areasToTypeSlug([undefined, undefined]), '');
+  });
+
+  it('decodes a slug back to a friendly label', () => {
+    assert.equal(typeSlugToLabel('investigative-social'), 'Investigative & Social');
+    assert.equal(typeSlugToLabel('artistic'), 'Artistic');
+  });
+
+  it('rejects junk slugs', () => {
+    assert.equal(typeSlugToLabel('foo-bar'), null);
+    assert.equal(typeSlugToLabel(''), null);
+    assert.equal(typeSlugToLabel(null), null);
   });
 });

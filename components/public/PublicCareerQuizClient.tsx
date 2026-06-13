@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
-import { QUIZ_QUESTIONS, SCALE_LABELS } from '@/lib/career/careerQuizRules';
+import { QUIZ_QUESTIONS, SCALE_LABELS, areasToTypeSlug } from '@/lib/career/careerQuizRules';
 
 const ACCENT = '#8c0f37';
 
@@ -15,12 +15,13 @@ type ScoreResponse = {
   programSlugs: string[];
 };
 
-export default function PublicCareerQuizClient() {
+export default function PublicCareerQuizClient({ friendType }: { friendType?: string | null }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<(string | null)[]>(Array(QUIZ_QUESTIONS.length).fill(null));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [score, setScore] = useState<ScoreResponse | null>(null);
+  const [shared, setShared] = useState(false);
 
   async function submit(finalAnswers: (string | null)[]) {
     setLoading(true);
@@ -70,7 +71,34 @@ export default function PublicCareerQuizClient() {
       .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
       .slice(0, 2)
       .map((r) => r.title || r.area)
-      .filter(Boolean);
+      .filter((a): a is string => Boolean(a));
+
+    const typeSlug = areasToTypeSlug(topAreas);
+    const shareUrl =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/career-quiz${typeSlug ? `?type=${typeSlug}` : ''}`
+        : '';
+    const shareText = topAreas.length
+      ? `My career type is ${topAreas.join(' & ')} — what's yours? Free 60-second quiz:`
+      : 'I just found careers that fit me — free 60-second quiz:';
+
+    async function shareResult() {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        try {
+          await navigator.share({ title: 'WorkforceAP Career Quiz', text: shareText, url: shareUrl });
+          return;
+        } catch {
+          /* user cancelled or unsupported — fall through to copy */
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+      } catch {
+        /* clipboard blocked — nothing more we can do */
+      }
+    }
 
     return (
       <div>
@@ -92,6 +120,21 @@ export default function PublicCareerQuizClient() {
           >
             Get matched — it’s free
           </Link>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+          <button
+            type="button"
+            onClick={shareResult}
+            className="btn btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>ios_share</span>
+            {shared ? 'Link copied!' : 'Share my result'}
+          </button>
+          <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
+            Challenge a friend to find their type.
+          </span>
         </div>
 
         {score.careers.length > 0 && (
@@ -152,6 +195,11 @@ export default function PublicCareerQuizClient() {
 
   return (
     <div>
+      {friendType && step === 0 && (
+        <div className="portal-card portal-card--flat" style={{ padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.9rem' }}>
+          A friend’s career type is <strong>{friendType}</strong>. Find yours below 👇
+        </div>
+      )}
       <h1 style={{ fontSize: '1.6rem', marginBottom: '0.35rem' }}>Quick career quiz</h1>
       <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
         6 quick questions. No account needed.

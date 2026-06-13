@@ -11,7 +11,8 @@ const ACCENT = '#8c0f37';
 type ScoreResponse = {
   careers: { code: string; title: string; fit?: string }[];
   careersTotal: number;
-  riasec: { area?: string; title?: string; score?: number }[];
+  // O*NET RIASEC scores keyed by lowercase area name, e.g. { realistic: 10, investigative: 7, ... }
+  riasec: Record<string, number>;
   programSlugs: string[];
 };
 
@@ -66,12 +67,11 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
 
   // ── Results ──────────────────────────────────────────────────────────────
   if (score) {
-    const topAreas = [...(score.riasec ?? [])]
-      .filter((r) => typeof r.score === 'number')
-      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+    const topAreas = Object.entries(score.riasec ?? {})
+      .filter(([, v]) => typeof v === 'number')
+      .sort((a, b) => b[1] - a[1])
       .slice(0, 2)
-      .map((r) => r.title || r.area)
-      .filter((a): a is string => Boolean(a));
+      .map(([area]) => area.charAt(0).toUpperCase() + area.slice(1));
 
     const typeSlug = areasToTypeSlug(topAreas);
     const shareUrl =

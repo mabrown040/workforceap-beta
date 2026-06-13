@@ -12,6 +12,10 @@ export const POINT_VALUES: Record<string, number> = {
   job_application:          25,
   placement_recorded:      500,
   counselor_bonus:           0,
+  // Member-to-member referral. Both sides rewarded, but only once the referee
+  // actually enrolls in a program (not at signup) — see lib/member/referrals.ts.
+  referral_referrer_reward: 150,
+  referral_referee_reward:  100,
 };
 
 export const LEVELS = [
@@ -44,4 +48,6 @@ export const EVENT_LABELS: Record<string, string> = {
   job_application:        'Added a job application',
   placement_recorded:     'Job placement confirmed',
   counselor_bonus:        'Bonus from counselor',
+  referral_referrer_reward: 'A friend you referred enrolled',
+  referral_referee_reward:  'Joined through a friend’s referral',
 };

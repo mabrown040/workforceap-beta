@@ -197,7 +197,7 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
         {eyebrow(typeLabel || 'Your match')}
         {spacer}
         <div style={{ fontSize: 'clamp(1.9rem,7vw,2.6rem)', fontWeight: 900, lineHeight: 1.12 }}>
-          {topCareer ? <>You could train to be a <span style={{ color: '#ffd166' }}>{topCareer}</span> at no cost. 🎓</> : <>You could train for a great-fit career <span style={{ color: '#ffd166' }}>at no cost</span>. 🎓</>}
+          {topCareer ? <>You could train toward <span style={{ color: '#ffd166' }}>{topCareer}</span> — at no cost. 🎓</> : <>You could train for a great-fit career <span style={{ color: '#ffd166' }}>at no cost</span>. 🎓</>}
         </div>
         {spacer}
         <Link href="/apply" style={{ display: 'block', textAlign: 'center', background: '#fff', color: ACCENT, fontWeight: 800, fontSize: 19, padding: 16, borderRadius: 14, textDecoration: 'none' }}>

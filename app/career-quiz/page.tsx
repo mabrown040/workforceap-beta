@@ -1,23 +1,28 @@
 import type { Metadata } from 'next';
-import { buildPageMetadataAsync } from '@/app/seo';
+import { buildPageMetadataAsync, SITE_URL } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PublicCareerQuizClient from '@/components/public/PublicCareerQuizClient';
 import { typeSlugToLabel } from '@/lib/career/careerQuizRules';
 
-// When someone shares their result (…/career-quiz?type=investigative-social) the
-// link gets a personalized title/description — which also re-points the auto-built
-// OG image — so the shared card reads as a "what's your type?" hook, not a generic page.
+// When someone shares their result (…/career-quiz?type=investigative-social&c=Registered+Nurse)
+// the link gets a personalized title AND a custom share card (the dynamic /api/og/career-quiz
+// PNG) so the social preview reads as a "what's your type?" hook, not a generic page.
 export async function generateMetadata(
-  { searchParams }: { searchParams: Promise<{ type?: string }> }
+  { searchParams }: { searchParams: Promise<{ type?: string; c?: string }> }
 ): Promise<Metadata> {
-  const typeLabel = typeSlugToLabel((await searchParams)?.type);
+  const sp = await searchParams;
+  const typeLabel = typeSlugToLabel(sp?.type);
   if (typeLabel) {
+    const og = new URL(`${SITE_URL}/api/og/career-quiz`);
+    if (sp.type) og.searchParams.set('type', sp.type);
+    if (sp.c) og.searchParams.set('c', sp.c);
     return buildPageMetadataAsync({
       title: `My career type is ${typeLabel} — what's yours?`,
       description:
         'Take this free 6-question quiz and see the careers and no-cost WorkforceAP training that fit you. No account required.',
       path: '/career-quiz',
+      image: og.toString(),
     });
   }
   return buildPageMetadataAsync({
@@ -29,7 +34,7 @@ export async function generateMetadata(
 }
 
 export default async function PublicCareerQuizPage(
-  { searchParams }: { searchParams: Promise<{ type?: string }> }
+  { searchParams }: { searchParams: Promise<{ type?: string; c?: string }> }
 ) {
   const friendType = typeSlugToLabel((await searchParams)?.type);
   return (

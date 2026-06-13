@@ -264,6 +264,7 @@ export default async function ImpactPage() {
                 <StatCard value={formatOptionalCount(stats.hiresMade)} label={t('hiresLabel')} />
               </div>
               <p className="impact-page__employer-as-of">{stats.asOfLabel}</p>
+              <p className="impact-page__employer-footnote">{t('employerMetricsFootnote')}</p>
               <p className="impact-page__section-link-wrap">
                 <LocalizedLink href="/employers" className="impact-page__section-link">
                   {t('employerHiringLink')}
@@ -409,6 +410,13 @@ export default async function ImpactPage() {
           color: var(--color-on-surface-variant);
           line-height: 1.5;
         }
+        .impact-page__employer-footnote {
+          margin: 0.5rem 0 0;
+          max-width: 42rem;
+          font-size: 0.8125rem;
+          color: var(--color-on-surface-variant);
+          line-height: 1.5;
+        }
         .impact-page__section-link-wrap {
           margin: 1rem 0 0;
         }
@@ -440,7 +448,7 @@ export default async function ImpactPage() {
             width: 100%;
             justify-content: center;
           }
-          .impact-page__stats-grid--preview .stat-card {
+          .impact-page__stats-grid .stat-card {
             background: var(--surface-container-lowest);
             border: 1px solid var(--outline-variant);
             border-radius: var(--radius-md);

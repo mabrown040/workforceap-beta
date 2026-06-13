@@ -153,6 +153,19 @@ html.dark {
     box-sizing: border-box;
   }
 
+  html.wap-reserve-mobile-bottom-nav .employers-hero,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .employers-hero {
+    min-height: auto !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box;
+  }
+
+  html.wap-reserve-mobile-bottom-nav .employers-hero .container,
+  html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .employers-hero .container {
+    padding-top: clamp(4.5rem, 12vw, 6rem);
+    padding-bottom: clamp(1.5rem, 5vw, 2.5rem);
+  }
+
   html.wap-reserve-mobile-bottom-nav .home-hero .home-hero__inner,
   html:has(nav#mobile-bottom-nav.mobile-bottom-nav-root) .home-hero .home-hero__inner {
     padding-bottom: clamp(1.5rem, 5vw, 2.5rem) !important;

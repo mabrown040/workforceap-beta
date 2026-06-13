@@ -27,19 +27,19 @@ function deriveEnrollmentStatus(progress: { status: string }[]): string {
     const filtered = await getCacheOrFetch(
       `courses:catalog:${user.id}:${statusFilter || 'all'}`,
       async () => {
-        const enrollments = await prisma.courseEnrollment.findMany({
+        const enrollments = await prisma.$transaction((tx) => tx.courseEnrollment.findMany({
           where: { userId: user.id },
           orderBy: { enrolledAt: 'desc' },
           take: 100,
-        });
+        }));
 
-        const progress = await prisma.courseProgress.findMany({
+        const progress = await prisma.$transaction((tx) => tx.courseProgress.findMany({
           take: 500,
           where: {
             userId: user.id,
             programSlug: { in: enrollments.map((e) => e.programSlug) },
           },
-        });
+        }));
 
         const enrollmentsWithProgress = enrollments.map((enrollment) => {
           const courseProgress = progress.filter(

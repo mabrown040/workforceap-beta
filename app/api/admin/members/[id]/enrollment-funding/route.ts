@@ -24,9 +24,9 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
   const { id: memberId } = await params;
   const orgId = await getActorOrganizationId(user.id);
 
-  const member = await prisma.user.findFirst({ where: { id: memberId, deletedAt: null , organizationId: orgId },
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({ where: { id: memberId, deletedAt: null , organizationId: orgId },
     select: { id: true },
-  });
+  }));
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   let body: unknown;
@@ -46,13 +46,13 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
   // Multi-program: funding/workspace metadata lives on the primary
   // enrollment row only. If a user has multiple enrollments, the secondary
   // ones don't get their own funding source through this UI.
-  const enrollment = await prisma.courseEnrollment.findFirst({
+  const enrollment = await prisma.$transaction((tx) => tx.courseEnrollment.findFirst({
     where: { userId: memberId, isPrimary: true },
     select: { id: true },
-  });
+  }));
 
   if (enrollment) {
-    await prisma.courseEnrollment.update({
+    await prisma.$transaction((tx) => tx.courseEnrollment.update({
       where: { id: enrollment.id },
       data: {
         fundingSource: d.fundingSource ?? null,
@@ -60,17 +60,17 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
         workspaceEmail: d.workspaceEmail ?? null,
         workspaceEmailProvisioned: d.workspaceEmailProvisioned ?? false,
       },
-    });
+    }));
   }
 
   // Always sync workspaceEmail + provisioned flag to User
-  await prisma.user.update({
+  await prisma.$transaction((tx) => tx.user.update({
     where: { id: memberId },
     data: {
       workspaceEmail: d.workspaceEmail ?? null,
       workspaceEmailProvisioned: d.workspaceEmailProvisioned ?? false,
     },
-  });
+  }));
 
   return NextResponse.json({ ok: true });
 

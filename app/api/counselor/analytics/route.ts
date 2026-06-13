@@ -20,17 +20,17 @@ export const GET = withApiGuc(async () => {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const counselor = await prisma.counselor.findFirst({
+    const counselor = await prisma.$transaction((tx) => tx.counselor.findFirst({
       where: { userId: user.id, active: true },
       select: { id: true },
-    });
+    }));
 
     if (!counselor && !admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const assignments = counselor
-      ? await prisma.counselorAssignment.findMany({
+      ? await prisma.$transaction((tx) => tx.counselorAssignment.findMany({
           take: 500,
           where: {
             counselor: { userId: user.id, active: true },
@@ -48,7 +48,7 @@ export const GET = withApiGuc(async () => {
               },
             },
           },
-        })
+        }))
       : [];
 
     const memberIds = assignments.map((a) => a.memberId);
@@ -56,17 +56,17 @@ export const GET = withApiGuc(async () => {
     // Risk scores
     const [alerts, recentEvents, programAverages] = await Promise.all([
       memberIds.length > 0
-        ? prisma.atRiskAlert.findMany({
+        ? prisma.$transaction((tx) => tx.atRiskAlert.findMany({
             take: 500,
             where: {
               userId: { in: memberIds },
               status: { in: ['open', 'acknowledged'] },
             },
             select: { userId: true, score: true },
-          })
+          }))
         : Promise.resolve([]),
       memberIds.length > 0
-        ? prisma.memberEvent.findMany({
+        ? prisma.$transaction((tx) => tx.memberEvent.findMany({
             take: 100,
             where: {
               userId: { in: memberIds },
@@ -79,16 +79,16 @@ export const GET = withApiGuc(async () => {
               createdAt: true,
               metadata: true,
             },
-          })
+          }))
         : Promise.resolve([]),
       // Compute program-wide averages for comparison
       memberIds.length > 0
-        ? prisma.memberProgramProgress.groupBy({
+        ? prisma.$transaction((tx) => tx.memberProgramProgress.groupBy({
             by: ['programSlug'],
             where: { userId: { in: memberIds } },
             _avg: { averagePercent: true },
             _count: { userId: true },
-          })
+          }))
         : Promise.resolve([]),
     ]);
 

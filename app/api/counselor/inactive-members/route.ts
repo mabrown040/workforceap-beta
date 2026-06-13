@@ -16,10 +16,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   let counselorId: string | null = null;
 
   if (!admin) {
-    const counselor = await prisma.counselor.findFirst({
+    const counselor = await prisma.$transaction((tx) => tx.counselor.findFirst({
       where: { userId: user.id, active: true },
       select: { id: true },
-    });
+    }));
 
     if (!counselor) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -47,7 +47,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
 
   const orgId = await getActorOrganizationId(user.id);
 
-  const inactiveMembers = await prisma.$queryRaw`
+  const inactiveMembers = await prisma.$transaction((tx) => tx.$queryRaw`
     SELECT
       u.id,
       u.email,
@@ -64,7 +64,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     GROUP BY u.id, u.email, u.created_at, p.role, p.profile_phone
     HAVING MAX(me.created_at) IS NULL OR MAX(me.created_at) < ${cutoffDate}
     ORDER BY MAX(me.created_at) ASC NULLS FIRST
-  `;
+  `);
 
   // Calculate days inactive for each
   const now = new Date();

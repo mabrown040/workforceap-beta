@@ -42,12 +42,12 @@ const noteSchema = z.object({
     );
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
-    const notes = await prisma.counselorNote.findMany({
+    const notes = await prisma.$transaction((tx) => tx.counselorNote.findMany({
       where: { memberId: id },
       take: 500,
       orderBy: { createdAt: 'desc' },
       include: { author: { select: { fullName: true, email: true } } },
-    });
+    }));
     return NextResponse.json(notes);
   } catch (error) {
     captureApiError(error, { route: 'admin/members/[id]/notes GET' });
@@ -74,10 +74,10 @@ export const GET = withApiGuc(_GET);async function _POST(
     );
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
-    const note = await prisma.counselorNote.create({
+    const note = await prisma.$transaction((tx) => tx.counselorNote.create({
       data: { memberId: id, authorId: user.id, content: parsed.data.content },
       include: { author: { select: { fullName: true, email: true } } },
-    });
+    }));
     return NextResponse.json(note, { status: 201 });
   } catch (error) {
     captureApiError(error, { route: 'admin/members/[id]/notes POST' });

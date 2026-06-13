@@ -23,21 +23,21 @@ const bodySchema = z.object({
 
     const { jobApplicationId, howUsed, primaryAiToolResultId } = parsed.data;
 
-    const app = await prisma.jobApplication.findFirst({
+    const app = await prisma.$transaction((tx) => tx.jobApplication.findFirst({
       where: { id: jobApplicationId, userId: user.id },
       select: { id: true },
-    });
+    }));
     if (!app) return NextResponse.json({ error: 'Application not found' }, { status: 404 });
 
     if (primaryAiToolResultId) {
-      const tool = await prisma.aIToolResult.findFirst({
+      const tool = await prisma.$transaction((tx) => tx.aIToolResult.findFirst({
         where: { id: primaryAiToolResultId, userId: user.id },
         select: { id: true },
-      });
+      }));
       if (!tool) return NextResponse.json({ error: 'Invalid tool reference' }, { status: 400 });
     }
 
-    await prisma.applicationAiFeedback.upsert({
+    await prisma.$transaction((tx) => tx.applicationAiFeedback.upsert({
       where: { jobApplicationId },
       create: {
         jobApplicationId,
@@ -49,7 +49,7 @@ const bodySchema = z.object({
         howUsed,
         primaryAiToolResultId: primaryAiToolResultId ?? null,
       },
-    });
+    }));
 
     return NextResponse.json({ ok: true });
   } catch (error) {

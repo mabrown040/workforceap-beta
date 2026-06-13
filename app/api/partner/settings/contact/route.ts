@@ -35,13 +35,13 @@ export const PATCH = withApiGuc(async (request: NextRequest) => {
     }
 
     const d = parsed.data;
-    await prisma.partner.update({
+    await prisma.$transaction((tx) => tx.partner.update({
       where: { id: ctx.partnerId },
       data: {
         contactName: d.contactName?.trim() || null,
         contactPhone: d.contactPhone?.trim() || null,
       },
-    });
+    }));
 
     return NextResponse.json({ ok: true });
   } catch (error) {

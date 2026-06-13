@@ -18,7 +18,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
     try {
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id, deletedAt: null },
       select: {
         enrolledProgram: true,
@@ -32,12 +32,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         },
         userCertifications: { select: { certName: true } },
       },
-    });
+    }));
   
     if (!dbUser) return NextResponse.json({ jobs: [] });
   
     // Fetch live jobs only (limit to avoid full-table scan)
-    const jobs = await prisma.job.findMany({
+    const jobs = await prisma.$transaction((tx) => tx.job.findMany({
       where: {
         status: 'live',
       },
@@ -45,7 +45,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         employer: { select: { companyName: true } },
       },
       take: 50,
-    });
+    }));
   
     const program = dbUser.enrolledProgram ? getProgramBySlug(dbUser.enrolledProgram) : null;
     const programSkills = program?.skills ?? [];

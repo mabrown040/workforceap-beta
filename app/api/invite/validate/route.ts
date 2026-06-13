@@ -13,14 +13,14 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     }
   
     try {
-      const invitation = await prisma.invitation.findUnique({
+      const invitation = await prisma.$transaction((tx) => tx.invitation.findUnique({
         where: { token },
         include: {
           invitedBy: { select: { fullName: true } },
           subgroup: { select: { id: true, name: true } },
           partner: { select: { id: true, name: true } },
         },
-      });
+      }));
   
       if (!invitation) {
         return NextResponse.json({ valid: false, error: 'Invitation not found' }, { status: 404 });
@@ -34,10 +34,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       }
   
       if (new Date() > invitation.expiresAt) {
-        await prisma.invitation.update({
+        await prisma.$transaction((tx) => tx.invitation.update({
           where: { id: invitation.id },
           data: { status: 'expired' },
-        });
+        }));
         return NextResponse.json({ valid: false, error: 'Invitation has expired' }, { status: 400 });
       }
   

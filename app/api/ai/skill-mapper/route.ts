@@ -60,11 +60,11 @@ import {
         let fallbackDesignScore: number | undefined;
   
         try {
-          const programMappings = await prisma.careerProgramMapping.findMany({
+          const programMappings = await prisma.$transaction((tx) => tx.careerProgramMapping.findMany({
             where: { onetCode: code, isActive: true },
             orderBy: [{ priority: 'asc' }],
             take: 6,
-          });
+          }));
           matchedPrograms = programMappings.map((m) => {
             const p = getProgramBySlug(m.programSlug);
             return {

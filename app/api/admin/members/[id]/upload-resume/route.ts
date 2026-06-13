@@ -28,10 +28,10 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
   // their organization. Without this filter, an admin from Org A
   // could overwrite an Org B member's resume blob.
   const orgId = await getActorOrganizationId(user.id);
-  const member = await prisma.user.findFirst({
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({
     where: { id: userId, organizationId: orgId },
     include: { profile: true },
-  });
+  }));
   if (!member || member.deletedAt) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }
@@ -90,7 +90,7 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
   }
 
   if (originalPath || enhancedPath) {
-    await prisma.profile.upsert({
+    await prisma.$transaction((tx) => tx.profile.upsert({
       where: { userId },
       create: {
         userId,
@@ -102,7 +102,7 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
         ...(originalPath && { resumeOriginalPath: originalPath }),
         ...(enhancedPath && { resumeEnhancedPath: enhancedPath }),
       },
-    });
+    }));
   }
 
   if (enhancedPath && enhancedText && enhancedText.trim().length >= 40) {

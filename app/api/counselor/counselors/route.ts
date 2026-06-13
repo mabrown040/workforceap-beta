@@ -18,7 +18,7 @@ export const GET = withApiGuc(async () => {
     }
 
     const orgId = await getActorOrganizationId(user.id);
-    const rows = await prisma.counselor.findMany({
+    const rows = await prisma.$transaction((tx) => tx.counselor.findMany({
       where: {
         active: true,
         user: { organizationId: orgId, deletedAt: null },
@@ -28,7 +28,7 @@ export const GET = withApiGuc(async () => {
         user: { select: { id: true, fullName: true, email: true } },
       },
       orderBy: { user: { fullName: 'asc' } },
-    });
+    }));
 
     return NextResponse.json({
       counselors: rows.map((c) => ({

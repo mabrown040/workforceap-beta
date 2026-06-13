@@ -137,11 +137,11 @@ function parseInbox(raw: string | null): InboxFilter {
     let breachIds = await getThreadIdsBreachingSla(threshold, 500);
 
     if (search.length > 0) {
-      const matching = await prisma.messageThread.findMany({
+      const matching = await prisma.$transaction((tx) => tx.messageThread.findMany({
         where: { id: { in: breachIds }, ...baseWhereForInbox() },
         select: { id: true },
         take: 100,
-      });
+      }));
       const allow = new Set(matching.map((m) => m.id));
       breachIds = breachIds.filter((id) => allow.has(id));
     }
@@ -156,11 +156,11 @@ function parseInbox(raw: string | null): InboxFilter {
       return NextResponse.json({ threads: [], nextCursor: null, alertsOnly: true, inbox: 'member' });
     }
 
-    const threads = await prisma.messageThread.findMany({
+    const threads = await prisma.$transaction((tx) => tx.messageThread.findMany({
       where: { id: { in: pageIds } },
       select: selectList,
       take: 100,
-    });
+    }));
     const order = new Map(pageIds.map((id, i) => [id, i]));
     threads.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 
@@ -171,13 +171,13 @@ function parseInbox(raw: string | null): InboxFilter {
     return NextResponse.json({ threads: rows, nextCursor, alertsOnly: true, inbox: 'member' });
   }
 
-  const threads = await prisma.messageThread.findMany({
+  const threads = await prisma.$transaction((tx) => tx.messageThread.findMany({
     where: baseWhereForInbox(),
     orderBy: { updatedAt: 'desc' },
     take: limit + 1,
     ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
     select: selectList,
-  });
+  }));
 
   let page = threads;
   let nextCursor: string | null = null;
@@ -311,14 +311,14 @@ function mapThreadRow(
       : '';
     if (!memberId) return NextResponse.json({ error: 'memberId is required' }, { status: 400 });
   
-    const member = await prisma.user.findFirst({
+    const member = await prisma.$transaction((tx) => tx.user.findFirst({
       where: {
         id: memberId,
         deletedAt: null,
         profile: { role: 'member' },
       },
       select: { id: true, fullName: true },
-    });
+    }));
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   
     const thread = await getOrCreateMemberCounselorThread(memberId);

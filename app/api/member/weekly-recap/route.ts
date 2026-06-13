@@ -29,10 +29,10 @@ async function _GET() {
   try {
     const { start } = getWeekBounds(new Date());
 
-    let recap = await prisma.weeklyRecap.findUnique({
+    let recap = await prisma.$transaction((tx) => tx.weeklyRecap.findUnique({
       where: { userId_weekStartDate: { userId: user.id, weekStartDate: start } },
       select: weeklyRecapSelect,
-    });
+    }));
 
     if (!recap) {
       recap = await generateWeeklyRecap(user.id, start);

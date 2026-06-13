@@ -34,27 +34,28 @@ const patchSchema = z.object({
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const subgroup = await prisma.subgroup.findUnique({ where: { id } });
+  const subgroup = await prisma.$transaction((tx) => tx.subgroup.findUnique({ where: { id } }));
   if (!subgroup) return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
 
   const data: Record<string, unknown> = {};
   if (parsed.data.name != null) data.name = parsed.data.name;
   if (parsed.data.type != null) data.type = parsed.data.type;
   if (parsed.data.leaderId != null) {
-    const leader = await prisma.user.findUnique({ where: { id: parsed.data.leaderId }, select: { id: true } });
+    const leader = await prisma.$transaction((tx) => tx.user.findUnique({ where: { id: parsed.data.leaderId }, select: { id: true } }));
     if (!leader) return NextResponse.json({ error: 'Leader user not found' }, { status: 400 });
     data.leaderId = parsed.data.leaderId;
   }
   if (parsed.data.partnerId !== undefined) {
     data.partnerId = parsed.data.partnerId;
     if (parsed.data.partnerId && subgroup.type === 'partner') {
-      const partner = await prisma.partner.findFirst({ where: { id: parsed.data.partnerId, active: true } });
+      const partnerId = parsed.data.partnerId;
+      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: partnerId, active: true } }));
       if (!partner) return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
     }
   }
   if (parsed.data.description !== undefined) data.description = parsed.data.description;
 
-  const updated = await prisma.subgroup.update({
+  const updated = await prisma.$transaction((tx) => tx.subgroup.update({
     where: { id },
     data,
     include: {
@@ -62,7 +63,7 @@ const patchSchema = z.object({
       partner: { select: { id: true, name: true } },
       _count: { select: { members: true } },
     },
-  });
+  }));
   return NextResponse.json(updated);
 
   } catch (error) {
@@ -84,10 +85,10 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   }
 
   const { id } = await params;
-  const subgroup = await prisma.subgroup.findUnique({ where: { id } });
+  const subgroup = await prisma.$transaction((tx) => tx.subgroup.findUnique({ where: { id } }));
   if (!subgroup) return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
 
-  await prisma.subgroup.delete({ where: { id } });
+  await prisma.$transaction((tx) => tx.subgroup.delete({ where: { id } }));
   return NextResponse.json({ ok: true });
 
   } catch (error) {

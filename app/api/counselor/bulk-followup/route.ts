@@ -84,7 +84,7 @@ async function handle(request: Request) {
     const uniqueIds = Array.from(new Set(memberIds));
 
     // Pre-fetch member rows in one query for personalization context.
-    const members = await prisma.user.findMany({
+    const members = await prisma.$transaction((tx) => tx.user.findMany({
       take: MAX_BATCH,
       where: { id: { in: uniqueIds }, deletedAt: null },
       select: {
@@ -93,7 +93,7 @@ async function handle(request: Request) {
         email: true,
         enrolledProgram: true,
       },
-    });
+    }));
     const memberById = new Map(members.map((m) => [m.id, m]));
 
     const results: BulkResultEntry[] = [];

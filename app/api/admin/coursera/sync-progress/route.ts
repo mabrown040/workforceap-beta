@@ -28,12 +28,12 @@ async function requireAdminUser() {
   const csvPromotion = await promoteCsvProgressToCanonical();
 
   // Phase 3: backfill rollup for all members with existing CourseProgress rows
-  const membersWithProgress = await prisma.courseProgress.findMany({
+  const membersWithProgress = await prisma.$transaction((tx) => tx.courseProgress.findMany({
     where: { userId: { not: undefined } },
     select: { userId: true, programSlug: true },
     distinct: ['userId', 'programSlug'],
     take: 100,
-  });
+  }));
 
   let rollupsRun = 0;
   let rollupErrors = 0;

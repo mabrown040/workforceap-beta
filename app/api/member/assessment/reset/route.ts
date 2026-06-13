@@ -8,7 +8,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: {
         fullName: true,
@@ -20,7 +20,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         assessmentAnswers: true,
         programInterest: true,
       },
-    });
+    }));
   
     if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
     if (!dbUser.assessmentCompleted) {
@@ -28,7 +28,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     }
   
     // Archive previous score in WorkflowDiagnostic for full history
-    await prisma.workflowDiagnostic.create({
+    await prisma.$transaction((tx) => tx.workflowDiagnostic.create({
       data: {
         workflow: 'member_assessment_history',
         status: 'inspection',
@@ -46,10 +46,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           resetAt: new Date().toISOString(),
         },
       },
-    });
+    }));
   
     // Reset assessment flags so they can retake
-    await prisma.user.update({
+    await prisma.$transaction((tx) => tx.user.update({
       where: { id: user.id },
       data: {
         assessmentCompleted: false,
@@ -58,7 +58,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         assessmentCompletedAt: null,
         assessmentAnswers: undefined,
       },
-    });
+    }));
   
     // Notify staff
     try {

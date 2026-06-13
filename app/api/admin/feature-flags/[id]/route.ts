@@ -18,7 +18,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
     const body = await request.json();
     const { name, description, enabled, rolloutPercentage, allowedRoles } = body;
 
-    const existing = await prisma.featureFlag.findUnique({ where: { id } });
+    const existing = await prisma.$transaction((tx) => tx.featureFlag.findUnique({ where: { id } }));
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     const update: Record<string, unknown> = {};
@@ -34,10 +34,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
         : existing.allowedRoles;
     }
 
-    const flag = await prisma.featureFlag.update({
+    const flag = await prisma.$transaction((tx) => tx.featureFlag.update({
       where: { id },
       data: update,
-    });
+    }));
 
     return NextResponse.json({ flag });
   } catch (error) {
@@ -57,7 +57,7 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
     }
 
     const { id } = await params;
-    await prisma.featureFlag.delete({ where: { id } });
+    await prisma.$transaction((tx) => tx.featureFlag.delete({ where: { id } }));
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/feature-flags/[id] DELETE] error:', error);

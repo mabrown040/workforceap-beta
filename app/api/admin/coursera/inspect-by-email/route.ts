@@ -208,7 +208,7 @@ function epochToIso(value: number | null | undefined): string | null {
     let memberProgramProgressCount = 0;
     if (wapUser) {
       const [progressRows, memberProgressCount] = await Promise.all([
-        prisma.courseProgress.findMany({
+        prisma.$transaction((tx) => tx.courseProgress.findMany({
           where: { userId: wapUser.id },
           select: {
             courseId: true,
@@ -219,8 +219,8 @@ function epochToIso(value: number | null | undefined): string | null {
           },
           orderBy: { lastUpdatedAt: 'desc' },
           take: 100,
-        }),
-        prisma.memberProgramProgress.count({ where: { userId: wapUser.id } }),
+        })),
+        prisma.$transaction((tx) => tx.memberProgramProgress.count({ where: { userId: wapUser.id } })),
       ]);
       memberProgramProgressCount = memberProgressCount;
       wapEnrollments = progressRows.map((row) => ({
@@ -246,7 +246,7 @@ function epochToIso(value: number | null | undefined): string | null {
     let mappingRows: IdentityMappingRow[] = [];
     if (wapUser || isSuper) {
       if (isSuper) {
-        mappingRows = await prisma.$queryRaw<IdentityMappingRow[]>`
+        mappingRows = await prisma.$transaction((tx) => tx.$queryRaw<IdentityMappingRow[]>`
           SELECT
             id,
             coursera_email AS "courseraEmail",
@@ -260,9 +260,9 @@ function epochToIso(value: number | null | undefined): string | null {
              OR (${wapUser?.id ?? null}::text IS NOT NULL AND user_id = ${wapUser?.id ?? null}::text)
           ORDER BY created_at DESC
           LIMIT 50
-        `;
+        `);
       } else {
-        mappingRows = await prisma.$queryRaw<IdentityMappingRow[]>`
+        mappingRows = await prisma.$transaction((tx) => tx.$queryRaw<IdentityMappingRow[]>`
           SELECT
             id,
             coursera_email AS "courseraEmail",
@@ -279,7 +279,7 @@ function epochToIso(value: number | null | undefined): string | null {
             )
           ORDER BY created_at DESC
           LIMIT 50
-        `;
+        `);
       }
     }
 
@@ -378,28 +378,28 @@ function epochToIso(value: number | null | undefined): string | null {
       // Pre-compute org-scoped user IDs for xAPI queries
       let orgUserIds: string[] | undefined;
       if (orgFilter) {
-        const orgUsers = await prisma.user.findMany({
+        const orgUsers = await prisma.$transaction((tx) => tx.user.findMany({
           where: { organizationId: orgFilter, deletedAt: null },
           select: { id: true },
-        });
+        }));
         orgUserIds = orgUsers.map((u) => u.id);
       }
 
       [statementAgg, statementLatest] = await Promise.all([
-        prisma.xapiStatement.count({
+        prisma.$transaction((tx) => tx.xapiStatement.count({
           where: {
             actorEmail: { equals: email, mode: 'insensitive' },
             ...(orgUserIds ? { userId: { in: orgUserIds } } : {}),
           },
-        }),
-        prisma.xapiStatement.findFirst({
+        })),
+        prisma.$transaction((tx) => tx.xapiStatement.findFirst({
           where: {
             actorEmail: { equals: email, mode: 'insensitive' },
             ...(orgUserIds ? { userId: { in: orgUserIds } } : {}),
           },
           orderBy: { createdAt: 'desc' },
           select: { createdAt: true },
-        }),
+        })),
       ]);
 
       const unprocessedRows = await prisma.$queryRaw<Array<{ count: bigint }>>`

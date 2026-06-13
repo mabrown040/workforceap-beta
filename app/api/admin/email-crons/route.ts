@@ -14,12 +14,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
 
   // Load last 50 workflow diagnostics that match any cron key
   const cronKeys = CRON_REGISTRY.map(c => c.workflowKey);
-  const recentDiags = await prisma.workflowDiagnostic.findMany({
+  const recentDiags = await prisma.$transaction((tx) => tx.workflowDiagnostic.findMany({
     where: { workflow: { in: cronKeys } },
     orderBy: { createdAt: 'desc' },
     take: 100,
     select: { id: true, workflow: true, status: true, summary: true, createdAt: true, metadata: true },
-  });
+  }));
 
   // Build a map: workflowKey → recent runs
   const runsByKey = new Map<string, typeof recentDiags>();

@@ -94,10 +94,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     // orgs in the current schema. crossTenantOK marks the intentional bypass
     // for the audit script.
     const existingEmployerGlobal = await crossTenantOK(() =>
-      prisma.employer.findUnique({
+      prisma.$transaction((tx) => tx.employer.findUnique({
         where: { userId: parsed.data.userId },
         select: { id: true },
-      }),
+      })),
     );
     if (existingEmployerGlobal) {
       return NextResponse.json({ error: 'User is already an employer' }, { status: 400 });
@@ -129,13 +129,13 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     });
 
     // Role and UserRole are platform-level — not tenant-scoped.
-    const employerRole = await prisma.role.findUnique({ where: { name: 'employer' } });
+    const employerRole = await prisma.$transaction((tx) => tx.role.findUnique({ where: { name: 'employer' } }));
     if (employerRole) {
-      await prisma.userRole.upsert({
+      await prisma.$transaction((tx) => tx.userRole.upsert({
         where: { userId_roleId: { userId: parsed.data.userId, roleId: employerRole.id } },
         create: { userId: parsed.data.userId, roleId: employerRole.id },
         update: {},
-      });
+      }));
     }
 
     return NextResponse.json(employer, { status: 201 });

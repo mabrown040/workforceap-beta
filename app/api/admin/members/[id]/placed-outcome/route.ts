@@ -35,9 +35,9 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
   const { id: memberId } = await params;
   const orgId = await getActorOrganizationId(user.id);
 
-  const member = await prisma.user.findFirst({ where: { id: memberId, deletedAt: null , organizationId: orgId },
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({ where: { id: memberId, deletedAt: null , organizationId: orgId },
     select: { id: true, enrolledProgram: true },
-  });
+  }));
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
   let body: unknown;
@@ -56,11 +56,11 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
   const placedAt = d.placedAt ? new Date(d.placedAt) : new Date();
   const programSlug = d.programSlug?.trim() || member.enrolledProgram || null;
 
-  const prior = await prisma.placementRecord.findUnique({ where: { userId: memberId } });
+  const prior = await prisma.$transaction((tx) => tx.placementRecord.findUnique({ where: { userId: memberId } }));
   const windowEnd = defaultOnboardingWindowEnd(placedAt);
 
   // Write to canonical PlacementRecord (includes WIOA fields)
-  const placement = await prisma.placementRecord.upsert({
+  const placement = await prisma.$transaction((tx) => tx.placementRecord.upsert({
     where: { userId: memberId },
     create: {
       userId: memberId,
@@ -92,11 +92,11 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
       grantReportingNotes: d.grantReportingNotes?.trim() || null,
       ...(prior?.onboardingWindowEnd ? {} : { onboardingWindowEnd: windowEnd }),
     },
-  });
+  }));
 
   // Keep legacy PlacedOutcome in sync during migration period.
   // TODO: Remove once PlacedOutcome is fully retired.
-  await prisma.placedOutcome.upsert({
+  await prisma.$transaction((tx) => tx.placedOutcome.upsert({
     where: { userId: memberId },
     create: {
       userId: memberId,
@@ -115,7 +115,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
       programSlug,
       notes: d.notes?.trim() || null,
     },
-  });
+  }));
 
   // WIOA grant claims need a tamper-evident change history (AUDIT H-DEP4).
   // MemberEvent rows are mutable product analytics; AuditLog is the

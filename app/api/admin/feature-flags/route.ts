@@ -36,14 +36,14 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     }
 
     const data = validation.data!;
-    const existing = await prisma.featureFlag.findUnique({ where: { key: data.key as string } });
+    const existing = await prisma.$transaction((tx) => tx.featureFlag.findUnique({ where: { key: data.key as string } }));
     if (existing) {
       return NextResponse.json({ error: 'Feature flag key already exists' }, { status: 400 });
     }
 
-    const flag = await prisma.featureFlag.create({
+    const flag = await prisma.$transaction((tx) => tx.featureFlag.create({
       data: data as any,
-    });
+    }));
 
     return NextResponse.json({ flag });
   } catch (error) {

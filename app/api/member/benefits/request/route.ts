@@ -25,10 +25,10 @@ const BENEFIT_COOLDOWN_DAYS = 30;export const POST = withApiGuc(async (request: 
   const { benefit } = parsed.data;
 
   if (benefit === 'coursera') {
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { assessmentCompleted: true },
-    });
+    }));
     if (!dbUser?.assessmentCompleted) {
       return NextResponse.json(
         { error: 'Please complete the skills assessment before requesting Coursera access.', code: 'ASSESSMENT_REQUIRED' },
@@ -37,11 +37,11 @@ const BENEFIT_COOLDOWN_DAYS = 30;export const POST = withApiGuc(async (request: 
     }
   }
 
-  const existing = await prisma.benefitRequest.findUnique({
+  const existing = await prisma.$transaction((tx) => tx.benefitRequest.findUnique({
     where: {
       userId_benefit: { userId: user.id, benefit },
     },
-  });
+  }));
 
   if (existing) {
     if (existing.status === 'APPROVED') {
@@ -59,7 +59,7 @@ const BENEFIT_COOLDOWN_DAYS = 30;export const POST = withApiGuc(async (request: 
     }
   }
 
-  const req = await prisma.benefitRequest.upsert({
+  const req = await prisma.$transaction((tx) => tx.benefitRequest.upsert({
     where: {
       userId_benefit: { userId: user.id, benefit },
     },
@@ -71,7 +71,7 @@ const BENEFIT_COOLDOWN_DAYS = 30;export const POST = withApiGuc(async (request: 
     update: {
       status: 'PENDING',
     },
-  });
+  }));
 
   return NextResponse.json({ request: req, status: 'pending' });
 

@@ -13,9 +13,9 @@ export const GET = withApiGuc(async () => {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const templates = await prisma.emailTemplate.findMany({
+    const templates = await prisma.$transaction((tx) => tx.emailTemplate.findMany({
       orderBy: { name: 'asc' },
-    });
+    }));
 
     return NextResponse.json({ templates });
   } catch (error) {

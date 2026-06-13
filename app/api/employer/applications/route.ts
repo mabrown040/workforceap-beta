@@ -43,7 +43,7 @@ const STATUSES: JobPostingApplicationStatus[] = [
     }
   
     try {
-      const applications = await prisma.jobPostingApplication.findMany({
+      const applications = await prisma.$transaction((tx) => tx.jobPostingApplication.findMany({
         where,
         orderBy: { appliedAt: 'desc' },
         include: {
@@ -51,7 +51,7 @@ const STATUSES: JobPostingApplicationStatus[] = [
           student: { select: { id: true, fullName: true, email: true } },
         },
         take: 100,
-      });
+      }));
       return NextResponse.json(applications);
     } catch (err) {
       captureApiError(err, { route: 'employer/applications' });

@@ -21,7 +21,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   }
 
   const subgroupIds = subgroups.map((s) => s.subgroupId);
-  const memberSubgroups = await prisma.memberSubgroup.findMany({
+  const memberSubgroups = await prisma.$transaction((tx) => tx.memberSubgroup.findMany({
     where: { subgroupId: { in: subgroupIds } },
     take: 1000,
     include: {
@@ -41,7 +41,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         },
       },
     },
-  });
+  }));
 
   const seen = new Set<string>();
   let total = 0;

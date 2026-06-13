@@ -16,7 +16,7 @@ async function _GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const post = await prisma.blogPost.findUnique({ where: { id } });
+    const post = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { id } }));
     if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(post);
   } catch (error) {
@@ -50,13 +50,13 @@ async function _PATCH(
       scheduledAt,
     } = body;
 
-    const existing = await prisma.blogPost.findUnique({ where: { id } });
+    const existing = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { id } }));
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     if (slug?.trim() && slug !== existing.slug) {
-      const dup = await prisma.blogPost.findFirst({
+      const dup = await prisma.$transaction((tx) => tx.blogPost.findFirst({
         where: { slug: slug.trim(), NOT: { id } },
-      });
+      }));
       if (dup) {
         return NextResponse.json({ error: 'Slug already exists' }, { status: 400 });
       }
@@ -76,10 +76,10 @@ async function _PATCH(
     }
     if (scheduledAt !== undefined) update.scheduledAt = scheduledAt ? new Date(scheduledAt) : null;
 
-    const post = await prisma.blogPost.update({
+    const post = await prisma.$transaction((tx) => tx.blogPost.update({
       where: { id },
       data: update,
-    });
+    }));
 
     return NextResponse.json(post);
   } catch (error) {
@@ -100,11 +100,11 @@ async function _DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const existing = await prisma.blogPost.findUnique({ where: { id } });
+    const existing = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { id } }));
     if (!existing) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
-    await prisma.blogPost.delete({ where: { id } });
+    await prisma.$transaction((tx) => tx.blogPost.delete({ where: { id } }));
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/blog/[id] DELETE] error:', error);

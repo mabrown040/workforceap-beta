@@ -20,11 +20,11 @@ const toggleSchema = z.object({
 
   await ensureUserInDb(user);
 
-  const certs = await prisma.userCertification.findMany({
+  const certs = await prisma.$transaction((tx) => tx.userCertification.findMany({
     where: { userId: user.id },
     select: { certName: true, earnedAt: true },
     take: 100,
-  });
+  }));
 
   return NextResponse.json({
     certifications: certs.map((c) => ({ certName: c.certName, earnedAt: c.earnedAt })),
@@ -59,10 +59,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   const earnedAt = earnedAtStr ? new Date(earnedAtStr) : new Date();
 
   if (earned) {
-    const existing = await prisma.userCertification.findUnique({
+    const existing = await prisma.$transaction((tx) => tx.userCertification.findUnique({
       where: { userId_certName: { userId: user.id, certName } },
-    });
-    await prisma.userCertification.upsert({
+    }));
+    await prisma.$transaction((tx) => tx.userCertification.upsert({
       where: {
         userId_certName: { userId: user.id, certName },
       },
@@ -75,7 +75,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
         // Update earnedAt only when a specific date is provided (manual add)
         ...(earnedAtStr ? { earnedAt } : {}),
       },
-    });
+    }));
     if (!existing) {
       // Lifecycle event: certification_earned
       trackEvent({
@@ -93,9 +93,9 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       }).catch((err) => console.error('Partner milestone email failed:', err));
     }
   } else {
-    await prisma.userCertification.deleteMany({
+    await prisma.$transaction((tx) => tx.userCertification.deleteMany({
       where: { userId: user.id, certName },
-    });
+    }));
   }
 
   return NextResponse.json({ success: true });

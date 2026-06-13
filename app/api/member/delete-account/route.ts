@@ -12,19 +12,19 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       // Soft-delete in app DB AND release the email from the unique
       // constraint so the user (or anyone) can sign up again with the
       // same address. See app/api/admin/members/[id]/delete/route.ts.
-      const existing = await prisma.user.findUnique({
+      const existing = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id: user.id },
         select: { email: true, deletedAt: true },
-      });
+      }));
       if (existing) {
         const now = new Date();
         const newEmail = existing.deletedAt
           ? existing.email
           : `deleted_${user.id}_${now.getTime()}_${existing.email}@deleted.invalid`.slice(0, 255);
-        await prisma.user.update({
+        await prisma.$transaction((tx) => tx.user.update({
           where: { id: user.id },
           data: { deletedAt: now, email: newEmail },
-        });
+        }));
       }
   
       // Hard-delete from Supabase Auth so the user cannot log back in

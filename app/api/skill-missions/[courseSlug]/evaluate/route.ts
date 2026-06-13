@@ -76,10 +76,10 @@ export const POST = withApiGuc(
       const { courseSlug } = await context.params;
 
       // 4. Bind the program to the member's enrollment — never to the body
-      const dbUser = await prisma.user.findUnique({
+      const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id: user.id },
         select: { enrolledProgram: true },
-      });
+      }));
       const programSlug = dbUser?.enrolledProgram ?? null;
       if (!programSlug) {
         return fail('You must be enrolled in a program to attempt skill missions.', 403);
@@ -93,10 +93,10 @@ export const POST = withApiGuc(
       }
 
       // 6. Verify the student has completed this course
-      const progress = await prisma.courseProgress.findFirst({
+      const progress = await prisma.$transaction((tx) => tx.courseProgress.findFirst({
         where: { userId: user.id, courseSlug, status: 'COMPLETED' },
         select: { id: true },
-      });
+      }));
       if (!progress) {
         return fail('You must complete this course before attempting its skill mission.', 403);
       }

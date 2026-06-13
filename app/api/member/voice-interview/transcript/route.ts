@@ -60,7 +60,7 @@ function hasMeaningfulUserPractice(transcript: TranscriptTurn[]) {
       if (meaningfulPractice) {
         let alreadyRecorded = false;
         if (sessionId) {
-          const existing = await prisma.memberEvent.findFirst({
+          const existing = await prisma.$transaction((tx) => tx.memberEvent.findFirst({
             where: {
               userId: user.id,
               eventName: 'career_os.interview_practice_completed',
@@ -68,12 +68,12 @@ function hasMeaningfulUserPractice(transcript: TranscriptTurn[]) {
               entityId: sessionId,
             },
             select: { id: true },
-          });
+          }));
           alreadyRecorded = !!existing;
         }
   
         if (!alreadyRecorded) {
-          await prisma.memberEvent.create({
+          await prisma.$transaction((tx) => tx.memberEvent.create({
             data: {
               userId: user.id,
               eventName: 'career_os.interview_practice_completed',
@@ -86,7 +86,7 @@ function hasMeaningfulUserPractice(transcript: TranscriptTurn[]) {
                 userTurnCount: transcript.filter((turn) => turn.role === 'user').length,
               },
             },
-          });
+          }));
         }
   
         await completeCareerOsInterviewActions(user.id).catch((error) => {
@@ -98,10 +98,10 @@ function hasMeaningfulUserPractice(transcript: TranscriptTurn[]) {
         console.error('[voice-interview transcript] coach memory update failed:', err);
       });
 
-      const dbUser = await prisma.user.findUnique({
+      const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id: user.id },
         select: { fullName: true, email: true },
-      });
+      }));
 
       const recipients = getVoiceCoachTranscriptRecipients();
       if (recipients.length > 0) {

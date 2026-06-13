@@ -28,10 +28,10 @@ type RouteContext = { params: Promise<{ id: string }> };async function _PATCH(re
   const parsed = patchSchema.safeParse(raw);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const pack = await prisma.employerScreeningPack.update({
+  const pack = await prisma.$transaction((tx) => tx.employerScreeningPack.update({
     where: { id },
     data: parsed.data,
-  });
+  }));
   return NextResponse.json({ pack });
 
   } catch (error) {
@@ -46,7 +46,7 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(_request: Request
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id } = await ctx.params;
-  await prisma.employerScreeningPack.delete({ where: { id } });
+  await prisma.$transaction((tx) => tx.employerScreeningPack.delete({ where: { id } }));
   return NextResponse.json({ ok: true });
 
   } catch (error) {

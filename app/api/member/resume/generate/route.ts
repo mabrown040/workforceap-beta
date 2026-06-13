@@ -77,10 +77,10 @@ function buildFallbackResume(params: {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       include: { profile: true },
-    });
+    }));
     if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
   
     let body: { resumeBase?: string } = {};
@@ -195,11 +195,11 @@ function buildFallbackResume(params: {
         return NextResponse.json({ error: 'Failed to save resume' }, { status: 500 });
       }
   
-      await prisma.profile.upsert({
+      await prisma.$transaction((tx) => tx.profile.upsert({
         where: { userId: user.id },
         create: { userId: user.id, resumeEnhancedPath: path, role: 'member' },
         update: { resumeEnhancedPath: path },
-      });
+      }));
   
       await completeCareerOsResumeActions(user.id).catch((error) => {
         console.error('[member/resume/generate] completeCareerOsResumeActions failed:', error);
@@ -222,11 +222,11 @@ function buildFallbackResume(params: {
           return NextResponse.json({ error: 'Failed to save resume' }, { status: 500 });
         }
   
-        await prisma.profile.upsert({
+        await prisma.$transaction((tx) => tx.profile.upsert({
           where: { userId: user.id },
           create: { userId: user.id, resumeEnhancedPath: path, role: 'member' },
           update: { resumeEnhancedPath: path },
-        });
+        }));
   
         await completeCareerOsResumeActions(user.id).catch((error) => {
           console.error('[member/resume/generate:fallback] completeCareerOsResumeActions failed:', error);

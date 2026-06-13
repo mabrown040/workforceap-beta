@@ -28,11 +28,11 @@ const MAX_CHARS = 120_000;export const POST = withApiGuc(async (request: Request
       return NextResponse.json({ error: 'Failed to save resume text' }, { status: 500 });
     }
 
-    await prisma.profile.upsert({
+    await prisma.$transaction((tx) => tx.profile.upsert({
       where: { userId: user.id },
       create: { userId: user.id, resumeEnhancedPath: path, role: 'member' },
       update: { resumeEnhancedPath: path },
-    });
+    }));
 
     if (plainText.trim().length >= 40) {
       await completeCareerOsResumeActions(user.id).catch((error) => {

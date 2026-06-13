@@ -42,10 +42,10 @@ export async function POST(request: NextRequest) {
             break;
           }
           if (session.payment_status === 'paid') {
-            await prisma.organization.update({
+            await prisma.$transaction((tx) => tx.organization.update({
               where: { id: orgId },
               data: { subscriptionStatus: 'active' },
-            });
+            }));
           }
           break;
         }
@@ -58,40 +58,40 @@ export async function POST(request: NextRequest) {
           const orgId = subscription.metadata?.organizationId;
           if (!orgId) break;
           const status = subscription.status === 'active' ? 'active' : 'past_due';
-          await prisma.organization.update({
+          await prisma.$transaction((tx) => tx.organization.update({
             where: { id: orgId },
             data: { subscriptionStatus: status },
-          });
+          }));
           break;
         }
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
           const orgId = subscription.metadata?.organizationId;
           if (!orgId) break;
-          await prisma.organization.update({
+          await prisma.$transaction((tx) => tx.organization.update({
             where: { id: orgId },
             data: { subscriptionStatus: 'canceled' },
-          });
+          }));
           break;
         }
         case 'invoice.payment_failed': {
           const invoice = event.data.object as Stripe.Invoice;
           const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
           if (!orgId) break;
-          await prisma.organization.update({
+          await prisma.$transaction((tx) => tx.organization.update({
             where: { id: orgId },
             data: { subscriptionStatus: 'past_due' },
-          });
+          }));
           break;
         }
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as Stripe.Invoice;
           const orgId = invoice.metadata?.organizationId ?? invoice.parent?.subscription_details?.metadata?.organizationId;
           if (!orgId) break;
-          await prisma.organization.update({
+          await prisma.$transaction((tx) => tx.organization.update({
             where: { id: orgId },
             data: { subscriptionStatus: 'active' },
-          });
+          }));
           break;
         }
         case 'account.updated': {
@@ -107,10 +107,10 @@ export async function POST(request: NextRequest) {
             !account.requirements?.currently_due?.length &&
             !account.requirements?.past_due?.length;
   
-          await prisma.partner.updateMany({
+          await prisma.$transaction((tx) => tx.partner.updateMany({
             where: { id: partnerId, stripeConnectId: account.id },
             data: { stripeConnectStatus: isActive ? 'active' : 'pending' },
-          });
+          }));
           break;
         }
         case 'transfer.failed' as any: {

@@ -31,17 +31,17 @@ function storageErrorMessage(error: { message?: string } | null): string {
     // but is FK-bound to User; resolving via User.organizationId is the
     // canonical pattern.
     const orgId = await getActorOrganizationId(user.id);
-    const member = await prisma.user.findFirst({
+    const member = await prisma.$transaction((tx) => tx.user.findFirst({
       where: { id: memberId, organizationId: orgId },
       select: { id: true },
-    });
+    }));
     if (!member) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
-    const profile = await prisma.profile.findUnique({
+    const profile = await prisma.$transaction((tx) => tx.profile.findUnique({
       where: { userId: memberId },
-    });
+    }));
 
     const originalPath = profile?.resumeOriginalPath;
     const enhancedPath = profile?.resumeEnhancedPath;

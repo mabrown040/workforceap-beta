@@ -23,14 +23,14 @@ function csvEscape(value: string): string {
     const { pipelineMembers } = await loadPartnerReferralBundle(ctx.partnerId, ctx.partner.organizationId);
     const rows = toPartnerMembersListRows(pipelineMembers);
   
-    const emails = await prisma.user.findMany({
+    const emails = await prisma.$transaction((tx) => tx.user.findMany({
       where: {
         id: { in: pipelineMembers.map((p) => p.member.id) },
         organizationId: ctx.partner.organizationId,
       },
       select: { id: true, email: true },
       take: 100,
-    });
+    }));
     const emailById = new Map(emails.map((e) => [e.id, e.email]));
   
     const baseHeaders = [

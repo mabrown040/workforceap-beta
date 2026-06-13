@@ -56,10 +56,10 @@ const jobCreateSchema = z.object({
         break;
     }
   
-    const employerScope = await prisma.employer.findUnique({
+    const employerScope = await prisma.$transaction((tx) => tx.employer.findUnique({
       where: { id: ctx.employerId },
       select: { organizationId: true },
-    });
+    }));
     if (!employerScope) {
       return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
     }
@@ -108,17 +108,17 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       );
     }
 
-  const employer = await prisma.employer.findUnique({
+  const employer = await prisma.$transaction((tx) => tx.employer.findUnique({
       where: { id: ctx.employerId },
       select: { companyName: true, contactEmail: true, organizationId: true },
-    });
+    }));
     if (!employer) {
       return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
     }
 
-    const job = await prisma.job.create({
+    const job = await prisma.$transaction((tx) => tx.job.create({
       data: buildEmployerJobCreateData(employer.organizationId, ctx.employerId, parsed.data),
-    });
+    }));
 
     if (parsed.data.status === 'pending') {
       await sendJobSubmittedEmail({

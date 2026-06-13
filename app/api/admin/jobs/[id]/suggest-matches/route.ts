@@ -126,14 +126,14 @@ async function recordSuggestAudit(input: {
     }
 
     const candidateMatchIds = job.aiMatches.map((m) => m.id);
-    const claimedRows = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+    const claimedRows = await prisma.$transaction((tx) => tx.$queryRaw<{ id: string }[]>(Prisma.sql`
       UPDATE ai_job_matches
       SET status = 'employer_notified'::ai_job_match_status, status_updated_at = ${now}
       WHERE id IN (${Prisma.join(candidateMatchIds)})
         AND job_id = ${id}
         AND status = 'suggested'::ai_job_match_status
       RETURNING id
-    `);
+    `));
     const claimedIds = new Set(claimedRows.map((row) => row.id));
     const claimedMatches = job.aiMatches.filter((match) => claimedIds.has(match.id));
     matchCount = claimedMatches.length;
@@ -163,10 +163,10 @@ async function recordSuggestAudit(input: {
 
     const sent = await sendMatchActionEmail(emailPayload);
     if (!sent.ok) {
-      await prisma.aIJobMatch.updateMany({
+      await prisma.$transaction((tx) => tx.aIJobMatch.updateMany({
         where: { id: { in: Array.from(claimedIds) }, status: 'employer_notified' },
         data: { status: 'suggested', statusUpdatedAt: now },
-      });
+      }));
       await withTenantScope(orgId, (db) =>
         db.job.update({
           where: { id },

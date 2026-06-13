@@ -42,10 +42,10 @@ export const POST = withApiGuc(
 
       const { courseSlug } = await context.params;
 
-      const dbUser = await prisma.user.findUnique({
+      const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id: user.id },
         select: { enrolledProgram: true },
-      });
+      }));
       const programSlug = dbUser?.enrolledProgram ?? null;
       if (!programSlug) {
         return NextResponse.json({ error: 'Not enrolled in a program' }, { status: 403 });

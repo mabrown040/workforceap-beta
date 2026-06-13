@@ -123,10 +123,10 @@ import {
         );
   
         try {
-          const dbUser = await prisma.user.findUnique({
+          const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
             where: { id: onBehalf.subjectUserId },
             select: { fullName: true, email: true },
-          });
+          }));
   
           const recipients = getVoiceCoachTranscriptRecipients();
           if (recipients.length > 0) {
@@ -154,10 +154,10 @@ import {
       let emailError: string | undefined;
   
       try {
-        const dbUser = await prisma.user.findUnique({
+        const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
           where: { id: onBehalf.subjectUserId },
           select: { fullName: true, email: true },
-        });
+        }));
   
         const recipient = dbUser?.email?.trim() || (onBehalf.subjectUserId === user.id ? user.email : null) || '';
         if (recipient) {

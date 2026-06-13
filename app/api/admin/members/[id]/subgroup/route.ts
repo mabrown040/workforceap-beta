@@ -24,7 +24,7 @@ const postSchema = z.object({
 
   const { id: memberId } = await params;
   const orgId = await getActorOrganizationId(user.id);
-  const member = await prisma.user.findFirst({ where: { id: memberId, organizationId: orgId }, select: { id: true, deletedAt: true } });
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({ where: { id: memberId, organizationId: orgId }, select: { id: true, deletedAt: true } }));
   if (!member || member.deletedAt) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }
@@ -35,29 +35,29 @@ const postSchema = z.object({
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const subgroup = await prisma.subgroup.findFirst({
+  const subgroup = await prisma.$transaction((tx) => tx.subgroup.findFirst({
     where: { id: parsed.data.subgroupId, leader: { organizationId: orgId } },
     select: { id: true },
-  });
+  }));
   if (!subgroup) {
     return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
   }
 
-  const existing = await prisma.memberSubgroup.findUnique({
+  const existing = await prisma.$transaction((tx) => tx.memberSubgroup.findUnique({
     where: { memberId_subgroupId: { memberId, subgroupId: parsed.data.subgroupId } },
-  });
+  }));
   if (existing) {
     return NextResponse.json({ error: 'Member is already in this subgroup' }, { status: 400 });
   }
 
-  await prisma.memberSubgroup.create({
+  await prisma.$transaction((tx) => tx.memberSubgroup.create({
     data: {
       memberId,
       subgroupId: parsed.data.subgroupId,
       assignedBy: user.id,
       assignmentType: 'manual_admin',
     },
-  });
+  }));
 
   return NextResponse.json({ ok: true });
 
@@ -86,27 +86,27 @@ export const POST = withApiGuc(_POST);async function _DELETE(
     return NextResponse.json({ error: 'subgroup query param required' }, { status: 400 });
   }
 
-  const member = await prisma.user.findFirst({ where: { id: memberId, organizationId: orgId }, select: { id: true, deletedAt: true } });
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({ where: { id: memberId, organizationId: orgId }, select: { id: true, deletedAt: true } }));
   if (!member || member.deletedAt) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }
 
-  const subgroup = await prisma.subgroup.findFirst({
+  const subgroup = await prisma.$transaction((tx) => tx.subgroup.findFirst({
     where: { id: subgroupId, leader: { organizationId: orgId } },
     select: { id: true },
-  });
+  }));
   if (!subgroup) {
     return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
   }
 
-  const deleted = await prisma.memberSubgroup.deleteMany({
+  const deleted = await prisma.$transaction((tx) => tx.memberSubgroup.deleteMany({
     where: {
       memberId,
       subgroupId,
       member: { organizationId: orgId },
       subgroup: { leader: { organizationId: orgId } },
     },
-  });
+  }));
 
   if (deleted.count === 0) {
     return NextResponse.json({ error: 'Member not in this subgroup' }, { status: 404 });

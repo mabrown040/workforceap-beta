@@ -18,10 +18,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     return NextResponse.json({ error: 'Missing enrollment id' }, { status: 400 });
   }
 
-  const enrollment = await prisma.courseEnrollment.findUnique({
+  const enrollment = await prisma.$transaction((tx) => tx.courseEnrollment.findUnique({
     where: { id: enrollmentId },
     select: { id: true, userId: true, programSlug: true, isPrimary: true },
-  });
+  }));
 
   if (!enrollment || enrollment.userId !== user.id) {
     // Don't disclose the row exists for a different user.

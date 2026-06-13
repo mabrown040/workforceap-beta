@@ -39,29 +39,29 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
   // counselor (visible to wrong tenant) or assign an Org A counselor to
   // an Org B member.
   const orgId = await getActorOrganizationId(user.id);
-  const member = await prisma.user.findFirst({
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({
     where: { id: memberId, deletedAt: null, organizationId: orgId },
     select: { id: true, email: true, fullName: true, organizationId: true },
-  });
+  }));
   if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
-  const counselor = await prisma.counselor.findFirst({
+  const counselor = await prisma.$transaction((tx) => tx.counselor.findFirst({
     where: {
       userId: parsed.data.counselorUserId,
       active: true,
       user: { organizationId: orgId },
     },
     include: { user: { select: { id: true, fullName: true } } },
-  });
+  }));
   if (!counselor) {
     return NextResponse.json({ error: 'Counselor not found or inactive' }, { status: 400 });
   }
 
-  const existingPair = await prisma.counselorAssignment.findUnique({
+  const existingPair = await prisma.$transaction((tx) => tx.counselorAssignment.findUnique({
     where: {
       counselorId_memberId: { counselorId: counselor.id, memberId },
     },
-  });
+  }));
 
   await prisma.$transaction(async (tx) => {
     await tx.counselorAssignment.updateMany({
@@ -85,10 +85,10 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
   });
 
   const thread = await getOrCreateMemberCounselorThread(memberId);
-  await prisma.messageThread.update({
+  await prisma.$transaction((tx) => tx.messageThread.update({
     where: { id: thread.id },
     data: { counselorUserId: counselor.userId },
-  });
+  }));
 
   await sendCounselorAssignedEmail({
     to: member.email,

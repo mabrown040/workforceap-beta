@@ -17,13 +17,13 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
 
   const { id: applicationId } = await params;
 
-  const application = await prisma.jobPostingApplication.findFirst({
+  const application = await prisma.$transaction((tx) => tx.jobPostingApplication.findFirst({
     where: {
       id: applicationId,
       studentId: user.id,
     },
     include: {
-      job: { 
+      job: {
         select: { title: true, employer: { select: { companyName: true } } }
       },
       messages: {
@@ -33,7 +33,7 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
         },
       },
     },
-  });
+  }));
 
   if (!application) {
     return NextResponse.json({ error: 'Application not found' }, { status: 404 });
@@ -67,13 +67,13 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
 
   const { id: applicationId } = await params;
 
-  const application = await prisma.jobPostingApplication.findFirst({
+  const application = await prisma.$transaction((tx) => tx.jobPostingApplication.findFirst({
     where: {
       id: applicationId,
       studentId: user.id,
     },
     select: { id: true },
-  });
+  }));
 
   if (!application) {
     return NextResponse.json({ error: 'Application not found' }, { status: 404 });

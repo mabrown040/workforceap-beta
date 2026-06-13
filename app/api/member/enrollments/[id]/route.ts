@@ -17,9 +17,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       return NextResponse.json({ error: 'Missing enrollment id' }, { status: 400 });
     }
 
-    const enrollment = await prisma.courseEnrollment.findUnique({
+    const enrollment = await prisma.$transaction((tx) => tx.courseEnrollment.findUnique({
       where: { id },
-    });
+    }));
 
     if (!enrollment) {
       return NextResponse.json({ error: 'Enrollment not found' }, { status: 404 });
@@ -29,13 +29,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const courseProgress = await prisma.courseProgress.findMany({
+    const courseProgress = await prisma.$transaction((tx) => tx.courseProgress.findMany({
       take: 500,
       where: {
         userId: user.id,
         programSlug: enrollment.programSlug,
       },
-    });
+    }));
 
     return NextResponse.json({
       enrollment: {

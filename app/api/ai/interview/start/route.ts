@@ -34,10 +34,10 @@ export const POST = withApiGuc(async (request: Request) => {
     }
 
     // Verify member profile exists
-    const member = await prisma.user.findUnique({
+    const member = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { id: true, fullName: true, enrolledProgram: true },
-    });
+    }));
     if (!member) {
       return NextResponse.json({ error: 'Member profile not found' }, { status: 404 });
     }

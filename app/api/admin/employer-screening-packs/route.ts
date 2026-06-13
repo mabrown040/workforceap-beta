@@ -25,7 +25,7 @@ const bodySchema = z.object({
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   
-    const packs = await prisma.employerScreeningPack.findMany({ orderBy: { updatedAt: 'desc' }, take: 100 });
+    const packs = await prisma.$transaction((tx) => tx.employerScreeningPack.findMany({ orderBy: { updatedAt: 'desc' }, take: 100 }));
     return NextResponse.json({ packs });
   } catch (error) {
     console.error('/admin/employer-screening-packs:', error);
@@ -48,7 +48,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   
     try {
-      const pack = await prisma.employerScreeningPack.create({
+      const pack = await prisma.$transaction((tx) => tx.employerScreeningPack.create({
         data: {
           programSlug: parsed.data.programSlug,
           employerLabel: parsed.data.employerLabel,
@@ -56,7 +56,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
           questionsJson: parsed.data.questionsJson,
           isActive: parsed.data.isActive ?? true,
         },
-      });
+      }));
       return NextResponse.json({ pack });
     } catch (err) {
       captureApiError(err, { route: 'admin/employer-screening-packs' });

@@ -71,10 +71,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     }
   
     if (framework === 'auto') {
-      const profile = await prisma.profile.findUnique({
+      const profile = await prisma.$transaction((tx) => tx.profile.findUnique({
         where: { userId: onBehalf.subjectUserId },
         select: { employmentStatus: true, educationLevel: true },
-      });
+      }));
       framework = inferResumeFramework({
         employmentStatus: profile?.employmentStatus,
         educationLevel: profile?.educationLevel,

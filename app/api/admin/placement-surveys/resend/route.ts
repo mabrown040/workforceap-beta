@@ -20,7 +20,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
       return NextResponse.json({ error: 'Missing placementId' }, { status: 400 });
     }
 
-    const placement = await prisma.placementRecord.findUnique({
+    const placement = await prisma.$transaction((tx) => tx.placementRecord.findUnique({
       where: { id: placementId },
       include: {
         user: {
@@ -31,7 +31,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
           take: 1,
         },
       },
-    });
+    }));
 
     if (!placement) {
       return NextResponse.json({ error: 'Placement not found' }, { status: 404 });
@@ -51,7 +51,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
       surveyId = latestSurvey.id;
     } else {
       // Create a new survey row if the latest is completed or none exists
-      const created = await prisma.placementSurvey.create({
+      const created = await prisma.$transaction((tx) => tx.placementSurvey.create({
         data: {
           userId: placement.userId,
           placementId: placement.id,
@@ -59,7 +59,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
           sentAt: new Date(),
         },
         select: { id: true },
-      });
+      }));
       surveyId = created.id;
     }
 
@@ -79,10 +79,10 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
     }
 
     // Update sentAt on the survey row
-    await prisma.placementSurvey.update({
+    await prisma.$transaction((tx) => tx.placementSurvey.update({
       where: { id: surveyId },
       data: { sentAt: new Date() },
-    });
+    }));
 
     return NextResponse.json({ success: true, surveyId, wave });
   } catch (error) {

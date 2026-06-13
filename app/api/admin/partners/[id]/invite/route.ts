@@ -17,18 +17,18 @@ const bodySchema = z.object({
 class PartnerInviteConflictError extends Error {}
 
 async function ensurePartnerUserLink(userId: string, partnerId: string) {
-  const existing = await prisma.partnerUser.findFirst({
+  const existing = await prisma.$transaction((tx) => tx.partnerUser.findFirst({
     where: { userId },
     select: { id: true, partnerId: true },
-  });
+  }));
 
   if (existing) {
     if (existing.partnerId !== partnerId) {
       // Block cross-org partner moves: verify the new partner is in the
       // same organization as the existing partner before relinking.
       const [oldPartner, newPartner] = await Promise.all([
-        prisma.partner.findFirst({ where: { id: existing.partnerId }, select: { organizationId: true } }),
-        prisma.partner.findFirst({ where: { id: partnerId }, select: { organizationId: true } }),
+        prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: existing.partnerId }, select: { organizationId: true } })),
+        prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: partnerId }, select: { organizationId: true } })),
       ]);
       if (oldPartner?.organizationId && newPartner?.organizationId &&
           oldPartner.organizationId !== newPartner.organizationId) {
@@ -38,17 +38,17 @@ async function ensurePartnerUserLink(userId: string, partnerId: string) {
           `is in org ${newPartner.organizationId}.`
         );
       }
-      await prisma.partnerUser.update({
+      await prisma.$transaction((tx) => tx.partnerUser.update({
         where: { id: existing.id },
         data: { partnerId },
-      });
+      }));
     }
     return;
   }
 
-  await prisma.partnerUser.create({
+  await prisma.$transaction((tx) => tx.partnerUser.create({
     data: { partnerId, userId },
-  });
+  }));
 }
 
 async function ensurePartnerInviteUser(params: {
@@ -57,10 +57,10 @@ async function ensurePartnerInviteUser(params: {
   email: string;
   fullName: string;
 }) {
-  const existing = await prisma.user.findFirst({
+  const existing = await prisma.$transaction((tx) => tx.user.findFirst({
     where: { id: params.userId },
     select: { id: true, organizationId: true },
-  });
+  }));
 
   if (existing) {
     // Block cross-organization moves: if the user already exists in a
@@ -72,16 +72,16 @@ async function ensurePartnerInviteUser(params: {
       );
     }
     if (!existing.organizationId) {
-      await prisma.user.update({
+      await prisma.$transaction((tx) => tx.user.update({
         where: { id: params.userId },
         data: { organizationId: params.organizationId },
         select: { id: true },
-      });
+      }));
     }
     return;
   }
 
-  await prisma.user.create({
+  await prisma.$transaction((tx) => tx.user.create({
     data: {
       id: params.userId,
       organizationId: params.organizationId,
@@ -89,7 +89,7 @@ async function ensurePartnerInviteUser(params: {
       fullName: params.fullName,
     },
     select: { id: true },
-  });
+  }));
 }export const POST = withApiGuc(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const adminUser = await getUser();

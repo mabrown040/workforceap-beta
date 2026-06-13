@@ -19,7 +19,7 @@ const postSchema = z.object({
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const logs = await prisma.partnerOutreachLog.findMany({
+  const logs = await prisma.$transaction((tx) => tx.partnerOutreachLog.findMany({
     where: { partnerId: ctx.partnerId },
     orderBy: { createdAt: 'desc' },
     take: 80,
@@ -27,7 +27,7 @@ const postSchema = z.object({
       member: { select: { fullName: true } },
       createdBy: { select: { fullName: true } },
     },
-  });
+  }));
 
   return NextResponse.json({
     logs: logs.map((l) => ({
@@ -60,14 +60,14 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
 
-  const referral = await prisma.partnerReferral.findFirst({
+  const referral = await prisma.$transaction((tx) => tx.partnerReferral.findFirst({
     where: { partnerId: ctx.partnerId, memberId: parsed.data.memberId },
-  });
+  }));
   if (!referral) {
     return NextResponse.json({ error: 'Member not referred by this partner' }, { status: 400 });
   }
 
-  const log = await prisma.partnerOutreachLog.create({
+  const log = await prisma.$transaction((tx) => tx.partnerOutreachLog.create({
     data: {
       partnerId: ctx.partnerId,
       memberId: parsed.data.memberId,
@@ -78,7 +78,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     include: {
       member: { select: { fullName: true } },
     },
-  });
+  }));
 
   await recordPartnerWorkflowEvent({
     partnerId: ctx.partnerId,

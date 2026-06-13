@@ -34,7 +34,7 @@ const schema = z.object({
   const { companyName, industry, companySize, companyWebsite } = parsed.data;
   const website = companyWebsite?.trim() || null;
 
-  await prisma.employer.update({
+  await prisma.$transaction((tx) => tx.employer.update({
     where: { id: ctx.employerId },
     data: {
       companyName: companyName.trim(),
@@ -42,7 +42,7 @@ const schema = z.object({
       companySize: companySize?.trim() || null,
       companyWebsite: website,
     },
-  });
+  }));
 
   return NextResponse.json({ ok: true });
 

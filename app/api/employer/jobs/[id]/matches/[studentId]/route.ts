@@ -32,24 +32,24 @@ const patchSchema = z.object({
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
 
-  const job = await prisma.job.findFirst({
+  const job = await prisma.$transaction((tx) => tx.job.findFirst({
     where: { id: jobId, employerId: employerCtx.employerId, status: 'live' },
     select: { id: true },
-  });
+  }));
   if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  const match = await prisma.aIJobMatch.findFirst({
+  const match = await prisma.$transaction((tx) => tx.aIJobMatch.findFirst({
     where: { jobId, studentId },
-  });
+  }));
   if (!match) return NextResponse.json({ error: 'Match not found' }, { status: 404 });
 
-  const updated = await prisma.aIJobMatch.update({
+  const updated = await prisma.$transaction((tx) => tx.aIJobMatch.update({
     where: { id: match.id },
     data: { status: parsed.data.status as AIJobMatchStatus, statusUpdatedAt: new Date() },
     include: {
       student: { select: { id: true, fullName: true, email: true } },
     },
-  });
+  }));
 
   return NextResponse.json(updated);
 

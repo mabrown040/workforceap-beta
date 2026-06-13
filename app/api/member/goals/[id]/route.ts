@@ -21,9 +21,9 @@ const updateSchema = z.object({
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  const existing = await prisma.goal.findFirst({
+  const existing = await prisma.$transaction((tx) => tx.goal.findFirst({
     where: { id, userId: user.id },
-  });
+  }));
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   let body: unknown;
@@ -48,10 +48,10 @@ const updateSchema = z.object({
     if (parsed.data.status === 'COMPLETED') data.completedAt = new Date();
   }
 
-  const goal = await prisma.goal.update({
+  const goal = await prisma.$transaction((tx) => tx.goal.update({
     where: { id },
     data,
-  });
+  }));
 
   if (parsed.data.status === 'COMPLETED') {
     await trackEvent({ userId: user.id, eventName: 'goal_completed', entityType: 'goal', entityId: goal.id });
@@ -75,12 +75,12 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
-  const existing = await prisma.goal.findFirst({
+  const existing = await prisma.$transaction((tx) => tx.goal.findFirst({
     where: { id, userId: user.id },
-  });
+  }));
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  await prisma.goal.delete({ where: { id } });
+  await prisma.$transaction((tx) => tx.goal.delete({ where: { id } }));
   return NextResponse.json({ success: true });
 
   } catch (error) {

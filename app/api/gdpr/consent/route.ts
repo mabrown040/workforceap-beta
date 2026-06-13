@@ -9,10 +9,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const profile = await prisma.profile.findUnique({
+  const profile = await prisma.$transaction((tx) => tx.profile.findUnique({
     where: { userId: user.id },
     select: { consentTerms: true, consentCommunications: true },
-  });
+  }));
 
   return NextResponse.json({
     consentTerms: profile?.consentTerms ?? false,
@@ -38,13 +38,13 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
     return NextResponse.json({ error: 'consentCommunications required' }, { status: 400 });
   }
 
-  await prisma.profile.update({
+  await prisma.$transaction((tx) => tx.profile.update({
     where: { userId: user.id },
     data: { consentCommunications },
-  });
+  }));
 
   // Log consent change
-  await prisma.$executeRaw`
+  await prisma.$transaction((tx) => tx.$executeRaw`
     INSERT INTO member_events (id, user_id, event_name, entity_type, metadata, created_at)
     VALUES (
       gen_random_uuid(),
@@ -54,7 +54,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
       ${JSON.stringify({ consentCommunications, updatedAt: new Date().toISOString() })},
       NOW()
     )
-  `;
+  `);
 
   return NextResponse.json({ ok: true });
 

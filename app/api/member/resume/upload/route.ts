@@ -56,11 +56,11 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
       return NextResponse.json({ error: 'Failed to upload resume' }, { status: 500 });
     }
 
-    await prisma.profile.upsert({
+    await prisma.$transaction((tx) => tx.profile.upsert({
       where: { userId: user.id },
       create: { userId: user.id, resumeOriginalPath: path, role: 'member' },
       update: { resumeOriginalPath: path },
-    });
+    }));
 
     // Award points for first resume upload (idempotent — fixed entityId means
     // re-uploading the same or a new resume only awards once).

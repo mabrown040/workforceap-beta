@@ -34,10 +34,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
       return NextResponse.json({ error: `Invalid token (${verify.reason})` }, { status });
     }
 
-    const survey = await prisma.placementSurvey.findUnique({
+    const survey = await prisma.$transaction((tx) => tx.placementSurvey.findUnique({
       where: { id: verify.surveyId },
       select: { id: true, userId: true, placementId: true, completedAt: true },
-    });
+    }));
     if (!survey) {
       return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
     }
@@ -72,7 +72,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
     };
 
     try {
-      const updated = await prisma.placementSurvey.update({
+      const updated = await prisma.$transaction((tx) => tx.placementSurvey.update({
         where: { id: survey.id },
         data: {
           jobSatisfaction: clampRating(jobSatisfaction),
@@ -89,15 +89,15 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
           completedAt: new Date(),
         },
         select: { id: true, completedAt: true, userId: true, placementId: true, allowTestimonial: true },
-      });
+      }));
 
       // Auto-create testimonial pipeline entry if member consented
       if (updated.allowTestimonial) {
         try {
-          const member = await prisma.user.findUnique({
+          const member = await prisma.$transaction((tx) => tx.user.findUnique({
             where: { id: updated.userId },
             select: { enrolledProgram: true },
-          });
+          }));
 
           // Build testimonial content from survey responses
           const parts: string[] = [];
@@ -112,7 +112,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
             ? parts.join('\n\n')
             : 'Member consented to share their placement experience.';
 
-          await prisma.testimonial.create({
+          await prisma.$transaction((tx) => tx.testimonial.create({
             data: {
               memberId: updated.userId,
               placementId: updated.placementId,
@@ -123,7 +123,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _POST(req: R
               status: 'PENDING',
               consentGiven: true,
             },
-          });
+          }));
         } catch (testimonialErr) {
           // Don't fail the survey submission if testimonial creation fails
           console.error('[placement-survey] Testimonial auto-create failed:', testimonialErr);
@@ -164,10 +164,10 @@ export const POST = withApiGuc(_POST);async function _GET(req: Request) {
       return NextResponse.json({ error: `Invalid token (${verify.reason})` }, { status });
     }
 
-    const survey = await prisma.placementSurvey.findUnique({
+    const survey = await prisma.$transaction((tx) => tx.placementSurvey.findUnique({
       where: { id: verify.surveyId },
       select: { id: true, completedAt: true },
-    });
+    }));
     if (!survey) return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
 
     return NextResponse.json({ exists: true, completed: !!survey.completedAt });

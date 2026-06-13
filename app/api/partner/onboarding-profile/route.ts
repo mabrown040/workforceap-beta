@@ -33,7 +33,7 @@ const schema = z.object({
 
   const { name, organizationType, contactName, contactPhone } = parsed.data;
 
-  await prisma.partner.update({
+  await prisma.$transaction((tx) => tx.partner.update({
     where: { id: ctx.partnerId },
     data: {
       name: name.trim(),
@@ -41,7 +41,7 @@ const schema = z.object({
       contactName: contactName?.trim() || null,
       contactPhone: contactPhone?.trim() || null,
     },
-  });
+  }));
 
   return NextResponse.json({ ok: true });
 

@@ -23,10 +23,10 @@ type Props = { params: Promise<{ memberId: string }> };export const POST = withA
 
   const variant = req.nextUrl.searchParams.get('variant') === 'enhanced' ? 'enhanced' : 'original';
 
-  const profile = await prisma.profile.findUnique({
+  const profile = await prisma.$transaction((tx) => tx.profile.findUnique({
     where: { userId: memberId },
     select: { resumeOriginalPath: true, resumeEnhancedPath: true },
-  });
+  }));
 
   const path =
     variant === 'enhanced' ? profile?.resumeEnhancedPath : profile?.resumeOriginalPath;

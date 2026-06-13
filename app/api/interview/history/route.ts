@@ -59,12 +59,12 @@ async function generateFeedback(params: {
   
     const limit = parseInt(new URL(req.url).searchParams.get('limit') ?? '10') || 10;
   
-    const results = await prisma.aIToolResult.findMany({
+    const results = await prisma.$transaction((tx) => tx.aIToolResult.findMany({
       where: { userId: user.id, toolType: 'interview_coach' },
       orderBy: { createdAt: 'desc' },
       take: Math.min(limit, 50),
       select: { id: true, inputSummary: true, output: true, createdAt: true },
-    });
+    }));
   
     const sessions = results.map(r => {
       try {
@@ -174,12 +174,12 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       });
 
       try {
-        const dbUser = await prisma.user.findUnique({
+        const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
           where: { id: user.id },
           select: { fullName: true, email: true },
-        });
+        }));
   
-        const adminUsers = await prisma.user.findMany({
+        const adminUsers = await prisma.$transaction((tx) => tx.user.findMany({
           where: {
             profile: {
               is: {
@@ -189,7 +189,7 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
           },
           select: { email: true },
           take: 100,
-        });
+        }));
   
         const configuredRecipients = (process.env.VOICE_INTERVIEW_TRANSCRIPT_EMAILS ?? '')
           .split(',')

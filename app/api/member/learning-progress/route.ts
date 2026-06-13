@@ -14,10 +14,10 @@ const updateSchema = z.object({
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const progress = await prisma.learningProgress.findMany({
+  const progress = await prisma.$transaction((tx) => tx.learningProgress.findMany({
     where: { userId: user.id },
     take: 100,
-  });
+  }));
   return NextResponse.json({ progress });
 
   } catch (error) {
@@ -44,7 +44,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
 
   const { pathwayId, progress, completed } = parsed.data;
 
-  const record = await prisma.learningProgress.upsert({
+  const record = await prisma.$transaction((tx) => tx.learningProgress.upsert({
     where: {
       userId_pathwayId: { userId: user.id, pathwayId },
     },
@@ -58,7 +58,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       ...(progress !== undefined && { progress }),
       ...(completed !== undefined && { completed }),
     },
-  });
+  }));
 
   return NextResponse.json({ progress: record });
 

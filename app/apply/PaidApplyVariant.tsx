@@ -163,12 +163,17 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
         .paid-apply-form-kicker {
           display: none;
           margin: 0 0 var(--space-4);
+          padding: var(--space-3) var(--space-4);
+          border-radius: var(--radius-md);
+          border: 1px solid var(--outline-variant);
+          background: var(--surface-container-high);
           font-size: var(--font-size-sm);
-          font-weight: 700;
-          letter-spacing: 0.04em;
-          text-transform: uppercase;
-          color: var(--color-accent-dark);
+          font-weight: 600;
+          letter-spacing: 0.01em;
+          text-transform: none;
+          color: var(--color-on-surface-variant);
           line-height: var(--line-height-normal);
+          text-align: center;
         }
 
         .paid-apply-sticky-cta {
@@ -278,7 +283,8 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
           }
 
           .paid-apply-form-kicker {
-            display: none;
+            display: block;
+            order: 2;
           }
 
           /* Form first on mobile — proof card stays below the fold until after eligibility */

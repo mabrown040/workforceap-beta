@@ -33,6 +33,7 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     tools: [
       { key: 'resumeStudio', href: '/dashboard/ai-tools/resume-studio', icon: 'fact_check', minutes: 5 },
       { key: 'skillMapper', href: '/dashboard/ai-tools/skill-mapper', icon: 'account_tree', minutes: 5 },
+      { key: 'skillCheckpoints', href: '/dashboard/ai-tools/skill-checkpoints', icon: 'verified', minutes: 5 },
       { key: 'trainingBridge', href: '/dashboard/ai-tools/training-bridge', icon: 'alt_route', minutes: 5 },
     ],
   },

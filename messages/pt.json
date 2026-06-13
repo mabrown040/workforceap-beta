@@ -2618,6 +2618,25 @@
     "viewProgram": "Ver detalhes do programa",
     "disclaimer": "Isto é um guia, não uma promessa de emprego. Seu conselheiro pode ajudar você a escolher a trilha certa."
   },
+  "skillCheckpoints": {
+    "metaTitle": "Pontos de Verificação de Habilidades",
+    "metaDesc": "Prove que você consegue aplicar o que aprendeu com desafios de cenários reais de trabalho",
+    "title": "Pontos de Verificação de Habilidades",
+    "subtitle": "Cenários curtos de trabalho que provam que você sabe usar uma habilidade — não apenas estudá-la",
+    "pickProgram": "Escolha seu programa",
+    "pickCourse": "Escolha um curso para verificar",
+    "checkpoints": "{count} ponto{count, plural, one {} other {s}} de verificação",
+    "scenario": "Cenário",
+    "question": "Pergunta",
+    "correct": "Correto",
+    "incorrect": "Não exatamente",
+    "next": "Próximo ponto de verificação",
+    "demonstratedTitle": "Habilidades demonstradas",
+    "verifiedBy": "Verificado pela WorkforceAP",
+    "shareLinkedIn": "Compartilhar no LinkedIn",
+    "tryAnother": "Tentar outro curso",
+    "betaTag": "Beta"
+  },
   "journeyGuide": {
     "sectionLabel": "Sua jornada profissional",
     "pickerTitle": "Onde você está agora?",
@@ -2700,6 +2719,10 @@
       "trainingBridge": {
         "label": "Ponte para seu próximo trabalho",
         "hint": "Veja qual treinamento fecha suas lacunas"
+      },
+      "skillCheckpoints": {
+        "label": "Prove uma habilidade com um desafio",
+        "hint": "Cenários reais de trabalho — não apenas cursos"
       }
     }
   }

@@ -2618,6 +2618,25 @@
     "viewProgram": "Voir les détails du programme",
     "disclaimer": "Ceci est un guide, pas une promesse d'emploi. Votre conseiller peut vous aider à choisir le bon parcours."
   },
+  "skillCheckpoints": {
+    "metaTitle": "Points de Contrôle des Compétences",
+    "metaDesc": "Prouvez que vous pouvez appliquer ce que vous avez appris avec des mises en situation professionnelles",
+    "title": "Points de Contrôle des Compétences",
+    "subtitle": "Des scénarios de travail courts qui prouvent que vous pouvez utiliser une compétence — pas seulement l'étudier",
+    "pickProgram": "Choisissez votre programme",
+    "pickCourse": "Choisissez un cours à vérifier",
+    "checkpoints": "{count} point{count, plural, one {} other {s}} de contrôle",
+    "scenario": "Scénario",
+    "question": "Question",
+    "correct": "Correct",
+    "incorrect": "Pas tout à fait",
+    "next": "Point de contrôle suivant",
+    "demonstratedTitle": "Compétences démontrées",
+    "verifiedBy": "Vérifié par WorkforceAP",
+    "shareLinkedIn": "Partager sur LinkedIn",
+    "tryAnother": "Essayer un autre cours",
+    "betaTag": "Beta"
+  },
   "journeyGuide": {
     "sectionLabel": "Votre parcours professionnel",
     "pickerTitle": "Où en êtes-vous en ce moment ?",
@@ -2700,6 +2719,10 @@
       "trainingBridge": {
         "label": "Passerelle vers votre prochain emploi",
         "hint": "Voyez quelle formation comble vos lacunes"
+      },
+      "skillCheckpoints": {
+        "label": "Prouvez une compétence avec un défi",
+        "hint": "Des mises en situation professionnelles — pas juste des cours"
       }
     }
   }

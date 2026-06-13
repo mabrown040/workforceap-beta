@@ -2615,6 +2615,25 @@
     "viewProgram": "See program details",
     "disclaimer": "This is a guide, not a job promise. Your counselor can help you pick the right pathway."
   },
+  "skillCheckpoints": {
+    "metaTitle": "Skill Checkpoints",
+    "metaDesc": "Prove you can apply what you've learned with workplace scenario challenges",
+    "title": "Skill Checkpoints",
+    "subtitle": "Short workplace scenarios that prove you can use a skill — not just study it",
+    "pickProgram": "Pick your program",
+    "pickCourse": "Pick a course to verify",
+    "checkpoints": "{count} checkpoint{count, plural, one {} other {s}}",
+    "scenario": "Scenario",
+    "question": "Question",
+    "correct": "Correct",
+    "incorrect": "Not quite",
+    "next": "Next checkpoint",
+    "demonstratedTitle": "Skills demonstrated",
+    "verifiedBy": "Verified by WorkforceAP",
+    "shareLinkedIn": "Share on LinkedIn",
+    "tryAnother": "Try another course",
+    "betaTag": "Beta"
+  },
   "journeyGuide": {
     "sectionLabel": "Your career journey",
     "pickerTitle": "Where are you right now?",
@@ -2697,6 +2716,10 @@
       "trainingBridge": {
         "label": "Bridge to your next job",
         "hint": "See what training closes your skill gaps"
+      },
+      "skillCheckpoints": {
+        "label": "Prove a skill with a challenge",
+        "hint": "Workplace scenarios — not just coursework"
       }
     }
   }

@@ -38,4 +38,22 @@ test.describe('Apply smoke', () => {
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await expect(page.locator('.apply-organic-sticky-cta')).not.toBeVisible();
   });
+
+  test('paid apply variant shows mobile trust cues at form entry', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/apply?utm_source=google_ads&utm_medium=cpc&utm_campaign=launch_smoke');
+
+    await expect(page.locator('.paid-apply-hero')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.paid-apply-form-kicker')).toContainText(/about 5 minutes/i);
+    await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
+    await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/no cost|501\(c\)\(3\)/i);
+  });
+
+  test('apply results step shows mobile trust bar', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/apply/results');
+
+    await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
+    await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/program/i);
+  });
 });

@@ -1485,6 +1485,8 @@
       "heroCta2": "Find your path",
       "catalogTitle": "Browse all {count} programs",
       "catalogLead": "Search by name, skill, partner, or topic — or browse by category.",
+      "catalogLeadMobile": "Tap a category above to jump, or search below by name, skill, partner, or topic.",
+      "catalogSearchPlaceholder": "Search programs by name, skill, partner, or topic…",
       "quickStart": "Quick start",
       "quickStartBody": "Start with the lane that fits you best.",
       "notSure": "Not sure? Take the 2-minute pathfinder",

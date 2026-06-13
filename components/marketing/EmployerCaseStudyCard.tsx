@@ -91,7 +91,7 @@ export default function EmployerCaseStudyCard({
           color: statColor,
         }}
       >
-          {study.outcome_summary} · {study.role_filled}
+        {study.role_filled}
       </p>
 
       {study.quote ? (

@@ -11,6 +11,7 @@ describe('Employers Page — honest trust presentation', () => {
     expect(source).toContain("showLogosOnly ? t('trustLogosOnlyLabel')");
     expect(source).toContain("showLogosOnly ? t('trustLogosOnlyNote')");
     expect(source).toContain("t('trustPlaceholderHeading')");
+    expect(source).toContain("t('trustVerifiedNote')");
     expect(source).toContain('employers-trust__stats--placeholder');
     expect(source).toContain("showVerifiedStats ? 'verified' : 'handshake'");
     expect(source).not.toContain("showVerifiedStats || showLogos ? 'verified'");

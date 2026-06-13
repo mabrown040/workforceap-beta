@@ -835,6 +835,12 @@ html.has-marketing-main-nav {
 @media (max-width: 767px) {
   .home-program-showcase__header {
     margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .home-program-showcase__header p {
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .home-program-showcase__grid {

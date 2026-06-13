@@ -15,7 +15,7 @@ export type HomeProgramShowcaseCard = {
   name?: string | null;
   category?: string | null;
   duration?: string | null;
-  static?: { title?: string | null; duration?: string | null } | null;
+  static?: { title?: string | null; duration?: string | null; categoryLabel?: string | null } | null;
 };
 
 function getHomepageProgramCardImage(program: HomeProgramShowcaseCard, index: number) {
@@ -551,9 +551,11 @@ export default async function HomePageBelowFold({
             {t('programsEyebrow')}
           </span>
           <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
-            {t('programsTitle', { count: programCount })}
+            {t('programsTitle')}
           </h2>
-          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '600px' }}>{t('programsSubtitle')}</p>
+          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '600px' }}>
+            {t('programsSubtitle', { featuredCount: homeProgramShowcase.length, count: programCount })}
+          </p>
         </div>
         <div
           className="home-program-showcase__grid"
@@ -561,6 +563,7 @@ export default async function HomePageBelowFold({
         >
           {homeProgramShowcase.map((p, index) => {
             const cardHint = homepageProgramCardHint(p.slug);
+            const categoryLabel = p.static?.categoryLabel ?? p.category;
             return (
             <LocalizedLinkServer
               key={p.slug}
@@ -604,7 +607,7 @@ export default async function HomePageBelowFold({
                     letterSpacing: '0.05em',
                   }}
                 >
-                  {p.category}
+                  {categoryLabel}
                 </span>
               </div>
               <div

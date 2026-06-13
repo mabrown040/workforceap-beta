@@ -22,6 +22,7 @@ test.describe('Apply smoke', () => {
     await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/501\(c\)\(3\)|no cost/i);
     await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/questions\? call|\(512\) 777-1808/i);
     await expect(page.locator('.apply-mobile-trust-bar__phone')).toHaveAttribute('href', 'tel:+15127771808');
+    await expect(page.locator('.apply-organic-form-kicker')).toContainText(/about 5 minutes/i);
 
     // Sidebar with progress steps
     await expect(page.locator('.apply-sidebar, aside').first()).toBeVisible();

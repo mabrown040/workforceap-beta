@@ -2632,6 +2632,45 @@
     "viewProgram": "See program details",
     "disclaimer": "This is a guide, not a job promise. Your counselor can help you pick the right pathway."
   },
+  "benefitsCliff": {
+    "metaTitle": "Benefits Check",
+    "metaDesc": "See how a job offer could change your SNAP, Medicaid, or TANF benefits. An estimate, not benefits advice — no-cost to members.",
+    "title": "Will this offer leave you better off?",
+    "subtitle": "Enter a job offer and see how it could change your SNAP, Medicaid, or TANF benefits each month.",
+    "betaTag": "Beta",
+    "disclaimerTitle": "This is an estimate, not benefits advice.",
+    "disclaimerBody": "Real benefit amounts depend on rules we cannot check here, like housing costs and child care. Only Texas HHS can decide your benefits. Talk with your counselor before you turn down a job or report a change.",
+    "householdLabel": "How many people live in your home?",
+    "householdEightPlus": "8 or more",
+    "receivesLabel": "Which benefits does your home get now?",
+    "programSnap": "SNAP (food benefits)",
+    "programMedicaidAdult": "Medicaid for me (adult)",
+    "programMedicaidChild": "Medicaid or CHIP for my kids",
+    "programTanf": "TANF (cash help)",
+    "currentEarningsLabel": "How much do you earn now per month, before taxes?",
+    "currentEarningsHint": "Put 0 if you are not working right now.",
+    "currentSnapLabel": "Your SNAP amount per month, if you know it (optional)",
+    "optionalPlaceholder": "Optional",
+    "offerWageLabel": "Offer pay per hour ($)",
+    "offerHoursLabel": "Hours per week",
+    "computeCta": "Check my offer",
+    "pickOneProgram": "Pick at least one benefit above.",
+    "verdictBetter": "This offer likely leaves you better off.",
+    "verdictWorse": "Careful — this offer could leave you worse off.",
+    "verdictSame": "This offer leaves you about the same.",
+    "netChangeLine": "Estimated change: {amount} per month",
+    "explainLine": "Your pay would change by about {earnings} per month. Your benefits would change by about {benefits} per month. We added those together to get your total.",
+    "perMonth": "{amount}/mo",
+    "mayLoseBenefit": "You could lose this benefit",
+    "mayLoseCoverage": "You could lose this coverage",
+    "coverageAtRisk": "Coverage at risk",
+    "coverageKept": "Coverage kept",
+    "coverageNote": "Losing health coverage is not counted in the dollar total above. If your job offers health insurance, that can change the picture — ask your counselor.",
+    "counselorCta": "Talk it through with a counselor",
+    "counselorNote": "A counselor can check your real numbers with you and help you plan the move — no-cost to members.",
+    "sourcesTitle": "Where these numbers come from (rules version {version})",
+    "lastVerified": "Last checked {date}."
+  },
   "journeyGuide": {
     "sectionLabel": "Your career journey",
     "pickerTitle": "Where are you right now?",
@@ -2714,6 +2753,10 @@
       "trainingBridge": {
         "label": "Bridge to your next job",
         "hint": "See what training closes your skill gaps"
+      },
+      "benefitsCliff": {
+        "label": "Check a job offer vs your benefits",
+        "hint": "See if the offer leaves you better off"
       }
     }
   }

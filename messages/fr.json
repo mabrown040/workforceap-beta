@@ -2635,6 +2635,45 @@
     "viewProgram": "Voir les détails du programme",
     "disclaimer": "Ceci est un guide, pas une promesse d'emploi. Votre conseiller peut vous aider à choisir le bon parcours."
   },
+  "benefitsCliff": {
+    "metaTitle": "Vérification des aides",
+    "metaDesc": "Voyez comment une offre d emploi pourrait changer vos aides SNAP, Medicaid ou TANF. Une estimation, pas un conseil officiel — sans frais pour les membres.",
+    "title": "Cette offre vous laissera-t-elle en meilleure situation ?",
+    "subtitle": "Entrez une offre d emploi et voyez comment elle pourrait changer vos aides SNAP, Medicaid ou TANF chaque mois.",
+    "betaTag": "Bêta",
+    "disclaimerTitle": "Ceci est une estimation, pas un conseil sur les aides.",
+    "disclaimerBody": "Les montants réels dépendent de règles que nous ne pouvons pas vérifier ici, comme le logement et la garde d enfants. Seul Texas HHS peut décider de vos aides. Parlez avec votre conseiller avant de refuser un emploi ou de signaler un changement.",
+    "householdLabel": "Combien de personnes vivent chez vous ?",
+    "householdEightPlus": "8 ou plus",
+    "receivesLabel": "Quelles aides votre foyer reçoit-il actuellement ?",
+    "programSnap": "SNAP (aide alimentaire)",
+    "programMedicaidAdult": "Medicaid pour moi (adulte)",
+    "programMedicaidChild": "Medicaid ou CHIP pour mes enfants",
+    "programTanf": "TANF (aide en argent)",
+    "currentEarningsLabel": "Combien gagnez-vous par mois actuellement, avant impôts ?",
+    "currentEarningsHint": "Mettez 0 si vous ne travaillez pas en ce moment.",
+    "currentSnapLabel": "Votre montant SNAP par mois, si vous le connaissez (facultatif)",
+    "optionalPlaceholder": "Facultatif",
+    "offerWageLabel": "Salaire offert par heure ($)",
+    "offerHoursLabel": "Heures par semaine",
+    "computeCta": "Vérifier mon offre",
+    "pickOneProgram": "Choisissez au moins une aide ci-dessus.",
+    "verdictBetter": "Cette offre vous laisse probablement en meilleure situation.",
+    "verdictWorse": "Attention — cette offre pourrait vous laisser en moins bonne situation.",
+    "verdictSame": "Cette offre vous laisse à peu près au même point.",
+    "netChangeLine": "Changement estimé : {amount} par mois",
+    "explainLine": "Votre salaire changerait d environ {earnings} par mois. Vos aides changeraient d environ {benefits} par mois. Nous avons additionné les deux pour obtenir votre total.",
+    "perMonth": "{amount}/mois",
+    "mayLoseBenefit": "Vous pourriez perdre cette aide",
+    "mayLoseCoverage": "Vous pourriez perdre cette couverture",
+    "coverageAtRisk": "Couverture à risque",
+    "coverageKept": "Couverture conservée",
+    "coverageNote": "La perte de couverture santé n est pas comptée dans le total en dollars ci-dessus. Si votre emploi offre une assurance santé, cela peut changer la situation — demandez à votre conseiller.",
+    "counselorCta": "En parler avec un conseiller",
+    "counselorNote": "Un conseiller peut vérifier vos vrais chiffres avec vous et vous aider à planifier — sans frais pour les membres.",
+    "sourcesTitle": "D où viennent ces chiffres (version des règles {version})",
+    "lastVerified": "Dernière vérification : {date}."
+  },
   "journeyGuide": {
     "sectionLabel": "Votre parcours professionnel",
     "pickerTitle": "Où en êtes-vous en ce moment ?",
@@ -2717,6 +2756,10 @@
       "trainingBridge": {
         "label": "Passerelle vers votre prochain emploi",
         "hint": "Voyez quelle formation comble vos lacunes"
+      },
+      "benefitsCliff": {
+        "label": "Comparez une offre à vos aides",
+        "hint": "Voyez si l offre vous laisse en meilleure situation"
       }
     }
   }

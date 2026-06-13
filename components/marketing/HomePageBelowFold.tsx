@@ -217,7 +217,7 @@ export default async function HomePageBelowFold({
           })}
         </div>
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <LocalizedLinkServer href="/programs" className={secondaryButtonClasses({ radius: 'md' })}>
+          <LocalizedLinkServer href="/programs#program-catalog" className={secondaryButtonClasses({ radius: 'md' })}>
             {t('programsCta', { count: programCount })}
           </LocalizedLinkServer>
         </div>
@@ -693,7 +693,7 @@ export default async function HomePageBelowFold({
             <LocalizedLinkServer href="/find-your-path" className={buttonPresets.footerCtaSecondary()}>
               {t('ctaFind')}
             </LocalizedLinkServer>
-            <LocalizedLinkServer href="/programs" className={buttonPresets.footerCtaGhost()}>
+            <LocalizedLinkServer href="/programs#program-catalog" className={buttonPresets.footerCtaGhost()}>
               {t('ctaViewPrograms')}
             </LocalizedLinkServer>
           </div>

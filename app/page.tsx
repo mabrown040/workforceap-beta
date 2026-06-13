@@ -208,8 +208,8 @@ export default async function HomePage() {
               {t('heroCta')}
             </LocalizedLinkServer>
             <LocalizedLinkServer
-              href="/programs"
-              className={marketingButtonPresets.heroSecondaryOnDark('home-hero__cta-secondary home-hero-secondary-cta home-hero-outline-cta')}
+              href="/programs#programs-quick-start"
+              className={marketingButtonPresets.heroGhostOnDark('home-hero__cta-ghost')}
             >
               {t('browsePrograms')}
             </LocalizedLinkServer>

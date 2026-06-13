@@ -129,7 +129,7 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
             className="btn btn-primary"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>ios_share</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>share</span>
             {shared ? 'Link copied!' : 'Share my result'}
           </button>
           <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>

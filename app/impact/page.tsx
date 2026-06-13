@@ -233,7 +233,7 @@ export default async function ImpactPage() {
       <PageSection padding="md" variant={hasLiveData ? 'dark' : 'default'} ariaLabel={t('programsTitle')}>
         <SectionHeader
           title={t('programsTitle')}
-          subtitle={t('programsSubtitle')}
+          subtitle={hasLiveData ? t('programsSubtitle') : t('programsSubtitleDataLight')}
           align="left"
           marginBottom="1.5rem"
         />
@@ -253,7 +253,7 @@ export default async function ImpactPage() {
         <div className="impact-page__container">
           <SectionHeader
             title={t('employersTitle')}
-            subtitle={t('employersSubtitle')}
+            subtitle={hasLiveData && hasEmployerMetrics ? t('employersSubtitle') : t('employersSubtitleDataLight')}
             align="left"
             marginBottom="1.5rem"
           />

@@ -351,6 +351,8 @@ describe('Impact Page — getPublicImpactStats', () => {
       expect(source).toContain("hasLiveData ? t('eyebrow') : t('eyebrowDataLight')");
       expect(source).toContain("hasLiveData ? t('subtitle') : t('subtitleDataLight')");
       expect(source).toContain("hasLiveData ? t('description') : t('descriptionDataLight')");
+      expect(source).toContain("hasLiveData ? t('programsSubtitle') : t('programsSubtitleDataLight')");
+      expect(source).toContain("hasLiveData && hasEmployerMetrics ? t('employersSubtitle') : t('employersSubtitleDataLight')");
       expect(source).toContain("t('membersServedEmptyDesc')");
       expect(source).not.toContain('impact-page__data-light-note');
       expect(source).toContain("variant={hasLiveData ? 'dark' : 'default'}");

@@ -194,7 +194,10 @@ export default async function EmployersPage() {
             </div>
           ) : null}
           {showVerifiedStats ? (
-            <p className="employers-trust__as-of">{trust.asOfLabel}</p>
+            <>
+              <p className="employers-trust__as-of">{trust.asOfLabel}</p>
+              <p className="employers-trust__verified-note">{t('trustVerifiedNote')}</p>
+            </>
           ) : (
             <p className="employers-trust__as-of">
               {showLogosOnly ? t('trustLogosOnlyNote') : t('trustPlaceholderNote')}
@@ -465,6 +468,14 @@ export default async function EmployersPage() {
           font-size: 0.75rem;
           color: var(--color-on-surface-variant);
           opacity: 0.85;
+        }
+        .employers-trust__verified-note {
+          margin: 0.5rem auto 0;
+          max-width: 36rem;
+          text-align: center;
+          font-size: 0.75rem;
+          color: var(--color-on-surface-variant);
+          line-height: 1.5;
         }
         .employers-trust__impact-link-wrap {
           margin: 0.75rem 0 0;

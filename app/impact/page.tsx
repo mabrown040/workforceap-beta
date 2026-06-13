@@ -203,7 +203,12 @@ export default async function ImpactPage() {
             </div>
           )}
 
-          <div className="impact-page__stats-grid">
+          {!hasLiveData ? (
+            <p className="impact-page__preview-heading">{t('metricsPreviewHeading')}</p>
+          ) : null}
+          <div
+            className={`impact-page__stats-grid${!hasLiveData ? ' impact-page__stats-grid--preview' : ''}`}
+          >
             <StatCard
               value={completionValue}
               label={completionLabel}
@@ -268,6 +273,9 @@ export default async function ImpactPage() {
           ) : (
             <>
               <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
+              <p className="impact-page__preview-heading impact-page__preview-heading--employers">
+                {t('employerMetricsPreviewHeading')}
+              </p>
               <div className="impact-page__stats-grid impact-page__stats-grid--employers impact-page__stats-grid--preview">
                 <StatCard value="—" label={t('employerPartnersLabel')} unpublished />
                 <StatCard value="—" label={t('jobsPostedLabel')} unpublished />
@@ -366,8 +374,22 @@ export default async function ImpactPage() {
         .impact-page__stats-grid--employers {
           margin-bottom: 0;
         }
-        .impact-page__stats-grid--preview {
+        .impact-page__preview-heading {
+          margin: 0 0 1rem;
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--color-on-surface-variant);
+        }
+        .impact-page__preview-heading--employers {
           margin-top: 1.25rem;
+        }
+        .impact-page__stats-grid--preview {
+          margin-top: 0;
+        }
+        .impact-page__stats-grid--employers.impact-page__stats-grid--preview {
+          margin-top: 0;
         }
         .impact-page__stat-footnote {
           display: block;
@@ -417,6 +439,11 @@ export default async function ImpactPage() {
           .impact-page__funder-actions .btn {
             width: 100%;
             justify-content: center;
+          }
+          .impact-page__stats-grid--preview .stat-card {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-md);
           }
         }
         @media (min-width: 640px) {

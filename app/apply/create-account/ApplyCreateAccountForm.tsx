@@ -599,15 +599,20 @@ export default function ApplyCreateAccountForm() {
         <LocalizedLink href="/apply/results">{t('accountBackResults')}</LocalizedLink>
       </p>
 
-      <div className="apply-transition-card" role="note" aria-label={t('accountAriaWhyNow')}>
-        <strong>{t('accountWhyNowStrong')}</strong>
-        <span>{t('accountWhyNowRest')}</span>
-      </div>
+      <details className="apply-transition-details apply-transition-details--stacked">
+        <summary className="apply-transition-details__summary">{t('accountTransitionSummary')}</summary>
+        <div className="apply-transition-details__body">
+          <div className="apply-transition-card" role="note" aria-label={t('accountAriaWhyNow')}>
+            <strong>{t('accountWhyNowStrong')}</strong>
+            <span>{t('accountWhyNowRest')}</span>
+          </div>
 
-      <div className="apply-transition-card" role="note" aria-label={t('accountAriaKeepLight')} style={{ marginTop: '0.75rem' }}>
-        <strong>{t('accountKeepLightStrong')}</strong>
-        <span>{t('accountKeepLightRest')}</span>
-      </div>
+          <div className="apply-transition-card" role="note" aria-label={t('accountAriaKeepLight')}>
+            <strong>{t('accountKeepLightStrong')}</strong>
+            <span>{t('accountKeepLightRest')}</span>
+          </div>
+        </div>
+      </details>
 
       {rankedProgramLabels.length > 0 ? (
         <div className="apply-transition-card" role="note" aria-label={t('accountAriaSavedChoices')} style={{ marginTop: '0.75rem' }}>

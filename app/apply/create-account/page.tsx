@@ -36,6 +36,9 @@ export default async function ApplyCreateAccountPage() {
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
             <ApplyMobileTrustBar />
             <ApplyMobileStepNav activeStep={2} />
+            <p className="apply-funnel-form-kicker" role="note">
+              {t('createAccountFormKicker')}
+            </p>
             <Suspense fallback={<p>{t('loadingFallback')}</p>}>
               <ApplyCreateAccountForm />
             </Suspense>

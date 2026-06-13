@@ -219,15 +219,21 @@ export default function ApplyResultsClient() {
           <LocalizedLink href="/apply">{t('resultsBackStep1')}</LocalizedLink>
         </p>
         <p className="apply-step-kicker">{t('resultsKicker')}</p>
-        <div className="apply-transition-card" role="note" aria-label={t('resultsTransitionAria')}>
-          <strong>{t('resultsBeforeStrong')}</strong>
-          <span>
-            {' '}
-            {t('resultsBeforePick')}{' '}
-            <LocalizedLink href="/find-your-path">{t('resultsPathfinderQuizLink')}</LocalizedLink>
-            {t('resultsBeforeSuffix')}
-          </span>
-        </div>
+        <details className="apply-transition-details">
+          <summary className="apply-transition-details__summary">{t('resultsTransitionSummary')}</summary>
+          <div className="apply-transition-details__body">
+            <div className="apply-transition-card" role="note" aria-label={t('resultsTransitionAria')}>
+              <strong>{t('resultsBeforeStrong')}</strong>
+              <span>
+                {' '}
+                {t('resultsBeforePick')}{' '}
+                <LocalizedLink href="/find-your-path">{t('resultsPathfinderQuizLink')}</LocalizedLink>
+                {t('resultsBeforeSuffix')}
+              </span>
+            </div>
+          </div>
+        </details>
+        <div className="apply-results-preface">
         {qualifies ? (
           <>
             <div className={`funding-banner funding-banner-qualify`} style={{ marginBottom: '1.5rem' }}>
@@ -269,6 +275,7 @@ export default function ApplyResultsClient() {
             <p className="apply-results-program-hint">{t('resultsHintNonQual')}</p>
           </>
         )}
+        </div>
 
         <div
           className="apply-results-program-grid"

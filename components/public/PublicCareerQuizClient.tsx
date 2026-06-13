@@ -74,10 +74,13 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
       .map(([area]) => area.charAt(0).toUpperCase() + area.slice(1));
 
     const typeSlug = areasToTypeSlug(topAreas);
+    const topCareer = score.careers[0]?.title ?? '';
     const shareUrl =
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/career-quiz${typeSlug ? `?type=${typeSlug}` : ''}`
-        : '';
+      typeof window !== 'undefined' && typeSlug
+        ? `${window.location.origin}/career-quiz?type=${typeSlug}${topCareer ? `&c=${encodeURIComponent(topCareer)}` : ''}`
+        : typeof window !== 'undefined'
+          ? `${window.location.origin}/career-quiz`
+          : '';
     const shareText = topAreas.length
       ? `My career type is ${topAreas.join(' & ')} — what's yours? Free 60-second quiz:`
       : 'I just found careers that fit me — free 60-second quiz:';

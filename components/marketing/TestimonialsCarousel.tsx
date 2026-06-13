@@ -3,6 +3,7 @@ import { Prisma, TestimonialStatus } from '@prisma/client';
 import { Quote, Star } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { InfoCard } from '@/components/marketing/ui';
+import { getProgramBySlug } from '@/lib/content/programs';
 
 type PublishedTestimonial = Prisma.TestimonialGetPayload<{
   include: {
@@ -57,9 +58,14 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
 
   return (
     <div className="testimonials-carousel__grid">
-      {testimonials.map((t) => (
+      {testimonials.map((testimonial) => {
+        const enrolledProgramTitle = testimonial.member.enrolledProgram
+          ? getProgramBySlug(testimonial.member.enrolledProgram)?.title ?? testimonial.member.enrolledProgram
+          : null;
+
+        return (
         <div
-          key={t.id}
+          key={testimonial.id}
           style={{
             background: 'var(--surface-container-lowest)',
             border: '1px solid var(--outline-variant)',
@@ -73,15 +79,15 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Quote className="w-5 h-5" style={{ color: 'var(--color-accent)', opacity: 0.6 }} />
-            {t.rating && (
+            {testimonial.rating && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.125rem', marginLeft: 'auto' }}>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
                     className="w-3.5 h-3.5"
                     style={{
-                      color: i < t.rating! ? '#f59e0b' : '#d4d4d8',
-                      fill: i < t.rating! ? '#f59e0b' : 'none',
+                      color: i < testimonial.rating! ? '#f59e0b' : '#d4d4d8',
+                      fill: i < testimonial.rating! ? '#f59e0b' : 'none',
                     }}
                   />
                 ))}
@@ -97,14 +103,14 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
               flex: 1,
             }}
           >
-            {t.content}
+            {testimonial.content}
           </p>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: 'auto' }}>
-            {t.photoUrl ? (
+            {testimonial.photoUrl ? (
               <img
-                src={t.photoUrl}
-                alt={t.member.fullName ? `${t.member.fullName} photo` : 'Member photo'}
+                src={testimonial.photoUrl}
+                alt={testimonial.member.fullName ? `${testimonial.member.fullName} photo` : 'Member photo'}
                 style={{
                   width: '2.5rem',
                   height: '2.5rem',
@@ -127,20 +133,21 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
                   color: 'var(--color-on-surface-variant)',
                 }}
               >
-                {t.member.fullName?.charAt(0).toUpperCase() ?? 'M'}
+                {testimonial.member.fullName?.charAt(0).toUpperCase() ?? 'M'}
               </div>
             )}
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.875rem' }}>{t.member.fullName}</div>
-              {t.member.enrolledProgram && (
+              <div style={{ fontWeight: 700, fontSize: '0.875rem' }}>{testimonial.member.fullName}</div>
+              {enrolledProgramTitle ? (
                 <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                  {t.member.enrolledProgram}
+                  {enrolledProgramTitle}
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

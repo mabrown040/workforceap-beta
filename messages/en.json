@@ -1965,6 +1965,8 @@
       "avgSalaryIncreaseSample": "From placement offer to follow-up wage (where both are on file; n={count})",
       "avgSalaryIncreaseInsufficient": "Reported after placement follow-ups; insufficient paired data to show an average yet.",
       "dataLightNote": "Live metrics publish here as member and employer activity is recorded. Figures stay blank until there is enough verified data to share publicly.",
+      "metricsPreviewHeading": "Cohort metrics we publish when verified",
+      "employerMetricsPreviewHeading": "Partnership metrics we track",
       "membersServedEmptyTitle": "Member metrics not published yet",
       "membersServedEmptyDesc": "Member counts and cohort rates publish here as verified member and employer activity is recorded—not before.",
       "cohortRateInsufficient": "Published once enrolled program cohorts have recorded activity.",

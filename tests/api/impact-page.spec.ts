@@ -356,6 +356,8 @@ describe('Impact Page — getPublicImpactStats', () => {
       expect(source).toContain("t('membersServedEmptyDesc')");
       expect(source).toContain("hasLiveData ? t('statsMethodologyNote') : t('dataLightNote')");
       expect(source).toContain('impact-page__stats-grid--preview');
+      expect(source).toContain("t('metricsPreviewHeading')");
+      expect(source).toContain("t('employerMetricsPreviewHeading')");
       expect(source).not.toContain('impact-page__data-light-note');
       expect(source).toContain("variant={hasLiveData ? 'dark' : 'default'}");
     });

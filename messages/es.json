@@ -1958,6 +1958,8 @@
       "subtitle": "Métricas verificadas de las operaciones de WorkforceAP: se publican cuando hay datos suficientes para compartirlas públicamente.",
       "subtitleDataLight": "Las métricas aparecen aquí cuando hay datos verificados suficientes para compartirlos públicamente; las cifras permanecen en blanco hasta entonces.",
       "dataLightNote": "Las métricas en vivo se publican aquí a medida que se registra la actividad de miembros y empleadores. Las cifras permanecen en blanco hasta que haya datos verificados suficientes para compartir públicamente.",
+      "metricsPreviewHeading": "Métricas de cohorte que publicamos cuando están verificadas",
+      "employerMetricsPreviewHeading": "Métricas de asociación que rastreamos",
       "cohortRateInsufficient": "Se publica una vez que las cohortes de programas inscritos tengan actividad registrada.",
       "statsMethodologyNote": "El guion (—) significa que una métrica aún no está publicada. Las tasas usan cohortes de programas inscritos; los promedios salariales usan salarios de oferta y seguimiento emparejados cuando ambos están registrados.",
       "membersServedLabel": "Miembros atendidos",

@@ -68,6 +68,7 @@ function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMes
     journeyGuide: m.journeyGuide,
     resumeStudio: m.resumeStudio,
     trainingBridge: m.trainingBridge,
+    benefitsCliff: m.benefitsCliff,
     goals: m.goals,
     coach: m.coach,
     first90: m.first90,

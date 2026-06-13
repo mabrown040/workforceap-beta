@@ -17,6 +17,12 @@ describe('Employers Page — honest trust presentation', () => {
     expect(source).not.toContain("showVerifiedStats || showLogos ? 'verified'");
   });
 
+  it('styles placeholder trust stats as stacked cards on mobile', () => {
+    const pagePath = path.resolve(__dirname, '../../app/employers/page.tsx');
+    const source = readFileSync(pagePath, 'utf-8');
+    expect(source).toContain('.employers-trust__stats--placeholder .employers-trust__stat {');
+  });
+
   it('exports revalidate = 600 (10 minutes)', () => {
     const pagePath = path.resolve(__dirname, '../../app/employers/page.tsx');
     const source = readFileSync(pagePath, 'utf-8');

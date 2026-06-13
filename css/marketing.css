@@ -841,6 +841,14 @@ html.has-marketing-main-nav {
   margin-bottom: 3rem;
 }
 
+/* Early placement: follows member-promise band — tighten top rhythm on phones */
+@media (max-width: 767px) {
+  .home-program-showcase--early {
+    padding-top: clamp(2rem, 5vw, 2.75rem) !important;
+    border-top: 1px solid var(--outline-variant, rgba(28, 27, 27, 0.12));
+  }
+}
+
 .home-program-card__cta {
   margin-top: auto;
   padding-top: 0.35rem;

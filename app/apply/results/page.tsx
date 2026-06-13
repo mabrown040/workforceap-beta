@@ -32,6 +32,9 @@ export default async function ApplyResultsPage() {
         <div className="container">
           <ApplyMobileTrustBar />
           <ApplyMobileStepNav activeStep={1} />
+          <p className="apply-funnel-form-kicker" role="note">
+            {t('resultsKicker')}
+          </p>
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyResultsClient />
           </Suspense>

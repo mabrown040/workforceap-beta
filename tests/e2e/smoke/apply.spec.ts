@@ -56,5 +56,7 @@ test.describe('Apply smoke', () => {
 
     await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
     await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/program/i);
+    await expect(page.locator('.apply-funnel-form-kicker')).toContainText(/about 2 minutes/i);
+    await expect(page.locator('.apply-flow .apply-step-kicker')).not.toBeVisible();
   });
 });

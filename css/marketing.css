@@ -1132,6 +1132,25 @@ html.has-marketing-main-nav {
   display: none;
 }
 
+.apply-funnel-form-kicker {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .apply-transition-details__summary {
+    display: none;
+  }
+
+  .apply-transition-details__body {
+    display: block;
+    margin-top: 0;
+  }
+
+  .apply-transition-details--stacked .apply-transition-card + .apply-transition-card {
+    margin-top: 0.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .apply-mobile-step-nav {
     display: block;
@@ -1216,16 +1235,88 @@ html.has-marketing-main-nav {
     margin-bottom: var(--space-2);
   }
 
-  .apply-funnel-step-page__hero p {
-    font-size: var(--font-size-sm);
-    line-height: var(--line-height-normal);
-  }
-
   .apply-funnel-step-page .apply-progress-bar {
     display: none;
   }
 
   .apply-funnel-step-page .content-section {
     padding-top: var(--space-4);
+  }
+
+  /* Steps 2–3: hero + mobile step nav carry context — trim duplicate body copy */
+  .apply-funnel-step-page__hero p {
+    display: none;
+  }
+
+  /* Match step 1 form-entry kicker styling for steps 2–3 */
+  .apply-funnel-form-kicker {
+    display: block;
+    margin: 0 0 var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--outline-variant);
+    background: var(--surface-container-high);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: var(--color-on-surface-variant);
+    line-height: var(--line-height-normal);
+    text-align: center;
+  }
+
+  /* Page-level kicker replaces the in-form uppercase line on narrow screens */
+  .apply-funnel-step-page .apply-flow .apply-step-kicker {
+    display: none;
+  }
+
+  /* Collapsible pre-form guidance — program cards land sooner on mobile */
+  .apply-transition-details__summary {
+    display: list-item;
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--color-on-surface);
+    min-height: 44px;
+    padding: var(--space-1) 0;
+    list-style-position: outside;
+  }
+
+  .apply-transition-details__summary::-webkit-details-marker {
+    color: var(--color-accent);
+  }
+
+  .apply-transition-details__body {
+    margin-top: var(--space-2);
+  }
+
+  .apply-transition-details--stacked .apply-transition-card + .apply-transition-card {
+    margin-top: var(--space-3);
+  }
+
+  /* Funding fit + undecided notes repeat the kicker — tuck below program cards on mobile */
+  .apply-results-preface {
+    display: contents;
+  }
+
+  .apply-results-preface .funding-banner,
+  .apply-results-preface .apply-undecided-reassurance,
+  .apply-results-preface .apply-results-anyway,
+  .apply-results-preface .apply-foundational-support {
+    order: 2;
+  }
+
+  .apply-results-preface .apply-step-title,
+  .apply-results-preface .apply-results-program-hint {
+    order: 0;
+  }
+
+  .apply-results-program-grid {
+    order: 1;
+  }
+
+  .apply-flow:has(.apply-results-program-grid) .apply-step-content {
+    display: flex;
+    flex-direction: column;
   }
 }

@@ -42,6 +42,8 @@ const TOOL_LABELS: Record<AIToolType, string> = {
   linkedin_about: 'LinkedIn About',
   skill_assessment: 'Skills Assessment',
   gap_analyzer: 'Gap Analysis',
+  skill_mission: 'Skill Mission Proof',
+  job_tailor: 'Job-Tailored Resume',
 };
 
 /**

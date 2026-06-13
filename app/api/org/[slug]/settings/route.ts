@@ -32,7 +32,7 @@ const settingsSchema = z.object({
     }
 
     const { slug } = await params;
-    const org = await prisma.organization.findUnique({
+    const org = await prisma.$transaction((tx) => tx.organization.findUnique({
       where: { slug },
       select: {
         id: true,
@@ -46,7 +46,7 @@ const settingsSchema = z.object({
         subscriptionTier: true,
         subscriptionStatus: true,
       },
-    });
+    }));
 
     if (!org) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
@@ -76,10 +76,10 @@ export const GET = withApiGuc(_GET);async function _PUT(
     }
 
     const { slug } = await params;
-    const existing = await prisma.organization.findUnique({
+    const existing = await prisma.$transaction((tx) => tx.organization.findUnique({
       where: { slug },
       select: { id: true },
-    });
+    }));
     if (!existing) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
@@ -115,7 +115,7 @@ export const GET = withApiGuc(_GET);async function _PUT(
     if (parsed.data.customDomain !== undefined) data.customDomain = parsed.data.customDomain;
     if (parsed.data.overviewVideoUrl !== undefined) data.overviewVideoUrl = parsed.data.overviewVideoUrl;
 
-    const org = await prisma.organization.update({
+    const org = await prisma.$transaction((tx) => tx.organization.update({
       where: { slug },
       data,
       select: {
@@ -128,7 +128,7 @@ export const GET = withApiGuc(_GET);async function _PUT(
         customDomain: true,
         overviewVideoUrl: true,
       },
-    });
+    }));
 
     clearOrganizationBrandingCache(org.id);
 

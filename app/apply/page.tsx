@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import ApplyMobileStepNav from '@/components/apply/ApplyMobileStepNav';
+import ApplyMobileTrustBar from '@/components/apply/ApplyMobileTrustBar';
 import PaidApplyProofBlock from '@/components/apply/PaidApplyProofBlock';
 import TrustStrip from '@/components/marketing/TrustStrip';
 import OrganicApplyPage from './OrganicApplyPage';
@@ -31,6 +32,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
         utmSource={paidUtmSource}
         program={sp.program}
         stepNav={<ApplyMobileStepNav activeStep={0} />}
+        mobileTrustBar={<ApplyMobileTrustBar />}
         proofBlock={<PaidApplyProofBlock />}
         trustStrip={<TrustStrip variant="apply" />}
       />

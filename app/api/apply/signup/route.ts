@@ -168,13 +168,13 @@ const applySignupSchema = z.object({
     let referralSource: string | null = null;
     const refRaw = referralRef?.trim().toLowerCase();
     if (refRaw) {
-      const partner = await prisma.partner.findFirst({
+      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({
         where: {
           active: true,
           OR: [{ referralCode: refRaw }, { slug: refRaw }],
         },
         select: { id: true },
-      });
+      }));
       if (partner) {
         referralPartnerId = partner.id;
         referralSource = `partner_ref:${refRaw}`;
@@ -228,10 +228,10 @@ const applySignupSchema = z.object({
     }
   
     const organizationId = await getDefaultOrganizationId();
-    const priorUser = await prisma.user.findUnique({
+    const priorUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { enrolledAt: true },
-    });
+    }));
   
     let createdApplicationId: string | null = null;
     try {

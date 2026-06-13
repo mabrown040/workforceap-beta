@@ -58,6 +58,10 @@ import MobileDiscoverSection from './_components/MobileDiscoverSection';
 import MobileQuickActions from './_components/MobileQuickActions';
 import MobileRecentActivity from './_components/MobileRecentActivity';
 import DesktopDashboard from './_components/DesktopDashboard';
+import SkillMissionTeaserCard, {
+  type SkillMissionTeaserData,
+} from '@/components/portal/SkillMissionTeaserCard';
+import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
 
 const MemberCareerPathSection = dynamic(
   () => import('@/components/portal/MemberCareerPathSection'),
@@ -452,6 +456,41 @@ async function renderMemberDashboard(
   const totalCourses = trainingView?.totalCourses ?? program?.courses.length ?? 0;
   const allCoursesComplete = trainingView?.allCoursesComplete ?? false;
   const progressPercentDisplay = trainingView?.progressPercentDisplay ?? 0;
+
+  // ── Skill Missions teaser ── always rendered on the dashboard home so the
+  // feature stays one tap away; data only loads when a program is active.
+  let skillMissionTeaserData: SkillMissionTeaserData | null = null;
+  if (enrolledProgram) {
+    try {
+      const completedRows = await prisma.courseProgress.findMany({
+        where: { userId: user.id, programSlug: enrolledProgram, status: 'COMPLETED' },
+        select: { courseSlug: true },
+      });
+      const missionSummary = await loadSkillMissionSummary({
+        userId: user.id,
+        programSlug: enrolledProgram,
+        completedCourseSlugs: completedRows.map((r) => r.courseSlug),
+      });
+      if (missionSummary) {
+        const nextReady = missionSummary.missions.find((m) => m.status === 'ready') ?? null;
+        skillMissionTeaserData = {
+          careerReadinessPct: missionSummary.careerReadinessPct,
+          passedCount: missionSummary.passedCount,
+          totalMissions: missionSummary.totalMissions,
+          readyCount: missionSummary.readyCount,
+          retryCount: missionSummary.retryCount,
+          streak: missionSummary.streak,
+          nextMissionName: nextReady?.missionName ?? null,
+          nextMissionCourse: nextReady?.courseTitle ?? null,
+        };
+      }
+    } catch (err) {
+      console.error('[dashboard] skill mission teaser load failed', err);
+    }
+  }
+  const skillMissionTeaser = (
+    <SkillMissionTeaserCard data={skillMissionTeaserData} />
+  );
 
   let trainingEligibleSince: Date | null = null;
   if (enrolledProgram && assessmentCompleted) {
@@ -852,6 +891,13 @@ async function renderMemberDashboard(
           </div>
         </ErrorBoundary>
 
+        {/* ── Skill Missions teaser ── */}
+        <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+          <section style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
+            {skillMissionTeaser}
+          </section>
+        </ErrorBoundary>
+
         {/* ΓöÇΓöÇ Goals ΓåÆ steps ΓöÇΓöÇ */}
         <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
           <section id="goals" aria-label="Goals" style={{ padding: '0 1.25rem', marginBottom: '0.85rem', scrollMarginTop: '5rem' }}>
@@ -906,6 +952,7 @@ async function renderMemberDashboard(
         intakeExtra={intakeExtra}
         wizardProgramInterest={wizardProgramInterest}
         todayHero={todayHero}
+        skillMissionTeaser={skillMissionTeaser}
         showProgramSelector={showProgramSelector}
         enrolledProgram={enrolledProgram}
         programSelectorOptions={programSelectorOptions}

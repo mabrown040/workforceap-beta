@@ -421,7 +421,11 @@ export default function MainNav() {
           {mobileOpen ? (
             <>
               <li className="mobile-nav-group-heading"><span>{translateLabel(portalState.primary.label)}</span></li>
-              {loginSubmenuItems.length > 0 ? loginSubmenuItems.map((item) => (
+              {/* Mobile renders the FULL submenu (not loginSubmenuItems): the group
+                  heading above is not a link, so the primary destination (e.g.
+                  "Member dashboard" → /dashboard) must stay in the list or members
+                  only see "Account settings" and land on the wrong page. */}
+              {portalState.submenu.length > 0 ? portalState.submenu.map((item) => (
                 <li key={item.href}>
                   <LocalizedLink
                     href={item.href}

@@ -54,11 +54,11 @@ async function canUseCounselorMessaging(userId: string): Promise<boolean> {
   const access = await assertStaffCanAccessThread(user.id, thread.id);
   if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const messages = await prisma.message.findMany({
+  const messages = await prisma.$transaction((tx) => tx.message.findMany({
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
     take: 500,
-  });
+  }));
 
   const names = await withTenantScope(orgId, (db) =>
     db.user.findMany({
@@ -178,13 +178,13 @@ export const POST = withApiGuc(_POST);async function _PATCH(_request: NextReques
   if (!access) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const now = new Date();
-  await prisma.messageThread.update({
+  await prisma.$transaction((tx) => tx.messageThread.update({
     where: { id: thread.id },
     data: {
       counselorLastReadAt: now,
       counselorUserId: thread.counselorUserId ?? user.id,
     },
-  });
+  }));
 
   return NextResponse.json({ ok: true, counselorLastReadAt: now.toISOString() });
 

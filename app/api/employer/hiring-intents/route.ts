@@ -24,11 +24,11 @@ const createSchema = z.object({
     const ctx = await getEmployerForUser(user.id);
     if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   
-    const intents = await prisma.employerHiringIntent.findMany({
+    const intents = await prisma.$transaction((tx) => tx.employerHiringIntent.findMany({
       where: { employerId: ctx.employerId },
       orderBy: { createdAt: 'desc' },
       take: 50,
-    });
+    }));
     return NextResponse.json({ intents });
   } catch (error) {
     console.error('/employer/hiring-intents:', error);
@@ -57,7 +57,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     const { programSlug, seatCount, startBy, mouUrl, notes } = parsed.data;
   
     try {
-      const intent = await prisma.employerHiringIntent.create({
+      const intent = await prisma.$transaction((tx) => tx.employerHiringIntent.create({
         data: {
           employerId: ctx.employerId,
           programSlug,
@@ -66,7 +66,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
           mouUrl: mouUrl || null,
           notes: notes ?? null,
         },
-      });
+      }));
       return NextResponse.json({ intent });
     } catch (err) {
       captureApiError(err, { route: 'employer/hiring-intents' });

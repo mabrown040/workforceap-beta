@@ -17,10 +17,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       return NextResponse.json({ error: 'Forbidden: partner access required' }, { status: 403 });
     }
 
-    const partner = await prisma.partner.findUnique({
+    const partner = await prisma.$transaction((tx) => tx.partner.findUnique({
       where: { id: ctx.partnerId },
       select: { organizationId: true, stripeConnectId: true, contactEmail: true },
-    });
+    }));
     if (!partner) {
       return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
     }

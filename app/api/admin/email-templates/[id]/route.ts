@@ -17,7 +17,7 @@ async function _GET(
     }
 
     const { id } = await params;
-    const template = await prisma.emailTemplate.findUnique({ where: { id } });
+    const template = await prisma.$transaction((tx) => tx.emailTemplate.findUnique({ where: { id } }));
     if (!template) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     return NextResponse.json(template);
@@ -40,7 +40,7 @@ async function _PATCH(
     }
 
     const { id } = await params;
-    const existing = await prisma.emailTemplate.findUnique({ where: { id } });
+    const existing = await prisma.$transaction((tx) => tx.emailTemplate.findUnique({ where: { id } }));
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     let body: Record<string, unknown>;
@@ -64,10 +64,10 @@ async function _PATCH(
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
     }
 
-    const template = await prisma.emailTemplate.update({
+    const template = await prisma.$transaction((tx) => tx.emailTemplate.update({
       where: { id },
       data: update,
-    });
+    }));
 
     return NextResponse.json(template);
   } catch (error) {

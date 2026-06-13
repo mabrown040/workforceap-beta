@@ -7,10 +7,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const progress = await prisma.resourceProgress.findMany({
+  const progress = await prisma.$transaction((tx) => tx.resourceProgress.findMany({
     where: { userId: user.id },
     take: 500,
-  });
+  }));
   const byResource = Object.fromEntries(progress.map((p) => [p.resourceId, p]));
   return NextResponse.json({ progress: byResource });
 

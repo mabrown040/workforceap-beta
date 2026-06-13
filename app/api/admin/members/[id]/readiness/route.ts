@@ -20,19 +20,19 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
   // Tenant scope: verify member is in actor's org. ReadinessChecklist
   // isn't tenant-scoped directly; gate via User.organizationId.
   const orgId = await getActorOrganizationId(user.id);
-  const member = await prisma.user.findFirst({
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({
     where: { id: userId, organizationId: orgId },
     select: { id: true },
-  });
+  }));
   if (!member) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }
 
-  const items = await prisma.readinessChecklist.findMany({
+  const items = await prisma.$transaction((tx) => tx.readinessChecklist.findMany({
     where: { userId },
     orderBy: { updatedAt: 'desc' },
     take: 200,
-  });
+  }));
 
   const map = new Map(items.map((i) => [i.itemKey, i]));
 
@@ -42,10 +42,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
   if (lastItem?.updatedAt) {
     lastUpdatedAt = lastItem.updatedAt;
     if (lastItem.completedBy) {
-      const counselor = await prisma.user.findUnique({
-        where: { id: lastItem.completedBy },
+      const completedBy = lastItem.completedBy;
+      const counselor = await prisma.$transaction((tx) => tx.user.findUnique({
+        where: { id: completedBy },
         select: { fullName: true },
-      });
+      }));
       lastUpdatedBy = counselor?.fullName ?? null;
     }
   }
@@ -119,10 +120,10 @@ export const GET = withApiGuc(_GET);async function _PATCH(
   // Tenant scope: an Org A admin cannot tick checklist items on an
   // Org B member by guessing their UUID.
   const orgId = await getActorOrganizationId(user.id);
-  const target = await prisma.user.findFirst({
+  const target = await prisma.$transaction((tx) => tx.user.findFirst({
     where: { id: userId, organizationId: orgId },
     select: { id: true },
-  });
+  }));
   if (!target) {
     return NextResponse.json({ error: 'Member not found' }, { status: 404 });
   }
@@ -171,7 +172,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     ...(hasNotes && { notes }),
   };
 
-  await prisma.readinessChecklist.upsert({
+  await prisma.$transaction((tx) => tx.readinessChecklist.upsert({
     where: { userId_itemKey: { userId, itemKey } },
     create: {
       userId,
@@ -184,12 +185,12 @@ export const GET = withApiGuc(_GET);async function _PATCH(
       notes: hasNotes ? notes : null,
     },
     update: updateData,
-  });
+  }));
 
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: { fullName: true },
-  });
+  }));
   return NextResponse.json({ ok: true, counselorName: dbUser?.fullName ?? (user.user_metadata?.full_name as string) ?? user.email });
 
   } catch (error) {

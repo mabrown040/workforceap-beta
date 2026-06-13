@@ -97,7 +97,16 @@ export default async function EmployersPage() {
   const showLogos = trust.logos.length > 0;
   const showVerifiedStats = liveTrustStats.length > 0;
   const showPlaceholderStats = !showLogos && !showVerifiedStats;
+  const showLogosOnly = showLogos && !showVerifiedStats;
   const trustStatsToShow = showVerifiedStats ? liveTrustStats : placeholderTrustStats;
+  const heroEyebrowIcon = showVerifiedStats ? 'verified' : 'handshake';
+  const trustAriaLabel = showPlaceholderStats
+    ? t('trustAriaLabelPlaceholder')
+    : showVerifiedStats
+      ? t('trustAriaLabel')
+      : showLogosOnly
+        ? t('trustAriaLabelLogosOnly')
+        : t('trustAriaLabelPlaceholder');
 
   return (
     <div className="inner-page employers-landing">
@@ -110,7 +119,7 @@ export default async function EmployersPage() {
         eyebrow={
           <span className="employers-landing__eyebrow">
             <span className="material-symbols-outlined" aria-hidden="true">
-              verified
+              {heroEyebrowIcon}
             </span>
             {t('heroEyebrow')}
           </span>
@@ -137,11 +146,16 @@ export default async function EmployersPage() {
       </HeroSection>
 
       {/* ── Trust strip ── */}
-      <section className="employers-trust" aria-label={t('trustAriaLabel')}>
+      <section
+        className="employers-trust"
+        aria-label={trustAriaLabel}
+      >
         <div className="container employers-trust__inner">
           {showLogos ? (
             <div className="employers-trust__logos">
-              <p className="employers-trust__logos-label">{t('trustLogosLabel')}</p>
+              <p className="employers-trust__logos-label">
+                {showLogosOnly ? t('trustLogosOnlyLabel') : t('trustLogosLabel')}
+              </p>
               <ul className="employers-trust__logo-list">
                 {trust.logos.map((logo) => (
                   <li key={logo.companyName}>
@@ -161,6 +175,9 @@ export default async function EmployersPage() {
               </ul>
             </div>
           ) : null}
+          {showPlaceholderStats ? (
+            <p className="employers-trust__placeholder-heading">{t('trustPlaceholderHeading')}</p>
+          ) : null}
           {showVerifiedStats || showPlaceholderStats ? (
             <div
               className={`employers-trust__stats${showVerifiedStats ? '' : ' employers-trust__stats--placeholder'}${showLogos ? ' employers-trust__stats--with-logos' : ''}`}
@@ -177,9 +194,14 @@ export default async function EmployersPage() {
             </div>
           ) : null}
           {showVerifiedStats ? (
-            <p className="employers-trust__as-of">{trust.asOfLabel}</p>
+            <>
+              <p className="employers-trust__as-of">{trust.asOfLabel}</p>
+              <p className="employers-trust__verified-note">{t('trustVerifiedNote')}</p>
+            </>
           ) : (
-            <p className="employers-trust__as-of">{t('trustPlaceholderNote')}</p>
+            <p className="employers-trust__as-of">
+              {showLogosOnly ? t('trustLogosOnlyNote') : t('trustPlaceholderNote')}
+            </p>
           )}
           <p className="employers-trust__impact-link-wrap">
             <LocalizedLink href="/impact" className="employers-trust__impact-link">
@@ -359,6 +381,15 @@ export default async function EmployersPage() {
           text-transform: uppercase;
           color: var(--color-on-surface-variant);
         }
+        .employers-trust__placeholder-heading {
+          margin: 0 0 1rem;
+          text-align: center;
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--color-on-surface-variant);
+        }
         .employers-trust__logo-list {
           list-style: none;
           margin: 0;
@@ -437,6 +468,14 @@ export default async function EmployersPage() {
           font-size: 0.75rem;
           color: var(--color-on-surface-variant);
           opacity: 0.85;
+        }
+        .employers-trust__verified-note {
+          margin: 0.5rem auto 0;
+          max-width: 36rem;
+          text-align: center;
+          font-size: 0.75rem;
+          color: var(--color-on-surface-variant);
+          line-height: 1.5;
         }
         .employers-trust__impact-link-wrap {
           margin: 0.75rem 0 0;
@@ -700,6 +739,20 @@ export default async function EmployersPage() {
             min-height: 2.75rem;
             display: flex;
             align-items: center;
+          }
+          .employers-trust__stats--placeholder .employers-trust__stat {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+          }
+          .employers-trust__stats--placeholder .employers-trust__stat-divider {
+            display: block;
+            width: 100%;
+            height: 1px;
+            min-height: 0;
+            background: transparent;
+            margin: 0.25rem 0;
           }
         }
       `}</style>

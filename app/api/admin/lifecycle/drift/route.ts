@@ -29,7 +29,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   // signal — a user can legitimately be enrolled in IT Support (primary) +
   // Cybersecurity (secondary). Prisma findMany with a filtered relation
   // returns at most one row because of the partial unique index.
-  const enrolledUsers = await prisma.user.findMany({
+  const enrolledUsers = await prisma.$transaction((tx) => tx.user.findMany({
     where: {
       enrolledProgram: { not: null },
       deletedAt: null,
@@ -48,7 +48,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       },
     },
     take: 500,
-  });
+  }));
 
   type DriftRecord = {
     userId: string;

@@ -164,4 +164,77 @@ assertContains(
   'admin/reports/wioa emits an auditLog (AUDIT §H-DEP4)',
 );
 
+// --- Sprint 3 FORCE RLS prep expansion (plan #1393): money paths, PII exports, staff access ---
+
+assertContains(
+  'app/api/admin/partner-payouts/route.ts',
+  ['getActorOrganizationId', 'withTenantScope'],
+  'admin partner-payouts list/mark-paid is tenant-scoped (money path)',
+);
+
+assertContains(
+  'app/api/partner/payout/route.ts',
+  ['getActorOrganizationId(user.id)', 'withTenantScope', 'organizationId: orgId'],
+  'partner payout request scopes partner + placement to actor org (money path)',
+);
+
+assertContains(
+  'app/api/admin/placements/route.ts',
+  ['memberInOrg(orgId)', "assertSameTenant('user', userId, orgId)"],
+  'admin placements scoped through member FK (PlacementRecord has no organizationId; withTenantScope alone is a no-op here)',
+);
+
+assertContains(
+  'app/api/admin/users/route.ts',
+  ['getActorOrganizationId', 'withTenantScope'],
+  'admin users list/create is tenant-scoped (PII)',
+);
+
+assertContains(
+  'app/api/partner/export/referrals/route.ts',
+  ['loadPartnerReferralBundle(ctx.partnerId, ctx.partner.organizationId)'],
+  'partner referral export uses tenant-filtered bundle (PII export)',
+);
+
+assertContains(
+  'app/api/employer/applications/route.ts',
+  ['job: { employerId: ctx.employerId }'],
+  'employer applications list scopes by owning employer (applicant PII)',
+);
+
+assertContains(
+  'app/api/partner/earnings/route.ts',
+  ['partnerId: ctx.partnerId', 'isReferralPartner'],
+  'partner earnings scoped to own partner + referral-partner gate (money path)',
+);
+
+assertContains(
+  'app/api/counselor/members/[memberId]/route.ts',
+  ['assertStaffCanAccessMemberRecord'],
+  'counselor member detail goes through staff access gate',
+);
+
+// token-links: getSubjectOrganizationId is a cross-tenant lookup that is only
+// safe behind resolveActOnBehalf (TODO-005 fix, 2026-06-12). The gate must run
+// BEFORE the org resolution, and the silent `.catch(() => null)` orgId
+// degradation must stay gone.
+{
+  const rel = 'app/api/admin/token-links/route.ts';
+  const src = read(rel);
+  const gateIdx = src.indexOf('resolveActOnBehalf(user.id, subjectUserId)');
+  const lookupIdx = src.indexOf('getSubjectOrganizationId(subjectUserId)');
+  if (gateIdx === -1) {
+    fail(`${rel} missing act-on-behalf gate: expected "resolveActOnBehalf(user.id, subjectUserId)"`);
+  }
+  if (lookupIdx === -1) {
+    fail(`${rel} missing scoped org resolution: expected "getSubjectOrganizationId(subjectUserId)"`);
+  }
+  if (gateIdx > lookupIdx) {
+    fail(`${rel}: resolveActOnBehalf gate must run BEFORE getSubjectOrganizationId`);
+  }
+  if (src.includes('getSubjectOrganizationId(subjectUserId).catch') || src.includes('getActorOrganizationId(user.id).catch')) {
+    fail(`${rel}: orgId resolution must fail loudly, not degrade to null via .catch()`);
+  }
+}
+
 console.log('[verify-high-risk-tenant-routes] OK');

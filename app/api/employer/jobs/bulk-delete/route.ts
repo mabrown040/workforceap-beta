@@ -50,11 +50,11 @@ export const POST = withApiGuc(async (request: NextRequest) => {
 
   if (action === 'close') {
     // Bulk close operation
-    const candidates = await prisma.job.findMany({
+    const candidates = await prisma.$transaction((tx) => tx.job.findMany({
       where: { id: { in: uniqueIds }, employerId: ctx.employerId },
       select: { id: true, status: true, title: true },
       take: 100,
-    });
+    }));
 
     const blocked = candidates.filter((j) => !BULK_CLOSABLE.has(j.status));
     if (blocked.length > 0) {
@@ -71,10 +71,10 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       return NextResponse.json({ error: 'One or more jobs were not found.' }, { status: 404 });
     }
 
-    const result = await prisma.job.updateMany({
+    const result = await prisma.$transaction((tx) => tx.job.updateMany({
       where: { id: { in: uniqueIds }, employerId: ctx.employerId, status: { in: BULK_CLOSABLE_STATUSES } },
       data: { status: 'closed' },
-    });
+    }));
 
     if (result.count !== uniqueIds.length) {
       return NextResponse.json({ error: 'One or more jobs changed status. Refresh and try again.' }, { status: 409 });
@@ -87,11 +87,11 @@ export const POST = withApiGuc(async (request: NextRequest) => {
   }
 
   // Bulk delete operation (default)
-  const candidates = await prisma.job.findMany({
+  const candidates = await prisma.$transaction((tx) => tx.job.findMany({
     where: { id: { in: uniqueIds }, employerId: ctx.employerId },
     select: { id: true, status: true, title: true },
     take: 100,
-  });
+  }));
 
   const blocked = candidates.filter((j) => !BULK_DELETABLE.has(j.status));
   if (blocked.length > 0) {
@@ -108,9 +108,9 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     return NextResponse.json({ error: 'One or more jobs were not found.' }, { status: 404 });
   }
 
-  const result = await prisma.job.deleteMany({
+  const result = await prisma.$transaction((tx) => tx.job.deleteMany({
     where: { id: { in: uniqueIds }, employerId: ctx.employerId, status: { in: BULK_DELETABLE_STATUSES } },
-  });
+  }));
 
   if (result.count !== uniqueIds.length) {
     return NextResponse.json({ error: 'One or more jobs changed status. Refresh and try again.' }, { status: 409 });

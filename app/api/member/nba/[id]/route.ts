@@ -21,13 +21,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
 
   try {
     if (nextStatus === 'COMPLETED') {
-      const existing = await prisma.memberNextBestAction.findFirst({
+      const existing = await prisma.$transaction((tx) => tx.memberNextBestAction.findFirst({
         where: { id, memberId: user.id },
         select: { id: true },
-      });
+      }));
       if (!existing) return NextResponse.json({ ok: true });
 
-      await prisma.memberEvent.create({
+      await prisma.$transaction((tx) => tx.memberEvent.create({
         data: {
           userId: user.id,
           eventName: 'member_next_best_action_clicked',
@@ -35,12 +35,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
           entityId: id,
           sourcePage: '/dashboard',
         },
-      }).catch(() => {});
+      })).catch(() => {});
     } else {
-      await prisma.memberNextBestAction.update({
+      await prisma.$transaction((tx) => tx.memberNextBestAction.update({
         where: { id, memberId: user.id },
         data: { status: nextStatus },
-      });
+      }));
     }
 
     return NextResponse.json({ ok: true });

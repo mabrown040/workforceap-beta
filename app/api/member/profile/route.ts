@@ -17,10 +17,10 @@ const updateSchema = z.object({
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     include: { profile: true },
-  });
+  }));
   if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
   return NextResponse.json({
@@ -94,10 +94,10 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
     }
   });
 
-  const updated = await prisma.user.findUnique({
+  const updated = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     include: { profile: true },
-  });
+  }));
 
   return NextResponse.json({
     user: updated

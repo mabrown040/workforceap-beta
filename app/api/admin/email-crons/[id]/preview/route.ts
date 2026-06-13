@@ -44,7 +44,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
       const weekStart = new Date();
       weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
       weekStart.setHours(0, 0, 0, 0);
-      const members = await prisma.user.findMany({
+      const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: {
           deletedAt: null,
           enrolledProgram: { not: null },
@@ -52,7 +52,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
         },
         select: { email: true, fullName: true },
         take: PREVIEW_LIMIT + 1,
-      });
+      }));
       const truncated = members.length > PREVIEW_LIMIT;
       const recipients = members.slice(0, PREVIEW_LIMIT).map(m => ({ email: m.email ?? '', name: m.fullName }));
       return { cronId: id, cronName: cron.name, recipients, count: recipients.length, truncated };
@@ -61,12 +61,12 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
     case 'inactive-nudge': {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const recentlyActive = await prisma.memberEvent.groupBy({
+      const recentlyActive = await prisma.$transaction((tx) => tx.memberEvent.groupBy({
         by: ['userId'],
         where: { createdAt: { gte: sevenDaysAgo } },
-      });
+      }));
       const activeUserIds = new Set(recentlyActive.map(r => r.userId));
-      const members = await prisma.user.findMany({
+      const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: {
           deletedAt: null,
           notificationsReminders: true,
@@ -74,7 +74,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
         },
         select: { email: true, fullName: true },
         take: PREVIEW_LIMIT + 1,
-      });
+      }));
       const truncated = members.length > PREVIEW_LIMIT;
       const recipients = members.slice(0, PREVIEW_LIMIT).map(m => ({ email: m.email ?? '', name: m.fullName }));
       return { cronId: id, cronName: cron.name, recipients, count: recipients.length, truncated };
@@ -83,14 +83,14 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
     case 'inactivity-nudge': {
       const fourteenDaysAgo = new Date();
       fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-      const recentActiveIds = await prisma.memberEvent.findMany({
+      const recentActiveIds = await prisma.$transaction((tx) => tx.memberEvent.findMany({
         where: { createdAt: { gte: fourteenDaysAgo } },
         select: { userId: true },
         distinct: ['userId'],
         take: 100,
-      });
+      }));
       const activeSet = new Set(recentActiveIds.map(r => r.userId));
-      const members = await prisma.user.findMany({
+      const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: {
           deletedAt: null,
           enrolledProgram: { not: null },
@@ -100,7 +100,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
         select: { email: true, fullName: true },
         take: PREVIEW_LIMIT + 1,
         orderBy: { enrolledAt: 'asc' },
-      });
+      }));
       const truncated = members.length > PREVIEW_LIMIT;
       const recipients = members.slice(0, PREVIEW_LIMIT).map(m => ({ email: m.email ?? '', name: m.fullName }));
       return { cronId: id, cronName: cron.name, recipients, count: recipients.length, truncated };
@@ -109,7 +109,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
     case 'applicant-followup': {
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-      const staleApps = await prisma.application.findMany({
+      const staleApps = await prisma.$transaction((tx) => tx.application.findMany({
         where: {
           status: 'PENDING',
           submittedAt: { lte: threeDaysAgo },
@@ -117,7 +117,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
         },
         include: { user: { select: { id: true, email: true, fullName: true } } },
         take: PREVIEW_LIMIT + 1,
-      });
+      }));
       const seen = new Set<string>();
       const recipients: CronPreviewRecipient[] = [];
       for (const app of staleApps) {
@@ -142,11 +142,11 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
     }
 
     case 'partner-outcome-digest': {
-      const partners = await prisma.partner.findMany({
+      const partners = await prisma.$transaction((tx) => tx.partner.findMany({
         where: { active: true, notifyOnEnrollment: true },
         select: { name: true, contactEmail: true },
         take: PREVIEW_LIMIT + 1,
-      });
+      }));
       const withEmail = partners.filter(p => p.contactEmail?.trim());
       const truncated = withEmail.length > PREVIEW_LIMIT;
       const recipients = withEmail.slice(0, PREVIEW_LIMIT).map(p => ({ email: p.contactEmail!, name: p.name }));
@@ -159,7 +159,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       yesterday.setHours(0, 0, 0, 0);
-      const members = await prisma.user.findMany({
+      const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: {
           deletedAt: null,
           enrolledProgram: { not: null },
@@ -168,7 +168,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
         },
         select: { email: true, fullName: true },
         take: PREVIEW_LIMIT + 1,
-      });
+      }));
       const truncated = members.length > PREVIEW_LIMIT;
       const recipients = members.slice(0, PREVIEW_LIMIT).map(m => ({ email: m.email ?? '', name: m.fullName }));
       return { cronId: id, cronName: cron.name, recipients, count: recipients.length, truncated };

@@ -10,14 +10,14 @@ async function _POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const result = await prisma.notification.updateMany({
+    const result = await prisma.$transaction((tx) => tx.notification.updateMany({
       where: { userId: user.id, readAt: null },
       data: { readAt: new Date() },
-    });
+    }));
 
-    const unreadCount = await prisma.notification.count({
+    const unreadCount = await prisma.$transaction((tx) => tx.notification.count({
       where: { userId: user.id, readAt: null },
-    });
+    }));
 
     return NextResponse.json({
       ok: true,

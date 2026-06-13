@@ -47,14 +47,14 @@ interface CheckpointBody {
       // Delete previous checkpoint for this session to avoid clutter
       // (We identify by inputSummary containing "checkpoint" and recent time)
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-      await prisma.aIToolResult.deleteMany({
+      await prisma.$transaction((tx) => tx.aIToolResult.deleteMany({
         where: {
           userId: user.id,
           toolType,
           inputSummary: { contains: 'checkpoint' },
           createdAt: { gte: fiveMinutesAgo },
         },
-      });
+      }));
   
       const result = await saveAIToolResult(
         user.id,

@@ -70,10 +70,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     // claim any member in Org B; the corrupted PartnerReferral row would
     // persist even though loadPartnerReferralBundle hides it from the UI
     // (AUDIT §C-T5).
-    const member = await prisma.user.findUnique({
+    const member = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: memberId },
       select: { id: true, fullName: true, organizationId: true },
-    });
+    }));
     if (!member) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
@@ -82,7 +82,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     }
 
     try {
-      const referral = await prisma.partnerReferral.create({
+      const referral = await prisma.$transaction((tx) => tx.partnerReferral.create({
         data: {
           partnerId: ctx.partnerId,
           memberId,
@@ -90,7 +90,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
         include: {
           member: { select: { id: true, fullName: true } },
         },
-      });
+      }));
 
       return NextResponse.json({
         id: referral.id,

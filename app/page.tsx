@@ -163,12 +163,15 @@ export default async function HomePage() {
           </h1>
 
           <div style={{ maxWidth: '980px', display: 'flex', flexDirection: 'column', gap: '0.9rem', marginBottom: '1rem' }}>
-            <p style={{
+            <p
+              className="home-hero__body-org"
+              style={{
               fontSize: 'clamp(1rem, 0.5vw + 0.95rem, 1.22rem)',
               color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.88))',
               lineHeight: 1.7,
               margin: 0,
-            }}>
+            }}
+            >
               {t('heroBody1')}
             </p>
 
@@ -224,7 +227,7 @@ export default async function HomePage() {
             </div>
             <LocalizedLinkServer
               href="/find-your-path"
-              className={marketingButtonPresets.heroSecondaryOnDark('home-hero__cta-secondary home-hero-secondary-cta')}
+              className={marketingButtonPresets.heroSecondaryOnDark('home-hero__cta-secondary home-hero-secondary-cta home-hero-outline-cta')}
             >
               {t('heroCta')}
             </LocalizedLinkServer>
@@ -235,7 +238,10 @@ export default async function HomePage() {
               {t('browsePrograms')}
             </LocalizedLinkServer>
           </div>
-          <p style={{ marginTop: '0.65rem', marginBottom: 0, fontSize: 'clamp(0.95rem, 0.5vw + 0.88rem, 1.05rem)', fontWeight: 600, color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.92))' }}>
+          <p
+            className="home-hero__social-proof"
+            style={{ marginTop: '0.65rem', marginBottom: 0, fontSize: 'clamp(0.95rem, 0.5vw + 0.88rem, 1.05rem)', fontWeight: 600, color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.92))' }}
+          >
             {t('heroSocialProof')}
           </p>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -254,13 +260,16 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div style={{
+          <div
+            className="home-hero__trust-cards"
+            style={{
             marginTop: '1.5rem',
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
             gap: '0.875rem',
             maxWidth: '980px',
-          }}>
+          }}
+          >
             {([
               { icon: 'group', title: t('trustReviewed'), desc: t('trustReviewedDetail') },
               { icon: 'verified_user', title: t('trustYears'), desc: t('trustYearsDetail') },

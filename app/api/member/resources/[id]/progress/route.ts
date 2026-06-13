@@ -32,7 +32,7 @@ const actionSchema = z.object({
       await ensureUserInDb(user);
       const now = new Date();
   
-      const progress = await prisma.resourceProgress.upsert({
+      const progress = await prisma.$transaction((tx) => tx.resourceProgress.upsert({
         where: {
           userId_resourceId: { userId: user.id, resourceId },
         },
@@ -53,7 +53,7 @@ const actionSchema = z.object({
           ...(action === 'download' && { downloadedAt: now }),
           ...(action === 'save' && { savedAt: now }),
         },
-      });
+      }));
   
       if (action === 'view') await trackEvent({ userId: user.id, eventName: 'resource_viewed', entityType: 'resource', entityId: resourceId });
       if (action === 'complete') await trackEvent({ userId: user.id, eventName: 'resource_completed', entityType: 'resource', entityId: resourceId });
@@ -80,9 +80,9 @@ export const POST = withApiGuc(_POST);async function _GET(
   
     const { id: resourceId } = await params;
   
-    const progress = await prisma.resourceProgress.findUnique({
+    const progress = await prisma.$transaction((tx) => tx.resourceProgress.findUnique({
       where: { userId_resourceId: { userId: user.id, resourceId } },
-    });
+    }));
     return NextResponse.json({ progress: progress ?? null });
   } catch (error) {
     console.error('/member/resources/[id]/progress:', error);

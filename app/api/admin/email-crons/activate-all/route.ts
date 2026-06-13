@@ -32,7 +32,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     },
   }));
 
-  await prisma.workflowDiagnostic.createMany({ data: records });
+  await prisma.$transaction((tx) => tx.workflowDiagnostic.createMany({ data: records }));
 
   await auditLog({
     actorUserId: user.id,

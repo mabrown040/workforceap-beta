@@ -13,10 +13,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       return NextResponse.json({ error: 'No email on file' }, { status: 400 });
     }
   
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { enrolledProgram: true },
-    });
+    }));
   
     const enrolledProgram = dbUser?.enrolledProgram ?? null;
     const courseraProgramId = enrolledProgram

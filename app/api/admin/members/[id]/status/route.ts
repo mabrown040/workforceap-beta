@@ -75,10 +75,10 @@ export const PATCH = withApiGuc(async (
   // admin from Org A can't change status on an Org B member's
   // application by guessing the application ID.
   const orgId = await getActorOrganizationId(user.id);
-  const application = await prisma.application.findFirst({
+  const application = await prisma.$transaction((tx) => tx.application.findFirst({
     where: { id, user: { organizationId: orgId } },
     include: { user: { select: { email: true, fullName: true, programInterest: true } } },
-  });
+  }));
 
   if (!application) {
     return NextResponse.json({ error: 'Application not found' }, { status: 404 });
@@ -88,10 +88,10 @@ export const PATCH = withApiGuc(async (
 
   // updateMany ensures the FK-filter is honored on the write side.
   // (Plain update({where:{id}}) bypasses the user.organizationId clause.)
-  await prisma.application.updateMany({
+  await prisma.$transaction((tx) => tx.application.updateMany({
     where: { id, user: { organizationId: orgId } },
     data: { status, notes: notes ?? application.notes },
-  });
+  }));
 
   // Best-effort: send enrollment confirmation / rejection emails to member
   if (status === 'APPROVED') {
@@ -102,10 +102,10 @@ export const PATCH = withApiGuc(async (
     // Look up the assigned counselor so the welcome email can name them by
     // name (per /plan-design-review day-1 storyboard: members feel "Someone
     // is paying attention to me" only when that someone has a name).
-    const assignment = await prisma.counselorAssignment.findFirst({
+    const assignment = await prisma.$transaction((tx) => tx.counselorAssignment.findFirst({
       where: { memberId: application.userId, active: true },
       include: { counselor: { include: { user: { select: { fullName: true, email: true } } } } },
-    });
+    }));
     const counselorName = assignment?.counselor.user.fullName ?? undefined;
     const counselorContact = assignment?.counselor.user.email ?? undefined;
 

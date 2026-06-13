@@ -16,18 +16,19 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const thread = await getOrCreateMemberCounselorThread(user.id);
+  const threadCounselorUserId = thread.counselorUserId;
 
   const [messages, counselor] = await Promise.all([
-    prisma.message.findMany({
+    prisma.$transaction((tx) => tx.message.findMany({
       where: { threadId: thread.id },
       orderBy: { createdAt: 'asc' },
       take: 500,
-    }),
-    thread.counselorUserId
-      ? prisma.user.findUnique({
-          where: { id: thread.counselorUserId },
+    })),
+    threadCounselorUserId
+      ? prisma.$transaction((tx) => tx.user.findUnique({
+          where: { id: threadCounselorUserId },
           select: { fullName: true },
-        })
+        }))
       : Promise.resolve(null),
   ]);
 
@@ -120,10 +121,10 @@ export const POST = withApiGuc(_POST);async function _PATCH() {
   if (!ok) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const now = new Date();
-  await prisma.messageThread.update({
+  await prisma.$transaction((tx) => tx.messageThread.update({
     where: { id: thread.id },
     data: { memberLastReadAt: now },
-  });
+  }));
 
   return NextResponse.json({ ok: true, memberLastReadAt: now.toISOString() });
 

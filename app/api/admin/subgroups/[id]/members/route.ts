@@ -23,10 +23,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   // Pull leader's organizationId so we can gate on isAdminInOrg before
   // returning any member data. Without this, any admin in any org could
   // read full member rosters / PII for any subgroup (AUDIT §C-T4).
-  const subgroup = await prisma.subgroup.findUnique({
+  const subgroup = await prisma.$transaction((tx) => tx.subgroup.findUnique({
     where: { id: subgroupId },
     include: { leader: { select: { fullName: true, email: true, organizationId: true } } },
-  });
+  }));
   if (!subgroup) return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
 
   const subgroupOrgId = subgroup.leader?.organizationId;
@@ -38,7 +38,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const memberSubgroups = await prisma.memberSubgroup.findMany({
+  const memberSubgroups = await prisma.$transaction((tx) => tx.memberSubgroup.findMany({
     where: { subgroupId },
     include: {
       member: {
@@ -65,7 +65,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     },
     orderBy: { assignedAt: 'desc' },
     take: 100,
-  });
+  }));
 
   const members = memberSubgroups
     .filter((ms) => !ms.member.deletedAt)

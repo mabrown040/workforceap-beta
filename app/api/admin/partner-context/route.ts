@@ -27,10 +27,10 @@ const cookieOpts = {
     const id = store.get(SUPER_ADMIN_PARTNER_COOKIE)?.value;
     if (!id) return NextResponse.json({ partner: null });
 
-    const partner = await prisma.partner.findFirst({
+    const partner = await prisma.$transaction((tx) => tx.partner.findFirst({
       where: { id, active: true },
       select: { id: true, name: true },
-    });
+    }));
     return NextResponse.json({ partner });
   } catch (error) {
     console.error('[admin/partner-context GET] error:', error);
@@ -55,10 +55,11 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       return NextResponse.json({ ok: true, partner: null });
     }
 
-    const partner = await prisma.partner.findFirst({
-      where: { id: parsed.data.partnerId },
+    const partnerId = parsed.data.partnerId;
+    const partner = await prisma.$transaction((tx) => tx.partner.findFirst({
+      where: { id: partnerId },
       select: { id: true, name: true, active: true },
-    });
+    }));
     if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
     if (!partner.active) {
       return NextResponse.json(

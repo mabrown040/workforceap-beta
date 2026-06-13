@@ -21,20 +21,20 @@ const updateSchema = z.object({
 
     const { id } = await params;
 
-    const job = await prisma.job.findFirst({
+    const job = await prisma.$transaction((tx) => tx.job.findFirst({
       where: { id, employerId: ctx.employerId },
       select: { id: true, title: true },
-    });
+    }));
     if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
 
-    const applications = await prisma.jobPostingApplication.findMany({
+    const applications = await prisma.$transaction((tx) => tx.jobPostingApplication.findMany({
       where: { jobId: id },
       orderBy: { appliedAt: 'desc' },
       include: {
         student: { select: { id: true, fullName: true, email: true } },
       },
       take: 200,
-    });
+    }));
 
     return NextResponse.json({
       job: { id: job.id, title: job.title },
@@ -64,10 +64,10 @@ export const GET = withApiGuc(_GET);async function _PATCH(
 
     const { id } = await params;
 
-    const job = await prisma.job.findFirst({
+    const job = await prisma.$transaction((tx) => tx.job.findFirst({
       where: { id, employerId: ctx.employerId },
       select: { id: true },
-    });
+    }));
     if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
 
     const body = await request.json().catch(() => null);
@@ -82,16 +82,16 @@ export const GET = withApiGuc(_GET);async function _PATCH(
       return NextResponse.json({ error: 'Missing applicantId query parameter' }, { status: 400 });
     }
 
-    const application = await prisma.jobPostingApplication.findFirst({
+    const application = await prisma.$transaction((tx) => tx.jobPostingApplication.findFirst({
       where: { id: applicantId, jobId: id },
       select: { id: true },
-    });
+    }));
     if (!application) return NextResponse.json({ error: 'Applicant not found' }, { status: 404 });
 
-    const updated = await prisma.jobPostingApplication.update({
+    const updated = await prisma.$transaction((tx) => tx.jobPostingApplication.update({
       where: { id: applicantId },
       data: { status: parsed.data.status, statusUpdatedAt: new Date() },
-    });
+    }));
 
     return NextResponse.json({ ok: true, application: updated });
   } catch (error) {

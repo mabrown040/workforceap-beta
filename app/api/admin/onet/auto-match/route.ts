@@ -22,14 +22,14 @@ export const GET = withApiGuc(async (request: NextRequest) => {
   if (!onetCode) return NextResponse.json({ error: 'onetCode required' }, { status: 400 });
 
   // Load occupation with related skills, tasks, and technologies from local cache
-  const occ = await prisma.onetOccupation.findUnique({
+  const occ = await prisma.$transaction((tx) => tx.onetOccupation.findUnique({
     where: { onetCode },
     include: {
       skills: { select: { skillName: true } },
       tasks: { select: { taskText: true } },
       technologies: { select: { technologyName: true } },
     },
-  });
+  }));
 
   if (!occ) {
     return NextResponse.json({

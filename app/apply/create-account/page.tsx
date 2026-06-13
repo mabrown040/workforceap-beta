@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import ApplyMobileStepNav from '@/components/apply/ApplyMobileStepNav';
+import ApplyMobileTrustBar from '@/components/apply/ApplyMobileTrustBar';
 import Footer from '@/components/Footer';
 import ApplyCreateAccountForm from './ApplyCreateAccountForm';
 import { getTranslations } from 'next-intl/server';
@@ -33,6 +34,7 @@ export default async function ApplyCreateAccountPage() {
       <section className="content-section">
         <div className="container">
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+            <ApplyMobileTrustBar />
             <ApplyMobileStepNav activeStep={2} />
             <Suspense fallback={<p>{t('loadingFallback')}</p>}>
               <ApplyCreateAccountForm />

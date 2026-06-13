@@ -7,12 +7,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const STATIC_SOURCES = [...PUBLIC_REFERRAL_SOURCE_OPTIONS];export const GET = withApiGuc(async () => {
   try {
-    const partners = await prisma.partner.findMany({
+    const partners = await prisma.$transaction((tx) => tx.partner.findMany({
       where: { active: true },
       orderBy: { name: 'asc' },
       select: { name: true },
       take: 100,
-    });
+    }));
     const partnerNames = partners
       .map((p) => p.name)
       .filter((name) => !isExcludedPublicPartnerName(name));

@@ -15,11 +15,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const applications = await prisma.jobApplication.findMany({
+    const applications = await prisma.$transaction((tx) => tx.jobApplication.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'desc' },
       take: 100,
-    });
+    }));
 
     return NextResponse.json(applications);
   } catch (error) {
@@ -60,7 +60,7 @@ const createApplicationSchema = z.object({
       );
     }
 
-    const application = await prisma.jobApplication.create({
+    const application = await prisma.$transaction((tx) => tx.jobApplication.create({
       data: {
         userId: user.id,
         role: parsed.data.role,
@@ -73,7 +73,7 @@ const createApplicationSchema = z.object({
           : null,
         notes: parsed.data.notes || null,
       },
-    });
+    }));
 
     await trackEvent({
       userId: user.id,

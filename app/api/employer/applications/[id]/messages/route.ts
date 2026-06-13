@@ -22,7 +22,7 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
 
   const { id: applicationId } = await params;
 
-  const application = await prisma.jobPostingApplication.findFirst({
+  const application = await prisma.$transaction((tx) => tx.jobPostingApplication.findFirst({
     where: {
       id: applicationId,
       job: { employerId: employerCtx.employerId },
@@ -37,7 +37,7 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
         },
       },
     },
-  });
+  }));
 
   if (!application) {
     return NextResponse.json({ error: 'Application not found' }, { status: 404 });
@@ -74,13 +74,13 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
 
   const { id: applicationId } = await params;
 
-  const application = await prisma.jobPostingApplication.findFirst({
+  const application = await prisma.$transaction((tx) => tx.jobPostingApplication.findFirst({
     where: {
       id: applicationId,
       job: { employerId: employerCtx.employerId },
     },
     select: { id: true, studentId: true },
-  });
+  }));
 
   if (!application) {
     return NextResponse.json({ error: 'Application not found' }, { status: 404 });
@@ -157,27 +157,27 @@ export const POST = withApiGuc(_POST);async function _PATCH(_request: NextReques
 
   const { id: applicationId } = await params;
 
-  const application = await prisma.jobPostingApplication.findFirst({
+  const application = await prisma.$transaction((tx) => tx.jobPostingApplication.findFirst({
     where: {
       id: applicationId,
       job: { employerId: employerCtx.employerId },
     },
     select: { id: true, studentId: true },
-  });
+  }));
 
   if (!application) {
     return NextResponse.json({ error: 'Application not found' }, { status: 404 });
   }
 
   const now = new Date();
-  await prisma.applicationMessage.updateMany({
+  await prisma.$transaction((tx) => tx.applicationMessage.updateMany({
     where: {
       applicationId,
       authorId: application.studentId,
       readAt: null,
     },
     data: { readAt: now },
-  });
+  }));
 
   return NextResponse.json({ ok: true, readAt: now.toISOString() });
 

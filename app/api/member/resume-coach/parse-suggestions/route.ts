@@ -73,10 +73,10 @@ function buildHistoryOutput(transcript: ResumeTranscriptTurn[], suggestions: Arr
       });
 
       try {
-        const dbUser = await prisma.user.findUnique({
+        const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
           where: { id: user.id },
           select: { fullName: true, email: true },
-        });
+        }));
   
         const recipients = getVoiceCoachTranscriptRecipients();
         if (recipients.length > 0) {

@@ -30,12 +30,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       );
     }
 
-    const existing = await prisma.blogPost.findUnique({ where: { slug: slug.trim() } });
+    const existing = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { slug: slug.trim() } }));
     if (existing) {
       return NextResponse.json({ error: 'Slug already exists' }, { status: 400 });
     }
 
-    const post = await prisma.blogPost.create({
+    const post = await prisma.$transaction((tx) => tx.blogPost.create({
       data: {
         slug: slug.trim(),
         title: title.trim(),
@@ -48,7 +48,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         publishedAt: published ? new Date() : null,
         scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
       },
-    });
+    }));
 
     return NextResponse.json(post);
   } catch (error) {

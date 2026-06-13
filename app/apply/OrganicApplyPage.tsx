@@ -9,6 +9,7 @@ import UtmCapture from '@/components/marketing/UtmCapture';
 import { getProgramBySlug, resolveApplyProgramSlug } from '@/lib/apply/applyProgramPage';
 import { getTranslations } from 'next-intl/server';
 import ApplyMobileStepNav from '@/components/apply/ApplyMobileStepNav';
+import ApplyMobileTrustBar from '@/components/apply/ApplyMobileTrustBar';
 import ApplyOrganicStickyCta from '@/components/apply/ApplyOrganicStickyCta';
 import TrustStrip from '@/components/marketing/TrustStrip';
 import PreLaunchTag from '@/components/portal/PreLaunchTag';
@@ -210,10 +211,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
         </div>
         <h1 style={sPage.heroHeading}>{t('heroHeading')}</h1>
         <p className="apply-hero-social" style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{t('applySocialProof')}</p>
-        <p className="apply-hero-no-cost-callout apply-hero-no-cost-mobile">
-          <strong>{t('heroDescHighlight')}</strong>{' '}
-          <span>{t('step1Kicker')}</span>
-        </p>
+        <p className="apply-hero-time-callout apply-hero-time-mobile">{t('step1Kicker')}</p>
         {/* Pilot status — honest about limited availability */}
         <div style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
           <PreLaunchTag compact />
@@ -306,6 +304,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
 
           <div id="apply-form-start" className="apply-main-form__primary">
             <ApplyMobileStepNav activeStep={0} />
+            <ApplyMobileTrustBar />
+            <p className="apply-organic-form-kicker" role="note">
+              {t('step1Kicker')}
+            </p>
             <TrustStrip variant="apply" />
 
             <Suspense fallback={<ApplyPageSkeleton />}>
@@ -374,17 +376,24 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           margin: var(--space-3) 0 0;
         }
 
-        .apply-hero-no-cost-mobile,
+        .apply-hero-time-mobile,
         .apply-hero-help-compact,
         .apply-hero-start-cta,
         .apply-hero-help-mobile {
           display: none;
         }
 
-        .apply-hero-no-cost-mobile {
+        .apply-hero-time-mobile {
           max-width: 640px;
           margin: var(--space-3) auto 0;
-          text-align: left;
+          padding: var(--space-3) var(--space-4);
+          border-radius: var(--radius-md);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          background: rgba(255, 255, 255, 0.08);
+          font-size: var(--font-size-sm);
+          line-height: var(--line-height-normal);
+          color: rgba(255, 255, 255, 0.88);
+          text-align: center;
         }
 
         .apply-hero-help-compact {
@@ -415,6 +424,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           max-width: var(--max-width);
           margin: 0 auto var(--space-6);
           padding: 0 var(--space-4);
+        }
+
+        .apply-organic-form-kicker {
+          display: none;
         }
 
         .apply-hero-help-mobile .apply-hero-help-card {
@@ -510,11 +523,15 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           .apply-hero {
             padding: calc(var(--nav-height-default, 80px) + var(--space-5)) var(--space-4) var(--space-5) !important;
           }
+          /* Vague social proof repeats below the fold — keep hero scannable on small screens */
+          .apply-hero-social {
+            display: none !important;
+          }
           .apply-hero-desc-full,
           .apply-hero-help-desktop {
             display: none !important;
           }
-          .apply-hero-no-cost-mobile,
+          .apply-hero-time-mobile,
           .apply-hero-help-compact,
           .apply-hero-start-cta,
           .apply-hero-help-mobile {
@@ -524,6 +541,20 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             display: inline-flex;
             align-items: center;
             justify-content: center;
+          }
+          .apply-organic-form-kicker {
+            display: block;
+            margin: 0 0 var(--space-4);
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--outline-variant);
+            background: var(--surface-container-high);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: var(--color-on-surface-variant);
+            line-height: var(--line-height-normal);
+            text-align: center;
           }
           .apply-grid-layout {
             grid-template-columns: 1fr !important;

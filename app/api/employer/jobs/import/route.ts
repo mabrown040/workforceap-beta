@@ -56,10 +56,10 @@ async function parseDirectJobUrl(url: string) {
     const ctx = await getEmployerForUser(user.id);
     if (!ctx) return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
 
-    const employerExists = await prisma.employer.findUnique({
+    const employerExists = await prisma.$transaction((tx) => tx.employer.findUnique({
       where: { id: ctx.employerId },
       select: { id: true, organizationId: true },
-    });
+    }));
     if (!employerExists) {
       return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
     }
@@ -118,7 +118,7 @@ async function parseDirectJobUrl(url: string) {
         const directResult = await parseDirectJobUrl(parsed.data.url);
         if (directResult) {
           if (parsed.data.createDraft) {
-            const job = await prisma.job.create({
+            const job = await prisma.$transaction((tx) => tx.job.create({
               data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
                 title: directResult.extracted.title,
                 location: directResult.extracted.location,
@@ -135,7 +135,7 @@ async function parseDirectJobUrl(url: string) {
                 suggestedPrograms: directResult.extracted.suggestedPrograms ?? [],
                 status: 'draft',
               }),
-            });
+            }));
             await trackEvent({ userId: user.id, eventName: 'employer_import_succeeded', entityType: 'job', entityId: job.id, metadata: { provider: directResult.provider, method: 'direct_job_url' }, sourcePage: '/employer/jobs/import' });
             await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: 'success', actorUserId: user.id, entityType: 'job', entityId: job.id, summary: 'Direct job URL imported as draft', provider: directResult.provider, method: 'direct_job_url' });
             return NextResponse.json({ job, created: true, provider: directResult.provider }, { status: 201 });
@@ -160,7 +160,7 @@ async function parseDirectJobUrl(url: string) {
         if (parsed.data.createDraft) {
           const created = [];
           for (const atsJob of atsResult.jobs) {
-            const job = await prisma.job.create({
+            const job = await prisma.$transaction((tx) => tx.job.create({
               data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
                 title: atsJob.title,
                 location: atsJob.location,
@@ -177,7 +177,7 @@ async function parseDirectJobUrl(url: string) {
                 suggestedPrograms: [],
                 status: 'draft',
               }),
-            });
+            }));
               created.push({ id: job.id, title: job.title });
             }
             await trackEvent({ userId: user.id, eventName: 'employer_import_succeeded', entityType: 'employer', entityId: ctx.employerId, metadata: { provider: atsResult.provider, method: 'structured_ats', total: created.length }, sourcePage: '/employer/jobs/import' });
@@ -218,7 +218,7 @@ async function parseDirectJobUrl(url: string) {
           if (extracted) {
             const provider = parsedJob ? 'ai' : 'scrape+fallback';
             if (parsed.data.createDraft) {
-              const job = await prisma.job.create({
+              const job = await prisma.$transaction((tx) => tx.job.create({
                 data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
                   title: extracted.title,
                   location: extracted.location,
@@ -235,7 +235,7 @@ async function parseDirectJobUrl(url: string) {
                   suggestedPrograms: extracted.suggestedPrograms ?? [],
                   status: 'draft',
                 }),
-              });
+              }));
               await trackEvent({ userId: user.id, eventName: parsedJob ? 'employer_import_succeeded' : 'employer_import_fallback_used', entityType: 'job', entityId: job.id, metadata: { provider, method: 'ats_raw_text' }, sourcePage: '/employer/jobs/import' });
               await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: parsedJob ? 'success' : 'fallback', actorUserId: user.id, entityType: 'job', entityId: job.id, summary: 'ATS raw text imported as draft', provider, method: 'ats_raw_text', fallbackPath: parsedJob ? null : 'buildFallbackParsedJobFromScrape' });
               return NextResponse.json({ job, created: true, provider }, { status: 201 });
@@ -281,7 +281,7 @@ async function parseDirectJobUrl(url: string) {
     const provider = parsedJob ? 'ai' : 'scrape+fallback';
     const importMethod = parsed.data.url ? 'raw-text-with-url' : 'raw-text';
     if (parsed.data.createDraft === true) {
-      const job = await prisma.job.create({
+      const job = await prisma.$transaction((tx) => tx.job.create({
         data: buildEmployerJobCreateData(organizationId, ctx.employerId, {
           title: extracted.title,
           location: extracted.location,
@@ -298,7 +298,7 @@ async function parseDirectJobUrl(url: string) {
           suggestedPrograms: extracted.suggestedPrograms ?? [],
           status: 'draft',
         }),
-      });
+      }));
       await trackEvent({ userId: user.id, eventName: parsedJob ? 'employer_import_succeeded' : 'employer_import_fallback_used', entityType: 'job', entityId: job.id, metadata: { provider, method: 'raw_text' }, sourcePage: '/employer/jobs/import' });
       await recordWorkflowDiagnostic({ workflow: 'employer_import_single', status: parsedJob ? 'success' : 'fallback', actorUserId: user.id, entityType: 'job', entityId: job.id, summary: 'Raw text import created draft', provider, method: 'raw_text', fallbackPath: parsedJob ? null : 'buildFallbackParsedJobFromScrape' });
       return NextResponse.json({ job, created: true, provider }, { status: 201 });

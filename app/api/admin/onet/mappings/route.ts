@@ -72,14 +72,14 @@ function snapshot(row: {
   const onetCode = searchParams.get('onetCode')?.trim();
   const programSlug = searchParams.get('programSlug')?.trim();
 
-  const rows = await prisma.careerProgramMapping.findMany({
+  const rows = await prisma.$transaction((tx) => tx.careerProgramMapping.findMany({
     where: {
       ...(onetCode ? { onetCode } : {}),
       ...(programSlug ? { programSlug } : {}),
     },
     orderBy: [{ onetCode: 'asc' }, { experienceBand: 'asc' }, { priority: 'asc' }],
     take: 500,
-  });
+  }));
 
   return NextResponse.json({ mappings: rows });
 

@@ -37,7 +37,7 @@ const jobUpdateSchema = z.object({
   if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id } = await params;
-  const job = await prisma.job.findFirst({
+  const job = await prisma.$transaction((tx) => tx.job.findFirst({
     where: { id, employerId: ctx.employerId },
     include: {
       applications: {
@@ -46,7 +46,7 @@ const jobUpdateSchema = z.object({
         },
       },
     },
-  });
+  }));
 
   if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
   return NextResponse.json(job);
@@ -68,9 +68,9 @@ export const GET = withApiGuc(_GET);async function _PATCH(
   if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id } = await params;
-  const existing = await prisma.job.findFirst({
+  const existing = await prisma.$transaction((tx) => tx.job.findFirst({
     where: { id, employerId: ctx.employerId },
-  });
+  }));
   if (!existing) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
 
   const body = await request.json().catch(() => null);
@@ -101,7 +101,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     }
   }
 
-  const job = await prisma.job.update({
+  const job = await prisma.$transaction((tx) => tx.job.update({
     where: { id },
     data: {
       ...(parsed.data.title && { title: parsed.data.title }),
@@ -119,14 +119,14 @@ export const GET = withApiGuc(_GET);async function _PATCH(
       ...(parsed.data.suggestedPrograms && { suggestedPrograms: parsed.data.suggestedPrograms }),
       ...(parsed.data.status && { status: parsed.data.status }),
     },
-  });
+  }));
 
   // Notify admin when job is submitted for review (draft/closed → pending)
   if (parsed.data.status === 'pending' && (existing.status === 'draft' || existing.status === 'closed')) {
-    const employer = await prisma.employer.findUnique({
+    const employer = await prisma.$transaction((tx) => tx.employer.findUnique({
       where: { id: ctx.employerId },
       select: { companyName: true, contactEmail: true },
-    });
+    }));
     if (employer) {
       await sendJobSubmittedEmail({
         jobTitle: job.title,
@@ -183,15 +183,15 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
     if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { id } = await params;
-    const existing = await prisma.job.findFirst({
+    const existing = await prisma.$transaction((tx) => tx.job.findFirst({
       where: { id, employerId: ctx.employerId },
-    });
+    }));
     if (!existing) return NextResponse.json({ error: 'Job not found' }, { status: 404 });
 
-    const job = await prisma.job.update({
+    const job = await prisma.$transaction((tx) => tx.job.update({
       where: { id },
       data: { status: 'closed' },
-    });
+    }));
 
     await recordEmployerWorkflowEvent({
       employerId: ctx.employerId,

@@ -25,7 +25,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   }
 
   const { id: memberId } = await params;
-  const memberSubgroup = await prisma.memberSubgroup.findFirst({
+  const memberSubgroup = await prisma.$transaction((tx) => tx.memberSubgroup.findFirst({
     where: {
       memberId,
       subgroupId: { in: subgroups.map((s) => s.subgroupId) },
@@ -58,7 +58,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
         },
       },
     },
-  });
+  }));
 
   if (!memberSubgroup || memberSubgroup.member.deletedAt) {
     return NextResponse.json({ error: 'Member not found in your subgroup' }, { status: 404 });

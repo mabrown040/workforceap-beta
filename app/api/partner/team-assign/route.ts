@@ -11,12 +11,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   const ctx = await getPartnerForUser(user.id);
   if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const rows = await prisma.partnerUser.findMany({
+  const rows = await prisma.$transaction((tx) => tx.partnerUser.findMany({
     where: { partnerId: ctx.partnerId },
     take: 200,
     include: { user: { select: { id: true, fullName: true, email: true } } },
     orderBy: { createdAt: 'asc' },
-  });
+  }));
 
   return NextResponse.json({
     users: rows.map((r) => ({ id: r.userId, fullName: r.user.fullName, email: r.user.email })),

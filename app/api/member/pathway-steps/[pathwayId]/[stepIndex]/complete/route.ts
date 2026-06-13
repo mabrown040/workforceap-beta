@@ -29,7 +29,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   
     try {
       await ensureUserInDb(user);
-      const progress = await prisma.pathwayStepProgress.upsert({
+      const progress = await prisma.$transaction((tx) => tx.pathwayStepProgress.upsert({
         where: {
           userId_pathwayId_stepIndex: { userId: user.id, pathwayId, stepIndex: stepIdx },
         },
@@ -45,9 +45,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           status: 'completed',
           completedAt: new Date(),
         },
-      });
+      }));
   
-      await prisma.learningProgress.upsert({
+      await prisma.$transaction((tx) => tx.learningProgress.upsert({
         where: { userId_pathwayId: { userId: user.id, pathwayId } },
         create: {
           userId: user.id,
@@ -59,7 +59,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           progress: Math.round(((stepIdx + 1) / pathway.steps.length) * 100),
           completed: stepIdx === pathway.steps.length - 1,
         },
-      });
+      }));
   
       await trackEvent({
         userId: user.id,
@@ -71,9 +71,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
 
       // Funnel boundary events: first completed step starts the pathway,
       // the final step (same condition as learningProgress.completed) ends it.
-      const completedSteps = await prisma.pathwayStepProgress.count({
+      const completedSteps = await prisma.$transaction((tx) => tx.pathwayStepProgress.count({
         where: { userId: user.id, pathwayId, status: 'completed' },
-      });
+      }));
       if (completedSteps === 1) {
         await trackEvent({
           userId: user.id,

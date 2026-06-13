@@ -16,7 +16,7 @@ type Props = { params: Promise<{ threadId: string }> };export const GET = withAp
 
   const { threadId } = await params;
 
-  const thread = await prisma.messageThread.findFirst({
+  const thread = await prisma.$transaction((tx) => tx.messageThread.findFirst({
     where: { id: threadId },
     include: {
       member: { select: { id: true, fullName: true, email: true, deletedAt: true } },
@@ -30,15 +30,17 @@ type Props = { params: Promise<{ threadId: string }> };export const GET = withAp
       },
       counselor: { select: { id: true, fullName: true } },
     },
-  });
+  }));
 
   if (!thread) return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
   if (thread.kind === 'member' && thread.member?.deletedAt) {
     return NextResponse.json({ error: 'Thread not found' }, { status: 404 });
   }
 
+  const threadMemberIdForAssignment =
+    thread.kind === 'member' && thread.memberId ? thread.memberId : null;
   const [counselorRows, activeCounselorAssignment] = await Promise.all([
-    prisma.counselor.findMany({
+    prisma.$transaction((tx) => tx.counselor.findMany({
       where: { active: true },
       take: 500,
       orderBy: [{ partner: { name: 'asc' } }, { user: { fullName: 'asc' } }],
@@ -47,27 +49,27 @@ type Props = { params: Promise<{ threadId: string }> };export const GET = withAp
         user: { select: { id: true, fullName: true } },
         partner: { select: { name: true } },
       },
-    }),
-    thread.kind === 'member' && thread.memberId
-      ? prisma.counselorAssignment.findFirst({
-          where: { memberId: thread.memberId, active: true },
+    })),
+    threadMemberIdForAssignment
+      ? prisma.$transaction((tx) => tx.counselorAssignment.findFirst({
+          where: { memberId: threadMemberIdForAssignment, active: true },
           select: { counselor: { select: { userId: true } } },
-        })
+        }))
       : Promise.resolve(null),
   ]);
 
-  const messages = await prisma.message.findMany({
+  const messages = await prisma.$transaction((tx) => tx.message.findMany({
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
     take: 500,
-  });
+  }));
 
   const authorIds = [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))];
-  const authors = await prisma.user.findMany({
+  const authors = await prisma.$transaction((tx) => tx.user.findMany({
     where: { id: { in: authorIds } },
     select: { id: true, fullName: true },
     take: 100,
-  });
+  }));
   const nameById = new Map(authors.map((a) => [a.id, a.fullName]));
 
   const slaMap = thread.kind === 'member' ? await getSlaStatusForThreads([thread.id]) : new Map();

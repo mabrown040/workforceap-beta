@@ -22,9 +22,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
     // the issuing user (`invitedById`). An Org A admin can only revoke
     // invitations sent by users in their own org.
     const orgId = await getActorOrganizationId(user.id);
-    const invitation = await prisma.invitation.findFirst({
+    const invitation = await prisma.$transaction((tx) => tx.invitation.findFirst({
       where: { id, invitedBy: { organizationId: orgId } },
-    });
+    }));
 
     if (!invitation) {
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
@@ -38,10 +38,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
     }
 
     // updateMany so the FK-gated where clause is honored on the write.
-    await prisma.invitation.updateMany({
+    await prisma.$transaction((tx) => tx.invitation.updateMany({
       where: { id, invitedBy: { organizationId: orgId } },
       data: { status: 'revoked' },
-    });
+    }));
 
     await auditLog({
       actorUserId: user.id,

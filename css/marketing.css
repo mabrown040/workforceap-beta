@@ -248,6 +248,16 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
   }
 }
 
+.home-impact-bento__stats {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 480px) {
+  .home-impact-bento__stats {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .home-employer-elevated {
     transform: none !important;
@@ -274,7 +284,7 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
 
   /*
    * Mobile hero: trust detail cards repeat the ✓ bullets and TrustStrip below;
-   * hiding them shortens the fold stack so Apply + step pills stay primary.
+   * hiding them shortens the fold stack so Apply stays primary.
    */
   .home-hero__trust-cards {
     display: none;
@@ -318,6 +328,25 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
    */
   .home-hero__cta-primary,
   .home-hero-mobile-apply {
+    display: none !important;
+  }
+
+  /*
+   * Cold mobile traffic already sees Apply directly under heroBody2; the three
+   * numbered step pills repeat that path and push Find Your Path / Programs
+   * ghost CTAs below the fold. Hide the whole row on ≤639px only — tablets
+   * (640–767px) still show pills before the canonical primary CTA.
+   */
+  .home-hero__inner > div:has(.marketing-hero-step-pill) {
+    display: none !important;
+  }
+
+  /*
+   * Cold mobile traffic already has Apply directly under heroBody2; the ghost
+   * "See all programs" button competes with that primary action. Programs stay
+   * one scroll away via the showcase, footer, and mobile bottom nav.
+   */
+  .home-hero__cta-ghost {
     display: none !important;
   }
 }
@@ -741,6 +770,27 @@ html.has-marketing-main-nav {
   }
 
   /*
+   * Sticky browse nav already jumps to quick start, full catalog, and subgroup
+   * anchors. Hiding in-catalog filter chips removes a second category UI that
+   * collapses the open catalog into a filtered grid — search still works.
+   */
+  .programs-page .program-filters {
+    display: none;
+  }
+
+  /*
+   * Catalog lead copy references filter chips on desktop; on mobile the sticky
+   * browse nav replaces them — swap to mobile-specific guidance.
+   */
+  .program-catalog-lead--desktop {
+    display: none;
+  }
+
+  .program-catalog-lead--mobile {
+    display: block;
+  }
+
+  /*
    * Programs hero: sidebar photo duplicates homepage imagery and pushes browse nav +
    * quick-start below the fold. Copy + CTAs are enough on small screens.
    */
@@ -775,11 +825,28 @@ html.has-marketing-main-nav {
   .programs-page section:has(.programs-journey-grid) {
     display: none;
   }
+
+  /*
+   * Sticky pathfinder CTA already floats above the catalog on mobile; hide the
+   * duplicate primary in bottom-actions so Compare/Salary stay without a third
+   * identical quiz button before the apply band.
+   */
+  .programs-bottom-actions .btn-primary {
+    display: none;
+  }
 }
 
 /* Homepage program showcase — clearer tap targets on small screens */
 .home-program-showcase__header {
   margin-bottom: 3rem;
+}
+
+/* Early placement: follows member-promise band — tighten top rhythm on phones */
+@media (max-width: 767px) {
+  .home-program-showcase--early {
+    padding-top: clamp(2rem, 5vw, 2.75rem) !important;
+    border-top: 1px solid var(--outline-variant, rgba(28, 27, 27, 0.12));
+  }
 }
 
 .home-program-card__cta {
@@ -794,6 +861,12 @@ html.has-marketing-main-nav {
 @media (max-width: 767px) {
   .home-program-showcase__header {
     margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .home-program-showcase__header p {
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .home-program-showcase__grid {
@@ -819,6 +892,10 @@ html.has-marketing-main-nav {
  * /programs: mobile category jump chips — sticky below fixed main nav so members can
  * skip past intro blocks to catalog subgroups without learning filter UI first.
  */
+.program-catalog-lead--mobile {
+  display: none;
+}
+
 .programs-mobile-browse {
   display: none;
 }
@@ -958,6 +1035,61 @@ html.has-marketing-main-nav {
     margin-bottom: var(--space-4);
   }
 
+  /* Mobile trust bar carries nonprofit + no-cost + phone at form entry */
+  .trust-strip--apply {
+    display: none;
+  }
+
+  .apply-mobile-trust-bar {
+    display: block;
+    margin: 0 0 var(--space-4);
+    padding: var(--space-2) var(--space-3);
+    background: var(--surface-container-high);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--outline-variant);
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant);
+    line-height: 1.4;
+  }
+
+  .apply-mobile-trust-bar__list {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .apply-mobile-trust-bar__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 1.5rem;
+  }
+
+  .apply-mobile-trust-bar__check {
+    color: var(--color-green);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .apply-mobile-trust-bar__phone {
+    display: inline;
+    color: var(--color-accent);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: var(--space-1) 0;
+  }
+
+  .apply-mobile-trust-bar__phone:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
   .trust-strip--apply .trust-strip__line {
     padding-inline: var(--space-4);
     font-size: var(--font-size-xs, 0.8125rem);
@@ -993,6 +1125,10 @@ html.has-marketing-main-nav {
 
 /* Apply funnel — compact step progress (mobile only) */
 .apply-mobile-step-nav {
+  display: none;
+}
+
+.apply-mobile-trust-bar {
   display: none;
 }
 
@@ -1061,6 +1197,8 @@ html.has-marketing-main-nav {
     font-weight: 600;
     line-height: 1.25;
     color: var(--color-on-surface-variant);
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
 
   .apply-mobile-step-nav__item--active .apply-mobile-step-nav__label {

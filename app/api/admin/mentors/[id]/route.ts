@@ -20,7 +20,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withAp
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
-    const mentor = await prisma.mentor.findUnique({ where: { id } });
+    const mentor = await prisma.$transaction((tx) => tx.mentor.findUnique({ where: { id } }));
     return NextResponse.json({ mentor });
   } catch (error) {
     console.error('[admin/mentors/[id] PATCH] error:', error);

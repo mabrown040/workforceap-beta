@@ -39,18 +39,18 @@ const goalSelect = Prisma.validator<Prisma.GoalSelect>()({
   
     try {
       await ensureUserInDb(user);
-      const profile = await prisma.user.findUnique({
+      const profile = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id: user.id },
         select: { careerRecommendationJson: true },
-      });
+      }));
       const careerRec = (profile?.careerRecommendationJson ?? null) as CareerMatchResult | null;
       const suggestions = suggestGoalsFromCareer(careerRec);
-      const rawGoals = await prisma.goal.findMany({
+      const rawGoals = await prisma.$transaction((tx) => tx.goal.findMany({
         where: { userId: user.id },
         orderBy: { createdAt: 'desc' },
         take: 200,
         select: goalSelect,
-      });
+      }));
       // Decode the structured steps envelope from description so the client
       // gets first-class steps + a clean note (no schema change required).
       const goals = rawGoals.map((g) => {
@@ -91,16 +91,16 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   
     const { goalType, title, description, targetMetricType, targetMetricValue, targetDate } = parsed.data;
   
-    const existingCount = await prisma.goal.count({
+    const existingCount = await prisma.$transaction((tx) => tx.goal.count({
       where: { userId: user.id, status: 'ACTIVE' },
-    });
+    }));
     if (existingCount >= 3) {
       return NextResponse.json({ error: 'You can have at most 3 active goals' }, { status: 400 });
     }
   
     try {
       await ensureUserInDb(user);
-      const goal = await prisma.goal.create({
+      const goal = await prisma.$transaction((tx) => tx.goal.create({
         data: {
           userId: user.id,
           goalType,
@@ -110,7 +110,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
           targetMetricValue: targetMetricValue ?? null,
           targetDate: targetDate ? new Date(targetDate) : null,
         },
-      });
+      }));
       await trackEvent({ userId: user.id, eventName: 'goal_created', entityType: 'goal', entityId: goal.id });
       return NextResponse.json({ goal });
     } catch (err) {

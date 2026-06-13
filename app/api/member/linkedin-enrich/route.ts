@@ -34,11 +34,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     }
   
     // Save URL to profile regardless
-    await prisma.profile.upsert({
+    await prisma.$transaction((tx) => tx.profile.upsert({
       where: { userId: user.id },
       create: { userId: user.id, profileLinkedin: linkedinUrl },
       update: { profileLinkedin: linkedinUrl },
-    });
+    }));
   
     // Proxycurl path — set PROXYCURL_API_KEY in Vercel secrets
     const proxycurlKey = process.env.PROXYCURL_API_KEY;
@@ -68,7 +68,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         ].join(' ');
   
         // Save as a skill_assessment result so /api/member/skill-profile picks it up
-        await prisma.aIToolResult.create({
+        await prisma.$transaction((tx) => tx.aIToolResult.create({
           data: {
             userId: user.id,
             toolType: 'skill_assessment',
@@ -82,7 +82,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
               extractedAt: new Date().toISOString(),
             }),
           },
-        });
+        }));
   
         return NextResponse.json({
           success: true,

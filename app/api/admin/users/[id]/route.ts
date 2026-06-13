@@ -7,6 +7,8 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib/admin/adminUserProvisioning';
+import { userAuthDeleteFailedResponse } from '@/lib/admin/userDeleteResponse';
+import { buildDeletedEmail } from '../_deletedEmail';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
   _req: NextRequest,
@@ -37,9 +39,13 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
       // See app/api/admin/members/[id]/delete/route.ts — same pattern.
       // Rewrite the email so the @unique constraint doesn't block re-signup.
       const now = new Date();
-      const newEmail = target.deletedAt
-        ? target.email
-        : `deleted_${id}_${now.getTime()}_${target.email}@deleted.invalid`.slice(0, 255);
+      const newEmail = target.deletedAt ? target.email : buildDeletedEmail(id, now.getTime(), target.email);
+      if (!newEmail) {
+        return NextResponse.json(
+          { error: 'Cannot delete user because the email is too long to preserve for restore.' },
+          { status: 400 },
+        );
+      }
   
       await withTenantScope(orgId, (db) =>
         db.user.updateMany({
@@ -52,6 +58,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
       const { error } = await supabase.auth.admin.deleteUser(id);
       if (error) {
         console.error('[admin/users/:id DELETE] Supabase delete error:', error.message);
+        return userAuthDeleteFailedResponse();
       }
   
       return NextResponse.json({ ok: true });
@@ -70,7 +77,21 @@ const schema = z.object({
   fullName: z.string().trim().min(1).max(200),
   email: z.string().trim().email().max(200),
   role: z.enum(ADMIN_USER_ROLES).optional(),
-});async function _PATCH(
+});
+
+async function rollbackSupabaseEmailChange(
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  userId: string,
+  previousEmail: string,
+) {
+  const { error } = await supabase.auth.admin.updateUserById(userId, {
+    email: previousEmail,
+    email_confirm: true,
+  });
+  return error ?? null;
+}
+
+async function _PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -108,11 +129,13 @@ const schema = z.object({
       return NextResponse.json({ error: 'Only super admins can change roles.' }, { status: 403 });
     }
   
+    const supabase = getSupabaseAdmin();
+    const normalizedEmail = email.toLowerCase();
+    const emailChanged = normalizedEmail !== existing.email.toLowerCase();
+    let authEmailChanged = false;
+ 
     try {
-      const supabase = getSupabaseAdmin();
-      const normalizedEmail = email.toLowerCase();
-  
-      if (normalizedEmail !== existing.email.toLowerCase()) {
+      if (emailChanged) {
         const { error: authError } = await supabase.auth.admin.updateUserById(id, {
           email: normalizedEmail,
           email_confirm: true,
@@ -120,6 +143,7 @@ const schema = z.object({
         if (authError) {
           return NextResponse.json({ error: authError.message }, { status: 400 });
         }
+        authEmailChanged = true;
       }
   
       // Membership has already been verified via withTenantScope.findFirst above.
@@ -161,6 +185,24 @@ const schema = z.object({
   
       return NextResponse.json({ success: true, user: updated });
     } catch (error) {
+      if (authEmailChanged) {
+        try {
+          const rollbackError = await rollbackSupabaseEmailChange(supabase, id, existing.email);
+          if (rollbackError) {
+            console.error('[admin/users/:id PATCH] Supabase email rollback failed:', rollbackError.message);
+            return NextResponse.json(
+              { error: 'Failed to update user; auth email rollback failed.', reconciliationRequired: true },
+              { status: 500 },
+            );
+          }
+        } catch (rollbackError) {
+          console.error('[admin/users/:id PATCH] Supabase email rollback failed:', rollbackError);
+          return NextResponse.json(
+            { error: 'Failed to update user; auth email rollback failed.', reconciliationRequired: true },
+            { status: 500 },
+          );
+        }
+      }
       if (error instanceof Error && error.message === 'USER_NOT_FOUND_IN_TX') {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }

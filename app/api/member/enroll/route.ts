@@ -9,6 +9,8 @@ import { getActivePrograms, isProgramSlugActiveInCatalog } from '@/lib/platform/
 import { isMemberWioaVerified } from '@/lib/platform/trainingEnrollmentGate';
 import { awardPoints } from '@/lib/member/points';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
+import { cookies } from 'next/headers';
+import { MEMBER_REFERRAL_COOKIE, rewardReferralOnEnrollment } from '@/lib/member/referrals';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -36,7 +38,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   const programView = activePrograms.find((p) => p.slug === slug)!;
   const programTitle = programView.static?.title ?? programView.name;
 
-  const existing = await prisma.user.findUnique({
+  const existing = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: {
       enrolledProgram: true,
@@ -51,7 +53,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
         take: 1,
       },
     },
-  });
+  }));
 
   const gate = isMemberWioaVerified({
     wioaReviewStatus: existing?.wioaReviewStatus,
@@ -112,6 +114,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   });
 
   awardPoints(user.id, 'program_enrolled', slug).catch(() => {});
+
+  // Member-to-member referral: reward both sides on enrollment (idempotent, non-blocking).
+  cookies()
+    .then((store) => rewardReferralOnEnrollment(user.id, store.get(MEMBER_REFERRAL_COOKIE)?.value))
+    .catch(() => {});
 
   // Lifecycle event: program_enrolled
   trackEvent({

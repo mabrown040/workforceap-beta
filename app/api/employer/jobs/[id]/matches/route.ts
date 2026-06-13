@@ -13,20 +13,20 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
 
   const { id: jobId } = await ctx.params;
 
-  const job = await prisma.job.findFirst({
+  const job = await prisma.$transaction((tx) => tx.job.findFirst({
     where: { id: jobId, employerId: employerCtx.employerId, status: 'live' },
     select: { id: true, title: true },
-  });
+  }));
   if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  const matches = await prisma.aIJobMatch.findMany({
+  const matches = await prisma.$transaction((tx) => tx.aIJobMatch.findMany({
     where: { jobId },
     orderBy: { matchScore: 'desc' },
     include: {
       student: { select: { id: true, fullName: true, email: true, enrolledProgram: true } },
     },
     take: 100,
-  });
+  }));
 
   return NextResponse.json({ job, matches });
 

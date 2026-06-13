@@ -120,10 +120,10 @@ async function findRoleByName(tx: InviteTx, name: string) {
 
 async function loadInviterForNotification(invitedById: string) {
   try {
-    return await prisma.user.findFirst({
+    return await prisma.$transaction((tx) => tx.user.findFirst({
       where: { id: invitedById },
       select: { fullName: true, email: true },
-    });
+    }));
   } catch (err) {
     inviteAcceptLog('notify:inviter_lookup_failed', { err });
     return null;
@@ -299,7 +299,7 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
     }
   
     try {
-      const invitation = await prisma.invitation.findFirst({
+      const invitation = await prisma.$transaction((tx) => tx.invitation.findFirst({
         where: { token },
         select: {
           id: true,
@@ -312,7 +312,7 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
           status: true,
           expiresAt: true,
         },
-      });
+      }));
   
       if (!invitation) {
         return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
@@ -326,20 +326,20 @@ async function ensureCounselorRow(tx: InviteTx, userId: string, partnerId: strin
       }
   
       if (new Date() > invitation.expiresAt) {
-        await prisma.invitation.update({
+        await prisma.$transaction((tx) => tx.invitation.update({
           where: { id: invitation.id },
           data: { status: 'expired' },
-        });
+        }));
         return NextResponse.json({ error: 'Invitation has expired' }, { status: 400 });
       }
   
       // Match admin invite storage (lowercased) and avoid an unnecessary user_roles/roles join:
       // accept flow does not read userRoles; a broken roles join would 500 both branches here.
       const inviteEmail = String(invitation.email).trim().toLowerCase();
-      const existingUser = await prisma.user.findFirst({
+      const existingUser = await prisma.$transaction((tx) => tx.user.findFirst({
         where: { email: inviteEmail },
         select: { id: true, fullName: true, email: true },
-      });
+      }));
   
       if (existingUser) {
         if (!fullName) {
@@ -542,10 +542,10 @@ async function createNewUserAndAccept(
   if (authError) {
     if (authError.message.includes('already') || authError.code === 'user_already_exists') {
       // Check if a DB record exists for this email
-      const existing = await prisma.user.findFirst({
+      const existing = await prisma.$transaction((tx) => tx.user.findFirst({
         where: { email: inviteEmail },
         select: { id: true, fullName: true, email: true },
-      });
+      }));
       if (existing) {
         return acceptExistingUser(existing, invitation, fullName, request);
       }
@@ -593,10 +593,10 @@ async function finishNewUserDbSetup(
   // (e.g. legacy super-admin user rows pre-multitenancy).
   let organizationId: string;
   try {
-    const inviter = await prisma.user.findUnique({
+    const inviter = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: invitation.invitedById },
       select: { organizationId: true },
-    });
+    }));
     if (inviter?.organizationId) {
       organizationId = inviter.organizationId;
     } else {

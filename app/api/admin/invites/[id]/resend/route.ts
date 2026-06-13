@@ -45,12 +45,12 @@ const INVITE_EXPIRY_DAYS = 7;export const POST = withApiGuc(async (
       }
     }
 
-    const invitation = await prisma.invitation.findFirst({
+    const invitation = await prisma.$transaction((tx) => tx.invitation.findFirst({
       where: actorIsSuperAdmin
         ? { id }
         : { id, invitedBy: { organizationId: actorOrgId! } },
       include: { invitedBy: { select: { fullName: true } } },
-    });
+    }));
 
     if (!invitation) {
       return NextResponse.json({ error: 'Invitation not found' }, { status: 404 });
@@ -88,10 +88,10 @@ const INVITE_EXPIRY_DAYS = 7;export const POST = withApiGuc(async (
     const previousExpiresAt = invitation.expiresAt;
 
     // Persist new token before emailing so the message never contains a token that is not in the DB.
-    await prisma.invitation.update({
+    await prisma.$transaction((tx) => tx.invitation.update({
       where: { id },
       data: { token: newToken, expiresAt },
-    });
+    }));
 
     const orgId = await getActorOrganizationId(user.id);
     const emailResult = await sendInvitationEmail({
@@ -105,10 +105,10 @@ const INVITE_EXPIRY_DAYS = 7;export const POST = withApiGuc(async (
 
     if (!emailResult.ok) {
       try {
-        await prisma.invitation.update({
+        await prisma.$transaction((tx) => tx.invitation.update({
           where: { id },
           data: { token: previousToken, expiresAt: previousExpiresAt },
-        });
+        }));
       } catch (revertErr) {
         console.error('[admin/invites resend] failed to revert token after email failure:', revertErr);
       }

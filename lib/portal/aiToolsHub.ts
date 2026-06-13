@@ -32,6 +32,7 @@ const TOOL_CARDS = {
   gapAnalyzer: { label: 'See what is missing for a job', href: '/dashboard/ai-tools/gap-analyzer', icon: 'troubleshoot' },
   salaryNegotiation: { label: 'Practice asking for better pay', href: '/dashboard/ai-tools/salary-negotiation', icon: 'payments' },
   skillCheckpoints: { label: 'Skill Checkpoints', href: '/dashboard/ai-tools/skill-checkpoints', icon: 'verified' },
+  benefitsCliff: { label: 'Will this offer leave you better off?', href: '/dashboard/ai-tools/benefits-cliff', icon: 'account_balance' },
 } as const satisfies Record<string, AiToolkitToolCard>;
 
 export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
@@ -74,6 +75,16 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
     ],
   },
   {
+    id: 'benefits-cliff',
+    title: TOOL_CARDS.benefitsCliff.label,
+    icon: TOOL_CARDS.benefitsCliff.icon,
+    badge: 'Beta',
+    description: 'Check how a job offer could change your SNAP, Medicaid, or TANF benefits before you say yes. An estimate, not benefits advice.',
+    links: [
+      { label: 'Open Benefits Check', href: TOOL_CARDS.benefitsCliff.href },
+    ],
+  },
+  {
     id: 'voice-interview',
     title: TOOL_CARDS.voiceInterview.label,
     icon: TOOL_CARDS.voiceInterview.icon,
@@ -104,6 +115,6 @@ export const AI_TOOLKIT_EXTRA_SECTIONS: AiToolkitSection[] = [
   },
   {
     title: 'Step 3: Polish your profile and job-search strategy',
-    tools: [TOOL_CARDS.linkedInHeadline, TOOL_CARDS.linkedInAbout, TOOL_CARDS.gapAnalyzer, TOOL_CARDS.salaryNegotiation],
+    tools: [TOOL_CARDS.linkedInHeadline, TOOL_CARDS.linkedInAbout, TOOL_CARDS.gapAnalyzer, TOOL_CARDS.salaryNegotiation, TOOL_CARDS.benefitsCliff],
   },
 ];

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import ApplyMobileStepNav from '@/components/apply/ApplyMobileStepNav';
+import ApplyMobileTrustBar from '@/components/apply/ApplyMobileTrustBar';
 import Footer from '@/components/Footer';
 import ApplyPageSkeleton from '../ApplyPageSkeleton';
 import ApplyResultsClient from './ApplyResultsClient';
@@ -29,6 +30,7 @@ export default async function ApplyResultsPage() {
 
       <section className="content-section">
         <div className="container">
+          <ApplyMobileTrustBar />
           <ApplyMobileStepNav activeStep={1} />
           <Suspense fallback={<ApplyPageSkeleton />}>
             <ApplyResultsClient />

@@ -107,10 +107,10 @@ async function parseSingleJobUrl(url: string): Promise<{ extracted: ParsedJob; p
     const ctx = await getEmployerForUser(user.id);
     if (!ctx) return NextResponse.json({ error: 'Forbidden: employer access required' }, { status: 403 });
 
-    const employerExists = await prisma.employer.findUnique({
+    const employerExists = await prisma.$transaction((tx) => tx.employer.findUnique({
       where: { id: ctx.employerId },
       select: { id: true, organizationId: true },
-    });
+    }));
     if (!employerExists) {
       return NextResponse.json({ error: 'Selected employer record was not found.' }, { status: 400 });
     }

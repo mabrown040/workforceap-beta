@@ -41,7 +41,7 @@ const schema = z.object({
       );
     }
 
-    const partner = await prisma.partner.findUnique({
+    const partner = await prisma.$transaction((tx) => tx.partner.findUnique({
       where: { id: ctx.partnerId },
       select: {
         id: true,
@@ -49,13 +49,13 @@ const schema = z.object({
         slug: true,
         referralCode: true,
       },
-    });
+    }));
     if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
 
-    const inviter = await prisma.user.findUnique({
+    const inviter = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: { fullName: true, email: true },
-    });
+    }));
 
     const refParam = partner.referralCode ?? partner.slug;
     const inviteUrl = `${SITE_URL}/apply?ref=${encodeURIComponent(refParam)}`;

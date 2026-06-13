@@ -27,10 +27,10 @@ export const POST = withApiGuc(
       }
 
       const { id } = await context.params;
-      const member = await prisma.user.findUnique({
+      const member = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id },
         select: { email: true, fullName: true },
-      });
+      }));
       if (!member?.email) {
         return NextResponse.json({ error: 'Member not found' }, { status: 404 });
       }

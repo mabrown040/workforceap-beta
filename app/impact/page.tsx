@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const hasLiveData = hasPublicImpactLiveData(stats);
   return buildPageMetadataAsync({
     title: t('title'),
-    description: t('description'),
+    description: hasLiveData ? t('description') : t('descriptionDataLight'),
     path: '/impact',
     robots: hasLiveData ? undefined : { index: false },
   });
@@ -166,7 +166,7 @@ export default async function ImpactPage() {
     hires: t('hiresLabel'),
   });
 
-  const statsMethodologyNote = hasLiveData ? t('statsMethodologyNote') : null;
+  const statsMethodologyNote = hasLiveData ? t('statsMethodologyNote') : t('dataLightNote');
 
   return (
     <div className="inner-page impact-page marketing-mobile-pb-for-bottom-nav">
@@ -174,9 +174,9 @@ export default async function ImpactPage() {
       <PageSection padding="lg" variant="default">
         <div className="impact-page__container">
           <SectionHeader
-            eyebrow={t('eyebrow')}
+            eyebrow={hasLiveData ? t('eyebrow') : t('eyebrowDataLight')}
             title={t('heading')}
-            subtitle={t('subtitle')}
+            subtitle={hasLiveData ? t('subtitle') : t('subtitleDataLight')}
             align="left"
             marginBottom="2rem"
           />
@@ -186,7 +186,7 @@ export default async function ImpactPage() {
               <InfoCard
                 variant="bordered"
                 title={t('membersServedEmptyTitle')}
-                description={t('dataLightNote')}
+                description={t('membersServedEmptyDesc')}
               />
               <p className="impact-page__section-link-wrap impact-page__empty-hero-link">
                 <LocalizedLink href="/employers" className="impact-page__section-link">
@@ -203,37 +203,36 @@ export default async function ImpactPage() {
             </div>
           )}
 
-          {hasLiveData ? (
-            <>
-              <div className="impact-page__stats-grid">
-                <StatCard
-                  value={completionValue}
-                  label={completionLabel}
-                  unpublished={isUnpublishedValue(String(completionValue))}
-                />
-                <StatCard
-                  value={placementValue}
-                  label={placementLabel}
-                  unpublished={isUnpublishedValue(String(placementValue))}
-                />
-                <StatCard
-                  value={salaryValue}
-                  label={salaryLabel}
-                  unpublished={salaryValue === '—'}
-                />
-              </div>
-              {statsMethodologyNote ? (
-                <p className="impact-page__methodology">{statsMethodologyNote}</p>
-              ) : null}
-            </>
+          {!hasLiveData ? (
+            <p className="impact-page__preview-heading">{t('metricsPreviewHeading')}</p>
           ) : null}
+          <div
+            className={`impact-page__stats-grid${!hasLiveData ? ' impact-page__stats-grid--preview' : ''}`}
+          >
+            <StatCard
+              value={completionValue}
+              label={completionLabel}
+              unpublished={isUnpublishedValue(String(completionValue))}
+            />
+            <StatCard
+              value={placementValue}
+              label={placementLabel}
+              unpublished={isUnpublishedValue(String(placementValue))}
+            />
+            <StatCard
+              value={salaryValue}
+              label={salaryLabel}
+              unpublished={salaryValue === '—'}
+            />
+          </div>
+          <p className="impact-page__methodology">{statsMethodologyNote}</p>
         </div>
       </PageSection>
 
-      <PageSection padding="md" variant="dark" ariaLabel={t('programsTitle')}>
+      <PageSection padding="md" variant={hasLiveData ? 'dark' : 'default'} ariaLabel={t('programsTitle')}>
         <SectionHeader
           title={t('programsTitle')}
-          subtitle={t('programsSubtitle')}
+          subtitle={hasLiveData ? t('programsSubtitle') : t('programsSubtitleDataLight')}
           align="left"
           marginBottom="1.5rem"
         />
@@ -253,7 +252,7 @@ export default async function ImpactPage() {
         <div className="impact-page__container">
           <SectionHeader
             title={t('employersTitle')}
-            subtitle={t('employersSubtitle')}
+            subtitle={hasLiveData && hasEmployerMetrics ? t('employersSubtitle') : t('employersSubtitleDataLight')}
             align="left"
             marginBottom="1.5rem"
           />
@@ -274,6 +273,14 @@ export default async function ImpactPage() {
           ) : (
             <>
               <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
+              <p className="impact-page__preview-heading impact-page__preview-heading--employers">
+                {t('employerMetricsPreviewHeading')}
+              </p>
+              <div className="impact-page__stats-grid impact-page__stats-grid--employers impact-page__stats-grid--preview">
+                <StatCard value="—" label={t('employerPartnersLabel')} unpublished />
+                <StatCard value="—" label={t('jobsPostedLabel')} unpublished />
+                <StatCard value="—" label={t('hiresLabel')} unpublished />
+              </div>
               <p className="impact-page__section-link-wrap">
                 <LocalizedLink href="/employers" className="impact-page__section-link">
                   {t('employerHiringLink')}
@@ -330,13 +337,10 @@ export default async function ImpactPage() {
         .impact-page__hero-metric {
           margin-bottom: 2.5rem;
           border-left: 4px solid var(--color-accent);
+          padding: clamp(1.5rem, 3vw, 2.5rem);
         }
         .impact-page__empty-hero-link {
           margin: 1rem 0 0;
-          padding-left: 1rem;
-        }
-        .impact-page__hero-metric {
-          padding: clamp(1.5rem, 3vw, 2.5rem);
         }
         .impact-page__hero-value {
           margin: 0;
@@ -369,6 +373,23 @@ export default async function ImpactPage() {
         }
         .impact-page__stats-grid--employers {
           margin-bottom: 0;
+        }
+        .impact-page__preview-heading {
+          margin: 0 0 1rem;
+          font-size: 0.7rem;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--color-on-surface-variant);
+        }
+        .impact-page__preview-heading--employers {
+          margin-top: 1.25rem;
+        }
+        .impact-page__stats-grid--preview {
+          margin-top: 0;
+        }
+        .impact-page__stats-grid--employers.impact-page__stats-grid--preview {
+          margin-top: 0;
         }
         .impact-page__stat-footnote {
           display: block;
@@ -418,6 +439,11 @@ export default async function ImpactPage() {
           .impact-page__funder-actions .btn {
             width: 100%;
             justify-content: center;
+          }
+          .impact-page__stats-grid--preview .stat-card {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-md);
           }
         }
         @media (min-width: 640px) {

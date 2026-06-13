@@ -15,20 +15,20 @@ const FALLBACK_EMAIL = 'info@workforceap.org';export const POST = withApiGuc(asy
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   
-    const dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       select: {
         fullName: true,
         email: true,
         enrolledProgram: true,
       },
-    });
+    }));
     if (!dbUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
   
     // Find assigned counselor
-    const assignment = await prisma.counselorAssignment.findFirst({
+    const assignment = await prisma.$transaction((tx) => tx.counselorAssignment.findFirst({
       where: { memberId: user.id, active: true },
       include: {
         counselor: {
@@ -37,7 +37,7 @@ const FALLBACK_EMAIL = 'info@workforceap.org';export const POST = withApiGuc(asy
           },
         },
       },
-    });
+    }));
   
     const counselorEmail = assignment?.counselor?.user?.email ?? FALLBACK_EMAIL;
     const counselorName = assignment?.counselor?.user?.fullName ?? 'Counselor';

@@ -27,32 +27,32 @@ const bodySchema = z.object({
 
   const { programInterest } = parsed.data;
 
-  const latest = await prisma.application.findFirst({
+  const latest = await prisma.$transaction((tx) => tx.application.findFirst({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' },
     select: { id: true },
-  });
+  }));
 
   if (latest) {
-    await prisma.application.update({
+    await prisma.$transaction((tx) => tx.application.update({
       where: { id: latest.id },
       data: { programInterest },
-    });
+    }));
   } else {
-    await prisma.application.create({
+    await prisma.$transaction((tx) => tx.application.create({
       data: {
         userId: user.id,
         programInterest,
         status: ApplicationStatus.PENDING,
         submittedAt: new Date(),
       },
-    });
+    }));
   }
 
-  await prisma.user.update({
+  await prisma.$transaction((tx) => tx.user.update({
     where: { id: user.id },
     data: { programInterest },
-  });
+  }));
 
   return NextResponse.json({ ok: true });
 

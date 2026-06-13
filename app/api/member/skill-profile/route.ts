@@ -250,15 +250,15 @@ function mergeProfiles(
 
   // Load certs, resume path, and any stored assessment answers in parallel
   const [certs, profile] = await Promise.all([
-    prisma.userCertification.findMany({
+    prisma.$transaction((tx) => tx.userCertification.findMany({
       where: { userId: user.id },
       select: { certName: true },
       take: 100,
-    }),
-    prisma.profile.findUnique({
+    })),
+    prisma.$transaction((tx) => tx.profile.findUnique({
       where: { userId: user.id },
       select: { resumeOriginalPath: true, resumeEnhancedPath: true },
-    }),
+    })),
   ]);
 
   const certNames = certs.map((c) => c.certName);
@@ -273,11 +273,11 @@ function mergeProfiles(
   if (resumePath) {
     try {
       // Prefer the last Resume Rewriter result (already extracted text, no storage fetch needed)
-      const lastRewrite = await prisma.aIToolResult.findFirst({
+      const lastRewrite = await prisma.$transaction((tx) => tx.aIToolResult.findFirst({
         where: { userId: user.id, toolType: 'resume_rewriter' },
         orderBy: { createdAt: 'desc' },
         select: { output: true },
-      });
+      }));
 
       if (lastRewrite?.output) {
         const extracted = extractResumeSkillProfile(lastRewrite.output);
@@ -308,12 +308,12 @@ function mergeProfiles(
   let hasAiResumeExtraction = false;
 
   try {
-    const assessments = await prisma.aIToolResult.findMany({
+    const assessments = await prisma.$transaction((tx) => tx.aIToolResult.findMany({
       where: { userId: user.id, toolType: 'skill_assessment' },
       orderBy: { createdAt: 'desc' },
       take: 10,
       select: { output: true, createdAt: true },
-    });
+    }));
 
     for (const row of assessments) {
       if (!row.output) continue;

@@ -70,11 +70,11 @@ async function simulateCron(id: string): Promise<DryRunResult> {
         ],
         weeklyRecaps: { none: { weekStartDate: { gte: weekStart } } },
       };
-      const members = await prisma.user.findMany({
+      const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: recipientWhere,
         select: { email: true, fullName: true },
         take: 1,
-      });
+      }));
       const sample = members[0] ?? null;
       const firstName = sample?.fullName?.split(' ')[0] ?? 'Alex';
       const sampleSummary = buildWeeklyRecapEmailSummary({
@@ -96,7 +96,7 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       const html = brandedEmailLayout({ title: 'Your Weekly Recap', bodyHtml: body, ctaText: 'View Dashboard', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,
-        recipientCount: await prisma.user.count({ where: recipientWhere }),
+        recipientCount: await prisma.$transaction((tx) => tx.user.count({ where: recipientWhere })),
         sampleRecipient: sample ? { email: sample.email ?? '', name: sample.fullName } : null,
         subject: 'Your WorkforceAP Weekly Recap',
         htmlPreview: html,
@@ -106,20 +106,20 @@ async function simulateCron(id: string): Promise<DryRunResult> {
     case 'inactive-nudge': {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const recentlyActive = await prisma.memberEvent.groupBy({ by: ['userId'], where: { createdAt: { gte: sevenDaysAgo } } });
+      const recentlyActive = await prisma.$transaction((tx) => tx.memberEvent.groupBy({ by: ['userId'], where: { createdAt: { gte: sevenDaysAgo } } }));
       const activeUserIds = new Set(recentlyActive.map(r => r.userId));
-      const members = await prisma.user.findMany({
+      const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: { deletedAt: null, notificationsReminders: true, id: { notIn: [...activeUserIds] } },
         select: { email: true, fullName: true },
         take: 1,
-      });
+      }));
       const sample = members[0] ?? null;
       const firstName = sample?.fullName?.split(' ')[0] ?? 'Jordan';
       const body = inactiveNudgeHtml({ firstName });
       const html = brandedEmailLayout({ title: 'We Miss You', bodyHtml: body, ctaText: 'Resume Training', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,
-        recipientCount: await prisma.user.count({ where: { deletedAt: null, notificationsReminders: true, id: { notIn: [...activeUserIds] } } }),
+        recipientCount: await prisma.$transaction((tx) => tx.user.count({ where: { deletedAt: null, notificationsReminders: true, id: { notIn: [...activeUserIds] } } })),
         sampleRecipient: sample ? { email: sample.email ?? '', name: sample.fullName } : null,
         subject: 'We Miss You at WorkforceAP',
         htmlPreview: html,
@@ -129,7 +129,7 @@ async function simulateCron(id: string): Promise<DryRunResult> {
     case 'inactivity-nudge': {
       const fourteenDaysAgo = new Date();
       fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-      const recentActiveIds = await prisma.memberEvent.findMany({ take: 500, where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'] });
+      const recentActiveIds = await prisma.$transaction((tx) => tx.memberEvent.findMany({ take: 500, where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'] }));
       const activeSet = new Set(recentActiveIds.map(r => r.userId));
       // Mirror the production inactivity-nudge recipient filter: a user
       // is eligible if they have ANY course_enrollments row OR the legacy
@@ -143,18 +143,18 @@ async function simulateCron(id: string): Promise<DryRunResult> {
         notificationsReminders: true,
         id: { notIn: [...activeSet] },
       };
-      const members = await prisma.user.findMany({
+      const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: recipientWhere,
         select: { email: true, fullName: true },
         take: 1,
-      });
+      }));
       const sample = members[0] ?? null;
       const firstName = sample?.fullName?.split(' ')[0] ?? 'Jordan';
       const body = inactiveNudgeHtml({ firstName });
       const html = brandedEmailLayout({ title: 'We Miss You', bodyHtml: body, ctaText: 'Resume Training', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,
-        recipientCount: await prisma.user.count({ where: recipientWhere }),
+        recipientCount: await prisma.$transaction((tx) => tx.user.count({ where: recipientWhere })),
         sampleRecipient: sample ? { email: sample.email ?? '', name: sample.fullName } : null,
         subject: 'We Miss You at WorkforceAP',
         htmlPreview: html,
@@ -164,18 +164,18 @@ async function simulateCron(id: string): Promise<DryRunResult> {
     case 'applicant-followup': {
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-      const staleApps = await prisma.application.findMany({
+      const staleApps = await prisma.$transaction((tx) => tx.application.findMany({
         where: { status: 'PENDING', submittedAt: { lte: threeDaysAgo }, user: { deletedAt: null, notificationsReminders: true } },
         include: { user: { select: { id: true, email: true, fullName: true } } },
         take: 1,
-      });
+      }));
       const sample = staleApps[0]?.user ?? null;
       const firstName = sample?.fullName?.split(' ')[0] ?? 'Taylor';
       const body = applicantFollowupHtml({ firstName, expectedDate: 'May 9, 2026' });
       const html = brandedEmailLayout({ title: 'Application Update', bodyHtml: body, ctaText: 'Check Application Status', ctaUrl: '/dashboard' });
-      const totalCount = await prisma.application.count({
+      const totalCount = await prisma.$transaction((tx) => tx.application.count({
         where: { status: 'PENDING', submittedAt: { lte: threeDaysAgo }, user: { deletedAt: null, notificationsReminders: true } },
-      });
+      }));
       return {
         cronId: id, cronName: cron.name,
         recipientCount: totalCount,
@@ -199,11 +199,11 @@ async function simulateCron(id: string): Promise<DryRunResult> {
     }
 
     case 'partner-outcome-digest': {
-      const partners = await prisma.partner.findMany({ where: { active: true, notifyOnEnrollment: true }, select: { name: true, contactEmail: true }, take: 1 });
+      const partners = await prisma.$transaction((tx) => tx.partner.findMany({ where: { active: true, notifyOnEnrollment: true }, select: { name: true, contactEmail: true }, take: 1 }));
       const sample = partners[0] ?? null;
       const body = partnerWeeklyDigestHtml({ partnerName: sample?.name ?? 'Workforce Solutions', weekLabel: 'May 5–9, 2026', stageLines: ['3 Applied', '2 In Training', '1 Placed'], successLines: ['Maria S. — IT Support Certificate earned'] });
       const html = brandedEmailLayout({ title: 'Your Weekly Partner Digest', bodyHtml: body, ctaText: 'View Partner Portal', ctaUrl: '/partner' });
-      const totalCount = await prisma.partner.count({ where: { active: true, notifyOnEnrollment: true, contactEmail: { not: null } } });
+      const totalCount = await prisma.$transaction((tx) => tx.partner.count({ where: { active: true, notifyOnEnrollment: true, contactEmail: { not: null } } }));
       return {
         cronId: id, cronName: cron.name,
         recipientCount: totalCount,
@@ -217,18 +217,18 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       yesterday.setHours(0, 0, 0, 0);
-      const members = await prisma.user.findMany({
+      const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: { deletedAt: null, enrolledProgram: { not: null }, assessmentCompleted: true, assessmentCompletedAt: { gte: yesterday } },
         select: { email: true, fullName: true },
         take: 1,
-      });
+      }));
       const sample = members[0] ?? null;
       const firstName = sample?.fullName?.split(' ')[0] ?? 'Casey';
       const body = courseCompletedHtml({ firstName, courseName: 'IT Support Professional (Google)' });
       const html = brandedEmailLayout({ title: 'Congratulations!', bodyHtml: body, ctaText: 'See Your Progress', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,
-        recipientCount: await prisma.user.count({ where: { deletedAt: null, enrolledProgram: { not: null }, assessmentCompleted: true, assessmentCompletedAt: { gte: yesterday } } }),
+        recipientCount: await prisma.$transaction((tx) => tx.user.count({ where: { deletedAt: null, enrolledProgram: { not: null }, assessmentCompleted: true, assessmentCompletedAt: { gte: yesterday } } })),
         sampleRecipient: sample ? { email: sample.email ?? '', name: sample.fullName } : null,
         subject: 'Congratulations! You Completed IT Support Professional (Google)',
         htmlPreview: html,

@@ -15,7 +15,7 @@ export type HomeProgramShowcaseCard = {
   name?: string | null;
   category?: string | null;
   duration?: string | null;
-  static?: { title?: string | null; duration?: string | null } | null;
+  static?: { title?: string | null; duration?: string | null; categoryLabel?: string | null } | null;
 };
 
 function getHomepageProgramCardImage(program: HomeProgramShowcaseCard, index: number) {
@@ -85,6 +85,138 @@ export default async function HomePageBelowFold({
               {t('heroCta')}
             </LocalizedLinkServer>
           </div>
+        </div>
+      </section>
+
+      {/* Featured programs — directly after the member promise so mobile visitors see
+          concrete pathways before stakeholder cards and long-form about content. */}
+      <section
+        className="home-program-showcase home-program-showcase--early"
+        aria-label="Available programs"
+        style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}
+      >
+        <div className="home-program-showcase__header">
+          <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
+            {t('programsEyebrow')}
+          </span>
+          <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
+            {t('programsTitle')}
+          </h2>
+          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '600px' }}>
+            {t('programsSubtitle', { featuredCount: homeProgramShowcase.length, count: programCount })}
+          </p>
+        </div>
+        <div
+          className="home-program-showcase__grid"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}
+        >
+          {homeProgramShowcase.map((p, index) => {
+            const cardHint = homepageProgramCardHint(p.slug);
+            const categoryLabel = p.static?.categoryLabel ?? p.category;
+            return (
+            <LocalizedLinkServer
+              key={p.slug}
+              href={`/programs/${p.slug}`}
+              className="portal-card portal-card--flat home-program-card"
+              style={{
+                background: 'var(--surface-container-high)',
+                color: 'var(--color-on-surface)',
+                textDecoration: 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                borderRadius: 'var(--radius-xl)',
+              }}
+            >
+              <div
+                className="home-program-card__media"
+                style={{ position: 'relative', height: '180px', background: 'var(--surface-container-highest)', overflow: 'hidden' }}
+              >
+                <Image
+                  src={getHomepageProgramCardImage(p, index)}
+                  alt={p.static?.title ?? p.name ?? ''}
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  style={{ objectFit: 'cover', opacity: 0.7 }}
+                />
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '0.75rem',
+                    left: '0.75rem',
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: 'var(--radius-full, 50px)',
+                    background: 'rgba(0,0,0,0.6)',
+                    backdropFilter: 'blur(4px)',
+                    color: 'white',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {categoryLabel}
+                </span>
+              </div>
+              <div
+                className="home-program-card__body"
+                style={{ padding: '1.25rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+              >
+                <h3 style={{ fontWeight: 700, fontSize: '1.125rem', lineHeight: 1.3 }}>{p.static?.title ?? p.name}</h3>
+                {cardHint ? (
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: '0.875rem',
+                      lineHeight: 1.55,
+                      color: 'var(--color-on-surface-variant)',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {cardHint}
+                  </p>
+                ) : null}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      padding: '0.2rem 0.6rem',
+                      borderRadius: 'var(--radius-full, 50px)',
+                      background: 'var(--surface-container-lowest)',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">
+                      schedule
+                    </span>
+                    {p.duration ?? p.static?.duration ?? '3-5 months'}
+                  </span>
+                  <span className="marketing-cert-badge">
+                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">
+                      verified
+                    </span>
+                    {t('programsCertBadge')}
+                  </span>
+                </div>
+                <span className="home-program-card__cta" aria-hidden="true">
+                  {t('programsCardCta')} →
+                </span>
+              </div>
+            </LocalizedLinkServer>
+            );
+          })}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <LocalizedLinkServer href="/programs" className={secondaryButtonClasses({ radius: 'md' })}>
+            {t('programsCta', { count: programCount })}
+          </LocalizedLinkServer>
         </div>
       </section>
 
@@ -416,7 +548,7 @@ export default async function HomePageBelowFold({
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="home-impact-bento__stats" style={{ display: 'grid', gap: '1rem' }}>
             <div className="portal-card portal-card--flat" style={{ background: 'var(--surface-container-high)', padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <span className="marketing-chip-text--gold" style={{ fontSize: '2.5rem', fontWeight: 900, lineHeight: 1 }}>
                 2,000+
@@ -536,134 +668,6 @@ export default async function HomePageBelowFold({
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <LocalizedLinkServer href="/how-it-works" className={secondaryButtonClasses({ radius: 'md' })}>
             {t('journeyCta')}
-          </LocalizedLinkServer>
-        </div>
-      </section>
-
-      {/* ===== Available Programs ===== */}
-      <section
-        className="home-program-showcase"
-        aria-label="Available programs"
-        style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}
-      >
-        <div className="home-program-showcase__header">
-          <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
-            {t('programsEyebrow')}
-          </span>
-          <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>
-            {t('programsTitle', { count: programCount })}
-          </h2>
-          <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '600px' }}>{t('programsSubtitle')}</p>
-        </div>
-        <div
-          className="home-program-showcase__grid"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}
-        >
-          {homeProgramShowcase.map((p, index) => {
-            const cardHint = homepageProgramCardHint(p.slug);
-            return (
-            <LocalizedLinkServer
-              key={p.slug}
-              href={`/programs/${p.slug}`}
-              className="portal-card portal-card--flat home-program-card"
-              style={{
-                background: 'var(--surface-container-high)',
-                color: 'var(--color-on-surface)',
-                textDecoration: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-                borderRadius: 'var(--radius-xl)',
-              }}
-            >
-              <div
-                className="home-program-card__media"
-                style={{ position: 'relative', height: '180px', background: 'var(--surface-container-highest)', overflow: 'hidden' }}
-              >
-                <Image
-                  src={getHomepageProgramCardImage(p, index)}
-                  alt={p.static?.title ?? p.name ?? ''}
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  style={{ objectFit: 'cover', opacity: 0.7 }}
-                />
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: '0.75rem',
-                    left: '0.75rem',
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: 'var(--radius-full, 50px)',
-                    background: 'rgba(0,0,0,0.6)',
-                    backdropFilter: 'blur(4px)',
-                    color: 'white',
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {p.category}
-                </span>
-              </div>
-              <div
-                className="home-program-card__body"
-                style={{ padding: '1.25rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
-              >
-                <h3 style={{ fontWeight: 700, fontSize: '1.125rem', lineHeight: 1.3 }}>{p.static?.title ?? p.name}</h3>
-                {cardHint ? (
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: '0.875rem',
-                      lineHeight: 1.55,
-                      color: 'var(--color-on-surface-variant)',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {cardHint}
-                  </p>
-                ) : null}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <span
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.25rem',
-                      padding: '0.2rem 0.6rem',
-                      borderRadius: 'var(--radius-full, 50px)',
-                      background: 'var(--surface-container-lowest)',
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">
-                      schedule
-                    </span>
-                    {p.duration ?? p.static?.duration ?? '3-5 months'}
-                  </span>
-                  <span className="marketing-cert-badge">
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">
-                      verified
-                    </span>
-                    {t('programsCertBadge')}
-                  </span>
-                </div>
-                <span className="home-program-card__cta" aria-hidden="true">
-                  {t('programsCardCta')} →
-                </span>
-              </div>
-            </LocalizedLinkServer>
-            );
-          })}
-        </div>
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <LocalizedLinkServer href="/programs" className={secondaryButtonClasses({ radius: 'md' })}>
-            {t('programsCta', { count: programCount })}
           </LocalizedLinkServer>
         </div>
       </section>

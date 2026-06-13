@@ -87,13 +87,13 @@ const ETHNICITY_OPTIONS = [
     }
   
     if (partnerId) {
-      const partner = await prisma.partner.findFirst({ where: { id: partnerId, active: true } });
+      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: partnerId, active: true } }));
       if (!partner) {
         return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
       }
     }
     if (subgroupId) {
-      const subgroup = await prisma.subgroup.findUnique({ where: { id: subgroupId } });
+      const subgroup = await prisma.$transaction((tx) => tx.subgroup.findUnique({ where: { id: subgroupId } }));
       if (!subgroup) {
         return NextResponse.json({ error: 'Invalid subgroup' }, { status: 400 });
       }

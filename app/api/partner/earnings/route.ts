@@ -23,7 +23,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       );
     }
 
-    const referrals = await prisma.partnerReferral.findMany({
+    const referrals = await prisma.$transaction((tx) => tx.partnerReferral.findMany({
       take: 500,
       where: { partnerId: ctx.partnerId },
       include: {
@@ -37,7 +37,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
           },
         },
       },
-    });
+    }));
 
     const payoutPerPlacement = getPartnerPlacementPayoutUsd();
     const placedReferrals = referrals.filter((r) => r.member.placementRecord);

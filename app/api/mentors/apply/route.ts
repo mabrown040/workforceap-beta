@@ -26,12 +26,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     return NextResponse.json({ error: 'You must be signed in to apply as a mentor. Please create a member account first.' }, { status: 401 });
   }
 
-  const existing = await prisma.mentor.findUnique({ where: { userId: user.id } });
+  const existing = await prisma.$transaction((tx) => tx.mentor.findUnique({ where: { userId: user.id } }));
   if (existing) {
     return NextResponse.json({ error: 'You already have a mentor application on file.' }, { status: 409 });
   }
 
-  await prisma.mentor.create({
+  await prisma.$transaction((tx) => tx.mentor.create({
     data: {
       userId: user.id,
       fullName,
@@ -43,7 +43,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       availableHours: availableHours ?? 2,
       isActive: false, // pending admin approval
     },
-  });
+  }));
 
   return NextResponse.json({ success: true });
 

@@ -30,7 +30,7 @@ async function generateUniqueSlug(base: string): Promise<string> {
   if (!slug) slug = 'partner';
   let candidate = slug;
   let suffix = 0;
-  while (await prisma.partner.findUnique({ where: { slug: candidate }, select: { id: true } })) {
+  while (await prisma.$transaction((tx) => tx.partner.findUnique({ where: { slug: candidate }, select: { id: true } }))) {
     suffix++;
     candidate = `${slug}-${suffix}`;
   }
@@ -43,10 +43,10 @@ async function generateUniqueReferralCode(base: string): Promise<string> {
   let candidate = code;
   let suffix = 0;
   while (
-    await prisma.partner.findFirst({
+    await prisma.$transaction((tx) => tx.partner.findFirst({
       where: { OR: [{ referralCode: candidate }, { slug: candidate }] },
       select: { id: true },
-    })
+    }))
   ) {
     suffix++;
     candidate = `${code}-${suffix}`;
@@ -106,10 +106,10 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     }
 
     // Check if email already exists in our DB
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { email: d.contactEmail },
       select: { id: true },
-    });
+    }));
     if (existingUser) {
       return NextResponse.json(
         { error: 'An account with this email already exists. Try logging in or resetting your password.' },

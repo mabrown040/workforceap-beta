@@ -9,7 +9,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-  const row = await prisma.user.findUnique({
+  const row = await prisma.$transaction((tx) => tx.user.findUnique({
     where: { id: user.id },
     select: {
       interviewEligible: true,
@@ -18,7 +18,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
       phone: true,
       profile: { select: { profileAddress: true } },
     },
-  });
+  }));
 
   if (!row?.interviewEligible) {
     return NextResponse.json({ error: 'Complete pre-screening before requesting an interview.' }, { status: 400 });
@@ -39,10 +39,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     );
   }
 
-  await prisma.user.update({
+  await prisma.$transaction((tx) => tx.user.update({
     where: { id: user.id },
     data: { interviewRequestedAt: new Date() },
-  });
+  }));
 
   // Award points (idempotent — fixed entityId means only the first request awards)
   awardPoints(user.id, 'interview_requested', 'first-request').catch(() => {});

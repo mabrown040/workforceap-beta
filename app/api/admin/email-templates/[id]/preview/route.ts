@@ -18,7 +18,7 @@ export const POST = withApiGuc(async (
     }
 
     const { id } = await params;
-    const template = await prisma.emailTemplate.findUnique({ where: { id } });
+    const template = await prisma.$transaction((tx) => tx.emailTemplate.findUnique({ where: { id } }));
     if (!template) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     let body: { variables?: Record<string, string> } = {};

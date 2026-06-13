@@ -68,6 +68,7 @@ let placementSurveyRateLimiter: Ratelimit | null = null;
 let publicWioaQualificationRateLimiter: Ratelimit | null = null;
 let webhookRateLimiter: Ratelimit | null = null;
 let orgOnboardRateLimiter: Ratelimit | null = null;
+let publicInterestProfilerRateLimiter: Ratelimit | null = null;
 let courseraIdentityRateLimiter: Ratelimit | null = null;
 // Per-IP limiter for the PUBLIC tokenized eligibility-questionnaire submit
 // (POST /api/q/[token]/submit). The endpoint is reachable with no account —
@@ -237,6 +238,13 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 h'),
     prefix: 'ratelimit:org-onboard',
+  });
+  publicInterestProfilerRateLimiter = new Ratelimit({
+    redis,
+    // Public interest profiler — generous per IP for exploration; 50/hr covers
+    // legitimate repeat visitors while preventing abuse of the O*NET API.
+    limiter: Ratelimit.slidingWindow(50, '1 h'),
+    prefix: 'ratelimit:public-interest-profiler',
   });
   courseraIdentityRateLimiter = new Ratelimit({
     redis,
@@ -484,8 +492,14 @@ export async function checkOrgOnboardRateLimit(ip: string): Promise<{ success: b
   return { success: result.success };
 }
 
-/**
- * POST /api/q/[token]/submit — PUBLIC (no-account) tokenized eligibility
+/** POST /api/public/interest-profiler/* — public no-account quiz; cap per-IP O*NET abuse. Fail-open without Redis. */
+export async function checkPublicInterestProfilerRateLimit(ip: string): Promise<{ success: boolean }> {
+  if (!publicInterestProfilerRateLimiter) return { success: true };
+  const result = await publicInterestProfilerRateLimiter.limit(ip);
+  return { success: result.success };
+}
+
+/** POST /api/q/[token]/submit — PUBLIC (no-account) tokenized eligibility
  * questionnaire submit. Token-gated + single-use, but reachable without auth,
  * so cap per-IP abuse. Fail-open without Redis (the single-use token consume
  * is the hard guarantee).

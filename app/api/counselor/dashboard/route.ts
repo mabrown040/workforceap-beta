@@ -19,10 +19,10 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const counselor = await prisma.counselor.findFirst({
+    const counselor = await prisma.$transaction((tx) => tx.counselor.findFirst({
       where: { userId: user.id, active: true },
       select: { id: true, partner: { select: { name: true } } },
-    });
+    }));
 
     if (!counselor && !admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -30,7 +30,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
 
     // ── 1. Assignments with member data (single query, eager-loaded) ──
     const assignments = counselor
-      ? await prisma.counselorAssignment.findMany({
+      ? await prisma.$transaction((tx) => tx.counselorAssignment.findMany({
         take: 500,
           where: {
             counselor: { userId: user.id, active: true },
@@ -56,7 +56,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
             },
           },
           orderBy: { assignedAt: 'desc' },
-        })
+        }))
       : [];
 
     const memberIds = assignments.map((a) => a.memberId);
@@ -64,7 +64,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     // ── 2. Messages needing reply — single raw query (no N+1) ──
     let messagesNeedingReply = 0;
     if (memberIds.length > 0) {
-      const rows = await prisma.$queryRawUnsafe<
+      const rows = await prisma.$transaction((tx) => tx.$queryRawUnsafe<
         Array<{ count: bigint }>
       >(
         `SELECT COUNT(DISTINCT t.member_id) as count
@@ -80,7 +80,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
            AND t.member_id = ANY($1::uuid[])
            AND latest.author_id = t.member_id`,
         memberIds,
-      );
+      ));
       messagesNeedingReply = Number(rows[0]?.count ?? 0);
     }
 

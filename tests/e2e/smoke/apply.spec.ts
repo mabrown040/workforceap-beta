@@ -18,6 +18,11 @@ test.describe('Apply smoke', () => {
     await page.setViewportSize({ width: 375, height: 812 });
     await expect(page.locator('.apply-mobile-step-nav')).toBeVisible();
     await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/eligibility|you/i);
+    await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
+    await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/501\(c\)\(3\)|no cost/i);
+    await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/questions\? call|\(512\) 777-1808/i);
+    await expect(page.locator('.apply-mobile-trust-bar__phone')).toHaveAttribute('href', 'tel:+15127771808');
+    await expect(page.locator('.apply-organic-form-kicker')).toContainText(/about 5 minutes/i);
 
     // Sidebar with progress steps
     await expect(page.locator('.apply-sidebar, aside').first()).toBeVisible();
@@ -29,5 +34,27 @@ test.describe('Apply smoke', () => {
     await page.evaluate(() => window.scrollTo(0, 400));
     await expect(page.locator('.apply-organic-sticky-cta')).toBeVisible();
     await expect(page.locator('.apply-organic-sticky-cta__button')).toContainText(/start your application/i);
+
+    // Sticky CTA stays hidden at footer — avoid covering links after the apply corridor
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(page.locator('.apply-organic-sticky-cta')).not.toBeVisible();
+  });
+
+  test('paid apply variant shows mobile trust cues at form entry', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/apply?utm_source=google_ads&utm_medium=cpc&utm_campaign=launch_smoke');
+
+    await expect(page.locator('.paid-apply-hero')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.paid-apply-form-kicker')).toContainText(/about 5 minutes/i);
+    await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
+    await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/no cost|501\(c\)\(3\)/i);
+  });
+
+  test('apply results step shows mobile trust bar', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/apply/results');
+
+    await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
+    await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/program/i);
   });
 });

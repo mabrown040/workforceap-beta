@@ -47,10 +47,10 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     );
   }
 
-  await prisma.employer.update({
+  await prisma.$transaction((tx) => tx.employer.update({
     where: { id: ctx.employerId },
     data: { logoUrl: path },
-  });
+  }));
 
   return NextResponse.json({ ok: true, logoUrl: resolveSupabasePublicAssetUrl(BUCKET, path) });
 

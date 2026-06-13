@@ -966,7 +966,7 @@ export const TRADES_AND_HEALTH_PACKS: ProgramCheckpointPack[] = [
             ],
             correctOptionId: 'b',
             explanation:
-              'With 1/4" = 1', divide the drawing length by 1/4: 6 ÷ 0.25 = 24 feet. Mixing up plan inches with real feet is one of the most common beginner errors.',
+              'With 1/4" = 1\', divide the drawing length by 1/4: 6 ÷ 0.25 = 24 feet. Mixing up plan inches with real feet is one of the most common beginner errors.',
             level: 'foundation',
           },
           {

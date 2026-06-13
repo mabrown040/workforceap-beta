@@ -345,6 +345,23 @@ describe('Impact Page — getPublicImpactStats', () => {
       expect(Number(match![1])).toBe(600);
     });
 
+    it('uses data-light copy when live metrics are unavailable', () => {
+      const pagePath = path.resolve(__dirname, '../../app/impact/page.tsx');
+      const source = readFileSync(pagePath, 'utf-8');
+      expect(source).toContain("hasLiveData ? t('eyebrow') : t('eyebrowDataLight')");
+      expect(source).toContain("hasLiveData ? t('subtitle') : t('subtitleDataLight')");
+      expect(source).toContain("hasLiveData ? t('description') : t('descriptionDataLight')");
+      expect(source).toContain("hasLiveData ? t('programsSubtitle') : t('programsSubtitleDataLight')");
+      expect(source).toContain("hasLiveData && hasEmployerMetrics ? t('employersSubtitle') : t('employersSubtitleDataLight')");
+      expect(source).toContain("t('membersServedEmptyDesc')");
+      expect(source).toContain("hasLiveData ? t('statsMethodologyNote') : t('dataLightNote')");
+      expect(source).toContain('impact-page__stats-grid--preview');
+      expect(source).toContain("t('metricsPreviewHeading')");
+      expect(source).toContain("t('employerMetricsPreviewHeading')");
+      expect(source).not.toContain('impact-page__data-light-note');
+      expect(source).toContain("variant={hasLiveData ? 'dark' : 'default'}");
+    });
+
     it('produces deterministic results for identical inputs', async () => {
       const enrolled = [
         makeEnrolledUser({ id: 'u1', programSlug: 'digital-literacy-empowerment-class', avgPercent: 100, coursesCompleted: 6, hasPlacement: true }),

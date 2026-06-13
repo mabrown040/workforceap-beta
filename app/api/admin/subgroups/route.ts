@@ -37,7 +37,7 @@ const createSchema = z.object({
     }
   }
 
-  const subgroups = await prisma.subgroup.findMany({
+  const subgroups = await prisma.$transaction((tx) => tx.subgroup.findMany({
     take: 500,
     where: tenantFilter,
     orderBy: { name: 'asc' },
@@ -46,7 +46,7 @@ const createSchema = z.object({
       partner: { select: { id: true, name: true } },
       _count: { select: { members: true } },
     },
-  });
+  }));
   return NextResponse.json(subgroups);
 
   } catch (error) {
@@ -74,27 +74,30 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
 
   const { name, type, leaderId, partnerId, description } = parsed.data;
 
+  // Hoisted: `await` can't live inside the non-async $transaction callbacks.
+  const tenantFilter = (await isSuperAdmin(user.id)) ? {} : { organizationId: orgId };
+
   if (type === 'partner' && partnerId) {
-    const partner = await prisma.partner.findFirst({
-      where: { id: partnerId, active: true, ...(await isSuperAdmin(user.id) ? {} : { organizationId: orgId }) },
-    });
+    const partner = await prisma.$transaction((tx) => tx.partner.findFirst({
+      where: { id: partnerId, active: true, ...tenantFilter },
+    }));
     if (!partner) {
       return NextResponse.json({ error: 'Invalid, inactive, or cross-tenant partner' }, { status: 400 });
     }
   }
 
-  const leader = await prisma.user.findFirst({
+  const leader = await prisma.$transaction((tx) => tx.user.findFirst({
     where: {
       id: leaderId,
-      ...(await isSuperAdmin(user.id) ? {} : { organizationId: orgId }),
+      ...tenantFilter,
     },
     select: { id: true },
-  });
+  }));
   if (!leader) {
     return NextResponse.json({ error: 'Leader user not found or not in your organization' }, { status: 400 });
   }
 
-  const subgroup = await prisma.subgroup.create({
+  const subgroup = await prisma.$transaction((tx) => tx.subgroup.create({
     data: {
       name,
       type,
@@ -108,7 +111,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       partner: { select: { id: true, name: true } },
       _count: { select: { members: true } },
     },
-  });
+  }));
   return NextResponse.json(subgroup, { status: 201 });
 
   } catch (error) {

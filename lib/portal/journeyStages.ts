@@ -63,6 +63,7 @@ export const JOURNEY_STAGES: JourneyStage[] = [
     icon: 'star',
     tools: [
       { key: 'salaryNegotiation', href: '/dashboard/ai-tools/salary-negotiation', icon: 'payments', minutes: 10 },
+      { key: 'benefitsCliff', href: '/dashboard/ai-tools/benefits-cliff', icon: 'account_balance', minutes: 5 },
       { key: 'careerCoach', href: '/dashboard/ai-tools/career-business-coach', icon: 'business_center', minutes: 10 },
     ],
   },

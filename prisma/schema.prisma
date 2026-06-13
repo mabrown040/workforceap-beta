@@ -189,6 +189,9 @@ model User {
   memberPoints       MemberPoints?
   pointsTransactions PointsTransaction[]
   pointsAwarded      PointsTransaction[] @relation("PointsAwarder")
+  referralCode       ReferralCode?
+  referralsMade      ReferralConversion[] @relation("ReferralReferrer")
+  referredBy         ReferralConversion?  @relation("ReferralReferee")
   courseProgress           CourseProgress[]
   memberProgramProgress    MemberProgramProgress[]
 
@@ -779,6 +782,8 @@ enum AIToolType {
   gap_analyzer
   career_counselor
   skill_assessment
+  skill_mission
+  job_tailor
 }
 
 model UserCertification {
@@ -2074,6 +2079,41 @@ model PointsTransaction {
   @@index([createdAt])
   @@index([awardedBy])
   @@map("points_transactions")
+}
+
+// --- Member-to-member referral (distinct from PartnerReferral, which is B2B/marketing) ---
+
+/// One shareable referral code per member (the referrer). Codes are minted lazily
+/// the first time a member opens their referral surface.
+model ReferralCode {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  code      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("referral_codes")
+}
+
+/// A single referred member (the referee). A referee can be referred at most once
+/// (refereeUserId is unique), which is the anti-farming guard. Reward fires only when
+/// the referee actually enrolls — `status` goes pending → rewarded at that point.
+model ReferralConversion {
+  id              String    @id @default(uuid())
+  referrerUserId  String    @map("referrer_user_id")
+  refereeUserId   String    @unique @map("referee_user_id")
+  code            String
+  status          String    @default("pending") // pending | rewarded
+  rewardedAt      DateTime? @map("rewarded_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  referrer User @relation("ReferralReferrer", fields: [referrerUserId], references: [id], onDelete: Cascade)
+  referee  User @relation("ReferralReferee", fields: [refereeUserId], references: [id], onDelete: Cascade)
+
+  @@index([referrerUserId])
+  @@index([code])
+  @@map("referral_conversions")
 }
 
 // --- Coursera CSV / xAPI ingestion ---

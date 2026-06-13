@@ -33,10 +33,10 @@ const goalSelect = Prisma.validator<Prisma.GoalSelect>()({
 });
 
 async function loadOwnedGoal(goalId: string, userId: string) {
-  return prisma.goal.findFirst({
+  return prisma.$transaction((tx) => tx.goal.findFirst({
     where: { id: goalId, userId },
     select: goalSelect,
-  });
+  }));
 }
 
 /**
@@ -77,10 +77,10 @@ async function _POST(_request: Request, { params }: { params: Promise<{ id: stri
     // Pull the member's target career to personalize the steps.
     let careerTitle: string | null = null;
     try {
-      const profile = await prisma.user.findUnique({
+      const profile = await prisma.$transaction((tx) => tx.user.findUnique({
         where: { id: user.id },
         select: { careerRecommendationJson: true },
-      });
+      }));
       const rec = careerMatchResultNullableSchema.safeParse(profile?.careerRecommendationJson).data ?? null;
       careerTitle = rec?.topOccupations?.[0]?.title ?? null;
     } catch {
@@ -97,10 +97,10 @@ async function _POST(_request: Request, { params }: { params: Promise<{ id: stri
     const steps = buildSteps(stepTexts);
     const description = encodeGoalDescription({ note: existing.note, steps });
 
-    const updated = await prisma.goal.update({
+    const updated = await prisma.$transaction((tx) => tx.goal.update({
       where: { id: goal.id },
       data: { description },
-    });
+    }));
 
     await trackEvent({
       userId: user.id,
@@ -157,10 +157,10 @@ async function _PATCH(request: Request, { params }: { params: Promise<{ id: stri
     payload.steps[idx] = { ...payload.steps[idx], done: parsed.data.done };
     const description = encodeGoalDescription(payload);
 
-    const updated = await prisma.goal.update({
+    const updated = await prisma.$transaction((tx) => tx.goal.update({
       where: { id: goal.id },
       data: { description },
-    });
+    }));
 
     const allDone = payload.steps.length > 0 && payload.steps.every((s) => s.done);
     if (parsed.data.done) {

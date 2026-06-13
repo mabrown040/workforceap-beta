@@ -4,7 +4,7 @@ import { BUSINESS_AND_DESIGN_PACKS } from './businessAndDesign';
 import { IT_INFRASTRUCTURE_PACKS } from './itInfrastructure';
 import { TRADES_AND_HEALTH_PACKS } from './tradesAndHealth';
 
-export type { ProgramCheckpointPack, SkillCheckpoint } from './types';
+export type { ProgramCheckpointPack, SkillCheckpoint, CourseCheckpointSet } from './types';
 
 export const ALL_CHECKPOINT_PACKS: ProgramCheckpointPack[] = [
   ...DATA_AND_SOFTWARE_PACKS,

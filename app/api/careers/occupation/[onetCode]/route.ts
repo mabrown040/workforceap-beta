@@ -23,7 +23,7 @@ type Params = { params: Promise<{ onetCode: string }> };export const GET = withA
         return NextResponse.json({ error: 'Missing occupation code' }, { status: 400 });
       }
   
-      const occ = await prisma.onetOccupation.findUnique({
+      const occ = await prisma.$transaction((tx) => tx.onetOccupation.findUnique({
         where: { onetCode },
         include: {
           skills: { take: 12, orderBy: { importance: 'desc' } },
@@ -34,7 +34,7 @@ type Params = { params: Promise<{ onetCode: string }> };export const GET = withA
             orderBy: [{ experienceBand: 'asc' }, { priority: 'asc' }],
           },
         },
-      });
+      }));
   
       if (!occ) {
         return NextResponse.json({ error: 'Occupation not found' }, { status: 404 });
@@ -79,10 +79,10 @@ type Params = { params: Promise<{ onetCode: string }> };export const GET = withA
         relatedOccupations: (await (async () => {
           const relatedCodes = occ.relatedFrom.map((r) => r.relatedOnetCode);
           const relatedOccs = relatedCodes.length
-            ? await prisma.onetOccupation.findMany({
+            ? await prisma.$transaction((tx) => tx.onetOccupation.findMany({
                 where: { onetCode: { in: relatedCodes } },
                 select: { onetCode: true, title: true },
-              })
+              }))
             : [];
           const titleMap = new Map(relatedOccs.map((o) => [o.onetCode, o.title]));
           return occ.relatedFrom.map((r) => ({

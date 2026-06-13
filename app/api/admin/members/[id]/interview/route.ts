@@ -26,26 +26,26 @@ const bodySchema = z.object({
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid body' }, { status: 400 });
     }
 
-    const member = await prisma.user.findFirst({
+    const member = await prisma.$transaction((tx) => tx.user.findFirst({
       where: { id: memberId, organizationId: orgId  },
       select: { id: true },
-    });
+    }));
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
     if (parsed.data.action === 'mark_interviewed') {
-      await prisma.user.update({
+      await prisma.$transaction((tx) => tx.user.update({
         where: { id: memberId },
         data: {
           interviewCompletedAt: new Date(),
         },
-      });
+      }));
     } else {
-      await prisma.user.update({
+      await prisma.$transaction((tx) => tx.user.update({
         where: { id: memberId },
         data: {
           interviewRequestedAt: null,
         },
-      });
+      }));
     }
 
     return NextResponse.json({ ok: true });

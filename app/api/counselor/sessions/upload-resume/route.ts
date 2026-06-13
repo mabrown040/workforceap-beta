@@ -93,11 +93,11 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
       return NextResponse.json({ error: 'Failed to upload resume' }, { status: 500 });
     }
   
-    await prisma.profile.upsert({
+    await prisma.$transaction((tx) => tx.profile.upsert({
       where: { userId: authorizedMemberId },
       create: { userId: authorizedMemberId, resumeOriginalPath: path },
       update: { resumeOriginalPath: path },
-    });
+    }));
   
     let text = '';
     try {

@@ -1,9 +1,10 @@
 import { getTranslations } from 'next-intl/server';
 
+/** Shorter labels than the desktop sidebar — mobile step pills are one-third width. */
 const APPLY_PROGRESS_STEPS = [
-  { labelKey: 'stepPersonalInfo', icon: 'person' },
-  { labelKey: 'stepBackground', icon: 'work' },
-  { labelKey: 'stepProgramSelection', icon: 'school' },
+  { labelKey: 'stepPersonalInfoMobile', icon: 'person' },
+  { labelKey: 'stepBackgroundMobile', icon: 'work' },
+  { labelKey: 'stepProgramSelectionMobile', icon: 'school' },
 ] as const;
 
 type ApplyMobileStepNavProps = {

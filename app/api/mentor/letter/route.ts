@@ -31,7 +31,7 @@ export const GET = withApiGuc(async (req: NextRequest) => {
 
   if (!mentorId) return NextResponse.json({ error: 'mentorId required' }, { status: 400 });
 
-  const mentor = await prisma.mentor.findFirst({
+  const mentor = await prisma.$transaction((tx) => tx.mentor.findFirst({
     where: { id: mentorId, userId: user.id, isActive: true },
     include: {
       sessions: {
@@ -39,7 +39,7 @@ export const GET = withApiGuc(async (req: NextRequest) => {
         select: { hoursLogged: true, scheduledAt: true },
       },
     },
-  });
+  }));
 
   if (!mentor) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 

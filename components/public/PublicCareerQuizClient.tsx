@@ -1,12 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import type { MouseEvent as ReactMouseEvent, KeyboardEvent as ReactKeyboardEvent, TouchEvent as ReactTouchEvent } from 'react';
 import Link from 'next/link';
-import { getProgramBySlug } from '@/lib/content/programs';
 import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
 import { QUIZ_QUESTIONS, SCALE_LABELS, areasToTypeSlug } from '@/lib/career/careerQuizRules';
 
 const ACCENT = '#8c0f37';
+
+// Spotify-Wrapped-style gradient per slide.
+const SLIDE_BG = [
+  'linear-gradient(160deg,#7a5cff,#ff5d8f)', // intro
+  'linear-gradient(160deg,#06d6a0,#1b9aaa)', // type
+  'linear-gradient(160deg,#ff9e00,#e63946)', // careers
+  'linear-gradient(160deg,#a01142,#5e0a26)', // finale
+];
 
 type ScoreResponse = {
   careers: { code: string; title: string; fit?: string }[];
@@ -23,6 +31,8 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
   const [error, setError] = useState<string | null>(null);
   const [score, setScore] = useState<ScoreResponse | null>(null);
   const [shared, setShared] = useState(false);
+  const [slide, setSlide] = useState(0);
+  const [touchX, setTouchX] = useState<number | null>(null);
 
   async function submit(finalAnswers: (string | null)[]) {
     setLoading(true);
@@ -39,6 +49,7 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
         setError(msg);
       } else {
         setScore(parsed.data);
+        setSlide(0);
       }
     } catch {
       setError('Network error — please try again.');
@@ -63,9 +74,10 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
     setStep(0);
     setScore(null);
     setError(null);
+    setSlide(0);
   }
 
-  // ── Results ──────────────────────────────────────────────────────────────
+  // ── Results: Spotify-Wrapped-style swipeable story ─────────────────────────
   if (score) {
     const topAreas = Object.entries(score.riasec ?? {})
       .filter(([, v]) => typeof v === 'number')
@@ -73,8 +85,12 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
       .slice(0, 2)
       .map(([area]) => area.charAt(0).toUpperCase() + area.slice(1));
 
+    const typeLabel = topAreas.join(' & ');
     const typeSlug = areasToTypeSlug(topAreas);
     const topCareer = score.careers[0]?.title ?? '';
+    const shownCareers = score.careers.slice(0, 3);
+    const moreCount = Math.max(0, (score.careersTotal || score.careers.length) - shownCareers.length);
+
     const shareUrl =
       typeof window !== 'undefined' && typeSlug
         ? `${window.location.origin}/career-quiz?type=${typeSlug}${topCareer ? `&c=${encodeURIComponent(topCareer)}` : ''}`
@@ -82,7 +98,7 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
           ? `${window.location.origin}/career-quiz`
           : '';
     const shareText = topAreas.length
-      ? `My career type is ${topAreas.join(' & ')} — what's yours? Free 60-second quiz:`
+      ? `My career type is ${typeLabel} — what's yours? Free 60-second quiz:`
       : 'I just found careers that fit me — free 60-second quiz:';
 
     async function shareResult() {
@@ -99,95 +115,131 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
         setShared(true);
         setTimeout(() => setShared(false), 2000);
       } catch {
-        /* clipboard blocked — nothing more we can do */
+        /* clipboard blocked */
       }
     }
 
+    const last = SLIDE_BG.length - 1;
+    const next = () => setSlide((s) => Math.min(s + 1, last));
+    const prev = () => setSlide((s) => Math.max(s - 1, 0));
+
+    // Tap left third = back, rest = forward — but never hijack a real link/button tap.
+    function onTap(e: ReactMouseEvent<HTMLDivElement>) {
+      if ((e.target as HTMLElement).closest('a,button')) return;
+      const r = e.currentTarget.getBoundingClientRect();
+      if (e.clientX - r.left < r.width * 0.3) prev();
+      else next();
+    }
+    function onKey(e: ReactKeyboardEvent<HTMLDivElement>) {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    }
+    function onTouchEnd(e: ReactTouchEvent<HTMLDivElement>) {
+      if (touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (dx < -40) next();
+      else if (dx > 40) prev();
+      setTouchX(null);
+    }
+
+    const eyebrow = (t: string) => (
+      <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: 2, opacity: 0.82, textTransform: 'uppercase' }}>{t}</div>
+    );
+    const hint = (t: string) => (
+      <div style={{ fontSize: 15, opacity: 0.85, fontWeight: 600 }}>{t}</div>
+    );
+    const spacer = <div style={{ flex: 1 }} />;
+
+    const slides = [
+      // 0 — intro
+      <>
+        {eyebrow('WorkforceAP · Career Quiz')}
+        {spacer}
+        <div style={{ fontSize: 'clamp(2.4rem,9vw,3.4rem)', fontWeight: 900, lineHeight: 1.05 }}>Your results<br />are in 🎉</div>
+        <div style={{ fontSize: 19, opacity: 0.9, fontWeight: 600, marginTop: 16 }}>6 questions. Here&apos;s what fits you.</div>
+        {spacer}
+        {hint('Tap to reveal →')}
+      </>,
+      // 1 — type
+      <>
+        {eyebrow('Your career type')}
+        {spacer}
+        <div style={{ fontSize: 26, fontWeight: 700, opacity: 0.9 }}>You lean</div>
+        <div style={{ fontSize: 'clamp(2rem,8.5vw,3.1rem)', fontWeight: 900, lineHeight: 1.04, marginTop: 6, overflowWrap: 'anywhere' }}>
+          {topAreas[0]}
+          {topAreas[1] ? <><br /><span style={{ color: '#ffd166' }}>&amp; {topAreas[1]}</span></> : null}
+        </div>
+        {topCareer ? (
+          <div style={{ alignSelf: 'flex-start', marginTop: 22, background: 'rgba(255,255,255,0.2)', padding: '10px 20px', borderRadius: 999, fontSize: 17, fontWeight: 700 }}>
+            Top match: {topCareer}
+          </div>
+        ) : null}
+        {spacer}
+        {hint('Tap to see your careers →')}
+      </>,
+      // 2 — careers
+      <>
+        {eyebrow('Careers that fit you')}
+        {spacer}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {shownCareers.map((c, i) => (
+            <div key={c.code} style={{ fontSize: 'clamp(1.6rem,6vw,2.2rem)', fontWeight: 900, lineHeight: 1.15 }}>
+              {i + 1} · {c.title}
+            </div>
+          ))}
+        </div>
+        {moreCount > 0 ? <div style={{ fontSize: 18, opacity: 0.9, fontWeight: 600, marginTop: 22 }}>+ {moreCount} more matched to your type</div> : null}
+        {spacer}
+        {hint('Tap for your free path →')}
+      </>,
+      // 3 — finale / share
+      <>
+        {eyebrow(typeLabel || 'Your match')}
+        {spacer}
+        <div style={{ fontSize: 'clamp(1.9rem,7vw,2.6rem)', fontWeight: 900, lineHeight: 1.12 }}>
+          {topCareer ? <>You could train to be a <span style={{ color: '#ffd166' }}>{topCareer}</span> at no cost. 🎓</> : <>You could train for a great-fit career <span style={{ color: '#ffd166' }}>at no cost</span>. 🎓</>}
+        </div>
+        {spacer}
+        <Link href="/apply" style={{ display: 'block', textAlign: 'center', background: '#fff', color: ACCENT, fontWeight: 800, fontSize: 19, padding: 16, borderRadius: 14, textDecoration: 'none' }}>
+          Get matched — it&apos;s free
+        </Link>
+        <button type="button" onClick={shareResult} style={{ marginTop: 12, width: '100%', background: 'rgba(255,255,255,0.18)', color: '#fff', fontWeight: 800, fontSize: 19, padding: 16, borderRadius: 14, border: 'none', cursor: 'pointer' }}>
+          {shared ? 'Link copied! ✅' : '📤 Share my result'}
+        </button>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 13, opacity: 0.85 }}>
+          <button type="button" onClick={restart} style={{ background: 'none', border: 'none', color: '#fff', textDecoration: 'underline', cursor: 'pointer', fontSize: 13 }}>Retake</button>
+          <Link href="/interest-profiler" style={{ color: '#fff', textDecoration: 'underline' }}>Full 30-q version</Link>
+        </div>
+      </>,
+    ];
+
     return (
       <div>
-        <h1 style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>Your career snapshot</h1>
-        {topAreas.length > 0 && (
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>
-            You lean <strong>{topAreas.join(' & ')}</strong>. Here’s where that points.
-          </p>
-        )}
-
-        <div style={{ background: ACCENT, color: '#fff', borderRadius: 12, padding: '1.25rem 1.5rem', marginBottom: '1.5rem' }}>
-          <p style={{ margin: 0, fontWeight: 700, fontSize: '1.05rem' }}>Want your full results + a free plan?</p>
-          <p style={{ margin: '0.35rem 0 0.9rem', fontSize: '0.9rem', opacity: 0.92 }}>
-            Create a free account to save this, take the full assessment, and get matched to no-cost training.
-          </p>
-          <Link
-            href="/apply"
-            style={{ display: 'inline-block', background: '#fff', color: ACCENT, fontWeight: 700, padding: '0.6rem 1.1rem', borderRadius: 8, textDecoration: 'none' }}
+        <style dangerouslySetInnerHTML={{ __html: '@keyframes wrappedIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}' }} />
+        <div
+          tabIndex={0}
+          role="group"
+          aria-label="Your career quiz results — tap or swipe to advance"
+          onClick={onTap}
+          onKeyDown={onKey}
+          onTouchStart={(e) => setTouchX(e.touches[0].clientX)}
+          onTouchEnd={onTouchEnd}
+          style={{ position: 'relative', width: '100%', maxWidth: 440, margin: '0 auto', height: 'min(82vh, 860px)', borderRadius: 20, overflow: 'hidden', outline: 'none', cursor: 'pointer', userSelect: 'none', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}
+        >
+          {/* story progress segments */}
+          <div style={{ position: 'absolute', top: 16, left: 18, right: 18, zIndex: 2, display: 'flex', gap: 6 }}>
+            {SLIDE_BG.map((_, i) => (
+              <div key={i} style={{ flex: 1, height: 4, borderRadius: 9, background: i <= slide ? '#fff' : 'rgba(255,255,255,0.32)' }} />
+            ))}
+          </div>
+          {/* active slide */}
+          <div
+            key={slide}
+            style={{ position: 'absolute', inset: 0, background: SLIDE_BG[slide], color: '#fff', display: 'flex', flexDirection: 'column', padding: '54px 28px 36px', animation: 'wrappedIn .45s ease both' }}
           >
-            Get matched — it’s free
-          </Link>
+            {slides[slide]}
+          </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-          <button
-            type="button"
-            onClick={shareResult}
-            className="btn btn-primary"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>share</span>
-            {shared ? 'Link copied!' : 'Share my result'}
-          </button>
-          <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>
-            Challenge a friend to find their type.
-          </span>
-        </div>
-
-        {score.careers.length > 0 && (
-          <section style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.05rem', marginBottom: '0.6rem' }}>
-              Careers that fit ({score.careers.length}{score.careersTotal > score.careers.length ? ` of ${score.careersTotal}` : ''})
-            </h2>
-            <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', listStyle: 'none', padding: 0, margin: 0 }}>
-              {score.careers.map((c) => (
-                <li key={c.code} style={{ border: '1px solid var(--color-outline)', borderRadius: 999, padding: '0.35rem 0.75rem', fontSize: '0.85rem' }}>
-                  {c.title}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        <section style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.05rem', marginBottom: '0.6rem' }}>Matching WorkforceAP programs</h2>
-          {score.programSlugs.length === 0 ? (
-            <p style={{ color: 'var(--color-on-surface-variant)' }}>
-              No direct program match yet —{' '}
-              <Link href="/programs" style={{ fontWeight: 600, color: ACCENT }}>browse all programs</Link>.
-            </p>
-          ) : (
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
-              {score.programSlugs.map((slug) => {
-                const p = getProgramBySlug(slug);
-                if (!p) return null;
-                return (
-                  <li key={slug} style={{ border: '1px solid var(--color-outline)', borderRadius: 10, padding: '0.75rem 1rem' }}>
-                    <Link href={`/programs/${slug}`} style={{ fontWeight: 600, color: ACCENT }}>
-                      {p.title ?? slug}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
-
-        <button type="button" onClick={restart} className="btn" style={{ fontSize: '0.85rem' }}>
-          Retake quiz
-        </button>
-        <p style={{ marginTop: '1.25rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-          Want the deep version?{' '}
-          <Link href="/interest-profiler" style={{ fontWeight: 600, color: ACCENT }}>
-            Take the full 30-question Interest Profiler
-          </Link>.
-        </p>
       </div>
     );
   }

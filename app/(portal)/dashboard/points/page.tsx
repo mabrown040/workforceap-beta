@@ -6,6 +6,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import PageHeader from '@/components/portal/PageHeader';
 import { getMemberPoints } from '@/lib/member/points';
+import ReferralShareCard from './ReferralShareCard';
 import {
   EVENT_LABELS,
   LEVELS,
@@ -151,6 +152,9 @@ export default async function DashboardPointsPage() {
       />
 
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 1.25rem 4rem' }}>
+        {/* ── Invite a friend (referral) ── */}
+        <ReferralShareCard />
+
         {/* ── Current points summary ── */}
         <section
           className="portal-card portal-card--flat"

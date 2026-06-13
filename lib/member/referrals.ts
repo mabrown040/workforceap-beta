@@ -18,6 +18,7 @@
 import { randomBytes } from 'node:crypto';
 import { prisma } from '@/lib/db/prisma';
 import { awardPoints } from '@/lib/member/points';
+import { withSystemGuc } from '@/lib/db/withRequestGuc';
 import {
   CODE_ALPHABET,
   CODE_LENGTH,
@@ -79,6 +80,10 @@ export async function resolveReferralCode(rawCode: string | null | undefined): P
  * Reward a referral when the referee enrolls. Safe to call on every enrollment:
  * the guards + unique constraints make it idempotent and non-throwing on contention.
  * Returns true only when a fresh reward was granted this call.
+ *
+ * Runs in the system GUC context: the work is inherently cross-user (it reads the
+ * referrer's code row and writes the referrer's points), which a single member's
+ * RLS context can't authorize once row-level security is forced.
  */
 export async function rewardReferralOnEnrollment(
   refereeUserId: string,
@@ -87,27 +92,29 @@ export async function rewardReferralOnEnrollment(
   const code = normalizeReferralCode(rawCode);
   if (!REFERRAL_CODE_PATTERN.test(code)) return false;
 
-  const referrerUserId = await resolveReferralCode(code);
-  const alreadyReferred = Boolean(
-    await prisma.referralConversion.findUnique({ where: { refereeUserId } })
-  );
+  return withSystemGuc(async () => {
+    const referrerUserId = await resolveReferralCode(code);
+    const alreadyReferred = Boolean(
+      await prisma.referralConversion.findUnique({ where: { refereeUserId } })
+    );
 
-  const { ok } = referralRewardEligibility({ referrerUserId, refereeUserId, alreadyReferred });
-  if (!ok || !referrerUserId) return false;
+    const { ok } = referralRewardEligibility({ referrerUserId, refereeUserId, alreadyReferred });
+    if (!ok || !referrerUserId) return false;
 
-  let conversionId: string;
-  try {
-    const conversion = await prisma.referralConversion.create({
-      data: { referrerUserId, refereeUserId, code, status: 'rewarded', rewardedAt: new Date() },
-    });
-    conversionId = conversion.id;
-  } catch (e) {
-    if ((e as { code?: string }).code === 'P2002') return false; // raced — referee already referred
-    throw e;
-  }
+    let conversionId: string;
+    try {
+      const conversion = await prisma.referralConversion.create({
+        data: { referrerUserId, refereeUserId, code, status: 'rewarded', rewardedAt: new Date() },
+      });
+      conversionId = conversion.id;
+    } catch (e) {
+      if ((e as { code?: string }).code === 'P2002') return false; // raced — referee already referred
+      throw e;
+    }
 
-  // Both sides, each keyed on the conversion id so the points unique index dedupes.
-  await awardPoints(referrerUserId, 'referral_referrer_reward', conversionId);
-  await awardPoints(refereeUserId, 'referral_referee_reward', conversionId);
-  return true;
+    // Both sides, each keyed on the conversion id so the points unique index dedupes.
+    await awardPoints(referrerUserId, 'referral_referrer_reward', conversionId);
+    await awardPoints(refereeUserId, 'referral_referee_reward', conversionId);
+    return true;
+  });
 }

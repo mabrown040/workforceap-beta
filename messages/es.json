@@ -2642,6 +2642,25 @@
     "viewProgram": "Ver detalles del programa",
     "disclaimer": "Esto es una guía, no una promesa de empleo. Tu consejero puede ayudarte a elegir la ruta correcta."
   },
+  "skillCheckpoints": {
+    "metaTitle": "Puntos de Control de Habilidades",
+    "metaDesc": "Demuestra que puedes aplicar lo que aprendiste con desafíos de escenarios laborales reales",
+    "title": "Puntos de Control de Habilidades",
+    "subtitle": "Escenarios laborales cortos que demuestran que puedes usar una habilidad, no solo estudiarla",
+    "pickProgram": "Elige tu programa",
+    "pickCourse": "Elige un curso para verificar",
+    "checkpoints": "{count} punto{count, plural, one {} other {s}} de control",
+    "scenario": "Escenario",
+    "question": "Pregunta",
+    "correct": "Correcto",
+    "incorrect": "No del todo",
+    "next": "Siguiente punto de control",
+    "demonstratedTitle": "Habilidades demostradas",
+    "verifiedBy": "Verificado por WorkforceAP",
+    "shareLinkedIn": "Compartir en LinkedIn",
+    "tryAnother": "Probar otro curso",
+    "betaTag": "Beta"
+  },
   "benefitsCliff": {
     "metaTitle": "Revisión de beneficios",
     "metaDesc": "Vea cómo una oferta de trabajo podría cambiar sus beneficios de SNAP, Medicaid o TANF. Es un estimado, no asesoría de beneficios — sin costo para miembros.",
@@ -2763,6 +2782,10 @@
       "trainingBridge": {
         "label": "Puente a tu próximo trabajo",
         "hint": "Mira qué capacitación cierra tus brechas"
+      },
+      "skillCheckpoints": {
+        "label": "Demuestra una habilidad con un desafío",
+        "hint": "Escenarios laborales reales — no solo teoría"
       },
       "benefitsCliff": {
         "label": "Compare una oferta con sus beneficios",

@@ -31,6 +31,7 @@ const TOOL_CARDS = {
   linkedInAbout: { label: 'Write your LinkedIn story', href: '/dashboard/ai-tools/linkedin-about', icon: 'person' },
   gapAnalyzer: { label: 'See what is missing for a job', href: '/dashboard/ai-tools/gap-analyzer', icon: 'troubleshoot' },
   salaryNegotiation: { label: 'Practice asking for better pay', href: '/dashboard/ai-tools/salary-negotiation', icon: 'payments' },
+  skillCheckpoints: { label: 'Skill Checkpoints', href: '/dashboard/ai-tools/skill-checkpoints', icon: 'verified' },
   benefitsCliff: { label: 'Will this offer leave you better off?', href: '/dashboard/ai-tools/benefits-cliff', icon: 'account_balance' },
 } as const satisfies Record<string, AiToolkitToolCard>;
 
@@ -106,7 +107,7 @@ export const AI_TOOLS_HUB: AiToolsHubCategory[] = [
 export const AI_TOOLKIT_EXTRA_SECTIONS: AiToolkitSection[] = [
   {
     title: 'Step 1: Get your resume and applications ready',
-    tools: [TOOL_CARDS.resumeStudio, TOOL_CARDS.coverLetter],
+    tools: [TOOL_CARDS.resumeStudio, TOOL_CARDS.coverLetter, TOOL_CARDS.skillCheckpoints],
   },
   {
     title: 'Step 2: Pre-interview prep and role targeting',

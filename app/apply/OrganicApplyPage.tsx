@@ -305,6 +305,9 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           <div id="apply-form-start" className="apply-main-form__primary">
             <ApplyMobileStepNav activeStep={0} />
             <ApplyMobileTrustBar />
+            <p className="apply-organic-form-kicker" role="note">
+              {t('step1Kicker')}
+            </p>
             <TrustStrip variant="apply" />
 
             <Suspense fallback={<ApplyPageSkeleton />}>
@@ -423,6 +426,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           padding: 0 var(--space-4);
         }
 
+        .apply-organic-form-kicker {
+          display: none;
+        }
+
         .apply-hero-help-mobile .apply-hero-help-card {
           background: var(--surface-container);
           border-color: var(--outline-variant);
@@ -534,6 +541,20 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             display: inline-flex;
             align-items: center;
             justify-content: center;
+          }
+          .apply-organic-form-kicker {
+            display: block;
+            margin: 0 0 var(--space-4);
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--outline-variant);
+            background: var(--surface-container-high);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: var(--color-on-surface-variant);
+            line-height: var(--line-height-normal);
+            text-align: center;
           }
           .apply-grid-layout {
             grid-template-columns: 1fr !important;

@@ -740,6 +740,20 @@ export default async function EmployersPage() {
             display: flex;
             align-items: center;
           }
+          .employers-trust__stats--placeholder .employers-trust__stat {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+          }
+          .employers-trust__stats--placeholder .employers-trust__stat-divider {
+            display: block;
+            width: 100%;
+            height: 1px;
+            min-height: 0;
+            background: transparent;
+            margin: 0.25rem 0;
+          }
         }
       `}</style>
 

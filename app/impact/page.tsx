@@ -166,7 +166,7 @@ export default async function ImpactPage() {
     hires: t('hiresLabel'),
   });
 
-  const statsMethodologyNote = hasLiveData ? t('statsMethodologyNote') : null;
+  const statsMethodologyNote = hasLiveData ? t('statsMethodologyNote') : t('dataLightNote');
 
   return (
     <div className="inner-page impact-page marketing-mobile-pb-for-bottom-nav">
@@ -203,30 +203,24 @@ export default async function ImpactPage() {
             </div>
           )}
 
-          {hasLiveData ? (
-            <>
-              <div className="impact-page__stats-grid">
-                <StatCard
-                  value={completionValue}
-                  label={completionLabel}
-                  unpublished={isUnpublishedValue(String(completionValue))}
-                />
-                <StatCard
-                  value={placementValue}
-                  label={placementLabel}
-                  unpublished={isUnpublishedValue(String(placementValue))}
-                />
-                <StatCard
-                  value={salaryValue}
-                  label={salaryLabel}
-                  unpublished={salaryValue === '—'}
-                />
-              </div>
-              {statsMethodologyNote ? (
-                <p className="impact-page__methodology">{statsMethodologyNote}</p>
-              ) : null}
-            </>
-          ) : null}
+          <div className="impact-page__stats-grid">
+            <StatCard
+              value={completionValue}
+              label={completionLabel}
+              unpublished={isUnpublishedValue(String(completionValue))}
+            />
+            <StatCard
+              value={placementValue}
+              label={placementLabel}
+              unpublished={isUnpublishedValue(String(placementValue))}
+            />
+            <StatCard
+              value={salaryValue}
+              label={salaryLabel}
+              unpublished={salaryValue === '—'}
+            />
+          </div>
+          <p className="impact-page__methodology">{statsMethodologyNote}</p>
         </div>
       </PageSection>
 
@@ -274,6 +268,11 @@ export default async function ImpactPage() {
           ) : (
             <>
               <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
+              <div className="impact-page__stats-grid impact-page__stats-grid--employers impact-page__stats-grid--preview">
+                <StatCard value="—" label={t('employerPartnersLabel')} unpublished />
+                <StatCard value="—" label={t('jobsPostedLabel')} unpublished />
+                <StatCard value="—" label={t('hiresLabel')} unpublished />
+              </div>
               <p className="impact-page__section-link-wrap">
                 <LocalizedLink href="/employers" className="impact-page__section-link">
                   {t('employerHiringLink')}
@@ -366,6 +365,9 @@ export default async function ImpactPage() {
         }
         .impact-page__stats-grid--employers {
           margin-bottom: 0;
+        }
+        .impact-page__stats-grid--preview {
+          margin-top: 1.25rem;
         }
         .impact-page__stat-footnote {
           display: block;

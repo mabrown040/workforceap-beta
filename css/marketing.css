@@ -340,6 +340,15 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
   .home-hero__inner > div:has(.marketing-hero-step-pill) {
     display: none !important;
   }
+
+  /*
+   * Cold mobile traffic already has Apply directly under heroBody2; the ghost
+   * "See all programs" button competes with that primary action. Programs stay
+   * one scroll away via the showcase, footer, and mobile bottom nav.
+   */
+  .home-hero__cta-ghost {
+    display: none !important;
+  }
 }
 
 /*
@@ -814,6 +823,15 @@ html.has-marketing-main-nav {
    * catalog on mobile — hiding it shortens the path to the apply CTA band.
    */
   .programs-page section:has(.programs-journey-grid) {
+    display: none;
+  }
+
+  /*
+   * Sticky pathfinder CTA already floats above the catalog on mobile; hide the
+   * duplicate primary in bottom-actions so Compare/Salary stay without a third
+   * identical quiz button before the apply band.
+   */
+  .programs-bottom-actions .btn-primary {
     display: none;
   }
 }

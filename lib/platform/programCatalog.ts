@@ -68,7 +68,7 @@ export async function getActivePrograms(organizationId?: string): Promise<Active
         slug: r.programSlug,
         name: staticP?.title ?? r.name,
         description: r.description,
-        category: r.category,
+        category: staticP?.categoryLabel ?? r.category,
         deliveryType: r.deliveryType,
         deliveryUrl: r.deliveryUrl,
         deliveryDetails: r.deliveryDetails,

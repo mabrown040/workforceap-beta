@@ -33,5 +33,9 @@ test.describe('Apply smoke', () => {
     await page.evaluate(() => window.scrollTo(0, 400));
     await expect(page.locator('.apply-organic-sticky-cta')).toBeVisible();
     await expect(page.locator('.apply-organic-sticky-cta__button')).toContainText(/start your application/i);
+
+    // Sticky CTA stays hidden at footer — avoid covering links after the apply corridor
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(page.locator('.apply-organic-sticky-cta')).not.toBeVisible();
   });
 });

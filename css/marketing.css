@@ -1034,7 +1034,6 @@ html.has-marketing-main-nav {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
-    min-height: 44px;
   }
 
   .apply-mobile-trust-bar__check {
@@ -1044,6 +1043,9 @@ html.has-marketing-main-nav {
   }
 
   .apply-mobile-trust-bar__phone {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--color-accent);
     font-weight: 700;
     text-decoration: underline;

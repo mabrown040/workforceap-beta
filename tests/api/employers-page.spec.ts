@@ -15,6 +15,7 @@ describe('Employers Page — honest trust presentation', () => {
     expect(source).toContain('employers-trust__stats--placeholder');
     expect(source).toContain("showVerifiedStats ? 'verified' : 'handshake'");
     expect(source).not.toContain("showVerifiedStats || showLogos ? 'verified'");
+    expect(source).toContain('className="employers-hero"');
   });
 
   it('styles placeholder trust stats as stacked cards on mobile', () => {

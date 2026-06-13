@@ -112,6 +112,7 @@ export default async function EmployersPage() {
     <div className="inner-page employers-landing">
       {/* ── Hero: single primary CTA ── */}
       <HeroSection
+        className="employers-hero"
         backgroundImage="/images/hero-people.webp"
         priority
         minHeight="min(100vh, 52rem)"

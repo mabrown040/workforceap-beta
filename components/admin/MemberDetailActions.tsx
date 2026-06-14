@@ -85,9 +85,9 @@ export default function MemberDetailActions({
         </p>
       )}
       <div>
-        <label htmlFor="memberdetailactions-change-program-admin-only-field" style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Change program (admin only)</label>
+        <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.9rem' }}>Change program (admin only)</label>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <select id="memberdetailactions-change-program-admin-only-field"
+          <select
             value={programSlug}
             onChange={(e) => setProgramSlug(e.target.value)}
             style={{ flex: 1, maxWidth: '300px', padding: '0.5rem' }}

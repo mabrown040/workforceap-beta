@@ -84,6 +84,9 @@ export default async function HomePageBelowFold({
             <LocalizedLinkServer href="/find-your-path" className={secondaryButtonClasses({ radius: 'md' })}>
               {t('heroCta')}
             </LocalizedLinkServer>
+            <LocalizedLinkServer href="/career-quiz" className={secondaryButtonClasses({ radius: 'md' })}>
+              Take the free career quiz
+            </LocalizedLinkServer>
           </div>
         </div>
       </section>

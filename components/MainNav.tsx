@@ -27,6 +27,7 @@ const navItems = [
     children: [
       { href: '/programs', label: 'Programs' },
       { href: '/find-your-path', label: 'Find Your Path' },
+      { href: '/career-quiz', label: 'Free Career Quiz' },
     ],
   },
   { href: '/partners', label: 'Partners' },

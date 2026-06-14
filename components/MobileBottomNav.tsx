@@ -12,7 +12,7 @@ const MOBILE_NAV_BREAKPOINT = 768;
 
 const MARKETING_TABS = [
   { href: '/', label: 'Home', icon: 'home' },
-  { href: '/find-your-path', label: 'Match', icon: 'explore' },
+  { href: '/career-quiz', label: 'Quiz', icon: 'explore' },
   { href: '/programs', label: 'Programs', icon: 'school' },
   { href: '/apply', label: 'Apply', icon: 'assignment_turned_in' },
 ];
@@ -53,7 +53,7 @@ interface MobileBottomNavProps {
 
 function prefetchForBottomTab(variant: MobileBottomNavProps['variant'], href: string): boolean {
   if (variant === 'marketing') {
-    return href === '/apply' || href === '/programs' || href === '/find-your-path';
+    return href === '/apply' || href === '/programs' || href === '/career-quiz';
   }
   return false;
 }

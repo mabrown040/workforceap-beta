@@ -2,6 +2,7 @@
 
 import { fetchAuth } from '@/lib/fetchWithTimeout';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import LocalizedLink from '@/components/LocalizedLink';
 import { sanitizeRedirectPath } from '@/lib/auth/safeRedirectPath';
 import { trackFunnelEvent } from '@/lib/analytics/events';
@@ -160,7 +161,7 @@ export default function SetupMfaPage() {
                 }}
               >
                 {qrCode ? (
-                  <img src={qrCode} alt="MFA QR Code" style={{ width: 200, height: 200, display: 'block' }} />
+                  <Image src={qrCode} alt="MFA QR Code" width={200} height={200} unoptimized style={{ display: 'block' }} />
                 ) : (
                   <div style={{ width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-on-surface-variant)' }}>
                     Loading QR…

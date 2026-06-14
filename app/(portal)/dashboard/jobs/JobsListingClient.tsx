@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Briefcase, MapPin, Clock, DollarSign, Search, SlidersHorizontal, X } from 'lucide-react';
@@ -97,11 +98,12 @@ function JobCard({
     >
       <div className="job-card__logo">
         {job.employer.logoUrl ? (
-          <img
+          <Image
             src={job.employer.logoUrl}
             alt=""
             width={56}
             height={56}
+            unoptimized
             className="job-card__logo-img"
           />
         ) : (

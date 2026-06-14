@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db/prisma';
 import { Prisma, TestimonialStatus } from '@prisma/client';
+import Image from 'next/image';
 import { Quote, Star } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { InfoCard } from '@/components/marketing/ui';
@@ -108,9 +109,12 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: 'auto' }}>
             {testimonial.photoUrl ? (
-              <img
+              <Image
                 src={testimonial.photoUrl}
                 alt={testimonial.member.fullName ? `${testimonial.member.fullName} photo` : 'Member photo'}
+                width={40}
+                height={40}
+                unoptimized
                 style={{
                   width: '2.5rem',
                   height: '2.5rem',

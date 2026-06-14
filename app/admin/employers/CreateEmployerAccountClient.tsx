@@ -116,9 +116,9 @@ export default function CreateEmployerAccountClient() {
 
       <form onSubmit={submit} style={{ maxWidth: 520 }}>
         <div className="form-group">
-          <label>Find user by name or email</label>
+          <label htmlFor="createemployeraccountclient-find-user-by-name-or-email-field">Find user by name or email</label>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <input
+            <input id="createemployeraccountclient-find-user-by-name-or-email-field"
               type="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -182,8 +182,8 @@ export default function CreateEmployerAccountClient() {
         )}
 
         <div className="form-group">
-          <label>Company name *</label>
-          <input
+          <label htmlFor="createemployeraccountclient-company-name-field">Company name *</label>
+          <input id="createemployeraccountclient-company-name-field"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
             required
@@ -191,20 +191,20 @@ export default function CreateEmployerAccountClient() {
           />
         </div>
         <div className="form-group">
-          <label>Contact name *</label>
-          <input value={contactName} onChange={(e) => setContactName(e.target.value)} required disabled={saving} />
+          <label htmlFor="createemployeraccountclient-contact-name-field">Contact name *</label>
+          <input id="createemployeraccountclient-contact-name-field" value={contactName} onChange={(e) => setContactName(e.target.value)} required disabled={saving} />
         </div>
         <div className="form-group">
-          <label>Contact email *</label>
-          <input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} required disabled={saving} />
+          <label htmlFor="createemployeraccountclient-contact-email-field">Contact email *</label>
+          <input id="createemployeraccountclient-contact-email-field" type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} required disabled={saving} />
         </div>
         <div className="form-group">
-          <label>Contact phone</label>
-          <input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} disabled={saving} />
+          <label htmlFor="createemployeraccountclient-contact-phone-field">Contact phone</label>
+          <input id="createemployeraccountclient-contact-phone-field" value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} disabled={saving} />
         </div>
         <div className="form-group">
-          <label>Company website</label>
-          <input
+          <label htmlFor="createemployeraccountclient-company-website-field">Company website</label>
+          <input id="createemployeraccountclient-company-website-field"
             type="url"
             placeholder="https://"
             value={companyWebsite}

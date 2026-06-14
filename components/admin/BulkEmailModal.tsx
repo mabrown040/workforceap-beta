@@ -161,10 +161,10 @@ export default function BulkEmailModal({ open, memberIds, onClose, onSent }: Pro
           </div>
 
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+            <label htmlFor="bulkemailmodal-subject-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
               Subject
             </label>
-            <input
+            <input id="bulkemailmodal-subject-field"
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
@@ -186,10 +186,10 @@ export default function BulkEmailModal({ open, memberIds, onClose, onSent }: Pro
           </div>
 
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+            <label htmlFor="bulkemailmodal-message-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
               Message
             </label>
-            <textarea
+            <textarea id="bulkemailmodal-message-field"
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Hi {firstName},&#10;&#10;Just checking in on your progress with {programName}. Let us know if you need anything!"

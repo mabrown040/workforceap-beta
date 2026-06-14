@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 export default function AwardPointsButton({
   memberId,
@@ -13,6 +13,7 @@ export default function AwardPointsButton({
   apiHref: string;
   onAwarded?: (newTotal: number) => void;
 }) {
+  const pointsId = useId();
   const [open, setOpen] = useState(false);
   const [points, setPoints] = useState(50);
   const [note, setNote] = useState('');
@@ -72,8 +73,8 @@ export default function AwardPointsButton({
             Award bonus points to {memberName}
           </p>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <label style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>Points</label>
-            <input
+            <label htmlFor={pointsId} style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', flexShrink: 0 }}>Points</label>
+            <input id={pointsId}
               type="number"
               min={1}
               max={1000}

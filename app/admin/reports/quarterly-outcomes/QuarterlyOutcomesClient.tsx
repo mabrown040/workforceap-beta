@@ -219,10 +219,10 @@ export default function QuarterlyOutcomesClient() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+          <label htmlFor="quarterlyoutcomesclient-quarter-field" style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
             Quarter
           </label>
-          <select
+          <select id="quarterlyoutcomesclient-quarter-field"
             value={quarter}
             onChange={(e) => setQuarter(e.target.value)}
             style={{
@@ -242,10 +242,10 @@ export default function QuarterlyOutcomesClient() {
           </select>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+          <label htmlFor="quarterlyoutcomesclient-year-field" style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
             Year
           </label>
-          <input
+          <input id="quarterlyoutcomesclient-year-field"
             type="number"
             value={year}
             onChange={(e) => setYear(parseInt(e.target.value, 10) || new Date().getFullYear())}

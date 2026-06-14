@@ -135,10 +135,10 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
           )}
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
+            <label htmlFor="partnereditmodal-organization-name-field" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
               Organization Name *
             </label>
-            <input
+            <input id="partnereditmodal-organization-name-field"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -149,10 +149,10 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
+            <label htmlFor="partnereditmodal-contact-name-field" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
               Contact Name
             </label>
-            <input
+            <input id="partnereditmodal-contact-name-field"
               type="text"
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
@@ -162,10 +162,10 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
+            <label htmlFor="partnereditmodal-contact-email-field" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
               Contact Email
             </label>
-            <input
+            <input id="partnereditmodal-contact-email-field"
               type="email"
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
@@ -175,10 +175,10 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
+            <label htmlFor="partnereditmodal-phone-field" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
               Phone
             </label>
-            <input
+            <input id="partnereditmodal-phone-field"
               type="tel"
               value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}
@@ -188,10 +188,10 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
+            <label htmlFor="partnereditmodal-logo-url-field" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
               Logo URL
             </label>
-            <input
+            <input id="partnereditmodal-logo-url-field"
               type="url"
               value={logoUrl}
               onChange={(e) => setLogoUrl(e.target.value)}
@@ -205,11 +205,11 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
+            <label htmlFor="partnereditmodal-brand-color-field" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
               Brand color
             </label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <input
+              <input id="partnereditmodal-brand-color-field"
                 type="color"
                 value={HEX_COLOR_RE.test(brandColor.trim()) ? brandColor.trim() : '#1E3A8A'}
                 onChange={(e) => setBrandColor(e.target.value)}
@@ -266,10 +266,10 @@ export default function PartnerEditModal({ partner, subgroups, onClose }: Props)
           </div>
 
           <div style={{ marginBottom: '1.25rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
+            <label htmlFor="partnereditmodal-internal-notes-field" style={{ display: 'block', marginBottom: '0.25rem', fontWeight: 500, fontSize: '0.9rem' }}>
               Internal Notes
             </label>
-            <textarea
+            <textarea id="partnereditmodal-internal-notes-field"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}

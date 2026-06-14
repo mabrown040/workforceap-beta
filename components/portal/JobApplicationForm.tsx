@@ -91,10 +91,10 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
           )}
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-job-title-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Job Title *
             </label>
-            <input
+            <input id="jobapplicationform-job-title-field"
               ref={firstFieldRef}
               type="text"
               name="role"
@@ -108,10 +108,10 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-company-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Company *
             </label>
-            <input
+            <input id="jobapplicationform-company-field"
               type="text"
               name="company"
               value={formData.company}
@@ -123,10 +123,10 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-date-applied-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Date Applied *
             </label>
-            <input
+            <input id="jobapplicationform-date-applied-field"
               type="date"
               name="appliedAt"
               value={formData.appliedAt}
@@ -137,10 +137,10 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-source-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Source *
             </label>
-            <select
+            <select id="jobapplicationform-source-field"
               name="source"
               value={formData.source}
               onChange={handleChange}
@@ -154,10 +154,10 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-interview-date-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Interview Date
             </label>
-            <input
+            <input id="jobapplicationform-interview-date-field"
               type="date"
               name="nextInterviewDate"
               value={formData.nextInterviewDate}
@@ -167,10 +167,10 @@ export default function JobApplicationForm({ onSubmit, onClose }: JobApplication
           </div>
 
           <div>
-            <label className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
+            <label htmlFor="jobapplicationform-notes-field" className="wa-block wa-text-sm wa-font-bold wa-text-gray-700 wa-mb-2">
               Notes
             </label>
-            <textarea
+            <textarea id="jobapplicationform-notes-field"
               name="notes"
               value={formData.notes}
               onChange={handleChange}

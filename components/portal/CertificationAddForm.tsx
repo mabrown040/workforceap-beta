@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useId, useState, useRef } from 'react';
 
 // Common certificate suggestions for quick-add
 const CERT_SUGGESTIONS = [
@@ -26,6 +26,10 @@ const CERT_SUGGESTIONS = [
 ];
 
 export default function CertificationAddForm() {
+  const idPrefix = useId();
+  const certNameId = `${idPrefix}-certificate-name`;
+  const earnedDateId = `${idPrefix}-date-earned`;
+  const certificateFileId = `${idPrefix}-certificate-file`;
   const [open, setOpen] = useState(false);
   const [certName, setCertName] = useState('');
   const [customName, setCustomName] = useState('');
@@ -145,10 +149,10 @@ export default function CertificationAddForm() {
 
       {/* Certificate name */}
       <div>
-        <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+        <label htmlFor={certNameId} style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
           Certificate Name
         </label>
-        <select
+        <select id={certNameId}
           value={certName}
           onChange={(e) => setCertName(e.target.value)}
           style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem', marginBottom: certName === 'Other' ? '0.5rem' : 0 }}
@@ -169,10 +173,10 @@ export default function CertificationAddForm() {
 
       {/* Date earned */}
       <div>
-        <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+        <label htmlFor={earnedDateId} style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
           Date Earned
         </label>
-        <input
+        <input id={earnedDateId}
           type="date"
           value={earnedDate}
           max={new Date().toISOString().split('T')[0]}
@@ -183,10 +187,10 @@ export default function CertificationAddForm() {
 
       {/* Optional file upload */}
       <div>
-        <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+        <label htmlFor={certificateFileId} style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
           Certificate File <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional · PDF or image)</span>
         </label>
-        <input
+        <input id={certificateFileId}
           ref={fileRef}
           type="file"
           accept=".pdf,.png,.jpg,.jpeg,.webp"

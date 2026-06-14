@@ -152,10 +152,10 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
           </p>
 
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+            <label htmlFor="bulkupdatemodal-pipeline-stage-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
               Pipeline Stage
             </label>
-            <select
+            <select id="bulkupdatemodal-pipeline-stage-field"
               value={pipelineStage}
               onChange={(e) => setPipelineStage(e.target.value)}
               style={{
@@ -175,10 +175,10 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
           </div>
 
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+            <label htmlFor="bulkupdatemodal-counselor-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
               Counselor
             </label>
-            <select
+            <select id="bulkupdatemodal-counselor-field"
               value={counselorUserId}
               onChange={(e) => setCounselorUserId(e.target.value)}
               disabled={loadingCounselors}
@@ -203,10 +203,10 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
           </div>
 
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+            <label htmlFor="bulkupdatemodal-program-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
               Program
             </label>
-            <select
+            <select id="bulkupdatemodal-program-field"
               value={programSlug}
               onChange={(e) => setProgramSlug(e.target.value)}
               style={{

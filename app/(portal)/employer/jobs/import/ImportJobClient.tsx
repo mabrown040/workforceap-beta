@@ -351,12 +351,12 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
             Paste a public job link or the full description — fastest when you are only filling one opening.
           </p>
           <div className="form-group">
-            <label>Job URL</label>
-            <input type="url" placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} disabled={loading || bulkLoading} />
+            <label htmlFor="importjobclient-job-url-field">Job URL</label>
+            <input id="importjobclient-job-url-field" type="url" placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} disabled={loading || bulkLoading} />
           </div>
           <div className="form-group">
-            <label>Or paste description text</label>
-            <textarea rows={6} placeholder="Paste full job description..." value={rawText} onChange={(e) => setRawText(e.target.value)} disabled={loading || bulkLoading} />
+            <label htmlFor="importjobclient-or-paste-description-text-field">Or paste description text</label>
+            <textarea id="importjobclient-or-paste-description-text-field" rows={6} placeholder="Paste full job description..." value={rawText} onChange={(e) => setRawText(e.target.value)} disabled={loading || bulkLoading} />
           </div>
           <button type="button" className="btn btn-muted btn-sm" onClick={handleParse} disabled={loading || bulkLoading}>
             {loading ? 'Reading…' : 'Build draft from this job'}
@@ -368,8 +368,8 @@ export default function ImportJobClient({ companyName, programSlugs }: ImportJob
           </p>
           <textarea rows={4} placeholder="https://...&#10;https://..." value={bulkUrls} onChange={(e) => setBulkUrls(e.target.value)} disabled={bulkLoading || loading} />
           <div className="form-group">
-            <label>Or paste careers page text (about a paragraph)</label>
-            <textarea rows={4} placeholder="Paste the visible text from your careers page if links do not work..." value={careersPaste} onChange={(e) => setCareersPaste(e.target.value)} disabled={bulkLoading || loading} />
+            <label htmlFor="importjobclient-or-paste-careers-page-text-about-a-paragraph-field">Or paste careers page text (about a paragraph)</label>
+            <textarea id="importjobclient-or-paste-careers-page-text-about-a-paragraph-field" rows={4} placeholder="Paste the visible text from your careers page if links do not work..." value={careersPaste} onChange={(e) => setCareersPaste(e.target.value)} disabled={bulkLoading || loading} />
           </div>
           <button
             type="button"

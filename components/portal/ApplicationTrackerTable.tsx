@@ -239,8 +239,8 @@ export default function ApplicationTrackerTable() {
         <form ref={formRef} onSubmit={handleAdd} className="application-tracker-form">
           <div className="form-row">
             <div className="form-group">
-              <label>Company</label>
-              <input
+              <label htmlFor="applicationtrackertable-company-field">Company</label>
+              <input id="applicationtrackertable-company-field"
                 type="text"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
@@ -249,8 +249,8 @@ export default function ApplicationTrackerTable() {
               />
             </div>
             <div className="form-group">
-              <label>Role</label>
-              <input
+              <label htmlFor="applicationtrackertable-role-field">Role</label>
+              <input id="applicationtrackertable-role-field"
                 type="text"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
@@ -261,8 +261,8 @@ export default function ApplicationTrackerTable() {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Applied date (optional)</label>
-              <input
+              <label htmlFor="applicationtrackertable-applied-date-optional-field">Applied date (optional)</label>
+              <input id="applicationtrackertable-applied-date-optional-field"
                 type="date"
                 value={appliedAt}
                 onChange={(e) => setAppliedAt(e.target.value)}
@@ -270,8 +270,8 @@ export default function ApplicationTrackerTable() {
               />
             </div>
             <div className="form-group">
-              <label>Job URL (optional)</label>
-              <input
+              <label htmlFor="applicationtrackertable-job-url-optional-field">Job URL (optional)</label>
+              <input id="applicationtrackertable-job-url-optional-field"
                 type="url"
                 value={jobUrl}
                 onChange={(e) => setJobUrl(e.target.value)}
@@ -281,8 +281,8 @@ export default function ApplicationTrackerTable() {
             </div>
           </div>
           <div className="form-group">
-            <label>Status</label>
-            <select value={status} onChange={(e) => setStatus(e.target.value)} disabled={submitting}>
+            <label htmlFor="applicationtrackertable-status-field">Status</label>
+            <select id="applicationtrackertable-status-field" value={status} onChange={(e) => setStatus(e.target.value)} disabled={submitting}>
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>{STATUS_LABELS[s] ?? s}</option>
               ))}

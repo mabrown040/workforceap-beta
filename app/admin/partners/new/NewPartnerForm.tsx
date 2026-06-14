@@ -69,8 +69,8 @@ export default function NewPartnerForm() {
       )}
 
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Organization Name *</label>
-        <input
+        <label htmlFor="newpartnerform-organization-name-field" style={labelStyle}>Organization Name *</label>
+        <input id="newpartnerform-organization-name-field"
           type="text"
           value={name}
           onChange={(e) => handleNameChange(e.target.value)}
@@ -83,8 +83,8 @@ export default function NewPartnerForm() {
       </div>
 
       <div style={{ marginBottom: '1.5rem' }}>
-        <label style={labelStyle}>Slug (URL identifier) *</label>
-        <input
+        <label htmlFor="newpartnerform-slug-url-identifier-field" style={labelStyle}>Slug (URL identifier) *</label>
+        <input id="newpartnerform-slug-url-identifier-field"
           type="text"
           value={slug}
           onChange={(e) => { setSlug(e.target.value); setSlugEdited(true); }}
@@ -108,8 +108,8 @@ export default function NewPartnerForm() {
         <legend style={{ fontWeight: 600, padding: '0 0.5rem', fontSize: '0.9rem' }}>Contact Info (optional)</legend>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
           <div>
-            <label style={labelStyle}>Contact Name</label>
-            <input
+            <label htmlFor="newpartnerform-contact-name-field" style={labelStyle}>Contact Name</label>
+            <input id="newpartnerform-contact-name-field"
               type="text"
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
@@ -120,8 +120,8 @@ export default function NewPartnerForm() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Contact Email</label>
-            <input
+            <label htmlFor="newpartnerform-contact-email-field" style={labelStyle}>Contact Email</label>
+            <input id="newpartnerform-contact-email-field"
               type="email"
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
@@ -132,8 +132,8 @@ export default function NewPartnerForm() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Contact Phone</label>
-            <input
+            <label htmlFor="newpartnerform-contact-phone-field" style={labelStyle}>Contact Phone</label>
+            <input id="newpartnerform-contact-phone-field"
               type="tel"
               value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}

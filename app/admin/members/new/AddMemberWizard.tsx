@@ -329,22 +329,22 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
               </select>
             </div>
             <div className="wizard-field">
-              <label>Household Income</label>
-              <select value={form.householdIncome} onChange={(e) => update('householdIncome', e.target.value)}>
+              <label htmlFor="addmemberwizard-household-income-field">Household Income</label>
+              <select id="addmemberwizard-household-income-field" value={form.householdIncome} onChange={(e) => update('householdIncome', e.target.value)}>
                 <option value="">Select…</option>
                 {INCOME.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div className="wizard-field">
-              <label>Education Level *</label>
-              <select value={form.educationLevel} onChange={(e) => update('educationLevel', e.target.value)} required>
+              <label htmlFor="addmemberwizard-education-level-field">Education Level *</label>
+              <select id="addmemberwizard-education-level-field" value={form.educationLevel} onChange={(e) => update('educationLevel', e.target.value)} required>
                 <option value="">Select…</option>
                 {EDUCATION.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
             <div className="wizard-field wizard-field-full">
-              <label>Referral Source</label>
-              <select value={form.referralSource} onChange={(e) => update('referralSource', e.target.value)}>
+              <label htmlFor="addmemberwizard-referral-source-field">Referral Source</label>
+              <select id="addmemberwizard-referral-source-field" value={form.referralSource} onChange={(e) => update('referralSource', e.target.value)}>
                 <option value="">Select…</option>
                 {REFERRAL.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
@@ -376,16 +376,16 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
               </div>
             </div>
             <div className="wizard-field">
-              <label>Ethnicity</label>
-              <select value={form.ethnicity} onChange={(e) => update('ethnicity', e.target.value)}>
+              <label htmlFor="addmemberwizard-ethnicity-field">Ethnicity</label>
+              <select id="addmemberwizard-ethnicity-field" value={form.ethnicity} onChange={(e) => update('ethnicity', e.target.value)}>
                 <option value="">Select…</option>
                 {ETHNICITY.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
           </div>
           <div className="wizard-field wizard-field-full wizard-counselor-notes">
-            <label>Counselor Notes</label>
-            <textarea value={form.notes} onChange={(e) => update('notes', e.target.value)} rows={3} placeholder="Internal notes — not visible to the member" />
+            <label htmlFor="addmemberwizard-counselor-notes-field">Counselor Notes</label>
+            <textarea id="addmemberwizard-counselor-notes-field" value={form.notes} onChange={(e) => update('notes', e.target.value)} rows={3} placeholder="Internal notes — not visible to the member" />
           </div>
           <div className="wizard-actions">
             <button type="button" className="btn btn-primary" onClick={() => setStep(2)} disabled={!canProceedStep1}>
@@ -415,8 +415,8 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
             ))}
           </div>
           <div className="wizard-field wizard-field-full">
-            <label>Why this program? (optional, counselor note)</label>
-            <textarea value={form.programNotes} onChange={(e) => update('programNotes', e.target.value)} rows={2} />
+            <label htmlFor="addmemberwizard-why-this-program-optional-counselor-note-field">Why this program? (optional, counselor note)</label>
+            <textarea id="addmemberwizard-why-this-program-optional-counselor-note-field" value={form.programNotes} onChange={(e) => update('programNotes', e.target.value)} rows={2} />
           </div>
           <div className="wizard-actions wizard-actions-between">
             <button type="button" className="btn btn-outline" onClick={() => setStep(1)}>Back</button>
@@ -437,8 +437,8 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
             Optional. Assign an active partner organization for referral tracking and automated milestone emails to their contact.
           </p>
           <div className="wizard-field wizard-field-full">
-            <label>Partner organization</label>
-            <select value={form.partnerId} onChange={(e) => update('partnerId', e.target.value)}>
+            <label htmlFor="addmemberwizard-partner-organization-field">Partner organization</label>
+            <select id="addmemberwizard-partner-organization-field" value={form.partnerId} onChange={(e) => update('partnerId', e.target.value)}>
               <option value="">None</option>
               {partners.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -448,8 +448,8 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
             </select>
           </div>
           <div className="wizard-field wizard-field-full">
-            <label>Subgroup (optional)</label>
-            <select value={form.subgroupId} onChange={(e) => update('subgroupId', e.target.value)}>
+            <label htmlFor="addmemberwizard-subgroup-optional-field">Subgroup (optional)</label>
+            <select id="addmemberwizard-subgroup-optional-field" value={form.subgroupId} onChange={(e) => update('subgroupId', e.target.value)}>
               <option value="">None</option>
               {subgroups.map((s) => (
                 <option key={s.id} value={s.id}>

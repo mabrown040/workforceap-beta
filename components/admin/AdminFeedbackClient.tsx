@@ -173,27 +173,27 @@ export default function AdminFeedbackClient() {
       {/* Filters */}
       <div className="portal-card portal-card--flat" style={{ padding: '1rem', marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
         <div>
-          <label style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.25rem' }}>Type</label>
-          <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setSkip(0); }}
+          <label htmlFor="adminfeedbackclient-type-field" style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.25rem' }}>Type</label>
+          <select id="adminfeedbackclient-type-field" value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setSkip(0); }}
             style={{ padding: '0.4rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
             {FEEDBACK_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.25rem' }}>Rating</label>
-          <select value={ratingFilter} onChange={(e) => { setRatingFilter(e.target.value); setSkip(0); }}
+          <label htmlFor="adminfeedbackclient-rating-field" style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.25rem' }}>Rating</label>
+          <select id="adminfeedbackclient-rating-field" value={ratingFilter} onChange={(e) => { setRatingFilter(e.target.value); setSkip(0); }}
             style={{ padding: '0.4rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
             {RATING_OPTIONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.25rem' }}>From</label>
-          <input type="date" value={fromDate} onChange={(e) => { setFromDate(e.target.value); setSkip(0); }}
+          <label htmlFor="adminfeedbackclient-from-field" style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.25rem' }}>From</label>
+          <input id="adminfeedbackclient-from-field" type="date" value={fromDate} onChange={(e) => { setFromDate(e.target.value); setSkip(0); }}
             style={{ padding: '0.4rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }} />
         </div>
         <div>
-          <label style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.25rem' }}>To</label>
-          <input type="date" value={toDate} onChange={(e) => { setToDate(e.target.value); setSkip(0); }}
+          <label htmlFor="adminfeedbackclient-to-field" style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.25rem' }}>To</label>
+          <input id="adminfeedbackclient-to-field" type="date" value={toDate} onChange={(e) => { setToDate(e.target.value); setSkip(0); }}
             style={{ padding: '0.4rem 0.625rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }} />
         </div>
         <button onClick={() => { setTypeFilter(''); setRatingFilter(''); setFromDate(''); setToDate(''); setSkip(0); }} className="btn btn-ghost btn-sm">

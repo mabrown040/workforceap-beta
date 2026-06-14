@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 import { getTranslations } from 'next-intl/server';
 import { buildPageMetadataAsync } from '@/app/seo';
@@ -90,7 +91,6 @@ export default async function ImpactPage() {
     stats.employersPartnered > 0 || stats.jobsPosted > 0 || stats.hiresMade > 0;
 
   const membersServedValue = hasLiveData ? formatThousands(stats.membersServed) : '—';
-  const isUnpublishedValue = (value: string) => value === '—';
 
   const completionValue = hasEnrolledCohort && stats.completionRatePct > 0 ? `${stats.completionRatePct}%` : '—';
   const completionLabel = hasEnrolledCohort && stats.completionRatePct > 0 ? (
@@ -167,6 +167,12 @@ export default async function ImpactPage() {
   });
 
   const statsMethodologyNote = hasLiveData ? t('statsMethodologyNote') : t('dataLightNote');
+  const statNotPublishedHint = t('statNotPublished');
+
+  const statCardUnpublishedProps = (value: ReactNode) =>
+    value === '—'
+      ? { unpublished: true as const, unpublishedHint: statNotPublishedHint }
+      : { unpublished: false as const };
 
   return (
     <div className="inner-page impact-page marketing-mobile-pb-for-bottom-nav">
@@ -215,17 +221,17 @@ export default async function ImpactPage() {
                 <StatCard
                   value={completionValue}
                   label={completionLabel}
-                  unpublished={isUnpublishedValue(String(completionValue))}
+                  {...={statCardUnpublishedProps(completionValue)}
                 />
                 <StatCard
                   value={placementValue}
                   label={placementLabel}
-                  unpublished={isUnpublishedValue(String(placementValue))}
+                  {...={statCardUnpublishedProps(placementValue)}
                 />
                 <StatCard
                   value={salaryValue}
                   label={salaryLabel}
-                  unpublished={salaryValue === '—'}
+                  {...={statCardUnpublishedProps(salaryValue)}
                 />
               </div>
               <p className="impact-page__methodology impact-page__methodology--panel">
@@ -238,17 +244,17 @@ export default async function ImpactPage() {
                 <StatCard
                   value={completionValue}
                   label={completionLabel}
-                  unpublished={isUnpublishedValue(String(completionValue))}
+                  {...={statCardUnpublishedProps(completionValue)}
                 />
                 <StatCard
                   value={placementValue}
                   label={placementLabel}
-                  unpublished={isUnpublishedValue(String(placementValue))}
+                  {...={statCardUnpublishedProps(placementValue)}
                 />
                 <StatCard
                   value={salaryValue}
                   label={salaryLabel}
-                  unpublished={salaryValue === '—'}
+                  {...={statCardUnpublishedProps(salaryValue)}
                 />
               </div>
               <p className="impact-page__methodology">{statsMethodologyNote}</p>
@@ -313,9 +319,21 @@ export default async function ImpactPage() {
                   {t('employerMetricsPreviewHeading')}
                 </p>
                 <div className="impact-page__stats-grid impact-page__stats-grid--employers impact-page__stats-grid--preview">
-                  <StatCard value="—" label={t('employerPartnersLabel')} unpublished />
-                  <StatCard value="—" label={t('jobsPostedLabel')} unpublished />
-                  <StatCard value="—" label={t('hiresLabel')} unpublished />
+                  <StatCard
+                    value="—"
+                    label={t('employerPartnersLabel')}
+                    {...={statCardUnpublishedProps('—')}
+                  />
+                  <StatCard
+                    value="—"
+                    label={t('jobsPostedLabel')}
+                    {...={statCardUnpublishedProps('—')}
+                  />
+                  <StatCard
+                    value="—"
+                    label={t('hiresLabel')}
+                    {...={statCardUnpublishedProps('—')}
+                  />
                 </div>
                 <p className="impact-page__employer-footnote">{t('employerMetricsFootnote')}</p>
               </div>

@@ -1997,6 +1997,7 @@
       "heading": "Progresso medido, publicado com cuidado",
       "dataLightNote": "As métricas ao vivo são publicadas aqui conforme a atividade de membros e empregadores é registrada. Os números permanecem em branco até haver dados verificados suficientes para compartilhar publicamente.",
       "metricsPreviewHeading": "Métricas de turma que publicamos quando verificadas",
+      "statNotPublished": "Ainda não publicado",
       "employerMetricsPreviewHeading": "Métricas de empregadores que acompanhamos",
       "cohortRateInsufficient": "Publicado assim que as turmas de programas inscritos tiverem atividade registrada.",
       "statsMethodologyNote": "O traço (—) significa que uma métrica ainda não foi publicada. As taxas usam turmas de programas inscritos; as médias salariais usam salários de oferta e acompanhamento pareados quando ambos estão registrados.",

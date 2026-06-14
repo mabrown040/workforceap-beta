@@ -4,7 +4,15 @@ import { useState } from 'react';
 import type { MouseEvent as ReactMouseEvent, KeyboardEvent as ReactKeyboardEvent, TouchEvent as ReactTouchEvent } from 'react';
 import Link from 'next/link';
 import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
-import { QUIZ_QUESTIONS, SCALE_LABELS, areasToTypeSlug } from '@/lib/career/careerQuizRules';
+import { getProgramBySlug } from '@/lib/content/programs';
+import {
+  QUIZ_QUESTIONS,
+  SCALE_LABELS,
+  areasToTypeSlug,
+  buildCareerPlanApplyHref,
+  buildCareerPlanSteps,
+  buildCommitmentShareText,
+} from '@/lib/career/careerQuizRules';
 
 const ACCENT = '#8c0f37';
 
@@ -13,6 +21,7 @@ const SLIDE_BG = [
   'linear-gradient(160deg,#7a5cff,#ff5d8f)', // intro
   'linear-gradient(160deg,#06d6a0,#1b9aaa)', // type
   'linear-gradient(160deg,#ff9e00,#e63946)', // careers
+  'linear-gradient(160deg,#284b8c,#06d6a0)', // plan
   'linear-gradient(160deg,#a01142,#5e0a26)', // finale
 ];
 
@@ -87,7 +96,17 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
 
     const typeLabel = topAreas.join(' & ');
     const typeSlug = areasToTypeSlug(topAreas);
-    const topCareer = score.careers[0]?.title ?? '';
+    const topCareerMatch = score.careers[0] ?? null;
+    const topCareer = topCareerMatch?.title ?? '';
+    const selectedProgramSlug = score.programSlugs.find((slug) => getProgramBySlug(slug)) ?? null;
+    const selectedProgram = selectedProgramSlug ? getProgramBySlug(selectedProgramSlug) : null;
+    const selectedProgramTitle = selectedProgram?.title ?? null;
+    const applyHref = buildCareerPlanApplyHref({
+      typeSlug,
+      topCareer: topCareerMatch,
+      programSlug: selectedProgramSlug,
+    });
+    const planSteps = buildCareerPlanSteps({ topCareerTitle: topCareer, selectedProgramTitle, applyHref });
     const shownCareers = score.careers.slice(0, 3);
     const moreCount = Math.max(0, (score.careersTotal || score.careers.length) - shownCareers.length);
 
@@ -97,9 +116,11 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
         : typeof window !== 'undefined'
           ? `${window.location.origin}/career-quiz`
           : '';
-    const shareText = topAreas.length
-      ? `My career type is ${typeLabel} — what's yours? Free 60-second quiz:`
-      : 'I just found careers that fit me — free 60-second quiz:';
+    const shareText = buildCommitmentShareText({
+      typeLabel,
+      topCareerTitle: topCareer,
+      shareUrl,
+    });
 
     async function shareResult() {
       if (typeof navigator !== 'undefined' && navigator.share) {
@@ -192,19 +213,42 @@ export default function PublicCareerQuizClient({ friendType }: { friendType?: st
         {spacer}
         {hint('Tap for your free path →')}
       </>,
-      // 3 — finale / share
+      // 3 — career plan
+      <>
+        {eyebrow('Your career plan')}
+        {spacer}
+        <div style={{ fontSize: 'clamp(1.7rem,7vw,2.45rem)', fontWeight: 900, lineHeight: 1.12, marginBottom: 18 }}>
+          Your {typeLabel || 'WorkforceAP'} career plan
+        </div>
+        <div style={{ display: 'grid', gap: 12 }}>
+          {planSteps.map((planStep, i) => (
+            <div key={planStep.key} style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.28)', borderRadius: 16, padding: '12px 14px' }}>
+              <div style={{ fontSize: 13, opacity: 0.82, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>Step {i + 1}</div>
+              <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.35, marginTop: 3 }}>{planStep.label}</div>
+            </div>
+          ))}
+        </div>
+        {spacer}
+        {hint('Tap to save or share →')}
+      </>,
+      // 4 — finale / share
       <>
         {eyebrow(typeLabel || 'Your match')}
         {spacer}
         <div style={{ fontSize: 'clamp(1.9rem,7vw,2.6rem)', fontWeight: 900, lineHeight: 1.12 }}>
           {topCareer ? <>You could train toward <span style={{ color: '#ffd166' }}>{topCareer}</span> — at no cost. 🎓</> : <>You could train for a great-fit career <span style={{ color: '#ffd166' }}>at no cost</span>. 🎓</>}
         </div>
+        {selectedProgramTitle ? (
+          <div style={{ alignSelf: 'flex-start', marginTop: 18, background: 'rgba(255,255,255,0.2)', padding: '10px 18px', borderRadius: 999, fontSize: 16, fontWeight: 800 }}>
+            Recommended next step: {selectedProgramTitle}
+          </div>
+        ) : null}
         {spacer}
-        <Link href="/apply" style={{ display: 'block', textAlign: 'center', background: '#fff', color: ACCENT, fontWeight: 800, fontSize: 19, padding: 16, borderRadius: 14, textDecoration: 'none' }}>
-          Get matched — it&apos;s free
+        <Link href={applyHref} style={{ display: 'block', textAlign: 'center', background: '#fff', color: ACCENT, fontWeight: 800, fontSize: 19, padding: 16, borderRadius: 14, textDecoration: 'none' }}>
+          Save my free career plan
         </Link>
         <button type="button" onClick={shareResult} style={{ marginTop: 12, width: '100%', background: 'rgba(255,255,255,0.18)', color: '#fff', fontWeight: 800, fontSize: 19, padding: 16, borderRadius: 14, border: 'none', cursor: 'pointer' }}>
-          {shared ? 'Link copied! ✅' : '📤 Share my result'}
+          {shared ? 'Commitment copied! ✅' : '📤 Share my commitment'}
         </button>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 13, opacity: 0.85 }}>
           <button type="button" onClick={restart} style={{ background: 'none', border: 'none', color: '#fff', textDecoration: 'underline', cursor: 'pointer', fontSize: 13 }}>Retake</button>

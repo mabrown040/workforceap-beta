@@ -10,6 +10,9 @@ import {
   areaScoresToOnetAnswers,
   areasToTypeSlug,
   typeSlugToLabel,
+  buildCareerPlanApplyHref,
+  buildCareerPlanSteps,
+  buildCommitmentShareText,
 } from './careerQuizRules';
 import { MINI_IP_AREA_ORDER } from './careerQuizAreas';
 
@@ -99,5 +102,69 @@ describe('share type slug round-trip', () => {
     assert.equal(typeSlugToLabel('foo-bar'), null);
     assert.equal(typeSlugToLabel(''), null);
     assert.equal(typeSlugToLabel(null), null);
+  });
+});
+
+describe('career plan handoff helpers', () => {
+  it('builds an apply href with only safe encoded career-plan params', () => {
+    const href = buildCareerPlanApplyHref({
+      typeSlug: 'investigative-social',
+      topCareer: { code: '29-1141.00', title: 'Registered Nurse / RN' },
+      programSlug: 'healthcare-it',
+    });
+
+    assert.equal(
+      href,
+      '/apply?source=career_quiz&type=investigative-social&career=Registered+Nurse+%2F+RN&onet=29-1141.00&program=healthcare-it'
+    );
+    assert.equal(href.includes('email='), false);
+    assert.equal(href.includes('phone='), false);
+    assert.equal(href.includes('answers='), false);
+  });
+
+  it('omits invalid optional fields instead of leaking them into public URLs', () => {
+    const href = buildCareerPlanApplyHref({
+      typeSlug: 'bogus<script>',
+      topCareer: { code: 'not a code', title: 'Cybersecurity Analyst' },
+      programSlug: 'bad slug',
+    });
+
+    assert.equal(href, '/apply?source=career_quiz&career=Cybersecurity+Analyst');
+  });
+
+  it('builds identity-first commitment share text', () => {
+    const text = buildCommitmentShareText({
+      typeLabel: 'Investigative & Social',
+      topCareerTitle: 'Registered Nurse',
+      shareUrl: 'https://workforceap.org/career-quiz?type=investigative-social',
+    });
+
+    assert.match(text, /committing/i);
+    assert.match(text, /Registered Nurse/);
+    assert.match(text, /Investigative & Social/);
+    assert.match(text, /https:\/\/workforceap\.org/);
+  });
+
+  it('maps a result to visible Step 1, training, and commitment next steps', () => {
+    assert.deepEqual(
+      buildCareerPlanSteps({
+        topCareerTitle: 'Registered Nurse',
+        selectedProgramTitle: 'Healthcare IT Support',
+        applyHref: '/apply?source=career_quiz&type=investigative-social&career=Registered+Nurse&program=healthcare-it',
+      }),
+      [
+        { key: 'target', label: 'Pick your target: Registered Nurse' },
+        {
+          key: 'training',
+          label: 'Start Step 1: Healthcare IT Support',
+          href: '/apply?source=career_quiz&type=investigative-social&career=Registered+Nurse&program=healthcare-it',
+        },
+        {
+          key: 'commit',
+          label: 'Make the commitment: save or share this plan and start your free application',
+          href: '/apply?source=career_quiz&type=investigative-social&career=Registered+Nurse&program=healthcare-it',
+        },
+      ]
+    );
   });
 });

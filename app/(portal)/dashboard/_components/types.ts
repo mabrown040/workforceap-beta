@@ -121,6 +121,12 @@ export type DesktopDashboardProps = {
     employed: boolean;
   };
   careerMatchFromProfile: CareerMatchResult | null;
+  careerPlanTrainingNextStep: {
+    programTitle: string;
+    href: string;
+    ctaLabel: string;
+    detail: string;
+  } | null;
   memberPoints: PointsSummary | null;
   recentTx: PointsTransactionSummary[];
   jobOffers: Array<{ id: string; company: string }>;

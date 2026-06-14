@@ -55,6 +55,7 @@ export type EventName =
   | 'training_access_requested'
   | 'training_access_approved'
   | 'training_access_activated'
+  | 'member_referral_link_copied'
   | 'partner_invite_sent'
   | 'milestone_cascade_sent'
   | 'milestone_cascade_dismissed'

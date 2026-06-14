@@ -41,7 +41,7 @@ export default async function ProgramsPage() {
                   {t("heroDesc")}
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
-                  <LocalizedLink href="#program-catalog" className="btn btn-primary">
+                  <LocalizedLink href="#programs-quick-start" className="btn btn-primary">
                     {t("heroCta1")}
                   </LocalizedLink>
                   <LocalizedLink href="/find-your-path" className="btn btn-outline">

@@ -48,10 +48,10 @@ export default function PartnerContactEditForm({
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-        <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.25rem', fontSize: '0.875rem' }}>
+        <label htmlFor="partnercontacteditform-contact-name-field" style={{ display: 'block', fontWeight: 500, marginBottom: '0.25rem', fontSize: '0.875rem' }}>
           Contact name
         </label>
-        <input
+        <input id="partnercontacteditform-contact-name-field"
           type="text"
           value={contactName}
           onChange={(e) => setContactName(e.target.value)}
@@ -67,10 +67,10 @@ export default function PartnerContactEditForm({
         />
       </div>
       <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-        <label style={{ display: 'block', fontWeight: 500, marginBottom: '0.25rem', fontSize: '0.875rem' }}>
+        <label htmlFor="partnercontacteditform-contact-phone-field" style={{ display: 'block', fontWeight: 500, marginBottom: '0.25rem', fontSize: '0.875rem' }}>
           Contact phone
         </label>
-        <input
+        <input id="partnercontacteditform-contact-phone-field"
           type="tel"
           value={contactPhone}
           onChange={(e) => setContactPhone(e.target.value)}

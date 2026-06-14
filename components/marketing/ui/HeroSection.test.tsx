@@ -5,6 +5,7 @@ import { HeroSection } from './HeroSection';
 vi.mock('next/image', () => ({
   default: (props: React.ImgHTMLAttributes<HTMLImageElement> & { fill?: boolean; priority?: boolean }) => {
     const { fill, priority, alt, ...rest } = props;
+    // eslint-disable-next-line @next/next/no-img-element -- Test mock for next/image renders a plain img so assertions can inspect DOM attributes.
     return <img {...rest} alt={alt ?? ''} data-fill={fill} data-priority={priority} />;
   },
 }));

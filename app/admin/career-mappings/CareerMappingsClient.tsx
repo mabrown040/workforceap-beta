@@ -549,8 +549,8 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                 {showManualForm && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
                     <div>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Program</label>
-                      <select
+                      <label htmlFor="careermappingsclient-program-field" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Program</label>
+                      <select id="careermappingsclient-program-field"
                         value={programSlug}
                         onChange={(e) => setProgramSlug(e.target.value)}
                         style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}
@@ -562,8 +562,8 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
                       <div>
-                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Band</label>
-                        <select
+                        <label htmlFor="careermappingsclient-band-field" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Band</label>
+                        <select id="careermappingsclient-band-field"
                           value={experienceBand}
                           onChange={(e) => setExperienceBand(e.target.value as typeof experienceBand)}
                           style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.8125rem' }}
@@ -572,8 +572,8 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Type</label>
-                        <select
+                        <label htmlFor="careermappingsclient-type-field" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Type</label>
+                        <select id="careermappingsclient-type-field"
                           value={recommendationType}
                           onChange={(e) => setRecommendationType(e.target.value as typeof recommendationType)}
                           style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.8125rem' }}
@@ -583,8 +583,8 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                       </div>
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Priority (1 = highest)</label>
-                      <input
+                      <label htmlFor="careermappingsclient-priority-1-highest-field" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Priority (1 = highest)</label>
+                      <input id="careermappingsclient-priority-1-highest-field"
                         type="number"
                         min={1} max={99}
                         value={priority}
@@ -593,8 +593,8 @@ export default function CareerMappingsClient({ history = [] }: Props = {}) {
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Why Recommended (optional)</label>
-                      <textarea
+                      <label htmlFor="careermappingsclient-why-recommended-optional-field" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Why Recommended (optional)</label>
+                      <textarea id="careermappingsclient-why-recommended-optional-field"
                         rows={3}
                         value={whyRecommended}
                         onChange={(e) => setWhyRecommended(e.target.value)}

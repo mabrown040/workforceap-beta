@@ -246,8 +246,8 @@ export default function AIEfficacyDashboard() {
       {/* Date range picker */}
       <div className="portal-card portal-card--flat" style={{ padding: '1rem 1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>From</label>
-          <input
+          <label htmlFor="aiefficacydashboard-from-field" style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>From</label>
+          <input id="aiefficacydashboard-from-field"
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
@@ -262,8 +262,8 @@ export default function AIEfficacyDashboard() {
           />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>To</label>
-          <input
+          <label htmlFor="aiefficacydashboard-to-field" style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>To</label>
+          <input id="aiefficacydashboard-to-field"
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}

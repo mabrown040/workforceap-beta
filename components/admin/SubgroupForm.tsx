@@ -79,8 +79,8 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
       )}
 
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Name *</label>
-        <input
+        <label htmlFor="subgroupform-name-field" style={labelStyle}>Name *</label>
+        <input id="subgroupform-name-field"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -92,8 +92,8 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
       </div>
 
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Type *</label>
-        <select
+        <label htmlFor="subgroupform-type-field" style={labelStyle}>Type *</label>
+        <select id="subgroupform-type-field"
           value={type}
           onChange={(e) => setType(e.target.value as 'partner' | 'manager' | 'church')}
           style={inputStyle}
@@ -106,8 +106,8 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
       </div>
 
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Leader *</label>
-        <select
+        <label htmlFor="subgroupform-leader-field" style={labelStyle}>Leader *</label>
+        <select id="subgroupform-leader-field"
           value={leaderId}
           onChange={(e) => setLeaderId(e.target.value)}
           required
@@ -128,8 +128,8 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
 
       {type === 'partner' && (
         <div style={{ marginBottom: '1rem' }}>
-          <label style={labelStyle}>Linked Partner (optional)</label>
-          <select
+          <label htmlFor="subgroupform-linked-partner-optional-field" style={labelStyle}>Linked Partner (optional)</label>
+          <select id="subgroupform-linked-partner-optional-field"
             value={partnerId}
             onChange={(e) => setPartnerId(e.target.value)}
             style={inputStyle}
@@ -149,8 +149,8 @@ export default function SubgroupForm({ users, partners, subgroup }: Props) {
       )}
 
       <div style={{ marginBottom: '1.5rem' }}>
-        <label style={labelStyle}>Description (optional)</label>
-        <textarea
+        <label htmlFor="subgroupform-description-optional-field" style={labelStyle}>Description (optional)</label>
+        <textarea id="subgroupform-description-optional-field"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}

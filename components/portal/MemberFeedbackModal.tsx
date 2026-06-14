@@ -139,10 +139,10 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
             )}
 
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+              <label htmlFor="memberfeedbackmodal-what-is-this-about-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
                 What is this about?
               </label>
-              <select
+              <select id="memberfeedbackmodal-what-is-this-about-field"
                 value={type}
                 onChange={(e) => setType(e.target.value as FeedbackType)}
                 style={{
@@ -194,10 +194,10 @@ export default function MemberFeedbackModal({ open, onClose, defaultType = 'gene
             </div>
 
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+              <label htmlFor="memberfeedbackmodal-comments-optional-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
                 Comments (optional)
               </label>
-              <textarea
+              <textarea id="memberfeedbackmodal-comments-optional-field"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Tell us more..."

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 const VISIT_KEY = 'wap:pwa-visits';
@@ -89,9 +90,11 @@ export default function PWAInstallPrompt() {
       role="alert"
       aria-live="polite"
     >
-      <img
+      <Image
         src="/images/icon-192x192.png"
         alt=""
+        width={40}
+        height={40}
         aria-hidden="true"
         style={{ width: '40px', height: '40px', borderRadius: '0.5rem', flexShrink: 0 }}
       />

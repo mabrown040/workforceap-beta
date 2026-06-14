@@ -211,8 +211,8 @@ export default function BlogPostEditor({
     >
       {error && <div className="admin-error-banner" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: '6px' }}>{error}</div>}
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Title</label>
-        <input
+        <label htmlFor="blogposteditor-title-field" style={labelStyle}>Title</label>
+        <input id="blogposteditor-title-field"
           type="text"
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
@@ -223,8 +223,8 @@ export default function BlogPostEditor({
         />
       </div>
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Slug (URL)</label>
-        <input
+        <label htmlFor="blogposteditor-slug-url-field" style={labelStyle}>Slug (URL)</label>
+        <input id="blogposteditor-slug-url-field"
           type="text"
           value={slug}
           onChange={(e) => setSlug(e.target.value)}
@@ -238,8 +238,8 @@ export default function BlogPostEditor({
         </small>
       </div>
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Category</label>
-        <input
+        <label htmlFor="blogposteditor-category-field-2" style={labelStyle}>Category</label>
+        <input id="blogposteditor-category-field-2"
           type="text"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
@@ -249,8 +249,8 @@ export default function BlogPostEditor({
         />
       </div>
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Excerpt</label>
-        <textarea
+        <label htmlFor="blogposteditor-excerpt-field" style={labelStyle}>Excerpt</label>
+        <textarea id="blogposteditor-excerpt-field"
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value)}
           rows={2}
@@ -260,8 +260,8 @@ export default function BlogPostEditor({
         />
       </div>
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Cover Image URL</label>
-        <input
+        <label htmlFor="blogposteditor-cover-image-url-field" style={labelStyle}>Cover Image URL</label>
+        <input id="blogposteditor-cover-image-url-field"
           type="url"
           value={coverImage}
           onChange={(e) => setCoverImage(e.target.value)}
@@ -271,8 +271,8 @@ export default function BlogPostEditor({
         />
       </div>
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Author</label>
-        <input
+        <label htmlFor="blogposteditor-author-field" style={labelStyle}>Author</label>
+        <input id="blogposteditor-author-field"
           type="text"
           value={authorName}
           onChange={(e) => setAuthorName(e.target.value)}
@@ -364,8 +364,8 @@ export default function BlogPostEditor({
               }}
             >
               <div style={{ marginBottom: '0.75rem' }}>
-                <label style={labelStyle}>Title (optional)</label>
-                <input
+                <label htmlFor="blogposteditor-title-optional-field" style={labelStyle}>Title (optional)</label>
+                <input id="blogposteditor-title-optional-field"
                   type="text"
                   value={aiTitle}
                   onChange={(e) => setAiTitle(e.target.value)}
@@ -375,8 +375,8 @@ export default function BlogPostEditor({
                 />
               </div>
               <div style={{ marginBottom: '0.75rem' }}>
-                <label style={labelStyle}>Topic / angle *</label>
-                <input
+                <label htmlFor="blogposteditor-topic-angle-field" style={labelStyle}>Topic / angle *</label>
+                <input id="blogposteditor-topic-angle-field"
                   type="text"
                   value={aiTopic}
                   onChange={(e) => setAiTopic(e.target.value)}
@@ -387,8 +387,8 @@ export default function BlogPostEditor({
               </div>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
                 <div>
-                  <label style={labelStyle}>Tone</label>
-                  <select
+                  <label htmlFor="blogposteditor-tone-field" style={labelStyle}>Tone</label>
+                  <select id="blogposteditor-tone-field"
                     value={aiTone}
                     onChange={(e) => setAiTone(e.target.value)}
                     className="admin-form-input"
@@ -400,8 +400,8 @@ export default function BlogPostEditor({
                   </select>
                 </div>
                 <div>
-                  <label style={labelStyle}>Category</label>
-                  <input
+                  <label htmlFor="blogposteditor-category-field" style={labelStyle}>Category</label>
+                  <input id="blogposteditor-category-field"
                     type="text"
                     value={category || 'Career Tips'}
                     readOnly
@@ -436,7 +436,7 @@ export default function BlogPostEditor({
         </div>
       )}
       <div style={{ marginBottom: '1rem' }}>
-        <label style={labelStyle}>Content (Markdown)</label>
+        <label htmlFor="blogposteditor-content-markdown-field" style={labelStyle}>Content (Markdown)</label>
         <div
           style={{
             display: 'grid',
@@ -446,7 +446,7 @@ export default function BlogPostEditor({
           }}
           className="live-editor-split"
         >
-          <textarea
+          <textarea id="blogposteditor-content-markdown-field"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
@@ -496,8 +496,8 @@ export default function BlogPostEditor({
           Published
         </label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <label style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>Schedule for later (optional)</label>
-          <input
+          <label htmlFor="blogposteditor-schedule-for-later-optional-field" style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>Schedule for later (optional)</label>
+          <input id="blogposteditor-schedule-for-later-optional-field"
             type="datetime-local"
             value={scheduledAt}
             onChange={(e) => {

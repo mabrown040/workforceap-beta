@@ -362,10 +362,10 @@ export default function InterviewCoach() {
     return (
       <div style={{ maxWidth: 560 }}>
         <div style={{ marginBottom: '1.25rem' }}>
-          <label style={{ display: 'block', fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>
+          <label htmlFor="interviewcoach-target-role-field" style={{ display: 'block', fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.4rem', color: 'var(--color-on-surface)' }}>
             Target Role *
           </label>
-          <input
+          <input id="interviewcoach-target-role-field"
             type="text"
             value={role}
             onChange={(e) => setRole(e.target.value)}

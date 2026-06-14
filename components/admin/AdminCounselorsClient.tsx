@@ -94,8 +94,8 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
             </div>
           ))}
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>Affiliation</label>
-            <select value={affiliation} onChange={(e) => {
+            <label htmlFor="admincounselorsclient-affiliation-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>Affiliation</label>
+            <select id="admincounselorsclient-affiliation-field" value={affiliation} onChange={(e) => {
               const a = e.target.value as Affiliation;
               setAffiliation(a);
               if (a !== 'partner') setPartnerId('');
@@ -108,8 +108,8 @@ export default function AdminCounselorsClient({ partners }: { partners: PartnerO
           </div>
           {affiliation === 'partner' && (
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>Partner Organization</label>
-              <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)}
+              <label htmlFor="admincounselorsclient-partner-organization-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>Partner Organization</label>
+              <select id="admincounselorsclient-partner-organization-field" value={partnerId} onChange={(e) => setPartnerId(e.target.value)}
                 style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem' }}>
                 <option value="">Select a partner…</option>
                 {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}

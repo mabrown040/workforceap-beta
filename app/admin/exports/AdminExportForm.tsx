@@ -118,8 +118,8 @@ export default function AdminExportForm({ programs, stages }: Props) {
         marginBottom: '1.25rem',
       }}>
         <div>
-          <label style={labelStyle}>State</label>
-          <select value={state} onChange={(e) => setState(e.target.value)} style={selectStyle}>
+          <label htmlFor="adminexportform-state-field" style={labelStyle}>State</label>
+          <select id="adminexportform-state-field" value={state} onChange={(e) => setState(e.target.value)} style={selectStyle}>
             <option value="">All states</option>
             {US_STATES.map((s) => (
               <option key={s} value={s}>{s}</option>
@@ -128,8 +128,8 @@ export default function AdminExportForm({ programs, stages }: Props) {
         </div>
 
         <div>
-          <label style={labelStyle}>Pipeline Stage</label>
-          <select value={stage} onChange={(e) => setStage(e.target.value)} style={selectStyle}>
+          <label htmlFor="adminexportform-pipeline-stage-field" style={labelStyle}>Pipeline Stage</label>
+          <select id="adminexportform-pipeline-stage-field" value={stage} onChange={(e) => setStage(e.target.value)} style={selectStyle}>
             <option value="">All stages</option>
             {stages.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
@@ -138,8 +138,8 @@ export default function AdminExportForm({ programs, stages }: Props) {
         </div>
 
         <div>
-          <label style={labelStyle}>Program</label>
-          <select value={program} onChange={(e) => setProgram(e.target.value)} style={selectStyle}>
+          <label htmlFor="adminexportform-program-field" style={labelStyle}>Program</label>
+          <select id="adminexportform-program-field" value={program} onChange={(e) => setProgram(e.target.value)} style={selectStyle}>
             <option value="">All programs</option>
             {programs.map((p) => (
               <option key={p.slug} value={p.slug}>{p.title}</option>
@@ -148,8 +148,8 @@ export default function AdminExportForm({ programs, stages }: Props) {
         </div>
 
         <div>
-          <label style={labelStyle}>Funding Eligibility</label>
-          <select value={wioaStatus} onChange={(e) => setWioaStatus(e.target.value)} style={selectStyle}>
+          <label htmlFor="adminexportform-funding-eligibility-field" style={labelStyle}>Funding Eligibility</label>
+          <select id="adminexportform-funding-eligibility-field" value={wioaStatus} onChange={(e) => setWioaStatus(e.target.value)} style={selectStyle}>
             <option value="">Any status</option>
             {WIOA_STATUSES.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
@@ -158,8 +158,8 @@ export default function AdminExportForm({ programs, stages }: Props) {
         </div>
 
         <div>
-          <label style={labelStyle}>Coursera Access</label>
-          <select value={courseraStatus} onChange={(e) => setCourseraStatus(e.target.value)} style={selectStyle}>
+          <label htmlFor="adminexportform-coursera-access-field" style={labelStyle}>Coursera Access</label>
+          <select id="adminexportform-coursera-access-field" value={courseraStatus} onChange={(e) => setCourseraStatus(e.target.value)} style={selectStyle}>
             <option value="">Any status</option>
             {COURSERA_STATUSES.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
@@ -168,13 +168,13 @@ export default function AdminExportForm({ programs, stages }: Props) {
         </div>
 
         <div>
-          <label style={labelStyle}>Signed Up After</label>
-          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={inputStyle} />
+          <label htmlFor="adminexportform-signed-up-after-field" style={labelStyle}>Signed Up After</label>
+          <input id="adminexportform-signed-up-after-field" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={inputStyle} />
         </div>
 
         <div>
-          <label style={labelStyle}>Signed Up Before</label>
-          <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={inputStyle} />
+          <label htmlFor="adminexportform-signed-up-before-field" style={labelStyle}>Signed Up Before</label>
+          <input id="adminexportform-signed-up-before-field" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={inputStyle} />
         </div>
       </div>
 

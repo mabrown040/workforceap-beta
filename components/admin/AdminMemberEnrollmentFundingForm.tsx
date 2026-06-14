@@ -77,10 +77,10 @@ export default function AdminMemberEnrollmentFundingForm({
       )}
 
       <div>
-        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+        <label htmlFor="adminmemberenrollmentfundingform-funding-source-field" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
           Funding Source
         </label>
-        <select
+        <select id="adminmemberenrollmentfundingform-funding-source-field"
           value={fundingSource}
           onChange={(e) => setFundingSource(e.target.value as FundingSource | '')}
           style={{
@@ -101,10 +101,10 @@ export default function AdminMemberEnrollmentFundingForm({
       </div>
 
       <div>
-        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+        <label htmlFor="adminmemberenrollmentfundingform-funding-notes-field" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
           Funding Notes
         </label>
-        <textarea
+        <textarea id="adminmemberenrollmentfundingform-funding-notes-field"
           value={fundingNotes}
           onChange={(e) => setFundingNotes(e.target.value)}
           rows={3}
@@ -123,10 +123,10 @@ export default function AdminMemberEnrollmentFundingForm({
       </div>
 
       <div>
-        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+        <label htmlFor="adminmemberenrollmentfundingform-workspace-email-field" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
           Workspace Email
         </label>
-        <input
+        <input id="adminmemberenrollmentfundingform-workspace-email-field"
           type="email"
           value={workspaceEmail}
           onChange={(e) => setWorkspaceEmail(e.target.value)}

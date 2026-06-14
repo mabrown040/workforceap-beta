@@ -145,8 +145,8 @@ export default function AdminMemberDbActions({
               </div>
             ))}
             <div>
-              <label style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.3rem' }}>Bio</label>
-              <textarea value={profileBio} onChange={(e) => setProfileBio(e.target.value)} rows={3}
+              <label htmlFor="adminmemberdbactions-bio-field" style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.3rem' }}>Bio</label>
+              <textarea id="adminmemberdbactions-bio-field" value={profileBio} onChange={(e) => setProfileBio(e.target.value)} rows={3}
                 style={{ width: '100%', padding: '0.45rem 0.7rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)', fontSize: '0.875rem', resize: 'vertical', boxSizing: 'border-box' as const }} />
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>

@@ -9,12 +9,15 @@ import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { formatPhone } from '@/lib/formatPhone';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 export async function GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const orgId = await getActorOrganizationId(user.id);
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search')?.trim() ?? '';
@@ -224,6 +227,7 @@ export async function GET(request: NextRequest) {
         action: 'admin.export.members',
         targetType: 'MemberRoster',
         metadata: {
+          orgId,
           rowCount: rows.length,
           truncated: members.length >= 2000,
           filters: {
@@ -233,6 +237,27 @@ export async function GET(request: NextRequest) {
             health: healthFilter || null,
           },
         },
+      });
+      await logAuditEvent({
+        user: { id: user.id, role: 'admin' },
+        verb: 'exported',
+        object: { type: 'MemberRoster', id: 'members' },
+        result: {
+          success: true,
+          extensions: {
+            orgId,
+            rowCount: rows.length,
+            truncated: members.length >= 2000,
+            filters: {
+              search: search || null,
+              program: programFilter || null,
+              partner: partnerFilter || null,
+              health: healthFilter || null,
+            },
+          },
+        },
+        request: auditRequestMeta(request),
+        orgId,
       });
     } catch (err) {
       console.error('[admin/members/export] audit log failed:', err);

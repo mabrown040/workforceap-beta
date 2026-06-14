@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
@@ -83,6 +84,7 @@ export async function GET(request: NextRequest) {
       action: 'admin.export.partners',
       targetType: 'PartnerDirectoryExport',
       metadata: {
+        orgId,
         rowCount: partners.length,
         truncated: partners.length >= 500,
         limit: 500,
@@ -92,6 +94,26 @@ export async function GET(request: NextRequest) {
         },
       },
     }).catch((err) => console.error('[admin/partners/export] audit log failed:', err));
+    await logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'exported',
+      object: { type: 'PartnerDirectoryExport', id: 'partners' },
+      result: {
+        success: true,
+        extensions: {
+          orgId,
+          rowCount: partners.length,
+          truncated: partners.length >= 500,
+          limit: 500,
+          filters: {
+            status: statusFilter || null,
+            search: search || null,
+          },
+        },
+      },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[admin/partners/export] xAPI audit log failed:', err));
 
     return csvDownloadResponse(csv, exportFilename('partners'), { truncated: partners.length >= 5000, limit: 5000 });
   } catch (error) {

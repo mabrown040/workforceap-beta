@@ -6,6 +6,8 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { buildCsv, csvDate } from '@/lib/csv';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
   try {
@@ -13,6 +15,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id)))
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const orgId = await getActorOrganizationId(user.id);
 
   const slug = req.nextUrl.searchParams.get('program')?.trim() ?? '';
   if (!slug) {
@@ -183,12 +186,30 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     action: 'admin.export.cohort',
     targetType: 'CohortExport',
     metadata: {
+      orgId,
       programSlug: slug,
       rowCount: users.length,
       truncated: users.length >= EXPORT_LIMIT,
       limit: EXPORT_LIMIT,
     },
   }).catch((err) => console.error('[admin/cohort-export] audit log failed:', err));
+  await logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'exported',
+    object: { type: 'CohortExport', id: slug },
+    result: {
+      success: true,
+      extensions: {
+        orgId,
+        programSlug: slug,
+        rowCount: users.length,
+        truncated: users.length >= EXPORT_LIMIT,
+        limit: EXPORT_LIMIT,
+      },
+    },
+    request: auditRequestMeta(req),
+    orgId,
+  }).catch((err) => console.error('[admin/cohort-export] xAPI audit log failed:', err));
 
   return new NextResponse(csv, { status: 200, headers });
   } catch {

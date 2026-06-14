@@ -4,9 +4,16 @@ import type { CareerMatchResult } from '@/lib/onet/types';
 export default function MemberCareerPathSection({
   careerMatch,
   coursesCompletedCount,
+  trainingNextStep,
 }: {
   careerMatch: CareerMatchResult | null;
   coursesCompletedCount: number;
+  trainingNextStep?: {
+    programTitle: string;
+    href: string;
+    ctaLabel: string;
+    detail: string;
+  } | null;
 }) {
   const top = careerMatch?.topOccupations[0];
   if (!top) return null;
@@ -43,6 +50,27 @@ export default function MemberCareerPathSection({
         </div>
       )}
       <p style={{ fontSize: '0.88rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>{readiness}</p>
+      {trainingNextStep ? (
+        <div
+          style={{
+            marginBottom: '0.9rem',
+            padding: '0.9rem',
+            borderRadius: '0.75rem',
+            border: '1px solid rgba(173,44,77,0.22)',
+            background: 'rgba(173,44,77,0.07)',
+          }}
+        >
+          <p style={{ margin: '0 0 0.25rem', fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#8c0f37' }}>
+            Training next step
+          </p>
+          <p style={{ margin: '0 0 0.55rem', fontSize: '0.92rem', lineHeight: 1.45 }}>
+            Your plan maps this career direction to <strong>{trainingNextStep.programTitle}</strong>. {trainingNextStep.detail}
+          </p>
+          <Link href={trainingNextStep.href} className="btn btn-primary btn-small">
+            {trainingNextStep.ctaLabel}
+          </Link>
+        </div>
+      ) : null}
       <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.35rem' }}>Suggested next steps</p>
       <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.88rem' }}>
         <li>

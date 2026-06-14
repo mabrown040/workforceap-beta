@@ -78,6 +78,7 @@ export default function DesktopDashboard({
   firstValueSecondsSinceSignup,
   progressStripProps,
   careerMatchFromProfile,
+  careerPlanTrainingNextStep,
   memberPoints,
   recentTx,
   jobOffers,
@@ -204,7 +205,11 @@ export default function DesktopDashboard({
               </div>
               <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
                 <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-                  <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+                  <MemberCareerPathSection
+                    careerMatch={careerMatchFromProfile}
+                    coursesCompletedCount={completedCount}
+                    trainingNextStep={careerPlanTrainingNextStep}
+                  />
                 </ErrorBoundary>
                 <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
                   <div id="goals" role="region" aria-label="Goals" style={{ maxWidth: 520, marginBottom: 'var(--space-6)', scrollMarginTop: '5rem' }}>

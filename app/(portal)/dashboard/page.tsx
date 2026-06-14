@@ -633,6 +633,16 @@ async function renderMemberDashboard(
       : program && trainingView
         ? program.courses.find((c) => !trainingView.completedSlugsAuthoritative.includes(c.slug)) ?? null
         : null;
+  const careerPlanTrainingNextStep = program
+    ? {
+        programTitle: program.title,
+        href: `/dashboard?program=${encodeURIComponent(program.slug)}`,
+        ctaLabel: nextIncompleteCourse ? `Continue ${nextIncompleteCourse.name}` : 'Start Step 1',
+        detail: nextIncompleteCourse
+          ? `Your next course is ${nextIncompleteCourse.name}.`
+          : 'Start with the first course in this training path.',
+      }
+    : null;
 
   const recommendedActions = careerBrief.recommendedActions;
   const jobSearchUrl = careerBrief.jobSearchUrl;
@@ -887,7 +897,11 @@ async function renderMemberDashboard(
         {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
         <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
           <div role="region" aria-label="Career path" style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
-            <MemberCareerPathSection careerMatch={careerMatchFromProfile} coursesCompletedCount={completedCount} />
+            <MemberCareerPathSection
+              careerMatch={careerMatchFromProfile}
+              coursesCompletedCount={completedCount}
+              trainingNextStep={careerPlanTrainingNextStep}
+            />
           </div>
         </ErrorBoundary>
 
@@ -986,6 +1000,7 @@ async function renderMemberDashboard(
         firstValueSecondsSinceSignup={firstValueSecondsSinceSignup}
         progressStripProps={progressStripProps}
         careerMatchFromProfile={careerMatchFromProfile}
+        careerPlanTrainingNextStep={careerPlanTrainingNextStep}
         memberPoints={memberPoints}
         recentTx={recentTx}
         jobOffers={jobOffers}

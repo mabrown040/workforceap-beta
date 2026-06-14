@@ -89,3 +89,89 @@ export function areaScoresToOnetAnswers(
   const out = positionAreas.map((area) => (area && byArea.get(area)) || '3').join('');
   return ONET_ANSWER_PATTERN.test(out) ? out : null;
 }
+
+export type CareerPlanTopCareer = {
+  code?: string | null;
+  title?: string | null;
+};
+
+export type CareerPlanStep = {
+  key: 'target' | 'training' | 'commit';
+  label: string;
+  href?: string;
+};
+
+const SAFE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const SAFE_ONET_CODE_PATTERN = /^\d{2}-\d{4}\.\d{2}$/;
+
+function cleanDisplayText(value: string | null | undefined): string | null {
+  const cleaned = (value ?? '').replace(/\s+/g, ' ').trim();
+  return cleaned.length > 0 ? cleaned.slice(0, 120) : null;
+}
+
+function isSafeSlug(value: string | null | undefined): value is string {
+  return SAFE_SLUG_PATTERN.test(value ?? '');
+}
+
+/**
+ * Build the short, non-PII apply URL used by quiz result CTAs.
+ * Only source/type/career/onet/program are serialized; raw answers/contact data never are.
+ */
+export function buildCareerPlanApplyHref({
+  typeSlug,
+  topCareer,
+  programSlug,
+}: {
+  typeSlug?: string | null;
+  topCareer?: CareerPlanTopCareer | null;
+  programSlug?: string | null;
+}): string {
+  const params = new URLSearchParams({ source: 'career_quiz' });
+  if (isSafeSlug(typeSlug)) params.set('type', typeSlug);
+
+  const title = cleanDisplayText(topCareer?.title);
+  if (title) params.set('career', title);
+
+  const code = topCareer?.code?.trim();
+  if (code && SAFE_ONET_CODE_PATTERN.test(code)) params.set('onet', code);
+  if (isSafeSlug(programSlug)) params.set('program', programSlug);
+
+  return `/apply?${params.toString()}`;
+}
+
+/** Commitment copy for Web Share/clipboard. Identity + action, not generic viral quiz text. */
+export function buildCommitmentShareText({
+  typeLabel,
+  topCareerTitle,
+  shareUrl,
+}: {
+  typeLabel?: string | null;
+  topCareerTitle?: string | null;
+  shareUrl?: string | null;
+}): string {
+  const career = cleanDisplayText(topCareerTitle) ?? 'a career that fits me';
+  const type = cleanDisplayText(typeLabel);
+  const url = cleanDisplayText(shareUrl);
+  const typeSentence = type ? ` My career type is ${type}.` : '';
+  const urlSentence = url ? ` Hold me to it: ${url}` : '';
+  return `I'm committing to explore ${career} with WorkforceAP's no-cost training path.${typeSentence}${urlSentence}`;
+}
+
+/** Visible three-step plan shown after the quiz result. */
+export function buildCareerPlanSteps({
+  topCareerTitle,
+  selectedProgramTitle,
+  applyHref,
+}: {
+  topCareerTitle?: string | null;
+  selectedProgramTitle?: string | null;
+  applyHref: string;
+}): CareerPlanStep[] {
+  const career = cleanDisplayText(topCareerTitle) ?? 'your best-fit career';
+  const program = cleanDisplayText(selectedProgramTitle) ?? 'Talk with a counselor';
+  return [
+    { key: 'target', label: `Pick your target: ${career}` },
+    { key: 'training', label: `Start Step 1: ${program}`, href: applyHref },
+    { key: 'commit', label: 'Make the commitment: save or share this plan and start your free application', href: applyHref },
+  ];
+}

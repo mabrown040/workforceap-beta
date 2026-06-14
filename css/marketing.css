@@ -1155,7 +1155,8 @@ html.has-marketing-main-nav {
 }
 
 @media (max-width: 768px) {
-  .apply-mobile-step-nav {
+  .apply-mobile-step-nav,
+  .apply-mobile-trust-bar {
     display: block;
     margin-bottom: var(--space-4);
   }

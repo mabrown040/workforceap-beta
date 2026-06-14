@@ -18,10 +18,11 @@ describe('Employers Page — honest trust presentation', () => {
     expect(source).toContain('className="employers-hero"');
   });
 
-  it('styles placeholder trust stats as stacked cards on mobile', () => {
+  it('styles placeholder trust stats as a bordered panel at all breakpoints', () => {
     const pagePath = path.resolve(__dirname, '../../app/employers/page.tsx');
     const source = readFileSync(pagePath, 'utf-8');
-    expect(source).toContain('.employers-trust__stats--placeholder .employers-trust__stat {');
+    expect(source).toContain('.employers-trust__stats--placeholder {');
+    expect(source).toContain('padding: clamp(1rem, 3vw, 1.25rem);');
   });
 
   it('exports revalidate = 600 (10 minutes)', () => {

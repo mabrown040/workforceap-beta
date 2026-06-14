@@ -483,8 +483,8 @@ export default function DashboardHomeClient({
       {/* ── 5. Main content grid ── */}
       <div className="portal-bento-grid">
 
-        {/* ── Main Progress Card (state B: onboarding milestones) ── */}
-        {state === 'B' && programTitle && (
+      {/* ── Main Progress Card (states C/D: training in progress / completed) ── */}
+      {(state === 'C' || state === 'D') && programTitle && (
           <section className="portal-card portal-card--flat" style={{ gridColumn: 'span 12' }}>
             <div className="portal-card__body">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', gap: '1rem' }}>

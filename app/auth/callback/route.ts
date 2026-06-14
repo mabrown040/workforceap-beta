@@ -8,6 +8,7 @@ import { resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect'
 import { getSupabaseEnv } from '@/lib/supabase/env';
 import { emitEmailVerifiedFromCallback } from '@/lib/events/emailVerified';
 import { trackEvent } from '@/lib/events/track';
+import { logger } from '@/lib/observability/logger';
 
 // Handles Supabase email confirmation and OAuth redirects.
 // Supabase sends ?code=xxx (PKCE); we exchange it for a session then redirect.
@@ -58,6 +59,13 @@ export async function GET(request: NextRequest) {
           metadata: { destination },
           sourcePage: '/auth/callback',
         }).catch(() => {});
+
+        prisma.user.update({
+          where: { id: userId },
+          data: { lastLoginAt: new Date() },
+        }).catch((err) => {
+          logger.warn('Failed to update lastLoginAt', { userId, err });
+        });
       }
 
       try {

@@ -94,29 +94,6 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     },
   }));
 
-  // Keep legacy PlacedOutcome in sync during migration period.
-  // TODO: Remove once PlacedOutcome is fully retired.
-  await prisma.$transaction((tx) => tx.placedOutcome.upsert({
-    where: { userId: memberId },
-    create: {
-      userId: memberId,
-      employerName: d.employerName,
-      jobTitle: d.jobTitle,
-      startingSalary: d.startingSalary ?? null,
-      placedAt,
-      programSlug,
-      notes: d.notes?.trim() || null,
-    },
-    update: {
-      employerName: d.employerName,
-      jobTitle: d.jobTitle,
-      startingSalary: d.startingSalary ?? null,
-      placedAt,
-      programSlug,
-      notes: d.notes?.trim() || null,
-    },
-  }));
-
   // WIOA grant claims need a tamper-evident change history (AUDIT H-DEP4).
   // MemberEvent rows are mutable product analytics; AuditLog is the
   // retained 3-year record with actor attribution.

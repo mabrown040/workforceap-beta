@@ -49,6 +49,13 @@ export function trackLeadFormEvent(
   });
 }
 
+export function trackMemberReferralShare(action: 'copy_link') {
+  pushEvent({
+    event: 'member_referral_share',
+    member_referral_share_action: action,
+  });
+}
+
 export function trackApplyFunnel(
   step: number,
   stepName: string,

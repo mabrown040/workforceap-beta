@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { trackMemberReferralShare } from '@/lib/analytics/events';
+import { postMemberEvent } from '@/lib/events/client';
 import { safeParseResponseJson } from '@/lib/http/safeFetchJson';
 import { POINT_VALUES } from '@/lib/member/pointsConfig';
 
@@ -44,6 +46,13 @@ export default function ReferralShareCard() {
     if (!shareUrl) return;
     try {
       await navigator.clipboard.writeText(shareUrl);
+      trackMemberReferralShare('copy_link');
+      void postMemberEvent({
+        eventName: 'member_referral_link_copied',
+        entityType: 'member_referral',
+        metadata: { action: 'copy_link' },
+        sourcePage: '/dashboard/points',
+      });
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {

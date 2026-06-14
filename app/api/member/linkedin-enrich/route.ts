@@ -3,7 +3,10 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { assertPublicHttpUrl, UnsafeUrlError } from '@/lib/http/safeOutboundFetch';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (req: NextRequest) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { buildLinkedInEnrichmentInputSummary, findRecentLinkedInEnrichment } from './_linkedinEnrich';
+
+export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -44,6 +47,26 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     const proxycurlKey = process.env.PROXYCURL_API_KEY;
     if (proxycurlKey) {
       try {
+        const recentResult = await prisma.$transaction((tx) =>
+          findRecentLinkedInEnrichment(tx, user.id, linkedinUrl)
+        );
+        if (recentResult) {
+          let skillCount = 0;
+          try {
+            const output = JSON.parse(recentResult.output) as { skills?: unknown[] };
+            skillCount = output.skills?.length ?? 0;
+          } catch {
+            skillCount = 0;
+          }
+
+          return NextResponse.json({
+            success: true,
+            source: 'cached',
+            skillCount,
+            message: 'Recent LinkedIn skills already saved. Your Skill Mapper profile will update on next view.',
+          });
+        }
+
         const res = await fetch(
           `https://nubela.co/proxycurl/api/v2/linkedin?url=${encodeURIComponent(linkedinUrl)}&skills=include&education=include`,
           { headers: { Authorization: `Bearer ${proxycurlKey}` }, next: { revalidate: 0 } }
@@ -72,7 +95,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
           data: {
             userId: user.id,
             toolType: 'skill_assessment',
-            inputSummary: `LinkedIn enrichment: ${linkedinUrl}`,
+            inputSummary: buildLinkedInEnrichmentInputSummary(linkedinUrl),
             output: JSON.stringify({
               source: 'linkedin_enrichment',
               linkedinUrl,

@@ -211,7 +211,6 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
         </div>
         <h1 style={sPage.heroHeading}>{t('heroHeading')}</h1>
         <p className="apply-hero-social" style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{t('applySocialProof')}</p>
-        <p className="apply-hero-time-callout apply-hero-time-mobile">{t('step1Kicker')}</p>
         {/* Pilot status — honest about limited availability */}
         <div style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
           <PreLaunchTag compact />
@@ -303,8 +302,8 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           />
 
           <div id="apply-form-start" className="apply-main-form__primary">
-            <ApplyMobileStepNav activeStep={0} />
             <ApplyMobileTrustBar />
+            <ApplyMobileStepNav activeStep={0} />
             <p className="apply-organic-form-kicker" role="note">
               {t('step1Kicker')}
             </p>
@@ -376,24 +375,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           margin: var(--space-3) 0 0;
         }
 
-        .apply-hero-time-mobile,
         .apply-hero-help-compact,
         .apply-hero-start-cta,
         .apply-hero-help-mobile {
           display: none;
-        }
-
-        .apply-hero-time-mobile {
-          max-width: 640px;
-          margin: var(--space-3) auto 0;
-          padding: var(--space-3) var(--space-4);
-          border-radius: var(--radius-md);
-          border: 1px solid rgba(255, 255, 255, 0.14);
-          background: rgba(255, 255, 255, 0.08);
-          font-size: var(--font-size-sm);
-          line-height: var(--line-height-normal);
-          color: rgba(255, 255, 255, 0.88);
-          text-align: center;
         }
 
         .apply-hero-help-compact {
@@ -531,7 +516,6 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           .apply-hero-help-desktop {
             display: none !important;
           }
-          .apply-hero-time-mobile,
           .apply-hero-help-compact,
           .apply-hero-start-cta,
           .apply-hero-help-mobile {

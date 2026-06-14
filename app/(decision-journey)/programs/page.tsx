@@ -129,7 +129,7 @@ export default async function ProgramsPage() {
                   eyebrow: t('quickStartCard3Eyebrow'),
                   title: t('quickStartCard3Title'),
                   desc: t('quickStartCard3Desc'),
-                  href: '#subgroup-programming',
+                  href: '/programs/project-management-professional-certificate-microsoft',
                   cta: t('quickStartCard3Cta'),
                 },
               ].map((item) => (

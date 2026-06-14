@@ -25,11 +25,16 @@ export default async function MemberMessagesPage() {
 
   const thread = await getOrCreateMemberCounselorThread(user.id);
 
-  const [messages, counselor] = await Promise.all([
+  // If memberLastReadAt is null, the member has never explicitly read the thread.
+  // Counting every message as unread is misleading and inflates the badge.
+  // Treat null as "no unread" for the badge; the thread itself is still visible.
+  const lastRead = thread.memberLastReadAt ? new Date(thread.memberLastReadAt) : null;
+
+  const [latestMessages, counselor, unreadCount] = await Promise.all([
     prisma.message.findMany({
       take: 200,
       where: { threadId: thread.id, NOT: { body: { contains: '[ARCHIVED FIXTURE]' } } },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
     }),
     thread.counselorUserId
       ? prisma.user.findUnique({
@@ -37,20 +42,24 @@ export default async function MemberMessagesPage() {
           select: { fullName: true },
         })
       : Promise.resolve(null),
+    lastRead
+      ? prisma.message.count({
+          where: {
+            threadId: thread.id,
+            authorId: { not: user.id },
+            createdAt: { gt: lastRead },
+            NOT: { body: { contains: '[ARCHIVED FIXTURE]' } },
+          },
+        })
+      : Promise.resolve(0),
   ]);
 
+  const messages = [...latestMessages].reverse();
   const lastMsg = messages[messages.length - 1];
   const lastMsgText = lastMsg ? (lastMsg.body ?? '').slice(0, 60) : t('noMessagesYet');
   const lastMsgTime = lastMsg
     ? new Date(lastMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
-  // If memberLastReadAt is null, the member has never explicitly read the thread.
-  // Counting every message as unread is misleading and inflates the badge.
-  // Treat null as "no unread" for the badge; the thread itself is still visible.
-  const lastRead = thread.memberLastReadAt ? new Date(thread.memberLastReadAt) : null;
-  const unreadCount = lastRead
-    ? messages.filter((m) => m.authorId !== user.id && new Date(m.createdAt) > lastRead).length
-    : 0;
 
   const counselorName = counselor?.fullName ?? null;
   const counselorInitials = counselorName

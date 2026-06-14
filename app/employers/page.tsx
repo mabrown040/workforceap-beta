@@ -452,6 +452,12 @@ export default async function EmployersPage() {
         .employers-trust__stat-divider {
           display: none;
         }
+        .employers-trust__stats--placeholder {
+          padding: clamp(1rem, 3vw, 1.25rem);
+          background: var(--surface-container-lowest);
+          border: 1px solid var(--outline-variant);
+          border-radius: var(--radius-md);
+        }
         .employers-trust__stats--placeholder .employers-trust__stat-value {
           font-size: clamp(1rem, 3vw, 1.25rem);
           font-weight: 700;
@@ -742,10 +748,7 @@ export default async function EmployersPage() {
             align-items: center;
           }
           .employers-trust__stats--placeholder .employers-trust__stat {
-            background: var(--surface-container-lowest);
-            border: 1px solid var(--outline-variant);
-            border-radius: var(--radius-md);
-            padding: 1rem 1.25rem;
+            padding: 0.75rem 0;
           }
           .employers-trust__stats--placeholder .employers-trust__stat-divider {
             display: block;

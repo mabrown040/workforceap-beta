@@ -204,28 +204,56 @@ export default async function ImpactPage() {
           )}
 
           {!hasLiveData ? (
-            <p className="impact-page__preview-heading">{t('metricsPreviewHeading')}</p>
-          ) : null}
-          <div
-            className={`impact-page__stats-grid${!hasLiveData ? ' impact-page__stats-grid--preview' : ''}`}
-          >
-            <StatCard
-              value={completionValue}
-              label={completionLabel}
-              unpublished={isUnpublishedValue(String(completionValue))}
-            />
-            <StatCard
-              value={placementValue}
-              label={placementLabel}
-              unpublished={isUnpublishedValue(String(placementValue))}
-            />
-            <StatCard
-              value={salaryValue}
-              label={salaryLabel}
-              unpublished={salaryValue === '—'}
-            />
-          </div>
-          <p className="impact-page__methodology">{statsMethodologyNote}</p>
+            <div
+              className="impact-page__preview-panel"
+              aria-labelledby="impact-cohort-preview-heading"
+            >
+              <p id="impact-cohort-preview-heading" className="impact-page__preview-heading">
+                {t('metricsPreviewHeading')}
+              </p>
+              <div className="impact-page__stats-grid impact-page__stats-grid--preview">
+                <StatCard
+                  value={completionValue}
+                  label={completionLabel}
+                  unpublished={isUnpublishedValue(String(completionValue))}
+                />
+                <StatCard
+                  value={placementValue}
+                  label={placementLabel}
+                  unpublished={isUnpublishedValue(String(placementValue))}
+                />
+                <StatCard
+                  value={salaryValue}
+                  label={salaryLabel}
+                  unpublished={salaryValue === '—'}
+                />
+              </div>
+              <p className="impact-page__methodology impact-page__methodology--panel">
+                {statsMethodologyNote}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="impact-page__stats-grid">
+                <StatCard
+                  value={completionValue}
+                  label={completionLabel}
+                  unpublished={isUnpublishedValue(String(completionValue))}
+                />
+                <StatCard
+                  value={placementValue}
+                  label={placementLabel}
+                  unpublished={isUnpublishedValue(String(placementValue))}
+                />
+                <StatCard
+                  value={salaryValue}
+                  label={salaryLabel}
+                  unpublished={salaryValue === '—'}
+                />
+              </div>
+              <p className="impact-page__methodology">{statsMethodologyNote}</p>
+            </>
+          )}
         </div>
       </PageSection>
 
@@ -274,13 +302,22 @@ export default async function ImpactPage() {
           ) : (
             <>
               <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
-              <p className="impact-page__preview-heading impact-page__preview-heading--employers">
-                {t('employerMetricsPreviewHeading')}
-              </p>
-              <div className="impact-page__stats-grid impact-page__stats-grid--employers impact-page__stats-grid--preview">
-                <StatCard value="—" label={t('employerPartnersLabel')} unpublished />
-                <StatCard value="—" label={t('jobsPostedLabel')} unpublished />
-                <StatCard value="—" label={t('hiresLabel')} unpublished />
+              <div
+                className="impact-page__preview-panel impact-page__preview-panel--employers"
+                aria-labelledby="impact-employer-preview-heading"
+              >
+                <p
+                  id="impact-employer-preview-heading"
+                  className="impact-page__preview-heading impact-page__preview-heading--employers"
+                >
+                  {t('employerMetricsPreviewHeading')}
+                </p>
+                <div className="impact-page__stats-grid impact-page__stats-grid--employers impact-page__stats-grid--preview">
+                  <StatCard value="—" label={t('employerPartnersLabel')} unpublished />
+                  <StatCard value="—" label={t('jobsPostedLabel')} unpublished />
+                  <StatCard value="—" label={t('hiresLabel')} unpublished />
+                </div>
+                <p className="impact-page__employer-footnote">{t('employerMetricsFootnote')}</p>
               </div>
               <p className="impact-page__section-link-wrap">
                 <LocalizedLink href="/employers" className="impact-page__section-link">
@@ -375,6 +412,17 @@ export default async function ImpactPage() {
         .impact-page__stats-grid--employers {
           margin-bottom: 0;
         }
+        .impact-page__preview-panel {
+          margin-bottom: 2.5rem;
+          padding: clamp(1rem, 3vw, 1.5rem);
+          background: var(--surface-container-lowest);
+          border: 1px solid var(--outline-variant);
+          border-radius: var(--radius-lg);
+        }
+        .impact-page__preview-panel--employers {
+          margin-top: 1.25rem;
+          margin-bottom: 0;
+        }
         .impact-page__preview-heading {
           margin: 0 0 1rem;
           font-size: 0.7rem;
@@ -384,13 +432,22 @@ export default async function ImpactPage() {
           color: var(--color-on-surface-variant);
         }
         .impact-page__preview-heading--employers {
-          margin-top: 1.25rem;
+          margin-top: 0;
         }
         .impact-page__stats-grid--preview {
           margin-top: 0;
+          margin-bottom: 0;
+        }
+        .impact-page__stats-grid--preview .stat-card {
+          background: var(--surface-container-low);
+          border: 1px solid var(--outline-variant);
+          border-radius: var(--radius-md);
         }
         .impact-page__stats-grid--employers.impact-page__stats-grid--preview {
           margin-top: 0;
+        }
+        .impact-page__methodology--panel {
+          margin: 1rem 0 0;
         }
         .impact-page__stat-footnote {
           display: block;
@@ -447,11 +504,6 @@ export default async function ImpactPage() {
           .impact-page__funder-actions .btn {
             width: 100%;
             justify-content: center;
-          }
-          .impact-page__stats-grid .stat-card {
-            background: var(--surface-container-lowest);
-            border: 1px solid var(--outline-variant);
-            border-radius: var(--radius-md);
           }
         }
         @media (min-width: 640px) {

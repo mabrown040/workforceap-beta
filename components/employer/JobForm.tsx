@@ -428,16 +428,16 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
       ) : null}
 
       <div className="employer-job-form-actions">
-        <button type="submit" className="btn btn-primary" disabled={status === 'saving'}>
-          {status === 'saving' ? 'Saving…' : 'Save as Draft'}
+        <button type="submit" className="btn btn-primary" disabled={status === 'saving'} aria-busy={status === 'saving'}>
+          <span aria-live="polite">{status === 'saving' ? 'Saving…' : 'Save as Draft'}</span>
         </button>
         {(!isEdit || (job && job.status === 'draft')) && (
-          <button type="submit" name="submitForReview" value="1" className="btn btn-accent" disabled={status === 'saving'}>
+          <button type="submit" name="submitForReview" value="1" className="btn btn-accent" disabled={status === 'saving'} aria-busy={status === 'saving'}>
             Submit for Review
           </button>
         )}
         {job && job.status === 'closed' && (
-          <button type="submit" name="resubmitForReview" value="1" className="btn btn-accent" disabled={status === 'saving'}>
+          <button type="submit" name="resubmitForReview" value="1" className="btn btn-accent" disabled={status === 'saving'} aria-busy={status === 'saving'}>
             Resubmit for Review
           </button>
         )}

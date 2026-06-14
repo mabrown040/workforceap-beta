@@ -24,10 +24,10 @@ Wire **mutations** (POST/PATCH/PUT/DELETE) after a successful write. Pass `orgId
 
 ### Exports & bulk (PII access)
 
-- [ ] `members/export/route.ts` — already uses legacy `auditLog`; add xAPI event
-- [ ] `cohort-export/route.ts`
-- [ ] `employers/export/route.ts`, `members/export/route.ts`, `partners/export/route.ts`
-- [ ] `reports/wioa/route.ts`
+- [x] `members/export/route.ts` — legacy `auditLog` plus xAPI-shaped `logAuditEvent`
+- [x] `cohort-export/route.ts` — legacy `auditLog` plus xAPI-shaped `logAuditEvent`
+- [x] `employers/export/route.ts`, `partners/export/route.ts` — legacy `auditLog` plus xAPI-shaped `logAuditEvent`
+- [x] `reports/wioa/route.ts` — legacy `auditLog` plus xAPI-shaped `logAuditEvent`
 - [ ] `members/bulk-email/route.ts`, `members/bulk-update/route.ts`
 
 ### Settings & configuration

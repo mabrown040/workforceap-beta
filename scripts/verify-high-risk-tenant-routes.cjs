@@ -164,6 +164,36 @@ assertContains(
   'admin/reports/wioa emits an auditLog (AUDIT §H-DEP4)',
 );
 
+assertContains(
+  'app/api/admin/members/export/route.ts',
+  ['logAuditEvent', "verb: 'exported'", "object: { type: 'MemberRoster', id: 'members' }", 'auditRequestMeta(request)'],
+  'admin/members/export emits an xAPI-shaped audit event (AUDIT §H-DEP4)',
+);
+
+assertContains(
+  'app/api/admin/cohort-export/route.ts',
+  ['logAuditEvent', "verb: 'exported'", "object: { type: 'CohortExport', id: slug }", 'auditRequestMeta(req)'],
+  'admin/cohort-export emits an xAPI-shaped audit event (AUDIT §H-DEP4)',
+);
+
+assertContains(
+  'app/api/admin/employers/export/route.ts',
+  ['logAuditEvent', "verb: 'exported'", "object: { type: 'EmployerDirectoryExport', id: 'employers' }", 'auditRequestMeta(request)'],
+  'admin/employers/export emits an xAPI-shaped audit event (AUDIT §H-DEP4)',
+);
+
+assertContains(
+  'app/api/admin/partners/export/route.ts',
+  ['logAuditEvent', "verb: 'exported'", "object: { type: 'PartnerDirectoryExport', id: 'partners' }", 'auditRequestMeta(request)'],
+  'admin/partners/export emits an xAPI-shaped audit event (AUDIT §H-DEP4)',
+);
+
+assertContains(
+  'app/api/admin/reports/wioa/route.ts',
+  ['logAuditEvent', "verb: 'viewed'", "object: { type: 'WioaReport'", 'auditRequestMeta(req)'],
+  'admin/reports/wioa emits an xAPI-shaped audit event (AUDIT §H-DEP4)',
+);
+
 // --- Sprint 3 FORCE RLS prep expansion (plan #1393): money paths, PII exports, staff access ---
 
 assertContains(

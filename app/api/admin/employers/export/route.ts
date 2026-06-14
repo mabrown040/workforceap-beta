@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdminInOrg } from '@/lib/auth/roles';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 
@@ -76,6 +77,26 @@ export async function GET(request: NextRequest) {
         },
       },
     }).catch((err) => console.error('[admin/employers/export] audit log failed:', err));
+    await logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'exported',
+      object: { type: 'EmployerDirectoryExport', id: 'employers' },
+      result: {
+        success: true,
+        extensions: {
+          orgId,
+          rowCount: employers.length,
+          truncated: employers.length >= 500,
+          limit: 500,
+          filters: {
+            status: statusFilter || null,
+            search: search || null,
+          },
+        },
+      },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[admin/employers/export] xAPI audit log failed:', err));
 
     return csvDownloadResponse(csv, exportFilename('employers'), { truncated: employers.length >= 5000, limit: 5000 });
   } catch (error) {

@@ -5,6 +5,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 export async function GET(req: NextRequest) {
   try {
@@ -88,6 +89,24 @@ export async function GET(req: NextRequest) {
       placedMembers: report.placedMembers,
     },
   }).catch((err) => console.error('[admin/reports/wioa] audit log failed:', err));
+  await logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'viewed',
+    object: { type: 'WioaReport', id: `${year}-${quarter ?? 'annual'}` },
+    result: {
+      success: true,
+      extensions: {
+        year,
+        quarter: quarter ?? null,
+        state: state ?? null,
+        organizationId: orgId,
+        totalMembers: report.totalMembers,
+        placedMembers: report.placedMembers,
+      },
+    },
+    request: auditRequestMeta(req),
+    orgId,
+  }).catch((err) => console.error('[admin/reports/wioa] xAPI audit log failed:', err));
 
   return NextResponse.json(report);
 

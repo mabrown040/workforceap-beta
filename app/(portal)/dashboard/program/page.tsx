@@ -15,6 +15,7 @@ import { ProgramIcon } from '@/components/ProgramIcon';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import ProgramChangeRequestModal from '@/components/portal/ProgramChangeRequestModal';
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { formatDate } from '@/lib/i18n/date';
@@ -63,6 +64,12 @@ export default async function ProgramPage() {
   const enrolledSlug = dbUser?.enrolledProgram ?? null;
   const program = enrolledSlug ? getProgramBySlug(enrolledSlug) : null;
   const staffViewer = await canBypassMemberAssessment(user.id);
+  const otherPrograms = pickerPrograms.filter((p) => p.slug !== enrolledSlug);
+  const pendingRequest = await prisma.programChangeRequest.findFirst({
+    where: { userId: user.id, status: 'PENDING' },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true },
+  });
   // Product stake: members can choose an initial program, but self-serve switching should not
   // become a public free-for-all. Keep later reassignment counselor/admin-driven.
   if (!enrolledSlug || !program) {
@@ -225,12 +232,11 @@ export default async function ProgramPage() {
               <Link href="/dashboard" className="btn btn-primary">
                 Go to Training
               </Link>
-              <Link
-                href="/dashboard/program/change"
-                style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
-              >
-                Request a program change
-              </Link>
+              <ProgramChangeRequestModal
+                currentProgram={program}
+                programs={otherPrograms}
+                hasPendingRequest={!!pendingRequest}
+              />
             </div>
           </div>
         </PortalCard>

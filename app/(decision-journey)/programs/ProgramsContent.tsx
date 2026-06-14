@@ -136,7 +136,7 @@ function ProgramCard({ program }: { program: Program }) {
         </p>
         {extra?.jobOutcomes && extra.jobOutcomes.length > 0 && (
           <p className="program-card-outcomes">
-            <strong>Roles:</strong> {extra.jobOutcomes.join(' · ')}
+            <strong>{t('cardRolesLabel')}</strong> {extra.jobOutcomes.join(' · ')}
           </p>
         )}
       </div>

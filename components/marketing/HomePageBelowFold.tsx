@@ -585,12 +585,12 @@ export default async function HomePageBelowFold({
               </span>
             </div>
             <div className="portal-card portal-card--flat" style={{ gridColumn: '1 / -1', background: 'var(--color-accent)', color: 'white', padding: '1.5rem', textAlign: 'center' }}>
-              <span style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1.15 }}>No upfront program cost</span>
+              <span style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1.15 }}>{t('statNoUpfrontCost')}</span>
               <span style={{ display: 'block', fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>
                 {t('statMemberCost')}
               </span>
               <span style={{ display: 'block', fontSize: '0.7rem', marginTop: '0.35rem', opacity: 0.75, fontWeight: 400, textTransform: 'none', letterSpacing: 'normal' }}>
-                For qualifying members through funded pathways
+                {t('statQualifyingMembers')}
               </span>
             </div>
           </div>

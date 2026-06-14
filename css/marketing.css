@@ -844,6 +844,54 @@ html.has-marketing-main-nav {
   margin-bottom: 3rem;
 }
 
+.home-member-promise__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/*
+ * Homepage member promise: two CTAs only (Apply + Find Your Path). On mobile,
+ * stack full-width so cold traffic gets one clear primary and one guided-choice
+ * secondary without a third competing quiz link or side-by-side squeeze.
+ */
+@media (max-width: 767px) {
+  .home-member-promise__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 24rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .home-member-promise__actions a {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
+/*
+ * /programs quick-start header: pathfinder link beside the title wraps into a
+ * narrow side column on phones — stack so the guided-choice link stays readable.
+ */
+@media (max-width: 767px) {
+  #programs-quick-start .container > div > div:first-child {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  #programs-quick-start .container > div > div:first-child > a {
+    align-self: flex-start;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
 /* Early placement: follows member-promise band — tighten top rhythm on phones */
 @media (max-width: 767px) {
   .home-program-showcase--early {

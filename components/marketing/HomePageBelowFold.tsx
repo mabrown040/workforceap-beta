@@ -57,6 +57,7 @@ export default async function HomePageBelowFold({
       {/* Member promise — no-cost career training. Moved below the vision-led hero
           so the mission leads and the member offer follows immediately after. */}
       <section
+        className="home-member-promise"
         aria-label="No-cost career training"
         style={{
           background: 'var(--surface-container-lowest)',
@@ -77,15 +78,12 @@ export default async function HomePageBelowFold({
           <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
             {t('memberPromiseBody2')}
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+          <div className="home-member-promise__actions">
             <LocalizedLinkServer href="/apply" className={primaryButtonClasses({ radius: 'md' })}>
               {t('heroCtaPrimary')}
             </LocalizedLinkServer>
             <LocalizedLinkServer href="/find-your-path" className={secondaryButtonClasses({ radius: 'md' })}>
               {t('heroCta')}
-            </LocalizedLinkServer>
-            <LocalizedLinkServer href="/career-quiz" className={secondaryButtonClasses({ radius: 'md' })}>
-              Take the free career quiz
             </LocalizedLinkServer>
           </div>
         </div>

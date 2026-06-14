@@ -8,7 +8,6 @@ import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/progra
 import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import TrustStrip from '@/components/marketing/TrustStrip';
-import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
 import { getTranslations } from 'next-intl/server';
 import { marketingButtonPresets, marketingButtonClasses } from '@/lib/marketing/buttonClasses';
@@ -137,18 +136,6 @@ export default async function HomePage() {
           boxSizing: 'border-box',
         }}
         >
-          <p
-            className="text-label-upper"
-            style={{
-              color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.72))',
-              marginBottom: '0.75rem',
-              letterSpacing: '0.14em',
-              fontSize: 'clamp(0.625rem, 0.35vw + 0.58rem, 0.75rem)',
-            }}
-          >
-            {t('heroBrandLine')}
-          </p>
-
           <h1
             className="text-display-lg"
             style={{
@@ -215,35 +202,18 @@ export default async function HomePage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
             <LocalizedLinkServer
-              href="/apply"
-              className={marketingButtonPresets.heroPrimary('home-hero__cta-primary')}
-            >
-              {t('heroCtaPrimary')}
-            </LocalizedLinkServer>
-
-            {/* Pilot program badge — honest about limited availability */}
-            <div style={{ marginLeft: '0.5rem' }}>
-              <PreLaunchTag compact />
-            </div>
-            <LocalizedLinkServer
               href="/find-your-path"
-              className={marketingButtonPresets.heroSecondaryOnDark('home-hero__cta-secondary home-hero-secondary-cta home-hero-outline-cta')}
+              className={marketingButtonPresets.heroPrimary('home-hero__cta-primary')}
             >
               {t('heroCta')}
             </LocalizedLinkServer>
             <LocalizedLinkServer
               href="/programs"
-              className={marketingButtonPresets.heroGhostOnDark('home-hero__cta-ghost')}
+              className={marketingButtonPresets.heroSecondaryOnDark('home-hero__cta-secondary home-hero-secondary-cta home-hero-outline-cta')}
             >
               {t('browsePrograms')}
             </LocalizedLinkServer>
           </div>
-          <p
-            className="home-hero__social-proof"
-            style={{ marginTop: '0.65rem', marginBottom: 0, fontSize: 'clamp(0.95rem, 0.5vw + 0.88rem, 1.05rem)', fontWeight: 600, color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.92))' }}
-          >
-            {t('heroSocialProof')}
-          </p>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
               <span>✓ {t('trustGrant')}</span>
@@ -251,12 +221,6 @@ export default async function HomePage() {
               <span>✓ {t('trustNoCard')}</span>
               <span style={{ opacity: 0.5 }}>·</span>
               <span>✓ {t('trustNoCost')}</span>
-            </p>
-            {/* Mobile-only apply link — shown when the outline CTA button is hidden */}
-            <p className="home-hero-mobile-apply" style={{ margin: 0 }}>
-              <LocalizedLinkServer href="/apply" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.82))', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
-                {t('readyToApply')}
-              </LocalizedLinkServer>
             </p>
           </div>
 
@@ -273,6 +237,7 @@ export default async function HomePage() {
             {([
               { icon: 'group', title: t('trustReviewed'), desc: t('trustReviewedDetail') },
               { icon: 'verified_user', title: t('trustYears'), desc: t('trustYearsDetail') },
+              { icon: 'target', title: t('trustEmployer'), desc: t('trustEmployerDetail') },
             ] as const).map((item) => (
               <div
                 key={item.title}

@@ -35,6 +35,10 @@ function statusFor(row: TrainingDashboardRow): { label: string; color: string; b
   return { label: 'Not started', color: '#92400e', bg: 'rgba(245,158,11,0.12)' };
 }
 
+function formatCareerPlanStage(stage: NonNullable<TrainingDashboardRow['careerPlanSignal']>['stage']): string {
+  return stage.replace(/_/g, ' ');
+}
+
 export default function AdminTrainingDashboardTable({ rows }: { rows: TrainingDashboardRow[] }) {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('in_progress');
@@ -159,6 +163,42 @@ export default function AdminTrainingDashboardTable({ rows }: { rows: TrainingDa
               key: 'touch',
               header: 'Last training touch',
               cell: (row) => formatLastTouch(row.lastTrainingActivityAt),
+            },
+            {
+              key: 'career-plan',
+              header: 'Career-plan signal',
+              cell: (row) => {
+                const signal = row.careerPlanSignal;
+                if (!signal) return <span style={{ color: 'var(--color-on-surface-variant)' }}>—</span>;
+                return (
+                  <div style={{ maxWidth: 220 }}>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        padding: '0.2rem 0.55rem',
+                        borderRadius: '999px',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        color: '#1d4ed8',
+                        background: 'rgba(37,99,235,0.1)',
+                        textTransform: 'capitalize',
+                      }}
+                    >
+                      {formatCareerPlanStage(signal.stage)}
+                    </span>
+                    <div style={{ marginTop: '0.35rem', fontSize: '0.8rem', fontWeight: 700 }}>
+                      {signal.topCareerTitle ?? 'Career target pending'}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                      {signal.typeLabel ?? 'Quiz type pending'}
+                      {signal.selectedProgramSlug ? ` · ${signal.selectedProgramSlug}` : ''}
+                    </div>
+                    <div style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#92400e' }}>
+                      {signal.staffAction}
+                    </div>
+                  </div>
+                );
+              },
             },
             {
               key: 'partner',

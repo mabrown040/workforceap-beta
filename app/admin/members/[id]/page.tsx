@@ -41,6 +41,7 @@ import { getBoardSnapshot, SMALL_SAMPLE_THRESHOLD } from '@/lib/admin/boardOutco
 import MemberCourseraDiagnoseButton from '@/components/admin/MemberCourseraDiagnoseButton';
 import AdminMemberSkillCheckpointPanel from '@/components/admin/AdminMemberSkillCheckpointPanel';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
+import { deriveCareerPlanSignal } from '@/lib/admin/careerPlanSignal';
 type AdminCourseProgressRow = {
   courseSlug: string;
   courseId: string | null;
@@ -55,6 +56,14 @@ type AdminMemberProgramProgressRow = {
   coursesCompleted: number;
   lastUpdatedAt: Date;
 };
+
+const CAREER_PLAN_EVENT_NAMES = [
+  'career_quiz_result_viewed',
+  'career_plan_saved',
+  'career_plan_commitment_shared',
+  'career_plan_application_started',
+  'career_plan_training_cta_clicked',
+] satisfies string[];
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -98,6 +107,27 @@ export default async function AdminMemberDetailPage({
     interviewCompletedAt: true,
     workspaceEmail: true,
     workspaceEmailProvisioned: true,
+    careerRecommendationJson: true,
+    applications: {
+      orderBy: { createdAt: 'desc' },
+      take: 3,
+      select: {
+        status: true,
+        submittedAt: true,
+        recommendedCareerTitle: true,
+        programRankedSlugs: true,
+      },
+    },
+    memberEvents: {
+      where: {
+        eventName: {
+          in: CAREER_PLAN_EVENT_NAMES as string[],
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      select: { eventName: true, createdAt: true, metadata: true },
+    },
     wioaQualificationJson: true,
     wioaReviewStatus: true,
     wioaReviewedAt: true,
@@ -148,6 +178,27 @@ export default async function AdminMemberDetailPage({
     interviewCompletedAt: true,
     workspaceEmail: true,
     workspaceEmailProvisioned: true,
+    careerRecommendationJson: true,
+    applications: {
+      orderBy: { createdAt: 'desc' },
+      take: 3,
+      select: {
+        status: true,
+        submittedAt: true,
+        recommendedCareerTitle: true,
+        programRankedSlugs: true,
+      },
+    },
+    memberEvents: {
+      where: {
+        eventName: {
+          in: CAREER_PLAN_EVENT_NAMES as string[],
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      select: { eventName: true, createdAt: true, metadata: true },
+    },
     courseraEnrollmentApproved: true,
     courseraEnrollmentApprovedAt: true,
     courseraEnrollmentApprovedById: true,
@@ -312,6 +363,14 @@ export default async function AdminMemberDetailPage({
   const completedCount = program
     ? (liveProgramProgress?.coursesCompleted ?? liveCourseProgress.filter((row) => row.status === 'COMPLETED').length)
     : 0;
+  const careerPlanSignal = deriveCareerPlanSignal({
+    careerRecommendationJson: member.careerRecommendationJson,
+    applications: member.applications ?? [],
+    events: member.memberEvents ?? [],
+    enrolledProgram: member.enrolledProgram,
+    activeCourseCount: liveCourseProgress.filter((row) => row.status === 'IN_PROGRESS').length,
+    progressPercent: liveProgramProgress?.averagePercent ?? 0,
+  });
   const assessmentAnswers = member.assessmentAnswers as Record<number, string> | null;
 
   // Progress strip props for admin view
@@ -529,6 +588,42 @@ export default async function AdminMemberDetailPage({
             reviewerName={wioaReviewerName}
             reviewNotes={member.wioaReviewNotes}
           />
+        )}
+
+        {careerPlanSignal && (
+          <section style={{ padding: '1rem', background: 'var(--color-light)', borderRadius: 'var(--radius-md)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+              <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Career-plan signal</h2>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '0.2rem 0.55rem', borderRadius: '999px', background: 'rgba(37,99,235,0.1)', color: '#1d4ed8', textTransform: 'capitalize' }}>
+                {careerPlanSignal.stage.replace(/_/g, ' ')}
+              </span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+              <div>
+                <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Career type</p>
+                <p style={{ margin: 0, fontWeight: 700 }}>{careerPlanSignal.typeLabel ?? '—'}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Target career</p>
+                <p style={{ margin: 0, fontWeight: 700 }}>{careerPlanSignal.topCareerTitle ?? '—'}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>First program</p>
+                <p style={{ margin: 0, fontWeight: 700 }}>{careerPlanSignal.selectedProgramSlug ?? '—'}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Shared</p>
+                <p style={{ margin: 0, fontWeight: 700 }}>
+                  {careerPlanSignal.shareCount > 0 ? `Yes · ${careerPlanSignal.shareCount}` : 'No'}
+                  {careerPlanSignal.committedAt ? ` · ${careerPlanSignal.committedAt.toLocaleDateString()}` : ''}
+                </p>
+              </div>
+            </div>
+            <div style={{ padding: '0.75rem 0.875rem', borderRadius: 8, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.22)' }}>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', margin: '0 0 0.2rem' }}>Next counselor action</p>
+              <p style={{ margin: 0, fontWeight: 700 }}>{careerPlanSignal.staffAction}</p>
+            </div>
+          </section>
         )}
 
         {preScreening && (

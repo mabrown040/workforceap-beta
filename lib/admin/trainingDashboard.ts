@@ -6,6 +6,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { prisma } from '@/lib/db/prisma';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import { deriveCareerPlanSignal, type CareerPlanSignal } from '@/lib/admin/careerPlanSignal';
 
 export type TrainingDashboardMetrics = {
   enrolledMembers: number;
@@ -32,6 +33,7 @@ export type TrainingDashboardRow = {
   staleTrainingDetectedAt: Date | null;
   partnerName: string | null;
   counselorName: string | null;
+  careerPlanSignal: CareerPlanSignal | null;
   /**
    * All program slugs the member is enrolled in (primary + every secondary
    * `course_enrollments` row). The program-filter dropdown matches against
@@ -71,6 +73,33 @@ export async function loadTrainingDashboardData(): Promise<TrainingDashboardData
       enrolledProgram: true,
       enrolledAt: true,
       staleTrainingDetectedAt: true,
+      careerRecommendationJson: true,
+      applications: {
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+        select: {
+          status: true,
+          submittedAt: true,
+          recommendedCareerTitle: true,
+          programRankedSlugs: true,
+        },
+      },
+      memberEvents: {
+        where: {
+          eventName: {
+            in: [
+              'career_quiz_result_viewed',
+              'career_plan_saved',
+              'career_plan_commitment_shared',
+              'career_plan_application_started',
+              'career_plan_training_cta_clicked',
+            ],
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        select: { eventName: true, createdAt: true, metadata: true },
+      },
       memberProgramProgress: {
         select: { programSlug: true, averagePercent: true, coursesCompleted: true, lastUpdatedAt: true },
       },
@@ -144,6 +173,14 @@ export async function loadTrainingDashboardData(): Promise<TrainingDashboardData
       staleTrainingDetectedAt: m.staleTrainingDetectedAt,
       partnerName: m.partnerReferrals[0]?.partner.name ?? null,
       counselorName: m.counselorAssignments[0]?.counselor.user.fullName ?? null,
+      careerPlanSignal: deriveCareerPlanSignal({
+        careerRecommendationJson: m.careerRecommendationJson,
+        applications: m.applications,
+        events: m.memberEvents,
+        enrolledProgram: m.enrolledProgram,
+        activeCourseCount: m.courseProgress.filter((row) => row.status === CourseProgressStatus.IN_PROGRESS).length,
+        progressPercent: progress.pct,
+      }),
       programSlugsAll,
     });
   }

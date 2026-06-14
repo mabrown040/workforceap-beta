@@ -3,6 +3,8 @@
 import { useState, useCallback } from 'react';
 import type { ProgramCheckpointPack, CourseCheckpointSet, SkillCheckpoint } from '@/lib/content/checkpoints';
 import { ALL_CHECKPOINT_PACKS } from '@/lib/content/checkpoints';
+import ShareButton from '@/components/ui/ShareButton';
+import { buildSkillCheckpointShare, getBrowserShareOrigin } from '@/lib/og/shareAchievementLinks';
 
 type Step =
   | { kind: 'program' }
@@ -26,15 +28,6 @@ function persistCheckpoint(payload: {
   });
 }
 
-function linkedInShareUrl(skillName: string, programTitle: string) {
-  const summary = encodeURIComponent(
-    `I just demonstrated "${skillName}" via WorkforceAP's Skill Checkpoints — applied workplace scenarios, not just coursework. #WorkforceAP #SkillsFirst`
-  );
-  const title = encodeURIComponent(`Skill Demonstrated: ${skillName} — ${programTitle}`);
-  const url = encodeURIComponent('https://www.workforceap.org/');
-  return `https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}&summary=${summary}`;
-}
-
 function ProofCard({
   course,
   pack,
@@ -49,6 +42,14 @@ function ProofCard({
   const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const demonstrated = course.checkpoints.map((cp) => cp.demonstratedSkill);
   const shareSkill = demonstrated[0] ?? course.courseName;
+  const share = buildSkillCheckpointShare({
+    origin: getBrowserShareOrigin(),
+    skillName: shareSkill,
+    programTitle: pack.programTitle,
+    courseName: course.courseName,
+    correct,
+    total,
+  });
 
   return (
     <div
@@ -117,29 +118,9 @@ function ProofCard({
         Verified by WorkforceAP · {today}
       </div>
 
-      {/* LinkedIn share */}
-      <a
-        href={linkedInShareUrl(shareSkill, pack.programTitle)}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.4rem',
-          marginTop: '1rem',
-          padding: '0.6rem 1rem',
-          background: '#0077b5',
-          color: '#fff',
-          borderRadius: 8,
-          fontSize: '0.85rem',
-          fontWeight: 600,
-          textDecoration: 'none',
-          minHeight: 44,
-        }}
-      >
-        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>share</span>
-        Share on LinkedIn
-      </a>
+      <div style={{ marginTop: '1rem' }}>
+        <ShareButton url={share.url} title={share.title} text={share.text} />
+      </div>
     </div>
   );
 }

@@ -11,9 +11,27 @@ import {
   areasToTypeSlug,
   typeSlugToLabel,
 } from './careerQuizRules';
+import { MINI_IP_AREA_ORDER } from './careerQuizAreas';
 
 /** A valid 30-item area order: 5 items per area, in RIASEC order. */
 const GROUPED_30 = RIASEC_AREAS.flatMap((a) => Array(5).fill(a));
+
+describe('O*NET item→area order (scoring fix)', () => {
+  it('is the interleaved R-I-A-S-E-C cycle ×5, 30 items', () => {
+    assert.equal(MINI_IP_AREA_ORDER.length, 30);
+    MINI_IP_AREA_ORDER.forEach((a, i) => assert.equal(a, RIASEC_AREAS[i % 6]));
+    assert.equal(MINI_IP_AREA_ORDER.filter((a) => a === 'Realistic').length, 5);
+  });
+
+  it('synthesizes a DIFFERENTIATED 30-vector (regression: not all-neutral)', () => {
+    // R=5,I=5,A=1,S=1,E=1,C=1 → R items high, C items low — proves answers map through.
+    const v = areaScoresToOnetAnswers('551111', MINI_IP_AREA_ORDER)!;
+    assert.equal(v.length, 30);
+    assert.notEqual(v, '3'.repeat(30)); // the old bug produced exactly this
+    assert.equal([...v].filter((_, i) => i % 6 === 0).join(''), '55555'); // Realistic
+    assert.equal([...v].filter((_, i) => i % 6 === 5).join(''), '11111'); // Conventional
+  });
+});
 
 describe('quiz config', () => {
   it('asks exactly one question per RIASEC area', () => {

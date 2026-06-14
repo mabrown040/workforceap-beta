@@ -637,6 +637,7 @@ export default async function DashboardCertificationsPage() {
                             day: 'numeric',
                             year: 'numeric',
                           })}
+                          earnedAtIso={c.earnedAt.toISOString()}
                           variant="desktop"
                         />
                       </div>

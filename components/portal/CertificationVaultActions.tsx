@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import ShareButton from '@/components/ui/ShareButton';
+import { buildCertificateShare, getBrowserShareOrigin } from '@/lib/og/shareAchievementLinks';
 
 export type CertRow = {
   id: string;
@@ -18,13 +20,20 @@ function iconForCertName(name: string): string {
 export function CertificationViewButton({
   certName,
   earnedAtLabel,
+  earnedAtIso,
   variant = 'mobile',
 }: {
   certName: string;
   earnedAtLabel: string;
+  earnedAtIso: string;
   variant?: 'mobile' | 'desktop';
 }) {
   const [open, setOpen] = useState(false);
+  const share = buildCertificateShare({
+    origin: getBrowserShareOrigin(),
+    certificateTitle: certName,
+    earnedAtIso,
+  });
 
   const btnStyle =
     variant === 'mobile'
@@ -91,6 +100,9 @@ export function CertificationViewButton({
             <p style={{ margin: '0 0 1rem', fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
               This is your verification record in WorkforceAP. Official certificates are issued by the certifying body; keep any PDFs they provide.
             </p>
+            <div style={{ marginBottom: '0.75rem' }}>
+              <ShareButton url={share.url} title={share.title} text={share.text} />
+            </div>
             <button
               type="button"
               className="btn btn-primary"
@@ -211,7 +223,7 @@ export function CertificationEarnedRowMobile({
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
         <CertificationDownloadOneButton certName={certName} earnedAtIso={earnedIso} variant="compact" />
-        <CertificationViewButton certName={certName} earnedAtLabel={earnedLabel} variant="mobile" />
+        <CertificationViewButton certName={certName} earnedAtLabel={earnedLabel} earnedAtIso={earnedIso} variant="mobile" />
       </div>
     </div>
   );

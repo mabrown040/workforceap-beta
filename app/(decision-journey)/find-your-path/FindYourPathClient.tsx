@@ -141,6 +141,39 @@ function QuizResultsView({
   const topProgram = programs[0];
   const topOcc = careerMatch?.topOccupations[0];
   const topApplyHref = topProgram ? getApplyHref(topProgram.slug) : '/apply';
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const shareTitle = topProgram
+    ? `My WorkforceAP career match is ${topProgram.title}`
+    : 'My WorkforceAP career match results';
+  const shareDescription = topProgram
+    ? `I matched with ${topProgram.title} through the WorkforceAP career quiz.`
+    : 'I found my best-fit training paths through the WorkforceAP career quiz.';
+  const shareUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}${window.location.pathname}${topProgram ? `?match=${encodeURIComponent(topProgram.slug)}` : ''}`
+    : '/find-your-path';
+  const shareCardSrc = `/api/og?title=${encodeURIComponent(shareTitle)}&description=${encodeURIComponent(shareDescription)}`;
+  const handleShareResults = async () => {
+    try {
+      const nav = typeof navigator !== 'undefined'
+        ? (navigator as Navigator & {
+            share?: (data: ShareData) => Promise<void>;
+            clipboard?: { writeText: (text: string) => Promise<void> };
+          })
+        : null;
+      if (nav?.share) {
+        await nav.share({ title: shareTitle, text: shareDescription, url: shareUrl });
+        setShareStatus('Share sheet opened.');
+      } else if (nav?.clipboard) {
+        await nav.clipboard.writeText(shareUrl);
+        setShareStatus('Share link copied.');
+      } else {
+        setShareStatus('Copy this link to share your results.');
+      }
+      trackFunnelEvent('find_your_path', 'shared_results', { program_slug: topProgram?.slug ?? 'none' });
+    } catch {
+      setShareStatus('Sharing was cancelled — your results are still saved on this device.');
+    }
+  };
   return (
     <div className="quiz-results">
       {/* Sticky retake strip — stays visible while scrolling (feedback: button was easy to miss at bottom) */}
@@ -264,6 +297,67 @@ function QuizResultsView({
             })}
           </ol>
         </div>
+      )}
+
+      {topProgram && (
+        <section
+          aria-label="Career Wrapped story and share card"
+          style={{
+            margin: '0 0 2rem',
+            padding: '1.25rem',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--outline-variant)',
+            background: 'linear-gradient(135deg, var(--surface-container-low), rgba(173, 44, 77, 0.08))',
+          }}
+        >
+          <p style={{ margin: '0 0 0.5rem', fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.08em', color: 'var(--color-accent)' }}>
+            YOUR CAREER WRAPPED
+          </p>
+          <h3 style={{ margin: '0 0 0.75rem', fontSize: '1.35rem' }}>
+            Three story slides you can share
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div style={{ padding: '1rem', borderRadius: '0.9rem', background: 'var(--surface-container)', border: '1px solid var(--outline-variant)' }}>
+              <strong>1 · Your fit</strong>
+              <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+                Your answers point toward <strong>{topProgram.categoryLabel}</strong> work.
+              </p>
+            </div>
+            <div style={{ padding: '1rem', borderRadius: '0.9rem', background: 'var(--surface-container)', border: '1px solid var(--outline-variant)' }}>
+              <strong>2 · Your match</strong>
+              <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+                Your strongest WorkforceAP path is <strong>{topProgram.title}</strong>.
+              </p>
+            </div>
+            <div style={{ padding: '1rem', borderRadius: '0.9rem', background: 'var(--surface-container)', border: '1px solid var(--outline-variant)' }}>
+              <strong>3 · Your next step</strong>
+              <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+                Apply in about 10 minutes, then a counselor follows up within 1–2 business days.
+              </p>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', alignItems: 'center' }}>
+            <div>
+              <p style={{ margin: '0 0 0.75rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>
+                Share your career match or copy the link. The preview card below is rendered by the same OG image endpoint social platforms use.
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
+                <button type="button" className="btn btn-primary" onClick={handleShareResults}>
+                  Share my career match
+                </button>
+                <LocalizedLink href={topApplyHref} className="btn btn-outline">
+                  Get matched / apply
+                </LocalizedLink>
+                {shareStatus && <span role="status" style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>{shareStatus}</span>}
+              </div>
+            </div>
+            <img
+              src={shareCardSrc}
+              alt={`Share card preview for ${topProgram.title}`}
+              style={{ width: '100%', borderRadius: '0.85rem', border: '1px solid var(--outline-variant)', boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+            />
+          </div>
+        </section>
       )}
 
       <h3 className="quiz-results-title" style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>

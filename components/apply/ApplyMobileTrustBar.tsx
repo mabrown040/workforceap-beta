@@ -9,35 +9,36 @@ export default async function ApplyMobileTrustBar() {
 
   return (
     <div className="apply-mobile-trust-bar" role="note" aria-label={t('mobileTrustBarAria')}>
-      <ul className="apply-mobile-trust-bar__list">
-        <li className="apply-mobile-trust-bar__item">
+      <p className="apply-mobile-trust-bar__line">
+        <span className="apply-mobile-trust-bar__cue">
           <span className="apply-mobile-trust-bar__check" aria-hidden="true">
             ✓
           </span>
-          <span>{t('mobileTrustBarNoCost')}</span>
-        </li>
-        <li className="apply-mobile-trust-bar__item">
+          {t('mobileTrustBarNoCost')}
+        </span>
+        <span className="apply-mobile-trust-bar__sep" aria-hidden="true">
+          ·
+        </span>
+        <span className="apply-mobile-trust-bar__cue">
           <span className="apply-mobile-trust-bar__check" aria-hidden="true">
             ✓
           </span>
-          <span>{t('mobileTrustBarNonprofit')}</span>
-        </li>
-        <li className="apply-mobile-trust-bar__item">
-          <span className="apply-mobile-trust-bar__check" aria-hidden="true">
-            ✓
-          </span>
-          <span>
-            {t('questionsCall')}{' '}
-            <a
-              href={SUPPORT_PHONE_HREF}
-              className="apply-mobile-trust-bar__phone"
-              aria-label={t('mobileTrustBarPhoneAria', { phone: SUPPORT_PHONE_DISPLAY })}
-            >
-              {SUPPORT_PHONE_DISPLAY}
-            </a>
-          </span>
-        </li>
-      </ul>
+          {t('mobileTrustBarNonprofit')}
+        </span>
+        <span className="apply-mobile-trust-bar__sep" aria-hidden="true">
+          ·
+        </span>
+        <span className="apply-mobile-trust-bar__phone-wrap">
+          {t('questionsCall')}{' '}
+          <a
+            href={SUPPORT_PHONE_HREF}
+            className="apply-mobile-trust-bar__phone"
+            aria-label={t('mobileTrustBarPhoneAria', { phone: SUPPORT_PHONE_DISPLAY })}
+          >
+            {SUPPORT_PHONE_DISPLAY}
+          </a>
+        </span>
+      </p>
     </div>
   );
 }

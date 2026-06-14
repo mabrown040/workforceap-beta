@@ -76,8 +76,8 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
           <ApplyRefCapture />
           <UtmCapture />
         </Suspense>
-        {stepNav}
         {mobileTrustBar}
+        {stepNav}
         <p className="paid-apply-form-kicker" role="note">
           {t('paidFormKicker')}
         </p>
@@ -274,11 +274,11 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
             padding: var(--space-6) var(--space-4) calc(var(--space-10) + 4.5rem + env(safe-area-inset-bottom, 0px));
           }
 
-          .paid-apply-form-section .apply-mobile-step-nav {
+          .paid-apply-form-section .apply-mobile-trust-bar {
             order: 0;
           }
 
-          .paid-apply-form-section .apply-mobile-trust-bar {
+          .paid-apply-form-section .apply-mobile-step-nav {
             order: 1;
           }
 

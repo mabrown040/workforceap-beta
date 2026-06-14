@@ -5,13 +5,9 @@
  * ads) lands here and self-serves into the partner channel. The portal already
  * works; this page is the marketing front door.
  *
- * Intentional TODOs left for follow-up before launch:
- *   - Logos band: placeholder text-logo cards. Swap in real partner logos at
- *     the `PARTNER_LOGO_PLACEHOLDERS` array below once written permission is in.
+ * Intentional TODO left for follow-up before launch:
  *   - Stats band: placeholder numbers (450 / 83% / 340). Replace from the
  *     analytics dashboard before public launch.
- *   - Live demo embed: links to a TODO URL. Swap for the real 2-min walkthrough
- *     when video production lands (see plan G4 deliverables).
  */
 import Image from 'next/image';
 import type { Metadata } from 'next';
@@ -29,25 +25,15 @@ import { withLocalePrefix } from '@/lib/i18n/config';
 import { getTranslations } from 'next-intl/server';
 import PartnerSignupForm from '@/components/partner/PartnerSignupForm';
 
-// TODO(G4): replace with real partner logos once permissions are signed.
-const PARTNER_LOGO_PLACEHOLDERS = [
-  'logosPlaceholder1',
-  'logosPlaceholder2',
-  'logosPlaceholder3',
-  'logosPlaceholder4',
-  'logosPlaceholder5',
-] as const;
+const PARTNER_LANES = ['partnerLane1', 'partnerLane2', 'partnerLane3', 'partnerLane4', 'partnerLane5'] as const;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.partners');
-  // TODO(design): designer needs to produce `/public/images/og/partners.webp`
-  // (1200x630). Referenced here so social shares of /partners don't fall
-  // back to the generic homepage OG.
   return buildPageMetadataAsync({
     title: t('title'),
     description: t('description'),
     path: '/partners',
-    image: '/images/og/partners.webp',
+    image: '/og-image.png',
   });
 }
 
@@ -114,8 +100,23 @@ export default async function PartnersPage() {
         subheadline={
           <>
             <p style={{ fontSize: '1.25rem', color: 'rgba(255,255,255,0.75)', maxWidth: '36rem', lineHeight: 1.6, margin: 0 }}>
-              {t('heroSubtitle')}
+              {t('heroCopy')}
             </p>
+            <div
+              style={{
+                marginTop: '1rem',
+                maxWidth: '40rem',
+                padding: '1rem 1.125rem',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid rgba(255,255,255,0.16)',
+                background: 'rgba(11,14,18,0.5)',
+                backdropFilter: 'blur(10px)',
+              }}
+            >
+              <p style={{ fontSize: '0.9375rem', color: 'rgba(255,255,255,0.88)', lineHeight: 1.55, margin: 0 }}>
+                {t('referralPayMicrocopy')}
+              </p>
+            </div>
           </>
         }
       >
@@ -146,11 +147,9 @@ export default async function PartnersPage() {
         </div>
       </HeroSection>
 
-      {/* ── Partner logos band ──
-          TODO(G4): swap PARTNER_LOGO_PLACEHOLDERS values for real partner logos
-          (image components) once written marketing permissions are in. */}
+      {/* ── Partnership lanes ── */}
       <section
-        aria-label="Partner organizations"
+        aria-label="Partnership lanes"
         style={{
           padding: '2.5rem 0',
           background: 'var(--surface-container)',
@@ -180,7 +179,7 @@ export default async function PartnersPage() {
               gap: '1rem 2.5rem',
             }}
           >
-            {PARTNER_LOGO_PLACEHOLDERS.map((key) => (
+            {PARTNER_LANES.map((key) => (
               <span
                 key={key}
                 style={{
@@ -344,9 +343,7 @@ export default async function PartnersPage() {
         </div>
       </section>
 
-      {/* ── Live demo embed (placeholder) ──
-          TODO(G4): replace the href below with the production 2-min walkthrough
-          URL (or swap for a real <iframe>/<video> embed) once it ships. */}
+      {/* ── Partner walkthrough CTA ── */}
       <section style={{ padding: '4rem 0' }}>
         <div className="container" style={{ maxWidth: '760px' }}>
           <div
@@ -401,17 +398,16 @@ export default async function PartnersPage() {
                 {t('demoCopy')}
               </p>
             </div>
-            <a
-              href="#partner-demo-video-todo"
+            <LocalizedLink
+              href={partnershipContactHref}
               className={marketingPrimaryButtonClasses({ radius: 'md' })}
               style={{ minHeight: '44px' }}
-              aria-label={t('demoCta')}
             >
               {t('demoCta')}
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">
                 arrow_forward
               </span>
-            </a>
+            </LocalizedLink>
           </div>
         </div>
       </section>
@@ -548,6 +544,9 @@ export default async function PartnersPage() {
           </h2>
           <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: '0 0 0.5rem' }}>
             {t('signupSubtitle')}
+          </p>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, opacity: 0.92, margin: '0 0 1.5rem' }}>
+            {t('referralPayMicrocopy')}
           </p>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
             {t('signupAlready')}{' '}

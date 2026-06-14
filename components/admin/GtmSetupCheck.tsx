@@ -3,18 +3,14 @@
 import React from 'react';
 
 function gtmStatus(): { status: 'ok' | 'warning' | 'missing'; label: string; details: string } {
-  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
-  if (!gtmId) {
-    return {
-      status: 'missing',
-      label: 'GTM not configured',
-      details: 'NEXT_PUBLIC_GTM_ID is not set. GTM container will not load. Add it in Vercel dashboard or .env.local.',
-    };
-  }
+  const configuredGtmId = process.env.NEXT_PUBLIC_GTM_ID;
+  const gtmId = configuredGtmId || 'GTM-53JCT6WN';
   return {
     status: 'ok',
     label: 'GTM configured',
-    details: `GTM ID: ${gtmId}. Container will load on page views.`,
+    details: configuredGtmId
+      ? `GTM ID: ${gtmId}. Container will load on page views.`
+      : `GTM ID: ${gtmId}. Using built-in fallback because NEXT_PUBLIC_GTM_ID is not set.`,
   };
 }
 

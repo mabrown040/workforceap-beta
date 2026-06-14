@@ -38,7 +38,7 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-53JCT6WN';
 
 /** Matches every `useTranslations('…')` namespace used under this provider (omit server-only bundles). */
 function pickRootClientMessages(messages: AbstractIntlMessages): AbstractIntlMessages {

@@ -13,6 +13,7 @@ function minimalParsed(overrides: Partial<ParsedXapiStatement>): ParsedXapiState
 describe('inferCourseProgressStatusFromXapiVerb', () => {
   test('completion verb → COMPLETED', () => {
     const s = minimalParsed({
+      activityType: 'course',
       verbId: 'http://adlnet.gov/expapi/verbs/completed',
     });
     expect(inferCourseProgressStatusFromXapiVerb(s)).toBe(CourseProgressStatus.COMPLETED);

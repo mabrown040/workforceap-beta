@@ -59,5 +59,15 @@ describe('xapi statement model', () => {
     expect(completed).toBeTruthy();
     expect(isXapiCompletionVerb(completed!)).toBe(true);
     expect(isXapiCourseProgressVerb(completed!)).toBe(true);
+
+    const legacyUnknownCompletion = parseXapiStatement({
+      id: 'legacy-itemish',
+      actor: { mbox: 'mailto:a@b.co' },
+      verb: { id: 'http://adlnet.gov/expapi/verbs/completed' },
+      object: { id: 'https://www.coursera.org/learn/my-course-slug/lecture/abc123' },
+    });
+    expect(legacyUnknownCompletion).toBeTruthy();
+    expect(isXapiCompletionVerb(legacyUnknownCompletion!)).toBe(false);
+    expect(isXapiCourseProgressVerb(legacyUnknownCompletion!)).toBe(false);
   });
 });

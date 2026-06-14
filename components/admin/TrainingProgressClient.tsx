@@ -277,6 +277,51 @@ function fmtScore(scaled: number | null): string {
   return `${Math.round(scaled * 100)}%`;
 }
 
+const perItemColumns: DataTableColumn<ItemRow>[] = [
+  {
+    key: 'courseItemId',
+    header: 'Item ID',
+    cell: (it) => <span style={{ fontFamily: 'monospace' }}>{it.courseItemId}</span>,
+  },
+  {
+    key: 'itemType',
+    header: 'Type',
+    cell: (it) => it.itemTypeLabel,
+    hideOnMobile: true,
+  },
+  {
+    key: 'latestVerb',
+    header: 'Latest verb',
+    cell: (it) => it.latestVerb ?? '—',
+    hideOnMobile: true,
+  },
+  {
+    key: 'score',
+    header: 'Score',
+    cell: (it) => fmtScore(it.latestScoreScaled),
+    align: 'right',
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    cell: (it) => (
+      <StatusBadge label={it.completed ? 'completed' : 'in progress'} variant={it.completed ? 'success' : 'accent'} />
+    ),
+  },
+  {
+    key: 'lastSeenAt',
+    header: 'Last seen',
+    cell: (it) => fmtDate(it.lastSeenAt),
+    hideOnMobile: true,
+  },
+  {
+    key: 'statementCount',
+    header: '#evts',
+    cell: (it) => it.statementCount,
+    align: 'right',
+  },
+];
+
 /**
  * Per-item drill-down for one (learner, course) cell. Lazily fetches from
  * `/api/admin/training-progress/items` only when the row expands, so the
@@ -356,38 +401,12 @@ function PerItemSubRow({
       <div style={{ fontSize: '0.72rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.35rem' }}>
         {state.rows.length} item{state.rows.length === 1 ? '' : 's'} from xapi_statements (item-level only).
       </div>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
-        <thead>
-          <tr style={{ textAlign: 'left' }}>
-            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Item ID</th>
-            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Type</th>
-            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Latest verb</th>
-            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)', textAlign: 'right' }}>Score</th>
-            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Status</th>
-            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)' }}>Last seen</th>
-            <th style={{ padding: '0.25rem 0.4rem', borderBottom: '1px solid var(--color-outline-variant, #ededed)', textAlign: 'right' }}>#evts</th>
-          </tr>
-        </thead>
-        <tbody>
-          {state.rows.map((it) => (
-            <tr key={it.courseItemId}>
-              <td style={{ padding: '0.25rem 0.4rem', fontFamily: 'monospace' }}>{it.courseItemId}</td>
-              <td style={{ padding: '0.25rem 0.4rem' }}>{it.itemTypeLabel}</td>
-              <td style={{ padding: '0.25rem 0.4rem' }}>{it.latestVerb ?? '—'}</td>
-              <td style={{ padding: '0.25rem 0.4rem', textAlign: 'right' }}>{fmtScore(it.latestScoreScaled)}</td>
-              <td style={{ padding: '0.25rem 0.4rem' }}>
-                {it.completed ? (
-                  <StatusBadge label="completed" variant="success" />
-                ) : (
-                  <StatusBadge label="in progress" variant="accent" />
-                )}
-              </td>
-              <td style={{ padding: '0.25rem 0.4rem' }}>{fmtDate(it.lastSeenAt)}</td>
-              <td style={{ padding: '0.25rem 0.4rem', textAlign: 'right' }}>{it.statementCount}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DataTable
+        density="compact"
+        rows={state.rows}
+        rowKey={(it) => it.courseItemId}
+        columns={perItemColumns}
+      />
     </div>
   );
 }

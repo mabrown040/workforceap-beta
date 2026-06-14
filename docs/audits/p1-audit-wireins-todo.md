@@ -28,7 +28,7 @@ Wire **mutations** (POST/PATCH/PUT/DELETE) after a successful write. Pass `orgId
 - [x] `cohort-export/route.ts` — legacy `auditLog` plus xAPI-shaped `logAuditEvent`
 - [x] `employers/export/route.ts`, `partners/export/route.ts` — legacy `auditLog` plus xAPI-shaped `logAuditEvent`
 - [x] `reports/wioa/route.ts` — legacy `auditLog` plus xAPI-shaped `logAuditEvent`
-- [ ] `members/bulk-email/route.ts`, `members/bulk-update/route.ts`
+- [x] `members/bulk-email/route.ts`, `members/bulk-update/route.ts` — legacy `auditLog` plus xAPI-shaped `logAuditEvent`
 
 ### Settings & configuration
 

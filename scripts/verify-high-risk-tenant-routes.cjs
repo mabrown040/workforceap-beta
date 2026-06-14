@@ -194,6 +194,18 @@ assertContains(
   'admin/reports/wioa emits an xAPI-shaped audit event (AUDIT §H-DEP4)',
 );
 
+assertContains(
+  'app/api/admin/members/bulk-email/route.ts',
+  ['logAuditEvent', "verb: 'emailed'", "object: { type: 'MemberBulkEmail', id: member.id }", 'auditRequestMeta(request)'],
+  'admin/members/bulk-email emits an xAPI-shaped audit event (AUDIT §H-DEP4)',
+);
+
+assertContains(
+  'app/api/admin/members/bulk-update/route.ts',
+  ['logAuditEvent', "verb: 'updated'", "object: { type: 'MemberBulkUpdate', id: member.id }", 'auditRequestMeta(request)'],
+  'admin/members/bulk-update emits an xAPI-shaped audit event (AUDIT §H-DEP4)',
+);
+
 // --- Sprint 3 FORCE RLS prep expansion (plan #1393): money paths, PII exports, staff access ---
 
 assertContains(

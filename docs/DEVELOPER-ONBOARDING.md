@@ -111,10 +111,10 @@ wap-repo/
 ```bash
 git clone <repo-url>
 cd wap-repo
-npm install
+corepack pnpm@10 install --frozen-lockfile
 ```
 
-> **Note:** This project uses `npm`. `pnpm` and `bun` lockfiles exist for reference but npm is canonical.
+> **Note:** This project uses `pnpm-lock.yaml` as the canonical dependency lockfile. CI installs with pnpm 10, then runs the `npm run ...` scripts below.
 
 ### 3.2 Environment Variables
 

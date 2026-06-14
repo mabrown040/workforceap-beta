@@ -8,7 +8,7 @@ This repository contains the full Next.js application — public marketing site,
 
 ```bash
 # 1. Install dependencies
-npm install
+corepack pnpm@10 install --frozen-lockfile
 
 # 2. Copy and fill env vars
 cp .env.example .env.local
@@ -57,6 +57,10 @@ npm run test:unit        # Unit tests (Vitest)
 npm run test:e2e         # E2E tests (Playwright)
 npm run email            # Email template preview
 ```
+
+Use `pnpm-lock.yaml` as the canonical dependency lockfile. Do not install from
+stale secondary lockfiles; CI installs with pnpm 10 and then runs the npm
+scripts above.
 
 ## Tech Stack at a Glance
 

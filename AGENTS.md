@@ -47,7 +47,7 @@ Note: `npm run build` runs ESLint at build time (gate flipped 2026-05-20 — `es
 
 - The app's public marketing pages (homepage, programs, contact, FAQ, etc.) work without any external services or environment variables.
 - Portal/auth pages (`/dashboard/*`, `/admin/*`, `/employer/*`, etc.) require Supabase credentials (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) and a Postgres database.
-- Prisma generates with a placeholder DB URL when no `DATABASE_URL` / `POSTGRES_PRISMA_URL` is set, so `npm install` and `npm run build` succeed without credentials.
+- Prisma generates with a placeholder DB URL when no `DATABASE_URL` / `POSTGRES_PRISMA_URL` is set, so `corepack pnpm@10 install --frozen-lockfile` and `npm run build` succeed without credentials.
 - The homepage redirects from `/` to `/en` (i18n locale prefix). Use `curl -L http://localhost:3000/` to follow the redirect.
 
 ## Stitch MCP (designs)

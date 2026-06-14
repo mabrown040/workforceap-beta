@@ -4636,6 +4636,9 @@ html.dark .admin-super-messages-bubble.is-staff {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--space-4);
     align-items: start;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 .training-course-card.training-course-card--up-next {
     box-shadow: 0 0 0 2px rgba(173, 44, 77, 0.25);
@@ -4794,12 +4797,18 @@ html.dark .admin-super-messages-bubble.is-staff {
 .training-course-card__main {
     min-width: 0;
 }
+.training-course-card__title {
+    overflow-wrap: anywhere;
+    word-break: normal;
+    hyphens: auto;
+}
 .training-course-card__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
     gap: var(--space-2);
+    min-width: 0;
 }
 .training-course-progress {
     margin-top: var(--space-2);
@@ -4857,6 +4866,7 @@ html.dark .admin-super-messages-bubble.is-staff {
 @media (max-width: 720px) {
     .training-course-card {
         grid-template-columns: 1fr;
+        padding: 1rem !important;
     }
     .training-course-card__actions {
         width: 100%;
@@ -4871,9 +4881,17 @@ html.dark .admin-super-messages-bubble.is-staff {
         justify-content: center;
         width: 100%;
         min-height: 44px;
+        white-space: normal;
+        text-align: center;
+    }
+    .training-course-card__actions .training-course-locked {
+        max-width: 100% !important;
+        width: 100%;
+        box-sizing: border-box;
     }
     .training-status-chip {
         justify-self: start;
+        white-space: normal;
     }
 }
 

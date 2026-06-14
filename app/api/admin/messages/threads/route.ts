@@ -272,7 +272,7 @@ function mapThreadRow(
 
   if (t.kind === 'partner' && t.partner) {
     const partnerUserIds = t.partner.partnerUsers.map((p) => p.userId);
-    const needsStaffReply = last ? last.authorId != null && partnerUserIds.includes(last.authorId) : false;
+    const needsStaffReply = last?.authorId ? partnerUserIds.includes(last.authorId) : false;
     return {
       ...base,
       partnerId: t.partnerId,

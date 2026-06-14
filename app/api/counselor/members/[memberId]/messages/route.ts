@@ -10,6 +10,8 @@ import {
   getOrCreateMemberCounselorThread,
   assertStaffCanAccessThread,
   assertStaffCanPost,
+  compactStringIds,
+  getMessageAuthorName,
   normalizeMessageBody,
   serializeMessage,
 } from '@/lib/messages/counselorThread';
@@ -62,7 +64,7 @@ async function canUseCounselorMessaging(userId: string): Promise<boolean> {
 
   const names = await withTenantScope(orgId, (db) =>
     db.user.findMany({
-      where: { id: { in: [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))] } },
+      where: { id: { in: compactStringIds(messages.map((m) => m.authorId)) } },
       select: { id: true, fullName: true },
       take: 100,
     }),
@@ -80,7 +82,7 @@ async function canUseCounselorMessaging(userId: string): Promise<boolean> {
     },
     messages: messages.map((m) => ({
       ...serializeMessage(m),
-      authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
+      authorName: getMessageAuthorName(nameById, m.authorId),
     })),
   });
 

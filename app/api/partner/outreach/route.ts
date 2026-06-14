@@ -37,7 +37,7 @@ const postSchema = z.object({
       channel: l.channel,
       note: l.note,
       createdAt: l.createdAt.toISOString(),
-      createdByName: l.createdBy?.fullName ?? 'Unknown',
+      createdByName: l.createdBy?.fullName ?? 'User',
     })),
   });
 

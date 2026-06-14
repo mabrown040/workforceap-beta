@@ -230,12 +230,12 @@ export function isXapiCompletionVerb(parsed: ParsedXapiStatement): boolean {
   // regardless of verb.
   if (parsed.activityType === 'item') return false;
 
-  // Guard: if we cannot confidently resolve the course (missing Coursera's
+  // Guard: if we cannot confidently resolve a course (missing Coursera's
   // canonical courseId and not classified as a course-level activity), do not
   // emit course-completion side effects. This prevents legacy/reconstructed
-  // statements (missing payload/context.extensions) from marking completion and
+  // statements missing payload/context.extensions from marking completion and
   // then failing downstream with catalog errors.
-  if (parsed.activityType !== 'course' && !(parsed.courseraCourseId ?? '').trim()) {
+  if (parsed.activityType === 'unknown' && !(parsed.courseraCourseId ?? '').trim()) {
     return false;
   }
 

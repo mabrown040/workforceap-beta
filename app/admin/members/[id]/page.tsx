@@ -28,7 +28,7 @@ import AdminMemberEnrollmentFundingForm from '@/components/admin/AdminMemberEnro
 import AdminMemberWorkspaceEmail from '@/components/admin/AdminMemberWorkspaceEmail';
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
-import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
+import { compactStringIds, getMessageAuthorName, getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import { ClipboardList, CheckCircle } from 'lucide-react';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
@@ -332,7 +332,7 @@ export default async function AdminMemberDetailPage({
     where: { threadId: chatThread.id },
     orderBy: { createdAt: 'asc' },
   });
-  const chatAuthorIds = [...new Set(chatMsgs.map((m) => m.authorId).filter((id): id is string => id !== null))];
+  const chatAuthorIds = compactStringIds(chatMsgs.map((m) => m.authorId));
   const chatAuthors =
     chatAuthorIds.length > 0
       ? await prisma.user.findMany({
@@ -408,7 +408,7 @@ export default async function AdminMemberDetailPage({
     },
     messages: chatMsgs.map((m) => ({
       ...serializeMessage(m),
-      authorName: m.authorId != null ? chatNameById.get(m.authorId) ?? 'User' : 'User',
+      authorName: getMessageAuthorName(chatNameById, m.authorId),
     })),
   };
 

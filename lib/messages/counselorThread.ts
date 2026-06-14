@@ -11,6 +11,14 @@ export type ThreadMessageRow = {
   createdAt: Date;
 };
 
+export function compactStringIds(ids: Array<string | null | undefined>): string[] {
+  return [...new Set(ids.filter((id): id is string => Boolean(id)))];
+}
+
+export function getMessageAuthorName(nameById: Map<string, string | null>, authorId: string | null): string {
+  return authorId ? (nameById.get(authorId) ?? 'User') : 'User';
+}
+
 export async function resolveAssignedCounselorUserId(memberId: string): Promise<string | null> {
   const row = await prisma.counselorAssignment.findFirst({
     where: { memberId, active: true },

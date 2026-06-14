@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { checkInterestProfilerRateLimit } from '@/lib/rate-limit';
 import { isOnetConfigured } from '@/lib/onet/client';
 import { getInterestProfilerCareers, getInterestProfilerResults } from '@/lib/onet/interestProfiler';
+import { applyRiasecCareerFallback } from '@/lib/onet/interestProfilerCareerFallback';
 import { riasecFromResultRows } from '@/lib/content/quizIpMerge';
 import { mapIpCareerRowsToProgramSlugs } from '@/lib/onet/ipMapToPrograms';
 import { saveAIToolResult } from '@/lib/ai/saveResult';
@@ -55,7 +56,7 @@ const bodySchema = z.object({
       }
       const careersResp = await getInterestProfilerCareers(answers, { start: 1, end: 40 });
       const riasec = riasecFromResultRows(results.result ?? []);
-      const careerRows = careersResp.career ?? [];
+      const careerRows = applyRiasecCareerFallback(careersResp.career ?? [], results.result ?? []);
       const programSlugs = await mapIpCareerRowsToProgramSlugs(
         careerRows.map((c) => ({ code: c.code, fit: c.fit }))
       );

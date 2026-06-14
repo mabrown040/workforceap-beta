@@ -78,6 +78,7 @@ let courseraIdentityRateLimiter: Ratelimit | null = null;
 // retry abuse before that. 5/min/IP covers a recipient who fat-fingers a few
 // submits without enabling a flood.
 let publicQuestionnaireSubmitRateLimiter: Ratelimit | null = null;
+let adminTokenLinksRateLimiter: Ratelimit | null = null;
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -255,6 +256,11 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(5, '1 m'),
     prefix: 'ratelimit:public-questionnaire-submit',
+  });
+  adminTokenLinksRateLimiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '1 h'),
+    prefix: 'ratelimit:admin-token-links',
   });
 }
 
@@ -497,6 +503,15 @@ export async function checkPublicInterestProfilerRateLimit(ip: string): Promise<
   if (!publicInterestProfilerRateLimiter) return { success: true };
   const result = await publicInterestProfilerRateLimiter.limit(ip);
   return { success: result.success };
+}
+
+/** Per-admin cap on tokenized-link minting — 10 per hour. Credential-minting
+ * surface; without a cap a compromised admin token can mint unlimited links.
+ */
+export async function checkAdminTokenLinksRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!adminTokenLinksRateLimiter) return { success: true };
+  const result = await adminTokenLinksRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
 }
 
 /** POST /api/q/[token]/submit — PUBLIC (no-account) tokenized eligibility

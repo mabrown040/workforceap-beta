@@ -23,6 +23,8 @@ vi.mock('@/lib/tenant/organization', () => ({
 }));
 vi.mock('@/lib/auth/actAsSubject', () => ({ resolveActOnBehalf: vi.fn() }));
 vi.mock('@/lib/email', () => ({ sendEligibilityLink: vi.fn() }));
+vi.mock('@/lib/audit', () => ({ auditLog: vi.fn() }));
+vi.mock('@/lib/rate-limit', () => ({ checkAdminTokenLinksRateLimit: vi.fn() }));
 vi.mock('@/lib/db/prisma', () => ({
   prisma: { user: { findUnique: vi.fn() } },
 }));
@@ -36,6 +38,8 @@ import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/o
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { sendEligibilityLink } from '@/lib/email';
 import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
+import { checkAdminTokenLinksRateLimit } from '@/lib/rate-limit';
 
 const postReq = (body: unknown) =>
   new Request('http://localhost:3000/api/admin/token-links', {
@@ -48,6 +52,7 @@ describe('POST /api/admin/token-links', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(createTokenizedLink).mockResolvedValue({ token: 'tok-123' } as any);
+    vi.mocked(checkAdminTokenLinksRateLimit).mockResolvedValue({ success: true });
   });
 
   it('returns 401 when not authenticated', async () => {
@@ -119,7 +124,7 @@ describe('POST /api/admin/token-links', () => {
     expect(sendEligibilityLink).not.toHaveBeenCalled();
   });
 
-  it('returns 403 when act-on-behalf denies authority', async () => {
+  it('returns 404 when act-on-behalf denies authority (existence-oracle collapse)', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
     vi.mocked(resolveActOnBehalf).mockResolvedValue({
@@ -129,7 +134,8 @@ describe('POST /api/admin/token-links', () => {
     });
 
     const res = await POST(postReq({ subjectUserId: 'member-x' }));
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: 'Member not found' });
     expect(createTokenizedLink).not.toHaveBeenCalled();
   });
 
@@ -178,5 +184,39 @@ describe('POST /api/admin/token-links', () => {
     const body = await res.json();
     expect(body.emailSent).toBe(false);
     expect(body.url).toContain('/q/tok-123');
+  });
+
+  it('returns 429 when rate-limited', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(checkAdminTokenLinksRateLimit).mockResolvedValue({ success: false });
+
+    const res = await POST(postReq({}));
+    expect(res.status).toBe(429);
+    expect(await res.json()).toEqual({ error: 'Rate limit exceeded. Try again later.' });
+    expect(createTokenizedLink).not.toHaveBeenCalled();
+  });
+
+  it('logs an audit event after minting a link', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
+    vi.mocked(isAdmin).mockResolvedValue(true);
+    vi.mocked(getActorOrganizationId).mockResolvedValue('org-1');
+
+    const res = await POST(postReq({ email: 'lead@example.com' }));
+    expect(res.status).toBe(200);
+    expect(auditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        actorUserId: 'admin-1',
+        action: 'token_link_minted',
+        targetType: 'tokenized_link',
+        targetId: 'tok-123',
+        metadata: {
+          type: 'eligibility_questionnaire',
+          subjectUserId: null,
+          email: 'lead@example.com',
+          token: 'tok-123',
+        },
+      }),
+    );
   });
 });

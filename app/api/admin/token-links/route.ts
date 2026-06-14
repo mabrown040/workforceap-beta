@@ -7,6 +7,8 @@ import { createTokenizedLink } from '@/lib/tokenizedLink';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { sendEligibilityLink } from '@/lib/email';
+import { auditLog } from '@/lib/audit';
+import { checkAdminTokenLinksRateLimit } from '@/lib/rate-limit';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
@@ -40,6 +42,14 @@ export const POST = withApiGuc(async (request: Request) => {
       return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
+    const rateLimit = await checkAdminTokenLinksRateLimit(user.id);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Try again later.' },
+        { status: 429 },
+      );
+    }
+
     let raw: unknown;
     try {
       raw = await request.json();
@@ -63,7 +73,9 @@ export const POST = withApiGuc(async (request: Request) => {
     if (subjectUserId) {
       const behalf = await resolveActOnBehalf(user.id, subjectUserId);
       if (!behalf.ok) {
-        return NextResponse.json({ error: behalf.error }, { status: behalf.status });
+        // Existence-oracle collapse: always 404 so cross-tenant enumeration
+        // via 403 vs 404 differential is impossible.
+        return NextResponse.json({ error: 'Member not found' }, { status: 404 });
       }
     }
 
@@ -80,6 +92,19 @@ export const POST = withApiGuc(async (request: Request) => {
       email: email ?? null,
       subjectUserId: subjectUserId ?? null,
       orgId,
+    });
+
+    await auditLog({
+      actorUserId: user.id,
+      action: 'token_link_minted',
+      targetType: 'tokenized_link',
+      targetId: token,
+      metadata: {
+        type: 'eligibility_questionnaire',
+        subjectUserId: subjectUserId ?? null,
+        email: email ?? null,
+        token,
+      },
     });
 
     const url = `${SITE_URL}/q/${token}`;

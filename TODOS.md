@@ -4,9 +4,9 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
-## TODO-001: Coursera Hub — Mobile Layout Spec
+## ~~TODO-001: Coursera Hub — Mobile Layout Spec~~ ✓ COMPLETED
 
-**What:** Add a mobile layout for `/dashboard/coursera` (either a responsive breakpoint or a dedicated mobile component matching the Training page pattern).
+**What:** ~~Add a mobile layout for `/dashboard/coursera` (either a responsive breakpoint or a dedicated mobile component matching the Training page pattern).~~ `/dashboard/coursera` now redirects into `/dashboard/training`, the merged hub. The shared Training course pathway uses the established `md:wa-hidden` / `wa-hidden md:wa-block` mobile split and mobile-safe course cards.
 
 **Why:** The Coursera hub is the member's primary launch point and progress view. Mobile-first members — likely a significant share — hit this on phones. The auto-fit grid collapses okay, but the course pathway list has no spec for narrow viewports: long course names (e.g. "Machine Learning: Regression and Classification") will truncate or overflow at 320px.
 
@@ -16,7 +16,7 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 **Context:** Training page already uses `md:wa-hidden` / `wa-hidden md:wa-block` split as the established pattern. Coursera hub should follow the same approach. The design review rated the Coursera hub at 5/10 for responsive behavior.
 
-**Depends on / blocked by:** Partially blocked by the unresolved Training vs Coursera IA decision. If the pages merge, this work is absorbed into the Training page redesign.
+**Completed:** 2026-06-14. IA decision resolved as Option A: `/dashboard/coursera` redirects to `/dashboard/training`; course cards now explicitly guard long Coursera titles and CTAs at narrow widths.
 
 ---
 
@@ -36,19 +36,11 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
-## TODO-004: Coursera Launch E2E Integration Test
+## ~~TODO-004: Coursera Launch E2E Integration Test~~ ✓ COMPLETED
 
-**What:** Add an E2E integration test for the Coursera launch flow using a test Coursera account or mocked OAuth flow.
+**What:** ~~Add an E2E integration test for the Coursera launch flow using a test Coursera account or mocked OAuth flow.~~ Added a mocked route-level integration seam that drives `Request` → redirect behavior without live Coursera credentials.
 
-**Why:** The launch route has 4 URL resolution paths, 3 error states (error redirect, no-program-url fallback, unauth redirect), and an optional `?course=slug` deep-link param. Unit tests cover the URL-building logic but not the full request→redirect flow. A regression in the route's auth check or redirect logic would only be caught by manual QA.
-
-**Pros:** Catches regressions in the highest-trust moment of the training flow before they reach members.
-
-**Cons:** Requires either a live test Coursera account (with real SSO credentials) or a complex mock OAuth server. Non-trivial setup that depends on external infrastructure.
-
-**Context:** From the eng review: "The launch route has no test for any of these paths. This is the highest-impact page in the training flow." Unit tests for `buildCourseraLaunchUrl` were added in this sprint (config.test.ts). The route-level integration test was deferred here pending test credentials.
-
-**Depends on / blocked by:** Coursera test account OR a mock SSO server implementation.
+**Completed:** 2026-06-14. Coverage lives in `lib/coursera/launchRouteCore.test.ts`; `app/api/member/coursera/launch/route.ts` now wires real Next/Auth/Prisma/Coursera dependencies into the injectable handler. Covered unauth redirect, DB course override deep link, active-dashboard-program resolution, safe course fallback, configured program URL redirect, and launch-failed fallback.
 
 ---
 
@@ -87,6 +79,6 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 ## Completed
 
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
+- **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.
 - **TODO-003: Coursera Hub — "NOW" Badge Font Size** — `font-size` changed from `0.65rem` → `0.75rem`. Completed 2026-05-05, PR split/pr2-coursera-launch-hardening.
-
----
+- **TODO-004: Coursera Launch E2E Integration Test** — mocked route-level Request → redirect coverage added for `/api/member/coursera/launch`. Completed 2026-06-14.

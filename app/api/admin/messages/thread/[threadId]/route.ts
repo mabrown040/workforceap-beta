@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { serializeMessage } from '@/lib/messages/counselorThread';
+import { compactStringIds, getMessageAuthorName, serializeMessage } from '@/lib/messages/counselorThread';
 import { getSlaStatusForThreads } from '@/lib/messages/superAdminMessageQueries';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
@@ -64,12 +64,12 @@ type Props = { params: Promise<{ threadId: string }> };export const GET = withAp
     take: 500,
   }));
 
-  const authorIds = [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))];
-  const authors = await prisma.$transaction((tx) => tx.user.findMany({
+  const authorIds = compactStringIds(messages.map((m) => m.authorId));
+  const authors = await prisma.user.findMany({
     where: { id: { in: authorIds } },
     select: { id: true, fullName: true },
     take: 100,
-  }));
+  });
   const nameById = new Map(authors.map((a) => [a.id, a.fullName]));
 
   const slaMap = thread.kind === 'member' ? await getSlaStatusForThreads([thread.id]) : new Map();
@@ -98,7 +98,7 @@ type Props = { params: Promise<{ threadId: string }> };export const GET = withAp
       currentCounselorUserId: activeCounselorAssignment?.counselor.userId ?? thread.counselorUserId,
       messages: messages.map((m) => ({
         ...serializeMessage(m),
-        authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
+        authorName: getMessageAuthorName(nameById, m.authorId),
         isFromMember: m.authorId === thread.memberId,
       })),
       sla: sla
@@ -133,7 +133,7 @@ type Props = { params: Promise<{ threadId: string }> };export const GET = withAp
       },
       messages: messages.map((m) => ({
         ...serializeMessage(m),
-        authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
+        authorName: getMessageAuthorName(nameById, m.authorId),
         isFromPortalUser: m.authorId === portalUid,
       })),
       sla: null,
@@ -159,8 +159,8 @@ type Props = { params: Promise<{ threadId: string }> };export const GET = withAp
       },
       messages: messages.map((m) => ({
         ...serializeMessage(m),
-        authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
-        isFromPortalUser: m.authorId != null && partnerUserIds.has(m.authorId),
+        authorName: getMessageAuthorName(nameById, m.authorId),
+        isFromPortalUser: m.authorId ? partnerUserIds.has(m.authorId) : false,
       })),
       sla: null,
       readOnlyNote: 'Reply below. Messages sync to the partner portal in real time.',

@@ -87,7 +87,7 @@ export async function buildPartnerAttentionQueue(partnerId: string): Promise<Par
         });
   const lastTouchByMember = new Map<string, string>();
   for (const l of recentLogs) {
-    if (!lastTouchByMember.has(l.memberId)) lastTouchByMember.set(l.memberId, l.createdBy?.fullName ?? 'Unknown');
+    if (!lastTouchByMember.has(l.memberId)) lastTouchByMember.set(l.memberId, l.createdBy?.fullName ?? 'User');
   }
 
   const rows: PartnerAttentionRow[] = [];

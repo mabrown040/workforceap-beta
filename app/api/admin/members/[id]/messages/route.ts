@@ -9,6 +9,8 @@ import {
   getOrCreateMemberCounselorThread,
   assertStaffCanAccessThread,
   assertStaffCanPost,
+  compactStringIds,
+  getMessageAuthorName,
   normalizeMessageBody,
   serializeMessage,
 } from '@/lib/messages/counselorThread';
@@ -38,11 +40,11 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
     take: 500,
   }));
 
-  const names = await prisma.$transaction((tx) => tx.user.findMany({
-    where: { id: { in: [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))] } },
+  const names = await prisma.user.findMany({
+    where: { id: { in: compactStringIds(messages.map((m) => m.authorId)) } },
     select: { id: true, fullName: true },
     take: 100,
-  }));
+  });
   const nameById = new Map(names.map((n) => [n.id, n.fullName]));
 
   return NextResponse.json({
@@ -56,7 +58,7 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
     },
     messages: messages.map((m) => ({
       ...serializeMessage(m),
-      authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
+      authorName: getMessageAuthorName(nameById, m.authorId),
     })),
   });
 

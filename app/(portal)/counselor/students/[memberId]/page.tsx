@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import Link from 'next/link';
-import { getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
+import { compactStringIds, getMessageAuthorName, getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import StatusBadge from '@/components/portal/StatusBadge';
@@ -236,7 +236,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
     where: { threadId: thread.id },
     orderBy: { createdAt: 'asc' },
   });
-  const authorIds = [...new Set(messages.map((m) => m.authorId).filter((id): id is string => id !== null))];
+  const authorIds = compactStringIds(messages.map((m) => m.authorId));
   const authors =
     authorIds.length > 0
       ? await prisma.user.findMany({ take: 5000, where: { id: { in: authorIds } }, select: { id: true, fullName: true } })
@@ -965,7 +965,7 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
                 },
                 messages: messages.map((m) => ({
                   ...serializeMessage(m),
-                  authorName: m.authorId != null ? nameById.get(m.authorId) ?? 'User' : 'User',
+                  authorName: getMessageAuthorName(nameById, m.authorId),
                 })),
               }}
             />

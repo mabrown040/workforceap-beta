@@ -415,7 +415,7 @@ export default async function PartnerReferredMemberDetailPage({ params }: Props)
                     <div key={log.id} style={{ padding: '0.8rem', borderRadius: '0.75rem', background: 'var(--surface-container-low)' }}>
                       <p style={{ margin: 0, fontWeight: 700, textTransform: 'capitalize' }}>{log.channel}</p>
                       <p style={{ margin: '0.25rem 0 0', fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>
-                        {log.createdBy?.fullName ?? 'Unknown'} · {formatDateTime(log.createdAt)}
+                        {log.createdBy?.fullName ?? 'User'} · {formatDateTime(log.createdAt)}
                       </p>
                       <p style={{ color: 'var(--color-on-surface-variant)', margin: '0.45rem 0 0', lineHeight: 1.5 }}>{log.note}</p>
                     </div>

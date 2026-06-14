@@ -53,7 +53,7 @@ type Props = { params: Promise<{ id: string }> };async function _GET(_request: N
       id: m.id,
       body: m.body,
       createdAt: m.createdAt.toISOString(),
-      authorName: m.author?.fullName ?? 'Unknown',
+      authorName: m.author?.fullName ?? 'User',
       isFromEmployer: m.authorId === user.id,
       readAt: m.readAt?.toISOString() ?? null,
     })),
@@ -137,7 +137,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
       id: message.id,
       body: message.body,
       createdAt: message.createdAt.toISOString(),
-      authorName: message.author?.fullName ?? 'Unknown',
+      authorName: message.author?.fullName ?? 'User',
       isFromEmployer: true,
     },
   });

@@ -817,6 +817,37 @@ html.dark .training-course-card {
 html.dark .training-course-card__title {
     color: #f1f5f9;
 }
+.training-course-card {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.training-course-card__main,
+.training-course-card__actions {
+    min-width: 0;
+}
+.training-course-card__title {
+    overflow-wrap: anywhere;
+    word-break: normal;
+    hyphens: auto;
+}
+@media (max-width: 720px) {
+    .training-course-card {
+        padding: 1rem !important;
+    }
+    .training-course-card__actions .btn,
+    .training-course-card__actions .training-course-locked,
+    .training-status-chip {
+        white-space: normal;
+    }
+    .training-course-card__actions .btn,
+    .training-course-card__actions .training-course-locked {
+        width: 100%;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        text-align: center;
+    }
+}
 html.dark .training-course-card.training-course-card--up-next {
     box-shadow: 0 0 0 2px rgba(173, 44, 77, 0.45);
 }

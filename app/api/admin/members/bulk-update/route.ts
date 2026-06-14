@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
@@ -176,6 +177,24 @@ export async function POST(request: NextRequest) {
             previousProgram: member.enrolledProgram,
             previousStage: member.pipelineBoardStage,
           },
+        });
+        await logAuditEvent({
+          user: { id: user.id, role: 'admin' },
+          verb: 'updated',
+          object: { type: 'MemberBulkUpdate', id: member.id },
+          result: {
+            success: true,
+            extensions: {
+              orgId,
+              pipelineStage: pipelineStage ?? null,
+              counselorUserId: counselorUserId ?? null,
+              programSlug: programSlug ?? null,
+              previousProgram: member.enrolledProgram,
+              previousStage: member.pipelineBoardStage,
+            },
+          },
+          request: auditRequestMeta(request),
+          orgId,
         });
 
         updatedCount++;

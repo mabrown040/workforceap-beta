@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getResend } from '@/lib/email';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
@@ -158,6 +159,22 @@ export async function POST(request: NextRequest) {
           targetType: 'user',
           targetId: member.id,
           metadata: { subject, sentAsEmail: sendAsEmail, createdMessage: createMessage },
+        });
+        await logAuditEvent({
+          user: { id: user.id, role: 'admin' },
+          verb: 'emailed',
+          object: { type: 'MemberBulkEmail', id: member.id },
+          result: {
+            success: true,
+            extensions: {
+              orgId,
+              subject,
+              sentAsEmail: sendAsEmail,
+              createdMessage: createMessage,
+            },
+          },
+          request: auditRequestMeta(request),
+          orgId,
         });
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);

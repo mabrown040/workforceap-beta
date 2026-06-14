@@ -270,6 +270,11 @@ export default function PaidApplyVariant({ utmSource, stepNav, mobileTrustBar, p
             color: rgba(255, 255, 255, 0.88);
           }
 
+          /* Form entry trust bar + kicker carry nonprofit/no-cost/time — drop hero repeat */
+          .paid-apply-hero__subhead {
+            display: none;
+          }
+
           .paid-apply-form-section {
             padding: var(--space-6) var(--space-4) calc(var(--space-10) + 4.5rem + env(safe-area-inset-bottom, 0px));
           }

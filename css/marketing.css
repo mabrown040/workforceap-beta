@@ -1093,7 +1093,7 @@ html.has-marketing-main-nav {
 
   .apply-mobile-trust-bar {
     display: block;
-    margin: 0 0 var(--space-4);
+    margin: 0 0 var(--space-2);
     padding: var(--space-2) var(--space-3);
     background: var(--surface-container-high);
     border-radius: var(--radius-md);
@@ -1216,6 +1216,20 @@ html.has-marketing-main-nav {
   .apply-mobile-step-nav,
   .apply-mobile-trust-bar {
     display: block;
+  }
+
+  /* Trust bar → step nav → kicker stack: tighter gaps so Q1 lands sooner */
+  .apply-mobile-trust-bar {
+    margin-bottom: var(--space-2);
+  }
+
+  .apply-mobile-step-nav {
+    margin-bottom: var(--space-2);
+  }
+
+  .apply-organic-form-kicker,
+  .paid-apply-form-kicker,
+  .apply-funnel-form-kicker {
     margin-bottom: var(--space-4);
   }
 

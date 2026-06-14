@@ -286,16 +286,6 @@ html.dark .marketing-mobile.marketing-mobile--on-light-marketing-surface {
   }
 
   /*
-   * Mobile hero: heroBody1 is a dense org/501(c)(3) paragraph; the member-promise
-   * band and TrustStrip immediately below restate the offer in scannable copy.
-   * Hiding it keeps headline → next-step body → Apply as the primary scan path.
-   */
-  .home-hero__body-org,
-  .home-hero__social-proof {
-    display: none;
-  }
-
-  /*
    * Mobile hero: trust detail cards repeat the ✓ bullets and TrustStrip below;
    * hiding them shortens the fold stack so Apply stays primary.
    */

@@ -311,7 +311,7 @@ npx email dev -p 3002
 
 ### Dev server is slow
 
-- **Disable type checking during dev:** Already done in `next.config.ts` (`ignoreBuildErrors: true`).
+- **Type checking:** Run `npm run typecheck` for fast feedback. Build-time type checking is enabled (`ignoreBuildErrors` is NOT set).
 - **Check for memory leaks:** If you have many browser tabs open, consider closing some.
 - **Use `npm run dev` not `npm run build` for development** — build is much slower.
 

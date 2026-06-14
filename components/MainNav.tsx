@@ -11,6 +11,9 @@ import { usePathname } from 'next/navigation';
 import { splitLocalePrefix } from '@/lib/i18n/config';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
+/** Module-level TTL cache so auth checks survive re-mounts across pages. */
+let lastAuthCheckAt = 0;
+
 const navItems = [
   {
     label: 'About Us',
@@ -181,7 +184,6 @@ export default function MainNav() {
 
   useEffect(() => {
     let cancelled = false;
-    let lastRefreshAt = 0;
     /** Cap refresh rate so tab-switching every few seconds doesn't spam /api/auth/me. */
     const REFRESH_THROTTLE_MS = 60_000;
     const doFetch = async () => {
@@ -235,8 +237,8 @@ export default function MainNav() {
     };
     const refreshPortalLinks = (force = false) => {
       const now = Date.now();
-      if (!force && now - lastRefreshAt < REFRESH_THROTTLE_MS) return;
-      lastRefreshAt = now;
+      if (!force && now - lastAuthCheckAt < REFRESH_THROTTLE_MS) return;
+      lastAuthCheckAt = now;
       void doFetch();
     };
     refreshPortalLinks(true);

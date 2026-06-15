@@ -62,6 +62,7 @@ const KNOWN_VITEST_SPECS = new Set([
   'lib/counselor/templates.test.ts',
   'lib/coursera/learnerProgress.test.ts',
   'lib/marketing/trustStripMetrics.test.ts',
+  'lib/marketing/googleItSupportLanding.test.ts',
   'lib/member/nextBestActions.test.ts',
   'lib/member/streaks.test.ts',
   'lib/member/xapiVerbProgress.test.ts',

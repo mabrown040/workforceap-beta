@@ -1,109 +1,155 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
-import { unstable_cache } from 'next/cache';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 
-function computeOutcomes(orgId: string) {
-  return withTenantScope(orgId, async (db) => {
-      const totalMembers = await db.user.count({ where: { deletedAt: null, userRoles: { some: { role: { name: 'member' } } } } });
-      const enrolled = await db.courseEnrollment.count();
-      const completed = await db.courseProgress.count({ where: { status: 'COMPLETED' } });
-      const placed = await db.placementRecord.count();
+/**
+ * GET /api/admin/outcomes
+ * Admin outcomes dashboard data — placement rates, salary data, program effectiveness.
+ * Requires admin access. Returns aggregated metrics for the admin's organization.
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-      const avgSalaryAgg = await db.placementRecord.aggregate({ _avg: { salaryOffered: true } });
+    const admin = await isAdmin(user.id);
+    if (!admin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-      const programBreakdown = await db.courseEnrollment.groupBy({
-        by: ['programSlug'],
-        _count: { programSlug: true },
-      });
+    const orgId = await getActorOrganizationId(user.id);
+    if (!orgId) {
+      return NextResponse.json({ error: 'Organization not found' }, { status: 400 });
+    }
 
-      const programSlugs = programBreakdown.map((p) => p.programSlug);
+    // Aggregate placement data
+    const placements = await prisma.placementRecord.findMany({
+      where: {
+        user: {
+          organizationId: orgId,
+        },
+      },
+      select: {
+        salaryOffered: true,
+        userId: true,
+        programSlug: true,
+      },
+    });
 
-      const [completedByProgram, placementUsers, enrollments] = await Promise.all([
-        db.courseProgress.groupBy({
-          by: ['programSlug'],
-          where: { programSlug: { in: programSlugs }, status: 'COMPLETED' },
-          _count: { programSlug: true },
-        }),
-        db.placementRecord.findMany({
-          where: {},
-          select: { userId: true },
-          take: 500,
-        }),
-        db.courseEnrollment.findMany({
-          where: { programSlug: { in: programSlugs } },
-          select: { userId: true, programSlug: true },
-          take: 500,
-        }),
-      ]);
+    // Aggregate member data
+    const members = await prisma.user.findMany({
+      where: {
+        organizationId: orgId,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        coursesCompleted: true,
+        placementRecord: {
+          select: {
+            salaryOffered: true,
+            startDate: true,
+          },
+        },
+      },
+    });
 
-      const completedMap = new Map(completedByProgram.map((c) => [c.programSlug, c._count.programSlug]));
+    // Calculate metrics
+    const totalMembers = members.length;
+    const enrolledMembers = members.filter((m) => m.enrolledProgram !== null).length;
+    const completedMembers = members.filter((m) => {
+      const completed = m.coursesCompleted as string[] | null;
+      return completed && completed.length > 0;
+    }).length;
+    const placedMembers = members.filter((m) => m.placementRecord !== null).length;
 
-      const placementUserIds = [...new Set(placementUsers.map((p) => p.userId))];
-      const placedMap = new Map<string, number>();
-      const seenPairs = new Set<string>();
-      for (const e of enrollments) {
-        if (!placementUserIds.includes(e.userId)) continue;
-        const key = `${e.userId}-${e.programSlug}`;
-        if (seenPairs.has(key)) continue;
-        seenPairs.add(key);
-        placedMap.set(e.programSlug, (placedMap.get(e.programSlug) ?? 0) + 1);
+    const placementRate = enrolledMembers > 0
+      ? Math.round((placedMembers / enrolledMembers) * 100)
+      : 0;
+
+    const completionRate = enrolledMembers > 0
+      ? Math.round((completedMembers / enrolledMembers) * 100)
+      : 0;
+
+    // Salary analysis
+    const salaries = placements
+      .map((p) => p.salaryOffered)
+      .filter((s): s is number => s !== null && s !== undefined);
+
+    const avgSalary = salaries.length > 0
+      ? Math.round(salaries.reduce((a, b) => a + b, 0) / salaries.length)
+      : 0;
+
+    const salaryRange = salaries.length > 0
+      ? { min: Math.min(...salaries), max: Math.max(...salaries) }
+      : { min: 0, max: 0 };
+
+    // Program effectiveness
+    const programStats: Record<string, { title: string; enrollments: number; completions: number; placements: number }> = {};
+
+    for (const member of members) {
+      const slug = member.enrolledProgram;
+      if (!slug) continue;
+
+      if (!programStats[slug]) {
+        programStats[slug] = {
+          title: slug,
+          enrollments: 0,
+          completions: 0,
+          placements: 0,
+        };
+      }
+      programStats[slug].enrollments++;
+
+      const completed = member.coursesCompleted as string[] | null;
+      if (completed && completed.length > 0) {
+        programStats[slug].completions++;
       }
 
-      const programStats = programBreakdown.map((p) => ({
-        program: p.programSlug,
-        enrolled: p._count.programSlug,
-        completed: completedMap.get(p.programSlug) ?? 0,
-        placed: placedMap.get(p.programSlug) ?? 0,
-      }));
+      if (member.placementRecord) {
+        programStats[slug].placements++;
+      }
+    }
 
-      const monthlyTrend = await db.user.groupBy({
-        by: ['createdAt'],
-        where: { deletedAt: null, userRoles: { some: { role: { name: 'member' } } } },
-        _count: { id: true },
-        orderBy: { createdAt: 'asc' },
-        take: 12,
-      });
-
-      return {
-        membersServed: totalMembers,
-        completionRate: enrolled > 0 ? Math.round((completed / enrolled) * 100) : 0,
-        placementRate: completed > 0 ? Math.round((placed / completed) * 100) : 0,
-        avgSalaryIncrease: Math.round(avgSalaryAgg._avg.salaryOffered ?? 0),
-        programBreakdown: programStats,
-        monthlyTrend: monthlyTrend.map((m) => ({
-          month: m.createdAt.toISOString().slice(0, 7),
-          membersEnrolled: m._count?.id ?? 0,
-        })),
-      };
+    // Audit log
+    await logAuditEvent({
+      user: { id: user.id },
+      verb: 'viewed',
+      object: { type: 'OutcomesDashboard', id: 'aggregate' },
+      request: auditRequestMeta(request),
     });
-}
 
-export async function GET(req: NextRequest) {
-  try {
-  const user = await getUser();
-  if (!user || !(await isAdmin(user.id))) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const orgId = await getActorOrganizationId(user.id);
-  // Include orgId in the cache key array (not just as an arg) so a
-  // future change to Next.js's implicit arg-keying can't cause
-  // cross-tenant cache pollution. Matches the pattern in
-  // /api/admin/metrics and /api/admin/analytics/ai-efficacy.
-  const data = await unstable_cache(
-    () => computeOutcomes(orgId),
-    ['admin-outcomes-v1', orgId],
-    { revalidate: 300 },
-  )();
-  return NextResponse.json(data);
-
+    return NextResponse.json({
+      metrics: {
+        totalMembers,
+        enrolledMembers,
+        completedMembers,
+        placedMembers,
+        placementRate,
+        completionRate,
+        avgSalary,
+        salaryRange,
+      },
+      programStats: Object.entries(programStats).map(([slug, stats]) => ({
+        slug,
+        ...stats,
+        completionRate: stats.enrollments > 0
+          ? Math.round((stats.completions / stats.enrollments) * 100)
+          : 0,
+        placementRate: stats.enrollments > 0
+          ? Math.round((stats.placements / stats.enrollments) * 100)
+          : 0,
+      })),
+    });
   } catch (error) {
-    console.error('/admin/outcomes error:', error);
+    console.error('GET /api/admin/outcomes error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-

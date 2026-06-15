@@ -5,7 +5,10 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+
+export const POST = withApiGuc(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) => {

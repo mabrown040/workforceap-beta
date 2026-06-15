@@ -6,6 +6,7 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendJobRejectedEmail } from '@/lib/email';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
 import { z } from 'zod';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).

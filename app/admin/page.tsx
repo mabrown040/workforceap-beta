@@ -67,9 +67,9 @@ export default async function AdminTodayPage() {
   ).size;
 
   const primaryActions: Array<{ label: string; href: string; icon: string }> = [
-    { label: 'Review applications', href: '/admin/pipeline', icon: 'fact_check' },
+    { label: 'Open command center', href: '/admin/command-center', icon: 'assignment_ind' },
+    { label: 'Review applications', href: '/admin/command-center', icon: 'fact_check' },
     { label: 'Message a student', href: '/admin/messages', icon: 'mark_email_unread' },
-    { label: 'Add a student', href: '/admin/members/new', icon: 'person_add' },
   ];
 
   return (

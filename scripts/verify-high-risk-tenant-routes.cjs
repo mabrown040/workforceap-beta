@@ -50,8 +50,14 @@ assertContains(
 
 assertContains(
   'app/api/counselor/inactive-members/route.ts',
-  ['getActorOrganizationId', 'u.organization_id'],
-  'counselor inactive roster SQL',
+  ['getActorOrganizationId', 'buildInactiveMembersQuery'],
+  'counselor inactive roster uses getActorOrganizationId + query builder',
+);
+
+assertContains(
+  'app/api/counselor/inactive-members/_inactiveMembersQuery.ts',
+  ['u.organization_id = ${orgId}'],
+  'counselor inactive roster query builder scopes by orgId',
 );
 
 assertContains(
@@ -279,4 +285,224 @@ assertContains(
   }
 }
 
-console.log('[verify-high-risk-tenant-routes] OK');
+// --- Sprint 2 compliance expansion (CEO review 2026-06-14): member PII, voice sessions, messaging, applications ---
+
+assertContains(
+  'app/api/member/voice-interview/session/route.ts',
+  ['getUser', 'checkVoiceSessionRateLimit'],
+  'member voice-interview session has auth + rate limit',
+);
+
+assertContains(
+  'app/api/member/voice-interview/transcript/route.ts',
+  ['getUser', 'prisma.$transaction'],
+  'member voice-interview transcript uses $transaction for audit event',
+);
+
+assertContains(
+  'app/api/member/voice-interview/recording/route.ts',
+  ['getUser'],
+  'member voice-interview recording has auth',
+);
+
+assertContains(
+  'app/api/member/settings/route.ts',
+  ['getUser'],
+  'member settings has auth',
+);
+
+assertContains(
+  'app/api/member/resume/route.ts',
+  ['getUser'],
+  'member resume has auth',
+);
+
+assertContains(
+  'app/api/member/notifications/route.ts',
+  ['getUser'],
+  'member notifications has auth',
+);
+
+assertContains(
+  'app/api/member/matched-jobs/route.ts',
+  ['getUser'],
+  'member matched-jobs has auth',
+);
+
+assertContains(
+  'app/api/member/request-help/route.ts',
+  ['getUser'],
+  'member request-help has auth',
+);
+
+// NOTE: app/api/(portal)/dashboard/jobs/route.ts is a PUBLIC job listing —
+// no auth required by design (employer job board browsable without login).
+// Tenant scoping is handled by published status + org-scoped RLS on jobs table.
+// The detail and apply routes are also public-facing.
+
+// NOTE: app/api/(portal)/dashboard/jobs/[id]/route.ts is a PUBLIC job detail —
+// no auth required by design (employer job board browsable without login).
+// Tenant scoping is handled by published status + org-scoped RLS on jobs table.
+
+// NOTE: app/api/(portal)/dashboard/jobs/[id]/apply/route.ts is also public-facing
+// — apply flow starts from public job board.
+
+assertContains(
+  'app/api/(portal)/dashboard/jobs/[id]/apply/route.ts',
+  ['getUser'],
+  'dashboard job apply has auth',
+);
+
+assertContains(
+  'app/api/member/application-ai-feedback/route.ts',
+  ['getUser'],
+  'member application-ai-feedback has auth',
+);
+
+assertContains(
+  'app/api/member/wioa-qualification/route.ts',
+  ['getUser'],
+  'member wioa-qualification has auth',
+);
+
+assertContains(
+  'app/api/member/wioa-qualification/voice-session/route.ts',
+  ['getUser'],
+  'member wioa-qualification voice session has auth',
+);
+
+assertContains(
+  'app/api/member/prep-bundle/route.ts',
+  ['getUser'],
+  'member prep-bundle has auth',
+);
+
+assertContains(
+  'app/api/member/prep-bundle/send/route.ts',
+  ['getUser'],
+  'member prep-bundle send has auth',
+);
+
+assertContains(
+  'app/api/member/interest-profiler/questions/route.ts',
+  ['getUser'],
+  'member interest-profiler questions has auth',
+);
+
+assertContains(
+  'app/api/member/interest-profiler/score/route.ts',
+  ['getUser'],
+  'member interest-profiler score has auth',
+);
+
+assertContains(
+  'app/api/member/interview-request/route.ts',
+  ['getUser'],
+  'member interview-request has auth',
+);
+
+assertContains(
+  'app/api/member/pitch-deployments/route.ts',
+  ['getUser'],
+  'member pitch-deployments has auth',
+);
+
+// NOTE: app/api/member/signup/route.ts is a PUBLIC signup route — no auth required
+// by design (new members create accounts). Tenant scoping is handled by
+// rate limiting + org resolution from request headers.
+
+assertContains(
+  'app/api/member/resume/generate/route.ts',
+  ['getUser'],
+  'member resume generate has auth',
+);
+
+assertContains(
+  'app/api/member/resume/upload/route.ts',
+  ['getUser'],
+  'member resume upload has auth',
+);
+
+assertContains(
+  'app/api/member/resume/preview/route.ts',
+  ['getUser'],
+  'member resume preview has auth',
+);
+
+assertContains(
+  'app/api/member/resume/plain-text/route.ts',
+  ['getUser'],
+  'member resume plain-text has auth',
+);
+
+assertContains(
+  'app/api/member/resume/docx-html/route.ts',
+  ['getUser'],
+  'member resume docx-html has auth',
+);
+
+assertContains(
+  'app/api/gdpr/export/route.ts',
+  ['getUser'],
+  'gdpr export has auth',
+);
+
+assertContains(
+  'app/api/gdpr/delete/route.ts',
+  ['getUser'],
+  'gdpr delete has auth',
+);
+
+assertContains(
+  'app/api/gdpr/consent/route.ts',
+  ['getUser'],
+  'gdpr consent has auth',
+);
+
+assertContains(
+  'app/api/subgroup/dashboard/route.ts',
+  ['getUser'],
+  'subgroup dashboard has auth',
+);
+
+assertContains(
+  'app/api/subgroup/members/route.ts',
+  ['getUser'],
+  'subgroup members has auth',
+);
+
+assertContains(
+  'app/api/subgroup/members/[id]/route.ts',
+  ['getUser'],
+  'subgroup member detail has auth',
+);
+
+// NOTE: app/api/apply/signup/route.ts is a PUBLIC apply signup route — no auth
+// required by design (new applicants create accounts). Tenant scoping is handled
+// by org resolution from request headers + rate limiting.
+
+// NOTE: app/api/apply/confirmation-email/route.ts is a PUBLIC route — sends
+// confirmation email to applicants. No auth required.
+
+// NOTE: app/api/apply/status-lookup/route.ts is a PUBLIC route — applicants
+// check status without login. No auth required.
+
+assertContains(
+  'app/api/onboarding/complete/route.ts',
+  ['getUser'],
+  'onboarding complete has auth',
+);
+
+assertContains(
+  'app/api/onboarding/tour-complete/route.ts',
+  ['getUser'],
+  'onboarding tour-complete has auth',
+);
+
+assertContains(
+  'app/api/onboarding/reset/route.ts',
+  ['getUser'],
+  'onboarding reset has auth',
+);
+
+console.log('[verify-high-risk-tenant-routes] OK — 50 routes verified');

@@ -1,61 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { isAdmin } from '@/lib/auth/roles';
+import { getBoardSnapshot, BoardOutcomesPeriod, formatBoardSnapshotMarkdown } from '@/lib/admin/boardOutcomes';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
-import {
-  getBoardSnapshot,
-  formatBoardSnapshotMarkdown,
-  type BoardOutcomesPeriod,
-} from '@/lib/admin/boardOutcomes';
+import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
+import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 
-const VALID_PERIODS: BoardOutcomesPeriod[] = ['all-time', 'ytd', 'q-current', 'q-prev'];
-
-/**
- * GET /api/admin/outcomes/snapshot?period=all-time|ytd|q-current|q-prev
- *
- * Single-page Markdown summary of every external-facing outcome metric.
- * This is the artifact Dad walks into TWC, AAUL, or a corporate co-funder
- * room with. Every number is timestamped and sourced from a documented
- * Prisma query (see docs/OUTCOMES-METHODOLOGY.md).
- *
- * Admin-only.
- */
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  
-    const periodParam = req.nextUrl.searchParams.get('period');
-    const period: BoardOutcomesPeriod =
-      periodParam && (VALID_PERIODS as string[]).includes(periodParam)
-        ? (periodParam as BoardOutcomesPeriod)
-        : 'all-time';
-  
+
     const orgId = await getActorOrganizationId(user.id);
-    const superUser = await isSuperAdmin(user.id);
-  
-    try {
-      const snapshot = await getBoardSnapshot(period, superUser ? undefined : orgId);
-      const markdown = formatBoardSnapshotMarkdown(snapshot);
-  
-      const date = new Date().toISOString().slice(0, 10);
-      const filename = `wap-outcomes-snapshot-${period}-${date}.md`;
-  
-      return new NextResponse(markdown, {
+
+    const { searchParams } = new URL(request.url);
+    const period = (searchParams.get('period') ?? 'all-time') as BoardOutcomesPeriod;
+    const format = searchParams.get('format') ?? 'json';
+
+    const snapshot = await getBoardSnapshot(period, orgId ?? undefined);
+
+    // AUDIT: outcomes snapshot access
+    await logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'viewed',
+      object: { type: 'OutcomesSnapshot', id: period },
+      result: { success: true },
+      request: auditRequestMeta(request),
+      orgId: orgId ?? null,
+    });
+
+    if (format === 'csv') {
+      const csv = dataToCsv(
+        [
+          { key: 'stage', header: 'Stage', accessor: (r) => r.stage },
+          { key: 'count', header: 'Count', accessor: (r) => r.count },
+        ],
+        snapshot.outcomes.funnel,
+        { reportTitle: `WorkforceAP Outcomes — ${snapshot.outcomes.period.label}`, notes: `Generated ${snapshot.generatedAt.toISOString()}` },
+      );
+      return csvDownloadResponse(csv, exportFilename('outcomes-snapshot'));
+    }
+
+    if (format === 'md') {
+      const md = formatBoardSnapshotMarkdown(snapshot);
+      return new NextResponse(md, {
         status: 200,
         headers: {
           'Content-Type': 'text/markdown; charset=utf-8',
-          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Content-Disposition': `attachment; filename="${exportFilename('outcomes-snapshot', 'md')}"`,
           'Cache-Control': 'no-store',
         },
       });
-    } catch (err) {
-      console.error('[outcomes/snapshot] generation failed', err);
-      return NextResponse.json({ error: 'Snapshot generation failed' }, { status: 500 });
     }
-  } catch (error) {
-    console.error('/admin/outcomes/snapshot:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+
+    return NextResponse.json({ snapshot });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

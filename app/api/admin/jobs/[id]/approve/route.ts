@@ -7,6 +7,7 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendJobApprovedEmail } from '@/lib/email';
 import { runAiMatchForLiveJob } from '@/lib/employer/triggerEmployerJobAiMatch';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).

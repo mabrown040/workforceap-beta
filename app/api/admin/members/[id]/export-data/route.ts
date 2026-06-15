@@ -4,6 +4,7 @@ import { requireAdminOrCounselor } from '@/lib/auth/roles';
 import { buildMemberExport } from '@/lib/member/exportData';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 /**
  * GET /api/admin/members/[id]/export-data

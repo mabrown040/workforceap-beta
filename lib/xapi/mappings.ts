@@ -60,7 +60,12 @@ function normalizeOrganizationId(value: string | null | undefined) {
 
 function orgScopeSql(columnSql: Prisma.Sql, organizationId: string | null | undefined) {
   const orgId = normalizeOrganizationId(organizationId);
-  return orgId ? Prisma.sql`AND ${columnSql} = ${orgId}::text` : Prisma.empty;
+  // Use NULLIF to treat empty string as NULL in SQL, matching the updated
+  // get_current_org_id() helper that wraps with NULLIF(..., '')
+  // (Sprint 2 compliance: 20260614180000_s2_compliance_guc_nullif_xapi_org).
+  return orgId
+    ? Prisma.sql`AND NULLIF(${columnSql}, '') = NULLIF(${orgId}::text, '')`
+    : Prisma.empty;
 }
 
 export async function ensureCourseraMappingTables() {

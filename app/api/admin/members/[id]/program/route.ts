@@ -7,7 +7,10 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+
+export const PATCH = withApiGuc(async (
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) => {

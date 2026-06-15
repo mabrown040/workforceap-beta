@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).

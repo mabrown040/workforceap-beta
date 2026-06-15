@@ -10,6 +10,7 @@ import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { defaultOnboardingWindowEnd } from '@/lib/placement/defaultOnboardingWindow';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const bodySchema = z.object({
   employerName: z.string().min(1).max(300).trim(),

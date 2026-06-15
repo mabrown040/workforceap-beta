@@ -4,12 +4,13 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/admin/members/[id]/reset-password
  *
  * Sends a password-reset email to the member via Supabase Auth.
- * Super-admin only.
+ * Super-admin only. xAPI audit logged for security traceability.
  *
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
  * The `user.findUnique` goes through `withTenantScope` so a super
@@ -17,7 +18,7 @@ import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
  * guessing their UUID.
  */
 export async function POST(
-  _req: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -41,6 +42,16 @@ export async function POST(
     try {
       const { error } = await sendPasswordResetEmail(member.email, '/reset-password', { orgId });
       if (error) throw error;
+
+      // xAPI audit: credential reset action
+      await logAuditEvent({
+        user: { id: admin.id, role: 'super_admin' },
+        verb: 'reset',
+        object: { type: 'UserCredential', id },
+        result: { success: true, extensions: { targetEmail: member.email, orgId } },
+        request: auditRequestMeta(request),
+        orgId,
+      }).catch((err) => console.error('[audit] member reset-password:', err));
   
       return NextResponse.json({ success: true, message: `Password reset email sent to ${member.email}` });
     } catch (e) {

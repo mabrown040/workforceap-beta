@@ -19,11 +19,11 @@ import {
   gucContextStorage,
   buildGucContext,
   runWithGucContext,
-  ANONYMOUS_GUC_CONTEXT,
 } from '@/lib/db/gucContext';
 import { getProfileRole } from '@/lib/auth/roles';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 import '@/css/main.css';
 import '@/css/marketing.css';
 import '@/css/language-toggle.css';
@@ -118,7 +118,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // after cryptographically verifying the Supabase session.
   const forwardedUserId = h.get(WAP_USER_ID_HEADER);
   const resolvedUserId = forwardedUserId ?? (await getUser())?.id ?? null;
-  let gucCtx = ANONYMOUS_GUC_CONTEXT;
+
+  // Resolve the real org for EVERY request path — authenticated or anonymous.
+  // For authenticated users: org comes from the user row. For anonymous users:
+  // org resolves from the request (custom domain / subdomain headers) or falls
+  // back to the default org. Never pass orgId: null to the GUC context — that
+  // breaks every org-scoped RLS policy once FORCE ROW LEVEL SECURITY is enabled
+  // (AUDIT §C-T6, Sprint 2 compliance P0).
+  let gucCtx: import('@/lib/db/gucContext').GucContext;
   if (resolvedUserId) {
     // Bootstrap lookups run inside a partial GUC context carrying the verified
     // userId so the `users_select_own` RLS policy (`id = get_current_user_id()`)
@@ -153,6 +160,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       orgId: userRow?.organizationId ?? null,
       profileRole,
     });
+  } else {
+    // Anonymous request: resolve org from request headers (custom domain / subdomain)
+    // or fall back to the default org. This ensures server components and RLS
+    // policies always see a real orgId, never null.
+    const anonymousOrgId = await resolveOrgFromRequest(h);
+    gucCtx = buildGucContext({ userId: null, orgId: anonymousOrgId });
   }
 
   const orgBranding = await getRequestOrgBranding(h);

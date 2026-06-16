@@ -57,7 +57,7 @@ if (result.status === 0) {
 // If the migration is not found in the failed state, prisma resolve may error.
 // Check if the error is just "not found" vs a real problem.
 const combined = (result.stdout + result.stderr).toLowerCase();
-if (combined.includes('not found') || combined.includes('does not exist') || combined.includes('already resolved')) {
+if (combined.includes('not found') || combined.includes('does not exist') || combined.includes('already resolved') || combined.includes('not in a failed state') || combined.includes('not in a failed state')) {
   console.log(`resolve-failed-migration: ${FAILED_MIGRATION} is not in a failed state (already resolved or never applied).`);
   process.exit(0);
 }

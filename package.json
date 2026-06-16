@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/verify-material-symbols-font-size.mjs && node scripts/prisma-env.js prisma generate && next build",
-    "build:with-migrate": "node scripts/verify-material-symbols-font-size.mjs && node scripts/resolve-failed-migration.cjs && node scripts/safe-migrate.cjs && node scripts/prisma-env.js prisma generate && next build",
+    "build:with-migrate": "node scripts/verify-material-symbols-font-size.mjs && node scripts/resolve-failed-migration.cjs && node scripts/resolve-failed-migration-in-db.cjs 20260616050000_s2_compliance_fix_xapi_org_null --rolled-back && node scripts/safe-migrate.cjs && node scripts/prisma-env.js prisma generate && next build",
     "postinstall": "node scripts/prisma-env.js prisma generate",
     "start": "next start",
     "typecheck": "tsc --noEmit",

@@ -35,6 +35,7 @@ App runs at `http://localhost:3000`.
 | Doc | What it's for |
 |-----|---------------|
 | [`docs/DEVELOPER-ONBOARDING.md`](docs/DEVELOPER-ONBOARDING.md) | **Start here** — full setup & conventions |
+| [`docs/FULL-SITE-FEATURE-REFERENCE.md`](docs/FULL-SITE-FEATURE-REFERENCE.md) | Complete map of the public site, member portal, employer/partner portals, admin tools, APIs, integrations, and data model |
 | [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) | Build failures, auth issues, database problems |
 | [`docs/ENVIRONMENT-VARIABLES.md`](docs/ENVIRONMENT-VARIABLES.md) | Complete `.env` reference |
 | [`docs/API-REFERENCE.md`](docs/API-REFERENCE.md) | Internal API documentation |

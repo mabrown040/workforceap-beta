@@ -40,6 +40,7 @@ For historical / superseded docs, see [`docs/archive/`](./docs/archive/).
 
 | Doc | What it covers |
 |---|---|
+| [`docs/FULL-SITE-FEATURE-REFERENCE.md`](./docs/FULL-SITE-FEATURE-REFERENCE.md) | Complete map of the public site, portals, admin system, API domains, integrations, data model, and current shipped features. |
 | [`SYSTEM-DOCUMENTATION.md`](./SYSTEM-DOCUMENTATION.md) | High-level system architecture. |
 | [`docs/dashboard-handbook.md`](./docs/dashboard-handbook.md) | Dashboard guide for leadership / stakeholders (future-state framing). |
 | [`USER-GUIDE.md`](./USER-GUIDE.md) | End-user guide. |

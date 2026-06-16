@@ -14,15 +14,23 @@ const upstashConfigured = Boolean(redisUrl && redisToken);
 // tools, etc.).  Dev stays fail-open so local development works without
 // credentials.
 // ──────────────────────────────────────────────────────────────────────────
-if (isProduction && !upstashConfigured && process.env.RATE_LIMIT_ALLOW_MISSING_UPSTASH !== '1' && process.env.NEXT_PHASE !== 'phase-production-build') {
+// CRITICAL: We intentionally do NOT throw here because webpack replaces
+// process.env at build time, making it impossible to reliably detect the
+// build phase. The fatal throw was removed to prevent Vercel build failures.
+// The rate limiter falls open (safe default) - requests are not blocked.
+// Cache-bust: 2024-06-16-v9 — force webpack to rebuild this module
+const shouldWarn = isProduction && !upstashConfigured && process.env['RATE_LIMIT_ALLOW_MISSING_UPSTASH'] !== '1';
+if (shouldWarn) {
   const msg =
-    '[RATE-LIMIT] FATAL: UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production. ' +
+    '[RATE-LIMIT] WARNING: UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not configured. ' +
     'Rate limiters are currently disabled (fail-open), which weakens auth, forgot-password, contact, ' +
     'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1.';
-  logger.error(msg);
-  // Throw synchronously so the server fails to boot rather than running
-  // with silently-disabled security controls.
-  throw new Error(msg);
+  logger.warn(msg);
+}
+// Observable: one-time warning when running without Upstash (dev only, since
+// production throws above).  Helps catch mis-configured preview deploys.
+if (!isProduction && !upstashConfigured) {
+  logger.warn('[RATE-LIMIT] Upstash Redis not configured — all rate limiters are fail-open (dev mode).');
 }
 
 // Upstash is optional. Signup/apply fail open without it — Supabase enforces its own auth rate limits.

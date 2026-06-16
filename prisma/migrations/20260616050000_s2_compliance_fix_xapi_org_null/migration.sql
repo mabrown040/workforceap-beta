@@ -69,17 +69,17 @@ SET organization_id = (
 WHERE xs.organization_id IS NULL
   AND xs.actor_email IS NOT NULL;
 
--- Backfill from direct user lookup by actor_identifier
+-- Backfill from direct user lookup by actor_account_name
 UPDATE xapi_statements xs
 SET organization_id = (
   SELECT u.organization_id
   FROM users u
-  WHERE xs.actor_identifier IS NOT NULL
-    AND u.id::text = xs.actor_identifier
+  WHERE xs.actor_account_name IS NOT NULL
+    AND u.id::text = xs.actor_account_name
   LIMIT 1
 )
 WHERE xs.organization_id IS NULL
-  AND xs.actor_identifier IS NOT NULL;
+  AND xs.actor_account_name IS NOT NULL;
 
 -- Set sentinel for any remaining unresolvable rows (should be rare)
 UPDATE xapi_statements
@@ -127,8 +127,8 @@ BEGIN
     RETURN NEW;
   END IF;
 
-  RAISE EXCEPTION 'xAPI statement ingest rejected: cannot resolve organization_id for actor_email=%, actor_identifier=%',
-    NEW.actor_email, NEW.actor_identifier;
+  RAISE EXCEPTION 'xAPI statement ingest rejected: cannot resolve organization_id for actor_email=%, actor_account_name=%',
+    NEW.actor_email, NEW.actor_account_name;
 END;
 $$ LANGUAGE plpgsql;
 

@@ -221,17 +221,17 @@ export default async function ImpactPage() {
                 <StatCard
                   value={completionValue}
                   label={completionLabel}
-                  {...={statCardUnpublishedProps(completionValue)}
+                  {...statCardUnpublishedProps(completionValue)}
                 />
                 <StatCard
                   value={placementValue}
                   label={placementLabel}
-                  {...={statCardUnpublishedProps(placementValue)}
+                  {...statCardUnpublishedProps(placementValue)}
                 />
                 <StatCard
                   value={salaryValue}
                   label={salaryLabel}
-                  {...={statCardUnpublishedProps(salaryValue)}
+                  {...statCardUnpublishedProps(salaryValue)}
                 />
               </div>
               <p className="impact-page__methodology impact-page__methodology--panel">
@@ -244,17 +244,17 @@ export default async function ImpactPage() {
                 <StatCard
                   value={completionValue}
                   label={completionLabel}
-                  {...={statCardUnpublishedProps(completionValue)}
+                  {...statCardUnpublishedProps(completionValue)}
                 />
                 <StatCard
                   value={placementValue}
                   label={placementLabel}
-                  {...={statCardUnpublishedProps(placementValue)}
+                  {...statCardUnpublishedProps(placementValue)}
                 />
                 <StatCard
                   value={salaryValue}
                   label={salaryLabel}
-                  {...={statCardUnpublishedProps(salaryValue)}
+                  {...statCardUnpublishedProps(salaryValue)}
                 />
               </div>
               <p className="impact-page__methodology">{statsMethodologyNote}</p>
@@ -322,17 +322,17 @@ export default async function ImpactPage() {
                   <StatCard
                     value="—"
                     label={t('employerPartnersLabel')}
-                    {...={statCardUnpublishedProps('—')}
+                    {...statCardUnpublishedProps('—')}
                   />
                   <StatCard
                     value="—"
                     label={t('jobsPostedLabel')}
-                    {...={statCardUnpublishedProps('—')}
+                    {...statCardUnpublishedProps('—')}
                   />
                   <StatCard
                     value="—"
                     label={t('hiresLabel')}
-                    {...={statCardUnpublishedProps('—')}
+                    {...statCardUnpublishedProps('—')}
                   />
                 </div>
                 <p className="impact-page__employer-footnote">{t('employerMetricsFootnote')}</p>

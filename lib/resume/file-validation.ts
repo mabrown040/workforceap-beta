@@ -92,18 +92,19 @@ function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
   const REQUIRED_ENTRIES = ['[Content_Types].xml', 'word/document.xml'];
 
   try {
-    const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-    const eocdOffset = findEocd(buffer, view);
+    const buf = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
+    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+    const eocdOffset = findEocd(buf, view);
     if (eocdOffset < 0) return false;
 
     // EOCD must have at least 22 bytes available
-    if (eocdOffset + 22 > buffer.length) return false;
+    if (eocdOffset + 22 > buf.length) return false;
 
     const cdOffset = view.getUint32(eocdOffset + 16, true);
     const cdSize = view.getUint32(eocdOffset + 12, true);
     const totalEntries = view.getUint16(eocdOffset + 10, true);
 
-    if (cdOffset >= buffer.length || cdOffset + cdSize > buffer.length) {
+    if (cdOffset >= buf.length || cdOffset + cdSize > buf.length) {
       return false;
     }
 
@@ -127,7 +128,7 @@ function isDocxArchive(buffer: Buffer | Uint8Array): boolean {
       const nameEnd = nameStart + nameLen;
       if (nameEnd > cdEnd) break;
 
-      const nameBytes = new Uint8Array(buffer.buffer, buffer.byteOffset + nameStart, nameLen);
+      const nameBytes = new Uint8Array(buf.buffer, buf.byteOffset + nameStart, nameLen);
       let name = '';
       if (typeof TextDecoder !== 'undefined') {
         name = new TextDecoder('utf-8').decode(nameBytes);

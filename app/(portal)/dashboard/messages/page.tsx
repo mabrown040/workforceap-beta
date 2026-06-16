@@ -68,14 +68,10 @@ export default async function MemberMessagesPage() {
 
   return (
     <>
-      <h1 className="wa-sr-only md:wa-hidden">{t('inbox')}</h1>
-
-      <div className="wa-hidden md:wa-block">
-        <PageHeader
-          title={t('inbox')}
-          breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
-        />
-      </div>
+      <PageHeader
+        title={t('inbox')}
+        breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
+      />
 
       {/* ── Mobile-only messages view (≤md) ── */}
       <div className="md:wa-hidden" style={{ paddingBottom: '6rem', maxWidth: '100%', overflowX: 'hidden' }}>

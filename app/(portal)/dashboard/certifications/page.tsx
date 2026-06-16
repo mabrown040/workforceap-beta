@@ -324,6 +324,7 @@ export default async function DashboardCertificationsPage() {
             title="My Certificates"
             subtitle="Certificates and credentials you've earned through training. Track your progress and download proof of what you've completed."
             breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Certifications' }]}
+            titleHeadingLevel={2}
           />
 
           {/* 3-column stats bar */}

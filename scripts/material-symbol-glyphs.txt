@@ -19,6 +19,7 @@ assignment_ind
 assignment_turned_in
 assured_workload
 auto_awesome
+auto_delete
 auto_fix_high
 auto_stories
 badge
@@ -66,6 +67,7 @@ devices
 done_all
 download
 draft
+drafts
 drag_indicator
 edit
 edit_document

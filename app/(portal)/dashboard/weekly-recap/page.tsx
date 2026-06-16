@@ -33,9 +33,11 @@ export default async function WeeklyRecapPage() {
   const weekStart = getWeekStart(new Date());
   const { generateWeeklyRecap } = await import('@/lib/recap/generate');
   let recap: Awaited<ReturnType<typeof generateWeeklyRecap>> | null = null;
+  let generationError = false;
   try {
     recap = await generateWeeklyRecap(user.id, weekStart);
   } catch (e) {
+    generationError = true;
     console.error('[WeeklyRecapPage] generateWeeklyRecap failed', e);
   }
 
@@ -63,7 +65,9 @@ export default async function WeeklyRecapPage() {
         {recap === null ? (
           <div className="mx-auto max-w-2xl px-4 py-8">
             <div className="rounded-lg border border-border bg-card p-6 text-center text-muted-foreground">
-              Your recap isn&rsquo;t ready yet — check back after your next activity or try refreshing.
+              {generationError
+                ? 'Unable to generate recap. Please try again later.'
+                : "Your recap isn't ready yet — check back after your next activity or try refreshing."}
             </div>
           </div>
         ) : (

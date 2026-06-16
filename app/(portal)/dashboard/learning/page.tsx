@@ -262,6 +262,7 @@ export default async function LearningPage() {
             title="The Learning Hub"
             subtitle="Your pathways, searchable career resources, and program-specific tools — organized so you always know where to look next."
             breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Learning Hub' }]}
+            titleHeadingLevel={2}
           />
         </div>
 

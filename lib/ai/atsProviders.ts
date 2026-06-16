@@ -473,27 +473,10 @@ export type FetchPageError = {
   retryAfterMs?: number;
 };
 
-/** After 429 / quota errors, skip Firecrawl for a short window (bulk import, serverless warm). */
-let firecrawlCooldownUntil = 0;
-const FIRECRAWL_COOLDOWN_MS = 90_000;
-/** Tracks the classified reason the most recent cooldown was triggered. */
-let firecrawlLastErrorType: 'rate_limited' | 'quota_exceeded' | null = null;
-
-function triggerFirecrawlCooldown(reason: string, errorType: 'rate_limited' | 'quota_exceeded') {
-  firecrawlCooldownUntil = Date.now() + FIRECRAWL_COOLDOWN_MS;
-  firecrawlLastErrorType = errorType;
-  console.warn(`[Firecrawl] Cooldown ${FIRECRAWL_COOLDOWN_MS}ms — ${reason}`);
-}
-
 async function fetchWithFirecrawl(url: string, options?: { waitFor?: number }): Promise<{ text: string } | null> {
   const apiKey = process.env.FIRECRAWL_API_KEY;
   if (!apiKey) {
     console.warn('[Firecrawl] FIRECRAWL_API_KEY not set — skipping scrape (use paste or direct job URLs)');
-    return null;
-  }
-
-  if (Date.now() < firecrawlCooldownUntil) {
-    console.warn('[Firecrawl] Skipping scrape during cooldown after rate limit or quota');
     return null;
   }
 
@@ -522,20 +505,20 @@ async function fetchWithFirecrawl(url: string, options?: { waitFor?: number }): 
     const errLower = (json.error ?? json.code ?? '').toString().toLowerCase();
 
     if (res.status === 429) {
-      triggerFirecrawlCooldown(`HTTP ${res.status}`, 'rate_limited');
+      console.warn(`[Firecrawl] HTTP ${res.status} — rate limited`);
       return null;
     }
     if (res.status === 402) {
-      triggerFirecrawlCooldown(`HTTP ${res.status}`, 'quota_exceeded');
+      console.warn(`[Firecrawl] HTTP ${res.status} — quota exceeded`);
       return null;
     }
 
     if (errLower.includes('quota') || errLower.includes('billing') || errLower.includes('exceeded')) {
-      triggerFirecrawlCooldown(json.error ?? json.code ?? 'quota', 'quota_exceeded');
+      console.warn(`[Firecrawl] Quota error — ${json.error ?? json.code ?? 'quota'}`);
       return null;
     }
     if (errLower.includes('rate limit') || errLower.includes('too many requests')) {
-      triggerFirecrawlCooldown(json.error ?? json.code ?? 'rate limit', 'rate_limited');
+      console.warn(`[Firecrawl] Rate limit — ${json.error ?? json.code ?? 'rate limit'}`);
       return null;
     }
 
@@ -561,16 +544,6 @@ async function fetchWithFirecrawl(url: string, options?: { waitFor?: number }): 
 // ────────────────────────────────────────────────────────────
 // Main Entry Point
 // ────────────────────────────────────────────────────────────
-
-// Simple in-memory cache to avoid double Firecrawl calls within same request
-const firecrawlCache = new Map<string, { text: string } | null>();
-
-async function fetchWithFirecrawlCached(url: string, options?: { waitFor?: number }): Promise<{ text: string } | null> {
-  if (firecrawlCache.has(url)) return firecrawlCache.get(url) ?? null;
-  const result = await fetchWithFirecrawl(url, options);
-  firecrawlCache.set(url, result);
-  return result;
-}
 
 export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
   const detected = detectProvider(url);
@@ -603,7 +576,7 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
 
       // Try Firecrawl for JS-rendered pages (waitFor helps Rippling/Workday load)
       const waitFor = getImportWaitForMs(url);
-      const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor });
+      const firecrawlResult = await fetchWithFirecrawl(url, { waitFor });
       if (firecrawlResult && firecrawlResult.text.length > 200) {
         return {
           provider: `${detected.provider}+firecrawl`,
@@ -637,7 +610,7 @@ export async function importJobsFromUrl(url: string): Promise<ATSParseResult> {
   }
 
   // Tier 3 fallback: Try Firecrawl for any JS-rendered or failed page
-  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: 2000 });
+  const firecrawlResult = await fetchWithFirecrawl(url, { waitFor: 2000 });
   if (firecrawlResult && firecrawlResult.text.length > 200) {
     return {
       provider: 'firecrawl',
@@ -688,7 +661,7 @@ export async function fetchPageText(
   }
 
   // Try Firecrawl for JS-rendered pages or low-quality direct fetch
-  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
+  const firecrawlResult = await fetchWithFirecrawl(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
 
   if (firecrawlResult) {
     const quality = checkContentQuality(firecrawlResult.text);
@@ -700,13 +673,7 @@ export async function fetchPageText(
     return { error: 'fetch_failed' };
   }
 
-  // Firecrawl returned null — check whether a rate/quota limit triggered the cooldown
-  if (Date.now() < firecrawlCooldownUntil) {
-    const errorType = firecrawlLastErrorType ?? 'rate_limited';
-    return { error: errorType, retryAfterMs: firecrawlCooldownUntil - Date.now() };
-  }
-
-  // Firecrawl failed for other reasons (not configured, network error, etc.)
+  // Firecrawl returned null — failed for other reasons (not configured, network error, etc.)
   return { error: 'fetch_failed' };
 }
 
@@ -730,7 +697,7 @@ export async function fetchSubJobPageText(
   }
 
   // 2. Direct fetch failed or insufficient (JS-rendered, blocked) — Firecrawl as last resort
-  const firecrawlResult = await fetchWithFirecrawlCached(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
+  const firecrawlResult = await fetchWithFirecrawl(url, { waitFor: options?.waitFor ?? getImportWaitForMs(url) });
 
   if (firecrawlResult) {
     const quality = checkContentQuality(firecrawlResult.text);
@@ -740,12 +707,7 @@ export async function fetchSubJobPageText(
     return { error: 'fetch_failed' };
   }
 
-  // Firecrawl returned null — check whether a rate/quota limit triggered the cooldown
-  if (Date.now() < firecrawlCooldownUntil) {
-    const errorType = firecrawlLastErrorType ?? 'rate_limited';
-    return { error: errorType, retryAfterMs: firecrawlCooldownUntil - Date.now() };
-  }
-
+  // Firecrawl returned null — failed for other reasons (not configured, network error, etc.)
   return { error: 'fetch_failed' };
 }
 

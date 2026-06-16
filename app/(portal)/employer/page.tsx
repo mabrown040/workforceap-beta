@@ -266,8 +266,8 @@ export default async function EmployerDashboardPage() {
         <div style={{ display:"flex", gap:"0.75rem", overflowX:"auto", scrollbarWidth:"none", paddingLeft:"1.5rem", paddingRight:"1.5rem", paddingBottom:"0.5rem" }}>
           {[
             { label: t('openRoles'), value: activeJobs, color: 'var(--color-on-surface)' },
-            { label: t('candidates'), value: totalApplications, color: 'var(--on-surface)' },
-            { label: t('awaitingGoLive'), value: inReview, color: 'var(--secondary)' },
+            { label: t('candidates'), value: totalApplications, color: 'var(--color-on-surface)' },
+            { label: t('awaitingGoLive'), value: inReview, color: 'var(--color-on-surface-variant)' },
           ].map((s) => (
             <div
               key={s.label}

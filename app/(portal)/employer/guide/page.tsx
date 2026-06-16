@@ -88,7 +88,7 @@ export default async function EmployerGuidePage() {
 
       {/* 3-Step Flow */}
       <section style={{ marginBottom: '3.5rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+        <div className="employer-guide-steps">
           {[
             {
               num: '01',
@@ -123,13 +123,13 @@ export default async function EmployerGuidePage() {
                 width: '2.75rem',
                 height: '2.75rem',
                 borderRadius: '0.75rem',
-                background: i === 0 ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
+                background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: '1.25rem',
               }}>
-                <span className="material-symbols-outlined" style={{ color: i === 0 ? '#fff' : 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{step.icon}</span>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} aria-hidden="true">{step.icon}</span>
               </div>
               <h3 style={{ fontSize: '1.0625rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.625rem', letterSpacing: '-0.02em' }}>
                 {step.title}

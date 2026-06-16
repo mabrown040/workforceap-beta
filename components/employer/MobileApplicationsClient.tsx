@@ -202,7 +202,7 @@ export default function MobileApplicationsClient({
                         {statusLabel(app.status)}
                       </span>
                     </div>
-                    <p className="text-xs font-semibold uppercase tracking-wider truncate mt-0.5" style={{ color: 'var(--color-gold)' }}>
+                    <p className="text-xs font-semibold uppercase tracking-wider truncate mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>
                       {app.job.title}
                     </p>
                     <p className="text-[10px] mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>

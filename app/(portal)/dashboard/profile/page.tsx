@@ -226,7 +226,7 @@ export default async function DashboardProfilePage() {
         <div className="portal-profile-hero">
           <div className="portal-profile-avatar">{initials}</div>
           <div style={{ minWidth: 0 }}>
-            <h1
+            <h2
               style={{
                 fontSize: "1.5rem",
                 fontWeight: 800,
@@ -236,7 +236,7 @@ export default async function DashboardProfilePage() {
               }}
             >
               {dbUser.fullName ?? "Your Profile"}
-            </h1>
+            </h2>
             <div
               style={{
                 display: "flex",

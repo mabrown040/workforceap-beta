@@ -161,21 +161,23 @@ export default async function EmployerCandidateProfilePage({
   ];
 
   return (
-    <>
-      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PageHeader
-          title={student.fullName ?? t('candidate')}
-          subtitle={t('candidateProfileSubtitle')}
-          action={(
-            <Link
-              href="/employer/matches"
-              style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textDecoration: 'none' }}
-            >
-              {t('backToMatches')}
-            </Link>
-          )}
-        />
+    <PortalPageFrame>
+      <PageHeader
+        title={student.fullName ?? t('candidate')}
+        subtitle={
+          <>
+            <span className="wa-block md:wa-hidden">{t('candidateProfileSubtitle')}</span>
+            <span className="wa-hidden md:wa-block">{t('candidateProfileSubtitleDesktop')}</span>
+          </>
+        }
+        action={
+          <Link href="/employer/matches" className="btn btn-outline btn-sm">
+            {t('backToMatches')}
+          </Link>
+        }
+      />
 
+      <div className="md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
           <section className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -183,7 +185,7 @@ export default async function EmployerCandidateProfilePage({
                 <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-variant)' }}>
                   Candidate snapshot
                 </p>
-                <h1 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '0.35rem 0 0.2rem' }}>{student.fullName}</h1>
+                <h2 style={{ fontSize: '1.2rem', fontWeight: 800, margin: '0.35rem 0 0.2rem' }}>{student.fullName}</h2>
                 <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontSize: '0.875rem', overflowWrap: 'anywhere' }}>{student.email}</p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.5rem' }}>
@@ -428,18 +430,7 @@ export default async function EmployerCandidateProfilePage({
       </div>
 
       <div className="wa-hidden md:wa-block">
-        <PortalPageFrame>
-          <PageHeader
-            title={student.fullName ?? t('candidate')}
-            subtitle={t('candidateProfileSubtitleDesktop')}
-            action={
-              <Link href="/employer/matches" className="btn btn-outline btn-sm">
-                {t('backToMatches')}
-              </Link>
-            }
-          />
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(320px, 0.7fr)', gap: '1rem', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(320px, 0.7fr)', gap: '1rem', alignItems: 'start' }}>
             <div style={{ display: 'grid', gap: '1rem' }}>
               <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
@@ -674,8 +665,7 @@ export default async function EmployerCandidateProfilePage({
               </div>
             </aside>
           </div>
-        </PortalPageFrame>
       </div>
-    </>
+    </PortalPageFrame>
   );
 }

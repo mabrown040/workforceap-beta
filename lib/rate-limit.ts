@@ -1,12 +1,39 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { logger } from '@/lib/observability/logger';
 
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
+const isProduction = process.env.NODE_ENV === 'production';
+const upstashConfigured = Boolean(redisUrl && redisToken);
+
+// ── Production boot assertion ───────────────────────────────────────────
+// Rate limiting is a security control.  In production we MUST have Upstash
+// Redis or every limiter falls open (auth, forgot-password, contact, AI
+// tools, etc.).  Dev stays fail-open so local development works without
+// credentials.
+// ──────────────────────────────────────────────────────────────────────────
+if (isProduction && !upstashConfigured && process.env.RATE_LIMIT_ALLOW_MISSING_UPSTASH !== '1') {
+  const msg =
+    '[RATE-LIMIT] FATAL: UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production. ' +
+    'Rate limiters are currently disabled (fail-open), which weakens auth, forgot-password, contact, ' +
+    'and AI-tool endpoints. Set the env vars or explicitly opt out with RATE_LIMIT_ALLOW_MISSING_UPSTASH=1.';
+  logger.error(msg);
+  // Throw synchronously so the server fails to boot rather than running
+  // with silently-disabled security controls.
+  throw new Error(msg);
+}
+
 // Upstash is optional. Signup/apply fail open without it — Supabase enforces its own auth rate limits.
 // Contact/confirmation remain fail-closed (spam risk). Add UPSTASH_* env vars to enable Redis-backed limits.
-const FAIL_CLOSED = !redisUrl || !redisToken;
+const FAIL_CLOSED = !upstashConfigured;
+
+// Observable: one-time warning when running without Upstash (dev only, since
+// production throws above).  Helps catch mis-configured preview deploys.
+if (!isProduction && !upstashConfigured) {
+  logger.warn('[RATE-LIMIT] Upstash Redis not configured — all rate limiters are fail-open (dev mode).');
+}
 
 let signupRateLimiter: Ratelimit | null = null;
 let applySignupRateLimiter: Ratelimit | null = null;
@@ -79,6 +106,40 @@ let courseraIdentityRateLimiter: Ratelimit | null = null;
 // submits without enabling a flood.
 let publicQuestionnaireSubmitRateLimiter: Ratelimit | null = null;
 let adminTokenLinksRateLimiter: Ratelimit | null = null;
+
+/**
+ * Fail-closed wrapper for security-critical rate-limit checks.
+ *
+ * In production, if Upstash is missing, we MUST block the request rather
+ * than allow unlimited abuse.  In dev we log once and allow (fail-open).
+ *
+ * @param limiter    — the Upstash Ratelimit instance (null when unconfigured)
+ * @param name       — human-readable limiter name for logs
+ * @param identifier — the key being rate-limited (IP, email, userId)
+ */
+async function failClosedLimit(
+  limiter: Ratelimit | null,
+  name: string,
+  identifier: string
+): Promise<{ success: boolean; remaining?: number }> {
+  if (limiter) {
+    const result = await limiter.limit(identifier);
+    return { success: result.success, remaining: result.remaining };
+  }
+
+  // Limiter is null → Upstash not configured
+  if (isProduction) {
+    // This should be unreachable because the boot assertion above throws,
+    // but we keep it as a defense-in-depth layer in case the assertion is
+    // ever bypassed or relaxed.
+    logger.error(`[RATE-LIMIT] ${name} limiter is null in production — blocking request for ${identifier}`);
+    return { success: false, remaining: 0 };
+  }
+
+  // Dev: warn once per limiter name, then allow
+  logger.warn(`[RATE-LIMIT] ${name} limiter is null — allowing request for ${identifier} (dev fail-open)`);
+  return { success: true };
+}
 
 if (redisUrl && redisToken) {
   const redis = new Redis({ url: redisUrl, token: redisToken });
@@ -277,10 +338,7 @@ export async function checkApplySignupRateLimit(identifier: string): Promise<{ s
 }
 
 export async function checkAuthRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  // Auth fails OPEN so the app stays usable when Upstash is not configured
-  if (!authRateLimiter) return { success: true };
-  const result = await authRateLimiter.limit(identifier);
-  return { success: result.success, remaining: result.remaining };
+  return failClosedLimit(authRateLimiter, 'auth', identifier);
 }
 
 /**
@@ -289,9 +347,7 @@ export async function checkAuthRateLimit(identifier: string): Promise<{ success:
  * is throttled by total attempts, not per-target-email buckets.
  */
 export async function checkAuthIpRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!authIpRateLimiter) return { success: true };
-  const result = await authIpRateLimiter.limit(`auth-ip:${ip}`);
-  return { success: result.success, remaining: result.remaining };
+  return failClosedLimit(authIpRateLimiter, 'auth-ip', `auth-ip:${ip}`);
 }
 
 /**
@@ -327,11 +383,7 @@ export async function checkAIToolRateLimit(userId: string): Promise<{ success: b
 }
 
 export async function checkContactRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
-  if (!contactRateLimiter) {
-    return { success: !FAIL_CLOSED };
-  }
-  const result = await contactRateLimiter.limit(ip);
-  return { success: result.success, remaining: result.remaining };
+  return failClosedLimit(contactRateLimiter, 'contact', ip);
 }
 
 /** Public partner self-registration — fail-open when Upstash is not configured (unlike contact). */
@@ -366,24 +418,18 @@ export async function checkEmployerJobImportRateLimit(userId: string): Promise<{
   return { success: result.success, remaining: result.remaining };
 }
 
-/** Public confirmation-email endpoint — 5 per IP per hour. Fails closed when Redis is unconfigured: this endpoint sends mail from our verified domain to an arbitrary attacker-chosen address; a botnet can rotate IPs trivially, so unlimited fail-open would burn deliverability. */
+/** Public confirmation-email endpoint — 5 per IP per hour. Fails closed in production. */
 export async function checkConfirmationEmailRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!confirmationEmailRateLimiter) {
-    return { success: !FAIL_CLOSED };
-  }
-  const result = await confirmationEmailRateLimiter.limit(ip);
-  return { success: result.success };
+  const r = await failClosedLimit(confirmationEmailRateLimiter, 'confirmation-email', ip);
+  return { success: r.success };
 }
 
-/** Per-email cap on confirmation-email sends — 2 per email per hour. Same fail-closed policy as the per-IP variant. Use both together. */
+/** Per-email cap on confirmation-email sends — 2 per email per hour. Same fail-closed policy. Use both together. */
 export async function checkConfirmationEmailEmailRateLimit(email: string): Promise<{ success: boolean }> {
-  if (!confirmationEmailEmailRateLimiter) {
-    return { success: !FAIL_CLOSED };
-  }
   const normalized = email.trim().toLowerCase();
   if (!normalized) return { success: true };
-  const result = await confirmationEmailEmailRateLimiter.limit(`confirmation-email-email:${normalized}`);
-  return { success: result.success };
+  const r = await failClosedLimit(confirmationEmailEmailRateLimiter, 'confirmation-email-email', `confirmation-email-email:${normalized}`);
+  return { success: r.success };
 }
 
 /** Public career quiz recommend — fail-open without Redis (dev). */
@@ -400,18 +446,16 @@ export async function checkInterestProfilerRateLimit(userId: string): Promise<{ 
   return { success: result.success };
 }
 
-/** Forgot-password / reset email requests — per IP; fail-open without Redis (dev). */
+/** Forgot-password / reset email requests — per IP; fail-closed in production. */
 export async function checkForgotPasswordRateLimit(ip: string): Promise<{ success: boolean }> {
-  if (!forgotPasswordRateLimiter) return { success: true };
-  const result = await forgotPasswordRateLimiter.limit(ip);
-  return { success: result.success };
+  const r = await failClosedLimit(forgotPasswordRateLimiter, 'forgot-password', ip);
+  return { success: r.success };
 }
 
-/** Forgot-password per-email cap — 3 requests per email per 24 h; fail-open without Redis. */
+/** Forgot-password per-email cap — 3 requests per email per 24 h; fail-closed in production. */
 export async function checkForgotPasswordEmailRateLimit(email: string): Promise<{ success: boolean }> {
-  if (!forgotPasswordEmailRateLimiter) return { success: true };
-  const result = await forgotPasswordEmailRateLimiter.limit(email.toLowerCase());
-  return { success: result.success };
+  const r = await failClosedLimit(forgotPasswordEmailRateLimiter, 'forgot-password-email', email.toLowerCase());
+  return { success: r.success };
 }
 
 /** Public GET /api/careers/* (occupation detail, program matches) — per IP; fail-open without Redis. */

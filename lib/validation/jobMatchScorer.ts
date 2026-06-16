@@ -1,7 +1,7 @@
 import { isIP } from 'node:net';
 import { z } from 'zod';
 
-const optionalNonEmptyString = (schema: z.ZodString) =>
+const optionalNonEmptyString = (schema: z.ZodType<string, any>) =>
   z.preprocess(
     (value) => {
       if (typeof value !== 'string') return value;
@@ -57,10 +57,41 @@ function isSafePublicHttpUrl(value: string): boolean {
   return true;
 }
 
+// ─── Prompt-injection sanitization ───
+// Strips common prompt-control sequences that could hijack an AI context window.
+const PROMPT_CONTROL_RE = /\n?\s*---\s*\n?|\n?\s*system\s*:\s*|\n?\s*user\s*:\s*|\n?\s*assistant\s*:\s*|\n?\s*instruction\s*:\s*/gi;
+
+function stripPromptControls(value: string): string {
+  return value.replace(PROMPT_CONTROL_RE, ' ').trim();
+}
+
+// ─── Content-type validation ───
+// Rejects strings that look like binary blobs, SQL injection, or script tags.
+// Allows normal printable text including newlines, tabs, and Unicode letters.
+// NOTE: ES2017 target — avoid /s (dotAll) flag; use [\s\S] instead.
+const SQL_INJECTION_RE = /select\s+.*from\s+|insert\s+into\s+|delete\s+from\s+|drop\s+table\s+|union\s+select\s+/i;
+const SCRIPT_TAG_RE = /<script\b|<iframe\b|javascript:\s*/i;
+const PRINTABLE_TEXT_RE = /^(?:[\p{L}\p{N}\p{P}\p{S}\s])*$/u;
+
+function safeTextString(schema: z.ZodString): z.ZodType<string, any> {
+  return schema
+    .regex(PRINTABLE_TEXT_RE, 'Input must be plain text (no binary data)')
+    .refine(
+      (val) => !SQL_INJECTION_RE.test(val) && !SCRIPT_TAG_RE.test(val),
+      'Input contains disallowed patterns (SQL or script tags)'
+    );
+}
+
 export const jobMatchScorerSchema = z.object({
-  resume: z.string().min(100, 'Resume must be at least 100 characters').max(15000).optional(),
-  jobDescription: optionalNonEmptyString(
-    z.string().min(50, 'Job description must be at least 50 characters').max(8000)
+  resume: z.preprocess(
+    (value) => (typeof value === 'string' ? stripPromptControls(value) : value),
+    safeTextString(z.string().min(100, 'Resume must be at least 100 characters').max(15000)).optional()
+  ),
+  jobDescription: z.preprocess(
+    (value) => (typeof value === 'string' ? stripPromptControls(value) : value),
+    optionalNonEmptyString(
+      safeTextString(z.string().min(50, 'Job description must be at least 50 characters').max(8000))
+    )
   ),
   jobUrl: optionalNonEmptyString(
     z.string().url('Please enter a valid URL')

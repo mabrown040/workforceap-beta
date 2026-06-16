@@ -9,6 +9,18 @@
 @import './portal-main-extracted.css';
 @import './portal-ui-kit.css';
 
+/* ── Employer Guide — 3-step flow grid ── */
+.employer-guide-steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 768px) {
+  .employer-guide-steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* Portal form controls (shared by FormField primitives): ≥14px copy; mobile uses 16px to reduce iOS zoom-on-focus */
 .portal-form-control {
   box-sizing: border-box;
@@ -286,10 +298,10 @@
 /* Empty state — CSS fallback for inline styles in PortalEmptyState component */
 .portal-empty-state {
   text-align: center;
-  padding: 2rem 1.25rem;
+  padding: 2.5rem 1.5rem;
   border-radius: var(--radius-lg, 12px);
-  border: 2px dashed var(--outline-variant, #e5e5e5);
-  background: var(--surface-container-low, #fafafa);
+  border: 1px solid rgba(88, 65, 68, 0.08);
+  background: var(--surface-container-lowest, #f6f3f2);
   max-width: 28rem;
   margin: 0 auto;
 }

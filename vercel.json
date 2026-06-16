@@ -3,40 +3,56 @@
   "ignoreCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; else exit 0; fi",
   "crons": [
     {
-      "path": "/api/cron/smoke-test",
+      "path": "/api/cron/applicant-followup",
+      "schedule": "0 11 */3 * *"
+    },
+    {
+      "path": "/api/cron/at-risk-alerts",
+      "schedule": "0 13 * * 1"
+    },
+    {
+      "path": "/api/cron/at-risk-check",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/coursera-auto-heal",
+      "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/cron/coursera-b4b-sync",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/coursera-sync",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/coursera-training-sync",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/course-accountability",
+      "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/cron/data-cleanup",
+      "schedule": "30 7 * * *"
     },
     {
       "path": "/api/cron/deploy-health",
       "schedule": "0 * * * *"
     },
     {
-      "path": "/api/cron/verification",
-      "schedule": "0 11 * * *"
-    },
-    {
-      "path": "/api/cron/weekly-recap",
-      "schedule": "0 18 * * 0"
-    },
-    {
       "path": "/api/cron/inactive-nudge",
       "schedule": "0 10 * * 1"
     },
     {
-      "path": "/api/cron/applicant-followup",
-      "schedule": "0 11 */3 * *"
+      "path": "/api/cron/inactivity-nudge",
+      "schedule": "0 10 * * 3"
     },
     {
-      "path": "/api/cron/weekly-recap-email",
-      "schedule": "0 22 * * 5"
-    },
-    {
-      "path": "/api/cron/partner-outcome-digest",
-      "schedule": "0 13 * * 1"
-    },
-    {
-      "path": "/api/cron/milestone-celebration",
-      "schedule": "0 11 * * *"
+      "path": "/api/cron/interview-reminders",
+      "schedule": "30 14 * * *"
     },
     {
       "path": "/api/cron/milestone-cascade-draft",
@@ -47,52 +63,40 @@
       "schedule": "0 9 * * *"
     },
     {
-      "path": "/api/cron/data-cleanup",
-      "schedule": "30 7 * * *"
+      "path": "/api/cron/milestone-celebration",
+      "schedule": "0 11 * * *"
     },
     {
-      "path": "/api/cron/wioa-report",
-      "schedule": "0 14 1 * *"
-    },
-    {
-      "path": "/api/cron/interview-reminders",
-      "schedule": "30 14 * * *"
-    },
-    {
-      "path": "/api/cron/coursera-training-sync",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/cron/coursera-sync",
-      "schedule": "0 */6 * * *"
-    },
-    {
-      "path": "/api/cron/coursera-b4b-sync",
-      "schedule": "0 */6 * * *"
-    },
-    {
-      "path": "/api/cron/coursera-auto-heal",
-      "schedule": "15 * * * *"
-    },
-    {
-      "path": "/api/cron/stale-training-check",
-      "schedule": "30 12 * * *"
+      "path": "/api/cron/partner-outcome-digest",
+      "schedule": "0 13 * * 1"
     },
     {
       "path": "/api/cron/placement-survey",
       "schedule": "0 14 * * *"
     },
     {
-      "path": "/api/cron/at-risk-check",
-      "schedule": "0 6 * * *"
+      "path": "/api/cron/smoke-test",
+      "schedule": "0 * * * *"
     },
     {
-      "path": "/api/cron/at-risk-alerts",
-      "schedule": "0 13 * * 1"
+      "path": "/api/cron/stale-training-check",
+      "schedule": "30 12 * * *"
     },
     {
-      "path": "/api/cron/course-accountability",
-      "schedule": "0 15 * * *"
+      "path": "/api/cron/verification",
+      "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/cron/weekly-recap",
+      "schedule": "0 18 * * 0"
+    },
+    {
+      "path": "/api/cron/weekly-recap-email",
+      "schedule": "0 22 * * 5"
+    },
+    {
+      "path": "/api/cron/wioa-report",
+      "schedule": "0 14 1 * *"
     }
   ]
 }

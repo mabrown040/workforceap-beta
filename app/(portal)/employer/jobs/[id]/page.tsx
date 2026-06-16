@@ -131,7 +131,7 @@ export default async function EmployerJobDetailPage({ params }: Props) {
               <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
                 <header className="employer-job-edit__header" style={{ marginBottom: '1rem' }}>
                   <div>
-                    <h1>{job.title}</h1>
+                    <h2>{job.title}</h2>
                     <span className="employer-job-edit__meta">
                       {job.status}
                       {job.applicationsCount > 0 && ` · ${job.applicationsCount} application${job.applicationsCount === 1 ? '' : 's'}`}

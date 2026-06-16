@@ -1146,7 +1146,8 @@ a.home-program-card:active {
     line-height: 1.4;
   }
 
-  .apply-mobile-trust-bar__line {
+  .apply-mobile-trust-bar__cues,
+  .apply-mobile-trust-bar__support {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -1154,6 +1155,11 @@ a.home-program-card:active {
     gap: 0.25rem 0.375rem;
     margin: 0;
     text-align: center;
+  }
+
+  .apply-mobile-trust-bar__support {
+    min-height: 44px;
+    margin-top: var(--space-1);
   }
 
   .apply-mobile-trust-bar__cue {
@@ -1169,10 +1175,6 @@ a.home-program-card:active {
     user-select: none;
   }
 
-  .apply-mobile-trust-bar__phone-wrap {
-    white-space: nowrap;
-  }
-
   .apply-mobile-trust-bar__check {
     color: var(--color-green);
     font-weight: 700;
@@ -1180,12 +1182,14 @@ a.home-program-card:active {
   }
 
   .apply-mobile-trust-bar__phone {
-    display: inline;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: var(--space-1) var(--space-2);
     color: var(--color-accent);
     font-weight: 700;
     text-decoration: underline;
     text-underline-offset: 2px;
-    padding: var(--space-1) 0;
   }
 
   .apply-mobile-trust-bar__phone:focus-visible {

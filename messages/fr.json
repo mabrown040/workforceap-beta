@@ -1997,6 +1997,7 @@
       "heading": "Progrès mesuré, publié avec soin",
       "dataLightNote": "Les métriques en direct sont publiées ici au fur et à mesure que l'activité des membres et des employeurs est enregistrée. Les chiffres restent vides tant qu'il n'y a pas assez de données vérifiées à partager publiquement.",
       "metricsPreviewHeading": "Métriques de cohorte publiées une fois vérifiées",
+      "statNotPublished": "Pas encore publié",
       "employerMetricsPreviewHeading": "Métriques employeurs que nous suivons",
       "cohortRateInsufficient": "Publié une fois que les cohortes de programmes inscrits ont une activité enregistrée.",
       "statsMethodologyNote": "Le tiret (—) signifie qu'une métrique n'est pas encore publiée. Les taux utilisent les cohortes de programmes inscrits ; les moyennes salariales utilisent les salaires d'offre et de suivi appariés lorsque les deux sont enregistrés.",

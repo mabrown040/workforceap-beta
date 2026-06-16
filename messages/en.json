@@ -2009,6 +2009,7 @@
       "avgSalaryIncreaseInsufficient": "Reported after placement follow-ups; insufficient paired data to show an average yet.",
       "dataLightNote": "Live metrics publish here as member and employer activity is recorded. Figures stay blank until there is enough verified data to share publicly.",
       "metricsPreviewHeading": "Cohort metrics we publish when verified",
+      "statNotPublished": "Not published yet",
       "employerMetricsPreviewHeading": "Employer metrics we track",
       "membersServedEmptyTitle": "Member metrics not published yet",
       "membersServedEmptyDesc": "Member counts and cohort rates publish here as verified member and employer activity is recorded—not before.",

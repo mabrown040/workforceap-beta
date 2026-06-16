@@ -5,9 +5,91 @@ import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 
+// ── Helpers ──
+
+function calculateRetention(
+  members: Array<{ enrolledAt: Date | null; placementRecord: { startDate: Date | null } | null }>,
+  days: number,
+  now: Date,
+): number {
+  const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  const eligible = members.filter((m) => m.enrolledAt && m.enrolledAt <= cutoff);
+  if (eligible.length === 0) return 0;
+  const retained = eligible.filter((m) => {
+    // Retained = still active (no placement yet, or placed after cutoff)
+    if (!m.placementRecord) return true;
+    if (!m.placementRecord.startDate) return true;
+    return m.placementRecord.startDate > cutoff;
+  });
+  return Math.round((retained.length / eligible.length) * 100);
+}
+
+function buildCohorts(
+  members: Array<{ enrolledAt: Date | null; placementRecord: { startDate: Date | null } | null }>,
+  now: Date,
+) {
+  const cohorts: Record<string, { month: string; enrolled: number; placed: number; retentionRate: number }> = {};
+
+  for (const m of members) {
+    if (!m.enrolledAt) continue;
+    const monthKey = m.enrolledAt.toISOString().slice(0, 7); // YYYY-MM
+    if (!cohorts[monthKey]) {
+      cohorts[monthKey] = { month: monthKey, enrolled: 0, placed: 0, retentionRate: 0 };
+    }
+    cohorts[monthKey].enrolled++;
+    if (m.placementRecord?.startDate) {
+      cohorts[monthKey].placed++;
+    }
+  }
+
+  return Object.values(cohorts)
+    .map((c) => ({
+      ...c,
+      retentionRate: c.enrolled > 0 ? Math.round((c.placed / c.enrolled) * 100) : 0,
+    }))
+    .sort((a, b) => b.month.localeCompare(a.month))
+    .slice(0, 12); // Last 12 months
+}
+
+async function getDemographics(orgId: string) {
+  const profiles = await prisma.profile.findMany({
+    where: {
+      user: {
+        organizationId: orgId,
+        deletedAt: null,
+      },
+    },
+    select: {
+      veteranStatus: true,
+      employmentStatus: true,
+      householdIncome: true,
+      educationLevel: true,
+      ethnicity: true,
+    },
+  });
+
+  const counts = <T extends string>(field: keyof typeof profiles[0]) => {
+    const map = new Map<T | 'Not reported', number>();
+    for (const p of profiles) {
+      const val = (p[field] as T | null) ?? 'Not reported';
+      map.set(val, (map.get(val) ?? 0) + 1);
+    }
+    return Array.from(map.entries()).map(([label, count]) => ({ label, count }));
+  };
+
+  return {
+    veteranBreakdown: counts('veteranStatus'),
+    employmentEnteringBreakdown: counts('employmentStatus'),
+    incomeBreakdown: counts('householdIncome'),
+    educationBreakdown: counts('educationLevel'),
+    ethnicityBreakdown: counts('ethnicity'),
+  };
+}
+
 /**
  * GET /api/admin/outcomes
- * Admin outcomes dashboard data — placement rates, salary data, program effectiveness.
+ * Admin outcomes dashboard data — placement rates, salary data, program effectiveness,
+ * retention rates (30/60/90-day), cohort comparison, and demographic breakdowns.
  * Requires admin access. Returns aggregated metrics for the admin's organization.
  */
 export async function GET(request: NextRequest) {
@@ -118,6 +200,19 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // ── Retention rates (30/60/90-day) ──
+    const now = new Date();
+    const enrolledMembersWithDate = members.filter((m) => m.enrolledAt !== null);
+    const retention30 = calculateRetention(enrolledMembersWithDate, 30, now);
+    const retention60 = calculateRetention(enrolledMembersWithDate, 60, now);
+    const retention90 = calculateRetention(enrolledMembersWithDate, 90, now);
+
+    // ── Cohort comparison (month-over-month) ──
+    const cohorts = buildCohorts(members, now);
+
+    // ── Demographic breakdowns ──
+    const demographics = await getDemographics(orgId);
+
     // Audit log
     await logAuditEvent({
       user: { id: user.id },
@@ -136,6 +231,11 @@ export async function GET(request: NextRequest) {
         completionRate,
         avgSalary,
         salaryRange,
+        retention: {
+          d30: retention30,
+          d60: retention60,
+          d90: retention90,
+        },
       },
       programStats: Object.entries(programStats).map(([slug, stats]) => ({
         slug,
@@ -147,6 +247,8 @@ export async function GET(request: NextRequest) {
           ? Math.round((stats.placements / stats.enrollments) * 100)
           : 0,
       })),
+      cohorts,
+      demographics,
     });
   } catch (error) {
     console.error('GET /api/admin/outcomes error:', error);

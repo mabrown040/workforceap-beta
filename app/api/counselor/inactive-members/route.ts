@@ -1,11 +1,13 @@
-import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { buildInactiveMembersQuery } from './_inactiveMembersQuery';
+
+export const GET = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) {
@@ -32,39 +34,11 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
   const daysParam = parseInt(searchParams.get('days') ?? '7', 10);
   const days = [7, 14, 30].includes(daysParam) ? daysParam : 7;
   const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-
-  const assignmentScope = counselorId
-    ? Prisma.sql`
-      AND EXISTS (
-        SELECT 1
-        FROM counselor_assignments ca
-        WHERE ca.member_id = u.id
-          AND ca.active = true
-          AND ca.counselor_id = ${counselorId}
-      )
-    `
-    : Prisma.empty;
-
   const orgId = await getActorOrganizationId(user.id);
 
-  const inactiveMembers = await prisma.$transaction((tx) => tx.$queryRaw`
-    SELECT
-      u.id,
-      u.email,
-      u.created_at as joined_at,
-      p.role,
-      p.profile_phone,
-      MAX(me.created_at) as last_active_at
-    FROM users u
-    JOIN profiles p ON p.user_id = u.id
-    LEFT JOIN member_events me ON me.user_id = u.id
-    WHERE p.role = 'member'
-    AND u.organization_id = ${orgId}
-    ${assignmentScope}
-    GROUP BY u.id, u.email, u.created_at, p.role, p.profile_phone
-    HAVING MAX(me.created_at) IS NULL OR MAX(me.created_at) < ${cutoffDate}
-    ORDER BY MAX(me.created_at) ASC NULLS FIRST
-  `);
+  const inactiveMembers = await prisma.$transaction((tx) =>
+    tx.$queryRaw(buildInactiveMembersQuery(orgId, counselorId, cutoffDate))
+  );
 
   // Calculate days inactive for each
   const now = new Date();
@@ -96,4 +70,3 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

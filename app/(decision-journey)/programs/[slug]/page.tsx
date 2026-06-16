@@ -11,6 +11,7 @@ import { getProgramExtra } from '@/lib/content/programExtras';
 import ProgramDetailClient from './ProgramDetailClient';
 import JsonLdCourse from '@/components/JsonLdCourse';
 import JsonLdBreadcrumb from '@/components/JsonLdBreadcrumb';
+import JsonLdEducationalOccupationalProgram from '@/components/JsonLdEducationalOccupationalProgram';
 import ProgramRelatedSection from '@/components/programs/ProgramRelatedSection';
 import { getRelatedPrograms } from '@/lib/content/relatedPrograms';
 import { ArrowRight } from 'lucide-react';
@@ -67,6 +68,7 @@ export default async function ProgramPage({ params }: Props) {
   return (
     <div className="inner-page program-detail-page">
       <JsonLdCourse program={program} />
+      <JsonLdEducationalOccupationalProgram program={program} url={`https://www.workforceap.org/programs/${slug}`} />
       <JsonLdBreadcrumb
         items={[
           { name: 'Home', path: '/' },

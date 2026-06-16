@@ -7,6 +7,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { notifyDiscord } from '@/lib/notify/discord';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -88,6 +89,20 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
       request: auditRequestMeta(request),
       orgId,
     }).catch((err) => console.error('[audit] employer approve:', err));
+
+    // Operator visibility bridge — employer approval is high-signal
+    void notifyDiscord({
+      title: `Employer approved: ${updated.companyName}`,
+      body: `Approved by ${actorRole} ${user.id.slice(0, 8)}…`,
+      category: 'employer_approval',
+      level: 'success',
+      fields: [
+        { name: 'company', value: updated.companyName ?? '—' },
+        { name: 'email', value: updated.contactEmail ?? '—' },
+        { name: 'previousStatus', value: employer.status },
+        { name: 'approvedBy', value: actorRole },
+      ],
+    });
 
     return NextResponse.json({ success: true, employer: updated });
   } catch (err) {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isEmployer } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import { getStripe } from '@/lib/stripe/client';
+import { getStripe, EMPLOYER_TIERS } from '@/lib/stripe/client';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 import { z } from 'zod';
 
@@ -80,23 +80,37 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create Stripe checkout session for subscription
+    // Create Stripe checkout session for pipeline subscription
+    // Default to Growth tier ($499/mo) for LOI submissions; admin can adjust
     const stripe = getStripe();
+    const tierConfig = EMPLOYER_TIERS.growth;
+    let customerId = employerProfile.stripeCustomerId;
+
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: data.contactEmail,
+        name: data.companyName,
+        metadata: { employerId: employerProfile.id, userId: user.id },
+      });
+      customerId = customer.id;
+      await prisma.employer.update({
+        where: { id: employerProfile.id },
+        data: { stripeCustomerId: customerId },
+      });
+    }
+
+    if (!tierConfig.priceId) {
+      return NextResponse.json(
+        { error: 'Stripe price not configured for employer subscriptions' },
+        { status: 503 }
+      );
+    }
+
     const session = await stripe.checkout.sessions.create({
-      customer_email: data.contactEmail,
+      customer: customerId,
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'WorkforceAP Employer Partnership',
-              description: `Hiring commitment: ${data.hiringCommitment} roles per year`,
-            },
-            unit_amount: 0, // Free tier — employer pays per placement
-            recurring: {
-              interval: 'month',
-            },
-          },
+          price: tierConfig.priceId,
           quantity: 1,
         },
       ],
@@ -107,6 +121,14 @@ export async function POST(request: NextRequest) {
         employerId: employerProfile.id,
         hiringIntentId: hiringIntent.id,
         userId: user.id,
+        tier: 'growth',
+      },
+      subscription_data: {
+        metadata: {
+          employerId: employerProfile.id,
+          hiringIntentId: hiringIntent.id,
+          tier: 'growth',
+        },
       },
     });
 

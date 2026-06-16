@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import DataTable from '@/components/portal/ui/DataTable';
 
 interface Metrics {
   totalJobs: number;
@@ -161,34 +162,31 @@ export default function EmployerOutcomesDashboard() {
       {/* Jobs Table */}
       <Card className="p-6">
         <h2 className="text-lg font-bold text-slate-900 mb-4">Job Postings</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200">
-                <th className="text-left py-3 px-4 font-medium text-slate-500">Title</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Status</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Applications</th>
-              </tr>
-            </thead>
-            <tbody>
-              {jobs.map((job) => (
-                <tr key={job.id} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="py-3 px-4 font-medium text-slate-900">{job.title}</td>
-                  <td className="text-right py-3 px-4">
-                    <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                      job.status === 'live' ? 'bg-emerald-100 text-emerald-700' :
-                      job.status === 'filled' ? 'bg-blue-100 text-blue-700' :
-                      'bg-slate-100 text-slate-700'
-                    }`}>
-                      {job.status}
-                    </span>
-                  </td>
-                  <td className="text-right py-3 px-4 text-slate-600">{job.applications}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={[
+            { key: 'title', header: 'Title', cell: (job) => <span className="font-medium text-slate-900">{job.title}</span> },
+            {
+              key: 'status',
+              header: 'Status',
+              align: 'right',
+              cell: (job) => (
+                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                  job.status === 'live' ? 'bg-emerald-100 text-emerald-700' :
+                  job.status === 'filled' ? 'bg-blue-100 text-blue-700' :
+                  'bg-slate-100 text-slate-700'
+                }`}>
+                  {job.status}
+                </span>
+              ),
+            },
+            { key: 'applications', header: 'Applications', align: 'right', cell: (job) => <span className="text-slate-600">{job.applications}</span> },
+          ]}
+          rows={jobs}
+          rowKey={(job) => job.id}
+          density="compact"
+          variant="portal"
+          emptyState={<p className="text-sm text-slate-500 py-4">No job postings yet.</p>}
+        />
       </Card>
 
       {/* Program Stats */}
@@ -197,36 +195,32 @@ export default function EmployerOutcomesDashboard() {
         <p className="text-sm text-slate-500 mb-4">
           Which training programs produce the best candidates for your roles
         </p>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200">
-                <th className="text-left py-3 px-4 font-medium text-slate-500">Program</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Applications</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Hired</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Conversion %</th>
-              </tr>
-            </thead>
-            <tbody>
-              {programStats.map((program) => (
-                <tr key={program.name} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="py-3 px-4 font-medium text-slate-900">{program.name}</td>
-                  <td className="text-right py-3 px-4 text-slate-600">{program.applications}</td>
-                  <td className="text-right py-3 px-4 text-slate-600">{program.hired}</td>
-                  <td className="text-right py-3 px-4">
-                    <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                      program.conversionRate >= 50 ? 'bg-emerald-100 text-emerald-700' :
-                      program.conversionRate >= 25 ? 'bg-amber-100 text-amber-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {program.conversionRate}%
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={[
+            { key: 'name', header: 'Program', cell: (p) => <span className="font-medium text-slate-900">{p.name}</span> },
+            { key: 'applications', header: 'Applications', align: 'right', cell: (p) => <span className="text-slate-600">{p.applications}</span> },
+            { key: 'hired', header: 'Hired', align: 'right', cell: (p) => <span className="text-slate-600">{p.hired}</span> },
+            {
+              key: 'conversionRate',
+              header: 'Conversion %',
+              align: 'right',
+              cell: (p) => (
+                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                  p.conversionRate >= 50 ? 'bg-emerald-100 text-emerald-700' :
+                  p.conversionRate >= 25 ? 'bg-amber-100 text-amber-700' :
+                  'bg-red-100 text-red-700'
+                }`}>
+                  {p.conversionRate}%
+                </span>
+              ),
+            },
+          ]}
+          rows={programStats}
+          rowKey={(p) => p.name}
+          density="compact"
+          variant="portal"
+          emptyState={<p className="text-sm text-slate-500 py-4">No program data yet.</p>}
+        />
       </Card>
     </div>
   );

@@ -9,6 +9,7 @@ import {
 } from '@/lib/email';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { cleanupCreatedEmployerSignupAuthUser } from './_signupCleanup';
+import { notifyDiscord } from '@/lib/notify/discord';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -187,6 +188,22 @@ export async function POST(request: NextRequest) {
       contactEmail: data.email,
       contactPhone: data.phone,
     }).catch((err) => console.error('Employer admin alert failed:', err));
+
+    // Operator visibility bridge — new employer signup is high-signal
+    void notifyDiscord({
+      title: `New employer signup: ${data.companyName}`,
+      body: `Contact: ${data.contactName} (${data.email})`,
+      category: 'employer_signup',
+      level: 'success',
+      fields: [
+        { name: 'company', value: data.companyName },
+        { name: 'contact', value: data.contactName },
+        { name: 'email', value: data.email },
+        ...(data.phone ? [{ name: 'phone', value: data.phone }] : []),
+        { name: 'industry', value: data.industry || '—' },
+        { name: 'size', value: data.companySize || '—' },
+      ],
+    });
 
     return NextResponse.json({
       success: true,

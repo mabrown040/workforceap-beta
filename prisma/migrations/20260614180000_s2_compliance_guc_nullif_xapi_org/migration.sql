@@ -64,7 +64,7 @@ SET organization_id = COALESCE(
     WHERE (
       (xs.actor_email IS NOT NULL AND LOWER(xs.actor_email) = LOWER(cim.coursera_email))
       OR
-      (xs.actor_identifier IS NOT NULL AND xs.actor_identifier = cim.actor_identifier)
+      (xs.actor_account_name IS NOT NULL AND xs.actor_account_name = cim.actor_identifier)
     )
     LIMIT 1
   ),
@@ -119,7 +119,7 @@ BEGIN
   WHERE (
     (NEW.actor_email IS NOT NULL AND LOWER(NEW.actor_email) = LOWER(cim.coursera_email))
     OR
-    (NEW.actor_identifier IS NOT NULL AND NEW.actor_identifier = cim.actor_identifier)
+    (NEW.actor_account_name IS NOT NULL AND NEW.actor_account_name = cim.actor_identifier)
   )
   LIMIT 1;
 

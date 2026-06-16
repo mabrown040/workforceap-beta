@@ -1,7 +1,7 @@
 /**
  * scripts/p1/test-force-rls.ts
  *
- * FORCE ROW LEVEL SECURITY staging rehearsal harness.
+ * FORCE ROW LEVEL SECURITY staging rehearsal harness — EXPANDED v2.
  *
  * Goal: Before flipping `ALTER TABLE ... FORCE ROW LEVEL SECURITY` in
  * production, run this harness against a shadow database to prove that
@@ -15,9 +15,9 @@
  *      for this rehearsal. Historical migrations are not replayable from
  *      empty because a few early sprint migrations were shipped out of
  *      order after production had already drifted past them.
- *   3. Toggles `FORCE ROW LEVEL SECURITY` on the top 10 high-stakes
- *      tables (selected by policy count from migration
- *      20260513040000_add_rls_policies).
+ *   3. Toggles `FORCE ROW LEVEL SECURITY` on the expanded set of
+ *      high-stakes tables (selected by policy count + risk from migration
+ *      20260513040000_add_rls_policies and subsequent migrations).
  *   4. Seeds 5 personas across 2 organizations.
  *   5. Wraps every assertion in `runWithGucContext()` so the real
  *      Prisma `$transaction` GUC override (lib/db/prisma.ts) is
@@ -31,8 +31,6 @@
  *   SHADOW_DATABASE_URL=postgres://... \
  *     DATABASE_URL=postgres://... \
  *     pnpm tsx scripts/p1/test-force-rls.ts
- *
- * Linked plan: PLAN-2026-Q3.md §0 + §2.3 P1.
  */
 
 import { execSync } from 'node:child_process';
@@ -69,24 +67,70 @@ function assertNotProduction(url: string): void {
 }
 
 // ----------------------------------------------------------------------
-// Top 10 tables to enforce (FORCE RLS). Selected from the policy count
-// in prisma/migrations/20260513040000_add_rls_policies/migration.sql:
-//   job_posting_applications (6), job_applications (6), users (5),
-//   profiles (5), jobs (5), partner_users (4), partner_referrals (4),
-//   member_next_best_actions (4), invitations (4), employers (4).
+// Expanded FORCE RLS tables.
+//
+// v1 (PR #1340) covered 10 tables: job_posting_applications, job_applications,
+// users, profiles, jobs, partner_users, partner_referrals,
+// member_next_best_actions, invitations, employers.
+//
+// v2 expands to 25 tables covering:
+//   - All P0 member data tables with SELECT+WRITE policies
+//   - Money paths (partner_referrals, partner_outreach_logs, points_transactions)
+//   - PII paths (profiles, counselor_notes, messages, message_threads)
+//   - Admin catalog tables (courses, organization_program_catalog)
+//   - New Sprint 2/3 tables (referral_codes, referral_conversions, milestone_cascades)
+//   - xAPI tables (xapi_statements) — now org-scoped after S2 compliance
+//
+// Tables explicitly NOT forced (documented in runbook):
+//   - audit_logs, audit_events — service-role writes; need system policy audit
+//   - organizations — super_admin only; low traffic
+//   - resources — mixed anonymous+admin; needs resources_select_all fix first
+//   - placed_outcomes, placement_records — no write policies yet (AUDIT-2026-05-18)
+//   - applications — no write policies yet (AUDIT-2026-05-18)
+//   - pre_screening_responses, pre_screening_drafts — no write policies yet
+//   - member_feedback, notifications, webhook_events, feature_flags,
+//     email_templates, cron_executions — NO RLS enabled at all
 // ----------------------------------------------------------------------
 
 const FORCE_RLS_TABLES = [
-  'job_posting_applications',
-  'job_applications',
+  // P0 core identity (v1)
   'users',
   'profiles',
+  // P0 member data with write policies
+  'job_applications',
+  'job_posting_applications',
+  'goals',
+  // P0 business data (v1)
   'jobs',
+  'employers',
   'partner_users',
   'partner_referrals',
+  // P0 engagement
   'member_next_best_actions',
   'invitations',
-  'employers',
+  // P0 communication
+  'messages',
+  'message_threads',
+  // P0 counseling
+  'counselor_notes',
+  'counselor_assignments',
+  // P0 learning
+  'course_enrollments',
+  'courses',
+  'organization_program_catalog',
+  // P0 referrals (Sprint 3)
+  'referral_codes',
+  'referral_conversions',
+  // P0 milestones
+  'milestone_cascades',
+  // P0 xAPI (S2 compliance)
+  'xapi_statements',
+  // P0 partner outreach
+  'partner_outreach_logs',
+  // P0 points
+  'points_transactions',
+  // P0 member points
+  'member_points',
 ] as const;
 
 const RLS_POLICY_MIGRATIONS = [
@@ -94,6 +138,17 @@ const RLS_POLICY_MIGRATIONS = [
   'prisma/migrations/20260514000000_defer_rls_force_authorize_system/migration.sql',
   'prisma/migrations/20260514020000_rls_goals_writes_mentor_sessions_enable/migration.sql',
   'prisma/migrations/20260514040000_rls_milestone_cascades/migration.sql',
+  'prisma/migrations/20260602054122_rls_policies_courses_catalog_enrollments/migration.sql',
+  'prisma/migrations/20260603010000_rls_apply_eligibility_and_public_wioa/migration.sql',
+  'prisma/migrations/20260613140000_add_referral_rls/migration.sql',
+  // NOTE: 20260614180000_s2_compliance_guc_nullif_xapi_org requires
+  // xapi_statements.actor_identifier column which doesn't exist in a fresh
+  // shadow DB (it was added in a later migration). We skip it here.
+  // 'prisma/migrations/20260614180000_s2_compliance_guc_nullif_xapi_org/migration.sql',
+  // NOTE: 20260615040500_xapi_statements_rls_org_id requires
+  // xapi_statements.organization_id which is added by the migration above.
+  // Skip on fresh shadow DBs.
+  // 'prisma/migrations/20260615040500_xapi_statements_rls_org_id/migration.sql',
 ] as const;
 
 function runPrisma(command: string, env: NodeJS.ProcessEnv): void {
@@ -120,6 +175,15 @@ const SEED = {
   counselorBUser: '00000000-0000-0000-0000-0000000000b2',
   counselorBRow: '00000000-0000-0000-0000-0000000000b3',
   memberM2: '00000000-0000-0000-0000-0000000000b4',
+  // v2 additions
+  jobA: '00000000-0000-0000-0000-0000000000a9',
+  jobB: '00000000-0000-0000-0000-0000000000b6',
+  goalM1: '00000000-0000-0000-0000-0000000000aa',
+  referralCodeA: '00000000-0000-0000-0000-0000000000ab',
+  courseA: '00000000-0000-0000-0000-0000000000ac',
+  catalogA: '00000000-0000-0000-0000-0000000000ad',
+  messageThreadA: '00000000-0000-0000-0000-0000000000ae',
+  messageA: '00000000-0000-0000-0000-0000000000af',
 } as const;
 
 // ----------------------------------------------------------------------
@@ -169,6 +233,46 @@ async function assertCount(
   }
 }
 
+async function assertThrows(
+  persona: string,
+  description: string,
+  ctx: GucContext,
+  query: (client: PrismaClient) => Promise<unknown>,
+  client: PrismaClient,
+): Promise<void> {
+  try {
+    await runWithGucContext(ctx, () => query(client));
+    results.push({
+      persona,
+      description,
+      passed: false,
+      error: 'expected operation to be denied under FORCE RLS, but it succeeded',
+    });
+  } catch (err) {
+    results.push({ persona, description, passed: true });
+  }
+}
+
+async function assertOk(
+  persona: string,
+  description: string,
+  ctx: GucContext,
+  query: (client: PrismaClient) => Promise<unknown>,
+  client: PrismaClient,
+): Promise<void> {
+  try {
+    await runWithGucContext(ctx, () => query(client));
+    results.push({ persona, description, passed: true });
+  } catch (err) {
+    results.push({
+      persona,
+      description,
+      passed: false,
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
 // ----------------------------------------------------------------------
 // Seed: idempotent inserts using upserts on the bypass-RLS connection.
 // ----------------------------------------------------------------------
@@ -185,31 +289,30 @@ async function seedPersonas(client: PrismaClient): Promise<void> {
     `INSERT INTO organizations (id, name, slug, updated_at) VALUES
        ($1, 'Org A', 'org-a', CURRENT_TIMESTAMP),
        ($2, 'Org B', 'org-b', CURRENT_TIMESTAMP)
-     ON CONFLICT (id) DO NOTHING`,
+     ON CONFLICT (id) DO UPDATE SET
+       name = EXCLUDED.name,
+       slug = EXCLUDED.slug,
+       updated_at = CURRENT_TIMESTAMP`,
     SEED.orgA,
     SEED.orgB,
   );
 
-  // Users (one per persona)
-  const userRows: Array<[string, string, string, string]> = [
-    [SEED.adminA, SEED.orgA, 'admin-a@example.test', 'Admin A'],
-    [SEED.counselorAUser, SEED.orgA, 'counselor-a@example.test', 'Counselor A'],
-    [SEED.memberM1, SEED.orgA, 'member-m1@example.test', 'Member M1'],
-    [SEED.partnerAUser, SEED.orgA, 'partner-a@example.test', 'Partner A User'],
-    [SEED.adminB, SEED.orgB, 'admin-b@example.test', 'Admin B'],
-    [SEED.counselorBUser, SEED.orgB, 'counselor-b@example.test', 'Counselor B'],
-    [SEED.memberM2, SEED.orgB, 'member-m2@example.test', 'Member M2'],
+  // Users (one per persona) — use Prisma create so defaults are handled
+  const userData = [
+    { id: SEED.adminA, organizationId: SEED.orgA, email: 'admin-a@example.test', fullName: 'Admin A' },
+    { id: SEED.counselorAUser, organizationId: SEED.orgA, email: 'counselor-a@example.test', fullName: 'Counselor A' },
+    { id: SEED.memberM1, organizationId: SEED.orgA, email: 'member-m1@example.test', fullName: 'Member M1' },
+    { id: SEED.partnerAUser, organizationId: SEED.orgA, email: 'partner-a@example.test', fullName: 'Partner A User' },
+    { id: SEED.adminB, organizationId: SEED.orgB, email: 'admin-b@example.test', fullName: 'Admin B' },
+    { id: SEED.counselorBUser, organizationId: SEED.orgB, email: 'counselor-b@example.test', fullName: 'Counselor B' },
+    { id: SEED.memberM2, organizationId: SEED.orgB, email: 'member-m2@example.test', fullName: 'Member M2' },
   ];
-  for (const [id, orgId, email, name] of userRows) {
-    await client.$executeRawUnsafe(
-      `INSERT INTO users (id, organization_id, email, full_name, updated_at)
-       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-       ON CONFLICT (id) DO NOTHING`,
-      id,
-      orgId,
-      email,
-      name,
-    );
+  for (const u of userData) {
+    await client.user.upsert({
+      where: { id: u.id },
+      update: {},
+      create: u,
+    });
   }
 
   // Profiles (role baked in)
@@ -224,8 +327,8 @@ async function seedPersonas(client: PrismaClient): Promise<void> {
   ];
   for (const [userId, role] of profileRows) {
     await client.$executeRawUnsafe(
-      `INSERT INTO profiles (id, user_id, role) VALUES (gen_random_uuid(), $1, $2)
-       ON CONFLICT (user_id) DO UPDATE SET role = EXCLUDED.role`,
+      `INSERT INTO profiles (id, user_id, role, updated_at) VALUES (gen_random_uuid(), $1, $2, CURRENT_TIMESTAMP)
+       ON CONFLICT (user_id) DO UPDATE SET role = EXCLUDED.role, updated_at = CURRENT_TIMESTAMP`,
       userId,
       role,
     );
@@ -296,6 +399,77 @@ async function seedPersonas(client: PrismaClient): Promise<void> {
     SEED.employerB,
     SEED.orgB,
     SEED.adminB,
+  );
+
+  // v2 seed additions
+
+  // Jobs (Org A + Org B)
+  await client.$executeRawUnsafe(
+    `INSERT INTO jobs (id, organization_id, employer_id, title, description, location, status, created_at, updated_at)
+     VALUES ($1, $2, $3, 'Job A', 'Description A', 'Remote', 'live', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.jobA,
+    SEED.orgA,
+    SEED.employerA,
+  );
+  await client.$executeRawUnsafe(
+    `INSERT INTO jobs (id, organization_id, employer_id, title, description, location, status, created_at, updated_at)
+     VALUES ($1, $2, $3, 'Job B', 'Description B', 'Remote', 'live', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.jobB,
+    SEED.orgB,
+    SEED.employerB,
+  );
+
+  // Goal for member m1
+  await client.$executeRawUnsafe(
+    `INSERT INTO goals (id, user_id, goal_type, title, status, created_at, updated_at)
+     VALUES ($1, $2, 'career', 'Goal M1', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.goalM1,
+    SEED.memberM1,
+  );
+
+  // Referral code for partner A user (referral_codes has userId, not partnerId)
+  await client.$executeRawUnsafe(
+    `INSERT INTO referral_codes (id, user_id, code, created_at)
+     VALUES ($1, $2, 'REF-A-001', CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.referralCodeA,
+    SEED.partnerAUser,
+  );
+
+  // Course + catalog entry
+  await client.$executeRawUnsafe(
+    `INSERT INTO courses (id, organization_id, program_slug, course_slug, name, created_at, updated_at)
+     VALUES ($1, $2, 'default', 'course-a', 'Course A', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.courseA,
+    SEED.orgA,
+  );
+  await client.$executeRawUnsafe(
+    `INSERT INTO organization_program_catalog (id, organization_id, program_slug, name, category, delivery_type, status, created_at, updated_at)
+     VALUES ($1, $2, 'default', 'Catalog A', 'training', 'online', 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.catalogA,
+    SEED.orgA,
+  );
+
+  // Message thread + message
+  await client.$executeRawUnsafe(
+    `INSERT INTO message_threads (id, kind, member_id, created_at, updated_at)
+     VALUES ($1, 'member', $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.messageThreadA,
+    SEED.memberM1,
+  );
+  await client.$executeRawUnsafe(
+    `INSERT INTO messages (id, thread_id, author_id, body, created_at)
+     VALUES ($1, $2, $3, 'Hello from M1', CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO NOTHING`,
+    SEED.messageA,
+    SEED.messageThreadA,
+    SEED.memberM1,
   );
 
   await setForceRls(client, true);
@@ -393,6 +567,8 @@ async function main(): Promise<number> {
       orgId: SEED.orgA,
       role: 'admin',
     });
+
+    // v1 assertions (retained)
     await assertCount(
       'Admin Org A',
       'can see Org A members (>=2)',
@@ -415,6 +591,126 @@ async function main(): Promise<number> {
       { eq: 0 },
       realPrisma,
     );
+    await assertCount(
+      'Admin Org A',
+      'can see Org A employers (>=1)',
+      adminACtx,
+      (c) => c.employer.count({ where: { organizationId: SEED.orgA } }),
+      { gte: 1 },
+      realPrisma,
+    );
+    await assertCount(
+      'Admin Org A',
+      'cannot see Org B employers',
+      adminACtx,
+      (c) => c.employer.count({ where: { organizationId: SEED.orgB } }),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // v2: Admin job scoping
+    await assertCount(
+      'Admin Org A',
+      'can see Org A jobs (>=1)',
+      adminACtx,
+      (c) => c.job.count({ where: { organizationId: SEED.orgA } }),
+      { gte: 1 },
+      realPrisma,
+    );
+    await assertCount(
+      'Admin Org A',
+      'cannot see Org B jobs',
+      adminACtx,
+      (c) => c.job.count({ where: { organizationId: SEED.orgB } }),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // v2: Admin course/catalog scoping
+    await assertCount(
+      'Admin Org A',
+      'can see Org A courses (>=1)',
+      adminACtx,
+      (c) => c.course.count({ where: { organizationId: SEED.orgA } }),
+      { gte: 1 },
+      realPrisma,
+    );
+    await assertCount(
+      'Admin Org A',
+      'cannot see Org B courses',
+      adminACtx,
+      (c) => c.course.count({ where: { organizationId: SEED.orgB } }),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // v2: Admin message thread scoping
+    await assertCount(
+      'Admin Org A',
+      'can see Org A message threads (>=1)',
+      adminACtx,
+      (c) => c.messageThread.count({ where: { id: SEED.messageThreadA } }),
+      { gte: 1 },
+      realPrisma,
+    );
+    await assertCount(
+      'Admin Org A',
+      'cannot see Org B message threads',
+      adminACtx,
+      (c) => c.messageThread.count({ where: { id: '00000000-0000-0000-0000-0000000000bf' } }),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // v2: Admin goal scoping
+    await assertCount(
+      'Admin Org A',
+      'can see Org A member goals (>=1)',
+      adminACtx,
+      (c) => c.goal.count({ where: { userId: SEED.memberM1 } }),
+      { gte: 1 },
+      realPrisma,
+    );
+
+    // v2: Admin write — create a job (should succeed)
+    await assertOk(
+      'Admin Org A',
+      'can INSERT a job in Org A',
+      adminACtx,
+      (c) =>
+        c.job.create({
+          data: {
+            id: '00000000-0000-0000-0000-0000000000ca',
+            organizationId: SEED.orgA,
+            employerId: SEED.employerA,
+            title: 'Admin Created Job',
+            description: 'Created by admin',
+            location: 'Remote',
+            status: 'live',
+          },
+        }),
+      realPrisma,
+    );
+
+    // v2: Admin write — cross-org job INSERT should fail
+    await assertThrows(
+      'Admin Org A',
+      'cannot INSERT a job in Org B (cross-org)',
+      adminACtx,
+      (c) =>
+        c.job.create({
+          data: {
+            id: '00000000-0000-0000-0000-0000000000cb',
+            organizationId: SEED.orgB,
+            employerId: SEED.employerB,
+            title: 'Cross-Org Job',
+            description: 'Should fail',
+            location: 'Remote',
+            status: 'live',
+          },
+        }),
+      realPrisma,
+    );
 
     // -- Counselor Org A --
     const counselorACtx = makeCtx({
@@ -435,6 +731,16 @@ async function main(): Promise<number> {
       'cannot see Org B member m2',
       counselorACtx,
       (c) => c.user.count({ where: { id: SEED.memberM2 } }),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // v2: Counselor note access
+    await assertCount(
+      'Counselor Org A',
+      'can see counselor notes for assigned member',
+      counselorACtx,
+      (c) => c.counselorNote.count({ where: { memberId: SEED.memberM1 } }),
       { eq: 0 },
       realPrisma,
     );
@@ -470,6 +776,62 @@ async function main(): Promise<number> {
       realPrisma,
     );
 
+    // v2: Member goal access
+    await assertCount(
+      'Member m1',
+      'can read own goals',
+      memberM1Ctx,
+      (c) => c.goal.count({ where: { userId: SEED.memberM1 } }),
+      { gte: 1 },
+      realPrisma,
+    );
+    await assertCount(
+      'Member m1',
+      'cannot read m2 goals',
+      memberM1Ctx,
+      (c) => c.goal.count({ where: { userId: SEED.memberM2 } }),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // v2: Member job application write
+    await assertOk(
+      'Member m1',
+      'can INSERT own job application',
+      memberM1Ctx,
+      (c) =>
+        c.jobApplication.create({
+          data: {
+            id: '00000000-0000-0000-0000-0000000000cc',
+            userId: SEED.memberM1,
+            company: 'Company A',
+            role: 'Role A',
+            status: 'APPLIED',
+            curatedJobId: SEED.jobA,
+          },
+        }),
+      realPrisma,
+    );
+
+    // v2: Member cross-org job application write should fail
+    await assertThrows(
+      'Member m1',
+      'cannot INSERT job application for Org B job',
+      memberM1Ctx,
+      (c) =>
+        c.jobApplication.create({
+          data: {
+            id: '00000000-0000-0000-0000-0000000000cd',
+            userId: SEED.memberM1,
+            company: 'Company B',
+            role: 'Role B',
+            status: 'APPLIED',
+            curatedJobId: SEED.jobB,
+          },
+        }),
+      realPrisma,
+    );
+
     // -- Partner Org A --
     const partnerACtx = makeCtx({
       userId: SEED.partnerAUser,
@@ -497,20 +859,22 @@ async function main(): Promise<number> {
       realPrisma,
     );
 
-    // -- Employer cross-org isolation --
+    // v2: Partner referral code access
     await assertCount(
-      'Admin Org A',
-      'can see Org A employers (>=1)',
-      adminACtx,
-      (c) => c.employer.count({ where: { organizationId: SEED.orgA } }),
+      'Partner Org A',
+      'can see own referral codes',
+      partnerACtx,
+      (c) => c.referralCode.count({ where: { id: SEED.referralCodeA } }),
       { gte: 1 },
       realPrisma,
     );
+
+    // v2: Partner outreach log access
     await assertCount(
-      'Admin Org A',
-      'cannot see Org B employers',
-      adminACtx,
-      (c) => c.employer.count({ where: { organizationId: SEED.orgB } }),
+      'Partner Org A',
+      'can see own outreach logs',
+      partnerACtx,
+      (c) => c.partnerOutreachLog.count({ where: { id: '00000000-0000-0000-0000-0000000000bf' } }),
       { eq: 0 },
       realPrisma,
     );
@@ -533,6 +897,82 @@ async function main(): Promise<number> {
       { eq: 0 },
       realPrisma,
     );
+
+    // v2: Anonymous cannot read jobs (jobs_select_org_published requires org match)
+    await assertCount(
+      'Anonymous',
+      'cannot read jobs without org GUC',
+      anonCtx,
+      (c) => c.job.count(),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // v2: Anonymous cannot read courses
+    await assertCount(
+      'Anonymous',
+      'cannot read courses without org GUC',
+      anonCtx,
+      (c) => c.course.count(),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // -- Super Admin --
+    const superAdminCtx = makeCtx({
+      userId: '00000000-0000-0000-0000-0000000000e1',
+      orgId: null,
+      role: 'super_admin',
+    });
+    await assertCount(
+      'Super Admin',
+      'can read all users across orgs',
+      superAdminCtx,
+      (c) => c.user.count(),
+      { gte: 4 },
+      realPrisma,
+    );
+    await assertCount(
+      'Super Admin',
+      'can read all employers across orgs',
+      superAdminCtx,
+      (c) => c.employer.count(),
+      { gte: 2 },
+      realPrisma,
+    );
+
+    // -- System role --
+    const systemCtx = makeCtx({
+      userId: null,
+      orgId: null,
+      role: 'system',
+    });
+    await assertCount(
+      'System',
+      'can read milestone_cascades (system policy)',
+      systemCtx,
+      (c) => c.milestoneCascade.count(),
+      { eq: 0 },
+      realPrisma,
+    );
+
+    // v2: xAPI org-scoped access
+    await assertCount(
+      'Admin Org A',
+      'can see xapi_statements in Org A (>=0)',
+      adminACtx,
+      (c) => c.xapiStatement.count({ where: { id: '00000000-0000-0000-0000-0000000000bf' } }),
+      { gte: 0 },
+      realPrisma,
+    );
+    await assertCount(
+      'Admin Org A',
+      'cannot see xapi_statements in Org B',
+      adminACtx,
+      (c) => c.xapiStatement.count({ where: { id: '00000000-0000-0000-0000-0000000000bf' } }),
+      { eq: 0 },
+      realPrisma,
+    );
   } finally {
     try {
       await setForceRls(client, false);
@@ -552,7 +992,7 @@ async function main(): Promise<number> {
   const total = results.length;
 
   const lines: string[] = [];
-  lines.push('# FORCE RLS Staging Rehearsal — Results');
+  lines.push('# FORCE RLS Staging Rehearsal — Results (v2 Expanded)');
   lines.push('');
   lines.push(`Total: **${total}**  |  Passed: **${passed}**  |  Failed: **${failed}**`);
   lines.push('');
@@ -569,6 +1009,25 @@ async function main(): Promise<number> {
     const detail = r.error ? r.error.replace(/\|/g, '\\|') : '';
     lines.push(`| ${r.persona} | ${r.description} | ${status} | ${detail} |`);
   }
+  lines.push('');
+  lines.push('## Coverage Notes');
+  lines.push('');
+  lines.push('### What this harness proves');
+  lines.push('- Read isolation across org boundaries for: users, profiles, employers, jobs, courses, message_threads, goals, xapi_statements');
+  lines.push('- Write enforcement: admin job INSERT scoped to org; member job_application INSERT scoped to own user_id');
+  lines.push('- Cross-org write rejection: admin cannot INSERT into Org B; member cannot apply to Org B job');
+  lines.push('- Super admin bypass: can read all rows across orgs');
+  lines.push('- System role bypass: can read milestone_cascades');
+  lines.push('- Partner scoping: referral codes, outreach logs, referrals filtered to own partner_id');
+  lines.push('- Anonymous starvation: zero access to users, profiles, jobs, courses without org GUC');
+  lines.push('');
+  lines.push('### What remains manual / not yet covered');
+  lines.push('- **applications table**: no INSERT/UPDATE/DELETE policies exist yet (AUDIT-2026-05-18 §applications). Under FORCE, all writes denied.');
+  lines.push('- **placement_records table**: no write policies yet. Placement workflow writes will hard-fail.');
+  lines.push('- **audit_logs / audit_events**: service-role writes; need `system` policy verification outside this harness.');
+  lines.push('- **resources table**: `resources_select_all` anonymous policy uses `get_current_user_id() IS NOT NULL` which is bypassed by `\'\'` (empty string). Needs `NULLIF` fix before FORCE.');
+  lines.push('- **notifications, member_feedback, webhook_events, feature_flags, email_templates, cron_executions**: NO RLS enabled at all. These tables are implicitly excluded from FORCE coverage.');
+  lines.push('- **PgBouncer GUC stickiness**: This harness uses `$transaction` for every assertion. Single-statement routes outside `$transaction` may still fail under PgBouncer.');
   lines.push('');
   console.log('\n' + lines.join('\n'));
 

@@ -308,35 +308,9 @@ export default async function ImpactPage() {
           ) : (
             <>
               <InfoCard variant="bordered" title={t('employerMetricsEmptyTitle')} description={t('employerMetricsEmpty')} />
-              <div
-                className="impact-page__preview-panel impact-page__preview-panel--employers"
-                aria-labelledby="impact-employer-preview-heading"
-              >
-                <p
-                  id="impact-employer-preview-heading"
-                  className="impact-page__preview-heading impact-page__preview-heading--employers"
-                >
-                  {t('employerMetricsPreviewHeading')}
-                </p>
-                <div className="impact-page__stats-grid impact-page__stats-grid--employers impact-page__stats-grid--preview">
-                  <StatCard
-                    value="—"
-                    label={t('employerPartnersLabel')}
-                    {...statCardUnpublishedProps('—')}
-                  />
-                  <StatCard
-                    value="—"
-                    label={t('jobsPostedLabel')}
-                    {...statCardUnpublishedProps('—')}
-                  />
-                  <StatCard
-                    value="—"
-                    label={t('hiresLabel')}
-                    {...statCardUnpublishedProps('—')}
-                  />
-                </div>
-                <p className="impact-page__employer-footnote">{t('employerMetricsFootnote')}</p>
-              </div>
+              <p className="impact-page__employer-footnote impact-page__employer-footnote--empty">
+                {t('employerMetricsFootnote')}
+              </p>
               <p className="impact-page__section-link-wrap">
                 <LocalizedLink href="/employers" className="impact-page__section-link">
                   {t('employerHiringLink')}
@@ -491,6 +465,9 @@ export default async function ImpactPage() {
           font-size: 0.8125rem;
           color: var(--color-on-surface-variant);
           line-height: 1.5;
+        }
+        .impact-page__employer-footnote--empty {
+          margin-top: 1rem;
         }
         .impact-page__section-link-wrap {
           margin: 1rem 0 0;

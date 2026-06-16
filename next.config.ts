@@ -206,6 +206,9 @@ const nextConfig: NextConfig = {
       { source: '/salary-guide.html', destination: '/salary-guide', permanent: true },
       { source: '/program-comparison.html', destination: '/program-comparison', permanent: true },
 
+      // Short LP aliases for paid ad URLs
+      { source: '/lp/google-it', destination: '/lp/google-it-automation', permanent: false },
+
       // CompTIA slug redirects: slugify() drops '+' from program names.
       // 301s ensure any links with "plus" in the URL still resolve correctly.
       { source: '/programs/comptia-a-plus-professional-certificate', destination: '/programs/comptia-a-professional-certificate', permanent: true },

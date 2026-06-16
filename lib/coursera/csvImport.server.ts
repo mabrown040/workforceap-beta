@@ -620,6 +620,60 @@ export async function backfillUserIdForCourseraEmail(
 }
 
 /**
+ * One-time backfill: for every coursera_identity_mappings row, find orphaned
+ * coursera_course_progress / coursera_badge_progress rows with NULL user_id
+ * and link them. Then promote into course_progress.
+ *
+ * Idempotent — safe to re-run. Each individual email backfill is the same
+ * as `backfillUserIdForCourseraEmail`, so re-running does not duplicate
+ * course_progress rows (ON CONFLICT upsert) and does not send completion
+ * emails (promoteCsvProgressToCanonical never triggers emails).
+ */
+export async function backfillAllOrphanedCourseraProgress(): Promise<{
+  mappingsProcessed: number;
+  totalCourseRowsUpdated: number;
+  totalBadgeRowsUpdated: number;
+  errors: string[];
+}> {
+  const mappings = await prisma.$queryRaw<
+    Array<{ userId: string; courseraEmail: string }>
+  >`
+    SELECT user_id AS "userId", coursera_email AS "courseraEmail"
+    FROM coursera_identity_mappings
+    WHERE coursera_email IS NOT NULL
+    ORDER BY updated_at DESC
+  `;
+
+  let totalCourseRowsUpdated = 0;
+  let totalBadgeRowsUpdated = 0;
+  const errors: string[] = [];
+
+  for (const mapping of mappings) {
+    try {
+      const result = await backfillUserIdForCourseraEmail(
+        mapping.courseraEmail,
+        mapping.userId
+      );
+      totalCourseRowsUpdated += result.courseRowsUpdated;
+      totalBadgeRowsUpdated += result.badgeRowsUpdated;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : String(error);
+      errors.push(
+        `Backfill failed for ${mapping.courseraEmail} (${mapping.userId}): ${message}`
+      );
+    }
+  }
+
+  return {
+    mappingsProcessed: mappings.length,
+    totalCourseRowsUpdated,
+    totalBadgeRowsUpdated,
+    errors,
+  };
+}
+
+/**
  * Promote all `coursera_course_progress` rows that have a resolved `user_id`
  * into the canonical `course_progress` table that feeds the member training
  * dashboard. Idempotent — safe to call on every CSV import and after every

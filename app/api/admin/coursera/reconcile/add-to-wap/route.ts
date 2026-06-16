@@ -12,6 +12,7 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -283,6 +284,17 @@ const bodySchema = z.object({
           return { ...createdUser, enrollmentId };
         }),
       );
+
+      // Backfill any historical CSV rows for this Coursera email that were
+      // orphaned before the mapping existed.
+      try {
+        await backfillUserIdForCourseraEmail(email, result.id);
+      } catch (backfillError) {
+        captureApiError(backfillError, {
+          route: 'admin/coursera/reconcile/add-to-wap',
+          extra: { stage: 'csv-backfill', email, userId: result.id },
+        });
+      }
 
       // Sprint R3 — fire-and-forget kickoff email (idempotent per enrollment row).
       if (result.enrollmentId && programSlug) {

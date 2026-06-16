@@ -8,6 +8,7 @@ import {
 } from '@/lib/xapi/mappings';
 import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
+import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 async function requireAdminUser() {
@@ -115,6 +116,16 @@ export async function POST(request: Request) {
       // historical events were short-circuited before `recordXapiEvent`
       // would not credit any progress.
       let reprocessResult;
+      let backfill;
+      try {
+        backfill = body.courseraEmail
+          ? await backfillUserIdForCourseraEmail(body.courseraEmail.trim(), body.userId.trim())
+          : { courseRowsUpdated: 0, badgeRowsUpdated: 0 };
+      } catch (backfillError) {
+        console.error('[admin/coursera/mappings] backfill failed:', backfillError);
+        backfill = { courseRowsUpdated: 0, badgeRowsUpdated: 0 };
+      }
+
       try {
         reprocessResult = await reprocessUnmatchedXapiEvents({
           userId: body.userId.trim(),
@@ -141,6 +152,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         ok: true,
         mapping,
+        backfill,
         reprocessed: reprocessResult,
         xapiReplay,
       });

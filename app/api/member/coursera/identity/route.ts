@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { checkCourseraIdentityRateLimit } from '@/lib/rate-limit';
 import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
+import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
 
 function getClientIp(request: Request) {
   return (
@@ -61,6 +62,13 @@ export const POST = withApiGuc(async (request: Request) => {
         source: 'member_self_link',
         notes: 'Saved by member from Training page',
       });
+
+      // Backfill historical CSV rows that were orphaned before this mapping existed.
+      try {
+        await backfillUserIdForCourseraEmail(courseraEmail, user.id);
+      } catch (backfillError) {
+        console.error('[member/coursera/identity] backfill failed:', backfillError);
+      }
   
       return NextResponse.json({ ok: true, courseraEmail: mapping?.courseraEmail ?? courseraEmail });
     } catch (error) {

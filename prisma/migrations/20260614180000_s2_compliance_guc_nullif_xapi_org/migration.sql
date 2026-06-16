@@ -61,8 +61,6 @@ SET organization_id = COALESCE(
     JOIN users u ON u.id = cim.user_id
     WHERE (
       (xs.actor_email IS NOT NULL AND LOWER(xs.actor_email) = LOWER(cim.coursera_email))
-      OR
-      (xs.actor_identifier IS NOT NULL AND xs.actor_identifier = cim.actor_identifier)
     )
     LIMIT 1
   ),
@@ -107,8 +105,6 @@ BEGIN
   JOIN users u ON u.id = cim.user_id
   WHERE (
     (NEW.actor_email IS NOT NULL AND LOWER(NEW.actor_email) = LOWER(cim.coursera_email))
-    OR
-    (NEW.actor_identifier IS NOT NULL AND NEW.actor_identifier = cim.actor_identifier)
   )
   LIMIT 1;
 
@@ -126,8 +122,8 @@ BEGIN
   END IF;
 
   -- Reject if unresolvable — admin health dashboard will flag these
-  RAISE EXCEPTION 'xAPI statement ingest rejected: cannot resolve organization_id for actor_email=%, actor_identifier=%',
-    NEW.actor_email, NEW.actor_identifier;
+  RAISE EXCEPTION 'xAPI statement ingest rejected: cannot resolve organization_id for actor_email=%',
+    NEW.actor_email;
 END;
 $$ LANGUAGE plpgsql;
 

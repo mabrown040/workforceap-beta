@@ -37,7 +37,7 @@ export default async function PlacementSurveyTokenPage(props: {
       return (
         <Message
           heading="This survey link has expired"
-          body="Survey links are valid for 60 days. Reply to the original email or reach out to your counselor and we'll send a fresh link."
+          body="Survey links are valid for 60 days. Reply to the original email or reach out to your advisor and we'll send a fresh link."
         />
       );
     }
@@ -63,7 +63,7 @@ export default async function PlacementSurveyTokenPage(props: {
     return (
       <Message
         heading="We couldn't find your survey"
-        body="This link looks valid but the survey it points to is gone. Reach out to your counselor and we'll get you another one."
+        body="This link looks valid but the survey it points to is gone. Reach out to your advisor and we'll get you another one."
       />
     );
   }

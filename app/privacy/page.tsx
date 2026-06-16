@@ -59,7 +59,7 @@ const SUB_PROCESSORS: SubProcessor[] = [
   {
     vendor: 'Anthropic (Claude)',
     data: 'AI tool inputs — resume text, job descriptions, member-supplied prompts and uploaded text',
-    purpose: 'AI-powered career counselor, resume coach, cover-letter draft, skill mapping',
+    purpose: 'AI-powered career advisor, resume coach, cover-letter draft, skill mapping',
     link: 'https://www.anthropic.com/legal/commercial-terms',
     linkLabel: 'Anthropic Commercial Terms',
   },
@@ -80,7 +80,7 @@ const SUB_PROCESSORS: SubProcessor[] = [
   {
     vendor: 'ElevenLabs',
     data: 'Text passed for voice synthesis and, where you opt in, member voice samples',
-    purpose: 'Voice synthesis for interview-practice and counselor playback',
+    purpose: 'Voice synthesis for interview-practice and advisor playback',
     link: 'https://elevenlabs.io/privacy',
     linkLabel: 'ElevenLabs Privacy Policy',
   },
@@ -318,7 +318,7 @@ export default async function PrivacyPage() {
             </p>
             <h3>3.3 Counselors &amp; community partners</h3>
             <p>
-              Your assigned career counselor and the partner organization that referred you (if any) may
+              Your assigned career advisor and the partner organization that referred you (if any) may
               view your enrollment status, progress, and outcomes to provide coaching and to satisfy
               grant-reporting requirements. Counselors are bound by the same confidentiality obligations
               we are.
@@ -338,7 +338,7 @@ export default async function PrivacyPage() {
 
             <h2>4. AI processing &amp; model training</h2>
             <p>
-              We use artificial-intelligence tools to provide core platform features: the career counselor,
+              We use artificial-intelligence tools to provide core platform features: the career advisor,
               voice-based coaching, resume rewriting, interview practice, skill mapping, job-match scoring,
               cover-letter drafting, and similar member tools. When you use these tools, the relevant inputs
               you provide — including resume text, job descriptions you paste, voice-session transcripts,

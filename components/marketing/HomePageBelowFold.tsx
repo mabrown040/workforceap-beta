@@ -118,6 +118,7 @@ export default async function HomePageBelowFold({
             <LocalizedLinkServer
               key={p.slug}
               href={`/programs/${p.slug}`}
+              aria-label={`${p.static?.title ?? p.name}, ${t('programsCardCta')}`}
               className="portal-card portal-card--flat home-program-card"
               style={{
                 background: 'var(--surface-container-high)',
@@ -206,7 +207,7 @@ export default async function HomePageBelowFold({
                     {t('programsCertBadge')}
                   </span>
                 </div>
-                <span className="home-program-card__cta" aria-hidden="true">
+                <span className="home-program-card__cta">
                   {t('programsCardCta')} →
                 </span>
               </div>

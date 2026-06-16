@@ -78,22 +78,18 @@ test.describe('Visual regression — functional checks', () => {
     expect(pageFits, 'homepage overflows horizontally on mobile').toBeTruthy();
   });
 
-  test('employers AI support section does not clip on mobile', async ({ page }) => {
+  test('employers trust strip fits on mobile without horizontal overflow', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/employers');
 
-    const heading = page.getByRole('heading', { name: /AI-powered career support/i });
-    await expect(heading).toBeVisible();
+    const trustStrip = page.locator('.employers-trust');
+    await expect(trustStrip).toBeVisible();
 
-    const copy = page.locator('.employers-ai-support-copy');
-    await expect(copy).toBeVisible();
-
-    const copyFitsViewport = await copy.evaluate((el) => {
-      const node = el as HTMLElement;
-      return node.scrollWidth <= node.clientWidth + 1;
-    });
-    expect(copyFitsViewport).toBeTruthy();
+    const pageFits = await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+    );
+    expect(pageFits, 'employers page overflows horizontally on mobile').toBeTruthy();
   });
 
   test('apply page radio cards render correctly on mobile', async ({ page }) => {

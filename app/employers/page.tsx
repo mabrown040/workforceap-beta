@@ -15,6 +15,7 @@ import {
   SectionHeader,
 } from '@/components/marketing/ui';
 import { EMPLOYER_CASE_STUDIES } from '@/lib/content/employer-case-studies';
+import { loadRealEmployerCaseStudies } from '@/lib/content/employer-case-studies-real';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { getTranslations } from 'next-intl/server';
@@ -60,6 +61,21 @@ export default async function EmployersPage() {
   const placementFee = getEmployerPlacementFeeDisplay();
   const hiringPartnerCtaHref = getEmployerHiringPartnerCtaHref();
   const hiringPartnerCtaExternal = isEmployerHiringPartnerCtaExternal();
+
+  // Load real case studies from placement records; fall back to placeholders
+  const realCaseStudies = await loadRealEmployerCaseStudies();
+  const caseStudies = realCaseStudies.length > 0
+    ? realCaseStudies.map(r => ({
+        company: r.company,
+        industry: r.industry,
+        location: r.location,
+        outcome_summary: r.outcome_summary,
+        role_filled: r.role_filled,
+        quote: r.quote,
+        attribution_name: r.attribution_name,
+        attribution_title: r.attribution_title,
+      }))
+    : EMPLOYER_CASE_STUDIES;
 
   const membersPlacedLabel = formatEmployerTrustStat(
     trust.membersPlaced,
@@ -241,12 +257,12 @@ export default async function EmployersPage() {
       <PageSection padding="lg" className="employers-outcomes">
         <SectionHeader title={t('outcomesTitle')} subtitle={t('outcomesSubtitle')} />
         <div className="employers-outcomes__grid">
-          {EMPLOYER_CASE_STUDIES.map((study, i) => (
+          {caseStudies.map((study, i) => (
             <EmployerCaseStudyCard
               key={study.company}
               study={study}
               variant={i === 0 ? 'accent' : 'default'}
-              scenarioLabel={t('outcomesScenarioLabel')}
+              scenarioLabel={study.attribution_name ? t('outcomesScenarioLabel') : t('outcomesScenarioLabel')}
             />
           ))}
         </div>

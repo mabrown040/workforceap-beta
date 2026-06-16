@@ -138,7 +138,7 @@ function RadarChart({ data }: { data: { axis: string; value: number }[] }) {
   });
   const gridLevels = [0.25, 0.5, 0.75, 1];
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ overflow: 'visible', display: 'block', margin: '0 auto' }}>
+    <svg className="skill-mapper-radar-chart" width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Skill radar chart" style={{ overflow: 'visible', display: 'block', margin: '0 auto' }}>
       {gridLevels.map(level => (
         <polygon key={level}
           points={data.map((_, i) => { const p = pt(i, level); return `${p.x},${p.y}`; }).join(' ')}
@@ -179,7 +179,7 @@ function DualRadarChart({ memberData, targetData }: { memberData: { axis: string
     data.find(d => d.axis === axis)?.value ?? 0;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ overflow: 'visible', display: 'block', margin: '0 auto' }}>
+    <svg className="skill-mapper-radar-chart" width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Skill radar chart" style={{ overflow: 'visible', display: 'block', margin: '0 auto' }}>
       {gridLevels.map(level => (
         <polygon key={level}
           points={axes.map((_, i) => { const p = pt(i, level); return `${p.x},${p.y}`; }).join(' ')}
@@ -948,11 +948,11 @@ export default function SkillMapperClient() {
               {/* Dual radar or single radar */}
               {radarData.length > 0 ? (
                 <>
-                  <h3 className="ai-tool-section-title">Your Skills vs. {selectedTitle || 'Target Occupation'}</h3>
-                  <div style={{ marginBottom: '0.75rem' }}>
+                  <h3 className="ai-tool-section-title skill-mapper-profile-title">Your Skills vs. {selectedTitle || 'Target Occupation'}</h3>
+                  <div className="skill-mapper-radar-wrap" style={{ marginBottom: '0.75rem' }}>
                     <DualRadarChart memberData={memberProfile} targetData={radarData} />
                   </div>
-                  <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginBottom: '0.5rem', fontSize: '0.8125rem' }}>
+                  <div className="skill-mapper-legend" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginBottom: '0.5rem', fontSize: '0.8125rem' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                       <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', background: 'var(--color-blue, #2b7bb9)' }} />
                       Your skills
@@ -962,7 +962,7 @@ export default function SkillMapperClient() {
                       Target occupation
                     </span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
+                  <div className="skill-mapper-export-row" style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
                     <button
                       type="button"
                       onClick={() => void exportComparisonPdf()}
@@ -1045,8 +1045,8 @@ export default function SkillMapperClient() {
                 <div style={{ marginBottom: '1.5rem' }}>
                   <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.75rem' }}>Skill Gaps to Close</h4>
                   {gaps.map(g => (
-                    <div key={g.axis} style={{ marginBottom: '0.75rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', marginBottom: '0.25rem' }}>
+                    <div key={g.axis} className="skill-mapper-gap-row" style={{ marginBottom: '0.75rem' }}>
+                      <div className="skill-mapper-gap-row__meta" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem', marginBottom: '0.25rem' }}>
                         <span>{g.axis}</span>
                         <span style={{ color: g.gap > 30 ? 'var(--color-error, #d32f2f)' : 'var(--color-on-surface-variant)' }}>
                           {Math.round(g.member)}% → {Math.round(g.target)}% ({g.gap > 0 ? `+${Math.round(g.gap)}` : Math.round(g.gap)} needed)

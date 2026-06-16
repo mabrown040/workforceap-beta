@@ -40,10 +40,9 @@ const PARTNER_TABS = [
 ];
 
 const ADMIN_TABS = [
-  { href: '/admin', label: 'Overview', icon: 'dashboard' },
+  { href: '/admin', label: 'Today', icon: 'home' },
+  { href: '/admin/command-center', label: 'Queue', icon: 'assignment_ind' },
   { href: '/admin/members', label: 'Members', icon: 'groups' },
-  { href: '/admin/pipeline', label: 'Pipeline', icon: 'account_tree' },
-  { href: '/admin/exports', label: 'Exports', icon: 'download' },
 ];
 
 interface MobileBottomNavProps {

@@ -31,6 +31,7 @@ import PendingApprovalBanner from '@/components/partner/PendingApprovalBanner';
 import PartnerConnectPayoutButton from '@/components/partner/PartnerConnectPayoutButton';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 import { isReferralPartner } from '@/lib/partner/partnerType';
+import { buildPartnerReferralBadge, isOutcomesSocialProofEnabled } from '@/lib/outcomes/socialProof';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('partner');
@@ -124,6 +125,12 @@ export default async function PartnerDashboardPage() {
   const applyLinkBase = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
   const refParam = partnerRow.referralCode ?? partnerRow.slug ?? ctx.partner.slug;
   const referralApplyUrl = `${applyLinkBase}/apply?ref=${encodeURIComponent(refParam)}`;
+  const referralBadge = buildPartnerReferralBadge({
+    baseUrl: applyLinkBase,
+    referralCode: refParam,
+    partnerName: partnerRow.name,
+  });
+  const showReferralBadge = isOutcomesSocialProofEnabled();
 
   const { members, pipelineMembers, pendingPlacements } = await loadPartnerReferralBundle(
     ctx.partnerId,
@@ -387,6 +394,16 @@ export default async function PartnerDashboardPage() {
               {referralApplyUrl}
             </p>
             <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
+            {showReferralBadge ? (
+              <details style={{ marginTop: '0.85rem' }}>
+                <summary style={{ cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-accent)' }}>
+                  Website badge embed code
+                </summary>
+                <pre style={{ margin: '0.75rem 0 0', padding: '0.85rem', overflowX: 'auto', borderRadius: 'var(--radius-md)', background: 'var(--color-gray-900)', color: 'var(--color-white)', fontSize: '0.72rem', lineHeight: 1.5 }}>
+                  <code>{referralBadge.embedCode}</code>
+                </pre>
+              </details>
+            ) : null}
           </PortalCard>
         </div>
       )}
@@ -640,6 +657,16 @@ export default async function PartnerDashboardPage() {
               {referralApplyUrl}
             </p>
             <CopyReferralLink url={referralApplyUrl} referralCodeDisplay={partnerRow.referralCode ?? partnerRow.slug ?? refParam} />
+            {showReferralBadge ? (
+              <details style={{ marginTop: '1rem' }}>
+                <summary style={{ cursor: 'pointer', fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-accent)' }}>
+                  Website badge embed code
+                </summary>
+                <pre style={{ margin: '0.75rem 0 0', padding: '1rem', overflowX: 'auto', borderRadius: 'var(--radius-md)', background: 'var(--color-gray-900)', color: 'var(--color-white)', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                  <code>{referralBadge.embedCode}</code>
+                </pre>
+              </details>
+            ) : null}
           </PortalCard>
         </section>
       )}

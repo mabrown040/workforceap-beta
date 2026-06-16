@@ -343,6 +343,7 @@ export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [];
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Today screen — the home / "who needs you today" ──
   { href: '/admin', label: 'Today', group: 'primary', Icon: Home },
+  { href: '/admin/command-center', label: 'Command center', group: 'primary', Icon: ListChecks },
   { href: '/admin/overview', label: 'Detailed overview', group: 'primary', Icon: BarChart3 },
 
   // ── Students — the people you manage day to day ──

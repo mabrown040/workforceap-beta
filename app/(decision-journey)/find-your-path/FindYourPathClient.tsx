@@ -261,7 +261,7 @@ function QuizResultsView({
             <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>Your top career match</h3>
           )}
           <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
-            This is a starting point for the conversation with your counselor — not a final decision.
+            This is a starting point for the conversation with your advisor — not a final decision.
           </p>
           {cleanDescription && (
             <p style={{ margin: 0, lineHeight: 1.65, color: 'var(--color-on-surface)' }}>{cleanDescription}</p>
@@ -332,7 +332,7 @@ function QuizResultsView({
             <div style={{ padding: '1rem', borderRadius: '0.9rem', background: 'var(--surface-container)', border: '1px solid var(--outline-variant)' }}>
               <strong>3 · Your next step</strong>
               <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-                Apply in about 10 minutes, then a counselor follows up within 1–2 business days.
+                Apply in about 10 minutes, then an advisor follows up within 1–2 business days.
               </p>
             </div>
           </div>
@@ -377,7 +377,7 @@ function QuizResultsView({
           }}
         >
           <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--color-on-surface)' }}>
-            <strong>Need a reliable computer for training?</strong> Ask your counselor about{' '}
+            <strong>Need a reliable computer for training?</strong> Ask your advisor about{' '}
             <strong>loaner or device support</strong> options — we can help you get set up for online coursework.{' '}
             <LocalizedLink href="/contact" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
               Contact us
@@ -471,7 +471,7 @@ function QuizResultsView({
               Start {topProgram.title} Application →
             </LocalizedLink>
             <LocalizedLink href="/contact" className="btn btn-outline btn-large">
-              Talk to a counselor first
+              Talk to an advisor first
             </LocalizedLink>
           </div>
           {programs.length > 1 && (

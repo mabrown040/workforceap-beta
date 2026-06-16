@@ -132,7 +132,7 @@ export default function EmployerSignupPage() {
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your Employer Account</h1>
               <p className="text-gray-600">
-                Post roles, review applicants, and build your pipeline without an upfront recruiting retainer.
+                Start a pipeline subscription to access training-aligned candidates. $499/mo Growth tier. Cancel anytime.
               </p>
             </div>
 

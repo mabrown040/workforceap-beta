@@ -3,13 +3,48 @@ import type { ReactNode } from 'react';
 interface StatCardProps {
   value: ReactNode;
   label: ReactNode;
-  /** Muted presentation for unpublished metrics (e.g. em dash placeholders). */
+  /** Mmuted presentation for unpublished metrics (e.g. em dash placeholders). */
   unpublished?: boolean;
+  /** Visible trust cue when unpublished — e.g. "Not published yet". */
+  unpublishedHint?: ReactNode;
 }
 
-export function StatCard({ value, label, unpublished = false }: StatCardProps) {
+export function StatCard({
+  value,
+  label,
+  unpublished = false,
+  unpublishedHint,
+}: StatCardProps) {
   return (
-    <div className="portal-card portal-card--flat stat-card" style={{ padding: '1.5rem' }}>
+    <div
+      className="portal-card portal-card--flat stat-card"
+      style={{ padding: '1.5rem' }}
+      aria-label={
+        unpublished && unpublishedHint
+          ? `${unpublishedHint}: ${typeof label === 'string' ? label : 'metric'}`
+          : undefined
+      }
+    >
+      {unpublished && unpublishedHint ? (
+        <span
+          className="stat-card-unpublished-hint"
+          style={{
+            display: 'inline-block',
+            marginBottom: '0.65rem',
+            padding: '0.15rem 0.5rem',
+            borderRadius: 'var(--radius-full, 9999px)',
+            border: '1px solid var(--outline-variant)',
+            background: 'var(--surface-container-high)',
+            fontSize: '0.625rem',
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--color-on-surface-variant)',
+          }}
+        >
+          {unpublishedHint}
+        </span>
+      ) : null}
       <div
         className="stat-card-value"
         style={{

@@ -1,174 +1,547 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import React, { useState, useCallback } from 'react';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
+import PageHeader from '@/components/portal/PageHeader';
+import DataTable from '@/components/portal/ui/DataTable';
 
-interface Metrics {
-  totalMembers: number;
-  enrolledMembers: number;
-  completedMembers: number;
-  placedMembers: number;
-  placementRate: number;
-  completionRate: number;
-  avgSalary: number;
-  salaryRange: { min: number; max: number };
+const MUTED = 'var(--color-on-surface-variant)';
+const ACCENT = 'var(--color-accent)';
+const SURFACE = 'var(--surface-container-low)';
+const CARD_BG = 'var(--surface-container)';
+const DANGER = '#dc2626';
+const WARNING = '#d97706';
+const SUCCESS = '#16a34a';
+
+type Period = 'all-time' | 'ytd' | 'q-current' | 'q-prev';
+
+interface SnapshotData {
+  generatedAt: string;
+  smallSampleThreshold: number;
+  applicationFunnel: {
+    total: number;
+    pending: number;
+    approved: number;
+    denied: number;
+    needsInfo: number;
+  };
+  outcomes: {
+    period: { label: string; startDate: string | null; endDate: string };
+    totals: {
+      membersServed: number;
+      membersEnrolled: number;
+      membersInTraining: number;
+      membersCertified: number;
+      membersPlaced: number;
+      placementRate: number;
+      medianAnnualSalary: number | null;
+      totalAnnualSalaryValue: number;
+      averageWeeksToPlacement: number | null;
+    };
+    funnel: Array<{ stage: string; count: number }>;
+    demographics: {
+      veteranBreakdown: Array<{ label: string; count: number }>;
+      employmentEnteringBreakdown: Array<{ label: string; count: number }>;
+      incomeBreakdown: Array<{ label: string; count: number }>;
+      educationBreakdown: Array<{ label: string; count: number }>;
+      ethnicityBreakdown: Array<{ label: string; count: number }>;
+    };
+    programs: Array<{
+      programSlug: string;
+      enrolled: number;
+      certified: number;
+      placed: number;
+      placementRate: number;
+    }>;
+    placements: Array<{
+      jobTitle: string;
+      employerIndustry: string | null;
+      annualSalary: number | null;
+      enrolledProgram: string | null;
+      weeksFromEnrollmentToPlacement: number | null;
+      placedAt: string;
+    }>;
+  };
+  activity: {
+    totalMembers: number;
+    active7d: number;
+    active14d: number;
+    active30d: number;
+    inactive14d: number;
+  };
+  certifications: {
+    totalEarned: number;
+    earnedLast30d: number;
+    uniqueMembers: number;
+  };
+  dataQuality: {
+    placementsMissingProgram: number;
+    placementsMissingFunding: number;
+    placementsMissingRetention: number;
+    placementsMissingSalary: number;
+    enrolledWithoutEnrolledAt: number;
+  };
 }
 
-interface ProgramStat {
-  slug: string;
+function StatCard({
+  value,
+  label,
+  hint,
+  accent,
+  suppress,
+}: {
+  value: string | number;
+  label: string;
+  hint?: string;
+  accent?: string;
+  suppress?: boolean;
+}) {
+  return (
+    <div
+      className="portal-card portal-card--flat"
+      style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}
+    >
+      <span
+        style={{
+          fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+          fontWeight: 700,
+          lineHeight: 1,
+          color: suppress ? DANGER : accent ?? 'var(--color-on-surface)',
+        }}
+      >
+        {value}
+      </span>
+      <span
+        style={{
+          fontSize: '0.75rem',
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          color: MUTED,
+        }}
+      >
+        {label}
+      </span>
+      {hint ? (
+        <span style={{ fontSize: '0.78rem', color: MUTED, lineHeight: 1.35 }}>{hint}</span>
+      ) : null}
+      {suppress ? (
+        <span style={{ fontSize: '0.72rem', color: DANGER, fontWeight: 600 }}>
+          N&lt;10 — suppressed
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function SectionShell({
+  title,
+  subtitle,
+  children,
+}: {
   title: string;
-  enrollments: number;
-  completions: number;
-  placements: number;
-  completionRate: number;
-  placementRate: number;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      style={{
+        background: SURFACE,
+        borderRadius: '0.75rem',
+        overflow: 'hidden',
+        boxShadow: '0 4px 32px rgba(0,0,0,0.2)',
+      }}
+    >
+      <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(226,226,229,0.05)', background: CARD_BG }}>
+        <h2 className="portal-section-heading" style={{ margin: 0 }}>{title}</h2>
+        {subtitle ? (
+          <p style={{ margin: '0.35rem 0 0', fontSize: '0.85rem', color: MUTED }}>{subtitle}</p>
+        ) : null}
+      </div>
+      <div style={{ padding: '1.5rem' }}>{children}</div>
+    </section>
+  );
 }
 
-interface OutcomesData {
-  metrics: Metrics;
-  programStats: ProgramStat[];
+function Bar({ pct, color }: { pct: number; color: string }) {
+  return (
+    <div style={{ height: '0.6rem', borderRadius: '999px', background: 'var(--surface-container-highest)', overflow: 'hidden' }}>
+      <div style={{ width: `${Math.max(0, Math.min(100, pct))}%`, height: '100%', background: color }} />
+    </div>
+  );
 }
+
+function fmtNumber(n: number | null | undefined): string {
+  if (n === null || n === undefined) return '—';
+  return n.toLocaleString('en-US');
+}
+
+function fmtMoney(n: number | null | undefined): string {
+  if (n === null || n === undefined) return '—';
+  return `$${n.toLocaleString('en-US')}`;
+}
+
+function fmtRate(numerator: number, denominator: number, threshold: number): string {
+  if (denominator < threshold) return `N=${denominator} (suppressed)`;
+  return `${Math.round((numerator / denominator) * 100)}%`;
+}
+
+const PERIOD_LABELS: Record<Period, string> = {
+  'all-time': 'All time',
+  ytd: 'Year to date',
+  'q-current': 'Current quarter',
+  'q-prev': 'Previous quarter',
+};
 
 export default function OutcomesDashboard() {
-  const [data, setData] = useState<OutcomesData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [period, setPeriod] = useState<Period>('all-time');
+  const [data, setData] = useState<SnapshotData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async (p: Period) => {
+    setLoading(true);
+    setError(null);
     try {
-      const res = await fetch('/api/admin/outcomes');
-      if (!res.ok) {
-        throw new Error(`Failed to load: ${res.status}`);
-      }
+      const res = await fetch(`/api/admin/outcomes/snapshot?period=${p}`);
+      if (!res.ok) throw new Error(await res.text());
       const json = await res.json();
-      setData(json);
+      setData(json.snapshot);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load outcomes');
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  React.useEffect(() => {
+    fetchData(period);
+  }, [period, fetchData]);
+
+  const handleExport = async (format: 'csv' | 'md') => {
+    const res = await fetch(`/api/admin/outcomes/snapshot?period=${period}&format=${format}`);
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `outcomes-snapshot-${period}-${new Date().toISOString().slice(0, 10)}.${format}`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-slate-500">Loading outcomes data...</div>
-      </div>
-    );
-  }
+  const threshold = data?.smallSampleThreshold ?? 10;
+  const t = data?.outcomes.totals;
+  const funnel = data?.outcomes.funnel;
+  const programs = data?.outcomes.programs ?? [];
+  const placements = data?.outcomes.placements ?? [];
+  const demographics = data?.outcomes.demographics;
+  const activity = data?.activity;
+  const certifications = data?.certifications;
+  const dataQuality = data?.dataQuality;
+  const appFunnel = data?.applicationFunnel;
 
-  if (error) {
-    return (
-      <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-700">
-        {error}
-      </div>
-    );
-  }
-
-  if (!data) return null;
-
-  const { metrics, programStats } = data;
+  const funnelMax = Math.max(1, ...(funnel?.map((s) => s.count) ?? [1]));
+  const programMax = Math.max(1, ...programs.map((p) => p.enrolled));
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Outcomes Dashboard</h1>
-          <p className="text-slate-500 mt-1">Placement rates, salary data, and program effectiveness</p>
+    <PortalPageFrame
+      title="Outcomes Dashboard"
+      subtitle="Placement rates, salary data, and program effectiveness — live from production data."
+      action={
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <select
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as Period)}
+            style={{
+              padding: '0.5rem 0.75rem',
+              borderRadius: '0.5rem',
+              border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container)',
+              color: 'var(--color-on-surface)',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            {Object.entries(PERIOD_LABELS).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
+            ))}
+          </select>
+          <button
+            onClick={() => handleExport('csv')}
+            disabled={!data || loading}
+            style={{
+              padding: '0.5rem 0.75rem',
+              borderRadius: '0.5rem',
+              border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container)',
+              color: 'var(--color-on-surface)',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: !data || loading ? 'not-allowed' : 'pointer',
+              opacity: !data || loading ? 0.6 : 1,
+            }}
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={() => handleExport('md')}
+            disabled={!data || loading}
+            style={{
+              padding: '0.5rem 0.75rem',
+              borderRadius: '0.5rem',
+              border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container)',
+              color: 'var(--color-on-surface)',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: !data || loading ? 'not-allowed' : 'pointer',
+              opacity: !data || loading ? 0.6 : 1,
+            }}
+          >
+            Export Markdown
+          </button>
         </div>
-        <Button onClick={fetchData} variant="outline">
-          Refresh
-        </Button>
-      </div>
+      }
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', padding: '0 0.25rem' }}>
+        {loading && (
+          <div style={{ padding: '2rem', textAlign: 'center', color: MUTED }}>Loading outcomes…</div>
+        )}
+        {error && (
+          <div style={{ padding: '1.25rem', background: 'rgba(220,38,38,0.1)', borderRadius: '0.5rem', color: DANGER }}>
+            {error}
+          </div>
+        )}
 
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-6">
-          <div className="text-sm text-slate-500">Total Members</div>
-          <div className="text-3xl font-bold text-slate-900 mt-1">
-            {metrics.totalMembers.toLocaleString()}
-          </div>
-        </Card>
-        <Card className="p-6">
-          <div className="text-sm text-slate-500">Placement Rate</div>
-          <div className="text-3xl font-bold text-emerald-600 mt-1">
-            {metrics.placementRate}%
-          </div>
-          <div className="text-xs text-slate-400 mt-1">
-            {metrics.placedMembers} placed / {metrics.enrolledMembers} enrolled
-          </div>
-        </Card>
-        <Card className="p-6">
-          <div className="text-sm text-slate-500">Completion Rate</div>
-          <div className="text-3xl font-bold text-blue-600 mt-1">
-            {metrics.completionRate}%
-          </div>
-          <div className="text-xs text-slate-400 mt-1">
-            {metrics.completedMembers} completed / {metrics.enrolledMembers} enrolled
-          </div>
-        </Card>
-        <Card className="p-6">
-          <div className="text-sm text-slate-500">Avg. Salary</div>
-          <div className="text-3xl font-bold text-rose-600 mt-1">
-            ${metrics.avgSalary.toLocaleString()}
-          </div>
-          <div className="text-xs text-slate-400 mt-1">
-            Range: ${metrics.salaryRange.min.toLocaleString()} - ${metrics.salaryRange.max.toLocaleString()}
-          </div>
-        </Card>
-      </div>
+        {data && (
+          <>
+            {/* Period badge */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.8rem', color: MUTED }}>
+                Period: <strong>{data.outcomes.period.label}</strong>
+                {' · '}
+                Generated: {new Date(data.generatedAt).toLocaleString('en-US')}
+              </span>
+              <span style={{ fontSize: '0.75rem', color: MUTED, fontStyle: 'italic' }}>
+                N&lt;{threshold} rates suppressed per methodology
+              </span>
+            </div>
 
-      {/* Program Stats */}
-      <Card className="p-6">
-        <h2 className="text-lg font-bold text-slate-900 mb-4">Program Effectiveness</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200">
-                <th className="text-left py-3 px-4 font-medium text-slate-500">Program</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Enrolled</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Completed</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Placed</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Completion %</th>
-                <th className="text-right py-3 px-4 font-medium text-slate-500">Placement %</th>
-              </tr>
-            </thead>
-            <tbody>
-              {programStats.map((program) => (
-                <tr key={program.slug} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="py-3 px-4 font-medium text-slate-900">{program.title}</td>
-                  <td className="text-right py-3 px-4 text-slate-600">{program.enrollments}</td>
-                  <td className="text-right py-3 px-4 text-slate-600">{program.completions}</td>
-                  <td className="text-right py-3 px-4 text-slate-600">{program.placements}</td>
-                  <td className="text-right py-3 px-4">
-                    <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                      program.completionRate >= 70 ? 'bg-emerald-100 text-emerald-700' :
-                      program.completionRate >= 40 ? 'bg-amber-100 text-amber-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {program.completionRate}%
-                    </span>
-                  </td>
-                  <td className="text-right py-3 px-4">
-                    <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                      program.placementRate >= 50 ? 'bg-emerald-100 text-emerald-700' :
-                      program.placementRate >= 25 ? 'bg-amber-100 text-amber-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {program.placementRate}%
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+            {/* ── Headline totals ── */}
+            <SectionShell title="Headline outcomes" subtitle="Members served, placed, and compensated.">
+              <div className="portal-grid-metrics" style={{ marginBottom: '1rem' }}>
+                <StatCard
+                  value={fmtNumber(t?.membersEnrolled)}
+                  label="Members enrolled"
+                  hint="Total enrolled in the period."
+                  accent={ACCENT}
+                />
+                <StatCard
+                  value={fmtNumber(t?.membersPlaced)}
+                  label="Placed"
+                  hint="Members placed into employment."
+                  accent={SUCCESS}
+                />
+                <StatCard
+                  value={fmtRate(t?.membersPlaced ?? 0, t?.membersEnrolled ?? 0, threshold)}
+                  label="Placement rate"
+                  hint="Placements ÷ enrolled."
+                  suppress={(t?.membersEnrolled ?? 0) < threshold}
+                />
+                <StatCard
+                  value={fmtMoney(t?.medianAnnualSalary)}
+                  label="Median salary"
+                  hint="Median annual salary at placement."
+                />
+              </div>
+              <div className="portal-grid-metrics">
+                <StatCard
+                  value={fmtMoney(t?.totalAnnualSalaryValue)}
+                  label="Total salary value"
+                  hint="Sum of all placed salaries."
+                />
+                <StatCard
+                  value={t?.averageWeeksToPlacement == null ? '—' : `${t.averageWeeksToPlacement} wks`}
+                  label="Avg. time to placement"
+                  hint="Weeks from enrollment to placement."
+                />
+                <StatCard
+                  value={fmtNumber(t?.membersInTraining)}
+                  label="In training"
+                  hint="Currently active in programs."
+                  accent={WARNING}
+                />
+                <StatCard
+                  value={fmtNumber(t?.membersCertified)}
+                  label="Certified"
+                  hint="Completed their program."
+                />
+              </div>
+            </SectionShell>
+
+            {/* ── Outcomes funnel ── */}
+            <SectionShell title="Outcomes funnel" subtitle="How members move from enrollment to placement.">
+              {funnel && funnel.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {funnel.map((step) => (
+                    <div key={step.stage}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem', gap: '0.75rem' }}>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{step.stage}</span>
+                        <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT }}>
+                          {fmtNumber(step.count)}
+                        </span>
+                      </div>
+                      <Bar pct={(step.count / funnelMax) * 100} color={ACCENT} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ margin: 0, fontSize: '0.875rem', color: MUTED }}>No funnel data.</p>
+              )}
+            </SectionShell>
+
+            {/* ── Programs ── */}
+            <SectionShell title="Programs" subtitle="Per-program enrollment, certification, and placement.">
+              {programs.length === 0 ? (
+                <p style={{ margin: 0, fontSize: '0.875rem', color: MUTED }}>No program data.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+                  {programs.map((p) => {
+                    const rateSuppressed = p.enrolled < threshold;
+                    return (
+                      <div key={p.programSlug}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem', gap: '0.75rem' }}>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-on-surface)' }}>{p.programSlug}</span>
+                          <span style={{ fontSize: '0.95rem', fontWeight: 700, color: ACCENT }}>
+                            {rateSuppressed ? `N=${p.enrolled}` : `${p.placementRate}% placed`}
+                          </span>
+                        </div>
+                        <Bar pct={(p.enrolled / programMax) * 100} color={rateSuppressed ? WARNING : ACCENT} />
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '0.35rem', fontSize: '0.78rem', color: MUTED }}>
+                          <span>{fmtNumber(p.enrolled)} enrolled</span>
+                          <span>{fmtNumber(p.certified)} certified</span>
+                          <span>{fmtNumber(p.placed)} placed</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </SectionShell>
+
+            {/* ── Demographics ── */}
+            <SectionShell title="Demographics" subtitle="WIOA-aligned breakdowns of enrolled members.">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(16rem, 1fr))', gap: '1.5rem' }}>
+                {demographics && (
+                  <>
+                    <DemographicTable title="Veteran status" rows={demographics.veteranBreakdown} />
+                    <DemographicTable title="Employment entering" rows={demographics.employmentEnteringBreakdown} />
+                    <DemographicTable title="Household income" rows={demographics.incomeBreakdown} />
+                    <DemographicTable title="Education level" rows={demographics.educationBreakdown} />
+                    <DemographicTable title="Ethnicity" rows={demographics.ethnicityBreakdown} />
+                  </>
+                )}
+              </div>
+            </SectionShell>
+
+            {/* ── Activity ── */}
+            <SectionShell title="Member activity" subtitle="Engagement recency across the cohort.">
+              <div className="portal-grid-metrics">
+                <StatCard value={fmtNumber(activity?.totalMembers)} label="Total members" hint="All members in system." />
+                <StatCard value={fmtNumber(activity?.active7d)} label="Active 7d" hint="Engaged in last 7 days." accent={SUCCESS} />
+                <StatCard value={fmtNumber(activity?.active14d)} label="Active 14d" hint="Engaged in last 14 days." />
+                <StatCard value={fmtNumber(activity?.active30d)} label="Active 30d" hint="Engaged in last 30 days." />
+                <StatCard value={fmtNumber(activity?.inactive14d)} label="Inactive 14+" hint="No activity for 14+ days." accent={DANGER} />
+              </div>
+            </SectionShell>
+
+            {/* ── Certifications ── */}
+            <SectionShell title="Certifications" subtitle="Certifications earned and unique members holding them.">
+              <div className="portal-grid-metrics">
+                <StatCard value={fmtNumber(certifications?.totalEarned)} label="Total earned" hint="All certifications recorded." />
+                <StatCard value={fmtNumber(certifications?.earnedLast30d)} label="Last 30 days" hint="Recently earned." accent={SUCCESS} />
+                <StatCard value={fmtNumber(certifications?.uniqueMembers)} label="Unique members" hint="Members with ≥1 certification." />
+              </div>
+            </SectionShell>
+
+            {/* ── Application funnel ── */}
+            <SectionShell title="Application funnel" subtitle="Application status breakdown.">
+              <div className="portal-grid-metrics">
+                <StatCard value={fmtNumber(appFunnel?.total)} label="Total applications" hint="All applications received." accent={ACCENT} />
+                <StatCard value={fmtNumber(appFunnel?.pending)} label="Pending" hint="Awaiting review." accent={WARNING} />
+                <StatCard value={fmtNumber(appFunnel?.approved)} label="Approved" hint="Approved for training." accent={SUCCESS} />
+                <StatCard value={fmtNumber(appFunnel?.denied)} label="Denied" hint="Not admitted." />
+                <StatCard value={fmtNumber(appFunnel?.needsInfo)} label="Needs info" hint="Additional information requested." />
+              </div>
+            </SectionShell>
+
+            {/* ── Placements detail ── */}
+            <SectionShell title="Placements" subtitle={`${fmtNumber(placements.length)} placement records (PII-stripped).`}>
+              {placements.length === 0 ? (
+                <p style={{ margin: 0, fontSize: '0.875rem', color: MUTED }}>No placements in this period.</p>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <DataTable
+                    columns={[
+                      { key: 'jobTitle', header: 'Job title', cell: (p) => p.jobTitle },
+                      { key: 'program', header: 'Program', cell: (p) => p.enrolledProgram ?? '—' },
+                      { key: 'salary', header: 'Salary', align: 'right', cell: (p) => fmtMoney(p.annualSalary) },
+                      { key: 'weeks', header: 'Weeks', align: 'right', cell: (p) => p.weeksFromEnrollmentToPlacement ?? '—' },
+                      { key: 'placed', header: 'Placed', cell: (p) => new Date(p.placedAt).toLocaleDateString('en-US') },
+                    ]}
+                    rows={placements.slice(0, 50)}
+                    rowKey={(_, i) => String(i)}
+                    density="compact"
+                    variant="admin"
+                    tableClassName="admin-table"
+                    emptyState={<p style={{ margin: 0, fontSize: '0.875rem', color: MUTED }}>No placements in this period.</p>}
+                  />
+                  {placements.length > 50 && (
+                    <p style={{ margin: '0.75rem 0 0', fontSize: '0.78rem', color: MUTED }}>
+                      Showing first 50 of {placements.length} placements. Use CSV export for full list.
+                    </p>
+                  )}
+                </div>
+              )}
+            </SectionShell>
+
+            {/* ── Data quality flags ── */}
+            <SectionShell title="Data quality flags" subtitle="Rows missing fields a WIOA auditor would ask about.">
+              <div className="portal-grid-metrics">
+                <StatCard value={fmtNumber(dataQuality?.placementsMissingProgram)} label="Missing program" hint="Placements without program slug." accent={dataQuality?.placementsMissingProgram ? DANGER : undefined} />
+                <StatCard value={fmtNumber(dataQuality?.placementsMissingFunding)} label="Missing funding" hint="Placements without funding source." accent={dataQuality?.placementsMissingFunding ? DANGER : undefined} />
+                <StatCard value={fmtNumber(dataQuality?.placementsMissingRetention)} label="Missing retention" hint="No retention status or decision." accent={dataQuality?.placementsMissingRetention ? DANGER : undefined} />
+                <StatCard value={fmtNumber(dataQuality?.placementsMissingSalary)} label="Missing salary" hint="Placements without salary at placement." accent={dataQuality?.placementsMissingSalary ? DANGER : undefined} />
+                <StatCard value={fmtNumber(dataQuality?.enrolledWithoutEnrolledAt)} label="Missing enrolled_at" hint="Enrolled members with no timestamp." accent={dataQuality?.enrolledWithoutEnrolledAt ? DANGER : undefined} />
+              </div>
+            </SectionShell>
+          </>
+        )}
+      </div>
+    </PortalPageFrame>
+  );
+}
+
+function DemographicTable({ title, rows }: { title: string; rows: Array<{ label: string; count: number }> }) {
+  const max = Math.max(1, ...rows.map((r) => r.count));
+  return (
+    <div>
+      <h3 style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: MUTED, margin: '0 0 0.75rem' }}>
+        {title}
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+        {rows.map((r) => (
+          <div key={r.label}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.25rem', fontSize: '0.85rem' }}>
+              <span style={{ color: 'var(--color-on-surface)' }}>{r.label}</span>
+              <span style={{ fontWeight: 700, color: ACCENT }}>{fmtNumber(r.count)}</span>
+            </div>
+            <Bar pct={(r.count / max) * 100} color={ACCENT} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -64,8 +64,9 @@ export default async function EmployersPage() {
 
   // Load real case studies from placement records; fall back to placeholders
   const realCaseStudies = await loadRealEmployerCaseStudies();
-  const caseStudies = realCaseStudies.length > 0
-    ? realCaseStudies.map(r => ({
+  const usingVerifiedCaseStudies = realCaseStudies.length > 0;
+  const caseStudies = usingVerifiedCaseStudies
+    ? realCaseStudies.map((r) => ({
         company: r.company,
         industry: r.industry,
         location: r.location,
@@ -76,6 +77,12 @@ export default async function EmployersPage() {
         attribution_title: r.attribution_title,
       }))
     : EMPLOYER_CASE_STUDIES;
+  const caseStudyScenarioLabel = usingVerifiedCaseStudies
+    ? t('outcomesVerifiedLabel')
+    : t('outcomesScenarioLabel');
+  const outcomesDisclaimerKey = usingVerifiedCaseStudies
+    ? 'outcomesVerifiedDisclaimer'
+    : 'outcomesDisclaimer';
 
   const membersPlacedLabel = formatEmployerTrustStat(
     trust.membersPlaced,
@@ -255,19 +262,22 @@ export default async function EmployersPage() {
 
       {/* ── Outcomes: mini case studies ── */}
       <PageSection padding="lg" className="employers-outcomes">
-        <SectionHeader title={t('outcomesTitle')} subtitle={t('outcomesSubtitle')} />
+        <SectionHeader
+          title={usingVerifiedCaseStudies ? t('outcomesTitleVerified') : t('outcomesTitle')}
+          subtitle={usingVerifiedCaseStudies ? t('outcomesSubtitleVerified') : t('outcomesSubtitle')}
+        />
         <div className="employers-outcomes__grid">
           {caseStudies.map((study, i) => (
             <EmployerCaseStudyCard
               key={study.company}
               study={study}
               variant={i === 0 ? 'accent' : 'default'}
-              scenarioLabel={study.attribution_name ? t('outcomesScenarioLabel') : t('outcomesScenarioLabel')}
+              scenarioLabel={caseStudyScenarioLabel}
             />
           ))}
         </div>
-        {t('outcomesDisclaimer') ? (
-          <p className="employers-outcomes__disclaimer">{t('outcomesDisclaimer')}</p>
+        {t(outcomesDisclaimerKey) ? (
+          <p className="employers-outcomes__disclaimer">{t(outcomesDisclaimerKey)}</p>
         ) : null}
       </PageSection>
 
@@ -287,7 +297,9 @@ export default async function EmployersPage() {
           <div className="employers-pricing__partner-plan">
             <p className="employers-pricing__partner-plan-eyebrow">{t('partnerPlanEyebrow')}</p>
             <h3 className="employers-pricing__partner-plan-title">{t('partnerPlanTitle')}</h3>
-            <p className="employers-pricing__partner-plan-copy">{t('partnerPlanCopy')}</p>
+            <p className="employers-pricing__partner-plan-copy">
+              {t('partnerPlanCopy', { fee: placementFee })}
+            </p>
             <ul className="employers-pricing__partner-plan-list">
               <li>{t('partnerPlanPoint1')}</li>
               <li>{t('partnerPlanPoint2')}</li>

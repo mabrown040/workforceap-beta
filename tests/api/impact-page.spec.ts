@@ -358,6 +358,8 @@ describe('Impact Page — getPublicImpactStats', () => {
       expect(source).toContain('impact-page__stats-grid--preview');
       expect(source).toContain('impact-page__preview-panel');
       expect(source).toContain("t('employerMetricsFootnote')");
+      expect(source).toContain('impact-page__employer-footnote--empty');
+      expect(source).not.toContain('impact-employer-preview-heading');
       expect(source).toContain("t('statNotPublished')");
       expect(source).toContain('statCardUnpublishedProps');
       expect(source).not.toContain('impact-page__data-light-note');

@@ -32,4 +32,20 @@ describe('Employers Page — honest trust presentation', () => {
     expect(match).toBeTruthy();
     expect(Number(match![1])).toBe(600);
   });
+
+  it('labels verified placement cards differently from illustrative examples', () => {
+    const pagePath = path.resolve(__dirname, '../../app/employers/page.tsx');
+    const source = readFileSync(pagePath, 'utf-8');
+
+    expect(source).toContain('usingVerifiedCaseStudies');
+    expect(source).toContain("t('outcomesVerifiedLabel')");
+    expect(source).toContain("t('outcomesScenarioLabel')");
+    expect(source).toContain("t('outcomesTitleVerified')");
+    expect(source).toContain("'outcomesVerifiedDisclaimer'");
+    expect(source).toContain('outcomesDisclaimerKey');
+    expect(source).toContain("t('partnerPlanCopy', { fee: placementFee })");
+    expect(source).not.toContain(
+      "scenarioLabel={study.attribution_name ? t('outcomesScenarioLabel') : t('outcomesScenarioLabel')}",
+    );
+  });
 });

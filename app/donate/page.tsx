@@ -28,7 +28,7 @@ export default function DonatePage() {
     {
       amount: '$100',
       title: 'Career readiness support',
-      description: 'Helps fund resume help, interview preparation, and counselor time for a member working toward placement.',
+      description: 'Helps fund resume help, interview preparation, and advisor time for a member working toward placement.',
     },
     {
       amount: '$250',

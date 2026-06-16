@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
   title: 'Find Your Path — Program Quiz',
   description:
-    'Take our quick 3-question quiz to discover which WorkforceAP programs best fit your interests, experience, and goals — a starting point for conversations with your counselor. No-cost training for qualifying members.',
+    'Take our quick 3-question quiz to discover which WorkforceAP programs best fit your interests, experience, and goals — a starting point for conversations with your advisor. No-cost training for qualifying members.',
   path: '/find-your-path',
 });
 }

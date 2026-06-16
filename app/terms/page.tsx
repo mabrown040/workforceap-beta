@@ -119,9 +119,9 @@ export default async function TermsPage() {
             <p>As a member you agree to:</p>
             <ul>
               <li>Provide truthful, complete eligibility and intake information, including for funded programs</li>
-              <li>Make a good-faith effort to complete the program you enroll in, including attendance, assignments, and any check-ins or assessments required by your counselor or grant</li>
+              <li>Make a good-faith effort to complete the program you enroll in, including attendance, assignments, and any check-ins or assessments required by your advisor or grant</li>
               <li>Maintain the confidentiality of your account credentials and notify us if you suspect unauthorized access</li>
-              <li>Use the AI tools, course content, and counselor relationship for personal career development; do not impersonate another person or submit AI-generated content as another person&rsquo;s work without proper attribution where required</li>
+              <li>Use the AI tools, course content, and advisor relationship for personal career development; do not impersonate another person or submit AI-generated content as another person&rsquo;s work without proper attribution where required</li>
               <li>Return loaner equipment in accordance with the equipment-loan agreement you sign at issue; equipment remains WorkforceAP property until program-completion milestones are met</li>
             </ul>
 

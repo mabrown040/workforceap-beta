@@ -61,8 +61,8 @@ export default async function SkillMapperPage() {
           />
         </div>
 
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '1rem 1.5rem 2rem' }}>
-          <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: 12 }}>
+        <div className="skill-mapper-page-shell" style={{ maxWidth: 900, margin: '0 auto', padding: '1rem 1.5rem 2rem' }}>
+          <div className="portal-card portal-card--flat skill-mapper-card" style={{ padding: '1rem', borderRadius: 12 }}>
             <SkillMapperClient />
           </div>
           <ToolHistoryPanel

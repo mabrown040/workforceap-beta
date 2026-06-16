@@ -92,7 +92,7 @@ export default async function DashboardReadinessPage() {
         subtitle={
           <>
             <span className="wa-block md:wa-hidden">Your readiness score across 4 key categories.</span>
-            <span className="wa-hidden md:wa-block">Track your progress from training to landing a job. Your counselor updates this as you hit milestones.</span>
+            <span className="wa-hidden md:wa-block">Track your progress from training to landing a job. Your advisor updates this as you hit milestones.</span>
           </>
         }
         breadcrumbs={[{ label: 'Member Portal', href: '/dashboard' }, { label: 'Job Readiness' }]}

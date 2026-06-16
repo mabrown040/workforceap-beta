@@ -23,8 +23,8 @@ const HELP_ITEMS = [
   },
   {
     icon: 'support_agent',
-    title: 'Talk to your counselor',
-    body: 'Your counselor is your main point of contact. Message them directly from the Messages page for any support.',
+    title: 'Talk to your advisor',
+    body: 'Your advisor is your main point of contact. Message them directly from the Messages page for any support.',
     href: '/dashboard/messages',
     cta: 'Open messages',
   },

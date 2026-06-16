@@ -99,7 +99,7 @@ export default function ReadinessMemberClient({
         </div>
         <p className="readiness-progress-text">Counselor checklist: {pct}%</p>
         <p className="readiness-progress-desc">
-          {completedItems} of {totalItems} milestones counselor-verified. Your auto-calculated readiness score is shown above and updates from your activity.
+          {completedItems} of {totalItems} milestones advisor-verified. Your auto-calculated readiness score is shown above and updates from your activity.
         </p>
       </div>
 

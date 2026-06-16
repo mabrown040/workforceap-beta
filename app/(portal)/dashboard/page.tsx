@@ -766,7 +766,7 @@ async function renderMemberDashboard(
       ? `Continue ${nextIncompleteCourse.name}.`
       : 'Continue your training today.';
   } else {
-    focusLine = 'Explore your tools or message your counselor for a next step.';
+    focusLine = 'Explore your tools or message your advisor for a next step.';
   }
 
   const todayHeroContextLine = program

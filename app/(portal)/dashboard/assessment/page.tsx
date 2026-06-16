@@ -73,7 +73,7 @@ export default async function AssessmentPage({
       <div style={{ padding: '1.25rem clamp(1rem, 4vw, 2rem) 1.5rem', borderBottom: '1px solid var(--outline-variant)' }}>
         <PageHeader
           title="Skills snapshot"
-          subtitle="Before we connect you with your Coursera courses, we need a quick skills snapshot. This helps your counselor personalize your learning path and identify any additional support resources."
+          subtitle="Before we connect you with your Coursera courses, we need a quick skills snapshot. This helps your advisor personalize your learning path and identify any additional support resources."
           breadcrumbs={[
             { label: 'Member Portal', href: '/dashboard' },
             { label: 'Skills snapshot' },
@@ -90,7 +90,7 @@ export default async function AssessmentPage({
             >
               <h2 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.125rem' }}>Review your starter details first</h2>
               <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1rem' }}>
-                Your counselor started this account for you. Before WorkforceAP unlocks your Training Preassessment,
+                Your advisor started this account for you. Before WorkforceAP unlocks your Training Preassessment,
                 confirm your contact and referral details on your profile.
                 {starterProfileMissingLabels.length ? ` Missing now: ${starterProfileMissingLabels.join(', ')}.` : ''}
               </p>

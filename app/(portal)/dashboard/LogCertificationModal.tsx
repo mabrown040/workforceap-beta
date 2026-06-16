@@ -53,7 +53,7 @@ export default function LogCertificationModal() {
             Certification update
           </p>
           <p style={{ margin: '0.35rem 0 0', fontSize: '0.9rem', lineHeight: 1.45, color: 'var(--color-on-surface)' }}>
-            Finished a course or earned a credential? Add it here so your counselor can review it faster.
+            Finished a course or earned a credential? Add it here so your advisor can review it faster.
           </p>
         </div>
         <button

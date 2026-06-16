@@ -157,7 +157,7 @@ export default async function DashboardResourcesPage() {
             <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.625rem' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }} aria-hidden="true">support_agent</span>
-                <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Your Counselor</h3>
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--color-on-surface)', margin: 0 }}>Your Advisor</h3>
               </div>
               {counselorContact ? (
                 <>
@@ -169,8 +169,8 @@ export default async function DashboardResourcesPage() {
               ) : (
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: '0 0 0.75rem', lineHeight: 1.55 }}>
                   {dbUser?.enrolledAt
-                    ? 'Your counselor will reach out shortly — leave a message anytime.'
-                    : 'A counselor will be assigned as you move through enrollment.'}
+                    ? 'Your advisor will reach out shortly — leave a message anytime.'
+                    : 'An advisor will be assigned as you move through enrollment.'}
                 </p>
               )}
               <Link href="/dashboard/messages" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}>

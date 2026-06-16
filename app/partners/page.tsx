@@ -24,6 +24,9 @@ import { getRequestLocale } from '@/lib/i18n/server';
 import { withLocalePrefix } from '@/lib/i18n/config';
 import { getTranslations } from 'next-intl/server';
 import PartnerSignupForm from '@/components/partner/PartnerSignupForm';
+import { prisma } from '@/lib/db/prisma';
+import { getOutcomesSocialProof } from '@/lib/outcomes/socialProof';
+import { getSiteUrl } from '@/lib/seo/siteEnvironment';
 
 const PARTNER_LANES = ['partnerLane1', 'partnerLane2', 'partnerLane3', 'partnerLane4', 'partnerLane5'] as const;
 
@@ -40,6 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function PartnersPage() {
   const t = await getTranslations('marketing.partners');
   const locale = await getRequestLocale();
+  const socialProof = await getOutcomesSocialProof(prisma, { baseUrl: getSiteUrl() });
   const partnershipContactHref = `${withLocalePrefix('/contact', locale)}?topic=partnership`;
   const employersMarketingHref = withLocalePrefix('/employers', locale);
   const partnerSignupHref = `${withLocalePrefix('/partners', locale)}#partner-signup`;
@@ -204,6 +208,44 @@ export default async function PartnersPage() {
 
       {/* Stats band removed pre-launch — placeholder figures (450 / 83% / 340)
           would misrepresent results before any real partner data exists. */}
+
+      {socialProof.enabled && socialProof.partnerSnapshot ? (
+        <section aria-labelledby="partner-outcome-snapshot" style={{ padding: '4rem 0', background: 'var(--surface-container)' }}>
+          <div className="container" style={{ maxWidth: 'var(--max-width)' }}>
+            <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+              <p className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
+                Live partner outcomes
+              </p>
+              <h2 id="partner-outcome-snapshot" style={{ margin: '0 0 0.75rem', fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+                Referral snapshot from verified records
+              </h2>
+              <p style={{ margin: '0 0 1rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65 }}>
+                These counts come from the live partner referral and placement tables. Rates stay hidden until the denominator meets the outcomes methodology threshold.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-accent)' }}>{socialProof.partnerSnapshot.referrals}</p>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>partner referrals</p>
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-accent)' }}>{socialProof.partnerSnapshot.placements}</p>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>verified placements</p>
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-accent)' }}>{socialProof.partnerSnapshot.placementRate.label}</p>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-on-surface-variant)' }}>
+                    {socialProof.partnerSnapshot.placementRate.suppressed ? 'rate suppressed' : 'placement rate'}
+                  </p>
+                </div>
+              </div>
+              <p style={{ margin: '1rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+                {socialProof.methodologyNote}
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
 
       {/* ── How it works (3-step) ── */}
       <section style={{ padding: '5rem 0' }}>

@@ -16,6 +16,7 @@ This document defines every metric, the underlying Prisma query, and the rules a
 2. **Generation timestamp.** Every snapshot carries `generatedAt` in its header. A printed PDF without a recent timestamp is presumed stale.
 3. **No aspirational numbers.** Any metric described as "target," "goal," or "projected" lives in roadmap docs (e.g. `docs/workforceap-product-vision.md`), not in `/admin/outcomes` or its exports.
 4. **Data-quality flags.** Section 6 of every snapshot lists rows that exist in production but are missing fields a reviewer is likely to ask about. These are visible internally before any external review so we can fix them, not hide them.
+5. **Flagged public social proof.** Placement story cards, partner outcome snapshots, and partner referral badges are gated by `WORKFORCEAP_PUBLIC_OUTCOMES_SOCIAL_PROOF`. The flag is off by default. The surfaces render only live placement/referral records, never seeded or illustrative outcomes; if there are no real placements, the bundle is suppressed entirely.
 
 ---
 
@@ -91,7 +92,21 @@ Sorted by enrolled count, descending.
 
 These are the rows that, if a WIOA auditor asked about them, we couldn't answer. The expectation is that this section trends to zero over time.
 
----
+
+### 7. Public social-proof surfaces (flagged)
+
+When `WORKFORCEAP_PUBLIC_OUTCOMES_SOCIAL_PROOF` is true, `/outcomes` may render anonymized placement story cards and `/partners` may render an aggregate partner referral snapshot. Authenticated partner portal users may also see referral badge embed code for their real referral code.
+
+| Metric / card | Source | Public rule |
+|---|---|---|
+| Placement story cards | `placement_records` rows from the last two years with a non-empty `job_title` | PII stripped; no member names, employer names, or salary values; suppressed when there are zero real placements or enrolled N `< SMALL_SAMPLE_THRESHOLD` |
+| Partner referrals | Distinct non-deleted users from `partner_referrals` | Count only; no rate claim by itself |
+| Partner placements | Distinct `placement_records.user_id` for non-deleted users with partner referrals | Count only; no fake/seeded rows |
+| Partner placement rate | `partner placements / distinct referred members` | Suppressed when referrals `< SMALL_SAMPLE_THRESHOLD` and shown as `X of N` instead |
+| Referral badge link/embed | Generated from the authenticated partner's real referral code as `/apply?ref=<code>` | Tracking utility only; hidden unless the feature flag is enabled; does not make an outcome claim |
+
+These public surfaces are designed to stay dark in production until enough verified placements exist to support real social proof.
+
 
 ## Demographic breakdowns
 
@@ -138,6 +153,7 @@ If a funder asks for one of the above, the answer is: *"We have the schema field
 | Date | Change |
 |---|---|
 | 2026-05-07 | Initial methodology doc; `getBoardSnapshot()` shipped on branch `claude/workforce-app-stakeholder-alignment-S52it`. |
+| 2026-06-15 | Added flagged public social-proof methodology for placement story cards, partner snapshots, and referral badges. |
 
 ---
 

@@ -5,8 +5,10 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
 import { getPublicPlacementOutcomes, wilsonInterval } from '@/lib/outcomes/publicPlacementOutcomes';
+import { getOutcomesSocialProof } from '@/lib/outcomes/socialProof';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { getTranslations } from 'next-intl/server';
+import { getSiteUrl } from '@/lib/seo/siteEnvironment';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.outcomes');
@@ -22,6 +24,7 @@ export const revalidate = 3600;
 export default async function PublicOutcomesPage() {
   const t = await getTranslations('marketing.outcomes');
   const data = await getPublicPlacementOutcomes(prisma);
+  const socialProof = await getOutcomesSocialProof(prisma, { baseUrl: getSiteUrl() });
   const retentionWilson =
     data.totalPlaced > 0 ? wilsonInterval(data.withRetentionNote, data.totalPlaced) : null;
 
@@ -61,6 +64,42 @@ export default async function PublicOutcomesPage() {
               </p>
             ) : null}
           </div>
+
+          {socialProof.enabled && socialProof.storyCards.length > 0 ? (
+            <section aria-labelledby="placement-stories" style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.85rem' }}>
+                <div>
+                  <h2 id="placement-stories" className="text-display-sm" style={{ fontSize: '1.25rem', marginBottom: '0.35rem' }}>
+                    Verified placement stories
+                  </h2>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+                    PII-stripped cards pulled from live placement records. No seeded or illustrative outcomes are shown.
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '0.85rem' }}>
+                {socialProof.storyCards.map((story) => {
+                  const program = story.programSlug ? getProgramBySlug(story.programSlug)?.title ?? story.programSlug : 'Program not specified';
+                  return (
+                    <article key={story.id} className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+                      <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-accent)' }}>
+                        Verified placement
+                      </p>
+                      <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+                        {story.jobTitle}
+                      </h3>
+                      <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
+                        {program} · {story.placedAt.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      </p>
+                    </article>
+                  );
+                })}
+              </div>
+              <p style={{ margin: '0.85rem 0 0', fontSize: '0.82rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+                {socialProof.methodologyNote} See the admin outcomes methodology before using any claim externally.
+              </p>
+            </section>
+          ) : null}
 
           {programRows.length > 0 ? (
             <div style={{ marginBottom: '2rem' }}>

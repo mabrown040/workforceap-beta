@@ -8,17 +8,17 @@ import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
+/**
+ * Primary CTA for /employers hero — pipeline subscription LOI flow.
+ * Falls back to contact form if Stripe is not configured.
+ */
 export function getEmployerHiringPartnerCtaHref(): string {
-  const calendly =
-    process.env.NEXT_PUBLIC_EMPLOYER_CALENDLY_URL?.trim() ||
-    process.env.EMPLOYER_CALENDLY_URL?.trim();
-  if (calendly) return calendly;
-  return '/api/leads/employer';
+  // Pipeline subscription is the hero offer; send to LOI form
+  return '/employers/signup';
 }
 
 export function isEmployerHiringPartnerCtaExternal(): boolean {
-  const href = getEmployerHiringPartnerCtaHref();
-  return href.startsWith('http://') || href.startsWith('https://');
+  return false;
 }
 
 export function getEmployerPlacementFeeDisplay(): string {

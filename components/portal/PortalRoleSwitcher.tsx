@@ -36,7 +36,9 @@ export default function PortalRoleSwitcher({ userRoles, currentRole }: PortalRol
         className={styles['portal-role-switcher-trigger']}
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
-        aria-haspopup="true"
+        aria-haspopup="menu"
+        aria-controls="portal-role-switcher-menu"
+        aria-label="Switch workspace"
       >
         <span className={styles['portal-role-switcher-current']}>{currentRoleConfig?.roleLabel || currentRole}</span>
         <svg className={`${styles['portal-role-switcher-chevron']} ${isOpen ? styles['open'] : ''}`} width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -45,7 +47,7 @@ export default function PortalRoleSwitcher({ userRoles, currentRole }: PortalRol
       </button>
 
       {isOpen && (
-        <div className={styles['portal-role-switcher-dropdown']} role="menu">
+        <div id="portal-role-switcher-menu" className={styles['portal-role-switcher-dropdown']} role="menu">
           <div className={styles['portal-role-switcher-header']}>
             Switch workspace
           </div>

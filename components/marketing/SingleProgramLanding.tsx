@@ -1,5 +1,6 @@
 import { Program, getProgramDisplayTitle, getProgramDisplayPartner } from '@/lib/content/programs';
 import { getTranslations } from 'next-intl/server';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
@@ -17,11 +18,48 @@ interface Props {
   program: Program;
 }
 
+/** A/B headline variants for paid-traffic testing. Control = displayTitle. */
+const HEADLINE_VARIANTS: Record<string, string[]> = {
+  'it-support-professional-certificate-ibm': [
+    'Start Your IT Career — Free IBM Certificate',
+    'Free IT Support Training + IBM Credential',
+    'Get Job-Ready in IT (No Experience Needed)',
+  ],
+  'it-automation-with-python-google': [
+    'Learn Python for IT — Free Google Certificate',
+    'Free Python + IT Automation Training',
+    'Switch to Tech with Google\'s Free Program',
+  ],
+  'cybersecurity-professional-certificate-google': [
+    'Break Into Cybersecurity — Free Google Certificate',
+    'Free Cybersecurity Training + Career Coaching',
+    'Start a Cybersecurity Career (Zero Cost)',
+  ],
+  'data-analytics-professional-certificate-google': [
+    'Free Data Analytics Training — Google Certificate',
+    'Become a Data Analyst at No Cost',
+    'Google Data Analytics: Free for Austin Residents',
+  ],
+};
+
+function resolveHeadline(program: Program): { text: string; variant: string } {
+  const variants = HEADLINE_VARIANTS[program.slug];
+  if (!variants || variants.length === 0) {
+    return { text: getProgramDisplayTitle(program), variant: 'control' };
+  }
+  // In a real experiment, read from cookie / query param / feature flag.
+  // For now, deterministic assignment by day-of-month so Vary caching works.
+  const dayOfMonth = new Date().getDate();
+  const idx = dayOfMonth % variants.length;
+  return { text: variants[idx], variant: `v${idx}` };
+}
+
 export async function SingleProgramLanding({ program }: Props) {
   const t = await getTranslations('programs');
   const displayTitle = getProgramDisplayTitle(program);
   const displayPartner = getProgramDisplayPartner(program);
   const canonicalUrl = `https://www.workforceap.org/programs/${program.slug}`;
+  const headline = resolveHeadline(program);
 
   return (
     <div className="min-h-screen bg-white">
@@ -70,8 +108,10 @@ export async function SingleProgramLanding({ program }: Props) {
               </div>
 
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                {displayTitle}
+                {headline.text}
               </h1>
+              {/* A/B variant marker for analytics — hidden, readable by GTM/segment */}
+              <span data-ab-variant={headline.variant} data-ab-test="program-headline" className="hidden" aria-hidden="true" />
 
               <p className="text-lg text-slate-300 leading-relaxed max-w-xl">
                 {t('heroDescription', {

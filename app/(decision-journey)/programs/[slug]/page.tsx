@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: pageTitle,
     description,
     path: `/programs/${slug}`,
-    image: buildOgImageUrl(pageTitle, description),
+    image: `/api/og/program?slug=${slug}`,
   });
 }
 

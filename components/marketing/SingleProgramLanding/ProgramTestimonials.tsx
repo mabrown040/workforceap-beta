@@ -23,6 +23,11 @@ const TESTIMONIALS: Record<string, Array<{ name: string; role: string; quote: st
 export function ProgramTestimonials({ programSlug }: { programSlug: string }) {
   const testimonials = TESTIMONIALS[programSlug] || TESTIMONIALS['default'];
 
+  // Suppress section if fewer than 3 real testimonials
+  if (testimonials.length < 3) {
+    return null;
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {testimonials.map((t, i) => (

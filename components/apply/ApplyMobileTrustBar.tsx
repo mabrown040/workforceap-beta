@@ -9,7 +9,7 @@ export default async function ApplyMobileTrustBar() {
 
   return (
     <div className="apply-mobile-trust-bar" role="note" aria-label={t('mobileTrustBarAria')}>
-      <p className="apply-mobile-trust-bar__line">
+      <p className="apply-mobile-trust-bar__cues">
         <span className="apply-mobile-trust-bar__cue">
           <span className="apply-mobile-trust-bar__check" aria-hidden="true">
             ✓
@@ -25,19 +25,16 @@ export default async function ApplyMobileTrustBar() {
           </span>
           {t('mobileTrustBarNonprofit')}
         </span>
-        <span className="apply-mobile-trust-bar__sep" aria-hidden="true">
-          ·
-        </span>
-        <span className="apply-mobile-trust-bar__phone-wrap">
-          {t('questionsCall')}{' '}
-          <a
-            href={SUPPORT_PHONE_HREF}
-            className="apply-mobile-trust-bar__phone"
-            aria-label={t('mobileTrustBarPhoneAria', { phone: SUPPORT_PHONE_DISPLAY })}
-          >
-            {SUPPORT_PHONE_DISPLAY}
-          </a>
-        </span>
+      </p>
+      <p className="apply-mobile-trust-bar__support">
+        {t('questionsCall')}{' '}
+        <a
+          href={SUPPORT_PHONE_HREF}
+          className="apply-mobile-trust-bar__phone"
+          aria-label={t('mobileTrustBarPhoneAria', { phone: SUPPORT_PHONE_DISPLAY })}
+        >
+          {SUPPORT_PHONE_DISPLAY}
+        </a>
       </p>
     </div>
   );

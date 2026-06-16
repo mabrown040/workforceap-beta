@@ -1,46 +1,25 @@
--- Sprint 2 Compliance: FIX for failed migration 20260614180000
+-- Sprint 2 Compliance: RECOVERY for failed migration 20260616050000_s2_compliance_fix_xapi_org_null
 -- Date: 2026-06-16
 --
--- The previous migration failed because some xapi_statements rows could not
--- be backfilled (no matching actor_email or actor_identifier in users/cim).
--- This migration idempotently handles those edge cases.
+-- The previous migration failed because it referenced xs.actor_identifier — a column
+-- that does not exist on xapi_statements. The correct column is actor_account_name.
+-- This migration is idempotent and safe to run multiple times.
 --
--- ============================================
--- SECTION 1: Ensure GUC helpers are correct (idempotent)
--- ============================================
-
-CREATE OR REPLACE FUNCTION get_current_user_id()
-RETURNS TEXT AS $$
-BEGIN
-  RETURN NULLIF(COALESCE(current_setting('app.current_user_id', true), ''), '');
-EXCEPTION WHEN OTHERS THEN
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
-
-CREATE OR REPLACE FUNCTION get_current_org_id()
-RETURNS TEXT AS $$
-BEGIN
-  RETURN NULLIF(COALESCE(current_setting('app.current_org_id', true), ''), '');
-EXCEPTION WHEN OTHERS THEN
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
+-- Prerequisites: This migration assumes 20260616050000 has been marked as rolled-back
+-- or resolved in the _prisma_migrations table. If it hasn't, run:
+--   npx prisma migrate resolve --rolled-back 20260616050000_s2_compliance_fix_xapi_org_null
+-- before applying this migration.
 
 -- ============================================
--- SECTION 2: xapi_statements organization_id — safe backfill + NOT NULL
+-- SECTION 1: Ensure xapi_statements.organization_id exists
 -- ============================================
 
--- Add column if it doesn't exist (idempotent)
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'xapi_statements' AND column_name = 'organization_id'
-  ) THEN
-    ALTER TABLE xapi_statements ADD COLUMN organization_id TEXT;
-  END IF;
-END $$;
+ALTER TABLE IF EXISTS xapi_statements
+  ADD COLUMN IF NOT EXISTS organization_id TEXT;
+
+-- ============================================
+-- SECTION 2: Safe backfill using correct column name (actor_account_name)
+-- ============================================
 
 -- Backfill from coursera_identity_mappings (with NULL-safe joins)
 UPDATE xapi_statements xs
@@ -69,7 +48,7 @@ SET organization_id = (
 WHERE xs.organization_id IS NULL
   AND xs.actor_email IS NOT NULL;
 
--- Backfill from direct user lookup by actor_account_name
+-- Backfill from direct user lookup by actor_account_name (CORRECTED from actor_identifier)
 UPDATE xapi_statements xs
 SET organization_id = (
   SELECT u.organization_id
@@ -94,7 +73,7 @@ CREATE INDEX IF NOT EXISTS xapi_statements_organization_id_idx
 ON xapi_statements (organization_id);
 
 -- ============================================
--- SECTION 3: Ingest trigger (idempotent)
+-- SECTION 3: Ingest trigger (idempotent, corrected)
 -- ============================================
 
 CREATE OR REPLACE FUNCTION xapi_statement_ingest_org_check()
@@ -102,23 +81,27 @@ RETURNS TRIGGER AS $$
 DECLARE
   resolved_org_id TEXT;
 BEGIN
+  -- Allow if organization_id is already set (e.g., by the ingest pipeline)
   IF NEW.organization_id IS NOT NULL AND NEW.organization_id NOT LIKE 'unresolved-%' THEN
     RETURN NEW;
   END IF;
 
+  -- Resolve from coursera_identity_mappings
   SELECT u.organization_id INTO resolved_org_id
   FROM coursera_identity_mappings cim
   JOIN users u ON u.id = cim.user_id
-  WHERE NEW.actor_email IS NOT NULL
-    AND cim.coursera_email IS NOT NULL
-    AND LOWER(NEW.actor_email) = LOWER(cim.coursera_email)
+  WHERE (
+    (NEW.actor_email IS NOT NULL AND LOWER(NEW.actor_email) = LOWER(cim.coursera_email))
+    OR
+    (NEW.actor_account_name IS NOT NULL AND NEW.actor_account_name = cim.actor_identifier)
+  )
   LIMIT 1;
 
+  -- Fallback: direct user lookup
   IF resolved_org_id IS NULL AND NEW.actor_email IS NOT NULL THEN
     SELECT u.organization_id INTO resolved_org_id
     FROM users u
-    WHERE u.email IS NOT NULL
-      AND LOWER(u.email) = LOWER(NEW.actor_email)
+    WHERE LOWER(u.email) = LOWER(NEW.actor_email)
     LIMIT 1;
   END IF;
 
@@ -127,6 +110,7 @@ BEGIN
     RETURN NEW;
   END IF;
 
+  -- Reject if unresolvable — admin health dashboard will flag these
   RAISE EXCEPTION 'xAPI statement ingest rejected: cannot resolve organization_id for actor_email=%, actor_account_name=%',
     NEW.actor_email, NEW.actor_account_name;
 END;

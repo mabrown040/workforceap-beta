@@ -26,6 +26,7 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
       NODE_OPTIONS: "--max-old-space-size=4096"
+      RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"
 
     steps:
       - name: Checkout
@@ -96,3 +97,4 @@ jobs:
         run: npx next build
         env:
           SKIP_ENV_VALIDATION: "1"
+          RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"

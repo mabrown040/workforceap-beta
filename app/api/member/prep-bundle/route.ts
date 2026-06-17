@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { fetchInterviewPrepBundle } from '@/lib/member/interviewPrepBundle';
 
 /**
  * GET /api/member/prep-bundle
  * Returns the prep bundle data for display (no email sent).
  */
-export async function GET() {
+async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -29,3 +30,4 @@ export async function GET() {
   }
 }
 
+export const GET = withApiGuc(_GET);

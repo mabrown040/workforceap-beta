@@ -1,3 +1,4 @@
+import { withAnonymousGuc } from '@/lib/db/withRequestGuc';
 import { createMember } from '@/lib/member/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
@@ -155,7 +156,7 @@ export async function POST(request: NextRequest) {
     }
   
     try {
-      await createMember(user.id, data);
+      await withAnonymousGuc(() => createMember(user.id, data));
     } catch (err) {
       console.error('Signup member creation error:', err);
       await getSupabaseAdmin()

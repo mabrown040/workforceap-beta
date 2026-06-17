@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { buildWeeklyRecapEmailSummary } from '@/lib/recap/buildWeeklyRecapEmailSummary';
 import {
   weeklyRecapHtml,
@@ -15,6 +16,7 @@ import {
 import { brandedEmailLayout } from '@/lib/email/template';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 export const POST = withApiGuc(async (
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -25,13 +27,16 @@ export const POST = withApiGuc(async (
     try { await requireAdmin(user.id); } catch {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  
+
     const { id } = await params;
     const cron = CRON_REGISTRY.find(c => c.id === id);
     if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
-  
+
+    const superAdmin = await isSuperAdmin(user.id);
+    const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
     try {
-      const result = await simulateCron(id);
+      const result = await simulateCron(id, orgId);
       return NextResponse.json(result);
     } catch (e) {
       return NextResponse.json({ error: e instanceof Error ? e.message : 'Dry-run failed' }, { status: 500 });
@@ -52,18 +57,17 @@ type DryRunResult = {
   note?: string;
 };
 
-async function simulateCron(id: string): Promise<DryRunResult> {
+async function simulateCron(id: string, orgId: string | null): Promise<DryRunResult> {
   const cron = CRON_REGISTRY.find(c => c.id === id)!;
+  const orgFilter = orgId ? { organizationId: orgId } : {};
 
   switch (id) {
     case 'weekly-recap': {
       const weekStart = new Date();
       weekStart.setDate(weekStart.getDate() - weekStart.getDay() + (weekStart.getDay() === 0 ? -6 : 1));
       weekStart.setHours(0, 0, 0, 0);
-      // Mirror the production weekly-recap recipient filter: a user is
-      // eligible if they have ANY course_enrollments row OR the legacy
-      // `enrolledProgram` pointer is set (covers unmigrated users).
       const recipientWhere = {
+        ...orgFilter,
         deletedAt: null,
         OR: [
           { courseEnrollments: { some: {} } },
@@ -109,8 +113,9 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const recentlyActive = await prisma.$transaction((tx) => tx.memberEvent.groupBy({ by: ['userId'], where: { createdAt: { gte: sevenDaysAgo } } }));
       const activeUserIds = new Set(recentlyActive.map(r => r.userId));
+      const recipientWhere = { ...orgFilter, deletedAt: null, notificationsReminders: true, id: { notIn: [...activeUserIds] } };
       const members = await prisma.$transaction((tx) => tx.user.findMany({
-        where: { deletedAt: null, notificationsReminders: true, id: { notIn: [...activeUserIds] } },
+        where: recipientWhere,
         select: { email: true, fullName: true },
         take: 1,
       }));
@@ -120,7 +125,7 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       const html = brandedEmailLayout({ title: 'We Miss You', bodyHtml: body, ctaText: 'Resume Training', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,
-        recipientCount: await prisma.$transaction((tx) => tx.user.count({ where: { deletedAt: null, notificationsReminders: true, id: { notIn: [...activeUserIds] } } })),
+        recipientCount: await prisma.$transaction((tx) => tx.user.count({ where: recipientWhere })),
         sampleRecipient: sample ? { email: sample.email ?? '', name: sample.fullName } : null,
         subject: 'We Miss You at WorkforceAP',
         htmlPreview: html,
@@ -132,10 +137,8 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
       const recentActiveIds = await prisma.$transaction((tx) => tx.memberEvent.findMany({ take: 500, where: { createdAt: { gte: fourteenDaysAgo } }, select: { userId: true }, distinct: ['userId'] }));
       const activeSet = new Set(recentActiveIds.map(r => r.userId));
-      // Mirror the production inactivity-nudge recipient filter: a user
-      // is eligible if they have ANY course_enrollments row OR the legacy
-      // `enrolledProgram` pointer is set (covers unmigrated users).
       const recipientWhere = {
+        ...orgFilter,
         deletedAt: null,
         OR: [
           { courseEnrollments: { some: {} } },
@@ -165,8 +168,13 @@ async function simulateCron(id: string): Promise<DryRunResult> {
     case 'applicant-followup': {
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+      const appWhere = {
+        status: 'PENDING' as const,
+        submittedAt: { lte: threeDaysAgo },
+        user: { ...orgFilter, deletedAt: null, notificationsReminders: true },
+      };
       const staleApps = await prisma.$transaction((tx) => tx.application.findMany({
-        where: { status: 'PENDING', submittedAt: { lte: threeDaysAgo }, user: { deletedAt: null, notificationsReminders: true } },
+        where: appWhere,
         include: { user: { select: { id: true, email: true, fullName: true } } },
         take: 1,
       }));
@@ -174,9 +182,7 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       const firstName = sample?.fullName?.split(' ')[0] ?? 'Taylor';
       const body = applicantFollowupHtml({ firstName, expectedDate: 'May 9, 2026' });
       const html = brandedEmailLayout({ title: 'Application Update', bodyHtml: body, ctaText: 'Check Application Status', ctaUrl: '/dashboard' });
-      const totalCount = await prisma.$transaction((tx) => tx.application.count({
-        where: { status: 'PENDING', submittedAt: { lte: threeDaysAgo }, user: { deletedAt: null, notificationsReminders: true } },
-      }));
+      const totalCount = await prisma.$transaction((tx) => tx.application.count({ where: appWhere }));
       return {
         cronId: id, cronName: cron.name,
         recipientCount: totalCount,
@@ -218,8 +224,9 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       yesterday.setHours(0, 0, 0, 0);
+      const recipientWhere = { ...orgFilter, deletedAt: null, enrolledProgram: { not: null }, assessmentCompleted: true, assessmentCompletedAt: { gte: yesterday } };
       const members = await prisma.$transaction((tx) => tx.user.findMany({
-        where: { deletedAt: null, enrolledProgram: { not: null }, assessmentCompleted: true, assessmentCompletedAt: { gte: yesterday } },
+        where: recipientWhere,
         select: { email: true, fullName: true },
         take: 1,
       }));
@@ -229,7 +236,7 @@ async function simulateCron(id: string): Promise<DryRunResult> {
       const html = brandedEmailLayout({ title: 'Congratulations!', bodyHtml: body, ctaText: 'See Your Progress', ctaUrl: '/dashboard' });
       return {
         cronId: id, cronName: cron.name,
-        recipientCount: await prisma.$transaction((tx) => tx.user.count({ where: { deletedAt: null, enrolledProgram: { not: null }, assessmentCompleted: true, assessmentCompletedAt: { gte: yesterday } } })),
+        recipientCount: await prisma.$transaction((tx) => tx.user.count({ where: recipientWhere })),
         sampleRecipient: sample ? { email: sample.email ?? '', name: sample.fullName } : null,
         subject: 'Congratulations! You Completed IT Support Professional (Google)',
         htmlPreview: html,

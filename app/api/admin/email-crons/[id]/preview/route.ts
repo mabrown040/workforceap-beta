@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { CRON_REGISTRY } from '@/lib/admin/cronRegistry';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import type { CronPreviewRecipient, CronPreviewResponse } from '@/lib/admin/cronPreviewTypes';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 export type { CronPreviewRecipient, CronPreviewResponse };
 
-const PREVIEW_LIMIT = 50;export const GET = withApiGuc(async (
+const PREVIEW_LIMIT = 50;
+
+export const GET = withApiGuc(async (
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -19,13 +22,16 @@ const PREVIEW_LIMIT = 50;export const GET = withApiGuc(async (
     try { await requireAdmin(user.id); } catch {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  
+
     const { id } = await params;
     const cron = CRON_REGISTRY.find(c => c.id === id);
     if (!cron) return NextResponse.json({ error: 'Cron not found' }, { status: 404 });
-  
+
+    const superAdmin = await isSuperAdmin(user.id);
+    const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
     try {
-      const result = await getPreviewRecipients(id);
+      const result = await getPreviewRecipients(id, orgId);
       return NextResponse.json(result);
     } catch (e) {
       return NextResponse.json({ error: e instanceof Error ? e.message : 'Preview failed' }, { status: 500 });
@@ -36,8 +42,9 @@ const PREVIEW_LIMIT = 50;export const GET = withApiGuc(async (
   }
 });
 
-async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
+async function getPreviewRecipients(id: string, orgId: string | null): Promise<CronPreviewResponse> {
   const cron = CRON_REGISTRY.find(c => c.id === id)!;
+  const orgFilter = orgId ? { organizationId: orgId } : {};
 
   switch (id) {
     case 'weekly-recap': {
@@ -46,6 +53,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
       weekStart.setHours(0, 0, 0, 0);
       const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: {
+          ...orgFilter,
           deletedAt: null,
           enrolledProgram: { not: null },
           weeklyRecaps: { none: { weekStartDate: { gte: weekStart } } },
@@ -68,6 +76,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
       const activeUserIds = new Set(recentlyActive.map(r => r.userId));
       const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: {
+          ...orgFilter,
           deletedAt: null,
           notificationsReminders: true,
           id: { notIn: [...activeUserIds] },
@@ -92,6 +101,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
       const activeSet = new Set(recentActiveIds.map(r => r.userId));
       const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: {
+          ...orgFilter,
           deletedAt: null,
           enrolledProgram: { not: null },
           notificationsReminders: true,
@@ -113,7 +123,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
         where: {
           status: 'PENDING',
           submittedAt: { lte: threeDaysAgo },
-          user: { deletedAt: null, notificationsReminders: true },
+          user: { ...orgFilter, deletedAt: null, notificationsReminders: true },
         },
         include: { user: { select: { id: true, email: true, fullName: true } } },
         take: PREVIEW_LIMIT + 1,
@@ -161,6 +171,7 @@ async function getPreviewRecipients(id: string): Promise<CronPreviewResponse> {
       yesterday.setHours(0, 0, 0, 0);
       const members = await prisma.$transaction((tx) => tx.user.findMany({
         where: {
+          ...orgFilter,
           deletedAt: null,
           enrolledProgram: { not: null },
           assessmentCompleted: true,

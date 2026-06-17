@@ -10,6 +10,7 @@ import { InvitationStatus } from '@prisma/client';
 import { randomBytes } from 'crypto';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 const INVITE_EXPIRY_DAYS = 7;
@@ -129,7 +130,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       ? o.partnerId.trim()
       : null;
   const personalMessage =
-    typeof o.personalMessage === 'string' ? o.personalMessage.trim() || null : null;
+    typeof o.personalMessage === 'string' ? o.personalMessage.trim().slice(0, 1000) || null : null;
 
   if (!email) {
     return respondError('Email is required', 400);
@@ -229,6 +230,15 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
           : 'Student';
 
   const orgId = await getActorOrganizationId(user.id);
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'invite_sent',
+    object: { type: 'Invitation', id: invitation.id },
+    result: { success: true, extensions: { email, role: inviteRole } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] invite_sent:', err));
+
   const emailResult = await sendInvitationEmail({
     to: email,
     inviterName: invitation.invitedBy.fullName.trim() || 'A WorkforceAP admin',

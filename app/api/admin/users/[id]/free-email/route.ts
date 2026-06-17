@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { buildDeletedEmail, isDeletedEmail } from '../../_deletedEmail';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -20,7 +21,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
  * becomes `updateMany` so the proxy can scope the where clause.
  */
 async function _POST(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -58,6 +59,15 @@ async function _POST(
       data: { email: newEmail },
     }),
   );
+
+  logAuditEvent({
+    user: { id: actor.id, role: 'admin' },
+    verb: 'free_deleted_user_email',
+    object: { type: 'User', id },
+    result: { success: true, extensions: { originalEmail: target.email, newEmail } },
+    request: auditRequestMeta(req),
+    orgId,
+  }).catch((err) => console.error('[audit] free_deleted_user_email:', err));
 
   return NextResponse.json({ ok: true, originalEmail: target.email, currentEmail: newEmail });
 

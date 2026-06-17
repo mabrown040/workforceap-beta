@@ -1,13 +1,14 @@
 import { prisma } from '@/lib/db/prisma';
 import type { User, CourseProgress, UserCertification, MemberEvent } from '@prisma/client';
 
-export type StudentStatus = 'enrolled' | 'active' | 'completed' | 'dropped';
+export type StudentStatus = 'enrolled' | 'active' | 'completed' | 'dropped' | 'stale';
 
 export const STUDENT_STATUS_LABELS: Record<StudentStatus, string> = {
   enrolled: 'Enrolled',
   active: 'Active',
   completed: 'Completed',
   dropped: 'Dropped',
+  stale: 'Stale Training',
 };
 
 export interface StudentStatusContext {
@@ -105,6 +106,15 @@ export function buildStatusWhere(status: StudentStatus): Record<string, unknown>
       return {
         deletedAt: { not: null },
       };
+
+    case 'stale': {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      return {
+        deletedAt: null,
+        staleTrainingDetectedAt: { not: null, lte: sevenDaysAgo },
+      };
+    }
 
     default:
       return {};

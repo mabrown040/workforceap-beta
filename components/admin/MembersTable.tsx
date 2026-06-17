@@ -320,7 +320,11 @@ export default function MembersTable({
         certificationCount: m.coursesCompleted?.length ?? 0,
         recentEventCount: m.healthStatus === 'green' ? 1 : 0,
       });
-      const matchStatus = !statusFilterState || memberStatus === statusFilterState;
+      const matchStatus = !statusFilterState || (
+        statusFilterState === 'stale'
+          ? !!m.staleTrainingDetectedAt
+          : memberStatus === statusFilterState
+      );
       const matchPartner = !partnerFilter || (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
       const matchHealth = !healthFilter || m.healthStatus === healthFilter;
       const matchNotInCourse = !notInCourseFilter || isNotInCourse(m);
@@ -632,6 +636,7 @@ export default function MembersTable({
               <option value="active">Active (recent activity)</option>
               <option value="completed">Completed (certified)</option>
               <option value="dropped">Dropped (deleted)</option>
+              <option value="stale">Stale training (7d+)</option>
             </select>
           </label>
           <label className="admin-members-filter-field">

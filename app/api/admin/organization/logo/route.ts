@@ -34,6 +34,8 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     if (!['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(ext)) {
       return NextResponse.json({ error: 'Use PNG, JPG, WebP, or GIF' }, { status: 400 });
     }
+    const MIME: Record<string, string> = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif' };
+    const contentType = MIME[ext] ?? 'image/png';
 
     const supabase = getSupabaseAdmin();
     const path = `${organizationId}/logo.${ext}`;
@@ -41,7 +43,7 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
 
     const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
       upsert: true,
-      contentType: file.type || 'image/png',
+      contentType,
     });
 
     if (error) {

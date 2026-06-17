@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -200,9 +201,44 @@ export async function GET(request: NextRequest) {
 
     await auditLog({
       actorUserId: user.id,
-      action: 'export_members_csv',
-      targetType: 'user',
-      metadata: { count: filtered.length, filters: { search, program: programFilter, partner: partnerFilter, health: healthFilter, notInCourse, needsAttention } },
+      action: 'admin.export.members',
+      targetType: 'MemberRoster',
+      metadata: {
+        orgId,
+        rowCount: filtered.length,
+        truncated: members.length >= MAX_EXPORT,
+        filters: {
+          search: search || null,
+          program: programFilter || null,
+          partner: partnerFilter || null,
+          health: healthFilter || null,
+          notInCourse,
+          needsAttention,
+        },
+      },
+    });
+    await logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'exported',
+      object: { type: 'MemberRoster', id: 'members' },
+      result: {
+        success: true,
+        extensions: {
+          orgId,
+          rowCount: filtered.length,
+          truncated: members.length >= MAX_EXPORT,
+          filters: {
+            search: search || null,
+            program: programFilter || null,
+            partner: partnerFilter || null,
+            health: healthFilter || null,
+            notInCourse,
+            needsAttention,
+          },
+        },
+      },
+      request: auditRequestMeta(request),
+      orgId,
     });
 
     return new NextResponse(csv, {

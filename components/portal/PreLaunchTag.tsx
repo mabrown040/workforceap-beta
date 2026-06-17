@@ -66,7 +66,7 @@ export default function PreLaunchTag({ compact, showCard: controlledShow, onTogg
           </p>
           <p className={styles['card-footer']}>
             Have questions? <a href="mailto:contact@workforceap.org">Email us</a> or
-            call <a href="tel:+15125551234">(512) 555-1234</a>.
+            call <a href="tel:+15127771808">(512) 777-1808</a>.
           </p>
         </div>
       )}

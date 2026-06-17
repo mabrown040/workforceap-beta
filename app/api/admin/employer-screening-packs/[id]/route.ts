@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const patchSchema = z.object({
   isActive: z.boolean().optional(),
@@ -32,6 +33,7 @@ type RouteContext = { params: Promise<{ id: string }> };async function _PATCH(re
     where: { id },
     data: parsed.data,
   }));
+  void auditLog({ actorUserId: user.id, action: 'admin_employer_screening_pack_update', targetType: 'employerScreeningPack', targetId: id, metadata: parsed.data }).catch(() => {});
   return NextResponse.json({ pack });
 
   } catch (error) {
@@ -47,6 +49,7 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(_request: Request
 
   const { id } = await ctx.params;
   await prisma.$transaction((tx) => tx.employerScreeningPack.delete({ where: { id } }));
+  void auditLog({ actorUserId: user.id, action: 'admin_employer_screening_pack_delete', targetType: 'employerScreeningPack', targetId: id, metadata: {} }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

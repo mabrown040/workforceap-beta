@@ -5,10 +5,11 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
 import { interviewResponseSchema } from '@/lib/validation/aiInterview';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const MAX_QUESTIONS = 5;
 
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) {
@@ -129,3 +130,5 @@ Return ONLY a JSON object with these exact keys:
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

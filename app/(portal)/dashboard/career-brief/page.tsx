@@ -138,8 +138,11 @@ export default async function CareerBriefPage() {
               {t('trainingProgress') ?? 'Training Progress'}
             </p>
             <p className="portal-metric-card__hint">
-              {trainingProgress.completedCount}/{trainingProgress.totalCourses}{' '}
-              {t('coursesComplete') ?? 'courses complete'}
+              {t('coursesComplete', {
+                completed: trainingProgress.completedCount,
+                total: trainingProgress.totalCourses,
+                plural: trainingProgress.totalCourses === 1 ? '' : 's',
+              })}
             </p>
           </div>
         </Link>

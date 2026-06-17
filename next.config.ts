@@ -209,6 +209,10 @@ const nextConfig: NextConfig = {
       { source: '/find-your-path', destination: '/career-quiz', permanent: true },
       { source: '/:locale(en|es|fr|pt)/find-your-path', destination: '/:locale/career-quiz', permanent: true },
 
+      // Programs quiz redirect (fix for broken internal link)
+      { source: '/programs/quiz', destination: '/career-quiz', permanent: true },
+      { source: '/:locale(en|es|fr|pt)/programs/quiz', destination: '/:locale/career-quiz', permanent: true },
+
       // Short LP aliases for paid ad URLs
       { source: '/lp/google-it', destination: '/lp/google-it-automation', permanent: false },
 

@@ -1297,8 +1297,6 @@
     "partnerInsights": "Insights do parceiro",
     "assistantSpeaking": "O assistente está falando…",
     "assistantListening": "Ouvindo — faça sua pergunta",
-    "referredMembersDescription": "Todos os membros indicados pela sua organização.",
-    "outcomesSnapshotDescription": "Resultados de alto nível para suas indicações.",
     "placed": "Colocado",
     "memberReferrals": "Indicações de membros",
     "memberReferralsSubtitle": "Membros indicando outros membros — taxa de conversão de {conversionRate}%",
@@ -2106,6 +2104,12 @@
         "ctaCareers": "View careers page",
         "ctaHome": "Back to home"
       }
+    },
+    "about": {
+      "title": "About WorkforceAP",
+      "description": "WorkforceAP has spent 25+ years bridging the gap between education and industry, connecting skilled individuals with meaningful employment opportunities.",
+      "heading": "About WorkforceAP",
+      "subheading": "Advancing careers through employer-aligned training and career support."
     }
   },
   "findYourPath": {

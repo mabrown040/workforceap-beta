@@ -98,15 +98,16 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ## TODO-010: Sprint 3 — add withAuthGuc to all portal RSC pages (FORCE RLS prep)
 
-**What:** ~96 server-component pages across all portals call Prisma directly without wrapping their queries in `withAuthGuc()`. FORCE RLS will require the GUC context to be set on every connection; missing wrappers will cause 500s for all page loads when FORCE RLS is enabled.
+**What:** ~112 server-component pages across all portals call Prisma directly without wrapping their queries in `withAuthGuc()`. FORCE RLS will require the GUC context to be set on every connection; missing wrappers will cause 500s for all page loads when FORCE RLS is enabled.
 
 **Why:** When `app.current_user_id` / `app.current_org_id` are not set, PostgreSQL RLS policies evaluate as null = null (false), blocking all queries. These pages are the highest-traffic paths for every portal role.
 
 **Priority:** P1 (must complete before enabling FORCE RLS in Sprint 3)
 
-**Scope:** 96 pages identified 2026-06-17 by QA loop:
+**Scope:** ~112 pages identified 2026-06-17 by QA loop:
 - Admin (`app/admin/**/page.tsx`): **52 pages** — e.g. members, partners, employers, jobs, counselors, audit-logs
 - Member dashboard (`app/(portal)/dashboard/**/page.tsx`): **31 pages** — e.g. dashboard/page.tsx, assessment, career-library, ai-tools
+- Employer portal (`app/(portal)/employer/**/page.tsx`): **16 pages**
 - Counselor portal (`app/(portal)/counselor/**/page.tsx`): **7 pages** — e.g. counselor/page.tsx, guide, students
 - Partner portal (`app/(portal)/partner/**/page.tsx`): **6 pages** — e.g. partner/page.tsx, referred-members
 

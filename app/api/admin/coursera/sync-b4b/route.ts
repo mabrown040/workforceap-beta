@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { syncCourseraB4BEnrollmentReports } from '@/lib/coursera/b4bSync';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 async function requireAdminUser() {
@@ -19,7 +20,7 @@ async function requireAdminUser() {
  *
  * Auth: requires an active admin session (same as /admin/coursera).
  */
-export async function POST() {
+async function _POST() {
   try {
     const user = await requireAdminUser();
     if (!user) {
@@ -41,3 +42,4 @@ export async function POST() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

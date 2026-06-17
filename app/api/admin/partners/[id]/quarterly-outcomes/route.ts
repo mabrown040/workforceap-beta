@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import {
   generatePartnerQuarterlyOutcomes,
   getDefaultQuarter,
@@ -22,7 +23,7 @@ function parseYearParam(raw: string | null): number | null {
   return n;
 }
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function _GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getUser();
     if (!user) {
@@ -55,3 +56,4 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     );
   }
 }
+export const GET = withApiGuc(_GET);

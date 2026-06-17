@@ -108,6 +108,18 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-029: admin GUC batch 2 — 10 routes missing withApiGuc ✓ Fixed PR #1948
+
+**What:** Ten admin routes called Prisma without `withApiGuc`: `messages/stats`, `reports/quarterly-outcomes`, `onet/sync`, `jobs/[id]/matches`, `reports/wioa/generate`, `coursera/sync-b4b`, `coursera/map-unmatched`, `coursera/mappings`, `members/bulk-email`, `partners/[id]/quarterly-outcomes`.
+
+**Fix:** Added `withApiGuc` to all 10. PR #1948.
+
+**Priority:** P2 (Sprint 3 FORCE RLS blocker)
+
+**Status:** Fixed 2026-06-17.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.

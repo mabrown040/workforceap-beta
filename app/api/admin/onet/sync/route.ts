@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { syncOccupation, syncTopMappedOccupations } from '@/lib/onet/sync';
 
 const bodySchema = z.object({
@@ -9,7 +10,7 @@ const bodySchema = z.object({
   allMapped: z.boolean().optional(),
 });
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -57,3 +58,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export const POST = withApiGuc(_POST);

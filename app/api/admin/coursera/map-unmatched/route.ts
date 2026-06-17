@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 /**
@@ -16,7 +17,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  *      coursera_badge_progress rows for that email so the new mapping is
  *      reflected immediately on the admin page without needing a re-import.
  */
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -77,3 +78,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

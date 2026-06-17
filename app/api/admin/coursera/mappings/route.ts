@@ -9,6 +9,7 @@ import {
 import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 async function requireAdminUser() {
@@ -28,7 +29,7 @@ async function requireAdminContext() {
   };
 }
 
-export async function GET(request: Request) {
+async function _GET(request: Request) {
   try {
     const ctx = await requireAdminContext();
     if (!ctx) {
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
     const ctx = await requireAdminContext();
     if (!ctx) {
@@ -165,3 +166,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);
+export const POST = withApiGuc(_POST);

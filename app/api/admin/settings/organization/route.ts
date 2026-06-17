@@ -7,6 +7,7 @@ import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const hexColor = z
   .string()
@@ -76,6 +77,15 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: NextRequest) 
       overviewVideoUrl: true,
     },
   }));
+
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'update_organization_settings',
+    object: { type: 'Organization', id: organizationId },
+    result: { success: true, extensions: { fields: Object.keys(parsed.data).filter((k) => parsed.data[k as keyof typeof parsed.data] !== undefined) } },
+    request: auditRequestMeta(request),
+    orgId: organizationId,
+  }).catch((err) => console.error('[audit] update_organization_settings:', err));
 
   return NextResponse.json({
     ...org,

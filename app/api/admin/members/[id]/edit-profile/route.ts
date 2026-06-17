@@ -8,6 +8,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { invalidateMemberState } from '@/lib/member/getMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const schema = z.object({
   fullName: z.string().min(1).max(200).optional(),
@@ -84,6 +85,15 @@ const schema = z.object({
   
       // Invalidate cached member state so dashboard reflects changes immediately
       await invalidateMemberState(id);
+
+      logAuditEvent({
+        user: { id: admin.id, role: 'admin' },
+        verb: 'edit_member_profile',
+        object: { type: 'User', id },
+        result: { success: true, extensions: { fields: Object.keys(parsed.data) } },
+        request: auditRequestMeta(req),
+        orgId,
+      }).catch((err) => console.error('[audit] edit_member_profile:', err));
 
       return NextResponse.json({ success: true, user });
     } catch (e) {

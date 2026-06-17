@@ -120,8 +120,25 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-026: audit logs — feature flags, member edit-profile, WIOA review, org settings — ✓ Fixed
+
+**What:** Four state-mutating admin routes with no audit trail:
+- `PATCH /api/admin/feature-flags/[id]` and `DELETE /api/admin/feature-flags/[id]` — feature flag toggle/delete affects all users; no record of who changed what.
+- `PATCH /api/admin/members/[id]/edit-profile` — admin PII edits (name, phone, address) with no audit trail.
+- `PATCH /api/admin/members/[id]/wioa-review` — compliance-critical WIOA eligibility decisions with no audit trail.
+- `PATCH /api/admin/settings/organization` — org name/color/video changes with no audit trail.
+
+**Fix:** Added `logAuditEvent` calls (fire-and-forget with `.catch()`) to all four routes using the xAPI audit pattern from `@/lib/audit/log`. Feature flags DELETE now also captures the flag name before deletion.
+
+**Priority:** P2 (compliance audit trail)
+
+**Status:** Fixed 2026-06-17.
+
+---
+
 ## Completed
 
+- **TODO-026: audit logs — feature flags, edit-profile, WIOA review, org settings** — logAuditEvent added to all four routes. Completed 2026-06-17.
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.
 - **TODO-016: partner/dashboard missing withApiGuc** — GUC wrapper added. Completed 2026-06-17. PR #1867.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

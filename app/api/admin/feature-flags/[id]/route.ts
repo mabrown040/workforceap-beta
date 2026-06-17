@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
+async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -39,6 +42,16 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
       data: update,
     }));
 
+    const orgId = await getActorOrganizationId(user.id).catch(() => null);
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'update_feature_flag',
+      object: { type: 'FeatureFlag', id },
+      result: { success: true, extensions: { name: flag.name, enabled: flag.enabled } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] update_feature_flag:', err));
+
     return NextResponse.json({ flag });
   } catch (error) {
     console.error('[admin/feature-flags/[id] PATCH] error:', error);
@@ -46,7 +59,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
   }
 }
 export const PATCH = withApiGuc(_PATCH);async function _DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -57,7 +70,19 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
     }
 
     const { id } = await params;
+    const existing = await prisma.$transaction((tx) => tx.featureFlag.findUnique({ where: { id }, select: { name: true } }));
     await prisma.$transaction((tx) => tx.featureFlag.delete({ where: { id } }));
+
+    const orgId = await getActorOrganizationId(user.id).catch(() => null);
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'delete_feature_flag',
+      object: { type: 'FeatureFlag', id },
+      result: { success: true, extensions: { name: existing?.name ?? id } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] delete_feature_flag:', err));
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/feature-flags/[id] DELETE] error:', error);

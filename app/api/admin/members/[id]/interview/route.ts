@@ -5,6 +5,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
+import { auditLog } from '@/lib/audit';
+
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const bodySchema = z.object({
@@ -47,6 +49,14 @@ const bodySchema = z.object({
         },
       }));
     }
+
+    await auditLog({
+      actorUserId: admin.id,
+      action: 'member_interview_update',
+      targetType: 'user',
+      targetId: memberId,
+      metadata: { action: parsed.data.action },
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

@@ -6,6 +6,9 @@ import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { z } from 'zod';
 import { buildFeedbackUserScope } from '../_feedbackScope';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 const querySchema = z.object({
   type: z.enum(['training', 'counselor', 'platform', 'program', 'general']).optional(),
@@ -80,6 +83,22 @@ async function _GET(request: NextRequest) {
       items,
       { reportTitle: 'Member Feedback Export', notes: 'Workforce Advancement Project' },
     );
+
+    const orgId = await getActorOrganizationId(user.id).catch(() => null);
+    auditLog({
+      actorUserId: user.id,
+      action: 'admin.export.feedback',
+      targetType: 'MemberFeedbackExport',
+      metadata: { orgId, rowCount: items.length, filters: { type, rating, from, to } },
+    }).catch((err) => console.error('[admin/feedback/export] audit log failed:', err));
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'exported',
+      object: { type: 'MemberFeedbackExport', id: 'aggregate' },
+      result: { success: true, extensions: { orgId, rowCount: items.length } },
+      request: auditRequestMeta(request),
+      orgId: orgId ?? undefined,
+    }).catch((err) => console.error('[admin/feedback/export] xAPI audit log failed:', err));
 
     return csvDownloadResponse(csv, exportFilename('feedback'));
   } catch (error) {

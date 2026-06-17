@@ -76,7 +76,12 @@ function buildFallbackResume(params: {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
+
+    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    if (!withinLimit) {
+      return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+    }
+
     const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({
       where: { id: user.id },
       include: { profile: true },
@@ -157,24 +162,18 @@ function buildFallbackResume(params: {
           output = fallbackResume;
         }
       } else if (isAIConfigured()) {
-        const { success } = await checkAIToolRateLimit(user.id);
-        if (!success) {
+        const aiOutput = await chatCompletion(
+          [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userContent },
+          ],
+          { maxTokens: 2000, temperature: 0.5 }
+        );
+        if (!aiOutput) {
           fallbackUsed = true;
           output = fallbackResume;
         } else {
-          const aiOutput = await chatCompletion(
-            [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userContent },
-            ],
-            { maxTokens: 2000, temperature: 0.5 }
-          );
-          if (!aiOutput) {
-            fallbackUsed = true;
-            output = fallbackResume;
-          } else {
-            output = aiOutput;
-          }
+          output = aiOutput;
         }
       } else {
         fallbackUsed = true;

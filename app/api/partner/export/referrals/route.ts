@@ -3,8 +3,9 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
-
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 function csvEscape(value: string): string {
   if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
@@ -121,6 +122,21 @@ function csvEscape(value: string): string {
     const csv = `${brandingHeader}\r\n${lines.join('\r\n')}`;
     const suffix = preset === 'outcomes' ? 'outcomes' : preset === 'demographics' ? 'demographics' : 'referrals';
   
+    auditLog({
+      actorUserId: user.id,
+      action: 'partner.export.referrals',
+      targetType: 'PartnerReferralExport',
+      metadata: { partnerId: ctx.partnerId, orgId: ctx.partner.organizationId, preset: preset ?? 'base', rowCount: pipelineMembers.length },
+    }).catch((err) => console.error('[partner/export/referrals] audit log failed:', err));
+    logAuditEvent({
+      user: { id: user.id, role: 'partner' },
+      verb: 'exported',
+      object: { type: 'PartnerReferralExport', id: ctx.partnerId },
+      result: { success: true, extensions: { partnerId: ctx.partnerId, preset: preset ?? 'base', rowCount: pipelineMembers.length } },
+      request: auditRequestMeta(request),
+      orgId: ctx.partner.organizationId,
+    }).catch((err) => console.error('[partner/export/referrals] xAPI audit log failed:', err));
+
     return new NextResponse(csv, {
       status: 200,
       headers: {

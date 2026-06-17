@@ -108,6 +108,36 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## ~~TODO-031: member/resume/generate — rate limit bypass when Anthropic is configured~~ ✓ COMPLETED
+
+**What:** `app/api/member/resume/generate/route.ts` only called `checkAIToolRateLimit` inside the Groq (`isAIConfigured`) branch. When `isAnthropicConfigured()` is true (Anthropic is the primary provider), the rate check was bypassed and any member could trigger unlimited resume-generation requests.
+
+**Fix:** Moved `checkAIToolRateLimit(user.id)` to the top of the handler (before any AI branch), removed the redundant inner check from the Groq branch.
+
+**Completed:** 2026-06-17. PR #1961.
+
+---
+
+## ~~TODO-032: admin/feedback/export — missing PII audit trail~~ ✓ COMPLETED
+
+**What:** `app/api/admin/feedback/export/route.ts` exported member names, emails, and free-text comments (PII) without any `auditLog` or `logAuditEvent` call. §H-DEP4 requires audit trails on all PII exports.
+
+**Fix:** Added both `auditLog` and `logAuditEvent` (fire-and-forget) after CSV is built, before returning the download response.
+
+**Completed:** 2026-06-17. PR #1961.
+
+---
+
+## ~~TODO-033: partner/export/referrals — missing PII audit trail~~ ✓ COMPLETED
+
+**What:** `app/api/partner/export/referrals/route.ts` exported ethnicity, veteran status, employment status, education level, city/state/zip, and placement data (PII) in the demographics preset — no audit trail.
+
+**Fix:** Added `auditLog` + `logAuditEvent` (fire-and-forget) after CSV is built, capturing partnerId, orgId, preset type, and row count.
+
+**Completed:** 2026-06-17. PR #1961.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.

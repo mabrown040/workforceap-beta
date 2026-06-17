@@ -8,7 +8,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const updateSchema = z.object({
   status: z.enum(['pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected']),
-  employerNotes: z.string().optional(),
+  employerNotes: z.string().max(5000).optional(),
   interviewScheduledAt: z.string().datetime().optional().nullable(),
 });export const PATCH = withApiGuc(async (
   request: NextRequest,

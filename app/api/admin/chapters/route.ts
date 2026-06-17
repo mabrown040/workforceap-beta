@@ -9,12 +9,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 const chapterSchema = z.object({
   name: z.string().min(1).max(100),
   slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
-  city: z.string().optional(),
-  state: z.string().optional(),
+  city: z.string().max(100).optional(),
+  state: z.string().max(100).optional(),
   leaderId: z.string().uuid().optional(),
-  meetingSchedule: z.string().optional(),
-  meetingLocation: z.string().optional(),
-  curriculumNotes: z.string().optional(),
+  meetingSchedule: z.string().max(500).optional(),
+  meetingLocation: z.string().max(500).optional(),
+  curriculumNotes: z.string().max(5000).optional(),
 });
 
 /** List all chapters for admin */

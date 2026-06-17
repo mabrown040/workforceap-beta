@@ -142,6 +142,26 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-038: upload routes — derive Supabase contentType from validated extension — ✓ Fixed PR #1966
+
+**What:** 4 upload routes (cert upload, admin upload-resume, member resume upload, counselor upload-resume) passed browser-supplied `file.type` as `contentType` to Supabase. Attacker could tag any upload with `text/html`, causing Supabase to serve it with that header.
+
+**Fixed:** PR #1966. All 4 routes now derive MIME from validated extension (matching logos fix in PR #1964).
+
+**Status:** Completed 2026-06-17. PR #1966 open / gate-merge pending.
+
+---
+
+## TODO-039: audit logs for deferred TODO-021 admin routes — ✓ Fixed PR #1967
+
+**What:** 3 state-mutating admin routes from TODO-021 deferred list: `admin/messages/thread/[threadId]/staff POST` (staff message creation), `admin/users/[id]/free-email POST` (PII email mutation), `admin/members/[id]/interview PATCH` (interview status update).
+
+**Fixed:** PR #1967. Both `auditLog` + `logAuditEvent` (fire-and-forget) added to all 3 routes.
+
+**Status:** Completed 2026-06-17. PR #1967 open / gate-merge pending.
+
+---
+
 ## TODO-036: admin/blog AI routes — rate limits + withApiGuc + logo MIME — ✓ Fixed PR #1964
 
 **What:** All 5 admin blog AI endpoints (`generate`, `suggest-topics`, `from-ideas`, `review`, `draft`) called `chatCompletion` without `checkAIToolRateLimit`. `review` and `generate` also missing `withApiGuc`. Both logo upload routes used browser-supplied `file.type` as Supabase `contentType` instead of deriving from validated extension.

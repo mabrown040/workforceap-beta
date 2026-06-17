@@ -5,7 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getPipelineStage, type PipelineStudent } from '@/lib/pipeline/stage';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async () => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

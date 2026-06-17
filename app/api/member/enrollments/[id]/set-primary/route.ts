@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ) => {

@@ -4,7 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { runMentorStatusUpdate } from '@/lib/admin/mentorStatusUpdate';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const PATCH = withApiGuc(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

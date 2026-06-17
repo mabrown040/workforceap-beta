@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const PATCH = withApiGuc(async (
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) => {

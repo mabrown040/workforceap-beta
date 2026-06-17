@@ -9,7 +9,8 @@ import { checkAuthRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async (request: Request) => {
   try {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkAuthRateLimit(`check-mfa-required:${ip}`);

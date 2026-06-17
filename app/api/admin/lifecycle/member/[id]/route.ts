@@ -4,7 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async (
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {

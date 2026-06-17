@@ -12,7 +12,8 @@ import { getSupabaseEnv } from '@/lib/supabase/env';
 import { logger } from '@/lib/observability/logger';
 import { trackEvent } from '@/lib/events/track';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (request: Request) => {
   try {
   let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
   try {

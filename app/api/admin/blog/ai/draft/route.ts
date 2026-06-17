@@ -5,7 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { webSearch, isWebSearchConfigured } from '@/lib/ai/blogAI';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

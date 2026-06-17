@@ -11,7 +11,8 @@ import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 import { prefillSalaryNegotiation } from '@/lib/ai/prefillFromMemberState';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { parsePrefillTargetSalary } from '@/lib/ai/salaryNegotiationSalary';
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

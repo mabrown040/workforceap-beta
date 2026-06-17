@@ -6,7 +6,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const PATCH = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const PATCH = withApiGuc(async (
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) => {

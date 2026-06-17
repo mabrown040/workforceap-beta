@@ -3,7 +3,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getStripe, getStripeWebhookSecret } from '@/lib/stripe/client';
 import type Stripe from 'stripe';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: NextRequest) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const payload = await request.text();
     const sig = request.headers.get('stripe-signature') || '';

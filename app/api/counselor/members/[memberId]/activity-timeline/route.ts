@@ -4,7 +4,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async (
   req: Request,
   { params }: { params: Promise<{ memberId: string }> }
 ) => {

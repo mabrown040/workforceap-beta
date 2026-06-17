@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { requireAdminOrCounselor } from '@/lib/auth/roles';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async (req: Request) => {
   try {
     const auth = await requireAdminOrCounselor(req);
     if (!auth.ok) {

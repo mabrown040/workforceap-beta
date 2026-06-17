@@ -9,7 +9,8 @@ import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { isDeletedEmailMarker, parseDeletedEmail } from '../../_deletedEmail';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) => {

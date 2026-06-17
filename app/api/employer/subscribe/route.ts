@@ -7,12 +7,13 @@ import { getStripeCustomer } from '@/lib/stripe/customer';
 import { getStripePriceId } from '@/lib/stripe/pricing';
 import { prisma } from '@/lib/db/prisma';
 import { getProfileRole } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const subscribeSchema = z.object({
   tier: z.enum(['starter', 'growth', 'enterprise']),
 });
 
-export async function POST(req: NextRequest) {
+async function _POST(req: NextRequest) {
   const user = await getUser();
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -94,3 +95,4 @@ export async function POST(req: NextRequest) {
     portalUrl: '/employer/billing',
   });
 }
+export const POST = withApiGuc(_POST);

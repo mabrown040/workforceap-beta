@@ -67,6 +67,14 @@ function getPasswordStrengthScore(password: string): number {
   return score; // 0-4
 }
 
+function formatPhoneInput(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length === 0) return '';
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 export default function ApplyCreateAccountForm() {
   const t = useTranslations('apply');
   const tForm = useTranslations('form');
@@ -83,6 +91,7 @@ export default function ApplyCreateAccountForm() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [addressLine1, setAddressLine1] = useState('');
   const [addressLine2, setAddressLine2] = useState('');
   const [city, setCity] = useState('');
@@ -335,6 +344,9 @@ export default function ApplyCreateAccountForm() {
       nextFieldErrors.phone = t('errPhoneRequired');
     } else if (phoneDigits.length < 10) {
       nextFieldErrors.phone = t('errPhoneDigits');
+    }
+    if (phoneError) {
+      nextFieldErrors.phone = phoneError;
     }
     if (zip.trim() && !isValidPostalCode(zip)) {
       nextFieldErrors.zip = t('errZipFormat');
@@ -707,18 +719,37 @@ export default function ApplyCreateAccountForm() {
             id="phone"
             type="tel"
             inputMode="tel"
+            placeholder="(512) 555-0100"
             value={phone}
             onChange={(e) => {
-              setPhone(e.target.value);
+              const formatted = formatPhoneInput(e.target.value);
+              setPhone(formatted);
               if (fieldErrors.phone) setFieldErrors((f) => ({ ...f, phone: undefined }));
+              if (phoneError) {
+                const digits = formatted.replace(/\D/g, '');
+                if (digits.length >= 10) setPhoneError('');
+              }
+            }}
+            onBlur={() => {
+              const digits = phone.replace(/\D/g, '');
+              if (digits.length > 0 && digits.length < 10) {
+                setPhoneError(t('errPhoneDigits'));
+              } else {
+                setPhoneError('');
+              }
             }}
             autoComplete="tel"
             required
             aria-required="true"
-            aria-invalid={!!fieldErrors.phone}
-            aria-describedby={fieldErrors.phone ? 'phone-error' : 'phone-hint'}
+            aria-invalid={!!fieldErrors.phone || !!phoneError}
+            aria-describedby={fieldErrors.phone ? 'phone-error' : phoneError ? 'phone-inline-error' : 'phone-hint'}
           />
           <p id="phone-hint" className="apply-field-hint">{t('accountPhoneFieldHint')}</p>
+          {phoneError && (
+            <p id="phone-inline-error" className="form-error" role="alert">
+              {phoneError}
+            </p>
+          )}
           {fieldErrors.phone ? <p id="phone-error" className="form-error" role="alert">{fieldErrors.phone}</p> : null}
         </div>
       </div>

@@ -64,6 +64,8 @@ const KNOWN_VITEST_SPECS = new Set([
   'lib/marketing/trustStripMetrics.test.ts',
   'lib/marketing/googleItSupportLanding.test.ts',
   'lib/member/nextBestActions.test.ts',
+  'lib/member/dashboardTabs.test.ts',
+  'lib/member/getMemberState.test.ts',
   'lib/member/streaks.test.ts',
   'lib/member/xapiVerbProgress.test.ts',
   'lib/retention/cleanup.test.ts',

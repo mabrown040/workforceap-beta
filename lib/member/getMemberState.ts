@@ -53,6 +53,9 @@ export type MemberState = {
   careerRecommendation: CareerMatchResult | null;
   inferredTargetRole: string | null;
 
+  // First-cert milestone progress (0–100)
+  firstCertProgressPercent: number;
+
   // Derived
   checklist: MemberChecklist;
   nextBestActions: NextBestAction[];
@@ -274,6 +277,32 @@ async function _getMemberStateUncached(
   });
 
   const completedCount = trainingView?.completedCount ?? 0;
+  const totalCourses = trainingView?.totalCourses ?? 0;
+
+  // ── First-cert milestone progress ──
+  // Blends assessment completion + course progress toward the first cert.
+  // Two steps: (1) assessment, (2) first course complete.
+  // If there are multiple courses, course progress is the % of courses
+  // completed capped at the first-cert boundary (i.e. 100% when first
+  // course is done, not when the whole program is done).
+  let firstCertProgressPercent = 0;
+  if (user.assessmentCompleted) {
+    if (trainingView?.hasCompletedFirstCourse) {
+      firstCertProgressPercent = 100;
+    } else if (totalCourses > 0) {
+      // Assessment done = 50% base; remaining 50% from first-course progress.
+      // Use per-course progress % for the first incomplete course if available.
+      const firstIncompletePct = trainingView?.progressPercentDisplay ?? 0;
+      firstCertProgressPercent = 50 + Math.round((firstIncompletePct / 100) * 50);
+    } else {
+      // Assessment done but no course catalog yet — show 50%.
+      firstCertProgressPercent = 50;
+    }
+  } else if (latestApplication) {
+    // Application submitted but assessment not done — show 25% as a nudge.
+    firstCertProgressPercent = 25;
+  }
+
   const checklist: MemberChecklist = {
     createAccount: true,
     chooseProgram: !!user.enrolledProgram,
@@ -333,6 +362,7 @@ async function _getMemberStateUncached(
     weeklyRecapUnopened: engagement.weeklyRecapUnopened,
     careerRecommendation,
     inferredTargetRole,
+    firstCertProgressPercent,
     checklist,
     nextBestActions,
     stateLetter,

@@ -160,6 +160,7 @@ function CopyButton({ text }: { text: string }) {
           setTimeout(() => setCopied(false), 1800);
         });
       }}
+      aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
       style={{
         marginTop: '0.4rem',
         background: 'none',
@@ -807,6 +808,7 @@ function PhaseResult({
             type="button"
             className="btn btn-primary"
             onClick={onContinue}
+            aria-label="Continue"
             style={{ fontSize: '0.92rem' }}
           >
             Continue →

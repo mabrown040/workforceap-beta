@@ -168,7 +168,7 @@ export async function POST(request: Request) {
   
         const verb = parsed.verbId?.trim() || 'unknown';
   
-        const persisted = await persistXapiStatement({
+        const { result: persisted, statementHash } = await persistXapiStatement({
           statementId: parsed.statementId,
           actorEmail: parsed.email,
           actorAccountName: parsed.actorIdentifier,
@@ -188,7 +188,7 @@ export async function POST(request: Request) {
         // Duplicate statementId: skip only after prior side effects completed.
         if (persisted === 'already_processed') continue;
   
-        const { completions: batch } = await handleInboundParsedStatement(parsed, { organizationId });
+        const { completions: batch } = await handleInboundParsedStatement(parsed, { organizationId, statementHash });
         completions.push(...batch);
         statementsHandled += 1;
       } catch (err) {

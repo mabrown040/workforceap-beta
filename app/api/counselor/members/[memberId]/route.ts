@@ -12,7 +12,8 @@ import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCa
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async (
   _request: NextRequest,
   { params }: { params: Promise<{ memberId: string }> },
 ) => {

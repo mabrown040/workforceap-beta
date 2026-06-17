@@ -43,10 +43,10 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem' }: Memb
           >
             {t('doThisNext')}
           </p>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.25 }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
             {action.title}
           </h2>
-          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)', margin: 0, lineHeight: 1.55 }}>
+          <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.9)', margin: 0, lineHeight: 1.55, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
             {action.body}
           </p>
           <Link
@@ -79,6 +79,11 @@ export default function MemberDoThisNextCard({ action, paddingX = '2rem' }: Memb
               fontWeight: 700,
               border: 'none',
               textDecoration: 'none',
+              maxWidth: '100%',
+              boxSizing: 'border-box',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
           >
             {action.cta}

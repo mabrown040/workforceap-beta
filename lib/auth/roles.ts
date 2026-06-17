@@ -137,6 +137,11 @@ export type PartnerPortalContext = {
     /** Taxonomy used to gate payout UI/APIs. See `lib/partner/partnerType`. */
     partnerType: string;
   };
+  /** Org-level branding colors (primary + accent/secondary). */
+  orgBranding: {
+    primaryColor: string | null;
+    accentColor: string | null;
+  };
   /** User has a real `partner_users` row (not super-admin viewing first partner). */
   hasDirectPartnerLink: boolean;
 };
@@ -151,6 +156,18 @@ const PARTNER_BRANDING_SELECT = {
   partnerType: true,
 } as const;
 
+async function getOrgBranding(organizationId: string): Promise<{ primaryColor: string | null; accentColor: string | null }> {
+  try {
+    const org = await prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: { primaryColor: true, accentColor: true },
+    });
+    return { primaryColor: org?.primaryColor ?? null, accentColor: org?.accentColor ?? null };
+  } catch {
+    return { primaryColor: null, accentColor: null };
+  }
+}
+
 export async function getPartnerForUser(
   userId: string,
   options?: { isSuperAdminHint?: boolean }
@@ -162,7 +179,8 @@ export async function getPartnerForUser(
   if (row) {
     if (!row.partner.active) return null;
     const { active: _a, ...partner } = row.partner;
-    return { partnerId: row.partnerId, partner, hasDirectPartnerLink: true };
+    const orgBranding = await getOrgBranding(partner.organizationId);
+    return { partnerId: row.partnerId, partner, orgBranding, hasDirectPartnerLink: true };
   }
   const superUser = options?.isSuperAdminHint ?? (await isSuperAdmin(userId));
   if (superUser) {
@@ -173,7 +191,10 @@ export async function getPartnerForUser(
         where: { id: fromCookie, active: true },
         select: PARTNER_BRANDING_SELECT,
       });
-      if (byCookie) return { partnerId: byCookie.id, partner: byCookie, hasDirectPartnerLink: false };
+      if (byCookie) {
+        const orgBranding = await getOrgBranding(byCookie.organizationId);
+        return { partnerId: byCookie.id, partner: byCookie, orgBranding, hasDirectPartnerLink: false };
+      }
     }
 
     const fallbackPartner = await prisma.partner.findFirst({
@@ -181,14 +202,17 @@ export async function getPartnerForUser(
       select: PARTNER_BRANDING_SELECT,
     });
     if (fallbackPartner) {
-      return { partnerId: fallbackPartner.id, partner: fallbackPartner, hasDirectPartnerLink: false };
+      const orgBranding = await getOrgBranding(fallbackPartner.organizationId);
+      return { partnerId: fallbackPartner.id, partner: fallbackPartner, orgBranding, hasDirectPartnerLink: false };
     }
 
     const ensuredFallbackPartner = await ensureSuperAdminFallbackPartner();
     if (ensuredFallbackPartner) {
+      const orgBranding = await getOrgBranding(ensuredFallbackPartner.organizationId);
       return {
         partnerId: ensuredFallbackPartner.id,
         partner: { ...ensuredFallbackPartner, logoUrl: null, brandColor: null },
+        orgBranding,
         hasDirectPartnerLink: false,
       };
     }
@@ -199,7 +223,8 @@ export async function getPartnerForUser(
       select: PARTNER_BRANDING_SELECT,
     });
     if (anyActivePartner) {
-      return { partnerId: anyActivePartner.id, partner: anyActivePartner, hasDirectPartnerLink: false };
+      const orgBranding = await getOrgBranding(anyActivePartner.organizationId);
+      return { partnerId: anyActivePartner.id, partner: anyActivePartner, orgBranding, hasDirectPartnerLink: false };
     }
 
     return null;

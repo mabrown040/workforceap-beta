@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import type { NavBadgeKey } from '@/lib/nav/portalNav';
+import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 
 type NotificationItem = {
   id: string;
@@ -111,6 +112,7 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [lastFetch, setLastFetch] = useState(0);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const dropRef = useRef<HTMLDivElement>(null);
 
   const badges = externalBadges ?? selfBadges;
@@ -119,12 +121,16 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
     if (role !== 'member') return;
     try {
       setLoading(true);
-      const r = await fetch('/api/member/notifications?limit=10', { credentials: 'include' });
+      setFetchError(null);
+      const r = await fetch('/api/member/notifications?limit=5', { credentials: 'include' });
       if (r.ok) {
         const data = await r.json() as { notifications: NotificationItem[]; unreadCount: number };
         setDbNotifications(data.notifications);
         setDbUnreadCount(data.unreadCount);
         setLastFetch(Date.now());
+      } else if (r.status === 429) {
+        const msg = await getErrorMessageFromResponse(r);
+        setFetchError(msg);
       }
     } catch {
       /* non-fatal */
@@ -136,11 +142,15 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
   const fetchBadges = useCallback(async () => {
     if (externalBadges || role === 'member') return;
     try {
+      setFetchError(null);
       const r = await fetch(`/api/portal/nav-badges?role=${encodeURIComponent(role)}`, { credentials: 'include' });
       if (r.ok) {
         const data = await r.json() as Partial<Record<NavBadgeKey, number>>;
         setSelfBadges(data);
         setLastFetch(Date.now());
+      } else if (r.status === 429) {
+        const msg = await getErrorMessageFromResponse(r);
+        setFetchError(msg);
       }
     } catch {
       /* non-fatal */
@@ -236,7 +246,17 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
       <button
         type="button"
         className="portal-icon-btn"
-        onClick={() => { setOpen(o => !o); if (!open && Date.now() - lastFetch > 10_000) { if (role === 'member') void fetchDbNotifications(); else void fetchBadges(); } }}
+        onClick={() => {
+          const willOpen = !open;
+          setOpen(willOpen);
+          if (willOpen) {
+            if (role === 'member' && dbUnreadCount > 0) void markAllRead();
+            if (Date.now() - lastFetch > 10_000) {
+              if (role === 'member') void fetchDbNotifications();
+              else void fetchBadges();
+            }
+          }
+        }}
         aria-label={totalUnread > 0 ? `${totalUnread} notification${totalUnread !== 1 ? 's' : ''}` : 'Notifications'}
         aria-expanded={open}
         style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '2.25rem', height: '2.25rem', borderRadius: '0.5rem', background: open ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)' : 'transparent', border: 'none', cursor: 'pointer', color: totalUnread > 0 ? 'var(--color-accent)' : 'var(--color-on-surface-variant)', transition: 'background 0.15s' }}
@@ -270,12 +290,19 @@ export default function NotificationBell({ badges: externalBadges }: { badges?: 
             )}
           </div>
 
+          {fetchError && (
+            <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(173,44,77,0.08)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', color: 'var(--color-accent)' }}>error</span>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-accent)', fontWeight: 600 }}>{fetchError}</p>
+            </div>
+          )}
+
           {isDbMode ? (
             loading && dbNotifications.length === 0 ? (
               <div style={{ padding: '1.5rem 1rem', textAlign: 'center' }}>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>Loading…</p>
               </div>
-            ) : dbNotifications.length === 0 ? (
+            ) : dbNotifications.length === 0 && !fetchError ? (
               <div style={{ padding: '1.5rem 1rem', textAlign: 'center' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '1.75rem', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.5rem', fontVariationSettings: "'FILL' 1" }}>notifications_none</span>
                 <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>All caught up</p>

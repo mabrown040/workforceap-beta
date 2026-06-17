@@ -3,7 +3,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { sanitizePublicPartnerLabel, sanitizePublicSubgroupLabel } from '@/lib/public/publicDataFilters';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (request: NextRequest) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');

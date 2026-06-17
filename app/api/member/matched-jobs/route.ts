@@ -12,7 +12,8 @@ import {
 } from '@/lib/ai/matchWeights';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -40,6 +41,14 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     const jobs = await prisma.$transaction((tx) => tx.job.findMany({
       where: {
         status: 'live',
+        AND: [
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gte: new Date() } },
+            ],
+          },
+        ],
       },
       include: {
         employer: { select: { companyName: true } },

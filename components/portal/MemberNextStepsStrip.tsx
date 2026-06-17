@@ -190,6 +190,11 @@ export default function MemberNextStepsStrip({
                 color: 'var(--color-on-surface)',
                 lineHeight: 1.3,
                 paddingRight: isFeatured ? '0' : '1.5rem',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
               }}
             >
               {a.title}
@@ -202,6 +207,11 @@ export default function MemberNextStepsStrip({
                 margin: 0,
                 flex: 1,
                 maxWidth: isFeatured ? '42rem' : undefined,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
               }}
             >
               {a.body}
@@ -223,6 +233,11 @@ export default function MemberNextStepsStrip({
                 padding: compact ? '0.5rem 0.85rem' : isFeatured ? '0.65rem 1.1rem' : '0.55rem 1rem',
                 textDecoration: 'none',
                 marginTop: '0.25rem',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
               }}
             >
               {a.cta}

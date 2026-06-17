@@ -29,6 +29,7 @@ const jobCreateSchema = z.object({
   preferredCertifications: z.array(z.string()).default([]),
   suggestedPrograms: z.array(z.string()).default([]),
   status: z.enum(['draft', 'pending', 'live']).default('draft'),
+  expiresAt: z.string().datetime().optional().nullable(),
 });async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
@@ -39,6 +40,7 @@ const jobCreateSchema = z.object({
   
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get('filter') || 'all';
+    const locationType = searchParams.get('locationType');
   
     const where: Prisma.JobWhereInput = { employerId: ctx.employerId };
     switch (filter) {
@@ -54,6 +56,9 @@ const jobCreateSchema = z.object({
       case 'draft':
         where.status = { in: ['draft'] };
         break;
+    }
+    if (locationType && ['remote', 'hybrid', 'onsite'].includes(locationType)) {
+      where.locationType = locationType as 'remote' | 'hybrid' | 'onsite';
     }
   
     const employerScope = await prisma.$transaction((tx) => tx.employer.findUnique({

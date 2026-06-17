@@ -1,35 +1,164 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { getWeeklyRecapCohortStats } from '@/lib/admin/cohortAnalytics';
+import { getWeeklyRecapCohortStats, getWeeklyScoreboardStats } from '@/lib/admin/cohortAnalytics';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import DataTable from '@/components/portal/ui/DataTable';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-    title: 'Weekly recap analytics',
-    description: 'Weekly recap engagement by cohort.',
+    title: 'Weekly scoreboard',
+    description: 'Weekly counselor performance, funnel velocity, and recap analytics.',
     path: '/admin/weekly-recap',
   });
 }
+
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(date);
+}
+
+function formatDelta(delta: number, pct: number | null): string {
+  const sign = delta > 0 ? '+' : '';
+  if (pct == null) return `${sign}${delta} vs last week`;
+  return `${sign}${delta} (${pct > 0 ? '+' : ''}${pct}%) vs last week`;
+}
+
+function formatDays(days: number | null): string {
+  return days == null ? '—' : `${days} day${days === 1 ? '' : 's'}`;
+}
+
+function formatLastActivity(date: Date | null): string {
+  return date ? formatDate(date) : 'No tracked activity';
+}
+
+const SCOREBOARD_METRICS = [
+  { key: 'applicationsReviewed', label: 'Applications reviewed' },
+  { key: 'approvals', label: 'Approvals' },
+  { key: 'enrollments', label: 'Enrollments' },
+  { key: 'messagesSent', label: 'Messages sent' },
+] as const;
 
 export default async function AdminWeeklyRecapAnalyticsPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/weekly-recap');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const rows = await getWeeklyRecapCohortStats();
+  const [rows, scoreboard] = await Promise.all([
+    getWeeklyRecapCohortStats(),
+    getWeeklyScoreboardStats(),
+  ]);
 
   return (
-    <>
+    <PortalPageFrame maxWidth="88rem">
       <PageHeader
-        title="Weekly recap analytics"
-        subtitle="Generated recaps and engagement by enrolled program (cohort)."
+        title="Weekly scoreboard"
+        subtitle={`ISO week ${formatDate(scoreboard.weekStart)}–${formatDate(scoreboard.weekEnd)}: counselor activity, funnel velocity, and weekly recap engagement.`}
       />
-      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        {/* Desktop table */}
+
+      <section style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', marginBottom: '1.5rem' }}>
+        {SCOREBOARD_METRICS.map((metric) => (
+          <div key={metric.key} className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+            <div style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', fontWeight: 600 }}>{metric.label}</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, marginTop: '0.35rem' }}>
+              {scoreboard.comparison[metric.key].toLocaleString()}
+            </div>
+            <div style={{ marginTop: '0.35rem', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem' }}>
+              {formatDelta(scoreboard.comparison.deltas[metric.key], scoreboard.comparison.pctChanges[metric.key])}
+            </div>
+            <div style={{ marginTop: '0.25rem', color: 'var(--color-on-surface-variant)', fontSize: '0.78rem' }}>
+              Last week: {scoreboard.comparison.previous[metric.key].toLocaleString()}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))', marginBottom: '1.5rem' }}>
+        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+            <div>
+              <h2 className="portal-section-heading" style={{ margin: 0 }}>Counselor activity leaderboard</h2>
+              <p style={{ margin: '0.25rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                Sessions are grouped from in-office session events; application reviews are admin status-change audits.
+              </p>
+            </div>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <DataTable
+              variant="admin"
+              tableClassName="admin-table"
+              scrollX={false}
+              rows={scoreboard.counselors}
+              rowKey={(r) => r.counselorId}
+              columns={[
+                { key: 'name', header: 'Counselor', cell: (r) => <span title={r.email}>{r.name}</span> },
+                { key: 'sessions', header: 'Sessions held', cell: (r) => r.sessionsHeld },
+                { key: 'reviewed', header: 'Apps reviewed', cell: (r) => r.applicationsReviewed },
+                { key: 'contacted', header: 'Members contacted', cell: (r) => r.membersContacted },
+              ]}
+            />
+          </div>
+          {scoreboard.counselors.length === 0 ? (
+            <p style={{ margin: 0, padding: '1rem', color: 'var(--color-on-surface-variant)' }}>No active counselor profiles yet.</p>
+          ) : null}
+        </div>
+
+        <div style={{ display: 'grid', gap: '1rem' }}>
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+            <h2 className="portal-section-heading" style={{ margin: 0 }}>Funnel velocity</h2>
+            <p style={{ margin: '0.35rem 0 1rem', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+              Average days from application submission to approval.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <strong style={{ fontSize: '2rem' }}>{formatDays(scoreboard.funnelVelocity.currentAvgDays)}</strong>
+              <span style={{ color: 'var(--color-on-surface-variant)' }}>this week</span>
+            </div>
+            <div style={{ marginTop: '0.5rem', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+              Trailing 4-week average: <strong>{formatDays(scoreboard.funnelVelocity.trailingFourWeekAvgDays)}</strong>
+            </div>
+            <div style={{ marginTop: '0.35rem', color: 'var(--color-on-surface-variant)', fontSize: '0.78rem' }}>
+              {scoreboard.funnelVelocity.currentApprovedCount} approvals this week · {scoreboard.funnelVelocity.trailingApprovedCount} in trailing baseline
+            </div>
+          </div>
+
+          <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', borderColor: scoreboard.atRisk.count > 0 ? 'rgba(173,44,77,0.35)' : undefined }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
+              <div>
+                <h2 className="portal-section-heading" style={{ margin: 0 }}>At-risk flags</h2>
+                <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>
+                  Approved/enrolled members with no tracked activity since {formatDate(scoreboard.atRisk.staleCutoff)}.
+                </p>
+              </div>
+              <Link href="/admin/members?attention=1&sort=lastActive:asc" className="btn btn-outline btn-sm">
+                View list
+              </Link>
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, marginTop: '0.75rem' }}>{scoreboard.atRisk.count.toLocaleString()}</div>
+            {scoreboard.atRisk.sample.length > 0 ? (
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0.75rem 0 0', display: 'grid', gap: '0.5rem' }}>
+                {scoreboard.atRisk.sample.map((member) => (
+                  <li key={member.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem', fontSize: '0.85rem' }}>
+                    <span style={{ fontWeight: 600 }}>{member.fullName}</span>
+                    <span style={{ color: 'var(--color-on-surface-variant)' }}>{formatLastActivity(member.lastActivityAt)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
+      <section className="portal-card portal-card--flat" style={{ padding: '1.25rem' }}>
+        <div style={{ marginBottom: '1rem' }}>
+          <h2 className="portal-section-heading" style={{ margin: 0 }}>Weekly recap analytics</h2>
+          <p style={{ margin: '0.25rem 0 0', color: 'var(--color-on-surface-variant)' }}>
+            Generated recaps and engagement by enrolled program cohort.
+          </p>
+        </div>
+
         <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
           <DataTable
             variant="admin"
@@ -52,49 +181,30 @@ export default async function AdminWeeklyRecapAnalyticsPage() {
           />
         </div>
 
-        {/* Mobile cards */}
         <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
           {rows.map((r) => (
-            <div
-              key={r.cohortKey}
-              style={{
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '0.875rem 1rem',
-              }}
-            >
+            <div key={r.cohortKey} style={{ background: 'var(--surface-container)', borderRadius: 'var(--radius-lg)', padding: '0.875rem 1rem' }}>
               <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{r.cohortLabel}</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                <span>
-                  Members: <strong style={{ color: 'var(--color-on-surface)' }}>{r.memberCount}</strong>
-                </span>
-                <span>
-                  With recaps: <strong style={{ color: 'var(--color-on-surface)' }}>{r.membersWithRecap}</strong>
-                </span>
+                <span>Members: <strong style={{ color: 'var(--color-on-surface)' }}>{r.memberCount}</strong></span>
+                <span>With recaps: <strong style={{ color: 'var(--color-on-surface)' }}>{r.membersWithRecap}</strong></span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                <span>
-                  Total: <strong style={{ color: 'var(--color-on-surface)' }}>{r.totalRecaps}</strong>
-                </span>
-                <span>
-                  7d: <strong style={{ color: 'var(--color-on-surface)' }}>{r.recapsLast7Days}</strong>
-                </span>
+                <span>Total: <strong style={{ color: 'var(--color-on-surface)' }}>{r.totalRecaps}</strong></span>
+                <span>7d: <strong style={{ color: 'var(--color-on-surface)' }}>{r.recapsLast7Days}</strong></span>
               </div>
               <div style={{ marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                Avg readiness:{' '}
-                <strong style={{ color: 'var(--color-on-surface)' }}>
-                  {r.avgReadinessScore != null ? `${r.avgReadinessScore}%` : '—'}
-                </strong>
+                Avg readiness: <strong style={{ color: 'var(--color-on-surface)' }}>{r.avgReadinessScore != null ? `${r.avgReadinessScore}%` : '—'}</strong>
               </div>
             </div>
           ))}
-          {rows.length === 0 && (
+          {rows.length === 0 ? (
             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
               No weekly recap data yet.
             </div>
-          )}
+          ) : null}
         </div>
-      </div>
-    </>
+      </section>
+    </PortalPageFrame>
   );
 }

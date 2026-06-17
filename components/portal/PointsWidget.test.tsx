@@ -77,4 +77,17 @@ describe('PointsWidget', () => {
     expect(screen.getByText('3-day streak')).toBeInTheDocument();
     expect(screen.getByText(/Best: 9 days/)).toBeInTheDocument();
   });
+
+  it('renders StreakMiniCard when explicit streak is passed', () => {
+    render(<PointsWidget total={350} level="builder" currentStreak={3} longestStreak={9} />);
+    // StreakMiniCard always renders alongside the banner when any streak data exists
+    expect(screen.getAllByText(/3-day streak/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Best: 9 days/)).toBeInTheDocument();
+  });
+
+  it('renders StreakMiniCard encouraging state when streak is zero', () => {
+    render(<PointsWidget total={350} level="builder" currentStreak={0} longestStreak={0} />);
+    expect(screen.getByText('No active streak')).toBeInTheDocument();
+    expect(screen.getByText('Start today!')).toBeInTheDocument();
+  });
 });

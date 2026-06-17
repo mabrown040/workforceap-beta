@@ -6,7 +6,8 @@ import { trackEvent } from '@/lib/events/track';
 import { findPathwayById } from '@/lib/content/learningPathways';
 import { awardPoints } from '@/lib/member/points';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (
   _request: Request,
   { params }: { params: Promise<{ pathwayId: string; stepIndex: string }> }
 ) => {

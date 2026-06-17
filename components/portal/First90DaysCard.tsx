@@ -189,6 +189,7 @@ export default function First90DaysCard({
                   className="btn btn-ghost btn-small"
                   disabled={isPending}
                   onClick={() => submit(opt.value)}
+                  aria-label={t(`responses.${opt.value}`)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                 >
                   <span className="material-symbols-outlined" aria-hidden style={{ fontSize: '1.05rem' }}>

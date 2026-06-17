@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async (req: NextRequest) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async (req: NextRequest) => {
   try {
   const { searchParams } = new URL(req.url);
   const industry = searchParams.get('industry');

@@ -14,7 +14,9 @@ const upstashConfigured = Boolean(redisUrl && redisToken);
 // tools, etc.).  Dev stays fail-open so local development works without
 // credentials.
 // ──────────────────────────────────────────────────────────────────────────
-if (isProduction && !upstashConfigured && process.env.RATE_LIMIT_ALLOW_MISSING_UPSTASH !== '1' && process.env.NEXT_PHASE !== 'phase-production-build') {
+const allowMissingUpstash = process.env.RATE_LIMIT_ALLOW_MISSING_UPSTASH?.trim() === '1';
+const nextPhase = process.env.NEXT_PHASE?.trim();
+if (isProduction && !upstashConfigured && !allowMissingUpstash && nextPhase !== 'phase-production-build') {
   const msg =
     '[RATE-LIMIT] FATAL: UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are required in production. ' +
     'Rate limiters are currently disabled (fail-open), which weakens auth, forgot-password, contact, ' +

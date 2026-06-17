@@ -38,9 +38,9 @@ export default function MobileStateANextStepCard({
                   ? t('careerTrainingNoCost')
                   : t('pickCareerTrack')}
               </p>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem' }}>
-                <span>{noApplicationOnFile ? t('startApplication') : t('chooseProgramBtn')}</span>
-                <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', color: 'var(--color-accent)', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 700, fontSize: '0.9375rem', maxWidth: '100%', boxSizing: 'border-box' }}>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{noApplicationOnFile ? t('startApplication') : t('chooseProgramBtn')}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '1rem', flexShrink: 0 }} aria-hidden="true">arrow_forward</span>
               </div>
             </Link>
           </section>

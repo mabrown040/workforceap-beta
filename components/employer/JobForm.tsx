@@ -26,6 +26,7 @@ type JobFormProps = {
     preferredCertifications: string[];
     suggestedPrograms: string[];
     status: string;
+    expiresAt?: string | null;
   } & JobProvenance;
   initialData?: Partial<{
     title: string;
@@ -41,6 +42,7 @@ type JobFormProps = {
     sourceUrl: string;
     importProvider: string;
     importMethod: string;
+    expiresAt: string;
   }>;
   companyName: string;
   programSlugs: string[];
@@ -118,6 +120,8 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
     const submitForReview = !!formData.get('submitForReview') || !!formData.get('resubmitForReview');
     const salaryMin = formData.get('salaryMin') ? parseInt(String(formData.get('salaryMin')), 10) : null;
     const salaryMax = formData.get('salaryMax') ? parseInt(String(formData.get('salaryMax')), 10) : null;
+    const expiresAtRaw = formData.get('expiresAt') as string;
+    const expiresAt = expiresAtRaw ? new Date(expiresAtRaw).toISOString() : null;
     const payload = {
       title: String(formData.get('title') || '').trim(),
       location: String(formData.get('location') || '').trim() || undefined,
@@ -133,6 +137,7 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
       preferredCertifications: certs,
       suggestedPrograms: programs,
       status: submitForReview ? 'pending' : 'draft',
+      expiresAt,
     };
 
     const nextFieldErrors: FieldErrors = {};
@@ -327,6 +332,18 @@ export default function JobForm({ job, initialData, companyName, programSlugs, i
           <option value="parttime">Part-time</option>
           <option value="contract">Contract</option>
         </select>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="job-expires-at">Expires At (optional)</label>
+        <input
+          id="job-expires-at"
+          type="date"
+          name="expiresAt"
+          defaultValue={prefill?.expiresAt ? new Date(prefill.expiresAt).toISOString().split('T')[0] : ''}
+          disabled={status === 'saving'}
+        />
+        <p className="form-hint">If set, the job will be hidden from the public board after this date.</p>
       </div>
 
       <div id="job-form-target-salary" className="employer-job-form-salary-grid">

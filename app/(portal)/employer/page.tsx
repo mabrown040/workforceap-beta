@@ -49,6 +49,7 @@ export default async function EmployerDashboardPage() {
     where: { id: ctx.employerId },
     select: {
       onboardingCompletedAt: true,
+      onboardingCurrentStep: true,
       tourCompletedAt: true,
       companyName: true,
       industry: true,
@@ -220,6 +221,7 @@ export default async function EmployerDashboardPage() {
         industry: employerRow.industry ?? '',
         companySize: employerRow.companySize ?? '',
         companyWebsite: employerRow.companyWebsite ?? '',
+        initialStep: employerRow.onboardingCurrentStep ?? 0,
       }}
     >
     <PortalPageFrame>

@@ -10,7 +10,8 @@ import { cleanSpokenLine } from '@/lib/ai/postProcess';
 
 import { prefillLinkedInHeadline } from '@/lib/ai/prefillFromMemberState';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

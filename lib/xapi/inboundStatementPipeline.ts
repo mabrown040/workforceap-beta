@@ -19,7 +19,7 @@ export type InboundStatementRunResult = {
  */
 export async function handleInboundParsedStatement(
   parsed: ParsedXapiStatement,
-  options: { organizationId?: string | null } = {},
+  options: { organizationId?: string | null; statementHash?: string | null } = {},
 ): Promise<InboundStatementRunResult> {
   const completions: Array<Record<string, unknown>> = [];
 
@@ -54,7 +54,7 @@ export async function handleInboundParsedStatement(
       });
     }
 
-    await markXapiStatementProcessed(parsed.statementId);
+    await markXapiStatementProcessed(parsed.statementId, options.statementHash);
     return { completions };
   }
 
@@ -94,7 +94,7 @@ export async function handleInboundParsedStatement(
         error: message,
       });
     }
-    await markXapiStatementProcessed(parsed.statementId);
+    await markXapiStatementProcessed(parsed.statementId, options.statementHash);
     return { completions };
   }
 
@@ -117,7 +117,7 @@ export async function handleInboundParsedStatement(
       completionStatus: 'ignored',
       rawPayload: parsed.rawStatement,
     });
-    await markXapiStatementProcessed(parsed.statementId);
+    await markXapiStatementProcessed(parsed.statementId, options.statementHash);
     return { completions };
   }
 
@@ -179,6 +179,6 @@ export async function handleInboundParsedStatement(
     });
   }
 
-  await markXapiStatementProcessed(parsed.statementId);
+  await markXapiStatementProcessed(parsed.statementId, options.statementHash);
   return { completions };
 }

@@ -353,6 +353,30 @@ describe('GET /api/employer/jobs', () => {
       })
     );
   });
+
+  it('filters by locationType query parameter', async () => {
+    vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
+    vi.mocked(getEmployerForUser).mockResolvedValue({ employerId: UUIDS.employer } as any);
+    vi.mocked(prisma.employer.findUnique).mockResolvedValue({
+      id: UUIDS.employer,
+      organizationId: UUIDS.org,
+    } as any);
+    vi.mocked(prisma.job.findMany).mockResolvedValue([makeJob({ locationType: 'remote' })] as any);
+
+    const res = await listJobs(
+      makeRequest('http://localhost:3000/api/employer/jobs?locationType=remote')
+    );
+    expect(res.status).toBe(200);
+
+    expect(prisma.job.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          employerId: UUIDS.employer,
+          locationType: 'remote',
+        }),
+      })
+    );
+  });
 });
 
 // ─────────────────────────────────────────────

@@ -7,7 +7,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

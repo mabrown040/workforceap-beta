@@ -63,6 +63,8 @@ export default function WorkspaceShell({
   portalRoles,
   attributionLabel,
   partnerAccentColor,
+  orgPrimaryColor,
+  orgAccentColor,
   children,
 }: {
   portalRole: PortalRole;
@@ -100,6 +102,10 @@ export default function WorkspaceShell({
    * can opt in without overriding the global `--color-accent`.
    */
   partnerAccentColor?: string | null;
+  /** Org-level primary brand color (hex). Exposed as `--org-primary-color`. */
+  orgPrimaryColor?: string | null;
+  /** Org-level accent/secondary brand color (hex). Exposed as `--org-accent-color`. */
+  orgAccentColor?: string | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname() ?? '';
@@ -312,10 +318,19 @@ export default function WorkspaceShell({
 
   const firstHref = navItems[0]?.href ?? '/';
 
-  const rootStyle =
-    partnerAccentColor && /^#[0-9A-Fa-f]{6}$/.test(partnerAccentColor)
-      ? ({ ['--partner-accent' as string]: partnerAccentColor } as React.CSSProperties)
-      : undefined;
+  const rootStyle: React.CSSProperties | undefined = (() => {
+    const style: Record<string, string> = {};
+    if (partnerAccentColor && /^#[0-9A-Fa-f]{6}$/.test(partnerAccentColor)) {
+      style['--partner-accent'] = partnerAccentColor;
+    }
+    if (orgPrimaryColor && /^#[0-9A-Fa-f]{6}$/.test(orgPrimaryColor)) {
+      style['--org-primary-color'] = orgPrimaryColor;
+    }
+    if (orgAccentColor && /^#[0-9A-Fa-f]{6}$/.test(orgAccentColor)) {
+      style['--org-accent-color'] = orgAccentColor;
+    }
+    return Object.keys(style).length > 0 ? (style as React.CSSProperties) : undefined;
+  })();
 
   return (
     <div className="workspace-shell-root" style={rootStyle}>

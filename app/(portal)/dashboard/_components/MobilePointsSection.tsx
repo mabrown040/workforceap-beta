@@ -26,6 +26,7 @@ export default function MobilePointsSection({
                 total={memberPoints.total}
                 level={memberPoints.level}
                 recent={recentTx}
+                compact
               />
           ) : (
             <div className="portal-card portal-card--flat" style={{ padding: '1rem', borderRadius: '0.875rem' }}>

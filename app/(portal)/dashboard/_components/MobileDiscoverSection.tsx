@@ -31,21 +31,21 @@ export default function MobileDiscoverSection({
                   style={{ textDecoration: 'none', color: 'inherit', flexShrink: 0 }}
                 >
                 <div
-                  className="portal-card portal-card--flat"
-                  style={{
-                    width: mobileCarouselCardWidth,
-                    minWidth: mobileCarouselCardWidth,
-                    overflow:"hidden",
-                    flexShrink:0,
-                    background:"var(--surface-container-lowest)",
-                    borderRadius:"0.75rem",
-                  }}
+                className="portal-card portal-card--flat"
+                style={{
+                  width: mobileCarouselCardWidth,
+                  minWidth: mobileCarouselCardWidth,
+                  overflow:"hidden",
+                  flexShrink:0,
+                  background:"var(--surface-container-lowest)",
+                  borderRadius:"0.75rem",
+                }}
                 >
-                  <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
-                  <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
-                    <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)' }}>{prog.partner || t('workforceAP')}</p>
-                    <h3 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight">{prog.title}</h3>
-                  </div>
+                <div style={{ height:"7rem", position:"relative", background: `linear-gradient(135deg, ${prog.categoryColor} 0%, var(--surface-container-highest) 100%)` }} />
+                <div style={{ padding:"1rem", display:"flex", flexDirection:"column", gap:"0.25rem" }}>
+                  <p className="wa-text-[11px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color: 'var(--color-gold)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prog.partner || t('workforceAP')}</p>
+                  <h3 className="wa-font-bold wa-text-sm wa-text-[var(--color-on-surface)] wa-leading-tight" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prog.title}</h3>
+                </div>
                 </div>
                 </Link>
               ))}
@@ -91,14 +91,14 @@ export default function MobileDiscoverSection({
                   className="wa-no-underline active:scale-[0.98] wa-transition-transform"
                   style={{ width: mobileCarouselCardWidth, minWidth: mobileCarouselCardWidth, flexShrink:0 }}
                 >
-                  <div className="portal-card portal-card--flat" style={{ borderRadius:"0.75rem" }}>
+                  <div className="portal-card portal-card--flat" style={{ borderRadius:"0.75rem", overflow: 'hidden' }}>
                     <div className="portal-card__body" style={{ padding:"1rem" }}>
                       <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"0.75rem" }}>
-                        <div style={{ minWidth:0 }}>
-                          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color:'var(--color-on-surface-variant)', margin:0 }}>
+                        <div style={{ minWidth:0, overflow: 'hidden' }}>
+                          <p className="wa-text-[10px] wa-font-bold wa-uppercase wa-tracking-widest" style={{ color:'var(--color-on-surface-variant)', margin:0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {card.eyebrow}
                           </p>
-                          <p className="wa-text-sm wa-font-bold wa-tracking-tight" style={{ color:'var(--color-on-surface)', margin:"0.35rem 0 0" }}>
+                          <p className="wa-text-sm wa-font-bold wa-tracking-tight" style={{ color:'var(--color-on-surface)', margin:"0.35rem 0 0", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {card.title}
                           </p>
                         </div>
@@ -106,7 +106,7 @@ export default function MobileDiscoverSection({
                           {card.icon}
                         </span>
                       </div>
-                      <p className="wa-text-xs" style={{ color:'var(--color-on-surface-variant)', margin:"0.5rem 0 0", lineHeight:1.4 }}>
+                      <p className="wa-text-xs" style={{ color:'var(--color-on-surface-variant)', margin:"0.5rem 0 0", lineHeight:1.4, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                         {card.desc}
                       </p>
                     </div>

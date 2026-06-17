@@ -5,7 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getStripe, EMPLOYER_TIERS, isValidTier } from '@/lib/stripe/client';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: NextRequest) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {

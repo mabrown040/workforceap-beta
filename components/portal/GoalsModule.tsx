@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 
 type Step = {
   id: string;
@@ -78,14 +79,22 @@ export default function GoalsModule() {
     [t],
   );
 
+  const [error, setError] = useState<string | null>(null);
+
   const fetchGoals = useCallback(async () => {
     try {
+      setError(null);
       const res = await fetch('/api/member/goals');
       const data = await res.json();
       if (res.ok) {
         setGoals(data.goals ?? []);
         setSuggestions(data.suggestions ?? []);
+      } else {
+        const msg = await getErrorMessageFromResponse(res);
+        setError(msg);
       }
+    } catch {
+      setError('Could not load goals. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -97,6 +106,7 @@ export default function GoalsModule() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     const finalTitle = title.trim() || templateLabel(goalType);
     setSaving(true);
     try {
@@ -109,7 +119,12 @@ export default function GoalsModule() {
         setTitle('');
         setShowForm(false);
         await fetchGoals();
+      } else {
+        const msg = await getErrorMessageFromResponse(res);
+        setError(msg);
       }
+    } catch {
+      setError('Could not save goal. Please check your connection and try again.');
     } finally {
       setSaving(false);
     }
@@ -117,6 +132,7 @@ export default function GoalsModule() {
 
   const handleAddSuggestion = async (s: Suggestion) => {
     setAddingKey(s.key);
+    setError(null);
     try {
       const res = await fetch('/api/member/goals', {
         method: 'POST',
@@ -128,23 +144,39 @@ export default function GoalsModule() {
         const newId: string | undefined = data?.goal?.id;
         await fetchGoals();
         if (newId) void handleGenerateSteps(newId);
+      } else {
+        const msg = await getErrorMessageFromResponse(res);
+        setError(msg);
       }
+    } catch {
+      setError('Could not add suggestion. Please check your connection and try again.');
     } finally {
       setAddingKey(null);
     }
   };
 
   const handleComplete = async (id: string) => {
-    await fetch(`/api/member/goals/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'COMPLETED' }),
-    });
-    await fetchGoals();
+    setError(null);
+    try {
+      const res = await fetch(`/api/member/goals/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'COMPLETED' }),
+      });
+      if (!res.ok) {
+        const msg = await getErrorMessageFromResponse(res);
+        setError(msg);
+        return;
+      }
+      await fetchGoals();
+    } catch {
+      setError('Could not complete goal. Please check your connection and try again.');
+    }
   };
 
   const handleGenerateSteps = async (id: string) => {
     setGenerating(id);
+    setError(null);
     try {
       const res = await fetch(`/api/member/goals/${id}/steps`, { method: 'POST' });
       if (res.ok) {
@@ -152,13 +184,19 @@ export default function GoalsModule() {
         setGoals((prev) =>
           prev.map((g) => (g.id === id ? { ...g, steps: data.steps ?? [] } : g))
         );
+      } else {
+        const msg = await getErrorMessageFromResponse(res);
+        setError(msg);
       }
+    } catch {
+      setError('Could not generate steps. Please check your connection and try again.');
     } finally {
       setGenerating(null);
     }
   };
 
   const handleToggleStep = async (goalId: string, step: Step) => {
+    setError(null);
     const nextDone = !step.done;
     setGoals((prev) =>
       prev.map((g) =>
@@ -167,12 +205,25 @@ export default function GoalsModule() {
           : g
       )
     );
-    const res = await fetch(`/api/member/goals/${goalId}/steps`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stepId: step.id, done: nextDone }),
-    });
-    if (!res.ok) {
+    try {
+      const res = await fetch(`/api/member/goals/${goalId}/steps`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stepId: step.id, done: nextDone }),
+      });
+      if (!res.ok) {
+        const msg = await getErrorMessageFromResponse(res);
+        setError(msg);
+        setGoals((prev) =>
+          prev.map((g) =>
+            g.id === goalId
+              ? { ...g, steps: g.steps.map((s) => (s.id === step.id ? { ...s, done: step.done } : s)) }
+              : g
+          )
+        );
+      }
+    } catch {
+      setError('Could not update step. Please check your connection and try again.');
       setGoals((prev) =>
         prev.map((g) =>
           g.id === goalId
@@ -213,6 +264,27 @@ export default function GoalsModule() {
           {t('title')}
         </h3>
       </div>
+
+      {error && (
+        <div
+          role="alert"
+          aria-live="polite"
+          style={{
+            padding: '0.75rem 1rem',
+            borderRadius: '0.75rem',
+            background: 'rgba(173,44,77,0.08)',
+            border: '1px solid rgba(173,44,77,0.2)',
+            color: 'var(--color-accent)',
+            fontSize: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>error</span>
+          <p style={{ margin: 0, fontWeight: 600 }}>{error}</p>
+        </div>
+      )}
 
       {activeGoals.length > 0 ? (
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>

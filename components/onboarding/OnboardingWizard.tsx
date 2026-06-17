@@ -18,6 +18,8 @@ export interface OnboardingWizardProps {
   };
   /** Last step provides its own actions (e.g. employer dual CTA). */
   hideFooterOnLastStep?: boolean;
+  /** Re-hydrate from DB so returning users resume where they left off. */
+  initialStep?: number;
 }
 
 export default function OnboardingWizard({
@@ -26,10 +28,39 @@ export default function OnboardingWizard({
   onComplete,
   stepHooks,
   hideFooterOnLastStep,
+  initialStep = 0,
 }: OnboardingWizardProps) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => Math.min(Math.max(initialStep, 0), steps.length - 1));
   const [exiting, setExiting] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const mountedRef = useRef(false);
+
+  /** Persist current step index to DB so returning users resume where they left off.
+   *  Returns true on success, false on failure so callers can react. */
+  const persistStep = useCallback(async (nextStep: number) => {
+    try {
+      const res = await fetch('/api/onboarding/step', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ portal, step: nextStep }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }, [portal]);
+
+  /** Re-hydrate the DB with the current step on mount so partially-completed
+   *  sessions that were restored from DB are immediately re-persisted. This
+   *  prevents the step from being lost if the user closes the tab before
+   *  navigating. */
+  useEffect(() => {
+    if (mountedRef.current) return;
+    mountedRef.current = true;
+    if (step > 0 && step < steps.length - 1) {
+      void persistStep(step);
+    }
+  }, [step, steps.length, persistStep]);
 
   const finish = useCallback(async () => {
     try {
@@ -45,6 +76,7 @@ export default function OnboardingWizard({
     setTimeout(() => onComplete(), 200);
   }, [onComplete, portal]);
 
+  /** Skip the rest of onboarding and mark it complete. */
   const skip = useCallback(() => {
     void finish();
   }, [finish]);
@@ -56,6 +88,18 @@ export default function OnboardingWizard({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [finish]);
+
+  /** Persist current step before the user closes the tab so partially-
+   *  completed steps are not lost. Uses sendBeacon for reliability. */
+  useEffect(() => {
+    const onBeforeUnload = () => {
+      const data = JSON.stringify({ portal, step });
+      const blob = new Blob([data], { type: 'application/json' });
+      navigator.sendBeacon('/api/onboarding/step', blob);
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [portal, step]);
 
   useEffect(() => {
     const root = panelRef.current;
@@ -91,19 +135,40 @@ export default function OnboardingWizard({
 
   const last = step >= steps.length - 1;
 
+  /** Advance to the next step. Persist the step BEFORE running the beforeNext
+   *  hook so that even if the user closes the tab during the hook's async
+   *  work (e.g. saving profile data), the step index is already durable. */
   const goNext = () => {
     void (async () => {
-      const hookResult = await stepHooks?.beforeNext?.(step);
-      if (hookResult === false) return;
       if (last && !(hideFooterOnLastStep && step === steps.length - 1)) {
         await finish();
-      } else if (!last) {
-        setStep((s) => Math.min(s + 1, steps.length - 1));
+        return;
+      }
+      if (!last) {
+        const next = Math.min(step + 1, steps.length - 1);
+        setStep(next);
+        const persisted = await persistStep(next);
+        if (!persisted) {
+          /* If persistence failed, roll back to the previous step so the
+           * user can retry instead of silently advancing with lost state. */
+          setStep(step);
+          return;
+        }
+        const hookResult = await stepHooks?.beforeNext?.(step);
+        if (hookResult === false) {
+          /* Validation failed — roll back both UI and DB to the step we were on. */
+          setStep(step);
+          void persistStep(step);
+        }
       }
     })();
   };
 
-  const goBack = () => setStep((s) => Math.max(0, s - 1));
+  const goBack = () => {
+    const prev = Math.max(0, step - 1);
+    setStep(prev);
+    void persistStep(prev);
+  };
 
   const current = steps[step];
   if (!current) return null;

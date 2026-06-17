@@ -35,8 +35,10 @@ export async function GET(request: NextRequest) {
         [
           { key: 'stage', header: 'Stage', accessor: (r) => r.stage },
           { key: 'count', header: 'Count', accessor: (r) => r.count },
+          { key: 'previousCount', header: 'Previous Stage Count', accessor: (r) => r.previousCount ?? '' },
+          { key: 'conversionRate', header: 'Conversion Rate', accessor: (r) => r.conversionRate != null ? `${r.conversionRate}%` : '' },
         ],
-        snapshot.outcomes.funnel,
+        snapshot.funnelWaterfall,
         { reportTitle: `WorkforceAP Outcomes — ${snapshot.outcomes.period.label}`, notes: `Generated ${snapshot.generatedAt.toISOString()}` },
       );
       return csvDownloadResponse(csv, exportFilename('outcomes-snapshot'));

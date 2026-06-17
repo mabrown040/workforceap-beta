@@ -10,7 +10,8 @@ import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 
 import { prefillCoverLetter, honestNoResumeError } from '@/lib/ai/prefillFromMemberState';
 import { getAICoachContext, renderCoachContextForPrompt } from '@/lib/ai/aiCoachContext';
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

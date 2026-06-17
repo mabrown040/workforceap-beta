@@ -9,7 +9,8 @@ async function invalidateAdminStats(orgId: string): Promise<void> {
   await invalidateCache(`admin:stats:${orgId}*`);
 }
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiGuc(async () => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const GET = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) {

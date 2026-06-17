@@ -30,6 +30,14 @@ const AGE_GROUPS = [
 
 const APPLY_DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
+function formatPhoneInput(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  if (digits.length === 0) return '';
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 function readDraft(): ApplyFlowDraftV1 | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -37,9 +45,6 @@ function readDraft(): ApplyFlowDraftV1 | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as ApplyFlowDraftV1;
     if (parsed?.version !== 1) return null;
-    // Drop drafts older than the TTL — these usually hold PII
-    // (firstName / lastName / email / phone) and should not linger on
-    // a shared device past a reasonable resume-application window.
     if (typeof parsed.updatedAt === 'string') {
       const updated = Date.parse(parsed.updatedAt);
       if (Number.isFinite(updated) && Date.now() - updated > APPLY_DRAFT_TTL_MS) {
@@ -97,6 +102,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
   };
+  const [phoneError, setPhoneError] = useState('');
   const [ageGroup, setAgeGroup] = useState<ApplyFlowDraftV1['ageGroup']>('');
   const [city, setCity] = useState('');
   const [stateVal, setStateVal] = useState('');
@@ -193,10 +199,6 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2 });
   };
 
-  // Quiet autosave: mobile applicants get interrupted constantly, and the
-  // manual "save & continue later" button is easy to miss. Persist the
-  // draft 1.5s after they stop typing (only once something identifying is
-  // entered, so an untouched form never writes PII to storage).
   const [autoSaved, setAutoSaved] = useState(false);
   const autosaveSkippedInitial = useRef(false);
   useEffect(() => {
@@ -224,9 +226,6 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
       trackApplyFunnel(1, 'eligibility_continue_blocked', {
         answered_count: [q1, q2].filter(Boolean).length,
       });
-      // Move focus to the first invalid control so keyboard and
-      // screen-reader users land on what's blocking them instead of
-      // staying on the (apparently dead) continue button.
       requestAnimationFrame(() => {
         const invalid = document.querySelector<HTMLElement>(
           'form [aria-invalid="true"], form input:invalid, form select:invalid',
@@ -265,9 +264,6 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         primaryBarriers,
       });
       sessionStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
-      // Also mirror to localStorage: sessionStorage is per-tab, so members who
-      // "save and finish later" (or resume in a new tab) lose their eligibility
-      // answers — the application then saves without a screening record.
       try {
         localStorage.setItem(APPLY_STORAGE_KEY, eligibilityJson);
       } catch {
@@ -280,20 +276,9 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
 
   return (
     <div className={`apply-flow apply-flow--step1${isPaid ? ' apply-flow--paid' : ''}`} data-variant={isPaid ? 'paid' : 'organic'}>
-      {/*
-        Scoped visual polish for the eligibility funnel only. All selectors are
-        prefixed with `.apply-flow--step1` so these rules never leak to the
-        homepage/marketing foundation or to other pages that reuse
-        `.form-radio-card`, `.radio-dot`, or barrier classes. Behavior is
-        untouched — layout/sizing only.
-      */}
       <style>{`
-        /* Yes/No answer cards: tidy single-row, smaller dot aligned to label */
         .apply-flow--step1 .form-radio-cards { gap: 0.5rem; }
         .apply-flow--step1 .form-radio-card {
-          /* display:flex restated here — in production the base
-             .form-radio-card rule's flex is not applied (cards compute
-             display:block) and the dot collapses to a 4px sliver. */
           display: flex;
           align-items: center;
           gap: 0.625rem;
@@ -314,8 +299,6 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         html.dark .apply-flow--step1 .form-radio-card.selected .radio-dot {
           box-shadow: inset 0 0 0 3px var(--surface-container-high);
         }
-
-        /* Multi-select barrier list: small circle on the same line as the label */
         .apply-flow--step1 .apply-barrier-options { gap: 0.125rem; }
         .apply-flow--step1 .apply-barrier-option {
           align-items: center;
@@ -328,8 +311,6 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
           margin-top: 0;
         }
         .apply-flow--step1 .apply-barrier-option__label { line-height: 1.3; }
-
-        /* Spacing rhythm: group each question with its options, even gaps */
         .apply-flow--step1 .funding-questions {
           display: flex;
           flex-direction: column;
@@ -342,13 +323,9 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
         .apply-flow--step1 .apply-eligibility-prompt { margin-bottom: 0.625rem; }
         .apply-flow--step1 .apply-personal-block { margin-bottom: 1.25rem; }
         .apply-flow--step1 .apply-personal-block__title { margin-bottom: 0.75rem; }
-
         @media (max-width: 768px) {
           .apply-flow--step1 .form-radio-card { align-items: center; }
           .apply-flow--step1 .apply-barrier-option { align-items: center; }
-
-          /* Hero + mobile step nav already set context — drop duplicate headings
-             so the first question lands above the fold sooner. */
           .apply-flow--step1 .apply-step-title {
             position: absolute;
             width: 1px;
@@ -538,13 +515,33 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
                 inputMode="tel"
                 placeholder="(512) 555-0100"
                 value={phone}
-                onChange={(e) => setPhone(formatPhoneInput(e.target.value))}
+                onChange={(e) => {
+                  const formatted = formatPhoneInput(e.target.value);
+                  setPhone(formatted);
+                  if (phoneError) {
+                    const digits = formatted.replace(/\D/g, '');
+                    if (digits.length >= 10) setPhoneError('');
+                  }
+                }}
+                onBlur={() => {
+                  const digits = phone.replace(/\D/g, '');
+                  if (digits.length > 0 && digits.length < 10) {
+                    setPhoneError(t('phoneValidationError'));
+                  } else {
+                    setPhoneError('');
+                  }
+                }}
                 required
                 minLength={10}
                 aria-invalid={attemptedContinue && phone.replace(/\D/g, '').length < 10}
-                aria-describedby="apply-phone-hint"
+                aria-describedby="apply-phone-hint apply-phone-error"
               />
               <p id="apply-phone-hint" className="apply-field-hint">{t('eligibilityPhoneHint')}</p>
+              {phoneError && (
+                <p id="apply-phone-error" className="apply-eligibility-field-error" role="alert">
+                  {phoneError}
+                </p>
+              )}
             </div>
           </div>
           {attemptedContinue && !contactOk && (

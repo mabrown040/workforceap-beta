@@ -31,7 +31,7 @@ export default async function ApplyResultsPage() {
       <section className="content-section">
         <div className="container">
           <ApplyMobileTrustBar />
-          <ApplyMobileStepNav activeStep={1} />
+          <ApplyMobileStepNav activeStep={1} showTimeHint />
           <p className="apply-funnel-form-kicker" role="note">
             {t('resultsKicker')}
           </p>

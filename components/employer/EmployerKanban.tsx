@@ -57,6 +57,9 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
   const patchStatus = useCallback(async (match: MatchRow, targetColumnId: string) => {
     const newStatus = targetColumnId === 'declined' ? 'rejected' : STATUS_FOR_COLUMN[targetColumnId] ?? 'contacted';
     if (matchColumnId(match.status) === targetColumnId) return;
+
+    // Optimistic update: move the card immediately in the UI
+    setMatches(prev => prev.map(m => m.id === match.id ? { ...m, status: newStatus } : m));
     setBusy(match.id);
     try {
       const r = await fetch(`/api/employer/jobs/${match.jobId}/matches/${match.student.id}`, {
@@ -68,7 +71,13 @@ export default function EmployerKanban({ initialMatches }: { initialMatches: Mat
       if (r.ok) {
         const data = await r.json().catch(() => ({}));
         setMatches(prev => prev.map(m => m.id === match.id ? { ...m, status: data.status ?? newStatus } : m));
+      } else {
+        // Revert on HTTP error
+        setMatches(prev => prev.map(m => m.id === match.id ? { ...m, status: match.status } : m));
       }
+    } catch {
+      // Revert on network error
+      setMatches(prev => prev.map(m => m.id === match.id ? { ...m, status: match.status } : m));
     } finally {
       setBusy(null);
     }

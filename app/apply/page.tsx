@@ -31,7 +31,7 @@ export default async function ApplyPage({ searchParams }: PageProps) {
       <PaidApplyVariant
         utmSource={paidUtmSource}
         program={sp.program}
-        stepNav={<ApplyMobileStepNav activeStep={0} />}
+        stepNav={<ApplyMobileStepNav activeStep={0} showTimeHint />}
         mobileTrustBar={<ApplyMobileTrustBar />}
         proofBlock={<PaidApplyProofBlock />}
         trustStrip={<TrustStrip variant="apply" />}

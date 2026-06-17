@@ -6,7 +6,8 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { PROGRAMS } from '@/lib/content/programs';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

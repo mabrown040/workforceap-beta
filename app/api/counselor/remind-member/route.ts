@@ -6,7 +6,8 @@ import { getSubjectOrganizationId } from "@/lib/tenant/organization";
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { sendInactiveNudgeEmail } from '@/lib/email';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
   if (!user) {

@@ -166,7 +166,7 @@ export default function TrainingCourseList({
     if (s === 'complete') return 'Complete';
     if (s === 'in_progress') {
       const pct = progressBySlug?.[slug]?.percentComplete;
-      return pct != null && pct > 0 ? `In progress (${pct}%)` : 'In progress';
+      return pct != null && pct > 0 ? `${pct}% complete` : 'In progress';
     }
     return 'Not started';
   };
@@ -310,7 +310,7 @@ export default function TrainingCourseList({
                   Up next →
                 </span>
               ) : null}
-              {showBar ? (
+              {isComplete ? (
                 <>
                   <p
                     style={{
@@ -319,7 +319,24 @@ export default function TrainingCourseList({
                       color: 'var(--color-on-surface-variant)',
                     }}
                   >
-                    Progress: {pct}%
+                    100% complete
+                  </p>
+                  <div className="training-course-progress">
+                    <div className="training-course-progress__track" role="progressbar" aria-valuenow={100} aria-valuemin={0} aria-valuemax={100} aria-label={`${c.name} progress`}>
+                      <div className="training-course-progress__fill training-course-progress__fill--complete" style={{ width: '100%' }} />
+                    </div>
+                  </div>
+                </>
+              ) : showBar ? (
+                <>
+                  <p
+                    style={{
+                      fontSize: '0.78rem',
+                      margin: '0 0 0.25rem',
+                      color: 'var(--color-on-surface-variant)',
+                    }}
+                  >
+                    {pct}% complete
                   </p>
                   <div className="training-course-progress">
                     <div className="training-course-progress__track" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${c.name} progress`}>
@@ -327,12 +344,29 @@ export default function TrainingCourseList({
                     </div>
                   </div>
                 </>
-              ) : null}
+              ) : (
+                <>
+                  <p
+                    style={{
+                      fontSize: '0.78rem',
+                      margin: '0 0 0.25rem',
+                      color: 'var(--color-on-surface-variant)',
+                    }}
+                  >
+                    0% complete
+                  </p>
+                  <div className="training-course-progress">
+                    <div className="training-course-progress__track" role="progressbar" aria-valuenow={0} aria-valuemin={0} aria-valuemax={100} aria-label={`${c.name} progress`}>
+                      <div className="training-course-progress__fill" style={{ width: '0%' }} />
+                    </div>
+                  </div>
+                </>
+              )}
               {gradePct != null && Number.isFinite(gradePct) ? (
                 <p
                   style={{
                     fontSize: '0.78rem',
-                    marginTop: showBar ? '0.35rem' : '0.5rem',
+                    marginTop: '0.35rem',
                     marginBottom: 0,
                     color: 'var(--color-on-surface-variant)',
                   }}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 
 type Resource = {
   title: string;
@@ -10,6 +11,21 @@ type Resource = {
 
 export default function ResourcesClient({ resources }: { resources: Resource[] }) {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
+
+  if (resources.length === 0) {
+    return (
+      <PortalEmptyState
+        icon={
+          <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+            folder_open
+          </span>
+        }
+        title="No resources yet"
+        description="Resources for your program will appear here once you're enrolled."
+        primaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
+      />
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

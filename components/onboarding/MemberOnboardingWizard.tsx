@@ -16,6 +16,7 @@ export type MemberOnboardingWizardProps = {
   initialZip: string;
   initialProgramInterest: string;
   initialReferralSource: string;
+  initialStep?: number;
   onComplete?: () => void;
 };
 
@@ -28,6 +29,7 @@ export default function MemberOnboardingWizard({
   initialZip,
   initialProgramInterest,
   initialReferralSource,
+  initialStep = 0,
   onComplete: onCompleteProp,
 }: MemberOnboardingWizardProps) {
   const router = useRouter();
@@ -333,6 +335,7 @@ export default function MemberOnboardingWizard({
       portal="member"
       steps={steps}
       onComplete={onComplete}
+      initialStep={initialStep}
       stepHooks={{
         beforeNext: async (index) => {
           if (index === 1) {

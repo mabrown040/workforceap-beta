@@ -85,7 +85,15 @@ export async function GET(request: NextRequest) {
 
     const where: Prisma.JobWhereInput = {
       status: 'live',
-      ...(andConditions.length > 0 && { AND: andConditions }),
+      AND: [
+        ...andConditions,
+        {
+          OR: [
+            { expiresAt: null },
+            { expiresAt: { gte: new Date() } },
+          ],
+        },
+      ],
     };
 
     const orderBy: Prisma.JobOrderByWithRelationInput[] =

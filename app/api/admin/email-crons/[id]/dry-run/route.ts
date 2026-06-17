@@ -14,7 +14,8 @@ import {
 } from '@/emails';
 import { brandedEmailLayout } from '@/lib/email/template';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {

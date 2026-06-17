@@ -13,6 +13,7 @@ export type EmployerOnboardingWizardProps = {
   industry: string;
   companySize: string;
   companyWebsite: string;
+  initialStep?: number;
   onComplete?: () => void;
 };
 
@@ -21,6 +22,7 @@ export default function EmployerOnboardingWizard({
   industry: initialIndustry,
   companySize: initialSize,
   companyWebsite: initialWeb,
+  initialStep = 0,
   onComplete: onCompleteProp,
 }: EmployerOnboardingWizardProps) {
   const router = useRouter();
@@ -207,6 +209,7 @@ export default function EmployerOnboardingWizard({
       portal="employer"
       steps={steps}
       onComplete={onComplete}
+      initialStep={initialStep}
       stepHooks={{
         beforeNext: async (index) => {
           if (index === 1) await saveCompany();

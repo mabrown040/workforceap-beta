@@ -303,7 +303,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
 
           <div id="apply-form-start" className="apply-main-form__primary">
             <ApplyMobileTrustBar />
-            <ApplyMobileStepNav activeStep={0} />
+            <ApplyMobileStepNav activeStep={0} showTimeHint />
             <p className="apply-organic-form-kicker" role="note">
               {t('step1Kicker')}
             </p>
@@ -528,14 +528,13 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           }
           .apply-organic-form-kicker {
             display: block;
-            margin: 0 0 var(--space-4);
-            padding: var(--space-3) var(--space-4);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--outline-variant);
-            background: var(--surface-container-high);
-            font-size: var(--font-size-sm);
-            font-weight: 600;
-            letter-spacing: 0.01em;
+            margin: 0 0 var(--space-3);
+            padding: 0;
+            border: none;
+            background: transparent;
+            font-size: var(--font-size-xs, 0.75rem);
+            font-weight: 500;
+            letter-spacing: 0;
             color: var(--color-on-surface-variant);
             line-height: var(--line-height-normal);
             text-align: center;

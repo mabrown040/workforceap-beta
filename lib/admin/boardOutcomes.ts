@@ -476,6 +476,37 @@ export type BoardSnapshotDataQuality = {
   enrolledWithoutEnrolledAt: number;
 };
 
+export type FunnelWaterfallStage = {
+  stage: string;
+  count: number;
+  previousCount?: number;
+  conversionRate?: number; // pct from previous stage
+};
+
+export type ApplicationQueueHealth = {
+  pendingCount: number;
+  medianAgeDays: number | null;
+  oldestAgeDays: number | null;
+};
+
+export type CohortMonth = {
+  month: string; // "2026-01"
+  monthLabel: string; // "Jan 2026"
+  applications: number;
+  approved: number;
+  enrolled: number;
+  certified: number;
+  placed: number;
+};
+
+export type BoardSnapshotKpis = {
+  totalMembers: number;
+  activeThisWeek: number;
+  qualifiedLeads: number;
+  fundedStarts: number;
+  placementsThisMonth: number;
+};
+
 export type BoardSnapshot = {
   generatedAt: Date;
   smallSampleThreshold: number;
@@ -484,6 +515,14 @@ export type BoardSnapshot = {
   activity: BoardSnapshotActivity;
   certifications: BoardSnapshotCertifications;
   dataQuality: BoardSnapshotDataQuality;
+  /** Full funnel: accounts → applications → pending/approved/denied → enrolled → certified → placed */
+  funnelWaterfall: FunnelWaterfallStage[];
+  /** Pending application queue health metrics */
+  applicationQueueHealth: ApplicationQueueHealth;
+  /** Monthly cohort breakdown */
+  cohorts: CohortMonth[];
+  /** Top-line KPIs for the /admin/outcomes hero row */
+  kpis: BoardSnapshotKpis;
 };
 
 /**
@@ -621,6 +660,165 @@ export async function getBoardSnapshot(
   const active14dSet = new Set(active14dRows.map((r) => r.userId));
   const inactive14d = Math.max(0, totalMembers - active14dSet.size);
 
+  // ── NEW: Full funnel waterfall + queue health + cohorts ──
+  const [
+    totalAccounts,
+    pendingApplicationsWithDates,
+    allApplicationsForCohorts,
+    allEnrolledForCohorts,
+    allPlacedForCohorts,
+    allCertifiedForCohorts,
+  ] = await Promise.all([
+    prisma.user.count({
+      where: { deletedAt: null, ...(organizationId ? { organizationId } : {}) },
+    }),
+    prisma.application.findMany({
+      where: {
+        status: 'PENDING',
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+      select: { createdAt: true },
+    }),
+    prisma.application.findMany({
+      where: organizationId ? { user: { organizationId } } : {},
+      select: { status: true, createdAt: true, user: { select: { enrolledAt: true } } },
+    }),
+    prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        enrolledProgram: { not: null },
+        ...(organizationId ? { organizationId } : {}),
+      },
+      select: { enrolledAt: true },
+    }),
+    prisma.placementRecord.findMany({
+      where: organizationId ? { user: { organizationId } } : {},
+      select: { placedAt: true },
+    }),
+    prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        enrolledProgram: { not: null },
+        ...(organizationId ? { organizationId } : {}),
+      },
+      select: {
+        enrolledAt: true,
+        enrolledProgram: true,
+        memberProgramProgress: { select: { programSlug: true, averagePercent: true, coursesCompleted: true } },
+        coursesCompleted: true,
+      },
+    }),
+  ]);
+
+  // Application queue health
+  const pendingAgesDays = pendingApplicationsWithDates.map((a) => {
+    const ms = now.getTime() - a.createdAt.getTime();
+    return Math.floor(ms / (24 * 60 * 60 * 1000));
+  });
+  const medianPendingAge = median(pendingAgesDays);
+  const oldestPendingAge = pendingAgesDays.length > 0 ? Math.max(...pendingAgesDays) : null;
+
+  // Build funnel waterfall
+  const totalApps = applicationFunnel.total;
+  const enrolledCount = outcomes.totals.membersEnrolled;
+  const certifiedCount = outcomes.totals.membersCertified;
+  const placedCount = outcomes.totals.membersPlaced;
+
+  const funnelWaterfall: FunnelWaterfallStage[] = [
+    { stage: 'Accounts', count: totalAccounts },
+    { stage: 'Applications', count: totalApps, previousCount: totalAccounts, conversionRate: totalAccounts > 0 ? Math.round((totalApps / totalAccounts) * 100) : 0 },
+    { stage: 'Approved', count: applicationFunnel.approved, previousCount: totalApps, conversionRate: totalApps > 0 ? Math.round((applicationFunnel.approved / totalApps) * 100) : 0 },
+    { stage: 'Enrolled', count: enrolledCount, previousCount: applicationFunnel.approved, conversionRate: applicationFunnel.approved > 0 ? Math.round((enrolledCount / applicationFunnel.approved) * 100) : 0 },
+    { stage: 'Certified', count: certifiedCount, previousCount: enrolledCount, conversionRate: enrolledCount > 0 ? Math.round((certifiedCount / enrolledCount) * 100) : 0 },
+    { stage: 'Placed', count: placedCount, previousCount: certifiedCount, conversionRate: certifiedCount > 0 ? Math.round((placedCount / certifiedCount) * 100) : 0 },
+  ];
+
+  // Cohort table by month (application month)
+  const monthFmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const monthLabel = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+  const cohortMap = new Map<string, CohortMonth>();
+  for (const app of allApplicationsForCohorts) {
+    const m = monthFmt(app.createdAt);
+    const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(app.createdAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
+    cur.applications += 1;
+    if (app.status === 'APPROVED') cur.approved += 1;
+    cohortMap.set(m, cur);
+  }
+  for (const u of allEnrolledForCohorts) {
+    if (!u.enrolledAt) continue;
+    const m = monthFmt(u.enrolledAt);
+    const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(u.enrolledAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
+    cur.enrolled += 1;
+    cohortMap.set(m, cur);
+  }
+  for (const p of allPlacedForCohorts) {
+    const m = monthFmt(p.placedAt);
+    const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(p.placedAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
+    cur.placed += 1;
+    cohortMap.set(m, cur);
+  }
+  for (const u of allCertifiedForCohorts) {
+    if (!u.enrolledAt) continue;
+    // Determine if certified: same logic as getBoardOutcomes
+    const isCert = memberProgramCompleted(u.enrolledProgram, null, u.memberProgramProgress);
+    if (!isCert) continue;
+    const m = monthFmt(u.enrolledAt);
+    const cur = cohortMap.get(m) ?? { month: m, monthLabel: monthLabel(u.enrolledAt), applications: 0, approved: 0, enrolled: 0, certified: 0, placed: 0 };
+    cur.certified += 1;
+    cohortMap.set(m, cur);
+  }
+
+  const cohorts = [...cohortMap.values()].sort((a, b) => a.month.localeCompare(b.month));
+
+  // ── NEW: Top-line KPIs for /admin/outcomes hero row ──
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const [
+    kpiTotalMembers,
+    kpiActiveThisWeek,
+    kpiQualifiedLeads,
+    kpiFundedStarts,
+    kpiPlacementsThisMonth,
+  ] = await Promise.all([
+    prisma.user.count({
+      where: { deletedAt: null, ...(organizationId ? { organizationId } : {}) },
+    }),
+    prisma.memberEvent.findMany({
+      take: 10000,
+      where: {
+        createdAt: { gte: sevenDaysAgo },
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+      select: { userId: true },
+      distinct: ['userId'],
+    }).then((rows) => rows.length),
+    // Qualified leads = users who completed assessment + have program interest but are not yet enrolled
+    prisma.user.count({
+      where: {
+        deletedAt: null,
+        assessmentCompleted: true,
+        enrolledProgram: null,
+        ...(organizationId ? { organizationId } : {}),
+      },
+    }),
+    // Funded starts = users enrolled this month with a funding source on their placement (or any enrolled this month if no placement yet)
+    prisma.user.count({
+      where: {
+        deletedAt: null,
+        enrolledProgram: { not: null },
+        enrolledAt: { gte: startOfMonth },
+        ...(organizationId ? { organizationId } : {}),
+      },
+    }),
+    // Placements this month
+    prisma.placementRecord.count({
+      where: {
+        placedAt: { gte: startOfMonth },
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+    }),
+  ]);
+
   return {
     generatedAt: now,
     smallSampleThreshold: SMALL_SAMPLE_THRESHOLD,
@@ -645,6 +843,20 @@ export async function getBoardSnapshot(
       placementsMissingSalary,
       enrolledWithoutEnrolledAt,
     },
+    funnelWaterfall,
+    applicationQueueHealth: {
+      pendingCount: applicationFunnel.pending,
+      medianAgeDays: medianPendingAge,
+      oldestAgeDays: oldestPendingAge,
+    },
+    cohorts,
+    kpis: {
+      totalMembers: kpiTotalMembers,
+      activeThisWeek: kpiActiveThisWeek,
+      qualifiedLeads: kpiQualifiedLeads,
+      fundedStarts: kpiFundedStarts,
+      placementsThisMonth: kpiPlacementsThisMonth,
+    },
   };
 }
 
@@ -656,7 +868,7 @@ export async function getBoardSnapshot(
  * mistaken for live data.
  */
 export function formatBoardSnapshotMarkdown(snapshot: BoardSnapshot): string {
-  const { generatedAt, applicationFunnel, outcomes, activity, certifications, dataQuality } = snapshot;
+  const { generatedAt, applicationFunnel, outcomes, activity, certifications, dataQuality, funnelWaterfall, applicationQueueHealth, cohorts, kpis } = snapshot;
   const t = outcomes.totals;
 
   const fmtNumber = (n: number | null | undefined): string => {

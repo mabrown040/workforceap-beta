@@ -28,3 +28,33 @@ export async function fetchAuth(
 ): Promise<Response> {
   return fetchWithTimeout(input, init, 15000);
 }
+
+/**
+ * Extract a user-friendly error message from a fetch Response.
+ * Handles 429 rate-limit with optional Retry-After hint.
+ */
+export async function getErrorMessageFromResponse(res: Response): Promise<string> {
+  if (res.status === 429) {
+    const retryAfter = res.headers.get('Retry-After');
+    if (retryAfter) {
+      const seconds = parseInt(retryAfter, 10);
+      if (!Number.isNaN(seconds) && seconds > 0) {
+        return `Too many requests — please wait ${seconds} second${seconds === 1 ? '' : 's'} and try again.`;
+      }
+    }
+    return 'Too many requests — please wait a moment and try again.';
+  }
+
+  // Try to read structured error from JSON body
+  try {
+    const data = await res.json();
+    if (data?.error?.message) return data.error.message;
+    if (typeof data?.error === 'string') return data.error;
+    if (typeof data?.message === 'string') return data.message;
+  } catch {
+    // ignore parse failure
+  }
+
+  // Fallback to status text
+  return res.statusText || `Request failed (${res.status})`;
+}

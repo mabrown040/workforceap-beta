@@ -5,7 +5,8 @@ import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { trackEvent } from '@/lib/events/track';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import { memberMessagingSurface } from '@/lib/portal/messagingSurfaces';
 
 type ThreadDto = {
@@ -189,7 +190,15 @@ export default function MemberCounselorChatClient({
       ) : null}
       <div className="member-counselor-chat__scroll" role="log" aria-live="polite" aria-relevant="additions">
         {messages.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No messages yet. Say hello to your counselor.</p>
+          <PortalEmptyState
+            icon={
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                chat_bubble_outline
+              </span>
+            }
+            title="No messages yet"
+            description="Say hello to your counselor — they reply within 2 business days."
+          />
         ) : (
           messages.map((m) => {
             const mine = m.authorId === memberUserId;

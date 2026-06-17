@@ -13,6 +13,13 @@ const PIPELINE_STAGES = [
   { value: 'placed', label: 'Placed' },
 ];
 
+const MEMBER_STATUSES = [
+  { value: '', label: '— No change —' },
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'placed', label: 'Placed' },
+];
+
 type Counselor = { userId: string; fullName: string; partnerName: string | null };
 type Program = { slug: string; title: string };
 
@@ -26,6 +33,7 @@ type Props = {
 
 export default function BulkUpdateModal({ open, memberIds, programs, onClose, onUpdated }: Props) {
   const [pipelineStage, setPipelineStage] = useState('');
+  const [memberStatus, setMemberStatus] = useState('');
   const [counselorUserId, setCounselorUserId] = useState('');
   const [programSlug, setProgramSlug] = useState('');
   const [counselors, setCounselors] = useState<Counselor[]>([]);
@@ -36,6 +44,7 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
   useEffect(() => {
     if (open) {
       setPipelineStage('');
+      setMemberStatus('');
       setCounselorUserId('');
       setProgramSlug('');
       setError(null);
@@ -61,7 +70,7 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const hasUpdate = pipelineStage !== '' || counselorUserId !== '' || programSlug !== '';
+    const hasUpdate = pipelineStage !== '' || memberStatus !== '' || counselorUserId !== '' || programSlug !== '';
     if (!hasUpdate) { setError('Select at least one field to update.'); return; }
 
     setSaving(true);
@@ -69,6 +78,7 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
 
     const payload: Record<string, unknown> = { memberIds };
     if (pipelineStage !== '') payload.pipelineStage = pipelineStage === '__null' ? null : pipelineStage;
+    if (memberStatus !== '') payload.memberStatus = memberStatus === '__null' ? null : memberStatus;
     if (counselorUserId !== '') payload.counselorUserId = counselorUserId === '__null' ? null : counselorUserId;
     if (programSlug !== '') payload.programSlug = programSlug === '__null' ? null : programSlug;
 
@@ -150,6 +160,29 @@ export default function BulkUpdateModal({ open, memberIds, programs, onClose, on
             <strong>{memberIds.length}</strong> member{memberIds.length === 1 ? '' : 's'} selected.
             Choose the fields you want to update. Empty fields will not be changed.
           </p>
+
+          <div>
+            <label htmlFor="bulkupdatemodal-member-status-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>
+              Member Status
+            </label>
+            <select id="bulkupdatemodal-member-status-field"
+              value={memberStatus}
+              onChange={(e) => setMemberStatus(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                borderRadius: '0.5rem',
+                border: '1px solid var(--outline-variant)',
+                background: 'var(--surface-container)',
+                color: 'var(--color-on-surface)',
+                fontSize: '0.875rem',
+              }}
+            >
+              {MEMBER_STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+          </div>
 
           <div>
             <label htmlFor="bulkupdatemodal-pipeline-stage-field" style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '0.375rem' }}>

@@ -9,14 +9,17 @@ export type StaleTrainingCronResult = {
   newlyFlagged: number;
   cleared: number;
   unchangedStale: number;
+  reStamped: number;
 };
 
 /**
  * Members with `CourseEnrollment` whose per-program `CourseProgress` has not
  * been updated in {@link STALE_DAYS} get `User.staleTrainingDetectedAt` set (once).
  * Cleared when progress is fresh or program appears complete via rollup.
+ * Already-stale members get their timestamp re-stamped each run so the
+ * re-sync cron sees them as still needing attention.
  *
- * Batched query version: replaces per-enrollment N+1 with 4 total queries.
+ * Batched query version: replaces per-enrollment N+1 with 4-6 total queries.
  */
 export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCronResult> {
   const cutoff = new Date(Date.now() - STALE_DAYS * 86_400_000);
@@ -31,7 +34,7 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
   });
 
   if (enrollments.length === 0) {
-    return { enrollmentsChecked: 0, newlyFlagged: 0, cleared: 0, unchangedStale: 0 };
+    return { enrollmentsChecked: 0, newlyFlagged: 0, cleared: 0, unchangedStale: 0, reStamped: 0 };
   }
 
   // Batch 1: all rollups for enrolled (userId, programSlug) pairs
@@ -77,9 +80,13 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
   let newlyFlagged = 0;
   let cleared = 0;
   let unchangedStale = 0;
+  let reStamped = 0;
 
   const toClear: string[] = [];
   const toFlag: string[] = [];
+  // Members already flagged as stale who are still stale: re-stamp so the
+  // re-sync cron sees them as pending on every check cycle.
+  const toReStamp: string[] = [];
 
   for (const { userId, programSlug } of enrollments) {
     const key = `${userId}:${programSlug}`;
@@ -101,7 +108,10 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
 
     const alreadyStale = userMap.get(userId);
     if (alreadyStale) {
+      // Member is still stale — re-stamp staleTrainingDetectedAt so the
+      // downstream re-sync cron keeps picking them up for another sync attempt.
       unchangedStale += 1;
+      toReStamp.push(userId);
       continue;
     }
 
@@ -118,7 +128,7 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
     cleared = clearRes.count;
   }
 
-  // Batch 5: set stale flag where needed
+  // Batch 5: set stale flag for newly-stale members (only where not yet set)
   if (toFlag.length > 0) {
     const uniqueToFlag = [...new Set(toFlag)];
     const flagRes = await prisma.user.updateMany({
@@ -128,10 +138,21 @@ export async function runStaleCourseraTrainingCheck(): Promise<StaleTrainingCron
     newlyFlagged = flagRes.count;
   }
 
+  // Batch 6: re-stamp already-stale members so re-sync cron picks them up again
+  if (toReStamp.length > 0) {
+    const uniqueToReStamp = [...new Set(toReStamp)];
+    const reStampRes = await prisma.user.updateMany({
+      where: { id: { in: uniqueToReStamp }, staleTrainingDetectedAt: { not: null } },
+      data: { staleTrainingDetectedAt: new Date() },
+    });
+    reStamped = reStampRes.count;
+  }
+
   return {
     enrollmentsChecked: enrollments.length,
     newlyFlagged,
     cleared,
     unchangedStale,
+    reStamped,
   };
 }

@@ -73,6 +73,7 @@ type DashboardHomeClientProps = {
   showFirstValuePanel?: boolean;
   firstValueActions?: FirstValueAction[];
   firstValueSecondsSinceSignup?: number | null;
+  homeOnly?: boolean;
 };
 
 import { useTranslations } from 'next-intl';
@@ -110,6 +111,7 @@ export default function DashboardHomeClient({
   showFirstValuePanel = false,
   firstValueActions = [],
   firstValueSecondsSinceSignup = null,
+  homeOnly = false,
 }: DashboardHomeClientProps) {
   const t = useTranslations('dashboard');
   const primaryAction = recommendedActions[0];
@@ -463,7 +465,7 @@ export default function DashboardHomeClient({
       </div>
 
       {/* ── 3. METRIC CARDS ── */}
-      {(state === 'C' || state === 'D') && (
+      {(state === 'C' || state === 'D') && !homeOnly && (
         <div className="portal-dash-inset" style={{ marginBottom: '1.25rem' }}>
           <div className="portal-metric-strip">
             {metricCards.map((m) => (
@@ -481,6 +483,7 @@ export default function DashboardHomeClient({
       )}
 
       {/* ── 5. Main content grid ── */}
+      {!homeOnly && (
       <div className="portal-bento-grid">
 
       {/* ── Main Progress Card (states C/D: training in progress / completed) ── */}
@@ -791,6 +794,7 @@ export default function DashboardHomeClient({
           </section>
         )}
       </div>
+      )}
     </div>
   );
 }

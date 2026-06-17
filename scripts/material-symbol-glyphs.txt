@@ -152,6 +152,7 @@ payments
 pending
 pending_actions
 people
+people_outline
 person
 person_add
 person_check

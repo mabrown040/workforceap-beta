@@ -5,7 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCatalog';
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async () => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

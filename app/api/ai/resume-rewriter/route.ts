@@ -14,7 +14,8 @@ import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { prisma } from '@/lib/db/prisma';
 import { analyzeResume } from '@/lib/ai/resumeScore';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApiGuc(async (request: Request) => {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
     if (!user) {

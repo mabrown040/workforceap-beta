@@ -49,7 +49,7 @@ describe('NotificationBell', () => {
     });
   });
 
-  it('opens dropdown on click', async () => {
+  it('opens dropdown on click and marks all read for member', async () => {
     vi.mocked(global.fetch).mockResolvedValue({
       ok: true,
       json: async () => ({ notifications: [], unreadCount: 0 }),
@@ -61,6 +61,75 @@ describe('NotificationBell', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Notifications')).toBeInTheDocument();
+    });
+  });
+
+  it('marks all notifications as read when dropdown opens with unread items', async () => {
+    const mockFetch = vi.fn();
+    global.fetch = mockFetch;
+
+    // First call: initial fetch (GET notifications)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        notifications: [
+          {
+            id: 'n1',
+            type: 'message',
+            title: 'New message',
+            body: 'Hello',
+            data: null,
+            readAt: null,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        unreadCount: 1,
+      }),
+    } as Response);
+
+    // Second call: mark all read (POST read-all)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ ok: true, updatedCount: 1, unreadCount: 0 }),
+    } as Response);
+
+    render(<NotificationBell />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('1 notification')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText('1 notification'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Notifications')).toBeInTheDocument();
+    });
+
+    // Verify mark-all-read was called
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/member/notifications/read-all',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+  });
+
+  it('fetches with limit=5 for member role', async () => {
+    const mockFetch = vi.fn();
+    global.fetch = mockFetch;
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ notifications: [], unreadCount: 0 }),
+    } as Response);
+
+    render(<NotificationBell />);
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/member/notifications?limit=5',
+        expect.any(Object)
+      );
     });
   });
 

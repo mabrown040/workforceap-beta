@@ -439,6 +439,13 @@ export async function recordXapiEvent(args: {
     }
   }
 
+  // Fallback: if organizationId is still null, use a sentinel value
+  // to satisfy NOT NULL constraint on coursera_xapi_events.
+  // This handles unmatched actors and lookup failures gracefully.
+  if (!organizationId) {
+    organizationId = 'unknown';
+  }
+
   if (statementId) {
     await prisma.$executeRaw`
       INSERT INTO coursera_xapi_events (

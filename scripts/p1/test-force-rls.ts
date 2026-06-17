@@ -1,7 +1,7 @@
 /**
  * scripts/p1/test-force-rls.ts
  *
- * FORCE ROW LEVEL SECURITY staging rehearsal harness — EXPANDED v2.
+ * FORCE ROW LEVEL SECURITY staging rehearsal harness — EXPANDED v3.
  *
  * Goal: Before flipping `ALTER TABLE ... FORCE ROW LEVEL SECURITY` in
  * production, run this harness against a shadow database to prove that
@@ -15,14 +15,18 @@
  *      for this rehearsal. Historical migrations are not replayable from
  *      empty because a few early sprint migrations were shipped out of
  *      order after production had already drifted past them.
- *   3. Toggles `FORCE ROW LEVEL SECURITY` on the expanded set of
+ *   3. Creates a dedicated `rls_test` role with NOBYPASSRLS and grants
+ *      it SELECT/INSERT/UPDATE/DELETE on all tables. This is critical:
+ *      the default `postgres` superuser has BYPASSRLS which silently
+ *      defeats FORCE ROW LEVEL SECURITY, producing false positives.
+ *   4. Toggles `FORCE ROW LEVEL SECURITY` on the expanded set of
  *      high-stakes tables (selected by policy count + risk from migration
  *      20260513040000_add_rls_policies and subsequent migrations).
- *   4. Seeds 5 personas across 2 organizations.
- *   5. Wraps every assertion in `runWithGucContext()` so the real
- *      Prisma `$transaction` GUC override (lib/db/prisma.ts) is
- *      exercised end-to-end.
- *   6. Counts pass/fail per persona-test pair and prints a markdown
+ *   5. Seeds 5 personas across 2 organizations.
+ *   6. Wraps every assertion in `runWithGucContext()` + `prisma.$transaction`
+ *      so the real Prisma GUC override (lib/db/prisma.ts) is exercised
+ *      end-to-end and transaction-local GUCs persist across queries.
+ *   7. Counts pass/fail per persona-test pair and prints a markdown
  *      summary suitable for pasting into a PR or runbook.
  *
  * Exit code = total failures (0 = clean).
@@ -141,6 +145,7 @@ const RLS_POLICY_MIGRATIONS = [
   'prisma/migrations/20260602054122_rls_policies_courses_catalog_enrollments/migration.sql',
   'prisma/migrations/20260603010000_rls_apply_eligibility_and_public_wioa/migration.sql',
   'prisma/migrations/20260613140000_add_referral_rls/migration.sql',
+  'prisma/migrations/20260616050000_fix_force_rls_recursion_is_admin/migration.sql',
   // NOTE: 20260614180000_s2_compliance_guc_nullif_xapi_org requires
   // xapi_statements.actor_identifier column which doesn't exist in a fresh
   // shadow DB (it was added in a later migration). We skip it here.
@@ -208,7 +213,11 @@ async function assertCount(
   client: PrismaClient,
 ): Promise<void> {
   try {
-    const actual = await runWithGucContext(ctx, () => query(client));
+    // Wrap in $transaction so GUCs are set inside the transaction boundary
+    // where SET LOCAL is visible to all queries (including RLS policies).
+    const actual = await runWithGucContext(ctx, () =>
+      client.$transaction(async (tx) => query(tx as unknown as PrismaClient)),
+    );
     let ok = true;
     if (expected.eq !== undefined && actual !== expected.eq) ok = false;
     if (expected.gte !== undefined && actual < expected.gte) ok = false;
@@ -241,7 +250,9 @@ async function assertThrows(
   client: PrismaClient,
 ): Promise<void> {
   try {
-    await runWithGucContext(ctx, () => query(client));
+    await runWithGucContext(ctx, () =>
+      client.$transaction(async (tx) => query(tx as unknown as PrismaClient)),
+    );
     results.push({
       persona,
       description,
@@ -261,7 +272,9 @@ async function assertOk(
   client: PrismaClient,
 ): Promise<void> {
   try {
-    await runWithGucContext(ctx, () => query(client));
+    await runWithGucContext(ctx, () =>
+      client.$transaction(async (tx) => query(tx as unknown as PrismaClient)),
+    );
     results.push({ persona, description, passed: true });
   } catch (err) {
     results.push({
@@ -492,6 +505,65 @@ async function setForceRls(client: PrismaClient, enable: boolean): Promise<void>
 }
 
 // ----------------------------------------------------------------------
+// RLS test role setup.
+//
+// The default `postgres` superuser has BYPASSRLS, which silently defeats
+// FORCE ROW LEVEL SECURITY. We create a dedicated role with NOBYPASSRLS
+// and reconnect as it for all assertions so the harness actually tests
+// RLS policies, not superuser privileges.
+// ----------------------------------------------------------------------
+
+async function setupRlsTestRole(client: PrismaClient, shadowUrl: string): Promise<string> {
+  // Create role if not exists (idempotent)
+  await client.$executeRawUnsafe(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'rls_test') THEN
+        CREATE ROLE rls_test WITH LOGIN NOBYPASSRLS NOINHERIT PASSWORD 'rls_test_pass';
+      END IF;
+    END
+    $$;
+  `);
+
+  // Grant schema usage and table privileges
+  await client.$executeRawUnsafe(`GRANT USAGE ON SCHEMA public TO rls_test;`);
+
+  // Grant all privileges on all tables in public schema
+  await client.$executeRawUnsafe(`
+    DO $$
+    DECLARE
+      r RECORD;
+    BEGIN
+      FOR r IN SELECT tablename FROM pg_tables WHERE schemaname = 'public'
+      LOOP
+        EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON ' || quote_ident(r.tablename) || ' TO rls_test';
+      END LOOP;
+    END
+    $$;
+  `);
+
+  // Grant sequence usage for INSERTs with serial/identity columns
+  await client.$executeRawUnsafe(`
+    DO $$
+    DECLARE
+      r RECORD;
+    BEGIN
+      FOR r IN SELECT sequencename FROM pg_sequences WHERE schemaname = 'public'
+      LOOP
+        EXECUTE 'GRANT USAGE, SELECT ON SEQUENCE ' || quote_ident(r.sequencename) || ' TO rls_test';
+      END LOOP;
+    END
+    $$;
+  `);
+
+  // Build connection URL as rls_test role
+  const url = new URL(shadowUrl);
+  url.username = 'rls_test';
+  url.password = 'rls_test_pass';
+  return url.toString();
+}
+
+// ----------------------------------------------------------------------
 // Persona contexts.
 // ----------------------------------------------------------------------
 
@@ -548,14 +620,18 @@ async function main(): Promise<number> {
   }
 
   const client = new PrismaClient({ datasources: { db: { url: shadowUrl } } });
-
-  // Apply the same GUC + transaction wiring used in lib/db/prisma.ts by
-  // importing the singleton. We use a fresh client above only for setup
-  // (so the migration's bypass for `system` role works cleanly). For the
-  // persona assertions we use the *real* `prisma` export.
-  const { prisma: realPrisma } = await import('../../lib/db/prisma');
+  let rlsPrisma: PrismaClient | undefined;
 
   try {
+    console.log('[force-rls] Setting up rls_test role (NOBYPASSRLS)...');
+    const rlsTestUrl = await setupRlsTestRole(client, shadowUrl);
+
+    // Create a PrismaClient connected as rls_test (NOT postgres superuser).
+    // The postgres superuser has BYPASSRLS which silently defeats FORCE RLS,
+    // producing false positives. rls_test has NOBYPASSRLS so policies are
+    // actually enforced.
+    rlsPrisma = new PrismaClient({ datasources: { db: { url: rlsTestUrl } } });
+
     console.log('[force-rls] Seeding personas...');
     await seedPersonas(client);
 
@@ -578,7 +654,7 @@ async function main(): Promise<number> {
           .count({ where: { organizationId: SEED.orgA } })
           .then((n: number) => n),
       { gte: 2 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Admin Org A',
@@ -589,7 +665,7 @@ async function main(): Promise<number> {
           .count({ where: { organizationId: SEED.orgB } })
           .then((n: number) => n),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Admin Org A',
@@ -597,7 +673,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.employer.count({ where: { organizationId: SEED.orgA } }),
       { gte: 1 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Admin Org A',
@@ -605,7 +681,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.employer.count({ where: { organizationId: SEED.orgB } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Admin job scoping
@@ -615,7 +691,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.job.count({ where: { organizationId: SEED.orgA } }),
       { gte: 1 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Admin Org A',
@@ -623,7 +699,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.job.count({ where: { organizationId: SEED.orgB } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Admin course/catalog scoping
@@ -633,7 +709,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.course.count({ where: { organizationId: SEED.orgA } }),
       { gte: 1 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Admin Org A',
@@ -641,7 +717,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.course.count({ where: { organizationId: SEED.orgB } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Admin message thread scoping
@@ -651,7 +727,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.messageThread.count({ where: { id: SEED.messageThreadA } }),
       { gte: 1 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Admin Org A',
@@ -659,7 +735,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.messageThread.count({ where: { id: '00000000-0000-0000-0000-0000000000bf' } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Admin goal scoping
@@ -669,7 +745,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.goal.count({ where: { userId: SEED.memberM1 } }),
       { gte: 1 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Admin write — create a job (should succeed)
@@ -689,7 +765,7 @@ async function main(): Promise<number> {
             status: 'live',
           },
         }),
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Admin write — cross-org job INSERT should fail
@@ -709,7 +785,7 @@ async function main(): Promise<number> {
             status: 'live',
           },
         }),
-      realPrisma,
+      rlsPrisma,
     );
 
     // -- Counselor Org A --
@@ -724,7 +800,7 @@ async function main(): Promise<number> {
       counselorACtx,
       (c) => c.user.count({ where: { id: SEED.memberM1 } }),
       { eq: 1 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Counselor Org A',
@@ -732,7 +808,7 @@ async function main(): Promise<number> {
       counselorACtx,
       (c) => c.user.count({ where: { id: SEED.memberM2 } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Counselor note access
@@ -742,7 +818,7 @@ async function main(): Promise<number> {
       counselorACtx,
       (c) => c.counselorNote.count({ where: { memberId: SEED.memberM1 } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // -- Member m1 --
@@ -757,7 +833,7 @@ async function main(): Promise<number> {
       memberM1Ctx,
       (c) => c.profile.count({ where: { userId: SEED.memberM1 } }),
       { eq: 1 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Member m1',
@@ -765,7 +841,7 @@ async function main(): Promise<number> {
       memberM1Ctx,
       (c) => c.profile.count({ where: { userId: SEED.memberM2 } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Member m1',
@@ -773,7 +849,7 @@ async function main(): Promise<number> {
       memberM1Ctx,
       (c) => c.user.count({ where: { organizationId: SEED.orgA } }),
       { lte: 1 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Member goal access
@@ -783,7 +859,7 @@ async function main(): Promise<number> {
       memberM1Ctx,
       (c) => c.goal.count({ where: { userId: SEED.memberM1 } }),
       { gte: 1 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Member m1',
@@ -791,7 +867,7 @@ async function main(): Promise<number> {
       memberM1Ctx,
       (c) => c.goal.count({ where: { userId: SEED.memberM2 } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Member job application write
@@ -810,7 +886,7 @@ async function main(): Promise<number> {
             curatedJobId: SEED.jobA,
           },
         }),
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Member cross-org job application write should fail
@@ -829,7 +905,7 @@ async function main(): Promise<number> {
             curatedJobId: SEED.jobB,
           },
         }),
-      realPrisma,
+      rlsPrisma,
     );
 
     // -- Partner Org A --
@@ -848,7 +924,7 @@ async function main(): Promise<number> {
           where: { partnerId: SEED.partnerARow },
         }),
       { gte: 1 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Partner Org A',
@@ -856,7 +932,7 @@ async function main(): Promise<number> {
       partnerACtx,
       (c) => c.user.count({ where: { organizationId: SEED.orgB } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Partner referral code access
@@ -866,7 +942,7 @@ async function main(): Promise<number> {
       partnerACtx,
       (c) => c.referralCode.count({ where: { id: SEED.referralCodeA } }),
       { gte: 1 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Partner outreach log access
@@ -876,7 +952,7 @@ async function main(): Promise<number> {
       partnerACtx,
       (c) => c.partnerOutreachLog.count({ where: { id: '00000000-0000-0000-0000-0000000000bf' } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // -- Anonymous --
@@ -887,7 +963,7 @@ async function main(): Promise<number> {
       anonCtx,
       (c) => c.user.count(),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Anonymous',
@@ -895,7 +971,7 @@ async function main(): Promise<number> {
       anonCtx,
       (c) => c.profile.count(),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Anonymous cannot read jobs (jobs_select_org_published requires org match)
@@ -905,7 +981,7 @@ async function main(): Promise<number> {
       anonCtx,
       (c) => c.job.count(),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: Anonymous cannot read courses
@@ -915,7 +991,7 @@ async function main(): Promise<number> {
       anonCtx,
       (c) => c.course.count(),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // -- Super Admin --
@@ -930,7 +1006,7 @@ async function main(): Promise<number> {
       superAdminCtx,
       (c) => c.user.count(),
       { gte: 4 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Super Admin',
@@ -938,7 +1014,7 @@ async function main(): Promise<number> {
       superAdminCtx,
       (c) => c.employer.count(),
       { gte: 2 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // -- System role --
@@ -953,7 +1029,7 @@ async function main(): Promise<number> {
       systemCtx,
       (c) => c.milestoneCascade.count(),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
 
     // v2: xAPI org-scoped access
@@ -963,7 +1039,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.xapiStatement.count({ where: { id: '00000000-0000-0000-0000-0000000000bf' } }),
       { gte: 0 },
-      realPrisma,
+      rlsPrisma,
     );
     await assertCount(
       'Admin Org A',
@@ -971,7 +1047,7 @@ async function main(): Promise<number> {
       adminACtx,
       (c) => c.xapiStatement.count({ where: { id: '00000000-0000-0000-0000-0000000000bf' } }),
       { eq: 0 },
-      realPrisma,
+      rlsPrisma,
     );
   } finally {
     try {
@@ -980,7 +1056,7 @@ async function main(): Promise<number> {
       console.warn('[force-rls] failed to clear FORCE RLS:', err);
     }
     await client.$disconnect();
-    await realPrisma.$disconnect();
+    if (rlsPrisma) await rlsPrisma.$disconnect();
   }
 
   // ----------------------------------------------------------------------
@@ -992,7 +1068,7 @@ async function main(): Promise<number> {
   const total = results.length;
 
   const lines: string[] = [];
-  lines.push('# FORCE RLS Staging Rehearsal — Results (v2 Expanded)');
+  lines.push('# FORCE RLS Staging Rehearsal — Results (v3 Expanded)');
   lines.push('');
   lines.push(`Total: **${total}**  |  Passed: **${passed}**  |  Failed: **${failed}**`);
   lines.push('');
@@ -1012,6 +1088,11 @@ async function main(): Promise<number> {
   lines.push('');
   lines.push('## Coverage Notes');
   lines.push('');
+  lines.push('### v3 fixes (from v2 false failures)');
+  lines.push('- **BYPASSRLS fix**: The harness now creates a dedicated `rls_test` role with `NOBYPASSRLS` and reconnects as it for all assertions. The v2 harness connected as `postgres` superuser which has `BYPASSRLS`, silently defeating FORCE RLS and producing 13 false positives.');
+  lines.push('- **Transaction wrapper**: All assertions now wrap queries in `prisma.$transaction()` so GUC `SET LOCAL` values persist across the transaction boundary where RLS policies can read them.');
+  lines.push('- **Recursion fix migration**: Added `20260616050000_fix_force_rls_recursion_is_admin` to the applied migration list.');
+  lines.push('');
   lines.push('### What this harness proves');
   lines.push('- Read isolation across org boundaries for: users, profiles, employers, jobs, courses, message_threads, goals, xapi_statements');
   lines.push('- Write enforcement: admin job INSERT scoped to org; member job_application INSERT scoped to own user_id');
@@ -1026,6 +1107,7 @@ async function main(): Promise<number> {
   lines.push('- **placement_records table**: no write policies yet. Placement workflow writes will hard-fail.');
   lines.push('- **audit_logs / audit_events**: service-role writes; need `system` policy verification outside this harness.');
   lines.push('- **resources table**: `resources_select_all` anonymous policy uses `get_current_user_id() IS NOT NULL` which is bypassed by `\'\'` (empty string). Needs `NULLIF` fix before FORCE.');
+  lines.push('- **job_applications_insert_own policy gap**: The policy only checks `user_id = get_current_user_id()` but does NOT validate that `curated_job_id` belongs to the same org. A member can apply to a cross-org job. This is a real RLS gap, not a harness bug.');
   lines.push('- **notifications, member_feedback, webhook_events, feature_flags, email_templates, cron_executions**: NO RLS enabled at all. These tables are implicitly excluded from FORCE coverage.');
   lines.push('- **PgBouncer GUC stickiness**: This harness uses `$transaction` for every assertion. Single-statement routes outside `$transaction` may still fail under PgBouncer.');
   lines.push('');

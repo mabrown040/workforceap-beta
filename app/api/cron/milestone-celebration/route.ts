@@ -112,8 +112,8 @@ async function handle(_req: NextRequest) {
       if (pointsResult.awarded) pointsAwardedCount++;
 
       // Only include real, consented testimonials in member-facing email.
-      // Placeholder stories remain in content/testimonials.ts for UI review,
-      // but must never leave the machine as social proof.
+      // Static testimonials are kept empty until real, consented quotes are
+      // gathered and reviewed. No fabricated social proof is sent.
       const launchSafeTestimonials = TESTIMONIALS.filter((t) => !t.id.startsWith('placeholder-'));
       const programMatch = launchSafeTestimonials.find(
         (t) => t.program && programSlug && t.program.toLowerCase().includes(programSlug.toLowerCase()),

@@ -88,7 +88,7 @@ export default function EmployersHeroCtaExperiment({
         style={{ fontSize: '1.125rem' }}
         aria-hidden="true"
       >
-        calendar_today
+        arrow_forward
       </span>
     </>
   );

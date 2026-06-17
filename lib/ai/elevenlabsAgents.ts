@@ -39,8 +39,8 @@ const FALLBACK_AGENT_IDS: Partial<Record<ElevenLabsPortalAgentKey, string>> = {
   readiness: 'agent_5801kmznwny0e8gtmb726aaeevnt',
   resume_coach: 'agent_6601kmznw90ffxkbk7mpbym73vh9',
   wioa_prequal: 'agent_6801knv07nb2ftj9p54nm6xem0xj',
-  /** Dedicated Career & Business coach agent (patched via ElevenLabs API with specialized prompt). */
-  career_business: 'agent_5701kqfjg48rf30a8a0gehze8war',
+  /** Dedicated Career & Business coach agent. */
+  career_business: 'agent_2001kv8wn1zhepm9x4tjfdzwm6v8',
 };
 
 export function getElevenLabsAgentId(key: ElevenLabsPortalAgentKey): string | undefined {

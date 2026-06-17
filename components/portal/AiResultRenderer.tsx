@@ -18,6 +18,8 @@
  */
 
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import SkillMapperRadar from '@/components/portal/tools/SkillMapperRadar';
 
 // ─── Type definitions ───────────────────────────────────────────────────────
@@ -168,65 +170,49 @@ function SkillAssessmentRenderer({ raw }: { raw: string }) {
 }
 
 function ResumeRenderer({ raw }: { raw: string }) {
-  // Resume output is typically markdown — render it section by section
-  const sections = raw
-    .replace(/\r\n/g, '\n')
-    .split(/\n(?=#{1,3}\s)/g)
-    .filter((s) => s.trim());
-
-  if (sections.length <= 1) {
-    // No headings — treat as plain paragraphs
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {raw.split(/\n{2,}/).filter(Boolean).map((para, i) => (
-          <p key={i} style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', lineHeight: 1.65, margin: 0 }}>
-            {para.replace(/#{1,3}\s+/g, '').replace(/\*\*/g, '')}
-          </p>
-        ))}
-      </div>
-    );
-  }
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontFamily: 'inherit' }}>
-      {sections.map((sec, i) => {
-        const lines = sec.split('\n').filter(Boolean);
-        const heading = lines[0].replace(/^#+\s+/, '').replace(/\*\*/g, '');
-        const body = lines.slice(1).join('\n').trim();
-        return (
-          <div key={i}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.375rem', borderBottom: '1px solid rgba(173,44,77,0.15)', paddingBottom: '0.25rem' }}>
-              {heading}
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              {body.split('\n').map((line, j) => {
-                const clean = line.replace(/^[-*•]\s+/, '').replace(/\*\*/g, '');
-                const isBullet = /^[-*•]/.test(line.trim());
-                if (!clean.trim()) return null;
-                return (
-                  <p key={j} style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', lineHeight: 1.6, margin: 0, paddingLeft: isBullet ? '1rem' : 0, position: 'relative' as const }}>
-                    {isBullet && <span style={{ position: 'absolute', left: 0, color: 'var(--color-accent)' }}>·</span>}
-                    {clean}
-                  </p>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
+    <div className="ai-result-markdown" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', lineHeight: 1.65, margin: 0 }}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+        p: ({ children }) => <p style={{ margin: '0 0 0.75rem', lineHeight: 1.65 }}>{children}</p>,
+        h1: ({ children }) => <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.375rem', borderBottom: '1px solid rgba(173,44,77,0.15)', paddingBottom: '0.25rem' }}>{children}</p>,
+        h2: ({ children }) => <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.375rem', borderBottom: '1px solid rgba(173,44,77,0.15)', paddingBottom: '0.25rem' }}>{children}</p>,
+        h3: ({ children }) => <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.375rem', borderBottom: '1px solid rgba(173,44,77,0.15)', paddingBottom: '0.25rem' }}>{children}</p>,
+        ul: ({ children }) => <ul style={{ margin: '0.5rem 0', paddingLeft: '1.25rem' }}>{children}</ul>,
+        ol: ({ children }) => <ol style={{ margin: '0.5rem 0', paddingLeft: '1.25rem' }}>{children}</ol>,
+        li: ({ children }) => <li style={{ margin: '0.25rem 0' }}>{children}</li>,
+        strong: ({ children }) => <strong style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{children}</strong>,
+        em: ({ children }) => <em style={{ fontStyle: 'italic', color: 'var(--color-on-surface-variant)' }}>{children}</em>,
+        code: ({ children }) => <code style={{ fontFamily: 'monospace', fontSize: '0.8125rem', background: 'var(--surface-container-high)', padding: '0.15rem 0.35rem', borderRadius: '0.25rem', color: 'var(--color-on-surface)' }}>{children}</code>,
+        pre: ({ children }) => <pre style={{ fontFamily: 'monospace', fontSize: '0.8125rem', background: 'var(--surface-container-high)', padding: '0.75rem', borderRadius: '0.5rem', overflow: 'auto', margin: '0.75rem 0' }}>{children}</pre>,
+        a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{children}</a>,
+        blockquote: ({ children }) => <blockquote style={{ borderLeft: '3px solid var(--color-accent)', paddingLeft: '0.75rem', margin: '0.75rem 0', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>{children}</blockquote>,
+      }}>
+        {raw}
+      </ReactMarkdown>
     </div>
   );
 }
 
 function CoverLetterRenderer({ raw }: { raw: string }) {
-  const paragraphs = raw.split(/\n{2,}/).filter((p) => p.trim());
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-      {paragraphs.map((para, i) => (
-        <p key={i} style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.7, margin: 0, fontStyle: i === 0 && para.toLowerCase().includes('dear') ? 'normal' : 'normal' }}>
-          {para.replace(/\*\*/g, '')}
-        </p>
-      ))}
+    <div className="ai-result-markdown" style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.7, margin: 0 }}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+        p: ({ children }) => <p style={{ margin: '0 0 0.875rem', lineHeight: 1.7 }}>{children}</p>,
+        h1: ({ children }) => <h1 style={{ fontSize: '1.125rem', fontWeight: 800, margin: '1rem 0 0.5rem', color: 'var(--color-accent)' }}>{children}</h1>,
+        h2: ({ children }) => <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: '0.875rem 0 0.5rem', color: 'var(--color-accent)' }}>{children}</h2>,
+        h3: ({ children }) => <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: '0.75rem 0 0.5rem', color: 'var(--color-accent)' }}>{children}</h3>,
+        ul: ({ children }) => <ul style={{ margin: '0.5rem 0', paddingLeft: '1.25rem' }}>{children}</ul>,
+        ol: ({ children }) => <ol style={{ margin: '0.5rem 0', paddingLeft: '1.25rem' }}>{children}</ol>,
+        li: ({ children }) => <li style={{ margin: '0.25rem 0' }}>{children}</li>,
+        strong: ({ children }) => <strong style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{children}</strong>,
+        em: ({ children }) => <em style={{ fontStyle: 'italic', color: 'var(--color-on-surface-variant)' }}>{children}</em>,
+        code: ({ children }) => <code style={{ fontFamily: 'monospace', fontSize: '0.8125rem', background: 'var(--surface-container-high)', padding: '0.15rem 0.35rem', borderRadius: '0.25rem', color: 'var(--color-on-surface)' }}>{children}</code>,
+        pre: ({ children }) => <pre style={{ fontFamily: 'monospace', fontSize: '0.8125rem', background: 'var(--surface-container-high)', padding: '0.75rem', borderRadius: '0.5rem', overflow: 'auto', margin: '0.75rem 0' }}>{children}</pre>,
+        a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{children}</a>,
+        blockquote: ({ children }) => <blockquote style={{ borderLeft: '3px solid var(--color-accent)', paddingLeft: '0.75rem', margin: '0.75rem 0', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>{children}</blockquote>,
+      }}>
+        {raw}
+      </ReactMarkdown>
     </div>
   );
 }
@@ -387,36 +373,25 @@ function ProseSectionRenderer({ raw, toolLabel }: { raw: string; toolLabel?: str
     );
   }
 
-  const sections = raw.split(/\n(?=#{1,3}\s)/g).filter((s) => s.trim());
-
-  if (sections.length <= 1) {
-    const paragraphs = raw.split(/\n{2,}/).filter((p) => p.trim());
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {paragraphs.map((p, i) => (
-          <p key={i} style={{ fontSize: '0.9rem', color: 'var(--color-on-surface)', lineHeight: 1.65, margin: 0 }}>
-            {p.replace(/#{1,3}\s+/g, '').replace(/\*\*/g, '')}
-          </p>
-        ))}
-      </div>
-    );
-  }
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      {sections.map((sec, i) => {
-        const lines = sec.split('\n').filter(Boolean);
-        const heading = lines[0].replace(/^#+\s+/, '').replace(/\*\*/g, '');
-        const body = lines.slice(1).join('\n').trim();
-        return (
-          <div key={i}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-accent)', margin: '0 0 0.375rem' }}>{heading}</p>
-            <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', lineHeight: 1.65, margin: 0 }}>
-              {body.replace(/^[-*•]\s+/gm, '· ').replace(/\*\*/g, '')}
-            </p>
-          </div>
-        );
-      })}
+    <div className="ai-result-markdown" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', lineHeight: 1.65, margin: 0 }}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+        p: ({ children }) => <p style={{ margin: '0 0 0.75rem', lineHeight: 1.65 }}>{children}</p>,
+        h1: ({ children }) => <h1 style={{ fontSize: '1.125rem', fontWeight: 800, margin: '1rem 0 0.5rem', color: 'var(--color-accent)' }}>{children}</h1>,
+        h2: ({ children }) => <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: '0.875rem 0 0.5rem', color: 'var(--color-accent)' }}>{children}</h2>,
+        h3: ({ children }) => <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: '0.75rem 0 0.5rem', color: 'var(--color-accent)' }}>{children}</h3>,
+        ul: ({ children }) => <ul style={{ margin: '0.5rem 0', paddingLeft: '1.25rem' }}>{children}</ul>,
+        ol: ({ children }) => <ol style={{ margin: '0.5rem 0', paddingLeft: '1.25rem' }}>{children}</ol>,
+        li: ({ children }) => <li style={{ margin: '0.25rem 0' }}>{children}</li>,
+        strong: ({ children }) => <strong style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{children}</strong>,
+        em: ({ children }) => <em style={{ fontStyle: 'italic', color: 'var(--color-on-surface-variant)' }}>{children}</em>,
+        code: ({ children }) => <code style={{ fontFamily: 'monospace', fontSize: '0.8125rem', background: 'var(--surface-container-high)', padding: '0.15rem 0.35rem', borderRadius: '0.25rem', color: 'var(--color-on-surface)' }}>{children}</code>,
+        pre: ({ children }) => <pre style={{ fontFamily: 'monospace', fontSize: '0.8125rem', background: 'var(--surface-container-high)', padding: '0.75rem', borderRadius: '0.5rem', overflow: 'auto', margin: '0.75rem 0' }}>{children}</pre>,
+        a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{children}</a>,
+        blockquote: ({ children }) => <blockquote style={{ borderLeft: '3px solid var(--color-accent)', paddingLeft: '0.75rem', margin: '0.75rem 0', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>{children}</blockquote>,
+      }}>
+        {raw}
+      </ReactMarkdown>
     </div>
   );
 }
@@ -424,9 +399,25 @@ function ProseSectionRenderer({ raw, toolLabel }: { raw: string; toolLabel?: str
 function FallbackRenderer({ raw }: { raw: string }) {
   const text = typeof raw === 'string' ? raw : JSON.stringify(raw, null, 2);
   return (
-    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', lineHeight: 1.65, whiteSpace: 'pre-wrap', margin: 0 }}>
-      {text}
-    </p>
+    <div className="ai-result-markdown" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface)', lineHeight: 1.65, margin: 0 }}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+        p: ({ children }) => <p style={{ margin: '0 0 0.75rem', lineHeight: 1.65 }}>{children}</p>,
+        h1: ({ children }) => <h1 style={{ fontSize: '1.125rem', fontWeight: 800, margin: '1rem 0 0.5rem', color: 'var(--color-accent)' }}>{children}</h1>,
+        h2: ({ children }) => <h2 style={{ fontSize: '1rem', fontWeight: 700, margin: '0.875rem 0 0.5rem', color: 'var(--color-accent)' }}>{children}</h2>,
+        h3: ({ children }) => <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, margin: '0.75rem 0 0.5rem', color: 'var(--color-accent)' }}>{children}</h3>,
+        ul: ({ children }) => <ul style={{ margin: '0.5rem 0', paddingLeft: '1.25rem' }}>{children}</ul>,
+        ol: ({ children }) => <ol style={{ margin: '0.5rem 0', paddingLeft: '1.25rem' }}>{children}</ol>,
+        li: ({ children }) => <li style={{ margin: '0.25rem 0' }}>{children}</li>,
+        strong: ({ children }) => <strong style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{children}</strong>,
+        em: ({ children }) => <em style={{ fontStyle: 'italic', color: 'var(--color-on-surface-variant)' }}>{children}</em>,
+        code: ({ children }) => <code style={{ fontFamily: 'monospace', fontSize: '0.8125rem', background: 'var(--surface-container-high)', padding: '0.15rem 0.35rem', borderRadius: '0.25rem', color: 'var(--color-on-surface)' }}>{children}</code>,
+        pre: ({ children }) => <pre style={{ fontFamily: 'monospace', fontSize: '0.8125rem', background: 'var(--surface-container-high)', padding: '0.75rem', borderRadius: '0.5rem', overflow: 'auto', margin: '0.75rem 0' }}>{children}</pre>,
+        a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-accent)', textDecoration: 'underline' }}>{children}</a>,
+        blockquote: ({ children }) => <blockquote style={{ borderLeft: '3px solid var(--color-accent)', paddingLeft: '0.75rem', margin: '0.75rem 0', color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>{children}</blockquote>,
+      }}>
+        {text}
+      </ReactMarkdown>
+    </div>
   );
 }
 

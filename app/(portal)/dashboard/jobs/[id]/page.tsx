@@ -18,7 +18,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   let job = null;
   try {
     job = await prisma.job.findFirst({
-      where: { id, status: 'live' },
+      where: {
+        id,
+        status: 'live',
+        AND: [
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gte: new Date() } },
+            ],
+          },
+        ],
+      },
       select: { title: true, description: true },
     });
   } catch {
@@ -35,7 +46,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 async function getJob(id: string) {
   try {
     return await prisma.job.findFirst({
-      where: { id, status: 'live' },
+      where: {
+        id,
+        status: 'live',
+        AND: [
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gte: new Date() } },
+            ],
+          },
+        ],
+      },
       include: { employer: { select: { companyName: true, logoUrl: true } } },
     });
   } catch {

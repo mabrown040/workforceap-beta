@@ -48,4 +48,28 @@ describe('Employers Page — honest trust presentation', () => {
       "scenarioLabel={study.attribution_name ? t('outcomesScenarioLabel') : t('outcomesScenarioLabel')}",
     );
   });
+
+  it('aligns placeholder trust pricing and intake copy with pipeline subscription', () => {
+    const messagesPath = path.resolve(__dirname, '../../messages/en.json');
+    const messages = JSON.parse(readFileSync(messagesPath, 'utf-8')) as {
+      marketing: { employers: Record<string, string> };
+    };
+    const copy = messages.marketing.employers;
+
+    expect(copy.trustPlaceholderTermsTag).toBe('Pipeline subscription');
+    expect(copy.trustPlaceholderTerms).toMatch(/per-placement/i);
+    expect(copy.intakeCopy).toMatch(/pipeline subscription/i);
+    expect(copy.intakeCopy).not.toMatch(/book a call/i);
+  });
+
+  it('uses a forward icon on the hero CTA instead of a calendar booking cue', () => {
+    const ctaPath = path.resolve(
+      __dirname,
+      '../../components/marketing/employers/EmployersHeroCtaExperiment.tsx',
+    );
+    const source = readFileSync(ctaPath, 'utf-8');
+
+    expect(source).toContain('arrow_forward');
+    expect(source).not.toContain('calendar_today');
+  });
 });

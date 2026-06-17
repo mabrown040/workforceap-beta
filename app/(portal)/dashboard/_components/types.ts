@@ -5,6 +5,7 @@ import type { NextBestAction } from '@/lib/member/nextBestActions';
 import type { FirstValueAction } from '@/lib/member/firstValueActions';
 import type { CareerMatchResult } from '@/lib/onet/types';
 import type { LevelName } from '@/lib/member/pointsConfig';
+import type { MemberDashboardTab, MemberDashboardTabLink } from '@/lib/member/dashboardTabs';
 
 /** The `t` function from `getTranslations('dashboard')`, threaded from page.tsx. */
 export type DashboardTranslator = Awaited<ReturnType<typeof getTranslations>>;
@@ -53,6 +54,8 @@ export type RecentToolSummary = {
 
 /** Props for the extracted desktop view. All values are computed in page.tsx. */
 export type DesktopDashboardProps = {
+  activeTab: MemberDashboardTab;
+  availableTabs: MemberDashboardTabLink[];
   userId: string;
   showMemberOnboarding: boolean;
   showMemberTour: boolean;
@@ -64,6 +67,7 @@ export type DesktopDashboardProps = {
     interviewRequestedAt: Date | null;
     interviewCompletedAt: Date | null;
     preScreeningResponse: { id: string } | null;
+    onboardingCurrentStep: number;
     profile: {
       city: string | null;
       state: string | null;
@@ -131,4 +135,6 @@ export type DesktopDashboardProps = {
   recentTx: PointsTransactionSummary[];
   jobOffers: Array<{ id: string; company: string }>;
   showMatchedRoles: boolean;
+  /** First-cert milestone progress (0–100) from getMemberState. */
+  firstCertProgressPercent: number;
 };

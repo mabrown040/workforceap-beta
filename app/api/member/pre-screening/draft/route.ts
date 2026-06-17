@@ -47,7 +47,10 @@ export const GET = withApiGuc(_GET);async function _PUT(request: Request) {
     where: { id: user.id },
     select: { assessmentCompleted: true },
   }));
-  if (!dbUser?.assessmentCompleted) {
+  if (!dbUser) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+  if (!dbUser.assessmentCompleted) {
     return NextResponse.json({ error: 'Complete your assessment first.' }, { status: 400 });
   }
 

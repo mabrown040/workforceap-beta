@@ -4,6 +4,7 @@ import { requireAdminOrCounselor } from '@/lib/auth/roles';
 import { buildMemberExport } from '@/lib/member/exportData';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -43,6 +44,13 @@ async function _GET(
 
     const exportData = await buildMemberExport(id);
 
+    auditLog({
+      actorUserId: actor.id,
+      action: 'admin_member_data_export',
+      targetType: 'User',
+      targetId: id,
+      metadata: { orgId },
+    }).catch((err) => console.error('[export-data] audit log failed:', err));
     logAuditEvent({
       user: { id: actor.id, role: 'admin' },
       verb: 'export_member_data',

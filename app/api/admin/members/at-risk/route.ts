@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { requireAdminOrCounselor } from '@/lib/auth/roles';
+import { requireAdminOrCounselor, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getRiskLevel, THRESHOLDS } from '@/lib/member/atRiskScoring';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: Request) {
@@ -10,6 +11,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: Re
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
   
+    const superAdmin = await isSuperAdmin(auth.userId);
+    const orgId = superAdmin ? null : await getActorOrganizationId(auth.userId).catch(() => null);
+
     const { searchParams } = new URL(req.url);
     const threshold = parseInt(searchParams.get('threshold') ?? String(THRESHOLDS.HIGH), 10);
     const limit = Math.min(parseInt(searchParams.get('limit') ?? '20', 10), 100);
@@ -20,6 +24,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: Re
         where: {
           score: { gte: threshold },
           ...(status ? { status } : { status: { in: ['open', 'acknowledged', 'escalated'] } }),
+          ...(orgId ? { user: { organizationId: orgId } } : {}),
         },
         orderBy: [{ score: 'desc' }, { createdAt: 'desc' }],
         take: limit,
@@ -110,12 +115,21 @@ export const GET = withApiGuc(_GET);async function _PATCH(req: Request) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
   
+    const superAdmin = await isSuperAdmin(auth.userId);
+    const patchOrgId = superAdmin ? null : await getActorOrganizationId(auth.userId).catch(() => null);
+
     try {
       const { alertId, status } = await req.json();
       if (!alertId || !['acknowledged', 'resolved', 'escalated'].includes(status)) {
         return NextResponse.json({ error: 'Invalid alertId or status' }, { status: 400 });
       }
   
+      const existing = await prisma.atRiskAlert.findFirst({
+        where: { id: alertId, ...(patchOrgId ? { user: { organizationId: patchOrgId } } : {}) },
+        select: { id: true },
+      });
+      if (!existing) return NextResponse.json({ error: 'Alert not found' }, { status: 404 });
+
       const alert = await prisma.$transaction((tx) => tx.atRiskAlert.update({
         where: { id: alertId },
         data: {

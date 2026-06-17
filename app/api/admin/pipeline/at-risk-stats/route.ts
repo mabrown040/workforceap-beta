@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { THRESHOLDS } from '@/lib/member/atRiskScoring';
 
@@ -17,11 +18,14 @@ export const GET = withApiGuc(async (_req: NextRequest) => {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const superAdmin = await isSuperAdmin(user.id);
+    const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
     const counselorScope = admin
-      ? {}
+      ? (orgId ? { user: { organizationId: orgId } } : {})
       : {
           user: {
             counselorAssignments: {
@@ -30,6 +34,7 @@ export const GET = withApiGuc(async (_req: NextRequest) => {
                 counselor: { active: true, userId: user.id },
               },
             },
+            ...(orgId ? { organizationId: orgId } : {}),
           },
         };
 

@@ -13,6 +13,7 @@ import {
   type ActionDraft,
 } from '@/lib/milestoneCascade/types';
 import { dispatchApprovedCascade } from '@/lib/milestoneCascade/sendApprovedCascade';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Build a where-fragment that restricts a milestone_cascade lookup to the
@@ -58,7 +59,7 @@ const bodySchema = z.object({
   editedDrafts: z.record(z.string(), editedDraftSchema).optional(),
 });
 
-export async function POST(
+async function _POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -234,3 +235,4 @@ export async function POST(
     );
   }
 }
+export const POST = withApiGuc(_POST);

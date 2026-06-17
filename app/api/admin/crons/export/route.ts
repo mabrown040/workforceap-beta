@@ -4,8 +4,9 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { buildCronsWhere } from '../_cronsQuery';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -50,3 +51,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

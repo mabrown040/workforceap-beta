@@ -7,6 +7,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Dismiss a cascade without sending. Reason is optional but encouraged —
@@ -30,7 +31,7 @@ const bodySchema = z.object({
   reason: z.string().max(1000).optional(),
 });
 
-export async function POST(
+async function _POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -108,3 +109,4 @@ export async function POST(
     );
   }
 }
+export const POST = withApiGuc(_POST);

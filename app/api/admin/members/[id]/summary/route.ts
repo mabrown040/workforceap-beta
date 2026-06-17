@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -38,8 +39,11 @@ export const POST = withApiGuc(
 
       const { id } = await context.params;
 
+      const superAdmin = await isSuperAdmin(user.id);
+      const actorOrgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
       const member = await prisma.$transaction((tx) => tx.user.findUnique({
-        where: { id },
+        where: { id, ...(actorOrgId ? { organizationId: actorOrgId } : {}) },
         select: {
           fullName: true,
           email: true,

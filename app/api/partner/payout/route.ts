@@ -9,13 +9,14 @@ import { buildPartnerPayoutIdempotencyKey, getPartnerPlacementPayoutUsd } from '
 import { isPayoutEligibleType } from '@/lib/partner/partnerType';
 import { getPlacementPayoutRejection } from '@/lib/partner/payoutEligibility';
 import { z } from 'zod';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const payoutSchema = z.object({
   partnerId: z.string().uuid(),
   placementId: z.string().uuid(),
 });
 
-export async function POST(request: NextRequest) {
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -156,4 +157,4 @@ export async function POST(request: NextRequest) {
     console.error('[partner/payout] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

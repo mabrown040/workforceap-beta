@@ -5,10 +5,10 @@ import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(
+export const GET = withApiGuc(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
+): Promise<NextResponse> => {
   try {
     const { id } = await params;
     const user = await getUser();
@@ -23,12 +23,12 @@ export async function GET(
     console.error('[admin/blog/[id] GET] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
-export async function PATCH(
+export const PATCH = withApiGuc(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
+): Promise<NextResponse> => {
   try {
     const { id } = await params;
     const user = await getUser();
@@ -85,12 +85,12 @@ export async function PATCH(
     console.error('[admin/blog/[id] PATCH] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(
+export const DELETE = withApiGuc(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
+): Promise<NextResponse> => {
   try {
     const { id } = await params;
     const user = await getUser();
@@ -108,4 +108,4 @@ export async function DELETE(
     console.error('[admin/blog/[id] DELETE] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

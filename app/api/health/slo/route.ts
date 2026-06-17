@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { logger } from '@/lib/observability/logger';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * GET /api/health/slo
@@ -324,7 +325,7 @@ function measureEmailDelivery(): SloReport {
   };
 }
 
-export async function GET() {
+async function _GET() {
   try {
     const user = await getUser();
     if (!user) {
@@ -384,3 +385,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

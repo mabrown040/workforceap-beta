@@ -4,6 +4,7 @@ import { isEmployer } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getStripe, EMPLOYER_TIERS } from '@/lib/stripe/client';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { z } from 'zod';
 
 const loiSchema = z.object({
@@ -21,7 +22,7 @@ const loiSchema = z.object({
  * Employer Letter of Intent — creates a Stripe subscription checkout session
  * and stores the hiring intent in the database for admin review.
  */
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
@@ -155,7 +156,7 @@ export async function POST(request: NextRequest) {
  * GET /api/employer/loi
  * Retrieve the current employer's LOI status.
  */
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
@@ -192,3 +193,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
+export const GET = withApiGuc(_GET);

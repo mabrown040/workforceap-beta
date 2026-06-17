@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { recordMissionResult, getMissionDefinitionForKey } from '@/lib/member/skillMissions';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const bodySchema = z.object({
@@ -72,6 +73,15 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: Props) =
       },
       aiToolResultId: null,
     });
+
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'skill_checkpoint_decision',
+      object: { type: 'User', id: memberId },
+      result: { success: true, extensions: { checkpointKey: parsed.data.checkpointKey, decision: parsed.data.decision } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] skill_checkpoint_decision:', err));
 
     return NextResponse.json({ ok: true });
   } catch (error) {

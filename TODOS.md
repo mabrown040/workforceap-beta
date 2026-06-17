@@ -108,6 +108,18 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-028: Audit logs for enrollment-funding, subgroup, readiness, skill-checkpoints ✓ Fixed PR #1947
+
+**What:** Four admin routes mutated member data without audit log entries: `enrollment-funding` (funding source), `subgroup` (add/remove member), `readiness` PATCH (checklist item), `skill-checkpoints` (pass/needs-retry decision).
+
+**Fix:** Added `logAuditEvent` calls with verbs `update_enrollment_funding`, `subgroup_member_added`, `subgroup_member_removed`, `update_readiness_item`, `skill_checkpoint_decision`. PR #1947.
+
+**Priority:** P2
+
+**Status:** Fixed 2026-06-17.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.

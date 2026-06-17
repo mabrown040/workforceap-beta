@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { FundingSource } from '@prisma/client';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -71,6 +72,15 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
       workspaceEmailProvisioned: d.workspaceEmailProvisioned ?? false,
     },
   }));
+
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'update_enrollment_funding',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { fundingSource: d.fundingSource ?? null } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] update_enrollment_funding:', err));
 
   return NextResponse.json({ ok: true });
 

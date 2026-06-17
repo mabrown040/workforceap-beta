@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { READINESS_SECTIONS, getJobSiteItemKey } from '@/lib/content/readinessChecklist';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
   request: Request,
@@ -191,6 +192,16 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     where: { id: user.id },
     select: { fullName: true },
   }));
+
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'update_readiness_item',
+    object: { type: 'User', id: userId },
+    result: { success: true, extensions: { itemKey, completed: hasCompleted ? completed : undefined } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] update_readiness_item:', err));
+
   return NextResponse.json({ ok: true, counselorName: dbUser?.fullName ?? (user.user_metadata?.full_name as string) ?? user.email });
 
   } catch (error) {

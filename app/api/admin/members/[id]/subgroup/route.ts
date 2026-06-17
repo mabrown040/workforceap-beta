@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -59,6 +60,15 @@ const postSchema = z.object({
     },
   }));
 
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'subgroup_member_added',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { subgroupId: parsed.data.subgroupId } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] subgroup_member_added:', err));
+
   return NextResponse.json({ ok: true });
 
   } catch (error) {
@@ -111,6 +121,15 @@ export const POST = withApiGuc(_POST);async function _DELETE(
   if (deleted.count === 0) {
     return NextResponse.json({ error: 'Member not in this subgroup' }, { status: 404 });
   }
+
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'subgroup_member_removed',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { subgroupId } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] subgroup_member_removed:', err));
 
   return NextResponse.json({ ok: true });
 

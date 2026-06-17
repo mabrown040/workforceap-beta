@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const SUBGROUP_TYPES = ['partner', 'manager', 'church'] as const;
 
@@ -64,6 +65,7 @@ const patchSchema = z.object({
       _count: { select: { members: true } },
     },
   }));
+  void auditLog({ actorUserId: user.id, action: 'admin_subgroup_update', targetType: 'subgroup', targetId: id, metadata: { fields: Object.keys(data) } }).catch(() => {});
   return NextResponse.json(updated);
 
   } catch (error) {
@@ -89,6 +91,7 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   if (!subgroup) return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
 
   await prisma.$transaction((tx) => tx.subgroup.delete({ where: { id } }));
+  void auditLog({ actorUserId: user.id, action: 'admin_subgroup_delete', targetType: 'subgroup', targetId: id, metadata: { name: subgroup.name } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

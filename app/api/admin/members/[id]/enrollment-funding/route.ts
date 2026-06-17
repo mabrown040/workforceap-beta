@@ -7,6 +7,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { FundingSource } from '@prisma/client';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const bodySchema = z.object({
   fundingSource: z.nativeEnum(FundingSource).optional().nullable(),
@@ -72,6 +73,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     },
   }));
 
+  void auditLog({ actorUserId: user.id, action: 'admin_member_enrollment_funding_update', targetType: 'user', targetId: memberId, metadata: { fundingSource: d.fundingSource ?? null } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

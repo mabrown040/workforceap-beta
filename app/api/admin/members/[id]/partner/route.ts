@@ -7,6 +7,7 @@ import { sendPartnerNewMemberAssignedEmail } from '@/lib/notifications/partner-n
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const patchSchema = z.object({
   /** Clear with null; empty string from forms coerces to null */
@@ -51,6 +52,7 @@ const patchSchema = z.object({
     try {
       if (!partnerId) {
         await prisma.$transaction((tx) => tx.partnerReferral.deleteMany({ where: { memberId } }));
+        void auditLog({ actorUserId: user.id, action: 'admin_member_partner_assign', targetType: 'user', targetId: memberId, metadata: { partnerId: null } }).catch(() => {});
         return NextResponse.json({ ok: true });
       }
   
@@ -71,7 +73,8 @@ const patchSchema = z.object({
       } catch (notifyErr) {
         console.error('[admin] Partner assignment saved; notification failed:', notifyErr);
       }
-  
+
+      void auditLog({ actorUserId: user.id, action: 'admin_member_partner_assign', targetType: 'user', targetId: memberId, metadata: { partnerId } }).catch(() => {});
       return NextResponse.json({ ok: true });
     } catch (e) {
       console.error('[admin] PATCH member partner:', e);

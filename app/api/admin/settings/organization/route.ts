@@ -7,6 +7,7 @@ import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const hexColor = z
   .string()
@@ -77,6 +78,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: NextRequest) 
     },
   }));
 
+  void auditLog({ actorUserId: user.id, action: 'admin_org_settings_update', targetType: 'organization', targetId: organizationId, metadata: { fields: Object.keys(parsed.data) } }).catch(() => {});
   return NextResponse.json({
     ...org,
     logo: resolveSupabasePublicAssetUrl('organization-branding', org.logo),

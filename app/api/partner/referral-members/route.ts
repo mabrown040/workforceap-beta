@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /** Lightweight list for outreach logging dropdowns. */
-export async function GET() {
+async function _GET() {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -26,3 +27,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

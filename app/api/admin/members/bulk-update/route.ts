@@ -9,6 +9,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 import type { PipelineBoardStage, MemberStatus } from '@prisma/client';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const MAX_MEMBERS = 100;
 
@@ -23,7 +24,7 @@ const bodySchema = z.object({
   programSlug: z.string().min(1).nullable().optional(),
 });
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -223,3 +224,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

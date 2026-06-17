@@ -120,8 +120,19 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-030: admin/export/members missing audit log — ✓ Fixed
+
+**What:** `GET /api/admin/export/members` exports bulk PII (DOB, phone, ethnicity, income, WIOA status, salary) without any audit trail. `admin/cohort-export` and `admin/members/bulk-export` both have `§H-DEP4` audit logs; this route was introduced without one.
+
+**Priority:** P2 (compliance — PII export without record)
+
+**Status:** Fixed 2026-06-17. `auditLog` + `logAuditEvent` added, matching the cohort-export pattern.
+
+---
+
 ## Completed
 
+- **TODO-030: admin/export/members audit log** — PII export audit trail added. Completed 2026-06-17.
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.
 - **TODO-016: partner/dashboard missing withApiGuc** — GUC wrapper added. Completed 2026-06-17. PR #1867.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

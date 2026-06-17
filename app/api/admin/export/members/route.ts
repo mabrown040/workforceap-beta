@@ -8,6 +8,8 @@ import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage } from '@/l
 import { buildCsv, csvDate } from '@/lib/csv';
 import { buildMemberExportWhere, fetchMembersForExport, MEMBER_EXPORT_LIMIT } from './_membersExportQuery';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 /**
  * GET /api/admin/export/members
@@ -173,6 +175,22 @@ async function _GET(req: NextRequest) {
     headers['X-Export-Truncated'] = `true`;
     headers['X-Export-Limit'] = `${MEMBER_EXPORT_LIMIT}`;
   }
+
+  // §H-DEP4: PII exports must leave an audit trail.
+  auditLog({
+    actorUserId: user.id,
+    action: 'admin.export.members',
+    targetType: 'MembersExport',
+    metadata: { orgId, rowCount: rows.length, truncated, filters: { state: filterState, stage: filterStage, program: filterProgram, wioaStatus: filterWioa } },
+  }).catch((err) => console.error('[admin/export/members] audit log failed:', err));
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'exported',
+    object: { type: 'MembersExport', id: 'bulk' },
+    result: { success: true, extensions: { orgId, rowCount: rows.length, truncated } },
+    request: auditRequestMeta(req),
+    orgId,
+  }).catch((err) => console.error('[admin/export/members] xAPI audit failed:', err));
 
   return new NextResponse(csv, { status: 200, headers });
 

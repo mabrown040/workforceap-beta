@@ -57,18 +57,18 @@ export const GET = withApiGuc(async (req: Request) => {
         prisma.placementSurvey.count({ where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: { not: null } } }),
         prisma.placementSurvey.count({ where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: null } }),
         prisma.placementSurvey.count({
-          where: { completedAt: { not: null }, allowTestimonial: true },
+          where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: { not: null }, allowTestimonial: true },
         }),
         prisma.placementSurvey.aggregate({
-          where: { completedAt: { not: null } },
+          where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: { not: null } },
           _avg: { jobSatisfaction: true },
         }),
         prisma.placementSurvey.aggregate({
-          where: { completedAt: { not: null } },
+          where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: { not: null } },
           _avg: { trainingRelevance: true },
         }),
         prisma.placementSurvey.aggregate({
-          where: { completedAt: { not: null } },
+          where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: { not: null } },
           _avg: { supportQuality: true },
         }),
       ]);

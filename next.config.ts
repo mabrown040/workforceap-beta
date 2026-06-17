@@ -271,7 +271,7 @@ const nextConfig: NextConfig = {
       // Member portal legacy route fixes (QA-ISSUE-001)
       { source: '/portal/dashboard', destination: '/dashboard', permanent: true },
       { source: '/portal/training', destination: '/dashboard/program', permanent: true },
-      { source: '/training', destination: '/dashboard/program', permanent: true }, // Added redirect for /training to /dashboard/program
+      { source: '/training', destination: '/dashboard/program', permanent: true },
       { source: '/dashboard/plan', destination: '/dashboard/career-brief', permanent: true },
       { source: '/dashboard/weekly-focus', destination: '/dashboard/weekly-recap', permanent: true },
     ];

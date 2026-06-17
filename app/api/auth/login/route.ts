@@ -42,8 +42,8 @@ export const POST = withApiGuc(async (request: Request) => {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
   const rateLimitKey = `login:${ip}:${email.toLowerCase()}`;
   const [emailBucket, ipBucket] = await Promise.all([
-    checkAuthRateLimit(rateLimitKey),
-    checkAuthIpRateLimit(ip),
+    checkAuthRateLimit(rateLimitKey, request),
+    checkAuthIpRateLimit(ip, request),
   ]);
   if (!emailBucket.success || !ipBucket.success) {
     return NextResponse.json(

@@ -294,7 +294,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                     Not sure which one fits? Start with these three.
                   </h3>
                 </div>
-                <LocalizedLink href="/find-your-path" className="btn btn-primary">Take the 2-minute quiz</LocalizedLink>
+                <LocalizedLink href="/career-quiz" className="btn btn-primary">Take the 2-minute quiz</LocalizedLink>
               </div>
               <p style={{ fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', maxWidth: '44rem', lineHeight: 1.6, margin: '0.75rem 0 1rem' }}>
                 These are the safest first choices for members who are new, want the fastest job path, or prefer a business-friendly route.
@@ -431,7 +431,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
           ))}
         </div>
         )}
-        <div className="programs-quiz-sticky"><LocalizedLink href="/find-your-path" className="btn btn-primary">Not sure? Take the 2-minute quiz</LocalizedLink></div>
+        <div className="programs-quiz-sticky"><LocalizedLink href="/career-quiz" className="btn btn-primary">Not sure? Take the 2-minute quiz</LocalizedLink></div>
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
           Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>

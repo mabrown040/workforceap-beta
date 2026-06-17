@@ -181,9 +181,7 @@ export default function DataTable<TRow>({
                 }
               }
               className={
-                [col.hideOnMobile ? 'wa-hidden md:wa-table-cell' : undefined, col.columnClassName]
-                  .filter(Boolean)
-                  .join(' ') || undefined
+                [col.columnClassName].filter(Boolean).join(' ') || undefined
               }
             >
               {col.header}

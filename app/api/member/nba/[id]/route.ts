@@ -28,6 +28,11 @@ export const PATCH = withApiGuc(async (
       }));
       if (!existing) return NextResponse.json({ ok: true });
 
+      await prisma.$transaction((tx) => tx.memberNextBestAction.update({
+        where: { id, memberId: user.id },
+        data: { status: 'COMPLETED' },
+      }));
+
       await prisma.$transaction((tx) => tx.memberEvent.create({
         data: {
           userId: user.id,

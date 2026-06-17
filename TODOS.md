@@ -96,6 +96,30 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-011: Batch formatting cleanup (59 files from PR #1817)
+
+**What:** PR #1817 (batch GUC wrapper) left 59 files with missing newlines between `});` and `async function _METHOD` / `export const METHOD = withApiGuc(...)`. TypeScript compiles fine, but the code is hard to read.
+
+**Why:** Cosmetic debt — no functional impact. Can't land until all queued PRs from #1817's wave merge to avoid conflicts.
+
+**Priority:** P4 (cosmetic)
+
+**Fix shape:** Once the gate-merge queue clears, run a targeted sed pass or single PR to add the missing newlines across all 59 files.
+
+---
+
+## TODO-012: Interview session memory leak (in-memory Map, no TTL)
+
+**What:** `app/api/ai/interview/_sessionStore.ts` uses a bare `Map` with no TTL or eviction. Sessions accumulate until server restart. In serverless deployments each instance has its own Map — sessions can be lost mid-flow if routed to a different instance.
+
+**Why:** In-memory state is reliable for short-lived single-server deployments, but Vercel's edge/serverless model can route subsequent requests to different instances, causing 404 "session not found" mid-interview.
+
+**Priority:** P2
+
+**Fix shape:** Either add a TTL eviction loop (`setTimeout` cleanup after 2h), or migrate to Redis/Upstash for cross-instance session sharing. The rate limiter already uses Upstash — same connection can hold sessions.
+
+---
+
 ## Completed
 
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

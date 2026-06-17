@@ -11,6 +11,7 @@ import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 import { createNotification } from '@/lib/notifications/create';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrganizationBranding } from '@/lib/tenant/organizationBranding';
 import { checkBulkEmailRateLimit } from '@/lib/rate-limit';
@@ -35,7 +36,7 @@ function substituteVars(template: string, vars: Record<string, string>): string 
   return template.replace(/\{(\w+)\}/g, (_match, key) => vars[key] ?? '');
 }
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -194,3 +195,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { Redis } from '@upstash/redis';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 export const dynamic = 'force-dynamic';
 
@@ -266,7 +267,7 @@ async function checkEmail(): Promise<EmailHealth> {
 
 /* ─── Route handlers ─── */
 
-export async function GET() {
+async function _GET() {
   try {
     const user = await getUser();
     if (!user) {
@@ -336,3 +337,4 @@ export async function GET() {
     );
   }
 }
+export const GET = withApiGuc(_GET);

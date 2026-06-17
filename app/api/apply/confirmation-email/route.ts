@@ -6,6 +6,7 @@ import {
   checkConfirmationEmailEmailRateLimit,
 } from '@/lib/rate-limit';
 import { z } from 'zod';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const schema = z.object({
   email: z.string().email(),
@@ -22,7 +23,7 @@ function getClientIp(request: NextRequest) {
   );
 }
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const { success } = await checkConfirmationEmailRateLimit(getClientIp(request));
     if (!success) {
@@ -78,3 +79,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

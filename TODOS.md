@@ -120,6 +120,28 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-021: Sprint 3 audit sweep — second wave (PRs #1924–#1928)
+
+**What:** Continue the audit log sweep started in TODO-020. These routes gained `auditLog` calls via individual PRs awaiting gate-merge:
+
+- **PR #1924** — `admin/users/[id]` DELETE/PATCH: `admin_user_delete`, `admin_user_update`; `admin/partners/[id]` PATCH: `admin_partner_update`; `admin/partners` POST: `admin_partner_create`; `admin/organization/logo` POST: `admin_org_logo_upload`
+- **PR #1925** — `admin/employer-screening-packs` POST + `[id]` PATCH/DELETE; `admin/members/create` POST: `admin_member_create`; `admin/testimonials/[id]` PATCH/DELETE
+- **PR #1926** — `admin/mentors/[id]` PATCH: `admin_mentor_status_update`; `admin/members/[id]/notes` POST: `admin_member_note_create`; `admin/members/[id]/edit-profile` PATCH: `admin_member_profile_update`
+- **PR #1927** — `admin/members/[id]/wioa-review` PATCH: `admin_member_wioa_review`; `admin/milestone-cascades/synthetic` POST; `admin/placement-surveys/resend` POST
+- **PR #1928** — `admin/feature-flags` POST/PATCH/DELETE: create, update, delete
+
+**Remaining deferred** (lower priority — Coursera/cron/analytics/lifecycle routes, Sprint 3 FORCE RLS flip):
+- `admin/email-templates/[id]` PATCH/DELETE, `admin/email-crons` mutations
+- `admin/lifecycle/member/[id]` PATCH
+- `admin/members/[id]/upload-resume` POST, `admin/members/[id]/interview` POST
+- `admin/messages/thread/*` POST handlers
+- `admin/users/[id]/free-email` POST
+- ~15 Coursera admin routes, cron routes needing `withSystemGuc`
+
+**Priority:** P2 (state-mutating routes already done; deferred are lower-risk or blocked on FORCE RLS)
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

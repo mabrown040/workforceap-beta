@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const bodySchema = z.object({
   action: z.enum(['mark_interviewed', 'clear_request']),
@@ -47,6 +48,15 @@ const bodySchema = z.object({
         },
       }));
     }
+
+    logAuditEvent({
+      user: { id: admin.id, role: 'admin' },
+      verb: parsed.data.action,
+      object: { type: 'User', id: memberId },
+      result: { success: true },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] interview action:', err));
 
     return NextResponse.json({ ok: true });
   } catch (error) {

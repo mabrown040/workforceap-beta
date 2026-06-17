@@ -3,6 +3,7 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getUser } from '@/lib/auth/server';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
 /**
  * POST /api/ai/export-pdf
@@ -380,6 +381,11 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    if (!withinLimit) {
+      return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+    }
 
     const body = await req.json();
     // Body-size cap. `text` is wrapped into PDF and `chartImage` may be a

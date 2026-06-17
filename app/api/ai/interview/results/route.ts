@@ -4,14 +4,21 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
 import { interviewResultsResponseSchema } from '@/lib/validation/aiInterview';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const CATEGORIES = ['communication', 'leadership', 'problem_solving', 'teamwork', 'adaptability'] as const;
 
-export async function GET(request: Request) {
+async function _GET(request: Request) {
   try {
     const user = await getUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    if (!withinLimit) {
+      return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
     }
 
     if (!isAIConfigured()) {
@@ -125,3 +132,4 @@ Return ONLY a JSON object with these exact keys:
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

@@ -96,15 +96,15 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
-## TODO-017: ai/interview/results missing rate limit + withApiGuc — ✓ Fixed PR #1868
+## TODO-017: ai/interview/results missing rate limit + withApiGuc — ✓ Fixed
 
 **What:** `GET /api/ai/interview/results` calls `chatCompletion` (Groq) without `checkAIToolRateLimit`, unlike the sibling `start` and `response` routes. Also calls `loadCoachContextBlock` → `getAICoachContext` which issues Prisma queries without `withApiGuc`.
 
-**Fix:** Added `checkAIToolRateLimit(user.id)` + `withApiGuc` wrapper. PR #1868.
+**Fix:** Added `checkAIToolRateLimit(user.id)` + `withApiGuc` wrapper. PR #1868 was closed without merging; re-fixed 2026-06-17 in TODO-029 PR.
 
 **Priority:** P2 (rate limit bypass + Sprint 3 FORCE RLS)
 
-**Status:** Fixed 2026-06-17.
+**Status:** Fixed 2026-06-17 (re-applied; original PR #1868 closed).
 
 ---
 
@@ -120,9 +120,24 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-029: ai/export-pdf missing rate limit + funder-program-summary missing audit log
+
+**What:** Two P2 gaps found in 2026-06-17 QA sweep:
+1. `app/api/ai/export-pdf/route.ts` — CPU-intensive PDF generation (pdf-lib) with no per-user rate limit. An authenticated member could flood it.
+2. `app/api/admin/funder-program-summary/route.ts` — federal-grant CSV export with no audit trail. Cohort-export has `§H-DEP4` comment; funder-summary missed it.
+
+**Fix:** Rate limit added to export-pdf via `checkAIToolRateLimit`; `auditLog` + `logAuditEvent` added to funder-program-summary. Also re-applied TODO-017 (rate limit + withApiGuc) to `ai/interview/results` — original PR #1868 was closed without merging.
+
+**Priority:** P2
+
+**Status:** Fixed 2026-06-17.
+
+---
+
 ## Completed
 
-- **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.
+- **TODO-029: ai/export-pdf rate limit + funder-program-summary audit log** — PDF export rate-limited; funder summary audit trail added; ai/interview/results GUC+rate re-applied. Completed 2026-06-17.
+- **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Original PR #1868 closed without merging; re-applied 2026-06-17 in TODO-029 batch.
 - **TODO-016: partner/dashboard missing withApiGuc** — GUC wrapper added. Completed 2026-06-17. PR #1867.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.

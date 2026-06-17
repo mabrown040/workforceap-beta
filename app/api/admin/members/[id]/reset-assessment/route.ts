@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, getProfileRole } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 
@@ -9,7 +9,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 export const POST = withApiGuc(async (
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
@@ -37,6 +37,16 @@ export const POST = withApiGuc(async (
     if (result.count === 0) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
+
+    const profileRole = await getProfileRole(user.id);
+    await logAuditEvent({
+      user: { id: user.id, role: profileRole ?? undefined },
+      verb: 'reset_assessment',
+      object: { type: 'User', id },
+      result: { success: true },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] reset-assessment:', err));
 
     return NextResponse.json({ ok: true });
   } catch (error) {

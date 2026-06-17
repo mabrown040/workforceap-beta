@@ -21,13 +21,18 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function EmployerBillingPage() {
+export default async function EmployerBillingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ success?: string; canceled?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer/billing');
 
   const ctx = await getEmployerForUser(user.id);
   if (!ctx) redirect(await unlinkedEmployerHref(user.id));
 
+  const { success, canceled } = await searchParams;
   const t = await getTranslations('employer');
 
   const employer = await prisma.employer.findUnique({
@@ -60,6 +65,36 @@ export default async function EmployerBillingPage() {
         title={t('billing')}
         subtitle={t('manageSubscription')}
       />
+      {success === '1' && (
+        <div
+          style={{
+            marginBottom: '1.5rem',
+            padding: '0.75rem 1rem',
+            borderRadius: '0.5rem',
+            background: 'var(--color-success-container, #d4edda)',
+            color: 'var(--color-on-success-container, #155724)',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+          }}
+        >
+          {t('checkoutSuccess')}
+        </div>
+      )}
+      {canceled === '1' && (
+        <div
+          style={{
+            marginBottom: '1.5rem',
+            padding: '0.75rem 1rem',
+            borderRadius: '0.5rem',
+            background: 'var(--color-warning-container, #fff3cd)',
+            color: 'var(--color-on-warning-container, #856404)',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+          }}
+        >
+          {t('checkoutCanceled')}
+        </div>
+      )}
 
       <div className="portal-card portal-card--flat portal-card--padded" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>

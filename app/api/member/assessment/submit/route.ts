@@ -70,7 +70,7 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
     if (dbUser.assessmentCompleted) {
       return NextResponse.json({ error: 'Assessment already completed' }, { status: 400 });
     }
-  
+
     const starterProfileReview = getCounselorStarterProfileReview({
       wasCounselorCreated: !!dbUser.courseEnrollments[0]?.enrolledByAdminId,
       phone: dbUser.phone,
@@ -91,9 +91,12 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
         { status: 400 }
       );
     }
-  
-    await prisma.$transaction((tx) => tx.user.update({
-      where: { id: user.id },
+
+    // Use updateMany with assessmentCompleted=false in the WHERE clause so the
+    // check and write are atomic — prevents a duplicate submission from a race
+    // condition overwriting the first submission's answers.
+    const updated = await prisma.$transaction((tx) => tx.user.updateMany({
+      where: { id: user.id, assessmentCompleted: false },
       data: {
         assessmentCompleted: true,
         assessmentCompletedAt: new Date(),
@@ -103,6 +106,9 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
         assessmentAnswers: answersTyped as unknown as object,
       },
     }));
+    if (updated.count === 0) {
+      return NextResponse.json({ error: 'Assessment already completed' }, { status: 400 });
+    }
   
     awardPoints(user.id, 'assessment_completed').catch(() => {});
   

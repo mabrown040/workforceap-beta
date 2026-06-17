@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { unstable_cache } from 'next/cache';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { analyzeAIEfficacy, type AIEfficacyReport } from '@/lib/analytics/aiToolEfficacy';
 
@@ -29,7 +30,7 @@ async function computeAIEfficacyPayload(orgId: string, start: Date, end: Date): 
   return analyzeAIEfficacy(orgId, { start, end });
 }
 
-export async function GET(req: NextRequest) {
+async function _GET(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
@@ -39,7 +40,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const orgId = await getActorOrganizationId(user.id);
+    const superAdmin = await isSuperAdmin(user.id);
+    const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+    if (!orgId) {
+      return NextResponse.json({ error: 'Organization context required' }, { status: 400 });
+    }
     const { start, end } = parseDateRange(req);
 
     const cacheKey = ['admin-api-ai-efficacy-v1', orgId, start.toISOString(), end.toISOString()];
@@ -56,3 +61,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

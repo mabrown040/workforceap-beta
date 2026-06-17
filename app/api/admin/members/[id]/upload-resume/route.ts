@@ -9,6 +9,7 @@ import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsA
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 // Create bucket "member-resumes" in Supabase Dashboard → Storage if it does not exist
 const BUCKET = 'member-resumes';
@@ -110,6 +111,8 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
       console.error('[admin/upload-resume] completeCareerOsResumeActions failed:', error);
     });
   }
+
+  void auditLog({ actorUserId: user.id, action: 'admin_member_resume_upload', targetType: 'user', targetId: userId, metadata: { originalPath, enhancedPath } }).catch(() => {});
 
   return NextResponse.json({ ok: true, originalPath, enhancedPath });
 

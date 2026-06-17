@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { assertStaffCanPost, normalizeMessageBody, serializeMessage } from '@/lib/messages/counselorThread';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 type Props = { params: Promise<{ threadId: string }> };async function _POST(request: NextRequest, { params }: Props) {
   try {
@@ -48,6 +49,8 @@ type Props = { params: Promise<{ threadId: string }> };async function _POST(requ
     });
     return m;
   });
+
+  void auditLog({ actorUserId: user.id, action: 'admin_staff_message_send', targetType: 'messageThread', targetId: threadId, metadata: { messageId: msg.id } }).catch(() => {});
 
   return NextResponse.json({ message: serializeMessage(msg) });
 

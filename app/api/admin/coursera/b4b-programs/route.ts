@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { listPrograms, type B4BProgram } from '@/lib/coursera/b4bClient';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * GET /api/admin/coursera/b4b-programs
@@ -41,7 +42,7 @@ const querySchema = z.object({
 
 type B4BProgramWithUrl = B4BProgram & { url?: string; contentCount?: number };
 
-export async function GET(request: Request) {
+async function _GET(request: Request) {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -86,3 +87,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const GET = withApiGuc(_GET);

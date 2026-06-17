@@ -11,6 +11,7 @@ import {
   listPrograms,
   listUsers,
 } from '@/lib/coursera/b4bClient';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 // ---------------------------------------------------------------------------
 // Admin-facing self-test for the Coursera integration.
@@ -388,7 +389,7 @@ function buildRecommendations(result: SelfTestResult): string[] {
   return recs;
 }
 
-export async function GET() {
+async function _GET() {
   try {
     const user = await requireAdmin();
     if (!user) {
@@ -551,3 +552,5 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const GET = withApiGuc(_GET);

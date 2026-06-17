@@ -96,8 +96,60 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-009: PR #1821 — needs `stake-approved` label before gate-merge
+
+**What:** `app/api/admin/members/[id]/program/route.ts` was locked as a high-risk tenant route in Sprint A.2. PR #1821 modifies it and requires a `stake-approved` label before the gate-merge timer picks it up.
+
+**Why:** The gate-merge pipeline skips PRs labeled `needs-stakes-approval` to prevent auto-merging high-risk changes. PRs #1778 and #1781 are in the same state.
+
+**Priority:** P1 (blocked on Mike)
+
+**Fix shape:** Mike to add `stake-approved` label to PRs #1821, #1778, #1781 on GitHub.
+
+---
+
+## TODO-010: Sprint 3 — RSC portal pages need `withAuthGuc` before FORCE RLS
+
+**What:** 112 portal RSC pages under `app/(portal)/` use Prisma but only 2 have `withAuthGuc`. The admin layout enforces auth but doesn't set the GUC context. When FORCE RLS is enabled in Sprint 3, these pages will 500 without the GUC.
+
+**Why:** Sprint 3 goal is to enable `FORCE RLS` on the Postgres schema. Without GUC context on every DB-touching RSC page, RLS policies will reject the queries.
+
+**Priority:** P1 (Sprint 3 blocker)
+
+**Fix shape:** Audit all RSC pages in `app/(portal)/`, wrap each with `withAuthGuc` from `@/lib/db/withRequestGuc`. Pattern already established in `app/(portal)/dashboard/training/page.tsx`.
+
+---
+
+## TODO-011: 59 files missing trailing newlines from PR #1817 batch
+
+**What:** PR #1817 (batch GUC sweep) left 59 files without a trailing newline. This causes cosmetic diff noise in future PRs.
+
+**Why:** Editors and CI formatters expect POSIX-compliant newlines. Not a functional issue.
+
+**Priority:** P4 (cosmetic)
+
+**Fix shape:** After gate-merge queue clears, run `find app/api -name "route.ts" -exec sh -c 'tail -c1 {} | xxd | grep -q "0a" || echo >> {}' \;` to add missing newlines in a single cleanup commit.
+
+---
+
+## TODO-012: Interview session in-memory Map has no TTL
+
+**What:** `app/api/ai/interview/_sessionStore.ts` exports a bare `Map<string, {...}>` with no eviction or TTL. Sessions accumulate indefinitely and are not shared across Vercel serverless instances.
+
+**Why:** In a serverless environment each instance has its own copy of the Map. A session created on instance A cannot be found on instance B. Under load this causes intermittent 404s on `/api/ai/interview/response`.
+
+**Priority:** P2
+
+**Fix shape:** Either (a) add a TTL eviction loop that prunes sessions older than 2h using a `setInterval` (acceptable for single-instance dev/staging), or (b) migrate to Upstash Redis with a 2h TTL key for production. Option (b) is preferred. See `lib/rate-limit.ts` for the Upstash client pattern.
+
+---
+
 ## Completed
 
+- **GUC: admin/blog/[id] + partner/payout** — `app/api/admin/blog/[id]/route.ts` GET/PATCH/DELETE and `app/api/partner/payout/route.ts` POST were missing `withApiGuc`. Fixed in PR #1862 (2026-06-17).
+- **Bug: interview session post-completion corruption** — Added `completedAt` guard in `app/api/ai/interview/response/route.ts` to prevent duplicate answer appending after session ends. Fixed in PR #1860 (2026-06-17).
+- **Bug: `!dbUser?.assessmentCompleted` null collapse** — Fixed in 3 routes: `app/api/member/pre-screening/draft/route.ts` (PR #1858), `app/api/member/benefits/request/route.ts` (PR #1859). Correct: explicit `!dbUser` → 404, then `!dbUser.assessmentCompleted` → 400/403. (2026-06-17).
+- **GUC: counselor/award-points + counselor/session** — `app/api/counselor/members/[memberId]/award-points/route.ts` and `app/api/counselor/session/route.ts` wrapped with `withApiGuc`. Fixed in PR #1857 (2026-06-17).
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.

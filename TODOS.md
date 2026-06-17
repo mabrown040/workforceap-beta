@@ -142,6 +142,26 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-036: admin/blog AI routes — rate limits + withApiGuc + logo MIME — ✓ Fixed PR #1964
+
+**What:** All 5 admin blog AI endpoints (`generate`, `suggest-topics`, `from-ideas`, `review`, `draft`) called `chatCompletion` without `checkAIToolRateLimit`. `review` and `generate` also missing `withApiGuc`. Both logo upload routes used browser-supplied `file.type` as Supabase `contentType` instead of deriving from validated extension.
+
+**Fixed:** PR #1964. Rate limits added to all 5 routes. `withApiGuc` added to `review` and `generate`. MIME derived from validated extension in both logo routes.
+
+**Status:** Completed 2026-06-17. PR #1964 open / gate-merge pending.
+
+---
+
+## TODO-037: AI rate limits for interview, counselor, admin resume routes — ✓ Fixed PR #1965
+
+**What:** 6 routes calling `chatCompletion` or `claudeChat` without `checkAIToolRateLimit`: `interview/session` (text fallback), `interview/history POST`, `counselor/feedback POST`, `admin/members/[id]/summary`, `admin/members/enhance-resume`, `admin/members/parse-resume`.
+
+**Fixed:** PR #1965. Rate limit added to all 6 routes. `ai/interview/results` separately tracked in PR #1959.
+
+**Status:** Completed 2026-06-17. PR #1965 open / gate-merge pending.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

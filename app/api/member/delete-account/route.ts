@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
@@ -36,6 +37,14 @@ export const POST = withApiGuc(async () => {
         return NextResponse.json({ error: 'Failed to delete account' }, { status: 502 });
       }
   
+      await auditLog({
+        actorUserId: user.id,
+        action: 'member_account_delete',
+        targetType: 'user',
+        targetId: user.id,
+        metadata: { selfDelete: true },
+      });
+
       return NextResponse.json({ ok: true });
     } catch (err) {
       console.error('[delete-account] error:', err);

@@ -9,6 +9,7 @@ import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const bodySchema = z.object({
   email: z.string().email(),
@@ -154,6 +155,7 @@ async function ensurePartnerInviteUser(params: {
       return NextResponse.json({ error: 'Failed to link partner user' }, { status: 500 });
     }
   
+    void auditLog({ actorUserId: adminUser.id, action: 'admin_partner_user_invite', targetType: 'partner', targetId: partnerId, metadata: { email, userId: authUserId } }).catch(() => {});
     return NextResponse.json({ ok: true, userId: authUserId });
   } catch (error) {
     console.error('/admin/partners/[id]/invite:', error);

@@ -33,27 +33,25 @@ vi.mock('@/lib/auth/roles', () => ({
   requireAdmin: vi.fn(),
 }));
 
-vi.mock('@/lib/db/prisma', () => ({
-  prisma: {
-    partnerReferral: {
-      findMany: vi.fn(),
-      create: vi.fn(),
-      findUnique: vi.fn(),
-    },
-    user: {
-      findUnique: vi.fn(),
-    },
-    partner: {
-      findUnique: vi.fn(),
-    },
-    placementRecord: {
-      findFirst: vi.fn(),
-    },
-    memberEvent: {
-      create: vi.fn(),
-    },
-  },
-}));
+vi.mock('@/lib/db/prisma', () => {
+  const partnerReferral = { findMany: vi.fn(), create: vi.fn(), findUnique: vi.fn() };
+  const user = { findUnique: vi.fn() };
+  const partner = { findUnique: vi.fn() };
+  const placementRecord = { findFirst: vi.fn() };
+  const memberEvent = { create: vi.fn() };
+  const mockPrisma: any = {
+    partnerReferral,
+    user,
+    partner,
+    placementRecord,
+    memberEvent,
+    $transaction: vi.fn(async (fn: any) => {
+      if (typeof fn === 'function') return fn(mockPrisma);
+      return Promise.all(fn);
+    }),
+  };
+  return { prisma: mockPrisma };
+});
 
 vi.mock('@/lib/partner/referralBundle', () => ({
   loadPartnerReferralBundle: vi.fn(),

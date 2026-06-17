@@ -89,36 +89,27 @@ vi.mock('@/lib/db/prisma', () => {
   const $queryRaw = vi.fn();
   const $queryRawUnsafe = vi.fn();
   const $executeRaw = vi.fn();
-  const $transaction = vi.fn(async (fn: (tx: unknown) => Promise<unknown>) => {
-    const tx = {
-      message: { create: vi.fn() },
-      messageThread: { update: vi.fn() },
-      memberEvent: { create: vi.fn() },
-    };
-    return fn(tx);
-  });
-  return {
-    prisma: {
-      counselor,
-      counselorAssignment,
-      counselorNote,
-      user,
-      message,
-      messageThread,
-      memberEvent,
-      pointsTransaction,
-      jobPostingApplication,
-      aIJobMatch,
-      courseProgress,
-      memberProgramProgress,
-      courseraSkillsetProgress,
-      atRiskAlert,
-      $queryRaw,
-      $queryRawUnsafe,
-      $executeRaw,
-      $transaction,
-    },
+  const mockPrisma: any = {
+    counselor,
+    counselorAssignment,
+    counselorNote,
+    user,
+    message,
+    messageThread,
+    memberEvent,
+    pointsTransaction,
+    jobPostingApplication,
+    aIJobMatch,
+    courseProgress,
+    memberProgramProgress,
+    courseraSkillsetProgress,
+    atRiskAlert,
+    $queryRaw,
+    $queryRawUnsafe,
+    $executeRaw,
+    $transaction: vi.fn(async (fn: (tx: unknown) => Promise<unknown>) => fn(mockPrisma)),
   };
+  return { prisma: mockPrisma };
 });
 
 vi.mock('@/lib/counselor/staffMemberAccess', () => ({

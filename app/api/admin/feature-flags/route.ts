@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { fetchFeatureFlags, validateCreateBody } from '@/lib/feature-flags/adminApi';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 async function _GET() {
   try {
@@ -44,6 +45,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     const flag = await prisma.$transaction((tx) => tx.featureFlag.create({
       data: data as any,
     }));
+
+    void auditLog({ actorUserId: user.id, action: 'admin_feature_flag_create', targetType: 'featureFlag', targetId: flag.id, metadata: { key: flag.key } }).catch(() => {});
 
     return NextResponse.json({ flag });
   } catch (error) {

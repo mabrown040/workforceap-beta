@@ -7,6 +7,7 @@ import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const BUCKET = 'organization-branding';
 const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: Request) => {
@@ -59,6 +60,8 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
       where: { id: organizationId },
       data: { logo: path },
     }));
+
+    void auditLog({ actorUserId: user.id, action: 'admin_org_logo_upload', targetType: 'organization', targetId: organizationId, metadata: { path } }).catch(() => {});
 
     return NextResponse.json({ ok: true, logo: resolveSupabasePublicAssetUrl(BUCKET, path) });
   } catch (error) {

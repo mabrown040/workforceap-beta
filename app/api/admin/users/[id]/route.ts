@@ -10,7 +10,8 @@ import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib
 import { userAuthDeleteFailedResponse } from '@/lib/admin/userDeleteResponse';
 import { buildDeletedEmail } from '../_deletedEmail';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';async function _DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -60,7 +61,9 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
         console.error('[admin/users/:id DELETE] Supabase delete error:', error.message);
         return userAuthDeleteFailedResponse();
       }
-  
+
+      void auditLog({ actorUserId: actor.id, action: 'admin_user_delete', targetType: 'user', targetId: id, metadata: { email: target.email } }).catch(() => {});
+
       return NextResponse.json({ ok: true });
     } catch (err) {
       console.error('[admin/users/:id DELETE]', err);
@@ -183,6 +186,8 @@ async function _PATCH(
         };
       });
   
+      void auditLog({ actorUserId: admin.id, action: 'admin_user_update', targetType: 'user', targetId: id, metadata: { fullName, email: normalizedEmail, role } }).catch(() => {});
+
       return NextResponse.json({ success: true, user: updated });
     } catch (error) {
       if (authEmailChanged) {

@@ -6,7 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, counselorInOrg, assertSameTenant } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -134,6 +135,14 @@ const createBody = z.object({
         role: 'counselor',
       },
     });
+  });
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'counselor_create',
+    targetType: 'counselor',
+    targetId: userId,
+    metadata: { partnerId: partnerId ?? null, affiliation: resolvedAffiliation, title: title?.trim() ?? null },
   });
 
   return NextResponse.json({ ok: true });

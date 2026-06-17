@@ -8,6 +8,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
@@ -193,6 +194,13 @@ const patchSchema = z.object({
         },
       }),
     );
+    await auditLog({
+      actorUserId: user.id,
+      action: 'partner_update',
+      targetType: 'partner',
+      targetId: partnerId,
+      metadata: { changes: updateData, subgroupIds: data.subgroupIds },
+    });
     return NextResponse.json(updated);
   } catch (error) {
     console.error('/admin/partners/[id]:', error);

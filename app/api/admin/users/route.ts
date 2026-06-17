@@ -17,7 +17,8 @@ import {
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';async function _GET() {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -177,6 +178,14 @@ const createSchema = z.object({
         }
       }
   
+      await auditLog({
+        actorUserId: admin.id,
+        action: 'user_create',
+        targetType: 'user',
+        targetId: created.id,
+        metadata: { email: created.email, role: created.role, organizationId },
+      });
+
       return NextResponse.json({ success: true, user: created });
     } catch (error) {
       console.error('[admin/users POST] database setup failed', error);

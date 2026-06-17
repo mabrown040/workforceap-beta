@@ -72,15 +72,20 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
-## TODO-007: admin/growth — wire real GA4 property ID
+## TODO-007: admin/growth — wire real GA4 property ID + fix cross-org query scope
 
-**What:** `app/admin/growth/page.tsx:38` has a placeholder GA4 property ID and the dashboard shows static demo data instead of live analytics.
+**What:** `app/admin/growth/page.tsx` has two issues:
+1. Placeholder GA4 property ID at line 38; dashboard shows static demo data instead of live analytics.
+2. `loadSignupsByUtmSource()`, `loadApplyAttemptsLast24h()`, `loadLoginCountLast24h()` query `MemberEvent` without org filter and without `withAuthGuc()` wrapper — an org-level admin sees counts from all organizations.
 
-**Why:** The growth dashboard is the primary admin tool for tracking acquisition, activation, and retention funnels. Placeholder data misleads decisions.
+**Why:** The growth dashboard is the primary admin tool for tracking acquisition funnels. Org admins should see their org's numbers only. Without `withAuthGuc`, the queries also bypass the GUC context needed for RLS once FORCE RLS is enabled.
 
 **Priority:** P2
 
-**Fix shape:** Once GA4 workspace is provisioned, replace the placeholder ID on line 38 and wire the server-side GA4 Data API integration (the TODO block at lines 219 and 278 in the same file).
+**Fix shape:**
+1. Wrap the three `loadX()` functions with `withAuthGuc(...)` (see `app/admin/page.tsx:43` for the pattern).
+2. Add `user: { organizationId: orgId }` join filter to each `MemberEvent` query so org-level admins see their org only. Super admins skip the filter.
+3. Once GA4 workspace is provisioned, replace the placeholder ID on line 38 and wire the server-side GA4 Data API integration (the TODO block at lines 219 and 278 in the same file).
 
 ---
 
@@ -93,6 +98,20 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 **Priority:** P3
 
 **Fix shape:** Add `ProgramWaitlist` model to `prisma/schema.prisma`, run `prisma migrate dev`, commit the migration, and remove the stub comments in the route.
+
+---
+
+---
+
+## TODO-009: PR #1821 — add stake-approved label to merge program-enrollment audit log
+
+**What:** PR #1821 (`fix(admin): wire missing audit log on member program enrollment`) is blocked by the "Locked product stakes approval" CI check. It adds a fire-and-forget `logAuditEvent(...)` call to `app/api/admin/members/[id]/program/route.ts` (on the locked stakes list). Change is safe (audit log only, no behavior change) but requires Mike's explicit approval.
+
+**Why:** The program enrollment route is locked because changing a member's enrolled program is a high-stakes product operation. The CI guard requires human review.
+
+**Priority:** P1 (unblocks gate-merge)
+
+**Fix shape:** Mike adds the `stake-approved` GitHub label to PR #1821. CI will pass and the gate-merge pipeline can squash-merge it.
 
 ---
 

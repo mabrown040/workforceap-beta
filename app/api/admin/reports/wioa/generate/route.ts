@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { generateWioaReport, type WioaReport } from '@/lib/cron/wioa-report';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * In-memory store for the last generated WIOA report.
@@ -9,7 +11,7 @@ import { generateWioaReport, type WioaReport } from '@/lib/cron/wioa-report';
  */
 let lastReport: WioaReport | null = null;
 
-export async function POST(req: NextRequest) {
+async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -28,6 +30,8 @@ export async function POST(req: NextRequest) {
     const report = await generateWioaReport(period);
     lastReport = report;
 
+    void auditLog({ actorUserId: user.id, action: 'admin_wioa_report_generate', targetType: 'organization', targetId: user.id, metadata: { periodStart: period?.start?.toISOString() ?? null, periodEnd: period?.end?.toISOString() ?? null } }).catch(() => {});
+
     return NextResponse.json({ success: true, report });
   } catch (error) {
     console.error('/api/admin/reports/wioa/generate POST error:', error);
@@ -37,8 +41,9 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+export const POST = withApiGuc(_POST);
 
-export async function GET(req: NextRequest) {
+async function _GET(_req: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -54,3 +59,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

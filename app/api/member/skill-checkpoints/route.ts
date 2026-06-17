@@ -6,6 +6,8 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { getCheckpointById } from '@/lib/content/checkpoints';
 import { z } from 'zod';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const bodySchema = z.object({
   checkpointId: z.string().min(1),
   programSlug: z.string().min(1),
@@ -13,7 +15,7 @@ const bodySchema = z.object({
   passed: z.boolean(),
 });
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -58,3 +60,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

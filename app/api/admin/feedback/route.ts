@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { buildFeedbackUserScope } from './_feedbackScope';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 const querySchema = z.object({
   type: z.enum(['training', 'counselor', 'platform', 'program', 'general']).optional(),
   rating: z.coerce.number().int().min(1).max(5).optional(),
@@ -13,7 +15,7 @@ const querySchema = z.object({
   skip: z.coerce.number().int().min(0).default(0),
 });
 
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
     const auth = await requireAdminOrCounselor(request);
     if (!auth.ok) {
@@ -92,3 +94,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

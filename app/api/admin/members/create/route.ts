@@ -8,6 +8,7 @@ import { ADMIN_REFERRAL_SOURCE_OPTIONS } from '@/lib/referralSources';
 import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
+import { auditLog } from '@/lib/audit';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
 
@@ -269,7 +270,9 @@ const ETHNICITY_OPTIONS = [
       metadata: { programSlug, enrolledBy: 'admin', source: 'admin_create' },
       sourcePage: '/admin/members/create',
     });
-  
+
+    void auditLog({ actorUserId: user.id, action: 'admin_member_create', targetType: 'user', targetId: authUser.id, metadata: { email, programSlug } }).catch(() => {});
+
     return NextResponse.json({
       ok: true,
       userId: authUser.id,

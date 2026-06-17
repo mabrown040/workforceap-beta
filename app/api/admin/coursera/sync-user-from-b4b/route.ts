@@ -7,6 +7,7 @@ import { syncUserFromB4B } from '@/lib/coursera/syncUserFromB4B';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * POST /api/admin/coursera/sync-user-from-b4b
@@ -35,7 +36,7 @@ function normEmail(value: string | null | undefined): string {
   return (value ?? '').trim().toLowerCase();
 }
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -115,3 +116,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

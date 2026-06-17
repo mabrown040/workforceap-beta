@@ -11,8 +11,9 @@ import {
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(req: NextRequest) {
+async function _GET(req: NextRequest) {
   try {
   const user = await getUser();
   if (!user || (!(await isAdmin(user.id)) && !(await isCounselor(user.id)))) {
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
 }
 
 
-export async function POST(req: NextRequest) {
+async function _POST(req: NextRequest) {
   try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
 }
 
 
-export async function PATCH(req: NextRequest) {
+async function _PATCH(req: NextRequest) {
   try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
@@ -183,3 +184,6 @@ export async function PATCH(req: NextRequest) {
 function daysSince(date: Date) {
   return Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
 }
+export const GET = withApiGuc(_GET);
+export const POST = withApiGuc(_POST);
+export const PATCH = withApiGuc(_PATCH);

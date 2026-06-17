@@ -60,24 +60,45 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
-## TODO-006: admin/token-links — P2 hardening follow-ups (post TODO-005)
+## ~~TODO-006: admin/token-links — P2 hardening follow-ups (post TODO-005)~~ ✓ Items 1-3 Completed; Item 4 Deferred
 
 **What:** Adversarial review of PR #1657 closed the P1 but flagged P2s on `app/api/admin/token-links/route.ts`:
-1. **Existence oracle:** cross-tenant denial returns 404 only for nonexistent IDs; an existing Org-B member yields 403 (`lib/auth/actAsSubject.ts:54` vs `:94`) — lets an Org-A admin enumerate valid user UUIDs. Collapse both to 404.
-2. **No audit log on link minting** — minting a public single-use credential bound to a member profile-write should call `auditLog` (15+ comparable admin routes do).
-3. **No rate limit on minting** — precedent: `adminInviteRateLimiter` (`lib/rate-limit.ts:31`).
+1. ~~**Existence oracle:** cross-tenant denial returns 404 only for nonexistent IDs; an existing Org-B member yields 403 — lets an Org-A admin enumerate valid user UUIDs. Collapse both to 404.~~ ✓ Fixed — `resolveActOnBehalf` returns 404 for both cases.
+2. ~~**No audit log on link minting**~~ ✓ Fixed — `auditLog(...)` called after minting with full metadata.
+3. ~~**No rate limit on minting**~~ ✓ Fixed — `checkAdminTokenLinksRateLimit(user.id)` added.
 4. **RLS forward-compat:** `getSubjectOrganizationId` + the fullName lookup are deliberately cross-tenant raw Prisma reads; under FORCE RLS with an actor-org GUC the super_admin path will return null → 500. Track in the Sprint 3 FORCE RLS flip checklist.
 
-**Why:** Defense-in-depth on an admin credential-minting surface; item 4 is a known FORCE RLS landmine.
+**Status:** Items 1-3 completed 2026-06-17 (code already in master). Item 4 deferred to FORCE RLS flip sprint.
+
+---
+
+## TODO-007: admin/growth — wire real GA4 property ID
+
+**What:** `app/admin/growth/page.tsx:38` has a placeholder GA4 property ID and the dashboard shows static demo data instead of live analytics.
+
+**Why:** The growth dashboard is the primary admin tool for tracking acquisition, activation, and retention funnels. Placeholder data misleads decisions.
 
 **Priority:** P2
 
-**Fix shape:** Same-route changes; items 1–3 are small. Item 4 belongs with the FORCE RLS flip work (GUC bypass or explicit super_admin context).
+**Fix shape:** Once GA4 workspace is provisioned, replace the placeholder ID on line 38 and wire the server-side GA4 Data API integration (the TODO block at lines 219 and 278 in the same file).
+
+---
+
+## TODO-008: Waitlist API — enable after Prisma migration
+
+**What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.
+
+**Why:** Program waitlists allow members to express interest in fully-subscribed programs, enabling counselors to manage overflow.
+
+**Priority:** P3
+
+**Fix shape:** Add `ProgramWaitlist` model to `prisma/schema.prisma`, run `prisma migrate dev`, commit the migration, and remove the stub comments in the route.
 
 ---
 
 ## Completed
 
+- **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.
 - **TODO-003: Coursera Hub — "NOW" Badge Font Size** — `font-size` changed from `0.65rem` → `0.75rem`. Completed 2026-05-05, PR split/pr2-coursera-launch-hardening.

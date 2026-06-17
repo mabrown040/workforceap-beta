@@ -36,7 +36,6 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t('title'),
     description: t('description'),
     path: '/employers',
-    image: '/images/og/employers.webp',
   });
 }
 

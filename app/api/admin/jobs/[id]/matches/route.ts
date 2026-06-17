@@ -4,8 +4,9 @@ import { isAdmin } from '@/lib/auth/roles';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { createAdminJobMatchesPrismaDeps } from '@/lib/admin/adminJobMatchesPrismaDeps';
 import { runAdminJobMatchesGet } from '@/lib/admin/runAdminJobMatchesGet';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(
+async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -43,3 +44,5 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const GET = withApiGuc(_GET);

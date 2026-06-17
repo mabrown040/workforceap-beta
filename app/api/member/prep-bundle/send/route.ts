@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { fetchInterviewPrepBundle } from '@/lib/member/interviewPrepBundle';
 import { sendInterviewPrepBundleEmail } from '@/lib/email';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * POST /api/member/prep-bundle/send
@@ -9,7 +10,7 @@ import { sendInterviewPrepBundleEmail } from '@/lib/email';
  * Sends selected AI tool results as a pre-interview prep bundle email.
  * If selectedToolTypes is omitted, sends all items.
  */
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -61,3 +62,4 @@ export async function POST(request: Request) {
   }
 }
 
+export const POST = withApiGuc(_POST);

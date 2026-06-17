@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { fetchFeatureFlags, validateCreateBody } from '@/lib/feature-flags/adminApi';
 
@@ -25,7 +26,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!(await isAdmin(user.id))) {
+    if (!(await isSuperAdmin(user.id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -45,6 +46,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       data: data as any,
     }));
 
+    void auditLog({ actorUserId: user.id, action: 'feature_flag_create', targetType: 'featureFlag', targetId: flag.id, metadata: { key: flag.key, name: flag.name } }).catch(() => {});
     return NextResponse.json({ flag });
   } catch (error) {
     console.error('[admin/feature-flags POST] error:', error);

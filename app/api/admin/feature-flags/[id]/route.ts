@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
@@ -10,7 +11,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!(await isAdmin(user.id))) {
+    if (!(await isSuperAdmin(user.id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -39,6 +40,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _PATCH(
       data: update,
     }));
 
+    void auditLog({ actorUserId: user.id, action: 'feature_flag_update', targetType: 'featureFlag', targetId: id, metadata: { name: flag.name, enabled: flag.enabled } }).catch(() => {});
     return NextResponse.json({ flag });
   } catch (error) {
     console.error('[admin/feature-flags/[id] PATCH] error:', error);
@@ -52,12 +54,13 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!(await isAdmin(user.id))) {
+    if (!(await isSuperAdmin(user.id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { id } = await params;
     await prisma.$transaction((tx) => tx.featureFlag.delete({ where: { id } }));
+    void auditLog({ actorUserId: user.id, action: 'feature_flag_delete', targetType: 'featureFlag', targetId: id, metadata: {} }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/feature-flags/[id] DELETE] error:', error);

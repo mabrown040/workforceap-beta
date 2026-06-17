@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -35,7 +36,7 @@ async function _PATCH(
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    try { await requireAdmin(user.id); } catch {
+    if (!(await isSuperAdmin(user.id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -69,6 +70,7 @@ async function _PATCH(
       data: update,
     }));
 
+    void auditLog({ actorUserId: user.id, action: 'email_template_update', targetType: 'emailTemplate', targetId: id, metadata: { name: template.name } }).catch(() => {});
     return NextResponse.json(template);
   } catch (error) {
     console.error('/admin/email-templates/[id] PATCH error:', error);

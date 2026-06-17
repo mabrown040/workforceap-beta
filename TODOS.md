@@ -120,8 +120,24 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-025: withApiGuc/withAnonymousGuc — final sweep (auth/me, careers/recommend, employer/signup) — ✓ Fixed
+
+**What:** Three routes were confirmed missing GUC context wrappers after a full grep sweep of all `app/api/` routes:
+- `GET /api/auth/me` — calls `getProfileRole`, `getPartnerForUser`, `getCounselorForUser`, etc. from `lib/auth/roles.ts` which all hit Prisma.
+- `POST /api/careers/recommend` — public route; calls `buildCareerMatchResult` from `lib/onet/recommend.ts` which queries `careerQuizRule`, `careerProgramMapping`, `onetOccupation`.
+- `POST /api/employer/signup` — public signup; calls `createEmployerUser` from `lib/employer/service.ts` which runs a Prisma transaction.
+
+**Fix:** `auth/me` → `withApiGuc`. `careers/recommend` and `employer/signup` → `withAnonymousGuc` wrapped inline around the Prisma-calling function.
+
+**Priority:** P2 (Sprint 3 FORCE RLS blocker — same as TODO-023)
+
+**Status:** Fixed 2026-06-17.
+
+---
+
 ## Completed
 
+- **TODO-025: withApiGuc/withAnonymousGuc final sweep** — auth/me, careers/recommend, employer/signup wrapped. Completed 2026-06-17.
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.
 - **TODO-016: partner/dashboard missing withApiGuc** — GUC wrapper added. Completed 2026-06-17. PR #1867.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

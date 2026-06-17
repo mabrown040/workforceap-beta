@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkCareersRecommendRateLimit } from '@/lib/rate-limit';
 import { buildCareerMatchResult } from '@/lib/onet/recommend';
 import { quizAnswersSchema } from '@/lib/onet/quizSchema';
+import { withAnonymousGuc } from '@/lib/db/withRequestGuc';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { ipRiasec, ...answers } = parsed.data;
-  const result = await buildCareerMatchResult(answers, { ipRiasec: ipRiasec ?? null });
+  const result = await withAnonymousGuc(() => buildCareerMatchResult(answers, { ipRiasec: ipRiasec ?? null }));
   return NextResponse.json(result);
 
   } catch (error) {

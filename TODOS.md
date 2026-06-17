@@ -96,6 +96,58 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## ~~TODO-018: GUC sweep — analytics/ai-efficacy and reports/quarterly-outcomes~~ ✓ PR #1871
+
+**What:** `analytics/ai-efficacy/route.ts` and `reports/quarterly-outcomes/route.ts` were bare `export async function GET` without `withApiGuc`, despite calling `analyzeAIEfficacy` and `generateQuarterlyOutcomes` which both import Prisma. GUC context never set — audit trail gap and FORCE RLS readiness blocker.
+
+**Fixed:** PR #1871 (2026-06-17)
+
+---
+
+## ~~TODO-019: GUC sweep — partner and counselor routes~~ ✓ PR #1872
+
+**What:** Six routes missing `withApiGuc`:
+- `partner/members`, `partner/members/needs-attention`, `partner/referral-members` — all call `loadPartnerReferralBundle` / `buildPartnerAttentionQueue` → Prisma
+- `partner/payout` — creates `memberEvent` records + `withTenantScope` Prisma queries
+- `counselor/session` — calls `fetchCounselorPortalDynamicVariables` → Prisma
+- `counselor/members/[memberId]/award-points` — calls `awardPoints` → Prisma
+
+Also caught by hook: `admin/members/enhance-resume`, `parse-resume`, `portal/nav-badges`.
+
+**Fixed:** PR #1872 (2026-06-17)
+
+---
+
+## ~~TODO-020: GUC sweep — ai/interview/response~~ ✓ PR #1873
+
+**What:** `ai/interview/response/route.ts` calls `loadCoachContextBlock(user.id)` → Prisma without `withApiGuc`. Sibling routes `start` and `results` already had the wrapper — this was the missing middle.
+
+**Fixed:** PR #1873 (2026-06-17)
+
+---
+
+## ~~TODO-021: GUC sweep — blog/[id] (imported but unused) and messages/stats~~ ✓ PR #1874
+
+**What:**
+- `admin/blog/[id]/route.ts`: `withApiGuc` was imported but all three handlers (GET/PATCH/DELETE) were bare exports — the import was a dead reference.
+- `admin/messages/stats/route.ts`: calls `countMessageThreadsWithActivity` / `countThreadsWithSlaBreach` → Prisma without GUC context.
+
+**Fixed:** PR #1874 (2026-06-17)
+
+---
+
+## ~~TODO-022: GUC sweep — admin coursera, jobs/matches, webhooks/process-retries~~ ✓ PR #1875
+
+**What:** 11 more routes missing `withApiGuc` covering 15 handler functions:
+- `admin/jobs/[id]/matches` — calls `createAdminJobMatchesPrismaDeps` → Prisma
+- `admin/webhooks/process-retries` (POST + GET) — calls `getPendingRetryEvents` → Prisma
+- `admin/partners/[id]/quarterly-outcomes` — calls `generatePartnerQuarterlyOutcomes` → Prisma
+- 8 coursera admin routes (auto-heal, csv-import, map-unmatched, mappings, sync-b4b, b4b-bindings-suggestions, seed-from-b4b, seed-from-catalog) — all call Prisma via coursera/xapi lib functions
+
+**Fixed:** PR #1875 (2026-06-17)
+
+---
+
 ## Completed
 
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

@@ -5,8 +5,9 @@ import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchCounselorPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { cookies } from 'next/headers';
 import { getAppLocaleFromCookieStore } from '@/lib/i18n/cookieLocale';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -45,3 +46,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

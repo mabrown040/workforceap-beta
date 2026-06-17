@@ -5,7 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { READINESS_SECTIONS, getJobSiteItemKey } from '@/lib/content/readinessChecklist';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';async function _GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -191,6 +192,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     where: { id: user.id },
     select: { fullName: true },
   }));
+  void auditLog({ actorUserId: user.id, action: 'member_readiness_update', targetType: 'user', targetId: userId, metadata: { itemKey } }).catch(() => {});
   return NextResponse.json({ ok: true, counselorName: dbUser?.fullName ?? (user.user_metadata?.full_name as string) ?? user.email });
 
   } catch (error) {

@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import {
@@ -116,6 +117,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     });
     return m;
   });
+
+  void auditLog({ actorUserId: user.id, action: 'admin_member_message_send', targetType: 'user', targetId: memberId, metadata: { threadId: thread.id, messageId: msg.id } }).catch(() => {});
 
   return NextResponse.json({ message: serializeMessage(msg) });
 

@@ -7,6 +7,8 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { z } from 'zod';
 
+import { auditLog } from '@/lib/audit';
+
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -81,6 +83,14 @@ export const GET = withApiGuc(_GET);async function _POST(
     data: { memberId, authorId: user.id, content: parsed.data.content },
     include: { author: { select: { fullName: true, email: true } } },
   }));
+  await auditLog({
+    actorUserId: user.id,
+    action: 'member_note_create',
+    targetType: 'counselor_note',
+    targetId: note.id,
+    metadata: { memberId, contentLength: parsed.data.content.length },
+  });
+
   return NextResponse.json(note, { status: 201 });
 
   } catch (error) {
@@ -112,6 +122,15 @@ export const POST = withApiGuc(_POST);async function _DELETE(
   if (!note) return NextResponse.json({ error: 'Note not found or not yours' }, { status: 404 });
 
   await prisma.$transaction((tx) => tx.counselorNote.delete({ where: { id: noteId } }));
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'member_note_delete',
+    targetType: 'counselor_note',
+    targetId: noteId,
+    metadata: { memberId },
+  });
+
   return NextResponse.json({ ok: true });
 
   } catch (error) {

@@ -6,8 +6,9 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(req: NextRequest) {
+async function _GET(req: NextRequest) {
   try {
   const user = await getUser();
   if (!user || !(await isAdmin(user.id))) {
@@ -138,3 +139,4 @@ function aggregateDemographics(users: Array<{ profile: { ethnicity: string | nul
   }
   return { ethnicity: eth, veteranStatus: vet, educationLevel: edu, state: states };
 }
+export const GET = withApiGuc(_GET);

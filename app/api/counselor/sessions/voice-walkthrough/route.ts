@@ -13,6 +13,7 @@ import {
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
@@ -70,7 +71,7 @@ const bodySchema = z.object({
   interviewLevel: z.enum(['entry', 'mid', 'senior']).optional(),
 });
 
-export async function POST(req: NextRequest) {
+async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -176,3 +177,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+export const POST = withApiGuc(_POST);

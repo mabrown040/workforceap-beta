@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
@@ -24,7 +25,7 @@ const bodySchema = z.object({
 
 type Props = { params: Promise<{ id: string }> };
 
-export async function PATCH(request: NextRequest, { params }: Props) {
+async function _PATCH(request: NextRequest, { params }: Props) {
   try {
   const actor = await getUser();
   if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -82,4 +83,4 @@ export async function PATCH(request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const PATCH = withApiGuc(_PATCH);

@@ -4,9 +4,10 @@ import { requireAdmin } from '@/lib/auth/roles';
 import type { Prisma } from '@prisma/client';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /** List members for admin (e.g. subgroup add-member search). Supports ?q= for search, ?limit= for max results. */
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -50,4 +51,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const GET = withApiGuc(_GET);

@@ -5,10 +5,11 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const PAYOUT_PER_PLACEMENT = 500;
 
-export async function GET(req: NextRequest) {
+async function _GET(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -89,3 +90,4 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+export const GET = withApiGuc(_GET);

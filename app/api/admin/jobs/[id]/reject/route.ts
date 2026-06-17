@@ -7,6 +7,7 @@ import { sendJobRejectedEmail } from '@/lib/email';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
 import { z } from 'zod';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
@@ -21,7 +22,7 @@ const rejectSchema = z.object({
   reason: z.string().min(1).max(1000),
 });
 
-export async function POST(
+async function _POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -86,3 +87,4 @@ export async function POST(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

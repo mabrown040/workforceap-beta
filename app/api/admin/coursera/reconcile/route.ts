@@ -6,6 +6,7 @@ import { listAllUsers, type B4BUser } from '@/lib/coursera/b4bClient';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * GET /api/admin/coursera/reconcile?programId=<courseraProgramId>&limit=<n>
@@ -58,7 +59,7 @@ function normEmail(value: string | null | undefined) {
   return (value ?? '').trim().toLowerCase();
 }
 
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
@@ -255,3 +256,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

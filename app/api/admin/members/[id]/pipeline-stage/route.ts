@@ -7,6 +7,7 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { captureApiError } from '@/lib/observability/captureApiError';
 import type { PipelineBoardStage } from '@prisma/client';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
@@ -25,7 +26,7 @@ const bodySchema = z.object({
     .nullable(),
 });
 
-export async function PATCH(
+async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -76,3 +77,4 @@ export async function PATCH(
     return NextResponse.json({ error: 'Failed to update pipeline stage' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);

@@ -7,6 +7,7 @@ import { sendCounselorAssignedEmail } from '@/lib/email';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
 import { createNotification } from '@/lib/notifications/create';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -104,6 +105,15 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     body: `${counselor.user.fullName} has been assigned as your career advisor.`,
     data: { counselorId: counselor.id, counselorUserId: counselor.userId, threadId: thread.id },
   });
+
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'assign_counselor',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { counselorUserId: counselor.userId, counselorName: counselor.user.fullName } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] assign_counselor:', err));
 
   return NextResponse.json({
     ok: true,

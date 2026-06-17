@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 export async function GET(
   _request: NextRequest,
@@ -80,6 +81,14 @@ export async function PATCH(
       data: update,
     }));
 
+    await auditLog({
+      actorUserId: user.id,
+      action: 'blog_post_update',
+      targetType: 'blog_post',
+      targetId: id,
+      metadata: { slug: post.slug, title: post.title, published: post.published, changes: Object.keys(update) },
+    });
+
     return NextResponse.json(post);
   } catch (error) {
     console.error('[admin/blog/[id] PATCH] error:', error);
@@ -103,6 +112,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
     await prisma.$transaction((tx) => tx.blogPost.delete({ where: { id: id } }));
+    await auditLog({
+      actorUserId: user.id,
+      action: 'blog_post_delete',
+      targetType: 'blog_post',
+      targetId: id,
+      metadata: { slug: existing.slug, title: existing.title, published: existing.published },
+    });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/blog/[id] DELETE] error:', error);

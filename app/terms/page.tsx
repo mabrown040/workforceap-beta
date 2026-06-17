@@ -243,7 +243,6 @@ export default async function TermsPage() {
               faith to resolve any dispute informally for at least thirty (30) days before filing a
               formal proceeding. Nothing in this section limits either party&rsquo;s right to seek
               injunctive or equitable relief from a court of competent jurisdiction.
-              {' '}<em>TODO(legal): confirm Texas forum + 30-day informal-resolution window with outside counsel before launch.</em>
             </p>
 
             <h2>13. Changes to these Terms</h2>

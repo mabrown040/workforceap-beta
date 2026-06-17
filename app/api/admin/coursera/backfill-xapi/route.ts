@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { parseXapiStatement, isXapiCompletionVerb, isXapiCourseProgressVerb } from '@/lib/xapi/statementModel';
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
@@ -26,7 +27,7 @@ async function requireAdminUser() {
       return NextResponse.json({ ok: false, error: 'email query param required' }, { status: 400 });
     }
   
-    return runBackfill(email);
+    return runBackfill(email, user.id);
   } catch (error) {
     console.error('/admin/coursera/backfill-xapi:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -51,7 +52,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'email required' }, { status: 400 });
     }
   
-    return runBackfill(email);
+    return runBackfill(email, user.id);
   } catch (error) {
     console.error('/admin/coursera/backfill-xapi:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -59,8 +60,12 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
 }
 export const POST = withApiGuc(_POST);
 
-async function runBackfill(email: string) {  const member = await prisma.$transaction((tx) => tx.user.findFirst({
-    where: { email: { mode: 'insensitive', equals: email } },
+async function runBackfill(email: string, actorId: string) {
+  const superAdmin = await isSuperAdmin(actorId);
+  const orgId = superAdmin ? null : await getActorOrganizationId(actorId).catch(() => null);
+
+  const member = await prisma.$transaction((tx) => tx.user.findFirst({
+    where: { email: { mode: 'insensitive', equals: email }, ...(orgId ? { organizationId: orgId } : {}) },
     select: { id: true, email: true, fullName: true, enrolledProgram: true },
   }));
   if (!member) {

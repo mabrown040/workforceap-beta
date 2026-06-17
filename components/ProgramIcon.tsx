@@ -8,6 +8,7 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ size?: number; classN
   'ai-software': Cpu,
   'cloud-data': Cloud,
   'it-cyber': Wifi,
+  'it-cyber-entry': Wifi,
   'business': Briefcase,
   'healthcare': HeartPulse,
   'manufacturing': Factory,

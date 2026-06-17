@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
 
 import {
   getOrCreateMemberCounselorThread,
@@ -117,6 +118,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
     return m;
   });
 
+  void auditLog({ actorUserId: user.id, action: 'admin_member_message_send', targetType: 'user', targetId: memberId, metadata: { messageId: msg.id } }).catch(() => {});
   return NextResponse.json({ message: serializeMessage(msg) });
 
   } catch (error) {

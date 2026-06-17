@@ -11,8 +11,9 @@ import {
 } from '@/lib/auth/roles';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET() {
+export const GET = withApiGuc(async () => {
   try {
     if (!hasSupabaseServerEnv()) {
       return NextResponse.json(
@@ -89,4 +90,4 @@ export async function GET() {
     captureApiError(err, { route: 'auth/me' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

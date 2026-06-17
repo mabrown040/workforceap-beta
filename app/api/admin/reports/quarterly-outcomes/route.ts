@@ -7,6 +7,7 @@ import {
   getDefaultQuarter,
   type QuarterSpec,
 } from '@/lib/analytics/quarterlyOutcomes';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 function parseQuarterParam(raw: string | null): QuarterSpec['quarter'] | null {
   if (!raw) return null;
@@ -22,7 +23,7 @@ function parseYearParam(raw: string | null): number | null {
   return n;
 }
 
-export async function GET(req: NextRequest) {
+export const GET = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -53,4 +54,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

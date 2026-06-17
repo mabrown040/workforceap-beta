@@ -108,6 +108,23 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-019: email-templates and feature-flags mutable by non-super admins (P2)
+
+**What:** `EmailTemplate` and `FeatureFlag` are platform-global models (no `organizationId` field). The PATCH/DELETE routes for both only require `isAdmin` (which includes tenant-level `admin` role), not `isSuperAdmin`. In a multi-tenant deployment this means Org A's admin can edit platform-wide email templates that affect Org B's members, and can create/modify/delete feature flags that affect the entire platform.
+
+**Affected routes:**
+- `app/api/admin/email-templates/[id]/route.ts` — PATCH (update template content/subject/body)
+- `app/api/admin/email-templates/route.ts` — any POST (create new template)
+- `app/api/admin/feature-flags/route.ts` — POST (create flag)
+- `app/api/admin/feature-flags/[id]/route.ts` — PATCH/DELETE (already have audit logs, still need `isSuperAdmin` guard)
+- `app/api/admin/email-crons/[id]/route.ts` — same pattern
+
+**Fix shape:** Replace `requireAdmin` / `isAdmin` with `isSuperAdmin` on all write operations for platform-global models. Read operations (GET) can stay at `isAdmin` since reading templates is a normal admin workflow.
+
+**Priority:** P2 (exploitable in multi-tenant deployment; low impact if single-tenant)
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.
@@ -122,6 +139,7 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ## Completed
 
+- **Sprint 3 audit log sweep (PRs #1908–#1911):** Added audit logs to partner assignment, award-points (admin), testimonial status/delete, counselor assignment, enrollment funding, subgroup assign/remove, feature flag update/delete, org settings update, invite create, user delete/update, employer create, partner update, subgroup create/delete. Also fixed placement-survey aggregate queries missing tenant orgId filter (PR #1908). Completed 2026-06-17.
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.
 - **TODO-016: partner/dashboard missing withApiGuc** — GUC wrapper added. Completed 2026-06-17. PR #1867.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

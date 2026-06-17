@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const GET = withApiGuc(async (req: NextRequest) => {
@@ -17,10 +18,14 @@ export const GET = withApiGuc(async (req: NextRequest) => {
 
   const mode = 'insensitive' as const;
 
+  const superAdmin = await isSuperAdmin(user.id);
+  const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
   const [members, employers, partners, jobs] = await Promise.all([
     prisma.user.findMany({
       where: {
         deletedAt: null,
+        ...(orgId ? { organizationId: orgId } : {}),
         OR: [
           { fullName: { contains: q, mode } },
           { email: { contains: q, mode } },

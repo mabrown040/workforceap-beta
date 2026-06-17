@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
-import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'placed'] as const;
 
 /** GET /api/partner/dashboard
  *  Returns partner stats, referrals, and earnings summary.
  */
-export async function GET() {
+async function _GET(_request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -54,3 +54,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

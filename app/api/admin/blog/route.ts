@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
@@ -51,6 +52,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       },
     }));
 
+    void auditLog({ actorUserId: user.id, action: 'admin_blog_post_create', targetType: 'blogPost', targetId: post.id, metadata: { slug: post.slug, title: post.title } }).catch(() => {});
     return NextResponse.json(post);
   } catch (error) {
     console.error('[admin/blog POST] error:', error);

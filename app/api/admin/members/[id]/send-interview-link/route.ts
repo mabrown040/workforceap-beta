@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getSubjectOrganizationId, getActorOrganizationId } from '@/lib/tenant/organization';
 import { sendInterviewPrepLink } from '@/lib/email';
+import { auditLog } from '@/lib/audit';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
@@ -51,6 +52,7 @@ export const POST = withApiGuc(
         return NextResponse.json({ error: result.error ?? 'Could not send email' }, { status: 502 });
       }
 
+      void auditLog({ actorUserId: user.id, action: 'admin_member_send_interview_link', targetType: 'user', targetId: id, metadata: {} }).catch(() => {});
       return NextResponse.json({ ok: true });
     } catch (error) {
       console.error('/admin/members/[id]/send-interview-link error:', error);

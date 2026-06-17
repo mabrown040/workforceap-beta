@@ -4,8 +4,9 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
-export async function GET(
+async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
@@ -24,8 +25,9 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);
 
-export async function PATCH(
+async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
@@ -80,14 +82,16 @@ export async function PATCH(
       data: update,
     }));
 
+    void auditLog({ actorUserId: user.id, action: 'admin_blog_post_update', targetType: 'blogPost', targetId: id, metadata: { slug: post.slug, title: post.title } }).catch(() => {});
     return NextResponse.json(post);
   } catch (error) {
     console.error('[admin/blog/[id] PATCH] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const PATCH = withApiGuc(_PATCH);
 
-export async function DELETE(
+async function _DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
@@ -103,9 +107,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
     await prisma.$transaction((tx) => tx.blogPost.delete({ where: { id: id } }));
+    void auditLog({ actorUserId: user.id, action: 'admin_blog_post_delete', targetType: 'blogPost', targetId: id, metadata: { slug: existing.slug, title: existing.title } }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/blog/[id] DELETE] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const DELETE = withApiGuc(_DELETE);

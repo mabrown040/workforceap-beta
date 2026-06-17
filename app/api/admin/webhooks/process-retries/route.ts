@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getPendingRetryEvents } from '@/lib/webhooks/retry';
 import { processRetryEvent, type RetryResult } from './_processRetries';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Admin endpoint to process pending webhook retries.
@@ -10,7 +12,7 @@ import { processRetryEvent, type RetryResult } from './_processRetries';
  *
  * Returns summary of processed retries without exposing raw payload data.
  */
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -34,6 +36,13 @@ export async function POST(request: NextRequest) {
       return acc;
     }, {} as Record<string, number>);
 
+    await auditLog({
+      actorUserId: user.id,
+      action: 'webhook_retries_process',
+      targetType: 'system',
+      targetId: 'webhooks',
+      metadata: { source, limit, processed: results.length, summary: byResult },
+    });
     return NextResponse.json({
       processed: results.length,
       summary: byResult,
@@ -44,6 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to process retries' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 
 /**
  * GET pending retry count for dashboard badges / monitoring.

@@ -3,13 +3,15 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { syncOccupation, syncTopMappedOccupations } from '@/lib/onet/sync';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const bodySchema = z.object({
   onetCodes: z.array(z.string().min(1)).optional(),
   allMapped: z.boolean().optional(),
 });
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,6 +37,7 @@ export async function POST(request: NextRequest) {
 
   if (allMapped) {
     const { synced, errors } = await syncTopMappedOccupations();
+    await auditLog({ actorUserId: user.id, action: 'onet_sync', targetType: 'system', targetId: 'onet', metadata: { mode: 'allMapped', synced } });
     return NextResponse.json({ ok: true, synced, errors });
   }
 
@@ -46,6 +49,7 @@ export async function POST(request: NextRequest) {
       if (r.ok) ok++;
       else if (r.error) errors.push(`${code}: ${r.error}`);
     }
+    await auditLog({ actorUserId: user.id, action: 'onet_sync', targetType: 'system', targetId: 'onet', metadata: { mode: 'codes', codes: onetCodes, synced: ok } });
     return NextResponse.json({ ok: true, synced: ok, errors });
   }
 
@@ -56,4 +60,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const POST = withApiGuc(_POST);

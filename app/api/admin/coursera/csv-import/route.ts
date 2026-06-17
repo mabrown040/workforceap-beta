@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 import {
   detectCourseraCsvKind,
   parseCourseActivityCsv,
@@ -58,7 +60,7 @@ async function readCsvFromRequest(request: NextRequest): Promise<{ content: stri
   };
 }
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await requireAdminUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -103,6 +105,7 @@ export async function POST(request: NextRequest) {
   
       try {
         const result = await ingestCourseActivityRows(parsedRows, { source: 'csv_import' });
+        await auditLog({ actorUserId: user.id, action: 'coursera_csv_import', targetType: 'system', targetId: 'coursera', metadata: { kind, parsed: parsedRows.length, filename: read.filename } });
         return NextResponse.json({
           ok: true,
           kind,
@@ -137,6 +140,7 @@ export async function POST(request: NextRequest) {
   
     try {
       const result = await ingestLearningPathActivityRows(parsedBadgeRows, { source: 'csv_import' });
+      await auditLog({ actorUserId: user.id, action: 'coursera_csv_import', targetType: 'system', targetId: 'coursera', metadata: { kind, parsed: parsedBadgeRows.length, filename: read.filename } });
       return NextResponse.json({
         ok: true,
         kind,
@@ -153,3 +157,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { requireAdminOrCounselor } from '@/lib/auth/roles';
+import { requireAdminOrCounselor, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const GET = withApiGuc(async (req: Request) => {
@@ -10,6 +11,9 @@ export const GET = withApiGuc(async (req: Request) => {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
   
+    const superAdmin = await isSuperAdmin(auth.userId);
+    const orgId = superAdmin ? null : await getActorOrganizationId(auth.userId).catch(() => null);
+
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') ?? undefined;
     const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);
@@ -17,6 +21,7 @@ export const GET = withApiGuc(async (req: Request) => {
   
     try {
       const where = {
+        ...(orgId ? { user: { organizationId: orgId } } : {}),
         ...(status === 'completed' ? { completedAt: { not: null } } : {}),
         ...(status === 'pending' ? { completedAt: null } : {}),
       };
@@ -49,8 +54,8 @@ export const GET = withApiGuc(async (req: Request) => {
         avgTrainingRelevanceAgg,
         avgSupportQualityAgg,
       ] = await Promise.all([
-        prisma.placementSurvey.count({ where: { completedAt: { not: null } } }),
-        prisma.placementSurvey.count({ where: { completedAt: null } }),
+        prisma.placementSurvey.count({ where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: { not: null } } }),
+        prisma.placementSurvey.count({ where: { ...(orgId ? { user: { organizationId: orgId } } : {}), completedAt: null } }),
         prisma.placementSurvey.count({
           where: { completedAt: { not: null }, allowTestimonial: true },
         }),

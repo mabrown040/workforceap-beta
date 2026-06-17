@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -15,11 +16,16 @@ export const GET = withApiGuc(async (req: NextRequest) => {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const superAdmin = await isSuperAdmin(user.id);
+    const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+    const orgScope = orgId ? { user: { organizationId: orgId } } : {};
+
     const [totalSent, totalCompleted, atRiskRows] = await Promise.all([
-      prisma.placementSurvey.count(),
-      prisma.placementSurvey.count({ where: { completedAt: { not: undefined } } }),
+      prisma.placementSurvey.count({ where: { ...orgScope } }),
+      prisma.placementSurvey.count({ where: { ...orgScope, completedAt: { not: undefined } } }),
       prisma.placementSurvey.findMany({
         where: {
+          ...orgScope,
           wave: 'thirty_day',
           completedAt: { not: null },
           sentAt: { not: undefined, lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },

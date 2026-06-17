@@ -58,7 +58,7 @@ describe('debug', () => {
     vi.mocked(prisma.aIToolResult.count).mockResolvedValue(100);
     vi.mocked(prisma.workflowDiagnostic.count).mockResolvedValue(0);
 
-    const res = await GET();
+    const res = await GET(new Request('http://localhost:3000/api/admin/health/debug'));
     const body = await res.json();
     console.log(JSON.stringify(body.checks, null, 2));
     expect(body.status).toBe('healthy');

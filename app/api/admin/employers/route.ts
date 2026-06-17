@@ -8,6 +8,7 @@ import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 1).
@@ -138,6 +139,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       }));
     }
 
+    void auditLog({ actorUserId: user.id, action: 'admin_employer_create', targetType: 'employer', targetId: employer.id, metadata: { userId: parsed.data.userId, companyName: parsed.data.companyName } }).catch(() => {});
     return NextResponse.json(employer, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_NOT_FOUND') {

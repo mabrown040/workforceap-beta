@@ -75,7 +75,7 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               `script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io https://api.elevenlabs.io wss://api.elevenlabs.io https://livekit.rtc.elevenlabs.io wss://livekit.rtc.elevenlabs.io wss://*.livekit.cloud wss://*.elevenlabs.io https://*.elevenlabs.io",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io https://api.elevenlabs.io wss://api.elevenlabs.io https://livekit.rtc.elevenlabs.io wss://livekit.rtc.elevenlabs.io wss://*.livekit.cloud wss://*.elevenlabs.io https://*.elevenlabs.io",
               "img-src 'self' data: blob: https://*.supabase.co https://*.public.blob.vercel-storage.com https://images.unsplash.com https://www.google-analytics.com https://www.googletagmanager.com https://api.dicebear.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
@@ -190,8 +190,8 @@ const nextConfig: NextConfig = {
       },
 
       // Public marketing route aliases restored after responsive merge
-      { source: '/about', destination: '/what-we-do', permanent: true },
-      { source: '/about/', destination: '/what-we-do', permanent: true },
+      { source: '/about', destination: '/en/about', permanent: true },
+      { source: '/about/', destination: '/en/about', permanent: true },
       { source: '/services', destination: '/what-we-do', permanent: true },
       { source: '/services/', destination: '/what-we-do', permanent: true },
       { source: '/confirmation', destination: '/apply/confirmation', permanent: false },
@@ -234,6 +234,10 @@ const nextConfig: NextConfig = {
       { source: '/auth/sign-in', destination: '/login', permanent: false },
       { source: '/auth/sign-in/:path*', destination: '/login', permanent: false },
 
+      // /auth/login → localized login (avoids 404 on external links / emails / SEO)
+      { source: '/auth/login', destination: '/login', permanent: false },
+      { source: '/auth/login/:path*', destination: '/login', permanent: false },
+
       // Subgroup "my group" portal removed — send to member dashboard
       { source: '/my-group', destination: '/dashboard', permanent: false },
       { source: '/my-group/:path*', destination: '/dashboard', permanent: false },
@@ -262,6 +266,7 @@ const nextConfig: NextConfig = {
       { source: '/weekly-recap', destination: '/dashboard/weekly-recap', permanent: true },
 
       // Member portal legacy route fixes (QA-ISSUE-001)
+      { source: '/training', destination: '/dashboard/program', permanent: true },
       { source: '/dashboard/plan', destination: '/dashboard/career-brief', permanent: true },
       { source: '/dashboard/weekly-focus', destination: '/dashboard/weekly-recap', permanent: true },
     ];

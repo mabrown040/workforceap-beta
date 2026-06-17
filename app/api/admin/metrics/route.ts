@@ -94,6 +94,39 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
       ORDER BY week
     `;
 
+  // ── Work Queue counts ──
+  const pendingApplications = await prisma.$queryRaw<{ count: number }[]>`
+      SELECT COUNT(*)::int as count
+      FROM applications a
+      INNER JOIN users u ON u.id = a.user_id AND u.organization_id = ${orgId}
+      WHERE a.status = 'PENDING'
+    `;
+
+  const criticalAtRisk = await prisma.$queryRaw<{ count: number }[]>`
+      SELECT COUNT(DISTINCT ara.user_id)::int as count
+      FROM at_risk_alerts ara
+      INNER JOIN users u ON u.id = ara.user_id AND u.organization_id = ${orgId}
+      WHERE ara.status = 'open' AND ara.score >= 80
+    `;
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const staleTraining = await prisma.$queryRaw<{ count: number }[]>`
+      SELECT COUNT(*)::int as count
+      FROM users
+      WHERE stale_training_detected_at IS NOT NULL
+        AND stale_training_detected_at <= ${sevenDaysAgo}
+        AND deleted_at IS NULL
+        AND organization_id = ${orgId}
+    `;
+
+  const unmatchedCoursera = await prisma.$queryRaw<{ count: number }[]>`
+      SELECT COUNT(DISTINCT cp.user_id)::int as count
+      FROM course_progress cp
+      INNER JOIN users u ON u.id = cp.user_id AND u.organization_id = ${orgId}
+      WHERE cp.status IN ('unmatched', 'error')
+    `;
+
   const total = metrics.totalMembers;
   const enrolled = metrics.placementStats.enrolled;
   const assessed = Number(assessmentCompleted[0].count);
@@ -118,6 +151,10 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
       recentPlacements: Number(recentPlacements[0].count),
       avgPlacementSalary: Math.round(avgSalary[0].avg ?? 0),
       placementRate: metrics.placementStats.placementRate,
+      pendingApplications: Number(pendingApplications[0]?.count ?? 0),
+      criticalAtRisk: Number(criticalAtRisk[0]?.count ?? 0),
+      staleTraining: Number(staleTraining[0]?.count ?? 0),
+      unmatchedCoursera: Number(unmatchedCoursera[0]?.count ?? 0),
     },
     funnels: [
       {

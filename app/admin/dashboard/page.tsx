@@ -61,6 +61,10 @@ interface MetricsData {
     recentPlacements: number;
     avgPlacementSalary: number;
     placementRate: number;
+    pendingApplications?: number;
+    criticalAtRisk?: number;
+    staleTraining?: number;
+    unmatchedCoursera?: number;
   };
   funnels: Funnel[];
   trends: {
@@ -175,6 +179,47 @@ export default function ExecutiveDashboardPage() {
         <SummaryCard label="Placements" value={summary.totalPlacements} color="var(--color-green)" />
         <SummaryCard label="Placement Rate" value={`${summary.placementRate}%`} color="var(--color-accent)" />
         <SummaryCard label="Avg Salary" value={`$${summary.avgPlacementSalary.toLocaleString()}`} color="var(--color-blue)" />
+      </div>
+
+      {/* Work Queue — actionable items needing attention */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>Work Queue</h2>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '0.75rem',
+          }}
+        >
+          <WorkQueueCard
+            label="Pending Applications"
+            value={summary.pendingApplications ?? 0}
+            href="/admin/pipeline"
+            color="#f59e0b"
+            subtitle="Awaiting review"
+          />
+          <WorkQueueCard
+            label="At-Risk (Critical)"
+            value={summary.criticalAtRisk ?? 0}
+            href="/admin/pipeline"
+            color="#dc2626"
+            subtitle="Needs counselor follow-up"
+          />
+          <WorkQueueCard
+            label="Stale Training (7d+)"
+            value={summary.staleTraining ?? 0}
+            href="/admin/members?status=stale"
+            color="#8b5cf6"
+            subtitle="No progress in 7 days"
+          />
+          <WorkQueueCard
+            label="Unmatched Coursera"
+            value={summary.unmatchedCoursera ?? 0}
+            href="/admin/coursera"
+            color="#3b82f6"
+            subtitle="Actor mapping needed"
+          />
+        </div>
       </div>
 
       {/* Funnel Cards */}
@@ -301,5 +346,52 @@ function SummaryCard({
         {suffix && <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>{suffix}</span>}
       </div>
     </div>
+  );
+}
+
+function WorkQueueCard({
+  label,
+  value,
+  href,
+  color,
+  subtitle,
+}: {
+  label: string;
+  value: number;
+  href: string;
+  color: string;
+  subtitle: string;
+}) {
+  return (
+    <a
+      href={href}
+      style={{
+        display: 'block',
+        background: 'var(--surface-container-low)',
+        borderRadius: 12,
+        padding: '1rem',
+        border: '1px solid var(--outline-variant)',
+        borderLeft: `4px solid ${color}`,
+        textDecoration: 'none',
+        color: 'inherit',
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-on-surface-variant)' }}>
+          {label}
+        </span>
+        <span style={{ fontSize: '1.5rem', fontWeight: 800, color }}>{value}</span>
+      </div>
+      <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', margin: 0 }}>{subtitle}</p>
+    </a>
   );
 }

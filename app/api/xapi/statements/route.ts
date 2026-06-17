@@ -121,6 +121,9 @@ export async function POST(request: Request) {
     if (rawStatements.length === 0) {
       return NextResponse.json({ received: true, processed: 0, completions: [] }, { status: 201 });
     }
+    if (rawStatements.length > 200) {
+      return NextResponse.json({ error: 'Batch too large; max 200 statements per request' }, { status: 400 });
+    }
 
     const organizationId = await resolveOrgFromRequest(request.headers);
   

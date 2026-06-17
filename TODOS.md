@@ -212,6 +212,26 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-043: §H-DEP4 dual audit trail on PII bulk-export + export-data — ✓ Fixed PR #1971
+
+**What:** `admin/members/bulk-export` had `auditLog` but not `logAuditEvent`. `admin/members/[id]/export-data` had `logAuditEvent` but not `auditLog`. Both PII exports require both for §H-DEP4.
+
+**Fixed:** PR #1971. Missing half of each audit pair added as fire-and-forget calls.
+
+**Status:** Completed 2026-06-17. PR #1971 open / gate-merge pending.
+
+---
+
+## TODO-044: audit trails for member self-delete + admin subgroup mutations — ✓ Fixed PR #1972
+
+**What:** `member/delete-account` (irreversible self-deletion) and `admin/members/[id]/subgroup` (POST/DELETE subgroup assignment) had no audit logs.
+
+**Fixed:** PR #1972. `auditLog` + `logAuditEvent` added to delete-account; `auditLog` added to subgroup POST/DELETE.
+
+**Status:** Completed 2026-06-17. PR #1972 open / gate-merge pending.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

@@ -120,8 +120,24 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-019: email-templates and feature-flags mutable by non-super admins — ✓ Fixed PR #1913
+
+**What:** `EmailTemplate` and `FeatureFlag` are platform-global models with no `organizationId`. The PATCH/DELETE routes for both were guarded by `isAdmin`/`requireAdmin`, which includes tenant admins. A tenant admin could mutate platform-wide email templates and feature flags affecting all organizations.
+
+**Why:** Multi-tenant privilege escalation. A tenant admin should not be able to change flags or templates that affect other orgs.
+
+**Priority:** P2
+
+**Status:** Fixed 2026-06-17 in PR #1913. Auth upgraded to `isSuperAdmin` for FeatureFlag POST/PATCH/DELETE and EmailTemplate PATCH. Audit logs added to all three mutation handlers.
+
+---
+
 ## Completed
 
+- **TODO-019: email-templates and feature-flags isSuperAdmin** — upgraded auth to `isSuperAdmin` + audit logs. Completed 2026-06-17. PR #1913.
+- **Sprint 3 audit log sweep (member mutations)** — `admin_member_create`, `admin_member_profile_edit`, `admin_member_note_create` added. Completed 2026-06-17. PR #1914.
+- **Sprint 3 audit log sweep (readiness/WIOA/partner invite/mentor)** — `member_readiness_update`, `member_wioa_review`, `admin_partner_user_invite`, `admin_mentor_status_update` added. Completed 2026-06-17. PR #1915.
+- **Sprint 3 audit log sweep batch 1–4** — counselor assign, enrollment funding, users, employer, partner, subgroup, partner assignment, award points, testimonials. PRs #1909–#1911.
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.
 - **TODO-016: partner/dashboard missing withApiGuc** — GUC wrapper added. Completed 2026-06-17. PR #1867.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

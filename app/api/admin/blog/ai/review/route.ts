@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -82,6 +83,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 
 function parseBody(body: unknown): { title: string; content: string; excerpt?: string } | null {
   if (!body || typeof body !== 'object') return null;

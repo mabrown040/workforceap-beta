@@ -62,18 +62,30 @@ export async function POST(req: NextRequest) {
     },
   }) as Stripe.Subscription;
 
-  await prisma.employerSubscription.create({
-    data: {
-      userId: user.id,
-      stripeCustomerId: customerId,
-      stripeSubscriptionId: subscription.id,
-      tier,
-      status: subscription.status,
-      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
-      trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
-    },
-  });
+  await prisma.$transaction([
+    prisma.employerSubscription.create({
+      data: {
+        userId: user.id,
+        stripeCustomerId: customerId,
+        stripeSubscriptionId: subscription.id,
+        tier,
+        status: subscription.status,
+        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+        trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : null,
+      },
+    }),
+    // Sync stripe fields to the Employer record so employer.stripeSubscriptionStatus
+    // is readable by the billing page without joining employer_subscriptions.
+    prisma.employer.update({
+      where: { userId: user.id },
+      data: {
+        stripeCustomerId: customerId,
+        stripeSubscriptionId: subscription.id,
+        stripeSubscriptionStatus: subscription.status,
+      },
+    }),
+  ]);
 
   return NextResponse.json({
     subscriptionId: subscription.id,

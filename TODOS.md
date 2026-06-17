@@ -72,20 +72,17 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
-## TODO-007: admin/growth — wire real GA4 property ID + fix cross-org query scope
+## TODO-007: admin/growth — wire real GA4 property ID
 
-**What:** `app/admin/growth/page.tsx` has two issues:
-1. Placeholder GA4 property ID at line 38; dashboard shows static demo data instead of live analytics.
-2. `loadSignupsByUtmSource()`, `loadApplyAttemptsLast24h()`, `loadLoginCountLast24h()` query `MemberEvent` without org filter and without `withAuthGuc()` wrapper — an org-level admin sees counts from all organizations.
+**What:** `app/admin/growth/page.tsx:38` has a placeholder GA4 property ID (`p000000000`); dashboard links out to a non-functional GA4 report URL.
 
-**Why:** The growth dashboard is the primary admin tool for tracking acquisition funnels. Org admins should see their org's numbers only. Without `withAuthGuc`, the queries also bypass the GUC context needed for RLS once FORCE RLS is enabled.
+**Why:** The growth dashboard is the primary admin tool for tracking acquisition funnels. The GA4 funnel drop-off section (Sections 2 + 4) currently links to a dead placeholder dashboard.
 
 **Priority:** P2
 
-**Fix shape:**
-1. Wrap the three `loadX()` functions with `withAuthGuc(...)` (see `app/admin/page.tsx:43` for the pattern).
-2. Add `user: { organizationId: orgId }` join filter to each `MemberEvent` query so org-level admins see their org only. Super admins skip the filter.
-3. Once GA4 workspace is provisioned, replace the placeholder ID on line 38 and wire the server-side GA4 Data API integration (the TODO block at lines 219 and 278 in the same file).
+**Fix shape:** Once GA4 workspace is provisioned, replace the placeholder URL at line 38 (`GA4_FUNNEL_DASHBOARD_URL`) and wire the server-side GA4 Data API integration (the TODO blocks at lines 219 and 278 in the same file).
+
+**Cross-org scope fix (items 1+2):** ✓ Fixed in PR #1849. `withAuthGuc()` + `user: { organizationId: orgId }` filter added to all three loader functions. Now open: GA4 integration only.
 
 ---
 

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 
 /**
  * Multi-program tab switcher rendered at the top of /dashboard/training when
@@ -54,14 +55,14 @@ export default function TrainingProgramTabs({
         method: 'POST',
       });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setError(body.error ?? `Could not set primary (HTTP ${res.status}).`);
+        const msg = await getErrorMessageFromResponse(res);
+        setError(msg);
         return;
       }
       // Refresh server data so primary badge updates everywhere.
       router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not set primary.');
+    } catch {
+      setError('Could not set primary. Please check your connection and try again.');
     } finally {
       setSavingId(null);
     }

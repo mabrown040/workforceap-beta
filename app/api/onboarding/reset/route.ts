@@ -35,21 +35,21 @@ const bodySchema = z.object({
   if (portal === 'member') {
     await prisma.$transaction((tx) => tx.user.update({
       where: { id: user.id },
-      data: { onboardingCompletedAt: null, onboardingPortal: null, tourCompletedAt: null },
+      data: { onboardingCompletedAt: null, onboardingPortal: null, tourCompletedAt: null, onboardingCurrentStep: 0 },
     }));
   } else if (portal === 'employer') {
     const ctx = await getEmployerForUser(user.id);
     if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     await prisma.$transaction((tx) => tx.employer.update({
       where: { id: ctx.employerId },
-      data: { onboardingCompletedAt: null, tourCompletedAt: null },
+      data: { onboardingCompletedAt: null, tourCompletedAt: null, onboardingCurrentStep: 0 },
     }));
   } else {
     const ctx = await getPartnerForUser(user.id);
     if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     await prisma.$transaction((tx) => tx.partner.update({
       where: { id: ctx.partnerId },
-      data: { onboardingCompletedAt: null, tourCompletedAt: null },
+      data: { onboardingCompletedAt: null, tourCompletedAt: null, onboardingCurrentStep: 0 },
     }));
   }
 

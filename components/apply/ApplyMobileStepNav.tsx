@@ -13,9 +13,13 @@ type ApplyMobileStepNavProps = {
 
 export default async function ApplyMobileStepNav({ activeStep = 0 }: ApplyMobileStepNavProps) {
   const t = await getTranslations('apply');
+  const totalSteps = APPLY_PROGRESS_STEPS.length;
 
   return (
     <nav className="apply-mobile-step-nav" aria-label={t('applicationProgress')}>
+      <p className="apply-mobile-step-nav__summary">
+        {t('mobileStepSummary', { current: activeStep + 1, total: totalSteps })}
+      </p>
       <ol className="apply-mobile-step-nav__list">
         {APPLY_PROGRESS_STEPS.map((step, i) => (
           <li

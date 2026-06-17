@@ -37,7 +37,18 @@ export async function POST(
 
     const { id } = await params;
     const job = await prisma.job.findFirst({
-      where: { id, status: 'live' },
+      where: {
+        id,
+        status: 'live',
+        AND: [
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gte: new Date() } },
+            ],
+          },
+        ],
+      },
       include: { employer: { select: { contactEmail: true, companyName: true } } },
     });
 

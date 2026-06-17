@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Filter, Plus, Download, Mail, Users } from 'lucide-react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { Filter, Plus, Download, Mail, Users, GraduationCap, CheckCircle, AlertTriangle } from 'lucide-react';
+import { getStudentStatus, type StudentStatus } from '@/lib/admin/studentStatus';
 import BulkEmailModal from './BulkEmailModal';
 import BulkUpdateModal from './BulkUpdateModal';
 import { formatPhone } from '@/lib/formatPhone';
@@ -29,6 +31,7 @@ type Member = {
   assessmentScorePct: number | null;
   assessmentCompleted: boolean | null;
   updatedAt: Date | string;
+  memberStatus: string | null;
   programTitle: string | null | undefined;
   coursesCompleted: string[];
   totalCourses: number;
@@ -47,7 +50,15 @@ type Member = {
   enrollmentProgramTitleBySlug: Record<string, string>;
 };
 
-type MembersTableProps = { members: Member[] };
+type MembersTableProps = {
+  members: Member[];
+  totalCount: number;
+  currentPage: number;
+  pageSize: number;
+  searchQuery: string;
+  programFilter: string;
+  statusFilter: string;
+};
 
 function FitScoreBadge({ score }: { score: number }) {
   const color = score >= 8 ? '#16a34a' : score >= 5 ? '#d97706' : '#dc2626';
@@ -237,34 +248,84 @@ function HeaderSelectAll({
   );
 }
 
-export default function MembersTable({ members }: MembersTableProps) {
-  const [search, setSearch] = useState('');
-  const [programFilter, setProgramFilter] = useState('');
+export default function MembersTable({
+  members,
+  totalCount,
+  currentPage,
+  pageSize,
+  searchQuery,
+  programFilter,
+  statusFilter,
+}: MembersTableProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const initialSort = searchParams?.get('sort')?.split(':') as [SortKey, SortDir] | undefined;
+  const [search, setSearch] = useState(searchQuery);
+  const [programFilterState, setProgramFilterState] = useState(programFilter);
+  const [statusFilterState, setStatusFilterState] = useState(statusFilter);
   const [partnerFilter, setPartnerFilter] = useState('');
-  const [healthFilter, setHealthFilter] = useState('');
+  const [healthFilter, setHealthFilter] = useState(() => searchParams?.get('health') ?? '');
   const [notInCourseFilter, setNotInCourseFilter] = useState(false);
-  const [needsAttentionFilter, setNeedsAttentionFilter] = useState(false);
+  const [needsAttentionFilter, setNeedsAttentionFilter] = useState(() => searchParams?.get('attention') === '1');
+  const [startDate, setStartDate] = useState(() => searchParams?.get('startDate') ?? '');
+  const [endDate, setEndDate] = useState(() => searchParams?.get('endDate') ?? '');
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   // Dad-safe default: surface most-recently-active members first (matches server's initial sort).
-  const [sortKey, setSortKey] = useState<SortKey>('lastActive');
-  const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [sortKey, setSortKey] = useState<SortKey>(() => initialSort?.[0] ?? 'lastActive');
+  const [sortDir, setSortDir] = useState<SortDir>(() => initialSort?.[1] ?? 'desc');
   // "More sort options" disclosure starts collapsed; only the 3 common sorts show until expanded.
   const [showAdvancedSorts, setShowAdvancedSorts] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [bulkHint, setBulkHint] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<null | { type: 'enrolled' | 'completed'; count: number }>(null);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const updateUrl = useCallback(
+    (newParams: Record<string, string>) => {
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      Object.entries(newParams).forEach(([key, value]) => {
+        if (value) {
+          params.set(key, value);
+        } else {
+          params.delete(key);
+        }
+      });
+      // Reset to page 1 when filters change
+      if (newParams.search !== undefined || newParams.program !== undefined || newParams.status !== undefined) {
+        params.delete('page');
+      }
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [router, pathname, searchParams]
+  );
 
   const filtered = useMemo(() => {
     const rows = members.filter((m) => {
       const q = search.toLowerCase();
       const matchSearch = !search || m.fullName?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q);
-      const matchProgram = !programFilter || m.enrollmentProgramSlugs.includes(programFilter);
+      const matchProgram = !programFilterState || m.enrollmentProgramSlugs.includes(programFilterState);
+      const memberStatus = getStudentStatus({
+        enrolledAt: m.enrolledAt ? new Date(m.enrolledAt) : null,
+        enrolledProgram: m.enrolledProgram,
+        deletedAt: null, // client-side only sees non-deleted from server
+        updatedAt: typeof m.updatedAt === 'string' ? new Date(m.updatedAt) : m.updatedAt,
+        courseProgressCount: m.liveTraining?.percent ?? 0,
+        certificationCount: m.coursesCompleted?.length ?? 0,
+        recentEventCount: m.healthStatus === 'green' ? 1 : 0,
+      });
+      const matchStatus = !statusFilterState || memberStatus === statusFilterState;
       const matchPartner = !partnerFilter || (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
       const matchHealth = !healthFilter || m.healthStatus === healthFilter;
       const matchNotInCourse = !notInCourseFilter || isNotInCourse(m);
       const matchAttention = !needsAttentionFilter || needsAttention(m);
-      return matchSearch && matchProgram && matchPartner && matchHealth && matchNotInCourse && matchAttention;
+      return matchSearch && matchProgram && matchStatus && matchPartner && matchHealth && matchNotInCourse && matchAttention;
     });
     const dir = sortDir === 'asc' ? 1 : -1;
     // Stable sort with a fit-score tiebreaker so equal keys keep a sensible order.
@@ -280,7 +341,8 @@ export default function MembersTable({ members }: MembersTableProps) {
   }, [
     members,
     search,
-    programFilter,
+    programFilterState,
+    statusFilterState,
     partnerFilter,
     healthFilter,
     notInCourseFilter,
@@ -323,11 +385,14 @@ export default function MembersTable({ members }: MembersTableProps) {
 
   const activeFilterCount =
     (search.trim() ? 1 : 0) +
-    (programFilter ? 1 : 0) +
+    (programFilterState ? 1 : 0) +
+    (statusFilterState ? 1 : 0) +
     (partnerFilter ? 1 : 0) +
     (healthFilter ? 1 : 0) +
     (notInCourseFilter ? 1 : 0) +
-    (needsAttentionFilter ? 1 : 0);
+    (needsAttentionFilter ? 1 : 0) +
+    (startDate ? 1 : 0) +
+    (endDate ? 1 : 0);
 
   const selectedInCurrentView = useMemo(
     () => filtered.filter((m) => selectedIds.has(m.id)).length,
@@ -338,11 +403,15 @@ export default function MembersTable({ members }: MembersTableProps) {
 
   function clearAllFilters() {
     setSearch('');
-    setProgramFilter('');
+    setProgramFilterState('');
+    setStatusFilterState('');
     setPartnerFilter('');
     setHealthFilter('');
     setNotInCourseFilter(false);
     setNeedsAttentionFilter(false);
+    setStartDate('');
+    setEndDate('');
+    updateUrl({ search: '', program: '', status: '', page: '' });
   }
 
   function toggleSelect(id: string) {
@@ -407,6 +476,51 @@ export default function MembersTable({ members }: MembersTableProps) {
     }
   }
 
+  async function exportFilteredCsv() {
+    if (filtered.length === 0) return;
+    setExportLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (search.trim()) params.set('search', search.trim());
+      if (programFilterState) params.set('program', programFilterState);
+      if (partnerFilter) params.set('partner', partnerFilter);
+      if (healthFilter) params.set('health', healthFilter);
+      if (notInCourseFilter) params.set('notInCourse', '1');
+      if (needsAttentionFilter) params.set('needsAttention', '1');
+      if (startDate) params.set('startDate', startDate);
+      if (endDate) params.set('endDate', endDate);
+      const res = await fetch(`/api/admin/members/export?${params.toString()}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setBulkHint(typeof data.error === 'string' ? data.error : 'Export failed');
+        window.setTimeout(() => setBulkHint(null), 3500);
+        return;
+      }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const date = new Date().toISOString().slice(0, 10);
+      a.download = `students-export-${filtered.length}-${date}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      setBulkHint(`Exported ${filtered.length} row${filtered.length === 1 ? '' : 's'}`);
+      window.setTimeout(() => setBulkHint(null), 3500);
+    } catch {
+      setBulkHint('Network error during export');
+      window.setTimeout(() => setBulkHint(null), 3500);
+    } finally {
+      setExportLoading(false);
+    }
+  }
+
+  function goToPage(page: number) {
+    if (page < 1 || page > totalPages) return;
+    updateUrl({ page: page.toString() });
+  }
+
   return (
     <div className="admin-members-table-root">
       <div className="admin-members-toolbar">
@@ -415,9 +529,12 @@ export default function MembersTable({ members }: MembersTableProps) {
             <span className="admin-members-search-label__text">Search members</span>
             <input
               type="search"
-              placeholder="Name or email — ⌘F-style quick find"
+              placeholder="Name or email"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                updateUrl({ search: e.target.value });
+              }}
               className="admin-members-search-input"
               autoComplete="off"
             />
@@ -434,29 +551,87 @@ export default function MembersTable({ members }: MembersTableProps) {
           </button>
         </div>
 
-        <p className="admin-members-count-line" aria-live="polite">
-          <strong>{filtered.length.toLocaleString()}</strong> shown
-          {members.length !== filtered.length ? (
-            <>
-              {' '}
-              of <strong>{members.length.toLocaleString()}</strong>
-            </>
-          ) : null}
-          {activeFilterCount > 0 ? <span className="admin-members-count-line__filters"> · {activeFilterCount} filter{activeFilterCount === 1 ? '' : 's'} on</span> : null}
-        </p>
+        <div className="admin-members-count-line" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <span aria-live="polite">
+            <strong>{filtered.length.toLocaleString()}</strong> shown
+            {totalCount !== filtered.length ? (
+              <>
+                {' '}
+                of <strong>{totalCount.toLocaleString()}</strong>
+              </>
+            ) : null}
+            {activeFilterCount > 0 ? <span className="admin-members-count-line__filters"> · {activeFilterCount} filter{activeFilterCount === 1 ? '' : 's'} on</span> : null}
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <label className="admin-members-filter-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>From</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="admin-members-filter-select"
+                style={{ fontSize: '0.78rem', padding: '0.25rem 0.5rem' }}
+              />
+            </label>
+            <label className="admin-members-filter-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>To</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="admin-members-filter-select"
+                style={{ fontSize: '0.78rem', padding: '0.25rem 0.5rem' }}
+              />
+            </label>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => void exportFilteredCsv()}
+              disabled={exportLoading || filtered.length === 0}
+              aria-busy={exportLoading}
+            >
+              <Download size={14} style={{ marginRight: '0.25rem', verticalAlign: 'middle' }} />
+              {exportLoading ? 'Exporting…' : 'Export CSV'}
+            </button>
+          </div>
+        </div>
 
         <div
           className={['admin-members-filters', filtersExpanded ? 'admin-members-filters--open' : ''].filter(Boolean).join(' ')}
         >
           <label className="admin-members-filter-field">
             <span>Program</span>
-            <select value={programFilter} onChange={(e) => setProgramFilter(e.target.value)} className="admin-members-filter-select">
+            <select
+              value={programFilterState}
+              onChange={(e) => {
+                setProgramFilterState(e.target.value);
+                updateUrl({ program: e.target.value });
+              }}
+              className="admin-members-filter-select"
+            >
               <option value="">All programs</option>
               {programs.map((p) => (
                 <option key={p.slug} value={p.slug}>
                   {p.title}
                 </option>
               ))}
+            </select>
+          </label>
+          <label className="admin-members-filter-field">
+            <span>Status</span>
+            <select
+              value={statusFilterState}
+              onChange={(e) => {
+                setStatusFilterState(e.target.value);
+                updateUrl({ status: e.target.value });
+              }}
+              className="admin-members-filter-select"
+            >
+              <option value="">All statuses</option>
+              <option value="enrolled">Enrolled (in program)</option>
+              <option value="active">Active (recent activity)</option>
+              <option value="completed">Completed (certified)</option>
+              <option value="dropped">Dropped (deleted)</option>
             </select>
           </label>
           <label className="admin-members-filter-field">
@@ -596,6 +771,24 @@ export default function MembersTable({ members }: MembersTableProps) {
               <Users size={14} style={{ marginRight: '0.25rem', verticalAlign: 'middle' }} />
               Bulk update
             </button>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => setConfirmAction({ type: 'enrolled', count: selectedIds.size })}
+              disabled={bulkActionLoading}
+            >
+              <GraduationCap size={14} style={{ marginRight: '0.25rem', verticalAlign: 'middle' }} />
+              Mark as Enrolled
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => setConfirmAction({ type: 'completed', count: selectedIds.size })}
+              disabled={bulkActionLoading}
+            >
+              <CheckCircle size={14} style={{ marginRight: '0.25rem', verticalAlign: 'middle' }} />
+              Mark as Completed
+            </button>
           </div>
           {bulkHint ? <p className="admin-members-bulk-hint">{bulkHint}</p> : null}
         </div>
@@ -640,6 +833,20 @@ export default function MembersTable({ members }: MembersTableProps) {
               key: 'attn',
               header: 'Priority',
               cell: (m) => <AttentionBadge reasons={attentionReasons(m)} />,
+            },
+            {
+              key: 'memberStatus',
+              header: 'Status',
+              cell: (m) => {
+                const status = m.memberStatus ?? 'active';
+                const color = status === 'active' ? '#16a34a' : status === 'placed' ? '#2563eb' : '#9ca3af';
+                const bg = status === 'active' ? '#f0fdf4' : status === 'placed' ? '#eff6ff' : '#f3f4f6';
+                return (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.15rem 0.5rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 600, color, background: bg, border: `1px solid ${color}20`, textTransform: 'capitalize' }}>
+                    {status}
+                  </span>
+                );
+              },
             },
             {
               key: 'name',
@@ -812,6 +1019,19 @@ export default function MembersTable({ members }: MembersTableProps) {
                   <span className="admin-portal-card__label">Priority</span> <AttentionBadge reasons={attentionReasons(m)} />
                 </p>
               ) : null}
+              <p className="admin-portal-card__row">
+                <span className="admin-portal-card__label">Status</span>{' '}
+                {(() => {
+                  const status = m.memberStatus ?? 'active';
+                  const color = status === 'active' ? '#16a34a' : status === 'placed' ? '#2563eb' : '#9ca3af';
+                  const bg = status === 'active' ? '#f0fdf4' : status === 'placed' ? '#eff6ff' : '#f3f4f6';
+                  return (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.15rem 0.5rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 600, color, background: bg, border: `1px solid ${color}20`, textTransform: 'capitalize' }}>
+                      {status}
+                    </span>
+                  );
+                })()}
+              </p>
               <p className="admin-portal-card__meta">{m.email}</p>
               {rawPhone ? <p className="admin-portal-card__meta">{phoneDisplay}</p> : null}
               <p className="admin-portal-card__row">
@@ -854,6 +1074,39 @@ export default function MembersTable({ members }: MembersTableProps) {
         </div>
       )}
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="admin-members-pagination" style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              type="button"
+              className={`btn btn-sm ${page === currentPage ? 'btn-primary' : 'btn-ghost'}`}
+              onClick={() => goToPage(page)}
+              aria-current={page === currentPage ? 'page' : undefined}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
+
       <BulkEmailModal
         open={showEmailModal}
         memberIds={selectedRows.map((m) => m.id)}
@@ -878,6 +1131,93 @@ export default function MembersTable({ members }: MembersTableProps) {
           setSelectedIds(new Set());
         }}
       />
+
+      {/* Confirmation dialog for quick bulk actions */}
+      {confirmAction && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bulk-confirm-title"
+          onClick={(e) => { if (e.target === e.currentTarget) setConfirmAction(null); }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1100,
+            background: 'rgba(0,0,0,0.45)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1rem',
+          }}
+        >
+          <div
+            style={{
+              background: 'var(--color-white)',
+              borderRadius: 'var(--radius-lg, 1rem)',
+              width: '100%',
+              maxWidth: '420px',
+              boxShadow: 'var(--shadow-xl, 0 20px 40px rgba(0,0,0,0.25))',
+            }}
+          >
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--outline-variant, #e5e0dc)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <AlertTriangle size={20} style={{ color: 'var(--color-accent)' }} />
+              <h2 id="bulk-confirm-title" style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>
+                Confirm Bulk Action
+              </h2>
+            </div>
+            <div style={{ padding: '1.25rem 1.5rem' }}>
+              <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+                You are about to mark <strong>{confirmAction.count}</strong> member{confirmAction.count === 1 ? '' : 's'} as{' '}
+                <strong>{confirmAction.type === 'enrolled' ? 'Enrolled' : 'Completed'}</strong>.
+                This will update their pipeline stage.
+              </p>
+            </div>
+            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--outline-variant, #e5e0dc)', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setConfirmAction(null)}
+                disabled={bulkActionLoading}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={bulkActionLoading}
+                onClick={async () => {
+                  setBulkActionLoading(true);
+                  try {
+                    const res = await fetch('/api/admin/members/bulk-update', {
+                      method: 'POST',
+                      credentials: 'include',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        memberIds: selectedRows.map((m) => m.id),
+                        pipelineStage: confirmAction.type === 'enrolled' ? 'enrolled' : 'certified',
+                      }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                      setBulkHint(typeof data.error === 'string' ? data.error : 'Bulk action failed');
+                      window.setTimeout(() => setBulkHint(null), 5000);
+                      return;
+                    }
+                    const hint = `${confirmAction.type === 'enrolled' ? 'Marked as enrolled' : 'Marked as completed'}: ${data.updated}/${data.total} members${data.errors.length > 0 ? ` (${data.errors.length} failed)` : ''}`;
+                    setBulkHint(hint);
+                    window.setTimeout(() => setBulkHint(null), 5000);
+                    setSelectedIds(new Set());
+                  } catch {
+                    setBulkHint('Network error during bulk action');
+                    window.setTimeout(() => setBulkHint(null), 5000);
+                  } finally {
+                    setBulkActionLoading(false);
+                    setConfirmAction(null);
+                  }
+                }}
+              >
+                {bulkActionLoading ? 'Applying…' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

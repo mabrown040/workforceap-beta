@@ -16,6 +16,7 @@ import AtRiskMemberList from '@/components/portal/counselor/AtRiskMemberList';
 import RecentActivityFeed from '@/components/portal/counselor/RecentActivityFeed';
 
 const HOT_QUEUE_LOOKBACK_DAYS = 7;
+const UPCOMING_SESSION_DAYS = 7;
 
 function formatHotQueueTime(date: Date, translate: (key: string, values?: { count: number }) => string): string {
   const diffMs = Date.now() - date.getTime();
@@ -25,7 +26,11 @@ function formatHotQueueTime(date: Date, translate: (key: string, values?: { coun
   return translate('hotQueueDaysAgo', { count: diffDays });
 }
 
-export default async function CounselorStudentsPage() {
+export default async function CounselorStudentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/counselor/students');
 
@@ -37,6 +42,7 @@ export default async function CounselorStudentsPage() {
   if (!counselor && !(await isAdmin(user.id))) redirect('/dashboard');
 
   const t = await getTranslations('counselor');
+  const { filter } = await searchParams;
 
   const assignments = counselor
     ? await prisma.counselorAssignment.findMany({
@@ -125,6 +131,44 @@ export default async function CounselorStudentsPage() {
       })
     : [];
 
+  // ── Filter metadata: upcoming sessions & pending applications ──
+  const now = new Date();
+  const upcomingSessionCutoff = new Date(now.getTime() + UPCOMING_SESSION_DAYS * 24 * 60 * 60 * 1000);
+
+  const [upcomingSessions, pendingApplications] = await Promise.all([
+    memberIds.length
+      ? prisma.mentorSession.findMany({
+          take: 500,
+          where: {
+            memberId: { in: memberIds },
+            scheduledAt: { gte: now, lte: upcomingSessionCutoff },
+            status: { in: ['PENDING', 'CONFIRMED'] },
+          },
+          select: { memberId: true },
+        })
+      : Promise.resolve([]),
+    memberIds.length
+      ? prisma.application.findMany({
+          take: 500,
+          where: {
+            userId: { in: memberIds },
+            status: 'PENDING',
+          },
+          select: { userId: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const membersWithUpcomingSession = new Set(upcomingSessions.map((s) => s.memberId));
+  const membersWithPendingApplication = new Set(pendingApplications.map((a) => a.userId));
+
+  const filterMeta = rosterRows.map((r) => ({
+    memberId: r.memberId,
+    atRisk: r.riskScore != null && r.riskLevel !== 'LOW',
+    upcomingSession: membersWithUpcomingSession.has(r.memberId),
+    pendingApplication: membersWithPendingApplication.has(r.memberId),
+  }));
+
   // ── Analytics ───────────────────────────────────────────
   let analyticsData: {
     totalMembers: number;
@@ -139,15 +183,6 @@ export default async function CounselorStudentsPage() {
     recentActivity: { memberId: string; type: 'course_completed' | 'certification_earned' | 'placement_recorded'; date: string; metadata: Record<string, unknown> | null }[];
     atRiskList: { memberId: string; riskScore: number; riskLevel: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'; enrolledProgram: string | null }[];
   } | null = null;
-
-  // Previously fetched `/api/counselor/analytics` here, but the call
-  // sent `cookie: ''` (no session) so the route always returned 401,
-  // and the failure was cached for 60s under `next: { revalidate }` —
-  // wasting requests and polluting the data cache. The fallback below
-  // already computes a usable analytics object from the rosterRows
-  // we've already loaded, so the fetch was dead code. If we want a
-  // richer view later, render this through a client component that
-  // can authenticate.
 
   // Fallback analytics from already-loaded data
   const analytics = analyticsData ?? {
@@ -301,7 +336,7 @@ export default async function CounselorStudentsPage() {
             />
           </div>
         ) : (
-          <CounselorStudentsRosterClient rows={rosterRows} />
+          <CounselorStudentsRosterClient rows={rosterRows} filterMeta={filterMeta} initialFilter={filter} />
         )}
       </div>
 
@@ -388,7 +423,7 @@ export default async function CounselorStudentsPage() {
             secondaryAction={{ label: t('counselorGuide'), href: '/counselor/guide' }}
           />
         ) : (
-          <CounselorStudentsRosterClient rows={rosterRows} />
+          <CounselorStudentsRosterClient rows={rosterRows} filterMeta={filterMeta} initialFilter={filter} />
         )}
       </div>
 

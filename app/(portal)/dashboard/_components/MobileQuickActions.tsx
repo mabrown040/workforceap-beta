@@ -20,7 +20,7 @@ export default function MobileQuickActions({ t }: { t: DashboardTranslator }) {
                 <div className="portal-quick-grid-item__icon">
                   <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', fontVariationSettings: "'FILL' 1" }}>{action.icon}</span>
                 </div>
-                <span className="portal-quick-grid-item__label">{action.label}</span>
+                <span className="portal-quick-grid-item__label" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{action.label}</span>
               </a>
             ))}
           </div>

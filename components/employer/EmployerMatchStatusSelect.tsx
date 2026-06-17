@@ -28,6 +28,9 @@ export default function EmployerMatchStatusSelect({
 
   const onChange = useCallback(
     async (next: string) => {
+      // Optimistic update: reflect the change immediately in the UI
+      const previousStatus = status;
+      setStatus(next);
       setBusy(true);
       try {
         const r = await fetch(`/api/employer/jobs/${jobId}/matches/${studentId}`, {
@@ -36,12 +39,20 @@ export default function EmployerMatchStatusSelect({
           body: JSON.stringify({ status: next }),
         });
         const data = await r.json().catch(() => ({}));
-        if (r.ok) setStatus((data as { status?: string }).status ?? next);
+        if (r.ok) {
+          setStatus((data as { status?: string }).status ?? next);
+        } else {
+          // Revert to previous status on error
+          setStatus(previousStatus);
+        }
+      } catch {
+        // Revert to previous status on network error
+        setStatus(previousStatus);
       } finally {
         setBusy(false);
       }
     },
-    [jobId, studentId]
+    [jobId, studentId, status]
   );
 
   return (

@@ -10,6 +10,7 @@ import { getResourcesForCategory } from '@/lib/content/programResources';
 import { getCareerBriefContext } from '@/lib/content/careerBriefPersonalization';
 import ResourcesClient from './ResourcesClient';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -144,7 +145,20 @@ export default async function DashboardResourcesPage() {
           <h2 style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
             {categoryLabel} resources
           </h2>
-          <ResourcesClient resources={programResources} />
+          {programResources.length === 0 ? (
+            <PortalEmptyState
+              icon={
+                <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                  folder_open
+                </span>
+              }
+              title="No resources yet"
+              description="Resources for your program will appear here once you're enrolled."
+              primaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
+            />
+          ) : (
+            <ResourcesClient resources={programResources} />
+          )}
         </section>
 
         {/* Support + Counselor */}

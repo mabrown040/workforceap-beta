@@ -9,6 +9,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { calculateFitScore } from '@/lib/admin/fitScore';
 import { calculateHealthStatus } from '@/lib/admin/healthScore';
+import { buildStatusWhere, type StudentStatus } from '@/lib/admin/studentStatus';
 import MembersTable from '@/components/admin/MembersTable';
 import MembersListNav from '@/components/admin/MembersListNav';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
@@ -26,7 +27,11 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function AdminMembersPage() {
+export default async function AdminMembersPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/members');
 
@@ -35,13 +40,52 @@ export default async function AdminMembersPage() {
 
   const t = await getTranslations('admin');
 
+  const params = (await searchParams) ?? {};
+  const searchQuery = typeof params.search === 'string' ? params.search.trim() : '';
+  const programFilter = typeof params.program === 'string' ? params.program.trim() : '';
+  const statusFilter = typeof params.status === 'string' ? params.status.trim() : '';
+  const pageParam = typeof params.page === 'string' ? parseInt(params.page, 10) : 1;
+  const currentPage = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+  const pageSize = 50;
+
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  // Build the where clause based on filters
+  const whereClause: any = {
+    ...MEMBER_OR_DOGFOOD_WHERE,
+  };
+
+  // Status filter: dropped includes soft-deleted members; others exclude them.
+  const validStatus = statusFilter as StudentStatus;
+  if (validStatus === 'dropped') {
+    whereClause.deletedAt = { not: null };
+  } else {
+    whereClause.deletedAt = null;
+  }
+
+  if (searchQuery) {
+    whereClause.OR = [
+      { fullName: { contains: searchQuery, mode: 'insensitive' } },
+      { email: { contains: searchQuery, mode: 'insensitive' } },
+    ];
+  }
+
+  if (programFilter) {
+    whereClause.courseEnrollments = {
+      some: { programSlug: programFilter },
+    };
+  }
+
+  if (validStatus && validStatus !== 'dropped') {
+    Object.assign(whereClause, buildStatusWhere(validStatus));
+  }
 
   // Run member list and event aggregates in parallel. Full-table `memberEvent` groupBy
   // can time out or fail under load; degrading aggregates must not hide the member list.
   const [
     membersResult,
+    totalCountResult,
     lastEventsResult,
     recentEventsResult,
     canonicalCompletionsResult,
@@ -49,9 +93,10 @@ export default async function AdminMembersPage() {
     activeCourseProgressResult,
   ] = await Promise.allSettled([
     prisma.user.findMany({
-      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
-      orderBy: { createdAt: 'desc' },
-      take: 2000,
+      where: whereClause,
+      orderBy: { updatedAt: 'desc' },
+      skip: (currentPage - 1) * pageSize,
+      take: pageSize,
       select: {
         id: true,
         fullName: true,
@@ -65,6 +110,7 @@ export default async function AdminMembersPage() {
         programInterest: true,
         updatedAt: true,
         createdAt: true,
+        memberStatus: true,
         // Multi-program-aware: pull every program slug the member has an
         // enrollment row for so the MembersTable filter dropdown can include
         // ALL programs each member is in (not just the denormalized primary
@@ -93,6 +139,7 @@ export default async function AdminMembersPage() {
         },
       },
     }),
+    prisma.user.count({ where: whereClause }),
     // PERF: Bound last-event scan to 30 days. Users absent from this map
     // are treated as inactive by calculateHealthStatus (correct behavior).
     prisma.memberEvent.groupBy({
@@ -281,12 +328,15 @@ export default async function AdminMembersPage() {
 
       <MembersListNav />
 
-      {members.length >= 2000 && (
-        <p style={{ margin: '0 0 0.75rem', padding: '0.6rem 0.9rem', background: 'rgba(173,44,77,0.07)', borderRadius: '6px', fontSize: '0.875rem', color: 'var(--color-accent)' }}>
-          {t('showing2000MostRecent')}
-        </p>
-      )}
-      <MembersTable members={membersWithProgram} />
+      <MembersTable
+        members={membersWithProgram}
+        totalCount={totalCountResult.status === 'fulfilled' ? totalCountResult.value : members.length}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        searchQuery={searchQuery}
+        programFilter={programFilter}
+        statusFilter={statusFilter}
+      />
     </PortalPageFrame>
   );
 }

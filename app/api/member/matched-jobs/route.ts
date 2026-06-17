@@ -40,6 +40,14 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const GET = withApiG
     const jobs = await prisma.$transaction((tx) => tx.job.findMany({
       where: {
         status: 'live',
+        AND: [
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gte: new Date() } },
+            ],
+          },
+        ],
       },
       include: {
         employer: { select: { companyName: true } },

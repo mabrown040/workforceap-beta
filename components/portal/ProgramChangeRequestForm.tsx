@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import type { Program } from '@/lib/content/programs';
+import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 
 type Props = {
   programs: Program[];
@@ -34,9 +35,9 @@ export default function ProgramChangeRequestForm({ programs }: Props) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ requestedProgramSlug: requestedSlug, reason: reason.trim() }),
         });
-        const payload = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setError(payload?.error || `Submit failed (HTTP ${res.status})`);
+          const msg = await getErrorMessageFromResponse(res);
+          setError(msg);
           return;
         }
         setSuccess(true);

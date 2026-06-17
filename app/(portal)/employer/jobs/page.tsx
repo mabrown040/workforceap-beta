@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-type SearchProps = { searchParams: Promise<{ page?: string; filter?: string }> };
+type SearchProps = { searchParams: Promise<{ page?: string; filter?: string; locationType?: string }> };
 
 export default async function EmployerJobsPage({ searchParams }: SearchProps) {
   const user = await getUser();
@@ -44,10 +44,10 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
   const t = await getTranslations('employer');
 
   const sp = await searchParams;
-  const { filter, page } = parseEmployerJobsListQuery(sp);
+  const { filter, page, locationType } = parseEmployerJobsListQuery(sp);
   const employerId = ctx.employerId;
 
-  const listWhere = prismaWhereEmployerJobList(employerId, filter);
+  const listWhere = prismaWhereEmployerJobList(employerId, filter, locationType);
 
   const [totalInDb, totalInFilter, jobs, deletableRows, closableRows, titlesInFilter] = await Promise.all([
     prisma.job.count({ where: { employerId } }),
@@ -61,13 +61,13 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
     }),
     prisma.job.findMany({
       take: 5000,
-      where: prismaWhereDeletableInListFilter(employerId, filter),
+      where: prismaWhereDeletableInListFilter(employerId, filter, locationType),
       select: { id: true, title: true, status: true },
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.job.findMany({
       take: 5000,
-      where: prismaWhereClosableInListFilter(employerId, filter),
+      where: prismaWhereClosableInListFilter(employerId, filter, locationType),
       select: { id: true, title: true, status: true },
       orderBy: { updatedAt: 'desc' },
     }),
@@ -80,9 +80,10 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
 
   const totalPages = Math.max(1, Math.ceil(totalInFilter / EMPLOYER_JOBS_PAGE_SIZE));
   if (totalInFilter > 0 && page > totalPages) {
-    redirect(employerJobsListHref(filter, totalPages));
+    redirect(employerJobsListHref(filter, totalPages, locationType));
   }
 
+  const now = new Date();
   const boardItems = jobs.map((j) => {
     const desc = j.description?.trim() ?? '';
     const location = j.location?.trim() || '';
@@ -94,6 +95,8 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       requirementsCount: j.requirements?.length ?? 0,
       suggestedProgramsCount: j.suggestedPrograms?.length ?? 0,
     });
+    const isExpired = j.status === 'live' && j.expiresAt != null && j.expiresAt < now;
+    const effectiveStatus = isExpired ? 'expired' : j.status;
     return {
       id: j.id,
       title: j.title,
@@ -106,8 +109,8 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
       descriptionLength: desc.length,
       requirementsCount: j.requirements?.length ?? 0,
       suggestedProgramsCount: j.suggestedPrograms?.length ?? 0,
-      status: j.status,
-      statusLabel: employerJobStatusLabel(j.status),
+      status: effectiveStatus,
+      statusLabel: employerJobStatusLabel(effectiveStatus),
       applicationsCount: j._count.applications,
       updatedAt: j.updatedAt.toISOString(),
       readinessLevel: readiness.level,
@@ -123,6 +126,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
     { value: 'live', label: t('live') },
     { value: 'draft', label: t('draft') },
     { value: 'filled', label: t('filled') },
+    { value: 'expired', label: t('expired') },
   ];
 
   return (
@@ -184,7 +188,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
           {FILTER_CHIPS.map((chip) => (
             <Link
               key={chip.value}
-              href={chip.value ? `/employer/jobs?filter=${chip.value}` : '/employer/jobs'}
+              href={chip.value ? `/employer/jobs?filter=${chip.value}${locationType ? `&locationType=${locationType}` : ''}` : `/employer/jobs${locationType ? `?locationType=${locationType}` : ''}`}
               style={{
                 flexShrink: 0,
                 padding: '0.375rem 0.875rem',
@@ -211,7 +215,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
                 {t('tryAnotherFilter')}
               </p>
               <Link
-                href="/employer/jobs"
+                href={`/employer/jobs${locationType ? `?locationType=${locationType}` : ''}`}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}
               >
                 {t('showAllPostings')}
@@ -288,6 +292,7 @@ export default async function EmployerJobsPage({ searchParams }: SearchProps) {
               deletableInFilter={deletableRows}
               closableInFilter={closableRows}
               titleByIdInFilter={titleByIdInFilter}
+              locationType={locationType}
             />
           )}
       </div>

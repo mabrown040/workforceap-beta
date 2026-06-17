@@ -19,6 +19,7 @@ export type PartnerOnboardingWizardProps = {
   contactName: string;
   contactPhone: string;
   referralApplyUrl: string;
+  initialStep?: number;
   onComplete?: () => void;
 };
 
@@ -28,6 +29,7 @@ export default function PartnerOnboardingWizard({
   contactName: initialContact,
   contactPhone: initialPhone,
   referralApplyUrl,
+  initialStep = 0,
   onComplete: onCompleteProp,
 }: PartnerOnboardingWizardProps) {
   const router = useRouter();
@@ -153,6 +155,7 @@ export default function PartnerOnboardingWizard({
       portal="partner"
       steps={steps}
       onComplete={onComplete}
+      initialStep={initialStep}
       stepHooks={{
         beforeNext: async (index) => {
           if (index === 1) await saveOrg();

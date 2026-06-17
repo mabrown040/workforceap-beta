@@ -56,6 +56,76 @@ function StreakBanner({
   );
 }
 
+/**
+ * Compact streak widget — always visible when the member has any streak
+ * history (current > 0 or longest > 0). Rendered below the banner so the
+ * gamification layer is present even when the banner is hidden (e.g. on
+ * counselor/staff views where streak props are not passed).
+ */
+function StreakMiniCard({
+  currentStreak,
+  longestStreak,
+}: {
+  currentStreak: number;
+  longestStreak: number;
+}) {
+  if (currentStreak <= 0 && longestStreak <= 0) return null;
+
+  const flame = 'var(--color-orange, #f97316)';
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        marginBottom: '1rem',
+      }}
+    >
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          background: `${flame}10`,
+          border: `1px solid ${flame}25`,
+          borderRadius: 'var(--radius-md, 0.75rem)',
+          padding: '0.5rem 0.75rem',
+        }}
+      >
+        <span
+          className="material-symbols-outlined"
+          aria-hidden="true"
+          style={{ fontSize: '1.25rem', color: flame, '--ms-fill': 1 } as React.CSSProperties}
+        >
+          local_fire_department
+        </span>
+        <div>
+          <p
+            style={{
+              margin: 0,
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              color: 'var(--color-on-surface)',
+            }}
+          >
+            {currentStreak > 0 ? `${currentStreak}-day streak` : 'No active streak'}
+          </p>
+          <p
+            style={{
+              margin: 0,
+              fontSize: '0.72rem',
+              color: 'var(--color-on-surface-variant)',
+            }}
+          >
+            {longestStreak > 0 ? `Best: ${longestStreak} days` : 'Start today!'}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const LEVEL_ICONS: Record<LevelName, string> = {
   starter:  'sprout',
   builder:  'build',
@@ -197,6 +267,10 @@ export default function PointsWidget({
       ) : (
         <StreakBanner currentStreak={streak} longestStreak={bestStreak} />
       )}
+
+      {/* Streak mini-card — additive gamification layer. Always visible when the
+          member has any streak data (current > 0 or longest > 0). */}
+      <StreakMiniCard currentStreak={streak} longestStreak={bestStreak} />
 
       {/* Progress to next level */}
       {nextLevel && (

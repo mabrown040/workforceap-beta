@@ -4,7 +4,9 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { redirect } from 'next/navigation';
-import OutcomesDashboard from '@/components/admin/OutcomesDashboard';
+import { getBoardSnapshot, BoardOutcomesPeriod } from '@/lib/admin/boardOutcomes';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import OutcomesSnapshot from '@/components/admin/OutcomesSnapshot';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
@@ -15,7 +17,11 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function OutcomesPage() {
+export default async function OutcomesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ period?: string }>;
+}) {
   const user = await getUser();
   if (!user) {
     redirect('/login?redirect=/admin/outcomes');
@@ -26,5 +32,10 @@ export default async function OutcomesPage() {
     redirect('/dashboard');
   }
 
-  return <OutcomesDashboard />;
+  const orgId = await getActorOrganizationId(user.id);
+  const params = await searchParams;
+  const period = (params?.period ?? 'all-time') as BoardOutcomesPeriod;
+  const snapshot = await getBoardSnapshot(period, orgId ?? undefined);
+
+  return <OutcomesSnapshot initialSnapshot={snapshot} initialPeriod={period} />;
 }

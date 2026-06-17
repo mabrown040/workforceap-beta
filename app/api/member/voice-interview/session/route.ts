@@ -4,9 +4,10 @@ import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
 import { fetchMemberPortalDynamicVariables } from '@/lib/ai/elevenlabsPortalContext';
 import { aiResponseLanguageInstruction, normalizeAIResponseLanguage } from '@/lib/ai/responseLanguage';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /** POST — signed URL for voice mock interview with role / style context. */
-export async function POST(req: NextRequest) {
+export const POST = withApiGuc(async (req: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,4 +65,4 @@ export async function POST(req: NextRequest) {
     console.error('/member/voice-interview/session:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

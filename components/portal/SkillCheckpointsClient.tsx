@@ -146,6 +146,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
             key={pack.programSlug}
             className="portal-card"
             onClick={() => setStep({ kind: 'course', pack })}
+            aria-label={`Select ${pack.programTitle}`}
             style={{
               textAlign: 'left',
               padding: '1rem',
@@ -177,6 +178,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
     <div>
       <button
         onClick={() => setStep({ kind: 'program' })}
+        aria-label="Back to programs"
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -211,6 +213,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
             onClick={() =>
               setStep({ kind: 'quiz', pack, course, index: 0, answers: {}, revealed: false })
             }
+            aria-label={`Select ${course.courseName}`}
             style={{
               textAlign: 'left',
               padding: '0.85rem 1rem',
@@ -283,6 +286,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
           {/* Back */}
           <button
             onClick={() => setStep({ kind: 'course', pack })}
+            aria-label={`Back to ${course.courseName}`}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -382,6 +386,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
                   key={opt.id}
                   onClick={() => handleSelect(opt.id)}
                   disabled={revealed}
+                  aria-label={opt.text}
                   style={{
                     textAlign: 'left',
                     padding: '0.75rem 1rem',
@@ -466,6 +471,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
           {revealed && (
             <button
               onClick={handleNext}
+              aria-label={index + 1 >= course.checkpoints.length ? 'See my results' : 'Next checkpoint'}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -510,6 +516,7 @@ export default function SkillCheckpointsClient({ userId: _userId }: { userId: st
 
         <button
           onClick={() => setStep({ kind: 'course', pack })}
+          aria-label="Try another course"
           style={{
             display: 'inline-flex',
             alignItems: 'center',

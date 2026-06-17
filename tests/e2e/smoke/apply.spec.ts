@@ -17,6 +17,7 @@ test.describe('Apply smoke', () => {
     // Mobile step breadcrumb (sidebar progress hidden below 768px)
     await page.setViewportSize({ width: 375, height: 812 });
     await expect(page.locator('.apply-mobile-step-nav')).toBeVisible();
+    await expect(page.locator('.apply-mobile-step-nav__summary')).toContainText(/step 1 of 3/i);
     await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/eligibility|you/i);
     await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
     await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/501\(c\)\(3\)|no cost/i);
@@ -55,8 +56,18 @@ test.describe('Apply smoke', () => {
     await page.goto('/apply/results');
 
     await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
+    await expect(page.locator('.apply-mobile-step-nav__summary')).toContainText(/step 2 of 3/i);
     await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/program/i);
     await expect(page.locator('.apply-funnel-form-kicker')).toContainText(/about 2 minutes/i);
     await expect(page.locator('.apply-flow .apply-step-kicker')).not.toBeVisible();
+  });
+
+  test('create account step shows final mobile progress count', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/apply/create-account');
+
+    await expect(page.locator('.apply-mobile-step-nav')).toBeVisible();
+    await expect(page.locator('.apply-mobile-step-nav__summary')).toContainText(/step 3 of 3/i);
+    await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/account/i);
   });
 });

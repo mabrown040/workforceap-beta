@@ -106,11 +106,11 @@ export default function MobileJourneyTimeline({
                       )}
                       {step.active && !step.done && <div className="portal-dot-pulse" />}
                     </div>
-                    <div className="portal-journey-step__content">
-                      <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`}>
+                    <div className="portal-journey-step__content" style={{ minWidth: 0, overflow: 'hidden' }}>
+                      <p className={`portal-journey-step__label${step.active && !step.done ? ' portal-journey-step__label--active' : ''}`} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {step.label}
                       </p>
-                      {step.detail && <p className="portal-journey-step__detail">{step.detail}</p>}
+                      {step.detail && <p className="portal-journey-step__detail" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{step.detail}</p>}
                     </div>
                   </div>
                 );

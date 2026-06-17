@@ -15,6 +15,7 @@ import { DISCOVERED_COURSERA_PROGRAMS } from '@/lib/content/courseraDiscoveredCa
 import { fetchLearnerProgressFromB4B } from '@/lib/coursera/learnerProgress';
 import { loadMemberProgramTrainingView } from '@/lib/member/memberProgramTrainingView';
 import CounselorNotesPanel from './CounselorNotesPanel';
+import AdvisorSessionNotesPanel from './AdvisorSessionNotesPanel';
 import StaffMemberResumePanel from '@/components/counselor/StaffMemberResumePanel';
 import WioaScreeningReadonly from '@/components/admin/WioaScreeningReadonly';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
@@ -574,6 +575,11 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
           <CounselorNotesPanel memberId={member.id} />
         </div>
 
+        {/* Session Notes */}
+        <div style={{ padding: '0 1rem 1rem' }}>
+          <AdvisorSessionNotesPanel memberId={member.id} />
+        </div>
+
         {/* Elevator pitch deployments — mobile */}
         <div style={{ padding: '0 1rem 1rem' }}>
           <div
@@ -948,6 +954,16 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
             >
               <StaffMemberResumePanel memberId={member.id} />
             </div>
+          </section>
+
+          <section style={{ marginTop: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Counselor Notes</h2>
+            <CounselorNotesPanel memberId={member.id} />
+          </section>
+
+          <section style={{ marginTop: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', fontWeight: 700 }}>Session Notes</h2>
+            <AdvisorSessionNotesPanel memberId={member.id} />
           </section>
 
           <section id="counselor-member-messages" style={{ marginTop: '1.5rem' }}>

@@ -13,6 +13,7 @@ import { formatPortalDate } from '@/lib/formatDate';
 import MemberDashboardVoiceSectionLazy from '@/components/portal/MemberDashboardVoiceSectionLazy';
 import VoiceSectionErrorBoundary from '@/components/portal/VoiceSectionErrorBoundary';
 import MemberNextStepsStrip from '@/components/portal/MemberNextStepsStrip';
+import MemberFirstCertProgressBar from '@/components/portal/MemberFirstCertProgressBar';
 import MemberFirstValuePanel from '@/components/portal/MemberFirstValuePanel';
 import { buildFirstValueActions } from '@/lib/member/firstValueActions';
 import { isNewMember, secondsSinceAccountCreation } from '@/lib/member/isNewMember';
@@ -22,12 +23,14 @@ import MemberSessionCard from '@/components/portal/MemberSessionCard';
 import MemberStuckCounselorStrip from '@/components/portal/MemberStuckCounselorStrip';
 import GoalsModule from '@/components/portal/GoalsModule';
 import TodayHero from '@/components/portal/TodayHero';
+import { getGoodTimeOfDayPhrase } from '@/lib/time/greeting';
 import { classifyMember } from '@/lib/member/atRiskScoring';
 import { buildProactiveInsights } from '@/lib/member/proactiveInsights';
 import { parseGoalDescription } from '@/lib/member/goalSteps';
 import PortalEntryErrorBoundary from '@/components/portal/PortalEntryErrorBoundary';
 import { getMemberState } from '@/lib/member/getMemberState';
 import { getActiveProgramForDashboard } from '@/lib/member/getActiveProgramForDashboard';
+import { resolveMemberDashboardTabs } from '@/lib/member/dashboardTabs';
 import {
   fetchLearnerProgressFromB4B,
   type LearnerProgressByContent,
@@ -89,7 +92,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ program?: string }>;
+  searchParams?: Promise<{ program?: string; tab?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
@@ -102,9 +105,10 @@ export default async function DashboardPage({
   const params = await searchParams;
   const requestedProgramSlug =
     typeof params?.program === 'string' ? params.program.trim() : null;
+  const requestedTab = typeof params?.tab === 'string' ? params.tab.trim() : null;
 
   try {
-    return await renderMemberDashboard(user, t, { requestedProgramSlug });
+    return await renderMemberDashboard(user, t, { requestedProgramSlug, requestedTab });
   } catch (err) {
     // redirect()/notFound() work by throwing — rethrow them so they keep
     // navigating instead of being logged and rendered as the error fallback.
@@ -132,7 +136,10 @@ export default async function DashboardPage({
 async function renderMemberDashboard(
   user: NonNullable<Awaited<ReturnType<typeof getUser>>>,
   t: Awaited<ReturnType<typeof getTranslations>>,
-  args: { requestedProgramSlug: string | null } = { requestedProgramSlug: null },
+  args: { requestedProgramSlug: string | null; requestedTab?: string | null } = {
+    requestedProgramSlug: null,
+    requestedTab: null,
+  },
 ) {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   if (!dbUser) {
@@ -223,6 +230,7 @@ async function renderMemberDashboard(
       interviewCompletedAt: true,
       preScreeningResponse: { select: { id: true } },
       onboardingCompletedAt: true,
+      onboardingCurrentStep: true,
       tourCompletedAt: true,
       assessmentCompletedAt: true,
       fullName: true,
@@ -648,6 +656,16 @@ async function renderMemberDashboard(
   const jobSearchUrl = careerBrief.jobSearchUrl;
 
   const showMatchedRoles = assessmentCompleted;
+  const learningAvailable = !!enrolledProgram && (dashboardState === 'C' || dashboardState === 'D');
+  const opportunitiesAvailable =
+    dashboardState !== 'A' &&
+    (showMatchedRoles || recommendedActions.length > 0 || !!jobSearchUrl || hasCompletedInterviewPractice);
+  const { activeTab, availableTabs } = resolveMemberDashboardTabs({
+    requestedTab: args.requestedTab,
+    learningAvailable,
+    opportunitiesAvailable,
+    programSlug: enrolledProgram,
+  });
   let superAdmin = false;
   try {
     superAdmin = await isSuperAdmin(user.id);
@@ -786,6 +804,7 @@ async function renderMemberDashboard(
         focusLine={focusLine}
         contextLine={todayHeroContextLine}
         insights={todayHeroInsights}
+        greetingPhrase={getGoodTimeOfDayPhrase()}
       />
     </ErrorBoundary>
   );
@@ -817,148 +836,206 @@ async function renderMemberDashboard(
           member's placement is inside the 90-day window. ── */}
       {first90Card}
 
-      {/* ΓöÇΓöÇ Mobile-only dashboard (Γëñ767px) ΓöÇΓöÇ */}
+      {/* Mobile-only dashboard (≤767px) */}
       <div className="md:wa-hidden portal-mobile-content">
-
-        {/* Personalized Today hero — additive layer above the existing hero. */}
-        <section style={{ padding: '1.25rem 1.25rem 0' }}>{todayHero}</section>
-
-        {showFirstValuePanel && firstValueActions.length > 0 ? (
-          <section style={{ padding: '1rem 1.25rem 0' }}>
-            <MemberFirstValuePanel
-              actions={firstValueActions}
-              secondsSinceSignup={firstValueSecondsSinceSignup}
-            />
-          </section>
+        {availableTabs.length > 1 ? (
+          <nav aria-label="Dashboard sections" style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', padding: '1rem 1.25rem 0' }}>
+            {availableTabs.map((tab) => (
+              <a
+                key={tab.id}
+                href={tab.href}
+                aria-current={activeTab === tab.id ? 'page' : undefined}
+                style={{
+                  padding: '0.55rem 0.85rem',
+                  borderRadius: '999px',
+                  textDecoration: 'none',
+                  whiteSpace: 'nowrap',
+                  fontSize: '0.8125rem',
+                  fontWeight: 800,
+                  color: activeTab === tab.id ? 'var(--color-on-primary)' : 'var(--color-on-surface)',
+                  background: activeTab === tab.id ? 'var(--color-primary)' : 'var(--surface-container-low)',
+                }}
+              >
+                {tab.label}
+              </a>
+            ))}
+          </nav>
         ) : null}
 
-        {/* Program & training context - see _components/MobileProgramTrainingCard */}
-        <MobileProgramTrainingCard
-          t={t}
-          programTitle={program?.title ?? null}
-          showProgramSelector={showProgramSelector}
-          enrolledProgram={enrolledProgram}
-          programSelectorOptions={programSelectorOptions}
-          dashboardState={dashboardState}
-          nextIncompleteCourseName={nextIncompleteCourse?.name ?? null}
-        />
+        {activeTab === 'home' ? (
+          <>
+            <section style={{ padding: '1.25rem 1.25rem 0' }}>{todayHero}</section>
 
-        {/* State A: unmissable next-step CTA - shown before voice section when member hasn't enrolled */}
-        {dashboardState === 'A' && (
-          <MobileStateANextStepCard t={t} noApplicationOnFile={noApplicationOnFile} />
-        )}
+            {showFirstValuePanel && firstValueActions.length > 0 ? (
+              <section style={{ padding: '1rem 1.25rem 0' }}>
+                <MemberFirstValuePanel
+                  actions={firstValueActions}
+                  secondsSinceSignup={firstValueSecondsSinceSignup}
+                />
+              </section>
+            ) : null}
 
-        {showStuckCounselor && (
-          <section aria-label="Counselor help" style={{ padding: '0 1.25rem 0.75rem' }}>
-            <MemberStuckCounselorStrip />
-          </section>
-        )}
+            {/* ── First-cert progress bar (mobile) ── */}
+            {enrolledProgram && (
+              <section style={{ padding: '0.75rem 1.25rem 0' }}>
+                <MemberFirstCertProgressBar
+                  progress={{
+                    percent: memberState.firstCertProgressPercent,
+                    stageLabel: memberState.firstCertProgressPercent >= 100
+                      ? t('firstCertCompleteStage')
+                      : memberState.assessmentCompleted
+                        ? t('firstCertTrainingStage')
+                        : t('firstCertAssessmentStage'),
+                    isComplete: memberState.firstCertProgressPercent >= 100,
+                    stepsComplete: memberState.checklist.completeAssessment
+                      ? (memberState.checklist.completeFirstCourse ? 2 : 1)
+                      : 0,
+                    stepsTotal: 2,
+                  }}
+                  compact
+                />
+              </section>
+            )}
 
-        {dashboardState !== 'A' && dominantNextAction ? (
-          <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
-            <MemberDoThisNextCard action={dominantNextAction} paddingX="1.25rem" />
-          </ErrorBoundary>
+            <MobileProgramTrainingCard
+              t={t}
+              programTitle={program?.title ?? null}
+              showProgramSelector={showProgramSelector}
+              enrolledProgram={enrolledProgram}
+              programSelectorOptions={programSelectorOptions}
+              dashboardState={dashboardState}
+              nextIncompleteCourseName={nextIncompleteCourse?.name ?? null}
+            />
+
+            {dashboardState === 'A' && (
+              <MobileStateANextStepCard t={t} noApplicationOnFile={noApplicationOnFile} />
+            )}
+
+            {showStuckCounselor && (
+              <section aria-label="Counselor help" style={{ padding: '0 1.25rem 0.75rem' }}>
+                <MemberStuckCounselorStrip />
+              </section>
+            )}
+
+            {dashboardState !== 'A' && dominantNextAction ? (
+              <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
+                <MemberDoThisNextCard action={dominantNextAction} paddingX="1.25rem" />
+              </ErrorBoundary>
+            ) : null}
+
+            {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
+              <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
+                <section aria-label="Next actions" style={{ padding: '0 1.25rem 1rem' }}>
+                  <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
+                </section>
+              </ErrorBoundary>
+            )}
+
+            <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
+              <PlacementConfirmationStrip offers={jobOffers} />
+            </ErrorBoundary>
+            {!dominantNextAction && applicationStatus?.nextStep && (
+              <MobilePriorityActionCard
+                t={t}
+                applicationStatus={applicationStatus}
+                programTitle={program?.title ?? null}
+              />
+            )}
+
+            <MobileJourneyTimeline
+              t={t}
+              enrolledProgram={enrolledProgram}
+              noApplicationOnFile={noApplicationOnFile}
+              assessmentCompleted={assessmentCompleted}
+              interviewCompleted={interviewCompleted}
+              interviewRequested={interviewRequested}
+              interviewEligibleFlag={interviewEligibleFlag}
+              preScreeningDone={preScreeningDone}
+              completedCount={completedCount}
+              allCoursesComplete={allCoursesComplete}
+            />
+          </>
         ) : null}
 
-        {(dashboardState === 'C' || dashboardState === 'D') && (
-          <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-            <section aria-label="Progress overview" style={{ padding: '0 1.5rem 1rem' }}>
-              <MemberProgressStrip {...progressStripProps} />
-            </section>
-          </ErrorBoundary>
-        )}
-
-        <ErrorBoundary fallback={<DashboardErrorFallback section="training" />}>
-          <section aria-label="Certifications" style={{ padding: '0 1.25rem 0.75rem' }}>
-            <LogCertificationModal />
-          </section>
-        </ErrorBoundary>
-
-        {dashboardState !== 'A' && !dominantNextAction && mobileStripActions.length > 0 && (
-          <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
-            <section aria-label="Next actions" style={{ padding: '0 1.25rem 1rem' }}>
-              <MemberNextStepsStrip actions={mobileStripActions} compact fillRow />
-            </section>
-          </ErrorBoundary>
-        )}
-
-        {/* ΓöÇΓöÇ Priority next-step card ΓöÇΓöÇ */}
-        <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
-          <PlacementConfirmationStrip offers={jobOffers} />
-        </ErrorBoundary>
-        {!dominantNextAction && applicationStatus?.nextStep && (
-          <MobilePriorityActionCard
-            t={t}
-            applicationStatus={applicationStatus}
-            programTitle={program?.title ?? null}
-          />
-        )}
-
-        {/* ΓöÇΓöÇ Career path ΓöÇΓöÇ */}
-        <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-          <div role="region" aria-label="Career path" style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
-            <MemberCareerPathSection
-              careerMatch={careerMatchFromProfile}
-              coursesCompletedCount={completedCount}
-              trainingNextStep={careerPlanTrainingNextStep}
+        {activeTab === 'learning' ? (
+          <>
+            <MobileProgramTrainingCard
+              t={t}
+              programTitle={program?.title ?? null}
+              showProgramSelector={showProgramSelector}
+              enrolledProgram={enrolledProgram}
+              programSelectorOptions={programSelectorOptions}
+              dashboardState={dashboardState}
+              nextIncompleteCourseName={nextIncompleteCourse?.name ?? null}
             />
-          </div>
-        </ErrorBoundary>
 
-        {/* ── Skill Missions teaser ── */}
-        <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-          <section style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
-            {skillMissionTeaser}
-          </section>
-        </ErrorBoundary>
+            <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+              <section aria-label="Progress overview" style={{ padding: '0 1.5rem 1rem' }}>
+                <MemberProgressStrip {...progressStripProps} />
+              </section>
+            </ErrorBoundary>
 
-        {/* ΓöÇΓöÇ Goals ΓåÆ steps ΓöÇΓöÇ */}
-        <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-          <section id="goals" aria-label="Goals" style={{ padding: '0 1.25rem', marginBottom: '0.85rem', scrollMarginTop: '5rem' }}>
-            <GoalsModule />
-          </section>
-        </ErrorBoundary>
+            <ErrorBoundary fallback={<DashboardErrorFallback section="training" />}>
+              <section aria-label="Certifications" style={{ padding: '0 1.25rem 0.75rem' }}>
+                <LogCertificationModal />
+              </section>
+            </ErrorBoundary>
 
-        {/* Application journey timeline */}
-        <MobileJourneyTimeline
-          t={t}
-          enrolledProgram={enrolledProgram}
-          noApplicationOnFile={noApplicationOnFile}
-          assessmentCompleted={assessmentCompleted}
-          interviewCompleted={interviewCompleted}
-          interviewRequested={interviewRequested}
-          interviewEligibleFlag={interviewEligibleFlag}
-          preScreeningDone={preScreeningDone}
-          completedCount={completedCount}
-          allCoursesComplete={allCoursesComplete}
-        />
+            <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+              <div role="region" aria-label="Career path" style={{ padding: '0 1.25rem', marginBottom: '0.5rem' }}>
+                <MemberCareerPathSection
+                  careerMatch={careerMatchFromProfile}
+                  coursesCompletedCount={completedCount}
+                  trainingNextStep={careerPlanTrainingNextStep}
+                />
+              </div>
+            </ErrorBoundary>
 
-        {/* Points widget */}
-        <MobilePointsSection t={t} memberPoints={memberPoints} recentTx={recentTx} />
+            <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+              <section style={{ padding: '0 1.25rem', marginBottom: '0.85rem' }}>
+                {skillMissionTeaser}
+              </section>
+            </ErrorBoundary>
 
-        {/* Recommended programs (when not enrolled) OR next-milestone actions (when enrolled) */}
-        <MobileDiscoverSection
-          t={t}
-          enrolledProgram={enrolledProgram}
-          programTitle={program?.title ?? null}
-          nextIncompleteCourseName={nextIncompleteCourse?.name ?? null}
-        />
+            <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+              <section id="goals" aria-label="Goals" style={{ padding: '0 1.25rem', marginBottom: '0.85rem', scrollMarginTop: '5rem' }}>
+                <GoalsModule />
+              </section>
+            </ErrorBoundary>
 
-        {/* Quick Actions 2x2 */}
-        <MobileQuickActions t={t} />
+            <MobilePointsSection t={t} memberPoints={memberPoints} recentTx={recentTx} />
+            <MobileDiscoverSection
+              t={t}
+              enrolledProgram={enrolledProgram}
+              programTitle={program?.title ?? null}
+              nextIncompleteCourseName={nextIncompleteCourse?.name ?? null}
+            />
+            <MobileRecentActivity t={t} recentTools={recentTools} />
+          </>
+        ) : null}
 
-        <VoiceSectionErrorBoundary>
-          <section aria-label="Career voice assistant" style={{ padding: '0 1.25rem 1.25rem' }}>
-            <MemberDashboardVoiceSectionLazy />
-          </section>
-        </VoiceSectionErrorBoundary>
-
-        {/* Recent AI Activity - mobile */}
-        <MobileRecentActivity t={t} recentTools={recentTools} />
+        {activeTab === 'opportunities' ? (
+          <>
+            <MobileDiscoverSection
+              t={t}
+              enrolledProgram={enrolledProgram}
+              programTitle={program?.title ?? null}
+              nextIncompleteCourseName={nextIncompleteCourse?.name ?? null}
+            />
+            <MobileQuickActions t={t} />
+            <VoiceSectionErrorBoundary>
+              <section aria-label="Career voice assistant" style={{ padding: '0 1.25rem 1.25rem' }}>
+                <MemberDashboardVoiceSectionLazy />
+              </section>
+            </VoiceSectionErrorBoundary>
+          </>
+        ) : null}
       </div>
 
       {/* Desktop view (hidden on mobile) - extracted to _components/DesktopDashboard */}
       <DesktopDashboard
+        activeTab={activeTab}
+        availableTabs={availableTabs}
         userId={user.id}
         showMemberOnboarding={showMemberOnboarding}
         showMemberTour={showMemberTour}
@@ -1005,7 +1082,8 @@ async function renderMemberDashboard(
         recentTx={recentTx}
         jobOffers={jobOffers}
         showMatchedRoles={showMatchedRoles}
-      />
+        firstCertProgressPercent={memberState.firstCertProgressPercent}
+        />
 
       {/* Bottom nav ΓÇö mobile only */}    </>
   );

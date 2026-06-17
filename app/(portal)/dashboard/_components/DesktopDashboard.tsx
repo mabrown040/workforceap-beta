@@ -15,6 +15,7 @@ import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import RequestHelpButton from '@/components/portal/RequestHelpButton';
 import MemberFeedbackButton from '@/components/portal/MemberFeedbackButton';
+import MemberFirstCertProgressBar from '@/components/portal/MemberFirstCertProgressBar';
 import type { DesktopDashboardProps } from './types';
 
 const MemberCareerPathSection = dynamic(
@@ -37,6 +38,8 @@ const PointsWidget = dynamic(() => import('@/components/portal/PointsWidget'), {
 /* Desktop view (hidden on mobile) - extracted verbatim from page.tsx. All
    data is loaded in page.tsx and passed down; nothing is re-fetched here. */
 export default function DesktopDashboard({
+  activeTab,
+  availableTabs,
   userId,
   showMemberOnboarding,
   showMemberTour,
@@ -83,6 +86,7 @@ export default function DesktopDashboard({
   recentTx,
   jobOffers,
   showMatchedRoles,
+  firstCertProgressPercent,
 }: DesktopDashboardProps) {
   return (
       <div className="wa-hidden md:wa-block">
@@ -104,14 +108,15 @@ export default function DesktopDashboard({
                 initialZip: intakeExtra?.profile?.zip ?? '',
                 initialProgramInterest: wizardProgramInterest,
                 initialReferralSource: intakeExtra?.profile?.referralSource ?? '',
+                initialStep: intakeExtra?.onboardingCurrentStep ?? 0,
               }}
             >
-              {/* Personalized Today hero — additive layer above the existing
-                  desktop dashboard home. */}
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '1.25rem 2rem 0' }}>
-                {todayHero}
-              </div>
-              {showProgramSelector && enrolledProgram && (
+              {activeTab === 'home' ? (
+                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '1.25rem 2rem 0' }}>
+                  {todayHero}
+                </div>
+              ) : null}
+              {showProgramSelector && enrolledProgram && activeTab !== 'opportunities' && (
                 <div
                   style={{
                     maxWidth: 1200,
@@ -140,105 +145,175 @@ export default function DesktopDashboard({
                   />
                 </div>
               )}
-              <ErrorBoundary fallback={<DashboardErrorFallback section="profile" />}>
-                <Suspense fallback={<DashboardSkeleton />}>
-                  <DashboardHomeClient
-                  recommendedActions={recommendedActions}
-                  jobSearchUrl={jobSearchUrl}
-                  aiToolsUsedCount={aiToolsUsedCount}
-                  firstName={firstName}
-                  dominantNextAction={dominantNextAction}
-                  showStuckCounselorStrip={showStuckCounselor}
-                  blendedTrainingProgressPct={progressPercentDisplay}
-                  nextBestActions={nextBestActions}
-                  assessmentDone={assessmentCompleted}
-                  preScreeningDone={!!intakeExtra?.preScreeningResponse}
-                  interviewEligible={intakeExtra?.interviewEligible ?? false}
-                  interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
-                  interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
-                  starterProfileReviewRequired={starterProfileReviewRequired}
-                  starterProfileMissingFields={starterProfileMissingLabels}
-                  state={dashboardState}
-                  programTitle={programTitle}
-                  enrolledAt={enrolledAt}
-                  assessmentScorePct={assessmentScorePct}
-                  completedCount={completedCount}
-                  totalCourses={totalCourses}
-                  nextMilestone={nextMilestone}
-                  recentActivity={lastThree}
-                  checklist={checklist}
-                  checklistAllDone={checklistAllDone}
-                  applicationStatus={applicationStatus}
-                  noApplicationOnFile={noApplicationOnFile}
-                  age={userAge}
-                  isMinor={isMinor}
-                  showFirstValuePanel={showFirstValuePanel}
-                  firstValueActions={firstValueActions}
-                  firstValueSecondsSinceSignup={firstValueSecondsSinceSignup}
-                  />
-                </Suspense>
-              </ErrorBoundary>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
-                <VoiceSectionErrorBoundary>
-                  <MemberDashboardVoiceSectionLazy />
-                </VoiceSectionErrorBoundary>
-              </div>
-              <div
-                style={{
-                  maxWidth: 1200,
-                  margin: '0 auto',
-                  padding: '0 2rem 1.25rem',
-                }}
-              >
-                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-                  <MemberProgressStrip {...progressStripProps} />
-                </ErrorBoundary>
-              </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.25rem' }}>
-                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-                  {skillMissionTeaser}
-                </ErrorBoundary>
-              </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <RequestHelpButton />
-                <MemberFeedbackButton />
-              </div>
-              <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
-                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-                  <MemberCareerPathSection
-                    careerMatch={careerMatchFromProfile}
-                    coursesCompletedCount={completedCount}
-                    trainingNextStep={careerPlanTrainingNextStep}
-                  />
-                </ErrorBoundary>
-                <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
-                  <div id="goals" role="region" aria-label="Goals" style={{ maxWidth: 520, marginBottom: 'var(--space-6)', scrollMarginTop: '5rem' }}>
-                    <GoalsModule />
+              {availableTabs.length > 1 ? (
+                <nav
+                  aria-label="Dashboard sections"
+                  style={{
+                    maxWidth: 1200,
+                    margin: '0 auto',
+                    padding: '1rem 2rem 1.25rem',
+                    display: 'flex',
+                    gap: '0.5rem',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  {availableTabs.map((tab) => (
+                    <a
+                      key={tab.id}
+                      href={tab.href}
+                      aria-current={activeTab === tab.id ? 'page' : undefined}
+                      style={{
+                        padding: '0.6rem 0.95rem',
+                        borderRadius: '999px',
+                        textDecoration: 'none',
+                        fontSize: '0.875rem',
+                        fontWeight: 800,
+                        color: activeTab === tab.id ? 'var(--color-on-primary)' : 'var(--color-on-surface)',
+                        background: activeTab === tab.id ? 'var(--color-primary)' : 'var(--surface-container-low)',
+                      }}
+                    >
+                      {tab.label}
+                    </a>
+                  ))}
+                </nav>
+              ) : null}
+              {activeTab === 'home' ? (
+                <>
+                  <ErrorBoundary fallback={<DashboardErrorFallback section="profile" />}>
+                    <Suspense fallback={<DashboardSkeleton />}>
+                      <DashboardHomeClient
+                        recommendedActions={recommendedActions}
+                        jobSearchUrl={jobSearchUrl}
+                        aiToolsUsedCount={aiToolsUsedCount}
+                        firstName={firstName}
+                        dominantNextAction={dominantNextAction}
+                        showStuckCounselorStrip={showStuckCounselor}
+                        blendedTrainingProgressPct={progressPercentDisplay}
+                        nextBestActions={nextBestActions}
+                        assessmentDone={assessmentCompleted}
+                        preScreeningDone={!!intakeExtra?.preScreeningResponse}
+                        interviewEligible={intakeExtra?.interviewEligible ?? false}
+                        interviewRequestedAt={intakeExtra?.interviewRequestedAt ?? null}
+                        interviewCompletedAt={intakeExtra?.interviewCompletedAt ?? null}
+                        starterProfileReviewRequired={starterProfileReviewRequired}
+                        starterProfileMissingFields={starterProfileMissingLabels}
+                        state={dashboardState}
+                        programTitle={programTitle}
+                        enrolledAt={enrolledAt}
+                        assessmentScorePct={assessmentScorePct}
+                        completedCount={completedCount}
+                        totalCourses={totalCourses}
+                        nextMilestone={nextMilestone}
+                        recentActivity={lastThree}
+                        checklist={checklist}
+                        checklistAllDone={checklistAllDone}
+                        applicationStatus={applicationStatus}
+                        noApplicationOnFile={noApplicationOnFile}
+                        age={userAge}
+                        isMinor={isMinor}
+                        showFirstValuePanel={showFirstValuePanel}
+                        firstValueActions={firstValueActions}
+                        firstValueSecondsSinceSignup={firstValueSecondsSinceSignup}
+                        homeOnly
+                      />
+                    </Suspense>
+                  </ErrorBoundary>
+                  <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <RequestHelpButton />
+                    <MemberFeedbackButton />
                   </div>
-                </ErrorBoundary>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
-                  <div style={{ maxWidth: '300px' }}>
-                    <ErrorBoundary fallback={<DashboardErrorFallback section="training" />}>
-                      <LogCertificationModal />
+                </>
+              ) : null}
+              {activeTab === 'learning' ? (
+                <>
+                  <div
+                    style={{
+                      maxWidth: 1200,
+                      margin: '0 auto',
+                      padding: '0 2rem 1.25rem',
+                    }}
+                  >
+                    <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+                      <MemberFirstCertProgressBar
+                        progress={{
+                          percent: firstCertProgressPercent,
+                          stageLabel: firstCertProgressPercent >= 100
+                            ? 'First cert earned'
+                            : assessmentCompleted
+                              ? 'Training in progress'
+                              : 'Complete your assessment',
+                          isComplete: firstCertProgressPercent >= 100,
+                          stepsComplete: checklist.completeAssessment
+                            ? (checklist.completeFirstCourse ? 2 : 1)
+                            : 0,
+                          stepsTotal: 2,
+                        }}
+                      />
                     </ErrorBoundary>
                   </div>
-                  {memberPoints && (
-                    <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
-                      <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
+                  <div
+                    style={{
+                      maxWidth: 1200,
+                      margin: '0 auto',
+                      padding: '0 2rem 1.25rem',
+                    }}
+                  >
+                    <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+                      <MemberProgressStrip {...progressStripProps} />
+                    </ErrorBoundary>
+                  </div>
+                  <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.25rem' }}>
+                    <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+                      {skillMissionTeaser}
+                    </ErrorBoundary>
+                  </div>
+                  <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem' }}>
+                    <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+                      <MemberCareerPathSection
+                        careerMatch={careerMatchFromProfile}
+                        coursesCompletedCount={completedCount}
+                        trainingNextStep={careerPlanTrainingNextStep}
+                      />
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={<DashboardErrorFallback section="progress" />}>
+                      <div id="goals" role="region" aria-label="Goals" style={{ maxWidth: 520, marginBottom: 'var(--space-6)', scrollMarginTop: '5rem' }}>
+                        <GoalsModule />
+                      </div>
+                    </ErrorBoundary>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-6)' }}>
+                      <div style={{ maxWidth: '300px' }}>
+                        <ErrorBoundary fallback={<DashboardErrorFallback section="training" />}>
+                          <LogCertificationModal />
+                        </ErrorBoundary>
+                      </div>
+                      {memberPoints && (
+                        <div style={{ flex: '1 1 280px', maxWidth: '340px' }}>
+                          <PointsWidget total={memberPoints.total} level={memberPoints.level} recent={recentTx} />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-              <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
-                <PlacementConfirmationStrip offers={jobOffers} />
-              </ErrorBoundary>
-              {showMatchedRoles && userAge !== null && userAge < 14 ? null : (
-                <ErrorBoundary fallback={<DashboardErrorFallback section="jobs" />}>
-                  <Suspense fallback={<JobsSkeleton count={4} />}>
-                    <MatchedRoles />
-                  </Suspense>
-                </ErrorBoundary>
-              )}
+                  </div>
+                </>
+              ) : null}
+              {activeTab === 'opportunities' ? (
+                <>
+                  <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 1.5rem' }}>
+                    <VoiceSectionErrorBoundary>
+                      <MemberDashboardVoiceSectionLazy />
+                    </VoiceSectionErrorBoundary>
+                  </div>
+                  <ErrorBoundary fallback={<DashboardErrorFallback section="activity" />}>
+                    <PlacementConfirmationStrip offers={jobOffers} />
+                  </ErrorBoundary>
+                  {showMatchedRoles && (userAge === null || userAge >= 14) ? (
+                    <ErrorBoundary fallback={<DashboardErrorFallback section="jobs" />}>
+                      <Suspense fallback={<JobsSkeleton count={4} />}>
+                        <MatchedRoles />
+                      </Suspense>
+                    </ErrorBoundary>
+                  ) : null}
+                </>
+              ) : null}
               {/* Recent AI Activity is rendered in the mobile view above ΓÇö
                   suppressed here so the same data doesn't appear twice in the DOM
                   on wider viewports. DashboardHomeClient surfaces activity inline. */}

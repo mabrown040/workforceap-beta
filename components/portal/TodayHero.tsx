@@ -18,14 +18,9 @@ export type TodayHeroProps = {
   contextLine?: string | null;
   /** 0–2 proactive "we noticed…" cards. */
   insights: ProactiveInsight[];
+  /** Time-of-day greeting phrase from server (e.g. "Good morning"). */
+  greetingPhrase?: string;
 };
-
-function timeOfDayGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
 
 /**
  * Personalized "Today" hero for the top of the member dashboard. Additive layer
@@ -42,9 +37,10 @@ export default function TodayHero({
   focusLine,
   contextLine,
   insights,
+  greetingPhrase,
 }: TodayHeroProps) {
   const name = firstName?.trim() || 'there';
-  const greeting = isNewMember ? `Welcome, ${name}` : `${timeOfDayGreeting()}, ${name}`;
+  const greeting = isNewMember ? `Welcome, ${name}` : `${greetingPhrase ?? 'Good morning'}, ${name}`;
 
   return (
     <section className={styles.hero} aria-label="Today">

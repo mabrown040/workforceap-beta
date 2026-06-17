@@ -7763,6 +7763,10 @@ a.employer-jobs-board__pagination-link.btn-outline:hover {
     background: rgba(59, 130, 246, 0.15);
     color: #1d4ed8;
 }
+.employer-job-card__status--expired {
+    background: rgba(239, 68, 68, 0.15);
+    color: #991b1b;
+}
 .employer-job-card__lane {
     display: flex;
     flex-wrap: wrap;

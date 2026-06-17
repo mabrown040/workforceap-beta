@@ -1,3 +1,5 @@
+import { createHash } from 'crypto';
+
 import { Prisma } from '@prisma/client';
 
 import { prisma } from '@/lib/db/prisma';
@@ -32,19 +34,52 @@ export type PersistXapiStatementInput = {
 
 export type PersistXapiStatementResult = 'inserted' | 'already_processed' | 'retry_processing';
 
+export type PersistXapiStatementOutput = {
+  result: PersistXapiStatementResult;
+  /** SHA-256 content hash when statementId was absent; null otherwise. */
+  statementHash: string | null;
+};
+
+/**
+ * Compute a deterministic hash from the statement content for idempotency
+ * when `statementId` is absent (Coursera webhooks sometimes omit it).
+ * Uses actor + verb + course + result so duplicate deliveries of the same
+ * event are recognised without a full table scan.
+ */
+function computeStatementHash(input: PersistXapiStatementInput): string {
+  const parts = [
+    input.actorEmail?.trim().toLowerCase() || '',
+    input.actorAccountName?.trim() || '',
+    input.actorHomePage?.trim() || '',
+    input.verb,
+    input.courseId?.trim() || '',
+    input.courseName?.trim() || '',
+    input.courseItemId?.trim() || '',
+    input.itemType?.trim() || '',
+    input.resultCompletion === true ? '1' : input.resultCompletion === false ? '0' : '',
+    input.resultSuccess === true ? '1' : input.resultSuccess === false ? '0' : '',
+    input.resultScoreScaled != null ? String(input.resultScoreScaled) : '',
+    input.resultScoreRaw != null ? String(input.resultScoreRaw) : '',
+  ];
+  return createHash('sha256').update(parts.join('|')).digest('hex');
+}
+
 /**
  * Persist a single xAPI row.
- * Duplicate statementIds only skip side effects after the row was marked processed.
+ * Duplicate statementIds (or content hashes when statementId is absent) skip
+ * side effects after the row was marked processed.
  */
 export async function persistXapiStatement(
   input: PersistXapiStatementInput
-): Promise<PersistXapiStatementResult> {
+): Promise<PersistXapiStatementOutput> {
   const statementId = input.statementId?.trim() || null;
+  const statementHash = statementId ? null : computeStatementHash(input);
 
   try {
     await prisma.xapiStatement.create({
       data: {
         statementId,
+        statementHash,
         actorEmail: input.actorEmail?.trim().toLowerCase() || null,
         actorAccountName: input.actorAccountName?.trim() || null,
         actorHomePage: input.actorHomePage?.trim() || null,
@@ -60,30 +95,49 @@ export async function persistXapiStatement(
         itemType: input.itemType?.trim() || null,
       },
     });
-    return 'inserted';
+    return { result: 'inserted', statementHash };
   } catch (error) {
-    if (
-      statementId &&
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === 'P2002'
-    ) {
-      const existing = await prisma.xapiStatement.findUnique({
-        where: { statementId },
-        select: { processed: true },
-      });
-      return existing?.processed ? 'already_processed' : 'retry_processing';
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      // Unique constraint hit on statementId or statementHash
+      if (statementId) {
+        const existing = await prisma.xapiStatement.findUnique({
+          where: { statementId },
+          select: { processed: true },
+        });
+        return { result: existing?.processed ? 'already_processed' : 'retry_processing', statementHash };
+      }
+      if (statementHash) {
+        const existing = await prisma.xapiStatement.findFirst({
+          where: { statementHash },
+          select: { processed: true },
+          orderBy: { createdAt: 'desc' },
+        });
+        return { result: existing?.processed ? 'already_processed' : 'retry_processing', statementHash };
+      }
     }
     throw error;
   }
 }
 
-export async function markXapiStatementProcessed(statementId: string | null | undefined) {
+export async function markXapiStatementProcessed(
+  statementId: string | null | undefined,
+  statementHash?: string | null
+) {
   const sid = statementId?.trim();
-  if (!sid) return;
-  await prisma.xapiStatement.updateMany({
-    where: { statementId: sid },
-    data: { processed: true, processedAt: new Date() },
-  });
+  if (sid) {
+    await prisma.xapiStatement.updateMany({
+      where: { statementId: sid },
+      data: { processed: true, processedAt: new Date() },
+    });
+    return;
+  }
+  const hash = statementHash?.trim();
+  if (hash) {
+    await prisma.xapiStatement.updateMany({
+      where: { statementHash: hash },
+      data: { processed: true, processedAt: new Date() },
+    });
+  }
 }
 
 const COURSERA_REST_WEBHOOK_VERB = 'coursera.rest.webhook';

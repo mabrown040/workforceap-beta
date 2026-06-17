@@ -10,6 +10,8 @@ export default function PartnerPortalShell({
   partnerName,
   partnerLogoUrl,
   partnerBrandColor,
+  orgPrimaryColor,
+  orgAccentColor,
   superAdmin,
   superAdminImpersonating,
   portalRoles,
@@ -18,6 +20,8 @@ export default function PartnerPortalShell({
   partnerName: string;
   partnerLogoUrl?: string | null;
   partnerBrandColor?: string | null;
+  orgPrimaryColor?: string | null;
+  orgAccentColor?: string | null;
   superAdmin?: boolean;
   superAdminImpersonating?: boolean;
   portalRoles?: PortalSwitcherRole[];
@@ -31,6 +35,8 @@ export default function PartnerPortalShell({
       contextLabel={partnerName}
       contextLogoUrl={partnerLogoUrl ?? undefined}
       partnerAccentColor={partnerBrandColor ?? undefined}
+      orgPrimaryColor={orgPrimaryColor ?? undefined}
+      orgAccentColor={orgAccentColor ?? undefined}
       attributionLabel="Powered by WorkforceAP"
       superAdmin={superAdmin}
       superAdminImpersonating={superAdminImpersonating}

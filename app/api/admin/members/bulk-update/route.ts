@@ -8,15 +8,17 @@ import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getOrCreateMemberCounselorThread } from '@/lib/messages/counselorThread';
-import type { PipelineBoardStage } from '@prisma/client';
+import type { PipelineBoardStage, MemberStatus } from '@prisma/client';
 
 const MAX_MEMBERS = 100;
 
 const stageValues = ['applied', 'enrolled', 'in_training', 'certified', 'job_searching', 'placed'] as const;
+const memberStatusValues = ['active', 'inactive', 'placed'] as const;
 
 const bodySchema = z.object({
   memberIds: z.array(z.string().uuid()).min(1).max(MAX_MEMBERS),
   pipelineStage: z.enum(stageValues).nullable().optional(),
+  memberStatus: z.enum(memberStatusValues).nullable().optional(),
   counselorUserId: z.string().uuid().nullable().optional(),
   programSlug: z.string().min(1).nullable().optional(),
 });
@@ -39,11 +41,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid input', details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { memberIds, pipelineStage, counselorUserId, programSlug } = parsed.data;
+    const { memberIds, pipelineStage, memberStatus, counselorUserId, programSlug } = parsed.data;
     const orgId = await getActorOrganizationId(user.id);
 
     // Validate that at least one field is being updated
-    if (pipelineStage === undefined && counselorUserId === undefined && programSlug === undefined) {
+    if (pipelineStage === undefined && memberStatus === undefined && counselorUserId === undefined && programSlug === undefined) {
       return NextResponse.json({ error: 'No updates specified' }, { status: 400 });
     }
 
@@ -93,6 +95,7 @@ export async function POST(request: NextRequest) {
       try {
         const updates: {
           pipelineBoardStage?: PipelineBoardStage | null;
+          memberStatus?: MemberStatus | null;
           enrolledProgram?: string | null;
           enrolledAt?: Date | null;
           updatedAt?: Date;
@@ -100,6 +103,9 @@ export async function POST(request: NextRequest) {
 
         if (pipelineStage !== undefined) {
           updates.pipelineBoardStage = pipelineStage as PipelineBoardStage | null;
+        }
+        if (memberStatus !== undefined) {
+          updates.memberStatus = memberStatus as MemberStatus | null;
         }
         if (programSlug !== undefined) {
           updates.enrolledProgram = programSlug;
@@ -172,6 +178,7 @@ export async function POST(request: NextRequest) {
           targetId: member.id,
           metadata: {
             pipelineStage: pipelineStage ?? null,
+            memberStatus: memberStatus ?? null,
             counselorUserId: counselorUserId ?? null,
             programSlug: programSlug ?? null,
             previousProgram: member.enrolledProgram,
@@ -187,6 +194,7 @@ export async function POST(request: NextRequest) {
             extensions: {
               orgId,
               pipelineStage: pipelineStage ?? null,
+              memberStatus: memberStatus ?? null,
               counselorUserId: counselorUserId ?? null,
               programSlug: programSlug ?? null,
               previousProgram: member.enrolledProgram,

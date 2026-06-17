@@ -186,10 +186,12 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';export const POST = withApi
     sourcePage: '/login',
   }).catch(() => {});
 
-  prisma.user.update({
-    where: { id: data.user.id },
-    data: { lastLoginAt: new Date() },
-  }).catch((err) => {
+  await prisma.$transaction((tx) =>
+    tx.user.update({
+      where: { id: data.user.id },
+      data: { lastLoginAt: new Date() },
+    }),
+  ).catch((err) => {
     logger.warn('Failed to update lastLoginAt', { userId: data.user.id, err });
   });
 

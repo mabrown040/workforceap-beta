@@ -87,6 +87,7 @@ export default function ResumeStudioClient({ hasResume, scoreHistorySlot, rewrit
               type="button"
               role="tab"
               aria-selected={active}
+              aria-label={t(`tabs.${v.id}`)}
               onClick={() => setView(v.id)}
               style={{
                 display: 'inline-flex',
@@ -170,6 +171,7 @@ export default function ResumeStudioClient({ hasResume, scoreHistorySlot, rewrit
                 className="btn btn-primary"
                 style={{ minHeight: 48, flex: '1 1 220px', justifyContent: 'center' }}
                 onClick={() => setView('rewrite')}
+                aria-label={t('ctaRewrite')}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden>
                   auto_fix_high
@@ -181,6 +183,7 @@ export default function ResumeStudioClient({ hasResume, scoreHistorySlot, rewrit
                 className="btn btn-outline"
                 style={{ minHeight: 48, flex: '1 1 220px', justifyContent: 'center' }}
                 onClick={() => setView('coach')}
+                aria-label={t('ctaCoach')}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden>
                   record_voice_over

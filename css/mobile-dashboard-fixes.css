@@ -1,0 +1,160 @@
+/* Mobile Dashboard Card Overflow Fixes — 375px, 390px, 414px breakpoints
+   Audit: all mobile dashboard cards need box-sizing, overflow control, and
+   text wrapping to prevent horizontal overflow at narrow viewports. */
+
+/* ── Ensure all mobile dashboard cards respect viewport width ── */
+.portal-mobile-content .portal-card,
+.portal-mobile-content section > .portal-card,
+.portal-mobile-content section > div > .portal-card,
+.portal-mobile-content section > a > .portal-card {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* ── MobileDiscoverSection carousel: prevent card width from exceeding viewport ── */
+.portal-mobile-content [aria-label="Recommended programs"] > div:last-child,
+.portal-mobile-content [aria-label="Next milestones"] > div:last-child {
+  box-sizing: border-box;
+}
+
+.portal-mobile-content [aria-label="Recommended programs"] > div:last-child > a,
+.portal-mobile-content [aria-label="Next milestones"] > div:last-child > a {
+  max-width: calc(100vw - 3rem);
+  min-width: unset;
+}
+
+/* ── PointsWidget: level pills must not overflow ── */
+.portal-mobile-content .portal-card .portal-card__body > div:last-child > span,
+.portal-mobile-content .portal-card .portal-card__body > div:last-child > div > span {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ── Ensure all text inside mobile cards wraps properly ── */
+.portal-mobile-content .portal-card p,
+.portal-mobile-content .portal-card h2,
+.portal-mobile-content .portal-card h3,
+.portal-mobile-content .portal-card h4,
+.portal-mobile-content .portal-card span {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+}
+
+/* ── MobileProgramTrainingCard: program title chip must not overflow ── */
+.portal-mobile-content [aria-label="Program and training"] .portal-card > div:first-child > div:first-child > div {
+  min-width: 0;
+}
+
+.portal-mobile-content [aria-label="Program and training"] .portal-card > div:first-child > div:first-child > div > p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── MobileStateANextStepCard: CTA button must not overflow ── */
+.portal-mobile-content [aria-label="Next step"] > a > div:last-child {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── MobilePriorityActionCard: button must stay within card ── */
+.portal-mobile-content [aria-label="Priority action"] .portal-card a {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── MobileJourneyTimeline: prevent step labels from overflowing ── */
+.portal-mobile-content .portal-journey-step__label,
+.portal-mobile-content .portal-journey-step__detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* ── MobileQuickActions: grid labels must wrap ── */
+.portal-mobile-content .portal-quick-grid-item__label {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  font-size: clamp(0.75rem, 3.5vw, 0.875rem);
+}
+
+/* ── MobileRecentActivity: prevent text overflow ── */
+.portal-mobile-content .portal-activity-item > div > p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── MobilePointsSection: PointsWidget compact mode fixes ── */
+.portal-mobile-content [aria-label="Points and rewards"] .portal-card {
+  overflow: hidden;
+}
+
+/* ── General mobile card safety: all direct children of mobile sections ── */
+.portal-mobile-content > section > * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── TodayHero: ensure quick row doesn't overflow ── */
+@media (max-width: 390px) {
+  .hero .quickRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── MemberFirstCertProgressBar: ensure bar doesn't overflow ── */
+.portal-mobile-content [aria-label="First certification progress"] > div,
+.portal-mobile-content [role="region"][aria-label="First certification progress"] > div {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── MemberDoThisNextCard: prevent overflow ── */
+.portal-mobile-content [aria-label="Do this next"] > div,
+.portal-mobile-content [aria-label="Next step"] > div {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── SkillMissionTeaserCard: prevent overflow ── */
+.portal-mobile-content [aria-label="Skill Missions"] {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.portal-mobile-content [aria-label="Skill Missions"] > div:first-child {
+  flex-wrap: wrap;
+}
+
+/* ── MemberProgressStrip: ensure scrollable but not overflowing container ── */
+.portal-mobile-content [aria-label="Progress overview"] > div,
+.portal-mobile-content [role="list"][aria-label="Member journey progress"] {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── MemberProgressStrip labels: ensure they don't force overflow ── */
+.portal-mobile-content [role="list"][aria-label="Member journey progress"] [role="listitem"] > span:last-child {
+  font-size: clamp(0.625rem, 2.2vw, 0.8125rem);
+}
+
+/* ── Mobile tab nav: ensure tabs don't overflow section ── */
+.portal-mobile-content nav[aria-label="Dashboard sections"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.portal-mobile-content nav[aria-label="Dashboard sections"]::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Safe area padding for notched devices ── */
+@supports (padding: max(0px)) {
+  .portal-mobile-content {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}

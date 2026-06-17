@@ -13,7 +13,6 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function AdminPartnerDetailPage({ params }: Props) {
   const { id } = await params;
-
   const [partner, subgroups, allPartners] = await Promise.all([
     prisma.partner.findUnique({
       where: { id },
@@ -138,7 +137,17 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '2rem' }}>
         <section>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Counselors ({partner.counselors.length})</h2>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Counselors ({partner.counselors.length})</h2>
+            <Link
+              href={`/admin/partners/${id}/quarterly-outcomes`}
+              className="btn btn-outline"
+              style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '0.9rem' }}>assessment</span>
+              Outcomes Report
+            </Link>
+          </div>
           {partner.counselors.length === 0 ? (
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>No counselors assigned yet.</p>
           ) : (

@@ -60,12 +60,14 @@ export async function GET(request: NextRequest) {
           sourcePage: '/auth/callback',
         }).catch(() => {});
 
-        prisma.user.update({
+      await prisma.$transaction((tx) =>
+        tx.user.update({
           where: { id: userId },
           data: { lastLoginAt: new Date() },
-        }).catch((err) => {
-          logger.warn('Failed to update lastLoginAt', { userId, err });
-        });
+        }),
+      ).catch((err) => {
+        logger.warn('Failed to update lastLoginAt', { userId, err });
+      });
       }
 
       try {

@@ -58,6 +58,7 @@ export default async function PartnerDashboardPage() {
         referralCode: string | null;
         slug: string | null;
         onboardingCompletedAt: Date | null;
+        onboardingCurrentStep: number;
         name: string;
         organizationType: string | null;
         contactName: string | null;
@@ -76,6 +77,7 @@ export default async function PartnerDashboardPage() {
         referralCode: true,
         slug: true,
         onboardingCompletedAt: true,
+        onboardingCurrentStep: true,
         name: true,
         organizationType: true,
         contactName: true,
@@ -101,6 +103,7 @@ export default async function PartnerDashboardPage() {
           referralCode: true,
           slug: true,
           onboardingCompletedAt: true,
+          onboardingCurrentStep: true,
           name: true,
           organizationType: true,
           contactName: true,
@@ -138,6 +141,33 @@ export default async function PartnerDashboardPage() {
   );
   const memberIds = members.map((m) => m.id);
   const pendingPlacementCount = pendingPlacements.length;
+
+  // ── Member-to-member referral metrics (distinct from partner_referrals) ──
+  const [memberReferralCount, memberReferralEnrolledCount, memberReferralPlacedCount] = await Promise.all([
+    prisma.referralConversion.count({
+      where: { referrerUserId: { in: memberIds } },
+    }),
+    prisma.referralConversion.count({
+      where: {
+        referrerUserId: { in: memberIds },
+        status: 'rewarded',
+      },
+    }),
+    prisma.referralConversion.count({
+      where: {
+        referrerUserId: { in: memberIds },
+        status: 'rewarded',
+        referee: {
+          deletedAt: null,
+          placementRecord: { isNot: null },
+        },
+      },
+    }),
+  ]);
+  const memberReferralConversionRate =
+    memberReferralCount > 0
+      ? Math.round((memberReferralEnrolledCount / memberReferralCount) * 100)
+      : 0;
 
   /** Distinct referred members who have at least one intake application tied to this partner link (apples-to-apples vs. total referrals). */
   const referredMembersAppliedViaLink =
@@ -275,6 +305,14 @@ export default async function PartnerDashboardPage() {
 
   const inTrainingCount = stageCounts['in_training'] ?? 0;
 
+  /** Member-to-member referral metrics for the referrals section. */
+  const memberReferralMetrics = {
+    total: memberReferralCount,
+    enrolled: memberReferralEnrolledCount,
+    placed: memberReferralPlacedCount,
+    conversionRate: memberReferralConversionRate,
+  };
+
   return (
     <PortalEntryClient
       portal="partner"
@@ -289,6 +327,7 @@ export default async function PartnerDashboardPage() {
         contactName: partnerRow.contactName ?? '',
         contactPhone: partnerRow.contactPhone ?? '',
         referralApplyUrl,
+        initialStep: partnerRow.onboardingCurrentStep ?? 0,
       }}
     >
     <PortalPageFrame maxWidth="80rem">
@@ -435,6 +474,27 @@ export default async function PartnerDashboardPage() {
               />
             }
           />
+        </PortalCard>
+      </div>
+
+      {/* ── Member-to-Member Referrals Section (mobile) ── */}
+      <div className="portal-pad-x" style={{ paddingBottom: '1rem' }}>
+        <PortalCard
+          title={t('memberReferrals')}
+          subtitle={t('memberReferralsSubtitle', { conversionRate: memberReferralMetrics.conversionRate })}
+        >
+          <div
+            className="portal-kpi-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+              gap: '0.625rem',
+            }}
+          >
+            <PortalKpiCard accent="accent" label={t('membersReferred')} value={memberReferralMetrics.total} hint={t('memberToMember')} />
+            <PortalKpiCard accent="neutral" label={t('membersEnrolled')} value={memberReferralMetrics.enrolled} hint={t('converted')} />
+            <PortalKpiCard accent="green" label={t('membersPlaced')} value={memberReferralMetrics.placed} hint={t('placedViaReferral')} />
+          </div>
         </PortalCard>
       </div>
 
@@ -697,6 +757,27 @@ export default async function PartnerDashboardPage() {
               />
             }
           />
+        </PortalCard>
+      </section>
+
+      {/* ── Member-to-Member Referrals Section (desktop) ── */}
+      <section style={{ marginBottom: '2rem' }}>
+        <PortalCard
+          title={t('memberReferrals')}
+          subtitle={t('memberReferralsSubtitle', { conversionRate: memberReferralMetrics.conversionRate })}
+        >
+          <div
+            className="portal-grid-metrics"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(11rem, 1fr))',
+              gap: '1rem',
+            }}
+          >
+            <PortalKpiCard accent="accent" label={t('membersReferred')} value={memberReferralMetrics.total} hint={t('memberToMember')} />
+            <PortalKpiCard accent="neutral" label={t('membersEnrolled')} value={memberReferralMetrics.enrolled} hint={t('converted')} />
+            <PortalKpiCard accent="green" label={t('membersPlaced')} value={memberReferralMetrics.placed} hint={t('placedViaReferral')} />
+          </div>
         </PortalCard>
       </section>
 

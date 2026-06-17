@@ -5,18 +5,18 @@ import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-async function _GET(
+export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse> {
   try {
+    const { id } = await params;
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id)))
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const { id } = await params;
-    const post = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { id } }));
+    const post = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { id: id } }));
     if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     return NextResponse.json(post);
   } catch (error) {
@@ -24,19 +24,18 @@ async function _GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const GET = withApiGuc(_GET);
 
-async function _PATCH(
+export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse> {
   try {
+    const { id } = await params;
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id)))
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const { id } = await params;
     const body = await request.json();
     const {
       slug,
@@ -50,12 +49,12 @@ async function _PATCH(
       scheduledAt,
     } = body;
 
-    const existing = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { id } }));
+    const existing = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { id: id } }));
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     if (slug?.trim() && slug !== existing.slug) {
       const dup = await prisma.$transaction((tx) => tx.blogPost.findFirst({
-        where: { slug: slug.trim(), NOT: { id } },
+        where: { slug: slug.trim(), NOT: { id: id } },
       }));
       if (dup) {
         return NextResponse.json({ error: 'Slug already exists' }, { status: 400 });
@@ -77,7 +76,7 @@ async function _PATCH(
     if (scheduledAt !== undefined) update.scheduledAt = scheduledAt ? new Date(scheduledAt) : null;
 
     const post = await prisma.$transaction((tx) => tx.blogPost.update({
-      where: { id },
+      where: { id: id },
       data: update,
     }));
 
@@ -87,28 +86,26 @@ async function _PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const PATCH = withApiGuc(_PATCH);
 
-async function _DELETE(
+export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+): Promise<NextResponse> {
   try {
+    const { id } = await params;
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id)))
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const { id } = await params;
-    const existing = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { id } }));
+    const existing = await prisma.$transaction((tx) => tx.blogPost.findUnique({ where: { id: id } }));
     if (!existing) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
-    await prisma.$transaction((tx) => tx.blogPost.delete({ where: { id } }));
+    await prisma.$transaction((tx) => tx.blogPost.delete({ where: { id: id } }));
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/blog/[id] DELETE] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const DELETE = withApiGuc(_DELETE);

@@ -115,14 +115,22 @@ export default async function JobsPage() {
     const jobs = await prisma.job.findMany({
       where: {
         status: 'live',
-        ...(ageGroup === 'under14' ? { id: 'impossible-match' } : {}),
-        ...(ageGroup === 'youth14to17' ? {
-          youthAppropriate: true,
-          OR: [
-            { minimumAge: null },
-            { minimumAge: { lte: 17 } },
-          ],
-        } : {}),
+        AND: [
+          ...(ageGroup === 'under14' ? [{ id: 'impossible-match' }] : []),
+          ...(ageGroup === 'youth14to17' ? [{
+            youthAppropriate: true,
+            OR: [
+              { minimumAge: null },
+              { minimumAge: { lte: 17 } },
+            ],
+          }] : []),
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gte: new Date() } },
+            ],
+          },
+        ],
       },
       orderBy: { updatedAt: 'desc' },
       take: 20,

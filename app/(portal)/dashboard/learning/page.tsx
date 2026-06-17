@@ -8,6 +8,7 @@ import { getPathwayForProgram } from '@/lib/content/learningPathways';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import LearningPathCard from '@/components/portal/LearningPathCard';
 import LearningHubDestinationCards from '@/components/portal/LearningHubDestinationCards';
 import LearningHubEnrolledCourses from '@/components/portal/LearningHubEnrolledCourses';
@@ -93,6 +94,22 @@ export default async function LearningPage() {
         <p className="wa-text-[11px] wa-font-medium wa-tracking-[0.1em] wa-uppercase wa-text-[var(--color-accent)]" style={{ display: 'block', marginBottom: '0.5rem' }}>Your Learning</p>
         <h2 className="wa-text-3xl wa-font-bold wa-tracking-tight wa-text-[var(--color-on-surface)] wa-leading-tight">The Learning Hub</h2>
       </div>
+
+      {/* Empty state when no enrolled program */}
+      {!ACTIVE_PATHWAY && (
+        <div style={{ margin: '0 1.5rem 1.5rem' }}>
+          <PortalEmptyState
+            icon={
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                school
+              </span>
+            }
+            title="No active learning pathway"
+            description="Enroll in a program to see your courses, milestones, and progress here."
+            primaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
+          />
+        </div>
+      )}
 
       {/* Progress overview card */}
       {ACTIVE_PATHWAY && (
@@ -267,6 +284,7 @@ export default async function LearningPage() {
         </div>
 
         {/* Overall completion */}
+        {ACTIVE_PATHWAY && (
         <div
           style={{
             background: 'var(--surface-container)',
@@ -286,7 +304,24 @@ export default async function LearningPage() {
             <div style={{ height: '100%', width: `${Math.min(100, overallPct)}%`, background: 'var(--color-accent)', borderRadius: 'var(--radius-full)', transition: 'var(--transition-base)' }} />
           </div>
         </div>
+        )}
       </div>
+
+      {/* Empty state when no enrolled program */}
+      {!ACTIVE_PATHWAY && (
+        <div style={{ marginBottom: 'var(--space-8)' }}>
+          <PortalEmptyState
+            icon={
+              <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                school
+              </span>
+            }
+            title="No active learning pathway"
+            description="Enroll in a program to see your courses, milestones, and progress here."
+            primaryAction={{ href: '/dashboard/program', label: 'Choose a program' }}
+          />
+        </div>
+      )}
 
       <LearningHubEnrolledCourses
         variant="desktop"

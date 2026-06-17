@@ -31,21 +31,21 @@ const bodySchema = z.object({
   if (portal === 'member') {
     await prisma.$transaction((tx) => tx.user.update({
       where: { id: user.id },
-      data: { onboardingCompletedAt: now, onboardingPortal: portal },
+      data: { onboardingCompletedAt: now, onboardingPortal: portal, onboardingCurrentStep: 0 },
     }));
   } else if (portal === 'employer') {
     const ctx = await getEmployerForUser(user.id);
     if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     await prisma.$transaction((tx) => tx.employer.update({
       where: { id: ctx.employerId },
-      data: { onboardingCompletedAt: now },
+      data: { onboardingCompletedAt: now, onboardingCurrentStep: 0 },
     }));
   } else {
     const ctx = await getPartnerForUser(user.id);
     if (!ctx) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     await prisma.$transaction((tx) => tx.partner.update({
       where: { id: ctx.partnerId },
-      data: { onboardingCompletedAt: now },
+      data: { onboardingCompletedAt: now, onboardingCurrentStep: 0 },
     }));
   }
 

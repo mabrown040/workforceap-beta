@@ -11,6 +11,7 @@ import { EMPLOYER_JOB_BULK_MAX_IDS_PER_REQUEST } from '@/lib/employer/employerJo
 import {
   employerJobsListHref,
   type EmployerJobListFilter,
+  type EmployerJobLocationType,
 } from '@/lib/employer/employerJobsListQuery';
 import { EMPLOYER_JOB_SUBMIT_REVIEW_DRAFT_FLASH } from '@/lib/employer/employerJobFormFlash';
 import { employerJobPortalStatusLabel } from '@/lib/employer/jobStatusDisplay';
@@ -49,6 +50,7 @@ const FILTERS: { value: EmployerJobListFilter; label: string }[] = [
   { value: 'review', label: 'In review' },
   { value: 'live', label: 'Live' },
   { value: 'filled', label: 'Filled' },
+  { value: 'expired', label: 'Expired' },
 ];
 
 function formatCompensation(min: number | null, max: number | null): string {
@@ -73,6 +75,7 @@ function statusModifier(status: string): string {
   if (status === 'pending') return 'employer-job-card__status--pending';
   if (status === 'approved') return 'employer-job-card__status--approved';
   if (status === 'draft') return 'employer-job-card__status--draft';
+  if (status === 'expired') return 'employer-job-card__status--expired';
   return 'employer-job-card__status--neutral';
 }
 
@@ -85,6 +88,7 @@ function nextStepHint(j: EmployerJobBoardItem): string {
   if (j.status === 'pending') return 'Next: WorkforceAP review — stays private';
   if (j.status === 'approved') return 'Next: go live when ready';
   if (j.status === 'live') return 'Next: mark filled when someone starts';
+  if (j.status === 'expired') return 'Expired — edit to extend or close';
   if (j.status === 'filled' || j.status === 'closed') return 'Role closed — duplicate if hiring again';
   return '';
 }
@@ -112,6 +116,7 @@ export default function EmployerJobsBoard({
   deletableInFilter,
   closableInFilter,
   titleByIdInFilter,
+  locationType,
 }: {
   jobs: EmployerJobBoardItem[];
   filter: EmployerJobListFilter;
@@ -122,6 +127,7 @@ export default function EmployerJobsBoard({
   deletableInFilter: BulkRow[];
   closableInFilter: BulkRow[];
   titleByIdInFilter: Record<string, string>;
+  locationType?: EmployerJobLocationType;
 }) {
   const router = useRouter();
   const modalTitleId = useId();
@@ -619,7 +625,7 @@ export default function EmployerJobsBoard({
         {FILTERS.map((f) => (
           <Link
             key={f.value}
-            href={employerJobsListHref(f.value, 1)}
+            href={employerJobsListHref(f.value, 1, locationType)}
             className={`employer-jobs-board__filter${filter === f.value ? ' is-active' : ''}`}
             aria-current={filter === f.value ? 'true' : undefined}
           >
@@ -729,7 +735,7 @@ export default function EmployerJobsBoard({
       {totalInFilter === 0 ? (
         <div className="employer-jobs-board__filtered-empty">
           <p className="employer-jobs-board__empty">Nothing in this stage right now.</p>
-          <Link href={employerJobsListHref('all', 1)} className="btn btn-muted btn-sm">
+          <Link href={employerJobsListHref('all', 1, locationType)} className="btn btn-muted btn-sm">
             Show all postings
           </Link>
         </div>
@@ -888,7 +894,7 @@ export default function EmployerJobsBoard({
                 </span>
               ) : (
                 <Link
-                  href={employerJobsListHref(filter, page - 1)}
+                  href={employerJobsListHref(filter, page - 1, locationType)}
                   className="btn btn-outline btn-sm employer-jobs-board__pagination-link"
                 >
                   Previous
@@ -907,7 +913,7 @@ export default function EmployerJobsBoard({
                 </span>
               ) : (
                 <Link
-                  href={employerJobsListHref(filter, page + 1)}
+                  href={employerJobsListHref(filter, page + 1, locationType)}
                   className="btn btn-outline btn-sm employer-jobs-board__pagination-link"
                 >
                   Next

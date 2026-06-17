@@ -15,6 +15,7 @@ export type JobCreateFields = {
   preferredCertifications?: string[];
   suggestedPrograms?: string[];
   status?: 'draft' | 'pending' | 'live';
+  expiresAt?: string | null;
 };
 
 function cleanStringArray(values?: string[]): string[] | undefined {
@@ -49,6 +50,7 @@ export function buildEmployerJobCreateData(
     ...(preferredCertifications ? { preferredCertifications } : {}),
     ...(suggestedPrograms ? { suggestedPrograms } : {}),
     ...(fields.status ? { status: fields.status } : {}),
+    ...(fields.expiresAt ? { expiresAt: new Date(fields.expiresAt) } : {}),
   };
 }
 

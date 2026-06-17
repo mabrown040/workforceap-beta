@@ -25,6 +25,7 @@ const jobUpdateSchema = z.object({
   preferredCertifications: z.array(z.string()).optional(),
   suggestedPrograms: z.array(z.string()).optional(),
   status: z.enum(['draft', 'pending', 'approved', 'live', 'filled', 'closed']).optional(),
+  expiresAt: z.string().datetime().optional().nullable(),
 });async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -118,6 +119,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(
       ...(parsed.data.preferredCertifications && { preferredCertifications: parsed.data.preferredCertifications }),
       ...(parsed.data.suggestedPrograms && { suggestedPrograms: parsed.data.suggestedPrograms }),
       ...(parsed.data.status && { status: parsed.data.status }),
+      ...(parsed.data.expiresAt !== undefined && { expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null }),
     },
   }));
 

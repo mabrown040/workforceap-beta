@@ -140,7 +140,7 @@ export default function SkillMissionTeaserCard({
       <Link
         href="/dashboard/missions"
         className="btn btn-primary"
-        style={{ fontSize: '0.88rem', padding: '0.5rem 1rem' }}
+        style={{ fontSize: '0.88rem', padding: '0.5rem 1rem', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}
       >
         {ctaLabel}
       </Link>

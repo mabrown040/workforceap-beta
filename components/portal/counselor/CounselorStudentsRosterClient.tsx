@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
@@ -26,6 +27,21 @@ export type CounselorRosterClientRow = {
   riskLevel: RiskLevel;
   lastActivityAt: string;
 };
+
+export type CounselorRosterFilterMeta = {
+  memberId: string;
+  atRisk: boolean;
+  upcomingSession: boolean;
+  pendingApplication: boolean;
+};
+
+type FilterKey = 'at-risk' | 'upcoming-session' | 'pending-application' | null;
+
+const FILTER_CHIPS: { key: Exclude<FilterKey, null>; label: string; accent: string; accentBg: string }[] = [
+  { key: 'at-risk', label: 'At Risk', accent: '#b91c1c', accentBg: 'color-mix(in srgb, #dc2626 14%, transparent)' },
+  { key: 'upcoming-session', label: 'Upcoming Session', accent: 'var(--color-accent)', accentBg: 'color-mix(in srgb, var(--color-accent) 14%, transparent)' },
+  { key: 'pending-application', label: 'Pending Application', accent: 'var(--color-gold)', accentBg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)' },
+];
 
 const RISK_BADGE_STYLES: Record<'CRITICAL' | 'HIGH' | 'MEDIUM', { label: string; bg: string; color: string; border: string }> = {
   CRITICAL: {
@@ -111,15 +127,178 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-type Props = { rows: CounselorRosterClientRow[] };
+type Props = {
+  rows: CounselorRosterClientRow[];
+  filterMeta: CounselorRosterFilterMeta[];
+  initialFilter?: string;
+};
 
-export default function CounselorStudentsRosterClient({ rows }: Props) {
+export default function CounselorStudentsRosterClient({ rows, filterMeta, initialFilter }: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [atRiskOnly, setAtRiskOnly] = useState(false);
 
+  const activeFilter: FilterKey = useMemo(() => {
+    const param = searchParams?.get('filter') ?? initialFilter ?? '';
+    if (param === 'at-risk') return 'at-risk';
+    if (param === 'upcoming-session') return 'upcoming-session';
+    if (param === 'pending-application') return 'pending-application';
+    return null;
+  }, [searchParams, initialFilter]);
+
+  const updateFilter = useCallback(
+    (next: FilterKey) => {
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      if (next) {
+        params.set('filter', next);
+      } else {
+        params.delete('filter');
+      }
+      const qs = params.toString();
+      if (pathname) router.push(qs ? `${pathname}?${qs}` : pathname);
+    },
+    [pathname, router, searchParams]
+  );
+
+  const metaByMember = useMemo(() => {
+    const map = new Map<string, CounselorRosterFilterMeta>();
+    for (const m of filterMeta) map.set(m.memberId, m);
+    return map;
+  }, [filterMeta]);
+
   const visible = useMemo(() => {
-    if (!atRiskOnly) return rows;
-    return rows.filter((r) => r.riskScore != null && r.riskScore >= RISK_MEDIUM_OR_ABOVE);
-  }, [rows, atRiskOnly]);
+    if (activeFilter === 'at-risk') {
+      return rows.filter((r) => r.riskScore != null && r.riskScore >= RISK_MEDIUM_OR_ABOVE);
+    }
+    if (activeFilter === 'upcoming-session') {
+      return rows.filter((r) => metaByMember.get(r.memberId)?.upcomingSession);
+    }
+    if (activeFilter === 'pending-application') {
+      return rows.filter((r) => metaByMember.get(r.memberId)?.pendingApplication);
+    }
+    if (atRiskOnly) {
+      return rows.filter((r) => r.riskScore != null && r.riskScore >= RISK_MEDIUM_OR_ABOVE);
+    }
+    return rows;
+  }, [rows, activeFilter, atRiskOnly, metaByMember]);
+
+  const filterChips = (
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.5rem',
+        padding: '0 1rem',
+        marginBottom: '0.75rem',
+      }}
+      className="md:wa-hidden"
+    >
+      {FILTER_CHIPS.map((chip) => {
+        const isActive = activeFilter === chip.key;
+        return (
+          <button
+            key={chip.key}
+            type="button"
+            onClick={() => updateFilter(isActive ? null : chip.key)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.4rem 0.75rem',
+              borderRadius: '9999px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              border: `1px solid ${isActive ? chip.accent : 'var(--outline-variant)'}`,
+              background: isActive ? chip.accentBg : 'var(--surface-container-high)',
+              color: isActive ? chip.accent : 'var(--color-on-surface-variant)',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            {chip.label}
+            {isActive && (
+              <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>✕</span>
+            )}
+          </button>
+        );
+      })}
+      {activeFilter && (
+        <button
+          type="button"
+          onClick={() => updateFilter(null)}
+          style={{
+            padding: '0.4rem 0.6rem',
+            borderRadius: '9999px',
+            fontSize: '0.75rem',
+            fontWeight: 600,
+            border: '1px solid var(--outline-variant)',
+            background: 'transparent',
+            color: 'var(--color-on-surface-variant)',
+            cursor: 'pointer',
+          }}
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+
+  const filterChipsDesktop = (
+    <div
+      className="wa-hidden md:wa-flex"
+      style={{ flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem', alignItems: 'center' }}
+    >
+      {FILTER_CHIPS.map((chip) => {
+        const isActive = activeFilter === chip.key;
+        return (
+          <button
+            key={chip.key}
+            type="button"
+            onClick={() => updateFilter(isActive ? null : chip.key)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.45rem 0.85rem',
+              borderRadius: '9999px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              border: `1px solid ${isActive ? chip.accent : 'var(--outline-variant)'}`,
+              background: isActive ? chip.accentBg : 'var(--surface-container-high)',
+              color: isActive ? chip.accent : 'var(--color-on-surface-variant)',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            {chip.label}
+            {isActive && (
+              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>✕</span>
+            )}
+          </button>
+        );
+      })}
+      {activeFilter && (
+        <button
+          type="button"
+          onClick={() => updateFilter(null)}
+          style={{
+            padding: '0.45rem 0.7rem',
+            borderRadius: '9999px',
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            border: '1px solid var(--outline-variant)',
+            background: 'transparent',
+            color: 'var(--color-on-surface-variant)',
+            cursor: 'pointer',
+          }}
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
 
   const toggle = (
     <div
@@ -209,7 +388,25 @@ export default function CounselorStudentsRosterClient({ rows }: Props) {
 
   if (rows.length === 0) return null;
 
-  const emptyFiltered = visible.length === 0 && atRiskOnly;
+  const emptyFiltered = visible.length === 0 && (activeFilter != null || atRiskOnly);
+
+  const emptyTitle =
+    activeFilter === 'at-risk'
+      ? 'No at-risk members in your roster'
+      : activeFilter === 'upcoming-session'
+        ? 'No upcoming sessions in the next 7 days'
+        : activeFilter === 'pending-application'
+          ? 'No members with pending applications'
+          : 'No at-risk members in your roster';
+
+  const emptyDescription =
+    activeFilter === 'at-risk'
+      ? 'Everyone is below the medium risk threshold, or alerts have not run yet.'
+      : activeFilter === 'upcoming-session'
+        ? 'No members have mentor sessions scheduled in the next 7 days.'
+        : activeFilter === 'pending-application'
+          ? 'All assigned members have completed or had their applications reviewed.'
+          : 'Everyone is below the medium risk threshold, or alerts have not run yet.';
 
   return (
     <>
@@ -228,14 +425,15 @@ export default function CounselorStudentsRosterClient({ rows }: Props) {
             Last activity · oldest first
           </span>
         </div>
+        {filterChips}
         {toggle}
         {emptyFiltered ? (
           <div style={{ padding: '0 1rem' }}>
             <PortalEmptyState
-              title="No at-risk members in your roster"
-              description="Everyone is below the medium risk threshold, or alerts have not run yet."
+              title={emptyTitle}
+              description={emptyDescription}
               icon={<span className="material-symbols-outlined" aria-hidden>shield_person</span>}
-              primaryAction={{ label: 'At-risk dashboard', href: '/counselor/at-risk' }}
+              primaryAction={{ label: 'Clear filter', href: pathname ?? '/counselor/students' }}
             />
           </div>
         ) : (
@@ -371,13 +569,14 @@ export default function CounselorStudentsRosterClient({ rows }: Props) {
 
       {/* Desktop */}
       <div className="wa-hidden md:wa-block">
+        {filterChipsDesktop}
         {toggleDesktop}
         {emptyFiltered ? (
           <PortalEmptyState
-            title="No at-risk members in your roster"
-            description="Everyone is below the medium risk threshold, or alerts have not run yet."
+            title={emptyTitle}
+            description={emptyDescription}
             icon={<span className="material-symbols-outlined" aria-hidden>shield_person</span>}
-            primaryAction={{ label: 'At-risk dashboard', href: '/counselor/at-risk' }}
+            primaryAction={{ label: 'Clear filter', href: pathname ?? '/counselor/students' }}
           />
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>

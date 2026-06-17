@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getPathwayForProgram } from '@/lib/content/learningPathways';
 import { buildPathwayMilestones } from '@/lib/content/pathwayStepDisplay';
 import PageHeader from '@/components/portal/PageHeader';
+import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import CertificationRoadmap from '@/components/portal/CertificationRoadmap';
 import CertificationReferenceSection from '@/components/portal/CertificationReferenceSection';
 import {
@@ -645,7 +646,19 @@ export default async function DashboardCertificationsPage() {
                     </li>
                   ))}
                 </ul>
-              ) : null}
+              ) : (
+                <PortalEmptyState
+                  icon={
+                    <span className="material-symbols-outlined" style={{ fontSize: '2.5rem', color: 'var(--color-accent)', fontVariationSettings: "'FILL' 1" }}>
+                      workspace_premium
+                    </span>
+                  }
+                  title="No certificates yet"
+                  description="Earn certificates through your program pathway to see them listed here. Coursera certificates sync automatically; others can be added manually."
+                  primaryAction={{ href: '/dashboard/learning', label: 'Go to Learning Hub' }}
+                  secondaryAction={{ href: '/dashboard/ai-tools/career-business-coach', label: 'Talk to Career Coach' }}
+                />
+              )}
               <DownloadAllCertificatesButton certs={certRows} />
               <div style={{ marginTop: '0.75rem' }}>
                 <CertificationAddForm />

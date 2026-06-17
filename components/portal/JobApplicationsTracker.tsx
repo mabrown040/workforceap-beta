@@ -7,6 +7,7 @@ import JobApplicationKanban from './JobApplicationKanban';
 import PortalEmptyState from './PortalEmptyState';
 import ApplicationAiFeedbackPrompt from '@/components/portal/ApplicationAiFeedbackPrompt';
 import type { RecentToolOption } from '@/components/portal/ApplicationAiFeedbackPrompt';
+import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 
 interface JobApplicationsTrackerProps {
   userId: string;
@@ -27,13 +28,18 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
     const fetchApplications = async () => {
       try {
         setIsLoading(true);
+        setError(null);
         const res = await fetch('/api/member/job-applications');
-        if (!res.ok) throw new Error("We couldn't load your applications. Try again in a moment.");
+        if (!res.ok) {
+          const msg = await getErrorMessageFromResponse(res);
+          setError(msg);
+          return;
+        }
         const data = await res.json();
         setApplications(data);
         setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "We couldn't load your applications. Try again in a moment.");
+      } catch {
+        setError("We couldn't load your applications. Please check your connection and try again.");
       } finally {
         setIsLoading(false);
       }
@@ -44,13 +50,18 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
 
   const handleAddApplication = async (formData: Partial<JobApplication>) => {
     try {
+      setError(null);
       const res = await fetch('/api/member/job-applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) throw new Error("We couldn't add this application. Try again in a moment.");
+      if (!res.ok) {
+        const msg = await getErrorMessageFromResponse(res);
+        setError(msg);
+        return;
+      }
       
       const payload = await res.json();
       const newApp = (payload.application ?? payload) as JobApplication;
@@ -65,27 +76,32 @@ export default function JobApplicationsTracker({ userId }: JobApplicationsTracke
       } else {
         setFeedbackPrompt(null);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "We couldn't add this application. Try again in a moment.");
+    } catch {
+      setError("We couldn't add this application. Please check your connection and try again.");
     }
   };
 
   const handleUpdateApplication = async (id: string, updates: Partial<JobApplication>) => {
     try {
+      setError(null);
       const res = await fetch(`/api/member/job-applications/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
 
-      if (!res.ok) throw new Error("We couldn't update this application. Try again in a moment.");
+      if (!res.ok) {
+        const msg = await getErrorMessageFromResponse(res);
+        setError(msg);
+        return;
+      }
       
       const updated = await res.json();
       const nextApplication = updated.application ?? updated;
       setApplications(applications.map(app => app.id === id ? nextApplication : app));
       setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "We couldn't update this application. Try again in a moment.");
+    } catch {
+      setError("We couldn't update this application. Please check your connection and try again.");
     }
   };
 

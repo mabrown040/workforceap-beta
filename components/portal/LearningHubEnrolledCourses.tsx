@@ -41,6 +41,20 @@ export default function LearningHubEnrolledCourses({
   const completedInProgram = completedSlugs.filter((s) => courses.some((c) => c.slug === s)).length;
   const pct = courses.length > 0 ? Math.round((completedInProgram / courses.length) * 100) : 0;
 
+  const progressLabel =
+    pct === 0
+      ? 'Not started'
+      : pct === 100
+        ? 'Complete'
+        : `${pct}% complete`;
+
+  const progressColor =
+    pct === 0
+      ? 'var(--color-on-surface-variant)'
+      : pct === 100
+        ? 'var(--color-green, rgb(22, 163, 74))'
+        : 'var(--color-accent)';
+
   return (
     <section style={wrapStyle}>
       <div
@@ -61,7 +75,7 @@ export default function LearningHubEnrolledCourses({
             marginBottom: '1rem',
           }}
         >
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <p
               style={{
                 fontSize: '0.75rem',
@@ -78,12 +92,59 @@ export default function LearningHubEnrolledCourses({
               {programTitle}
             </h3>
             <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginTop: '0.35rem' }}>
-              {completedInProgram} of {courses.length} courses marked complete · {pct}%
+              {completedInProgram} of {courses.length} courses marked complete
             </p>
           </div>
           <Link href="/dashboard" className="btn btn-outline btn-sm" style={{ flexShrink: 0 }}>
             Open Training page
           </Link>
+        </div>
+
+        {/* ── Visual progress bar + percentage ── */}
+        <div style={{ marginBottom: '1rem' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '0.4rem',
+              gap: '0.75rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: progressColor,
+              }}
+            >
+              {progressLabel}
+            </span>
+            <span
+              style={{
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: 'var(--color-on-surface)',
+              }}
+            >
+              {pct}%
+            </span>
+          </div>
+          <div className="portal-progress-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Training progress">
+            <div
+              className="portal-progress-bar__fill"
+              style={{
+                width: `${pct}%`,
+                background:
+                  pct === 100
+                    ? 'var(--color-green, rgb(22, 163, 74))'
+                    : pct === 0
+                      ? 'transparent'
+                      : undefined,
+              }}
+            />
+          </div>
         </div>
 
         {!assessmentCompleted ? (

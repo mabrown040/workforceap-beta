@@ -35,17 +35,28 @@ export const GET = withApiGuc(async (req: NextRequest) => {
       select: { id: true, fullName: true, email: true, enrolledProgram: true },
     }),
     prisma.employer.findMany({
-      where: { companyName: { contains: q, mode } },
+      where: {
+        companyName: { contains: q, mode },
+        ...(orgId ? { organizationId: orgId } : {}),
+      },
       take: 3,
       select: { id: true, companyName: true, industry: true },
     }),
     prisma.partner.findMany({
-      where: { name: { contains: q, mode }, active: true },
+      where: {
+        name: { contains: q, mode },
+        active: true,
+        ...(orgId ? { organizationId: orgId } : {}),
+      },
       take: 3,
       select: { id: true, name: true, organizationType: true },
     }),
     prisma.job.findMany({
-      where: { title: { contains: q, mode }, status: 'live' },
+      where: {
+        title: { contains: q, mode },
+        status: 'live',
+        ...(orgId ? { employer: { organizationId: orgId } } : {}),
+      },
       take: 3,
       select: { id: true, title: true, employer: { select: { companyName: true } } },
     }),

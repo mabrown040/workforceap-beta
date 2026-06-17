@@ -9,6 +9,7 @@ import { listCourseraIdentityMappingsForUser } from '@/lib/xapi/mappings';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * POST /api/member/coursera/auto-sync
@@ -38,7 +39,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
  *  refresh now". */
 const AUTO_SYNC_BACKOFF_MS = 60 * 60 * 1000;
 
-export async function POST() {
+async function _POST() {
   try {
     const user = await getUser();
     if (!user) {
@@ -177,3 +178,4 @@ export async function POST() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

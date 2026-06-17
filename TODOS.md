@@ -72,6 +72,16 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## ~~TODO-028: admin/members/[id] mutation routes — audit log sweep~~ ✓ COMPLETED
+
+**What:** Five admin mutation routes had no audit trail: member note POST, member partner PATCH, member subgroup POST+DELETE, counselor bonus points POST, member create POST, and admin invite POST.
+
+**Fix:** Added `auditLog(...)` to all six routes. Bonus: wired `withApiGuc` to `counselor/members/[memberId]/award-points` and `counselor/session` which were also missing GUC context.
+
+**Completed:** 2026-06-17. PRs #1888 (notes/partner/subgroup/points), #1889 (create/invites).
+
+---
+
 ## TODO-007: admin/growth — wire real GA4 property ID
 
 **What:** `app/admin/growth/page.tsx:38` has a placeholder GA4 property ID and the dashboard shows static demo data instead of live analytics.
@@ -98,6 +108,7 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ## Completed
 
+- **TODO-028: admin mutation audit log sweep (notes/partner/subgroup/points/create/invites)** — 6 routes covered. PRs #1888, #1889. 2026-06-17.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.

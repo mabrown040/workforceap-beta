@@ -8,6 +8,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { formatPhone } from '@/lib/formatPhone';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const MAX_MEMBERS = 500;
 
@@ -21,7 +22,7 @@ function csvEscape(s: string | number | null | undefined): string {
   return str;
 }
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -201,3 +202,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { fetchInterviewPrepBundle } from '@/lib/member/interviewPrepBundle';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-/**
- * GET /api/member/prep-bundle
- * Returns the prep bundle data for display (no email sent).
- */
-export async function GET() {
+async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -28,4 +25,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const GET = withApiGuc(_GET);

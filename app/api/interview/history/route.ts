@@ -7,6 +7,7 @@ import { updateCoachMemory, type CoachTurn } from '@/lib/coach/memory';
 import { prisma } from '@/lib/db/prisma';
 import { sendVoiceInterviewTranscriptEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -113,7 +114,12 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
   
-    const role = body.role?.trim() ?? '';
+    const rateLimitResult = await checkAIToolRateLimit(user.id);
+    if (!rateLimitResult.ok) {
+      return NextResponse.json({ error: 'Rate limit exceeded. Please try again in an hour.' }, { status: 429 });
+    }
+
+    const role = (body.role?.trim() ?? '').slice(0, 200);
     const interviewTypeRaw = body.interviewType?.trim().toLowerCase() ?? '';
     const sessionId = body.sessionId?.trim() ?? '';
   
@@ -130,14 +136,14 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
     }
   
     const answers = Array.isArray(body.answers)
-      ? body.answers.map((answer) => answer.trim()).filter((answer) => answer.length > 0)
+      ? body.answers.slice(0, 20).map((answer) => String(answer).trim().slice(0, 3000)).filter((answer) => answer.length > 0)
       : [];
     if (answers.length === 0) {
       return NextResponse.json({ error: 'answers are required' }, { status: 400 });
     }
   
     const questions = Array.isArray(body.questions)
-      ? body.questions.map((question) => question.trim()).filter((question) => question.length > 0)
+      ? body.questions.slice(0, 20).map((question) => String(question).trim().slice(0, 1000)).filter((question) => question.length > 0)
       : [];
     const transcriptTurns: { role: 'agent' | 'user'; text: string }[] = Array.isArray(body.transcriptTurns)
       ? body.transcriptTurns

@@ -12,6 +12,7 @@ import { trackEvent } from '@/lib/events/track';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
@@ -294,6 +295,14 @@ const walkInSchema = z.object({
       sessionId,
     }).catch(() => {});
   
+    await auditLog({
+      actorUserId: user.id,
+      action: 'member_walk_in_create',
+      targetType: 'user',
+      targetId: authUser.id,
+      metadata: { email: authUser.email, fullName, targetRole: targetRole || null },
+    });
+
     return NextResponse.json({
       memberId: authUser.id,
       sessionId,

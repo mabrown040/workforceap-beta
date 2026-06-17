@@ -29,7 +29,10 @@ const BENEFIT_COOLDOWN_DAYS = 30;export const POST = withApiGuc(async (request: 
       where: { id: user.id },
       select: { assessmentCompleted: true },
     }));
-    if (!dbUser?.assessmentCompleted) {
+    if (!dbUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    if (!dbUser.assessmentCompleted) {
       return NextResponse.json(
         { error: 'Please complete the skills assessment before requesting Coursera access.', code: 'ASSESSMENT_REQUIRED' },
         { status: 403 }

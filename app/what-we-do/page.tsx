@@ -12,14 +12,10 @@ import { prisma } from '@/lib/db/prisma';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.whatWeDo');
-  // TODO(design): designer needs to produce `/public/images/og/what-we-do.webp`
-  // (1200x630). Referenced here so social shares of /what-we-do don't fall
-  // back to the generic homepage OG.
   return buildPageMetadataAsync({
     title: t('title'),
     description: t('description'),
     path: '/what-we-do',
-    image: '/images/og/what-we-do.webp',
   });
 }
 

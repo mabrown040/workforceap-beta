@@ -74,7 +74,7 @@ const nextConfig: NextConfig = {
             //     Add new hosts here as needed instead of widening back to `https:`.
             value: [
               "default-src 'self'",
-              `script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com`,
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.googletagmanager.com https://va.vercel-insights.com https://challenges.cloudflare.com",
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.zippopotam.us https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://va.vercel-insights.com https://vitals.vercel-insights.com https://challenges.cloudflare.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io https://api.elevenlabs.io wss://api.elevenlabs.io https://livekit.rtc.elevenlabs.io wss://livekit.rtc.elevenlabs.io wss://*.livekit.cloud wss://*.elevenlabs.io https://*.elevenlabs.io",
               "img-src 'self' data: blob: https://*.supabase.co https://*.public.blob.vercel-storage.com https://images.unsplash.com https://www.google-analytics.com https://www.googletagmanager.com https://api.dicebear.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
@@ -271,6 +271,7 @@ const nextConfig: NextConfig = {
       // Member portal legacy route fixes (QA-ISSUE-001)
       { source: '/portal/dashboard', destination: '/dashboard', permanent: true },
       { source: '/portal/training', destination: '/dashboard/program', permanent: true },
+      { source: '/dashboard/apply', destination: '/apply', permanent: true },
       { source: '/training', destination: '/dashboard/program', permanent: true },
       { source: '/dashboard/plan', destination: '/dashboard/career-brief', permanent: true },
       { source: '/dashboard/weekly-focus', destination: '/dashboard/weekly-recap', permanent: true },

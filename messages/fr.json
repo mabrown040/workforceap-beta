@@ -496,7 +496,15 @@
     "programChangeErrorSubmitFailed": "Échec de l'envoi (HTTP {status})",
     "programChangeErrorNetwork": "Erreur réseau — veuillez réessayer.",
     "firstValuePanelTitle": "Your next 3 actions",
-    "firstValuePanelSubtitle": "Personalized for where you are now"
+    "firstValuePanelSubtitle": "Personalized for where you are now",
+    "firstCertAssessmentStage": "Complétez votre évaluation",
+    "firstCertComplete": "Première certification obtenue",
+    "firstCertCompleteStage": "Première cert. obtenue",
+    "firstCertInProgress": "Première certification en cours",
+    "firstCertProgress": "Progression de la première certification",
+    "firstCertProgressBarLabel": "{percent}% vers la première certification",
+    "firstCertTrainingStage": "Formation en cours",
+    "stepsComplete": "{complete} sur {total} étapes"
   },
   "apply": {
     "step1": "Informations personnelles",
@@ -814,7 +822,10 @@
     "resultsHeroTitle": "Étape 2 sur 3 — choisissez vos programmes",
     "resultsMetaDescription": "Examinez votre adéquation probable, classez jusqu'à trois programmes et continuez vers la création de compte.",
     "resultsMetaTitle": "Choisissez vos programmes",
-    "paidApplyProofBody": "Nous examinons votre candidature, faisons un suivi pour discuter des prochaines étapes et vous aidons à comprendre l'adéquation au financement avant de vous engager."
+    "paidApplyProofBody": "Nous examinons votre candidature, faisons un suivi pour discuter des prochaines étapes et vous aidons à comprendre l'adéquation au financement avant de vous engager.",
+    "accountTransitionSummary": "Pourquoi nous demandons un compte maintenant",
+    "createAccountFormKicker": "Nom, e-mail, téléphone et mot de passe uniquement",
+    "resultsTransitionSummary": "Comment fonctionne le classement des programmes"
   },
   "training": {
     "myTraining": "Ma Formation",
@@ -1297,14 +1308,13 @@
     "partnerInsights": "Informations partenaire",
     "assistantSpeaking": "L'assistant parle…",
     "assistantListening": "À l'écoute — posez votre question",
-    "referredMembersDescription": "Tous les membres recommandés par votre organisation.",
-    "outcomesSnapshotDescription": "Résultats de haut niveau pour vos recommandations.",
     "placed": "Placé",
     "memberReferrals": "Parrainages membres",
     "memberReferralsSubtitle": "Membres parrainant d'autres membres — taux de conversion de {conversionRate}%",
     "memberToMember": "De membre à membre",
     "converted": "Convertis",
-    "placedViaReferral": "Placés via parrainage"
+    "placedViaReferral": "Placés via parrainage",
+    "memberFallback": "Membre"
   },
   "group": {
     "workflows": "Flux de travail",
@@ -1574,7 +1584,24 @@
       "languageEnglishOnly": "Anglais seulement",
       "languageFull": "Disponible en {language}",
       "languageSubtitles": "Sous-titres en {language}",
-      "languageAuto": "{language} (automatique)"
+      "languageAuto": "{language} (automatique)",
+      "ctaDisclaimer": "Éligibilité WIOA requise. Un conseiller examinera votre candidature dans 1 à 2 jours ouvrables.",
+      "ctaSubtitle": "Postulez pour {program} aujourd'hui. Gratuit pour les membres éligibles.",
+      "ctaTitle": "Commencez votre candidature",
+      "curriculumSubtitle": "{count} cours conçus pour vous amener du débutant au niveau employable.",
+      "curriculumTitle": "Ce que vous étudierez",
+      "enrollingNow": "Inscriptions ouvertes",
+      "faqSubtitle": "Réponses rapides sur le coût, la durée et ce qu'il faut attendre.",
+      "faqTitle": "Questions fréquentes",
+      "heroDescription": "Obtenez un certificat professionnel {partner} en {duration}. Gratuit pour les membres éligibles via le financement WIOA.",
+      "metaDescription": "{program} — {salary}. {duration}. Gratuit pour les membres éligibles via le financement WIOA et le développement de la main-d'œuvre.",
+      "metaTitleSuffix": "Certificat Professionnel Gratuit | WorkforceAP",
+      "outcomesSubtitle": "Fourchettes salariales et potentiel de croissance pour les diplômés de ce programme.",
+      "outcomesTitle": "Débouchés professionnels",
+      "skillsSubtitle": "Compétences reconnues par l'industrie que les employeurs recherchent activement.",
+      "skillsTitle": "Compétences que vous apprendrez",
+      "testimonialsSubtitle": "De vrais diplômés qui ont commencé là où vous êtes.",
+      "testimonialsTitle": "Témoignages de membres"
     },
     "faq": {
       "knowledgeBase": "Base de connaissances",

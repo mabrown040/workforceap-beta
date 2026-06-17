@@ -496,7 +496,15 @@
     "programChangeErrorSubmitFailed": "Error al enviar (HTTP {status})",
     "programChangeErrorNetwork": "Error de red — inténtalo de nuevo.",
     "firstValuePanelTitle": "Tus 3 próximas acciones",
-    "firstValuePanelSubtitle": "Personalizadas para donde estás ahora"
+    "firstValuePanelSubtitle": "Personalizadas para donde estás ahora",
+    "firstCertAssessmentStage": "Completa tu evaluación",
+    "firstCertComplete": "Primera certificación obtenida",
+    "firstCertCompleteStage": "Primera cert. obtenida",
+    "firstCertInProgress": "Primera certificación en progreso",
+    "firstCertProgress": "Progreso de la primera certificación",
+    "firstCertProgressBarLabel": "{percent}% hacia la primera certificación",
+    "firstCertTrainingStage": "Entrenamiento en progreso",
+    "stepsComplete": "{complete} de {total} pasos"
   },
   "apply": {
     "step1": "Información personal",

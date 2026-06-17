@@ -97,6 +97,15 @@ export const PATCH = withApiGuc(async (
   // Invalidate cached member state so dashboard reflects program change immediately
   await invalidateMemberState(id);
 
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'set_member_program',
+    object: { type: 'User', id },
+    result: { success: true, extensions: { programSlug } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] set_member_program:', err));
+
   return NextResponse.json({ ok: true });
 
   } catch (error) {

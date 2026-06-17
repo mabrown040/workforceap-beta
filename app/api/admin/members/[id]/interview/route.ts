@@ -4,6 +4,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -47,6 +49,22 @@ const bodySchema = z.object({
         },
       }));
     }
+
+    auditLog({
+      actorUserId: admin.id,
+      action: 'admin_member_interview_update',
+      targetType: 'user',
+      targetId: memberId,
+      metadata: { orgId, action: parsed.data.action },
+    }).catch((err) => console.error('[admin/members/interview] audit log failed:', err));
+    logAuditEvent({
+      user: { id: admin.id, role: 'admin' },
+      verb: parsed.data.action === 'mark_interviewed' ? 'marked_interviewed' : 'cleared_interview_request',
+      object: { type: 'Member', id: memberId },
+      result: { success: true, extensions: { orgId, action: parsed.data.action } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[admin/members/interview] xAPI audit log failed:', err));
 
     return NextResponse.json({ ok: true });
   } catch (error) {

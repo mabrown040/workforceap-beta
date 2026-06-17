@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { buildDeletedEmail, isDeletedEmail } from '../../_deletedEmail';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -20,7 +22,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
  * becomes `updateMany` so the proxy can scope the where clause.
  */
 async function _POST(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -58,6 +60,22 @@ async function _POST(
       data: { email: newEmail },
     }),
   );
+
+  auditLog({
+    actorUserId: actor.id,
+    action: 'admin_user_free_email',
+    targetType: 'user',
+    targetId: id,
+    metadata: { orgId, originalEmail: target.email, newEmail },
+  }).catch((err) => console.error('[admin/users/free-email] audit log failed:', err));
+  logAuditEvent({
+    user: { id: actor.id, role: 'admin' },
+    verb: 'freed_email',
+    object: { type: 'User', id },
+    result: { success: true, extensions: { orgId, originalEmail: target.email } },
+    request: auditRequestMeta(req),
+    orgId,
+  }).catch((err) => console.error('[admin/users/free-email] xAPI audit log failed:', err));
 
   return NextResponse.json({ ok: true, originalEmail: target.email, currentEmail: newEmail });
 

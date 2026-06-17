@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { assertStaffCanPost, normalizeMessageBody, serializeMessage } from '@/lib/messages/counselorThread';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -48,6 +50,21 @@ type Props = { params: Promise<{ threadId: string }> };async function _POST(requ
     });
     return m;
   });
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'admin_message_sent',
+    targetType: 'MessageThread',
+    targetId: threadId,
+    metadata: { messageId: msg.id },
+  }).catch((err) => console.error('[messages/thread/staff] audit log failed:', err));
+  logAuditEvent({
+    user: { id: user.id, role: 'super_admin' },
+    verb: 'sent',
+    object: { type: 'StaffMessage', id: msg.id },
+    result: { success: true, extensions: { threadId } },
+    request: auditRequestMeta(request),
+  }).catch((err) => console.error('[messages/thread/staff] xAPI audit log failed:', err));
 
   return NextResponse.json({ message: serializeMessage(msg) });
 

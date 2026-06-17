@@ -58,7 +58,7 @@ async function readCsvFromRequest(request: NextRequest): Promise<{ content: stri
   };
 }
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await requireAdminUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -153,3 +153,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

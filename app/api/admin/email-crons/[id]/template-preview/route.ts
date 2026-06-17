@@ -8,6 +8,7 @@ import { applicantFollowupHtml } from '@/emails/applicant-followup';
 import { adminWeeklyRecapHtml } from '@/emails/admin-weekly-recap';
 import { partnerWeeklyDigestHtml } from '@/emails/partner-weekly-digest';
 import { courseCompletedHtml } from '@/emails/course-completed';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 export type TemplatePreviewResponse = {
   cronId: string;
@@ -18,7 +19,7 @@ export type TemplatePreviewResponse = {
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(req: NextRequest, ctx: RouteContext) {
+async function _GET(req: NextRequest, ctx: RouteContext) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -171,3 +172,5 @@ function buildPreview(id: string): TemplatePreviewResponse | null {
       return null;
   }
 }
+
+export const GET = withApiGuc(_GET);

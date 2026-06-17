@@ -5,6 +5,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { TestimonialStatus } from '@prisma/client';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 function buildTestimonialRecordWhere(id: string, orgId: string | null) {
   return {
@@ -138,6 +139,7 @@ async function _PATCH(
     if (!updated)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+    void auditLog({ actorUserId: user.id, action: 'testimonial_status_update', targetType: 'testimonial', targetId: id, metadata: { status: updated.status } }).catch(() => {});
     return NextResponse.json({ testimonial: updated });
   } catch (error) {
     console.error('[admin/testimonials/[id] PATCH] error:', error);
@@ -172,6 +174,7 @@ async function _DELETE(
     if (updateResult.count === 0)
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+    void auditLog({ actorUserId: user.id, action: 'testimonial_delete', targetType: 'testimonial', targetId: id, metadata: {} }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/testimonials/[id] DELETE] error:', error);

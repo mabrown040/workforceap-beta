@@ -22,7 +22,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  *
  * Auth: super_admin OR admin in the actor's org.
  */
-export async function GET() {
+async function _GET() {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -65,3 +65,5 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const GET = withApiGuc(_GET);

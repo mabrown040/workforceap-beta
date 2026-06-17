@@ -2317,6 +2317,8 @@
     "billingMetaDesc": "Manage your subscription and billing.",
     "billing": "Billing",
     "manageSubscription": "Manage your subscription, usage, and upgrades.",
+    "checkoutSuccess": "Your subscription was set up successfully. Welcome!",
+    "checkoutCanceled": "Checkout was canceled — your plan has not changed.",
     "currentPlan": "Current plan",
     "activeSubscription": "Active subscription",
     "subscriptionNotActive": "Subscription not active",

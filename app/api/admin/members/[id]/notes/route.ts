@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
@@ -78,6 +79,14 @@ export const GET = withApiGuc(_GET);async function _POST(
       data: { memberId: id, authorId: user.id, content: parsed.data.content },
       include: { author: { select: { fullName: true, email: true } } },
     }));
+    await auditLog({
+      actorUserId: user.id,
+      action: 'member_note_create',
+      targetType: 'counselor_note',
+      targetId: note.id,
+      metadata: { memberId: id, contentLength: parsed.data.content.length },
+    });
+
     return NextResponse.json(note, { status: 201 });
   } catch (error) {
     captureApiError(error, { route: 'admin/members/[id]/notes POST' });

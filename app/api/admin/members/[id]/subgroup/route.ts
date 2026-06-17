@@ -6,6 +6,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const postSchema = z.object({
   subgroupId: z.string().uuid(),
@@ -58,6 +59,22 @@ const postSchema = z.object({
       assignmentType: 'manual_admin',
     },
   }));
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'member_subgroup_add',
+    targetType: 'member_subgroup',
+    targetId: memberId,
+    metadata: { subgroupId: parsed.data.subgroupId },
+  });
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'member_subgroup_remove',
+    targetType: 'member_subgroup',
+    targetId: memberId,
+    metadata: { subgroupId },
+  });
 
   return NextResponse.json({ ok: true });
 

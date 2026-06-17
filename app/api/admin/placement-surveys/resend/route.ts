@@ -7,6 +7,7 @@ import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { sendPlacementSurveyEmail } from '@/lib/email';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';export const POST = withApiGuc(async (req: NextRequest) => {
   try {
@@ -87,6 +88,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
       where: { id: surveyId },
       data: { sentAt: new Date() },
     }));
+
+    void auditLog({ actorUserId: user.id, action: 'admin_placement_survey_resend', targetType: 'placementRecord', targetId: placementId, metadata: { surveyId, wave } }).catch(() => {});
 
     return NextResponse.json({ success: true, surveyId, wave });
   } catch (error) {

@@ -7,6 +7,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { detectCompletionMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Admin-only synthetic cascade trigger. Inserts a `pending_draft` row for the
@@ -78,6 +79,8 @@ async function _POST(req: NextRequest) {
       source: 'member',
       sourceEventId: `synthetic-${user.id}-${Date.now()}`,
     });
+
+    void auditLog({ actorUserId: user.id, action: 'admin_milestone_cascade_synthetic', targetType: 'user', targetId: targetUserId, metadata: { courseSlug: parsed.data.courseSlug, courseName: parsed.data.courseName } }).catch(() => {});
 
     return NextResponse.json(result);
   } catch (err) {

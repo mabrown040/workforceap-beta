@@ -6,6 +6,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
@@ -69,6 +70,8 @@ async function _PATCH(request: NextRequest, { params }: Props) {
       },
     }),
   );
+
+  void auditLog({ actorUserId: actor.id, action: 'admin_member_wioa_review', targetType: 'user', targetId: memberId, metadata: { status: parsed.data.status } }).catch(() => {});
 
   return NextResponse.json({
     ok: true,

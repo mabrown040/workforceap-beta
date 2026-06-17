@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import {
   generateQuarterlyOutcomes,
@@ -22,7 +23,7 @@ function parseYearParam(raw: string | null): number | null {
   return n;
 }
 
-export async function GET(req: NextRequest) {
+async function _GET(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
@@ -32,7 +33,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const orgId = await getActorOrganizationId(user.id);
+    const superAdmin = await isSuperAdmin(user.id);
+    const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+    if (!orgId) {
+      return NextResponse.json({ error: 'Organization context required' }, { status: 400 });
+    }
     const { searchParams } = new URL(req.url);
 
     const quarterParam = parseQuarterParam(searchParams.get('quarter'));
@@ -54,3 +59,4 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+export const GET = withApiGuc(_GET);

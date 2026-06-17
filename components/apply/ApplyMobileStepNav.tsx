@@ -7,18 +7,36 @@ const APPLY_PROGRESS_STEPS = [
   { labelKey: 'stepProgramSelectionMobile', icon: 'school' },
 ] as const;
 
+const STEP_TIME_HINT_KEYS = {
+  0: 'step1TimeHintMobile',
+  1: 'step2TimeHintMobile',
+  2: 'step3TimeHintMobile',
+} as const;
+
 type ApplyMobileStepNavProps = {
   activeStep?: 0 | 1 | 2;
+  /** When true, appends a step-specific time hint to the mobile summary line. */
+  showTimeHint?: boolean;
 };
 
-export default async function ApplyMobileStepNav({ activeStep = 0 }: ApplyMobileStepNavProps) {
+export default async function ApplyMobileStepNav({
+  activeStep = 0,
+  showTimeHint = false,
+}: ApplyMobileStepNavProps) {
   const t = await getTranslations('apply');
   const totalSteps = APPLY_PROGRESS_STEPS.length;
+  const timeHintKey = showTimeHint ? STEP_TIME_HINT_KEYS[activeStep] : null;
 
   return (
     <nav className="apply-mobile-step-nav" aria-label={t('applicationProgress')}>
       <p className="apply-mobile-step-nav__summary">
-        {t('mobileStepSummary', { current: activeStep + 1, total: totalSteps })}
+        {timeHintKey
+          ? t('mobileStepSummaryWithTime', {
+              current: activeStep + 1,
+              total: totalSteps,
+              time: t(timeHintKey as Parameters<typeof t>[0]),
+            })
+          : t('mobileStepSummary', { current: activeStep + 1, total: totalSteps })}
       </p>
       <ol className="apply-mobile-step-nav__list">
         {APPLY_PROGRESS_STEPS.map((step, i) => (

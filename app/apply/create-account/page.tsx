@@ -35,7 +35,7 @@ export default async function ApplyCreateAccountPage() {
         <div className="container">
           <div style={{ maxWidth: '560px', margin: '0 auto' }}>
             <ApplyMobileTrustBar />
-            <ApplyMobileStepNav activeStep={2} />
+            <ApplyMobileStepNav activeStep={2} showTimeHint />
             <p className="apply-funnel-form-kicker" role="note">
               {t('createAccountFormKicker')}
             </p>

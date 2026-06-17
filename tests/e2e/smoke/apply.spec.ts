@@ -17,13 +17,13 @@ test.describe('Apply smoke', () => {
     // Mobile step breadcrumb (sidebar progress hidden below 768px)
     await page.setViewportSize({ width: 375, height: 812 });
     await expect(page.locator('.apply-mobile-step-nav')).toBeVisible();
-    await expect(page.locator('.apply-mobile-step-nav__summary')).toContainText(/step 1 of 3/i);
+    await expect(page.locator('.apply-mobile-step-nav__summary')).toContainText(/step 1 of 3 · about 5 min/i);
     await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/eligibility|you/i);
     await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
     await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/501\(c\)\(3\)|no cost/i);
     await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/questions\? call|\(512\) 777-1808/i);
     await expect(page.locator('.apply-mobile-trust-bar__phone')).toHaveAttribute('href', 'tel:+15127771808');
-    await expect(page.locator('.apply-organic-form-kicker')).toContainText(/about 5 minutes/i);
+    await expect(page.locator('.apply-organic-form-kicker')).toContainText(/save and finish later/i);
 
     // Sidebar with progress steps
     await expect(page.locator('.apply-sidebar, aside').first()).toBeVisible();
@@ -46,7 +46,7 @@ test.describe('Apply smoke', () => {
     await page.goto('/apply?utm_source=google_ads&utm_medium=cpc&utm_campaign=launch_smoke');
 
     await expect(page.locator('.paid-apply-hero')).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('.paid-apply-form-kicker')).toContainText(/about 5 minutes/i);
+    await expect(page.locator('.paid-apply-form-kicker')).toContainText(/eligibility check only/i);
     await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
     await expect(page.locator('.apply-mobile-trust-bar')).toContainText(/no cost|501\(c\)\(3\)/i);
   });
@@ -56,9 +56,9 @@ test.describe('Apply smoke', () => {
     await page.goto('/apply/results');
 
     await expect(page.locator('.apply-mobile-trust-bar')).toBeVisible();
-    await expect(page.locator('.apply-mobile-step-nav__summary')).toContainText(/step 2 of 3/i);
+    await expect(page.locator('.apply-mobile-step-nav__summary')).toContainText(/step 2 of 3 · about 2 min/i);
     await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/program/i);
-    await expect(page.locator('.apply-funnel-form-kicker')).toContainText(/about 2 minutes/i);
+    await expect(page.locator('.apply-funnel-form-kicker')).toContainText(/still no account required/i);
     await expect(page.locator('.apply-flow .apply-step-kicker')).not.toBeVisible();
   });
 
@@ -67,7 +67,7 @@ test.describe('Apply smoke', () => {
     await page.goto('/apply/create-account');
 
     await expect(page.locator('.apply-mobile-step-nav')).toBeVisible();
-    await expect(page.locator('.apply-mobile-step-nav__summary')).toContainText(/step 3 of 3/i);
+    await expect(page.locator('.apply-mobile-step-nav__summary')).toContainText(/step 3 of 3 · about 2 min/i);
     await expect(page.locator('.apply-mobile-step-nav__item--active')).toContainText(/account/i);
   });
 });

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { buildCsv, csvDate } from '@/lib/csv';
@@ -16,7 +16,8 @@ export const GET = withApiGuc(async (req: NextRequest) => {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id)))
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  const orgId = await getActorOrganizationId(user.id);
+  const superAdmin = await isSuperAdmin(user.id);
+  const orgId = superAdmin ? null : await getActorOrganizationId(user.id);
 
   const slug = req.nextUrl.searchParams.get('program')?.trim() ?? '';
   if (!slug) {
@@ -43,6 +44,7 @@ export const GET = withApiGuc(async (req: NextRequest) => {
     where: {
       deletedAt: null,
       enrolledProgram: slug,
+      ...(orgId ? { organizationId: orgId } : {}),
       ...MEMBER_ONLY_WHERE,
     },
     orderBy: { createdAt: 'desc' },

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { handleApiError, ApiError } from '@/lib/api/errors';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /** Public job detail - only live jobs */
-export async function GET(
+async function _GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -21,3 +22,4 @@ export async function GET(
     return handleApiError(error, 'GET /api/jobs/[id]');
   }
 }
+export const GET = withApiGuc(_GET);

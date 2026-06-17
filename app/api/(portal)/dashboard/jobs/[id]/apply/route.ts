@@ -7,6 +7,7 @@ import { trackEvent } from '@/lib/events/track';
 import { syncCuratedJobToTracker } from '@/lib/jobs/syncCuratedJobToTracker';
 import { awardPoints } from '@/lib/member/points';
 import { handleApiError, ApiError } from '@/lib/api/errors';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
@@ -15,7 +16,7 @@ const applySchema = z.object({
   shareResume: z.boolean().optional(),
 });
 
-export async function POST(
+async function _POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -121,3 +122,4 @@ export async function POST(
     return handleApiError(error, 'POST /api/jobs/[id]/apply');
   }
 }
+export const POST = withApiGuc(_POST);

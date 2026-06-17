@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { handleApiError } from '@/lib/api/errors';
@@ -7,7 +8,7 @@ import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getCacheOrFetch } from '@/lib/cache';
 
 /** Public jobs listing - only live jobs for students */
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const keyword = searchParams.get('q')?.trim() || undefined;
@@ -147,3 +148,4 @@ export async function GET(request: NextRequest) {
     return handleApiError(error, 'GET /api/jobs');
   }
 }
+export const GET = withApiGuc(_GET);

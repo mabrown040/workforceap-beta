@@ -48,6 +48,10 @@ vi.mock('@/lib/auth/roles', () => ({
   isAdmin: vi.fn(),
 }));
 
+
+vi.mock('@/lib/db/withRequestGuc', () => ({
+  withApiGuc: (fn: (...args: unknown[]) => unknown) => fn,
+}));
 vi.mock('@/lib/member/exportData', () => ({
   buildMemberExport: vi.fn(),
 }));
@@ -67,7 +71,7 @@ describe('GET /api/member/export-data', () => {
   it('returns 401 when not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await memberExportGET();
+    const res = await memberExportGET(new Request('http://localhost:3000/api/member/export-data'));
     expect(res.status).toBe(401);
     const body = await res.json();
     expect(body.error).toBe('Unauthorized');
@@ -124,7 +128,7 @@ describe('GET /api/member/export-data', () => {
 
     vi.mocked(buildMemberExport).mockResolvedValue(mockExport as any);
 
-    const res = await memberExportGET();
+    const res = await memberExportGET(new Request('http://localhost:3000/api/member/export-data'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.member.id).toBe('user-123');
@@ -136,7 +140,7 @@ describe('GET /api/member/export-data', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(buildMemberExport).mockRejectedValue(new Error('User not found'));
 
-    const res = await memberExportGET();
+    const res = await memberExportGET(new Request('http://localhost:3000/api/member/export-data'));
     expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.error).toBe('User not found');
@@ -146,7 +150,7 @@ describe('GET /api/member/export-data', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-123', email: 'jane@example.com' } as any);
     vi.mocked(buildMemberExport).mockRejectedValue(new Error('Database connection failed'));
 
-    const res = await memberExportGET();
+    const res = await memberExportGET(new Request('http://localhost:3000/api/member/export-data'));
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.error).toBe('Internal server error');

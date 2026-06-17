@@ -169,7 +169,7 @@ describe('GET /api/partner/dashboard', () => {
   it('returns 401 when user is not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
 
-    const res = await dashboardGet();
+    const res = await dashboardGet(new Request('http://localhost:3000/api/partner/dashboard'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -178,7 +178,7 @@ describe('GET /api/partner/dashboard', () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(getPartnerForUser).mockResolvedValue(null);
 
-    const res = await dashboardGet();
+    const res = await dashboardGet(new Request('http://localhost:3000/api/partner/dashboard'));
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });
@@ -193,7 +193,7 @@ describe('GET /api/partner/dashboard', () => {
       pendingPlacements: [],
     } as any);
 
-    const res = await dashboardGet();
+    const res = await dashboardGet(new Request('http://localhost:3000/api/partner/dashboard'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body).toMatchObject({
@@ -240,7 +240,7 @@ describe('GET /api/partner/dashboard', () => {
       pendingPlacements: [],
     } as any);
 
-    const res = await dashboardGet();
+    const res = await dashboardGet(new Request('http://localhost:3000/api/partner/dashboard'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.totalMembers).toBe(2);
@@ -627,7 +627,7 @@ describe('GET /api/partner/members', () => {
   it('returns 401 when user is not authenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null as any);
 
-    const res = await membersGet();
+    const res = await membersGet(new Request('http://localhost:3000/api/partner/members'));
     expect(res.status).toBe(401);
     expect(await res.json()).toEqual({ error: 'Unauthorized' });
   });
@@ -636,7 +636,7 @@ describe('GET /api/partner/members', () => {
     vi.mocked(getUser).mockResolvedValue({ id: UUIDS.user } as any);
     vi.mocked(getPartnerForUser).mockResolvedValue(null);
 
-    const res = await membersGet();
+    const res = await membersGet(new Request('http://localhost:3000/api/partner/members'));
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({ error: 'Forbidden' });
   });
@@ -663,7 +663,7 @@ describe('GET /api/partner/members', () => {
       pendingPlacements: [],
     } as any);
 
-    const res = await membersGet();
+    const res = await membersGet(new Request('http://localhost:3000/api/partner/members'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.members).toHaveLength(2);
@@ -687,7 +687,7 @@ describe('GET /api/partner/members', () => {
       pendingPlacements: [],
     } as any);
 
-    const res = await membersGet();
+    const res = await membersGet(new Request('http://localhost:3000/api/partner/members'));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.members).toEqual([]);

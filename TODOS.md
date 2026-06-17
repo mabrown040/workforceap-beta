@@ -84,6 +84,49 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-026: withApiGuc + audit logs batch 6 (enroll, notes, bulk-email) — PR #1955
+
+**What:**
+- `admin/members/bulk-email`: `POST` missing `withApiGuc` (Prisma writes for message threads)
+- `member/enroll`: No audit trail for program enrollment — highest-traffic member mutation
+- `admin/members/[id]/notes POST`: No audit trail for counselor note creation
+
+**Fix:** `withApiGuc` on bulk-email; `auditLog` fire-and-forget on enroll + notes. PR #1955.
+
+**Priority:** P2
+
+**Status:** PR open 2026-06-17.
+
+---
+
+## TODO-027: withApiGuc batch 7 — admin reports, blog AI, jobs-matches, messages-stats — PR #1956
+
+**What:** 7 admin routes without `withApiGuc` despite Prisma calls via helpers: `admin/blog/generate`, `admin/blog/ai/review`, `admin/jobs/[id]/matches`, `admin/messages/stats`, `admin/reports/wioa/generate`, `admin/reports/quarterly-outcomes`, `admin/partners/[id]/quarterly-outcomes`.
+
+**Fix:** All renamed to `_FOO` and exported via `withApiGuc`. PR #1956.
+
+**Priority:** P2 (Sprint 3 FORCE RLS)
+
+**Status:** PR open 2026-06-17.
+
+---
+
+## TODO-028: input bounds — employer jobs, admin chapters, member status notes — PR #1957
+
+**What:** Several routes accepted unbounded strings/arrays:
+- `employer/jobs` POST/PATCH: `description` unbounded, `requirements`/`preferredCertifications`/`suggestedPrograms` arrays uncapped
+- `employer/applications PATCH`: `employerNotes` unbounded
+- `admin/chapters`: `city`, `state`, `meetingSchedule`, `meetingLocation`, `curriculumNotes` all unbounded
+- `admin/members/[id]/status`: `notes` unbounded
+
+**Fix:** Added `.max()` caps per field. PR #1957.
+
+**Priority:** P2
+
+**Status:** PR open 2026-06-17.
+
+---
+
 ## TODO-016: partner/dashboard missing withApiGuc — ✓ Fixed PR #1867
 
 **What:** `GET /api/partner/dashboard` was a bare `export async function GET()` without `withApiGuc`. It calls `loadPartnerReferralBundle` which queries Prisma.

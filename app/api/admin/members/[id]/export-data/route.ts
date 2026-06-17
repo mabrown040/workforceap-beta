@@ -5,6 +5,7 @@ import { buildMemberExport } from '@/lib/member/exportData';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * GET /api/admin/members/[id]/export-data
@@ -17,7 +18,7 @@ import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
  * contact info, wioa qualification answers, assessment answers, etc.)
  * for any Org B member by guessing their UUID. P0.
  */
-export async function GET(
+async function _GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -65,3 +66,4 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

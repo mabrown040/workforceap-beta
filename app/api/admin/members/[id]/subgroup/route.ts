@@ -6,6 +6,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const postSchema = z.object({
   subgroupId: z.string().uuid(),
@@ -59,6 +60,15 @@ const postSchema = z.object({
     },
   }));
 
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'assign_subgroup',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { subgroupId: parsed.data.subgroupId } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] assign_subgroup:', err));
+
   return NextResponse.json({ ok: true });
 
   } catch (error) {
@@ -111,6 +121,15 @@ export const POST = withApiGuc(_POST);async function _DELETE(
   if (deleted.count === 0) {
     return NextResponse.json({ error: 'Member not in this subgroup' }, { status: 404 });
   }
+
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'unassign_subgroup',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { subgroupId } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] unassign_subgroup:', err));
 
   return NextResponse.json({ ok: true });
 

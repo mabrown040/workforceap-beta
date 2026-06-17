@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { getSubjectOrganizationId } from '@/lib/tenant/organization';
+import { getSubjectOrganizationId, getActorOrganizationId } from '@/lib/tenant/organization';
 import { sendEligibilityLink } from '@/lib/email';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -27,8 +27,10 @@ export const POST = withApiGuc(
       }
 
       const { id } = await context.params;
-      const member = await prisma.$transaction((tx) => tx.user.findUnique({
-        where: { id },
+      const superAdmin = await isSuperAdmin(user.id);
+      const actorOrgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+      const member = await prisma.$transaction((tx) => tx.user.findFirst({
+        where: { id, ...(actorOrgId ? { organizationId: actorOrgId } : {}) },
         select: { email: true, fullName: true },
       }));
       if (!member?.email) {

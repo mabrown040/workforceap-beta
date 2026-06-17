@@ -86,14 +86,18 @@ const ETHNICITY_OPTIONS = [
       return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
     }
   
+    const createOrgId = await getActorOrganizationId(user.id);
+
     if (partnerId) {
-      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: partnerId, active: true } }));
+      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: partnerId, active: true, organizationId: createOrgId } }));
       if (!partner) {
         return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
       }
     }
     if (subgroupId) {
-      const subgroup = await prisma.$transaction((tx) => tx.subgroup.findUnique({ where: { id: subgroupId } }));
+      const subgroup = await prisma.$transaction((tx) => tx.subgroup.findFirst({
+        where: { id: subgroupId, leader: { organizationId: createOrgId } },
+      }));
       if (!subgroup) {
         return NextResponse.json({ error: 'Invalid subgroup' }, { status: 400 });
       }
@@ -136,15 +140,14 @@ const ETHNICITY_OPTIONS = [
       // Optionally trigger password reset so user can set their own.
       // Track E (Sprint E.1 PR 2) — pass orgId so the reset link uses the
       // member's tenant domain instead of the platform default.
-      const orgIdForReset = await getActorOrganizationId(user.id);
-      await sendPasswordResetEmail(email, '/reset-password', { orgId: orgIdForReset });
+      await sendPasswordResetEmail(email, '/reset-password', { orgId: createOrgId });
     }
-  
+
     if (!authUser) {
       return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
     }
-  
-    const organizationId = await getActorOrganizationId(user.id);
+
+    const organizationId = createOrgId;
   
     let createdEnrollmentId: string | null = null;
     try {

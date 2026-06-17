@@ -232,6 +232,19 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-045: audit trail completeness — award-points, pipeline-stage, merge, reset-password, coursera-approval — ✓ Fixed PR #1973
+
+**What:** 5 admin routes with incomplete dual audit trail:
+- `award-points`: NO audit at all — admin/counselor point awards untracked
+- `pipeline-stage`, `merge`, `reset-password`: had `logAuditEvent` (xAPI) but no legacy `auditLog`
+- `coursera-enrollment-approval`: had `auditLog` but no `logAuditEvent` xAPI trail
+
+**Fixed:** PR #1973. All 5 routes now emit both `auditLog` + `logAuditEvent` fire-and-forget per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #1973 open / gate-merge pending.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

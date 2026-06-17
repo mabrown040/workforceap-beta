@@ -13,6 +13,7 @@ import { checkVerifyMfaRateLimit } from '@/lib/rate-limit';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { trackEvent } from '@/lib/events/track';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * POST /api/auth/verify-mfa
@@ -20,7 +21,7 @@ import { trackEvent } from '@/lib/events/track';
  * Expects: { code: string } in body.
  * Requires active session with aal1 (from password login).
  */
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
   if (!isStaffMfaEnforcementEnabled()) {
     return NextResponse.json({ error: 'MFA verification is currently disabled.' }, { status: 404 });
@@ -127,3 +128,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

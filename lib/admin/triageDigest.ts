@@ -2,30 +2,38 @@ import 'server-only';
 
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
-import { calculateHealthStatus } from '@/lib/admin/healthScore';
-import { loadTrainingDashboardData } from '@/lib/admin/trainingDashboard';
+import { calculateHealthStatus, type HealthStatus, getHealthLabel, getHealthColor } from '@/lib/admin/healthScore';
 import { MEMBER_OR_DOGFOOD_WHERE } from '@/lib/admin/memberOnlyWhere';
 
 /**
  * "Who needs you today" triage digest for the admin home.
  *
  * Rule-based + deterministic — NO LLM call. This runs on every admin visit, so
- * it must be fast and reliable. It reuses the existing aggregate helpers
- * (`loadTrainingDashboardData`, `calculateHealthStatus`) rather than issuing
- * per-member queries, and respects the same tenant/role + soft-delete filtering
- * used across the admin surfaces (`MEMBER_OR_DOGFOOD_WHERE`, `deletedAt: null`).
+ * it must be fast and reliable. It respects the same tenant/role + soft-delete
+ * filtering used across the admin surfaces (`MEMBER_OR_DOGFOOD_WHERE`, `deletedAt: null`).
+ *
+ * Three buckets (spec):
+ *   1. New applicants (last 7 days) — no assigned counselor yet
+ *   2. At-risk — health score red/yellow, staleTrainingDetectedAt, or counselor triage flags
+ *   3. Stalled — inactive >30 days (no learning events), still in training
  */
 
 export type TriageMember = {
   id: string;
   fullName: string;
-  /** One-line, plain-language reason this person surfaced in the bucket. */
-  reason: string;
+  /** Program name or null. */
+  program: string | null;
+  /** Days since last activity (null = never). */
+  daysSinceActivity: number | null;
+  /** Health badge color + label. */
+  health: { status: HealthStatus; label: string; color: string } | null;
+  /** Plain-language action label for dad. */
+  action: string;
   /** Where the "open" link for this person should point. */
   href: string;
 };
 
-export type TriageBucketKey = 'new-applicants' | 'at-risk' | 'stalled-training' | 'not-enrolled';
+export type TriageBucketKey = 'new-applicants' | 'at-risk' | 'stalled';
 
 export type TriageBucket = {
   key: TriageBucketKey;
@@ -64,123 +72,193 @@ function daysSince(date: Date | null): number | null {
 }
 
 export async function getTriageDigest(): Promise<TriageDigest> {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   // Everything runs in parallel and degrades independently — a single failing
   // slice must not blank out the whole digest (mirrors /admin/page error policy).
   const [
-    pendingAppsCountResult,
-    pendingAppsResult,
+    newMembersResult,
     membersResult,
     lastEventsResult,
     recentEventsResult,
-    trainingResult,
+    staleTrainingResult,
+    counselorAssignmentsResult,
   ] = await Promise.allSettled([
-    prisma.application.count({ where: { status: { in: ['PENDING', 'NEEDS_INFO'] } } }),
-    prisma.application.findMany({
-      where: { status: { in: ['PENDING', 'NEEDS_INFO'] } },
-      orderBy: { submittedAt: 'desc' },
+    // 1. New applicants (last 7 days) with no assigned counselor
+    prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        ...MEMBER_OR_DOGFOOD_WHERE,
+        createdAt: { gte: sevenDaysAgo },
+        counselorAssignments: { none: { active: true } },
+      },
+      orderBy: { createdAt: 'desc' },
       take: TOP_N,
       select: {
         id: true,
-        status: true,
-        submittedAt: true,
-        programInterest: true,
-        user: { select: { id: true, fullName: true, email: true } },
+        fullName: true,
+        email: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        createdAt: true,
       },
     }),
-    // Member roster for the at-risk health computation. Bounded + soft-delete /
-    // role filtered the same way the members list is.
+    // Member roster for health + stalled computation
     prisma.user.findMany({
       where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
       take: 3000,
-      select: { id: true, fullName: true, email: true, enrolledAt: true },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        enrolledProgram: true,
+        enrolledAt: true,
+        staleTrainingDetectedAt: true,
+        createdAt: true,
+      },
     }),
+    // Last event per member (for health score + stalled)
     prisma.memberEvent.groupBy({
       by: ['userId'],
       where: { createdAt: { gte: thirtyDaysAgo } },
       _max: { createdAt: true },
     }),
+    // Recent event count per member (for health score)
     prisma.memberEvent.groupBy({
       by: ['userId'],
       where: { createdAt: { gte: thirtyDaysAgo } },
       _count: { _all: true },
     }),
-    loadTrainingDashboardData(),
+    // Members with staleTrainingDetectedAt set (at-risk signal)
+    prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        ...MEMBER_OR_DOGFOOD_WHERE,
+        staleTrainingDetectedAt: { not: null },
+      },
+      take: 3000,
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        enrolledProgram: true,
+        staleTrainingDetectedAt: true,
+      },
+    }),
+    // Active counselor assignments (to exclude from new-applicants count)
+    prisma.counselorAssignment.findMany({
+      where: { active: true },
+      select: { memberId: true },
+    }),
   ]);
 
   const buckets: TriageBucket[] = [];
 
-  // ── 1. New applicants awaiting review ──────────────────────────────────
-  const pendingAppsCount =
-    pendingAppsCountResult.status === 'fulfilled' ? pendingAppsCountResult.value : 0;
-  const pendingApps = pendingAppsResult.status === 'fulfilled' ? pendingAppsResult.value : [];
-  if (pendingAppsCount > 0) {
+  // ── Build lookup maps ────────────────────────────────────────────────────
+  const lastEventMap = new Map<string, Date | null>();
+  if (lastEventsResult.status === 'fulfilled') {
+    for (const row of lastEventsResult.value) lastEventMap.set(row.userId, row._max.createdAt);
+  }
+  const recentEventMap = new Map<string, number>();
+  if (recentEventsResult.status === 'fulfilled') {
+    for (const row of recentEventsResult.value) recentEventMap.set(row.userId, row._count._all);
+  }
+  const assignedMemberIds = new Set<string>();
+  if (counselorAssignmentsResult.status === 'fulfilled') {
+    for (const a of counselorAssignmentsResult.value) assignedMemberIds.add(a.memberId);
+  }
+  const staleTrainingIds = new Set<string>();
+  if (staleTrainingResult.status === 'fulfilled') {
+    for (const m of staleTrainingResult.value) staleTrainingIds.add(m.id);
+  }
+
+  // ── 1. New applicants (last 7 days, no counselor) ──────────────────────
+  const newMembers = newMembersResult.status === 'fulfilled' ? newMembersResult.value : [];
+  // Also count total new members without counselor (may exceed TOP_N)
+  const newMembersCount = membersResult.status === 'fulfilled'
+    ? membersResult.value.filter((m) => {
+        const created = m.createdAt ? new Date(m.createdAt).getTime() : 0;
+        return created >= sevenDaysAgo.getTime() && !assignedMemberIds.has(m.id);
+      }).length
+    : newMembers.length;
+
+  if (newMembersCount > 0) {
     buckets.push({
       key: 'new-applicants',
-      count: pendingAppsCount,
-      label: `${pendingAppsCount} new ${pluralPeople(pendingAppsCount, 'application', 'applications')} waiting on you`,
+      count: newMembersCount,
+      label: `${newMembersCount} new ${pluralPeople(newMembersCount, 'applicant', 'applicants')} — no counselor yet`,
       icon: 'assignment_ind',
       accent: '#3b82f6',
-      members: pendingApps.map((a) => {
-        const interest = a.programInterest
-          ? getProgramBySlug(a.programInterest)?.title ?? a.programInterest
-          : null;
-        const d = daysSince(a.submittedAt);
-        const when =
-          d == null ? 'just submitted' : d === 0 ? 'submitted today' : `submitted ${d}d ago`;
-        const needsInfo = a.status === 'NEEDS_INFO';
+      members: newMembers.map((m) => {
+        const d = daysSince(m.createdAt);
+        const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : null;
         return {
-          id: a.user.id,
-          fullName: a.user.fullName ?? a.user.email,
-          reason: needsInfo
-            ? `Needs more info${interest ? ` · ${interest}` : ''}`
-            : `${interest ? `${interest} · ` : ''}${when}`,
-          href: `/admin/members/${a.user.id}`,
+          id: m.id,
+          fullName: m.fullName ?? m.email,
+          program,
+          daysSinceActivity: d,
+          health: null,
+          action: `Assign a counselor to ${m.fullName ?? m.email}${d != null && d > 0 ? ` — joined ${d}d ago` : ''}`,
+          href: `/admin/members/${m.id}`,
         };
       }),
-      href: '/admin/members?applications=pending',
-      cta: 'Review applications',
+      href: '/admin/members?needs=new-applicants',
+      cta: 'Review new applicants',
     });
   }
 
-  // ── 2. At-risk (health = red) ──────────────────────────────────────────
-  const eventAggregatesOk =
-    lastEventsResult.status === 'fulfilled' && recentEventsResult.status === 'fulfilled';
-  if (membersResult.status === 'fulfilled' && eventAggregatesOk) {
-    const lastEventMap = new Map<string, Date | null>();
-    for (const row of lastEventsResult.value) lastEventMap.set(row.userId, row._max.createdAt);
-    const recentEventMap = new Map<string, number>();
-    for (const row of recentEventsResult.value) recentEventMap.set(row.userId, row._count._all);
-
-    const atRisk = membersResult.value
+  // ── 2. At-risk (health red/yellow OR staleTrainingDetectedAt) ──────────
+  if (membersResult.status === 'fulfilled') {
+    const atRiskRows = membersResult.value
       .map((m) => {
         const lastEventAt = lastEventMap.get(m.id) ?? null;
-        const status = calculateHealthStatus({
+        const health = calculateHealthStatus({
           lastEventAt,
           recentEventCount: recentEventMap.get(m.id) ?? 0,
           enrolledAt: m.enrolledAt,
         });
-        return { m, status, lastEventAt };
+        const isStaleFlagged = staleTrainingIds.has(m.id);
+        const isAtRisk = health === 'red' || health === 'yellow' || isStaleFlagged;
+        return { m, lastEventAt, health, isStaleFlagged, isAtRisk };
       })
-      .filter((r) => r.status === 'red');
+      .filter((r) => r.isAtRisk);
 
-    if (atRisk.length > 0) {
-      // Most-stale first so the people who've been quiet longest are surfaced.
-      atRisk.sort((a, b) => (a.lastEventAt?.getTime() ?? 0) - (b.lastEventAt?.getTime() ?? 0));
+    if (atRiskRows.length > 0) {
+      // Sort: red first, then yellow, then stale-only; within each group most-stale first
+      const healthRank: Record<HealthStatus, number> = { red: 0, yellow: 1, green: 2 };
+      atRiskRows.sort((a, b) => {
+        const rankA = healthRank[a.health] ?? 99;
+        const rankB = healthRank[b.health] ?? 99;
+        if (rankA !== rankB) return rankA - rankB;
+        const staleA = a.isStaleFlagged ? 0 : 1;
+        const staleB = b.isStaleFlagged ? 0 : 1;
+        if (staleA !== staleB) return staleA - staleB;
+        return (a.lastEventAt?.getTime() ?? 0) - (b.lastEventAt?.getTime() ?? 0);
+      });
+
       buckets.push({
         key: 'at-risk',
-        count: atRisk.length,
-        label: `${atRisk.length} ${pluralPeople(atRisk.length, 'student', 'students')} at risk`,
+        count: atRiskRows.length,
+        label: `${atRiskRows.length} ${pluralPeople(atRiskRows.length, 'student', 'students')} at risk`,
         icon: 'warning',
         accent: '#dc2626',
-        members: atRisk.slice(0, TOP_N).map(({ m, lastEventAt }) => {
+        members: atRiskRows.slice(0, TOP_N).map(({ m, lastEventAt, health, isStaleFlagged }) => {
           const d = daysSince(lastEventAt);
+          const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : null;
+          const healthBadge = { status: health, label: getHealthLabel(health), color: getHealthColor(health) };
+          const staleText = isStaleFlagged ? ' · training stalled' : '';
+          const activityText = d == null ? 'never active' : `quiet for ${d}d`;
           return {
             id: m.id,
             fullName: m.fullName ?? m.email,
-            reason: d == null ? 'No recent activity' : `Quiet for ${d}+ days`,
+            program,
+            daysSinceActivity: d,
+            health: healthBadge,
+            action: `Check in with ${m.fullName ?? m.email} — ${activityText}${staleText}`,
             href: `/admin/members/${m.id}`,
           };
         }),
@@ -190,78 +268,44 @@ export async function getTriageDigest(): Promise<TriageDigest> {
     }
   }
 
-  // ── 3. Stalled training ────────────────────────────────────────────────
-  // ── 4. Not in a course ─────────────────────────────────────────────────
-  if (trainingResult.status === 'fulfilled') {
-    const STALE_DAYS = 14;
-    const rows = trainingResult.value.rows;
+  // ── 3. Stalled — inactive >30 days, still in training ──────────────────
+  if (membersResult.status === 'fulfilled') {
+    const stalledRows = membersResult.value
+      .filter((m) => {
+        const lastEventAt = lastEventMap.get(m.id) ?? null;
+        const d = daysSince(lastEventAt ?? m.enrolledAt);
+        const inTraining = Boolean(m.enrolledProgram);
+        return inTraining && (d == null || d > 30);
+      })
+      .map((m) => {
+        const lastEventAt = lastEventMap.get(m.id) ?? null;
+        const d = daysSince(lastEventAt ?? m.enrolledAt);
+        return { m, lastEventAt, daysInactive: d };
+      })
+      .sort((a, b) => (b.daysInactive ?? 0) - (a.daysInactive ?? 0));
 
-    const isStale = (r: (typeof rows)[number]): boolean => {
-      if (r.staleTrainingDetectedAt) return true;
-      const baseline = r.lastTrainingActivityAt ?? r.enrolledAt;
-      if (!baseline) return false;
-      return Date.now() - baseline.getTime() > STALE_DAYS * 24 * 60 * 60 * 1000;
-    };
-
-    // Stalled: enrolled + started but no activity for 14+ days (or flagged stale),
-    // and not already finished.
-    const stalled = rows
-      .filter((r) => isStale(r) && r.progressPercent < 100 && r.completedCount < r.totalCourses)
-      .sort(
-        (a, b) =>
-          (a.lastTrainingActivityAt?.getTime() ?? a.enrolledAt?.getTime() ?? 0) -
-          (b.lastTrainingActivityAt?.getTime() ?? b.enrolledAt?.getTime() ?? 0),
-      );
-
-    if (stalled.length > 0) {
+    if (stalledRows.length > 0) {
       buckets.push({
-        key: 'stalled-training',
-        count: stalled.length,
-        label: `${stalled.length} stalled in training`,
+        key: 'stalled',
+        count: stalledRows.length,
+        label: `${stalledRows.length} ${pluralPeople(stalledRows.length, 'student', 'students')} stalled — no activity 30+ days`,
         icon: 'pause_circle',
         accent: '#d97706',
-        members: stalled.slice(0, TOP_N).map((r) => {
-          const d = daysSince(r.lastTrainingActivityAt ?? r.enrolledAt);
-          const when = d == null ? 'no activity yet' : `no activity for ${d}d`;
+        members: stalledRows.slice(0, TOP_N).map(({ m, daysInactive }) => {
+          const program = m.enrolledProgram ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram : null;
+          const d = daysInactive;
           return {
-            id: r.id,
-            fullName: r.fullName,
-            reason: `${r.programTitle} · ${r.progressPercent}% done · ${when}`,
-            href: `/admin/members/${r.id}`,
+            id: m.id,
+            fullName: m.fullName ?? m.email,
+            program,
+            daysSinceActivity: d,
+            health: null,
+            action: `Check in with ${m.fullName ?? m.email} — stalled ${d ?? '?'} days`,
+            href: `/admin/members/${m.id}`,
           };
         }),
         href: '/admin/members?needs=stalled',
         cta: 'See stalled students',
-      });
-    }
-
-    // Not in a course: enrolled-eligible members with a program but who have not
-    // actually started any course (no active or completed course progress). The
-    // training dashboard only contains members with `enrolledProgram` set, so a
-    // 0% / 0-active / 0-complete row means "signed up but never opened a course".
-    const notInCourse = rows
-      .filter((r) => r.activeCourseCount === 0 && r.completedCount === 0 && r.progressPercent <= 0)
-      .sort((a, b) => (b.enrolledAt?.getTime() ?? 0) - (a.enrolledAt?.getTime() ?? 0));
-
-    if (notInCourse.length > 0) {
-      buckets.push({
-        key: 'not-enrolled',
-        count: notInCourse.length,
-        label: `${notInCourse.length} not started a course yet`,
-        icon: 'school',
-        accent: '#fbbf24',
-        members: notInCourse.slice(0, TOP_N).map((r) => {
-          const d = daysSince(r.enrolledAt);
-          const when = d == null ? 'recently enrolled' : `enrolled ${d}d ago`;
-          return {
-            id: r.id,
-            fullName: r.fullName,
-            reason: `${r.programTitle} · hasn't opened a course · ${when}`,
-            href: `/admin/members/${r.id}`,
-          };
-        }),
-        href: '/admin/members?needs=not-started',
-        cta: 'Help them get started',
       });
     }
   }

@@ -363,7 +363,7 @@ export default function SalaryGuidePage() {
             <h3 className="salary-guide-cta-title">What to do next</h3>
             <p className="salary-guide-cta-desc">Now that you have the numbers, bring in the other factors. Take the quiz to find programs that fit your timeline and experience level, or browse all programs and compare side-by-side. When you are ready — apply.</p>
             <div className="salary-guide-cta-buttons">
-              <LocalizedLink href="/find-your-path" className="btn btn-outline salary-guide-cta-btn">Find Your Path</LocalizedLink>
+              <LocalizedLink href="/career-quiz" className="btn btn-outline salary-guide-cta-btn">Find Your Path</LocalizedLink>
               <LocalizedLink href="/programs" className="btn btn-outline salary-guide-cta-btn">Explore Programs</LocalizedLink>
               <LocalizedLink href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare Programs</LocalizedLink>
               <LocalizedLink href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Apply Now</LocalizedLink>

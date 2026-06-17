@@ -2138,6 +2138,12 @@
         "ctaCareers": "View careers page",
         "ctaHome": "Back to home"
       }
+    },
+    "about": {
+      "title": "About WorkforceAP",
+      "description": "WorkforceAP has spent 25+ years bridging the gap between education and industry, connecting skilled individuals with meaningful employment opportunities.",
+      "heading": "About WorkforceAP",
+      "subheading": "Advancing careers through employer-aligned training and career support."
     }
   },
   "findYourPath": {

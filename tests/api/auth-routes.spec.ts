@@ -74,8 +74,13 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
   SESSION_ONLY_COOKIE: 'wa_session_only',
 }));
 
+vi.mock('@/lib/supabase/env', () => ({
+  getSupabaseEnv: vi.fn(() => ({ url: 'http://localhost:54321', anonKey: 'test-anon-key' })),
+}));
+
 vi.mock('@/lib/rate-limit', () => ({
   checkAuthRateLimit: vi.fn(() => Promise.resolve({ success: true })),
+  checkAuthIpRateLimit: vi.fn(() => Promise.resolve({ success: true })),
   checkForgotPasswordRateLimit: vi.fn(() => Promise.resolve({ success: true })),
   checkForgotPasswordEmailRateLimit: vi.fn(() => Promise.resolve({ success: true })),
   checkVerifyMfaRateLimit: vi.fn(() => Promise.resolve({ success: true })),
@@ -93,6 +98,7 @@ vi.mock('@/lib/auth/server', () => ({
       },
     })
   ),
+  resolveAuthGucContext: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@/lib/db/prisma', () => ({
@@ -100,6 +106,10 @@ vi.mock('@/lib/db/prisma', () => ({
     profile: {
       findUnique: vi.fn(() => Promise.resolve(null)),
     },
+    $transaction: vi.fn((cb: any) => {
+      if (typeof cb === 'function') return cb(prisma);
+      return Promise.all(cb);
+    }),
   },
 }));
 
@@ -166,6 +176,7 @@ import { getUser, hasSupabaseServerEnv } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import {
   checkAuthRateLimit,
+  checkAuthIpRateLimit,
   checkForgotPasswordRateLimit,
   checkForgotPasswordEmailRateLimit,
   checkVerifyMfaRateLimit,
@@ -183,6 +194,7 @@ const makeJsonRequest = (body: unknown, url = 'http://localhost:3000/api/auth/lo
 
 function resetLoginMocks() {
   vi.mocked(checkAuthRateLimit).mockResolvedValue({ success: true });
+  vi.mocked(checkAuthIpRateLimit).mockResolvedValue({ success: true });
   vi.mocked(createServerClient).mockImplementation(() => ({
     auth: {
       signInWithPassword: vi.fn(),
@@ -285,6 +297,7 @@ describe('POST /api/auth/login', () => {
 
   it('returns 429 when rate limited', async () => {
     vi.mocked(checkAuthRateLimit).mockResolvedValue({ success: false });
+    vi.mocked(checkAuthIpRateLimit).mockResolvedValue({ success: true });
 
     const res = await loginPOST(
       makeJsonRequest({ email: 'jane@example.com', password: 'secret123' })
@@ -296,12 +309,100 @@ describe('POST /api/auth/login', () => {
     expect(res.headers.get('Retry-After')).toBe('60');
   });
 
+  it('returns 429 when IP bucket is rate limited', async () => {
+    vi.mocked(checkAuthRateLimit).mockResolvedValue({ success: true });
+    vi.mocked(checkAuthIpRateLimit).mockResolvedValue({ success: false });
+
+    const res = await loginPOST(
+      makeJsonRequest({ email: 'jane@example.com', password: 'secret123' })
+    );
+
+    expect(res.status).toBe(429);
+    const body = await res.json();
+    expect(body.error).toContain('Too many login attempts');
+    expect(res.headers.get('Retry-After')).toBe('60');
+  });
+
+  it('returns 429 when both buckets are rate limited', async () => {
+    vi.mocked(checkAuthRateLimit).mockResolvedValue({ success: false });
+    vi.mocked(checkAuthIpRateLimit).mockResolvedValue({ success: false });
+
+    const res = await loginPOST(
+      makeJsonRequest({ email: 'jane@example.com', password: 'secret123' })
+    );
+
+    expect(res.status).toBe(429);
+    const body = await res.json();
+    expect(body.error).toContain('Too many login attempts');
+    expect(res.headers.get('Retry-After')).toBe('60');
+  });
+
+  it('allows QA bypass when x-wap-qa-bypass header matches secret', async () => {
+    const originalBypass = process.env.WAP_RATE_LIMIT_QA_BYPASS;
+    const originalSecret = process.env.WAP_RATE_LIMIT_QA_SECRET;
+    process.env.WAP_RATE_LIMIT_QA_BYPASS = '1';
+    process.env.WAP_RATE_LIMIT_QA_SECRET = 'test-secret';
+
+    try {
+      vi.mocked(createServerClient).mockReturnValue({
+        auth: {
+          signInWithPassword: vi.fn(() =>
+            Promise.resolve({
+              data: {
+                session: { access_token: 'tok', refresh_token: 'ref' },
+                user: { id: 'user-123', email: 'jane@example.com' },
+              },
+              error: null,
+            })
+          ),
+          mfa: {
+            getAuthenticatorAssuranceLevel: vi.fn(() =>
+              Promise.resolve({ data: { currentLevel: 'aal1', nextLevel: 'aal1' } })
+            ),
+            listFactors: vi.fn(() => Promise.resolve({ data: { totp: [] } })),
+          },
+        },
+      } as any);
+      vi.mocked(prisma.profile.findUnique).mockResolvedValue({
+        role: 'member',
+      } as any);
+
+      const cookieStore = createMockCookieStore();
+      vi.mocked(cookies).mockResolvedValue(cookieStore as any);
+
+      const req = new Request('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-wap-login-flow': 'client',
+          'x-wap-qa-bypass': 'test-secret',
+        },
+        body: JSON.stringify({ email: 'jane@example.com', password: 'secret123' }),
+      });
+
+      const res = await loginPOST(req);
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.ok).toBe(true);
+    } finally {
+      process.env.WAP_RATE_LIMIT_QA_BYPASS = originalBypass;
+      process.env.WAP_RATE_LIMIT_QA_SECRET = originalSecret;
+    }
+  });
+
   it('returns 401 for invalid credentials', async () => {
     vi.mocked(createServerClient).mockReturnValue({
       auth: {
         signInWithPassword: vi.fn(() =>
           Promise.resolve({ data: {}, error: { message: 'Invalid login credentials' } })
         ),
+        mfa: {
+          getAuthenticatorAssuranceLevel: vi.fn(() =>
+            Promise.resolve({ data: { currentLevel: 'aal1', nextLevel: 'aal1' } })
+          ),
+          listFactors: vi.fn(() => Promise.resolve({ data: { totp: [] } })),
+        },
       },
     } as any);
 
@@ -323,6 +424,12 @@ describe('POST /api/auth/login', () => {
             error: { message: 'Email not confirmed' },
           })
         ),
+        mfa: {
+          getAuthenticatorAssuranceLevel: vi.fn(() =>
+            Promise.resolve({ data: { currentLevel: 'aal1', nextLevel: 'aal1' } })
+          ),
+          listFactors: vi.fn(() => Promise.resolve({ data: { totp: [] } })),
+        },
       },
     } as any);
 
@@ -344,6 +451,12 @@ describe('POST /api/auth/login', () => {
             error: { message: 'user disabled' },
           })
         ),
+        mfa: {
+          getAuthenticatorAssuranceLevel: vi.fn(() =>
+            Promise.resolve({ data: { currentLevel: 'aal1', nextLevel: 'aal1' } })
+          ),
+          listFactors: vi.fn(() => Promise.resolve({ data: { totp: [] } })),
+        },
       },
     } as any);
 
@@ -353,7 +466,7 @@ describe('POST /api/auth/login', () => {
 
     expect(res.status).toBe(401);
     const body = await res.json();
-    expect(body.error).toContain("isn\u2019t available");
+    expect(body.error).toContain("isn't available");
   });
 
   it('returns 401 when no session returned', async () => {
@@ -362,6 +475,12 @@ describe('POST /api/auth/login', () => {
         signInWithPassword: vi.fn(() =>
           Promise.resolve({ data: { session: null }, error: null })
         ),
+        mfa: {
+          getAuthenticatorAssuranceLevel: vi.fn(() =>
+            Promise.resolve({ data: { currentLevel: 'aal1', nextLevel: 'aal1' } })
+          ),
+          listFactors: vi.fn(() => Promise.resolve({ data: { totp: [] } })),
+        },
       },
     } as any);
 

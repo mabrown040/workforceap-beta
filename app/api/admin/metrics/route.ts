@@ -95,23 +95,37 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
     `;
 
   // ── Work Queue counts ──
-  const pendingApplications = await prisma.$queryRaw<{ count: number }[]>`
+  let pendingApplications;
+  try {
+    pendingApplications = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(*)::int as count
       FROM applications a
       INNER JOIN users u ON u.id = a.user_id AND u.organization_id = ${orgId}
       WHERE a.status = 'PENDING'
     `;
+  } catch (error) {
+    console.error('Failed to get pending applications', error);
+    pendingApplications = [{ count: 0 }];
+  }
 
-  const criticalAtRisk = await prisma.$queryRaw<{ count: number }[]>`
+  let criticalAtRisk;
+  try {
+    criticalAtRisk = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(DISTINCT ara.user_id)::int as count
       FROM at_risk_alerts ara
       INNER JOIN users u ON u.id = ara.user_id AND u.organization_id = ${orgId}
       WHERE ara.status = 'open' AND ara.score >= 80
     `;
+  } catch (error) {
+    console.error('Failed to get critical at risk', error);
+    criticalAtRisk = [{ count: 0 }];
+  }
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const staleTraining = await prisma.$queryRaw<{ count: number }[]>`
+  let staleTraining;
+  try {
+    staleTraining = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(*)::int as count
       FROM users
       WHERE stale_training_detected_at IS NOT NULL
@@ -119,13 +133,23 @@ async function computeAdminRouteMetricsPayload(orgId: string) {
         AND deleted_at IS NULL
         AND organization_id = ${orgId}
     `;
+  } catch (error) {
+    console.error('Failed to get stale training', error);
+    staleTraining = [{ count: 0 }];
+  }
 
-  const unmatchedCoursera = await prisma.$queryRaw<{ count: number }[]>`
+  let unmatchedCoursera;
+  try {
+    unmatchedCoursera = await prisma.$queryRaw<{ count: number }[]>`
       SELECT COUNT(DISTINCT cp.user_id)::int as count
-      FROM course_progress cp
-      INNER JOIN users u ON u.id = cp.user_id AND u.organization_id = ${orgId}
-      WHERE cp.status IN ('unmatched', 'error')
+      FROM coursera_xapi_events cp
+      INNER JOIN users u ON u.id = cp.matched_user_id AND u.organization_id = ${orgId}
+      WHERE cp.completion_status IN ('unmatched', 'error')
     `;
+  } catch (error) {
+    console.error('Failed to get unmatched coursera', error);
+    unmatchedCoursera = [{ count: 0 }];
+  }
 
   const total = metrics.totalMembers;
   const enrolled = metrics.placementStats.enrolled;

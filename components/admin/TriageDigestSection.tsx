@@ -148,12 +148,27 @@ export default function TriageDigestSection({ digest }: { digest: TriageDigest }
                     >
                       <span
                         style={{
-                          display: 'block',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
                           fontSize: '0.9rem',
                           fontWeight: 600,
                           color: 'var(--color-on-surface)',
                         }}
                       >
+                        {m.health ? (
+                          <span
+                            title={m.health.label}
+                            style={{
+                              display: 'inline-block',
+                              width: '10px',
+                              height: '10px',
+                              borderRadius: '50%',
+                              background: m.health.color,
+                              flexShrink: 0,
+                            }}
+                          />
+                        ) : null}
                         {m.fullName}
                       </span>
                       <span
@@ -161,10 +176,24 @@ export default function TriageDigestSection({ digest }: { digest: TriageDigest }
                           display: 'block',
                           fontSize: '0.78rem',
                           color: 'var(--color-on-surface-variant)',
-                          marginTop: '0.1rem',
+                          marginTop: '0.15rem',
                         }}
                       >
-                        {m.reason}
+                        {m.program ? `${m.program} · ` : ''}
+                        {m.daysSinceActivity != null
+                          ? `${m.daysSinceActivity}d since last activity`
+                          : 'never active'}
+                      </span>
+                      <span
+                        style={{
+                          display: 'block',
+                          fontSize: '0.82rem',
+                          fontWeight: 600,
+                          color: bucket.accent,
+                          marginTop: '0.2rem',
+                        }}
+                      >
+                        {m.action}
                       </span>
                     </Link>
                   </li>

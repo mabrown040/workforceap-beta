@@ -119,11 +119,42 @@ let adminTokenLinksRateLimiter: Ratelimit | null = null;
  * @param name       — human-readable limiter name for logs
  * @param identifier — the key being rate-limited (IP, email, userId)
  */
+/**
+ * QA / CI bypass for automated testing.
+ *
+ * When `WAP_RATE_LIMIT_QA_BYPASS=1` is set, any request carrying the
+ * `x-wap-qa-bypass` header with the value from `WAP_RATE_LIMIT_QA_SECRET`
+ * (or the default dev secret) is allowed through rate limiters.
+ *
+ * This is intentionally NOT a public env var — it must be set in CI
+ * secrets or local .env only. Never commit the secret.
+ */
+function isQaBypassEnabled(): boolean {
+  return process.env.WAP_RATE_LIMIT_QA_BYPASS?.trim() === '1';
+}
+
+function getQaBypassSecret(): string {
+  return process.env.WAP_RATE_LIMIT_QA_SECRET?.trim() || 'wap-qa-dev-secret-do-not-use-in-production';
+}
+
+function isQaBypassRequest(request?: Request): boolean {
+  if (!isQaBypassEnabled()) return false;
+  if (!request) return false;
+  const header = request.headers.get('x-wap-qa-bypass')?.trim();
+  return header === getQaBypassSecret();
+}
+
 async function failClosedLimit(
   limiter: Ratelimit | null,
   name: string,
-  identifier: string
+  identifier: string,
+  request?: Request
 ): Promise<{ success: boolean; remaining?: number }> {
+  if (isQaBypassRequest(request)) {
+    logger.info(`[RATE-LIMIT] QA bypass active — allowing ${name} request for ${identifier}`);
+    return { success: true };
+  }
+
   if (limiter) {
     const result = await limiter.limit(identifier);
     return { success: result.success, remaining: result.remaining };
@@ -339,8 +370,8 @@ export async function checkApplySignupRateLimit(identifier: string): Promise<{ s
   return { success: result.success, remaining: result.remaining };
 }
 
-export async function checkAuthRateLimit(identifier: string): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedLimit(authRateLimiter, 'auth', identifier);
+export async function checkAuthRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedLimit(authRateLimiter, 'auth', identifier, request);
 }
 
 /**
@@ -348,8 +379,8 @@ export async function checkAuthRateLimit(identifier: string): Promise<{ success:
  * keyed by `ip:email`) so a credential-stuffer rotating emails on one IP
  * is throttled by total attempts, not per-target-email buckets.
  */
-export async function checkAuthIpRateLimit(ip: string): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedLimit(authIpRateLimiter, 'auth-ip', `auth-ip:${ip}`);
+export async function checkAuthIpRateLimit(ip: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
+  return failClosedLimit(authIpRateLimiter, 'auth-ip', `auth-ip:${ip}`, request);
 }
 
 /**

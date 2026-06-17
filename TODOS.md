@@ -72,6 +72,36 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-026: admin/feature-flags — audit log on PATCH and DELETE
+
+**What:** `app/api/admin/feature-flags/[id]/route.ts` PATCH and DELETE have no audit log. Feature flag changes affect platform-wide behavior and security gating.
+
+**Priority:** P2
+
+**Fix shape:** Add `auditLog({ action: 'feature_flag_update' | 'feature_flag_delete', targetType: 'feature_flag', targetId: id, ... })`.
+
+---
+
+## TODO-027: admin/subgroups — audit log on POST, PATCH, DELETE
+
+**What:** `app/api/admin/subgroups/route.ts` POST and `app/api/admin/subgroups/[id]/route.ts` PATCH+DELETE have no audit log. Subgroup mutations affect enrollment attribution and partner referral tracking.
+
+**Priority:** P2
+
+**Fix shape:** Add `auditLog({ action: 'subgroup_create' | 'subgroup_update' | 'subgroup_delete', ... })` to each handler.
+
+---
+
+## TODO-028: admin/members/[id]/enrollment-funding — audit log on POST
+
+**What:** `app/api/admin/members/[id]/enrollment-funding/route.ts` POST has no audit log. Records enrollment funding allocations — financial data affecting WIOA grant reporting.
+
+**Priority:** P1 (financial)
+
+**Fix shape:** Add `auditLog({ action: 'member_enrollment_funding_create', targetType: 'enrollment_funding', targetId: memberId, metadata: { amount, fundingSource, ... } })` after successful create.
+
+---
+
 ## TODO-007: admin/growth — wire real GA4 property ID
 
 **What:** `app/admin/growth/page.tsx:38` has a placeholder GA4 property ID and the dashboard shows static demo data instead of live analytics.
@@ -98,6 +128,8 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ## Completed
 
+- **TODO-028/P1 root — admin/members/[id]/enrollment-funding** — flagged 2026-06-17; fix pending in TODO-028 above.
+- **PRs #1878–#1883 (QA sweep batch 2026-06-17)** — null-collapse (matched-jobs, profile PATCH), org filter in programs analytics raw SQL; P1 audit logs: users POST, partners POST/PATCH, counselors POST (PR #1879); blog audit + applications rate limit (PR #1880); blog PATCH/DELETE + programs catalog (PR #1882); org settings, user PATCH/DELETE, member edit-profile + counselor assign (PR #1883).
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.

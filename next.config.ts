@@ -206,6 +206,9 @@ const nextConfig: NextConfig = {
       { source: '/salary-guide.html', destination: '/salary-guide', permanent: true },
       { source: '/program-comparison.html', destination: '/program-comparison', permanent: true },
 
+      { source: '/find-your-path', destination: '/career-quiz', permanent: true },
+      { source: '/:locale(en|es|fr|pt)/find-your-path', destination: '/:locale/career-quiz', permanent: true },
+
       // Short LP aliases for paid ad URLs
       { source: '/lp/google-it', destination: '/lp/google-it-automation', permanent: false },
 
@@ -235,8 +238,8 @@ const nextConfig: NextConfig = {
       { source: '/auth/sign-in/:path*', destination: '/login', permanent: false },
 
       // /auth/login → localized login (avoids 404 on external links / emails / SEO)
-      { source: '/auth/login', destination: '/login', permanent: false },
-      { source: '/auth/login/:path*', destination: '/login', permanent: false },
+      { source: '/auth/login', destination: '/en/login', permanent: true },
+      { source: '/auth/login/:path*', destination: '/en/login', permanent: true },
 
       // Subgroup "my group" portal removed — send to member dashboard
       { source: '/my-group', destination: '/dashboard', permanent: false },
@@ -266,7 +269,9 @@ const nextConfig: NextConfig = {
       { source: '/weekly-recap', destination: '/dashboard/weekly-recap', permanent: true },
 
       // Member portal legacy route fixes (QA-ISSUE-001)
-      { source: '/training', destination: '/dashboard/program', permanent: true },
+      { source: '/portal/dashboard', destination: '/dashboard', permanent: true },
+      { source: '/portal/training', destination: '/dashboard/program', permanent: true },
+      { source: '/training', destination: '/dashboard/program', permanent: true }, // Added redirect for /training to /dashboard/program
       { source: '/dashboard/plan', destination: '/dashboard/career-brief', permanent: true },
       { source: '/dashboard/weekly-focus', destination: '/dashboard/weekly-recap', permanent: true },
     ];

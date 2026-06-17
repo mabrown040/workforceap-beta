@@ -108,6 +108,20 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## ~~TODO-034: member/prep-bundle + admin/reports/wioa/generate + admin/coursera/csv-import missing withApiGuc~~ ✓ COMPLETED
+
+**What:** Three routes called `prisma.*` without `withApiGuc` wrapper, exposing them to Sprint 3 FORCE RLS breakage:
+- `app/api/member/prep-bundle/route.ts` — `fetchInterviewPrepBundle` → `prisma.aIToolResult.findMany`
+- `app/api/member/prep-bundle/send/route.ts` — same
+- `app/api/admin/reports/wioa/generate/route.ts` — `generateWioaReport` → multiple `prisma.*` calls
+- `app/api/admin/coursera/csv-import/route.ts` — `ingestCourseActivityRows` / `ingestLearningPathActivityRows` → 12 `prisma.*` calls
+
+**Fix:** Added `withApiGuc` wrapper + renamed handlers to `_POST`/`_GET` pattern.
+
+**Completed:** 2026-06-17. PR #1962.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.

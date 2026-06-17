@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { generateWioaReport, type WioaReport } from '@/lib/cron/wioa-report';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * In-memory store for the last generated WIOA report.
@@ -9,7 +10,7 @@ import { generateWioaReport, type WioaReport } from '@/lib/cron/wioa-report';
  */
 let lastReport: WioaReport | null = null;
 
-export async function POST(req: NextRequest) {
+async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -37,8 +38,9 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+export const POST = withApiGuc(_POST);
 
-export async function GET(req: NextRequest) {
+async function _GET() {
   try {
     const user = await getUser();
     if (!user || !(await isAdmin(user.id))) {
@@ -54,3 +56,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

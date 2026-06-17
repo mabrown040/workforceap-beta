@@ -1,6 +1,7 @@
 import { createEmployerUser } from '@/lib/employer/service';
 import { NextRequest, NextResponse } from 'next/server';
 import { employerSignupSchema } from '@/lib/validation/employer';
+import { withAnonymousGuc } from '@/lib/db/withRequestGuc';
 import { checkPartnerSignupRateLimit, checkSignupEmailRateLimit } from '@/lib/rate-limit';
 import {
   sendEmployerWelcomeEmail,
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await createEmployerUser(user.id, data);
+      await withAnonymousGuc(() => createEmployerUser(user.id, data));
     } catch (err) {
       console.error('Employer signup creation error:', err);
       await cleanupCreatedEmployerSignupAuthUser(admin, user.id);

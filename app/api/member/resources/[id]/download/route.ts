@@ -3,8 +3,9 @@ import { getUser } from '@/lib/auth/server';
 import { getMemberResources } from '@/lib/content/memberResources';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(
+async function _GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -42,4 +43,4 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const GET = withApiGuc(_GET);

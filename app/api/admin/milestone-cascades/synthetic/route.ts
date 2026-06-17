@@ -6,6 +6,7 @@ import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { detectCompletionMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Admin-only synthetic cascade trigger. Inserts a `pending_draft` row for the
@@ -33,7 +34,7 @@ const bodySchema = z.object({
   completedCount: z.number().int().min(0).max(100).optional(),
 });
 
-export async function POST(req: NextRequest) {
+async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -87,3 +88,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+export const POST = withApiGuc(_POST);

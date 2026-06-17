@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import {
   generatePartnerQuarterlyOutcomes,
   getDefaultQuarter,
@@ -20,7 +21,7 @@ function parseYearParam(raw: string | null): number | null {
   return n;
 }
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+async function _GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await params;
     const partner = await prisma.partner.findUnique({
@@ -57,3 +58,4 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     );
   }
 }
+export const GET = withApiGuc(_GET);

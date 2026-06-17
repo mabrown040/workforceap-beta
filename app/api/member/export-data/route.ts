@@ -2,13 +2,15 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { buildMemberExport } from '@/lib/member/exportData';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 /**
  * GET /api/member/export-data
  *
  * Returns a comprehensive JSON export of all personal data for the authenticated member.
  * Used for GDPR data portability / right of access.
  */
-export async function GET() {
+async function _GET() {
   try {
     const user = await getUser();
     if (!user) {
@@ -31,3 +33,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

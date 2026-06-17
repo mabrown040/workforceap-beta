@@ -108,6 +108,33 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-023: withApiGuc sweep — 5 remaining non-Coursera admin routes — ✓ Fixed PR #1939
+
+**What:** Five admin routes were calling Prisma (via lib helpers) without a `withApiGuc` wrapper — blocking Sprint 3 FORCE RLS:
+- `GET /api/admin/messages/stats` → `countMessageThreadsWithActivity`, `countThreadsWithSlaBreach`
+- `GET/POST /api/admin/webhooks/process-retries` → `getPendingRetryEvents`
+- `GET /api/admin/reports/quarterly-outcomes` → `generateQuarterlyOutcomes`
+- `GET /api/admin/jobs/[id]/matches` → `createAdminJobMatchesPrismaDeps`
+- `GET /api/admin/partners/[id]/quarterly-outcomes` → `generatePartnerQuarterlyOutcomes`
+
+Also added: xAPI inbound batch capped at 200 statements (previously unbounded DoS vector).
+
+**Fix:** PR #1939 — `withApiGuc` on all 5 routes + `flattenXapiStatementPayload` batch guard.
+
+**Status:** Fixed 2026-06-17.
+
+---
+
+## TODO-024: onet/sync input bound — ✓ Fixed PR #1938
+
+**What:** `POST /api/admin/onet/sync` accepted an unbounded `onetCodes` array; each code fans out a synchronous O\*NET network request.
+
+**Fix:** `.max(50)` added to Zod schema. PR #1938.
+
+**Status:** Fixed 2026-06-17.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.
@@ -122,6 +149,8 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ## Completed
 
+- **TODO-024: onet/sync input bound** — `.max(50)` on onetCodes Zod schema. Completed 2026-06-17. PR #1938.
+- **TODO-023: withApiGuc sweep (5 remaining admin routes + xAPI batch cap)** — GUC wrappers on messages/stats, webhooks/process-retries, reports/quarterly-outcomes, jobs/[id]/matches, partners/[id]/quarterly-outcomes; xAPI batch capped at 200. Completed 2026-06-17. PR #1939.
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.
 - **TODO-016: partner/dashboard missing withApiGuc** — GUC wrapper added. Completed 2026-06-17. PR #1867.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

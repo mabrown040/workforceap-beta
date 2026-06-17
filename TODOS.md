@@ -182,6 +182,36 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-040: withApiGuc sweep — auth/me, jobs/matches, quarterly-outcomes; request-help rate limit — ✓ Fixed PR #1968
+
+**What:** `auth/me` (heavily polled role-check endpoint) and 3 analytics/reporting routes missing `withApiGuc`; `member/request-help` had no rate limit allowing counselor email spam.
+
+**Fixed:** PR #1968. `withApiGuc` added to `auth/me`, `admin/jobs/[id]/matches`, `admin/partners/[id]/quarterly-outcomes`, `admin/reports/quarterly-outcomes`. `checkContactRateLimit(ip)` added to `member/request-help`.
+
+**Status:** Completed 2026-06-17. PR #1968 open / gate-merge pending.
+
+---
+
+## TODO-041: prep-bundle open relay + audit logs — ✓ Fixed PR #1969
+
+**What:** `member/prep-bundle/send` accepted arbitrary `memberEmail` in body, allowing any authenticated member to send WorkforceAP-branded emails to any address. Also missing `withApiGuc` and rate limit. `admin/email-templates/[id]` PATCH and `admin/members/[id]/upload-resume` POST missing audit logs.
+
+**Fixed:** PR #1969. `memberEmail` removed from body (always send to authenticated user's own email). `checkContactRateLimit` and `withApiGuc` added. Dual audit trails added to email-templates PATCH and upload-resume POST.
+
+**Status:** Completed 2026-06-17. PR #1969 open / gate-merge pending.
+
+---
+
+## TODO-042: withApiGuc for onet/webhooks/email-crons-preview; xapi batch size limit — ✓ Fixed PR #1970
+
+**What:** `admin/onet/sync`, `admin/onet/search`, `admin/email-crons/[id]/template-preview`, and `admin/webhooks/process-retries` all call `requireAdmin`/`isAdmin` (Prisma) without `withApiGuc`. `xapi/statements` had no batch size cap — a large batch could exhaust memory/connections.
+
+**Fixed:** PR #1970. `withApiGuc` added to all 4 routes. xAPI batch capped at 200 statements (400 if exceeded).
+
+**Status:** Completed 2026-06-17. PR #1970 open / gate-merge pending.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

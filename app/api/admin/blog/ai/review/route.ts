@@ -2,13 +2,17 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id)))
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    if (!withinLimit) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     if (!isAIConfigured())
       return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
   
@@ -82,13 +86,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);
 
 function parseBody(body: unknown): { title: string; content: string; excerpt?: string } | null {
   if (!body || typeof body !== 'object') return null;
   const o = body as Record<string, unknown>;
-  const title = typeof o.title === 'string' ? o.title.trim() : null;
-  const content = typeof o.content === 'string' ? o.content.trim() : null;
-  const excerpt = typeof o.excerpt === 'string' ? o.excerpt.trim() : undefined;
+  const title = typeof o.title === 'string' ? o.title.trim().slice(0, 200) : null;
+  const content = typeof o.content === 'string' ? o.content.trim().slice(0, 10_000) : null;
+  const excerpt = typeof o.excerpt === 'string' ? o.excerpt.trim().slice(0, 500) : undefined;
   if (!title || !content) return null;
   return { title, content, excerpt };
 }

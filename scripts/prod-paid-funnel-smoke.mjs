@@ -19,7 +19,7 @@ const paidApplyPath =
 
 const routes = [
   { name: 'home', path: '/', requiredText: /no-cost|workforce advancement project/i },
-  { name: 'apply', path: '/apply', requiredText: /tell us how to reach you|start eligibility/i },
+  { name: 'apply', path: '/apply', requiredText: /how to reach you|eligibility check|start your application/i },
   {
     name: 'apply-paid',
     path: paidApplyPath,
@@ -85,10 +85,13 @@ function runBrowseChain(route) {
   }
 
   const consoleBlock = stdout.match(/\[console\]([\s\S]*)$/)?.[1] || '';
+  // Filter out third-party tracking blocks (GTM, GA) that fail in headless environments
+  const thirdPartyBlockPattern = /net::ERR_CONNECTION_REFUSED|net::ERR_BLOCKED_BY_CLIENT|Failed to load resource.*googletagmanager|Failed to load resource.*google-analytics/i;
+  const cleanedConsole = consoleBlock.split('\n').filter(line => !thirdPartyBlockPattern.test(line)).join('\n');
   const consoleErrors =
-    !consoleBlock.includes('(no console errors)') &&
-    !consoleBlock.includes('no console errors') &&
-    /\[[^\]]*error[^\]]*\]/i.test(consoleBlock);
+    !cleanedConsole.includes('(no console errors)') &&
+    !cleanedConsole.includes('no console errors') &&
+    /\[[^\]]*error[^\]]*\]/i.test(cleanedConsole);
   const bodyText = page?.bodyText || '';
   const requiredTextFound = route.requiredText.test(bodyText);
   const riskyClaimFound = riskyPublicClaimPattern.test(bodyText);

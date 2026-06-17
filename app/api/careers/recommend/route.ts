@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkCareersRecommendRateLimit } from '@/lib/rate-limit';
 import { buildCareerMatchResult } from '@/lib/onet/recommend';
 import { quizAnswersSchema } from '@/lib/onet/quizSchema';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -11,7 +12,7 @@ function getClientIp(request: NextRequest): string {
   );
 }
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
   const ip = getClientIp(request);
   const { success: rateOk } = await checkCareersRecommendRateLimit(ip);
@@ -44,3 +45,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export const POST = withApiGuc(_POST);

@@ -10,6 +10,7 @@ import {
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { cleanupCreatedEmployerSignupAuthUser } from './_signupCleanup';
 import { notifyDiscord } from '@/lib/notify/discord';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -19,7 +20,7 @@ function getClientIp(request: NextRequest): string {
   );
 }
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const ip = getClientIp(request);
 
@@ -216,3 +217,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

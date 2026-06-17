@@ -56,22 +56,48 @@ export async function POST(request: NextRequest) {
         case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
           const orgId = subscription.metadata?.organizationId;
-          if (!orgId) break;
+          const userId = subscription.metadata?.userId;
           const status = subscription.status === 'active' ? 'active' : 'past_due';
-          await prisma.$transaction((tx) => tx.organization.update({
-            where: { id: orgId },
-            data: { subscriptionStatus: status },
-          }));
+          if (orgId) {
+            await prisma.$transaction((tx) => tx.organization.update({
+              where: { id: orgId },
+              data: { subscriptionStatus: status },
+            }));
+          } else if (userId) {
+            await prisma.$transaction([
+              prisma.employer.updateMany({
+                where: { userId },
+                data: { stripeSubscriptionStatus: subscription.status },
+              }),
+              prisma.employerSubscription.updateMany({
+                where: { userId, stripeSubscriptionId: subscription.id },
+                data: { status: subscription.status },
+              }),
+            ]);
+          }
           break;
         }
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
           const orgId = subscription.metadata?.organizationId;
-          if (!orgId) break;
-          await prisma.$transaction((tx) => tx.organization.update({
-            where: { id: orgId },
-            data: { subscriptionStatus: 'canceled' },
-          }));
+          const userId = subscription.metadata?.userId;
+          if (orgId) {
+            await prisma.$transaction((tx) => tx.organization.update({
+              where: { id: orgId },
+              data: { subscriptionStatus: 'canceled' },
+            }));
+          } else if (userId) {
+            await prisma.$transaction([
+              prisma.employer.updateMany({
+                where: { userId },
+                data: { stripeSubscriptionStatus: 'canceled' },
+              }),
+              prisma.employerSubscription.updateMany({
+                where: { userId, stripeSubscriptionId: subscription.id },
+                data: { status: 'canceled' },
+              }),
+            ]);
+          }
           break;
         }
         case 'invoice.payment_failed': {

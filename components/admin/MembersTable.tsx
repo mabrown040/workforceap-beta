@@ -320,7 +320,11 @@ export default function MembersTable({
         certificationCount: m.coursesCompleted?.length ?? 0,
         recentEventCount: m.healthStatus === 'green' ? 1 : 0,
       });
-      const matchStatus = !statusFilterState || memberStatus === statusFilterState;
+      const matchStatus = !statusFilterState || (
+        statusFilterState === 'stale'
+          ? !!m.staleTrainingDetectedAt
+          : memberStatus === statusFilterState
+      );
       const matchPartner = !partnerFilter || (partnerFilter === '__none' ? !m.partnerId : m.partnerId === partnerFilter);
       const matchHealth = !healthFilter || m.healthStatus === healthFilter;
       const matchNotInCourse = !notInCourseFilter || isNotInCourse(m);

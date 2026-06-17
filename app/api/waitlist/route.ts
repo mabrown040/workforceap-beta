@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         message:
-          'Thank you for your interest. Program waitlist enrollment is coming soon. Please email contact@workforceap.org or call (512) 555-1234 to reserve your spot.',
+          'Thank you for your interest. Program waitlist enrollment is coming soon. Please email contact@workforceap.org or call (512) 777-1808 to reserve your spot.',
         _note: 'Waitlist schema migration required',
       },
       { status: 200 }

@@ -96,8 +96,19 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## ~~TODO-029: withApiGuc wrapping — bulk-email + partner/payout~~ ✓ COMPLETED
+
+**What:** `app/api/admin/members/bulk-email/route.ts` and `app/api/partner/payout/route.ts` were `export async function POST` with no `withApiGuc` wrapper, meaning their Prisma calls ran without the per-request RLS GUC context.
+
+**Fix:** Both handlers renamed to `_POST`, `withApiGuc` wrapper imported and applied via `export const POST = withApiGuc(_POST)`.
+
+**Completed:** 2026-06-17. PR fix/withApiGuc-bulk-email-payout.
+
+---
+
 ## Completed
 
+- **TODO-029: withApiGuc wrapping — bulk-email + partner/payout** — both admin routes wrapped; Prisma calls now carry RLS GUC context. Completed 2026-06-17.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.

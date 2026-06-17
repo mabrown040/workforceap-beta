@@ -4,6 +4,7 @@ import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -36,6 +37,8 @@ export const POST = withApiGuc(
           { status: 200 }
         );
       }
+      const { success: aiRateOk } = await checkAIToolRateLimit(user.id);
+      if (!aiRateOk) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
 
       const { id } = await context.params;
 

@@ -9,6 +9,7 @@ import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from '@/lib/email';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -85,7 +86,9 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
+    const { success: aiRateOk } = await checkAIToolRateLimit(user.id);
+    if (!aiRateOk) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+
     let body: FeedbackBody;
     try {
       body = await req.json() as FeedbackBody;

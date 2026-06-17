@@ -5,6 +5,8 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getWeeklyRecapCohortStats, getWeeklyScoreboardStats } from '@/lib/admin/cohortAnalytics';
+import { isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import DataTable from '@/components/portal/ui/DataTable';
@@ -47,9 +49,12 @@ export default async function AdminWeeklyRecapAnalyticsPage() {
   if (!user) redirect('/login?redirectTo=/admin/weekly-recap');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
+  const superAdmin = await isSuperAdmin(user.id);
+  const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
   const [rows, scoreboard] = await Promise.all([
-    getWeeklyRecapCohortStats(),
-    getWeeklyScoreboardStats(),
+    getWeeklyRecapCohortStats(orgId),
+    getWeeklyScoreboardStats(undefined, orgId),
   ]);
 
   return (

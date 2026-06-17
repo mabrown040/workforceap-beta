@@ -96,6 +96,33 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-010: Sprint 3 — add withAuthGuc to all admin RSC pages (FORCE RLS prep)
+
+**What:** ~50 admin server-component pages (`app/admin/**/page.tsx`) call Prisma directly without wrapping their queries in `withAuthGuc()`. FORCE RLS will require the GUC context to be set on every connection; missing wrappers will cause 500s for all admin page loads when FORCE RLS is enabled.
+
+**Why:** When `app.current_user_id` / `app.current_org_id` are not set, PostgreSQL RLS policies evaluate as null = null (false), blocking all admin queries. Admin pages are the highest-traffic paths for staff.
+
+**Priority:** P1 (must complete before enabling FORCE RLS in Sprint 3)
+
+**Scope:** 50 pages identified 2026-06-17 by QA loop. Key examples:
+- `app/admin/members/page.tsx` — calls `prisma.user.findMany` without `withAuthGuc`
+- `app/admin/partners/page.tsx` — calls `prisma.partner.findMany` without `withAuthGuc`
+- `app/admin/employers/page.tsx` — calls `prisma.employer.findMany` without `withAuthGuc`
+- (and ~47 more — full list in `/tmp/admin-rsc-missing-withAuthGuc.txt`)
+
+**Fix shape:** For each RSC page:
+```ts
+// before
+const data = await prisma.model.findMany({ where: ... });
+
+// after
+import { withAuthGuc } from '@/lib/auth/server';
+const data = await withAuthGuc(() => prisma.model.findMany({ where: ... }));
+```
+Pages that already call `getUser()` and then Prisma should wrap the Prisma section. Pages with multiple parallel queries should wrap all of them in a single `withAuthGuc` call.
+
+---
+
 ## Completed
 
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.

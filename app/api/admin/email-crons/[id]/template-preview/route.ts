@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { weeklyRecapHtml } from '@/emails/weekly-recap';
 import { inactiveNudgeHtml } from '@/emails/inactive-nudge';
@@ -18,7 +19,7 @@ export type TemplatePreviewResponse = {
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(req: NextRequest, ctx: RouteContext) {
+async function _GET(req: NextRequest, ctx: RouteContext) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const GET = withApiGuc(_GET);
 
 function buildPreview(id: string): TemplatePreviewResponse | null {
   switch (id) {

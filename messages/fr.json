@@ -1791,8 +1791,8 @@
       "trustPlaceholderFitTag": "Sourcing des candidats",
       "trustPlaceholderSkills": "Évalués pour préparation",
       "trustPlaceholderSkillsTag": "Revue de préparation",
-      "trustPlaceholderTerms": "Aucun frais de recrutement à l'avance",
-      "trustPlaceholderTermsTag": "Tarification conditionnelle",
+      "trustPlaceholderTerms": "Pas de frais par embauche",
+      "trustPlaceholderTermsTag": "Abonnement pipeline",
       "trustPlaceholderNote": "Les métriques de placement sont mises à jour au fur et à mesure que les résultats vérifiés sont confirmés.",
       "trustVerifiedNote": "Les chiffres d'embauche et de salaire proviennent de dossiers de placement enregistrés — pas de projections ni d'objectifs.",
       "trustImpactLink": "Voir les métriques d'impact publiées",
@@ -1841,7 +1841,7 @@
       "finalCtaCopy": "Réservez un appel de 20 minutes. Nous confirmerons l’adéquation du poste, le calendrier et la tarification contingente — sans frais de recrutement initiaux.",
       "intakeAriaLabel": "Formulaire d’intake employeur",
       "intakeTitle": "Vous préférez l’e-mail à la planification ?",
-      "intakeCopy": "Envoyez vos informations d’intake et nous reviendrons vers vous sous 1 à 2 jours ouvrés. Ce formulaire n’est pas un second checkout : utilisez d’abord le bouton ci-dessus pour réserver un appel."
+      "intakeCopy": "Envoyez vos informations d’intake et nous reviendrons vers vous sous 1 à 2 jours ouvrés. Ce formulaire est une alternative par e-mail — utilisez le bouton ci-dessus pour démarrer un abonnement pipeline."
     },
     "outcomes": {
       "title": "Aperçu des résultats",

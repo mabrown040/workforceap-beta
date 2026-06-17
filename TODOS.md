@@ -120,6 +120,42 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-019: feature-flags and email-templates — isSuperAdmin + audit logs — ✓ Fixed PR #1913
+
+**What:** `FeatureFlag` and `EmailTemplate` are platform-global models (no `organizationId`). Any tenant `admin` could mutate flags/templates affecting ALL organizations.
+
+**Fix:** Upgraded auth to `isSuperAdmin` for all mutations on both models. Added audit logs for create/update/delete. PR #1913.
+
+**Priority:** P2 (privilege escalation — fixed)
+
+**Status:** Fixed 2026-06-17.
+
+---
+
+## TODO-020: Sprint 3 Audit Log Sweep — ✓ Completed PRs #1909-#1921 (2026-06-17)
+
+**What:** Systematic sweep of all admin API routes missing `auditLog` calls or `withApiGuc` wrappers.
+
+**Completed in this sprint:**
+- PRs #1909-#1911: first batch (enrollment, profile, programs, onet, members endpoints)
+- PR #1913: feature-flags, email-templates isSuperAdmin + audit
+- PR #1914: member create/edit-profile/notes audit logs
+- PR #1915: readiness/WIOA/partner-invite/mentor audit logs
+- PR #1916: TODOS.md update
+- PR #1917: withApiGuc on bulk-email and quarterly-outcomes
+- PR #1918: interview/skill-checkpoints/counselor/messages audit logs
+- PR #1919: blog (withApiGuc + audit), invites, counselor-assign, send-link audit logs
+- PR #1920: resume-coach/live-suggestions rate limit + withApiGuc + schema validation
+- PR #1921: employers, partners/invite (withApiGuc), webhooks/process-retries (withApiGuc) + audit logs
+
+**Remaining (deferred to Sprint 3 FORCE RLS flip):**
+- `app/api/cron/*` routes: need `withSystemGuc` wrapping
+- ~15 Coursera admin routes missing `withApiGuc`
+- `admin/onet/sync` and `admin/onet/search` missing `withApiGuc`
+- `admin/reports/wioa/generate` and `admin/reports/quarterly-outcomes` missing `withApiGuc`
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

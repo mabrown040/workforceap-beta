@@ -38,3 +38,4 @@ Thumbs.db
 
 # also ignore a bare node_modules file/symlink (the trailing-slash rule above only matches the dir)
 node_modules
+.env.production

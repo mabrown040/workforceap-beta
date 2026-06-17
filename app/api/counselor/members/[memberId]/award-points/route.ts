@@ -3,10 +3,11 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { awardPoints } from '@/lib/member/points';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 type Props = { params: Promise<{ memberId: string }> };
 
-export async function POST(request: Request, { params }: Props) {
+async function _POST(request: Request, { params }: Props) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -45,4 +46,4 @@ export async function POST(request: Request, { params }: Props) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const POST = withApiGuc(_POST);

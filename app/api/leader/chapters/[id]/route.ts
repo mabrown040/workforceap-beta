@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /** Get chapter details for leader (including members, meetings, curriculum) */
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function _GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -55,3 +56,4 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

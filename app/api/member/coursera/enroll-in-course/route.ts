@@ -20,6 +20,7 @@ import {
   type EnrollAuditEvent,
 } from '@/lib/coursera/enrollState';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * POST /api/member/coursera/enroll-in-course
@@ -53,7 +54,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  * an error toast. 5xx and unknown 4xx propagate as 502 with the audit
  * trail of whatever did succeed before the failure.
  */
-export async function POST(request: Request) {
+async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -339,3 +340,4 @@ async function triggerAutoSyncBestEffort(args: {
     /* swallow — auto-sync is fire-and-forget */
   });
 }
+export const POST = withApiGuc(_POST);

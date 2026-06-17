@@ -636,6 +636,7 @@ export default function MembersTable({
               <option value="active">Active (recent activity)</option>
               <option value="completed">Completed (certified)</option>
               <option value="dropped">Dropped (deleted)</option>
+              <option value="stale">Stale training (7d+)</option>
             </select>
           </label>
           <label className="admin-members-filter-field">

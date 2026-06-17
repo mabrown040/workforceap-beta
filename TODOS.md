@@ -84,6 +84,42 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-013: admin/members bulk routes missing withApiGuc — ✓ Fixed PR #1865
+
+**What:** Four admin handlers (`export`, `bulk-export`, `bulk-update`, `bulk-email`) were bare `export async function` without `withApiGuc`. All four use Prisma directly and will fail under Sprint 3 FORCE RLS without the GUC context.
+
+**Fix:** Added `withApiGuc` wrapper to all four handlers. PR #1865.
+
+**Priority:** P2 (Sprint 3 blocker; currently silent pre-FORCE-RLS)
+
+**Status:** Fixed 2026-06-17.
+
+---
+
+## TODO-014: member/pre-screening null-check collapse — ✓ Fixed PR #1865
+
+**What:** `!dbUser?.assessmentCompleted` at line 44 collapsed a null-user case (deleted user with an active session) into a 400 "Complete your assessment first" instead of a 404. Same pattern as PR #1864 (`interview-request`).
+
+**Fix:** Added explicit `if (!dbUser) return 404` guard before eligibility check. PR #1865.
+
+**Priority:** P2
+
+**Status:** Fixed 2026-06-17.
+
+---
+
+## TODO-015: member/prep-bundle missing withApiGuc — ✓ Fixed PR #1865
+
+**What:** `GET /api/member/prep-bundle` was a bare `export async function GET()` with no `withApiGuc`. `fetchInterviewPrepBundle` calls Prisma; Sprint 3 FORCE RLS will fail without GUC context.
+
+**Fix:** Added `withApiGuc` wrapper. PR #1865.
+
+**Priority:** P2 (Sprint 3 blocker)
+
+**Status:** Fixed 2026-06-17.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.
@@ -98,6 +134,9 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ## Completed
 
+- **TODO-015: member/prep-bundle missing withApiGuc** — Added `withApiGuc` wrapper. Completed 2026-06-17. PR #1865.
+- **TODO-014: member/pre-screening null-check collapse** — Explicit `!dbUser` 404 guard added before eligibility check. Completed 2026-06-17. PR #1865.
+- **TODO-013: admin/members bulk routes missing withApiGuc** — `export`, `bulk-export`, `bulk-update`, `bulk-email` all wrapped. Completed 2026-06-17. PR #1865.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.

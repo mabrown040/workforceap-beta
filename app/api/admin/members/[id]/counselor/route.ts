@@ -9,6 +9,7 @@ import { createNotification } from '@/lib/notifications/create';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const bodySchema = z.object({
   counselorUserId: z.string().uuid(),
@@ -103,6 +104,14 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     title: 'You have a new advisor',
     body: `${counselor.user.fullName} has been assigned as your career advisor.`,
     data: { counselorId: counselor.id, counselorUserId: counselor.userId, threadId: thread.id },
+  });
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'member_counselor_assign',
+    targetType: 'user',
+    targetId: memberId,
+    metadata: { counselorUserId: parsed.data.counselorUserId },
   });
 
   return NextResponse.json({

@@ -10,6 +10,7 @@ import { InvitationStatus } from '@prisma/client';
 import { randomBytes } from 'crypto';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 const INVITE_EXPIRY_DAYS = 7;
@@ -217,6 +218,14 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       invitedBy: { select: { fullName: true } },
     },
   }));
+
+  void auditLog({
+    actorUserId: user.id,
+    action: 'admin_invite_create',
+    targetType: 'invitation',
+    targetId: invitation.id,
+    metadata: { email: invitation.email, role: invitation.role },
+  }).catch(() => {});
 
   const inviteUrl = `${SITE_URL}/invite?token=${token}`;
   const roleLabel =

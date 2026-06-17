@@ -6,6 +6,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const postSchema = z.object({
   subgroupId: z.string().uuid(),
@@ -59,6 +60,14 @@ const postSchema = z.object({
     },
   }));
 
+  await auditLog({
+    actorUserId: user.id,
+    action: 'member_subgroup_assign',
+    targetType: 'user',
+    targetId: memberId,
+    metadata: { subgroupId: parsed.data.subgroupId },
+  });
+
   return NextResponse.json({ ok: true });
 
   } catch (error) {
@@ -111,6 +120,14 @@ export const POST = withApiGuc(_POST);async function _DELETE(
   if (deleted.count === 0) {
     return NextResponse.json({ error: 'Member not in this subgroup' }, { status: 404 });
   }
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'member_subgroup_remove',
+    targetType: 'user',
+    targetId: memberId,
+    metadata: { subgroupId },
+  });
 
   return NextResponse.json({ ok: true });
 

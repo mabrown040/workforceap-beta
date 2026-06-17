@@ -39,13 +39,13 @@ export type WeeklyRecapCohortRow = {
   avgReadinessScore: number | null;
 };
 
-export async function getWeeklyRecapCohortStats(): Promise<WeeklyRecapCohortRow[]> {
+export async function getWeeklyRecapCohortStats(orgId?: string | null): Promise<WeeklyRecapCohortRow[]> {
   const now = new Date();
   const sevenDaysAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7));
 
   const users = await prisma.user.findMany({
     take: 500,
-    where: { deletedAt: null },
+    where: { deletedAt: null, ...(orgId ? { organizationId: orgId } : {}) },
     select: { id: true, enrolledProgram: true },
   });
   const byCohort = userIdsByCohort(users);
@@ -200,7 +200,7 @@ function metadataString(value: Prisma.JsonValue | null, key: string): string | n
   return typeof raw === 'string' && raw.length > 0 ? raw : null;
 }
 
-export async function getWeeklyScoreboardStats(now = new Date()): Promise<WeeklyScoreboardStats> {
+export async function getWeeklyScoreboardStats(now = new Date(), orgId?: string | null): Promise<WeeklyScoreboardStats> {
   const weekStart = startOfIsoWeekUtc(now);
   const weekEndExclusive = addDays(weekStart, 7);
   const lastWeekStart = addDays(weekStart, -7);
@@ -226,11 +226,11 @@ export async function getWeeklyScoreboardStats(now = new Date()): Promise<Weekly
       select: { status: true, submittedAt: true, createdAt: true, updatedAt: true },
     }),
     prisma.user.findMany({
-      where: { deletedAt: null, enrolledAt: { gte: lastWeekStart, lt: weekEndExclusive } },
+      where: { deletedAt: null, enrolledAt: { gte: lastWeekStart, lt: weekEndExclusive }, ...(orgId ? { organizationId: orgId } : {}) },
       select: { id: true, enrolledAt: true },
     }),
     prisma.courseEnrollment.findMany({
-      where: { enrolledAt: { gte: lastWeekStart, lt: weekEndExclusive }, user: { deletedAt: null } },
+      where: { enrolledAt: { gte: lastWeekStart, lt: weekEndExclusive }, user: { deletedAt: null, ...(orgId ? { organizationId: orgId } : {}) } },
       select: { userId: true, enrolledAt: true },
     }),
     prisma.message.count({ where: { authorId: { not: null }, createdAt: { gte: weekStart, lt: weekEndExclusive } } }),
@@ -238,7 +238,7 @@ export async function getWeeklyScoreboardStats(now = new Date()): Promise<Weekly
     prisma.applicationMessage.count({ where: { authorId: { not: null }, createdAt: { gte: weekStart, lt: weekEndExclusive } } }),
     prisma.applicationMessage.count({ where: { authorId: { not: null }, createdAt: { gte: lastWeekStart, lt: weekStart } } }),
     prisma.counselor.findMany({
-      where: { active: true },
+      where: { active: true, ...(orgId ? { user: { organizationId: orgId } } : {}) },
       select: { id: true, userId: true, user: { select: { fullName: true, email: true } } },
       orderBy: { user: { fullName: 'asc' } },
     }),
@@ -272,6 +272,7 @@ export async function getWeeklyScoreboardStats(now = new Date()): Promise<Weekly
     prisma.user.findMany({
       where: {
         deletedAt: null,
+        ...(orgId ? { organizationId: orgId } : {}),
         memberEvents: { none: { createdAt: { gte: staleCutoff } } },
         OR: [
           { courseraEnrollmentApproved: true },

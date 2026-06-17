@@ -4,6 +4,7 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { awardPoints } from '@/lib/member/points';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -37,6 +38,14 @@ async function _POST(request: Request, { params }: Props) {
   const result = await awardPoints(memberId, 'counselor_bonus', entityId, points, {
     note: note || undefined,
     awardedBy: user.id,
+  });
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'member_points_award',
+    targetType: 'user',
+    targetId: memberId,
+    metadata: { points, note: note || null },
   });
 
   return NextResponse.json({ ok: true, ...result });

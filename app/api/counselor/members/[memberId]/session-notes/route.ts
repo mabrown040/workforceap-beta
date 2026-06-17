@@ -8,6 +8,7 @@ import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAcc
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const noteSchema = z.object({
   content: z.string().min(1).max(5000),
@@ -71,6 +72,15 @@ async function _POST(
       data: { memberId, authorId: user.id, content: parsed.data.content },
       include: { author: { select: { fullName: true, email: true } } },
     }));
+
+    await auditLog({
+      actorUserId: user.id,
+      action: 'session_note_create',
+      targetType: 'counselor_note',
+      targetId: note.id,
+      metadata: { memberId, contentLength: parsed.data.content.length },
+    });
+
     return NextResponse.json(note, { status: 201 });
   } catch (error) {
     console.error('/counselor/members/[memberId]/session-notes error:', error);
@@ -103,6 +113,15 @@ async function _DELETE(
     if (!note) return NextResponse.json({ error: 'Note not found or not yours' }, { status: 404 });
 
     await prisma.$transaction((tx) => tx.advisorSessionNote.delete({ where: { id: noteId } }));
+
+    await auditLog({
+      actorUserId: user.id,
+      action: 'session_note_delete',
+      targetType: 'counselor_note',
+      targetId: noteId,
+      metadata: { memberId },
+    });
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('/counselor/members/[memberId]/session-notes error:', error);

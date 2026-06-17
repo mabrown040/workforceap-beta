@@ -24,11 +24,11 @@ export default async function InterviewPrepBundlePage() {
     <div style={{ background: 'var(--color-surface)', minHeight: '100vh' }}>
       <div style={{ padding: '1.25rem 2rem 1.5rem', borderBottom: '1px solid var(--surface-container-high)', background: 'var(--surface-container-low)' }}>
         <PageHeader
-          title="WIOA/WIA Interview Prep"
-          subtitle="Prepare for your WIOA/WIA program interview and upcoming job interviews — everything you have built with our AI tools, pulled together for quick review. Email it to yourself or copy it out."
+          title="WIOA Interview Prep"
+          subtitle="Prepare for your WIOA program interview and upcoming job interviews — everything you have built with our AI tools, pulled together for quick review. Email it to yourself or copy it out."
           breadcrumbs={[
             { label: 'Career Toolkit', href: '/dashboard/ai-tools' },
-            { label: 'WIOA/WIA Interview Prep' },
+            { label: 'WIOA Interview Prep' },
           ]}
         />
       </div>

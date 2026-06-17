@@ -80,10 +80,7 @@ export default async function HomePageBelowFold({
           </p>
           <div className="home-member-promise__actions">
             <LocalizedLinkServer href="/apply" className={primaryButtonClasses({ radius: 'md' })}>
-              {t('heroCtaPrimary')}
-            </LocalizedLinkServer>
-            <LocalizedLinkServer href="/find-your-path" className={secondaryButtonClasses({ radius: 'md' })}>
-              {t('heroCta')}
+              {t('heroMobilePrimaryCta')}
             </LocalizedLinkServer>
           </div>
         </div>
@@ -394,7 +391,7 @@ export default async function HomePageBelowFold({
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">
                     check_circle
                   </span>
-                  {WORKFORCEAP_PROGRAM_CATALOG_SIZE} {t('statTracks')}
+                  {t('memberCardCount')}
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-accent)' }} aria-hidden="true">

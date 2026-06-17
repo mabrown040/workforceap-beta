@@ -400,7 +400,7 @@ export default function WioaQualificationClient({
             <div className="portal-field">
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={lowIncomeSelfReport} onChange={(e) => setLowIncomeSelfReport(e.target.checked)} />
-                <span>My household income is limited or near self-sufficiency (additional documentation for WIA)</span>
+                <span>My household income is limited or near self-sufficiency (additional documentation for WIOA)</span>
               </label>
             </div>
 

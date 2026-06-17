@@ -119,7 +119,6 @@ test.describe("Member apply flow (/apply)", () => {
 
     await page.locator('input[name="q1"][value="yes"]').check();
     await page.locator('input[name="q2"][value="yes"]').check();
-    await page.locator('input[name="q3"][value="yes"]').check();
 
     await expect(page.getByRole("button", { name: /continue to programs/i })).toBeEnabled();
   });
@@ -150,7 +149,6 @@ test.describe("Member apply flow (/apply)", () => {
     await page.locator("#apply-phone").fill("(512) 555-0199");
     await page.locator('input[name="q1"][value="yes"]').check();
     await page.locator('input[name="q2"][value="yes"]').check();
-    await page.locator('input[name="q3"][value="yes"]').check();
     await page.getByRole("button", { name: /continue to programs/i }).click();
 
     await expect(page).toHaveURL(/\/apply\/results/);
@@ -198,7 +196,6 @@ test.describe("Member apply flow (/apply)", () => {
     await page.locator("#apply-phone").fill("(512) 555-0199");
     await page.locator('input[name="q1"][value="yes"]').check();
     await page.locator('input[name="q2"][value="yes"]').check();
-    await page.locator('input[name="q3"][value="yes"]').check();
     await page.getByRole("button", { name: /continue to programs/i }).click();
 
     await expect(page).toHaveURL(/\/apply\/results/);

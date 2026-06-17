@@ -329,15 +329,14 @@ const applySignupSchema = z.object({
         createdApplicationId = application.id;
 
         // Persist apply-flow eligibility screening for funnel analytics.
-        if (eligibilityQ1 && eligibilityQ2 && eligibilityQ3) {
+        if (eligibilityQ1 && eligibilityQ2) {
           await tx.applyEligibilityScreening.create({
             data: {
               organizationId,
               userId: user.id,
               q1: eligibilityQ1,
               q2: eligibilityQ2,
-              q3: eligibilityQ3,
-              qualifies: eligibilityQualifies ?? (eligibilityYesCount ?? 0) >= 2,
+              qualifies: eligibilityQualifies ?? (eligibilityYesCount ?? 0) >= 1,
               yesCount: eligibilityYesCount ?? 0,
             },
           });

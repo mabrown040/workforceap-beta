@@ -143,9 +143,9 @@ export default function BlogListingClient({
                     <Image
                       src={cardSrc}
                       alt={cardAlt}
-                      width={400}
-                      height={250}
-                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                      width={280}
+                      height={160}
+                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                     {post.category && <span className="blog-card-category">{post.category}</span>}

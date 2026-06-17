@@ -106,21 +106,6 @@ export default async function PartnersPage() {
             <p style={{ fontSize: '1.25rem', color: 'rgba(255,255,255,0.75)', maxWidth: '36rem', lineHeight: 1.6, margin: 0 }}>
               {t('heroCopy')}
             </p>
-            <div
-              style={{
-                marginTop: '1rem',
-                maxWidth: '40rem',
-                padding: '1rem 1.125rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid rgba(255,255,255,0.16)',
-                background: 'rgba(11,14,18,0.5)',
-                backdropFilter: 'blur(10px)',
-              }}
-            >
-              <p style={{ fontSize: '0.9375rem', color: 'rgba(255,255,255,0.88)', lineHeight: 1.55, margin: 0 }}>
-                {t('referralPayMicrocopy')}
-              </p>
-            </div>
           </>
         }
       >
@@ -586,9 +571,6 @@ export default async function PartnersPage() {
           </h2>
           <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: '0 0 0.5rem' }}>
             {t('signupSubtitle')}
-          </p>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55, opacity: 0.92, margin: '0 0 1.5rem' }}>
-            {t('referralPayMicrocopy')}
           </p>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem' }}>
             {t('signupAlready')}{' '}

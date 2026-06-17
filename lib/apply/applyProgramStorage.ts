@@ -26,7 +26,6 @@ export type ApplyFlowDraftV1 = {
   primaryBarriers?: string[];
   q1: 'yes' | 'no' | null;
   q2: 'yes' | 'no' | null;
-  q3: 'yes' | 'no' | null;
 };
 
 export type CareerQuizSignupPayload = {

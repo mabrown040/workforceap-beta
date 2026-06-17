@@ -6761,7 +6761,7 @@ const SKILL_MISSION_CATALOG: SkillMissionDefinition[] = [
     estimatedMinutes: 15,
   },
 
-  // ─── PROGRAM 19: Core Construction Training Certificate ───
+  // ─── PROGRAM 20: Core Construction Training Certificate ───
 
   {
     key: "core-construction-training-certificate:mission:construction-course-1",

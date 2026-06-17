@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getBoardSnapshot, BoardOutcomesPeriod, formatBoardSnapshotMarkdown } from '@/lib/admin/boardOutcomes';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const orgId = await getActorOrganizationId(user.id);
+    const superAdmin = await isSuperAdmin(user.id);
+    const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
 
     const { searchParams } = new URL(request.url);
     const period = (searchParams.get('period') ?? 'all-time') as BoardOutcomesPeriod;
@@ -62,3 +64,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

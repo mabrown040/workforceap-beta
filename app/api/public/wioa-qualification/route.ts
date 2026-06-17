@@ -7,6 +7,7 @@ import { checkPublicWioaQualificationRateLimit } from '@/lib/rate-limit';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { prisma } from '@/lib/db/prisma';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const publicLeadSchema = z.object({
   fullName: z.string().trim().min(2, 'Please enter your full name').max(120),
@@ -14,7 +15,7 @@ const publicLeadSchema = z.object({
   phone: z.string().trim().max(40).optional().or(z.literal('')),
 });
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
   const ip = getClientIpFromRequest(request);
   const { success: withinLimit } = await checkPublicWioaQualificationRateLimit(ip);
@@ -90,4 +91,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const POST = withApiGuc(_POST);

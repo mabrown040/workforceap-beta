@@ -496,7 +496,15 @@
     "programChangeErrorSubmitFailed": "Falha no envio (HTTP {status})",
     "programChangeErrorNetwork": "Erro de rede — tente novamente.",
     "firstValuePanelTitle": "Your next 3 actions",
-    "firstValuePanelSubtitle": "Personalized for where you are now"
+    "firstValuePanelSubtitle": "Personalized for where you are now",
+    "firstCertAssessmentStage": "Conclua sua avaliação",
+    "firstCertComplete": "Primeira certificação obtida",
+    "firstCertCompleteStage": "Primeira cert. obtida",
+    "firstCertInProgress": "Primeira certificação em andamento",
+    "firstCertProgress": "Progresso da primeira certificação",
+    "firstCertProgressBarLabel": "{percent}% em direção à primeira certificação",
+    "firstCertTrainingStage": "Treinamento em andamento",
+    "stepsComplete": "{complete} de {total} etapas"
   },
   "apply": {
     "step1": "Informações pessoais",
@@ -814,7 +822,10 @@
     "resultsHeroTitle": "Etapa 2 de 3 — escolha seus programas",
     "resultsMetaDescription": "Revise sua possível adequação, classifique até três programas e continue para a criação da conta.",
     "resultsMetaTitle": "Escolha seus programas",
-    "paidApplyProofBody": "Analisamos sua inscrição, entramos em contato para discutir os próximos passos e ajudamos você a entender a elegibilidade de financiamento antes de se comprometer."
+    "paidApplyProofBody": "Analisamos sua inscrição, entramos em contato para discutir os próximos passos e ajudamos você a entender a elegibilidade de financiamento antes de se comprometer.",
+    "accountTransitionSummary": "Por que pedimos uma conta agora",
+    "createAccountFormKicker": "Apenas nome, e-mail, telefone e senha",
+    "resultsTransitionSummary": "Como funciona a classificação dos programas"
   },
   "training": {
     "myTraining": "Meu Treinamento",
@@ -1297,14 +1308,13 @@
     "partnerInsights": "Insights do parceiro",
     "assistantSpeaking": "O assistente está falando…",
     "assistantListening": "Ouvindo — faça sua pergunta",
-    "referredMembersDescription": "Todos os membros indicados pela sua organização.",
-    "outcomesSnapshotDescription": "Resultados de alto nível para suas indicações.",
     "placed": "Colocado",
     "memberReferrals": "Indicações de membros",
     "memberReferralsSubtitle": "Membros indicando outros membros — taxa de conversão de {conversionRate}%",
     "memberToMember": "De membro para membro",
     "converted": "Convertidos",
-    "placedViaReferral": "Colocados por indicação"
+    "placedViaReferral": "Colocados por indicação",
+    "memberFallback": "Membro"
   },
   "group": {
     "workflows": "Fluxos de trabalho",
@@ -1574,7 +1584,24 @@
       "languageEnglishOnly": "Apenas em inglês",
       "languageFull": "Disponível em {language}",
       "languageSubtitles": "Legendas em {language}",
-      "languageAuto": "{language} (automático)"
+      "languageAuto": "{language} (automático)",
+      "ctaDisclaimer": "Elegibilidade WIOA necessária. Um consultor analisará sua candidatura em 1 a 2 dias úteis.",
+      "ctaSubtitle": "Candidate-se para {program} hoje. Gratuito para membros qualificados.",
+      "ctaTitle": "Inicie sua candidatura",
+      "curriculumSubtitle": "{count} cursos projetados para levá-lo do iniciante ao nível profissional.",
+      "curriculumTitle": "O que você vai estudar",
+      "enrollingNow": "Inscrições abertas",
+      "faqSubtitle": "Respostas rápidas sobre custo, tempo e o que esperar.",
+      "faqTitle": "Perguntas comuns",
+      "heroDescription": "Obtenha um Certificado Profissional {partner} em {duration}. Gratuito para membros qualificados com financiamento WIOA.",
+      "metaDescription": "{program} — {salary}. {duration}. Gratuito para membros qualificados com financiamento WIOA e de desenvolvimento da força de trabalho.",
+      "metaTitleSuffix": "Certificado Profissional Gratuito | WorkforceAP",
+      "outcomesSubtitle": "Faixas salariais e potencial de crescimento para graduados deste programa.",
+      "outcomesTitle": "Resultados de carreira",
+      "skillsSubtitle": "Competências reconhecidas pelo setor que os empregadores contratam ativamente.",
+      "skillsTitle": "Habilidades que você aprenderá",
+      "testimonialsSubtitle": "Formandos reais que começaram onde você está.",
+      "testimonialsTitle": "Histórias de membros"
     },
     "faq": {
       "knowledgeBase": "Base de conhecimento",

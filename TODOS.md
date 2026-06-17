@@ -108,6 +108,70 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-018: withApiGuc batch 2 (10 admin routes) — ✓ Fixed PR #1948
+
+**What:** 10 admin routes calling Prisma without GUC context: `messages/stats`, `reports/quarterly-outcomes`, `onet/sync`, `jobs/[id]/matches`, `reports/wioa/generate`, `coursera/sync-b4b`, `coursera/map-unmatched`, `coursera/mappings`, `members/bulk-email`, `partners/[id]/quarterly-outcomes`.
+
+**Status:** Fixed 2026-06-17. PR #1948.
+
+---
+
+## TODO-019: Member GUC batch 3 + signup withAnonymousGuc — ✓ Fixed PR #1949
+
+**What:** `member/prep-bundle` GET+POST and `member/signup` POST lacked GUC context.
+
+**Status:** Fixed 2026-06-17. PR #1949.
+
+---
+
+## TODO-020: Cross-tenant FK scope + notes cap + audit log — admin/members/create — ✓ Fixed PR #1946
+
+**What:** `partnerId`/`subgroupId` validated without `organizationId` filter (cross-tenant FK injection). Notes unbounded. No audit log.
+
+**Status:** Fixed 2026-06-17. PR #1946.
+
+---
+
+## TODO-021: Audit logs batch — enrollment-funding, subgroup, readiness, skill-checkpoints — ✓ Fixed PR #1947
+
+**What:** Four admin mutation routes missing `logAuditEvent` calls.
+
+**Status:** Fixed 2026-06-17. PR #1947.
+
+---
+
+## TODO-022: withApiGuc batch 4 (webhook retries + coursera mutations) — ✓ Fixed PR #1950
+
+**What:** `webhooks/process-retries` POST+GET, `coursera/auto-heal` POST, `coursera/csv-import` POST, `coursera/seed-canonical-mappings-from-b4b` POST, `coursera/seed-canonical-mappings-from-catalog` POST.
+
+**Status:** Fixed 2026-06-17. PR #1950.
+
+---
+
+## TODO-023: withApiGuc for auth/me + ai/interview/response; audit logs batch — ✓ Fixed PR #1951
+
+**What:** `auth/me` GET (6 Prisma calls), `auth/verify-mfa` POST (trackEvent → Prisma), `ai/interview/response` POST (coachContextBlock). Plus audit logs for employer-screening-packs (create/update/delete) and testimonials (update/delete).
+
+**Status:** Fixed 2026-06-17. PR #1951.
+
+---
+
+## TODO-024: Cap string lengths in job-applications routes — ✓ Fixed PR #1952
+
+**What:** Non-legacy PATCH path in `job-applications/[id]` had unbounded role/company/notes. POST schema lacked max on notes.
+
+**Status:** Fixed 2026-06-17. PR #1952.
+
+---
+
+## TODO-025: withAnonymousGuc for employer/signup — ✓ Fixed PR #1953
+
+**What:** `employer/signup` POST calls `createEmployerUser` (Prisma write) without GUC context.
+
+**Status:** Fixed 2026-06-17. PR #1953.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.

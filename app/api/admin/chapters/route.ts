@@ -5,6 +5,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { z } from 'zod';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const chapterSchema = z.object({
   name: z.string().min(1).max(100),
@@ -75,6 +76,14 @@ async function _POST(request: NextRequest) {
         },
       }),
     );
+
+    await auditLog({
+      actorUserId: user.id,
+      action: 'chapter_create',
+      targetType: 'chapter',
+      targetId: chapter.id,
+      metadata: { name: parsed.data.name, organizationId: orgId },
+    });
 
     return NextResponse.json(chapter, { status: 201 });
   } catch (error) {

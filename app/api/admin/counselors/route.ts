@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { auditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db/prisma';
 import { withTenantScope, counselorInOrg, assertSameTenant } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -134,6 +135,15 @@ const createBody = z.object({
         role: 'counselor',
       },
     });
+  });
+
+  const counselorId = typeof parsed.data.userId === 'string' ? parsed.data.userId : 'unknown';
+  await auditLog({
+    actorUserId: user.id,
+    action: 'counselor_create',
+    targetType: 'user',
+    targetId: counselorId,
+    metadata: { counselorType: parsed.data.counselorType ?? null },
   });
 
   return NextResponse.json({ ok: true });

@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 import { getSubjectOrganizationId, getActorOrganizationId } from '@/lib/tenant/organization';
 import { sendInterviewPrepLink } from '@/lib/email';
 
@@ -50,6 +51,8 @@ export const POST = withApiGuc(
       if (!result.ok) {
         return NextResponse.json({ error: result.error ?? 'Could not send email' }, { status: 502 });
       }
+
+      void auditLog({ actorUserId: user.id, action: 'admin_member_interview_link_sent', targetType: 'user', targetId: id, metadata: { email: member.email } }).catch(() => {});
 
       return NextResponse.json({ ok: true });
     } catch (error) {

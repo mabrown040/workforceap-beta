@@ -6,6 +6,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { buildDeletedEmail } from '../_deletedEmail';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Batch-rewrite every soft-deleted user's email to the sentinel form
@@ -62,6 +63,8 @@ async function _POST() {
       }
     }
   
+    void auditLog({ actorUserId: actor.id, action: 'admin_user_bulk_free_emails', targetType: 'organization', targetId: orgId, metadata: { freed, skipped, total: candidates.length } }).catch(() => {});
+
     return NextResponse.json({ ok: true, freed, skipped, total: candidates.length });
   } catch (error) {
     console.error('/admin/users/free-deleted-emails:', error);

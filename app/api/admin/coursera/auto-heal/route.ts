@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { autoHealUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 async function requireAdminUser() {
   const user = await getUser();
@@ -11,7 +12,7 @@ async function requireAdminUser() {
   return user;
 }
 
-export async function POST() {
+async function _POST() {
   try {
     const user = await requireAdminUser();
     if (!user) {
@@ -34,6 +35,8 @@ export async function POST() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);
 
 export async function GET() {
   try {

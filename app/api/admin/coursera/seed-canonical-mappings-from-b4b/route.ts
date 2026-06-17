@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getUser } from '@/lib/auth/server';
 import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { seedCanonicalMappingsFromB4B } from '@/lib/coursera/seedCanonicalMappingsFromB4B';
 import { loadB4BContents } from '@/lib/coursera/programContentsCache';
 import { captureApiError } from '@/lib/observability/captureApiError';
@@ -21,13 +22,13 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  * Returns a per-program breakdown so the UI can show which catalog programs
  * still need attention (manual `courseraB4BProgramId` binding).
  */
-export async function POST(_request: NextRequest) {
+async function _POST(_request: NextRequest) {
   try {
     const actor = await getUser();
     if (!actor) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-  
+
     let orgId: string;
     try {
       orgId = await getActorOrganizationId(actor.id);
@@ -35,12 +36,12 @@ export async function POST(_request: NextRequest) {
       captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-b4b' });
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  
+
     const superAdmin = await isSuperAdmin(actor.id);
     if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  
+
     try {
       const contents = await loadB4BContents();
       const summary = await seedCanonicalMappingsFromB4B({ actorUserId: actor.id, contents });
@@ -62,3 +63,5 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

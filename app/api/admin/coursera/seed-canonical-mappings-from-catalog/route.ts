@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getUser } from '@/lib/auth/server';
 import { isAdminInOrg, isSuperAdmin } from '@/lib/auth/roles';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { seedCanonicalMappingsFromCatalog } from '@/lib/coursera/seedCanonicalMappingsFromCatalog';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -30,13 +31,13 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  * `courseraCourseId` column).
  */
 
-export async function POST(_request: NextRequest) {
+async function _POST(_request: NextRequest) {
   try {
     const actor = await getUser();
     if (!actor) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-  
+
     let orgId: string;
     try {
       orgId = await getActorOrganizationId(actor.id);
@@ -44,12 +45,12 @@ export async function POST(_request: NextRequest) {
       captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-catalog' });
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  
+
     const superAdmin = await isSuperAdmin(actor.id);
     if (!superAdmin && !(await isAdminInOrg(actor.id, orgId))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  
+
     try {
       const summary = await seedCanonicalMappingsFromCatalog({ actorUserId: actor.id });
       return NextResponse.json(summary);
@@ -70,3 +71,5 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiGuc(_POST);

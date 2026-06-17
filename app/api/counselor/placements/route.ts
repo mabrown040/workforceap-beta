@@ -5,6 +5,8 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { buildPlacementsQuery } from '@/lib/counselor/placementsQuery';
 
+import { auditLog } from '@/lib/audit';
+
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 async function _GET(request: Request) {
@@ -107,6 +109,14 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       NOW()
     )
   `;
+
+  await auditLog({
+    actorUserId: user.id,
+    action: 'placement_create',
+    targetType: 'user',
+    targetId: userId,
+    metadata: { employerName, jobTitle, salaryOffered, programSlug },
+  });
 
   return NextResponse.json({ ok: true, placement: (placement as any[])[0] });
 

@@ -29,7 +29,6 @@ function csvEscape(value: string): string {
         organizationId: ctx.partner.organizationId,
       },
       select: { id: true, email: true },
-      take: 100,
     }));
     const emailById = new Map(emails.map((e) => [e.id, e.email]));
   

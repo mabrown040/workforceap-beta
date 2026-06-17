@@ -1,14 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { awardPoints } from '@/lib/member/points';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 type Props = { params: Promise<{ id: string }> };
 
-async function _POST(request: Request, { params }: Props) {
+async function _POST(request: NextRequest, { params }: Props) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -45,6 +47,23 @@ async function _POST(request: Request, { params }: Props) {
     note: note || undefined,
     awardedBy: user.id,
   });
+
+  const actorRole = admin ? 'admin' : 'counselor';
+  auditLog({
+    actorUserId: user.id,
+    action: 'award_points',
+    targetType: 'User',
+    targetId: memberId,
+    metadata: { points, note: note || undefined, awardedBy: user.id, orgId },
+  }).catch((err) => console.error('[audit] award_points:', err));
+  logAuditEvent({
+    user: { id: user.id, role: actorRole },
+    verb: 'award_points',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { points, note: note || undefined } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] award_points xapi:', err));
 
   return NextResponse.json({ ok: true, ...result });
 

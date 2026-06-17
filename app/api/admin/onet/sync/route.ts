@@ -4,8 +4,10 @@ import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { syncOccupation, syncTopMappedOccupations } from '@/lib/onet/sync';
 
+const MAX_ONET_CODES = 50;
+
 const bodySchema = z.object({
-  onetCodes: z.array(z.string().min(1)).optional(),
+  onetCodes: z.array(z.string().min(1)).max(MAX_ONET_CODES).optional(),
   allMapped: z.boolean().optional(),
 });
 

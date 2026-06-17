@@ -881,6 +881,31 @@ html.has-marketing-main-nav {
  * secondary without a third competing quiz link or side-by-side squeeze.
  */
 @media (max-width: 767px) {
+  /*
+   * Hero + TrustStrip already state the no-cost offer; collapse the repeated
+   * eyebrow/title/body stack so program cards surface sooner on phones.
+   * Keep pathfinder hint + CTAs for guided choice after Apply in the hero.
+   */
+  .home-member-promise {
+    padding: clamp(1.25rem, 3vw, 1.75rem) clamp(1rem, 4vw, 2rem) !important;
+    background: var(--surface-container-low);
+    border-bottom: 1px solid var(--outline-variant, rgba(28, 27, 27, 0.12));
+  }
+
+  .home-member-promise__eyebrow,
+  .home-member-promise__title,
+  .home-member-promise__body-primary {
+    display: none;
+  }
+
+  .home-member-promise__pathfinder {
+    margin-bottom: 1.25rem !important;
+    font-size: 0.98rem;
+    max-width: 22rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .home-member-promise__actions {
     flex-direction: column;
     align-items: stretch;
@@ -913,6 +938,18 @@ html.has-marketing-main-nav {
     min-height: 44px;
     display: inline-flex;
     align-items: center;
+  }
+
+  /*
+   * Programs quick-start: sticky browse nav already separates hero from lane
+   * cards — tighten top rhythm so the first concrete pathway appears sooner.
+   */
+  .programs-quick-start {
+    padding-top: 1rem !important;
+  }
+
+  .programs-quick-start .container > div {
+    padding: 1.15rem !important;
   }
 }
 

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -12,12 +14,16 @@ export const GET = withApiGuc(async (_req: NextRequest) => {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const superAdmin = await isSuperAdmin(user.id);
+  const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
   // Raw query: group by lower(email) having count > 1
   const rows = await prisma.$transaction((tx) => tx.$queryRaw<Array<{ email: string; ids: string[] }>>`
     SELECT lower(email) AS email,
            array_agg(id ORDER BY created_at DESC) AS ids
     FROM users
     WHERE deleted_at IS NULL
+      ${orgId ? Prisma.sql`AND organization_id = ${orgId}` : Prisma.sql``}
     GROUP BY lower(email)
     HAVING count(*) > 1
   `);
@@ -27,7 +33,7 @@ export const GET = withApiGuc(async (_req: NextRequest) => {
   const allIds = rows.flatMap((r) => r.ids);
   const allMembers = allIds.length
     ? await prisma.$transaction((tx) => tx.user.findMany({
-        where: { id: { in: allIds } },
+        where: { id: { in: allIds }, ...(orgId ? { organizationId: orgId } : {}) },
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,

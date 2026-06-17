@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 type Props = { params: Promise<{ id: string }> };
 
-export async function DELETE(_request: Request, { params }: Props) {
+const deleteNotification = withApiGuc(async (_request: Request, { params }: Props) => {
   try {
     const user = await getUser();
     if (!user) {
@@ -13,9 +14,9 @@ export async function DELETE(_request: Request, { params }: Props) {
 
     const { id } = await params;
 
-    const existing = await prisma.notification.findUnique({
+    const existing = await prisma.$transaction((tx) => tx.notification.findUnique({
       where: { id },
-    });
+    }));
 
     if (!existing) {
       return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
@@ -25,13 +26,15 @@ export async function DELETE(_request: Request, { params }: Props) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    await prisma.notification.delete({
+    await prisma.$transaction((tx) => tx.notification.delete({
       where: { id },
-    });
+    }));
 
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('/member/notifications/[id] delete error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
+
+export const DELETE = deleteNotification;

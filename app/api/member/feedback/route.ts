@@ -6,6 +6,7 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const feedbackSchema = z.object({
   type: z.enum(['training', 'counselor', 'platform', 'program', 'general']),
@@ -14,7 +15,7 @@ const feedbackSchema = z.object({
   metadata: z.record(z.unknown()).optional(),
 });
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,3 +65,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

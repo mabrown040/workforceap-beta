@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
 // ── Helpers ──
 
 function calculateRetention(
@@ -92,7 +94,7 @@ async function getDemographics(orgId: string) {
  * retention rates (30/60/90-day), cohort comparison, and demographic breakdowns.
  * Requires admin access. Returns aggregated metrics for the admin's organization.
  */
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
@@ -214,12 +216,13 @@ export async function GET(request: NextRequest) {
     const demographics = await getDemographics(orgId);
 
     // Audit log
-    await logAuditEvent({
-      user: { id: user.id },
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
       verb: 'viewed',
       object: { type: 'OutcomesDashboard', id: 'aggregate' },
       request: auditRequestMeta(request),
-    });
+      orgId,
+    }).catch((err) => console.error('[audit] viewed outcomes:', err));
 
     return NextResponse.json({
       metrics: {
@@ -255,3 +258,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

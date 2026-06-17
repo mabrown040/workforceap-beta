@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
 
-export async function GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+
+async function _GET() {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,3 +24,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

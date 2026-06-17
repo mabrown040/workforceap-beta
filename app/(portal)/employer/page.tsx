@@ -379,7 +379,7 @@ export default async function EmployerDashboardPage() {
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
                       <h4 className="wa-font-bold text-on-surface wa-text-sm wa-truncate">{app.student.fullName}</h4>
                       <span className="wa-text-[11px] text-on-surface-variant/60 wa-font-medium" style={{ marginLeft:"0.5rem", flexShrink:0 }}>
-                        {new Date(app.appliedAt).toLocaleDateString('en-US')}
+                        {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString('en-US') : '—'}
                       </span>
                     </div>
                     <p
@@ -586,7 +586,7 @@ export default async function EmployerDashboardPage() {
                     {t('appliedTo')} {app.job.title}
                   </p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
-                    {app.appliedAt.toLocaleDateString('en-US')}
+                    {app.appliedAt?.toLocaleDateString('en-US') ?? '—'}
                   </p>
                   <StatusBadge
                     label={employerJobPostingApplicationStatusLabel(app.status)}

@@ -48,10 +48,11 @@ export default function AdminChaptersPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const payload = { ...formData, leaderId: formData.leaderId || undefined };
     const res = await fetch("/api/admin/chapters", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (data.error) {

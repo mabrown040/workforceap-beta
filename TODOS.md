@@ -72,6 +72,16 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-018: admin/members/[id]/summary — add AI rate limit (P3 deferred)
+
+**What:** `POST /api/admin/members/[id]/summary` calls Groq `chatCompletion` without `checkAIToolRateLimit`. Admin-only route, low exploit risk.
+
+**Priority:** P3
+
+**Fix shape:** Add `checkAIToolRateLimit(user.id)` before the Groq call; also cap the `facts` string at e.g. 5000 chars to prevent oversized prompts.
+
+---
+
 ## TODO-007: admin/growth — wire real GA4 property ID
 
 **What:** `app/admin/growth/page.tsx:38` has a placeholder GA4 property ID and the dashboard shows static demo data instead of live analytics.
@@ -98,6 +108,9 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ## Completed
 
+- **Sprint 3 GUC + audit log sweep (2026-06-17)** — 14 PRs (#1891–#1904): withApiGuc wrappers on bulk-email, partner/payout, onet/sync, webhooks/process-retries, coursera csv-import, blog/[id], WIOA report; audit logs on partners/invite, counselor placements, member notes, admin member interview/WIOA/readiness/skill-checkpoints/upload-resume/walk-in/award-points/session-notes; member delete-account + enroll; employer job POST live-status block; resume-coach rate limit; interview/history rate limit + input size caps.
+- **TODO-016: partner/dashboard withApiGuc** — completed PR #1867, 2026-06-17.
+- **TODO-017: ai/interview/results rate limit + withApiGuc** — completed PR #1868, 2026-06-17.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.

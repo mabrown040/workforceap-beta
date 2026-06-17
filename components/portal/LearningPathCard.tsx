@@ -21,6 +21,8 @@ export default function LearningPathCard({ pathway }: { pathway: LearningPathway
       const steps = spData.progress?.[pathway.id] ?? [];
       const byIndex = Object.fromEntries(steps.map((s: StepProgress) => [s.stepIndex, s]));
       setStepProgress(byIndex);
+    }).catch(() => {
+      setStepProgress({});
     });
   };
 

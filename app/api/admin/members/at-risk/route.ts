@@ -4,7 +4,8 @@ import { requireAdminOrCounselor, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getRiskLevel, THRESHOLDS } from '@/lib/member/atRiskScoring';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: Request) {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';async function _GET(req: Request) {
   try {
     const auth = await requireAdminOrCounselor(req);
     if (!auth.ok) {
@@ -142,6 +143,8 @@ export const GET = withApiGuc(_GET);async function _PATCH(req: Request) {
         },
       }));
   
+      void auditLog({ actorUserId: auth.userId, action: 'admin_at_risk_alert_update', targetType: 'user', targetId: alertId, metadata: { status } }).catch(() => {});
+
       return NextResponse.json({ success: true, alert });
     } catch (error) {
       console.error('[admin/members/at-risk] Patch failed:', error);

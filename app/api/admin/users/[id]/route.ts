@@ -10,7 +10,8 @@ import { ADMIN_USER_ROLES, ensureProfileRole, syncManagedUserRoles } from '@/lib
 import { userAuthDeleteFailedResponse } from '@/lib/admin/userDeleteResponse';
 import { buildDeletedEmail } from '../_deletedEmail';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
+import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';async function _DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -61,6 +62,14 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';async function _DELETE(
         return userAuthDeleteFailedResponse();
       }
   
+      await auditLog({
+        actorUserId: actor.id,
+        action: 'user_delete',
+        targetType: 'user',
+        targetId: id,
+        metadata: { originalEmail: target.email },
+      });
+
       return NextResponse.json({ ok: true });
     } catch (err) {
       console.error('[admin/users/:id DELETE]', err);
@@ -183,6 +192,19 @@ async function _PATCH(
         };
       });
   
+      await auditLog({
+        actorUserId: admin.id,
+        action: 'user_update',
+        targetType: 'user',
+        targetId: id,
+        metadata: {
+          emailChanged,
+          role: updated.role,
+          fullName: updated.fullName,
+          email: updated.email,
+        },
+      });
+
       return NextResponse.json({ success: true, user: updated });
     } catch (error) {
       if (authEmailChanged) {

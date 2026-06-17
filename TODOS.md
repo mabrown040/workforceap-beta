@@ -96,8 +96,41 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-023: admin/blog/[id] — audit log on PATCH and DELETE
+
+**What:** `app/api/admin/blog/[id]/route.ts` PATCH and DELETE have no `auditLog()` calls. The POST route (separate file) was fixed in PR #1880, but edits and deletes of existing posts are still untracked.
+
+**Why:** Blog post edits/deletions are content changes that affect what members see. Without an audit trail, there's no record of who changed or removed a post.
+
+**Priority:** P2
+
+**Fix shape:** Add `auditLog({ action: 'blog_post_update' | 'blog_post_delete', ... })` to PATCH and DELETE handlers, following the same pattern as the POST in `app/api/admin/blog/route.ts`.
+
+---
+
+## TODO-024: admin/programs — audit log on catalog mutations
+
+**What:** `app/api/admin/programs/catalog/route.ts` POST and PATCH have no `auditLog()` calls. Program catalog changes (course offerings, costs, delivery URLs) affect enrollment decisions and WIOA reporting.
+
+**Priority:** P2
+
+**Fix shape:** Add `auditLog({ action: 'program_catalog_create' | 'program_catalog_update', ... })` after each successful write.
+
+---
+
+## TODO-025: admin/counselors — audit log on deactivation/deletion
+
+**What:** If `admin/counselors/[id]/route.ts` exists with PATCH (deactivate) or DELETE, those mutations likely lack `auditLog()` as the POST in `admin/counselors/route.ts` did. Need to verify and patch.
+
+**Priority:** P2
+
+**Fix shape:** Read the file; if PATCH/DELETE exist without audit log, add following the P1 pattern from PR #1879.
+
+---
+
 ## Completed
 
+- **TODO-023/024/025 roots — audit log sweep PRs #1878–#1880** — null-collapse in member/matched-jobs + member/profile PATCH fixed; ce.organization_id filter added to analytics/programs raw SQL; auditLog added to users POST, partners POST/PATCH, counselors POST, blog POST; rate limit added to member/applications POST. Completed 2026-06-17.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.

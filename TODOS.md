@@ -108,6 +108,18 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## ~~TODO-035: admin/members/bulk-email + admin/messages/stats missing withApiGuc~~ ✓ COMPLETED
+
+**What:** Two more admin routes missing GUC context:
+- `app/api/admin/members/bulk-email/route.ts` — direct `prisma.$transaction` for message creation outside `withTenantScope`; only the user lookup was scoped
+- `app/api/admin/messages/stats/route.ts` — `countMessageThreadsWithActivity` + `countThreadsWithSlaBreach` both query Prisma; requires `isSuperAdmin` but had no GUC wrapper
+
+**Fix:** Added `withApiGuc` wrapper to both.
+
+**Completed:** 2026-06-17. PR #1963.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.

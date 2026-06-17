@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { sendApplicationConfirmationEmail } from '@/lib/email';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import {
   checkConfirmationEmailRateLimit,
   checkConfirmationEmailEmailRateLimit,
@@ -22,7 +23,7 @@ function getClientIp(request: NextRequest) {
   );
 }
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const { success } = await checkConfirmationEmailRateLimit(getClientIp(request));
     if (!success) {
@@ -78,3 +79,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

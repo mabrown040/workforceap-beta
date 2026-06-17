@@ -8,6 +8,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { buildPartnerPayoutIdempotencyKey, getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 import { isPayoutEligibleType } from '@/lib/partner/partnerType';
 import { getPlacementPayoutRejection } from '@/lib/partner/payoutEligibility';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { z } from 'zod';
 
 const payoutSchema = z.object({
@@ -15,7 +16,7 @@ const payoutSchema = z.object({
   placementId: z.string().uuid(),
 });
 
-export async function POST(request: NextRequest) {
+async function _POST(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) {
@@ -157,3 +158,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

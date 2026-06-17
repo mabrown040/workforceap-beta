@@ -8,6 +8,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { awardPoints } from '@/lib/member/points';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { checkMemberApplicationRateLimit } from '@/lib/rate-limit';
 
 const createSchema = z.object({
   company: z.string().min(1).max(200),
@@ -42,14 +43,17 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  
+
+    const { success: rateLimitOk } = await checkMemberApplicationRateLimit(user.id);
+    if (!rateLimitOk) return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+
     let body: unknown;
     try {
       body = await request.json();
     } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
-  
+
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });

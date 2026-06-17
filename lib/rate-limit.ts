@@ -108,6 +108,7 @@ let courseraIdentityRateLimiter: Ratelimit | null = null;
 // submits without enabling a flood.
 let publicQuestionnaireSubmitRateLimiter: Ratelimit | null = null;
 let adminTokenLinksRateLimiter: Ratelimit | null = null;
+let memberApplicationRateLimiter: Ratelimit | null = null;
 
 /**
  * Fail-closed wrapper for security-critical rate-limit checks.
@@ -355,6 +356,13 @@ if (redisUrl && redisToken) {
     redis,
     limiter: Ratelimit.slidingWindow(10, '1 h'),
     prefix: 'ratelimit:admin-token-links',
+  });
+  memberApplicationRateLimiter = new Ratelimit({
+    redis,
+    // 50 application rows per hour per member covers realistic job-hunting
+    // bursts while blocking metric inflation or operational noise.
+    limiter: Ratelimit.slidingWindow(50, '1 h'),
+    prefix: 'ratelimit:member-application',
   });
 }
 
@@ -607,4 +615,11 @@ export async function checkCourseraIdentityRateLimit(ip: string): Promise<{ succ
   if (!courseraIdentityRateLimiter) return { success: true };
   const result = await courseraIdentityRateLimiter.limit(ip);
   return { success: result.success };
+}
+
+/** POST /api/member/applications — cap per-user to prevent metric inflation and operational noise. */
+export async function checkMemberApplicationRateLimit(userId: string): Promise<{ success: boolean; remaining?: number }> {
+  if (!memberApplicationRateLimiter) return { success: true };
+  const result = await memberApplicationRateLimiter.limit(userId);
+  return { success: result.success, remaining: result.remaining };
 }

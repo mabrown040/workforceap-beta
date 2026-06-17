@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
 import { interviewResultsResponseSchema } from '@/lib/validation/aiInterview';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const CATEGORIES = ['communication', 'leadership', 'problem_solving', 'teamwork', 'adaptability'] as const;
 
-export async function GET(request: Request) {
+async function _GET(request: Request) {
   try {
     const user = await getUser();
     if (!user) {
@@ -18,6 +20,14 @@ export async function GET(request: Request) {
       return NextResponse.json(
         { error: 'This feature is temporarily unavailable. Please try again soon.' },
         { status: 503 }
+      );
+    }
+
+    const { success } = await checkAIToolRateLimit(user.id);
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again in a few minutes.' },
+        { status: 429 }
       );
     }
 
@@ -125,3 +135,4 @@ Return ONLY a JSON object with these exact keys:
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { searchOccupations } from '@/lib/onet/client';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(request: NextRequest) {
+export const GET = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -12,12 +13,12 @@ export async function GET(request: NextRequest) {
     } catch {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-  
+
     const q = request.nextUrl.searchParams.get('q')?.trim() ?? '';
     if (q.length < 2) {
       return NextResponse.json({ occupations: [] });
     }
-  
+
     try {
       const occupations = await searchOccupations(q);
       return NextResponse.json({ occupations });
@@ -30,4 +31,4 @@ export async function GET(request: NextRequest) {
     console.error('/admin/onet/search:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

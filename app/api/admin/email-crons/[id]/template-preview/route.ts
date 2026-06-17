@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { brandedEmailLayout } from '@/lib/email/template';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { weeklyRecapHtml } from '@/emails/weekly-recap';
 import { inactiveNudgeHtml } from '@/emails/inactive-nudge';
 import { applicantFollowupHtml } from '@/emails/applicant-followup';
@@ -18,7 +19,7 @@ export type TemplatePreviewResponse = {
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(req: NextRequest, ctx: RouteContext) {
+export const GET = withApiGuc(async (req: NextRequest, ctx: RouteContext) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
     console.error('/admin/email-crons/[id]/template-preview error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 
 function buildPreview(id: string): TemplatePreviewResponse | null {

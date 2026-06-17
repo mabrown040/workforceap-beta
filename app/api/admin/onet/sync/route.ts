@@ -3,13 +3,14 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { syncOccupation, syncTopMappedOccupations } from '@/lib/onet/sync';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const bodySchema = z.object({
   onetCodes: z.array(z.string().min(1)).optional(),
   allMapped: z.boolean().optional(),
 });
 
-export async function POST(request: NextRequest) {
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -55,5 +56,5 @@ export async function POST(request: NextRequest) {
     console.error('/admin/onet/sync error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 

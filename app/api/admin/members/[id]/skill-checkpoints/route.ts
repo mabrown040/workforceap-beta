@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { recordMissionResult, getMissionDefinitionForKey } from '@/lib/member/skillMissions';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const bodySchema = z.object({
   checkpointKey: z.string().min(1).max(200),
@@ -73,6 +74,7 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: Props) =
       aiToolResultId: null,
     });
 
+    void auditLog({ actorUserId: user.id, action: 'member_skill_checkpoint', targetType: 'user', targetId: memberId, metadata: { checkpointKey: parsed.data.checkpointKey, decision: parsed.data.decision } }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('/api/admin/members/[id]/skill-checkpoints error:', error);

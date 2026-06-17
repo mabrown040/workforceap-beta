@@ -108,6 +108,26 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-022: Audit log sweep — third wave (PRs #1931–#1935, 2026-06-17)
+
+**What:** Continued audit log coverage added to admin routes still untracked on origin/master.
+
+**PRs:**
+- **#1931** `fix/audit-logs-resume-messages` — `admin_member_resume_upload`, `admin_staff_message_send`
+- **#1932** `fix/audit-logs-subgroups-links` — `admin_subgroup_create/update/delete`, `admin_user_bulk_free_emails`, `admin_member_eligibility_link_sent`, `admin_member_interview_link_sent`, `admin_email_template_test_sent`
+- **#1933** `fix/audit-logs-org-counselors-chapters` — `admin_org_settings_update`, `admin_counselor_create`, `admin_chapter_create`, `admin_member_counselor_assign`
+- **#1934** `fix/withapiguc-audit-wioa-onet` — `withApiGuc` added to `wioa/generate` + `onet/sync`; `admin_wioa_report_generate`, `admin_onet_sync`
+- **#1935** `fix/audit-logs-employers-catalog-messages` — `admin_employer_create`, `admin_program_catalog_create`, `admin_program_catalog_update`, `admin_member_message_send`
+
+**Remaining deferred (low-priority):**
+- Coursera admin routes (~15 routes — `auto-heal`, `csv-import`, `backfill-*`, `seed-*`, `sync-*`, etc.) — operational/maintenance tools, not day-to-day admin actions
+- `admin/email-crons/[id]/dry-run` — sends a preview email, no permanent state change
+- `admin/jobs/[id]/suggest-matches` — already has `recordSuggestAudit`
+
+**Priority:** Informational — PRs open awaiting CI + gate-merge.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.

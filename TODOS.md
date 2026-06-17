@@ -72,6 +72,26 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## ~~TODO-026: admin/feature-flags — PATCH+DELETE missing audit logs~~ ✓ COMPLETED
+
+**What:** `app/api/admin/feature-flags/[id]/route.ts` PATCH and DELETE had no audit trail. Feature flag toggles (enable/disable, rollout %, allowed roles) are security-relevant config changes.
+
+**Fix:** Added `auditLog({ action: 'feature_flag_update' | 'feature_flag_delete', ... })` to both handlers. DELETE pre-fetches name+enabled before deleting so metadata survives the deletion.
+
+**Completed:** 2026-06-17. PR #1886.
+
+---
+
+## ~~TODO-027: admin/subgroups — POST+PATCH+DELETE missing audit logs~~ ✓ COMPLETED
+
+**What:** `app/api/admin/subgroups/route.ts` POST and `app/api/admin/subgroups/[id]/route.ts` PATCH+DELETE had no audit trail. Subgroup membership drives counselor assignment routing.
+
+**Fix:** Added `auditLog({ action: 'subgroup_create' | 'subgroup_update' | 'subgroup_delete', ... })` to all three mutating handlers.
+
+**Completed:** 2026-06-17. PR #1886.
+
+---
+
 ## TODO-007: admin/growth — wire real GA4 property ID
 
 **What:** `app/admin/growth/page.tsx:38` has a placeholder GA4 property ID and the dashboard shows static demo data instead of live analytics.
@@ -98,6 +118,8 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ## Completed
 
+- **TODO-027: admin/subgroups audit logs** — POST/PATCH/DELETE all emit audit events. PR #1886, 2026-06-17.
+- **TODO-026: admin/feature-flags audit logs** — PATCH emits `feature_flag_update`, DELETE pre-fetches then emits `feature_flag_delete`. PR #1886, 2026-06-17.
 - **TODO-006 items 1-3: admin/token-links P2 hardening** — existence oracle collapsed to 404, audit log + rate limit added. Confirmed in code 2026-06-17.
 - **TODO-005: admin/token-links — cross-tenant subjectUserId minting** — `resolveActOnBehalf` gate added before `getSubjectOrganizationId`; silent `.catch(() => null)` orgId degradation removed; route asserted in `verify-high-risk-tenant-routes.cjs`; regression spec `tests/api/admin-token-links.spec.ts`. Completed 2026-06-12.
 - **TODO-001: Coursera Hub — Mobile Layout Spec** — `/dashboard/coursera` is absorbed into the Training hub redirect; shared course cards wrap long Coursera course names and mobile CTAs safely at narrow widths. Completed 2026-06-14.

@@ -5,6 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
+import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -70,6 +71,15 @@ async function _PATCH(request: NextRequest, { params }: Props) {
     }),
   );
 
+  logAuditEvent({
+    user: { id: actor.id, role: 'admin' },
+    verb: 'wioa_review',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { status: parsed.data.status } },
+    request: auditRequestMeta(request),
+    orgId,
+  }).catch((err) => console.error('[audit] wioa_review:', err));
+
   return NextResponse.json({
     ok: true,
     wioaReviewStatus: parsed.data.status,
@@ -84,3 +94,4 @@ async function _PATCH(request: NextRequest, { params }: Props) {
   }
 }
 export const PATCH = withApiGuc(_PATCH);
+

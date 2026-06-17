@@ -5,6 +5,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { buildDeletedEmail, isDeletedEmail } from '../../_deletedEmail';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Rewrite a soft-deleted user's email to the sentinel form so the
@@ -58,6 +59,8 @@ async function _POST(
       data: { email: newEmail },
     }),
   );
+
+  void auditLog({ actorUserId: actor.id, action: 'admin_user_free_email', targetType: 'user', targetId: id, metadata: { originalEmail: target.email, newEmail } }).catch(() => {});
 
   return NextResponse.json({ ok: true, originalEmail: target.email, currentEmail: newEmail });
 

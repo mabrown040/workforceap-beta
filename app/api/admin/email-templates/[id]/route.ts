@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 async function _GET(
   _request: NextRequest,
@@ -68,6 +69,8 @@ async function _PATCH(
       where: { id },
       data: update,
     }));
+
+    void auditLog({ actorUserId: user.id, action: 'admin_email_template_update', targetType: 'emailTemplate', targetId: id, metadata: { ...update, key: existing.key } }).catch(() => {});
 
     return NextResponse.json(template);
   } catch (error) {

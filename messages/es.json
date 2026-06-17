@@ -1806,8 +1806,8 @@
       "trustPlaceholderFitTag": "Selección de candidatos",
       "trustPlaceholderSkills": "Evaluados para preparación",
       "trustPlaceholderSkillsTag": "Revisión de preparación",
-      "trustPlaceholderTerms": "Sin tarifa de reclutamiento anticipada",
-      "trustPlaceholderTermsTag": "Precio contingente",
+      "trustPlaceholderTerms": "Sin tarifas por contratación",
+      "trustPlaceholderTermsTag": "Suscripción de pipeline",
       "trustPlaceholderNote": "Las métricas de colocación se actualizan a medida que se confirman los resultados verificados.",
       "trustVerifiedNote": "Las cifras de contratación y salario provienen de registros de colocación en archivo, no de proyecciones ni metas.",
       "trustImpactLink": "Ver métricas de impacto publicadas",
@@ -1856,7 +1856,7 @@
       "finalCtaCopy": "Reserva una llamada de 20 minutos. Confirmaremos ajuste del puesto, plazo y precio contingente, sin comisiones de reclutamiento por adelantado.",
       "intakeAriaLabel": "Formulario de intake para empleadores",
       "intakeTitle": "¿Prefieres email en vez de agendar?",
-      "intakeCopy": "Envía los detalles del intake y te responderemos en 1–2 días hábiles. Este formulario no es un segundo checkout: usa el botón de arriba para reservar una llamada primero."
+      "intakeCopy": "Envía los detalles del intake y te responderemos en 1–2 días hábiles. Este formulario es una alternativa por correo: usa el botón de arriba para iniciar una suscripción de pipeline."
     },
     "outcomes": {
       "title": "Resumen de resultados",

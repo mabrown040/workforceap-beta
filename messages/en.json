@@ -1814,8 +1814,8 @@
       "trustPlaceholderFitTag": "Candidate sourcing",
       "trustPlaceholderSkills": "Screened for readiness",
       "trustPlaceholderSkillsTag": "Readiness review",
-      "trustPlaceholderTerms": "No upfront recruiting fee",
-      "trustPlaceholderTermsTag": "Contingent pricing",
+      "trustPlaceholderTerms": "No per-placement fees",
+      "trustPlaceholderTermsTag": "Pipeline subscription",
       "trustPlaceholderNote": "Placement metrics update as verified outcomes are confirmed.",
       "trustVerifiedNote": "Hire and wage figures come from placement records on file—not projections or targets.",
       "trustImpactLink": "View published impact metrics",
@@ -1864,7 +1864,7 @@
       "finalCtaCopy": "Start a pipeline subscription today. $499/mo Growth tier. No per-placement fees. Cancel anytime.",
       "intakeAriaLabel": "Employer intake form",
       "intakeTitle": "Prefer email over scheduling?",
-      "intakeCopy": "Submit intake details and we will follow up within 1–2 business days. This form is not a second checkout — use the button above to book a call first."
+      "intakeCopy": "Submit intake details and we will follow up within 1–2 business days. This form is an email alternative — use the button above to start a pipeline subscription."
     },
     "careers": {
       "title": "Careers at WorkforceAP",

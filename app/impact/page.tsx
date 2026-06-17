@@ -411,10 +411,6 @@ export default async function ImpactPage() {
           border: 1px solid var(--outline-variant);
           border-radius: var(--radius-lg);
         }
-        .impact-page__preview-panel--employers {
-          margin-top: 1.25rem;
-          margin-bottom: 0;
-        }
         .impact-page__preview-heading {
           margin: 0 0 1rem;
           font-size: 0.7rem;
@@ -422,9 +418,6 @@ export default async function ImpactPage() {
           letter-spacing: 0.12em;
           text-transform: uppercase;
           color: var(--color-on-surface-variant);
-        }
-        .impact-page__preview-heading--employers {
-          margin-top: 0;
         }
         .impact-page__stats-grid--preview {
           margin-top: 0;
@@ -434,9 +427,6 @@ export default async function ImpactPage() {
           background: var(--surface-container-low);
           border: 1px solid var(--outline-variant);
           border-radius: var(--radius-md);
-        }
-        .impact-page__stats-grid--employers.impact-page__stats-grid--preview {
-          margin-top: 0;
         }
         .impact-page__methodology--panel {
           margin: 1rem 0 0;

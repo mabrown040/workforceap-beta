@@ -76,6 +76,7 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         metadata: {
           employerId: ctx.employerId,
           tier,
+          userId: user.id,
         },
       },
     });

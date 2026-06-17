@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin, isCounselor } from '@/lib/auth/roles';
+import { isAdmin, isCounselor, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { sendPlacementSurveyEmail } from '@/lib/email';
@@ -14,14 +15,17 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const superAdmin = await isSuperAdmin(user.id);
+    const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
     const body = await req.json().catch(() => ({}));
     const { placementId } = body;
     if (!placementId) {
       return NextResponse.json({ error: 'Missing placementId' }, { status: 400 });
     }
 
-    const placement = await prisma.$transaction((tx) => tx.placementRecord.findUnique({
-      where: { id: placementId },
+    const placement = await prisma.$transaction((tx) => tx.placementRecord.findFirst({
+      where: { id: placementId, ...(orgId ? { user: { organizationId: orgId } } : {}) },
       include: {
         user: {
           select: { id: true, email: true, fullName: true, enrolledProgram: true },

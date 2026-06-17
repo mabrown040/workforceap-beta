@@ -21,7 +21,10 @@ export const POST = withApiGuc(async () => {
     },
   }));
 
-  if (!row?.interviewEligible) {
+  if (!row) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+  if (!row.interviewEligible) {
     return NextResponse.json({ error: 'Complete pre-screening before requesting an interview.' }, { status: 400 });
   }
   if (row.interviewCompletedAt) {

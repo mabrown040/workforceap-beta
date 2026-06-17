@@ -71,6 +71,15 @@ export async function POST(
 
     await invalidateJobListings();
 
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'reject_job',
+      object: { type: 'Job', id },
+      result: { success: true },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] reject_job:', err));
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/jobs/[id]/reject POST] error:', error);

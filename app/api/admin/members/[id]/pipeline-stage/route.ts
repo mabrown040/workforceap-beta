@@ -61,6 +61,15 @@ export async function PATCH(
       }),
     );
 
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'update_pipeline_stage',
+      object: { type: 'User', id: memberId },
+      result: { success: true, extensions: { stage } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] update_pipeline_stage:', err));
+
     return NextResponse.json({ ok: true, pipelineBoardStage: stage });
   } catch (error) {
     captureApiError(error, { route: 'PATCH /api/admin/members/[id]/pipeline-stage' });

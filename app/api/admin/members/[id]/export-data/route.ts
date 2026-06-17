@@ -18,11 +18,11 @@ import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
  * for any Org B member by guessing their UUID. P0.
  */
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAdminOrCounselor(_req);
+    const auth = await requireAdminOrCounselor(req);
     if (!auth.ok) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
@@ -41,6 +41,15 @@ export async function GET(
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
 
     const exportData = await buildMemberExport(id);
+
+    logAuditEvent({
+      user: { id: actor.id, role: 'admin' },
+      verb: 'export_member_data',
+      object: { type: 'User', id },
+      result: { success: true },
+      request: auditRequestMeta(req),
+      orgId,
+    }).catch((err) => console.error('[audit] export_member_data:', err));
 
     return NextResponse.json(exportData, {
       headers: {

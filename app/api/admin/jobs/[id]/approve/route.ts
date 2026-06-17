@@ -20,7 +20,7 @@ import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
  * accepts only the unique constraint.
  */
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -67,6 +67,15 @@ export async function POST(
     after(() => runAiMatchForLiveJob(id));
 
     await invalidateJobListings();
+
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'approve_job',
+      object: { type: 'Job', id },
+      result: { success: true },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch((err) => console.error('[audit] approve_job:', err));
 
     return NextResponse.json({ ok: true });
   } catch (error) {

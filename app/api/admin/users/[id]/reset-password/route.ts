@@ -35,6 +35,15 @@ export async function POST(
     try {
       const { error } = await sendPasswordResetEmail(user.email, '/reset-password', { orgId });
       if (error) throw error;
+
+      logAuditEvent({
+        user: { id: admin.id, role: 'admin' },
+        verb: 'reset_password',
+        object: { type: 'User', id },
+        result: { success: true },
+        orgId,
+      }).catch((err) => console.error('[audit] reset_password:', err));
+
       return NextResponse.json({ success: true, message: `Password reset email sent to ${user.email}` });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to send password reset email';

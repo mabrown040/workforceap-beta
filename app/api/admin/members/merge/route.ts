@@ -87,6 +87,14 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       return executeMemberMerge(tx, primaryId, secondaryId, user.id);
     });
 
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'merge_members',
+      object: { type: 'User', id: primaryId },
+      result: { success: true, extensions: { secondaryId } },
+      request: auditRequestMeta(req),
+    }).catch((err) => console.error('[audit] merge_members:', err));
+
     return NextResponse.json({ ok: true, ...result });
   } catch (error) {
     console.error('/admin/members/merge error:', error);

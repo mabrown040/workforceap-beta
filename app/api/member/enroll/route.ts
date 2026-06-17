@@ -11,6 +11,7 @@ import { awardPoints } from '@/lib/member/points';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
 import { cookies } from 'next/headers';
 import { MEMBER_REFERRAL_COOKIE, rewardReferralOnEnrollment } from '@/lib/member/referrals';
+import { auditLog } from '@/lib/audit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const POST = withApiGuc(async (request: Request) => {
@@ -113,6 +114,14 @@ export const POST = withApiGuc(async (request: Request) => {
     });
     return { user: u, enrollmentId: enrollment.id };
   });
+
+  void auditLog({
+    actorUserId: user.id,
+    action: 'member_program_enroll',
+    targetType: 'user',
+    targetId: user.id,
+    metadata: { programSlug: slug, programTitle },
+  }).catch(() => {});
 
   awardPoints(user.id, 'program_enrolled', slug).catch(() => {});
 

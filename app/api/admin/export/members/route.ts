@@ -7,6 +7,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { getPipelineStage, PIPELINE_STAGE_LABELS, type PipelineStage } from '@/lib/pipeline/stage';
 import { buildCsv, csvDate } from '@/lib/csv';
 import { buildMemberExportWhere, fetchMembersForExport, MEMBER_EXPORT_LIMIT } from './_membersExportQuery';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * GET /api/admin/export/members
@@ -18,7 +19,7 @@ import { buildMemberExportWhere, fetchMembersForExport, MEMBER_EXPORT_LIMIT } fr
  * columns cover demographics, enrollment, course progress, Coursera access,
  * WIOA qualification, certifications, and placement outcomes.
  */
-export async function GET(req: NextRequest) {
+async function _GET(req: NextRequest) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -180,3 +181,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

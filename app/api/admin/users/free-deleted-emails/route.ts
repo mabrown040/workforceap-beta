@@ -5,6 +5,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { buildDeletedEmail } from '../_deletedEmail';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Batch-rewrite every soft-deleted user's email to the sentinel form
@@ -20,7 +21,7 @@ import { buildDeletedEmail } from '../_deletedEmail';
  * admin who needs to do this platform-wide should run the operation
  * once per tenant.
  */
-export async function POST() {
+async function _POST() {
   try {
     const actor = await getUser();
     if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -67,3 +68,4 @@ export async function POST() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

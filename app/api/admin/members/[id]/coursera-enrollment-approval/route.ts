@@ -6,6 +6,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { auditLog } from '@/lib/audit';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * PATCH /api/admin/members/[id]/coursera-enrollment-approval
@@ -28,7 +29,7 @@ const patchSchema = z.object({
   approved: z.boolean(),
 });
 
-export async function PATCH(
+async function _PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
@@ -96,4 +97,4 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const PATCH = withApiGuc(_PATCH);

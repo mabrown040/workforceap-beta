@@ -8,6 +8,7 @@ import { sendJobApprovedEmail } from '@/lib/email';
 import { runAiMatchForLiveJob } from '@/lib/employer/triggerEmployerJobAiMatch';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
@@ -19,7 +20,7 @@ import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
  * `organizationId` to the where clause and the Prisma `findUnique`
  * accepts only the unique constraint.
  */
-export async function POST(
+async function _POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -83,3 +84,4 @@ export async function POST(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const POST = withApiGuc(_POST);

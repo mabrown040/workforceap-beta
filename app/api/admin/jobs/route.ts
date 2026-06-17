@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Reference migration for Track A — Tenant Isolation Hardening (Sprint A.1).
@@ -18,7 +19,7 @@ import { captureApiError } from '@/lib/observability/captureApiError';
  * single-tenant). When the multi-tenant resolver lands in Sprint A.2,
  * `orgId` will come from the authenticated user's `User.organizationId`.
  */
-export async function GET(request: NextRequest) {
+async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -59,3 +60,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+export const GET = withApiGuc(_GET);

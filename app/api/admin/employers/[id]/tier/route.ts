@@ -6,6 +6,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
@@ -20,7 +21,7 @@ const tierSchema = z.object({
   tier: z.enum(['basic', 'partner']),
 });
 
-export async function PATCH(
+async function _PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -83,4 +84,4 @@ export async function PATCH(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
+export const PATCH = withApiGuc(_PATCH);

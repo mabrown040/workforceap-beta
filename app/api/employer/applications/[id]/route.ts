@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -61,6 +63,20 @@ const updateSchema = z.object({
     where: { id },
     data: updates,
   }));
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'employer_application_updated',
+    targetType: 'User',
+    targetId: updated.studentId,
+    metadata: { applicationId: id, previousStatus: application.status, nextStatus: updated.status, employerId: ctx.employerId },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'employer' },
+    verb: 'updated',
+    object: { type: 'JobApplication', id },
+    result: { success: true, extensions: { previousStatus: application.status, nextStatus: updated.status } },
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true, application: updated });
 

@@ -4,6 +4,7 @@ import { isEmployer } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getStripe, EMPLOYER_TIERS } from '@/lib/stripe/client';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { z } from 'zod';
 
@@ -140,6 +141,13 @@ async function _POST(request: NextRequest) {
       object: { type: 'EmployerHiringIntent', id: hiringIntent.id },
       request: auditRequestMeta(request),
     });
+    auditLog({
+      actorUserId: user.id,
+      action: 'employer_loi_submitted',
+      targetType: 'Employer',
+      targetId: employerProfile.id,
+      metadata: { hiringIntentId: hiringIntent.id },
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,

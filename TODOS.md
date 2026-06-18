@@ -413,6 +413,18 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-058: §H-DEP4 audit trails — employer/partner routes batch 2 — ✓ Fixed PR #1992
+
+**What:** 11 employer/partner mutation routes missing dual `auditLog` + `logAuditEvent` audit trails. Also fixes resume upload MIME-type spoofing across 4 upload routes.
+
+**Routes fixed:** `employer/signup`, `employer/checkout`, `employer/subscribe`, `employer/jobs` POST, `employer/jobs/[id]` PATCH+DELETE, `employer/jobs/bulk-delete`, `employer/settings`, `partner/signup`, `partner/payout`, `partner/settings/contact`.
+
+**Fixed:** PR #1992. Fire-and-forget dual audit trail added to all mutation paths per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #1992 open / gate-merge pending.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

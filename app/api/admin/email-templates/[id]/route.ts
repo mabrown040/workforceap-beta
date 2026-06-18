@@ -4,6 +4,8 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function _GET(
   _request: NextRequest,
@@ -69,6 +71,8 @@ async function _PATCH(
       data: update,
     }));
 
+    void auditLog({ actorUserId: user.id, action: 'admin_email_template_updated', targetType: 'EmailTemplate', targetId: id, metadata: {} }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'EmailTemplate', id }, result: { success: true } }).catch(() => {});
     return NextResponse.json(template);
   } catch (error) {
     console.error('/admin/email-templates/[id] PATCH error:', error);

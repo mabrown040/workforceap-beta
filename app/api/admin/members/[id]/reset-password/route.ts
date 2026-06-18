@@ -4,6 +4,7 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -44,6 +45,13 @@ async function _POST(
       const { error } = await sendPasswordResetEmail(member.email, '/reset-password', { orgId });
       if (error) throw error;
 
+      auditLog({
+        actorUserId: admin.id,
+        action: 'admin_member_password_reset',
+        targetType: 'User',
+        targetId: id,
+        metadata: { targetEmail: member.email, orgId },
+      }).catch((err) => console.error('[audit] admin_member_password_reset:', err));
       // xAPI audit: credential reset action
       await logAuditEvent({
         user: { id: admin.id, role: 'super_admin' },

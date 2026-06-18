@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -30,7 +31,7 @@ const patchSchema = z.object({
 });
 
 async function _PATCH(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -89,6 +90,14 @@ async function _PATCH(
       approved,
     },
   });
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: approved ? 'coursera_enrollment_approved' : 'coursera_enrollment_revoked',
+    object: { type: 'User', id: memberId },
+    result: { success: true, extensions: { approved, orgId: actorOrgId } },
+    request: auditRequestMeta(request),
+    orgId: actorOrgId,
+  }).catch((err) => console.error('[audit] coursera_enrollment_approval:', err));
 
   return NextResponse.json({ ok: true, approved });
 

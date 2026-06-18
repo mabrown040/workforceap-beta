@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -121,6 +123,8 @@ export const POST = withApiGuc(async (request: Request) => {
         },
       }));
   
+      void auditLog({ actorUserId: user.id, action: 'admin_blog_draft_created', targetType: 'BlogPost', targetId: post.id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'BlogPost', id: post.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ post: { id: post.id, slug: post.slug } });
     } catch (err) {
       console.error('Blog from-ideas draft error:', err);

@@ -301,6 +301,17 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-054: §H-DEP4 dual audit trails sweep 6 — 5 routes — ✓ Fixed PR #1982
+
+**What:** 5 routes missing one of the two required audit calls:
+- `admin/data-retention` POST run_cleanup: no audit at all → added both `auditLog` + `logAuditEvent`
+- `admin/mentors/[id]` PATCH: `auditLog` only → added `logAuditEvent`
+- `admin/partner-payouts` GET: `auditLog` only → added `logAuditEvent`
+- `counselor/inbox-zero/dismiss` POST: `auditLog` only → added `logAuditEvent`
+- `member/coursera/enroll-in-course` (`writeEnrollAudit` helper): `auditLog` only → added `logAuditEvent`
+
+**Fixed:** PR #1982. All 5 routes now emit both `auditLog` + `logAuditEvent` fire-and-forget per §H-DEP4.
+
 ## TODO-053: §H-DEP4 dual audit trails sweep 5 — 9 admin/members routes — ✓ Fixed PR #1981
 
 **What:** 9 admin/members routes with mismatched audit trails:

@@ -221,21 +221,54 @@ function fetchImpl(): FetchLike {
 const TRANSIENT_B4B_STATUSES = new Set([429, 502, 503, 504]);
 const B4B_FETCH_MAX_ATTEMPTS = 3;
 const B4B_FETCH_BASE_DELAY_MS = 400;
+// Hard per-attempt deadline. The B4B HTTP calls had NO timeout, so a slow/hung
+// upstream (Coursera enrollmentReports) would block the awaiting code forever —
+// including server-rendered dashboard/portal pages that call B4B during render,
+// which then hit Vercel's function maxDuration and 504 (incident 2026-06-18).
+// A bounded timeout converts a hang into an error so the caller's existing
+// fail-soft path (e.g. fetchLearnerProgressFromB4B returns an empty map) runs.
+const B4B_ATTEMPT_TIMEOUT_MS = 4000;
+
+class B4BTimeoutError extends Error {
+  constructor(ms: number) {
+    super(`Coursera B4B request timed out after ${ms}ms`);
+    this.name = 'B4BTimeoutError';
+  }
+}
 
 function isTransientHttpStatus(status: number): boolean {
   return TRANSIENT_B4B_STATUSES.has(status);
+}
+
+/** Reject if `operation` doesn't settle within `ms`. Unblocks the awaiter even
+ * if the underlying fetch never resolves (the orphaned fetch is harmless on a
+ * serverless function that's about to return). */
+function withAttemptTimeout(operation: () => Promise<Response>, ms: number): Promise<Response> {
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new B4BTimeoutError(ms)), ms);
+  });
+  return Promise.race([
+    operation().finally(() => clearTimeout(timer)),
+    timeout,
+  ]);
 }
 
 /**
  * Retries a few times on rate limits, upstream 5xx, and network failures.
  * Used for OAuth + all B4B REST reads. Writes keep a single attempt so we
  * never double-submit a Coursera enrollment POST after a timeout.
+ *
+ * Each attempt is bounded by B4B_ATTEMPT_TIMEOUT_MS. A timeout is NOT retried —
+ * a hung upstream won't recover within one request, and retrying would stack
+ * multiple deadlines and re-introduce the long render block we're guarding
+ * against. Transient HTTP statuses and network errors retry as before.
  */
 async function fetchWithTransientRetry(operation: () => Promise<Response>): Promise<Response> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= B4B_FETCH_MAX_ATTEMPTS; attempt++) {
     try {
-      const response = await operation();
+      const response = await withAttemptTimeout(operation, B4B_ATTEMPT_TIMEOUT_MS);
       if (isTransientHttpStatus(response.status) && attempt < B4B_FETCH_MAX_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, B4B_FETCH_BASE_DELAY_MS * attempt));
         continue;
@@ -243,6 +276,11 @@ async function fetchWithTransientRetry(operation: () => Promise<Response>): Prom
       return response;
     } catch (err) {
       lastError = err;
+      // Don't retry a timeout — bound total wall-clock so callers in a render
+      // path fail-soft quickly instead of stacking 3× the deadline.
+      if (err instanceof B4BTimeoutError) {
+        throw err;
+      }
       if (attempt < B4B_FETCH_MAX_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, B4B_FETCH_BASE_DELAY_MS * attempt));
         continue;

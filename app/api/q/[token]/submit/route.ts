@@ -8,6 +8,7 @@ import {
 } from '@/lib/tokenizedLink';
 import { checkPublicQuestionnaireSubmitRateLimit } from '@/lib/rate-limit';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/q/[token]/submit
@@ -140,6 +141,21 @@ export const POST = withApiGuc(
             data: { wioaQualificationJson: { ...existing, eligibilityForm: meta } as object },
           });
         });
+        auditLog({
+          actorUserId: link.subjectUserId,
+          action: 'member_eligibility_questionnaire_submitted',
+          targetType: 'User',
+          targetId: link.subjectUserId,
+          metadata: { linkId: link.id, orgId: link.orgId, ageGroup: data.ageGroup ?? null },
+        }).catch(() => {});
+        logAuditEvent({
+          user: { id: link.subjectUserId, role: 'member' },
+          verb: 'submitted',
+          object: { type: 'EligibilityQuestionnaire', id: link.id },
+          result: { success: true, extensions: { ageGroup: data.ageGroup ?? null } },
+          request: auditRequestMeta(request),
+          orgId: link.orgId,
+        }).catch(() => {});
       } else {
         // No-account lead: do NOT create a Supabase auth account or a User
         // FK row. Record the submission to the audit log so an admin can see

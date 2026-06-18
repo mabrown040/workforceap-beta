@@ -12,6 +12,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const jobCreateSchema = z.object({
   title: z.string().min(1).max(200),
@@ -161,6 +163,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       await invalidateJobListings().catch(() => {});
     }
 
+    auditLog({ actorUserId: user.id, action: 'employer_job_create', targetType: 'Job', targetId: job.id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'created', object: { type: 'Job', id: job.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json(job, { status: 201 });
   } catch (error) {
     const detail = getRouteErrorDetails(error);

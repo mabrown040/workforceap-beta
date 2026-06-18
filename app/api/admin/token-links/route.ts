@@ -8,6 +8,7 @@ import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/o
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { sendEligibilityLink } from '@/lib/email';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { checkAdminTokenLinksRateLimit } from '@/lib/rate-limit';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
@@ -106,6 +107,14 @@ export const POST = withApiGuc(async (request: Request) => {
         token,
       },
     });
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'minted',
+      object: { type: 'TokenizedLink', id: token },
+      result: { success: true, extensions: { subjectUserId: subjectUserId ?? null } },
+      request: auditRequestMeta(request as Request),
+      orgId,
+    }).catch(() => {});
 
     const url = `${SITE_URL}/q/${token}`;
 

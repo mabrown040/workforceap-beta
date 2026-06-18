@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const updateSchema = z.object({
   status: z.enum(['pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected']),
@@ -62,6 +64,8 @@ const updateSchema = z.object({
     data: updates,
   }));
 
+  auditLog({ actorUserId: user.id, action: 'employer_application_update', targetType: 'JobApplication', targetId: id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'JobApplication', id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, application: updated });
 
   } catch (error) {

@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -160,6 +161,13 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       return updated;
     });
 
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'updated',
+      object: { type: 'CareerProgramMapping', id: row.id },
+      result: { success: true },
+      request: auditRequestMeta(request),
+    }).catch(() => {});
     return NextResponse.json({ mapping: row });
   }
 
@@ -200,6 +208,13 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     return created;
   });
 
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'created',
+    object: { type: 'CareerProgramMapping', id: row.id },
+    result: { success: true },
+    request: auditRequestMeta(request),
+  }).catch(() => {});
   return NextResponse.json({ mapping: row });
 
   } catch (error) {
@@ -253,6 +268,13 @@ export const POST = withApiGuc(_POST);async function _DELETE(request: NextReques
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'deleted',
+    object: { type: 'CareerProgramMapping', id: parsed.data.id },
+    result: { success: true },
+    request: auditRequestMeta(request),
+  }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

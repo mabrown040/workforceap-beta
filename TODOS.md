@@ -301,6 +301,23 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-053: §H-DEP4 dual audit trails sweep 5 — 9 admin/members routes — ✓ Fixed PR #1981
+
+**What:** 9 admin/members routes with mismatched audit trails:
+- `members/[id]/pipeline-stage` PATCH: `logAuditEvent` only → added `auditLog`
+- `members/[id]/export-data` GET: `logAuditEvent` only → added `auditLog`
+- `members/merge` POST: `logAuditEvent` only → added `auditLog`
+- `members/[id]/reset-password` POST: `logAuditEvent` only → added `auditLog`
+- `members/[id]/wioa-review` PATCH: `auditLog` only → added `logAuditEvent`
+- `members/[id]/workspace-email` POST+DELETE: `auditLog` only → added `logAuditEvent` for both
+- `members/[id]/readiness` PATCH: `auditLog` only → added `logAuditEvent`
+- `members/[id]/coursera-enrollment-approval` PATCH: `auditLog` only → added `logAuditEvent`
+- `members/bulk-export` POST: `auditLog` only → added `logAuditEvent`
+
+**Status:** Completed 2026-06-17. PR #1981 open / gate-merge pending.
+
+---
+
 ## TODO-052: §H-DEP4 dual audit trails sweep 4 — milestone/placements/employers/partners/subgroups/employer — ✓ Fixed PR #1980
 
 **What:** 8 routes with mismatched audit trails:

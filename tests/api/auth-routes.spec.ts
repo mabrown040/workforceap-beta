@@ -186,6 +186,7 @@ import {
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { isStaffMfaEnforcementEnabled } from '@/lib/auth/mfaConfig';
 import { verifyAdminMfaTrustToken } from '@/lib/auth/mfaTrust';
+import { getClientIpFromRequest } from '@/lib/http/clientIp';
 
 const makeJsonRequest = (body: unknown, url = 'http://localhost:3000/api/auth/login') =>
   new Request(url, {
@@ -337,6 +338,44 @@ describe('POST /api/auth/login', () => {
     const body = await res.json();
     expect(body.error).toContain('Too many login attempts');
     expect(res.headers.get('Retry-After')).toBe('60');
+  });
+
+  it('uses trusted client IP helper for login rate-limit keys', async () => {
+    vi.mocked(getClientIpFromRequest).mockReturnValue('198.51.100.77');
+    vi.mocked(createServerClient).mockReturnValue({
+      auth: {
+        signInWithPassword: vi.fn(() =>
+          Promise.resolve({
+            data: {
+              session: { access_token: 'tok', refresh_token: 'ref' },
+              user: { id: 'user-123', email: 'jane@example.com' },
+            },
+            error: null,
+          })
+        ),
+        mfa: {
+          getAuthenticatorAssuranceLevel: vi.fn(() =>
+            Promise.resolve({ data: { currentLevel: 'aal1', nextLevel: 'aal1' } })
+          ),
+          listFactors: vi.fn(() => Promise.resolve({ data: { totp: [] } })),
+        },
+      },
+    } as any);
+    vi.mocked(prisma.profile.findUnique).mockResolvedValue({ role: 'member' } as any);
+    const cookieStore = createMockCookieStore();
+    vi.mocked(cookies).mockResolvedValue(cookieStore as any);
+
+    const res = await loginPOST(
+      makeJsonRequest({ email: 'Jane@Example.com', password: 'secret123' })
+    );
+
+    expect(res.status).toBe(200);
+    expect(getClientIpFromRequest).toHaveBeenCalled();
+    expect(checkAuthRateLimit).toHaveBeenCalledWith(
+      'login:198.51.100.77:jane@example.com',
+      expect.any(Request)
+    );
+    expect(checkAuthIpRateLimit).toHaveBeenCalledWith('198.51.100.77', expect.any(Request));
   });
 
   it('allows QA bypass when x-wap-qa-bypass header matches secret', async () => {
@@ -1285,6 +1324,19 @@ describe('POST /api/auth/verify-mfa', () => {
     expect(res.status).toBe(429);
     const body = await res.json();
     expect(body.error).toContain('Too many verification attempts');
+  });
+
+  it('uses trusted client IP helper for MFA verify rate limits', async () => {
+    vi.mocked(getClientIpFromRequest).mockReturnValue('198.51.100.88');
+    vi.mocked(checkVerifyMfaRateLimit).mockResolvedValue({ success: false });
+
+    const res = await verifyMfaPOST(
+      makeJsonRequest({ code: '123456' }, 'http://localhost:3000/api/auth/verify-mfa')
+    );
+
+    expect(res.status).toBe(429);
+    expect(getClientIpFromRequest).toHaveBeenCalled();
+    expect(checkVerifyMfaRateLimit).toHaveBeenCalledWith('198.51.100.88');
   });
 
   it('returns 400 when code is missing', async () => {

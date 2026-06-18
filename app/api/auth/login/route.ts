@@ -13,6 +13,8 @@ import { logger } from '@/lib/observability/logger';
 import { trackEvent } from '@/lib/events/track';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (request: Request) => {
   try {
   let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
@@ -187,6 +189,8 @@ export const POST = withApiGuc(async (request: Request) => {
     sourcePage: '/login',
   }).catch(() => {});
 
+  void auditLog({ actorUserId: data.user.id, action: 'user_login', targetType: 'User', targetId: data.user.id, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: data.user.id, role: 'member' }, verb: 'login', object: { type: 'Session', id: data.user.id }, result: { success: true } }).catch(() => {});
   await prisma.$transaction((tx) =>
     tx.user.update({
       where: { id: data.user.id },

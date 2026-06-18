@@ -13,6 +13,8 @@ import { checkVerifyMfaRateLimit } from '@/lib/rate-limit';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 import { getClientIpFromRequest } from '@/lib/http/clientIp';
 import { trackEvent } from '@/lib/events/track';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/auth/verify-mfa
@@ -120,6 +122,8 @@ export async function POST(request: Request) {
     sourcePage: '/verify-mfa',
   }).catch(() => {});
 
+  void auditLog({ actorUserId: verifyData.user.id, action: 'user_mfa_verified', targetType: 'User', targetId: verifyData.user.id, metadata: { trustDevice } }).catch(() => {});
+  logAuditEvent({ user: { id: verifyData.user.id, role: 'member' }, verb: 'login', object: { type: 'MFASession', id: verifyData.user.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, aal: 'aal2' }, { headers: { 'Cache-Control': 'no-store' } });
 
   } catch (error) {

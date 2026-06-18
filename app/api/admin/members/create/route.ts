@@ -14,6 +14,7 @@ import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 const EMPLOYMENT_OPTIONS = ['Unemployed', 'Underemployed', 'Employed', 'Self-Employed'];
 const VETERAN_OPTIONS = ['Not a Veteran', 'Veteran', 'Disabled Veteran'];
@@ -282,6 +283,14 @@ const ETHNICITY_OPTIONS = [
       sourcePage: '/admin/members/create',
     });
   
+    await auditLog({
+      actorUserId: user.id,
+      action: 'admin_member_create',
+      targetType: 'user',
+      targetId: authUser.id,
+      metadata: { email, programSlug, partnerId: partnerId ?? null, subgroupId: subgroupId ?? null, organizationId },
+    });
+
     return NextResponse.json({
       ok: true,
       userId: authUser.id,

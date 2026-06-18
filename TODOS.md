@@ -403,6 +403,25 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-067: §H-DEP4 dual audit trails for 9 admin routes (batch 10) — ✓ Fixed PR #2002
+
+**What:** 9 admin routes missing both `auditLog` + `logAuditEvent`:
+- `admin/counselors` POST
+- `admin/members/[id]/award-points` POST
+- `admin/members/[id]/counselor` POST
+- `admin/members/[id]/edit-profile` PATCH
+- `admin/members/[id]/enrollment-funding` POST
+- `admin/members/[id]/notes` POST
+- `admin/members/[id]/send-eligibility-link` POST
+- `admin/members/[id]/subgroup` POST + DELETE
+- `admin/settings/organization` PATCH
+
+**Fixed:** PR #2002. Fire-and-forget `auditLog` + `logAuditEvent` added to all mutation paths per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #2002 open / gate-merge pending.
+
+---
+
 ## TODO-066: §H-DEP4 dual audit trails + security fixes for 4 misc routes — ✓ Fixed PR #2000
 
 **What:** 4 routes from an earlier stash needing audit sweep + security fixes:

@@ -11,6 +11,8 @@ import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText'
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const BUCKET = 'member-resumes';
 
@@ -205,6 +207,8 @@ function buildFallbackResume(params: {
         console.error('[member/resume/generate] completeCareerOsResumeActions failed:', error);
       });
   
+      auditLog({ actorUserId: user.id, action: 'member.resume.generate', targetType: 'Resume', targetId: user.id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'Resume', id: user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ ok: true, resume: cleanedOutput, path, fallbackUsed });
     } catch (err) {
       console.error('Generate resume error:', err);
@@ -232,6 +236,8 @@ function buildFallbackResume(params: {
           console.error('[member/resume/generate:fallback] completeCareerOsResumeActions failed:', error);
         });
   
+        auditLog({ actorUserId: user.id, action: 'member.resume.generate', targetType: 'Resume', targetId: user.id, metadata: { fallback: true } }).catch(() => {});
+        logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'Resume', id: user.id }, result: { success: true } }).catch(() => {});
         return NextResponse.json({ ok: true, resume: output, path, fallbackUsed: true });
       } catch (fallbackErr) {
         console.error('Generate resume fallback error:', fallbackErr);

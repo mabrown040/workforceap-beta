@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const POST = withApiGuc(async () => {
@@ -26,6 +28,19 @@ export const POST = withApiGuc(async () => {
           where: { id: user.id },
           data: { deletedAt: now, email: newEmail },
         }));
+        auditLog({
+          actorUserId: user.id,
+          action: 'member_self_delete',
+          targetType: 'User',
+          targetId: user.id,
+          metadata: { originalEmail: existing.email },
+        }).catch(() => {});
+        logAuditEvent({
+          user: { id: user.id, role: 'member' },
+          verb: 'deleted',
+          object: { type: 'User', id: user.id },
+          result: { success: true },
+        }).catch(() => {});
       }
   
       // Hard-delete from Supabase Auth so the user cannot log back in

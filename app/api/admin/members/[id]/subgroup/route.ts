@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
+import { auditLog } from '@/lib/audit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -59,6 +60,14 @@ const postSchema = z.object({
     },
   }));
 
+  auditLog({
+    actorUserId: user.id,
+    action: 'admin_member_subgroup_add',
+    targetType: 'User',
+    targetId: memberId,
+    metadata: { subgroupId: parsed.data.subgroupId },
+  }).catch(() => {});
+
   return NextResponse.json({ ok: true });
 
   } catch (error) {
@@ -111,6 +120,14 @@ export const POST = withApiGuc(_POST);async function _DELETE(
   if (deleted.count === 0) {
     return NextResponse.json({ error: 'Member not in this subgroup' }, { status: 404 });
   }
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'admin_member_subgroup_remove',
+    targetType: 'User',
+    targetId: memberId,
+    metadata: { subgroupId },
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 

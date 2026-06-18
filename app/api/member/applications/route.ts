@@ -8,6 +8,8 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { awardPoints } from '@/lib/member/points';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const createSchema = z.object({
   company: z.string().min(1).max(200),
@@ -79,6 +81,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       if (status !== 'SAVED') {
         awardPoints(user.id, 'job_application', app.id).catch(() => {});
       }
+      auditLog({ actorUserId: user.id, action: 'member.application.create', targetType: 'JobApplication', targetId: app.id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'JobApplication', id: app.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ application: app });
     } catch (err) {
       captureApiError(err, { route: 'member/applications POST' });

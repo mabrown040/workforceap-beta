@@ -6,6 +6,8 @@ import { awardPoints } from '@/lib/member/points';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const updateSchema = z.object({
   company: z.string().min(1).max(200).optional(),
@@ -70,6 +72,8 @@ const updateSchema = z.object({
         awardPoints(user.id, 'job_application', app.id).catch(() => {});
       }
   
+      auditLog({ actorUserId: user.id, action: 'member.application.update', targetType: 'JobApplication', targetId: id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'JobApplication', id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ application: app });
     } catch (err) {
       console.error('[PATCH /api/member/applications/:id]', err);
@@ -98,6 +102,8 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
       if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   
       await prisma.$transaction((tx) => tx.jobApplication.delete({ where: { id } }));
+      auditLog({ actorUserId: user.id, action: 'member.application.delete', targetType: 'JobApplication', targetId: id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'delete', object: { type: 'JobApplication', id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ success: true });
     } catch (err) {
       console.error('[DELETE /api/member/applications/:id]', err);

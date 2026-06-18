@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const createSchema = z.object({
   requestedProgramSlug: z.string().min(1).max(120),
@@ -73,6 +75,8 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       },
     }));
 
+    auditLog({ actorUserId: user.id, action: 'member.programChangeRequest.create', targetType: 'ProgramChangeRequest', targetId: row.id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'ProgramChangeRequest', id: row.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true, id: row.id });
   } catch (error) {
     captureApiError(error, { route: 'POST /api/member/program-change-request' });

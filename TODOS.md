@@ -403,6 +403,22 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-062: §H-DEP4 add auditLog to 6 admin routes that had logAuditEvent only — ✓ Fixed PR #1997
+
+**What:** 6 high-value admin operation routes had `logAuditEvent` but were missing `auditLog`:
+- `admin/jobs/[id]/approve` POST (job approval)
+- `admin/jobs/[id]/reject` POST (job rejection)
+- `admin/members/[id]/delete` POST (member soft-delete)
+- `admin/members/merge` POST (member account merge)
+- `admin/partners/[id]/approve` POST (partner approval)
+- `admin/users/[id]/reset-password` POST (admin-triggered password reset)
+
+**Fixed:** PR #1997. Added `auditLog` import + fire-and-forget call alongside existing `logAuditEvent` in all 6 routes.
+
+**Status:** Completed 2026-06-17. PR #1997 open / gate-merge pending.
+
+---
+
 ## TODO-061: §H-DEP4 audit sweep — deferred routes (voice-session, webhook, import)
 
 **What:** 5 employer/partner routes intentionally deferred from the §H-DEP4 audit sweep:

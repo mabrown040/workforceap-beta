@@ -6,6 +6,8 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml } from '@/lib/email/escapeHtml';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -71,6 +73,7 @@ async function _POST(request: NextRequest) {
         html,
       });
 
+      const orgId = await getActorOrganizationId(user.id).catch(() => null);
       await auditLog({
         actorUserId: user.id,
         action: 'partner_invite_send',
@@ -78,6 +81,7 @@ async function _POST(request: NextRequest) {
         targetId: email,
         metadata: { recipientEmail: email, recipientName: name ?? null },
       });
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'invited', object: { type: 'Partner', id: email }, result: { success: true, extensions: { recipientEmail: email, recipientName: name ?? null } }, request: auditRequestMeta(request), orgId: orgId ?? undefined }).catch((err) => console.error('[audit] partner_invite_send:', err));
 
       return NextResponse.json({ ok: true });
     } catch (err) {

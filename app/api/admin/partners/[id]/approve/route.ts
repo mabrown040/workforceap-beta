@@ -8,6 +8,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getProfileRole } from '@/lib/auth/roles';
 
@@ -58,6 +59,7 @@ export const POST = withApiGuc(async (request: NextRequest, { params }: { params
     );
 
     const profileRole = await getProfileRole(user.id);
+    auditLog({ actorUserId: user.id, action: 'admin_partner_approve', targetType: 'Partner', targetId: id, metadata: { orgId } }).catch((err) => console.error('[audit] admin_partner_approve:', err));
     await logAuditEvent({
       user: { id: user.id, role: profileRole ?? undefined },
       verb: 'approved',

@@ -6,6 +6,7 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendJobRejectedEmail } from '@/lib/email';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
 import { z } from 'zod';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -72,6 +73,7 @@ async function _POST(
 
     await invalidateJobListings();
 
+    auditLog({ actorUserId: user.id, action: 'admin_job_reject', targetType: 'Job', targetId: id, metadata: { orgId } }).catch((err) => console.error('[audit] admin_job_reject:', err));
     logAuditEvent({
       user: { id: user.id, role: 'admin' },
       verb: 'reject_job',

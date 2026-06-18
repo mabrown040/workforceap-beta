@@ -7,6 +7,7 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendJobApprovedEmail } from '@/lib/email';
 import { runAiMatchForLiveJob } from '@/lib/employer/triggerEmployerJobAiMatch';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -69,6 +70,7 @@ async function _POST(
 
     await invalidateJobListings();
 
+    auditLog({ actorUserId: user.id, action: 'admin_job_approve', targetType: 'Job', targetId: id, metadata: { orgId } }).catch((err) => console.error('[audit] admin_job_approve:', err));
     logAuditEvent({
       user: { id: user.id, role: 'admin' },
       verb: 'approve_job',

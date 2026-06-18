@@ -10,6 +10,7 @@ import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const bodySchema = z.object({
   email: z.string().email(),
@@ -156,6 +157,7 @@ async function ensurePartnerInviteUser(params: {
     }
   
     void auditLog({ actorUserId: adminUser.id, action: 'admin_partner_user_invite', targetType: 'partner', targetId: partnerId, metadata: { email, userId: authUserId } }).catch(() => {});
+    logAuditEvent({ user: { id: adminUser.id, role: 'admin' }, verb: 'invited', object: { type: 'Partner', id: partnerId }, result: { success: true, extensions: { email, userId: authUserId } }, request: auditRequestMeta(request), orgId }).catch((err) => console.error('[audit] admin_partner_user_invite:', err));
     return NextResponse.json({ ok: true, userId: authUserId });
   } catch (error) {
     console.error('/admin/partners/[id]/invite:', error);

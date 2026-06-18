@@ -403,6 +403,45 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-078: §H-DEP4 dual audit trail for member self-service mutations (batch21) — ✓ Fixed PR #2013
+
+**What:** 6 member routes missing both audit calls:
+- `member/enroll` POST — `member_program_enrolled`
+- `member/profile` PATCH — `member_profile_updated`
+- `member/settings` PATCH — `member_settings_updated`
+- `member/certifications` POST — `member_certification_updated`
+- `member/assessment/submit` POST — `member_assessment_submitted`
+- `member/assessment/reset` POST — `member_assessment_reset`
+
+**Fixed:** PR #2013.
+
+**Status:** Completed 2026-06-17. PR #2013 open / gate-merge pending.
+
+---
+
+## TODO-077: §H-DEP4 dual audit trail for auth security events (batch20) — ✓ Fixed PR #2012
+
+**What:** 2 auth routes — login POST (`user_login`, normal non-MFA path) and verify-mfa POST (`user_mfa_verified`). Routes without authenticated user ID (logout, forgot-password) deferred.
+
+**Fixed:** PR #2012.
+
+**Status:** Completed 2026-06-17. PR #2012 open / gate-merge pending.
+
+---
+
+## TODO-076: §H-DEP4 dual audit trail for counselor session/feedback routes (batch19) — ✓ Fixed PR #2011
+
+**What:** 3 counselor routes:
+- `counselor/feedback` POST — `counselor_feedback_session_saved`
+- `counselor/sessions/email-packet` POST — `counselor_email_packet_sent`
+- `counselor/sessions/voice-walkthrough` POST — `counselor_voice_walkthrough_started`
+
+**Fixed:** PR #2011.
+
+**Status:** Completed 2026-06-17. PR #2011 open / gate-merge pending.
+
+---
+
 ## TODO-075: §H-DEP4 dual audit trail for counselor mutations on member data (batch18) — ✓ Fixed PR #2010
 
 **What:** 7 counselor routes missing both audit calls:

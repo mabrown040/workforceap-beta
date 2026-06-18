@@ -8,6 +8,8 @@ import type { MessageThreadKind, Prisma } from '@prisma/client';
 import { captureApiError } from '@/lib/observability/captureApiError';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 50;
@@ -323,6 +325,8 @@ function mapThreadRow(
   
     const thread = await getOrCreateMemberCounselorThread(memberId);
   
+    void auditLog({ actorUserId: user.id, action: 'admin_message_thread_created', targetType: 'User', targetId: memberId, metadata: { threadId: thread.id } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'MessageThread', id: thread.id }, result: { success: true, extensions: { memberId } } }).catch(() => {});
     return NextResponse.json({ threadId: thread.id, memberName: member.fullName });
   } catch (error) {
     console.error('/admin/messages/threads:', error);

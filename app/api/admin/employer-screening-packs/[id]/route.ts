@@ -5,6 +5,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const patchSchema = z.object({
   isActive: z.boolean().optional(),
@@ -32,6 +34,8 @@ type RouteContext = { params: Promise<{ id: string }> };async function _PATCH(re
     where: { id },
     data: parsed.data,
   }));
+  void auditLog({ actorUserId: user.id, action: 'admin_employer_screening_pack_updated', targetType: 'User', targetId: user.id, metadata: { packId: id } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'EmployerScreeningPack', id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ pack });
 
   } catch (error) {
@@ -47,6 +51,8 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(_request: Request
 
   const { id } = await ctx.params;
   await prisma.$transaction((tx) => tx.employerScreeningPack.delete({ where: { id } }));
+  void auditLog({ actorUserId: user.id, action: 'admin_employer_screening_pack_deleted', targetType: 'User', targetId: user.id, metadata: { packId: id } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'deleted', object: { type: 'EmployerScreeningPack', id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

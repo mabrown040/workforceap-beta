@@ -7,6 +7,8 @@ import { getRiskLevel, THRESHOLDS } from '@/lib/member/atRiskScoring';
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET(req: Request) {
   try {
     const auth = await requireAdminOrCounselor(req);
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
     if (!auth.ok) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
@@ -142,6 +144,8 @@ export const GET = withApiGuc(_GET);async function _PATCH(req: Request) {
         },
       }));
   
+      void auditLog({ actorUserId: auth.userId, action: 'admin_at_risk_alert_updated', targetType: 'User', targetId: alertId, metadata: { status } }).catch(() => {});
+      logAuditEvent({ user: { id: auth.userId, role: 'admin' }, verb: 'updated', object: { type: 'AtRiskAlert', id: alertId }, result: { success: true, extensions: { status } } }).catch(() => {});
       return NextResponse.json({ success: true, alert });
     } catch (error) {
       console.error('[admin/members/at-risk] Patch failed:', error);

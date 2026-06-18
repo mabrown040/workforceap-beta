@@ -5,6 +5,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { z } from 'zod';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const chapterSchema = z.object({
   name: z.string().min(1).max(100),
@@ -76,6 +78,8 @@ async function _POST(request: NextRequest) {
       }),
     );
 
+    void auditLog({ actorUserId: user.id, action: 'admin_chapter_created', targetType: 'User', targetId: user.id, metadata: { chapterId: chapter.id, name: parsed.data.name } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Chapter', id: chapter.id }, result: { success: true, extensions: { name: parsed.data.name } } }).catch(() => {});
     return NextResponse.json(chapter, { status: 201 });
   } catch (error) {
     console.error('/admin/chapters POST error:', error);

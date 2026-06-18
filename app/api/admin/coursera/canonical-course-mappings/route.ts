@@ -6,6 +6,8 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { promoteCsvProgressToCanonical } from '@/lib/coursera/csvImport.server';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function requireAdminUser() {
   const user = await getUser();
@@ -104,6 +106,8 @@ async function requireAdminUser() {
     promoted += result.upserted;
   }
 
+  void auditLog({ actorUserId: user.id, action: 'admin_coursera_mapping_created', targetType: 'User', targetId: user.id, metadata: { courseraCourseId, canonicalCourseSlug } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraCanonicalMapping', id: courseraCourseId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     ok: true,
     mapping,
@@ -133,6 +137,8 @@ export const POST = withApiGuc(_POST);async function _DELETE(request: Request) {
     where: { courseraCourseId },
   }));
 
+  void auditLog({ actorUserId: user.id, action: 'admin_coursera_mapping_deleted', targetType: 'User', targetId: user.id, metadata: { courseraCourseId } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'deleted', object: { type: 'CourseraCanonicalMapping', id: courseraCourseId ?? '' }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

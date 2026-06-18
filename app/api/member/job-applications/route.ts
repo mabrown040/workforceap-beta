@@ -9,6 +9,8 @@ import { findRecentAiToolsForApplicationFeedback } from '@/lib/member/applicatio
 import { awardPoints } from '@/lib/member/points';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
   try {
     const user = await getUser();
     if (!user?.id) {
@@ -99,6 +101,8 @@ const createApplicationSchema = z.object({
     const recentTools = await findRecentAiToolsForApplicationFeedback(prisma, user.id);
     const promptAiFeedback = recentTools.length > 0;
 
+    auditLog({ actorUserId: user.id, action: 'member.jobApplication.create', targetType: 'JobApplication', targetId: application.id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'JobApplication', id: application.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json(
       {
         application,

@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { completeMemberCourse } from '@/lib/member/courseCompletion';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function _POST(request: Request) {
   try {
@@ -29,6 +31,8 @@ async function _POST(request: Request) {
         courseSlug,
         source: 'member',
       });
+      auditLog({ actorUserId: user.id, action: 'member.course.complete', targetType: 'CourseCompletion', targetId: user.id, metadata: { courseSlug } }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'CourseCompletion', id: user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json(result);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to mark course complete';

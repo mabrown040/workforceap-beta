@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const PATCH = withApiGuc(async (
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -49,6 +51,8 @@ export const PATCH = withApiGuc(async (
       }));
     }
 
+    auditLog({ actorUserId: user.id, action: 'member.nba.dismiss', targetType: 'MemberNextBestAction', targetId: id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'MemberNextBestAction', id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch {
     // Row not found or not owned by this user — silently OK from the client's perspective

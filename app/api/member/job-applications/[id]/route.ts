@@ -13,6 +13,8 @@ import {
 import { updateJobApplicationSchema } from '@/lib/validation/jobApplication';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -164,6 +166,8 @@ function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
         });
       }
   
+      auditLog({ actorUserId: user.id, action: 'member.jobApplication.update', targetType: 'JobApplication', targetId: id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'JobApplication', id }, result: { success: true } }).catch(() => {});
       return NextResponse.json(application);
     } catch (error) {
       console.error('[PATCH /api/member/job-applications/:id]', error);

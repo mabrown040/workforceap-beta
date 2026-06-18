@@ -21,7 +21,7 @@ export default async function DashboardLayout({
   if (!user) redirect('/login?redirectTo=/dashboard');
 
   const profileRole = await getProfileRole(user.id);
-  if (profileRole === 'super_admin' || profileRole === 'admin') {
+  if (profileRole === 'admin') {
     redirect('/admin');
   }
 

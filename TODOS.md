@@ -403,6 +403,41 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-074: §H-DEP4 dual audit trail for email templates, upload-resume, blog AI create (batch17) — ✓ Fixed PR #2009
+
+**What:** 4 admin routes missing both audit calls:
+- `admin/email-templates/[id]` PATCH — `admin_email_template_updated`
+- `admin/members/[id]/upload-resume` POST — `admin_member_resume_uploaded`
+- `admin/blog/ai/draft` POST — `admin_blog_draft_created` (creates BlogPost)
+- `admin/blog/ai/from-ideas` POST draft-mode path — `admin_blog_draft_created` (topics-mode is read-only, not audited)
+
+**Fixed:** PR #2009.
+
+**Status:** Completed 2026-06-17. PR #2009 open / gate-merge pending.
+
+---
+
+## TODO-073: §H-DEP4 dual audit trail for Coursera ops, onet, webhooks, job matches (batch16) — ✓ Fixed PR #2008
+
+**What:** 11 admin routes missing both audit calls:
+- `admin/coursera/auto-heal` POST — `admin_coursera_auto_heal`
+- `admin/coursera/sync-b4b` POST — `admin_coursera_sync_b4b_triggered`
+- `admin/coursera/sync-progress` POST — `admin_coursera_sync_progress`
+- `admin/coursera/map-unmatched` POST — `admin_coursera_learner_mapped`
+- `admin/coursera/reconcile/add-to-wap` POST — `admin_coursera_reconcile_add_to_wap`
+- `admin/coursera/seed-canonical-mappings-from-b4b` POST — `admin_coursera_seed_mappings_b4b` (actor=`actor`)
+- `admin/coursera/seed-canonical-mappings-from-catalog` POST — `admin_coursera_seed_mappings_catalog` (actor=`actor`)
+- `admin/coursera/mappings` POST — `admin_coursera_mapping_saved` (actor=`ctx.user`)
+- `admin/onet/sync` POST — `admin_onet_sync` (two success paths: allMapped + onetCodes)
+- `admin/webhooks/process-retries` POST — `admin_webhook_retries_processed`
+- `admin/jobs/[id]/suggest-matches` POST — `admin_job_match_suggestions_sent`
+
+**Fixed:** PR #2008.
+
+**Status:** Completed 2026-06-17. PR #2008 open / gate-merge pending.
+
+---
+
 ## TODO-072: §H-DEP4 dual audit trail for member mgmt, blog, counselors, org routes (batch15) — ✓ Fixed PR #2007
 
 **What:** 12 admin routes (14 handlers) missing both audit calls:

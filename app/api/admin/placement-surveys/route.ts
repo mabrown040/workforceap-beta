@@ -16,8 +16,8 @@ export const GET = withApiGuc(async (req: Request) => {
 
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') ?? undefined;
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);
-    const offset = parseInt(searchParams.get('offset') ?? '0', 10);
+    const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10) || 50, 100);
+    const offset = parseInt(searchParams.get('offset') ?? '0', 10) || 0;
   
     try {
       const where = {

@@ -12,7 +12,7 @@ export const GET = withApiGuc(async (req: NextRequest) => {
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const q = req.nextUrl.searchParams.get('q')?.trim() ?? '';
-  const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') ?? '8', 10), 20);
+  const limit = Math.min(parseInt(req.nextUrl.searchParams.get('limit') ?? '8', 10) || 8, 20);
 
   if (q.length < 2) return NextResponse.json({ results: [] });
 

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 
@@ -56,6 +58,8 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
     )
   `);
 
+  auditLog({ actorUserId: user.id, action: 'gdpr_consent_update', targetType: 'User', targetId: user.id, metadata: { consentCommunications } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'updated', object: { type: 'GdprConsent', id: user.id }, result: { success: true, extensions: { consentCommunications } } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { createServerClient } from '@supabase/ssr';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
@@ -135,6 +137,8 @@ export const POST = withApiGuc(async (request: Request) => {
     );
   }
 
+  auditLog({ actorUserId: userId, action: 'gdpr_account_delete', targetType: 'User', targetId: userId }).catch(() => {});
+  logAuditEvent({ user: { id: userId, role: 'member' }, verb: 'deleted', object: { type: 'User', id: userId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     ok: true,
     message: 'Your account has been deleted. Personal data has been anonymized and all sessions revoked.',

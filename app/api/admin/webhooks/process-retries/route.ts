@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getPendingRetryEvents } from '@/lib/webhooks/retry';
 import { processRetryEvent, type RetryResult } from './_processRetries';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Admin endpoint to process pending webhook retries.
@@ -34,6 +36,8 @@ export async function POST(request: NextRequest) {
       return acc;
     }, {} as Record<string, number>);
 
+    void auditLog({ actorUserId: user.id, action: 'admin_webhook_retries_processed', targetType: 'User', targetId: user.id, metadata: { processed: results.length } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'WebhookRetryBatch', id: user.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({
       processed: results.length,
       summary: byResult,

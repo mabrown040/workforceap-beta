@@ -10,6 +10,8 @@ import { reprocessUnmatchedXapiEvents } from '@/lib/xapi/reprocess';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function requireAdminUser() {
   const user = await getUser();
@@ -149,6 +151,8 @@ export async function POST(request: Request) {
         xapiReplay = null;
       }
   
+      void auditLog({ actorUserId: ctx.user.id, action: 'admin_coursera_mapping_saved', targetType: 'User', targetId: body.userId?.trim() ?? ctx.user.id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: ctx.user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraIdentityMapping', id: body.userId?.trim() ?? ctx.user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         ok: true,
         mapping,

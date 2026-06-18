@@ -6,6 +6,8 @@ import { seedCanonicalMappingsFromB4B } from '@/lib/coursera/seedCanonicalMappin
 import { loadB4BContents } from '@/lib/coursera/programContentsCache';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/admin/coursera/seed-canonical-mappings-from-b4b
@@ -44,6 +46,8 @@ export async function POST(_request: NextRequest) {
     try {
       const contents = await loadB4BContents();
       const summary = await seedCanonicalMappingsFromB4B({ actorUserId: actor.id, contents });
+      void auditLog({ actorUserId: actor.id, action: 'admin_coursera_seed_mappings_b4b', targetType: 'User', targetId: actor.id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: actor.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraSeedMappingsB4B', id: actor.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json(summary);
     } catch (err) {
       captureApiError(err, { route: 'admin/coursera/seed-canonical-mappings-from-b4b' });

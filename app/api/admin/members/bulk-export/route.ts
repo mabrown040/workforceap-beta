@@ -4,6 +4,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -189,6 +190,14 @@ async function _POST(request: NextRequest) {
       targetType: 'user',
       metadata: { count: members.length },
     });
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'exported',
+      object: { type: 'MemberBulkExport', id: orgId },
+      result: { success: true, extensions: { count: members.length } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch(() => {});
 
     return new NextResponse(csv, {
       status: 200,

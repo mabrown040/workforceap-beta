@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { executeMemberMerge, buildMergePreview } from '@/lib/admin/memberMerge';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 // Verifies both members involved in a merge belong to the same tenant
@@ -87,6 +88,13 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       return executeMemberMerge(tx, primaryId, secondaryId, user.id);
     });
 
+    auditLog({
+      actorUserId: user.id,
+      action: 'admin_member_merge',
+      targetType: 'User',
+      targetId: primaryId,
+      metadata: { secondaryId },
+    }).catch(() => {});
     logAuditEvent({
       user: { id: user.id, role: 'admin' },
       verb: 'merge_members',

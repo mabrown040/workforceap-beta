@@ -7,6 +7,7 @@ import { auditLog } from '@/lib/audit';
 import { getWorkspaceEmailProvider } from '@/lib/workspace-email/provider';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const provisionBody = z.object({
@@ -96,7 +97,15 @@ async function loadMemberOr404(memberId: string, orgId: string) {
         provider: provider.id,
       },
     });
-  
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'provisioned',
+      object: { type: 'WorkspaceEmail', id: memberId },
+      result: { success: true, extensions: { workspaceEmail: result.workspaceEmail, provider: provider.id } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch(() => {});
+
     return NextResponse.json({
       ok: true,
       workspaceEmail: result.workspaceEmail,
@@ -107,7 +116,7 @@ async function loadMemberOr404(memberId: string, orgId: string) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const POST = withApiGuc(_POST);async function _DELETE(_request: NextRequest, { params }: Props) {
+export const POST = withApiGuc(_POST);async function _DELETE(request: NextRequest, { params }: Props) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -153,7 +162,15 @@ export const POST = withApiGuc(_POST);async function _DELETE(_request: NextReque
         provider: provider.id,
       },
     });
-  
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'revoked',
+      object: { type: 'WorkspaceEmail', id: memberId },
+      result: { success: true, extensions: { previousWorkspaceEmail: previousEmail, provider: provider.id } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch(() => {});
+
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('/admin/members/[id]/workspace-email:', error);

@@ -8,6 +8,8 @@ import {
 } from '@/lib/messages/portalThreads';
 import { normalizeMessageBody, serializeMessage } from '@/lib/messages/counselorThread';
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   try {
@@ -89,6 +91,20 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     });
     return m;
   });
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'employer_message_sent',
+    targetType: 'Employer',
+    targetId: ctx.employerId,
+    metadata: { messageId: msg.id, threadId: thread.id },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'employer' },
+    verb: 'sent',
+    object: { type: 'EmployerMessage', id: msg.id },
+    result: { success: true, extensions: { threadId: thread.id } },
+  }).catch(() => {});
 
   return NextResponse.json({ message: serializeMessage(msg) });
 

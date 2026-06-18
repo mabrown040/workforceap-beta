@@ -1,125 +1,93 @@
-# Postmortem: Portal auth and admin view outage — 2026-06-18
+# Postmortem: Portal-wide 504 outage — 2026-06-18
 
 ## Summary
 
-On 2026-06-18, the public marketing site stayed available, but authenticated portal flows were degraded or unavailable across sign-in, dashboard access, and super-admin demo view switching. The outage was not one single bug; it was a stack of portal-only failures across auth hardening, Prisma/GUC request context, stale PWA cache behavior, and database schema drift.
+For an extended window on 2026-06-18, the **public marketing site stayed up, but every authenticated portal page (`/admin`, `/dashboard`, `/counselor`, `/partner`, `/employer`) timed out and returned 504** — for all roles, not just one page. Login and `/api/health` kept returning 200/fast, which disguised the outage and sent the response down a multi-hour symptom-chasing path before the shared root cause was found.
 
-By the end of the incident, login recovered, `/dashboard` loaded for the super-admin demo account, and admin view switching reached all portal views. Partner and employer view crashes were fixed by applying and committing the missing `onboarding_current_step` columns.
+The primary cause was a **per-query authentication round-trip introduced into the Prisma middleware (PR #1845)**: every database call inside a server render did a Supabase `auth.getUser()` network hop plus two DB transactions, and a page that fans out to 8+ queries blew past the 60s function timeout. Reverting it (`8d38aab`, PR #2048) restored the portal immediately. A cluster of secondary portal bugs (auth error-swallowing, super-admin view switching, and production schema drift) were uncovered and fixed in the same incident.
 
 ## Impact
 
-- Affected: authenticated portal users, especially admin/super-admin workflows.
-- Unaffected: public marketing pages and unauthenticated marketing navigation.
-- Demo impact: `mabrown040@gmail.com` could sign in but could not reliably switch among Member, Partner, Employer, Counselor, and Admin views until the final fixes landed.
-- User-visible symptoms:
-  - Login/dashboard loops or generic portal errors.
-  - Portal 504s and error boundaries.
-  - Super-admin "Member" switch returning to Admin.
-  - Partner and Employer overview pages showing "Something went wrong."
-
-## Timeline
-
-All times approximate, Central time unless noted.
-
-- 15:16 — PR #2046 (`2ad76696`) merged: login handler moved to anonymous GUC context; Supabase auth failures fail closed instead of hard-crashing.
-- 15:17–15:22 — Vercel build for `2ad76696` completed, but build logs showed repeated `[auth:getUser] ... Dynamic server usage` messages.
-- 15:30–15:40 — Hotfix `e2f67d21` pushed to `master`: auth/GUC wrappers call `unstable_rethrow()` before treating errors as signed-out.
-- 15:40–15:57 — `f6ec4d5c` and later `be7fc8d9` landed: non-load-bearing Prisma GUC behavior disabled, and super-admins allowed into `/dashboard` for demo view switching.
-- 16:05–16:10 — Mobile screenshots confirmed Partner and Employer overview pages were still failing while Counselor loaded.
-- 16:10 — Supabase Postgres logs showed `column partners.onboarding_current_step does not exist` and `column employers.onboarding_current_step does not exist`.
-- 16:10–16:12 — Columns were added directly to both Supabase projects, and migration `20260618161000_add_portal_onboarding_current_step` was committed.
-- 16:20+ — Latest `master` deploy verified green and includes the auth, switcher, and schema fixes.
+- **Affected:** all authenticated users, all roles. Every portal *page* render 504'd.
+- **Unaffected:** public marketing pages, `/api/health`, `/api/auth/login`, `/api/auth/me` — all stayed 200. This is exactly why the outage was mis-scoped as "just the dashboard" for hours.
+- **User-visible:** portal pages hang ~60s then show a 504 / error boundary; for the demo super-admin account, view-switching into Member/Partner/Employer appeared broken.
 
 ## Root causes
 
-### 1. Auth hardening swallowed Next.js framework control flow
+### 1. PRIMARY — per-query GUC auth round-trip in the Prisma hot path (the 504s)
 
-PR #2046 correctly made real Supabase auth failures fail closed, but broad catches in auth-adjacent code also caught Next.js framework errors such as `DYNAMIC_SERVER_USAGE`. That made build/runtime diagnostics misleading and risked turning framework routing signals into signed-out fallbacks.
+**PR #1845 (`b0cdcb514`, `lib/db/prisma.ts`)** added *lazy per-query GUC resolution*: when the request's GUC context (an `AsyncLocalStorage` value) was `null`, the Prisma middleware ran `await resolveAuthGucContext()` — a Supabase `auth.getUser()` network round-trip **plus two DB `$transaction`s** — **on every bare `prisma.*` call.**
 
-Fix: `e2f67d21` added `unstable_rethrow(error)` before fallback logging/returns in:
+The trap: **RSC page renders execute outside the root layout's `gucContextStorage.run()` scope**, so the context is *always* null inside a page component. Every query therefore fired the full round-trip. `/admin` fans out to 8+ queries → 8× (Supabase hop + GUC setup), serialized → past the 60s `maxDuration` → **504**.
 
-- `lib/auth/server.ts`
-- `lib/db/withRequestGuc.ts`
-- `app/api/auth/login/route.ts`
-- regression coverage in `tests/lib/auth-server.test.ts`
+Why the health signals lied:
+- `/api/auth/me` and `/api/health` use `withApiGuc`, which sets the ALS context **once** up front → the lazy path is skipped → they stayed fast.
+- The database was genuinely healthy; there were simply 8–40× too many round-trips per page request.
 
-### 2. Prisma request-context/GUC work amplified portal failures
+**Fix:** `git revert b0cdcb514` → **PR #2048 (`8d38aab`)**, restoring the anonymous-GUC fallback when context is null. Later **`f6ec4d5`** disabled the non-load-bearing GUC layer entirely. Zero security impact: the GUC is fail-open and not load-bearing for authz (RLS enabled but not forced; the app connects as table owner — per the code's own comment).
 
-Recent RLS/GUC work made portal render paths more sensitive to Prisma context and transaction behavior. During the incident, this contributed to portal 500/504 behavior and noisy auth/API paths.
+### 2. Auth hardening swallowed Next.js framework control flow
 
-Fixes:
+PR #2046 made real Supabase auth failures fail *closed*, but its broad `catch` also captured Next.js framework signals such as `DYNAMIC_SERVER_USAGE`, turning routing/render control-flow into spurious signed-out fallbacks and noisy build logs.
 
-- `8d38aab2` reverted lazy Prisma GUC resolution for RSC pages.
-- `f6ec4d5c` disabled the non-load-bearing GUC layer to stop portal 504s.
+**Fix:** `e2f67d21` calls `unstable_rethrow(error)` before any fallback in `lib/auth/server.ts`, `lib/db/withRequestGuc.ts`, `app/api/auth/login/route.ts` (+ regression test).
 
-### 3. Super-admin demo switching conflicted with member dashboard guard
+### 3. Super-admin demo view-switching blocked by the member-dashboard guard
 
-The super-admin switcher included "Member Portal", but `/dashboard` redirected both `admin` and `super_admin` users back to `/admin`. That made the switcher appear broken for the demo account.
+`/dashboard` redirected both `admin` and `super_admin` back to `/admin`, so the demo account's "Member Portal" switch looked broken.
 
-Fix: `be7fc8d9` changed `/dashboard` to redirect regular admins only, allowing super-admins to render the member dashboard for demos.
+**Fix:** `be7fc8d9` redirects only regular admins, letting super-admins render the member dashboard.
 
-### 4. Production schema drift broke Partner and Employer overview pages
+### 4. Production schema drift crashed Partner/Employer pages
 
-The Prisma schema expected:
+`schema.prisma` expected `partners.onboarding_current_step` and `employers.onboarding_current_step`; the live Supabase project lacked both columns, so those overview pages threw server-side.
 
-- `partners.onboarding_current_step`
-- `employers.onboarding_current_step`
+**Fix:** idempotent DDL applied to both projects + committed migration `20260618161000_add_portal_onboarding_current_step`.
 
-The production/demo Supabase project did not have those columns. Partner and Employer overview pages selected those fields and crashed server-side.
+## Timeline (commit-anchored, UTC)
 
-Fix:
+- `b0cdcb514` (#1845) merged earlier — per-query GUC resolution lands. Portal page renders begin 504'ing; health/login stay green, so the outage reads as "dashboard slowness."
+- Several symptom-fixes ship and deploy without resolving it: B4B fetch timeout (#2034), non-blocking Coursera (#2041), `maxDuration` raise (#2043), service-worker v8 (#2045).
+- `2ad76696` (#2046) auth-hardening merges; build logs show repeated `Dynamic server usage`.
+- `e2f67d21` — auth `unstable_rethrow` hotfix.
+- **`8d38aab` (#2048) — #1845 reverted. Authed routes return 200/fast immediately.** Verified: `/admin` 1.07s, `/dashboard` 3.73s, `/counselor` 1.17s, `/partner` 0.74s, `/employer` 0.53s (all previously 504/60s).
+- `f6ec4d5` — GUC layer disabled outright (defense-in-depth on cause #1).
+- `be7fc8d9` — super-admin member-dashboard switch fix.
+- Schema columns added to both Supabase projects; migration `20260618161000` committed (`279ae3b7`).
+- Prod verified green on `af82662`: health ok, all authed routes 200, GUC guard clean.
 
-- Applied idempotent DDL to both Supabase projects.
-- Committed `prisma/migrations/20260618161000_add_portal_onboarding_current_step/migration.sql`.
+## What went wrong (process)
 
-## What went well
+1. **`/api/health` was treated as portal health — it isn't.** Health (and login) stayed 200 the entire outage because they set the auth context once, bypassing the broken per-query path. Hours were spent reporting "healthy" while every authed page was down.
+2. **Symptom whack-a-mole.** Four fixes chased the dashboard/Coursera symptom. The tell that it was a *shared* cause, missed for too long: **`/admin` has no Coursera calls and 504'd identically.** When every authed route fails the same way, suspect shared middleware/layout/auth — not per-route data.
+3. **Concurrent autonomous agents** (clawpatch, codex, jules, gate-merge) kept advancing `master` during response, cancelling CI/Vercel runs and obscuring which change fixed what.
+4. **Schema drift** was invisible until a Postgres error surfaced — migration history did not guarantee the live DB matched `schema.prisma`.
+5. **Error boundaries hid the server query failure** from the UI, slowing diagnosis of causes #3/#4.
 
-- Marketing remained available.
-- Supabase API/auth was healthy; `/auth/v1/user` returned 200s during validation.
-- Once logs were inspected, the partner/employer failure had a clear SQL error.
-- Direct `master` hotfixes deployed quickly once root causes were identified.
+## What worked
 
-## What went poorly
-
-- The outage was multi-cause, so each fix exposed the next failure.
-- Vercel/GitHub runs were repeatedly cancelled because `master` advanced during incident response.
-- Existing migration history did not guarantee the live database matched `schema.prisma`.
-- Some portal error boundaries hid the exact server query failure from the UI.
-- We lacked a one-command "admin demo smoke" covering every portal view.
-
-## Verification performed
-
-- Live health check returned `status: ok` with database `ok` on commit `f6ec4d5`.
-- `/api/auth/me` returned 200 for unauthenticated users instead of 500.
-- `/dashboard` unauthenticated redirect remained correct: `/en/login?redirectTo=%2Fdashboard`.
-- Invalid login returned 401 with the expected generic error.
-- Supabase confirmed `onboarding_current_step` exists on both `partners` and `employers` in both projects.
-- CI/Vercel green on latest `master` after the member switch and schema fixes.
+- Marketing and the Supabase auth API stayed healthy throughout.
+- Vercel `get_runtime_logs` clearly showed "Vercel Runtime Timeout Error" 504s on the *page* routes (not API), pointing at render.
+- A multi-agent fan-out (gstack repro + Prisma code-path read + Vercel/Sentry logs + shared-render-path analysis + prod re-test) pinned the exact `lib/db/prisma.ts` lines.
+- **`curl` with a session cookie, timing each route**, was the cleanest repro — browser hangs are hard to read.
 
 ## Follow-up actions
 
 ### P0
-
-- Add an authenticated Playwright "super-admin demo smoke" that verifies `/admin`, `/dashboard`, `/partner`, `/employer`, and `/counselor` render without route error boundaries.
-- Add a schema drift check in CI/deploy that compares required Prisma columns against the target Supabase database before promoting.
-- Add log surfacing for `RouteErrorFallback` reference IDs so the UI can map quickly to server logs/Sentry.
+- **Health-check the authed render, not just `/api/health`.** Add an authenticated smoke (super-admin) that logs in and asserts `/admin`, `/dashboard`, `/partner`, `/employer`, `/counselor` return 200 + fast, with no route error boundary. Wire it into post-deploy verification.
+- **Schema-drift gate:** before promoting a deploy, compare required Prisma columns against the target Supabase DB.
 
 ### P1
-
-- Stop manually resolving migrations during Vercel builds except through an explicit incident playbook.
-- Add a "portal overview minimal query" test for Partner and Employer pages, including missing optional onboarding/Stripe fields.
-- Keep a seeded super-admin demo account contract documented: required roles, demo fallback partner, demo fallback employer, and expected switcher destinations.
+- **Resolve GUC/auth context once per render, not per query** — this was #1845's legitimate goal (forced-RLS readiness). Re-implement by establishing context once for the RSC render, never lazily inside the Prisma middleware.
+- Document an incident playbook for the agent swarm: during a P0, **one driver**; pause clawpatch/gate-merge auto-merge so `master` stops moving under responders.
+- Minimal-query render tests for Partner/Employer pages covering missing optional columns.
+- Surface `RouteErrorFallback` reference IDs in the UI → map to server logs/Sentry.
 
 ### P2
-
-- Reduce duplicate auth/session reads in shell components and `/api/auth/me`.
-- Improve mobile portal error copy for staff/admin demos with actionable "report this reference" guidance.
+- **De-duplicate `/api/auth/me` reads** — a clean authed page load currently fires it ~4× plus duplicate `member/notifications` (tracked as TODO-087). Same family of "per-render work" pressure that made #1 catastrophic.
 
 ## Current status
 
-Resolved for the reported demo path. Latest master includes:
+**Resolved.** Latest `master` (verified green on prod) contains: revert of the per-query GUC round-trip, the GUC layer disable, the auth framework-error rethrow, the super-admin member-dashboard switch, and the onboarding-column migration. All authenticated routes return 200/fast; GUC guard confirms the per-query path has not been re-introduced.
 
-- auth framework rethrow fix,
-- super-admin member-dashboard switch fix,
-- partner/employer onboarding column migration,
-- latest Vercel deployment green.
+> Single most important lesson: **never put an auth or network round-trip inside the per-query database path, and never trust `/api/health` as a proxy for whether the authenticated app actually renders.**

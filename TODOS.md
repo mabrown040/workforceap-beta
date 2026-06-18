@@ -403,6 +403,20 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-060: §H-DEP4 dual audit trails employer/partner routes batch 6 — ✓ Fixed PR #1996
+
+**What:** 4 routes missing both `auditLog` + `logAuditEvent` calls:
+- `employer/checkout` POST (Stripe checkout session creation — financial)
+- `employer/jobs` POST (job creation)
+- `partner/referrals/[memberId]` PATCH (referral assignment update)
+- `employer/outcomes` GET (PII view — had `logAuditEvent`, added `auditLog`)
+
+**Fixed:** PR #1996. All 4 routes emit both audit trails per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #1996 open / gate-merge pending.
+
+---
+
 ## TODO-059: §H-DEP4 dual audit trails employer/partner routes batch 5 — ✓ Fixed PR #1995
 
 **What:** 4 employer/partner routes missing both `auditLog` + `logAuditEvent` fire-and-forget calls:

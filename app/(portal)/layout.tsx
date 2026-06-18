@@ -16,6 +16,13 @@ export const metadata: Metadata = {
   },
 };
 
+// Authenticated portal pages do heavy per-request server work (auth + member
+// state + several DB reads + best-effort Coursera). Under the default function
+// limit a cold-start render could exceed the budget and 504 ("Vercel Runtime
+// Timeout" → the portal error boundary). Give the segment ample headroom so a
+// slow render completes instead of erroring. Applies to all (portal) pages.
+export const maxDuration = 60;
+
 export default function PortalLayout({
   children,
 }: {

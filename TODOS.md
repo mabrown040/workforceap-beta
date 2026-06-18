@@ -403,6 +403,38 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-064: withApiGuc missing on 4 routes + rate-limit on request-help — ✓ Fixed PR #1999
+
+**What:** 4 GET routes and 1 POST route were missing the `withApiGuc` per-request GUC context wrapper, meaning DB queries ran without the actor org GUC set. `member/request-help` POST also lacked any rate limiting.
+- `admin/jobs/[id]/matches` GET
+- `admin/partners/[id]/quarterly-outcomes` GET
+- `admin/reports/quarterly-outcomes` GET
+- `auth/me` GET
+- `member/request-help` POST (+ `checkContactRateLimit` added)
+- `tests/api/auth-routes.spec.ts` — 4 test calls updated to pass `Request` arg after wrapping
+
+**Fixed:** PR #1999.
+
+**Status:** Completed 2026-06-17. PR #1999 open / gate-merge pending.
+
+---
+
+## TODO-063: §H-DEP4 add logAuditEvent to 6 admin routes that had auditLog only — ✓ Fixed PR #1998
+
+**What:** 6 admin routes (10 mutation handlers) had `auditLog` but were missing `logAuditEvent`:
+- `admin/milestone-cascades/[id]/approve` POST
+- `admin/milestone-cascades/[id]/dismiss` POST
+- `admin/placements` POST + PATCH
+- `admin/users/[id]` DELETE + PATCH
+- `admin/subgroups/[id]` PATCH + DELETE
+- `admin/feature-flags/[id]` PATCH + DELETE
+
+**Fixed:** PR #1998. Added `logAuditEvent` import + fire-and-forget call alongside existing `auditLog` in all handlers.
+
+**Status:** Completed 2026-06-17. PR #1998 open / gate-merge pending.
+
+---
+
 ## TODO-062: §H-DEP4 add auditLog to 6 admin routes that had logAuditEvent only — ✓ Fixed PR #1997
 
 **What:** 6 high-value admin operation routes had `logAuditEvent` but were missing `auditLog`:

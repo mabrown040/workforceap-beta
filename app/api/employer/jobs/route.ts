@@ -115,6 +115,14 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       );
     }
 
+    // Employers cannot publish directly — admin review required (mirrors PATCH guard)
+    if (parsed.data.status === 'live') {
+      return NextResponse.json(
+        { error: 'Job publishing requires admin review. Submit for review (pending) instead.' },
+        { status: 403 }
+      );
+    }
+
   const employer = await prisma.$transaction((tx) => tx.employer.findUnique({
       where: { id: ctx.employerId },
       select: { companyName: true, contactEmail: true, organizationId: true },

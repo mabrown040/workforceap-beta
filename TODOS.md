@@ -84,6 +84,49 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-026: withApiGuc + audit logs batch 6 (enroll, notes, bulk-email) — PR #1955
+
+**What:**
+- `admin/members/bulk-email`: `POST` missing `withApiGuc` (Prisma writes for message threads)
+- `member/enroll`: No audit trail for program enrollment — highest-traffic member mutation
+- `admin/members/[id]/notes POST`: No audit trail for counselor note creation
+
+**Fix:** `withApiGuc` on bulk-email; `auditLog` fire-and-forget on enroll + notes. PR #1955.
+
+**Priority:** P2
+
+**Status:** PR open 2026-06-17.
+
+---
+
+## TODO-027: withApiGuc batch 7 — admin reports, blog AI, jobs-matches, messages-stats — PR #1956
+
+**What:** 7 admin routes without `withApiGuc` despite Prisma calls via helpers: `admin/blog/generate`, `admin/blog/ai/review`, `admin/jobs/[id]/matches`, `admin/messages/stats`, `admin/reports/wioa/generate`, `admin/reports/quarterly-outcomes`, `admin/partners/[id]/quarterly-outcomes`.
+
+**Fix:** All renamed to `_FOO` and exported via `withApiGuc`. PR #1956.
+
+**Priority:** P2 (Sprint 3 FORCE RLS)
+
+**Status:** PR open 2026-06-17.
+
+---
+
+## TODO-028: input bounds — employer jobs, admin chapters, member status notes — PR #1957
+
+**What:** Several routes accepted unbounded strings/arrays:
+- `employer/jobs` POST/PATCH: `description` unbounded, `requirements`/`preferredCertifications`/`suggestedPrograms` arrays uncapped
+- `employer/applications PATCH`: `employerNotes` unbounded
+- `admin/chapters`: `city`, `state`, `meetingSchedule`, `meetingLocation`, `curriculumNotes` all unbounded
+- `admin/members/[id]/status`: `notes` unbounded
+
+**Fix:** Added `.max()` caps per field. PR #1957.
+
+**Priority:** P2
+
+**Status:** PR open 2026-06-17.
+
+---
+
 ## TODO-016: partner/dashboard missing withApiGuc — ✓ Fixed PR #1867
 
 **What:** `GET /api/partner/dashboard` was a bare `export async function GET()` without `withApiGuc`. It calls `loadPartnerReferralBundle` which queries Prisma.
@@ -399,24 +442,70 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 **Fixed:** PR #1990. Fire-and-forget `auditLog` + `logAuditEvent` added to all mutation paths per §H-DEP4.
 
-**Status:** Completed 2026-06-17. PR #1990 open / gate-merge pending.
+|**Status:** Completed 2026-06-17. PR #1990 open / gate-merge pending.
+|
+|---
+|
+|## TODO-079: §H-DEP4 dual audit trail — member self-service routes batch 22 + admin stragglers — ✓ Fixed PR #2014
+|
+|**What:** 7 member self-service mutation routes + 9 admin member routes that were staged but uncommitted:
+|- `member/job-applications` POST — `member.jobApplication.create`
+|- `member/job-applications/[id]` PATCH — `member.jobApplication.update`
+|- `member/courses/complete` POST — `member.course.complete`
+|- `member/goals` POST — `member.goal.create`
+|- `member/goals/[id]` PATCH+DELETE — `member.goal.update` / `member.goal.delete`
+|- `member/nba/[id]` PATCH — `member.nba.dismiss`
+|- Admin stragglers: `coursera-enrollment-approval`, `export-data`, `pipeline-stage`, `readiness`, `reset-password`, `wioa-review`, `workspace-email`, `bulk-export`, `merge`
+|
+|**Fixed:** PR #2014.
+|
+|**Status:** Completed 2026-06-17. PR #2014 open / gate-merge pending.
+|
+## TODO-086: §H-DEP4 dual audit trail — member AI/file routes batch 28 — ✓ Fixed PR #2020
+
+**What:** 5 AI/file mutation routes (8 injection points): `resume/upload`, `resume/plain-text`, `resume/generate` (primary+fallback), `linkedin-enrich` (3 paths), `voice-interview/transcript`. Completes member self-service audit sweep.
+
+**Fixed:** PR #2020. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
 
 ---
 
-## TODO-079: §H-DEP4 dual audit trail — member self-service routes batch 22 + admin stragglers — ✓ Fixed PR #2014
+## TODO-085: §H-DEP4 dual audit trail — notifications + messages batch 27 — ✓ Fixed PR #2019
 
-**What:** 7 member self-service mutation routes + 9 admin member routes that were staged but uncommitted:
-- `member/job-applications` POST — `member.jobApplication.create`
-- `member/job-applications/[id]` PATCH — `member.jobApplication.update`
-- `member/courses/complete` POST — `member.course.complete`
-- `member/goals` POST — `member.goal.create`
-- `member/goals/[id]` PATCH+DELETE — `member.goal.update` / `member.goal.delete`
-- `member/nba/[id]` PATCH — `member.nba.dismiss`
-- Admin stragglers: `coursera-enrollment-approval`, `export-data`, `pipeline-stage`, `readiness`, `reset-password`, `wioa-review`, `workspace-email`, `bulk-export`, `merge`
+**What:** 6 notification/messaging mutation routes: `notifications/dismiss-all` POST, `notifications/read-all` POST, `notifications/[id]/read` PUT+PATCH, `notifications/[id]` DELETE, `messages` POST (send), `messages` PATCH (mark-read).
 
-**Fixed:** PR #2014.
+**Fixed:** PR #2019. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
 
-**Status:** Completed 2026-06-17. PR #2014 open / gate-merge pending.
+---
+
+## TODO-084: §H-DEP4 dual audit trail — activity tracking routes batch 26 — ✓ Fixed PR #2018
+
+**What:** 4 routes: `application-onboarding` PATCH, `pathway-steps/.../complete` POST, `resources/[id]/progress` POST, `pitch-deployments` POST.
+
+**Fixed:** PR #2018. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
+
+---
+
+## TODO-083: §H-DEP4 dual audit trail — compliance/profile routes batch 25 — ✓ Fixed PR #2017
+
+**What:** 6 routes: `eligibility` PATCH, `wioa-qualification` POST, `dashboard-profile` PATCH, `skill-assessment` POST, `feedback` POST, `learning-progress` POST.
+
+**Fixed:** PR #2017. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
+
+---
+
+## TODO-082: §H-DEP4 dual audit trail — member routes batch 24 — ✓ Fixed PR #2016
+
+**What:** 6 mutation handlers: `applications` POST, `applications/[id]` PATCH+DELETE, `assessment/reset` POST, `interview-request` POST, `program-change-request` POST.
+
+**Fixed:** PR #2016. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
+
+---
+
+## TODO-081: §H-DEP4 dual audit trail — member routes batch 23 + stragglers — ✓ Fixed PR #2015
+
+**What:** 5 member routes (enroll, set-primary, settings, benefits/request, pre-screening) + 5 admin straggler routes.
+
+**Fixed:** PR #2015. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
 
 ---
 
@@ -669,6 +758,18 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 **Fixed:** PR #1989. Renamed to `_POST`, exported via `withApiGuc`.
 
 **Status:** Completed 2026-06-17. PR #1989 open / gate-merge pending.
+
+---
+
+## TODO-059: §H-DEP4 audit trails — employer/partner routes batch 3 — ✓ Fixed PR #1993
+
+**What:** 6 more employer/partner routes missing §H-DEP4 dual audit trail. `employer/loi` already had `logAuditEvent` but was missing `auditLog`.
+
+**Routes fixed:** `employer/applications/[id]` PATCH, `employer/jobs/[id]/applicants` PATCH, `employer/onboarding-profile` PATCH, `employer/loi` POST, `partner/referrals` POST, `partner/connect` POST.
+
+**Fixed:** PR #1993.
+
+**Status:** Completed 2026-06-17. PR #1993 open / gate-merge pending.
 
 ---
 

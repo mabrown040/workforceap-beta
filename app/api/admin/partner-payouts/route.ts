@@ -6,6 +6,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const PAYOUT_PER_PLACEMENT = 500;
 
@@ -80,6 +81,15 @@ async function _GET(req: NextRequest) {
     }).catch((err) =>
       console.error('[admin/partner-payouts] audit log failed:', err),
     );
+
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'viewed',
+      object: { type: 'PartnerPayoutReport', id: orgId },
+      result: { success: true, extensions: { rowCount: payouts.length } },
+      request: auditRequestMeta(req),
+      orgId,
+    }).catch(() => {});
 
     return NextResponse.json({ payouts });
   } catch (error) {

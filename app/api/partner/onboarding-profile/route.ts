@@ -5,6 +5,8 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const schema = z.object({
   name: z.string().min(1).max(200),
@@ -42,6 +44,9 @@ const schema = z.object({
       contactPhone: contactPhone?.trim() || null,
     },
   }));
+
+  auditLog({ actorUserId: user.id, action: 'partner_onboarding_profile_updated', targetType: 'User', targetId: user.id, metadata: { partnerId: ctx.partnerId, name: name.trim() } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'partner' }, verb: 'updated', object: { type: 'PartnerOnboardingProfile', id: ctx.partnerId }, result: { success: true } }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 

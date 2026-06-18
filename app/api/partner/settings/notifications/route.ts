@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const patchSchema = z.object({
   notifyOnEnrollment: z.boolean().optional(),
@@ -39,6 +41,9 @@ const patchSchema = z.object({
       notifyOnPlaced: true,
     },
   }));
+
+  auditLog({ actorUserId: user.id, action: 'partner_notification_settings_updated', targetType: 'User', targetId: user.id, metadata: { partnerId: ctx.partnerId } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'partner' }, verb: 'updated', object: { type: 'PartnerNotificationSettings', id: ctx.partnerId }, result: { success: true } }).catch(() => {});
 
   return NextResponse.json({ ok: true, preferences: updated });
 

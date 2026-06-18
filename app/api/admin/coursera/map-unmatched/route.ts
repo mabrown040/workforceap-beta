@@ -5,6 +5,8 @@ import { upsertCourseraIdentityMapping } from '@/lib/xapi/mappings';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
 import { replayUnresolvedXapiStatementsForIdentity } from '@/lib/coursera/replayPendingXapi';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Inline "Map to WAP user" action used from the Coursera-only learners list.
@@ -62,6 +64,8 @@ export async function POST(request: Request) {
       // as unmatched/error before this mapping existed.
       const xapiReplay = await replayUnresolvedXapiStatementsForIdentity({ courseraEmail, actorIdentifier });
   
+      void auditLog({ actorUserId: user.id, action: 'admin_coursera_learner_mapped', targetType: 'User', targetId: userId, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraIdentityMapping', id: userId }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         ok: true,
         mapping,

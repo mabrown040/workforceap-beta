@@ -11,6 +11,7 @@ import {
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 async function _GET(req: NextRequest) {
@@ -102,6 +103,7 @@ async function _POST(req: NextRequest) {
       placedAt: placement.placedAt.toISOString(),
     },
   });
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'PlacementRecord', id: placement.id }, result: { success: true, extensions: { memberId: userId } } }).catch(() => {});
 
   return NextResponse.json({ placement });
 
@@ -171,6 +173,7 @@ async function _PATCH(req: NextRequest) {
     targetId: id,
     metadata: { memberId: existing.userId, before, after: updates },
   });
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'PlacementRecord', id }, result: { success: true, extensions: { memberId: existing.userId } } }).catch(() => {});
 
   return NextResponse.json({ placement });
 

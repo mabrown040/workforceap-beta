@@ -12,6 +12,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const jobCreateSchema = z.object({
   title: z.string().min(1).max(200),
@@ -21,13 +23,13 @@ const jobCreateSchema = z.object({
   jobType: z.enum(['fulltime', 'parttime', 'contract']).default('fulltime'),
   salaryMin: z.number().int().min(0).optional().nullable(),
   salaryMax: z.number().int().min(0).optional().nullable(),
-  description: z.string().min(1),
+  description: z.string().min(1).max(10000),
   sourceUrl: z.string().url().optional().nullable(),
   importProvider: z.string().max(100).optional().nullable(),
   importMethod: z.string().max(100).optional().nullable(),
-  requirements: z.array(z.string()).default([]),
-  preferredCertifications: z.array(z.string()).default([]),
-  suggestedPrograms: z.array(z.string()).default([]),
+  requirements: z.array(z.string().max(500)).max(50).default([]),
+  preferredCertifications: z.array(z.string().max(200)).max(20).default([]),
+  suggestedPrograms: z.array(z.string().max(200)).max(20).default([]),
   status: z.enum(['draft', 'pending', 'live']).default('draft'),
   expiresAt: z.string().datetime().optional().nullable(),
 });async function _GET(request: NextRequest) {
@@ -160,6 +162,9 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     if (parsed.data.status === 'live') {
       await invalidateJobListings().catch(() => {});
     }
+
+    auditLog({ actorUserId: user.id, action: 'employer_job_created', targetType: 'Job', targetId: job.id, metadata: { employerId: ctx.employerId, status: job.status, title: job.title } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'created', object: { type: 'Job', id: job.id }, result: { success: true, extensions: { status: job.status } } }).catch(() => {});
 
     return NextResponse.json(job, { status: 201 });
   } catch (error) {

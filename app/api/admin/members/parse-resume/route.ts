@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function _POST(request: Request) {
   try {
@@ -53,6 +55,8 @@ async function _POST(request: Request) {
 
       const cleaned = output.replace(/```json?\s*/g, '').replace(/```\s*$/g, '').trim();
       const parsed = JSON.parse(cleaned) as Record<string, unknown>;
+      void auditLog({ actorUserId: user.id, action: 'admin_member_resume_parsed', targetType: 'User', targetId: user.id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'ParsedResume', id: user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ extracted: parsed });
     } catch (err) {
       console.error('Parse resume error:', err);

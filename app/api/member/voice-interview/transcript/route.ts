@@ -6,6 +6,8 @@ import { completeCareerOsInterviewActions } from '@/lib/workflows/completeCareer
 import { updateCoachMemory, type CoachTurn } from '@/lib/coach/memory';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 type TranscriptTurn = { role: 'agent' | 'user'; text: string };
 
@@ -118,6 +120,8 @@ function hasMeaningfulUserPractice(transcript: TranscriptTurn[]) {
         });
       }
   
+      auditLog({ actorUserId: user.id, action: 'member.voiceInterview.transcriptSaved', targetType: 'VoiceInterviewTranscript', targetId: user.id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'VoiceInterviewTranscript', id: user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ ok: true });
     } catch (error) {
       console.error('[voice-interview transcript] failed', error);

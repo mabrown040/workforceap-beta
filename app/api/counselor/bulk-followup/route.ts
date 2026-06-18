@@ -13,6 +13,8 @@ import {
   renderFollowUpTemplate,
 } from '@/lib/counselor/followUpTemplates';
 import { getProgramBySlug } from '@/lib/content/programs';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/counselor/bulk-followup
@@ -172,6 +174,20 @@ async function handle(request: Request) {
 
     const sent = results.filter((r) => r.ok).length;
     const failed = results.length - sent;
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'counselor_bulk_followup_sent',
+      targetType: 'User',
+      targetId: user.id,
+      metadata: { templateId, sent, failed, memberIds },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'counselor' },
+      verb: 'sent',
+      object: { type: 'BulkFollowup', id: templateId },
+      result: { success: true, extensions: { sent, failed, memberCount: memberIds.length } },
+    }).catch(() => {});
 
     return NextResponse.json({
       ok: true,

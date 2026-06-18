@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { Buffer } from 'node:buffer';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -7,13 +7,15 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { validateFileType } from '@/lib/resume/file-validation';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 // Create bucket "member-resumes" in Supabase Dashboard → Storage if it does not exist
 const BUCKET = 'member-resumes';
 const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
@@ -111,6 +113,21 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
       console.error('[admin/upload-resume] completeCareerOsResumeActions failed:', error);
     });
   }
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'admin_member_resume_upload',
+    targetType: 'User',
+    targetId: userId,
+    metadata: { originalPath, enhancedPath },
+  }).catch((err) => console.error('[upload-resume] audit log failed:', err));
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'uploaded',
+    object: { type: 'MemberResume', id: userId },
+    result: { success: true, extensions: { originalPath, enhancedPath } },
+    request: auditRequestMeta(request),
+  }).catch((err) => console.error('[upload-resume] xAPI audit log failed:', err));
 
   return NextResponse.json({ ok: true, originalPath, enhancedPath });
 

@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const POST = withApiGuc(async (request: Request) => {
@@ -13,7 +14,10 @@ export const POST = withApiGuc(async (request: Request) => {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     if (!isAIConfigured())
       return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
-  
+
+    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    if (!withinLimit) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+
     let body: unknown;
     try {
       body = await request.json();

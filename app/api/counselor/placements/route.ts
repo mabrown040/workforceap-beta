@@ -4,6 +4,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { buildPlacementsQuery } from '@/lib/counselor/placementsQuery';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -108,7 +110,23 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     )
   `;
 
-  return NextResponse.json({ ok: true, placement: (placement as any[])[0] });
+  const row = (placement as any[])[0];
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'counselor_placement_recorded',
+    targetType: 'User',
+    targetId: userId,
+    metadata: { employerName, jobTitle, salaryOffered: salaryOffered ?? null, programSlug },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'counselor' },
+    verb: 'recorded',
+    object: { type: 'PlacementRecord', id: row?.id ?? userId },
+    result: { success: true, extensions: { employerName, jobTitle } },
+  }).catch(() => {});
+
+  return NextResponse.json({ ok: true, placement: row });
 
   } catch (error) {
     console.error('/counselor/placements error:', error);

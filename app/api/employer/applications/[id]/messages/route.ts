@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
 import { notifyDiscord } from '@/lib/notify/discord';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -131,6 +133,20 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
       { name: 'employerId', value: employerCtx.employerId },
     ],
   });
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'employer_application_message_sent',
+    targetType: 'User',
+    targetId: application.studentId,
+    metadata: { messageId: message.id, applicationId, employerId: employerCtx.employerId },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'employer' },
+    verb: 'messaged',
+    object: { type: 'ApplicationMessage', id: message.id },
+    result: { success: true, extensions: { applicationId } },
+  }).catch(() => {});
 
   return NextResponse.json({
     message: {

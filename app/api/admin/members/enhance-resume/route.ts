@@ -5,6 +5,8 @@ import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function _POST(request: Request) {
   try {
@@ -68,6 +70,8 @@ async function _POST(request: Request) {
         .map((line) => cleanLongFormPlainText(line))
         .filter(Boolean);
   
+      void auditLog({ actorUserId: user.id, action: 'admin_member_resume_enhanced', targetType: 'User', targetId: user.id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'EnhancedResume', id: user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         enhancedResume: improvedResume,
         improvementSummary,

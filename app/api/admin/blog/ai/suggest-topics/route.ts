@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { PROGRAMS } from '@/lib/content/programs';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const POST = withApiGuc(async () => {
@@ -15,6 +16,9 @@ export const POST = withApiGuc(async () => {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     if (!isAIConfigured())
       return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+
+    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    if (!withinLimit) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
   
     const posts = await prisma.$transaction((tx) => tx.blogPost.findMany({
       where: { published: true },

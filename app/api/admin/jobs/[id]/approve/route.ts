@@ -8,6 +8,7 @@ import { sendJobApprovedEmail } from '@/lib/email';
 import { runAiMatchForLiveJob } from '@/lib/employer/triggerEmployerJobAiMatch';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -77,6 +78,7 @@ async function _POST(
       request: auditRequestMeta(request),
       orgId,
     }).catch((err) => console.error('[audit] approve_job:', err));
+    auditLog({ actorUserId: user.id, action: 'admin_job_approved', targetType: 'Job', targetId: id, metadata: { orgId } }).catch(() => {});
 
     return NextResponse.json({ ok: true });
   } catch (error) {

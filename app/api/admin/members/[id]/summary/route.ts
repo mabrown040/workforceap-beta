@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/admin/members/[id]/summary
@@ -163,6 +165,8 @@ export const POST = withApiGuc(
         out = null;
       }
 
+      void auditLog({ actorUserId: user.id, action: 'admin_member_summary_generated', targetType: 'User', targetId: id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'MemberSummary', id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ summary: out ?? 'Summary unavailable, try again.' });
     } catch (error) {
       console.error('/api/admin/members/[id]/summary:', error);

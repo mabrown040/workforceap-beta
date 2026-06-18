@@ -11,6 +11,8 @@ import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
 import { createNotification } from '@/lib/notifications/create';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -104,6 +106,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     });
   }
 
+  auditLog({ actorUserId: user.id, action: 'member.message.send', targetType: 'Message', targetId: msg.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'Message', id: msg.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ message: serializeMessage(msg) });
 
   } catch (error) {
@@ -126,6 +130,8 @@ export const POST = withApiGuc(_POST);async function _PATCH() {
     data: { memberLastReadAt: now },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'member.messages.markRead', targetType: 'MessageThread', targetId: thread.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'MessageThread', id: thread.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, memberLastReadAt: now.toISOString() });
 
   } catch (error) {

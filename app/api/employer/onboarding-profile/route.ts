@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -43,6 +45,20 @@ const schema = z.object({
       companyWebsite: website,
     },
   }));
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'employer_onboarding_profile_updated',
+    targetType: 'Employer',
+    targetId: ctx.employerId,
+    metadata: { companyName, industry: industry ?? null, companySize: companySize ?? null },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'employer' },
+    verb: 'updated',
+    object: { type: 'EmployerOnboardingProfile', id: ctx.employerId },
+    result: { success: true },
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 

@@ -4,6 +4,8 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -67,6 +69,20 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
           notes: notes ?? null,
         },
       }));
+      auditLog({
+        actorUserId: user.id,
+        action: 'employer_hiring_intent_created',
+        targetType: 'Employer',
+        targetId: ctx.employerId,
+        metadata: { intentId: intent.id, programSlug, seatCount },
+      }).catch(() => {});
+      logAuditEvent({
+        user: { id: user.id, role: 'employer' },
+        verb: 'created',
+        object: { type: 'EmployerHiringIntent', id: intent.id },
+        result: { success: true, extensions: { programSlug, seatCount } },
+      }).catch(() => {});
+
       return NextResponse.json({ intent });
     } catch (err) {
       captureApiError(err, { route: 'employer/hiring-intents' });

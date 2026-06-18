@@ -403,6 +403,91 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-071: §H-DEP4 dual audit trail for PII-access and AI generation routes (batch14) — ✓ Fixed PR #2006
+
+**What:** 5 admin routes confirmed to access PII data or process PII in AI generation paths, missing both audit calls:
+- `admin/employer-context` POST — super-admin sets active employer context cookie (`admin_employer_context_set`)
+- `admin/partner-context` POST — super-admin sets active partner context cookie (`admin_partner_context_set`)
+- `admin/members/enhance-resume` POST — AI resume enhancement with PII from request body (`admin_member_resume_enhanced`)
+- `admin/members/parse-resume` POST — AI resume text extraction with PII from request body (`admin_member_resume_parsed`)
+- `admin/members/[id]/summary` POST — reads full member profile from DB for AI summary generation (`admin_member_summary_generated`)
+
+**Fixed:** PR #2006. Fire-and-forget `auditLog` + `logAuditEvent` added per §H-DEP4 PII access requirement.
+
+**Status:** Completed 2026-06-17. PR #2006 open / gate-merge pending.
+
+---
+
+## TODO-070: §H-DEP4 dual audit trail for 6 admin routes (batch13) — ✓ Fixed PR #2005
+
+**What:** 6 admin routes missing both audit calls:
+- `admin/blog` POST — `admin_blog_post_created`
+- `admin/users/free-deleted-emails` POST — `admin_deleted_emails_freed`
+- `admin/coursera/backfill-orphans` POST — `admin_coursera_backfill_orphans`
+- `admin/coursera/backfill-xapi` POST — `admin_coursera_backfill_xapi` (bug-fixed: `user.id` → `actorId` in helper scope)
+- `admin/coursera/sync-user-from-b4b` POST — `admin_coursera_sync_b4b`
+- `admin/email-templates/[id]/test` POST — `admin_email_template_test_sent`
+
+**Fixed:** PR #2005. Two-commit fix: initial patch + scope bug correction for `backfill-xapi`.
+
+**Status:** Completed 2026-06-17. PR #2005 open / gate-merge pending.
+
+---
+
+## TODO-069: §H-DEP4 dual audit trail for 7 admin routes (batch12) — ✓ Fixed PR #2004
+
+**What:** 7 admin routes (9 handlers) missing both audit calls:
+- `admin/chapters` POST — `admin_chapter_created`
+- `admin/coursera/canonical-course-mappings` POST+DELETE — `admin_coursera_mapping_created` / `admin_coursera_mapping_deleted`
+- `admin/employer-screening-packs` POST — `admin_employer_screening_pack_created`
+- `admin/employer-screening-packs/[id]` PATCH+DELETE — `admin_employer_screening_pack_updated` / `admin_employer_screening_pack_deleted`
+- `admin/members/at-risk` PATCH — `admin_at_risk_alert_updated` (uses `auth.userId`)
+- `admin/messages/threads` POST — `admin_message_thread_created`
+- `admin/milestone-cascades/synthetic` POST — `admin_milestone_cascade_synthetic_triggered`
+
+**Fixed:** PR #2004.
+
+**Status:** Completed 2026-06-17. PR #2004 open / gate-merge pending.
+
+---
+
+## TODO-068: §H-DEP4 dual audit trail for 10 admin routes (batch11) — ✓ Fixed PR #2003
+
+**What:** 10 admin routes (12 handlers) missing both audit calls:
+- `admin/invites` POST — `admin_invite_created`
+- `admin/members/[id]/send-interview-link` POST — `admin_member_interview_link_sent`
+- `admin/members/[id]/skill-checkpoints` POST — `admin_member_skill_checkpoint_recorded`
+- `admin/partners` POST — `admin_partner_created`
+- `admin/programs/catalog` POST+PATCH — `admin_program_catalog_created` / `admin_program_catalog_updated`
+- `admin/subgroups` POST — `admin_subgroup_created`
+- `admin/testimonials/[id]` PATCH+DELETE — `admin_testimonial_updated` / `admin_testimonial_deleted`
+- `admin/users` POST — `admin_user_created`
+
+**Fixed:** PR #2003.
+
+**Status:** Completed 2026-06-17. PR #2003 open / gate-merge pending.
+
+---
+
+## TODO-067: §H-DEP4 dual audit trail for 9 admin routes (batch10) — ✓ Fixed PR #2002
+
+**What:** 9 admin routes (11 handlers) missing both audit calls:
+- `admin/members/[id]/notes` POST — `admin_member_note_created`
+- `admin/members/[id]/messages` POST — `admin_member_message_sent`
+- `admin/members/[id]/program` PATCH — `admin_member_program_changed`
+- `admin/assessments/[id]` PATCH+DELETE — `admin_assessment_updated` / `admin_assessment_deleted`
+- `admin/members/[id]/placements` POST — `admin_member_placement_created`
+- `admin/members/[id]/placements/[placementId]` PATCH — `admin_member_placement_updated`
+- `admin/assessments` POST — `admin_assessment_created`
+- `admin/members/[id]/flag` POST — `admin_member_flagged`
+- `admin/cohorts` POST — `admin_cohort_created`
+
+**Fixed:** PR #2002.
+
+**Status:** Completed 2026-06-17. PR #2002 open / gate-merge pending.
+
+---
+
 ## TODO-066: §H-DEP4 dual audit trails + security fixes for 4 misc routes — ✓ Fixed PR #2000
 
 **What:** 4 routes from an earlier stash needing audit sweep + security fixes:

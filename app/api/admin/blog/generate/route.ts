@@ -11,6 +11,8 @@ async function _POST(request: Request) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     if (!(await isAdmin(user.id)))
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    if (!withinLimit) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     if (!isAIConfigured())
       return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
 
@@ -78,10 +80,10 @@ function parseBody(body: unknown): {
 } | null {
   if (!body || typeof body !== 'object') return null;
   const o = body as Record<string, unknown>;
-  const topic = typeof o.topic === 'string' ? o.topic.trim() : '';
-  const tone = typeof o.tone === 'string' ? o.tone.trim() || 'Informative' : 'Informative';
-  const category = typeof o.category === 'string' ? o.category.trim() || 'Career Tips' : 'Career Tips';
-  const title = typeof o.title === 'string' ? o.title.trim() : '';
+  const topic = typeof o.topic === 'string' ? o.topic.trim().slice(0, 500) : '';
+  const tone = typeof o.tone === 'string' ? o.tone.trim().slice(0, 50) || 'Informative' : 'Informative';
+  const category = typeof o.category === 'string' ? o.category.trim().slice(0, 100) || 'Career Tips' : 'Career Tips';
+  const title = typeof o.title === 'string' ? o.title.trim().slice(0, 200) : '';
   if (!topic) return null;
   return { title, topic, tone, category };
 }

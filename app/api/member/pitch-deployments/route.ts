@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -59,6 +61,8 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
     select: { id: true, metadata: true, createdAt: true },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'member.pitchDeployment.create', targetType: 'PitchDeployment', targetId: event.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'PitchDeployment', id: event.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ deployment: event });
 
   } catch (error) {

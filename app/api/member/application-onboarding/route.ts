@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { ApplicationStatus } from '@prisma/client';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const bodySchema = z.object({
   programInterest: z.string().min(1).max(500),
@@ -54,6 +56,8 @@ const bodySchema = z.object({
     data: { programInterest },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'member.applicationOnboarding.update', targetType: 'ApplicationOnboarding', targetId: user.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'ApplicationOnboarding', id: user.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

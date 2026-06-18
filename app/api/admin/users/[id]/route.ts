@@ -11,8 +11,9 @@ import { userAuthDeleteFailedResponse } from '@/lib/admin/userDeleteResponse';
 import { buildDeletedEmail } from '../_deletedEmail';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { auditLog } from '@/lib/audit';async function _DELETE(
-  _req: NextRequest,
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';async function _DELETE(
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -69,6 +70,7 @@ import { auditLog } from '@/lib/audit';async function _DELETE(
         targetId: id,
         metadata: { email: target.email },
       });
+      logAuditEvent({ user: { id: actor.id, role: 'super_admin' }, verb: 'deleted', object: { type: 'User', id }, result: { success: true, extensions: { email: target.email } }, request: auditRequestMeta(req), orgId }).catch((err) => console.error('[audit] admin_user_delete xapi:', err));
       return NextResponse.json({ ok: true });
     } catch (err) {
       console.error('[admin/users/:id DELETE]', err);
@@ -198,6 +200,7 @@ async function _PATCH(
         targetId: id,
         metadata: { fullName, email: normalizedEmail, role: updated.role },
       });
+      logAuditEvent({ user: { id: admin.id, role: 'admin' }, verb: 'updated', object: { type: 'User', id }, result: { success: true, extensions: { fullName, email: normalizedEmail, role: updated.role } }, request: auditRequestMeta(req), orgId }).catch((err) => console.error('[audit] admin_user_update xapi:', err));
       return NextResponse.json({ success: true, user: updated });
     } catch (error) {
       if (authEmailChanged) {

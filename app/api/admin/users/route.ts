@@ -16,6 +16,8 @@ import {
 } from '@/lib/admin/adminUserProvisioning';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   try {
@@ -176,7 +178,10 @@ const createSchema = z.object({
           });
         }
       }
-  
+
+      auditLog({ actorUserId: admin.id, action: 'admin_user_create', targetType: 'User', targetId: created.id, metadata: { email, role: created.role, orgId: organizationId } }).catch((err) => console.error('[audit] admin_user_create:', err));
+      logAuditEvent({ user: { id: admin.id, role: 'admin' }, verb: 'created', object: { type: 'User', id: created.id }, result: { success: true, extensions: { email, role: created.role } }, request: auditRequestMeta(request), orgId: organizationId }).catch((err) => console.error('[audit] admin_user_create xapi:', err));
+
       return NextResponse.json({ success: true, user: created });
     } catch (error) {
       console.error('[admin/users POST] database setup failed', error);

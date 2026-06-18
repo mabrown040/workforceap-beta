@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -14,7 +15,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
  * their UUID.
  */
 async function _POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -37,11 +38,13 @@ async function _POST(
       const { error } = await sendPasswordResetEmail(user.email, '/reset-password', { orgId });
       if (error) throw error;
 
+      auditLog({ actorUserId: admin.id, action: 'admin_user_reset_password', targetType: 'User', targetId: id, metadata: { orgId } }).catch((err) => console.error('[audit] admin_user_reset_password:', err));
       logAuditEvent({
         user: { id: admin.id, role: 'admin' },
         verb: 'reset_password',
         object: { type: 'User', id },
         result: { success: true },
+        request: auditRequestMeta(req),
         orgId,
       }).catch((err) => console.error('[audit] reset_password:', err));
 

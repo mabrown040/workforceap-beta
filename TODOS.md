@@ -403,6 +403,37 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-066: §H-DEP4 dual audit trails + security fixes for 4 misc routes — ✓ Fixed PR #2000
+
+**What:** 4 routes from an earlier stash needing audit sweep + security fixes:
+- `admin/email-templates/[id]` PATCH — add `auditLog` + `logAuditEvent`
+- `admin/members/[id]/upload-resume` POST — add `auditLog` + `logAuditEvent`
+- `admin/partners/[id]/invite` POST — add `logAuditEvent` alongside existing `auditLog`
+- `member/prep-bundle/send` POST — add `withApiGuc` + rate-limit + close open email relay (remove `memberEmail` from body)
+
+**Fixed:** PR #2000.
+
+**Status:** Completed 2026-06-17. PR #2000 open / gate-merge pending.
+
+---
+
+## TODO-065: §H-DEP4 add logAuditEvent to 15 admin routes that had auditLog only — ✓ Fixed PR #2001
+
+**What:** 15 admin routes (17 mutation handlers) had `auditLog` but were missing `logAuditEvent`:
+- `admin/data-retention` POST, `admin/employers` POST, `admin/feature-flags` POST
+- `admin/members/bulk-export` POST, `admin/members/[id]/coursera-enrollment-approval` PATCH
+- `admin/members/[id]/readiness` PATCH, `admin/members/[id]/wioa-review` PATCH
+- `admin/members/[id]/workspace-email` POST + DELETE
+- `admin/mentors/[id]` PATCH, `admin/onet/mappings` POST (create+update) + DELETE
+- `admin/partner-payouts` GET, `admin/partners/[id]/invite` POST
+- `admin/partners/[id]` PATCH, `admin/partners/invite` POST, `admin/token-links` POST
+
+**Fixed:** PR #2001. Added `logAuditEvent` import + fire-and-forget call alongside existing `auditLog`.
+
+**Status:** Completed 2026-06-17. PR #2001 open / gate-merge pending.
+
+---
+
 ## TODO-064: withApiGuc missing on 4 routes + rate-limit on request-help — ✓ Fixed PR #1999
 
 **What:** 4 GET routes and 1 POST route were missing the `withApiGuc` per-request GUC context wrapper, meaning DB queries ran without the actor org GUC set. `member/request-help` POST also lacked any rate limiting.

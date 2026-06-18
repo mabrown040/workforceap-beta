@@ -8,6 +8,8 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/admin/coursera/sync-user-from-b4b
@@ -98,6 +100,8 @@ async function _POST(request: NextRequest) {
         enrolledByAdmin: actor.id,
         existingEnrolledProgram: wapUser.enrolledProgram,
       });
+      void auditLog({ actorUserId: actor.id, action: 'admin_coursera_sync_b4b', targetType: 'User', targetId: wapUser.id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: actor.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraSyncB4B', id: wapUser.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json(result);
     } catch (err) {
       captureApiError(err, { route: 'admin/coursera/sync-user-from-b4b' });

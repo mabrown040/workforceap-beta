@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { backfillAllOrphanedCourseraProgress } from '@/lib/coursera/csvImport.server';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -32,6 +34,8 @@ export const POST = withApiGuc(async () => {
 
     const result = await backfillAllOrphanedCourseraProgress();
 
+    void auditLog({ actorUserId: admin.id, action: 'admin_coursera_backfill_orphans', targetType: 'User', targetId: admin.id, metadata: {} }).catch(() => {});
+    logAuditEvent({ user: { id: admin.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraBackfillOrphans', id: admin.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({
       ok: true,
       mappingsProcessed: result.mappingsProcessed,

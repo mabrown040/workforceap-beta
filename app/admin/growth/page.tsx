@@ -24,9 +24,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
-import { getUser } from '@/lib/auth/server';
+import { getUser, withAuthGuc } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { CONVERSION_VALUE_USD } from '@/lib/analytics/conversionValue';
@@ -66,12 +67,13 @@ function getStr(meta: unknown, key: string): string {
   return '';
 }
 
-async function loadSignupsByUtmSource(): Promise<Utm[]> {
+async function loadSignupsByUtmSource(orgId: string): Promise<Utm[]> {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const rows = await prisma.memberEvent.findMany({
     where: {
       eventName: 'apply_signup_completed',
       createdAt: { gte: since },
+      user: { organizationId: orgId },
     },
     select: { metadata: true, createdAt: true },
     orderBy: { createdAt: 'desc' },
@@ -95,7 +97,7 @@ async function loadSignupsByUtmSource(): Promise<Utm[]> {
   return Array.from(buckets.values()).sort((a, b) => b.count - a.count);
 }
 
-async function loadApplyAttemptsLast24h(): Promise<ApplyBreakdownRow[]> {
+async function loadApplyAttemptsLast24h(orgId: string): Promise<ApplyBreakdownRow[]> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
   // Prisma groupBy + startsWith via a small raw filter; we restrict on
   // server side and aggregate in JS — volume is bounded (small TAM).
@@ -103,6 +105,7 @@ async function loadApplyAttemptsLast24h(): Promise<ApplyBreakdownRow[]> {
     where: {
       eventName: { startsWith: 'apply_' },
       createdAt: { gte: since },
+      user: { organizationId: orgId },
     },
     select: { eventName: true },
     take: 5000,
@@ -116,12 +119,13 @@ async function loadApplyAttemptsLast24h(): Promise<ApplyBreakdownRow[]> {
     .sort((a, b) => b.count - a.count);
 }
 
-async function loadLoginCountLast24h(): Promise<number> {
+async function loadLoginCountLast24h(orgId: string): Promise<number> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
   return prisma.memberEvent.count({
     where: {
       eventName: 'member_logged_in',
       createdAt: { gte: since },
+      user: { organizationId: orgId },
     },
   });
 }
@@ -131,11 +135,14 @@ export default async function AdminGrowthPage() {
   if (!user) redirect('/login?redirectTo=/admin/growth');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const [utmRows, applyBreakdown, loginCount24h] = await Promise.all([
-    loadSignupsByUtmSource(),
-    loadApplyAttemptsLast24h(),
-    loadLoginCountLast24h(),
-  ]);
+  const orgId = await getActorOrganizationId(user.id);
+  const [utmRows, applyBreakdown, loginCount24h] = await withAuthGuc(() =>
+    Promise.all([
+      loadSignupsByUtmSource(orgId),
+      loadApplyAttemptsLast24h(orgId),
+      loadLoginCountLast24h(orgId),
+    ]),
+  );
 
   const totalSignups7d = utmRows.reduce((acc, r) => acc + r.count, 0);
 

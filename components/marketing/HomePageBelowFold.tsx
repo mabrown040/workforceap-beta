@@ -65,17 +65,26 @@ export default async function HomePageBelowFold({
         }}
       >
         <div style={{ maxWidth: '880px', margin: '0 auto', textAlign: 'center' }}>
-          <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
+          <span
+            className="home-member-promise__eyebrow text-label-upper"
+            style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}
+          >
             {t('memberPromiseEyebrow')}
           </span>
-          <h2 className="text-display-sm" style={{ marginBottom: '1.25rem' }}>
+          <h2 className="home-member-promise__title text-display-sm" style={{ marginBottom: '1.25rem' }}>
             {t('memberPromiseTitle')}{' '}
             <span style={{ color: 'var(--color-accent)' }}>{t('memberPromiseTitleAccent')}</span>
           </h2>
-          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1rem', fontSize: '1.05rem' }}>
+          <p
+            className="home-member-promise__body-primary"
+            style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '1rem', fontSize: '1.05rem' }}
+          >
             {t('memberPromiseBody1')}
           </p>
-          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}>
+          <p
+            className="home-member-promise__pathfinder"
+            style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7, marginBottom: '2rem' }}
+          >
             {t('memberPromiseBody2')}
           </p>
           <div className="home-member-promise__actions">

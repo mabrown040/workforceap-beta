@@ -79,7 +79,7 @@ export default async function ProgramsPage() {
           jump to the catalog without scrolling past quick-start cards first. */}
       <ProgramsMobileBrowseNav />
 
-      <section id="programs-quick-start" style={{ padding: '2rem 0 0' }}>
+      <section id="programs-quick-start" className="programs-quick-start" style={{ padding: '2rem 0 0' }}>
         <div className="container" style={{ maxWidth: 1200 }}>
           <div
             style={{

@@ -301,6 +301,18 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-055: §H-DEP4 dual audit trails sweep 7 — 6 routes — ✓ Fixed PR #1983
+
+**What:** 6 routes with missing xAPI audit trail:
+- `admin/feature-flags` POST: `auditLog` only → added `logAuditEvent`
+- `admin/feature-flags/[id]` PATCH + DELETE: `auditLog` only → added `logAuditEvent` for both
+- `admin/onet/mappings` POST (update + create paths) + DELETE: `auditLog` only → added `logAuditEvent` after each mutation
+- `admin/token-links` POST: `auditLog` only → added `logAuditEvent`
+- `q/[token]/submit` bound-link path: no audit → added both `auditLog` + `logAuditEvent`; null-actor path skips `logAuditEvent` (non-nullable AuditActor.id)
+- `admin/members/[id]/placed-outcome` POST: `auditLog` only → added `logAuditEvent`
+
+**Fixed:** PR #1983. All 6 routes now emit both audit trails per §H-DEP4.
+
 ## TODO-054: §H-DEP4 dual audit trails sweep 6 — 5 routes — ✓ Fixed PR #1982
 
 **What:** 5 routes missing one of the two required audit calls:

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -86,6 +87,7 @@ export const GET = withApiGuc(_GET);async function _POST(
       targetId: id,
       metadata: { noteId: note.id, contentLength: parsed.data.content.length },
     }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CounselorNote', id: note.id }, result: { success: true, extensions: { memberId: id } } }).catch(() => {});
     return NextResponse.json(note, { status: 201 });
   } catch (error) {
     captureApiError(error, { route: 'admin/members/[id]/notes POST' });

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -51,6 +53,8 @@ export const POST = withApiGuc(
         return NextResponse.json({ error: result.error ?? 'Could not send email' }, { status: 502 });
       }
 
+      auditLog({ actorUserId: user.id, action: 'admin_send_interview_link', targetType: 'User', targetId: id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'sent', object: { type: 'InterviewPrepLink', id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ ok: true });
     } catch (error) {
       console.error('/admin/members/[id]/send-interview-link error:', error);

@@ -169,8 +169,8 @@ async function runBackfill(email: string, actorId: string) {
   const completed = results.filter((r) => r.status === 'completed').length;
   const failed = results.filter((r) => r.status === 'error' || r.status === 'parse_failed').length;
 
-  void auditLog({ actorUserId: user.id, action: 'admin_coursera_backfill_xapi', targetType: 'User', targetId: member.id, metadata: { totalStatements: statements.length, progressUpdated, completed, failed } }).catch(() => {});
-  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraXapiBackfill', id: member.id }, result: { success: true } }).catch(() => {});
+  void auditLog({ actorUserId: actorId, action: 'admin_coursera_backfill_xapi', targetType: 'User', targetId: member.id, metadata: { totalStatements: statements.length, progressUpdated, completed, failed } }).catch(() => {});
+  logAuditEvent({ user: { id: actorId, role: 'admin' }, verb: 'created', object: { type: 'CourseraXapiBackfill', id: member.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     ok: true,
     member: { id: member.id, email: member.email, fullName: member.fullName, program: member.enrolledProgram },

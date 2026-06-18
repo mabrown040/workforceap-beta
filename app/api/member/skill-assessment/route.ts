@@ -8,6 +8,8 @@ import { trackEvent } from '@/lib/events/track';
 import { saveSkillAssessmentSchema } from '@/lib/validation/skillAssessment';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (request: Request) => {
   try {
     const user = await getUser();
@@ -52,6 +54,8 @@ export const POST = withApiGuc(async (request: Request) => {
         sourcePage: '/dashboard/skills-assessment',
       });
   
+      auditLog({ actorUserId: user.id, action: 'member.skillAssessment.submit', targetType: 'SkillAssessment', targetId: result.id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'SkillAssessment', id: result.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         ok: true,
         resultId: result.id,

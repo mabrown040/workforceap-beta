@@ -5,6 +5,8 @@ import { computeWioaSignal, parseWioaAnswers, type WioaQualificationSnapshot } f
 import { sendWioaScreeningNotification } from '@/lib/wioa/wioaNotification';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -80,6 +82,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
       })
     : false;
 
+  auditLog({ actorUserId: user.id, action: 'member.wioaQualification.submit', targetType: 'WioaQualification', targetId: user.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'WioaQualification', id: user.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, snapshot, emailSent });
 
   } catch (error) {

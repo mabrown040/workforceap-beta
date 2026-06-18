@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const updateSchema = z.object({
   pathwayId: z.string().min(1),
@@ -60,6 +62,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'member.learningProgress.update', targetType: 'LearningProgress', targetId: user.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'LearningProgress', id: user.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ progress: record });
 
   } catch (error) {

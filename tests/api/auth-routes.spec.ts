@@ -888,7 +888,7 @@ describe('GET /api/auth/me', () => {
   it('returns null fields when Supabase env is missing', async () => {
     vi.mocked(hasSupabaseServerEnv).mockReturnValue(false);
 
-    const res = await meGET();
+    const res = await meGET(new Request('http://localhost:3000/api/auth/me'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -899,7 +899,7 @@ describe('GET /api/auth/me', () => {
   it('returns null fields when user is unauthenticated', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    const res = await meGET();
+    const res = await meGET(new Request('http://localhost:3000/api/auth/me'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -921,7 +921,7 @@ describe('GET /api/auth/me', () => {
     const { getPortalSwitcherRoles } = await import('@/lib/auth/portalRoleSwitcher');
     vi.mocked(getPortalSwitcherRoles).mockResolvedValue([]);
 
-    const res = await meGET();
+    const res = await meGET(new Request('http://localhost:3000/api/auth/me'));
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -934,7 +934,7 @@ describe('GET /api/auth/me', () => {
   it('returns 500 on unexpected error', async () => {
     vi.mocked(getUser).mockRejectedValue(new Error('DB failure'));
 
-    const res = await meGET();
+    const res = await meGET(new Request('http://localhost:3000/api/auth/me'));
 
     expect(res.status).toBe(500);
     const body = await res.json();

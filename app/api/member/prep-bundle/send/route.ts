@@ -1,20 +1,29 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { fetchInterviewPrepBundle } from '@/lib/member/interviewPrepBundle';
 import { sendInterviewPrepBundleEmail } from '@/lib/email';
+import { checkContactRateLimit } from '@/lib/rate-limit';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * POST /api/member/prep-bundle/send
- * Body: { memberEmail?: string, selectedToolTypes?: string[] }
- * Sends selected AI tool results as a pre-interview prep bundle email.
- * If selectedToolTypes is omitted, sends all items.
+ * Body: { selectedToolTypes?: string[] }
+ * Sends selected AI tool results as a pre-interview prep bundle email to the
+ * authenticated member's own address only. memberEmail is intentionally ignored
+ * to prevent use as an open email relay.
  */
-export async function POST(request: Request) {
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  let body: { memberEmail?: string; selectedToolTypes?: string[] } = {};
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
+  const { success: withinLimit } = await checkContactRateLimit(ip);
+  if (!withinLimit) {
+    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+  }
+
+  let body: { selectedToolTypes?: string[] } = {};
   try { body = await request.json(); } catch { /* no body ok */ }
 
   const bundle = await fetchInterviewPrepBundle(user.id);
@@ -35,7 +44,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No items selected to send.' }, { status: 400 });
   }
 
-  const email = body.memberEmail?.trim() || user.email || '';
+  const email = user.email || '';
   if (!email) {
     return NextResponse.json({ error: 'No email address available.' }, { status: 400 });
   }
@@ -59,5 +68,4 @@ export async function POST(request: Request) {
     console.error('/member/prep-bundle/send error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
-
+});

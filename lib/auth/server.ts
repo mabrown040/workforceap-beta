@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { unstable_rethrow } from 'next/navigation';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
 import { runWithGucContext, buildGucContext, ANONYMOUS_GUC_CONTEXT } from '@/lib/db/gucContext';
 import type { GucContext } from '@/lib/db/gucContext';
@@ -70,9 +71,15 @@ export async function getSession() {
     const supabase = await createSupabaseServerClient();
     const {
       data: { session },
+      error,
     } = await supabase.auth.getSession();
+    if (error) {
+      console.error('[auth:getSession] Supabase session read failed; treating request as signed out', error);
+      return null;
+    }
     return session;
   } catch (err) {
+    unstable_rethrow(err);
     console.error('[auth:getSession] Supabase session read failed; treating request as signed out', err);
     return null;
   }
@@ -89,9 +96,15 @@ export const getUser = cache(async function getUser() {
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
+      error,
     } = await supabase.auth.getUser();
+    if (error) {
+      console.error('[auth:getUser] Supabase user validation failed; treating request as signed out', error);
+      return null;
+    }
     return user;
   } catch (err) {
+    unstable_rethrow(err);
     console.error('[auth:getUser] Supabase user validation failed; treating request as signed out', err);
     return null;
   }

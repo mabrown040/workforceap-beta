@@ -6,6 +6,8 @@ import { createConnectAccount, createAccountLink } from '@/lib/stripe/connect';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
@@ -46,6 +48,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       `${origin}/partner?connect=success`,
     );
 
+    auditLog({ actorUserId: user.id, action: 'partner_stripe_connect_initiated', targetType: 'Partner', targetId: ctx.partnerId }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'partner' }, verb: 'updated', object: { type: 'Partner', id: ctx.partnerId }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ url: link.url });
   } catch (error) {
     console.error('[partner/connect] error:', error);

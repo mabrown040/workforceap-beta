@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const contactSchema = z.object({
   contactName: z.string().max(200).nullable().optional(),
@@ -43,6 +45,8 @@ export const PATCH = withApiGuc(async (request: NextRequest) => {
       },
     }));
 
+    auditLog({ actorUserId: user.id, action: 'partner_contact_settings_update', targetType: 'Partner', targetId: ctx.partnerId }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'partner' }, verb: 'updated', object: { type: 'Partner', id: ctx.partnerId }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('/partner/settings/contact:', error);

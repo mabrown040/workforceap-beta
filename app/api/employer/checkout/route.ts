@@ -6,6 +6,8 @@ import { getStripe, EMPLOYER_TIERS, isValidTier } from '@/lib/stripe/client';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
@@ -81,6 +83,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       },
     });
 
+    auditLog({ actorUserId: user.id, action: 'employer_checkout_initiated', targetType: 'StripeCheckoutSession', targetId: session.id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'created', object: { type: 'StripeCheckoutSession', id: session.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error('[employer/checkout] error:', error);

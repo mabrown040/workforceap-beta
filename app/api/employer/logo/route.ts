@@ -6,6 +6,8 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const BUCKET = 'employer-logos';
 const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: Request) => {
@@ -52,6 +54,8 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     data: { logoUrl: path },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'employer_logo_upload', targetType: 'Employer', targetId: ctx.employerId }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'Employer', id: ctx.employerId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, logoUrl: resolveSupabasePublicAssetUrl(BUCKET, path) });
 
   } catch (error) {

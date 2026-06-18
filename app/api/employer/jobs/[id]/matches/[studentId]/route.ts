@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import type { AIJobMatchStatus } from '@prisma/client';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const patchSchema = z.object({
   status: z.enum([
@@ -51,6 +53,8 @@ const patchSchema = z.object({
     },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'employer_job_match_update', targetType: 'AIJobMatch', targetId: match.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'AIJobMatch', id: match.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json(updated);
 
   } catch (error) {

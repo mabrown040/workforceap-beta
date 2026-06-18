@@ -48,6 +48,10 @@ async function _POST(request: Request) {
       return NextResponse.json({ error: 'Interview session not found' }, { status: 404 });
     }
 
+    if (session.completedAt) {
+      return NextResponse.json({ error: 'Interview already completed', complete: true }, { status: 409 });
+    }
+
     const currentQuestion = session.questions[session.questions.length - 1];
     session.responses.push({ question: currentQuestion.question, answer });
 

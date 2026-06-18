@@ -101,17 +101,19 @@ vi.mock('@/lib/auth/server', () => ({
   resolveAuthGucContext: vi.fn(() => Promise.resolve(null)),
 }));
 
-vi.mock('@/lib/db/prisma', () => ({
-  prisma: {
-    profile: {
-      findUnique: vi.fn(() => Promise.resolve(null)),
-    },
+vi.mock('@/lib/db/prisma', () => {
+  const profile = { findUnique: vi.fn(() => Promise.resolve(null)) };
+  const memberEvent = { create: vi.fn(() => Promise.resolve({})) };
+  const mockPrisma: any = {
+    profile,
+    memberEvent,
     $transaction: vi.fn((cb: any) => {
-      if (typeof cb === 'function') return cb(prisma);
+      if (typeof cb === 'function') return cb(mockPrisma);
       return Promise.all(cb);
     }),
-  },
-}));
+  };
+  return { prisma: mockPrisma };
+});
 
 vi.mock('@/lib/auth/postLoginRedirect', () => ({
   normalizePostLoginRedirect: vi.fn((raw: string | undefined, fallback = '/dashboard') =>

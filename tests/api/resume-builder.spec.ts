@@ -25,6 +25,7 @@ vi.mock('next/headers', () => ({
 
 vi.mock('@/lib/auth/server', () => ({
   getUser: vi.fn(),
+  resolveAuthGucContext: vi.fn(() => Promise.resolve({ role: 'authenticated', userId: 'test-user' })),
 }));
 
 vi.mock('@/lib/auth/roles', () => ({

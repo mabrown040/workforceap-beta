@@ -32,25 +32,33 @@ vi.mock('@/lib/auth/roles', () => ({
   getEmployerForUser: vi.fn(),
 }));
 
-vi.mock('@/lib/db/prisma', () => ({
-  prisma: {
-    job: {
-      findMany: vi.fn(),
-      findFirst: vi.fn(),
-      findUnique: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-    },
-    employer: {
-      findUnique: vi.fn(),
-    },
-    jobPostingApplication: {
-      findMany: vi.fn(),
-      findFirst: vi.fn(),
-      update: vi.fn(),
-    },
-  },
-}));
+vi.mock('@/lib/db/prisma', () => {
+  const job = {
+    findMany: vi.fn(),
+    findFirst: vi.fn(),
+    findUnique: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+  };
+  const employer = {
+    findUnique: vi.fn(),
+  };
+  const jobPostingApplication = {
+    findMany: vi.fn(),
+    findFirst: vi.fn(),
+    update: vi.fn(),
+  };
+  const mockPrisma: any = {
+    job,
+    employer,
+    jobPostingApplication,
+    $transaction: vi.fn(async (fn: any) => {
+      if (typeof fn === 'function') return fn(mockPrisma);
+      return Promise.all(fn);
+    }),
+  };
+  return { prisma: mockPrisma };
+});
 
 vi.mock('@/lib/tenant/withTenantScope', () => ({
   withTenantScope: vi.fn(async (_orgId: string, fn: (db: unknown) => Promise<unknown>) => {

@@ -11,6 +11,8 @@ import { validateFileType } from '@/lib/resume/file-validation';
 import { extractTextFromResumeBuffer } from '@/lib/resume/extractTextFromResumeBuffer';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
@@ -107,6 +109,8 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
       console.error('[upload-resume] text extraction failed', err);
     }
   
+    void auditLog({ actorUserId: user.id, action: 'counselor_resume_uploaded', targetType: 'User', targetId: authorizedMemberId, metadata: {} }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'counselor' }, verb: 'updated', object: { type: 'MemberResume', id: authorizedMemberId }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true, text: text.slice(0, 8000) });
   } catch (error) {
     console.error('/counselor/sessions/upload-resume:', error);

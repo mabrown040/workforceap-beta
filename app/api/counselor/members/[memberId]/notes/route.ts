@@ -8,6 +8,8 @@ import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAcc
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).
@@ -81,6 +83,8 @@ export const GET = withApiGuc(_GET);async function _POST(
     data: { memberId, authorId: user.id, content: parsed.data.content },
     include: { author: { select: { fullName: true, email: true } } },
   }));
+  void auditLog({ actorUserId: user.id, action: 'counselor_note_created', targetType: 'User', targetId: memberId, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'counselor' }, verb: 'created', object: { type: 'CounselorNote', id: memberId }, result: { success: true } }).catch(() => {});
   return NextResponse.json(note, { status: 201 });
 
   } catch (error) {

@@ -8,6 +8,8 @@ import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAcc
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const noteSchema = z.object({
   content: z.string().min(1).max(5000),
@@ -71,6 +73,8 @@ async function _POST(
       data: { memberId, authorId: user.id, content: parsed.data.content },
       include: { author: { select: { fullName: true, email: true } } },
     }));
+    void auditLog({ actorUserId: user.id, action: 'counselor_session_note_created', targetType: 'User', targetId: memberId, metadata: {} }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'counselor' }, verb: 'created', object: { type: 'SessionNote', id: memberId }, result: { success: true } }).catch(() => {});
     return NextResponse.json(note, { status: 201 });
   } catch (error) {
     console.error('/counselor/members/[memberId]/session-notes error:', error);
@@ -103,6 +107,8 @@ async function _DELETE(
     if (!note) return NextResponse.json({ error: 'Note not found or not yours' }, { status: 404 });
 
     await prisma.$transaction((tx) => tx.advisorSessionNote.delete({ where: { id: noteId } }));
+    void auditLog({ actorUserId: user.id, action: 'counselor_session_note_deleted', targetType: 'User', targetId: memberId, metadata: {} }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'counselor' }, verb: 'deleted', object: { type: 'SessionNote', id: memberId }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('/counselor/members/[memberId]/session-notes error:', error);

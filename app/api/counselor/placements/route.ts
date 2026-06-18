@@ -6,6 +6,8 @@ import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAcc
 import { buildPlacementsQuery } from '@/lib/counselor/placementsQuery';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function _GET(request: Request) {
   try {
@@ -108,6 +110,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     )
   `;
 
+  void auditLog({ actorUserId: user.id, action: 'counselor_placement_recorded', targetType: 'User', targetId: userId, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'counselor' }, verb: 'created', object: { type: 'Placement', id: userId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, placement: (placement as any[])[0] });
 
   } catch (error) {

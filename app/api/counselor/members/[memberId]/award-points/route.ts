@@ -4,6 +4,8 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { awardPoints } from '@/lib/member/points';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 type Props = { params: Promise<{ memberId: string }> };
 
@@ -39,6 +41,8 @@ async function _POST(request: Request, { params }: Props) {
     awardedBy: user.id,
   });
 
+  void auditLog({ actorUserId: user.id, action: 'counselor_points_awarded', targetType: 'User', targetId: memberId, metadata: { points } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'counselor' }, verb: 'created', object: { type: 'PointsAward', id: memberId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, ...result });
 
   } catch (error) {

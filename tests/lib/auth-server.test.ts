@@ -11,6 +11,15 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
+vi.mock('next/navigation', () => ({
+  unstable_rethrow: vi.fn((err: unknown) => {
+    const digest = typeof err === 'object' && err !== null && 'digest' in err ? String(err.digest) : '';
+    if (digest === 'DYNAMIC_SERVER_USAGE' || digest.startsWith('NEXT_')) {
+      throw err;
+    }
+  }),
+}));
+
 vi.mock('@supabase/ssr', () => ({
   createServerClient: vi.fn((url, key, options) => ({
     auth: {
@@ -29,6 +38,14 @@ vi.mock('@/lib/supabaseCookieOptions', () => ({
 import { hasSupabaseServerEnv, createSupabaseServerClient, getSession, getUser } from '@/lib/auth/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+
+function mockDefaultCookieStore() {
+  vi.mocked(cookies).mockResolvedValue({
+    get: vi.fn(),
+    getAll: vi.fn(() => []),
+    set: vi.fn(),
+  } as any);
+}
 
 describe('hasSupabaseServerEnv', () => {
   beforeEach(() => {
@@ -64,6 +81,7 @@ describe('createSupabaseServerClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.unstubAllEnvs();
+    mockDefaultCookieStore();
   });
 
   it('throws when env vars are missing', async () => {
@@ -110,6 +128,7 @@ describe('getSession', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.unstubAllEnvs();
+    mockDefaultCookieStore();
   });
 
   it('returns null when env vars are missing', async () => {
@@ -150,12 +169,24 @@ describe('getSession', () => {
     const session = await getSession();
     expect(session).toBeNull();
   });
+
+  it('rethrows Next dynamic server usage errors instead of treating them as signed out', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+    const dynamicError = Object.assign(new Error('Dynamic server usage'), {
+      digest: 'DYNAMIC_SERVER_USAGE',
+    });
+    vi.mocked(cookies).mockRejectedValue(dynamicError);
+
+    await expect(getSession()).rejects.toBe(dynamicError);
+  });
 });
 
 describe('getUser', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.unstubAllEnvs();
+    mockDefaultCookieStore();
   });
 
   it('returns null when env vars are missing', async () => {
@@ -195,5 +226,34 @@ describe('getUser', () => {
 
     const user = await getUser();
     expect(user).toBeNull();
+  });
+
+  it('returns null when Supabase returns an auth error', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+
+    const mockClient = {
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: null },
+          error: { message: 'Invalid JWT' },
+        }),
+      },
+    };
+    vi.mocked(createServerClient).mockReturnValue(mockClient as any);
+
+    const user = await getUser();
+    expect(user).toBeNull();
+  });
+
+  it('rethrows Next dynamic server usage errors instead of treating them as signed out', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://test.supabase.co');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'test-key');
+    const dynamicError = Object.assign(new Error('Dynamic server usage'), {
+      digest: 'DYNAMIC_SERVER_USAGE',
+    });
+    vi.mocked(cookies).mockRejectedValue(dynamicError);
+
+    await expect(getUser()).rejects.toBe(dynamicError);
   });
 });

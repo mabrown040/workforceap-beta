@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { unstable_rethrow } from 'next/navigation';
 import { getGucContext, inTransactionStorage } from './gucContext';
 import type { GucContext } from './gucContext';
 
@@ -118,7 +119,8 @@ function createPrismaClient(): PrismaClient {
       try {
         const { resolveAuthGucContext } = await import('../auth/server');
         ctx = await resolveAuthGucContext();
-      } catch {
+      } catch (error) {
+        unstable_rethrow(error);
         // anonymous fallback — same as before this change
       }
     }
@@ -162,7 +164,8 @@ function createPrismaClient(): PrismaClient {
       try {
         const { resolveAuthGucContext } = await import('../auth/server');
         ctx = await resolveAuthGucContext();
-      } catch {
+      } catch (error) {
+        unstable_rethrow(error);
         // fall through
       }
     }

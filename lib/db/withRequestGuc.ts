@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js';
+import { unstable_rethrow } from 'next/navigation';
 import {
   runWithGucContext,
   buildGucContext,
@@ -109,6 +110,7 @@ export function withApiGuc<T, R extends Request = Request, C = unknown>(
       const ctx = await resolveAuthGucContext();
       return await runWithGucContext(ctx, () => handler(request as R, context as C));
     } catch (error) {
+      unstable_rethrow(error);
       console.error('[withApiGuc] Unhandled error:', error);
       return Response.json({ error: 'Internal server error' }, { status: 500 }) as unknown as T;
     }
@@ -140,6 +142,7 @@ export function withAuthenticatedApiGuc<T, R extends Request = Request, C = unkn
       }
       return await runWithGucContext(ctx, () => handler(request as R, ctx.userId!, context as C));
     } catch (error) {
+      unstable_rethrow(error);
       console.error('[withAuthenticatedApiGuc] Unhandled error:', error);
       return Response.json({ error: 'Internal server error' }, { status: 500 }) as unknown as T;
     }

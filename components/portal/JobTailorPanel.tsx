@@ -127,9 +127,12 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
             className="btn btn-primary"
             onClick={() => void runTailor()}
             disabled={loading}
+            aria-busy={loading}
             style={{ fontSize: '0.9rem' }}
           >
-            {loading ? 'Tailoring your resume… (~20 sec)' : 'Tailor my resume for this job →'}
+            <span aria-live="polite">
+              {loading ? 'Tailoring your resume… (~20 sec)' : 'Tailor my resume for this job →'}
+            </span>
           </button>
           {needsResume && (
             <p style={{ margin: '0.7rem 0 0', fontSize: '0.87rem', lineHeight: 1.5 }}>
@@ -197,7 +200,9 @@ export default function JobTailorPanel({ jobId }: { jobId: string }) {
           {/* Tailored resume */}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
             <button type="button" className="btn btn-primary" style={{ fontSize: '0.85rem' }} onClick={() => void copyResume()}>
-              {copied ? 'Copied ✓' : 'Copy tailored resume'}
+              <span aria-live="polite">
+                {copied ? 'Copied ✓' : 'Copy tailored resume'}
+              </span>
             </button>
             <button type="button" className="btn btn-outline" style={{ fontSize: '0.85rem' }} onClick={downloadResume}>
               Download .txt

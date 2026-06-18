@@ -59,6 +59,28 @@ function createPrismaClient(): PrismaClient {
     transactionOptions: { maxWait: 5000, timeout: 10000 },
   });
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // P0 INCIDENT FIX (portal 504 / FUNCTION_INVOCATION_TIMEOUT):
+  // The GUC middleware below issues a separate `SELECT set_config(...)` before
+  // every query (2 pooler checkouts per query) and wraps reads in interactive
+  // `$transaction()` calls that each acquire a pooled connection. On serverless
+  // against the Supabase pooler this saturates the connection pool — the portal
+  // entry path alone fires ~10 queries (incl. getPortalSwitcherRoles' 6 parallel
+  // role lookups), so authenticated portal routes hung 60s+ and returned 504.
+  //
+  // RLS is enabled but NOT forced (relforcerowsecurity=false) and the app
+  // connects as the table owner, so these GUCs are not yet load-bearing for
+  // authorization (see the FAIL-OPEN notes below). We therefore disable the
+  // GUC layer by default to remove the overhead and keep the portal up.
+  //
+  // Re-enable (set WAP_RLS_GUC_ENABLED=true) in the SAME change that flips
+  // FORCE ROW LEVEL SECURITY and moves RLS reads onto a per-query-batched GUC
+  // path — otherwise fail-open would mean silent empty reads.
+  const gucEnabled = process.env.WAP_RLS_GUC_ENABLED === 'true';
+  if (!gucEnabled) {
+    return client;
+  }
+
   /**
    * GUC-setting middleware.
    *

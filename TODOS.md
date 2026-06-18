@@ -403,6 +403,19 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-069: §H-DEP4 dual audit trails for 7 admin routes (batch 12) — ✓ Fixed PR #2004
+
+**What:** 7 admin routes (9 handlers) missing both audit calls:
+- `admin/chapters` POST, `admin/coursera/canonical-course-mappings` POST+DELETE
+- `admin/employer-screening-packs` POST, `admin/employer-screening-packs/[id]` PATCH+DELETE
+- `admin/members/at-risk` PATCH, `admin/messages/threads` POST, `admin/milestone-cascades/synthetic` POST
+
+**Fixed:** PR #2004. Fire-and-forget `auditLog` + `logAuditEvent` per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #2004 open / gate-merge pending.
+
+---
+
 ## TODO-068: §H-DEP4 dual audit trails for 10 admin routes (batch 11) — ✓ Fixed PR #2003
 
 **What:** 10 admin routes (12 handlers) missing both audit calls:

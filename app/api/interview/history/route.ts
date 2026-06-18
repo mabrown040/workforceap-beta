@@ -117,7 +117,7 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
     }
   
     const rateLimitResult = await checkAIToolRateLimit(user.id);
-    if (!rateLimitResult.ok) {
+    if (!rateLimitResult.success) {
       return NextResponse.json({ error: 'Rate limit exceeded. Please try again in an hour.' }, { status: 429 });
     }
 

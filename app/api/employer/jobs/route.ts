@@ -31,8 +31,9 @@ const jobCreateSchema = z.object({
   preferredCertifications: z.array(z.string().max(200)).max(20).default([]),
   suggestedPrograms: z.array(z.string().max(200)).max(20).default([]),
   status: z.enum(['draft', 'pending', 'live']).default('draft'),
-  expiresAt: z.string().datetime().optional().nullable(),
-});async function _GET(request: NextRequest) {
+});
+
+async function _GET(request: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -144,16 +145,17 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       });
     }
 
+    const status = parsed.data.status as 'draft' | 'pending' | 'live';
     const eventName =
-      parsed.data.status === 'pending'
+      status === 'pending'
         ? 'employer_job_submitted_for_review'
-        : parsed.data.status === 'live'
+        : status === 'live'
           ? 'employer_job_posted_live'
           : 'employer_job_draft_saved';
     const sourcePage =
-      parsed.data.status === 'pending'
+      status === 'pending'
         ? '/employer/jobs/new?submit=review'
-        : parsed.data.status === 'live'
+        : status === 'live'
           ? '/employer/jobs/post'
           : '/employer/jobs/new';
 
@@ -162,12 +164,12 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       eventName,
       entityType: 'job',
       entityId: job.id,
-      metadata: { isCreate: true, status: parsed.data.status },
+      metadata: { isCreate: true, status },
       sourcePage,
     });
 
     // Invalidate public job listings cache when a job is posted live
-    if (parsed.data.status === 'live') {
+    if (status === 'live') {
       await invalidateJobListings().catch(() => {});
     }
 

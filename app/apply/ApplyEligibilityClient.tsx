@@ -20,7 +20,6 @@ const APPLY_STORAGE_KEY = 'apply_eligibility';
 const ELIGIBILITY_KEYS = [
   { legendKey: 'eligibilityQ1Legend', promptKey: 'eligibilityQ1Prompt' as const },
   { legendKey: 'eligibilityQ2Legend', promptKey: 'eligibilityQ2Prompt' as const },
-  { legendKey: 'eligibilityQ3Legend', promptKey: 'eligibilityQ3Prompt' as const },
 ] as const;
 
 const AGE_GROUPS = [
@@ -77,7 +76,6 @@ function writeDraft(payload: Omit<ApplyFlowDraftV1, 'version' | 'updatedAt'> & {
       primaryBarriers: payload.primaryBarriers,
       q1: payload.q1,
       q2: payload.q2,
-      q3: payload.q3,
     };
     localStorage.setItem(APPLY_FLOW_DRAFT_KEY, JSON.stringify(next));
   } catch {
@@ -98,6 +96,12 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const formatPhoneInput = (raw: string): string => {
+    const digits = raw.replace(/\D/g, '').slice(0, 10);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  };
   const [phoneError, setPhoneError] = useState('');
   const [ageGroup, setAgeGroup] = useState<ApplyFlowDraftV1['ageGroup']>('');
   const [city, setCity] = useState('');
@@ -112,7 +116,6 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
 
   const [q1, setQ1] = useState<'yes' | 'no' | null>(null);
   const [q2, setQ2] = useState<'yes' | 'no' | null>(null);
-  const [q3, setQ3] = useState<'yes' | 'no' | null>(null);
   const [attemptedContinue, setAttemptedContinue] = useState(false);
   const [saveNotice, setSaveNotice] = useState('');
   const completedRef = useRef(false);
@@ -136,7 +139,6 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     setPrimaryBarriers(normalizePrimaryBarriers(draft.primaryBarriers));
     setQ1(draft.q1 ?? null);
     setQ2(draft.q2 ?? null);
-    setQ3(draft.q3 ?? null);
   }, []);
 
   const emailLooksValid = (value: string) => {
@@ -166,10 +168,10 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     county.trim().length > 0 &&
     primaryBarriers.length > 0;
 
-  const canContinue = contactOk && screeningDetailsOk && q1 !== null && q2 !== null && q3 !== null;
-  const missingEligibilityAnswers = [q1, q2, q3].filter((answer) => answer === null).length;
-  const yesCount = [q1, q2, q3].filter((answer) => answer === 'yes').length;
-  const qualifies = yesCount >= 2;
+  const canContinue = contactOk && screeningDetailsOk && q1 !== null && q2 !== null;
+  const missingEligibilityAnswers = [q1, q2].filter((answer) => answer === null).length;
+  const yesCount = [q1, q2].filter((answer) => answer === 'yes').length;
+  const qualifies = yesCount >= 1;
 
   useEffect(() => {
     trackApplyFunnel(1, 'started');
@@ -177,11 +179,11 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   }, []);
 
   useEffect(() => {
-    answeredCountRef.current = [q1, q2, q3].filter(Boolean).length;
+    answeredCountRef.current = [q1, q2].filter(Boolean).length;
     trackApplyFunnel(1, 'eligibility_progress', {
       answered_count: answeredCountRef.current,
     });
-  }, [q1, q2, q3]);
+  }, [q1, q2]);
 
   useEffect(() => {
     return () => {
@@ -194,7 +196,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
   }, []);
 
   const persistDraft = () => {
-    writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, q3 });
+    writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2 });
   };
 
   const [autoSaved, setAutoSaved] = useState(false);
@@ -206,11 +208,11 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     }
     if (!firstName && !lastName && !email && !phone) return;
     const handle = setTimeout(() => {
-      writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2, q3 });
+      writeDraft({ firstName, lastName, email, phone, ageGroup, city, state: stateVal, zip, county, primaryBarriers, q1, q2 });
       setAutoSaved(true);
     }, 1500);
     return () => clearTimeout(handle);
-  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2, q3]);
+  }, [firstName, lastName, email, phone, ageGroup, city, stateVal, zip, county, primaryBarriers, q1, q2]);
 
   const handleSaveLater = () => {
     persistDraft();
@@ -222,7 +224,7 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
     if (!canContinue) {
       setAttemptedContinue(true);
       trackApplyFunnel(1, 'eligibility_continue_blocked', {
-        answered_count: [q1, q2, q3].filter(Boolean).length,
+        answered_count: [q1, q2].filter(Boolean).length,
       });
       requestAnimationFrame(() => {
         const invalid = document.querySelector<HTMLElement>(
@@ -248,7 +250,6 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
       const eligibilityJson = JSON.stringify({
         q1,
         q2,
-        q3,
         qualifies,
         yesCount,
         firstName: firstName.trim(),
@@ -441,32 +442,6 @@ export default function ApplyEligibilityClient({ variant = 'organic' }: { varian
             </div>
             {attemptedContinue && q2 === null && (
               <p id="apply-eligibility-q2-error" className="apply-eligibility-field-error" role="alert">
-                {t('eligibilityRadioError')}
-              </p>
-            )}
-          </fieldset>
-          <fieldset className="form-group apply-eligibility-fieldset">
-            <legend className="apply-eligibility-legend">{t(ELIGIBILITY_KEYS[2].legendKey)}</legend>
-            <p className="apply-eligibility-prompt">{t(ELIGIBILITY_KEYS[2].promptKey)}</p>
-            <div
-              className="form-radio-cards"
-              role="radiogroup"
-              aria-invalid={attemptedContinue && q3 === null}
-              aria-describedby={attemptedContinue && q3 === null ? 'apply-eligibility-q3-error' : undefined}
-            >
-              <label className={`form-radio-card ${q3 === 'yes' ? 'selected' : ''}`}>
-                <input type="radio" name="q3" value="yes" checked={q3 === 'yes'} onChange={() => setQ3('yes')} required />
-                <span className="radio-dot" />
-                <span>{t('answerYes')}</span>
-              </label>
-              <label className={`form-radio-card ${q3 === 'no' ? 'selected' : ''}`}>
-                <input type="radio" name="q3" value="no" checked={q3 === 'no'} onChange={() => setQ3('no')} required />
-                <span className="radio-dot" />
-                <span>{t('answerNo')}</span>
-              </label>
-            </div>
-            {attemptedContinue && q3 === null && (
-              <p id="apply-eligibility-q3-error" className="apply-eligibility-field-error" role="alert">
                 {t('eligibilityRadioError')}
               </p>
             )}

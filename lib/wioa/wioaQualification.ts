@@ -1,5 +1,5 @@
 /**
- * Self-service WIA/WIOA-style screening — informational only, not a legal eligibility determination.
+ * Self-service WIOA screening — informational only, not a legal eligibility determination.
  */
 
 export type WioaBarrier =

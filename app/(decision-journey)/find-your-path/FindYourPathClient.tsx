@@ -95,6 +95,7 @@ const QUESTIONS = [
 
 const CATEGORY_BORDER: Record<string, string> = {
   'it-cyber': '#2b7bb9',
+  'it-cyber-entry': '#2b7bb9',
   'ai-software': '#8b4a9b',
   'cloud-data': '#0d9488',
   business: '#4a9b4f',

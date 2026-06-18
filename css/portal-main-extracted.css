@@ -3049,7 +3049,7 @@ html.dark .workspace-sidebar-signout:hover {
     .blog-listing-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (min-width: 1024px) {
-    .blog-listing-grid { grid-template-columns: repeat(3, 1fr); }
+    .blog-listing-grid { grid-template-columns: repeat(4, 1fr); }
 }
 .blog-card {
     background: var(--color-white);

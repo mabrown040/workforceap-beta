@@ -1809,7 +1809,7 @@ model ApplyEligibilityScreening {
   organizationId String   @map("organization_id")
   q1             String   @map("q1") // yes | no
   q2             String   @map("q2") // yes | no
-  q3             String   @map("q3") // yes | no
+  q3             String?  @map("q3") // yes | no
   qualifies      Boolean  @map("qualifies")
   yesCount       Int      @map("yes_count")
   createdAt      DateTime @default(now()) @map("created_at")

@@ -12,10 +12,9 @@ import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 
 export const FUNDING_SOURCES = [
   'WIOA',
+  'Grant',
   'Partners',
   'Employer',
-  'WorkforceAP',
-  'Grant',
   'Donation',
 ] as const;
 export type FundingSource = typeof FUNDING_SOURCES[number];
@@ -30,10 +29,9 @@ export interface LanguageSupport {
 
 export const FUNDING_COLORS: Record<FundingSource, { bg: string; text: string; border: string }> = {
   WIOA:        { bg: 'rgba(43,123,185,0.18)',  text: '#6bb3f0', border: 'rgba(43,123,185,0.35)' },
+  Grant:       { bg: 'rgba(74,155,79,0.18)',   text: '#6dd372', border: 'rgba(74,155,79,0.35)' },
   Partners:    { bg: 'rgba(139,74,155,0.18)',  text: '#c47fd4', border: 'rgba(139,74,155,0.35)' },
   Employer:    { bg: 'rgba(255,187,0,0.18)',   text: '#ffd966', border: 'rgba(255,187,0,0.35)' },
-  WorkforceAP: { bg: 'rgba(173,44,77,0.18)',   text: '#e06b8a', border: 'rgba(173,44,77,0.35)' },
-  Grant:       { bg: 'rgba(74,155,79,0.18)',   text: '#6dd372', border: 'rgba(74,155,79,0.35)' },
   Donation:    { bg: 'rgba(156,163,175,0.18)', text: '#c4c8cf', border: 'rgba(156,163,175,0.35)' },
 };
 
@@ -188,9 +186,9 @@ function mkProgram(
 const DIGITAL_LITERACY_PROGRAM_DURATION = '6 weeks, 5 hrs/week (30 hours total)';
 
 export const PROGRAMS: Program[] = [
-  mkProgram('Digital Literacy Empowerment Class', 'digital-literacy', 'Digital Literacy', '#666', '💻', DIGITAL_LITERACY_PROGRAM_DURATION, 'Starting salary: $38K-$52K', ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'], ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 'WorkforceAP', 5, undefined, 'Grant', { es: 'none', pt: 'none', fr: 'none' }),
+  mkProgram('Digital Literacy Empowerment Class', 'digital-literacy', 'Digital Literacy', '#666', '💻', DIGITAL_LITERACY_PROGRAM_DURATION, 'Starting salary: $38K-$52K', ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'], ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 'Grant', 5, undefined, 'Grant', { es: 'none', pt: 'none', fr: 'none' }),
   mkProgram('IT Support Professional Certificate (IBM)', 'it-cyber', 'IT & Cybersecurity', '#ad2c4d', '💻', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$72K', ['Help desk', 'Hardware', 'Software', 'Customer service'], ['Introduction to Technical Support', 'Introduction to Hardware and Operating Systems', 'Introduction to Software, Programming, and Databases', 'Introduction to Networking and Storage', 'Introduction to Cybersecurity Essentials', 'Introduction to Cloud Computing', 'Technical Support Case Studies and Capstone Project'], 'IBM', 10, undefined, 'WIOA', { es: 'ai-subtitles', pt: 'full', fr: 'ai-subtitles' }),
-  mkProgram('IT Support and Entry-level Cyber Security Certificate', 'it-cyber', 'IT & Cybersecurity', '#ad2c4d', '🛡️', '3-5 months, 10 hrs/week', 'Starting salary: $60K-$88K', ['Help desk', 'Networking', 'Security fundamentals', 'Incident response'], ['IT Support Foundations', 'Computer Hardware and Operating Systems', 'Networking Fundamentals', 'Cybersecurity Essentials', 'Entry-Level Security Operations', 'Career Preparation for IT and Cybersecurity'], 'IBM / CompTIA', 10, undefined, 'WIOA', { es: 'ai-subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' }),
+  mkProgram('IT Support and Entry-level Cyber Security Certificate', 'it-cyber-entry', 'IT & Cybersecurity', '#ad2c4d', '🛡️', '3-5 months, 10 hrs/week', 'Starting salary: $60K-$88K', ['Help desk', 'Networking', 'Security fundamentals', 'Incident response'], ['IT Support Foundations', 'Computer Hardware and Operating Systems', 'Networking Fundamentals', 'Cybersecurity Essentials', 'Entry-Level Security Operations', 'Career Preparation for IT and Cybersecurity'], 'IBM / CompTIA', 10, undefined, 'WIOA', { es: 'ai-subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' }),
   mkProgram('AI and Software Development Professional Certificate (IBM)', 'ai-software', 'AI & Software Dev', '#8b4a9b', '🤖', '3-5 months, 10 hrs/week', 'Starting salary: $85K-$135K', ['Python', 'AI/ML', 'Generative AI', 'Flask'], ['Introduction to Software Engineering', 'Introduction to Artificial Intelligence (AI)', 'Generative AI: Introduction and Applications', 'Generative AI: Prompt Engineering Basics', 'Introduction to HTML, CSS, & JavaScript', 'Python for Data Science, AI & Development', 'Developing AI Applications with Python and Flask', 'Building Generative AI-Powered Applications with Python', 'Generative AI: Elevate your Software Development Career', 'Software Developer Career Guide and Interview Preparation'], 'IBM', 10, 'ai-professional-developer-certificate-ibm', 'WIOA', { es: 'ai-subtitles', pt: 'full', fr: 'none' }),
   mkProgram('Project Management Professional Certificate (Microsoft)', 'business', 'Business', '#a47f38', '💼', '3-5 months, 10 hrs/week', 'Starting salary: $82K-$112K', ['Agile', 'Scrum', 'MS Project', 'Risk management'], ['Project Management Foundations', 'Initiating and Planning Projects', 'Project Scheduling and Cost Management', 'Managing Project Risks, Changes and Stakeholders', 'Project Leadership, Communication and Stakeholder Management', 'Agile Project Management', 'Microsoft Project & Power BI for Project Managers', 'Project Management Capstone'], 'Microsoft', 10, undefined, 'WIOA', { es: 'full', pt: 'ai-subtitles', fr: 'ai-subtitles' }),
   mkProgram('Data Analytics Professional Certificate (Google)', 'cloud-data', 'Cloud & Data', '#a47f38', '📊', '3-5 months, 10 hrs/week', 'Starting salary: $72K-$102K', ['Spreadsheets', 'SQL', 'R', 'Tableau', 'Data viz'], ['Foundations: Data, Data, Everywhere', 'Ask Questions to Make Data-Driven Decisions', 'Prepare Data for Exploration', 'Process Data from Dirty to Clean', 'Analyze Data to Answer Questions', 'Share Data Through the Art of Visualization', 'Data Analysis with R Programming', 'Google Data Analytics Capstone'], 'Google', 10, undefined, 'WIOA', { es: 'full', pt: 'ai-subtitles', fr: 'ai-subtitles' }),
@@ -226,12 +224,12 @@ export const PROGRAMS: Program[] = [
     'Healthcare Career Pathway',
     10,
     'health-information-technology-mchit',
-    'Grant',
+    'WIOA',
     { es: 'none', pt: 'none', fr: 'none' }
   ),
-  mkProgram('Certified Production Technician (CPT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $48K-$70K', ['Safety', 'Quality practices', 'Manufacturing processes', 'Maintenance awareness'], ['Introduction to Manufacturing', 'Blueprint Reading and Technical Drawing', 'Machining and CNC Operations', 'Welding Fundamentals', 'Quality Control and Inspection', 'Safety and OSHA Compliance', 'Lean Manufacturing Principles', 'Production Technology Capstone'], 'MSSC / NAM', 10, undefined, 'Grant', { es: 'none', pt: 'none', fr: 'none' }),
-  mkProgram('Certified Logistics Technician (CLT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$78K', ['Logistics fundamentals', 'Safety', 'Inventory', 'Material handling', 'Transportation'], ['Introduction to Supply Chain Management', 'Inventory Management and Control', 'Transportation and Distribution', 'Warehouse Operations', 'Procurement and Vendor Management', 'Supply Chain Technology and SAP', 'Global Supply Chain and Trade', 'CLT Certification Preparation'], 'MSSC / NAM', 10, undefined, 'Grant', { es: 'none', pt: 'none', fr: 'none' }),
-  mkProgram('Core Construction', 'manufacturing', 'Construction & Trades', '#1a1a1a', '🏗️', '5 hours per section', 'Starting salary: $48K-$68K', ['OSHA-10', 'Blueprint reading', 'Construction fundamentals'], ['Introduction to Construction Industry', 'Blueprint Reading and Construction Math', 'Construction Safety and OSHA-10', 'Hand and Power Tools', 'Concrete and Masonry Fundamentals', 'Carpentry and Framing Basics', 'Electrical and Plumbing Basics', 'Construction Readiness Capstone'], 'OSHA-10 / WorkforceAP', 10, 'core-construction-training-certificate', 'Grant', { es: 'none', pt: 'none', fr: 'none' }),
+  mkProgram('Certified Production Technician (CPT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $48K-$70K', ['Safety', 'Quality practices', 'Manufacturing processes', 'Maintenance awareness'], ['Introduction to Manufacturing', 'Blueprint Reading and Technical Drawing', 'Machining and CNC Operations', 'Welding Fundamentals', 'Quality Control and Inspection', 'Safety and OSHA Compliance', 'Lean Manufacturing Principles', 'Production Technology Capstone'], 'MSSC / NAM', 10, undefined, 'WIOA', { es: 'none', pt: 'none', fr: 'none' }),
+  mkProgram('Certified Logistics Technician (CLT)', 'manufacturing', 'Manufacturing', '#1a1a1a', '🏭', '3-5 months, 10 hrs/week', 'Starting salary: $55K-$78K', ['Logistics fundamentals', 'Safety', 'Inventory', 'Material handling', 'Transportation'], ['Introduction to Supply Chain Management', 'Inventory Management and Control', 'Transportation and Distribution', 'Warehouse Operations', 'Procurement and Vendor Management', 'Supply Chain Technology and SAP', 'Global Supply Chain and Trade', 'CLT Certification Preparation'], 'MSSC / NAM', 10, undefined, 'WIOA', { es: 'none', pt: 'none', fr: 'none' }),
+  mkProgram('Core Construction', 'manufacturing', 'Construction & Trades', '#1a1a1a', '🏗️', '5 hours per section', 'Starting salary: $48K-$68K', ['OSHA-10', 'Blueprint reading', 'Construction fundamentals'], ['Introduction to Construction Industry', 'Blueprint Reading and Construction Math', 'Construction Safety and OSHA-10', 'Hand and Power Tools', 'Concrete and Masonry Fundamentals', 'Carpentry and Framing Basics', 'Electrical and Plumbing Basics', 'Construction Readiness Capstone'], 'OSHA-10 / Grant', 10, 'core-construction-training-certificate', 'WIOA', { es: 'none', pt: 'none', fr: 'none' }),
 ];
 
 /** Canonical number of training tracks in the public catalog (keep stats + hero aligned). */

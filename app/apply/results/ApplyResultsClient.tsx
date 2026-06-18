@@ -124,6 +124,16 @@ export default function ApplyResultsClient() {
     };
   }, [pageState]);
 
+  const [shareCopied, setShareCopied] = useState(false);
+  const handleShareLink = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('program', selectedSlugs.join(','));
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    });
+  };
+
   const handleContinue = () => {
     if (selectedSlugs.length === 0) {
       trackApplyFunnel(2, 'program_continue_blocked');
@@ -383,6 +393,15 @@ export default function ApplyResultsClient() {
 
         <button type="button" className="btn btn-primary" disabled={selectedSlugs.length === 0} onClick={handleContinue}>
           {t('resultsContinueAccount')}
+        </button>
+        <button
+          type="button"
+          className="btn btn-outline"
+          style={{ marginTop: '0.75rem' }}
+          onClick={handleShareLink}
+          disabled={selectedSlugs.length === 0}
+        >
+          {shareCopied ? t('shareLinkCopied') : t('shareLink')}
         </button>
       </div>
     </div>

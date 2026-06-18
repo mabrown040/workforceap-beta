@@ -23,7 +23,7 @@ type Member = {
   fullName: string;
   email: string;
   phone: string | null;
-  profile: { profilePhone?: string | null } | null;
+  profile: { profilePhone?: string | null; smsOptIn?: boolean } | null;
   enrolledProgram: string | null;
   enrolledAt: Date | string | null;
   createdAt: Date | string;
@@ -886,7 +886,12 @@ export default function MembersTable({
               key: 'phone',
               header: 'Phone',
               columnClassName: 'members-col-md',
-              cell: (m) => formatPhone(m.profile?.profilePhone ?? m.phone),
+              cell: (m) => (
+                <span title={m.profile?.smsOptIn ? 'SMS opted in' : 'SMS not opted in'}>
+                  {formatPhone(m.profile?.profilePhone ?? m.phone)}
+                  {m.profile?.smsOptIn && <span style={{ marginLeft: 4, fontSize: '0.75rem', color: '#16a34a' }}>✓ SMS</span>}
+                </span>
+              ),
             },
             { key: 'program', header: 'Program', cell: (m) => m.programTitle ?? '—' },
             { key: 'partner', header: 'Partner', cell: (m) => m.partnerName ?? '—' },

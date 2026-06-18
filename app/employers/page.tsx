@@ -114,6 +114,7 @@ export default async function EmployersPage() {
     { value: t('trustPlaceholderFit'), label: t('trustPlaceholderFitTag') },
     { value: t('trustPlaceholderSkills'), label: t('trustPlaceholderSkillsTag') },
     { value: t('trustPlaceholderTerms'), label: t('trustPlaceholderTermsTag') },
+    { value: t('trustPlaceholderIntro'), label: t('trustPlaceholderIntroTag') },
   ];
 
   const showLogos = trust.logos.length > 0;

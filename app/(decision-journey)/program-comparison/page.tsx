@@ -39,8 +39,8 @@ export default function ProgramComparisonPage() {
           <ExperimentedCtaLink
             experiment="program_compare_quiz_cta"
             variants={[
-              { id: 'control', label: 'Not sure? Take the 2-minute pathfinder quiz', className: 'btn btn-primary', href: '/find-your-path' },
-              { id: 'outcome_copy', label: 'See your top-fit track in 2 minutes', className: 'btn btn-primary', href: '/find-your-path' },
+              { id: 'control', label: 'Not sure? Take the 5-minute pathfinder quiz', className: 'btn btn-primary', href: '/find-your-path' },
+              { id: 'outcome_copy', label: 'See your top-fit track in 5 minutes', className: 'btn btn-primary', href: '/find-your-path' },
             ]}
           />
         </div>

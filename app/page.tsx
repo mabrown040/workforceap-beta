@@ -8,6 +8,7 @@ import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/progra
 import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import TrustStrip from '@/components/marketing/TrustStrip';
+import LanguageToggle from '@/components/portal/LanguageToggle';
 
 import { getTranslations } from 'next-intl/server';
 import { marketingButtonPresets, marketingButtonClasses } from '@/lib/marketing/buttonClasses';
@@ -202,10 +203,10 @@ export default async function HomePage() {
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
             <LocalizedLinkServer
-              href="/find-your-path"
+              href="/apply"
               className={marketingButtonPresets.heroPrimary('home-hero__cta-primary')}
             >
-              {t('heroCta')}
+              {t('heroMobilePrimaryCta')}
             </LocalizedLinkServer>
             <LocalizedLinkServer
               href="/programs#programs-quick-start"
@@ -267,6 +268,10 @@ export default async function HomePage() {
       <TrustStrip variant="home" />
 
       <HomePageBelowFold homeProgramShowcase={homeProgramShowcase} programCount={programCount} />
+
+      <div style={{ textAlign: 'center', padding: '1rem 0', color: 'var(--color-on-surface-variant)' }}>
+        <LanguageToggle compact />
+      </div>
 
       <ErrorBoundary
         fallback={

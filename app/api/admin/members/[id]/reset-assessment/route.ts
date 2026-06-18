@@ -6,6 +6,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 export const POST = withApiGuc(async (
@@ -39,6 +40,7 @@ export const POST = withApiGuc(async (
     }
 
     const profileRole = await getProfileRole(user.id);
+    auditLog({ actorUserId: user.id, action: 'admin_member_reset_assessment', targetType: 'User', targetId: id, metadata: { orgId } }).catch((err) => console.error('[audit] admin_member_reset_assessment:', err));
     await logAuditEvent({
       user: { id: user.id, role: profileRole ?? undefined },
       verb: 'reset_assessment',

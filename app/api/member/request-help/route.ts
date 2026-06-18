@@ -1,18 +1,27 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml, sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { Resend } from 'resend';
+import { checkContactRateLimit } from '@/lib/rate-limit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
-const FALLBACK_EMAIL = 'info@workforceap.org';export const POST = withApiGuc(async () => {
+const FALLBACK_EMAIL = 'info@workforceap.org';
+
+export const POST = withApiGuc(async (request: NextRequest) => {
   try {
     const user = await getUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
+    const { success: withinLimit } = await checkContactRateLimit(ip);
+    if (!withinLimit) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
   
     const dbUser = await prisma.$transaction((tx) => tx.user.findUnique({

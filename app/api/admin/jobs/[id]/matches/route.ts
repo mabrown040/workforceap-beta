@@ -4,11 +4,12 @@ import { isAdmin } from '@/lib/auth/roles';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { createAdminJobMatchesPrismaDeps } from '@/lib/admin/adminJobMatchesPrismaDeps';
 import { runAdminJobMatchesGet } from '@/lib/admin/runAdminJobMatchesGet';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
-export async function GET(
+export const GET = withApiGuc(async (
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -42,4 +43,4 @@ export async function GET(
     console.error('[admin/jobs/[id]/matches GET] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

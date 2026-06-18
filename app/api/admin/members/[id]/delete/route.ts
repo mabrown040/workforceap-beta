@@ -8,6 +8,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 import { getProfileRole } from '@/lib/auth/roles';
 
 export const POST = withApiGuc(async (
@@ -76,6 +77,7 @@ export const POST = withApiGuc(async (
       request: auditRequestMeta(request),
       orgId,
     }).catch((err) => console.error('[audit] member delete:', err));
+    auditLog({ actorUserId: user.id, action: 'admin_member_deleted', targetType: 'User', targetId: id, metadata: { orgId } }).catch(() => {});
 
     return NextResponse.json({ ok: true, originalEmail: existing.email });
   } catch (error) {

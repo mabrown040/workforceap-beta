@@ -5,6 +5,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -44,6 +45,7 @@ async function _POST(
         result: { success: true },
         orgId,
       }).catch((err) => console.error('[audit] reset_password:', err));
+      auditLog({ actorUserId: admin.id, action: 'admin_user_password_reset', targetType: 'User', targetId: id, metadata: { orgId } }).catch(() => {});
 
       return NextResponse.json({ success: true, message: `Password reset email sent to ${user.email}` });
     } catch (error) {

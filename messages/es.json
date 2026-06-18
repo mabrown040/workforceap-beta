@@ -2205,7 +2205,8 @@
     "adminUnavailableDesc": "No pudimos terminar de cargar el espacio de trabajo de administrador (a menudo es un problema breve de base de datos). Espera un momento y recarga, o intenta de nuevo desde la página de inicio.",
     "retryAdminHome": "Reintentar inicio de admin",
     "memberDashboard": "Panel del miembro",
-    "workforceAPHome": "Inicio de WorkforceAP"
+    "workforceAPHome": "Inicio de WorkforceAP",
+    "loadingCharts": "Cargando gráficos…"
   },
   "employer": {
     "employerOverview": "Resumen del empleador",

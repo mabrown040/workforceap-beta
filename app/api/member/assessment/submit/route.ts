@@ -10,6 +10,8 @@ import { awardPoints } from '@/lib/member/points';
 import { getCounselorStarterProfileReview, getStarterProfileFieldLabels } from '@/lib/member/starterProfileReview';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -178,6 +180,8 @@ const ASSESSMENT_EMAIL_TO = 'info@workforceap.org';export const POST = withApiGu
       }
     }
   
+    void auditLog({ actorUserId: user.id, action: 'member_assessment_submitted', targetType: 'User', targetId: user.id, metadata: { rawScore: raw, scorePct: pct } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'created', object: { type: 'Assessment', id: user.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({
       ok: true,
       rawScore: raw,

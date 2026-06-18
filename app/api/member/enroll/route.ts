@@ -13,6 +13,8 @@ import { cookies } from 'next/headers';
 import { MEMBER_REFERRAL_COOKIE, rewardReferralOnEnrollment } from '@/lib/member/referrals';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
@@ -152,6 +154,8 @@ export const POST = withApiGuc(async (request: Request) => {
   // Invalidate cached member state so dashboard reflects enrollment immediately
   await invalidateMemberState(user.id);
 
+  void auditLog({ actorUserId: user.id, action: 'member_program_enrolled', targetType: 'User', targetId: user.id, metadata: { programSlug: slug } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'created', object: { type: 'ProgramEnrollment', id: slug }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, programSlug: slug });
 
   } catch (error) {

@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const updateSchema = z.object({
   fullName: z.string().min(1).max(200).optional(),
@@ -99,6 +101,8 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
     include: { profile: true },
   }));
 
+  void auditLog({ actorUserId: user.id, action: 'member_profile_updated', targetType: 'User', targetId: user.id, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'updated', object: { type: 'MemberProfile', id: user.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     user: updated
       ? {

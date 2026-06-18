@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const PATCH = withApiGuc(async (request: Request) => {
   try {
   const user = await getUser();
@@ -32,6 +34,8 @@ export const PATCH = withApiGuc(async (request: Request) => {
     data,
   }));
 
+  void auditLog({ actorUserId: user.id, action: 'member_settings_updated', targetType: 'User', targetId: user.id, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'updated', object: { type: 'MemberSettings', id: user.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

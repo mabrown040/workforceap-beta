@@ -10,6 +10,8 @@ import {
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { cleanupCreatedEmployerSignupAuthUser } from './_signupCleanup';
 import { notifyDiscord } from '@/lib/notify/discord';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 function getClientIp(request: NextRequest): string {
   return (
@@ -188,6 +190,20 @@ export async function POST(request: NextRequest) {
       contactEmail: data.email,
       contactPhone: data.phone,
     }).catch((err) => console.error('Employer admin alert failed:', err));
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'employer_signup_completed',
+      targetType: 'User',
+      targetId: user.id,
+      metadata: { companyName: data.companyName, email: data.email },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'employer' },
+      verb: 'created',
+      object: { type: 'EmployerAccount', id: user.id },
+      result: { success: true, extensions: { companyName: data.companyName } },
+    }).catch(() => {});
 
     // Operator visibility bridge — new employer signup is high-signal
     void notifyDiscord({

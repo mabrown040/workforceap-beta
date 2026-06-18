@@ -4,6 +4,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getStripe, EMPLOYER_TIERS, isValidTier } from '@/lib/stripe/client';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const POST = withApiGuc(async (request: NextRequest) => {
@@ -80,6 +82,20 @@ export const POST = withApiGuc(async (request: NextRequest) => {
         },
       },
     });
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'employer_checkout_initiated',
+      targetType: 'Employer',
+      targetId: ctx.employerId,
+      metadata: { tier, sessionId: session.id },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'employer' },
+      verb: 'initiated',
+      object: { type: 'StripeCheckout', id: session.id },
+      result: { success: true, extensions: { tier, employerId: ctx.employerId } },
+    }).catch(() => {});
 
     return NextResponse.json({ url: session.url });
   } catch (error) {

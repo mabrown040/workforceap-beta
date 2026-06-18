@@ -10,6 +10,8 @@ import { isPayoutEligibleType } from '@/lib/partner/partnerType';
 import { getPlacementPayoutRejection } from '@/lib/partner/payoutEligibility';
 import { z } from 'zod';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const payoutSchema = z.object({
   partnerId: z.string().uuid(),
@@ -148,6 +150,20 @@ async function _POST(request: NextRequest) {
         sourcePage: '/api/partner/payout',
       },
     });
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'partner_payout_sent',
+      targetType: 'User',
+      targetId: placement.userId,
+      metadata: { partnerId, placementId, transferId: transfer.id, amountCents },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'paid',
+      object: { type: 'PartnerPayout', id: transfer.id },
+      result: { success: true, extensions: { partnerId, placementId, amountCents } },
+    }).catch(() => {});
 
     return NextResponse.json({
       transferId: transfer.id,

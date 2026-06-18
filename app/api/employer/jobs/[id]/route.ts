@@ -7,6 +7,8 @@ import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { recordEmployerWorkflowEvent } from '@/lib/portal/workflowEvents';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -166,6 +168,20 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     });
   }
 
+  auditLog({
+    actorUserId: user.id,
+    action: 'employer_job_updated',
+    targetType: 'Job',
+    targetId: job.id,
+    metadata: { previousStatus: existing.status, nextStatus: job.status, employerId: ctx.employerId },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'employer' },
+    verb: 'updated',
+    object: { type: 'Job', id: job.id },
+    result: { success: true, extensions: { previousStatus: existing.status, nextStatus: job.status } },
+  }).catch(() => {});
+
   return NextResponse.json(job);
 
   } catch (error) {
@@ -208,6 +224,20 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
     if (existing.status === 'live') {
       await invalidateJobListings().catch(() => {});
     }
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'employer_job_closed',
+      targetType: 'Job',
+      targetId: job.id,
+      metadata: { previousStatus: existing.status, employerId: ctx.employerId },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'employer' },
+      verb: 'closed',
+      object: { type: 'Job', id: job.id },
+      result: { success: true, extensions: { previousStatus: existing.status } },
+    }).catch(() => {});
 
     return NextResponse.json({ ok: true, job });
   } catch (error) {

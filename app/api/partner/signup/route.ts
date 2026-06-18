@@ -7,6 +7,8 @@ import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const ADMIN_EMAIL = 'info@workforceap.org';
 
@@ -285,6 +287,20 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     } catch (err) {
       console.error('Partner signup: verification email error:', err);
     }
+
+    auditLog({
+      actorUserId: authUser.id,
+      action: 'partner_signup_completed',
+      targetType: 'User',
+      targetId: authUser.id,
+      metadata: { organizationName: d.organizationName, contactEmail: d.contactEmail, slug, referralCode },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: authUser.id, role: 'partner' },
+      verb: 'created',
+      object: { type: 'PartnerAccount', id: authUser.id },
+      result: { success: true, extensions: { organizationName: d.organizationName, slug } },
+    }).catch(() => {});
 
     const response = NextResponse.json({
       ok: true,

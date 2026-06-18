@@ -4,6 +4,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { employerSettingsPatchSchema } from '@/lib/employer/employerSettingsSchema';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const PATCH = withApiGuc(async (request: NextRequest) => {
@@ -43,6 +45,20 @@ export const PATCH = withApiGuc(async (request: NextRequest) => {
       ...(d.logoUrl !== undefined && { logoUrl: d.logoUrl?.trim() || null }),
     },
   }));
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'employer_settings_updated',
+    targetType: 'Employer',
+    targetId: ctx.employerId,
+    metadata: { fields: Object.keys(d).filter((k) => d[k as keyof typeof d] !== undefined) },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'employer' },
+    verb: 'updated',
+    object: { type: 'EmployerSettings', id: ctx.employerId },
+    result: { success: true },
+  }).catch(() => {});
 
   return NextResponse.json({
     id: updated.id,

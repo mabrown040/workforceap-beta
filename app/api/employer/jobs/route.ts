@@ -10,6 +10,8 @@ import { captureApiError } from '@/lib/observability/captureApiError';
 import { trackEvent } from '@/lib/events/track';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -160,6 +162,20 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     if (parsed.data.status === 'live') {
       await invalidateJobListings().catch(() => {});
     }
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'employer_job_created',
+      targetType: 'Job',
+      targetId: job.id,
+      metadata: { status: parsed.data.status, employerId: ctx.employerId },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'employer' },
+      verb: 'created',
+      object: { type: 'Job', id: job.id },
+      result: { success: true, extensions: { status: parsed.data.status } },
+    }).catch(() => {});
 
     return NextResponse.json(job, { status: 201 });
   } catch (error) {

@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -42,6 +44,20 @@ export const PATCH = withApiGuc(async (request: NextRequest) => {
         contactPhone: d.contactPhone?.trim() || null,
       },
     }));
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'partner_settings_contact_updated',
+      targetType: 'User',
+      targetId: user.id,
+      metadata: { partnerId: ctx.partnerId },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'partner' },
+      verb: 'updated',
+      object: { type: 'PartnerContactSettings', id: ctx.partnerId },
+      result: { success: true },
+    }).catch(() => {});
 
     return NextResponse.json({ ok: true });
   } catch (error) {

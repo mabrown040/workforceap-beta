@@ -8,6 +8,8 @@ import { getStripePriceId } from '@/lib/stripe/pricing';
 import { prisma } from '@/lib/db/prisma';
 import { getProfileRole } from '@/lib/auth/roles';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const subscribeSchema = z.object({
   tier: z.enum(['starter', 'growth', 'enterprise']),
@@ -87,6 +89,20 @@ async function _POST(req: NextRequest) {
       },
     }),
   ]);
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'employer_subscription_created',
+    targetType: 'User',
+    targetId: user.id,
+    metadata: { tier, subscriptionId: subscription.id, status: subscription.status },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'employer' },
+    verb: 'subscribed',
+    object: { type: 'EmployerSubscription', id: subscription.id },
+    result: { success: true, extensions: { tier, status: subscription.status } },
+  }).catch(() => {});
 
   return NextResponse.json({
     subscriptionId: subscription.id,

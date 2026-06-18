@@ -60,6 +60,7 @@ export default async function ContactPage({
             }
             subtitle={t('heroCopy')}
             align="left"
+            titleAs="h1"
           />
 
           <div className="contact-grid" style={{ display: 'grid', gap: '2rem', alignItems: 'start' }}>

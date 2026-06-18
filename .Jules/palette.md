@@ -19,3 +19,7 @@
 ## 2024-05-18 - [Accessibility on Dynamic State Buttons]
 **Learning:** Found a recurring UX/accessibility issue where `aria-live="polite"` was missing from dynamically updating texts within AI tool clipboards (e.g., toggling from "Copy to clipboard" to "Copied!" with icon change). Without `aria-live`, screen readers remain silent upon the copy action, depriving users of critical success feedback. This pattern exists due to manual copy-pasting of initial component mockups.
 **Action:** When implementing any micro-interactions where state is updated temporarily (like clipboards, loaders), ensure the updated text region is wrapped in an `aria-live="polite"` region and the parent button relies on semantic `<span aria-hidden="true">` for the visual icon rather than a blocking `aria-label`.
+
+## 2024-05-29 - Accessible Filter Chips State
+**Learning:** Filter chip buttons (e.g., in Application Tracker) that use CSS classes like `active` to visually denote selection do not inherently communicate their state to screen reader users, leading to an inaccessible filtering experience.
+**Action:** When implementing or fixing toggle buttons or filter chips that remain on the screen, add the `aria-pressed={isActive}` attribute to ensure screen readers announce whether the filter is currently active or pressed.

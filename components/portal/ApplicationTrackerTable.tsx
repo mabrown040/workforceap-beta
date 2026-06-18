@@ -310,6 +310,7 @@ export default function ApplicationTrackerTable() {
                   key={opt.value}
                   type="button"
                   className={`application-tracker-filter-chip ${statusFilter === opt.value ? 'active' : ''}`}
+                  aria-pressed={statusFilter === opt.value}
                   onClick={() => setStatusFilter(opt.value)}
                 >
                   {opt.label} ({opt.count()})

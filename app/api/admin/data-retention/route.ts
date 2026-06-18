@@ -6,6 +6,8 @@ import { runDataCleanup } from '@/lib/retention/cleanup';
 import { RETENTION_TABLES, getCutoffDate } from '@/lib/retention/config';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 export const dynamic = 'force-dynamic';
 
@@ -137,6 +139,19 @@ export const POST = withApiGuc(async (request: NextRequest) => {
 
     if (body.action === 'run_cleanup') {
       const report = await runDataCleanup();
+      auditLog({
+        actorUserId: user.id,
+        action: 'admin_data_retention_cleanup',
+        targetType: 'DataRetention',
+        metadata: { deletedRowCount: (report as any)?.totalDeleted ?? null },
+      }).catch(() => {});
+      logAuditEvent({
+        user: { id: user.id, role: 'super_admin' },
+        verb: 'ran',
+        object: { type: 'DataRetentionCleanup', id: 'run_cleanup' },
+        result: { success: true, extensions: { deletedRowCount: (report as any)?.totalDeleted ?? null } },
+        request: auditRequestMeta(request),
+      }).catch(() => {});
       return NextResponse.json({ ok: true, report });
     }
 

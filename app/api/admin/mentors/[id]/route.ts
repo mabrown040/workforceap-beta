@@ -6,6 +6,7 @@ import { runMentorStatusUpdate } from '@/lib/admin/mentorStatusUpdate';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 export const PATCH = withApiGuc(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const user = await getUser();
@@ -24,6 +25,13 @@ export const PATCH = withApiGuc(async (req: Request, { params }: { params: Promi
 
     const mentor = await prisma.$transaction((tx) => tx.mentor.findUnique({ where: { id } }));
     void auditLog({ actorUserId: user.id, action: 'admin_mentor_status_update', targetType: 'mentor', targetId: id, metadata: { action } }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'updated',
+      object: { type: 'Mentor', id },
+      result: { success: true, extensions: { action } },
+      request: auditRequestMeta(req as Request),
+    }).catch(() => {});
     return NextResponse.json({ mentor });
   } catch (error) {
     console.error('[admin/mentors/[id] PATCH] error:', error);

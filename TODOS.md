@@ -403,6 +403,28 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-072: §H-DEP4 dual audit trail for member mgmt, blog, counselors, org routes (batch15) — ✓ Fixed PR #2007
+
+**What:** 12 admin routes (14 handlers) missing both audit calls:
+- `admin/blog/[id]` PATCH+DELETE — `admin_blog_post_updated` / `admin_blog_post_deleted`
+- `admin/counselors` POST — `admin_counselor_created`
+- `admin/members/[id]/award-points` POST — `admin_member_points_awarded`
+- `admin/members/[id]/counselor` POST — `admin_member_counselor_assigned`
+- `admin/members/[id]/edit-profile` PATCH — `admin_member_profile_edited` (actor=`admin`)
+- `admin/members/[id]/enrollment-funding` POST — `admin_member_enrollment_funding_updated`
+- `admin/members/[id]/partner` PATCH — `admin_member_partner_assigned` + `admin_member_partner_cleared`
+- `admin/members/[id]/send-eligibility-link` POST — `admin_member_eligibility_link_sent`
+- `admin/settings/organization` PATCH — `admin_org_settings_updated`
+- `admin/organization/logo` POST — `admin_org_logo_updated`
+- `admin/placement-surveys/resend` POST — `admin_placement_survey_resent`
+- `admin/reports/wioa/generate` POST — `admin_wioa_report_generated`
+
+**Fixed:** PR #2007.
+
+**Status:** Completed 2026-06-17. PR #2007 open / gate-merge pending.
+
+---
+
 ## TODO-071: §H-DEP4 dual audit trail for PII-access and AI generation routes (batch14) — ✓ Fixed PR #2006
 
 **What:** 5 admin routes confirmed to access PII data or process PII in AI generation paths, missing both audit calls:

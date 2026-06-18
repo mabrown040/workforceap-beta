@@ -210,7 +210,21 @@ async function renderMemberDashboard(
         return new Map() as LearnerProgressByContent;
       })
     : Promise.resolve(new Map() as LearnerProgressByContent);
-  const b4bProgress = await b4bProgressPromise;
+  // Hard ceiling on the awaited Coursera B4B read so a slow upstream can never
+  // hang the dashboard server render (which surfaces as a Vercel function
+  // timeout / "portal hit an unexpected error"). The b4bClient already caps
+  // each request, but this guarantees the page proceeds with local-rollup
+  // fallback regardless. The promise above already maps failures to an empty
+  // Map, so this only adds the timeout arm.
+  const b4bProgress = await Promise.race([
+    b4bProgressPromise,
+    new Promise<LearnerProgressByContent>((resolve) =>
+      setTimeout(() => {
+        console.warn('[dashboard] B4B learner progress exceeded deadline — using local fallback');
+        resolve(new Map() as LearnerProgressByContent);
+      }, 8000),
+    ),
+  ]);
 
   // Single source of truth for member state (application, training, profile, checklist, next actions).
   // `b4bProgress` is threaded through so `trainingView.progressPercentDisplay`

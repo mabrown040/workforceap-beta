@@ -222,6 +222,34 @@ const TRANSIENT_B4B_STATUSES = new Set([429, 502, 503, 504]);
 const B4B_FETCH_MAX_ATTEMPTS = 3;
 const B4B_FETCH_BASE_DELAY_MS = 400;
 
+// Hard per-request timeout. Without it, a slow/hanging Coursera upstream
+// blocks the caller indefinitely — and because enrollmentReports is awaited
+// on the member dashboard's server render path, that turns into a Vercel
+// function timeout and the "portal hit an unexpected error" page. Reads +
+// OAuth get the cap; writes are intentionally excluded so we never abort a
+// mutation Coursera may have already applied. Override via env if needed.
+const B4B_REQUEST_TIMEOUT_MS = Number(process.env.COURSERA_B4B_TIMEOUT_MS) || 5000;
+
+function isAbortOrTimeoutError(err: unknown): boolean {
+  return err instanceof Error && (err.name === 'AbortError' || err.name === 'TimeoutError');
+}
+
+/**
+ * Attach a per-request timeout signal unless the caller already supplied one.
+ * On timeout the fetch rejects with a TimeoutError, which callers like
+ * `fetchLearnerProgressFromB4B` already treat as "B4B unreachable" → fall back
+ * to local data instead of hanging the page.
+ */
+function withRequestTimeout(init: RequestInit): RequestInit {
+  if (init.signal) return init;
+  try {
+    return { ...init, signal: AbortSignal.timeout(B4B_REQUEST_TIMEOUT_MS) };
+  } catch {
+    // AbortSignal.timeout unsupported on this runtime — degrade to no cap.
+    return init;
+  }
+}
+
 function isTransientHttpStatus(status: number): boolean {
   return TRANSIENT_B4B_STATUSES.has(status);
 }
@@ -243,6 +271,12 @@ async function fetchWithTransientRetry(operation: () => Promise<Response>): Prom
       return response;
     } catch (err) {
       lastError = err;
+      // A timeout/abort means the upstream is slow or unresponsive. Retrying
+      // just stacks more multi-second waits onto a request that's already on
+      // a render path, so fail fast and let the caller fall back.
+      if (isAbortOrTimeoutError(err)) {
+        throw err;
+      }
       if (attempt < B4B_FETCH_MAX_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, B4B_FETCH_BASE_DELAY_MS * attempt));
         continue;
@@ -291,7 +325,7 @@ async function getAccessToken(): Promise<string> {
   const basic = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
   const response = await fetchWithTransientRetry(() =>
-    fetchImpl()(url, {
+    fetchImpl()(url, withRequestTimeout({
       method: 'POST',
       headers: {
         Authorization: `Basic ${basic}`,
@@ -299,7 +333,7 @@ async function getAccessToken(): Promise<string> {
         Accept: 'application/json',
       },
       body: 'grant_type=client_credentials',
-    }),
+    })),
   );
 
   const text = await response.text();
@@ -360,7 +394,11 @@ export async function fetchB4B(path: string, init: RequestInit = {}): Promise<Re
 
   const method = (init.method ?? 'GET').toUpperCase();
   const isSafeRead = method === 'GET' || method === 'HEAD';
-  const run = () => fetchImpl()(url, { ...init, headers });
+  // Bound reads with a timeout so a hung Coursera can't block a render path.
+  // Writes are left uncapped here to preserve the single-attempt, no-abort
+  // semantics that protect against duplicated mutations.
+  const run = () =>
+    fetchImpl()(url, isSafeRead ? withRequestTimeout({ ...init, headers }) : { ...init, headers });
   // Never retry POST/PUT writes — Coursera may have applied the mutation
   // before the connection dropped, and a retry would duplicate side effects.
   return isSafeRead ? fetchWithTransientRetry(run) : run();

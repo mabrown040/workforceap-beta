@@ -5,7 +5,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { FundingSource } from '@prisma/client';
-
+import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const bodySchema = z.object({
@@ -72,6 +72,14 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     },
   }));
 
+  auditLog({
+    actorUserId: user.id,
+    action: 'admin_enrollment_funding_update',
+    targetType: 'User',
+    targetId: memberId,
+    metadata: { fundingSource: d.fundingSource ?? null, workspaceEmailProvisioned: d.workspaceEmailProvisioned ?? false, orgId },
+  }).catch((err) => console.error('[audit] admin_enrollment_funding_update:', err));
+
   return NextResponse.json({ ok: true });
 
   } catch (error) {
@@ -79,4 +87,3 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 });
-

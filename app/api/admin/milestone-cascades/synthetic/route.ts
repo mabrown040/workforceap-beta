@@ -6,6 +6,7 @@ import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { detectCompletionMilestone } from '@/lib/milestoneCascade/detectCompletionMilestone';
+import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -19,30 +20,29 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
  *
  * Usage:
  *   POST /api/admin/milestone-cascades/synthetic
- *   { "courseName": "Synthetic PMF", "courseSlug": "synthetic-pmf", "userId": "..." }
- *
- * All fields optional. Defaults to the caller's userId and a deterministic
- * test course. The same idempotency key applies — calling twice for the same
- * (userId, courseSlug) is a no-op.
+ *   Body (all optional):
+ *     { userId, courseSlug, courseName, programSlug, completedCount }
  */
 
 const bodySchema = z.object({
   userId: z.string().uuid().optional(),
-  courseSlug: z.string().min(1).max(120).optional(),
-  courseName: z.string().min(1).max(200).optional(),
-  programSlug: z.string().min(1).max(120).optional(),
-  completedCount: z.number().int().min(0).max(100).optional(),
+  courseSlug: z.string().optional(),
+  courseName: z.string().optional(),
+  programSlug: z.string().nullable().optional(),
+  completedCount: z.number().int().min(1).max(20).optional(),
 });
 
 async function _POST(req: NextRequest) {
   try {
     const user = await getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     if (!(await isAdmin(user.id))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const parsed = bodySchema.safeParse(await req.json().catch(() => ({})));
+    const rawBody = await req.json().catch(() => ({}));
+    const parsed = bodySchema.safeParse(rawBody);
     if (!parsed.success) {
       return NextResponse.json(
         { error: 'Invalid data', details: parsed.error.flatten() },
@@ -51,17 +51,13 @@ async function _POST(req: NextRequest) {
     }
 
     const targetUserId = parsed.data.userId ?? user.id;
-
-    // Tenant scope: a tenant admin can only trigger synthetic cascades for
-    // learners in their own organization. Super-admins bypass the scope so
-    // they can exercise the flow across tenants.
     const isSuper = await isSuperAdmin(user.id);
     const orgId = isSuper ? null : await getActorOrganizationId(user.id);
 
-    const targetUser = await prisma.user.findFirst({
+    const targetUser = await prisma.$transaction((tx) => tx.user.findFirst({
       where: orgId ? { id: targetUserId, organizationId: orgId } : { id: targetUserId },
       select: { id: true },
-    });
+    }));
     if (!targetUser) {
       return NextResponse.json({ error: 'Target user not found' }, { status: 404 });
     }
@@ -78,6 +74,14 @@ async function _POST(req: NextRequest) {
       source: 'member',
       sourceEventId: `synthetic-${user.id}-${Date.now()}`,
     });
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'admin_synthetic_milestone',
+      targetType: 'User',
+      targetId: targetUserId,
+      metadata: { courseSlug: parsed.data.courseSlug ?? null, programSlug: parsed.data.programSlug ?? null },
+    }).catch((err) => console.error('[audit] admin_synthetic_milestone:', err));
 
     return NextResponse.json(result);
   } catch (err) {

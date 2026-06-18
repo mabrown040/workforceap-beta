@@ -403,6 +403,23 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-075: §H-DEP4 dual audit trail for counselor mutations on member data (batch18) — ✓ Fixed PR #2010
+
+**What:** 7 counselor routes missing both audit calls:
+- `counselor/placements` POST — `counselor_placement_recorded` (actor=staff, target=member userId)
+- `counselor/members/[memberId]/notes` POST — `counselor_note_created`
+- `counselor/members/[memberId]/award-points` POST — `counselor_points_awarded`
+- `counselor/sessions/upload-resume` POST — `counselor_resume_uploaded`
+- `counselor/bulk-followup` POST — `counselor_bulk_followup_sent`
+- `counselor/members/[memberId]/messages` POST — `counselor_message_sent`
+- `counselor/members/[memberId]/session-notes` POST+DELETE — `counselor_session_note_created` / `counselor_session_note_deleted`
+
+**Fixed:** PR #2010.
+
+**Status:** Completed 2026-06-17. PR #2010 open / gate-merge pending.
+
+---
+
 ## TODO-074: §H-DEP4 dual audit trail for email templates, upload-resume, blog AI create (batch17) — ✓ Fixed PR #2009
 
 **What:** 4 admin routes missing both audit calls:

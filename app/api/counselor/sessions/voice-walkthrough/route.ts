@@ -14,6 +14,8 @@ import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 5).
@@ -163,6 +165,8 @@ async function _POST(req: NextRequest) {
       dynamicVariables,
     });
 
+    void auditLog({ actorUserId: user.id, action: 'counselor_voice_walkthrough_started', targetType: 'User', targetId: memberId, metadata: {} }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'counselor' }, verb: 'created', object: { type: 'VoiceWalkthroughSession', id: memberId }, result: { success: true } }).catch(() => {});
     return NextResponse.json({
       signedUrl: session.signedUrl,
       expiresAt: session.expiresAt,

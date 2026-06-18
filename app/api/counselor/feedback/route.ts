@@ -12,6 +12,8 @@ import { getVoiceCoachTranscriptRecipients, sendVoiceCoachTranscriptEmail } from
 import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 interface FeedbackBody {
   transcript: { role: 'agent' | 'user'; text: string }[];
@@ -155,6 +157,8 @@ Respond with ONLY a JSON array of 3 strings. Example: ["Step one", "Step two", "
         console.error('Career counselor transcript email error:', emailErr);
       }
   
+      void auditLog({ actorUserId: user.id, action: 'counselor_feedback_session_saved', targetType: 'User', targetId: user.id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'counselor' }, verb: 'created', object: { type: 'CounselorFeedbackSession', id: user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ steps });
     } catch (err) {
       console.error('Career counselor feedback persistence error:', err);

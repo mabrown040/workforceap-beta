@@ -130,6 +130,14 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     },
   });
 
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: prior ? 'updated' : 'created',
+    object: { type: 'PlacementRecord', id: placement.id },
+    result: { success: true, extensions: { memberId, action: prior ? 'placement_update' : 'placement_create' } },
+    request: auditRequestMeta(request),
+  }).catch(() => {});
+
   // Lifecycle event: placement edits create new events for audit trail.
   trackEvent({
     userId: memberId,

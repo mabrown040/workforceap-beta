@@ -6,6 +6,7 @@ import { fetchFeatureFlags, validateCreateBody } from '@/lib/feature-flags/admin
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 async function _GET() {
   try {
@@ -47,6 +48,13 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     }));
 
     void auditLog({ actorUserId: user.id, action: 'admin_feature_flag_create', targetType: 'featureFlag', targetId: flag.id, metadata: { key: flag.key } }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'created',
+      object: { type: 'FeatureFlag', id: flag.id },
+      result: { success: true, extensions: { key: flag.key } },
+      request: auditRequestMeta(request),
+    }).catch(() => {});
 
     return NextResponse.json({ flag });
   } catch (error) {

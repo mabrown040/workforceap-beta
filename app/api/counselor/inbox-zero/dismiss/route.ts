@@ -7,6 +7,7 @@ import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAcc
 import { INBOX_ZERO_DISMISS_ACTION } from '@/lib/counselor/inboxZero';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const bodySchema = z.object({
   memberId: z.string().uuid(),
@@ -53,6 +54,14 @@ export const POST = withApiGuc(async (request: Request) => {
         dismissedAt: new Date().toISOString(),
       },
     }).catch((err) => console.error('[inbox-zero dismiss] auditLog failed:', err));
+
+    logAuditEvent({
+      user: { id: user.id, role: 'counselor' },
+      verb: 'dismissed',
+      object: { type: 'User', id: memberId },
+      result: { success: true, extensions: { reason: trimmedReason, flags: flags ?? [] } },
+      request: auditRequestMeta(request),
+    }).catch(() => {});
 
     await prisma.memberEvent
       .create({

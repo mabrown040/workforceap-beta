@@ -287,6 +287,35 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-049: §H-DEP4 dual audit trails on admin/users routes — ✓ Fixed PR #1977
+
+**What:** 4 violations in admin user-management routes:
+- `admin/users` POST: NO audit at all for creating admin/staff accounts (highest-risk user creation)
+- `admin/users/[id]` DELETE: `auditLog` only; missing `logAuditEvent`
+- `admin/users/[id]` PATCH: `auditLog` only; missing `logAuditEvent`
+- `admin/users/[id]/reset-password` POST: `logAuditEvent` only; missing `auditLog` + request metadata
+
+**Fixed:** Added dual audit trails to all 4 handlers. PR #1977.
+
+**Status:** Completed 2026-06-17. PR #1977 open / gate-merge pending.
+
+---
+
+## TODO-050: §H-DEP4 dual audit trails on partner/job routes — ✓ Fixed PR #1978
+
+**What:** 5 violations in partner and job management routes:
+- `admin/partners/[id]/approve`: `logAuditEvent` only; missing `auditLog`
+- `admin/partners/invite`: `auditLog` only; missing `logAuditEvent`
+- `admin/partners/[id]/invite`: `auditLog` only; missing `logAuditEvent`
+- `admin/jobs/[id]/approve`: `logAuditEvent` only; missing `auditLog`
+- `admin/jobs/[id]/reject`: `logAuditEvent` only; missing `auditLog`
+
+**Fixed:** Added missing audit log type to each handler. PR #1978.
+
+**Status:** Completed 2026-06-17. PR #1978 open / gate-merge pending.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

@@ -232,6 +232,26 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-047: audit logs for enrollment-funding, milestone-cascades/synthetic, placement-surveys/resend — ✓ Fixed PR #1975
+
+**What:** 3 admin routes missing audit logs: `enrollment-funding` (financial record mutation), `milestone-cascades/synthetic` (debug tool that modifies member progress), `placement-surveys/resend` (email send + token creation). All had `withApiGuc` but no `auditLog`.
+
+**Fixed:** PR #1975. Fire-and-forget `auditLog` calls added to all 3.
+
+**Status:** Completed 2026-06-17. PR #1975 open / gate-merge pending.
+
+---
+
+## TODO-046: withApiGuc for 9 Coursera admin routes + ai/interview/response — ✓ Fixed PR #1974
+
+**What:** 9 Coursera admin routes (`auto-heal`, `b4b-programs`, `b4b-bindings-suggestions`, `map-unmatched`, `mappings`, `seed-canonical-mappings-from-b4b`, `seed-canonical-mappings-from-catalog`, `sync-b4b`, `self-test`) and `ai/interview/response` were missing `withApiGuc`. All call `isAdmin()` which queries Prisma without a GUC context.
+
+**Fixed:** PR #1974. Completes Coursera admin GUC sweep from TODO-021 deferred list.
+
+**Status:** Completed 2026-06-17. PR #1974 open / gate-merge pending.
+
+---
+
 ## TODO-045: audit trail completeness — award-points, pipeline-stage, merge, reset-password, coursera-approval — ✓ Fixed PR #1973
 
 **What:** 5 admin routes with incomplete dual audit trail:

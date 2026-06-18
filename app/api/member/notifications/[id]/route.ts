@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -30,6 +32,8 @@ async function _DELETE(_request: Request, { params }: Props) {
       where: { id },
     });
 
+    auditLog({ actorUserId: user.id, action: 'member.notification.delete', targetType: 'Notification', targetId: id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'delete', object: { type: 'Notification', id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('/member/notifications/[id] delete error:', error);

@@ -301,6 +301,21 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-051: §H-DEP4 dual audit trails sweep 3 — members + outcomes routes — ✓ Fixed PR #1979
+
+**What:** 7 violations:
+- `members/create`: `logAuditEvent` only (from #1946); added `auditLog`
+- `members/[id]/delete`: `logAuditEvent` only; added `auditLog`
+- `members/[id]/program`: dead import — no audit calls at all; added both
+- `members/[id]/reset-assessment`: `logAuditEvent` only; added `auditLog`
+- `outcomes/route`: `logAuditEvent` only; added `auditLog`
+- `outcomes/pdf`: `logAuditEvent` only + missing `orgId`; added `auditLog`, fixed `orgId`
+- `outcomes/snapshot`: `logAuditEvent` only; added `auditLog`
+
+**Status:** Completed 2026-06-17. PR #1979 open / gate-merge pending.
+
+---
+
 ## TODO-050: §H-DEP4 dual audit trails on partner/job routes — ✓ Fixed PR #1978
 
 **What:** 5 violations in partner and job management routes:

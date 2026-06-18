@@ -9,6 +9,8 @@ import { recordEmployerWorkflowEvent } from '@/lib/portal/workflowEvents';
 import { invalidateJobListings } from '@/lib/jobs/listingCache';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const jobUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -166,6 +168,8 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     });
   }
 
+  auditLog({ actorUserId: user.id, action: 'employer_job_update', targetType: 'Job', targetId: id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'Job', id }, result: { success: true } }).catch(() => {});
   return NextResponse.json(job);
 
   } catch (error) {
@@ -209,6 +213,8 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
       await invalidateJobListings().catch(() => {});
     }
 
+    auditLog({ actorUserId: user.id, action: 'employer_job_delete', targetType: 'Job', targetId: id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'deleted', object: { type: 'Job', id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true, job });
   } catch (error) {
     console.error('/employer/jobs/[id] DELETE error:', error);

@@ -51,7 +51,7 @@ import { logAuditEvent } from '@/lib/audit/log';async function _PATCH(
   }
 }
 export const PATCH = withApiGuc(_PATCH);async function _DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

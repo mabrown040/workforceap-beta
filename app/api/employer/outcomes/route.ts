@@ -4,6 +4,7 @@ import { isEmployer } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -108,6 +109,7 @@ async function _GET(request: NextRequest) {
       object: { type: 'EmployerOutcomes', id: employerProfile.id },
       request: auditRequestMeta(request),
     });
+    auditLog({ actorUserId: user.id, action: 'employer_outcomes_viewed', targetType: 'Employer', targetId: employerProfile.id, metadata: {} }).catch(() => {});
 
     return NextResponse.json({
       employer: {

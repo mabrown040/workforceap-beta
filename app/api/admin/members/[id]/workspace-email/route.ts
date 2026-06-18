@@ -8,6 +8,7 @@ import { getWorkspaceEmailProvider } from '@/lib/workspace-email/provider';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const provisionBody = z.object({
   requestedLocalPart: z.string().trim().min(1).max(64).optional(),
@@ -154,6 +155,7 @@ export const POST = withApiGuc(_POST);async function _DELETE(_request: NextReque
       },
     });
   
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'deleted', object: { type: 'WorkspaceEmail', id: memberId }, result: { success: true, extensions: { provider: provider.id } } }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('/admin/members/[id]/workspace-email:', error);

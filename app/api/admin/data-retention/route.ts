@@ -4,6 +4,7 @@ import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { runDataCleanup } from '@/lib/retention/cleanup';
 import { RETENTION_TABLES, getCutoffDate } from '@/lib/retention/config';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 

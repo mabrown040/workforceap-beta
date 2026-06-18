@@ -7,6 +7,7 @@ import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { WIOA_REVIEW_STATUSES } from '@/lib/wioa/wioaReview';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 3).

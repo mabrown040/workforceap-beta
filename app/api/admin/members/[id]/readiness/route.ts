@@ -7,6 +7,7 @@ import { READINESS_SECTIONS, getJobSiteItemKey } from '@/lib/content/readinessCh
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';async function _GET(
+import { logAuditEvent } from '@/lib/audit/log';
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {

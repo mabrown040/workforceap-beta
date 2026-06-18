@@ -6,6 +6,7 @@ import { requireAdmin } from '@/lib/auth/roles';
 import { brandedEmailLayout } from '@/lib/email/template';
 import { escapeHtml } from '@/lib/email/escapeHtml';
 import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 

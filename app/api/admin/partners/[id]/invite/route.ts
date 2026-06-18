@@ -10,6 +10,7 @@ import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const bodySchema = z.object({
   email: z.string().email(),

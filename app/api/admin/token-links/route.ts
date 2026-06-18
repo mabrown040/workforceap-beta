@@ -8,6 +8,7 @@ import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/o
 import { resolveActOnBehalf } from '@/lib/auth/actAsSubject';
 import { sendEligibilityLink } from '@/lib/email';
 import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { checkAdminTokenLinksRateLimit } from '@/lib/rate-limit';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';

@@ -9,6 +9,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { formatPhone } from '@/lib/formatPhone';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const MAX_MEMBERS = 500;
 

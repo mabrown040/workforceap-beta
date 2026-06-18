@@ -7,6 +7,7 @@ import { auditLog } from '@/lib/audit';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * PATCH /api/admin/members/[id]/coursera-enrollment-approval

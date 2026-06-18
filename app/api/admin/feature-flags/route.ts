@@ -6,6 +6,7 @@ import { fetchFeatureFlags, validateCreateBody } from '@/lib/feature-flags/admin
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function _GET() {
   try {

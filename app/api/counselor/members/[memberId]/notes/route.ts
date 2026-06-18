@@ -6,6 +6,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { z } from 'zod';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -81,6 +83,21 @@ export const GET = withApiGuc(_GET);async function _POST(
     data: { memberId, authorId: user.id, content: parsed.data.content },
     include: { author: { select: { fullName: true, email: true } } },
   }));
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'counselor_note_created',
+    targetType: 'User',
+    targetId: memberId,
+    metadata: { noteId: note.id },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'counselor' },
+    verb: 'created',
+    object: { type: 'CounselorNote', id: note.id },
+    result: { success: true },
+  }).catch(() => {});
+
   return NextResponse.json(note, { status: 201 });
 
   } catch (error) {
@@ -112,6 +129,21 @@ export const POST = withApiGuc(_POST);async function _DELETE(
   if (!note) return NextResponse.json({ error: 'Note not found or not yours' }, { status: 404 });
 
   await prisma.$transaction((tx) => tx.counselorNote.delete({ where: { id: noteId } }));
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'counselor_note_deleted',
+    targetType: 'User',
+    targetId: memberId,
+    metadata: { noteId },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'counselor' },
+    verb: 'deleted',
+    object: { type: 'CounselorNote', id: noteId },
+    result: { success: true },
+  }).catch(() => {});
+
   return NextResponse.json({ ok: true });
 
   } catch (error) {

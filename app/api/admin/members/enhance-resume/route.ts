@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { cleanLongFormPlainText } from '@/lib/ai/postProcess';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 async function _POST(request: Request) {
@@ -13,7 +14,9 @@ async function _POST(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     if (!isAIConfigured())
       return NextResponse.json({ error: 'AI not configured' }, { status: 503 });
-  
+    const { success: aiRateOk } = await checkAIToolRateLimit(user.id);
+    if (!aiRateOk) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+
     let body: unknown;
     try {
       body = await request.json();

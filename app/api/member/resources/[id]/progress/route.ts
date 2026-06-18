@@ -6,6 +6,8 @@ import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const actionSchema = z.object({
   action: z.enum(['view', 'complete', 'download', 'save']),
@@ -60,6 +62,8 @@ const actionSchema = z.object({
       if (action === 'download') await trackEvent({ userId: user.id, eventName: 'resource_downloaded', entityType: 'resource', entityId: resourceId });
       if (action === 'save') await trackEvent({ userId: user.id, eventName: 'resource_saved', entityType: 'resource', entityId: resourceId });
   
+      auditLog({ actorUserId: user.id, action: 'member.resourceProgress.update', targetType: 'ResourceProgress', targetId: resourceId }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'ResourceProgress', id: resourceId }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ progress });
     } catch (err) {
       console.error('[POST /api/member/resources/:id/progress]', err);

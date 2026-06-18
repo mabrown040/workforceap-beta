@@ -7,11 +7,14 @@ interface SectionHeaderProps {
   subtitle?: ReactNode;
   align?: 'left' | 'center';
   marginBottom?: string;
+  /** Heading level for the title. Defaults to 'h2'; use 'h1' when this is the page's main heading. */
+  titleAs?: 'h1' | 'h2';
 }
 
-export function SectionHeader({ eyebrow, title, accent, subtitle, align = 'center', marginBottom = '3.5rem' }: SectionHeaderProps) {
+export function SectionHeader({ eyebrow, title, accent, subtitle, align = 'center', marginBottom = '3.5rem', titleAs = 'h2' }: SectionHeaderProps) {
   const textAlign = align;
   const maxWidth = align === 'center' ? '48rem' : 'none';
+  const HeadingTag = titleAs;
 
   return (
     <div style={{ textAlign, marginBottom, maxWidth: align === 'center' ? maxWidth : undefined, marginLeft: align === 'center' ? 'auto' : undefined, marginRight: align === 'center' ? 'auto' : undefined }}>
@@ -20,7 +23,7 @@ export function SectionHeader({ eyebrow, title, accent, subtitle, align = 'cente
           {eyebrow}
         </p>
       )}
-      <h2
+      <HeadingTag
         style={{
           fontSize: 'clamp(2rem, 3.5vw, 3rem)',
           fontWeight: 800,
@@ -32,7 +35,7 @@ export function SectionHeader({ eyebrow, title, accent, subtitle, align = 'cente
       >
         {title}
         {accent && <span style={{ color: 'var(--color-accent)' }}>{accent}</span>}
-      </h2>
+      </HeadingTag>
       {subtitle && (
         <p style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.75rem', fontSize: '1.05rem', lineHeight: 1.6 }}>
           {subtitle}

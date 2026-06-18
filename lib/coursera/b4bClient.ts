@@ -227,7 +227,14 @@ const B4B_FETCH_BASE_DELAY_MS = 400;
 // which then hit Vercel's function maxDuration and 504 (incident 2026-06-18).
 // A bounded timeout converts a hang into an error so the caller's existing
 // fail-soft path (e.g. fetchLearnerProgressFromB4B returns an empty map) runs.
-const B4B_ATTEMPT_TIMEOUT_MS = 4000;
+// Tunable in prod without a deploy via COURSERA_B4B_TIMEOUT_MS; read at call
+// time (not module load) so tests can override it per-case.
+const B4B_ATTEMPT_TIMEOUT_DEFAULT_MS = 4000;
+
+function b4bAttemptTimeoutMs(): number {
+  const raw = Number(process.env.COURSERA_B4B_TIMEOUT_MS);
+  return Number.isFinite(raw) && raw > 0 ? raw : B4B_ATTEMPT_TIMEOUT_DEFAULT_MS;
+}
 
 class B4BTimeoutError extends Error {
   constructor(ms: number) {
@@ -259,16 +266,17 @@ function withAttemptTimeout(operation: () => Promise<Response>, ms: number): Pro
  * Used for OAuth + all B4B REST reads. Writes keep a single attempt so we
  * never double-submit a Coursera enrollment POST after a timeout.
  *
- * Each attempt is bounded by B4B_ATTEMPT_TIMEOUT_MS. A timeout is NOT retried —
+ * Each attempt is bounded by b4bAttemptTimeoutMs(). A timeout is NOT retried —
  * a hung upstream won't recover within one request, and retrying would stack
  * multiple deadlines and re-introduce the long render block we're guarding
  * against. Transient HTTP statuses and network errors retry as before.
  */
 async function fetchWithTransientRetry(operation: () => Promise<Response>): Promise<Response> {
   let lastError: unknown;
+  const timeoutMs = b4bAttemptTimeoutMs();
   for (let attempt = 1; attempt <= B4B_FETCH_MAX_ATTEMPTS; attempt++) {
     try {
-      const response = await withAttemptTimeout(operation, B4B_ATTEMPT_TIMEOUT_MS);
+      const response = await withAttemptTimeout(operation, timeoutMs);
       if (isTransientHttpStatus(response.status) && attempt < B4B_FETCH_MAX_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, B4B_FETCH_BASE_DELAY_MS * attempt));
         continue;

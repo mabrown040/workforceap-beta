@@ -469,3 +469,51 @@ test('module load throws when credentials are missing (deferred to first call)',
       err instanceof Error && /COURSERA_B4B_CLIENT_ID/.test(err.message),
   );
 });
+
+test('B4B fetch times out a hung upstream instead of hanging (regression: dashboard 504 2026-06-18)', async (t) => {
+  // Root cause of the incident: the OAuth/API fetch had NO timeout, so a slow
+  // upstream blocked the awaiting RSC render past Vercel's function limit → 504.
+  // With COURSERA_B4B_TIMEOUT_MS set low, a fetch that never settles in time
+  // must REJECT fast (not hang to the injected 5s delay).
+  setupTestEnv();
+  process.env.COURSERA_B4B_TIMEOUT_MS = '80';
+  t.after(() => {
+    teardownTestEnv();
+    delete process.env.COURSERA_B4B_TIMEOUT_MS;
+  });
+
+  // Injected fetch simulates a hung Coursera B4B: resolves only after 5s.
+  _setFetchForTesting(
+    () => new Promise<Response>((resolve) => setTimeout(() => resolve(jsonResponse({ ok: true })), 5000)),
+  );
+
+  const start = Date.now();
+  await assert.rejects(
+    () => getOrgInfo(),
+    (err: unknown) => err instanceof Error && /timed out/i.test(err.message),
+    'a hung upstream should reject with a timeout error',
+  );
+  const elapsed = Date.now() - start;
+  // Without the timeout this waits the full 5s; with it, ~80ms + overhead.
+  assert.ok(elapsed < 1500, `expected fast timeout rejection, took ${elapsed}ms`);
+});
+
+test('B4B timeout defaults to 4000ms when COURSERA_B4B_TIMEOUT_MS is unset/invalid', async (t) => {
+  // Guards the env parse: invalid values must fall back to the safe default,
+  // never 0/NaN (which would time out every call instantly).
+  setupTestEnv();
+  process.env.COURSERA_B4B_TIMEOUT_MS = 'not-a-number';
+  t.after(() => {
+    teardownTestEnv();
+    delete process.env.COURSERA_B4B_TIMEOUT_MS;
+  });
+
+  // A fast successful fetch must still succeed (default 4s budget, not 0).
+  _setFetchForTesting(async (url: string) => {
+    if (/\/oauth2\//.test(url)) return jsonResponse({ access_token: 'tok', expires_in: 3600 });
+    return jsonResponse({ elements: [{ name: 'Workforce Advancement Project' }] });
+  });
+
+  const info = await getOrgInfo();
+  assert.ok(info, 'invalid timeout env must fall back to default, not break the call');
+});

@@ -7,6 +7,8 @@ import { z } from 'zod';
 import { trackEvent } from '@/lib/events/track';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const feedbackSchema = z.object({
   type: z.enum(['training', 'counselor', 'platform', 'program', 'general']),
@@ -55,6 +57,8 @@ async function _POST(request: NextRequest) {
         sourcePage: '/dashboard',
       });
 
+      auditLog({ actorUserId: user.id, action: 'member.feedback.submit', targetType: 'MemberFeedback', targetId: feedback.id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'MemberFeedback', id: feedback.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ feedback });
     } catch (err) {
       captureApiError(err, { route: 'member/feedback POST' });

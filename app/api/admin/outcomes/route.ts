@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -215,7 +216,7 @@ async function _GET(request: NextRequest) {
     // ── Demographic breakdowns ──
     const demographics = await getDemographics(orgId);
 
-    // Audit log
+    auditLog({ actorUserId: user.id, action: 'admin_outcomes_view', targetType: 'OutcomesDashboard', targetId: 'aggregate', metadata: { orgId } }).catch((err) => console.error('[audit] admin_outcomes_view:', err));
     logAuditEvent({
       user: { id: user.id, role: 'admin' },
       verb: 'viewed',

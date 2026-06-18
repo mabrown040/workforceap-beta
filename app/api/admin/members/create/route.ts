@@ -10,6 +10,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -247,6 +248,7 @@ const ETHNICITY_OPTIONS = [
       return NextResponse.json({ error: 'Failed to create member. Please try again.' }, { status: 500 });
     }
   
+    auditLog({ actorUserId: user.id, action: 'admin_member_create', targetType: 'User', targetId: authUser.id, metadata: { email, programSlug, orgId: organizationId } }).catch((err) => console.error('[audit] admin_member_create:', err));
     logAuditEvent({
       user: { id: user.id, role: 'admin' },
       verb: 'create_member',

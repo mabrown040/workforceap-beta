@@ -80,6 +80,12 @@ const PWAInstallPrompt = dynamic(() => import('@/components/pwa/PWAInstallPrompt
   loading: () => null,
 });
 
+// Heavy authenticated render (member state + several DB reads + best-effort
+// Coursera). Raise the per-request limit so a slow/cold render completes
+// instead of hitting the default function timeout and 504'ing into the portal
+// error boundary.
+export const maxDuration = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({

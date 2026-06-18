@@ -6,6 +6,7 @@ import { executeMemberMerge, buildMergePreview } from '@/lib/admin/memberMerge';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 
 // Verifies both members involved in a merge belong to the same tenant
 // AND that the requesting admin can act on that tenant. Without this,
@@ -94,6 +95,7 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
       result: { success: true, extensions: { secondaryId } },
       request: auditRequestMeta(req),
     }).catch((err) => console.error('[audit] merge_members:', err));
+    auditLog({ actorUserId: user.id, action: 'admin_members_merged', targetType: 'User', targetId: primaryId, metadata: { secondaryId } }).catch(() => {});
 
     return NextResponse.json({ ok: true, ...result });
   } catch (error) {

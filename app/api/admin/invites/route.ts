@@ -217,6 +217,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     include: {
       invitedBy: { select: { fullName: true } },
     },
+  }));
+
   await auditLog({
     actorUserId: user.id,
     action: 'invitation_create',
@@ -224,8 +226,6 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     targetId: invitation.id,
     metadata: { email, role: inviteRole, programSlug: programSlug ?? null },
   });
-
-  }));
 
   const inviteUrl = `${SITE_URL}/invite?token=${token}`;
   const roleLabel =

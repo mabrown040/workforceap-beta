@@ -27,7 +27,7 @@ const TOOL_LABELS: Record<string, string> = {
   try {
   const { searchParams } = new URL(request.url);
   const toolType = searchParams.get('tool');
-  const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);
+  const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10) || 50, 100);
 
   const results = await prisma.$transaction((tx) => tx.aIToolResult.findMany({
     where: {

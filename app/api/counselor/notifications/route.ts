@@ -16,7 +16,7 @@ async function _GET(request: NextRequest) {
     if (!isCounselorUser) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10), 100);
+    const limit = Math.min(parseInt(searchParams.get('limit') ?? '50', 10) || 50, 100);
     const memberId = searchParams.get('memberId');
     const type = searchParams.get('type');
     const dateFrom = searchParams.get('dateFrom');

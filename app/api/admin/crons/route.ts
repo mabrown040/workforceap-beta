@@ -18,8 +18,8 @@ export const GET = withApiGuc(async (request: NextRequest) => {
       status: searchParams.get('status') || undefined,
       dateFrom: searchParams.get('dateFrom') || undefined,
       dateTo: searchParams.get('dateTo') || undefined,
-      page: Math.max(1, parseInt(searchParams.get('page') || '1', 10)),
-      pageSize: Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '25', 10))),
+      page: Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1),
+      pageSize: Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '25', 10) || 25)),
     };
 
     const result = await fetchCrons(params);

@@ -64,10 +64,11 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (
       return NextResponse.json({ error: 'Invalid file type. Only PDF, DOC, and DOCX files are allowed.' }, { status: 400 });
     }
     const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
+    const RESUME_MIME: Record<string, string> = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', txt: 'text/plain' };
     const path = `${userId}/resume-original.${ext}`;
     const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
       upsert: true,
-      contentType: file.type || 'application/pdf',
+      contentType: RESUME_MIME[ext] ?? 'application/octet-stream',
     });
     if (error) {
       console.error('Resume upload error:', error);

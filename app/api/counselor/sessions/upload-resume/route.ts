@@ -80,12 +80,13 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     }
   
     const ext = file.name.split('.').pop()?.toLowerCase() || 'pdf';
+    const RESUME_MIME: Record<string, string> = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', txt: 'text/plain' };
     const path = `${authorizedMemberId}/resume-original.${ext}`;
     const supabase = getSupabaseAdmin();
-  
+
     const { error: storageError } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
       upsert: true,
-      contentType: file.type || 'application/octet-stream',
+      contentType: RESUME_MIME[ext] ?? 'application/octet-stream',
     });
   
     if (storageError) {

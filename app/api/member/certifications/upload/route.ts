@@ -41,6 +41,8 @@ function storageErrorMessage(error: { message?: string } | null): string {
     if (!['pdf', 'png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
       return NextResponse.json({ error: 'Only PDF and image files are accepted' }, { status: 400 });
     }
+    const MIME: Record<string, string> = { pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp' };
+    const contentType = MIME[ext] ?? 'application/octet-stream';
   
     // Verify the cert exists for this user
     const cert = await prisma.$transaction((tx) => tx.userCertification.findUnique({
@@ -57,7 +59,7 @@ function storageErrorMessage(error: { message?: string } | null): string {
   
       const { error } = await supabase.storage.from(BUCKET).upload(storagePath, arrayBuffer, {
         upsert: true,
-        contentType: file.type || 'application/octet-stream',
+        contentType,
       });
   
       if (error) {

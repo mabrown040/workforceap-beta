@@ -4,6 +4,8 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -91,6 +93,20 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
           member: { select: { id: true, fullName: true } },
         },
       }));
+
+      auditLog({
+        actorUserId: user.id,
+        action: 'partner_referral_created',
+        targetType: 'User',
+        targetId: memberId,
+        metadata: { referralId: referral.id, partnerId: ctx.partnerId },
+      }).catch(() => {});
+      logAuditEvent({
+        user: { id: user.id, role: 'partner' },
+        verb: 'referred',
+        object: { type: 'PartnerReferral', id: referral.id },
+        result: { success: true, extensions: { memberId, partnerId: ctx.partnerId } },
+      }).catch(() => {});
 
       return NextResponse.json({
         id: referral.id,

@@ -4,6 +4,8 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { createConnectAccount, createAccountLink } from '@/lib/stripe/connect';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const POST = withApiGuc(async (request: NextRequest) => {
@@ -45,6 +47,20 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       `${origin}/partner?connect=refresh`,
       `${origin}/partner?connect=success`,
     );
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'partner_connect_initiated',
+      targetType: 'User',
+      targetId: user.id,
+      metadata: { partnerId: ctx.partnerId, accountId },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'partner' },
+      verb: 'initiated',
+      object: { type: 'StripeConnectLink', id: accountId },
+      result: { success: true, extensions: { partnerId: ctx.partnerId } },
+    }).catch(() => {});
 
     return NextResponse.json({ url: link.url });
   } catch (error) {

@@ -825,7 +825,9 @@
     "paidApplyProofBody": "Nous examinons votre candidature, faisons un suivi pour discuter des prochaines étapes et vous aidons à comprendre l'adéquation au financement avant de vous engager.",
     "accountTransitionSummary": "Pourquoi nous demandons un compte maintenant",
     "createAccountFormKicker": "Nom, e-mail, téléphone et mot de passe uniquement",
-    "resultsTransitionSummary": "Comment fonctionne le classement des programmes"
+    "resultsTransitionSummary": "Comment fonctionne le classement des programmes",
+    "shareLink": "Copier le lien de partage",
+    "shareLinkCopied": "Lien copié !"
   },
   "training": {
     "myTraining": "Ma Formation",
@@ -1873,7 +1875,9 @@
       "finalCtaCopy": "Réservez un appel de 20 minutes. Nous confirmerons l’adéquation du poste, le calendrier et la tarification contingente — sans frais de recrutement initiaux.",
       "intakeAriaLabel": "Formulaire d’intake employeur",
       "intakeTitle": "Vous préférez l’e-mail à la planification ?",
-      "intakeCopy": "Envoyez vos informations d’intake et nous reviendrons vers vous sous 1 à 2 jours ouvrés. Ce formulaire est une alternative par e-mail — utilisez le bouton ci-dessus pour démarrer un abonnement pipeline."
+      "intakeCopy": "Envoyez vos informations d’intake et nous reviendrons vers vous sous 1 à 2 jours ouvrés. Ce formulaire est une alternative par e-mail — utilisez le bouton ci-dessus pour démarrer un abonnement pipeline.",
+      "trustPlaceholderIntro": "Présentation de candidats qualifiés à votre équipe",
+      "trustPlaceholderIntroTag": "Présentation de talents"
     },
     "outcomes": {
       "title": "Aperçu des résultats",
@@ -2391,7 +2395,9 @@
     "applicationReviewMetaTitle": "Examen de la candidature",
     "applicationReviewMetaDesc": "Examinez les détails du candidat et mettez à jour le statut.",
     "reviewCandidatesMobile": "Examiner et répondre aux candidats",
-    "reviewCandidatesDesktop": "Examiner et répondre aux candidats pour vos postes ouverts"
+    "reviewCandidatesDesktop": "Examiner et répondre aux candidats pour vos postes ouverts",
+    "checkoutSuccess": "Votre abonnement a été configuré avec succès. Bienvenue !",
+    "checkoutCanceled": "Le paiement a été annulé — votre forfait n’a pas changé."
   },
   "auth": {
     "login": {

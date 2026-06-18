@@ -825,7 +825,9 @@
     "paidApplyProofBody": "Analisamos sua inscrição, entramos em contato para discutir os próximos passos e ajudamos você a entender a elegibilidade de financiamento antes de se comprometer.",
     "accountTransitionSummary": "Por que pedimos uma conta agora",
     "createAccountFormKicker": "Apenas nome, e-mail, telefone e senha",
-    "resultsTransitionSummary": "Como funciona a classificação dos programas"
+    "resultsTransitionSummary": "Como funciona a classificação dos programas",
+    "shareLink": "Copiar link compartilhável",
+    "shareLinkCopied": "Link copiado!"
   },
   "training": {
     "myTraining": "Meu Treinamento",
@@ -1873,7 +1875,9 @@
       "finalCtaCopy": "Agende uma chamada de 20 minutos. Confirmaremos encaixe da função, prazo e preço contingente — sem taxas de recrutamento antecipadas.",
       "intakeAriaLabel": "Formulário de intake para empregadores",
       "intakeTitle": "Prefere e-mail em vez de agendar?",
-      "intakeCopy": "Envie os detalhes do intake e retornaremos em 1–2 dias úteis. Este formulário é uma alternativa por e-mail — use o botão acima para iniciar uma assinatura de pipeline."
+      "intakeCopy": "Envie os detalhes do intake e retornaremos em 1–2 dias úteis. Este formulário é uma alternativa por e-mail — use o botão acima para iniciar uma assinatura de pipeline.",
+      "trustPlaceholderIntro": "Apresentação de candidatos qualificados à sua equipe",
+      "trustPlaceholderIntroTag": "Apresentação de talentos"
     },
     "outcomes": {
       "title": "Resumo de resultados",
@@ -2391,7 +2395,9 @@
     "applicationReviewMetaTitle": "Revisão de candidatura",
     "applicationReviewMetaDesc": "Revise os detalhes do candidato e atualize o status.",
     "reviewCandidatesMobile": "Revise e responda aos candidatos",
-    "reviewCandidatesDesktop": "Revise e responda aos candidatos para suas vagas abertas"
+    "reviewCandidatesDesktop": "Revise e responda aos candidatos para suas vagas abertas",
+    "checkoutSuccess": "Sua assinatura foi configurada com sucesso. Bem-vindo!",
+    "checkoutCanceled": "O checkout foi cancelado — seu plano não foi alterado."
   },
   "auth": {
     "login": {

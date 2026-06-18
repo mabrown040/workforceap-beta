@@ -825,7 +825,9 @@
     "resultsHeroTitle": "Paso 2 de 3 — elige tus programas",
     "resultsMetaDescription": "Revisa tu posible adecuación, ordena hasta tres programas y continúa a la creación de cuenta.",
     "resultsMetaTitle": "Elige tus programas",
-    "paidApplyProofBody": "Revisamos tu solicitud, damos seguimiento para hablar de los próximos pasos y te ayudamos a entender la elegibilidad de financiamiento antes de que te comprometas."
+    "paidApplyProofBody": "Revisamos tu solicitud, damos seguimiento para hablar de los próximos pasos y te ayudamos a entender la elegibilidad de financiamiento antes de que te comprometas.",
+    "shareLink": "Copiar enlace para compartir",
+    "shareLinkCopied": "¡Enlace copiado!"
   },
   "training": {
     "myTraining": "Mi Entrenamiento",
@@ -1873,7 +1875,9 @@
       "finalCtaCopy": "Reserva una llamada de 20 minutos. Confirmaremos ajuste del puesto, plazo y precio contingente, sin comisiones de reclutamiento por adelantado.",
       "intakeAriaLabel": "Formulario de intake para empleadores",
       "intakeTitle": "¿Prefieres email en vez de agendar?",
-      "intakeCopy": "Envía los detalles del intake y te responderemos en 1–2 días hábiles. Este formulario es una alternativa por correo: usa el botón de arriba para iniciar una suscripción de pipeline."
+      "intakeCopy": "Envía los detalles del intake y te responderemos en 1–2 días hábiles. Este formulario es una alternativa por correo: usa el botón de arriba para iniciar una suscripción de pipeline.",
+      "trustPlaceholderIntro": "Presentación de candidatos calificados a tu equipo",
+      "trustPlaceholderIntroTag": "Presentación de talento"
     },
     "outcomes": {
       "title": "Resumen de resultados",
@@ -2390,7 +2394,9 @@
     "applicationReviewMetaTitle": "Revisión de solicitud",
     "applicationReviewMetaDesc": "Revisa los detalles del candidato y actualiza el estado.",
     "reviewCandidatesMobile": "Revisa y responde a candidatos",
-    "reviewCandidatesDesktop": "Revisa y responde a candidatos para tus roles abiertos"
+    "reviewCandidatesDesktop": "Revisa y responde a candidatos para tus roles abiertos",
+    "checkoutSuccess": "Tu suscripción se configuró correctamente. ¡Bienvenido!",
+    "checkoutCanceled": "El pago se canceló: tu plan no ha cambiado."
   },
   "auth": {
     "login": {

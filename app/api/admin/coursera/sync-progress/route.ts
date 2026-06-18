@@ -7,6 +7,8 @@ import { promoteCsvProgressToCanonical } from '@/lib/coursera/csvImport.server';
 import { refreshMemberProgramProgressRollup } from '@/lib/member/courseProgress';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -47,6 +49,8 @@ async function requireAdminUser() {
     }
   }
 
+  void auditLog({ actorUserId: admin.id, action: 'admin_coursera_sync_progress', targetType: 'User', targetId: admin.id, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: admin.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraSyncProgress', id: admin.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     xapi,
     csvPromotion,

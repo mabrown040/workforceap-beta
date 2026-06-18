@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -95,8 +97,20 @@ export const GET = withApiGuc(_GET);async function _PATCH(
       data: { status: parsed.data.status, statusUpdatedAt: new Date() },
     }));
 
-    auditLog({ actorUserId: user.id, action: 'employer_applicant_update', targetType: 'JobApplication', targetId: updated.id }).catch(() => {});
-    logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'JobApplication', id: updated.id }, result: { success: true } }).catch(() => {});
+    auditLog({
+      actorUserId: user.id,
+      action: 'employer_applicant_status_updated',
+      targetType: 'User',
+      targetId: updated.studentId,
+      metadata: { applicationId: applicantId, jobId: id, nextStatus: updated.status, employerId: ctx.employerId },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'employer' },
+      verb: 'updated',
+      object: { type: 'JobApplication', id: applicantId },
+      result: { success: true, extensions: { jobId: id, nextStatus: updated.status } },
+    }).catch(() => {});
+
     return NextResponse.json({ ok: true, application: updated });
   } catch (error) {
     console.error('/employer/jobs/[id]/applicants PATCH error:', error);

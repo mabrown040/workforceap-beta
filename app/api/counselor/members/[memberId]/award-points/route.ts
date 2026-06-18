@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { awardPoints } from '@/lib/member/points';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 type Props = { params: Promise<{ memberId: string }> };
@@ -38,6 +40,20 @@ async function _POST(request: Request, { params }: Props) {
     note: note || undefined,
     awardedBy: user.id,
   });
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'counselor_award_points',
+    targetType: 'User',
+    targetId: memberId,
+    metadata: { points, note: note || null, entityId },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'counselor' },
+    verb: 'awarded',
+    object: { type: 'MemberPoints', id: memberId },
+    result: { success: true, extensions: { points, entityId } },
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true, ...result });
 

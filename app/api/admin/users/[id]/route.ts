@@ -11,7 +11,8 @@ import { userAuthDeleteFailedResponse } from '@/lib/admin/userDeleteResponse';
 import { buildDeletedEmail } from '../_deletedEmail';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { auditLog } from '@/lib/audit';async function _DELETE(
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';async function _DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -69,6 +70,7 @@ import { auditLog } from '@/lib/audit';async function _DELETE(
         targetId: id,
         metadata: { email: target.email },
       });
+      logAuditEvent({ user: { id: actor.id, role: 'admin' }, verb: 'deleted', object: { type: 'User', id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ ok: true });
     } catch (err) {
       console.error('[admin/users/:id DELETE]', err);
@@ -198,6 +200,7 @@ async function _PATCH(
         targetId: id,
         metadata: { fullName, email: normalizedEmail, role: updated.role },
       });
+      logAuditEvent({ user: { id: admin.id, role: 'admin' }, verb: 'updated', object: { type: 'User', id }, result: { success: true, extensions: { role: updated.role } } }).catch(() => {});
       return NextResponse.json({ success: true, user: updated });
     } catch (error) {
       if (authEmailChanged) {

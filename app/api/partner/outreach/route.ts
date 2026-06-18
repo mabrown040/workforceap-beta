@@ -4,6 +4,8 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { recordPartnerWorkflowEvent } from '@/lib/portal/workflowEvents';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -89,6 +91,20 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     entityType: 'PartnerOutreachLog',
     entityId: log.id,
   });
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'partner_outreach_logged',
+    targetType: 'User',
+    targetId: parsed.data.memberId,
+    metadata: { logId: log.id, channel: parsed.data.channel, partnerId: ctx.partnerId },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'partner' },
+    verb: 'logged',
+    object: { type: 'PartnerOutreachLog', id: log.id },
+    result: { success: true, extensions: { memberId: parsed.data.memberId, channel: parsed.data.channel } },
+  }).catch(() => {});
 
   return NextResponse.json({
     id: log.id,

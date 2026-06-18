@@ -7,6 +7,8 @@ import { findPathwayById } from '@/lib/content/learningPathways';
 import { awardPoints } from '@/lib/member/points';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (
   _request: Request,
   { params }: { params: Promise<{ pathwayId: string; stepIndex: string }> }
@@ -97,6 +99,8 @@ export const POST = withApiGuc(async (
       // Award points (idempotent per (pathway, step))
       awardPoints(user.id, 'pathway_step_completed', `${pathwayId}-${stepIdx}`).catch(() => {});
   
+      auditLog({ actorUserId: user.id, action: 'member.pathwayStep.complete', targetType: 'PathwayProgress', targetId: pathwayId }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'PathwayProgress', id: pathwayId }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ progress });
     } catch (err) {
       console.error('[POST pathway step complete]', err);

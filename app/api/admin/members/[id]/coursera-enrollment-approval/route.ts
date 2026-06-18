@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId, getSubjectOrganizationId } from '@/lib/tenant/organization';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -89,6 +90,14 @@ async function _PATCH(
       approved,
     },
   });
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: approved ? 'approved' : 'revoked',
+    object: { type: 'CourseraEnrollment', id: memberId },
+    result: { success: true, extensions: { approved } },
+    request: auditRequestMeta(request as Request),
+    orgId: actorOrgId,
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true, approved });
 

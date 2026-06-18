@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { syncOccupation, syncTopMappedOccupations } from '@/lib/onet/sync';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const bodySchema = z.object({
   onetCodes: z.array(z.string().min(1)).optional(),
@@ -35,6 +37,8 @@ export async function POST(request: NextRequest) {
 
   if (allMapped) {
     const { synced, errors } = await syncTopMappedOccupations();
+    void auditLog({ actorUserId: user.id, action: 'admin_onet_sync', targetType: 'User', targetId: user.id, metadata: { allMapped: true } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'OnetSync', id: user.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true, synced, errors });
   }
 
@@ -46,6 +50,8 @@ export async function POST(request: NextRequest) {
       if (r.ok) ok++;
       else if (r.error) errors.push(`${code}: ${r.error}`);
     }
+    void auditLog({ actorUserId: user.id, action: 'admin_onet_sync', targetType: 'User', targetId: user.id, metadata: { onetCodes: true } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'OnetSync', id: user.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true, synced: ok, errors });
   }
 

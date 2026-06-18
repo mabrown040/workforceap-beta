@@ -3,6 +3,8 @@ import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -10,7 +12,7 @@ import { logAuditEvent } from '@/lib/audit/log';
 
 const updateSchema = z.object({
   status: z.enum(['pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected']),
-  employerNotes: z.string().optional(),
+  employerNotes: z.string().max(5000).optional(),
   interviewScheduledAt: z.string().datetime().optional().nullable(),
 });export const PATCH = withApiGuc(async (
   request: NextRequest,
@@ -64,8 +66,20 @@ const updateSchema = z.object({
     data: updates,
   }));
 
-  auditLog({ actorUserId: user.id, action: 'employer_application_update', targetType: 'JobApplication', targetId: id }).catch(() => {});
-  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'JobApplication', id }, result: { success: true } }).catch(() => {});
+  auditLog({
+    actorUserId: user.id,
+    action: 'employer_application_updated',
+    targetType: 'User',
+    targetId: updated.studentId,
+    metadata: { applicationId: id, previousStatus: application.status, nextStatus: updated.status, employerId: ctx.employerId },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'employer' },
+    verb: 'updated',
+    object: { type: 'JobApplication', id },
+    result: { success: true, extensions: { previousStatus: application.status, nextStatus: updated.status } },
+  }).catch(() => {});
+
   return NextResponse.json({ ok: true, application: updated });
 
   } catch (error) {

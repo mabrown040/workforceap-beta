@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { benefitRequestSchema } from '@/lib/validation/benefitRequest';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const BENEFIT_COOLDOWN_DAYS = 30;export const POST = withApiGuc(async (request: Request) => {
   try {
@@ -73,6 +75,8 @@ const BENEFIT_COOLDOWN_DAYS = 30;export const POST = withApiGuc(async (request: 
     },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'member.benefit.request', targetType: 'BenefitRequest', targetId: req.id, metadata: { benefit } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'BenefitRequest', id: req.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ request: req, status: 'pending' });
 
   } catch (error) {

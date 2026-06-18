@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { awardPoints } from '@/lib/member/points';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async () => {
   try {
   const user = await getUser();
@@ -48,6 +50,8 @@ export const POST = withApiGuc(async () => {
   // Award points (idempotent — fixed entityId means only the first request awards)
   awardPoints(user.id, 'interview_requested', 'first-request').catch(() => {});
 
+  auditLog({ actorUserId: user.id, action: 'member.interviewRequest.create', targetType: 'InterviewRequest', targetId: user.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'InterviewRequest', id: user.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Failed to process interview request' }, { status: 500 });

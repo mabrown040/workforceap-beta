@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -31,6 +33,8 @@ const markRead = withApiGuc(async (_request: Request, { params }: Props) => {
       data: { readAt: new Date() },
     }));
 
+    auditLog({ actorUserId: user.id, action: 'member.notification.read', targetType: 'Notification', targetId: id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'Notification', id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({
       ok: true,
       notification: {

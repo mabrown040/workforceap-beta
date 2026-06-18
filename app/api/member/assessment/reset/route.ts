@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db/prisma';
 import { sendAssessmentResetNotificationEmail } from '@/lib/email';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async () => {
   try {
     const user = await getUser();
@@ -73,6 +75,8 @@ export const POST = withApiGuc(async () => {
       console.error('[assessment/reset] notification email failed', e);
     }
   
+    auditLog({ actorUserId: user.id, action: 'member.assessment.reset', targetType: 'AssessmentReset', targetId: user.id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'AssessmentReset', id: user.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true, message: 'Assessment reset. You can now retake from the dashboard.' });
   } catch (error) {
     console.error('/member/assessment/reset:', error);

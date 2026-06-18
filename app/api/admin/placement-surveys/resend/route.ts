@@ -5,7 +5,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { sendPlacementSurveyEmail } from '@/lib/email';
-
+import { auditLog } from '@/lib/audit';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';export const POST = withApiGuc(async (req: NextRequest) => {
@@ -87,6 +87,14 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
       where: { id: surveyId },
       data: { sentAt: new Date() },
     }));
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'admin_placement_survey_resend',
+      targetType: 'PlacementRecord',
+      targetId: placementId,
+      metadata: { surveyId, wave, targetUserId: placement.userId },
+    }).catch((err) => console.error('[audit] admin_placement_survey_resend:', err));
 
     return NextResponse.json({ success: true, surveyId, wave });
   } catch (error) {

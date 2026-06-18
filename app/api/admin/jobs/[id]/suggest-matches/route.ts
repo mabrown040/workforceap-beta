@@ -11,6 +11,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function recordSuggestAudit(input: {
   actorUserId: string;
@@ -229,6 +231,8 @@ async function recordSuggestAudit(input: {
       },
     });
 
+    void auditLog({ actorUserId: user.id, action: 'admin_job_match_suggestions_sent', targetType: 'User', targetId: user.id, metadata: { jobId: id, count: matchCount } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'JobMatchSuggestions', id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({
       ok: true,
       count: matchCount,

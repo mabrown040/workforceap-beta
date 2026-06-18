@@ -6,7 +6,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { READINESS_SECTIONS, getJobSiteItemKey } from '@/lib/content/readinessChecklist';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { auditLog } from '@/lib/audit';async function _GET(
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';async function _GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -193,6 +194,14 @@ export const GET = withApiGuc(_GET);async function _PATCH(
     select: { fullName: true },
   }));
   void auditLog({ actorUserId: user.id, action: 'member_readiness_update', targetType: 'user', targetId: userId, metadata: { itemKey } }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'updated',
+    object: { type: 'ReadinessChecklist', id: userId },
+    result: { success: true, extensions: { itemKey, completed } },
+    request: auditRequestMeta(request as Request),
+    orgId,
+  }).catch(() => {});
   return NextResponse.json({ ok: true, counselorName: dbUser?.fullName ?? (user.user_metadata?.full_name as string) ?? user.email });
 
   } catch (error) {

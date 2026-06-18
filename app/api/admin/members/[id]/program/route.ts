@@ -8,6 +8,7 @@ import { sendPartnerMilestoneEmail } from '@/lib/notifications/partner-notify';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 export const PATCH = withApiGuc(async (
@@ -96,6 +97,9 @@ export const PATCH = withApiGuc(async (
 
   // Invalidate cached member state so dashboard reflects program change immediately
   await invalidateMemberState(id);
+
+  auditLog({ actorUserId: user.id, action: 'admin_member_program_change', targetType: 'User', targetId: id, metadata: { programSlug, orgId } }).catch((err) => console.error('[audit] admin_member_program_change:', err));
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'User', id }, result: { success: true, extensions: { programSlug } }, request: auditRequestMeta(request), orgId }).catch((err) => console.error('[audit] admin_member_program_change xapi:', err));
 
   return NextResponse.json({ ok: true });
 

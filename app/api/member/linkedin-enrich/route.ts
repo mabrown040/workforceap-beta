@@ -5,6 +5,8 @@ import { assertPublicHttpUrl, UnsafeUrlError } from '@/lib/http/safeOutboundFetc
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { buildLinkedInEnrichmentInputSummary, findRecentLinkedInEnrichment } from './_linkedinEnrich';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 export const POST = withApiGuc(async (req: NextRequest) => {
   try {
@@ -59,6 +61,8 @@ export const POST = withApiGuc(async (req: NextRequest) => {
             skillCount = 0;
           }
 
+          auditLog({ actorUserId: user.id, action: 'member.linkedinEnrich.cached', targetType: 'LinkedInEnrichment', targetId: user.id }).catch(() => {});
+          logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'LinkedInEnrichment', id: user.id }, result: { success: true } }).catch(() => {});
           return NextResponse.json({
             success: true,
             source: 'cached',
@@ -107,6 +111,8 @@ export const POST = withApiGuc(async (req: NextRequest) => {
           },
         }));
   
+        auditLog({ actorUserId: user.id, action: 'member.linkedinEnrich.proxycurl', targetType: 'LinkedInEnrichment', targetId: user.id }).catch(() => {});
+        logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'LinkedInEnrichment', id: user.id }, result: { success: true } }).catch(() => {});
         return NextResponse.json({
           success: true,
           source: 'proxycurl',
@@ -120,6 +126,8 @@ export const POST = withApiGuc(async (req: NextRequest) => {
     }
   
     // No Proxycurl key — LinkedIn URL saved, enrichment skipped
+    auditLog({ actorUserId: user.id, action: 'member.linkedinEnrich.manualUrl', targetType: 'LinkedInEnrichment', targetId: user.id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'LinkedInEnrichment', id: user.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({
       success: true,
       source: 'manual_only',

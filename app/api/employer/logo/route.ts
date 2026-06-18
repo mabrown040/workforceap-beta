@@ -6,6 +6,8 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const BUCKET = 'employer-logos';
 const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: Request) => {
@@ -29,6 +31,8 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
   if (!['png', 'jpg', 'jpeg'].includes(ext)) {
     return NextResponse.json({ error: 'Use PNG or JPG only' }, { status: 400 });
   }
+  const MIME: Record<string, string> = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg' };
+  const contentType = MIME[ext] ?? 'image/png';
 
   const supabase = getSupabaseAdmin();
   const path = `${ctx.employerId}/logo.${ext}`;
@@ -36,7 +40,7 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
 
   const { error } = await supabase.storage.from(BUCKET).upload(path, arrayBuffer, {
     upsert: true,
-    contentType: file.type || 'image/png',
+    contentType,
   });
 
   if (error) {
@@ -51,6 +55,9 @@ const MAX_SIZE = 2 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     where: { id: ctx.employerId },
     data: { logoUrl: path },
   }));
+
+  auditLog({ actorUserId: user.id, action: 'employer_logo_uploaded', targetType: 'Employer', targetId: ctx.employerId, metadata: { path } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'uploaded', object: { type: 'EmployerLogo', id: ctx.employerId }, result: { success: true, extensions: { path } } }).catch(() => {});
 
   return NextResponse.json({ ok: true, logoUrl: resolveSupabasePublicAssetUrl(BUCKET, path) });
 

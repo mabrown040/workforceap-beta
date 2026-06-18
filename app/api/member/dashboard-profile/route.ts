@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { invalidateMemberState } from '@/lib/member/getMemberState';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { isValidPostalCode } from '@/lib/validation/postalCode';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const VALID_BARRIER_TYPES = [
   'justice_involved',
@@ -128,6 +130,8 @@ const updateSchema = z.object({
   // Invalidate cached member state so dashboard reflects changes immediately
   await invalidateMemberState(user.id);
 
+  auditLog({ actorUserId: user.id, action: 'member.dashboardProfile.update', targetType: 'DashboardProfile', targetId: user.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'DashboardProfile', id: user.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

@@ -357,18 +357,19 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
-## TODO-051: §H-DEP4 dual audit trails sweep 3 — members + outcomes routes — ✓ Fixed PR #1979
+## TODO-051: §H-DEP4 dual audit trails sweep 3 — members + outcomes routes — ✓ Fixed PR #1984 + #1985
 
-**What:** 7 violations:
-- `members/create`: `logAuditEvent` only (from #1946); added `auditLog`
-- `members/[id]/delete`: `logAuditEvent` only; added `auditLog`
-- `members/[id]/program`: dead import — no audit calls at all; added both
-- `members/[id]/reset-assessment`: `logAuditEvent` only; added `auditLog`
-- `outcomes/route`: `logAuditEvent` only; added `auditLog`
-- `outcomes/pdf`: `logAuditEvent` only + missing `orgId`; added `auditLog`, fixed `orgId`
-- `outcomes/snapshot`: `logAuditEvent` only; added `auditLog`
+**What:** 7 violations (split into 2 PRs due to locked-stake gate):
+- `members/create`: `logAuditEvent` only (from #1946); added `auditLog` → PR #1984
+- `members/[id]/program`: dead import — no audit calls at all; added both → PR #1984
+- `members/[id]/reset-assessment`: `logAuditEvent` only; added `auditLog` → PR #1984
+- `outcomes/route`: `logAuditEvent` only; added `auditLog` → PR #1984
+- `outcomes/pdf`: `logAuditEvent` only + missing `orgId`; added `auditLog`, fixed `orgId` → PR #1984
+- `outcomes/snapshot`: `logAuditEvent` only; added `auditLog` → PR #1984
+- `members/[id]/delete`: `logAuditEvent` only; added `auditLog` → PR #1985 (**locked stake — needs `stake-approved` label from Mike**)
 
-**Status:** Completed 2026-06-17. PR #1979 open / gate-merge pending.
+**Note:** Original PR #1979 closed — was blocked by `members/[id]/delete` locked-stake gate.
+**Status:** PR #1984 open / gate-merge pending. PR #1985 awaiting Mike's stake-approved label.
 
 ---
 

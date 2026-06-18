@@ -5,6 +5,7 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { getBoardSnapshot, BoardOutcomesPeriod, formatBoardSnapshotMarkdown } from '@/lib/admin/boardOutcomes';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { dataToCsv, csvDownloadResponse, exportFilename } from '@/lib/csv/export';
+import { auditLog } from '@/lib/audit';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 
 async function _GET(request: NextRequest) {
@@ -22,7 +23,7 @@ async function _GET(request: NextRequest) {
 
     const snapshot = await getBoardSnapshot(period, orgId ?? undefined);
 
-    // AUDIT: outcomes snapshot access
+    auditLog({ actorUserId: user.id, action: 'admin_outcomes_snapshot_view', targetType: 'OutcomesSnapshot', targetId: period, metadata: { orgId: orgId ?? null } }).catch((err) => console.error('[audit] admin_outcomes_snapshot_view:', err));
     await logAuditEvent({
       user: { id: user.id, role: 'admin' },
       verb: 'viewed',

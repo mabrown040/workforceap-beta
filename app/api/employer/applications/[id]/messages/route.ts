@@ -7,6 +7,8 @@ import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
 import { notifyDiscord } from '@/lib/notify/discord';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const messageSchema = z.object({
   body: z.string().min(1).max(5000),
@@ -138,6 +140,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest, {
       body: message.body,
       createdAt: message.createdAt.toISOString(),
       authorName: message.author?.fullName ?? 'User',
+  auditLog({ actorUserId: user.id, action: 'employer_application_message_send', targetType: 'ApplicationMessage', targetId: message.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'created', object: { type: 'ApplicationMessage', id: message.id }, result: { success: true } }).catch(() => {});
       isFromEmployer: true,
     },
   });
@@ -179,6 +183,8 @@ export const POST = withApiGuc(_POST);async function _PATCH(_request: NextReques
     data: { readAt: now },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'employer_application_messages_read', targetType: 'JobApplication', targetId: applicationId }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'JobApplication', id: applicationId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, readAt: now.toISOString() });
 
   } catch (error) {

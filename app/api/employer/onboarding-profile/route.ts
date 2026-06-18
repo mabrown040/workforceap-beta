@@ -5,6 +5,8 @@ import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const schema = z.object({
   companyName: z.string().min(1).max(200),
@@ -44,6 +46,8 @@ const schema = z.object({
     },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'employer_onboarding_profile_update', targetType: 'Employer', targetId: ctx.employerId }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'Employer', id: ctx.employerId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

@@ -10,6 +10,8 @@ import { normalizeMessageBody, serializeMessage } from '@/lib/messages/counselor
 import { checkMessageRateLimit } from '@/lib/messages/rateLimit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -90,6 +92,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     return m;
   });
 
+  auditLog({ actorUserId: user.id, action: 'employer_message_send', targetType: 'Message', targetId: msg.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'created', object: { type: 'Message', id: msg.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ message: serializeMessage(msg) });
 
   } catch (error) {
@@ -115,6 +119,8 @@ export const POST = withApiGuc(_POST);async function _PATCH() {
     data: { portalUserLastReadAt: now },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'employer_messages_read', targetType: 'MessageThread', targetId: thread.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'MessageThread', id: thread.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true, portalUserLastReadAt: now.toISOString() });
 
   } catch (error) {

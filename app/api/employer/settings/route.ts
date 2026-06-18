@@ -6,6 +6,8 @@ import { employerSettingsPatchSchema } from '@/lib/employer/employerSettingsSche
 import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const PATCH = withApiGuc(async (request: NextRequest) => {
   try {
   const user = await getUser();
@@ -44,6 +46,8 @@ export const PATCH = withApiGuc(async (request: NextRequest) => {
     },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'employer_settings_update', targetType: 'Employer', targetId: ctx.employerId }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'Employer', id: ctx.employerId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     id: updated.id,
     companyName: updated.companyName,

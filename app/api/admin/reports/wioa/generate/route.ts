@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { generateWioaReport, type WioaReport } from '@/lib/cron/wioa-report';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * In-memory store for the last generated WIOA report.
@@ -28,6 +30,8 @@ export async function POST(req: NextRequest) {
     const report = await generateWioaReport(period);
     lastReport = report;
 
+    void auditLog({ actorUserId: user.id, action: 'admin_wioa_report_generated', targetType: 'User', targetId: user.id, metadata: {} }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'WioaReport', id: user.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ success: true, report });
   } catch (error) {
     console.error('/api/admin/reports/wioa/generate POST error:', error);

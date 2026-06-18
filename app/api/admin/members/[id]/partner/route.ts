@@ -7,6 +7,8 @@ import { sendPartnerNewMemberAssignedEmail } from '@/lib/notifications/partner-n
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const patchSchema = z.object({
   /** Clear with null; empty string from forms coerces to null */
@@ -51,6 +53,8 @@ const patchSchema = z.object({
     try {
       if (!partnerId) {
         await prisma.$transaction((tx) => tx.partnerReferral.deleteMany({ where: { memberId } }));
+        void auditLog({ actorUserId: user.id, action: 'admin_member_partner_cleared', targetType: 'User', targetId: memberId, metadata: {} }).catch(() => {});
+        logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'deleted', object: { type: 'MemberPartnerAssignment', id: memberId }, result: { success: true } }).catch(() => {});
         return NextResponse.json({ ok: true });
       }
   
@@ -72,6 +76,8 @@ const patchSchema = z.object({
         console.error('[admin] Partner assignment saved; notification failed:', notifyErr);
       }
   
+      void auditLog({ actorUserId: user.id, action: 'admin_member_partner_assigned', targetType: 'User', targetId: memberId, metadata: { partnerId } }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'MemberPartnerAssignment', id: memberId }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ ok: true });
     } catch (e) {
       console.error('[admin] PATCH member partner:', e);

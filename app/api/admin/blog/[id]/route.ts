@@ -4,6 +4,8 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 export async function GET(
   _request: NextRequest,
@@ -80,6 +82,8 @@ export async function PATCH(
       data: update,
     }));
 
+    void auditLog({ actorUserId: user.id, action: 'admin_blog_post_updated', targetType: 'User', targetId: user.id, metadata: { postId: id } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'BlogPost', id }, result: { success: true } }).catch(() => {});
     return NextResponse.json(post);
   } catch (error) {
     console.error('[admin/blog/[id] PATCH] error:', error);
@@ -103,6 +107,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
     await prisma.$transaction((tx) => tx.blogPost.delete({ where: { id: id } }));
+    void auditLog({ actorUserId: user.id, action: 'admin_blog_post_deleted', targetType: 'User', targetId: user.id, metadata: { postId: id } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'deleted', object: { type: 'BlogPost', id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/blog/[id] DELETE] error:', error);

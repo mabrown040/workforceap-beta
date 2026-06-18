@@ -7,6 +7,8 @@ import { issuePlacementSurveyToken } from '@/lib/security/placementSurveyToken';
 import { sendPlacementSurveyEmail } from '@/lib/email';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';export const POST = withApiGuc(async (req: NextRequest) => {
   try {
@@ -88,6 +90,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.or
       data: { sentAt: new Date() },
     }));
 
+    void auditLog({ actorUserId: user.id, action: 'admin_placement_survey_resent', targetType: 'User', targetId: placement.userId, metadata: { placementId, surveyId, wave } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'PlacementSurveyResend', id: placement.userId }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ success: true, surveyId, wave });
   } catch (error) {
     console.error('/admin/placement-surveys/resend error:', error);

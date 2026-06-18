@@ -9,6 +9,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
   try {
   const user = await getUser();
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   if (!(await isAdmin(user.id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
@@ -136,6 +138,8 @@ const createBody = z.object({
     });
   });
 
+  void auditLog({ actorUserId: user.id, action: 'admin_counselor_created', targetType: 'User', targetId: userId, metadata: { affiliation: resolvedAffiliation } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Counselor', id: userId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

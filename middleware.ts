@@ -236,12 +236,19 @@ export async function middleware(request: NextRequest) {
 
   let user: User | null = null;
   if (needsValidatedUser) {
-    const {
-      data: { user: u },
-    } = await supabase.auth.getUser();
-    user = u;
+    try {
+      const {
+        data: { user: u },
+      } = await supabase.auth.getUser();
+      user = u;
+    } catch (error) {
+      console.error('[middleware] Supabase user validation failed:', error);
+      user = null;
+    }
   } else {
-    await supabase.auth.getSession();
+    await supabase.auth.getSession().catch((error) => {
+      console.error('[middleware] Supabase session refresh failed:', error);
+    });
   }
 
   // Forward verified user ID to Node runtime so SSR layouts / API routes

@@ -5,6 +5,8 @@ import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { completeCareerOsResumeActions } from '@/lib/workflows/completeCareerOsActions';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const BUCKET = 'member-resumes';
 const MAX_CHARS = 120_000;export const POST = withApiGuc(async (request: Request) => {
@@ -40,6 +42,8 @@ const MAX_CHARS = 120_000;export const POST = withApiGuc(async (request: Request
       });
     }
 
+    auditLog({ actorUserId: user.id, action: 'member.resume.savePlainText', targetType: 'Resume', targetId: user.id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'Resume', id: user.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true, path });
   } catch (e) {
     console.error('[member/resume/plain-text] error:', e);

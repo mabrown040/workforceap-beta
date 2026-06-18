@@ -7,6 +7,8 @@ import { awardPoints } from '@/lib/member/points';
 import { Buffer } from 'node:buffer';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /** Create bucket `member-resumes` in Supabase Dashboard → Storage if it does not exist (private bucket is fine). */
 const BUCKET = 'member-resumes';
@@ -67,6 +69,8 @@ const MAX_SIZE = 5 * 1024 * 1024;export const POST = withApiGuc(async (request: 
     // re-uploading the same or a new resume only awards once).
     awardPoints(user.id, 'resume_uploaded', 'first-upload').catch(() => {});
 
+    auditLog({ actorUserId: user.id, action: 'member.resume.upload', targetType: 'Resume', targetId: user.id }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'Resume', id: user.id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true, path });
   } catch (e) {
     console.error('Resume upload route error:', e);

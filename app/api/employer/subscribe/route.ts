@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { z } from 'zod';
 import Stripe from 'stripe';
 import { getUser } from '@/lib/auth/server';
@@ -88,6 +90,8 @@ async function _POST(req: NextRequest) {
     }),
   ]);
 
+  auditLog({ actorUserId: user.id, action: 'employer_subscribe', targetType: 'EmployerSubscription', targetId: subscription.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'created', object: { type: 'EmployerSubscription', id: subscription.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     subscriptionId: subscription.id,
     status: subscription.status,

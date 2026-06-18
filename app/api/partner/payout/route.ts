@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -149,6 +151,8 @@ async function _POST(request: NextRequest) {
       },
     });
 
+    auditLog({ actorUserId: user.id, action: 'partner_payout_sent', targetType: 'PlacementRecord', targetId: placementId, metadata: { partnerId, transferId: transfer.id, amountCents } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'PartnerPayout', id: transfer.id }, result: { success: true, extensions: { partnerId, placementId, amountCents } } }).catch(() => {});
     return NextResponse.json({
       transferId: transfer.id,
       amount: payoutAmount,

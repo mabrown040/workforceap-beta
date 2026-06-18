@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -44,6 +46,8 @@ export const PATCH = withApiGuc(async (request: NextRequest) => {
     },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'employer_settings_update', targetType: 'Employer', targetId: ctx.employerId }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'Employer', id: ctx.employerId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     id: updated.id,
     companyName: updated.companyName,

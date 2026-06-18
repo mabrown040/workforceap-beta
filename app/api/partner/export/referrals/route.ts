@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -121,6 +123,8 @@ function csvEscape(value: string): string {
     const csv = `${brandingHeader}\r\n${lines.join('\r\n')}`;
     const suffix = preset === 'outcomes' ? 'outcomes' : preset === 'demographics' ? 'demographics' : 'referrals';
   
+    auditLog({ actorUserId: user.id, action: 'partner_referrals_export', targetType: 'Partner', targetId: ctx.partnerId, metadata: { preset: preset ?? 'referrals', rows: pipelineMembers.length } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'partner' }, verb: 'exported', object: { type: 'PartnerReferralExport', id: ctx.partnerId }, result: { success: true, extensions: { preset: preset ?? 'referrals', rows: pipelineMembers.length } } }).catch(() => {});
     return new NextResponse(csv, {
       status: 200,
       headers: {

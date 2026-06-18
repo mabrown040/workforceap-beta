@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -68,6 +70,21 @@ async function _PATCH(
       where: { id },
       data: update,
     }));
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'admin_email_template_update',
+      targetType: 'EmailTemplate',
+      targetId: id,
+      metadata: { updatedFields: Object.keys(update) },
+    }).catch((err) => console.error('[email-templates/[id] PATCH] audit log failed:', err));
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'updated',
+      object: { type: 'EmailTemplate', id },
+      result: { success: true, extensions: { updatedFields: Object.keys(update) } },
+      request: auditRequestMeta(request),
+    }).catch((err) => console.error('[email-templates/[id] PATCH] xAPI audit log failed:', err));
 
     return NextResponse.json(template);
   } catch (error) {

@@ -7,6 +7,8 @@ import { parseXapiStatement, isXapiCompletionVerb, isXapiCourseProgressVerb } fr
 import { upsertCourseProgressFromXapiStatement } from '@/lib/member/courseProgress';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function requireAdminUser() {
   const user = await getUser();
@@ -167,6 +169,8 @@ async function runBackfill(email: string, actorId: string) {
   const completed = results.filter((r) => r.status === 'completed').length;
   const failed = results.filter((r) => r.status === 'error' || r.status === 'parse_failed').length;
 
+  void auditLog({ actorUserId: actorId, action: 'admin_coursera_backfill_xapi', targetType: 'User', targetId: member.id, metadata: { totalStatements: statements.length, progressUpdated, completed, failed } }).catch(() => {});
+  logAuditEvent({ user: { id: actorId, role: 'admin' }, verb: 'created', object: { type: 'CourseraXapiBackfill', id: member.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     ok: true,
     member: { id: member.id, email: member.email, fullName: member.fullName, program: member.enrolledProgram },

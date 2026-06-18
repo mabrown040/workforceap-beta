@@ -7,6 +7,7 @@ import { updateCoachMemory, type CoachTurn } from '@/lib/coach/memory';
 import { prisma } from '@/lib/db/prisma';
 import { sendVoiceInterviewTranscriptEmail } from '@/lib/email';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -105,7 +106,9 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-  
+    const { success: aiRateOk } = await checkAIToolRateLimit(user.id);
+    if (!aiRateOk) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+
     let body: HistoryBody;
     try {
       body = (await req.json()) as HistoryBody;

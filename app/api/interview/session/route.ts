@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
+import { checkVoiceSessionRateLimit, checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion } from '@/lib/ai/groq';
 import { cleanSpokenLine } from '@/lib/ai/postProcess';
 import { getElevenLabsAgentId, startElevenLabsPortalSession } from '@/lib/ai/elevenlabsAgents';
@@ -29,7 +29,9 @@ export const POST = withApiGuc(async (req: NextRequest) => {
         { status: 429, headers: { 'Retry-After': '3600' } }
       );
     }
-  
+    const { success: aiRateOk } = await checkAIToolRateLimit(user.id);
+    if (!aiRateOk) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+
     const body = await req.json() as {
       role: string;
       interviewType: string;

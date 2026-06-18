@@ -6,8 +6,10 @@ import { syncOccupation, syncTopMappedOccupations } from '@/lib/onet/sync';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 
+const MAX_ONET_CODES = 50;
+
 const bodySchema = z.object({
-  onetCodes: z.array(z.string().min(1)).optional(),
+  onetCodes: z.array(z.string().min(1)).max(MAX_ONET_CODES).optional(),
   allMapped: z.boolean().optional(),
 });
 

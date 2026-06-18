@@ -154,18 +154,20 @@ async function renderMemberDashboard(
     redirect('/login');
   }
 
-  // ── Auto-sync trigger (fire-and-await with 5s deadline; fail-soft) ──
+  // ── Auto-sync trigger (non-blocking; fail-soft) ──
   // First-visit members who have a Coursera identity mapping but zero local
-  // CourseProgress rows get their enrollment + xAPI seeded right here so the
-  // hero ring + "X of N courses" reflect real Coursera progress. Subsequent
-  // renders skip via the `users.last_coursera_auto_sync_at` dedupe.
-  // PR #1079 wired B4B real-time progress into /dashboard/learning; this
-  // closes the equivalent gap on the home page (#1079 only enriched the
-  // training page, so the home dashboard kept reading 0% from local rows
-  // for any never-synced learner). See lib/coursera/dashboardAutoSync.ts.
-  await maybeAutoSyncCourseraOnDashboard({
+  // CourseProgress rows get their enrollment + xAPI seeded. This used to be
+  // `await`ed here, but it makes live Coursera + DB calls and was a major
+  // contributor to the dashboard render exceeding Vercel's function timeout
+  // ("portal hit an unexpected error" / endless skeletons). Fire it without
+  // blocking the render: the dedupe (`users.last_coursera_auto_sync_at`) and
+  // the background cron still ensure it runs, and the seeded numbers appear on
+  // the next load instead of blocking this one. See lib/coursera/dashboardAutoSync.ts.
+  void maybeAutoSyncCourseraOnDashboard({
     userId: user.id,
     userEmail: user.email ?? null,
+  }).catch((err) => {
+    console.warn('[dashboard] background Coursera auto-sync failed:', err);
   });
 
   // ── Multi-program resolution ──
@@ -210,7 +212,20 @@ async function renderMemberDashboard(
         return new Map() as LearnerProgressByContent;
       })
     : Promise.resolve(new Map() as LearnerProgressByContent);
-  const b4bProgress = await b4bProgressPromise;
+  // Hard ceiling on the awaited B4B read. Each underlying request is already
+  // capped (b4bClient withAttemptTimeout), but the program lookup + per-program
+  // enrollment reports are additive, so bound the total here. On timeout we
+  // render with the local-rollup fallback (empty map); the promise above
+  // already maps errors to an empty map, so this only adds the timeout arm.
+  const b4bProgress = await Promise.race([
+    b4bProgressPromise,
+    new Promise<LearnerProgressByContent>((resolve) =>
+      setTimeout(() => {
+        console.warn('[dashboard] B4B learner progress exceeded 4s deadline — using local fallback');
+        resolve(new Map() as LearnerProgressByContent);
+      }, 4000),
+    ),
+  ]);
 
   // Single source of truth for member state (application, training, profile, checklist, next actions).
   // `b4bProgress` is threaded through so `trainingView.progressPercentDisplay`

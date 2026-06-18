@@ -12,15 +12,16 @@ import { getSupabaseEnv } from '@/lib/supabase/env';
 import { logger } from '@/lib/observability/logger';
 import { trackEvent } from '@/lib/events/track';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';
-export const POST = withApiGuc(async (request: Request) => {
+import { withAnonymousGuc } from '@/lib/db/withRequestGuc';
+
+async function handleLogin(request: Request) {
   try {
-  let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-  }
+    let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    }
 
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body?.password === 'string' ? body.password : '';
@@ -206,4 +207,8 @@ export const POST = withApiGuc(async (request: Request) => {
     logger.error('/auth/login error', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-});
+}
+
+export function POST(request: Request) {
+  return withAnonymousGuc(() => handleLogin(request));
+}

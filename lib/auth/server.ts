@@ -66,11 +66,16 @@ export async function createSupabaseServerClient() {
  */
 export async function getSession() {
   if (!hasSupabaseServerEnv()) return null;
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  return session;
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return session;
+  } catch (err) {
+    console.error('[auth:getSession] Supabase session read failed; treating request as signed out', err);
+    return null;
+  }
 }
 
 /**
@@ -80,11 +85,16 @@ export async function getSession() {
  */
 export const getUser = cache(async function getUser() {
   if (!hasSupabaseServerEnv()) return null;
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  } catch (err) {
+    console.error('[auth:getUser] Supabase user validation failed; treating request as signed out', err);
+    return null;
+  }
 });
 
 /**

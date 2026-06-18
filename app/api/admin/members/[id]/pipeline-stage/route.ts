@@ -6,6 +6,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { captureApiError } from '@/lib/observability/captureApiError';
 import type { PipelineBoardStage } from '@prisma/client';
+import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -62,6 +63,13 @@ async function _PATCH(
       }),
     );
 
+    auditLog({
+      actorUserId: user.id,
+      action: 'member_pipeline_stage_update',
+      targetType: 'User',
+      targetId: memberId,
+      metadata: { stage, orgId },
+    }).catch(() => {});
     logAuditEvent({
       user: { id: user.id, role: 'admin' },
       verb: 'update_pipeline_stage',

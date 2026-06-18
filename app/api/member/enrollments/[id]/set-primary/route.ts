@@ -4,6 +4,8 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (
   _request: Request,
   context: { params: Promise<{ id: string }> },
@@ -62,6 +64,8 @@ export const POST = withApiGuc(async (
     });
   });
 
+  auditLog({ actorUserId: user.id, action: 'member.enrollment.setPrimary', targetType: 'CourseEnrollment', targetId: enrollment.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'CourseEnrollment', id: enrollment.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     ok: true,
     enrollmentId: enrollment.id,

@@ -833,6 +833,23 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-088: Public contact form is broken on prod — every submission returns 429 (HIGH)
+
+**What:** `POST /api/contact` returns **429 "Too many submissions"** for *every* request on production — verified reproducible from 3 distinct client IPs on the first request (so it is not real per-IP rate limiting). Real users cannot submit the contact form at all.
+
+**Root cause:** The contact rate limiter is **fail-closed** when Upstash is not configured (`lib/rate-limit.ts`, by design — see the "Contact/confirmation remain fail-closed (spam risk)" comment). On prod, **Upstash is not configured** (`/api/health` reports `redis: skipped`), and `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1` is evidently set (the module's production fatal-guard did not crash the app). So the limiter instance is `null` → contact returns `{ success: false }` → 429 for everyone. By contrast `/api/auth/forgot-password` fails *open* and works (returns 400 on empty body). Turnstile captcha is also **off** on prod (no widget on `/en/contact`; `NEXT_PUBLIC_CAPTCHA_ENABLED` ≠ `true`), so there is no spam control active either way.
+
+**Why:** This is the org's primary "contact us" channel for prospective members/employers. It is silently dead — users fill the form and get a generic "too many submissions" error. No leads/inquiries arrive via the form.
+
+**How to fix (decision needed — infra/security posture):**
+1. **Preferred:** configure `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` on the prod Vercel project → the limiter works → form submits and stays spam-protected.
+2. Enable Turnstile (`NEXT_PUBLIC_CAPTCHA_ENABLED=true` + `TURNSTILE_SECRET_KEY`/site key) as the spam control, and let the contact limiter fail-open when captcha is on.
+3. (Weakest) make the contact limiter fail-open like signup/apply — accepts the spam risk the code deliberately guards against.
+
+**Found:** 2026-06-18, overnight QA loop (functional test of `/api/contact` validation). User-facing P1 — the public contact form does not work.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

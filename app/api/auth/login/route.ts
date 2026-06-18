@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { unstable_rethrow } from 'next/navigation';
 import { createServerClient } from '@supabase/ssr';
 import { normalizePostLoginRedirect, resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
@@ -204,6 +205,7 @@ async function handleLogin(request: Request) {
   return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);
 
   } catch (error) {
+    unstable_rethrow(error);
     logger.error('/auth/login error', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { checkVoiceSessionRateLimit } from '@/lib/rate-limit';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -37,6 +39,8 @@ export const POST = withApiGuc(async () => {
       const { signedUrl, expiresAt, dynamicVariables: returned } = await startElevenLabsPortalSession('employer', {
         dynamicVariables,
       });
+      auditLog({ actorUserId: user.id, action: 'employer_voice_session_start', targetType: 'VoiceSession', targetId: ctx.employerId }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'created', object: { type: 'VoiceSession', id: ctx.employerId }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         signedUrl,
         expiresAt,

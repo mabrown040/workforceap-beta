@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getXapiConfig, getXapiReadiness } from '@/lib/xapi/config';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import {
   _resetTokenCacheForTesting,
   getCourseGradebookReports,
@@ -388,7 +389,7 @@ function buildRecommendations(result: SelfTestResult): string[] {
   return recs;
 }
 
-export async function GET() {
+async function _GET() {
   try {
     const user = await requireAdmin();
     if (!user) {
@@ -551,3 +552,5 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const GET = withApiGuc(_GET);

@@ -6,6 +6,7 @@ import { getBindingSuggestions } from '@/lib/coursera/b4bBindingSuggestions.serv
 import { renderPatchHint } from '@/lib/coursera/b4bBindingSuggestions';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
  * GET /api/admin/coursera/b4b-bindings-suggestions
@@ -22,7 +23,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
  *
  * Auth: super_admin OR admin in the actor's org.
  */
-export async function GET() {
+async function _GET() {
   try {
     const actor = await getUser();
     if (!actor) {
@@ -65,3 +66,5 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const GET = withApiGuc(_GET);

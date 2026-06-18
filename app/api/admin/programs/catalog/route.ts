@@ -8,6 +8,7 @@ import { getProgramBySlug } from '@/lib/content/programs';
 import { seedOrganizationProgramCatalog } from '@/lib/platform/seedProgramCatalog';
 import { getCacheOrFetch, invalidateCache } from '@/lib/cache';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
@@ -138,6 +139,13 @@ async function _POST(request: NextRequest) {
       );
       await invalidateCache(`programs:list:${organizationId}*`);
       await invalidateCache(`courses:catalog:${organizationId}*`);
+      await auditLog({
+        actorUserId: user.id,
+        action: 'program_catalog_create',
+        targetType: 'organization_program_catalog',
+        targetId: row.id,
+        metadata: { programSlug: row.programSlug, name: row.name, status: row.status, organizationId },
+      });
       return NextResponse.json(row, { status: 201 });
     } catch (e: unknown) {
       const code = typeof e === 'object' && e && 'code' in e ? (e as { code: string }).code : '';
@@ -224,6 +232,13 @@ async function _PATCH(request: NextRequest) {
   
     await invalidateCache(`programs:list:${organizationId}*`);
     await invalidateCache(`courses:catalog:${organizationId}*`);
+    await auditLog({
+      actorUserId: user.id,
+      action: 'program_catalog_update',
+      targetType: 'organization_program_catalog',
+      targetId: id,
+      metadata: { programSlug: existing.programSlug, changes: Object.keys(rest), organizationId },
+    });
     return NextResponse.json(row);
   } catch (error) {
     console.error('/admin/programs/catalog:', error);

@@ -388,6 +388,31 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-056: §H-DEP4 dual audit trails for 5 counselor mutation routes — ✓ Fixed PR #1990
+
+**What:** 5 counselor routes performing state mutations had zero audit logging:
+- `counselor/members/[memberId]/award-points` POST: point award (financial mutation)
+- `counselor/placements` POST: placement record creation (employment data)
+- `counselor/members/[memberId]/notes` POST + DELETE: note create/delete (PII)
+- `counselor/members/[memberId]/session-notes` POST + DELETE: session note create/delete
+- `counselor/sessions/upload-resume` POST: resume file upload (PII mutation)
+
+**Fixed:** PR #1990. Fire-and-forget `auditLog` + `logAuditEvent` added to all mutation paths per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #1990 open / gate-merge pending.
+
+---
+
+## TODO-057: withApiGuc for admin/members/bulk-email — ✓ Fixed PR #1989
+
+**What:** `admin/members/bulk-email` POST was a bare `export async function` without `withApiGuc`. Route calls Prisma inside `$transaction` and `withTenantScope` without per-request GUC context.
+
+**Fixed:** PR #1989. Renamed to `_POST`, exported via `withApiGuc`.
+
+**Status:** Completed 2026-06-17. PR #1989 open / gate-merge pending.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

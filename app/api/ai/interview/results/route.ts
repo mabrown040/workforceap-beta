@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
+import { checkAIToolRateLimit } from '@/lib/rate-limit';
 import { chatCompletion, isAIConfigured } from '@/lib/ai/groq';
 import { loadCoachContextBlock } from '@/lib/ai/coachContextBlock';
 import { interviewSessions } from '../_sessionStore';
@@ -19,6 +20,14 @@ async function _GET(request: Request) {
       return NextResponse.json(
         { error: 'This feature is temporarily unavailable. Please try again soon.' },
         { status: 503 }
+      );
+    }
+
+    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
+    if (!withinLimit) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again in a few minutes.' },
+        { status: 429 }
       );
     }
 

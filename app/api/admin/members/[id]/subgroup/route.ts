@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
@@ -67,6 +68,7 @@ const postSchema = z.object({
     targetId: memberId,
     metadata: { subgroupId: parsed.data.subgroupId },
   }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'MemberSubgroup', id: memberId }, result: { success: true, extensions: { subgroupId: parsed.data.subgroupId, action: 'add' } } }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 
@@ -128,6 +130,7 @@ export const POST = withApiGuc(_POST);async function _DELETE(
     targetId: memberId,
     metadata: { subgroupId },
   }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'MemberSubgroup', id: memberId }, result: { success: true, extensions: { subgroupId, action: 'remove' } } }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 

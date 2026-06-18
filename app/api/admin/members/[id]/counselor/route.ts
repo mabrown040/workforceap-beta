@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logAuditEvent } from '@/lib/audit/log';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -108,6 +109,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
 
   void auditLog({ actorUserId: user.id, action: 'admin_member_counselor_assign', targetType: 'user', targetId: memberId, metadata: { counselorUserId: counselor.userId, counselorName: counselor.user.fullName } }).catch(() => {});
 
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'CounselorAssignment', id: memberId }, result: { success: true, extensions: { counselorUserId: counselor.userId } } }).catch(() => {});
   return NextResponse.json({
     ok: true,
     counselorName: counselor.user.fullName,

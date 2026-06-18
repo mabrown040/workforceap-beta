@@ -11,6 +11,8 @@ import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { parseGoalDescription } from '@/lib/member/goalSteps';
 import { suggestGoalsFromCareer } from '@/lib/member/suggestGoalsFromCareer';
 import type { CareerMatchResult } from '@/lib/onet/types';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const createSchema = z.object({
   goalType: z.string().min(1).max(100),
@@ -112,6 +114,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
         },
       }));
       await trackEvent({ userId: user.id, eventName: 'goal_created', entityType: 'goal', entityId: goal.id });
+      auditLog({ actorUserId: user.id, action: 'member.goal.create', targetType: 'Goal', targetId: goal.id }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'create', object: { type: 'Goal', id: goal.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ goal });
     } catch (err) {
       captureApiError(err, { route: 'member/goals POST' });

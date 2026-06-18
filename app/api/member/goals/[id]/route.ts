@@ -5,6 +5,8 @@ import { trackEvent } from '@/lib/events/track';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const updateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -59,6 +61,8 @@ const updateSchema = z.object({
     await trackEvent({ userId: user.id, eventName: 'goal_updated', entityType: 'goal', entityId: goal.id });
   }
 
+  auditLog({ actorUserId: user.id, action: 'member.goal.update', targetType: 'Goal', targetId: id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'update', object: { type: 'Goal', id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ goal });
 
   } catch (error) {
@@ -81,6 +85,8 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   await prisma.$transaction((tx) => tx.goal.delete({ where: { id } }));
+  auditLog({ actorUserId: user.id, action: 'member.goal.delete', targetType: 'Goal', targetId: id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'delete', object: { type: 'Goal', id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ success: true });
 
   } catch (error) {

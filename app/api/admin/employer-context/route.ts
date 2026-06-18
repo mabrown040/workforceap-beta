@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const bodySchema = z.object({
   employerId: z.string().uuid().nullable(),
@@ -68,6 +70,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       );
     }
 
+    void auditLog({ actorUserId: user.id, action: 'admin_employer_context_set', targetType: 'User', targetId: user.id, metadata: { employerId: employer.id } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'EmployerContext', id: employer.id }, result: { success: true } }).catch(() => {});
     store.set(SUPER_ADMIN_EMPLOYER_COOKIE, employer.id, cookieOpts);
     return NextResponse.json({ ok: true, employer: { id: employer.id, companyName: employer.companyName } });
   } catch (error) {

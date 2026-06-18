@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/server';
-import { requireAdmin } from '@/lib/auth/roles';
+import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
@@ -36,14 +37,22 @@ const patchSchema = z.object({
     return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Validation failed' }, { status: 400 });
   }
 
-  const subgroup = await prisma.$transaction((tx) => tx.subgroup.findUnique({ where: { id } }));
+  const superAdmin = await isSuperAdmin(user.id);
+  const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
+  const subgroup = await prisma.$transaction((tx) => tx.subgroup.findFirst({
+    where: { id, ...(orgId ? { leader: { organizationId: orgId } } : {}) },
+  }));
   if (!subgroup) return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
 
   const data: Record<string, unknown> = {};
   if (parsed.data.name != null) data.name = parsed.data.name;
   if (parsed.data.type != null) data.type = parsed.data.type;
   if (parsed.data.leaderId != null) {
-    const leader = await prisma.$transaction((tx) => tx.user.findUnique({ where: { id: parsed.data.leaderId }, select: { id: true } }));
+    const leader = await prisma.$transaction((tx) => tx.user.findFirst({
+      where: { id: parsed.data.leaderId, ...(orgId ? { organizationId: orgId } : {}) },
+      select: { id: true },
+    }));
     if (!leader) return NextResponse.json({ error: 'Leader user not found' }, { status: 400 });
     data.leaderId = parsed.data.leaderId;
   }
@@ -51,7 +60,9 @@ const patchSchema = z.object({
     data.partnerId = parsed.data.partnerId;
     if (parsed.data.partnerId && subgroup.type === 'partner') {
       const partnerId = parsed.data.partnerId;
-      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: partnerId, active: true } }));
+      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({
+        where: { id: partnerId, active: true, ...(orgId ? { organizationId: orgId } : {}) },
+      }));
       if (!partner) return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
     }
   }
@@ -95,7 +106,12 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
   }
 
   const { id } = await params;
-  const subgroup = await prisma.$transaction((tx) => tx.subgroup.findUnique({ where: { id } }));
+  const superAdmin = await isSuperAdmin(user.id);
+  const orgId = superAdmin ? null : await getActorOrganizationId(user.id).catch(() => null);
+
+  const subgroup = await prisma.$transaction((tx) => tx.subgroup.findFirst({
+    where: { id, ...(orgId ? { leader: { organizationId: orgId } } : {}) },
+  }));
   if (!subgroup) return NextResponse.json({ error: 'Subgroup not found' }, { status: 404 });
 
   await prisma.$transaction((tx) => tx.subgroup.delete({ where: { id } }));

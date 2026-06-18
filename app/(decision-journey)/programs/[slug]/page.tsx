@@ -19,6 +19,12 @@ import PreLaunchTag from '@/components/portal/PreLaunchTag';
 
 type Props = { params: Promise<{ slug: string }> };
 
+// Programs are a fixed, content-defined catalog (see generateStaticParams).
+// Disallow on-demand params so an unknown slug returns a real 404 at the
+// routing layer instead of a soft-404 (200 + not-found UI), which Google
+// would otherwise index.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return PROGRAMS.map((p) => ({ slug: p.slug }));
 }

@@ -103,7 +103,10 @@ function buildResponse(
   return {
     body: {
       status: overall,
-      version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'local',
+      // `||` (not `??`): an empty-string SHA must also fall back to 'local'.
+      // Recent prod deploys came through with VERCEL_GIT_COMMIT_SHA="" which
+      // `??` let pass as a blank version, breaking deploy correlation in /health.
+      version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'local',
       timestamp: new Date().toISOString(),
       checks: checksOut,
     },

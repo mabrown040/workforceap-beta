@@ -403,6 +403,46 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-085: §H-DEP4 dual audit trail — notifications + messages batch 27 — ✓ Fixed PR #2019
+
+**What:** 6 notification/messaging mutation routes: `notifications/dismiss-all` POST, `notifications/read-all` POST, `notifications/[id]/read` PUT+PATCH, `notifications/[id]` DELETE, `messages` POST (send), `messages` PATCH (mark-read).
+
+**Fixed:** PR #2019. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
+
+---
+
+## TODO-084: §H-DEP4 dual audit trail — activity tracking routes batch 26 — ✓ Fixed PR #2018
+
+**What:** 4 routes: `application-onboarding` PATCH, `pathway-steps/.../complete` POST, `resources/[id]/progress` POST, `pitch-deployments` POST.
+
+**Fixed:** PR #2018. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
+
+---
+
+## TODO-083: §H-DEP4 dual audit trail — compliance/profile routes batch 25 — ✓ Fixed PR #2017
+
+**What:** 6 routes: `eligibility` PATCH, `wioa-qualification` POST, `dashboard-profile` PATCH, `skill-assessment` POST, `feedback` POST, `learning-progress` POST.
+
+**Fixed:** PR #2017. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
+
+---
+
+## TODO-082: §H-DEP4 dual audit trail — member routes batch 24 — ✓ Fixed PR #2016
+
+**What:** 6 mutation handlers: `applications` POST, `applications/[id]` PATCH+DELETE, `assessment/reset` POST, `interview-request` POST, `program-change-request` POST.
+
+**Fixed:** PR #2016. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
+
+---
+
+## TODO-081: §H-DEP4 dual audit trail — member routes batch 23 + stragglers — ✓ Fixed PR #2015
+
+**What:** 5 member routes (enroll, set-primary, settings, benefits/request, pre-screening) + 5 admin straggler routes.
+
+**Fixed:** PR #2015. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
+
+---
+
 ## TODO-072: §H-DEP4 dual audit trail for member mgmt, blog, counselors, org routes (batch15) — ✓ Fixed PR #2007
 
 **What:** 12 admin routes (14 handlers) missing both audit calls:

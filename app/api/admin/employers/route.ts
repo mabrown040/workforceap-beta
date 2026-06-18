@@ -9,6 +9,7 @@ import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 1).
@@ -146,6 +147,14 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       targetId: parsed.data.userId,
       metadata: { companyName: parsed.data.companyName, contactEmail: parsed.data.contactEmail },
     });
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'created',
+      object: { type: 'Employer', id: employer.id },
+      result: { success: true, extensions: { userId: parsed.data.userId, companyName: parsed.data.companyName } },
+      request: auditRequestMeta(request),
+      orgId,
+    }).catch(() => {});
     return NextResponse.json(employer, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_NOT_FOUND') {

@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isEmployer } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getStripe, EMPLOYER_TIERS } from '@/lib/stripe/client';
+import { auditLog } from '@/lib/audit';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { z } from 'zod';
@@ -134,6 +135,13 @@ async function _POST(request: NextRequest) {
     });
 
     // Audit log
+    auditLog({
+      actorUserId: user.id,
+      action: 'employer_loi_submit',
+      targetType: 'EmployerHiringIntent',
+      targetId: hiringIntent.id,
+      metadata: { hiringCommitment: data.hiringCommitment, programCount: data.preferredPrograms.length },
+    }).catch(() => {});
     await logAuditEvent({
       user: { id: user.id },
       verb: 'submitted',

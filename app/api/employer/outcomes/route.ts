@@ -3,6 +3,7 @@ import { getUser } from '@/lib/auth/server';
 import { isEmployer } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { auditLog } from '@/lib/audit';
 import { logAuditEvent, auditRequestMeta } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -102,6 +103,13 @@ async function _GET(request: NextRequest) {
     }
 
     // Audit log
+    auditLog({
+      actorUserId: user.id,
+      action: 'employer_outcomes_view',
+      targetType: 'Employer',
+      targetId: employerProfile.id,
+      metadata: { orgId },
+    }).catch(() => {});
     await logAuditEvent({
       user: { id: user.id },
       verb: 'viewed',

@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
@@ -57,7 +58,7 @@ async function _POST(
     // tenants' cascades by guessing UUIDs.
     const cascade = await prisma.milestoneCascade.findFirst({
       where: { id, ...(await resolveCascadeUserFilter(user.id)) },
-      select: { id: true, userId: true, status: true },
+      select: { id: true, userId: true, status: true, user: { select: { organizationId: true } } },
     });
     if (!cascade) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     if (cascade.status !== 'awaiting_approval') {
@@ -91,6 +92,14 @@ async function _POST(
       targetId: id,
       metadata: { targetUserId: cascade.userId, reason },
     }).catch((err) => console.error('[milestone-cascade] auditLog failed:', err));
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'dismissed',
+      object: { type: 'MilestoneCascade', id },
+      result: { success: true, extensions: { reason, targetUserId: cascade.userId } },
+      request: auditRequestMeta(req),
+      orgId: cascade.user?.organizationId ?? undefined,
+    }).catch(() => {});
 
     trackEvent({
       userId: cascade.userId,

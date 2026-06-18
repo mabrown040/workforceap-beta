@@ -9,6 +9,7 @@ import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 2).
@@ -200,6 +201,14 @@ const patchSchema = z.object({
       targetType: 'partner',
       targetId: partnerId,
       metadata: {},
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'updated',
+      object: { type: 'Partner', id: partnerId },
+      result: { success: true },
+      request: auditRequestMeta(request),
+      orgId,
     }).catch(() => {});
     return NextResponse.json(updated);
   } catch (error) {

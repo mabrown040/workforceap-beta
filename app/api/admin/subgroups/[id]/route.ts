@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 const SUBGROUP_TYPES = ['partner', 'manager', 'church'] as const;
 
@@ -72,6 +73,13 @@ const patchSchema = z.object({
     targetId: id,
     metadata: { name: updated.name },
   });
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'updated',
+    object: { type: 'Subgroup', id },
+    result: { success: true, extensions: { name: updated.name } },
+    request: auditRequestMeta(request),
+  }).catch(() => {});
   return NextResponse.json(updated);
 
   } catch (error) {
@@ -80,7 +88,7 @@ const patchSchema = z.object({
   }
 }
 export const PATCH = withApiGuc(_PATCH);async function _DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -104,6 +112,13 @@ export const PATCH = withApiGuc(_PATCH);async function _DELETE(
     targetId: id,
     metadata: { name: subgroup.name },
   });
+  logAuditEvent({
+    user: { id: user.id, role: 'admin' },
+    verb: 'deleted',
+    object: { type: 'Subgroup', id },
+    result: { success: true, extensions: { name: subgroup.name } },
+    request: auditRequestMeta(request),
+  }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

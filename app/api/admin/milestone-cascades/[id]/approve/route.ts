@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { auditLog } from '@/lib/audit';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 import { prisma } from '@/lib/db/prisma';
 import { trackEvent } from '@/lib/events/track';
 
@@ -209,6 +210,14 @@ async function _POST(
         advisoryCount: dispatchResult.advisoryCount,
       },
     }).catch((err) => console.error('[milestone-cascade] auditLog failed:', err));
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'approved',
+      object: { type: 'MilestoneCascade', id },
+      result: { success: true, extensions: { emailsSent: dispatchResult.emailsSent, targetUserId: cascade.userId } },
+      request: auditRequestMeta(req),
+      orgId: cascade.user?.organizationId ?? undefined,
+    }).catch(() => {});
 
     trackEvent({
       userId: cascade.userId,

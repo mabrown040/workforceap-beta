@@ -301,6 +301,22 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-052: §H-DEP4 dual audit trails sweep 4 — milestone/placements/employers/partners/subgroups/employer — ✓ Fixed PR #1980
+
+**What:** 8 routes with mismatched audit trails:
+- `admin/milestone-cascades/[id]/approve`: `auditLog` only → added `logAuditEvent`
+- `admin/milestone-cascades/[id]/dismiss`: `auditLog` only → added `logAuditEvent`; also added `user.organizationId` to cascade select for orgId
+- `admin/placements`: `auditLog` only (POST create + PATCH update) → added `logAuditEvent` for both
+- `admin/employers`: `auditLog` only → added `logAuditEvent`
+- `admin/partners/[id]`: `auditLog` only → added `logAuditEvent`
+- `admin/subgroups/[id]`: `auditLog` only (PATCH + DELETE) → added `logAuditEvent` for both; renamed `_request` to `request` in DELETE
+- `employer/loi`: `logAuditEvent` only → added `auditLog`
+- `employer/outcomes`: `logAuditEvent` only → added `auditLog`
+
+**Status:** Completed 2026-06-17. PR #1980 open / gate-merge pending.
+
+---
+
 ## TODO-051: §H-DEP4 dual audit trails sweep 3 — members + outcomes routes — ✓ Fixed PR #1979
 
 **What:** 7 violations:

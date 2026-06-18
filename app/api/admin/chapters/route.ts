@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -79,6 +80,7 @@ async function _POST(request: NextRequest) {
 
     void auditLog({ actorUserId: user.id, action: 'admin_chapter_create', targetType: 'chapter', targetId: chapter.id, metadata: { name: chapter.name } }).catch(() => {});
 
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Chapter', id: chapter.id }, result: { success: true, extensions: { name: chapter.name } } }).catch(() => {});
     return NextResponse.json(chapter, { status: 201 });
   } catch (error) {
     console.error('/admin/chapters POST error:', error);

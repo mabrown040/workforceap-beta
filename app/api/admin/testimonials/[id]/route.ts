@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -140,6 +141,7 @@ async function _PATCH(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     void auditLog({ actorUserId: user.id, action: 'testimonial_status_update', targetType: 'testimonial', targetId: id, metadata: { status: updated.status } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'Testimonial', id }, result: { success: true, extensions: { status: updated.status } } }).catch(() => {});
     return NextResponse.json({ testimonial: updated });
   } catch (error) {
     console.error('[admin/testimonials/[id] PATCH] error:', error);
@@ -175,6 +177,7 @@ async function _DELETE(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     void auditLog({ actorUserId: user.id, action: 'testimonial_delete', targetType: 'testimonial', targetId: id, metadata: {} }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'deleted', object: { type: 'Testimonial', id }, result: { success: true } }).catch(() => {});
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('[admin/testimonials/[id] DELETE] error:', error);

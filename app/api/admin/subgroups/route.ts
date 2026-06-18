@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
@@ -112,6 +114,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       _count: { select: { members: true } },
     },
   }));
+  auditLog({ actorUserId: user.id, action: 'admin_subgroup_create', targetType: 'Subgroup', targetId: subgroup.id, metadata: { name: subgroup.name, type: subgroup.type } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Subgroup', id: subgroup.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json(subgroup, { status: 201 });
 
   } catch (error) {

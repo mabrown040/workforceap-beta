@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logAuditEvent } from '@/lib/audit/log';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -79,6 +80,7 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: NextRequest) 
   }));
 
   void auditLog({ actorUserId: user.id, action: 'admin_org_settings_update', targetType: 'organization', targetId: org.id, metadata: { ...parsed.data } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'Organization', id: org.id }, result: { success: true } }).catch(() => {});
 
   return NextResponse.json({
     ...org,

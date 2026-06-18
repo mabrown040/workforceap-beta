@@ -16,9 +16,6 @@ async function _POST(request: Request) {
     if (!isAIConfigured())
       return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
 
-    const { success: withinLimit } = await checkAIToolRateLimit(user.id);
-    if (!withinLimit) return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
-
     let body: unknown;
     try {
       body = await request.json();

@@ -10,6 +10,8 @@ import { recordPartnerWorkflowEvent } from '@/lib/portal/workflowEvents';
 import { checkAdminInviteRateLimit } from '@/lib/rate-limit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceap.org';
 
@@ -98,6 +100,9 @@ const schema = z.object({
     } catch (error) {
       console.error('[POST /api/partner/invitations] post-send tracking failed', error);
     }
+
+    auditLog({ actorUserId: user.id, action: 'partner_invitation_sent', targetType: 'User', targetId: user.id, metadata: { partnerId: ctx.partnerId, inviteeEmail: parsed.data.email } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'partner' }, verb: 'invited', object: { type: 'PartnerInvitation', id: ctx.partnerId }, result: { success: true, extensions: { inviteeEmail: parsed.data.email } } }).catch(() => {});
 
     return NextResponse.json({
       ok: true,

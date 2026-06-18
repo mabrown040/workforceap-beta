@@ -7,7 +7,6 @@ import { executeMemberMerge, buildMergePreview } from '@/lib/admin/memberMerge';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
-import { auditLog } from '@/lib/audit';
 
 // Verifies both members involved in a merge belong to the same tenant
 // AND that the requesting admin can act on that tenant. Without this,

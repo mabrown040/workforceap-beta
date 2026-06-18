@@ -7,8 +7,6 @@ import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { auditLog } from '@/lib/audit';
-import { logAuditEvent } from '@/lib/audit/log';
 
 const updateSchema = z.object({
   status: z.enum(['pending', 'reviewing', 'interview', 'offered', 'hired', 'rejected']),

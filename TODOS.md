@@ -277,6 +277,16 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-048: withApiGuc for admin/blog/[id] GET/PATCH/DELETE — ✓ Fixed PR #1976
+
+**What:** `admin/blog/[id]/route.ts` imported `withApiGuc` but all three handlers (GET, PATCH, DELETE) used bare `export async function`. `isAdmin()` queries Prisma — missing GUC context breaks FORCE RLS.
+
+**Fixed:** Renamed handlers to `_GET`/`_PATCH`/`_DELETE`, exported each via `withApiGuc`. PR #1976.
+
+**Status:** Completed 2026-06-17. PR #1976 open / gate-merge pending.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

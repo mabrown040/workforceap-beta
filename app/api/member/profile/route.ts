@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
@@ -100,6 +102,8 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
   }));
 
   if (!updated) return NextResponse.json({ error: 'Profile update failed' }, { status: 500 });
+  auditLog({ actorUserId: user.id, action: 'member_profile_update', targetType: 'User', targetId: user.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'member' }, verb: 'updated', object: { type: 'Profile', id: user.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     user: {
       id: updated.id,

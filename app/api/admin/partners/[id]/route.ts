@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logAuditEvent } from '@/lib/audit/log';
 import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
@@ -201,6 +202,7 @@ const patchSchema = z.object({
       targetId: partnerId,
       metadata: {},
     }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'Partner', id: partnerId }, result: { success: true } }).catch(() => {});
     return NextResponse.json(updated);
   } catch (error) {
     console.error('/admin/partners/[id]:', error);

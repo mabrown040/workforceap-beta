@@ -1,4 +1,6 @@
 import { randomUUID } from 'crypto';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
@@ -166,6 +168,8 @@ const createSchema = z.object({
         };
       });
   
+      auditLog({ actorUserId: admin.id, action: 'admin_user_create', targetType: 'User', targetId: created.id, metadata: { email, role: created.role } }).catch(() => {});
+      logAuditEvent({ user: { id: admin.id, role: 'admin' }, verb: 'created', object: { type: 'User', id: created.id }, result: { success: true, extensions: { role: created.role } } }).catch(() => {});
       if (sendResetEmail) {
         const { error } = await sendPasswordResetEmail(email, '/reset-password', { orgId: organizationId });
         if (error) {

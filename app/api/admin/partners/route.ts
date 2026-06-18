@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -104,6 +106,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       const partner = await withTenantScope(orgId, (db) =>
         db.partner.create({ data: { ...rest, referralCode, organizationId: orgId } }),
       );
+      auditLog({ actorUserId: user.id, action: 'admin_partner_create', targetType: 'Partner', targetId: partner.id, metadata: { name: partner.name, slug: partner.slug } }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Partner', id: partner.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json(partner, { status: 201 });
     } catch (error) {
       // Belt-and-braces: catch the unique-constraint race that the

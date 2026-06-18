@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logAuditEvent } from '@/lib/audit/log';
 import { Prisma } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
 import { isAdminInOrg } from '@/lib/auth/roles';
@@ -146,6 +147,7 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       targetId: parsed.data.userId,
       metadata: { companyName: parsed.data.companyName, contactEmail: parsed.data.contactEmail },
     });
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Employer', id: employer.id }, result: { success: true, extensions: { userId: parsed.data.userId } } }).catch(() => {});
     return NextResponse.json(employer, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message === 'USER_NOT_FOUND') {

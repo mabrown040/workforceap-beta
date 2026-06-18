@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logAuditEvent } from '@/lib/audit/log';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -80,6 +81,7 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     metadata: { fundingSource: d.fundingSource ?? null, workspaceEmailProvisioned: d.workspaceEmailProvisioned ?? false, orgId },
   }).catch((err) => console.error('[audit] admin_enrollment_funding_update:', err));
 
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'EnrollmentFunding', id: memberId }, result: { success: true, extensions: { fundingSource: d.fundingSource ?? null } } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

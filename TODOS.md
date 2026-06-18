@@ -403,6 +403,14 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-086: §H-DEP4 dual audit trail — member AI/file routes batch 28 — ✓ Fixed PR #2020
+
+**What:** 5 AI/file mutation routes (8 injection points): `resume/upload`, `resume/plain-text`, `resume/generate` (primary+fallback), `linkedin-enrich` (3 paths), `voice-interview/transcript`. Completes member self-service audit sweep.
+
+**Fixed:** PR #2020. **Status:** Completed 2026-06-17. PR open / gate-merge pending.
+
+---
+
 ## TODO-085: §H-DEP4 dual audit trail — notifications + messages batch 27 — ✓ Fixed PR #2019
 
 **What:** 6 notification/messaging mutation routes: `notifications/dismiss-all` POST, `notifications/read-all` POST, `notifications/[id]/read` PUT+PATCH, `notifications/[id]` DELETE, `messages` POST (send), `messages` PATCH (mark-read).

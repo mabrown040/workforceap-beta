@@ -413,6 +413,18 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-059: §H-DEP4 audit trails — employer/partner routes batch 3 — ✓ Fixed PR #1993
+
+**What:** 6 more employer/partner routes missing §H-DEP4 dual audit trail. `employer/loi` already had `logAuditEvent` but was missing `auditLog`.
+
+**Routes fixed:** `employer/applications/[id]` PATCH, `employer/jobs/[id]/applicants` PATCH, `employer/onboarding-profile` PATCH, `employer/loi` POST, `partner/referrals` POST, `partner/connect` POST.
+
+**Fixed:** PR #1993.
+
+**Status:** Completed 2026-06-17. PR #1993 open / gate-merge pending.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

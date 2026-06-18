@@ -819,6 +819,20 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-087: Redundant `/api/auth/me` fetches on every authed page load
+
+**What:** A single authed page load (verified on `/en/admin`, reproducible) fires `/api/auth/me` **4 times** and `/api/member/notifications` **2 times** — each `auth/me` a separate 0.47–1.2s round-trip. Multiple client components/providers appear to each fetch the current user independently instead of sharing one cached result.
+
+**Why:** Every authenticated page in the app pays 3–4× the auth latency and DB load it should. At ~0.5–1.2s per call this is a meaningful chunk of perceived load time and multiplies backend `auth/me` traffic across all roles. (Also: an *admin* page is calling the *member* notifications endpoint twice — likely a second, unrelated layout-scoping bug to confirm.)
+
+**How to fix:** De-duplicate via a single shared client auth context / SWR (or React Query) key for `auth/me` so all consumers read one in-flight request + cache, rather than each mounting its own fetch. Audit which components mount `auth/me` and `member/notifications` on the admin layout.
+
+**Pros:** Cuts authed-page latency and backend auth traffic 3–4×; single source of truth for client-side current-user. **Cons:** Touches shared layout/provider wiring; needs care to not regress auth-state freshness after login/logout/role-switch.
+
+**Found:** 2026-06-18, overnight QA loop (gstack network sweep of `/admin/metrics` and `/admin`). Not user-breaking (pages render 200) — perf/architecture debt.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

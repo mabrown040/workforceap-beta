@@ -403,6 +403,19 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-061: §H-DEP4 audit sweep — deferred routes (voice-session, webhook, import)
+
+**What:** 5 employer/partner routes intentionally deferred from the §H-DEP4 audit sweep:
+- `employer/voice-session` POST — complex real-time state machine, skip for now
+- `partner/voice-session` POST — complex real-time state machine, skip for now
+- `employer/webhook` POST — Stripe system events (no actor), not applicable
+- `employer/jobs/import` POST — 334-line complex batch importer
+- `employer/jobs/import-bulk` POST — 337-line complex batch importer
+
+**Status:** Deferred. All standard employer/partner mutation routes covered in PRs #1992–1996.
+
+---
+
 ## TODO-060: §H-DEP4 dual audit trails employer/partner routes batch 6 — ✓ Fixed PR #1996
 
 **What:** 4 routes missing both `auditLog` + `logAuditEvent` calls:

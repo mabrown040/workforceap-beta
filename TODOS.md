@@ -403,6 +403,23 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-079: §H-DEP4 dual audit trail — member self-service routes batch 22 + admin stragglers — ✓ Fixed PR #2014
+
+**What:** 7 member self-service mutation routes + 9 admin member routes that were staged but uncommitted:
+- `member/job-applications` POST — `member.jobApplication.create`
+- `member/job-applications/[id]` PATCH — `member.jobApplication.update`
+- `member/courses/complete` POST — `member.course.complete`
+- `member/goals` POST — `member.goal.create`
+- `member/goals/[id]` PATCH+DELETE — `member.goal.update` / `member.goal.delete`
+- `member/nba/[id]` PATCH — `member.nba.dismiss`
+- Admin stragglers: `coursera-enrollment-approval`, `export-data`, `pipeline-stage`, `readiness`, `reset-password`, `wioa-review`, `workspace-email`, `bulk-export`, `merge`
+
+**Fixed:** PR #2014.
+
+**Status:** Completed 2026-06-17. PR #2014 open / gate-merge pending.
+
+---
+
 ## TODO-072: §H-DEP4 dual audit trail for member mgmt, blog, counselors, org routes (batch15) — ✓ Fixed PR #2007
 
 **What:** 12 admin routes (14 handlers) missing both audit calls:

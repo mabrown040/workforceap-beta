@@ -23,7 +23,7 @@ function getClientIp(request: NextRequest): string {
 
 const statusSchema = z.object({
   status: z.enum(['PENDING', 'APPROVED', 'DENIED', 'NEEDS_INFO']),
-  notes: z.string().optional(),
+  notes: z.string().max(2000).optional(),
 });
 
 function resolveApplicationStatusVerb(status: ApplicationStatus): string {

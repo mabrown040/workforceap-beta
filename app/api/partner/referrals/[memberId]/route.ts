@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { recordPartnerWorkflowEvent } from '@/lib/portal/workflowEvents';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const patchSchema = z.object({
   assignedPartnerUserId: z.string().uuid().nullable(),
@@ -62,6 +64,9 @@ const patchSchema = z.object({
     entityType: 'PartnerReferral',
     entityId: referral.id,
   });
+
+  auditLog({ actorUserId: user.id, action: 'partner_referral_assigned', targetType: 'User', targetId: memberId, metadata: { partnerId: partnerCtx.partnerId, referralId: referral.id, assignedPartnerUserId } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'partner' }, verb: 'updated', object: { type: 'PartnerReferral', id: referral.id }, result: { success: true, extensions: { assignedPartnerUserId } } }).catch(() => {});
 
   return NextResponse.json({ ok: true, assignedPartnerUserId, assignedToName: assignee?.fullName ?? null });
 

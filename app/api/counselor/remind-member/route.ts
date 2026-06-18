@@ -5,6 +5,8 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getSubjectOrganizationId } from "@/lib/tenant/organization";
 import { assertStaffCanAccessMemberRecord } from '@/lib/counselor/staffMemberAccess';
 import { sendInactiveNudgeEmail } from '@/lib/email';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 export const POST = withApiGuc(async (request: Request) => {
@@ -62,6 +64,20 @@ export const POST = withApiGuc(async (request: Request) => {
       NOW()
     )
   `;
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'counselor_remind_member',
+    targetType: 'User',
+    targetId: memberId,
+    metadata: { daysInactive, emailDelivered: emailResult.ok },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'counselor' },
+    verb: 'reminded',
+    object: { type: 'User', id: memberId },
+    result: { success: emailResult.ok, extensions: { daysInactive } },
+  }).catch(() => {});
 
   if (!emailResult.ok) {
     return NextResponse.json(

@@ -16,6 +16,8 @@ import {
 } from '@/lib/counselor/nudgeTemplates';
 import { getProgramBySlug } from '@/lib/content/programs';
 
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
 /**
@@ -119,6 +121,20 @@ const VALID_TEMPLATE_IDS: NudgeTemplateId[] = ['check_in', 'stalled_step', 'mile
 
     return created;
   });
+
+  auditLog({
+    actorUserId: user.id,
+    action: 'counselor_nudge_sent',
+    targetType: 'User',
+    targetId: memberId,
+    metadata: { templateId, messageId: message.id },
+  }).catch(() => {});
+  logAuditEvent({
+    user: { id: user.id, role: 'counselor' },
+    verb: 'nudged',
+    object: { type: 'CounselorMessage', id: message.id },
+    result: { success: true, extensions: { templateId, memberId } },
+  }).catch(() => {});
 
   return NextResponse.json({
     ok: true,

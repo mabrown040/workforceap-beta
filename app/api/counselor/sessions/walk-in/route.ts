@@ -10,6 +10,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { withTenantScope, crossTenantOK } from '@/lib/tenant/withTenantScope';
 import { trackEvent } from '@/lib/events/track';
 import { findSupabaseAuthUserByEmail } from '@/lib/auth/supabaseAdminUsers';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -293,7 +295,22 @@ const walkInSchema = z.object({
       },
       sessionId,
     }).catch(() => {});
-  
+
+    auditLog({
+      actorUserId: user.id,
+      action: 'counselor_walk_in_member_created',
+      targetType: 'User',
+      targetId: authUser.id,
+      metadata: { email: authUser.email, orgId: organizationId, targetRole: targetRole || null },
+    }).catch(() => {});
+    logAuditEvent({
+      user: { id: user.id, role: 'counselor' },
+      verb: 'created',
+      object: { type: 'User', id: authUser.id },
+      result: { success: true, extensions: { via: 'walk-in-session', targetRole: targetRole || null } },
+      orgId: organizationId,
+    }).catch(() => {});
+
     return NextResponse.json({
       memberId: authUser.id,
       sessionId,

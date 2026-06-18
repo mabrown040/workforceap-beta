@@ -4,6 +4,8 @@ import { syncCourseraB4BEnrollmentReports } from '@/lib/coursera/b4bSync';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 async function requireAdminUser() {
   const user = await getUser();
@@ -28,6 +30,8 @@ export async function POST() {
   
     try {
       const result = await syncCourseraB4BEnrollmentReports();
+      void auditLog({ actorUserId: user.id, action: 'admin_coursera_sync_b4b_triggered', targetType: 'User', targetId: user.id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraSyncB4BTrigger', id: user.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({ ok: true, result });
     } catch (err) {
       captureApiError(err, { route: 'admin/coursera/sync-b4b' });

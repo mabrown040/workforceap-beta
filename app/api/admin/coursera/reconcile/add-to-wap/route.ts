@@ -15,6 +15,8 @@ import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { backfillUserIdForCourseraEmail } from '@/lib/coursera/csvImport.server';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/admin/coursera/reconcile/add-to-wap
@@ -307,6 +309,8 @@ const bodySchema = z.object({
         }).catch(() => { /* already logged inside */ });
       }
 
+      void auditLog({ actorUserId: user.id, action: 'admin_coursera_reconcile_add_to_wap', targetType: 'User', targetId: result.id, metadata: {} }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'CourseraReconcileWapUser', id: result.id }, result: { success: true } }).catch(() => {});
       return NextResponse.json({
         ok: true,
         userId: result.id,

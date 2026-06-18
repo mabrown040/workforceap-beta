@@ -34,12 +34,12 @@ export const GET = withApiGuc(_GET);
 
 // POST: Create a new job application
 const createApplicationSchema = z.object({
-  role: z.string().min(1, 'Job title is required'),
-  company: z.string().min(1, 'Company is required'),
+  role: z.string().min(1, 'Job title is required').max(200),
+  company: z.string().min(1, 'Company is required').max(200),
   appliedAt: z.string().datetime().nullable(),
   source: z.enum(['INDEED', 'LINKEDIN', 'DIRECT', 'OTHER']).default('OTHER'),
   nextInterviewDate: z.string().datetime().nullable().optional(),
-  notes: z.string().optional().nullable(),
+  notes: z.string().max(2000).optional().nullable(),
   status: z.enum(['SAVED', 'APPLIED', 'PHONE_SCREEN', 'INTERVIEWING', 'OFFER', 'ACCEPTED', 'REJECTED']).default('APPLIED'),
 });async function _POST(request: NextRequest) {
   try {

@@ -104,10 +104,10 @@ function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
         if (legacyData.notes !== undefined) data.notes = legacyData.notes || null;
       } else {
         if (typeof maybeBody?.role === 'string' && maybeBody.role.trim().length > 0) {
-          data.role = maybeBody.role.trim();
+          data.role = maybeBody.role.trim().slice(0, 200);
         }
         if (typeof maybeBody?.company === 'string' && maybeBody.company.trim().length > 0) {
-          data.company = maybeBody.company.trim();
+          data.company = maybeBody.company.trim().slice(0, 200);
         }
         if ('appliedAt' in (maybeBody ?? {})) {
           if (maybeBody?.appliedAt === null) {
@@ -130,7 +130,7 @@ function parseStatus(rawStatus: unknown): JobApplicationDbStatus | undefined {
         }
         if ('notes' in (maybeBody ?? {})) {
           if (typeof maybeBody?.notes === 'string') {
-            data.notes = maybeBody.notes;
+            data.notes = maybeBody.notes.slice(0, 2000);
           } else if (maybeBody?.notes === null) {
             data.notes = null;
           }

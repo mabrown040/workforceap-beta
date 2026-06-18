@@ -19,7 +19,9 @@ const schema = z.object({
   workforceAssistance: z.boolean(),
   phone: z.string().trim().min(10).max(50),
   address: z.string().trim().min(5).max(500),
-});async function _GET() {
+});
+
+async function _GET() {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -34,7 +36,9 @@ const schema = z.object({
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-export const GET = withApiGuc(_GET);async function _POST(request: Request) {
+export const GET = withApiGuc(_GET);
+
+async function _POST(request: Request) {
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -43,7 +47,10 @@ export const GET = withApiGuc(_GET);async function _POST(request: Request) {
     where: { id: user.id },
     select: { assessmentCompleted: true },
   }));
-  if (!dbUser?.assessmentCompleted) {
+  if (!dbUser) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+  if (!dbUser.assessmentCompleted) {
     return NextResponse.json({ error: 'Complete your assessment first.' }, { status: 400 });
   }
 

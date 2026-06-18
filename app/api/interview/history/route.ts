@@ -115,11 +115,6 @@ export const GET = withApiGuc(_GET);async function _POST(req: NextRequest) {
     } catch {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
-  
-    const rateLimitResult = await checkAIToolRateLimit(user.id);
-    if (!rateLimitResult.ok) {
-      return NextResponse.json({ error: 'Rate limit exceeded. Please try again in an hour.' }, { status: 429 });
-    }
 
     const role = (body.role?.trim() ?? '').slice(0, 200);
     const interviewTypeRaw = body.interviewType?.trim().toLowerCase() ?? '';

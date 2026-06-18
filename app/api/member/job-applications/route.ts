@@ -7,10 +7,11 @@ import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { findRecentAiToolsForApplicationFeedback } from '@/lib/member/applicationAiFeedback';
 import { awardPoints } from '@/lib/member/points';
-
-import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
+
+async function _GET() {
   try {
     const user = await getUser();
     if (!user?.id) {

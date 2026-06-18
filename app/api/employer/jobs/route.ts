@@ -9,7 +9,6 @@ import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { trackEvent } from '@/lib/events/track';
 import { withTenantScope } from '@/lib/tenant/withTenantScope';
-import { invalidateJobListings } from '@/lib/jobs/listingCache';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 import { auditLog } from '@/lib/audit';
@@ -147,15 +146,11 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
     const eventName =
       parsed.data.status === 'pending'
         ? 'employer_job_submitted_for_review'
-        : parsed.data.status === 'live'
-          ? 'employer_job_posted_live'
-          : 'employer_job_draft_saved';
+        : 'employer_job_draft_saved';
     const sourcePage =
       parsed.data.status === 'pending'
         ? '/employer/jobs/new?submit=review'
-        : parsed.data.status === 'live'
-          ? '/employer/jobs/post'
-          : '/employer/jobs/new';
+        : '/employer/jobs/new';
 
     await trackEvent({
       userId: user.id,
@@ -165,11 +160,6 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       metadata: { isCreate: true, status: parsed.data.status },
       sourcePage,
     });
-
-    // Invalidate public job listings cache when a job is posted live
-    if (parsed.data.status === 'live') {
-      await invalidateJobListings().catch(() => {});
-    }
 
     auditLog({ actorUserId: user.id, action: 'employer_job_created', targetType: 'Job', targetId: job.id, metadata: { employerId: ctx.employerId, status: job.status, title: job.title } }).catch(() => {});
     logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'created', object: { type: 'Job', id: job.id }, result: { success: true, extensions: { status: job.status } } }).catch(() => {});

@@ -8,8 +8,6 @@ import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { auditLog } from '@/lib/audit';
-import { logAuditEvent } from '@/lib/audit/log';
 
 const createSchema = z.object({
   programSlug: z.string().min(1).max(120),

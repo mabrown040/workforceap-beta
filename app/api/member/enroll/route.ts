@@ -14,7 +14,6 @@ import { MEMBER_REFERRAL_COOKIE, rewardReferralOnEnrollment } from '@/lib/member
 import { auditLog } from '@/lib/audit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
-import { auditLog } from '@/lib/audit';
 import { logAuditEvent } from '@/lib/audit/log';
 export const POST = withApiGuc(async (request: Request) => {
   try {

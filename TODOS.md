@@ -403,6 +403,35 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-059: §H-DEP4 dual audit trails employer/partner routes batch 5 — ✓ Fixed PR #1995
+
+**What:** 4 employer/partner routes missing both `auditLog` + `logAuditEvent` fire-and-forget calls:
+- `employer/logo` POST (logo upload)
+- `partner/onboarding-profile` PATCH (profile update)
+- `partner/invitations` POST (invitation sent)
+- `partner/settings/notifications` PATCH (notification prefs update)
+
+**Fixed:** PR #1995. All 4 routes emit both audit trails per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #1995 open / gate-merge pending.
+
+---
+
+## TODO-058: §H-DEP4 dual audit trails employer/partner message routes batch 4 — ✓ Fixed PR #1994
+
+**What:** 5 employer/partner routes missing both audit calls:
+- `employer/messages` POST (message send)
+- `partner/messages` POST (message send)
+- `partner/outreach` POST (outreach log)
+- `employer/hiring-intents` POST (hiring intent create)
+- `employer/applications/[id]/messages` POST (application message)
+
+**Fixed:** PR #1994. All 5 mutation paths emit both `auditLog` + `logAuditEvent` fire-and-forget per §H-DEP4. Mark-read PATCH handlers intentionally excluded (bookkeeping-only).
+
+**Status:** Completed 2026-06-17. PR #1994 open / gate-merge pending.
+
+---
+
 ## TODO-057: withApiGuc for admin/members/bulk-email — ✓ Fixed PR #1989
 
 **What:** `admin/members/bulk-email` POST was a bare `export async function` without `withApiGuc`. Route calls Prisma inside `$transaction` and `withTenantScope` without per-request GUC context.

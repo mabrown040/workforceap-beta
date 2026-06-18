@@ -100,34 +100,9 @@ function createPrismaClient(): PrismaClient {
       return next(params);
     }
 
-    const explicitCtx = getGucContext();
-    let ctx: GucContext | undefined = explicitCtx ?? undefined;
+    const ctx = getGucContext();
 
-    // Lazy-resolve from the authenticated session when no explicit ALS context
-    // is active. This covers server components (RSC pages) whose Prisma calls
-    // fall outside the root layout's gucContextStorage.run() scope — see #1611.
-    //
-    // `resolveAuthGucContext` uses React `cache()`, so it is one Supabase +
-    // one DB round-trip per request, deduplicated across all RSC queries.
-    // Outside a React request (crons, build-time) `getUser()` returns null and
-    // falls through to ANONYMOUS_GUC_CONTEXT without throwing.
-    //
-    // Dynamic import avoids a circular dependency: lib/auth/server.ts imports
-    // `prisma` from this file, so a static import would cycle at init time.
-    if (!ctx) {
-      try {
-        const { resolveAuthGucContext } = await import('../auth/server');
-        ctx = await resolveAuthGucContext();
-      } catch {
-        // anonymous fallback — same as before this change
-      }
-    }
-
-    // Only warn for EXPLICITLY-set GUC contexts not wrapped in $transaction.
-    // Lazily-resolved RSC contexts use per-query set_config and don't require
-    // $transaction wrapping (RLS enforcement is not yet forced — see comment
-    // on requiresExplicitTransactionForGucContext).
-    if (requiresExplicitTransactionForGucContext(explicitCtx, inTransaction)) {
+    if (requiresExplicitTransactionForGucContext(ctx, inTransaction)) {
       // FAIL-OPEN (P0 hotfix): #1631 made this throw, which 500'd every
       // withApiGuc route still using bare prisma calls — including
       // /api/auth/login — for ~24h in prod. RLS is enabled but NOT forced
@@ -143,6 +118,16 @@ function createPrismaClient(): PrismaClient {
       );
     }
 
+    // Development-only warning when queries run outside any GUC context.
+    // In production we silently fall back to anonymous so the site stays up.
+    if (!ctx && process.env.NODE_ENV === 'development') {
+      console.warn(
+        `[prisma:guc] Query "${params.model ?? 'raw'}.${params.action}" ran without an active GUC context. ` +
+          `Wrap the call site in withApiGuc(), withAuthGuc(), runWithGucContext(), or ensure ` +
+          `the root layout gucContextStorage.run() is active.`
+      );
+    }
+
     const sql = buildGucSql(ctx ?? { userId: null, orgId: null, role: 'anonymous' });
     await (client as any).$executeRawUnsafe(sql);
 
@@ -155,19 +140,9 @@ function createPrismaClient(): PrismaClient {
    */
   const originalTransaction = client.$transaction.bind(client) as any;
   (client as any).$transaction = async function (...args: unknown[]) {
-    let ctx = getGucContext();
+    const ctx = getGucContext();
     if (!ctx) {
-      // Lazy-resolve for RSC pages (same as the middleware above). If that
-      // also returns null/anonymous, fall through to no-GUC transaction.
-      try {
-        const { resolveAuthGucContext } = await import('../auth/server');
-        ctx = await resolveAuthGucContext();
-      } catch {
-        // fall through
-      }
-    }
-    if (!ctx || ctx.role === 'anonymous') {
-      // No auth context (or anonymous) — fall back to the original behaviour.
+      // No auth context — fall back to the original behaviour.
       return inTransactionStorage.run(true, () => originalTransaction(...args));
     }
 

@@ -39,7 +39,7 @@ export const POST = withApiGuc(async (request: Request) => {
   // one IP gets a fresh bucket per email. `checkAuthIpRateLimit` caps
   // the total auth attempts from any single IP regardless of which
   // email is being tried.
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = getClientIpFromRequest(request);
   const rateLimitKey = `login:${ip}:${email.toLowerCase()}`;
   const [emailBucket, ipBucket] = await Promise.all([
     checkAuthRateLimit(rateLimitKey, request),

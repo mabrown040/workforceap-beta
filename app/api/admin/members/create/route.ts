@@ -10,6 +10,7 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { trackEvent } from '@/lib/events/track';
 import { sendPasswordResetEmail } from '@/lib/auth/passwordReset';
 import { maybeSendCourseKickoffEmail } from '@/lib/coursera/courseKickoff';
+import { auditRequestMeta, logAuditEvent } from '@/lib/audit/log';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -53,7 +54,7 @@ const ETHNICITY_OPTIONS = [
     const householdIncome = typeof o.householdIncome === 'string' && INCOME_OPTIONS.includes(o.householdIncome) ? o.householdIncome : undefined;
     const educationLevel = typeof o.educationLevel === 'string' && EDUCATION_OPTIONS.includes(o.educationLevel) ? o.educationLevel : undefined;
     const referralSource = typeof o.referralSource === 'string' && REFERRAL_OPTIONS.includes(o.referralSource) ? o.referralSource : undefined;
-    const notes = typeof o.notes === 'string' ? o.notes.trim() : undefined;
+    const notes = typeof o.notes === 'string' ? o.notes.trim().slice(0, 5000) : undefined;
     const usCitizen = o.usCitizen === true || o.usCitizen === 'true';
     const authorizedToWork = o.authorizedToWork === true || o.authorizedToWork === 'true';
     const hasDisability = o.hasDisability === true || o.hasDisability === 'true';
@@ -85,15 +86,18 @@ const ETHNICITY_OPTIONS = [
     if (!program) {
       return NextResponse.json({ error: 'Invalid program' }, { status: 400 });
     }
-  
+
+    // Fetch org early so FK lookups can be tenant-scoped (AUDIT §C-T8).
+    const organizationId = await getActorOrganizationId(user.id);
+
     if (partnerId) {
-      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: partnerId, active: true } }));
+      const partner = await prisma.$transaction((tx) => tx.partner.findFirst({ where: { id: partnerId, active: true, organizationId } }));
       if (!partner) {
         return NextResponse.json({ error: 'Invalid or inactive partner' }, { status: 400 });
       }
     }
     if (subgroupId) {
-      const subgroup = await prisma.$transaction((tx) => tx.subgroup.findUnique({ where: { id: subgroupId } }));
+      const subgroup = await prisma.$transaction((tx) => tx.subgroup.findFirst({ where: { id: subgroupId, leader: { organizationId } } }));
       if (!subgroup) {
         return NextResponse.json({ error: 'Invalid subgroup' }, { status: 400 });
       }
@@ -136,16 +140,13 @@ const ETHNICITY_OPTIONS = [
       // Optionally trigger password reset so user can set their own.
       // Track E (Sprint E.1 PR 2) — pass orgId so the reset link uses the
       // member's tenant domain instead of the platform default.
-      const orgIdForReset = await getActorOrganizationId(user.id);
-      await sendPasswordResetEmail(email, '/reset-password', { orgId: orgIdForReset });
+      await sendPasswordResetEmail(email, '/reset-password', { orgId: organizationId });
     }
   
     if (!authUser) {
       return NextResponse.json({ error: 'Account creation failed' }, { status: 500 });
     }
-  
-    const organizationId = await getActorOrganizationId(user.id);
-  
+
     let createdEnrollmentId: string | null = null;
     try {
       await prisma.$transaction(async (tx) => {
@@ -246,6 +247,15 @@ const ETHNICITY_OPTIONS = [
       return NextResponse.json({ error: 'Failed to create member. Please try again.' }, { status: 500 });
     }
   
+    logAuditEvent({
+      user: { id: user.id, role: 'admin' },
+      verb: 'create_member',
+      object: { type: 'User', id: authUser.id },
+      result: { success: true, extensions: { email, programSlug } },
+      request: auditRequestMeta(request),
+      orgId: organizationId,
+    }).catch((err) => console.error('[audit] create_member:', err));
+
     sendPartnerMilestoneEmail(authUser.id, 'Program enrollment', {
       Program: program.title,
     }).catch((err) => console.error('Partner milestone email failed:', err));

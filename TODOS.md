@@ -108,6 +108,18 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-027: admin/members/create — tenant-scope partner/subgroup FKs + notes cap + audit log ✓ Fixed PR #1946
+
+**What:** `app/api/admin/members/create/route.ts` validated `partnerId` and `subgroupId` without scoping them to the actor's organization — an Org A admin could attach an Org B partner or subgroup to a newly-created member. Also: `notes` had no length cap. No audit log for member creation.
+
+**Fix:** Fetched `organizationId` early; added `organizationId` filter to partner lookup and `leader.organizationId` filter to subgroup lookup; capped `notes` at 5000 chars; added `logAuditEvent` for `create_member`. PR #1946.
+
+**Priority:** P1 (cross-tenant FK association)
+
+**Status:** Fixed 2026-06-17.
+
+---
+
 ## TODO-008: Waitlist API — enable after Prisma migration
 
 **What:** `app/api/waitlist/route.ts` has the handler stubbed out with two `// TODO: Re-enable after Prisma schema migration` comments. The `ProgramWaitlist` model needs to be added to the Prisma schema and a migration committed.

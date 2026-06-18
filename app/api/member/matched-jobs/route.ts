@@ -35,7 +35,7 @@ export const GET = withApiGuc(async () => {
       },
     }));
   
-    if (!dbUser) return NextResponse.json({ jobs: [] });
+    if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 });
   
     // Fetch live jobs only (limit to avoid full-table scan)
     const jobs = await prisma.$transaction((tx) => tx.job.findMany({

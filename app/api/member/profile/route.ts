@@ -99,16 +99,15 @@ export const GET = withApiGuc(_GET);async function _PATCH(request: Request) {
     include: { profile: true },
   }));
 
+  if (!updated) return NextResponse.json({ error: 'Profile update failed' }, { status: 500 });
   return NextResponse.json({
-    user: updated
-      ? {
-          id: updated.id,
-          email: updated.email,
-          fullName: updated.fullName,
-          phone: updated.phone,
-        }
-      : null,
-    profile: updated?.profile
+    user: {
+      id: updated.id,
+      email: updated.email,
+      fullName: updated.fullName,
+      phone: updated.phone,
+    },
+    profile: updated.profile
       ? {
           address: updated.profile.address,
           city: updated.profile.city,

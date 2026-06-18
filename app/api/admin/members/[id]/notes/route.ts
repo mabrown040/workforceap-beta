@@ -6,6 +6,7 @@ import { withTenantScope } from '@/lib/tenant/withTenantScope';
 import { getActorOrganizationId } from "@/lib/tenant/organization";
 import { z } from 'zod';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { auditLog } from '@/lib/audit';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
 
@@ -78,6 +79,13 @@ export const GET = withApiGuc(_GET);async function _POST(
       data: { memberId: id, authorId: user.id, content: parsed.data.content },
       include: { author: { select: { fullName: true, email: true } } },
     }));
+    void auditLog({
+      actorUserId: user.id,
+      action: 'admin_counselor_note_create',
+      targetType: 'user',
+      targetId: id,
+      metadata: { noteId: note.id, contentLength: parsed.data.content.length },
+    }).catch(() => {});
     return NextResponse.json(note, { status: 201 });
   } catch (error) {
     captureApiError(error, { route: 'admin/members/[id]/notes POST' });

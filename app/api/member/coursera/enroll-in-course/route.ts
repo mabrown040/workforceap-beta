@@ -21,6 +21,7 @@ import {
 } from '@/lib/coursera/enrollState';
 import { captureApiError } from '@/lib/observability/captureApiError';
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * POST /api/member/coursera/enroll-in-course
@@ -303,6 +304,15 @@ async function writeEnrollAudit(actorUserId: string, event: EnrollAuditEvent): P
         : {}),
     },
   });
+  logAuditEvent({
+    user: { id: actorUserId, role: 'member' },
+    verb: event.action,
+    object: { type: 'CourseraEnrollment', id: actorUserId },
+    result: {
+      success: true,
+      extensions: { step: event.step, programId: event.programId, contentId: event.contentId },
+    },
+  }).catch(() => {});
 }
 
 /**

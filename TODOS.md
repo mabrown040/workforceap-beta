@@ -368,8 +368,8 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 - `outcomes/snapshot`: `logAuditEvent` only; added `auditLog` → PR #1984
 - `members/[id]/delete`: `logAuditEvent` only; added `auditLog` → PR #1985 (**locked stake — needs `stake-approved` label from Mike**)
 
-**Note:** Original PR #1979 closed — was blocked by `members/[id]/delete` locked-stake gate.
-**Status:** PR #1984 open / gate-merge pending. PR #1985 awaiting Mike's stake-approved label.
+**Note:** PRs #1979 (original), #1984, #1985 closed (wrong split). Correct split: `program/route.ts` is the only locked stake (not `delete/route.ts`).
+**Status:** PR #1986 open / gate-merge pending. PR #1987 awaiting Mike's `stake-approved` label (program/route.ts is locked).
 
 ---
 

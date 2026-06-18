@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { z } from 'zod';
 import type { JobStatusEnum } from '@prisma/client';
 import { getUser } from '@/lib/auth/server';
@@ -80,6 +82,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
       return NextResponse.json({ error: 'One or more jobs changed status. Refresh and try again.' }, { status: 409 });
     }
 
+    auditLog({ actorUserId: user.id, action: 'employer_jobs_bulk_close', targetType: 'Employer', targetId: ctx.employerId, metadata: { count: result.count } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'Employer', id: ctx.employerId }, result: { success: true, extensions: { count: result.count, action: 'bulk_close' } } }).catch(() => {});
     return NextResponse.json({
       closed: result.count,
       titles: candidates.map((c) => c.title),
@@ -116,6 +120,8 @@ export const POST = withApiGuc(async (request: NextRequest) => {
     return NextResponse.json({ error: 'One or more jobs changed status. Refresh and try again.' }, { status: 409 });
   }
 
+  auditLog({ actorUserId: user.id, action: 'employer_jobs_bulk_delete', targetType: 'Employer', targetId: ctx.employerId, metadata: { count: result.count } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'deleted', object: { type: 'Employer', id: ctx.employerId }, result: { success: true, extensions: { count: result.count, action: 'bulk_delete' } } }).catch(() => {});
   return NextResponse.json({
     deleted: result.count,
     titles: candidates.map((c) => c.title),

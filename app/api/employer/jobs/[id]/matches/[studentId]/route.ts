@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 import { z } from 'zod';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser } from '@/lib/auth/roles';
@@ -51,6 +53,8 @@ const patchSchema = z.object({
     },
   }));
 
+  auditLog({ actorUserId: user.id, action: 'employer_job_match_update', targetType: 'AIJobMatch', targetId: match.id }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'employer' }, verb: 'updated', object: { type: 'AIJobMatch', id: match.id }, result: { success: true } }).catch(() => {});
   return NextResponse.json(updated);
 
   } catch (error) {

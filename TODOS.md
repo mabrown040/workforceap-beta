@@ -850,6 +850,27 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-089: Soft-404 on all dynamic content routes (programs, blog) — returns 200, not 404
+
+**What:** Unknown slugs on rewrite-served dynamic routes return **HTTP 200** with a "Page not found" / "That program page is not available." UI instead of a real **404**. Verified on prod: `/en/programs/<bogus>` → 200, `/en/blog/<bogus>` → 200 (both `x-matched-path: /programs/[slug]` etc., `x-vercel-cache: MISS` — not a cache artifact). True top-level unknown routes (`/en/foo`) correctly 404 via `/_not-found`.
+
+**Why:** Soft-404s let Google index unlimited junk URLs as real pages, diluting crawl budget and SEO. (User-facing impact is low — the not-found UI renders fine.)
+
+**Root cause:** i18n is done via `middleware.ts` `NextResponse.rewrite()` (strips the locale prefix: `/en/programs/x` → `/programs/x`), NOT a `[locale]` route segment. For rewritten requests, Next does not enforce the dynamic-route 404 gate, and `notFound()` called inside the page renders the not-found boundary but with a **200** status (the 404 isn't propagated back through the rewrite).
+
+**Attempted + did NOT work:** PR #2057 set `export const dynamicParams = false` on `programs/[slug]`. It's harmless (valid programs still prerender) and semantically fine, but it does **not** fix the soft-404 — the middleware rewrite bypasses the static-params gate, so unknown slugs still render with 200. Confirmed on prod after deploy. **The soft-404 is still open.**
+
+**How to fix (needs real investigation — don't guess again):**
+1. Handle not-found status at the middleware layer — e.g. for known dynamic prefixes, validate the slug against the catalog before rewriting and `NextResponse.rewrite` to the not-found route / return a 404, or
+2. Migrate i18n from middleware-rewrite to a `[locale]` route segment (bigger change; makes `dynamicParams=false` + `notFound()` behave correctly), or
+3. Investigate next-intl's recommended pattern for propagating `notFound()` 404 status through the rewrite (version-specific).
+
+Affects: `app/(decision-journey)/programs/[slug]`, `app/blog/[slug]` (and any other rewrite-served dynamic route).
+
+**Found:** 2026-06-18, overnight QA loop (404-handling check). SEO hygiene, P2.
+
+---
+
 ## Completed
 
 - **TODO-017: ai/interview/results missing rate limit + withApiGuc** — rate limit + GUC wrapper added. Completed 2026-06-17. PR #1868.

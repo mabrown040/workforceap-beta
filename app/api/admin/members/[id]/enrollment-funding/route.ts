@@ -7,6 +7,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { FundingSource } from '@prisma/client';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { logAuditEvent } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 
 const bodySchema = z.object({
   fundingSource: z.nativeEnum(FundingSource).optional().nullable(),
@@ -72,6 +74,8 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     },
   }));
 
+  void auditLog({ actorUserId: user.id, action: 'admin_enrollment_funding_updated', targetType: 'User', targetId: memberId, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'EnrollmentFunding', id: memberId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

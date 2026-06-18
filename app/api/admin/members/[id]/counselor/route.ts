@@ -9,6 +9,8 @@ import { createNotification } from '@/lib/notifications/create';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { logAuditEvent } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 
 const bodySchema = z.object({
   counselorUserId: z.string().uuid(),
@@ -105,6 +107,8 @@ type Props = { params: Promise<{ id: string }> };export const POST = withApiGuc(
     data: { counselorId: counselor.id, counselorUserId: counselor.userId, threadId: thread.id },
   });
 
+  void auditLog({ actorUserId: user.id, action: 'admin_counselor_assigned', targetType: 'User', targetId: memberId, metadata: { counselorUserId: parsed.data.counselorUserId } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'CounselorAssignment', id: memberId }, result: { success: true, extensions: { counselorUserId: parsed.data.counselorUserId } } }).catch(() => {});
   return NextResponse.json({
     ok: true,
     counselorName: counselor.user.fullName,

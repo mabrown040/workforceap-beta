@@ -7,6 +7,8 @@ import { withTenantScope, counselorInOrg, assertSameTenant } from '@/lib/tenant/
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';async function _GET() {
+import { logAuditEvent } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
   try {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -136,6 +138,8 @@ const createBody = z.object({
     });
   });
 
+  void auditLog({ actorUserId: user.id, action: 'admin_counselor_created', targetType: 'User', targetId: parsed.data.userId, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Counselor', id: parsed.data.userId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

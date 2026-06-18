@@ -6,6 +6,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { logAuditEvent } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 
 const postSchema = z.object({
   subgroupId: z.string().uuid(),
@@ -59,6 +61,8 @@ const postSchema = z.object({
     },
   }));
 
+  void auditLog({ actorUserId: user.id, action: 'admin_member_subgroup_added', targetType: 'User', targetId: memberId, metadata: { subgroupId: parsed.data.subgroupId } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'MemberSubgroup', id: memberId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {
@@ -112,6 +116,8 @@ export const POST = withApiGuc(_POST);async function _DELETE(
     return NextResponse.json({ error: 'Member not in this subgroup' }, { status: 404 });
   }
 
+  void auditLog({ actorUserId: user.id, action: 'admin_member_subgroup_removed', targetType: 'User', targetId: memberId, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'deleted', object: { type: 'MemberSubgroup', id: memberId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({ ok: true });
 
   } catch (error) {

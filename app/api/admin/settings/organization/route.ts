@@ -7,6 +7,8 @@ import { resolveSupabasePublicAssetUrl } from '@/lib/storage/publicAssetUrl';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { logAuditEvent } from '@/lib/audit/log';
+import { auditLog } from '@/lib/audit';
 
 const hexColor = z
   .string()
@@ -37,6 +39,8 @@ const patchSchema = z.object({
     },
   }));
   if (!org) return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
+  void auditLog({ actorUserId: user.id, action: 'admin_org_settings_updated', targetType: 'Organization', targetId: organizationId, metadata: {} }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'updated', object: { type: 'Organization', id: organizationId }, result: { success: true } }).catch(() => {});
   return NextResponse.json({
     ...org,
     logo: resolveSupabasePublicAssetUrl('organization-branding', org.logo),

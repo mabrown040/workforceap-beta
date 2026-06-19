@@ -118,7 +118,10 @@ function MobileApplicationCard({
       </div>
 
       {open ? (
-        <div className="wa-mt-3 wa-border-t wa-pt-3">
+        <div
+          id={`mobile-status-panel-${application.id}`}
+          className="wa-mt-3 wa-border-t wa-pt-3"
+        >
           <label
             htmlFor={`mobile-status-${application.id}`}
             className="wa-block wa-text-xs wa-font-bold wa-uppercase wa-text-gray-700 wa-mb-1"
@@ -160,6 +163,8 @@ function MobileApplicationCard({
         <button
           type="button"
           onClick={() => setOpen(true)}
+          aria-expanded={open}
+          aria-controls={`mobile-status-panel-${application.id}`}
           className="wa-mt-3 wa-text-xs wa-text-[#8c0f37] wa-font-medium hover:wa-underline focus-visible:wa-outline-none focus-visible:wa-ring-2 focus-visible:wa-ring-[#8c0f37] focus-visible:wa-ring-offset-1 wa-rounded-sm"
         >
           Update Status

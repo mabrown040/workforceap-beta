@@ -160,7 +160,6 @@ function CopyButton({ text }: { text: string }) {
           setTimeout(() => setCopied(false), 1800);
         });
       }}
-      aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
       style={{
         marginTop: '0.4rem',
         background: 'none',
@@ -176,7 +175,7 @@ function CopyButton({ text }: { text: string }) {
         gap: '0.3rem',
       }}
     >
-      {copied ? '✓ Copied!' : '📋 Copy'}
+      <span aria-live="polite">{copied ? '✓ Copied!' : '📋 Copy'}</span>
     </button>
   );
 }

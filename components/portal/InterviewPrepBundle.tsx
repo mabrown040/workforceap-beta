@@ -213,10 +213,11 @@ export default function InterviewPrepBundle() {
           className="btn btn-primary"
           onClick={sendEmail}
           disabled={sending || selectedItems.length === 0}
+          aria-busy={sending}
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
         >
           {sending ? <Loader2 size={16} className="ai-tool-submit-spinner" /> : <Mail size={16} />}
-          {sending ? 'Sending…' : 'Email me'}
+          <span aria-live="polite">{sending ? 'Sending…' : 'Email me'}</span>
         </button>
         <button
           type="button"
@@ -226,7 +227,7 @@ export default function InterviewPrepBundle() {
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
         >
           {copied ? <Check size={16} /> : <Copy size={16} />}
-          {copied ? 'Copied!' : 'Copy selected'}
+          <span aria-live="polite">{copied ? 'Copied!' : 'Copy selected'}</span>
         </button>
       </div>
 

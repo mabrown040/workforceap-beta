@@ -485,13 +485,13 @@ export default function AddMemberWizard({ programs, partners, subgroups }: Props
               e.currentTarget.classList.remove('dragover');
               const file = e.dataTransfer.files?.[0];
               const ext = file?.name.split('.').pop()?.toLowerCase();
-              if (file && ['pdf', 'doc', 'docx'].includes(ext || '')) {
+              if (file && ['pdf', 'doc', 'docx', 'txt'].includes(ext || '')) {
                 void handleFile(file);
               }
             }}
           >
-            <input id="wizard-resume-input" type="file" accept=".pdf,.doc,.docx" onChange={handleFileUpload} disabled={!!loading} style={{ display: 'none' }} />
-            {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop PDF, DOC, or DOCX here (max 5MB)<br />or click to browse</span>}
+            <input id="wizard-resume-input" type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleFileUpload} disabled={!!loading} style={{ display: 'none' }} />
+            {loading === 'parse' ? <span>Parsing…</span> : resumeFile ? <span>{resumeFile.name}</span> : <span>Drag and drop PDF, DOC, DOCX, or TXT here (max 5MB)<br />or click to browse</span>}
           </div>
           {!resumeFile && (
             <button type="button" className="wizard-skip-link" onClick={() => setStep(5)}>

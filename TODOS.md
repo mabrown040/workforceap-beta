@@ -846,7 +846,9 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 2. Enable Turnstile (`NEXT_PUBLIC_CAPTCHA_ENABLED=true` + `TURNSTILE_SECRET_KEY`/site key) as the spam control, and let the contact limiter fail-open when captcha is on.
 3. (Weakest) make the contact limiter fail-open like signup/apply — accepts the spam risk the code deliberately guards against.
 
-**Found:** 2026-06-18, overnight QA loop (functional test of `/api/contact` validation). User-facing P1 — the public contact form does not work.
+**Second consequence — auth/abuse rate limiting is OFF (security):** The same missing-Upstash condition also makes the **fail-open** limiters (login, forgot-password, signup, AI tools) no-ops in production. Verified: 10 rapid `POST /api/auth/login` attempts from one IP all returned 401 with **no 429** — app-level brute-force/abuse protection on auth is effectively disabled, leaving only Supabase's coarser built-in auth rate limits as a backstop. So "no Upstash" simultaneously **breaks** contact (fail-closed) **and disables** auth rate limiting (fail-open). This makes option 1 (configure Upstash) the clear fix — it restores both at once.
+
+**Found:** 2026-06-18, overnight QA loop (functional test of `/api/contact` validation; auth rate-limit probe). User-facing P1 (contact dead) + security (auth rate limiting disabled) — both resolved by configuring Upstash.
 
 ---
 

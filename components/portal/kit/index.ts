@@ -25,4 +25,5 @@ export { ChatThread, type ChatMessage } from './ChatThread';
 export { AppShellSidebar, type NavItem, type NavGroup } from './AppShellSidebar';
 export { AppShellMember, type MemberTab } from './AppShellMember';
 export { UniversalSearch } from './UniversalSearch';
+export { MemberDashboardKit, type MemberDashboardKitProps } from './MemberDashboardKit';
 export { colorVar, type KitColor, type KitTone } from './tokens';

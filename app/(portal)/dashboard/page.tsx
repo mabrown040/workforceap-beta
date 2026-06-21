@@ -61,6 +61,7 @@ import MobileDiscoverSection from './_components/MobileDiscoverSection';
 import MobileQuickActions from './_components/MobileQuickActions';
 import MobileRecentActivity from './_components/MobileRecentActivity';
 import DesktopDashboard from './_components/DesktopDashboard';
+import { MemberDashboardKit } from '@/components/portal/kit';
 import SkillMissionTeaserCard, {
   type SkillMissionTeaserData,
 } from '@/components/portal/SkillMissionTeaserCard';
@@ -92,7 +93,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ program?: string; tab?: string }>;
+  searchParams?: Promise<{ program?: string; tab?: string; ui?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
@@ -108,7 +109,7 @@ export default async function DashboardPage({
   const requestedTab = typeof params?.tab === 'string' ? params.tab.trim() : null;
 
   try {
-    return await renderMemberDashboard(user, t, { requestedProgramSlug, requestedTab });
+    return await renderMemberDashboard(user, t, { requestedProgramSlug, requestedTab, requestedUi: params?.ui ?? null });
   } catch (err) {
     // redirect()/notFound() work by throwing — rethrow them so they keep
     // navigating instead of being logged and rendered as the error fallback.
@@ -136,9 +137,10 @@ export default async function DashboardPage({
 async function renderMemberDashboard(
   user: NonNullable<Awaited<ReturnType<typeof getUser>>>,
   t: Awaited<ReturnType<typeof getTranslations>>,
-  args: { requestedProgramSlug: string | null; requestedTab?: string | null } = {
+  args: { requestedProgramSlug: string | null; requestedTab?: string | null; requestedUi?: string | null } = {
     requestedProgramSlug: null,
     requestedTab: null,
+    requestedUi: null,
   },
 ) {
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
@@ -808,6 +810,24 @@ async function renderMemberDashboard(
       />
     </ErrorBoundary>
   );
+
+  // Phase 1 design-kit preview: ?ui=kit renders the redesigned dashboard with
+  // real data. Default (no flag) is the existing dashboard — zero member impact.
+  if (args.requestedUi === 'kit') {
+    return (
+      <MemberDashboardKit
+        firstName={firstName}
+        progressPercent={progressPercentDisplay}
+        programTitle={program?.title ?? null}
+        completedCount={completedCount}
+        totalCourses={totalCourses}
+        nextMilestone={nextIncompleteCourse?.name ?? null}
+        recommendedActions={recommendedActions}
+        aiToolsUsedCount={recentTools.length}
+        jobSearchUrl={jobSearchUrl}
+      />
+    );
+  }
 
   return (
     <>

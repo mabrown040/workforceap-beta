@@ -8,6 +8,15 @@ import {
   ProgressBar,
   Avatar,
   DataTable,
+  FeatureTile,
+  QueueRow,
+  WorkQueueItem,
+  KanbanBoard,
+  BarChartMini,
+  RankBars,
+  FormField,
+  Toggle,
+  ChatThread,
   type Column,
   type SurfaceMode,
 } from '@/components/portal/kit';
@@ -98,6 +107,80 @@ function Showcase({ surface }: { surface: SurfaceMode }) {
           </div>
         </div>
         <DataTable columns={COLUMNS} rows={STUDENTS} rowKey={(r) => r.id} mobile="cards" cardRender={studentCard} />
+
+        {/* persona components */}
+        <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5" style={{ marginTop: 20 }}>
+          <FeatureTile icon="✦" badge="AI" title="Career Toolkit" body="Resume audit + cover letters." tone="crimson" />
+          <FeatureTile icon="★" badge="NEXT" title="Next Badge" body="2 modules to go." tone="gold" />
+          <div className="wa-kit-card">
+            <RankBars
+              data={[
+                { label: 'Cloud & IT', value: 82, pct: 100, color: 'info' },
+                { label: 'Healthcare', value: 61, pct: 74, color: 'info' },
+                { label: 'Data & AI', value: 38, pct: 46, color: 'info' },
+              ]}
+            />
+          </div>
+        </div>
+
+        <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-2 wa-gap-5" style={{ marginTop: 20 }}>
+          <div className="wa-kit-card">
+            <SectionHeader title="Triage" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <QueueRow tone="red" icon="!" title="Carlos Torres" meta="No activity 16d · Trades" flag="Inactive" action={<StatusTag tone="alert">Call</StatusTag>} />
+              <QueueRow tone="yellow" icon="◷" title="Sam Cole" meta="Assessment incomplete" flag="Watch" action={<StatusTag tone="warn">Nudge</StatusTag>} />
+              <QueueRow tone="blue" icon="★" title="Aisha Williams" meta="Cert earned" flag="Win" action={<StatusTag tone="info">Send</StatusTag>} />
+            </div>
+          </div>
+          <div className="wa-kit-card">
+            <SectionHeader title="What needs you today" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <WorkQueueItem icon="!" title="5 students inactive 14d+" detail="Cloud & IT cohort" urgent action={<StatusTag tone="alert">Assign</StatusTag>} />
+              <WorkQueueItem icon="✓" title="12 certs to approve" detail="Verify for outcomes" action={<StatusTag tone="muted">Review</StatusTag>} />
+            </div>
+          </div>
+        </div>
+
+        <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5" style={{ marginTop: 20 }}>
+          <div className="wa-kit-card lg:wa-col-span-2">
+            <SectionHeader title="Placements by month" />
+            <BarChartMini data={[{ label: 'Jan', value: 38 }, { label: 'Feb', value: 46 }, { label: 'Mar', value: 55 }, { label: 'Apr', value: 62 }, { label: 'May', value: 78 }, { label: 'Jun', value: 90 }]} highlightLast />
+          </div>
+          <div className="wa-kit-card">
+            <SectionHeader title="Pipeline" />
+            <KanbanBoard
+              columns={[
+                { label: 'New', count: 2, tone: 'muted', cards: [{ id: 'a', title: 'Candidate A', meta: '88% match' }] },
+                { label: 'Interview', count: 1, tone: 'warn', cards: [{ id: 'b', title: 'Candidate B', meta: '84% match' }] },
+              ]}
+            />
+          </div>
+        </div>
+
+        <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-2 wa-gap-5" style={{ marginTop: 20 }}>
+          <div className="wa-kit-card">
+            <SectionHeader title="Profile" />
+            <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-4">
+              <FormField label="Full Name" defaultValue="Mike Brown" />
+              <FormField label="Email" defaultValue="mike@example.com" />
+            </div>
+            <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <Toggle label="Job matches" checked />
+              <Toggle label="Course reminders" />
+            </div>
+          </div>
+          <div className="wa-kit-card" style={{ height: 320 }}>
+            <SectionHeader title="AI Advisor" />
+            <div style={{ height: 'calc(100% - 48px)' }}>
+              <ChatThread
+                messages={[
+                  { id: '1', from: 'other', author: 'AI', text: "You're 78% through AWS. Want a cover letter drafted?" },
+                  { id: '2', from: 'self', text: 'Yes, tailor it to Austin.' },
+                ]}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </DesignSurface>
   );

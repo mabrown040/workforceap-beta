@@ -1,23 +1,56 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
+import { SEEDED_DEFAULT_ORG_ID } from '@/lib/tenant/defaultOrgConstants';
 
 export const DEFAULT_ORG_SLUG = 'workforceap';
 
 let cachedDefaultOrgId: string | null = null;
 
+function isPrismaConnectionError(err: unknown): boolean {
+  if (err instanceof Prisma.PrismaClientInitializationError) return true;
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    return err.code === 'P1001' || err.code === 'P1017';
+  }
+  return false;
+}
+
+/**
+ * Dev/CI fallback when Postgres is unreachable (placeholder DB URL or fresh clone).
+ * Never used on Vercel production — real org resolution is required there.
+ */
+export function resolveDevDefaultOrgIdFallback(): string | null {
+  if (process.env.VERCEL_ENV === 'production') return null;
+  const fromEnv = process.env.WAP_DEV_DEFAULT_ORG_ID?.trim();
+  if (fromEnv) return fromEnv;
+  if (process.env.__PRISMA_PLACEHOLDER_DB === '1') {
+    return SEEDED_DEFAULT_ORG_ID;
+  }
+  return null;
+}
+
 /** Single-tenant default org (migration seeds slug workforceap). */
 export async function getDefaultOrganizationId(): Promise<string> {
   if (cachedDefaultOrgId) return cachedDefaultOrgId;
-  const row = await prisma.organization.findUnique({
-    where: { slug: DEFAULT_ORG_SLUG },
-    select: { id: true },
-  });
-  if (row) {
-    cachedDefaultOrgId = row.id;
-    return row.id;
+  try {
+    const row = await prisma.organization.findUnique({
+      where: { slug: DEFAULT_ORG_SLUG },
+      select: { id: true },
+    });
+    if (row) {
+      cachedDefaultOrgId = row.id;
+      return row.id;
+    }
+    throw new Error(
+      `Default organization missing (slug=${DEFAULT_ORG_SLUG}). Run migrations and seed the default org — do not guess another tenant.`
+    );
+  } catch (err) {
+    const fallback = resolveDevDefaultOrgIdFallback();
+    if (fallback && isPrismaConnectionError(err)) {
+      cachedDefaultOrgId = fallback;
+      return fallback;
+    }
+    throw err;
   }
-  throw new Error(
-    `Default organization missing (slug=${DEFAULT_ORG_SLUG}). Run migrations and seed the default org — do not guess another tenant.`
-  );
 }
 
 /**

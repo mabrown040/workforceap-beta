@@ -1,0 +1,18 @@
+{
+  "dev": {
+    "label": "WorkforceAP dev (Vercel Preview + local dev)",
+    "projectRef": "jqddnyuszufndwwezdwp",
+    "url": "https://jqddnyuszufndwwezdwp.supabase.co",
+    "defaultOrgId": "00000000-0000-4000-8000-000000000001",
+    "defaultOrgSlug": "workforceap",
+    "notes": "Primary dev DB for Vercel preview deployments and cloud-agent local dev."
+  },
+  "demo": {
+    "label": "WorkforceAP demo (demo.workforceap.org)",
+    "projectRef": "esbdrgaonplpvzmtrdhw",
+    "url": "https://esbdrgaonplpvzmtrdhw.supabase.co",
+    "defaultOrgId": "00000000-0000-4000-8000-000000000001",
+    "defaultOrgSlug": "workforceap",
+    "notes": "Investor/partner demo environment — separate from dev."
+  }
+}

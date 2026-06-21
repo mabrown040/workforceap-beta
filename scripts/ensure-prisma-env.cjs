@@ -5,17 +5,23 @@
 const fs = require('fs');
 const path = require('path');
 
-try {
-  const envPath = path.join(process.cwd(), '.env');
-  if (fs.existsSync(envPath)) {
+function loadEnvFile(fileName) {
+  try {
+    const envPath = path.join(process.cwd(), fileName);
+    if (!fs.existsSync(envPath)) return;
     fs.readFileSync(envPath, 'utf8').split('\n').forEach((line) => {
       const m = line.match(/^([^#=]+)=(.*)$/);
       if (m && !process.env[m[1].trim()]) {
         process.env[m[1].trim()] = m[2].trim().replace(/^["']|["']$/g, '');
       }
     });
-  }
-} catch (_) {}
+  } catch (_) {}
+}
+
+// Next.js loads these at runtime; prisma-env also runs from next.config before that chain.
+for (const file of ['.env', '.env.local', '.env.development.local']) {
+  loadEnvFile(file);
+}
 
 if (!process.env.POSTGRES_PRISMA_URL && process.env.DATABASE_URL) {
   process.env.POSTGRES_PRISMA_URL = process.env.DATABASE_URL;

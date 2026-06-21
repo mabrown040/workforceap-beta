@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
- * Validate cloud-agent testing prerequisites.
- * Exit 0 = static gates always OK; prints what's missing for runtime/E2E.
+ * Validate cloud-agent Supabase wiring. Fails if real DB credentials are missing.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -10,18 +9,14 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-const REQUIRED_FOR_DEV_SERVER = [
+const REQUIRED = [
   'POSTGRES_PRISMA_URL',
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
   'SUPABASE_SERVICE_ROLE_KEY',
 ];
 
-const RECOMMENDED_FOR_E2E = [
-  'PLAYWRIGHT_BASE_URL',
-  'E2E_MEMBER_EMAIL',
-  'E2E_MEMBER_PASSWORD',
-];
+const E2E_RECOMMENDED = ['PLAYWRIGHT_BASE_URL', 'E2E_MEMBER_EMAIL', 'E2E_MEMBER_PASSWORD'];
 
 function fromEnvFile(fileName, key) {
   const filePath = path.join(ROOT, fileName);
@@ -29,10 +24,8 @@ function fromEnvFile(fileName, key) {
   const raw = readFileSync(filePath, 'utf8');
   for (const line of raw.split('\n')) {
     const m = line.match(/^([^#=]+)=(.*)$/);
-    if (!m) continue;
-    if (m[1].trim() === key) {
-      return m[2].trim().replace(/^["']|["']$/g, '');
-    }
+    if (!m || m[1].trim() !== key) continue;
+    return m[2].trim().replace(/^["']|["']$/g, '');
   }
   return process.env[key];
 }
@@ -41,35 +34,35 @@ function resolve(key) {
   return fromEnvFile('.env.local', key) ?? fromEnvFile('.env.e2e.local', key) ?? process.env[key];
 }
 
-function status(key, required) {
-  const value = resolve(key);
-  const ok = Boolean(value && String(value).trim());
-  return { key, ok, required, hint: ok ? 'ok' : 'missing' };
+function isPlaceholderDb(url) {
+  return !url || url.includes('127.0.0.1:5432/placeholder') || url.includes('placeholder:placeholder');
 }
 
-const checks = [
-  ...REQUIRED_FOR_DEV_SERVER.map((k) => status(k, true)),
-  ...RECOMMENDED_FOR_E2E.map((k) => status(k, false)),
-];
-
 let exitCode = 0;
-console.log('Cloud agent environment check\n');
+console.log(`Cloud agent Supabase check (WAP_AGENT_ENV=${process.env.WAP_AGENT_ENV ?? 'dev'})\n`);
 
-for (const c of checks) {
-  const mark = c.ok ? '✓' : c.required ? '✗' : '○';
-  console.log(`  ${mark} ${c.key}${c.required ? ' (required for npm run dev)' : ' (recommended for E2E)'}`);
-  if (!c.ok && c.required) exitCode = 1;
+for (const key of REQUIRED) {
+  const value = resolve(key);
+  const ok = Boolean(value?.trim()) && (key !== 'POSTGRES_PRISMA_URL' || !isPlaceholderDb(value));
+  const mark = ok ? '✓' : '✗';
+  console.log(`  ${mark} ${key}`);
+  if (!ok) exitCode = 1;
 }
 
 console.log('');
-if (exitCode === 0) {
-  console.log('Runtime env looks sufficient for local dev.');
-} else {
-  console.log('Missing required secrets. Options:');
-  console.log('  1. Add dev Supabase URLs/keys to cloud-agent secrets → npm run agent:bootstrap');
-  console.log('  2. Use Supabase MCP (project jqddnyuszufndwwezdwp) for schema/SQL checks');
-  console.log('  3. Run Playwright with PLAYWRIGHT_BASE_URL=<Vercel preview URL> (no local DB)');
-  console.log('Static gates (typecheck, test:unit, build) work without these.');
+for (const key of E2E_RECOMMENDED) {
+  const ok = Boolean(resolve(key)?.trim());
+  console.log(`  ${ok ? '✓' : '○'} ${key}${ok ? '' : ' (set for Vercel preview E2E)'}`);
 }
 
-process.exit(exitCode);
+console.log('');
+if (exitCode) {
+  console.error('Real Supabase required. Fix:');
+  console.error('  1. Cloud-agent secrets: SUPABASE_DB_PASSWORD_DEV, SUPABASE_SERVICE_ROLE_KEY_DEV');
+  console.error('  2. Supabase MCP → get_publishable_keys → export anon key');
+  console.error('  3. npm run agent:bootstrap');
+  process.exit(1);
+}
+
+console.log('Supabase env OK for local dev.');
+console.log('DB checks via MCP: execute_sql on project_id from config/agent-supabase.json');

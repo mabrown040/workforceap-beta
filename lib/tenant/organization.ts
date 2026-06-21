@@ -16,10 +16,11 @@ function isPrismaConnectionError(err: unknown): boolean {
 
 /**
  * Dev/CI fallback when Postgres is unreachable (placeholder DB URL or fresh clone).
- * Never used on Vercel production — real org resolution is required there.
+ * Cloud agents must use real Supabase — no placeholder org guessing.
  */
 export function resolveDevDefaultOrgIdFallback(): string | null {
   if (process.env.VERCEL_ENV === 'production') return null;
+  if (process.env.CURSOR_AGENT === '1' || process.env.WAP_REQUIRE_SUPABASE === '1') return null;
   const fromEnv = process.env.WAP_DEV_DEFAULT_ORG_ID?.trim();
   if (fromEnv) return fromEnv;
   if (process.env.__PRISMA_PLACEHOLDER_DB === '1') {

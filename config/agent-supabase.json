@@ -1,18 +1,32 @@
 {
   "dev": {
-    "label": "WorkforceAP dev (Vercel Preview + local dev)",
+    "label": "WorkforceAP dev (Vercel Preview + cloud-agent local)",
     "projectRef": "jqddnyuszufndwwezdwp",
     "url": "https://jqddnyuszufndwwezdwp.supabase.co",
+    "region": "us-east-1",
     "defaultOrgId": "00000000-0000-4000-8000-000000000001",
     "defaultOrgSlug": "workforceap",
-    "notes": "Primary dev DB for Vercel preview deployments and cloud-agent local dev."
+    "secretSuffix": "_DEV",
+    "notes": "Default for cloud agents. Vercel Preview deployments use this Supabase project."
+  },
+  "prod": {
+    "label": "WorkforceAP production (workforceap.org)",
+    "projectRef": "jqddnyuszufndwwezdwp",
+    "url": "https://jqddnyuszufndwwezdwp.supabase.co",
+    "region": "us-east-1",
+    "defaultOrgId": "00000000-0000-4000-8000-000000000001",
+    "defaultOrgSlug": "workforceap",
+    "secretSuffix": "_PROD",
+    "notes": "Production database. Agents use read-only SQL via MCP unless explicitly tasked with prod writes."
   },
   "demo": {
     "label": "WorkforceAP demo (demo.workforceap.org)",
     "projectRef": "esbdrgaonplpvzmtrdhw",
     "url": "https://esbdrgaonplpvzmtrdhw.supabase.co",
+    "region": "us-east-1",
     "defaultOrgId": "00000000-0000-4000-8000-000000000001",
     "defaultOrgSlug": "workforceap",
-    "notes": "Investor/partner demo environment — separate from dev."
+    "secretSuffix": "_DEMO",
+    "notes": "Isolated demo environment — not production."
   }
 }

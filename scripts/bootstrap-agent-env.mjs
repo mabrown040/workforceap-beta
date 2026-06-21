@@ -1,21 +1,17 @@
 #!/usr/bin/env node
 /**
- * Bootstrap `.env.local` (and optional `.env.e2e.local`) for cloud agents.
+ * Bootstrap `.env.local` for cloud agents — real Supabase only, no placeholder DB.
  *
- * Public Supabase project metadata lives in `config/agent-supabase.json`.
- * Secrets must be provided via cloud-agent environment variables — never
- * committed. Run at the start of an agent session:
+ * 1. Set cloud-agent secrets (one password per environment is enough):
+ *      SUPABASE_DB_PASSWORD_DEV, SUPABASE_SERVICE_ROLE_KEY_DEV
+ *      SUPABASE_DB_PASSWORD_PROD, SUPABASE_SERVICE_ROLE_KEY_PROD  (prod verification only)
+ *    Or unsuffixed fallbacks: SUPABASE_DB_PASSWORD, SUPABASE_SERVICE_ROLE_KEY
  *
- *   npm run agent:bootstrap
- *   npm run agent:check-env
+ * 2. Fetch anon key via Supabase MCP `get_publishable_keys`, then either:
+ *      export NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+ *    or pass:  node scripts/bootstrap-agent-env.mjs --anon-key=...
  *
- * Required secrets for local `npm run dev` + portal routes:
- *   POSTGRES_PRISMA_URL, POSTGRES_URL_NON_POOLING, SUPABASE_SERVICE_ROLE_KEY,
- *   NEXT_PUBLIC_SUPABASE_ANON_KEY
- *
- * Optional for Playwright against Vercel preview (preferred over prod):
- *   PLAYWRIGHT_BASE_URL, PLAYWRIGHT_VERCEL_SHARE_URL,
- *   E2E_MEMBER_EMAIL, E2E_MEMBER_PASSWORD
+ * 3. Run:  npm run agent:bootstrap
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -24,20 +20,6 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CONFIG_PATH = path.join(ROOT, 'config', 'agent-supabase.json');
-
-const SECRET_KEYS = [
-  'POSTGRES_PRISMA_URL',
-  'POSTGRES_URL_NON_POOLING',
-  'DATABASE_URL',
-  'SUPABASE_SERVICE_ROLE_KEY',
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  'CRON_SECRET',
-  'AUTH_TRUST_COOKIE_SECRET',
-  'PLACEMENT_SURVEY_TOKEN_SECRET',
-  'RATE_LIMIT_ALLOW_MISSING_UPSTASH',
-  'UPSTASH_REDIS_REST_URL',
-  'UPSTASH_REDIS_REST_TOKEN',
-];
 
 const E2E_KEYS = [
   'PLAYWRIGHT_BASE_URL',
@@ -52,79 +34,128 @@ const E2E_KEYS = [
   'PLAYWRIGHT_VIDEO',
 ];
 
+const OPTIONAL_KEYS = [
+  'CRON_SECRET',
+  'AUTH_TRUST_COOKIE_SECRET',
+  'PLACEMENT_SURVEY_TOKEN_SECRET',
+  'UPSTASH_REDIS_REST_URL',
+  'UPSTASH_REDIS_REST_TOKEN',
+];
+
+function parseArgs(argv) {
+  const out = {};
+  for (const arg of argv) {
+    if (!arg.startsWith('--')) continue;
+    const eq = arg.indexOf('=');
+    if (eq === -1) continue;
+    out[arg.slice(2, eq)] = arg.slice(eq + 1);
+  }
+  return out;
+}
+
 function loadProjectConfig() {
   const raw = readFileSync(CONFIG_PATH, 'utf8');
   const all = JSON.parse(raw);
   const key = (process.env.WAP_AGENT_ENV ?? 'dev').trim();
   const project = all[key];
   if (!project) {
-    throw new Error(`Unknown WAP_AGENT_ENV=${key}. Expected one of: ${Object.keys(all).join(', ')}`);
+    throw new Error(`Unknown WAP_AGENT_ENV=${key}. Expected: ${Object.keys(all).join(', ')}`);
   }
-  return project;
+  return { key, project };
+}
+
+function readWithSuffix(base, suffix) {
+  const suffixed = process.env[`${base}${suffix}`];
+  if (suffixed?.trim()) return suffixed.trim();
+  return process.env[base]?.trim() ?? null;
+}
+
+function buildPostgresUrls(projectRef, password, region) {
+  const enc = encodeURIComponent(password);
+  const host = `aws-0-${region}.pooler.supabase.com`;
+  return {
+    POSTGRES_PRISMA_URL: `postgresql://postgres.${projectRef}:${enc}@${host}:6543/postgres?pgbouncer=true`,
+    POSTGRES_URL_NON_POOLING: `postgresql://postgres.${projectRef}:${enc}@${host}:5432/postgres`,
+    DATABASE_URL: `postgresql://postgres.${projectRef}:${enc}@${host}:5432/postgres`,
+  };
 }
 
 function envLine(key, value) {
   if (value == null || value === '') return null;
-  const escaped = String(value).replace(/"/g, '\\"');
-  return `${key}="${escaped}"`;
+  return `${key}="${String(value).replace(/"/g, '\\"')}"`;
 }
 
-function collectLines(keys) {
-  const lines = [];
-  for (const key of keys) {
-    const line = envLine(key, process.env[key]);
-    if (line) lines.push(line);
-  }
-  return lines;
+function collectEnvLines(keys) {
+  return keys.map((k) => envLine(k, process.env[k])).filter(Boolean);
 }
 
 function main() {
-  const project = loadProjectConfig();
+  const cli = parseArgs(process.argv.slice(2));
+  const { key: envKey, project } = loadProjectConfig();
+  const suffix = project.secretSuffix ?? '';
+
+  const dbPassword = readWithSuffix('SUPABASE_DB_PASSWORD', suffix);
+  const serviceRole = readWithSuffix('SUPABASE_SERVICE_ROLE_KEY', suffix);
+  const anonKey =
+    cli['anon-key']?.trim() ||
+    readWithSuffix('NEXT_PUBLIC_SUPABASE_ANON_KEY', suffix) ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ||
+    null;
+
+  let postgres = {};
+  if (dbPassword) {
+    postgres = buildPostgresUrls(project.projectRef, dbPassword, project.region ?? 'us-east-1');
+  } else if (process.env.POSTGRES_PRISMA_URL?.trim()) {
+    postgres.POSTGRES_PRISMA_URL = process.env.POSTGRES_PRISMA_URL.trim();
+    postgres.POSTGRES_URL_NON_POOLING =
+      process.env.POSTGRES_URL_NON_POOLING?.trim() || postgres.POSTGRES_PRISMA_URL;
+    postgres.DATABASE_URL = process.env.DATABASE_URL?.trim() || postgres.POSTGRES_URL_NON_POOLING;
+  }
+
   const lines = [
     '# Generated by scripts/bootstrap-agent-env.mjs — do not commit',
-    `# WAP_AGENT_ENV=${process.env.WAP_AGENT_ENV ?? 'dev'} (${project.label})`,
-    `# Supabase project ref: ${project.projectRef}`,
+    `# WAP_AGENT_ENV=${envKey} (${project.label})`,
+    `# Supabase MCP project_id: ${project.projectRef}`,
     '',
     'NEXT_PUBLIC_SITE_URL=http://localhost:3000',
     `NEXT_PUBLIC_SUPABASE_URL=${project.url}`,
-    `WAP_DEV_DEFAULT_ORG_ID=${project.defaultOrgId}`,
     `WAP_SUPABASE_PROJECT_REF=${project.projectRef}`,
+    `WAP_DEV_DEFAULT_ORG_ID=${project.defaultOrgId}`,
+    'WAP_REQUIRE_SUPABASE=1',
     'RATE_LIMIT_ALLOW_MISSING_UPSTASH=1',
     '',
-    ...collectLines(SECRET_KEYS),
-  ];
-
-  const postgresUrl = process.env.POSTGRES_PRISMA_URL ?? process.env.DATABASE_URL;
-  if (!postgresUrl) {
-    lines.push('');
-    lines.push('# POSTGRES_PRISMA_URL missing — build/typecheck still work; npm run dev will 500 without DB.');
-    lines.push('# Add dev Supabase DB URLs to cloud-agent secrets, then re-run npm run agent:bootstrap');
-  }
+    envLine('POSTGRES_PRISMA_URL', postgres.POSTGRES_PRISMA_URL),
+    envLine('POSTGRES_URL_NON_POOLING', postgres.POSTGRES_URL_NON_POOLING),
+    envLine('DATABASE_URL', postgres.DATABASE_URL),
+    envLine('NEXT_PUBLIC_SUPABASE_ANON_KEY', anonKey),
+    envLine('SUPABASE_SERVICE_ROLE_KEY', serviceRole),
+    '',
+    ...collectEnvLines(OPTIONAL_KEYS),
+  ].filter(Boolean);
 
   const envLocalPath = path.join(ROOT, '.env.local');
-  writeFileSync(envLocalPath, `${lines.filter(Boolean).join('\n')}\n`, 'utf8');
-  console.log(`Wrote ${path.relative(ROOT, envLocalPath)} for ${project.label}`);
+  writeFileSync(envLocalPath, `${lines.join('\n')}\n`, 'utf8');
+  console.log(`Wrote ${path.relative(ROOT, envLocalPath)} → ${project.label}`);
 
-  const e2eLines = [
-    '# Generated by scripts/bootstrap-agent-env.mjs — do not commit',
-    ...collectLines(E2E_KEYS),
-  ];
-  const hasE2e = e2eLines.length > 2;
-  if (hasE2e) {
+  const e2eLines = ['# Generated by scripts/bootstrap-agent-env.mjs — do not commit', ...collectEnvLines(E2E_KEYS)];
+  if (e2eLines.length > 2) {
     const e2ePath = path.join(ROOT, '.env.e2e.local');
     writeFileSync(e2ePath, `${e2eLines.join('\n')}\n`, 'utf8');
     console.log(`Wrote ${path.relative(ROOT, e2ePath)}`);
-  } else {
-    console.log('No Playwright/E2E env vars set — skipped .env.e2e.local');
-    console.log('Tip: set PLAYWRIGHT_BASE_URL to the Vercel preview URL for branch E2E.');
   }
 
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn('WARN: SUPABASE_SERVICE_ROLE_KEY not set — portal auth flows will not work locally.');
+  const missing = [];
+  if (!postgres.POSTGRES_PRISMA_URL) missing.push(`SUPABASE_DB_PASSWORD${suffix} (or POSTGRES_PRISMA_URL)`);
+  if (!anonKey) missing.push(`NEXT_PUBLIC_SUPABASE_ANON_KEY${suffix} (use Supabase MCP get_publishable_keys)`);
+  if (!serviceRole) missing.push(`SUPABASE_SERVICE_ROLE_KEY${suffix}`);
+
+  if (missing.length) {
+    console.error('\nMissing — add to cloud-agent secrets, then re-run bootstrap:');
+    for (const m of missing) console.error(`  • ${m}`);
+    process.exit(1);
   }
-  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.warn('WARN: NEXT_PUBLIC_SUPABASE_ANON_KEY not set — Supabase client will not initialize.');
-  }
+
+  console.log('Supabase env ready. Run: npm run agent:check-env && npm run dev');
 }
 
 main();

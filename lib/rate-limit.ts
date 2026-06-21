@@ -162,9 +162,19 @@ async function failClosedLimit(
 
   // Limiter is null → Upstash not configured
   if (isProduction) {
-    // This should be unreachable because the boot assertion above throws,
-    // but we keep it as a defense-in-depth layer in case the assertion is
-    // ever bypassed or relaxed.
+    // Operator explicitly opted out of Upstash (e.g. preview/staging via
+    // RATE_LIMIT_ALLOW_MISSING_UPSTASH=1). The boot assertion is skipped in
+    // that case, so honor the opt-out here too and fail OPEN — otherwise every
+    // auth/login/forgot-password request is blocked with a 429 on environments
+    // that intentionally run without Redis.
+    if (allowMissingUpstash) {
+      logger.warn(
+        `[RATE-LIMIT] ${name} limiter is null but RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 — failing open for ${identifier}`
+      );
+      return { success: true };
+    }
+    // No opt-out: fail closed (defense-in-depth; the boot assertion normally
+    // prevents reaching here in real production).
     logger.error(`[RATE-LIMIT] ${name} limiter is null in production — blocking request for ${identifier}`);
     return { success: false, remaining: 0 };
   }

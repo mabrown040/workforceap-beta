@@ -1,0 +1,120 @@
+import { notFound } from 'next/navigation';
+import {
+  DesignSurface,
+  KpiStrip,
+  SectionHeader,
+  StatusTag,
+  ProgressRing,
+  ProgressBar,
+  Avatar,
+  DataTable,
+  type Column,
+  type SurfaceMode,
+} from '@/components/portal/kit';
+
+/**
+ * Storybook-lite proof page for the Phase 0 design kit. Renders every shipped
+ * primitive in BOTH surface modes so the kit is reviewable on a Vercel preview
+ * before any real page is converted. Hidden in production.
+ * Spec: docs/PORTAL_DESIGN_KIT.md
+ */
+export const dynamic = 'force-static';
+
+type Student = { id: string; name: string; program: string; pct: number; readiness: number; status: string; tone: 'ok' | 'warn' | 'alert' | 'info' };
+
+const STUDENTS: Student[] = [
+  { id: '1', name: 'Mike Brown', program: 'Cloud & IT', pct: 78, readiness: 84, status: 'Job-Ready', tone: 'warn' },
+  { id: '2', name: 'Jasmine Davis', program: 'Healthcare', pct: 92, readiness: 91, status: 'Placed', tone: 'ok' },
+  { id: '3', name: 'Carlos Torres', program: 'Skilled Trades', pct: 34, readiness: 41, status: 'At Risk', tone: 'alert' },
+];
+
+const COLUMNS: Column<Student>[] = [
+  { key: 'name', header: 'Student', render: (r) => <strong>{r.name}</strong> },
+  { key: 'program', header: 'Program' },
+  { key: 'pct', header: 'Progress', render: (r) => <ProgressBar pct={r.pct} /> },
+  { key: 'readiness', header: 'Readiness', render: (r) => <span style={{ fontWeight: 700, color: r.readiness >= 70 ? 'var(--wa-success)' : 'var(--wa-accent)' }}>{r.readiness}</span> },
+  { key: 'status', header: 'Status', align: 'right', render: (r) => <StatusTag tone={r.tone}>{r.status}</StatusTag> },
+];
+
+function studentCard(r: Student) {
+  return (
+    <div className="wa-kit-card wa-kit-card--sm" style={{ marginBottom: 8 }}>
+      <div className="wa-flex wa-items-center wa-gap-3">
+        <Avatar initials={r.name.split(' ').map((s) => s[0]).join('')} size={36} />
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 700, fontSize: 12 }}>{r.name}</div>
+          <div style={{ fontSize: 10, color: 'var(--wa-muted)' }}>{r.program}</div>
+        </div>
+        <StatusTag tone={r.tone}>{r.status}</StatusTag>
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <ProgressBar pct={r.pct} />
+      </div>
+    </div>
+  );
+}
+
+function Showcase({ surface }: { surface: SurfaceMode }) {
+  return (
+    <DesignSurface surface={surface}>
+      <div style={{ padding: 28, maxWidth: 1100, margin: '0 auto' }}>
+        <SectionHeader
+          kicker={`Surface: ${surface}`}
+          title={surface === 'warm' ? 'Warm — member (Bold + Calm)' : 'Dense — admin / data / staff'}
+          goal="Same components, same tokens — only density / radius / pop differ by surface."
+        />
+        <div style={{ marginBottom: 20 }}>
+          <KpiStrip
+            items={[
+              { label: 'Active Students', value: 847, color: 'info', delta: '↑ 32 this month' },
+              { label: 'Placements YTD', value: 213, color: 'success' },
+              { label: 'Completion', value: '71%', color: 'gold' },
+              { label: 'At Risk', value: 19, color: 'accent' },
+            ]}
+          />
+        </div>
+        <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5" style={{ marginBottom: 20 }}>
+          <div className="wa-kit-card" style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <ProgressRing pct={78} size={104} />
+            <div>
+              <StatusTag tone="warn">In Progress</StatusTag>
+              <h3 style={{ fontWeight: 800, fontSize: 18, marginTop: 8, letterSpacing: '-0.02em' }}>AWS Cloud Practitioner</h3>
+              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>Next: Shared Responsibility Model</p>
+            </div>
+          </div>
+          <div className="wa-kit-card wa-kit-card--gradient-crimson" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 150 }}>
+            <div style={{ fontSize: 22 }}>✦</div>
+            <div>
+              <h3 style={{ fontWeight: 800, fontSize: 18 }}>Career Toolkit</h3>
+              <p style={{ fontSize: 12, opacity: 0.85 }}>gradient in warm · tint in dense</p>
+            </div>
+          </div>
+          <div className="wa-kit-card wa-kit-card--gradient-gold" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 150 }}>
+            <div style={{ fontSize: 22 }}>★</div>
+            <div>
+              <h3 style={{ fontWeight: 800, fontSize: 18 }}>Next Badge</h3>
+              <p style={{ fontSize: 12, opacity: 0.85 }}>2 modules to go</p>
+            </div>
+          </div>
+        </div>
+        <DataTable columns={COLUMNS} rows={STUDENTS} rowKey={(r) => r.id} mobile="cards" cardRender={studentCard} />
+      </div>
+    </DesignSurface>
+  );
+}
+
+export default function DevKitPage() {
+  // Visible in dev + Vercel preview; hidden in production.
+  if (process.env.VERCEL_ENV === 'production') notFound();
+  return (
+    <main>
+      <div style={{ background: '#1a1a1a', color: '#fff', padding: '16px 28px' }}>
+        <div style={{ fontWeight: 800, letterSpacing: '-0.02em' }}>Portal Design Kit — Phase 0 proof</div>
+        <div style={{ fontSize: 11, color: '#a3a3a3' }}>Every shipped primitive, both surface modes. Resize to mobile to see the table → cards fallback. Hidden in production.</div>
+      </div>
+      <Showcase surface="warm" />
+      <div style={{ height: 1, background: 'var(--wa-border)' }} />
+      <Showcase surface="dense" />
+    </main>
+  );
+}

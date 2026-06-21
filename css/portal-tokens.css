@@ -1,0 +1,67 @@
+/*
+ * Portal Design Kit — TOKEN LAYER (Phase 0)
+ * ------------------------------------------------------------------
+ * Single source of truth for the redesign. Colors mirror DESIGN.md and the
+ * `wa-brand-*` Tailwind tokens; here they live as CSS custom properties so
+ * the per-surface MODE can swap density/pop/radius WITHOUT a Tailwind rebuild.
+ *
+ * Brand colors are CONSTANT across modes — only radius / padding / pop / shadow
+ * change per surface. `data-surface="warm"` (member: Bold + Calm) vs
+ * `data-surface="dense"` (admin / data / staff). Set on the route-group layout
+ * via <DesignSurface> (components/portal/kit/DesignSurface.tsx).
+ *
+ * Spec: docs/PORTAL_DESIGN_KIT.md. Live reference: the lab "design-system" mockup.
+ * Nothing in here changes any existing page until a component consumes a token.
+ */
+
+:root {
+  /* — brand (constant; mirrors DESIGN.md + tailwind.config.ts wa-brand-*) — */
+  --wa-accent: #ad2c4d;
+  --wa-accent-dark: #8b1f38;
+  --wa-accent-soft: #fdf2f4;
+  --wa-gold: #a47f38;
+  --wa-gold-soft: #fef3c7;
+  --wa-info: #2b7bb9;
+  --wa-success: #4a9b4f;
+
+  /* — neutrals — */
+  --wa-bg: #f7f8fa;
+  --wa-surface: #ffffff;
+  --wa-text: #1a1a1a;
+  --wa-muted: #737373;
+  --wa-border: #e8e8e8;
+
+  /* — shape / density / pop (overridden per surface below) — */
+  --wa-radius: 20px;
+  --wa-radius-sm: 12px;
+  --wa-pad: 24px;
+  --wa-pad-sm: 16px;
+  --wa-pop: 1; /* 0 = calm tints, 1 = gradient feature tiles */
+  --wa-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --wa-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* WARM — member surfaces: Bold + Calm. Soft corners, generous space, pop on. */
+[data-surface='warm'] {
+  --wa-radius: 26px;
+  --wa-radius-sm: 16px;
+  --wa-pad: 28px;
+  --wa-pad-sm: 18px;
+  --wa-pop: 1;
+}
+
+/* DENSE — admin / data / charts / rosters / staff queues. Compact, sharp, pop off. */
+[data-surface='dense'] {
+  --wa-radius: 12px;
+  --wa-radius-sm: 8px;
+  --wa-pad: 16px;
+  --wa-pad-sm: 12px;
+  --wa-pop: 0;
+}
+
+/* Reduced motion: kit components gate their own animations on this too. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --wa-shadow-lg: var(--wa-shadow);
+  }
+}

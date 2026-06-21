@@ -6,8 +6,10 @@
  * do not duplicate ~400 bytes of @font-face-adjacent rules in the portal chunk.
  */
 
+@import './portal-tokens.css';
 @import './portal-main-extracted.css';
 @import './portal-ui-kit.css';
+@import './portal-kit.css';
 
 /* ── Employer Guide — 3-step flow grid ── */
 .employer-guide-steps {

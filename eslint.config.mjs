@@ -38,6 +38,9 @@ const config = [
     ignores: [
       // The DataTable implementation legitimately renders <table>.
       "components/portal/ui/DataTable.tsx",
+      // Design-kit DataTable: warm/dense token-driven table implementation
+      // (Phase 0 portal redesign). Sibling to the ui/ one; renders <table> by design.
+      "components/portal/kit/DataTable.tsx",
       // Legacy admin UIs still use raw tables; migrate to <DataTable> over time.
       // 2026-05-20: each retained <table> now carries a <caption className="sr-only"> for a11y.
       "app/admin/placement-surveys/page.tsx",

@@ -1,0 +1,146 @@
+/*
+ * Portal Design Kit — COMPONENT CLASSES (Phase 0)
+ * ------------------------------------------------------------------
+ * These classes consume the token layer (css/portal-tokens.css) via var(--wa-*),
+ * so a component re-styles automatically when its surface mode changes
+ * (data-surface="warm" | "dense"). Imported by css/portal.css after the tokens.
+ *
+ * Naming: `.wa-kit-*` to avoid collision with the legacy `.ui-*` / `.portal-*`
+ * classes. Kit React components in components/portal/kit/ emit these.
+ */
+
+.wa-kit-card {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: var(--wa-pad);
+  box-shadow: var(--wa-shadow);
+  transition: box-shadow 0.2s, border-color 0.2s, background-color 0.15s,
+    border-radius 0.25s, padding 0.25s;
+}
+.wa-kit-card--sm {
+  border-radius: var(--wa-radius-sm);
+  padding: var(--wa-pad-sm);
+}
+.wa-kit-card--hover:hover {
+  box-shadow: var(--wa-shadow-lg);
+}
+.wa-kit-card--tinted {
+  background: var(--wa-accent-soft);
+  border-color: transparent;
+}
+.wa-kit-card--gradient-crimson {
+  background: linear-gradient(135deg, var(--wa-accent), var(--wa-accent-dark));
+  border-color: transparent;
+  color: #fff;
+}
+.wa-kit-card--gradient-gold {
+  background: linear-gradient(135deg, var(--wa-gold), #7d5f26);
+  border-color: transparent;
+  color: #fff;
+}
+/* When pop is off (dense), gradient tiles fall back to calm tints. */
+[data-surface='dense'] .wa-kit-card--gradient-crimson {
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent);
+}
+[data-surface='dense'] .wa-kit-card--gradient-gold {
+  background: var(--wa-gold-soft);
+  color: var(--wa-gold);
+}
+
+.wa-kit-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wa-muted);
+}
+.wa-kit-stat-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.wa-kit-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 10px;
+}
+.wa-kit-tag--ok {
+  color: var(--wa-success);
+  background: #eef7ef;
+}
+.wa-kit-tag--warn {
+  color: var(--wa-gold);
+  background: var(--wa-gold-soft);
+}
+.wa-kit-tag--alert {
+  color: var(--wa-accent);
+  background: var(--wa-accent-soft);
+}
+.wa-kit-tag--info {
+  color: var(--wa-info);
+  background: #eef5fb;
+}
+.wa-kit-tag--muted {
+  color: var(--wa-muted);
+  background: #f5f5f5;
+}
+
+.wa-kit-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #f0eef0;
+  overflow: hidden;
+}
+.wa-kit-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--wa-accent);
+}
+
+/* WCAG AA focus ring, consistent across the kit */
+.wa-kit-focus:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--wa-surface), 0 0 0 4px var(--wa-accent);
+}
+
+/* DataTable (dense desktop). Mobile falls back to stacked cards in the component. */
+.wa-kit-table-wrap {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  overflow: hidden;
+}
+.wa-kit-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.wa-kit-table th {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wa-muted);
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 14px;
+  background: #fafafa;
+}
+.wa-kit-table td {
+  padding: 10px 14px;
+  font-size: 12px;
+  border-bottom: 1px solid #f5f5f5;
+}
+.wa-kit-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.wa-kit-table tbody tr:hover {
+  background: #fafafa;
+}

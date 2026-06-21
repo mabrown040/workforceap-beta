@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build:with-migrate",
+  "buildCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then npm run build:with-migrate; else npm run build; fi",
   "ignoreCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; fi; case \"$VERCEL_GIT_COMMIT_REF\" in feature/portal-*) exit 1 ;; esac; exit 0",
   "crons": [
     {

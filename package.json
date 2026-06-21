@@ -42,7 +42,9 @@
     "email": "email dev -p 3001",
     "analyze": "ANALYZE=true npm run build",
     "fonts:subset-material-symbols": "bash scripts/subset-material-symbols.sh",
-    "smoke:prod": "node scripts/prod-paid-funnel-smoke.mjs"
+    "smoke:prod": "node scripts/prod-paid-funnel-smoke.mjs",
+    "agent:bootstrap": "node scripts/bootstrap-agent-env.mjs",
+    "agent:check-env": "node scripts/check-agent-env.mjs"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"

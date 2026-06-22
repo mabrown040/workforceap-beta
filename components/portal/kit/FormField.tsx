@@ -69,7 +69,7 @@ export function Toggle({ checked = false, onChange, label }: ToggleProps) {
             width: 20,
             height: 20,
             borderRadius: 999,
-            background: '#fff',
+            background: 'var(--wa-surface)',
             transform: checked ? 'translateX(16px)' : 'translateX(0)',
             transition: 'transform .15s',
           }}

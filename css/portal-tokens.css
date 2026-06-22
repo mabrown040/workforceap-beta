@@ -59,6 +59,27 @@
   --wa-pop: 0;
 }
 
+/*
+ * DARK MODE — flips the kit NEUTRALS; brand hues (accent/gold/info/success)
+ * stay constant since they read fine on dark. Activated by the app's existing
+ * theme system, which sets `html.dark` (system preference or explicit) and
+ * `[data-theme="dark"]` (explicit) — see components/theme/ThemeInitScript.tsx.
+ * Works under both surfaces (warm/dense only change radius/pad/pop, not color).
+ */
+html.dark,
+[data-theme='dark'] {
+  --wa-bg: #0f1115;
+  --wa-surface: #1a1b1f;
+  --wa-text: #f4f4f5;
+  --wa-muted: #a1a1aa;
+  --wa-border: #2c2d33;
+  /* brand soft-tints become translucent so they sit on dark surfaces */
+  --wa-accent-soft: rgba(173, 44, 77, 0.18);
+  --wa-gold-soft: rgba(164, 127, 56, 0.20);
+  --wa-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --wa-shadow-lg: 0 14px 28px rgba(0, 0, 0, 0.6);
+}
+
 /* Reduced motion: kit components gate their own animations on this too. */
 @media (prefers-reduced-motion: reduce) {
   :root {

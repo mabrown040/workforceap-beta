@@ -4,6 +4,11 @@ import type { GucContext } from './gucContext';
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
+// See the $transaction override below. Flattens interactive transactions into
+// plain queries when the only reachable DB is a transaction-mode pooler that
+// hangs Prisma interactive transactions (preview/demo). Never enable in prod.
+const FLATTEN_TX = process.env.PRISMA_FLATTEN_TX === '1';
+
 function escapeSqlString(value: string): string {
   return value.replace(/'/g, "''");
 }
@@ -155,6 +160,26 @@ function createPrismaClient(): PrismaClient {
    */
   const originalTransaction = client.$transaction.bind(client) as any;
   (client as any).$transaction = async function (...args: unknown[]) {
+    // PRISMA_FLATTEN_TX escape hatch: Prisma interactive transactions
+    // (`$transaction(async (tx) => ...)`) hang over Supabase's transaction-mode
+    // pooler (port 6543) — they sit idle in the pool/protocol and never resolve,
+    // which 504s any RSC page that uses one (member dashboard, admin, etc.) while
+    // single-query pages load fine. When this flag is set (preview/demo that can
+    // only reach the 6543 pooler), run the transaction body as plain sequential
+    // queries: each query self-sets its GUC via the per-query middleware (the
+    // same path single queries already use). Safe ONLY because RLS is enabled but
+    // NOT forced here (see the middleware note); losing atomicity/transaction-local
+    // GUCs is acceptable for the demo. NEVER set this in production.
+    if (FLATTEN_TX) {
+      if (typeof args[0] === 'function') {
+        return (args[0] as (tx: PrismaClient) => Promise<unknown>)(client as unknown as PrismaClient);
+      }
+      if (Array.isArray(args[0])) {
+        return Promise.all(args[0] as Promise<unknown>[]);
+      }
+      return originalTransaction(...args);
+    }
+
     let ctx = getGucContext();
     if (!ctx) {
       // Lazy-resolve for RSC pages (same as the middleware above). If that

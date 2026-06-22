@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import {
   Plus,
   Bell,
@@ -7,7 +8,6 @@ import {
   Award,
   UserPlus,
   Briefcase,
-  type LucideIcon,
 } from 'lucide-react';
 import {
   DesignSurface,
@@ -32,26 +32,16 @@ import {
  */
 
 /** A single "What needs you today" work-queue row. */
-/**
- * Icon key for a queue row. Pass a STRING key, NOT the LucideIcon component —
- * this is a Client Component, and passing a function/component reference across
- * the Server→Client boundary throws "Functions cannot be passed directly to
- * Client Components". The server picks a key; we map it to the icon here.
- */
-export type CommandCenterIconKey = 'alert' | 'bell' | 'award' | 'userplus' | 'briefcase';
-
-const QUEUE_ICONS: Record<CommandCenterIconKey, LucideIcon> = {
-  alert: TriangleAlert,
-  bell: Bell,
-  award: Award,
-  userplus: UserPlus,
-  briefcase: Briefcase,
-};
-
 export interface CommandCenterQueueItem {
   id: string;
-  /** Icon key (mapped to a lucide icon client-side — see QUEUE_ICONS). */
-  icon: CommandCenterIconKey;
+  /**
+   * Pre-rendered icon ELEMENT (e.g. `<TriangleAlert size={14} />`), NOT the
+   * component. This is a Client Component; passing a component/function ref
+   * across the Server→Client boundary throws "Functions cannot be passed
+   * directly to Client Components". A rendered element is serializable, so the
+   * server page builds it (lucide icons are universal) and we render it as-is.
+   */
+  icon: ReactNode;
   /** Chip background color (CSS color / token). Mockup roles: crimson/gold/info/green. */
   iconColor: string;
   title: string;
@@ -106,7 +96,7 @@ const DEFAULT_KPIS: KpiItem[] = [
 const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
   {
     id: 'inactive',
-    icon: 'alert',
+    icon: <TriangleAlert size={14} aria-hidden />,
     iconColor: 'var(--wa-accent)',
     title: '5 students inactive 14+ days',
     detail: 'Cloud & IT cohort · likely to drop',
@@ -115,7 +105,7 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
   },
   {
     id: 'certifications',
-    icon: 'award',
+    icon: <Award size={14} aria-hidden />,
     iconColor: 'var(--wa-gold)',
     title: '12 certifications awaiting approval',
     detail: 'Verify proof to count toward outcomes',
@@ -123,7 +113,7 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
   },
   {
     id: 'applicants',
-    icon: 'userplus',
+    icon: <UserPlus size={14} aria-hidden />,
     iconColor: 'var(--wa-info)',
     title: '8 new applicants need eligibility review',
     detail: 'WIOA screening pending',
@@ -131,7 +121,7 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
   },
   {
     id: 'placements',
-    icon: 'briefcase',
+    icon: <Briefcase size={14} aria-hidden />,
     iconColor: 'var(--wa-success)',
     title: '3 placements to confirm',
     detail: 'Employers reported hires',
@@ -241,8 +231,7 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
  * per-row color the mockup shows.
  */
 function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onAction?: () => void }) {
-  const Icon = QUEUE_ICONS[item.icon] ?? Bell;
-  const actionStyle: React.CSSProperties = {
+    const actionStyle: React.CSSProperties = {
     flexShrink: 0,
     padding: '6px 12px',
     fontSize: 11,
@@ -278,7 +267,7 @@ function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onActi
           background: item.iconColor,
         }}
       >
-        <Icon size={14} aria-hidden />
+        {item.icon}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 700, fontSize: 14 }}>{item.title}</div>

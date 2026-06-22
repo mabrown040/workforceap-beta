@@ -1,202 +1,171 @@
-'use client';
-
-import { Suspense, useState, useEffect } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { Mail, Send, Users, Clock, CheckCircle } from 'lucide-react';
-import InviteForm from '@/components/admin/InviteForm';
-import InvitesTable from '@/components/admin/InvitesTable';
-import PageHeader from '@/components/portal/PageHeader';
+import { redirect } from 'next/navigation';
+import { Send } from 'lucide-react';
+import { buildPageMetadataAsync } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import type { Prisma } from '@prisma/client';
+import {
+  InvitesKit,
+  type InviteRow,
+} from '@/components/portal/kit/pages/admin-subviews/InvitesKit';
+import InvitesLegacyClient from './InvitesLegacyClient';
 
-// Page title set via layout — client component cannot export metadata
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+    title: 'Invites',
+    description: 'Bulk member & partner invitations — WorkforceAP admin.',
+    path: '/admin/invites',
+  });
+}
 
-type Invite = {
-  id: string;
-  email: string;
-  role: string;
-  status: string;
-  personalMessage: string | null;
-  expiresAt: string;
-  createdAt: string;
-  acceptedAt: string | null;
-  invitedBy: { id: string; fullName: string; email: string };
-  subgroup: { id: string; name: string } | null;
-  partner: { id: string; name: string } | null;
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Admin',
+  partner: 'Partner',
+  member: 'Member',
+  counselor: 'Counselor',
 };
 
-type Subgroup = { id: string; name: string };
-type Program = { slug: string; title: string };
-type Partner = { id: string; name: string };
+/** Relative "Nd ago" / "Nh ago" caption matching the mockup ("2d ago"). */
+function relativeSent(from: Date, now: Date): string {
+  const ms = now.getTime() - from.getTime();
+  if (ms < 0) return 'just now';
+  const mins = Math.floor(ms / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
-function AdminInvitesPageContent() {
-  const searchParams = useSearchParams();
-  const [invites, setInvites] = useState<Invite[]>([]);
-  const [subgroups, setSubgroups] = useState<Subgroup[]>([]);
-  const [partners, setPartners] = useState<Partner[]>([]);
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [stats, setStats] = useState({
-    total: 0,
+// Pending invites past their expiresAt are effectively expired even if the row
+// still reads status='pending' in the DB. The legacy table + stat cards already
+// apply this rule, so the kit must agree to keep the counts consistent.
+function effectiveStatus(
+  status: string,
+  expiresAt: Date,
+  now: Date,
+): InviteRow['status'] {
+  if (status === 'pending' && expiresAt <= now) return 'expired';
+  if (status === 'pending' || status === 'accepted' || status === 'expired' || status === 'revoked') {
+    return status;
+  }
+  return 'pending';
+}
+
+export default async function AdminInvitesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/invites');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const params = (await searchParams) ?? {};
+  const requestedUi = typeof params.ui === 'string' ? params.ui : null;
+
+  // Legacy → the original client form + filterable/resend/revoke table.
+  if (requestedUi === 'legacy') {
+    return <InvitesLegacyClient />;
+  }
+
+  // --- DEFAULT: real (lean) invites cockpit (design kit) ---
+
+  // Tenant scope: super-admins see all invites; tenant admins see only invites
+  // issued by users in their org (mirrors /api/admin/invites). A failed scope
+  // lookup degrades to "own org unknown" → empty list rather than leaking.
+  const where: Prisma.InvitationWhereInput = {};
+  if (!(await isSuperAdmin(user.id))) {
+    try {
+      where.invitedBy = { organizationId: await getActorOrganizationId(user.id) };
+    } catch {
+      where.id = '__none__'; // no org resolvable → show nothing
+    }
+  }
+
+  // Lean parallel reads: count by status (KPI) + recent rows (table).
+  const [byStatusResult, rowsResult] = await Promise.allSettled([
+    prisma.invitation.groupBy({
+      by: ['status'],
+      where,
+      _count: { _all: true },
+    }),
+    prisma.invitation.findMany({
+      where,
+      take: 50,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true,
+        expiresAt: true,
+        createdAt: true,
+      },
+    }),
+  ]);
+
+  if (rowsResult.status === 'rejected') {
+    console.error('[admin/invites] rows load failed', rowsResult.reason);
+    redirect('/admin/invites?ui=legacy');
+  }
+
+  const now = new Date();
+  const records = rowsResult.value;
+
+  // KPI counts from the lean groupBy. "Pending" reflects DB pending; expired
+  // pendings are counted under expired to match the legacy stat cards.
+  const counts: Record<string, number> = {
     pending: 0,
     accepted: 0,
     expired: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const inviteSent = searchParams?.get('invite') === 'sent';
-  const inviteSavedNoEmail = searchParams?.get('invite') === 'saved_no_email';
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const invRes = await fetch('/api/admin/invites');
-        let sgData: { id: string; name: string }[] = [];
-        try {
-          const sgRes = await fetch('/api/admin/subgroups');
-          if (sgRes.ok) {
-            const d = await sgRes.json();
-            sgData = (Array.isArray(d) ? d : d.subgroups ?? []).map((s: { id: string; name: string }) => ({ id: s.id, name: s.name }));
-          }
-        } catch {
-          // ignore
-        }
-        setSubgroups(sgData);
-
-        try {
-          const prRes = await fetch('/api/admin/partners');
-          if (prRes.ok) {
-            const raw = await prRes.json();
-            const arr = Array.isArray(raw) ? raw : [];
-            setPartners(
-              arr
-                .filter((p: { active?: boolean }) => p.active !== false)
-                .map((p: { id: string; name: string }) => ({ id: p.id, name: p.name }))
-                .sort((a: Partner, b: Partner) => a.name.localeCompare(b.name))
-            );
-          }
-        } catch {
-          // ignore
-        }
-
-        if (invRes.ok) {
-          const invData = await invRes.json();
-          const list = invData.invites ?? [];
-          setInvites(list);
-          const now = new Date();
-          setStats({
-            total: list.length,
-            pending: list.filter((i: Invite) => i.status === 'pending' && new Date(i.expiresAt) > now).length,
-            accepted: list.filter((i: Invite) => i.status === 'accepted').length,
-            expired: list.filter((i: Invite) => i.status === 'expired' || (i.status === 'pending' && new Date(i.expiresAt) <= now)).length,
-          });
-        }
-
-        const { PROGRAMS } = await import('@/lib/content/programs');
-        setPrograms(PROGRAMS.map((p) => ({ slug: p.slug, title: p.title })));
-      } catch (err) {
-        console.error('Failed to load invites:', err);
-      } finally {
-        setLoading(false);
-      }
+    revoked: 0,
+  };
+  if (byStatusResult.status === 'fulfilled') {
+    for (const g of byStatusResult.value) {
+      counts[g.status] = (counts[g.status] ?? 0) + g._count._all;
     }
-    fetchData();
-  }, [modalOpen]);
-
-  if (loading) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <p>Loading...</p>
-      </div>
-    );
+  } else {
+    console.error('[admin/invites] status aggregate failed', byStatusResult.reason);
   }
 
-  const acceptanceRate =
-    stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0;
+  const sent = counts.pending + counts.accepted + counts.expired + counts.revoked;
+  const accepted = counts.accepted;
+  const pending = counts.pending;
+  const rate = sent > 0 ? Math.round((accepted / sent) * 100) : 0;
 
-  return (
-    <div style={{ paddingTop: '1.5rem' }}>
-      <PageHeader
-        title="Invitations"
-        subtitle="Invite admins, partners, members, or counselors to the platform."
-        action={
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              className="btn btn-primary"
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-            >
-              <Send size={18} />
-              Send New Invite
-            </button>
-            <Link href="/admin/invites/new" className="btn btn-outline">
-              Open Full Form
-            </Link>
-          </div>
-        }
-      />
-      {inviteSent ? (
-        <div className="admin-inline-feedback" role="status" style={{ marginBottom: '1rem' }}>
-          <p>Invitation sent successfully.</p>
-        </div>
-      ) : null}
-      {inviteSavedNoEmail ? (
-        <div className="admin-inline-feedback admin-inline-feedback--error" role="status" style={{ marginBottom: '1rem' }}>
-          <p>
-            Invitation was saved, but email delivery is not configured. Share the invite link manually or resend after email is configured.
-          </p>
-        </div>
-      ) : null}
+  const invites: InviteRow[] = records.map((inv) => ({
+    id: inv.id,
+    email: inv.email,
+    type: ROLE_LABELS[inv.role] ?? inv.role,
+    sent: relativeSent(inv.createdAt, now),
+    status: effectiveStatus(inv.status, inv.expiresAt, now),
+  }));
 
-      <div className="admin-stat-cards" style={{ marginBottom: '0.5rem' }}>
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">
-            <Mail size={24} className="text-current" />
-          </div>
-          <div className="admin-stat-card-label">Total Invites Sent</div>
-          <div className="admin-stat-card-value">{stats.total}</div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">
-            <Clock size={24} className="text-current" />
-          </div>
-          <div className="admin-stat-card-label">Pending</div>
-          <div className="admin-stat-card-value">{stats.pending}</div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">
-            <CheckCircle size={24} className="text-current" />
-          </div>
-          <div className="admin-stat-card-label">Acceptance Rate</div>
-          <div className="admin-stat-card-value">{acceptanceRate}%</div>
-        </div>
-        <div className="admin-stat-card">
-          <div className="admin-stat-card-icon">
-            <Users size={24} className="text-current" />
-          </div>
-          <div className="admin-stat-card-label">Accepted</div>
-          <div className="admin-stat-card-value">{stats.accepted}</div>
-        </div>
-      </div>
-
-      <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Invite list</h2>
-      <InvitesTable invites={invites} />
-
-      {modalOpen && (
-        <InviteForm
-          subgroups={subgroups}
-          programs={programs}
-          partners={partners}
-          onClose={() => setModalOpen(false)}
-        />
-      )}
-    </div>
+  const action = (
+    <Link
+      href="/admin/invites/new"
+      className="btn btn-primary"
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+    >
+      <Send size={16} />
+      Send Invites
+    </Link>
   );
-}
 
-export default function AdminInvitesPage() {
   return (
-    <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}><p>Loading...</p></div>}>
-      <AdminInvitesPageContent />
-    </Suspense>
+    <InvitesKit
+      invites={invites}
+      sent={sent}
+      accepted={accepted}
+      pending={pending}
+      rate={rate}
+      action={action}
+    />
   );
 }

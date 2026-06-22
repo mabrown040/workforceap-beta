@@ -4,7 +4,14 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { getProgramBySlug } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  ProgramChangeRequestsKit,
+  type ProgramChangeRow,
+  type ProgramChangeDisplayStatus,
+} from '@/components/portal/kit/pages/admin-subviews/ProgramChangeRequestsKit';
 import ProgramChangeRequestsAdminClient from './ProgramChangeRequestsAdminClient';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,11 +22,69 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function AdminProgramChangeRequestsPage() {
+/** Cap the lean kit table so first paint stays cheap. */
+const BOARD_LIMIT = 50;
+
+/** Map the ProgramChangeRequestStatus enum onto the kit's display status. */
+const DISPLAY_STATUS: Record<string, ProgramChangeDisplayStatus> = {
+  PENDING: 'Pending',
+  APPROVED: 'Approved',
+  DENIED: 'Rejected',
+  CANCELLED: 'Cancelled',
+};
+
+/** Slug → friendly program title (static lookup); falls back to the slug. */
+function programLabel(slug: string | null): string {
+  if (!slug) return '—';
+  return getProgramBySlug(slug)?.title ?? slug;
+}
+
+export default async function AdminProgramChangeRequestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/program-change-requests');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
+  const { ui } = await searchParams;
+
+  // --- DEFAULT: design-kit review table wired into real (lean) data ---
+  if (ui !== 'legacy') {
+    const [requests, pendingCount] = await Promise.all([
+      prisma.programChangeRequest.findMany({
+        take: BOARD_LIMIT,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          currentProgramSlug: true,
+          requestedProgramSlug: true,
+          reason: true,
+          status: true,
+          user: { select: { id: true, email: true, fullName: true } },
+        },
+      }),
+      prisma.programChangeRequest.count({ where: { status: 'PENDING' } }),
+    ]);
+
+    const rows: ProgramChangeRow[] = requests.map((r) => ({
+      id: r.id,
+      student: r.user?.fullName ?? r.user?.email ?? r.user?.id ?? 'Unknown member',
+      current: programLabel(r.currentProgramSlug),
+      requested: programLabel(r.requestedProgramSlug),
+      reason: r.reason?.trim() || '—',
+      status: DISPLAY_STATUS[r.status] ?? 'Pending',
+    }));
+
+    return (
+      <DesignSurface surface="dense">
+        <ProgramChangeRequestsKit requests={rows} pendingCount={pendingCount} />
+      </DesignSurface>
+    );
+  }
+
+  // --- LEGACY (?ui=legacy): the proven review workspace, unchanged ---
   const rows = await prisma.programChangeRequest.findMany({
     take: 5000,
     orderBy: { createdAt: 'desc' },

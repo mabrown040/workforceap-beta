@@ -48,12 +48,12 @@ function whenLabel(d: Date): string {
 }
 
 /**
- * In-office sessions — admin view.
+ * In-office sessions — admin view. Dad's critical operator flow.
  *
- * DEFAULT: design-kit dense roster wired to real (lean) session data.
- * ?ui=legacy: the proven SessionsIndexBody workspace (walk-in / pick-member
- * cards + searchable history), unchanged. Per user direction 2026-04-26 this
- * view stays inside admin chrome (not counselor).
+ * DEFAULT: the rich SessionsIndexBody workspace (walk-in / pick-member cards +
+ * searchable session history → session run). This is the primary feature.
+ * ?ui=kit: an optional dense history-only roster (SessionsKit). Per user
+ * direction 2026-04-26 this view stays inside admin chrome (not counselor).
  */
 export default async function AdminSessionsPage({
   searchParams,
@@ -66,11 +66,14 @@ export default async function AdminSessionsPage({
 
   const { ui } = await searchParams;
 
-  if (ui === 'legacy') {
-    return <SessionsIndexBody actor="admin" actorUserId={user.id} />;
+  // In-office sessions is dad's critical operator flow (walk-in / existing-member
+  // build → session run). The rich SessionsIndexBody IS the default; the dense
+  // history-only roster (SessionsKit) is an optional power view at ?ui=kit.
+  if (ui === 'kit') {
+    return renderKit();
   }
 
-  return renderKit();
+  return <SessionsIndexBody actor="admin" actorUserId={user.id} />;
 }
 
 /** Design-kit default: dense roster of recent sessions → <SessionsKit/>. */

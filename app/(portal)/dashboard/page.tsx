@@ -143,9 +143,6 @@ async function renderMemberDashboard(
     requestedUi: null,
   },
 ) {
-  const __t = Date.now();
-  const mark = (s: string) => console.log(`[dashtime] ${s} @${Date.now() - __t}ms`);
-  mark('start');
 
   // ?ui=kit LEAN PATH (runs BEFORE the heavy pipeline) — render the redesigned
   // dashboard from a few simple, fast queries. Skips loadMemberCareerBriefBundle /
@@ -194,7 +191,6 @@ async function renderMemberDashboard(
   }
 
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
-  mark('after loadMemberCareerBriefBundleSafe');
   if (!dbUser) {
     // Authenticated session without a member row — staff accounts land here
     // when something links them to /dashboard. Send them to their own portal
@@ -216,12 +212,10 @@ async function renderMemberDashboard(
   // closes the equivalent gap on the home page (#1079 only enriched the
   // training page, so the home dashboard kept reading 0% from local rows
   // for any never-synced learner). See lib/coursera/dashboardAutoSync.ts.
-  mark('before maybeAutoSyncCourseraOnDashboard');
   await maybeAutoSyncCourseraOnDashboard({
     userId: user.id,
     userEmail: user.email ?? null,
   });
-  mark('after maybeAutoSyncCourseraOnDashboard');
 
   // ── Multi-program resolution ──
   // Drive the hero name + progress + selector chip from `CourseEnrollment`
@@ -229,12 +223,10 @@ async function renderMemberDashboard(
   // `User.enrolledProgram` directly here is what produced the
   // hero/course-list mismatch when that legacy field went stale — the
   // helper falls back to it only for never-migrated users.
-  mark('before getActiveProgramForDashboard');
   const activeProgramView = await getActiveProgramForDashboard({
     userId: user.id,
     requestedProgramSlug: args.requestedProgramSlug,
   });
-  mark('after getActiveProgramForDashboard');
   if (
     activeProgramView.legacyEnrolledProgramMismatch &&
     activeProgramView.primaryProgramSlug
@@ -267,20 +259,16 @@ async function renderMemberDashboard(
         return new Map() as LearnerProgressByContent;
       })
     : Promise.resolve(new Map() as LearnerProgressByContent);
-  mark('before await b4bProgressPromise');
   const b4bProgress = await b4bProgressPromise;
-  mark('after b4bProgressPromise');
 
   // Single source of truth for member state (application, training, profile, checklist, next actions).
   // `b4bProgress` is threaded through so `trainingView.progressPercentDisplay`
   // prefers Coursera B4B enrollmentReports per course when available (fallback:
   // local CourseProgress / xAPI-fed rows).
-  mark('before getMemberState');
   const memberState = await getMemberState(user.id, {
     b4bProgress,
     activeProgramSlug: enrolledProgramSlug,
   });
-  mark('after getMemberState');
 
   // Lightweight query for presentation-layer metadata not in getMemberState
   const intakePromise = prisma.user.findUnique({
@@ -321,7 +309,6 @@ async function renderMemberDashboard(
     },
   });
 
-  mark('before main Promise.allSettled');
   const [intakeResult, toolsResult, applicationResult, dynamicActionsResult, jobApplicationsResult, pointsResult, recentTxResult, sessionEventsResult, interviewPracticeCompletionResult, first90EventsResult] = await Promise.allSettled([
     intakePromise,
     prisma.aIToolResult.findMany({
@@ -396,7 +383,6 @@ async function renderMemberDashboard(
       select: { entityId: true, metadata: true, createdAt: true },
     }),
   ]);
-  mark('after main Promise.allSettled');
 
   const intakeExtra = intakeResult.status === 'fulfilled' ? intakeResult.value : null;
   if (intakeResult.status === 'rejected') {
@@ -874,7 +860,6 @@ async function renderMemberDashboard(
 
   // Phase 1 design-kit preview: ?ui=kit renders the redesigned dashboard with
   // real data. Default (no flag) is the existing dashboard — zero member impact.
-  mark('reached render (all data loaded)');
   if (args.requestedUi === 'kit') {
     return (
       <MemberDashboardKit

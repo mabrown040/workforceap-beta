@@ -1,5 +1,5 @@
 import { Play, Check, Lock, CalendarDays, Target, ArrowRight } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { DesignSurface, ProgressRing } from '@/components/portal/kit';
 
 /**
@@ -41,11 +41,12 @@ const DEFAULT_MODULES: ProgramModule[] = [
   { title: 'Exam Readiness', state: 'locked' },
 ];
 
-const MODULE_META: Record<ModuleState, { label: string; color: string; icon: ReactNode; bg: string; border?: string; iconBg: string; iconColor: string }> = {
+const MODULE_META: Record<ModuleState, { label: string; color: string; icon: LucideIcon; iconSize: number; bg: string; border?: string; iconBg: string; iconColor: string }> = {
   done: {
     label: 'Done',
     color: 'var(--wa-success)',
-    icon: <Check size={13} />,
+    icon: Check,
+    iconSize: 13,
     bg: 'var(--wa-bg)',
     iconBg: 'var(--wa-success)',
     iconColor: '#fff',
@@ -53,7 +54,8 @@ const MODULE_META: Record<ModuleState, { label: string; color: string; icon: Rea
   active: {
     label: 'In Progress',
     color: 'var(--wa-accent)',
-    icon: <Play size={11} />,
+    icon: Play,
+    iconSize: 11,
     bg: 'var(--wa-accent-soft)',
     border: '1px solid #f3d4dc',
     iconBg: 'var(--wa-accent)',
@@ -62,7 +64,8 @@ const MODULE_META: Record<ModuleState, { label: string; color: string; icon: Rea
   locked: {
     label: 'Locked',
     color: '#a3a3a3',
-    icon: <Lock size={11} />,
+    icon: Lock,
+    iconSize: 11,
     bg: 'var(--wa-surface)',
     border: '1px solid var(--wa-border)',
     iconBg: '#e8e8e8',
@@ -135,6 +138,7 @@ export function MemberProgramKit({
             <div className="wa-space-y-2">
               {modules.map((m) => {
                 const meta = MODULE_META[m.state];
+                const Icon = meta.icon;
                 const dim = m.state === 'locked';
                 return (
                   <div
@@ -161,7 +165,7 @@ export function MemberProgramKit({
                         flexShrink: 0,
                       }}
                     >
-                      {meta.icon}
+                      <Icon size={meta.iconSize} />
                     </div>
                     <span style={{ fontWeight: 600, fontSize: 14, flex: 1, color: dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>
                       {m.title}

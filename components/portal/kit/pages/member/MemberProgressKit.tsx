@@ -1,5 +1,5 @@
 import { Check, Zap, Flag } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { DesignSurface } from '@/components/portal/kit';
 
 /**
@@ -50,10 +50,10 @@ const DEFAULT_MILESTONES: Milestone[] = [
   { label: 'Job placement', when: 'Goal', state: 'goal' },
 ];
 
-const MILESTONE_META: Record<MilestoneState, { icon: ReactNode; iconBg: string; iconColor: string; whenColor: string; dim: boolean }> = {
-  done: { icon: <Check size={13} />, iconBg: 'var(--wa-success)', iconColor: '#fff', whenColor: 'var(--wa-muted)', dim: false },
-  active: { icon: <Zap size={11} />, iconBg: 'var(--wa-accent)', iconColor: '#fff', whenColor: 'var(--wa-accent)', dim: false },
-  goal: { icon: <Flag size={11} />, iconBg: '#e8e8e8', iconColor: '#a3a3a3', whenColor: '#a3a3a3', dim: true },
+const MILESTONE_META: Record<MilestoneState, { icon: LucideIcon; iconSize: number; iconBg: string; iconColor: string; whenColor: string; dim: boolean }> = {
+  done: { icon: Check, iconSize: 13, iconBg: 'var(--wa-success)', iconColor: '#fff', whenColor: 'var(--wa-muted)', dim: false },
+  active: { icon: Zap, iconSize: 11, iconBg: 'var(--wa-accent)', iconColor: '#fff', whenColor: 'var(--wa-accent)', dim: false },
+  goal: { icon: Flag, iconSize: 11, iconBg: '#e8e8e8', iconColor: '#a3a3a3', whenColor: '#a3a3a3', dim: true },
 };
 
 export function MemberProgressKit({
@@ -122,6 +122,7 @@ export function MemberProgressKit({
             <div className="wa-space-y-3">
               {milestones.map((m) => {
                 const meta = MILESTONE_META[m.state];
+                const Icon = meta.icon;
                 return (
                   <div key={m.label} className="wa-flex wa-items-center wa-gap-3" style={{ opacity: meta.dim ? 0.6 : 1 }}>
                     <div
@@ -137,7 +138,7 @@ export function MemberProgressKit({
                         flexShrink: 0,
                       }}
                     >
-                      {meta.icon}
+                      <Icon size={meta.iconSize} />
                     </div>
                     <span style={{ fontSize: 14, fontWeight: 600, flex: 1, minWidth: 0, color: meta.dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>{m.label}</span>
                     <span style={{ fontSize: 10, fontWeight: m.state === 'active' ? 700 : 400, color: meta.whenColor, flexShrink: 0, whiteSpace: 'nowrap' }}>{m.when}</span>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Live Design System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+/* ============================================================
+   THE TOKEN LAYER — one source of truth for the whole site.
+   Change a value here (or via the control rail) and every
+   screen, component, and state updates together.
+   ============================================================ */
+:root{
+  --accent:#ad2c4d;          /* primary action */
+  --accent-dark:#8b1f38;     /* hover */
+  --accent-soft:#fdf2f4;     /* tint surface */
+  --gold:#a47f38;            /* achievement */
+  --gold-soft:#FEF3C7;
+  --info:#2b7bb9;            /* supporting */
+  --success:#4a9b4f;
+
+  --bg:#F7F8FA;              /* page */
+  --surface:#ffffff;         /* cards */
+  --text:#1a1a1a;
+  --muted:#737373;
+  --border:#e8e8e8;
+
+  --radius:20px;             /* card roundness */
+  --radius-sm:12px;
+  --pad:28px;                /* density */
+  --pad-sm:18px;
+  --pop:1;                   /* 0 = flat tints, 1 = full gradients on feature tiles */
+  --shadow:0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 12px 24px rgba(0,0,0,.06);
+}
+/* DARK MODE = same tokens, different values. Proves the site flips wholesale. */
+[data-mode="dark"]{
+  --bg:#0f0f12; --surface:#1a1a1f; --text:#fafafa; --muted:#a3a3a3; --border:#2a2a32;
+  --accent-soft:#2a1119; --gold-soft:#2a230f;
+  --shadow:0 1px 2px rgba(0,0,0,.3); --shadow-lg:0 12px 28px rgba(0,0,0,.5);
+}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+.h-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.03em}
+.tabnum{font-variant-numeric:tabular-nums}
+
+/* ---- COMPONENTS built from tokens (not one-off utilities) ---- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:var(--pad);box-shadow:var(--shadow);transition:background .3s,border-color .3s,box-shadow .2s,border-radius .25s,padding .25s}
+.card:hover{box-shadow:var(--shadow-lg)}
+.card-sm{padding:var(--pad-sm);border-radius:var(--radius-sm)}
+.btn{border:none;cursor:pointer;font-weight:600;border-radius:999px;padding:9px 18px;font-size:13px;transition:background .15s,transform .1s;font-family:inherit}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{background:var(--bg)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid var(--border);background:var(--surface)}
+.icon-tile{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px}
+/* feature tile: --pop controls how loud it is */
+.tile-feature{
+  border-radius:var(--radius);padding:var(--pad);color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  box-shadow:0 10px 24px color-mix(in srgb,var(--accent) calc(var(--pop)*22%),transparent);
+  transition:box-shadow .2s,border-radius .25s,padding .25s;
+}
+.tile-gold{background:linear-gradient(135deg,var(--gold),#7d5f26);box-shadow:0 10px 24px color-mix(in srgb,var(--gold) calc(var(--pop)*22%),transparent)}
+/* when pop=0, feature tiles go calm: tint bg + colored text instead of gradient */
+[data-pop="flat"] .tile-feature{background:var(--accent-soft);color:var(--accent);box-shadow:var(--shadow)}
+[data-pop="flat"] .tile-gold{background:var(--gold-soft);color:var(--gold)}
+[data-pop="flat"] .tile-feature .sub,[data-pop="flat"] .tile-gold .sub{color:var(--muted)}
+[data-pop="flat"] .tile-feature .pop-badge,[data-pop="flat"] .tile-gold .pop-badge{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+
+a{color:var(--accent);text-decoration:none}
+.focus-ring:focus-visible{outline:none;box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fade .3s ease forwards}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.card,.tile-feature{transition:none}}
+</style>
+</head>
+<body>
+
+<div style="display:flex;min-height:100vh">
+
+  <!-- ============ CONTROL RAIL (the system) ============ -->
+  <aside style="width:280px;background:var(--surface);border-right:1px solid var(--border);position:fixed;height:100vh;overflow-y:auto;z-index:50;transition:background .3s,border-color .3s" id="rail">
+    <div style="padding:20px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:34px;height:34px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff"><i class="fa-solid fa-sliders"></i></div>
+        <div><div class="h-font" style="font-size:14px">Design System</div><div style="font-size:10px;color:var(--muted)">One source of truth</div></div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin:12px 0 0;line-height:1.5">Every screen reads these tokens. Change one — the whole site moves together. This is how the full site stays consistent.</p>
+    </div>
+
+    <div style="padding:18px;display:flex;flex-direction:column;gap:22px">
+      <!-- accent -->
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Brand Accent</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="sw focus-ring" data-accent="#ad2c4d" data-dark="#8b1f38" data-soft="#fdf2f4" title="Crimson (current brand)" style="width:34px;height:34px;border-radius:10px;background:#ad2c4d;border:2px solid var(--accent);cursor:pointer"></button>
+          <button class="sw focus-ring" data-accent="#2b7bb9" data-dark="#1f5d8c" data-soft="#eef5fb" title="Civic Blue" style="width:34px;height:34px;border-radius:10px;background:#2b7bb9;border:2px solid transparent;cursor:pointer"></button>
+          <button class="sw focus-ring" data-accent="#a47f38" data-dark="#7d5f26" data-soft="#FEF6E2" title="Gold" style="width:34px;height:34px;border-radius:10px;background:#a47f38;border:2px solid transparent;cursor:pointer"></button>
+          <button class="sw focus-ring" data-accent="#4a9b4f" data-dark="#3a7d3e" data-soft="#eef7ef" title="Growth Green" style="width:34px;height:34px;border-radius:10px;background:#4a9b4f;border:2px solid transparent;cursor:pointer"></button>
+          <button class="sw focus-ring" data-accent="#5b21b6" data-dark="#4c1d95" data-soft="#f3eefb" title="Plum" style="width:34px;height:34px;border-radius:10px;background:#5b21b6;border:2px solid transparent;cursor:pointer"></button>
+        </div>
+        <p style="font-size:10px;color:var(--muted);margin:8px 0 0">Buttons, links, progress, focus rings, feature tiles — all follow this.</p>
+      </div>
+      <!-- pop -->
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Pop <span style="font-weight:500;text-transform:none;letter-spacing:0">— how loud feature tiles are</span></div>
+        <div style="display:flex;gap:6px" id="pop-group">
+          <button class="seg focus-ring" data-pop="flat" style="flex:1">Calm</button>
+          <button class="seg focus-ring is-on" data-pop="bold" style="flex:1">Bold</button>
+        </div>
+        <p style="font-size:10px;color:var(--muted);margin:8px 0 0">Pop is a setting, not a per-page hack. Calm = tinted surfaces. Bold = gradient tiles for the things you want members to notice.</p>
+      </div>
+      <!-- radius -->
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Corner Style</div>
+        <div style="display:flex;gap:6px" id="radius-group">
+          <button class="seg focus-ring" data-r="8" data-rs="6" style="flex:1">Sharp</button>
+          <button class="seg focus-ring is-on" data-r="20" data-rs="12" style="flex:1">Rounded</button>
+          <button class="seg focus-ring" data-r="30" data-rs="18" style="flex:1">Soft</button>
+        </div>
+      </div>
+      <!-- density -->
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Density</div>
+        <div style="display:flex;gap:6px" id="density-group">
+          <button class="seg focus-ring" data-pad="18" data-pads="12" style="flex:1">Compact</button>
+          <button class="seg focus-ring is-on" data-pad="28" data-pads="18" style="flex:1">Comfortable</button>
+        </div>
+        <p style="font-size:10px;color:var(--muted);margin:8px 0 0">Compact for power users; comfortable for first-time members.</p>
+      </div>
+      <!-- mode -->
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Mode</div>
+        <div style="display:flex;gap:6px" id="mode-group">
+          <button class="seg focus-ring is-on" data-mode="light" style="flex:1"><i class="fa-solid fa-sun"></i> Light</button>
+          <button class="seg focus-ring" data-mode="dark" style="flex:1"><i class="fa-solid fa-moon"></i> Dark</button>
+        </div>
+      </div>
+      <button class="btn btn-ghost focus-ring" id="reset" style="width:100%"><i class="fa-solid fa-rotate-left" style="margin-right:6px"></i>Reset to brand defaults</button>
+    </div>
+  </aside>
+
+  <!-- ============ THE PRODUCT (reads tokens) ============ -->
+  <div style="flex:1;margin-left:280px;min-width:0" id="stage">
+
+    <!-- top bar: universal search = "finding is simple" -->
+    <header style="position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:16px;transition:background .3s,border-color .3s">
+      <div style="font-weight:800" class="h-font">Member Portal</div>
+      <div style="flex:1;max-width:520px;margin:0 auto;position:relative">
+        <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px"></i>
+        <input class="focus-ring" placeholder="Find anything — jobs, courses, tools, your counselor…" aria-label="Universal search" style="width:100%;border:1px solid var(--border);background:var(--bg);border-radius:999px;padding:10px 14px 10px 38px;font-size:13px;color:var(--text);font-family:inherit;outline:none;transition:background .3s,border-color .3s">
+        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:2px 5px">⌘K</span>
+      </div>
+      <span class="chip"><i class="fa-solid fa-fire" style="color:var(--accent)"></i>12-day</span>
+      <span class="chip"><i class="fa-solid fa-coins" style="color:var(--gold)"></i><span class="tabnum">1,240</span></span>
+    </header>
+
+    <!-- simplified 4-group nav: "easier nav" -->
+    <nav style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:4px;overflow-x:auto;transition:background .3s,border-color .3s">
+      <button class="topnav is-on focus-ring" style="white-space:nowrap"><i class="fa-solid fa-house-chimney"></i> Journey</button>
+      <button class="topnav focus-ring" style="white-space:nowrap"><i class="fa-solid fa-book-open"></i> Program</button>
+      <button class="topnav focus-ring" style="white-space:nowrap"><i class="fa-solid fa-briefcase"></i> Jobs</button>
+      <button class="topnav focus-ring" style="white-space:nowrap"><i class="fa-solid fa-user"></i> Me</button>
+    </nav>
+
+    <main style="padding:28px;max-width:1200px;margin:0 auto" class="fade" id="content">
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)"><i class="fa-solid fa-house-chimney"></i> Good morning</div>
+        <h1 class="h-font" style="font-size:30px;margin:4px 0 0">Keep climbing, Mike.</h1>
+      </div>
+
+      <!-- KPI strip -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px" id="kpi">
+        <div class="card card-sm"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Course</div><div class="tabnum" style="font-size:30px;font-weight:800;color:var(--accent);margin-top:4px">78<span style="font-size:18px">%</span></div></div>
+        <div class="card card-sm"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Active Jobs</div><div class="tabnum" style="font-size:30px;font-weight:800;margin-top:4px">4</div></div>
+        <div class="card card-sm"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Certs</div><div class="tabnum" style="font-size:30px;font-weight:800;color:var(--gold);margin-top:4px">2</div></div>
+        <div class="card card-sm"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Points</div><div class="tabnum" style="font-size:30px;font-weight:800;color:var(--info);margin-top:4px">1,240</div></div>
+      </div>
+
+      <!-- bento -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px" id="bento">
+        <!-- progress ring -->
+        <div class="card" style="grid-column:span 2;display:flex;align-items:center;gap:22px">
+          <div style="position:relative;flex-shrink:0">
+            <svg width="104" height="104" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" stroke-width="12"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="71.9" transform="rotate(-90 60 60)"/></svg>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><span class="tabnum" style="font-size:22px;font-weight:800;color:var(--accent)">78%</span></div>
+          </div>
+          <div>
+            <span class="chip" style="background:color-mix(in srgb,var(--success) 12%,var(--surface));color:var(--success);border-color:transparent">In Progress</span>
+            <h3 style="font-size:19px;font-weight:800;margin:8px 0 2px;letter-spacing:-.02em">AWS Cloud Practitioner</h3>
+            <p style="font-size:12px;color:var(--muted);margin:0">Next: Shared Responsibility Model · <span style="color:var(--accent);font-weight:700">Due Thursday</span></p>
+            <button class="btn btn-primary focus-ring" style="margin-top:12px"><i class="fa-solid fa-play" style="margin-right:6px;font-size:10px"></i>Resume</button>
+          </div>
+        </div>
+        <!-- feature tile crimson (pop) -->
+        <button class="tile-feature focus-ring" style="text-align:left;border:none;display:flex;flex-direction:column;justify-content:space-between;min-height:180px;font-family:inherit">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="padding:12px;background:rgba(255,255,255,.12);border-radius:var(--radius-sm)"><i class="fa-solid fa-wand-magic-sparkles" style="font-size:20px"></i></div><span class="pop-badge" style="padding:2px 9px;font-size:9px;font-weight:700;letter-spacing:.1em;background:rgba(255,255,255,.2);border-radius:999px">AI</span></div>
+          <div><h3 style="font-size:19px;font-weight:800;margin:0;letter-spacing:-.02em">Career Toolkit</h3><p class="sub" style="font-size:12px;opacity:.85;margin:4px 0 0">Resume audit + cover letters.</p></div>
+        </button>
+        <!-- gold feature tile (pop) -->
+        <button class="tile-gold focus-ring" style="text-align:left;border:none;display:flex;flex-direction:column;justify-content:space-between;min-height:180px;font-family:inherit">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start"><div style="padding:12px;background:rgba(255,255,255,.15);border-radius:var(--radius-sm)"><i class="fa-solid fa-medal" style="font-size:20px"></i></div><span class="pop-badge" style="padding:2px 9px;font-size:9px;font-weight:700;letter-spacing:.1em;background:rgba(255,255,255,.2);border-radius:999px">NEXT</span></div>
+          <div><h3 style="font-size:18px;font-weight:800;margin:0;letter-spacing:-.02em">Next Badge</h3><p class="sub" style="font-size:12px;opacity:.85;margin:4px 0 0">2 modules to Cloud Foundations.</p></div>
+        </button>
+        <!-- pipeline table -->
+        <div class="card" style="grid-column:span 2">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-size:17px;font-weight:800;margin:0;letter-spacing:-.02em">Active Job Pipeline</h3><a href="#" style="font-size:12px;font-weight:700">View all →</a></div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 0;font-weight:700">Salesforce Administrator</td><td style="color:var(--muted)">Deloitte</td><td style="text-align:right"><span class="chip" style="background:color-mix(in srgb,#f59e0b 15%,var(--surface));color:#b45309;border-color:transparent;font-size:9px;padding:3px 9px">Interviewing</span></td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 0;font-weight:700">Agentforce SE</td><td style="color:var(--muted)">Accenture</td><td style="text-align:right"><span class="chip" style="font-size:9px;padding:3px 9px;color:var(--muted)">Applied</span></td></tr>
+            <tr><td style="padding:8px 0;font-weight:700">Cloud Support Associate</td><td style="color:var(--muted)">Indeed</td><td style="text-align:right"><span class="chip" style="background:color-mix(in srgb,var(--info) 12%,var(--surface));color:var(--info);border-color:transparent;font-size:9px;padding:3px 9px">Screening</span></td></tr>
+          </table>
+        </div>
+        <!-- learning hub (info) -->
+        <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;min-height:180px">
+          <div><div class="icon-tile" style="background:color-mix(in srgb,var(--info) 10%,var(--surface));color:var(--info)"><i class="fa-solid fa-graduation-cap"></i></div><h3 style="font-size:17px;font-weight:800;margin:14px 0 2px;letter-spacing:-.02em">Learning Hub</h3><p style="font-size:12px;color:var(--muted);margin:0">Coursera B2B courses.</p></div>
+          <a href="#" style="font-size:12px;font-weight:700">Go to courses →</a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- segmented + nav button styling (uses tokens) -->
+<style>
+.seg{font-family:inherit;font-size:11px;font-weight:700;padding:8px 6px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:all .15s}
+.seg.is-on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.topnav{font-family:inherit;font-size:13px;font-weight:700;padding:14px 16px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;transition:color .15s,border-color .15s}
+.topnav.is-on{color:var(--accent);border-bottom-color:var(--accent)}
+.topnav:hover{color:var(--text)}
+@media(max-width:900px){aside#rail{position:relative;width:100%;height:auto}div#stage{margin-left:0}#kpi{grid-template-columns:repeat(2,1fr)!important}#bento{grid-template-columns:1fr!important}#bento>*{grid-column:auto!important}}
+</style>
+
+<script>
+const root=document.documentElement;
+function setVars(o){for(const k in o)root.style.setProperty(k,o[k]);}
+function group(sel,fn){const g=document.querySelector(sel);g.querySelectorAll('.seg').forEach(b=>b.addEventListener('click',()=>{g.querySelectorAll('.seg').forEach(x=>x.classList.remove('is-on'));b.classList.add('is-on');fn(b);}));}
+
+// accent swatches
+document.querySelectorAll('.sw').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.sw').forEach(x=>x.style.border='2px solid transparent');
+  b.style.border='2px solid var(--accent)';
+  setVars({'--accent':b.dataset.accent,'--accent-dark':b.dataset.dark,'--accent-soft':b.dataset.soft});
+  // recolor the active swatch ring after accent changes
+  b.style.border='2px solid '+b.dataset.accent;
+}));
+// pop
+group('#pop-group',b=>root.setAttribute('data-pop',b.dataset.pop==='flat'?'flat':'bold'));
+// radius
+group('#radius-group',b=>setVars({'--radius':b.dataset.r+'px','--radius-sm':b.dataset.rs+'px'}));
+// density
+group('#density-group',b=>setVars({'--pad':b.dataset.pad+'px','--pad-sm':b.dataset.pads+'px'}));
+// mode
+group('#mode-group',b=>{root.setAttribute('data-mode',b.dataset.mode);});
+// reset
+document.getElementById('reset').addEventListener('click',()=>location.reload());
+root.setAttribute('data-pop','bold');
+</script>
+</body>
+</html>

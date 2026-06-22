@@ -80,7 +80,8 @@ export default async function EmployerDashboardPage({
   // aIJobMatch match-to-hire pass — all of which stall on the demo DB.
   // Renders the redesigned employer kit from a handful of cheap queries.
   const params = await searchParams;
-  if (params?.ui === 'kit') {
+  // v2 kit is the DEFAULT employer overview; legacy via ?ui=legacy.
+  if (params?.ui !== 'legacy') {
     const [
       kitOpenRoles,
       kitTotalCandidates,
@@ -117,12 +118,12 @@ export default async function EmployerDashboardPage({
       {
         key: 'candidate',
         header: 'Candidate',
-        render: (row) => row.student.fullName ?? '—',
+        render: (row) => row.student?.fullName ?? '—',
       },
       {
         key: 'role',
         header: 'Role',
-        render: (row) => row.job.title ?? '—',
+        render: (row) => row.job?.title ?? '—',
       },
       {
         key: 'applied',

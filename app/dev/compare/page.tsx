@@ -44,9 +44,8 @@ export default function DevComparePage() {
         Portal UI decision board
       </h1>
       <p style={{ color: '#555', lineHeight: 1.5, marginBottom: 28 }}>
-        v2 is now the default for the member dashboard + admin &ldquo;Today&rdquo; on this preview; the legacy UI
-        stays reachable via <code>?ui=legacy</code>. Staff portals (employer / partner / counselor) remain behind
-        <code>?ui=kit</code> until verified. Full write-up: <code>docs/PORTAL_UI_DECISION_MOCKUP.md</code>
+        v2 is now the default across the portal on this preview (member, admin, employer, partner, counselor).
+        The legacy UI stays reachable per page via <code>?ui=legacy</code>. Full write-up: <code>docs/PORTAL_UI_DECISION_MOCKUP.md</code>
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

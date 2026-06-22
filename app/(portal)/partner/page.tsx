@@ -141,7 +141,8 @@ export default async function PartnerDashboardPage({
   // loadPartnerReferralBundle + Promise.all aggregations that stall on the
   // demo DB). Renders the redesigned partner overview from a handful of cheap
   // count/findMany queries only. NO bundle, NO $transaction, NO external HTTP.
-  if (requestedUi === 'kit') {
+  // v2 kit is the DEFAULT partner overview; legacy via ?ui=legacy.
+  if (requestedUi !== 'legacy') {
     const memberFilter = {
       deletedAt: null,
       organizationId: ctx.partner.organizationId,
@@ -200,12 +201,18 @@ export default async function PartnerDashboardPage({
       status: string;
       referred: string;
     };
-    const referralRows: ReferralKitRow[] = recentReferrals.map((r) => ({
-      id: r.member.id,
-      name: r.member.fullName ?? t('memberFallback'),
-      status: r.member.enrolledAt ? t('membersEnrolled') : t('membersReferred'),
-      referred: r.referredAt.toLocaleDateString('en-US'),
-    }));
+    const referralRows: ReferralKitRow[] = recentReferrals
+      .map((r) => {
+        const m = r.member;
+        if (!m) return null;
+        return {
+          id: m.id,
+          name: m.fullName ?? t('memberFallback'),
+          status: m.enrolledAt ? t('membersEnrolled') : t('membersReferred'),
+          referred: r.referredAt.toLocaleDateString('en-US'),
+        };
+      })
+      .filter((row): row is ReferralKitRow => row !== null);
 
     return (
       <PortalPageFrame maxWidth="80rem">

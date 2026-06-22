@@ -859,9 +859,12 @@ async function renderMemberDashboard(
     </ErrorBoundary>
   );
 
-  // Phase 1 design-kit preview: ?ui=kit renders the redesigned dashboard with
-  // real data. Default (no flag) is the existing dashboard — zero member impact.
-  if (args.requestedUi === 'kit') {
+  // The v2 kit is the DEFAULT, rendered by the lean early-return at the top of
+  // this fn; ?ui=legacy falls through to the original dashboard below. This
+  // richer-data kit branch is currently unreachable (kept for the eventual prod
+  // path that runs the full pipeline). Condition matches the lean gate so the
+  // types line up — requestedUi is narrowed to 'legacy' by the time we get here.
+  if (args.requestedUi !== 'legacy') {
     return (
       <MemberDashboardKit
         firstName={firstName}

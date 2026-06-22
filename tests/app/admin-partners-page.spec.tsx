@@ -63,7 +63,7 @@ describe('AdminPartnersPage authorization', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
 
-    await expect(AdminPartnersPage()).rejects.toThrow('REDIRECT:/dashboard');
+    await expect(AdminPartnersPage({})).rejects.toThrow('REDIRECT:/dashboard');
 
     expect(prisma.partner.findMany).not.toHaveBeenCalled();
     expect(prisma.partnerReferral.groupBy).not.toHaveBeenCalled();
@@ -78,7 +78,7 @@ describe('AdminPartnersPage authorization', () => {
     vi.mocked(prisma.partner.count).mockResolvedValue(0);
     vi.mocked(prisma.partnerReferral.groupBy).mockResolvedValue([] as any);
 
-    await expect(AdminPartnersPage()).resolves.toBeTruthy();
+    await expect(AdminPartnersPage({})).resolves.toBeTruthy();
 
     expect(prisma.partner.findMany).toHaveBeenCalledTimes(1);
   });

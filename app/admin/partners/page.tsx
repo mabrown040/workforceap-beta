@@ -137,7 +137,7 @@ export default async function AdminPartnersPage({
   searchParams,
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
-} = {}) {
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/partners');
   if (!(await isAdmin(user.id))) redirect('/dashboard');

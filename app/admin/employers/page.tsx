@@ -14,6 +14,11 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import EmployersTableClient from '@/components/admin/EmployersTableClient';
 import AdminEmployerTierSelect from './AdminEmployerTierSelect';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  EmployersDirectoryKit,
+  type EmployerCard,
+} from '@/components/portal/kit/pages/admin-subviews/EmployersDirectoryKit';
 
 function getPartnershipTier(placementAgreementSigned: boolean, hiringPipelineActive: boolean): {
   label: string;
@@ -56,16 +61,130 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+/** Job statuses that count as an "open role" (live + approved, ready to hire). */
+const OPEN_JOB_STATUSES = ['live', 'approved'] as const;
+/** Cap the lean directory page so first paint stays cheap. */
+const DIRECTORY_LIMIT = 60;
+
 export default async function AdminEmployersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; ui?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/employers');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const { status: statusFilter } = await searchParams;
+  const { status: statusFilter, ui: requestedUi } = await searchParams;
+
+  // --- DEFAULT: real (lean) employer directory wired into EmployersDirectoryKit ---
+  if (requestedUi !== 'legacy') {
+    const [
+      directoryResult,
+      partnerCountResult,
+      activeCountResult,
+      openRolesGroupResult,
+      openRolesTotalResult,
+      hiresGroupResult,
+      hiresTotalResult,
+    ] = await Promise.allSettled([
+      prisma.employer.findMany({
+        take: DIRECTORY_LIMIT,
+        orderBy: { companyName: 'asc' },
+        select: { id: true, companyName: true, industry: true, status: true },
+      }),
+      prisma.employer.count(),
+      prisma.employer.count({ where: { status: 'active' } }),
+      // Open roles grouped by employer (for per-card counts on the loaded page).
+      prisma.job.groupBy({
+        by: ['employerId'],
+        where: { status: { in: [...OPEN_JOB_STATUSES] } },
+        _count: { _all: true },
+      }),
+      // Open roles across ALL employers (real subtitle aggregate).
+      prisma.job.count({ where: { status: { in: [...OPEN_JOB_STATUSES] } } }),
+      // Hires grouped by employer (job → employer) for per-card counts.
+      prisma.jobPostingApplication.groupBy({
+        by: ['jobId'],
+        where: { status: 'hired' },
+        _count: { _all: true },
+      }),
+      // Total hires across all employers.
+      prisma.jobPostingApplication.count({ where: { status: 'hired' } }),
+    ]);
+
+    // Core directory must load; otherwise fall back to the legacy management view.
+    if (directoryResult.status === 'rejected') {
+      console.error('[admin/employers] directory load failed', directoryResult.reason);
+      redirect('/admin/employers?ui=legacy');
+    }
+
+    const directory = directoryResult.value;
+
+    const openRolesByEmployer = new Map<string, number>();
+    if (openRolesGroupResult.status === 'fulfilled') {
+      for (const row of openRolesGroupResult.value) {
+        openRolesByEmployer.set(row.employerId, row._count._all);
+      }
+    }
+
+    // Hires are grouped by jobId; resolve each job's employer over the loaded
+    // page only (lean). A failure here just leaves per-card hires at 0.
+    const hiresByEmployer = new Map<string, number>();
+    if (hiresGroupResult.status === 'fulfilled' && hiresGroupResult.value.length > 0) {
+      const jobIds = hiresGroupResult.value.map((r) => r.jobId);
+      const jobOwners = await prisma.job
+        .findMany({ where: { id: { in: jobIds } }, select: { id: true, employerId: true } })
+        .catch((reason: unknown) => {
+          console.error('[admin/employers] hire job-owner lookup failed', reason);
+          return [] as { id: string; employerId: string }[];
+        });
+      const ownerByJob = new Map(jobOwners.map((j) => [j.id, j.employerId]));
+      for (const row of hiresGroupResult.value) {
+        const employerId = ownerByJob.get(row.jobId);
+        if (!employerId) continue;
+        hiresByEmployer.set(employerId, (hiresByEmployer.get(employerId) ?? 0) + row._count._all);
+      }
+    }
+
+    const employers: EmployerCard[] = directory.map((e) => ({
+      id: e.id,
+      name: e.companyName,
+      industry: e.industry?.trim() || 'Uncategorized',
+      openRoles: openRolesByEmployer.get(e.id) ?? 0,
+      hires: hiresByEmployer.get(e.id) ?? 0,
+      status: (e.status as EmployerCard['status']) ?? 'inactive',
+    }));
+
+    const totalPartners =
+      partnerCountResult.status === 'fulfilled' ? partnerCountResult.value : employers.length;
+    const activePartners =
+      activeCountResult.status === 'fulfilled'
+        ? activeCountResult.value
+        : employers.filter((e) => e.status === 'active').length;
+    const totalOpenRoles =
+      openRolesTotalResult.status === 'fulfilled'
+        ? openRolesTotalResult.value
+        : employers.reduce((sum, e) => sum + e.openRoles, 0);
+    const totalHires =
+      hiresTotalResult.status === 'fulfilled'
+        ? hiresTotalResult.value
+        : employers.reduce((sum, e) => sum + e.hires, 0);
+
+    return (
+      <DesignSurface surface="dense">
+        <EmployersDirectoryKit
+          employers={employers}
+          totalPartners={totalPartners}
+          totalOpenRoles={totalOpenRoles}
+          totalHires={totalHires}
+          activePartners={activePartners}
+        />
+      </DesignSurface>
+    );
+  }
+
+  // --- LEGACY (?ui=legacy): the existing employer management workspace ---
   const activeTab = statusFilter || 'all';
 
   const where = activeTab !== 'all' ? { status: activeTab } : {};
@@ -129,7 +248,7 @@ export default async function AdminEmployersPage({
         {tabs.map((tab) => (
           <Link
             key={tab.key}
-            href={`/admin/employers${tab.key === 'all' ? '' : `?status=${tab.key}`}`}
+            href={`/admin/employers?ui=legacy${tab.key === 'all' ? '' : `&status=${tab.key}`}`}
             style={{
               padding: '0.5rem 1rem',
               borderRadius: '0.5rem 0.5rem 0 0',

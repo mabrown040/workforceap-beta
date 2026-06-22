@@ -5,11 +5,18 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import type { JobStatusEnum } from '@prisma/client';
 import AdminJobsFilterTabs from '@/components/admin/AdminJobsFilterTabs';
 import JobsTableClient from '@/components/admin/JobsTableClient';
 import PageHeader from '@/components/portal/PageHeader';
 import { recordWorkflowDiagnostic } from '@/lib/diagnostics';
 import { captureApiError } from '@/lib/observability/captureApiError';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  JobsBoardKit,
+  type JobRow,
+  type JobDisplayStatus,
+} from '@/components/portal/kit/pages/admin-subviews/JobsBoardKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -34,16 +41,125 @@ function getJobStatusPillClass(status: string): string {
   return 'admin-job-status-pill';
 }
 
+/** Cap the lean board so first paint stays cheap. */
+const BOARD_LIMIT = 50;
+
+/** Map the JobStatusEnum onto the kit's display status (mockup: live → "Open"). */
+const DISPLAY_STATUS: Record<string, JobDisplayStatus> = {
+  live: 'Open',
+  approved: 'Open',
+  pending: 'Pending',
+  draft: 'Draft',
+  filled: 'Filled',
+  closed: 'Closed',
+};
+
+/** "$72–88k" / "$72k" / "—" from salary min/max (thousands, en-dash range). */
+function formatWage(min: number | null, max: number | null): string {
+  const k = (n: number) => (n % 1000 === 0 ? `${n / 1000}k` : `${Math.round(n / 1000)}k`);
+  if (min != null && max != null) {
+    return min === max ? `$${k(min)}` : `$${k(min)}–${k(max)}`;
+  }
+  if (min != null) return `$${k(min)}+`;
+  if (max != null) return `Up to $${k(max)}`;
+  return '—';
+}
+
 export default async function AdminJobsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; ui?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/jobs');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const { filter } = await searchParams;
+  const { filter, ui } = await searchParams;
+
+  // --- DEFAULT: design-kit jobs board wired into real (lean) job data ---
+  if (ui !== 'legacy') {
+    return renderKit({ actorUserId: user.id });
+  }
+
+  // --- LEGACY (?ui=legacy): the proven review-queue workspace, unchanged ---
+  return renderLegacy({ filter, actorUserId: user.id });
+}
+
+/** Design-kit default: dense roster of open roles → <JobsBoardKit/>. */
+async function renderKit({ actorUserId }: { actorUserId: string }) {
+  // Open roles = live + approved (publicly visible/active postings). Lean board
+  // page + count + distinct-employer count, all in parallel; aggregate failures
+  // degrade gracefully (the table must still render).
+  const openWhere = { status: { in: ['live', 'approved'] as JobStatusEnum[] } };
+
+  const [jobsResult, openCountResult, employerGroupResult] = await Promise.allSettled([
+    prisma.job.findMany({
+      where: openWhere,
+      take: BOARD_LIMIT,
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        location: true,
+        salaryMin: true,
+        salaryMax: true,
+        status: true,
+        employer: { select: { companyName: true } },
+        _count: { select: { applications: true } },
+      },
+    }),
+    prisma.job.count({ where: openWhere }),
+    prisma.job.groupBy({ by: ['employerId'], where: openWhere }),
+  ]);
+
+  // If the core query fails, fall back to the proven legacy workspace rather
+  // than rendering a fabricated/empty kit.
+  if (jobsResult.status === 'rejected') {
+    captureApiError(jobsResult.reason, { route: 'admin/jobs', extra: { view: 'kit' } });
+    redirect('/admin/jobs?ui=legacy');
+  }
+
+  const jobRows: JobRow[] = jobsResult.value.map((j) => ({
+    id: j.id,
+    role: j.title,
+    employer: j.employer?.companyName ?? 'Unknown employer',
+    location: j.location?.trim() || '—',
+    wage: formatWage(j.salaryMin, j.salaryMax),
+    applicants: j._count?.applications ?? 0,
+    status: DISPLAY_STATUS[j.status] ?? 'Open',
+  }));
+
+  const openRoles =
+    openCountResult.status === 'fulfilled' ? openCountResult.value : jobRows.length;
+  const employers =
+    employerGroupResult.status === 'fulfilled'
+      ? employerGroupResult.value.length
+      : new Set(jobsResult.value.map((j) => j.employer?.companyName)).size;
+
+  void recordWorkflowDiagnostic({
+    workflow: 'admin_review_queue',
+    status: 'inspection',
+    actorUserId,
+    summary: `Admin opened jobs board (kit)`,
+    method: 'page_load',
+    metadata: { view: 'kit', openRoles, employers, shown: jobRows.length },
+  }).catch(() => {});
+
+  return (
+    <DesignSurface surface="dense">
+      <JobsBoardKit jobs={jobRows} openRoles={openRoles} employers={employers} />
+    </DesignSurface>
+  );
+}
+
+/** Legacy review-queue workspace (preserved behind ?ui=legacy). */
+async function renderLegacy({
+  filter,
+  actorUserId,
+}: {
+  filter?: string;
+  actorUserId: string;
+}) {
   const currentFilter = filter && ['all', 'pending', 'live', 'draft', 'filled', 'approved'].includes(filter)
     ? filter
     : 'pending';
@@ -98,7 +214,7 @@ export default async function AdminJobsPage({
     await recordWorkflowDiagnostic({
       workflow: 'admin_review_queue',
       status: 'inspection',
-      actorUserId: user.id,
+      actorUserId,
       summary: `Admin opened jobs review queue (${currentFilter})`,
       method: 'page_load',
       metadata: { filter: currentFilter, queueCount: jobs.length },

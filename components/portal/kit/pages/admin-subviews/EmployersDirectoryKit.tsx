@@ -1,0 +1,217 @@
+'use client';
+
+import { Building2, Plus } from 'lucide-react';
+import {
+  DesignSurface,
+  SectionHeader,
+  KpiStrip,
+  StatusTag,
+  colorVar,
+  type KpiItem,
+} from '@/components/portal/kit';
+
+/**
+ * Employers directory — partner card grid (dense).
+ * Mockup: workforceap-admin-full.html "Employers" view.
+ * Target route: /admin/employers
+ *
+ * Each card: a tinted building-icon tile, the employer name, an industry/
+ * category line, and a footer row with "{N} open roles" (muted) + "{N} hires"
+ * (success/green). The header subtitle ("48 partners · 127 open roles") is a
+ * real aggregate computed server-side and passed in.
+ *
+ * Interactive (cards link to the legacy management view) → 'use client' so the
+ * grid is hydration-safe alongside the kit primitives.
+ */
+
+export interface EmployerCard {
+  id: string;
+  name: string;
+  /** Industry / category line (e.g. "Tech & Consulting"). */
+  industry: string;
+  /** Count of live/open roles for this employer. */
+  openRoles: number;
+  /** Count of hires (job-posting applications marked hired). */
+  hires: number;
+  /** Account status — drives a subtle status tag. */
+  status: 'active' | 'inactive' | 'pending_approval';
+}
+
+export interface EmployersDirectoryKitProps {
+  employers?: EmployerCard[];
+  /** Total partner count (full directory, not just the loaded page). */
+  totalPartners?: number;
+  /** Total open roles across all partners (real aggregate). */
+  totalOpenRoles?: number;
+  /** Total hires across all partners (real aggregate). */
+  totalHires?: number;
+  /** Active partner count for the KPI strip. */
+  activePartners?: number;
+}
+
+const DEFAULT_EMPLOYERS: EmployerCard[] = [
+  { id: 'deloitte', name: 'Deloitte', industry: 'Tech & Consulting', openRoles: 9, hires: 18, status: 'active' },
+  { id: 'dell', name: 'Dell Technologies', industry: 'Hardware & IT', openRoles: 12, hires: 24, status: 'active' },
+  { id: 'stdavids', name: "St. David's HealthCare", industry: 'Healthcare', openRoles: 15, hires: 31, status: 'active' },
+];
+
+/** Rotate the icon-tile tint across cards so the grid reads like the mockup. */
+const TILE_TINTS: Array<{ bg: string; fg: string }> = [
+  { bg: 'var(--wa-surface-2, #f4f4f5)', fg: 'var(--wa-text)' },
+  { bg: 'rgba(43,123,185,0.12)', fg: colorVar('info') },
+  { bg: 'rgba(164,127,56,0.14)', fg: colorVar('gold') },
+];
+
+const STATUS_TAG: Record<EmployerCard['status'], { tone: 'ok' | 'muted' | 'warn'; label: string }> = {
+  active: { tone: 'ok', label: 'Active' },
+  inactive: { tone: 'muted', label: 'Inactive' },
+  pending_approval: { tone: 'warn', label: 'Pending' },
+};
+
+function EmployerTile({ card, index }: { card: EmployerCard; index: number }) {
+  const tint = TILE_TINTS[index % TILE_TINTS.length];
+  const tag = STATUS_TAG[card.status];
+  return (
+    <a
+      href={`/admin/employers?ui=legacy#${card.id}`}
+      className="wa-kit-card wa-kit-card--hover wa-kit-focus"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+        textDecoration: 'none',
+        color: 'inherit',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+        <div
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            background: tint.bg,
+            color: tint.fg,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <Building2 className="h-5 w-5" />
+        </div>
+        <StatusTag tone={tag.tone}>{tag.label}</StatusTag>
+      </div>
+
+      <div style={{ minWidth: 0 }}>
+        <h3
+          style={{
+            fontWeight: 800,
+            fontSize: 16,
+            letterSpacing: '-0.02em',
+            margin: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {card.name}
+        </h3>
+        <p style={{ fontSize: 12, color: 'var(--wa-muted)', margin: '2px 0 0' }}>{card.industry}</p>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+          gap: 10,
+          fontSize: 12,
+          paddingTop: 12,
+          borderTop: '1px solid var(--wa-border)',
+        }}
+      >
+        <span style={{ color: 'var(--wa-muted)' }}>
+          {card.openRoles} open {card.openRoles === 1 ? 'role' : 'roles'}
+        </span>
+        <span style={{ fontWeight: 700, color: colorVar('success') }}>
+          {card.hires} {card.hires === 1 ? 'hire' : 'hires'}
+        </span>
+      </div>
+    </a>
+  );
+}
+
+export function EmployersDirectoryKit({
+  employers = DEFAULT_EMPLOYERS,
+  totalPartners,
+  totalOpenRoles,
+  totalHires,
+  activePartners,
+}: EmployersDirectoryKitProps) {
+  const partners = totalPartners ?? employers.length;
+  const openRoles = totalOpenRoles ?? employers.reduce((sum, e) => sum + e.openRoles, 0);
+  const hires = totalHires ?? employers.reduce((sum, e) => sum + e.hires, 0);
+  const active = activePartners ?? employers.filter((e) => e.status === 'active').length;
+
+  const subtitle = `${partners} partner${partners === 1 ? '' : 's'} · ${openRoles} open role${openRoles === 1 ? '' : 's'}`;
+
+  const kpis: KpiItem[] = [
+    { label: 'Employers', value: partners, color: 'text' },
+    { label: 'Open Roles', value: openRoles, color: 'info' },
+    { label: 'Hires YTD', value: hires, color: 'success' },
+    { label: 'Active', value: active, color: 'accent' },
+  ];
+
+  return (
+    <DesignSurface surface="dense" className="wa-p-6">
+      <SectionHeader
+        title="Employers"
+        kicker="Partners"
+        goal={subtitle}
+        action={
+          <a
+            href="/admin/employers?ui=legacy#create"
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              background: 'var(--wa-accent)',
+              color: '#fff',
+            }}
+          >
+            <Plus className="h-4 w-4" /> Add Employer
+          </a>
+        }
+      />
+
+      <div className="wa-mb-5">
+        <KpiStrip items={kpis} cols={4} />
+      </div>
+
+      {employers.length > 0 ? (
+        <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
+          {employers.map((card, index) => (
+            <EmployerTile key={card.id} card={card} index={index} />
+          ))}
+        </div>
+      ) : (
+        <div
+          className="wa-kit-card"
+          style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--wa-muted)' }}
+        >
+          <Building2 className="h-6 w-6" style={{ margin: '0 auto 10px', opacity: 0.5 }} />
+          <p style={{ fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>No employers yet</p>
+          <p style={{ fontSize: 12, margin: '4px 0 0' }}>
+            Add your first hiring partner to start tracking open roles and hires.
+          </p>
+        </div>
+      )}
+    </DesignSurface>
+  );
+}

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { FileSpreadsheet, Users, ArrowRight } from 'lucide-react';
 import {
   DesignSurface,
@@ -39,6 +40,19 @@ export interface BoardOutcomesKitProps {
   byProgram?: RankDatum[];
   /** "Funder exports" list. */
   exports?: FunderExport[];
+  /** Page header title. Defaults to the outcomes-view title. */
+  title?: string;
+  /** Small uppercase eyebrow above the title. */
+  kicker?: string;
+  /** Page goal caption under the title. */
+  goal?: string;
+  /** Right-aligned header action (e.g. a "Generate report" button). */
+  headerAction?: ReactNode;
+  /**
+   * Whether to render the "Funder exports" card. Defaults to `true` so the
+   * existing /admin/outcomes view is unchanged; the board view can hide it.
+   */
+  showExports?: boolean;
 }
 
 const DEFAULT_KPIS: KpiItem[] = [
@@ -85,14 +99,15 @@ export function BoardOutcomesKit({
   periodLabel = '2026 YTD',
   byProgram = DEFAULT_BY_PROGRAM,
   exports = DEFAULT_EXPORTS,
+  title = 'Board Outcomes',
+  kicker = 'Outcomes & Metrics',
+  goal = 'Board-ready — everything in one place.',
+  headerAction,
+  showExports = true,
 }: BoardOutcomesKitProps) {
   return (
     <DesignSurface surface="dense" className="wa-p-6">
-      <SectionHeader
-        title="Board Outcomes"
-        kicker="Outcomes & Metrics"
-        goal="Board-ready — everything in one place."
-      />
+      <SectionHeader title={title} kicker={kicker} goal={goal} action={headerAction} />
 
       <KpiStrip cols={4} items={kpis} />
 
@@ -123,6 +138,7 @@ export function BoardOutcomesKit({
       </div>
 
       {/* Funder exports */}
+      {showExports && (
       <div className="wa-kit-card wa-mt-6">
         <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 4 }}>
           Funder exports
@@ -172,6 +188,7 @@ export function BoardOutcomesKit({
           ))}
         </div>
       </div>
+      )}
     </DesignSurface>
   );
 }

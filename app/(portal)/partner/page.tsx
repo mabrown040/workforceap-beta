@@ -32,6 +32,14 @@ import PartnerConnectPayoutButton from '@/components/partner/PartnerConnectPayou
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 import { isReferralPartner } from '@/lib/partner/partnerType';
 import { buildPartnerReferralBadge, isOutcomesSocialProofEnabled } from '@/lib/outcomes/socialProof';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import {
+  DesignSurface,
+  KpiStrip,
+  SectionHeader as KitSectionHeader,
+  DataTable as KitDataTable,
+  QueueRow,
+} from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('partner');
@@ -44,7 +52,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'placed'] as const;
 
-export default async function PartnerDashboardPage() {
+export default async function PartnerDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
+  const requestedUi = (await searchParams)?.ui ?? null;
+
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner');
 
@@ -122,6 +136,172 @@ export default async function PartnerDashboardPage() {
   if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 
   const t = await getTranslations('partner');
+
+  // ── ?ui=kit LEAN PATH (runs AFTER auth/partner guards, BEFORE the heavy
+  // loadPartnerReferralBundle + Promise.all aggregations that stall on the
+  // demo DB). Renders the redesigned partner overview from a handful of cheap
+  // count/findMany queries only. NO bundle, NO $transaction, NO external HTTP.
+  if (requestedUi === 'kit') {
+    const memberFilter = {
+      deletedAt: null,
+      organizationId: ctx.partner.organizationId,
+      ...MEMBER_ONLY_WHERE,
+    };
+    const [referredCount, enrolledCount, placedCount, pendingPlacementEvents, recentReferrals] =
+      await Promise.all([
+        prisma.partnerReferral.count({
+          where: {
+            partnerId: ctx.partnerId,
+            partner: { organizationId: ctx.partner.organizationId },
+            member: memberFilter,
+          },
+        }),
+        prisma.partnerReferral.count({
+          where: {
+            partnerId: ctx.partnerId,
+            partner: { organizationId: ctx.partner.organizationId },
+            member: { ...memberFilter, enrolledAt: { not: null } },
+          },
+        }),
+        prisma.placementRecord.count({
+          where: {
+            user: {
+              partnerReferrals: { some: { partnerId: ctx.partnerId } },
+              organizationId: ctx.partner.organizationId,
+            },
+          },
+        }),
+        prisma.memberEvent.findMany({
+          where: {
+            eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED',
+            user: { partnerReferrals: { some: { partnerId: ctx.partnerId } } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 8,
+          select: { id: true, userId: true, metadata: true, createdAt: true },
+        }),
+        prisma.partnerReferral.findMany({
+          where: { partnerId: ctx.partnerId },
+          orderBy: { referredAt: 'desc' },
+          take: 10,
+          select: {
+            referredAt: true,
+            member: { select: { id: true, fullName: true, enrolledAt: true } },
+          },
+        }),
+      ]);
+
+    const placementRate =
+      referredCount > 0 ? Math.round((placedCount / referredCount) * 100) : 0;
+
+    type ReferralKitRow = {
+      id: string;
+      name: string;
+      status: string;
+      referred: string;
+    };
+    const referralRows: ReferralKitRow[] = recentReferrals.map((r) => ({
+      id: r.member.id,
+      name: r.member.fullName ?? t('memberFallback'),
+      status: r.member.enrolledAt ? t('membersEnrolled') : t('membersReferred'),
+      referred: r.referredAt.toLocaleDateString('en-US'),
+    }));
+
+    return (
+      <PortalPageFrame maxWidth="80rem">
+        <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
+          <KitSectionHeader
+            kicker={t('partnerDashboard')}
+            title={ctx.partner.name}
+            goal={t('referralsProgressOutcomes', { partnerName: ctx.partner.name })}
+          />
+
+          <KpiStrip
+            cols={4}
+            items={[
+              { label: t('membersReferred'), value: referredCount, color: 'accent' },
+              { label: t('membersEnrolled'), value: enrolledCount, color: 'info' },
+              { label: t('membersPlaced'), value: placedCount, color: 'success' },
+              { label: t('placementRate'), value: `${placementRate}%`, color: 'gold' },
+            ]}
+          />
+
+          {pendingPlacementEvents.length > 0 ? (
+            <div className="wa-flex wa-flex-col wa-gap-3">
+              <KitSectionHeader
+                title={t('nextActionReviewPlacements', { count: pendingPlacementEvents.length })}
+                goal={t('nextActionReviewPlacementsTip')}
+                action={
+                  <Link href="/partner/outcomes" className="portal-section-action">
+                    {t('viewAll')}
+                  </Link>
+                }
+              />
+              {pendingPlacementEvents.map((ev) => {
+                const label =
+                  ev.metadata &&
+                  typeof ev.metadata === 'object' &&
+                  ev.metadata !== null &&
+                  'label' in ev.metadata
+                    ? String((ev.metadata as { label?: string }).label)
+                    : t('pendingVerification');
+                return (
+                  <QueueRow
+                    key={ev.id}
+                    tone="yellow"
+                    title={label}
+                    meta={ev.createdAt.toLocaleDateString('en-US')}
+                    flag={t('pendingVerification')}
+                    action={
+                      <Link
+                        href={`/partner/referred-members/${ev.userId}`}
+                        className="portal-section-action"
+                      >
+                        {t('viewAll')}
+                      </Link>
+                    }
+                  />
+                );
+              })}
+            </div>
+          ) : null}
+
+          <div className="wa-flex wa-flex-col wa-gap-3">
+            <KitSectionHeader
+              title={t('referredMembers')}
+              goal={t('enrollmentAndPlacementDates')}
+              action={
+                <Link href="/partner/referred-members" className="portal-section-action">
+                  {t('viewAll')}
+                </Link>
+              }
+            />
+            <KitDataTable<ReferralKitRow>
+              columns={[
+                {
+                  key: 'name',
+                  header: t('name'),
+                  render: (row) => (
+                    <Link
+                      href={`/partner/referred-members/${row.id}`}
+                      style={{ fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
+                    >
+                      {row.name}
+                    </Link>
+                  ),
+                },
+                { key: 'status', header: t('status') },
+                { key: 'referred', header: t('enrollmentDate') },
+              ]}
+              rows={referralRows}
+              rowKey={(row) => row.id}
+              mobile="scroll"
+            />
+          </div>
+        </DesignSurface>
+      </PortalPageFrame>
+    );
+  }
 
   const isPendingApproval = partnerRow.status === 'pending_approval';
 

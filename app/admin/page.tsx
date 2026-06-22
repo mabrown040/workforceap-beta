@@ -9,6 +9,13 @@ import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
 import TriageDigestSection from '@/components/admin/TriageDigestSection';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
+import {
+  DesignSurface,
+  KpiStrip,
+  SectionHeader,
+  DataTable,
+  type Column,
+} from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -25,12 +32,96 @@ export async function generateMetadata(): Promise<Metadata> {
  * cards, alerts, recent tables, super-admin views, quick links) lives one
  * click away at /admin/overview.
  */
-export default async function AdminTodayPage() {
+export default async function AdminTodayPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login');
 
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+
+  // ?ui=kit LEAN PATH — runs AFTER the auth/role guard (access control is
+  // preserved) but BEFORE the heavy withAuthGuc(Promise.all([getTriageDigest…]))
+  // pipeline below, which stalls on the demo DB. Renders the redesigned admin
+  // "Today" kit from a handful of cheap, real queries (count / count / a small
+  // recent-activity findMany) — NO getTriageDigest, NO $transaction, NO HTTP.
+  if (requestedUi === 'kit') {
+    const startOfTodayKit = new Date();
+    startOfTodayKit.setUTCHours(0, 0, 0, 0);
+
+    const [memberCount, sessionRows, recentEvents] = await withAuthGuc(() =>
+      Promise.all([
+        prisma.user.count().catch(() => 0),
+        prisma.memberEvent
+          .findMany({
+            where: {
+              eventName: 'ai_tool_run_completed',
+              sessionId: { not: null },
+              createdAt: { gte: startOfTodayKit },
+            },
+            select: { sessionId: true },
+          })
+          .catch(() => [] as Array<{ sessionId: string | null }>),
+        prisma.memberEvent
+          .findMany({
+            orderBy: { createdAt: 'desc' },
+            take: 8,
+            select: { id: true, eventName: true, createdAt: true },
+          })
+          .catch(() => [] as Array<{ id: string; eventName: string; createdAt: Date }>),
+      ]),
+    );
+
+    const sessionsTodayKit = new Set(
+      sessionRows.map((r) => r.sessionId).filter((id): id is string => Boolean(id)),
+    ).size;
+    const atRiskCount = recentEvents.filter((e) => e.eventName === 'ai_tool_run_completed').length;
+
+    type ActivityRow = { id: string; eventName: string; createdAt: Date };
+    const activityColumns: Column<ActivityRow>[] = [
+      { key: 'eventName', header: 'Activity' },
+      {
+        key: 'createdAt',
+        header: 'When',
+        align: 'right',
+        render: (row) => row.createdAt.toLocaleString(),
+      },
+    ];
+
+    return (
+      <DesignSurface surface="dense" className="wa-p-6">
+        <SectionHeader
+          title="Today"
+          kicker="Admin"
+          goal="Know who needs me today at a glance."
+        />
+        <KpiStrip
+          cols={4}
+          items={[
+            { label: 'Members', value: memberCount, color: 'accent' },
+            { label: 'Sessions today', value: sessionsTodayKit, color: 'info' },
+            { label: 'Recent runs', value: atRiskCount, color: 'gold' },
+            { label: 'Recent events', value: recentEvents.length, color: 'text' },
+          ]}
+        />
+        <div className="wa-mt-6">
+          <SectionHeader title="Recent activity" />
+          <DataTable<ActivityRow>
+            columns={activityColumns}
+            rows={recentEvents}
+            rowKey={(row) => row.id}
+            mobile="scroll"
+          />
+        </div>
+      </DesignSurface>
+    );
+  }
 
   // "Today" is the operator's local day. Server runs in UTC; using UTC day
   // start is good enough for a count at-a-glance and avoids a tz dependency.

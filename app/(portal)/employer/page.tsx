@@ -21,6 +21,15 @@ import {
 } from '@/lib/employer/jobPostingApplicationStatus';
 import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
 import { getTranslations } from 'next-intl/server';
+import {
+  DesignSurface,
+  KpiStrip,
+  DataTable,
+  StatusTag,
+  SectionHeader,
+  type Column,
+  type KitTone,
+} from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');
@@ -31,7 +40,28 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function EmployerDashboardPage() {
+/** Maps a hiring pipeline status to a portal-kit StatusTag tone. */
+function kitStatusTone(status: string): KitTone {
+  switch (status) {
+    case 'hired':
+      return 'ok';
+    case 'rejected':
+      return 'alert';
+    case 'offered':
+    case 'interview':
+      return 'info';
+    case 'reviewing':
+      return 'warn';
+    default:
+      return 'muted';
+  }
+}
+
+export default async function EmployerDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer');
 
@@ -41,6 +71,105 @@ export default async function EmployerDashboardPage() {
   if (!ctx) {
     if (superAdmin) redirect('/admin/employers');
     redirect('/dashboard');
+  }
+
+  // ── ?ui=kit LEAN PATH ──────────────────────────────────────────────────
+  // Runs AFTER the auth/role guard (access control preserved: user + ctx
+  // resolved) but BEFORE the heavy `prisma.employer.findUnique`, the
+  // 9-query `Promise.all`, the take:5000 hired-application scan, and the
+  // aIJobMatch match-to-hire pass — all of which stall on the demo DB.
+  // Renders the redesigned employer kit from a handful of cheap queries.
+  const params = await searchParams;
+  if (params?.ui === 'kit') {
+    const [
+      kitOpenRoles,
+      kitTotalCandidates,
+      kitPipeline,
+      kitInterviews,
+      kitRecent,
+    ] = await Promise.all([
+      prisma.job.count({ where: { employerId: ctx.employerId, status: 'live' } }),
+      prisma.jobPostingApplication.count({
+        where: { job: { employerId: ctx.employerId } },
+      }),
+      prisma.jobPostingApplication.count({
+        where: {
+          job: { employerId: ctx.employerId },
+          status: { in: ['interview', 'offered', 'hired'] },
+        },
+      }),
+      prisma.jobPostingApplication.count({
+        where: { job: { employerId: ctx.employerId }, status: 'interview' },
+      }),
+      prisma.jobPostingApplication.findMany({
+        where: { job: { employerId: ctx.employerId } },
+        orderBy: { appliedAt: 'desc' },
+        take: 5,
+        include: {
+          job: { select: { title: true } },
+          student: { select: { fullName: true } },
+        },
+      }),
+    ]);
+
+    type KitRow = (typeof kitRecent)[number];
+    const kitColumns: Column<KitRow>[] = [
+      {
+        key: 'candidate',
+        header: 'Candidate',
+        render: (row) => row.student.fullName ?? '—',
+      },
+      {
+        key: 'role',
+        header: 'Role',
+        render: (row) => row.job.title ?? '—',
+      },
+      {
+        key: 'applied',
+        header: 'Applied',
+        align: 'right',
+        render: (row) =>
+          row.appliedAt ? new Date(row.appliedAt).toLocaleDateString('en-US') : '—',
+      },
+      {
+        key: 'status',
+        header: 'Status',
+        align: 'right',
+        render: (row) => (
+          <StatusTag tone={kitStatusTone(row.status)}>
+            {employerJobPostingApplicationStatusLabel(row.status)}
+          </StatusTag>
+        ),
+      },
+    ];
+
+    return (
+      <DesignSurface surface="dense" className="wa-p-6">
+        <SectionHeader
+          title="Employer overview"
+          kicker="Employer portal"
+          goal="See open roles, pipeline, and the latest candidates at a glance."
+        />
+        <KpiStrip
+          cols={4}
+          items={[
+            { label: 'Open roles', value: kitOpenRoles, color: 'accent' },
+            { label: 'Candidates in pipeline', value: kitTotalCandidates, color: 'info' },
+            { label: 'Interviewing or later', value: kitPipeline, color: 'success' },
+            { label: 'Interviews', value: kitInterviews, color: 'gold' },
+          ]}
+        />
+        <div className="wa-mt-6">
+          <SectionHeader title="Latest candidates" />
+          <DataTable<KitRow>
+            columns={kitColumns}
+            rows={kitRecent}
+            rowKey={(row) => row.id}
+            mobile="scroll"
+          />
+        </div>
+      </DesignSurface>
+    );
   }
 
   const isPendingApproval = ctx.employer.status === 'pending_approval';

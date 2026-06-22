@@ -67,7 +67,7 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
           onClick={send}
           aria-label="Send"
           className="wa-kit-focus"
-          style={{ width: 34, height: 34, borderRadius: 999, border: 'none', cursor: 'pointer', background: 'var(--wa-accent)', color: '#fff' }}
+          style={{ width: 40, height: 40, borderRadius: 999, border: 'none', cursor: 'pointer', background: 'var(--wa-accent)', color: '#fff', flexShrink: 0 }}
         >
           ↑
         </button>

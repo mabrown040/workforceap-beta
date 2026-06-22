@@ -105,6 +105,7 @@ describe('admin command center helpers', () => {
       atRiskCount: 1,
       interviewingCount: 1,
       applicationsPendingCount: 1,
+      certificationsPendingCount: 0,
       oldestPendingApplicationDays: 14,
     });
   });

@@ -6,7 +6,14 @@ import {
   ArrowRight,
   Home,
 } from 'lucide-react';
-import { DesignSurface, KpiStrip, ProgressRing, StatusTag } from '@/components/portal/kit';
+import {
+  DataTable,
+  DesignSurface,
+  KpiStrip,
+  ProgressRing,
+  StatusTag,
+  type Column,
+} from '@/components/portal/kit';
 
 /**
  * Member Portal — HOME view.
@@ -77,6 +84,24 @@ export function MemberHomeKit({
   coursesHref = '#',
 }: MemberHomeKitProps) {
   const pct = Math.max(0, Math.min(100, Math.round(coursePercent)));
+  const pipelineColumns: Column<PipelineRow>[] = [
+    {
+      key: 'role',
+      header: 'Role',
+      render: (row) => <span style={{ fontWeight: 700 }}>{row.role}</span>,
+    },
+    {
+      key: 'company',
+      header: 'Company',
+      render: (row) => <span style={{ color: '#525252' }}>{row.company}</span>,
+    },
+    {
+      key: 'stage',
+      header: 'Stage',
+      align: 'right',
+      render: (row) => <StatusTag tone={row.tone}>{row.stage}</StatusTag>,
+    },
+  ];
 
   return (
     <DesignSurface surface="warm">
@@ -212,19 +237,15 @@ export function MemberHomeKit({
                 View all &rarr;
               </a>
             </div>
-            <table style={{ width: '100%', textAlign: 'left', fontSize: 12 }}>
-              <tbody>
-                {pipeline.map((row, i) => (
-                  <tr key={row.role} style={i < pipeline.length - 1 ? { borderBottom: '1px solid #f5f5f5' } : undefined}>
-                    <td style={{ padding: '8px 0', fontWeight: 700 }}>{row.role}</td>
-                    <td style={{ padding: '8px 0', color: '#525252' }}>{row.company}</td>
-                    <td style={{ padding: '8px 0', textAlign: 'right' }}>
-                      <StatusTag tone={row.tone}>{row.stage}</StatusTag>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable<PipelineRow>
+              columns={pipelineColumns}
+              rows={pipeline}
+              rowKey={(row) => `${row.role}-${row.company}`}
+              mobile="scroll"
+              minWidth={520}
+              emptyTitle="No active applications"
+              emptyDescription="Saved and submitted jobs will appear here."
+            />
           </div>
 
           {/* Learning Hub */}

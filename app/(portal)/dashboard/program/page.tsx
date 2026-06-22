@@ -40,9 +40,6 @@ export default async function ProgramPage({
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
-  if (requestedUi === 'kit') {
-    return <MemberProgramKit />;
-  }
 
   const activeViews = await getActivePrograms();
   let pickerPrograms = activeViews
@@ -122,6 +119,49 @@ export default async function ProgramPage({
     trainingView?.nextIncompleteCourseSlug ??
     program.courses.find((c) => !completedSet.has(c.slug))?.slug ??
     null;
+
+  // ── v2 KIT is the DEFAULT for the My Program page (real data); legacy view
+  // stays reachable via ?ui=legacy. Reuses the enrollment/progress already
+  // loaded above. Renders only when a program is actually enrolled — the
+  // unenrolled "choose your program" picker above keeps its own legacy UI.
+  if (requestedUi !== 'legacy') {
+    const totalCourses = program.courses.length;
+    const progressPercent =
+      trainingView?.progressPercentDisplay ??
+      (totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0);
+
+    // Per-course state: completed → done, the resolved "next" course → active,
+    // everything else → locked. Mirrors the legacy course-list logic below.
+    const modules = program.courses.map((c) => {
+      const done = completedSet.has(c.slug);
+      const isNext = !done && c.slug === nextCourseSlug;
+      return {
+        title: c.name,
+        state: done ? ('done' as const) : isNext ? ('active' as const) : ('locked' as const),
+      };
+    });
+
+    // Remaining effort estimate from the static catalog hours on not-yet-done
+    // courses (readily available; no extra query).
+    const hoursRemaining = program.courses
+      .filter((c) => !completedSet.has(c.slug))
+      .reduce((sum, c) => sum + (c.estimatedHours ?? 0), 0);
+
+    return (
+      <MemberProgramKit
+        programTitle={program.title}
+        progressPercent={progressPercent}
+        modulesComplete={completedCount}
+        modulesTotal={totalCourses}
+        estRemaining={hoursRemaining > 0 ? `${hoursRemaining} hrs remaining` : 'Almost done'}
+        resumeHref="/dashboard"
+        modules={modules}
+        // Live session + missions aren't loaded on this route — keep the kit
+        // defaults and point the missions CTA at the training home.
+        missionsHref="/dashboard"
+      />
+    );
+  }
 
   return (
     <>

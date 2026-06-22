@@ -62,6 +62,7 @@ import MobileQuickActions from './_components/MobileQuickActions';
 import MobileRecentActivity from './_components/MobileRecentActivity';
 import DesktopDashboard from './_components/DesktopDashboard';
 import { MemberDashboardKit } from '@/components/portal/kit';
+import { MemberHomeKit } from '@/components/portal/kit/pages/member/MemberHomeKit';
 import SkillMissionTeaserCard, {
   type SkillMissionTeaserData,
 } from '@/components/portal/SkillMissionTeaserCard';
@@ -153,7 +154,10 @@ async function renderMemberDashboard(
       where: { id: user.id },
       select: { fullName: true, enrolledProgram: true },
     });
-    const [leanEnrollment, leanAiCount, leanActions] = await Promise.all([
+    // Cheap, count/findMany-only queries — keep the lean path fast (no
+    // loadMemberCareerBriefBundle / getMemberState / B4B). These mirror the
+    // existing Promise.all style and feed the richer MemberHomeKit.
+    const [leanEnrollment, leanAiCount, leanActions, leanCertCount, leanPointsRow, leanActiveJobs, leanPipeline] = await Promise.all([
       prisma.courseEnrollment.findFirst({
         where: { userId: user.id, isPrimary: true },
         select: { programSlug: true },
@@ -164,6 +168,24 @@ async function renderMemberDashboard(
         orderBy: { priority: 'desc' },
         take: 3,
         select: { title: true, ctaHref: true },
+      }),
+      // Earned certifications (logged via LogCertificationModal).
+      prisma.userCertification.count({ where: { userId: user.id } }),
+      // Lifetime points total (single denormalized row).
+      prisma.memberPoints.findUnique({
+        where: { userId: user.id },
+        select: { totalPoints: true },
+      }),
+      // Active pipeline = anything that isn't rejected/accepted.
+      prisma.jobApplication.count({
+        where: { userId: user.id, status: { notIn: ['REJECTED', 'ACCEPTED'] } },
+      }),
+      // A few recent active applications for the "Active Job Pipeline" card.
+      prisma.jobApplication.findMany({
+        where: { userId: user.id, status: { notIn: ['REJECTED', 'ACCEPTED'] } },
+        orderBy: { updatedAt: 'desc' },
+        take: 3,
+        select: { role: true, company: true, status: true },
       }),
     ]);
     const leanSlug = leanEnrollment?.programSlug ?? ku?.enrolledProgram ?? null;
@@ -176,17 +198,42 @@ async function renderMemberDashboard(
       : 0;
     const leanPct = leanTotal ? Math.round((leanCompleted / leanTotal) * 100) : 0;
     const firstNameLean = (ku?.fullName ?? user.email ?? 'there').split(' ')[0] || 'there';
+
+    // Map the top pending next-best-action to the "Next lesson" hint + the
+    // program resume link. Defaults preserve the kit's built-in copy.
+    const topLeanAction = leanActions[0] ?? null;
+    const programHref = leanSlug
+      ? `/dashboard?program=${encodeURIComponent(leanSlug)}`
+      : '/dashboard/program';
+
+    // JobApplicationStatus → pipeline stage label + tone for the kit table.
+    const stageToneByStatus: Record<string, { label: string; tone: 'warn' | 'muted' | 'info' }> = {
+      SAVED: { label: 'Saved', tone: 'muted' },
+      APPLIED: { label: 'Applied', tone: 'muted' },
+      PHONE_SCREEN: { label: 'Screening', tone: 'info' },
+      INTERVIEWING: { label: 'Interviewing', tone: 'warn' },
+      OFFER: { label: 'Offer', tone: 'warn' },
+    };
+    const leanPipelineRows = leanPipeline.map((j) => {
+      const meta = stageToneByStatus[j.status] ?? { label: 'Applied', tone: 'muted' as const };
+      return { role: j.role, company: j.company, stage: meta.label, tone: meta.tone };
+    });
+
     return (
-      <MemberDashboardKit
+      <MemberHomeKit
         firstName={firstNameLean}
-        progressPercent={leanPct}
-        programTitle={leanProgram?.title ?? null}
-        completedCount={leanCompleted}
-        totalCourses={leanTotal}
-        nextMilestone={null}
-        recommendedActions={leanActions.map((a) => ({ label: a.title, href: a.ctaHref ?? '/dashboard' }))}
-        aiToolsUsedCount={leanAiCount}
-        jobSearchUrl={null}
+        coursePercent={leanPct}
+        programTitle={leanProgram?.title ?? undefined}
+        activeJobs={leanActiveJobs}
+        certs={leanCertCount}
+        points={leanPointsRow?.totalPoints ?? 0}
+        nextLesson={topLeanAction?.title ?? undefined}
+        nextLessonDue={topLeanAction ? 'Recommended next step' : undefined}
+        pipeline={leanPipelineRows.length > 0 ? leanPipelineRows : []}
+        resumeHref={topLeanAction?.ctaHref ?? programHref}
+        coursesHref={programHref}
+        toolkitHref="/dashboard/ai-tools"
+        jobsHref="/dashboard/jobs"
       />
     );
   }

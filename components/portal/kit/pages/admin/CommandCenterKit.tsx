@@ -44,6 +44,13 @@ export interface CommandCenterQueueItem {
   actionLabel: string;
   /** Crimson-tinted urgent treatment + primary action styling. */
   urgent?: boolean;
+  /**
+   * Optional navigation target for the row's action button. When present the
+   * button renders as a link (server-page-friendly); otherwise it falls back
+   * to the `onQueueAction` callback. Backward compatible — omit to keep the
+   * callback behavior.
+   */
+  href?: string;
 }
 
 /** A program health row in the right-hand breakdown. */
@@ -60,6 +67,12 @@ export interface CommandCenterKitProps {
   programHealth?: ProgramHealthDatum[];
   /** Fired when the header "Add Student" button is pressed. */
   onAddStudent?: () => void;
+  /**
+   * Navigation target for the header "Add Student" button. When present the
+   * button renders as a link (server-page-friendly) and takes precedence over
+   * `onAddStudent`. Backward compatible — omit to keep the callback behavior.
+   */
+  addStudentHref?: string;
   /** Fired when a work-queue row's action button is pressed (passes the row id). */
   onQueueAction?: (id: string) => void;
 }
@@ -123,9 +136,25 @@ const DEFAULT_PROGRAM_HEALTH: ProgramHealthDatum[] = [
 interface HeaderProps {
   dateLabel: string;
   onAddStudent?: () => void;
+  addStudentHref?: string;
 }
 
-function CommandCenterHeader({ dateLabel, onAddStudent }: HeaderProps) {
+const ADD_STUDENT_STYLE: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '8px 14px',
+  background: 'var(--wa-accent)',
+  color: '#fff',
+  fontSize: 12,
+  fontWeight: 600,
+  borderRadius: 999,
+  border: 'none',
+  cursor: 'pointer',
+  textDecoration: 'none',
+};
+
+function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: HeaderProps) {
   return (
     <div
       style={{
@@ -153,26 +182,15 @@ function CommandCenterHeader({ dateLabel, onAddStudent }: HeaderProps) {
         >
           {dateLabel}
         </span>
-        <button
-          type="button"
-          onClick={onAddStudent}
-          className="wa-kit-focus"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '8px 14px',
-            background: 'var(--wa-accent)',
-            color: '#fff',
-            fontSize: 12,
-            fontWeight: 600,
-            borderRadius: 999,
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          <Plus size={14} aria-hidden /> Add Student
-        </button>
+        {addStudentHref ? (
+          <a href={addStudentHref} className="wa-kit-focus" style={ADD_STUDENT_STYLE}>
+            <Plus size={14} aria-hidden /> Add Student
+          </a>
+        ) : (
+          <button type="button" onClick={onAddStudent} className="wa-kit-focus" style={ADD_STUDENT_STYLE}>
+            <Plus size={14} aria-hidden /> Add Student
+          </button>
+        )}
         <button
           type="button"
           aria-label="Notifications"
@@ -208,6 +226,18 @@ function CommandCenterHeader({ dateLabel, onAddStudent }: HeaderProps) {
  */
 function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onAction?: () => void }) {
   const Icon = item.icon;
+  const actionStyle: React.CSSProperties = {
+    flexShrink: 0,
+    padding: '6px 12px',
+    fontSize: 11,
+    fontWeight: 600,
+    borderRadius: 999,
+    cursor: 'pointer',
+    textDecoration: 'none',
+    border: item.urgent ? 'none' : '1px solid var(--wa-border)',
+    background: item.urgent ? 'var(--wa-accent)' : 'var(--wa-surface)',
+    color: item.urgent ? '#fff' : 'var(--wa-text)',
+  };
   return (
     <div
       className="wa-kit-card wa-kit-card--sm wa-kit-card--hover"
@@ -238,24 +268,15 @@ function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onActi
         <div style={{ fontWeight: 700, fontSize: 14 }}>{item.title}</div>
         <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{item.detail}</div>
       </div>
-      <button
-        type="button"
-        onClick={onAction}
-        className="wa-kit-focus"
-        style={{
-          flexShrink: 0,
-          padding: '6px 12px',
-          fontSize: 11,
-          fontWeight: 600,
-          borderRadius: 999,
-          cursor: 'pointer',
-          border: item.urgent ? 'none' : '1px solid var(--wa-border)',
-          background: item.urgent ? 'var(--wa-accent)' : 'var(--wa-surface)',
-          color: item.urgent ? '#fff' : 'var(--wa-text)',
-        }}
-      >
-        {item.actionLabel}
-      </button>
+      {item.href ? (
+        <a href={item.href} className="wa-kit-focus" style={actionStyle}>
+          {item.actionLabel}
+        </a>
+      ) : (
+        <button type="button" onClick={onAction} className="wa-kit-focus" style={actionStyle}>
+          {item.actionLabel}
+        </button>
+      )}
     </div>
   );
 }
@@ -268,11 +289,12 @@ export function CommandCenterKit({
   queueItems = DEFAULT_QUEUE,
   programHealth = DEFAULT_PROGRAM_HEALTH,
   onAddStudent,
+  addStudentHref,
   onQueueAction,
 }: CommandCenterKitProps) {
   return (
     <DesignSurface surface="dense" className="wa-p-6">
-      <CommandCenterHeader dateLabel={dateLabel} onAddStudent={onAddStudent} />
+      <CommandCenterHeader dateLabel={dateLabel} onAddStudent={onAddStudent} addStudentHref={addStudentHref} />
 
       {/* KPI strip — 5 cards on desktop, 2-col on mobile. */}
       <div style={{ marginBottom: 20 }}>

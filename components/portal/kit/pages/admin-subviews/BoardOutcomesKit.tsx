@@ -62,23 +62,6 @@ const DEFAULT_KPIS: KpiItem[] = [
   { label: '90-Day Retention', value: '84%', color: 'info' },
 ];
 
-const DEFAULT_PLACEMENTS_BY_MONTH: ChartDatum[] = [
-  { label: 'Jan', value: 38 },
-  { label: 'Feb', value: 46 },
-  { label: 'Mar', value: 55 },
-  { label: 'Apr', value: 62 },
-  { label: 'May', value: 78 },
-  { label: 'Jun', value: 90 },
-];
-
-const DEFAULT_BY_PROGRAM: RankDatum[] = [
-  { label: 'Cloud & IT', value: 82, pct: 100, color: 'info' },
-  { label: 'Healthcare', value: 61, pct: 74, color: 'info' },
-  { label: 'Data & AI', value: 38, pct: 46, color: 'info' },
-  { label: 'Manufacturing', value: 22, pct: 27, color: 'info' },
-  { label: 'Skilled Trades', value: 10, pct: 12, color: 'info' },
-];
-
 const DEFAULT_EXPORTS: FunderExport[] = [
   {
     label: 'Outcomes CSV',
@@ -94,10 +77,10 @@ const DEFAULT_EXPORTS: FunderExport[] = [
 
 export function BoardOutcomesKit({
   kpis = DEFAULT_KPIS,
-  placementsByMonth = DEFAULT_PLACEMENTS_BY_MONTH,
-  placementsTotal = 213,
-  periodLabel = '2026 YTD',
-  byProgram = DEFAULT_BY_PROGRAM,
+  placementsByMonth = [],
+  placementsTotal = 0,
+  periodLabel = 'This period',
+  byProgram = [],
   exports = DEFAULT_EXPORTS,
   title = 'Board Outcomes',
   kicker = 'Outcomes & Metrics',
@@ -124,7 +107,13 @@ export function BoardOutcomesKit({
           <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2, marginBottom: 20 }}>
             {periodLabel} · {placementsTotal} total
           </p>
-          <BarChartMini data={placementsByMonth} highlightLast height={176} />
+          {placementsByMonth.length > 0 ? (
+            <BarChartMini data={placementsByMonth} highlightLast height={176} />
+          ) : (
+            <p style={{ fontSize: 13, color: 'var(--wa-muted)', padding: '48px 0', textAlign: 'center' }}>
+              No placements recorded for this period yet.
+            </p>
+          )}
         </div>
 
         {/* By program — same `minWidth: 0` guard; RankBars are %-width, so
@@ -133,7 +122,13 @@ export function BoardOutcomesKit({
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 16 }}>
             By program
           </h3>
-          <RankBars data={byProgram} />
+          {byProgram.length > 0 ? (
+            <RankBars data={byProgram} />
+          ) : (
+            <p style={{ fontSize: 13, color: 'var(--wa-muted)', padding: '32px 0', textAlign: 'center' }}>
+              No placements by program yet.
+            </p>
+          )}
         </div>
       </div>
 

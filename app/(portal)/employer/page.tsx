@@ -80,8 +80,7 @@ export default async function EmployerDashboardPage({
   // aIJobMatch match-to-hire pass — all of which stall on the demo DB.
   // Renders the redesigned employer kit from a handful of cheap queries.
   const params = await searchParams;
-  // v2 KIT is the DEFAULT employer overview; legacy view via ?ui=legacy.
-  if (params?.ui !== 'legacy') {
+  if (params?.ui === 'kit') {
     const [
       kitOpenRoles,
       kitTotalCandidates,

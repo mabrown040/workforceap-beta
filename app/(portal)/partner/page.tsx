@@ -141,8 +141,7 @@ export default async function PartnerDashboardPage({
   // loadPartnerReferralBundle + Promise.all aggregations that stall on the
   // demo DB). Renders the redesigned partner overview from a handful of cheap
   // count/findMany queries only. NO bundle, NO $transaction, NO external HTTP.
-  // v2 KIT is the DEFAULT partner overview; legacy view via ?ui=legacy.
-  if (requestedUi !== 'legacy') {
+  if (requestedUi === 'kit') {
     const memberFilter = {
       deletedAt: null,
       organizationId: ctx.partner.organizationId,

@@ -1,9 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
 import { buildPageMetadataAsync } from '@/app/seo';
+import { captureApiError } from '@/lib/observability/captureApiError';
 import BlogPostActions from '@/components/admin/BlogPostActions';
 import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  BlogKit,
+  type BlogRow,
+  type BlogDisplayStatus,
+} from '@/components/portal/kit/pages/admin-subviews/BlogKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -19,7 +29,82 @@ const STATUS_COLOR: Record<string, { bg: string; color: string }> = {
   draft: { bg: 'var(--surface-container-high)', color: 'var(--color-on-surface-variant)' },
 };
 
-export default async function AdminBlogPage() {
+/** Cap the lean kit table so first paint stays cheap. */
+const BOARD_LIMIT = 50;
+
+/** "Jun 10" — short month + day, matching the mockup. */
+function formatUpdated(d: Date): string {
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+export default async function AdminBlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui?: string }>;
+}) {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/blog');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const { ui } = await searchParams;
+
+  if (ui !== 'legacy') {
+    return renderKit();
+  }
+
+  return renderLegacy();
+}
+
+/** Design-kit default: dense roster of marketing & resource posts → <BlogKit/>. */
+async function renderKit() {
+  let rows: BlogRow[] = [];
+
+  try {
+    const posts = await prisma.blogPost.findMany({
+      take: BOARD_LIMIT,
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        authorName: true,
+        category: true,
+        published: true,
+        scheduledAt: true,
+        updatedAt: true,
+      },
+    });
+
+    rows = posts.map((post): BlogRow => {
+      const status: BlogDisplayStatus = post.published
+        ? 'Published'
+        : post.scheduledAt
+        ? 'Scheduled'
+        : 'Draft';
+      return {
+        id: post.id,
+        title: post.title,
+        author: post.authorName,
+        category: post.category?.trim() || '—',
+        status,
+        updated: formatUpdated(post.updatedAt),
+      };
+    });
+  } catch (error) {
+    // Core query failed — fall back to the proven legacy view rather than
+    // rendering a fabricated/empty kit.
+    captureApiError(error, { route: 'admin/blog', extra: { view: 'kit' } });
+    redirect('/admin/blog?ui=legacy');
+  }
+
+  return (
+    <DesignSurface surface="dense">
+      <BlogKit posts={rows} />
+    </DesignSurface>
+  );
+}
+
+/** Legacy blog manager (preserved behind ?ui=legacy). */
+async function renderLegacy() {
   const posts = await prisma.blogPost.findMany({
     take: 5000,
     orderBy: { updatedAt: 'desc' },

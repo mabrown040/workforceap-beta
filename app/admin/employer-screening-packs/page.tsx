@@ -7,7 +7,12 @@ import { isAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import { PROGRAMS } from '@/lib/content/programs';
+import { PROGRAMS, getProgramBySlug } from '@/lib/content/programs';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  ScreeningPacksKit,
+  type ScreeningPackRow,
+} from '@/components/portal/kit/pages/admin-subviews/ScreeningPacksKit';
 import EmployerScreeningPacksAdmin from './EmployerScreeningPacksAdmin';
 
 export const metadata: Metadata = buildPageMetadata({
@@ -18,12 +23,129 @@ export const metadata: Metadata = buildPageMetadata({
 
 export const dynamic = 'force-dynamic';
 
-export default async function EmployerScreeningPacksPage() {
+/** Cap the lean kit table so first paint stays cheap. */
+const PACK_LIMIT = 50;
+
+/**
+ * Summarize a pack's questions JSON into a short "Checks" label, e.g.
+ * "Skills + free-text" / "Background + skills". Derived from the question
+ * `type` field when present; degrades gracefully on unexpected shapes.
+ */
+function summarizeChecks(questionsJson: unknown): string {
+  if (!Array.isArray(questionsJson) || questionsJson.length === 0) return 'No checks';
+
+  const labelFor = (type: unknown): string => {
+    switch (type) {
+      case 'yes_no':
+        return 'Background';
+      case 'short_text':
+      case 'long_text':
+        return 'Free-text';
+      case 'rating':
+      case 'scale':
+        return 'Skills';
+      case 'multiple_choice':
+      case 'select':
+        return 'Skills';
+      default:
+        return 'Skills';
+    }
+  };
+
+  const labels: string[] = [];
+  for (const q of questionsJson) {
+    const type = q && typeof q === 'object' ? (q as { type?: unknown }).type : undefined;
+    const label = labelFor(type);
+    if (!labels.includes(label)) labels.push(label);
+  }
+  if (labels.length === 0) return 'Skills';
+  return labels.slice(0, 2).join(' + ');
+}
+
+/** Question count, the only real per-pack usage metric, as "N×". */
+function usedTag(questionsJson: unknown): string {
+  const n = Array.isArray(questionsJson) ? questionsJson.length : 0;
+  return `${n}×`;
+}
+
+export default async function EmployerScreeningPacksPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/employer-screening-packs');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  const packs = await prisma.employerScreeningPack.findMany({ orderBy: { updatedAt: 'desc' }, take: 100 });
+  const { ui } = await searchParams;
+
+  // --- DEFAULT: design-kit screening-packs roster wired into real lean data ---
+  if (ui !== 'legacy') {
+    return renderKit();
+  }
+
+  // --- LEGACY (?ui=legacy): the proven create/manage workspace, unchanged ---
+  return renderLegacy();
+}
+
+/** Design-kit default: dense roster of screening packs → <ScreeningPacksKit/>. */
+async function renderKit() {
+  // Lean page (capped) + total count + active count, all in parallel; aggregate
+  // failures degrade gracefully (the table must still render).
+  const [packsResult, totalResult, activeResult] = await Promise.allSettled([
+    prisma.employerScreeningPack.findMany({
+      take: PACK_LIMIT,
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        employerLabel: true,
+        programSlug: true,
+        packTitle: true,
+        questionsJson: true,
+        isActive: true,
+      },
+    }),
+    prisma.employerScreeningPack.count(),
+    prisma.employerScreeningPack.count({ where: { isActive: true } }),
+  ]);
+
+  // If the core query fails, fall back to the proven legacy workspace rather
+  // than rendering a fabricated/empty kit.
+  if (packsResult.status === 'rejected') {
+    redirect('/admin/employer-screening-packs?ui=legacy');
+  }
+
+  const packRows: ScreeningPackRow[] = packsResult.value.map((p) => {
+    const program = getProgramBySlug(p.programSlug);
+    return {
+      id: p.id,
+      employer: p.employerLabel?.trim() || 'Unknown employer',
+      roleFamily: program?.title?.trim() || p.packTitle?.trim() || p.programSlug,
+      checks: summarizeChecks(p.questionsJson),
+      used: usedTag(p.questionsJson),
+      active: p.isActive,
+    };
+  });
+
+  const total = totalResult.status === 'fulfilled' ? totalResult.value : packRows.length;
+  const active =
+    activeResult.status === 'fulfilled'
+      ? activeResult.value
+      : packRows.filter((r) => r.active).length;
+
+  return (
+    <DesignSurface surface="dense">
+      <ScreeningPacksKit packs={packRows} totalPacks={total} activePacks={active} />
+    </DesignSurface>
+  );
+}
+
+/** Legacy create/manage workspace (preserved behind ?ui=legacy). */
+async function renderLegacy() {
+  const packs = await prisma.employerScreeningPack.findMany({
+    orderBy: { updatedAt: 'desc' },
+    take: 100,
+  });
 
   return (
     <PortalPageFrame>

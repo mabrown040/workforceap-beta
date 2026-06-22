@@ -1,0 +1,152 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+
+const STAGES = [
+  { key: 'holding', label: 'Holding Room', color: '#6b7280', desc: 'Invited, not yet in Coursera' },
+  { key: 'funding', label: 'Funding Evaluated', color: '#f59e0b', desc: 'WIOA/qualification complete' },
+  { key: 'coursera', label: 'Coursera Enrolled', color: '#3b82f6', desc: 'In training' },
+  { key: 'paid', label: 'Payment Received', color: '#10b981', desc: 'Funding secured' },
+  { key: 'complete', label: 'Training Complete', color: '#8b5cf6', desc: 'Certificates earned' },
+  { key: 'ready', label: 'Workforce Ready', color: '#06b6d4', desc: 'Resume, interview, job match' },
+  { key: 'placed', label: 'Placed', color: '#f59e0b', desc: 'Employed' },
+];
+
+type AtRiskStats = {
+  criticalCount: number;
+  alertsSentToday: number;
+  counselorsWithPending: Array<{ name: string; email: string; memberCount: number }>;
+};
+
+export default function PipelineLegacyView() {
+  const t = useTranslations('admin');
+  const [data, setData] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [riskStats, setRiskStats] = useState<AtRiskStats | null>(null);
+  const [riskLoading, setRiskLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/admin/pipeline')
+      .then((r) => {
+        if (!r.ok) throw new Error(`pipeline ${r.status}`);
+        return r.json();
+      })
+      .then((d) => { setData(d.counts || {}); setLoading(false); })
+      .catch(() => { setLoadError(true); setLoading(false); });
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/admin/pipeline/at-risk-stats')
+      .then((r) => {
+        if (!r.ok) throw new Error(`at-risk-stats ${r.status}`);
+        return r.json();
+      })
+      .then((d) => { setRiskStats(d); setRiskLoading(false); })
+      .catch(() => { setLoadError(true); setRiskLoading(false); });
+  }, []);
+
+  const total = Object.values(data).reduce((a, b) => a + (b || 0), 0);
+
+  return (
+    <div className="admin-page">
+      <h1 className="admin-page-title">{t('memberPipeline')}</h1>
+      <p className="admin-page-subtitle">{t('sevenStageJourney')}</p>
+
+      {loadError ? (
+        <div
+          role="alert"
+          style={{
+            padding: '0.75rem 1rem',
+            marginBottom: '1.5rem',
+            borderRadius: '0.5rem',
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#b91c1c',
+            fontSize: '0.875rem',
+          }}
+        >
+          Some pipeline data failed to load — the numbers below may be incomplete. Refresh to retry.
+        </div>
+      ) : null}
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        {STAGES.map((stage) => (
+          <div key={stage.key} className="portal-card portal-card--flat" style={{ borderLeft: `4px solid ${stage.color}`, padding: '1.25rem' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: stage.color, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
+              {t(stage.key === 'holding' ? 'holdingRoom' : stage.key === 'funding' ? 'fundingEvaluated' : stage.key === 'coursera' ? 'courseraEnrolled' : stage.key === 'paid' ? 'paymentReceived' : stage.key === 'complete' ? 'trainingComplete' : stage.key === 'ready' ? 'workforceReady' : stage.key === 'placed' ? 'placed' : stage.label)}
+            </div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
+              {loading ? '—' : (data[stage.key] || 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
+              {t(stage.key === 'holding' ? 'invitedNotYetCoursera' : stage.key === 'funding' ? 'wioaQualificationComplete' : stage.key === 'coursera' ? 'inTraining' : stage.key === 'paid' ? 'fundingSecured' : stage.key === 'complete' ? 'certificatesEarned' : stage.key === 'ready' ? 'resumeInterviewJobMatch' : stage.key === 'placed' ? 'employed' : stage.desc)}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* At-Risk Alert Stats */}
+      <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>{t('atRiskAlerts')}</h3>
+          <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+            {t('updatedDaily8am')}
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+          <div style={{ textAlign: 'center', padding: '1rem', background: '#fef2f2', borderRadius: '0.5rem' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              {t('criticalMembers')}
+            </div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#dc2626' }}>
+              {riskLoading ? '—' : (riskStats?.criticalCount ?? 0).toLocaleString()}
+            </div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', background: '#f0fdf4', borderRadius: '0.5rem' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              {t('alertsSentToday')}
+            </div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#16a34a' }}>
+              {riskLoading ? '—' : (riskStats?.alertsSentToday ?? 0).toLocaleString()}
+            </div>
+          </div>
+        </div>
+
+        {riskStats && riskStats.counselorsWithPending.length > 0 && (
+          <div>
+            <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9375rem', fontWeight: 700 }}>{t('counselorsWithPendingAlerts')}</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {riskStats.counselorsWithPending.map((c) => (
+                <div key={c.email} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.625rem 0.875rem', background: 'var(--surface-container)', borderRadius: '0.375rem' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{c.name}</span>
+                  <span style={{ fontSize: '0.8125rem', color: '#dc2626', fontWeight: 700 }}>
+                    {t('memberCount', { count: c.memberCount })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>{t('totalMembersInPipeline')}</h3>
+          <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-accent)' }}>{total.toLocaleString()}</span>
+        </div>
+        <div style={{ height: '2rem', background: 'var(--surface-container)', borderRadius: '0.5rem', overflow: 'hidden', display: 'flex' }}>
+          {STAGES.map((stage) => {
+            const count = data[stage.key] || 0;
+            const pct = total > 0 ? (count / total) * 100 : 0;
+            return (
+              <div key={stage.key} style={{ width: `${pct}%`, background: stage.color, minWidth: count > 0 ? '2px' : 0 }} title={`${t(stage.key === 'holding' ? 'holdingRoom' : stage.key === 'funding' ? 'fundingEvaluated' : stage.key === 'coursera' ? 'courseraEnrolled' : stage.key === 'paid' ? 'paymentReceived' : stage.key === 'complete' ? 'trainingComplete' : stage.key === 'ready' ? 'workforceReady' : stage.key === 'placed' ? 'placed' : stage.label)}: ${count}`} />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

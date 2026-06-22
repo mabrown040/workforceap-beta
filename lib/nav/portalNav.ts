@@ -348,11 +348,12 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/overview', label: 'Detailed overview', group: 'primary', Icon: BarChart3 },
 
   // ── Students — the people you manage day to day ──
-  // Single entry. The flavored sub-lists (Interview ready, Job ready,
-  // Duplicates, Applications funnel) live as chip links on /admin/members
-  // and/or in Advanced / System below — see PR #2 "consolidate student-list
-  // nav into filter chips". All underlying page.tsx routes are preserved.
-  { href: '/admin/members', label: 'Students', group: 'students', Icon: Users },
+  // Single entry → the full-kit roster (StudentsRosterKit) at /admin/students,
+  // which matches the admin-full mockup's Students view. The legacy management
+  // hub (/admin/members) remains reachable via /admin/students?ui=legacy and the
+  // flavored sub-lists (Interview ready, Job ready, Duplicates, Applications
+  // funnel) in Advanced / System below. All underlying page.tsx routes preserved.
+  { href: '/admin/students', label: 'Students', group: 'students', Icon: Users },
   {
     href: '/admin/messages',
     label: 'Messages',

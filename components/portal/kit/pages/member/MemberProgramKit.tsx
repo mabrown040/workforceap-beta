@@ -1,0 +1,226 @@
+import { Play, Check, Lock, CalendarDays, Target, ArrowRight } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { DesignSurface, ProgressRing } from '@/components/portal/kit';
+
+/**
+ * Member Portal — MY PROGRAM view.
+ * Faithful port of `data-view-panel="program"` in
+ * docs/mockups/workforceap-member-suite.html.
+ *
+ * Target route: app/(portal)/dashboard/program
+ * Surface: warm (member-facing).
+ */
+
+type ModuleState = 'done' | 'active' | 'locked';
+
+interface ProgramModule {
+  title: string;
+  state: ModuleState;
+}
+
+export interface MemberProgramKitProps {
+  programTitle?: string;
+  /** 0–100. */
+  progressPercent?: number;
+  modulesComplete?: number;
+  modulesTotal?: number;
+  estRemaining?: string;
+  resumeHref?: string;
+  modules?: ProgramModule[];
+  liveSessionTitle?: string;
+  liveSessionWhen?: string;
+  missionsSummary?: string;
+  missionsHref?: string;
+}
+
+const DEFAULT_MODULES: ProgramModule[] = [
+  { title: 'Cloud Concepts', state: 'done' },
+  { title: 'Security & Compliance', state: 'done' },
+  { title: 'Shared Responsibility Model', state: 'active' },
+  { title: 'Billing & Pricing', state: 'locked' },
+  { title: 'Exam Readiness', state: 'locked' },
+];
+
+const MODULE_META: Record<ModuleState, { label: string; color: string; icon: ReactNode; bg: string; border?: string; iconBg: string; iconColor: string }> = {
+  done: {
+    label: 'Done',
+    color: 'var(--wa-success)',
+    icon: <Check size={13} />,
+    bg: 'var(--wa-bg)',
+    iconBg: 'var(--wa-success)',
+    iconColor: '#fff',
+  },
+  active: {
+    label: 'In Progress',
+    color: 'var(--wa-accent)',
+    icon: <Play size={11} />,
+    bg: 'var(--wa-accent-soft)',
+    border: '1px solid #f3d4dc',
+    iconBg: 'var(--wa-accent)',
+    iconColor: '#fff',
+  },
+  locked: {
+    label: 'Locked',
+    color: '#a3a3a3',
+    icon: <Lock size={11} />,
+    bg: 'var(--wa-surface)',
+    border: '1px solid var(--wa-border)',
+    iconBg: '#e8e8e8',
+    iconColor: '#a3a3a3',
+  },
+};
+
+export function MemberProgramKit({
+  programTitle = 'AWS Cloud Practitioner Essentials',
+  progressPercent = 78,
+  modulesComplete = 7,
+  modulesTotal = 9,
+  estRemaining = '4 hrs remaining',
+  resumeHref = '#',
+  modules = DEFAULT_MODULES,
+  liveSessionTitle = 'Exam Prep Q&A',
+  liveSessionWhen = 'Thu, Jun 26 · 6:00 PM CT',
+  missionsSummary = '3 active missions · 450 pts available this week',
+  missionsHref = '#',
+}: MemberProgramKitProps) {
+  const pct = Math.max(0, Math.min(100, Math.round(progressPercent)));
+
+  return (
+    <DesignSurface surface="warm">
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+        {/* Gradient hero */}
+        <div
+          className="wa-kit-card wa-kit-card--gradient-crimson wa-flex wa-flex-col md:wa-flex-row md:wa-items-center"
+          style={{ gap: 24 }}
+        >
+          <div style={{ flexShrink: 0, margin: '0 auto' }}>
+            <ProgressRing pct={pct} size={120} onDark />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.7 }}>
+              Current Program
+            </div>
+            <h2 className="h-font" style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
+              {programTitle}
+            </h2>
+            <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4 }}>
+              {modulesComplete} of {modulesTotal} modules complete · Est. {estRemaining}
+            </p>
+          </div>
+          <a
+            href={resumeHref}
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '12px 20px',
+              background: '#fff',
+              color: 'var(--wa-accent)',
+              fontWeight: 700,
+              fontSize: 14,
+              borderRadius: 999,
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Resume Module <Play size={12} />
+          </a>
+        </div>
+
+        <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
+          {/* Modules list (2-wide) */}
+          <div className="wa-kit-card" style={{ gridColumn: 'span 2' }}>
+            <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Modules</h3>
+            <div className="wa-space-y-2">
+              {modules.map((m) => {
+                const meta = MODULE_META[m.state];
+                const dim = m.state === 'locked';
+                return (
+                  <div
+                    key={m.title}
+                    className="wa-flex wa-items-center wa-gap-3"
+                    style={{
+                      padding: 12,
+                      borderRadius: 'var(--wa-radius-sm)',
+                      background: meta.bg,
+                      border: meta.border,
+                      opacity: dim ? 0.7 : 1,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 999,
+                        background: meta.iconBg,
+                        color: meta.iconColor,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {meta.icon}
+                    </div>
+                    <span style={{ fontWeight: 600, fontSize: 14, flex: 1, color: dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>
+                      {m.title}
+                    </span>
+                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: meta.color }}>
+                      {meta.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Sidebar: live session + missions */}
+          <div className="wa-space-y-5">
+            <div className="wa-kit-card">
+              <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-accent)', marginBottom: 8 }}>
+                <CalendarDays size={15} />
+                <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Next Live Session</h3>
+              </div>
+              <p style={{ fontSize: 14, fontWeight: 700 }}>{liveSessionTitle}</p>
+              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>{liveSessionWhen}</p>
+              <button
+                type="button"
+                className="wa-kit-focus"
+                style={{
+                  marginTop: 12,
+                  width: '100%',
+                  padding: '8px 0',
+                  background: 'var(--wa-accent)',
+                  color: '#fff',
+                  fontWeight: 600,
+                  fontSize: 12,
+                  borderRadius: 999,
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                Add to Calendar
+              </button>
+            </div>
+
+            <div className="wa-kit-card" style={{ background: '#faf7f0', borderColor: '#ece2c8' }}>
+              <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-gold)', marginBottom: 8 }}>
+                <Target size={15} />
+                <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Skill Missions</h3>
+              </div>
+              <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{missionsSummary}</p>
+              <a
+                href={missionsHref}
+                className="wa-kit-focus"
+                style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: 'var(--wa-gold)', textDecoration: 'none' }}
+              >
+                View missions <ArrowRight size={12} />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </DesignSurface>
+  );
+}

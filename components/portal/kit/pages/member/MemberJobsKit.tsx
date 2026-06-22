@@ -1,0 +1,161 @@
+import { DesignSurface, KpiStrip, DataTable, StatusTag, type Column, type KitTone } from '@/components/portal/kit';
+
+/**
+ * Member Portal — JOB PIPELINE view.
+ * Faithful port of `data-view-panel="jobs"` in
+ * docs/mockups/workforceap-member-suite.html.
+ *
+ * Target route: app/(portal)/dashboard/jobs
+ * Surface: warm (member-facing).
+ */
+
+interface ApplicationRow {
+  id: string;
+  role: string;
+  company: string;
+  location: string;
+  applied: string;
+  stage: string;
+  tone: KitTone;
+}
+
+interface RecommendedJob {
+  id: string;
+  logo: string;
+  match: string;
+  title: string;
+  meta: string;
+}
+
+export interface MemberJobsKitProps {
+  saved?: number;
+  applied?: number;
+  interviewing?: number;
+  offers?: number;
+  syncedLabel?: string;
+  browseHref?: string;
+  applications?: ApplicationRow[];
+  recommended?: RecommendedJob[];
+}
+
+const DEFAULT_APPLICATIONS: ApplicationRow[] = [
+  { id: 'a1', role: 'Salesforce Administrator', company: 'Deloitte', location: 'Austin, TX', applied: 'Jun 12', stage: 'Interviewing', tone: 'warn' },
+  { id: 'a2', role: 'Agentforce Solutions Engineer', company: 'Accenture', location: 'Remote', applied: 'Jun 14', stage: 'Applied', tone: 'muted' },
+  { id: 'a3', role: 'Cloud Support Associate', company: 'Indeed', location: 'Austin, TX', applied: 'Jun 16', stage: 'Screening', tone: 'info' },
+  { id: 'a4', role: 'Junior Cloud Engineer', company: 'Oracle', location: 'Austin, TX', applied: 'Jun 18', stage: 'Applied', tone: 'muted' },
+];
+
+const DEFAULT_RECOMMENDED: RecommendedJob[] = [
+  { id: 'r1', logo: 'IBM', match: '94% match', title: 'Cloud Solutions Analyst', meta: 'IBM · Austin, TX · $72k–88k' },
+  { id: 'r2', logo: 'DX', match: '89% match', title: 'IT Support Specialist', meta: 'Dell · Round Rock, TX · $58k–70k' },
+  { id: 'r3', logo: 'VM', match: '85% match', title: 'Associate DevOps Eng.', meta: 'VMware · Remote · $80k–95k' },
+];
+
+export function MemberJobsKit({
+  saved = 9,
+  applied = 4,
+  interviewing = 1,
+  offers = 0,
+  syncedLabel = 'Synced 3m ago',
+  browseHref = '#',
+  applications = DEFAULT_APPLICATIONS,
+  recommended = DEFAULT_RECOMMENDED,
+}: MemberJobsKitProps) {
+  const columns: Column<ApplicationRow>[] = [
+    { key: 'role', header: 'Role', render: (r) => <span style={{ fontWeight: 700 }}>{r.role}</span> },
+    { key: 'company', header: 'Company', render: (r) => <span style={{ color: '#525252' }}>{r.company}</span> },
+    { key: 'location', header: 'Location', render: (r) => <span style={{ color: '#525252' }}>{r.location}</span> },
+    { key: 'applied', header: 'Applied', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.applied}</span> },
+    { key: 'stage', header: 'Stage', align: 'right', render: (r) => <StatusTag tone={r.tone}>{r.stage}</StatusTag> },
+  ];
+
+  return (
+    <DesignSurface surface="warm">
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+        {/* KPI strip */}
+        <KpiStrip
+          items={[
+            { label: 'Saved', value: saved, color: 'text' },
+            { label: 'Applied', value: applied, color: 'info' },
+            { label: 'Interviewing', value: interviewing, color: 'gold' },
+            { label: 'Offers', value: offers, color: 'success' },
+          ]}
+        />
+
+        {/* Application pipeline */}
+        <div className="wa-kit-card">
+          <div className="wa-flex wa-flex-col md:wa-flex-row md:wa-items-center wa-justify-between wa-gap-3" style={{ marginBottom: 16 }}>
+            <div>
+              <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Application Pipeline</h3>
+              <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{syncedLabel}</p>
+            </div>
+            <a
+              href={browseHref}
+              className="wa-kit-focus"
+              style={{ display: 'inline-flex', alignItems: 'center', padding: '8px 16px', background: 'var(--wa-accent)', color: '#fff', fontWeight: 600, fontSize: 12, borderRadius: 999, textDecoration: 'none', whiteSpace: 'nowrap' }}
+            >
+              Browse Job Board
+            </a>
+          </div>
+          <DataTable<ApplicationRow>
+            columns={columns}
+            rows={applications}
+            rowKey={(r) => r.id}
+            mobile="scroll"
+            minWidth={560}
+          />
+        </div>
+
+        {/* Recommended for you */}
+        <div>
+          <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 12 }}>Recommended for you</h3>
+          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
+            {recommended.map((job) => (
+              <div key={job.id} className="wa-kit-card wa-kit-card--sm wa-kit-card--hover">
+                <div className="wa-flex wa-items-start wa-justify-between">
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 'var(--wa-radius-sm)',
+                      background: 'var(--wa-accent-soft)',
+                      color: 'var(--wa-accent)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      fontSize: 13,
+                    }}
+                  >
+                    {job.logo}
+                  </div>
+                  <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--wa-success)' }}>{job.match}</span>
+                </div>
+                <h4 style={{ fontWeight: 700, fontSize: 14, marginTop: 12 }}>{job.title}</h4>
+                <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{job.meta}</p>
+                <button
+                  type="button"
+                  className="wa-kit-focus"
+                  style={{
+                    marginTop: 12,
+                    width: '100%',
+                    padding: '6px 0',
+                    border: '1px solid var(--wa-accent)',
+                    color: 'var(--wa-accent)',
+                    background: 'transparent',
+                    fontWeight: 600,
+                    fontSize: 12,
+                    borderRadius: 999,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Quick Apply
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </DesignSurface>
+  );
+}

@@ -1,6 +1,10 @@
 # Portal Nav Spec — Member Top-Nav + Per-Persona Rules
 
-**For:** the next portal PR (fold in here). **Status:** spec only — not yet built.
+**For:** the next portal PR (fold in here). **Status:** ✅ IMPLEMENTED (2026-06-22, #2069) — the
+member nav is now a flat single-level top-nav (all routes in one scrollable row, primary first;
+contextual left sidebar hidden for members at desktop). See `WorkspaceShell.tsx` (memberFlatNav) +
+`css/portal-main-extracted.css` (member flat-nav + sidebar hide). Reachability (§2) is satisfied
+structurally: every route lives in the flat nav, so nothing is orphaned.
 **Design source of truth:** `docs/mockups/wa-v2-member.html` (member) + `docs/mockups/workforceap-admin-full.html` (staff).
 **Rule of thumb:** **members = flat top-nav · staff = dense left sidebar.**
 

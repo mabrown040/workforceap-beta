@@ -36,10 +36,10 @@ Build gates green every push: `tsc` + Material-Symbols glyph check + `next build
 
 ## My judgment
 
-- **Solid / done:** the reskin is consistent and brand-accurate across all five portals; the command rail now genuinely matches the mockup; voice is on-palette; in-office sessions flow is back to the rich operator experience.
-- **Data, not design:** the demo super-admin account is sparse (readiness 5, 0 certs, no resume), so member pages look emptier than the populated mockups. Seed this account (enrollment + certs + a placement) to see them fully populated — it's not a UI gap.
-- **One real open item — member nav (#2069):** the member portal still uses the older two-level nav (Home / My Program / Career Toolkit + sidebar) instead of the mockup's flat 6-item top-nav (Jobs · Certs · Toolkit · Progress · Messages · Profile). Page **bodies** match the mockups; the nav **shell** does not. This was assigned to the other session and has a reachability spec (`docs/PORTAL_NAV_SPEC.md`) — say the word and I'll take it.
+- **Solid / done:** the reskin is consistent and brand-accurate across all five portals; the command rail matches the mockup; voice is on-palette; in-office sessions flow is the rich operator experience; **the member nav is now the flat single-level top-nav (#2069)**; the **demo account is seeded** (readiness 75, 2 certs, course progress, applications) so member pages render populated like the mockups.
+- **Member nav (#2069) — done:** flat horizontally-scrollable top-nav, primary destinations first (Home · Program · Jobs · Certificates · Toolkit · Progress · Messages · Profile), then the rest in the same row; contextual left sidebar hidden for members at desktop. No page orphaned — every member route is in the flat nav (the failure mode that got the earlier CSS-only hide reverted).
 - **Minor polish (non-blocking):** the voice counselor uses a couple emoji (🎙️/🔊) in the active state where the design rubric prefers SVG; the rail footer has no user-identity block (needs a user-name prop threaded into the shell).
+- **Note (not mine):** a 20h-old git stash `loose-non-kit-changes` (coursera B4B client + a 1-line nav tweak) sits on the branch — left untouched; looks like another session's in-progress coursera work. Reconcile or drop before merge.
 
 ## Architecture reference
 `docs/ADMIN_PORTAL.md` (kit pattern, nav/rail, APIs, build gates). gbrain: `projects/workforceap/admin-portal-reskin`.

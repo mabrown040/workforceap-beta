@@ -97,8 +97,12 @@ export function BoardOutcomesKit({
       <KpiStrip cols={4} items={kpis} />
 
       <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5 wa-mt-6">
-        {/* Placements by month */}
-        <div className="wa-kit-card lg:wa-col-span-2">
+        {/* Placements by month. `minWidth: 0` lets this grid column shrink to
+            the viewport on phones — grid items default to `min-width: auto`,
+            which can otherwise let the flex bar row force horizontal overflow.
+            The chart itself is fluid (flex:1 bars + height only), so it stays
+            in width and desktop is unchanged. */}
+        <div className="wa-kit-card lg:wa-col-span-2" style={{ minWidth: 0 }}>
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em' }}>
             Placements by month
           </h3>
@@ -108,8 +112,9 @@ export function BoardOutcomesKit({
           <BarChartMini data={placementsByMonth} highlightLast height={176} />
         </div>
 
-        {/* By program */}
-        <div className="wa-kit-card">
+        {/* By program — same `minWidth: 0` guard; RankBars are %-width, so
+            they stay within the column at any phone width. */}
+        <div className="wa-kit-card" style={{ minWidth: 0 }}>
           <h3 style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', marginBottom: 16 }}>
             By program
           </h3>
@@ -158,7 +163,7 @@ export function BoardOutcomesKit({
                   <FileSpreadsheet size={18} />
                 )}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{exp.label}</div>
                 <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{exp.description}</div>
               </div>

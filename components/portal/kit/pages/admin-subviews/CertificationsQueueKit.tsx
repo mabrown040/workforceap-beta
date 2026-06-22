@@ -198,7 +198,15 @@ export function CertificationsQueueKit({
               className="wa-kit-card wa-kit-card--sm"
               style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  rowGap: 12,
+                  columnGap: 16,
+                }}
+              >
                 <div
                   style={{
                     width: 44,
@@ -215,11 +223,48 @@ export function CertificationsQueueKit({
                   <Award size={20} />
                 </div>
 
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ flex: '1 1 200px', minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 14 }}>{sub.credential}</div>
                   <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>
                     {sub.member} · {sub.meta}
                   </div>
+                  {/* Mobile-only proof link: the desktop one is hidden below md, so
+                      surface it inline with the meta on phones (kept reachable, no
+                      overflow). */}
+                  {sub.proofHref ? (
+                    <a
+                      href={sub.proofHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="md:wa-hidden wa-inline-flex wa-kit-focus"
+                      style={{
+                        alignItems: 'center',
+                        gap: 4,
+                        marginTop: 6,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: 'var(--wa-info)',
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <FileText size={13} /> View proof
+                    </a>
+                  ) : (
+                    <span
+                      className="md:wa-hidden wa-inline-flex"
+                      style={{
+                        alignItems: 'center',
+                        gap: 4,
+                        marginTop: 6,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: 'var(--wa-muted)',
+                      }}
+                      title="No proof file on record"
+                    >
+                      <FileText size={13} /> No proof
+                    </span>
+                  )}
                 </div>
 
                 {sub.proofHref ? (
@@ -257,7 +302,7 @@ export function CertificationsQueueKit({
                   </span>
                 )}
 
-                <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, flexShrink: 0, marginLeft: 'auto' }}>
                   <button
                     type="button"
                     className="wa-kit-focus"

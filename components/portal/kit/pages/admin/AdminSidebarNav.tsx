@@ -240,22 +240,36 @@ export function AdminSidebarNav({
   children,
 }: AdminSidebarNavProps) {
   return (
-    <AppShellSidebar
-      brand={<Brand />}
-      groups={toNavGroups()}
-      activeId={activeId}
-      onNavigate={onNavigate}
-      footer={<SidebarFooter />}
-      topbar={topbar}
-    >
-      {/* The mockup's admin search lives in the rail; surfaced here as a hint
-          for the topbar/universal-search wiring. Kept lightweight: the rail
-          search input is decorative chrome in the mockup. */}
-      <div className="wa-hidden" aria-hidden>
-        <Search size={12} />
-      </div>
-      {children}
-    </AppShellSidebar>
+    // Below lg the rail (<AppShellSidebar>) is a hamburger-triggered drawer:
+    // it's `position: fixed` and slid fully off-canvas (`-translateX(100%)`),
+    // and the content area carries no left margin (`lg:wa-ml-64` only applies
+    // at lg), so the page is genuinely full-width on phones. This wrapper adds
+    // a defensive boundary so anything a page passes through `children` can't
+    // push horizontal scroll: `overflow-x: clip` (not `hidden`, so it does NOT
+    // create a scroll container and the shell's sticky topbar keeps working)
+    // plus `minWidth: 0`/`width: 100%` so the column can shrink to the viewport.
+    // (Note: the off-canvas rail is `position: fixed`, so it escapes this clip
+    // by spec; off-viewport fixed content to the left doesn't extend the page's
+    // scroll width, which is why the drawer doesn't overflow on its own.) At lg
+    // the rail is in-flow and offset by `lg:wa-ml-64`, so desktop is untouched.
+    <div style={{ overflowX: 'clip', minWidth: 0, width: '100%' }}>
+      <AppShellSidebar
+        brand={<Brand />}
+        groups={toNavGroups()}
+        activeId={activeId}
+        onNavigate={onNavigate}
+        footer={<SidebarFooter />}
+        topbar={topbar}
+      >
+        {/* The mockup's admin search lives in the rail; surfaced here as a hint
+            for the topbar/universal-search wiring. Kept lightweight: the rail
+            search input is decorative chrome in the mockup. */}
+        <div className="wa-hidden" aria-hidden>
+          <Search size={12} />
+        </div>
+        {children}
+      </AppShellSidebar>
+    </div>
   );
 }
 

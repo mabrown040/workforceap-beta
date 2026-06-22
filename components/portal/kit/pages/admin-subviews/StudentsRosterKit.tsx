@@ -147,11 +147,23 @@ export function StudentsRosterKit({
   const visible = students.filter((s) => matchesFilter(s, active));
 
   const StudentCell = ({ row }: { row: StudentRow }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
       <Avatar initials={row.initials ?? row.name.slice(0, 2).toUpperCase()} size={32} />
-      <div>
-        <div style={{ fontWeight: 700 }}>{row.name}</div>
-        <div style={{ fontSize: 10, color: 'var(--wa-muted)' }}>{row.location}</div>
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {row.name}
+        </div>
+        <div
+          style={{
+            fontSize: 10,
+            color: 'var(--wa-muted)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {row.location}
+        </div>
       </div>
     </div>
   );
@@ -267,12 +279,16 @@ export function StudentsRosterKit({
         cardRender={(row) => (
           <div className="wa-kit-card wa-kit-card--sm">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-              <StudentCell row={row} />
-              <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <StudentCell row={row} />
+              </div>
+              <div style={{ flexShrink: 0 }}>
+                <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+              </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--wa-muted)', margin: '12px 0 4px' }}>
-              <span>{row.program} · {row.counselor}</span>
-              <span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, fontSize: 11, color: 'var(--wa-muted)', margin: '12px 0 4px' }}>
+              <span style={{ minWidth: 0 }}>{row.program} · {row.counselor}</span>
+              <span style={{ whiteSpace: 'nowrap' }}>
                 Readiness{' '}
                 <b
                   style={{

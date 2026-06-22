@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import {
   DesignSurface,
-  KpiStrip,
+  StatTile,
   SectionHeader,
   StatusTag,
   RankBars,
@@ -182,7 +182,7 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
         <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>/admin</span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
         <span
           style={{ fontSize: 12, color: 'var(--wa-muted)', fontVariantNumeric: 'tabular-nums' }}
         >
@@ -245,7 +245,7 @@ function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onActi
   };
   return (
     <div
-      className="wa-kit-card wa-kit-card--sm wa-kit-card--hover"
+      className="wa-kit-card wa-kit-card--sm wa-kit-card--hover wa-flex-wrap sm:wa-flex-nowrap"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -254,24 +254,28 @@ function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onActi
         borderColor: item.urgent ? '#f3d4dc' : 'var(--wa-border)',
       }}
     >
-      <div
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: 8,
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff',
-          background: item.iconColor,
-        }}
-      >
-        {item.icon}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 700, fontSize: 14 }}>{item.title}</div>
-        <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{item.detail}</div>
+      {/* Icon + text stay locked together; the action is the wrap target so on
+          the smallest phones it drops to its own line instead of overflowing. */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: '1 1 100%', minWidth: 0 }}>
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 8,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            background: item.iconColor,
+          }}
+        >
+          {item.icon}
+        </div>
+        <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
+          <div style={{ fontWeight: 700, fontSize: 14 }}>{item.title}</div>
+          <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{item.detail}</div>
+        </div>
       </div>
       {item.href ? (
         <a href={item.href} className="wa-kit-focus" style={actionStyle}>
@@ -301,14 +305,23 @@ export function CommandCenterKit({
     <DesignSurface surface="dense" className="wa-p-6">
       <CommandCenterHeader dateLabel={dateLabel} onAddStudent={onAddStudent} addStudentHref={addStudentHref} />
 
-      {/* KPI strip — 5 cards on desktop, 2-col on mobile. */}
-      <div style={{ marginBottom: 20 }}>
-        <KpiStrip cols={5} items={kpis} />
+      {/* KPI strip — 5 cards on desktop (lg, unchanged), 2-up on small
+          tablets/large phones (sm), and 1-up on the smallest phones so a long
+          tabular value never forces horizontal overflow at 360–414px. */}
+      <div
+        className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-5 wa-gap-3"
+        style={{ marginBottom: 20 }}
+      >
+        {kpis.map((it) => (
+          <StatTile key={it.label} {...it} />
+        ))}
       </div>
 
       {/* Two-column workspace: work queue (2/3) + program health (1/3). */}
       <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
-        <section className="wa-kit-card lg:wa-col-span-2">
+        {/* `minWidth: 0` lets these grid columns shrink to the viewport on
+            phones (grid items default to `min-width: auto`); desktop unchanged. */}
+        <section className="wa-kit-card lg:wa-col-span-2" style={{ minWidth: 0 }}>
           <div
             style={{
               display: 'flex',
@@ -335,7 +348,7 @@ export function CommandCenterKit({
           </div>
         </section>
 
-        <section className="wa-kit-card">
+        <section className="wa-kit-card" style={{ minWidth: 0 }}>
           <SectionHeader title="Program Health" />
           <RankBars data={programHealth} />
         </section>

@@ -188,6 +188,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // ── Tools tab ──
   { href: '/dashboard/ai-tools', label: 'Career Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },
+  { href: '/dashboard/ai-tools/studio', label: 'Voice + Career Studio', group: 'workflows', tab: 'me', Icon: Sparkles },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',

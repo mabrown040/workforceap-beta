@@ -149,8 +149,27 @@ export function MessagesKit({ threads = DEFAULT_THREADS }: MessagesKitProps) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <Avatar initials={row.initials ?? initialsFor(row.from)} size={36} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700 }}>{row.from}</div>
-                <div style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{row.subject}</div>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {row.from}
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: 'var(--wa-muted)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {row.subject}
+                </div>
               </div>
             </div>
             <div
@@ -158,11 +177,15 @@ export function MessagesKit({ threads = DEFAULT_THREADS }: MessagesKitProps) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 8,
                 marginTop: 10,
               }}
             >
               <ChannelTag channel={row.channel} />
-              <span style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{row.lastActive ?? '—'}</span>
+              <span style={{ fontSize: 12, color: 'var(--wa-muted)', whiteSpace: 'nowrap' }}>
+                {row.lastActive ?? '—'}
+              </span>
             </div>
           </div>
         )}

@@ -11,6 +11,7 @@ import AdminCommandCenterClient from '@/components/admin/AdminCommandCenterClien
 import {
   CommandCenterKit,
   type CommandCenterQueueItem,
+  type ProgramHealthDatum,
 } from '@/components/portal/kit/pages/admin/CommandCenterKit';
 import type { KpiItem } from '@/components/portal/kit';
 
@@ -51,6 +52,7 @@ export default async function AdminCommandCenterPage({
       atRisk: [],
       interviewing: [],
       applicationsPending: [],
+      programHealth: [],
       totals: {
         needsReplyCount: 0,
         atRiskCount: 0,
@@ -121,6 +123,16 @@ export default async function AdminCommandCenterPage({
       },
     ];
 
+    // Program Health — real per-program enrollment, scoped to this org.
+    // `value` mirrors the mockup ("<count> · <pct>%"); `pct` is the share
+    // relative to the top program so the leading bar reads full-width.
+    const programHealth: ProgramHealthDatum[] = data.programHealth.map((row) => ({
+      label: row.label,
+      value: `${row.count} · ${row.pct}%`,
+      pct: row.pct,
+      color: 'success',
+    }));
+
     const dateLabel = new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
       month: 'short',
@@ -134,6 +146,7 @@ export default async function AdminCommandCenterPage({
         dateLabel={dateLabel}
         kpis={kpis}
         queueItems={queueItems}
+        programHealth={programHealth}
         addStudentHref="/admin/members/new"
       />
     );

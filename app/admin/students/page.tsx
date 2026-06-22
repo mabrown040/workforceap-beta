@@ -178,6 +178,29 @@ export default async function AdminStudentsPage({
     }
   }
 
+  // One extra query over the already-loaded page of members: resolve each
+  // member's active counselor. The counselor's display name lives on the
+  // related User (Counselor has no name field of its own). A failure here just
+  // leaves counselors "Unassigned" — the roster still renders.
+  const counselorAssignmentsResult = await prisma.counselorAssignment
+    .findMany({
+      where: { memberId: { in: members.map((m) => m.id) }, active: true },
+      select: {
+        memberId: true,
+        counselor: { select: { user: { select: { fullName: true } } } },
+      },
+    })
+    .catch((reason: unknown) => {
+      console.error('[admin/students] counselor assignment load failed', reason);
+      return [] as { memberId: string; counselor: { user: { fullName: string } } }[];
+    });
+
+  const counselorNameMap = new Map<string, string>();
+  for (const row of counselorAssignmentsResult) {
+    const name = row.counselor.user.fullName?.trim();
+    if (name) counselorNameMap.set(row.memberId, name);
+  }
+
   const students: StudentRow[] = members.map((m) => {
     const programTitle = m.enrolledProgram
       ? getProgramBySlug(m.enrolledProgram)?.title ?? m.enrolledProgram
@@ -220,8 +243,9 @@ export default async function AdminStudentsPage({
       program: programTitle,
       progress,
       readiness,
-      // No assigned-counselor field exists on the member record yet → fallback.
-      counselor: 'Unassigned',
+      // Real counselor from the active CounselorAssignment (name via the
+      // counselor's linked User); no active assignment → "Unassigned".
+      counselor: counselorNameMap.get(m.id) ?? 'Unassigned',
       status,
       lastActive: relativeTime(m.lastLoginAt ?? m.updatedAt ?? null),
     };

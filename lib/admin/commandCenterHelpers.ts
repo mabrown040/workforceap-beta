@@ -49,11 +49,25 @@ export type AdminCommandCenterTotals = {
   oldestPendingApplicationDays: number | null;
 };
 
+/**
+ * One program's enrollment count for the "Program Health" breakdown.
+ * `label` is the catalog title (falls back to the raw slug), `count` is the
+ * number of enrolled members in that program (scoped to the org). `pct` is the
+ * share relative to the top program's count (0–100), so bars render correctly.
+ */
+export type AdminProgramHealthRow = {
+  programSlug: string;
+  label: string;
+  count: number;
+  pct: number;
+};
+
 export type AdminCommandCenter = {
   needsReply: AdminNeedsReplyRow[];
   atRisk: AdminAtRiskRow[];
   interviewing: AdminInterviewingRow[];
   applicationsPending: AdminApplicationPendingRow[];
+  programHealth: AdminProgramHealthRow[];
   totals: AdminCommandCenterTotals;
 };
 

@@ -56,8 +56,10 @@ export default async function OutcomesPage({
 
     // KPI tiles from real totals. Median (not average) wage is what the
     // outcomes module computes, so the tile is labelled accordingly.
-    // Retention: the snapshot only tracks placements *missing* retention data,
-    // not a retention rate, so that tile keeps the mockup default (see report).
+    // 90-day retention is now the real rate from snapshot.kpis.retentionRate
+    // (retained / decided placements, scoped to this org/period). It is null
+    // when no placement has a decided retention outcome yet — show "—" then.
+    const retentionRate = snapshot.kpis.retentionRate;
     const kpis: KpiItem[] = [
       { label: 'Placement Rate', value: `${t.placementRate}%`, color: 'success' },
       {
@@ -66,7 +68,11 @@ export default async function OutcomesPage({
         color: 'text',
       },
       { label: 'Credentials Earned', value: snapshot.certifications.totalEarned, color: 'gold' },
-      { label: '90-Day Retention', value: '84%', color: 'info' },
+      {
+        label: '90-Day Retention',
+        value: retentionRate != null ? `${retentionRate}%` : '—',
+        color: 'info',
+      },
     ];
 
     // Placements by month from the real monthly cohort series.

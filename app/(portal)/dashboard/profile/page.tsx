@@ -8,6 +8,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from "@/lib/auth/server";
 import { prisma } from "@/lib/db/prisma";
 import { getProgramBySlug } from "@/lib/content/programs";
+import { getScoreBreakdownSafe } from "@/lib/readiness/score";
 // Use the client-safe questions file. This page doesn't need the answer
 // key (only renders question text + member's recorded answer), so we
 // avoid pulling the server-only answer-key module into this server
@@ -238,13 +239,58 @@ export default async function DashboardProfilePage({
       ? `${program.title}${kitLocation ? ` · ${kitLocation}` : ""}`
       : kitLocation || "WorkforceAP Member";
 
+    // ── Profile header badges (REAL data) ──
+    // Three cheap, parallel reads feed the kit's header badges:
+    //   • Certs earned   → UserCertification count
+    //   • Readiness score → same getScoreBreakdownSafe helper the readiness
+    //                       page uses (overallScore = capped sum of earned).
+    //   • Daily streak    → MemberPoints.currentStreak (single denormalized row).
+    // Each badge is only shown when its value is meaningful (> 0), so a brand-new
+    // member with no signal doesn't see "0 Certs / 0 Readiness / 0-day streak".
+    const [certCount, readinessBreakdown, pointsRow] = await Promise.all([
+      prisma.userCertification.count({ where: { userId: user.id } }),
+      getScoreBreakdownSafe(user.id),
+      prisma.memberPoints.findUnique({
+        where: { userId: user.id },
+        select: { currentStreak: true },
+      }),
+    ]);
+    const readinessScore = Math.min(
+      100,
+      Object.values(readinessBreakdown).reduce((sum, b) => sum + b.earned, 0),
+    );
+    const currentStreak = pointsRow?.currentStreak ?? 0;
+
+    const profileBadges: { label: string; bg: string; color: string }[] = [];
+    if (certCount > 0) {
+      profileBadges.push({
+        label: `${certCount} ${certCount === 1 ? "Cert" : "Certs"}`,
+        bg: "var(--wa-gold-soft, #FEF3C7)",
+        color: "var(--wa-gold)",
+      });
+    }
+    if (readinessScore > 0) {
+      profileBadges.push({
+        label: `${readinessScore} Readiness`,
+        bg: "#ecfdf3",
+        color: "var(--wa-success)",
+      });
+    }
+    if (currentStreak > 0) {
+      profileBadges.push({
+        label: `${currentStreak}-day streak`,
+        bg: "var(--wa-accent-soft)",
+        color: "var(--wa-accent)",
+      });
+    }
+
     return (
       <MemberProfileKit
         live
         name={dbUser.fullName ?? ""}
         initials={initials}
         headline={kitHeadline}
-        badges={[]}
+        badges={profileBadges}
         email={dbUser.email}
         location={kitLocation}
         programInterest={program?.title ?? dbUser.enrolledProgram ?? "Not enrolled"}

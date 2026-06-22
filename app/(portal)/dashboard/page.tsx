@@ -42,6 +42,7 @@ import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgra
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import { getMemberPoints } from '@/lib/member/points';
+import { getLevelForPoints, getNextLevel } from '@/lib/member/pointsConfig';
 import First90DaysCard from '@/components/portal/First90DaysCard';
 import {
   FIRST90_CHECK_IN_EVENT,
@@ -219,6 +220,35 @@ async function renderMemberDashboard(
       return { role: j.role, company: j.company, stage: meta.label, tone: meta.tone };
     });
 
+    // ── Next badge / milestone (REAL data) ──
+    // Derived from the points level ladder (lib/member/pointsConfig LEVELS:
+    // Starter→Builder→Achiever→Champion). We reuse the lean `leanPointsRow`
+    // already loaded above (no extra query): progress within the current level
+    // band toward the next level's `min` threshold. At the top level (Champion)
+    // there's no next threshold, so we fall back to a cert-count milestone.
+    const leanTotalPoints = leanPointsRow?.totalPoints ?? 0;
+    const currentLevel = getLevelForPoints(leanTotalPoints);
+    const nextLevel = getNextLevel(currentLevel.name);
+    let nextBadgeName: string | undefined;
+    let nextBadgePercent: number | undefined;
+    let nextBadgeRemaining: string | undefined;
+    if (nextLevel) {
+      const bandStart = currentLevel.min;
+      const bandEnd = nextLevel.min; // next level's entry threshold
+      const span = Math.max(1, bandEnd - bandStart);
+      const into = Math.max(0, leanTotalPoints - bandStart);
+      nextBadgePercent = Math.max(0, Math.min(100, Math.round((into / span) * 100)));
+      const remainingPts = Math.max(0, bandEnd - leanTotalPoints);
+      nextBadgeName = nextLevel.label;
+      nextBadgeRemaining = `${remainingPts} ${remainingPts === 1 ? 'point' : 'points'}`;
+    } else {
+      // Top of the ladder: no further level. Use the next certification as the
+      // milestone so the card still reflects real, forward-looking progress.
+      nextBadgeName = leanCertCount > 0 ? 'Next certification' : 'First certification';
+      nextBadgePercent = 0;
+      nextBadgeRemaining = '1 certification';
+    }
+
     return (
       <MemberHomeKit
         firstName={firstNameLean}
@@ -229,6 +259,9 @@ async function renderMemberDashboard(
         points={leanPointsRow?.totalPoints ?? 0}
         nextLesson={topLeanAction?.title ?? undefined}
         nextLessonDue={topLeanAction ? 'Recommended next step' : undefined}
+        nextBadgeName={nextBadgeName}
+        nextBadgePercent={nextBadgePercent}
+        nextBadgeRemaining={nextBadgeRemaining}
         pipeline={leanPipelineRows.length > 0 ? leanPipelineRows : []}
         resumeHref={topLeanAction?.ctaHref ?? programHref}
         coursesHref={programHref}

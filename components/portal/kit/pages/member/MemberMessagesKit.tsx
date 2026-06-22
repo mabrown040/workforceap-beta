@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Circle } from 'lucide-react';
 import { DesignSurface, Avatar, ChatThread, type ChatMessage } from '@/components/portal/kit';
+import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 /**
  * Member Portal — MESSAGES view (counselor / support inbox + thread).
@@ -51,6 +52,12 @@ export interface MemberMessagesKitProps {
   memberUserId?: string;
   /** Initials for the "other" party (counselor) on incoming bubbles. */
   otherInitials?: string;
+  /**
+   * Counselor thread id. When provided alongside `memberUserId`, the Kit
+   * subscribes to Supabase realtime inserts on this thread so counselor
+   * replies arrive live (no refresh). Mirrors `MemberCounselorChatClient`.
+   */
+  threadId?: string;
 }
 
 const DEFAULT_CONVERSATIONS: Conversation[] = [
@@ -79,9 +86,14 @@ export function MemberMessagesKit({
   onSend,
   memberUserId,
   otherInitials = activeInitials,
+  threadId,
 }: MemberMessagesKitProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(messagesProp);
   const [error, setError] = useState<string | null>(null);
+  // Keep latest "other" initials available to the realtime callback without
+  // re-subscribing when they change.
+  const otherInitialsRef = useRef(otherInitials);
+  otherInitialsRef.current = otherInitials;
 
   // Live send path: reuse the existing legacy endpoint that
   // MemberCounselorChatClient posts to. Only active when a real member id is
@@ -137,6 +149,58 @@ export function MemberMessagesKit({
     },
     [onSend, memberUserId, sendLive],
   );
+
+  // Live RECEIVE path: mirror MemberCounselorChatClient's realtime subscription
+  // so counselor replies appear without a refresh. Gated on a real member id +
+  // thread id; fails soft (current behavior preserved) if realtime is
+  // unavailable or the env client cannot be created.
+  useEffect(() => {
+    if (!memberUserId || !threadId) return undefined;
+    let cancelled = false;
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const channel = supabase
+        .channel(`member-thread:${threadId}:kit`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'messages', filter: `thread_id=eq.${threadId}` },
+          (payload) => {
+            if (cancelled) return;
+            const row = payload.new as Record<string, unknown>;
+            const id = String(row.id ?? '');
+            const authorId = String(row.author_id ?? '');
+            const body = String(row.body ?? '');
+            if (!id) return;
+            const mine = authorId === memberUserId;
+            setMessages((prev) => {
+              // Dedupe against optimistic/sent (and already-received) messages by id.
+              if (prev.some((m) => m.id === id)) return prev;
+              const incoming: ChatMessage = mine
+                ? { id, from: 'self', text: body }
+                : { id, from: 'other', text: body, author: otherInitialsRef.current };
+              return [...prev, incoming];
+            });
+            // Counselor reply arrived — refresh the nav unread badge.
+            if (!mine) {
+              try {
+                window.dispatchEvent(new CustomEvent('wa-nav-badges-refresh'));
+              } catch {
+                /* ignore */
+              }
+            }
+          },
+        )
+        .subscribe();
+
+      return () => {
+        cancelled = true;
+        void supabase.removeChannel(channel);
+      };
+    } catch (e) {
+      console.warn('[MemberMessagesKit] Realtime unavailable', e);
+      return undefined;
+    }
+  }, [memberUserId, threadId]);
 
   const canSend = Boolean(onSend) || Boolean(memberUserId);
 

@@ -12,6 +12,7 @@ const baseCenter: AdminCommandCenter = {
   atRisk: [],
   interviewing: [],
   applicationsPending: [],
+  programHealth: [],
   totals: {
     needsReplyCount: 0,
     atRiskCount: 0,

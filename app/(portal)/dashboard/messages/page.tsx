@@ -110,6 +110,7 @@ export default async function MemberMessagesPage({
         />
         <MemberMessagesKit
           memberUserId={user.id}
+          threadId={thread.id}
           conversations={conversations}
           activeName={activeName}
           activeRole={counselorName ? 'Career Counselor' : 'Support'}

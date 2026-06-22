@@ -5,6 +5,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getCertificationsCohortStats, cohortLabel } from '@/lib/admin/cohortAnalytics';
 import { prisma } from '@/lib/db/prisma';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import PageHeader from '@/components/portal/PageHeader';
 import {
   CertificationsQueueKit,
@@ -30,45 +31,64 @@ export default async function AdminCertificationsAnalyticsPage({
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
-  // ── Certifications Queue KIT — OPT-IN only (?ui=kit), NOT promoted to default.
-  // WorkforceAP has no credential-review workflow: members record certs
-  // directly (earned on submit) and there is no pending/verified status, no
-  // approve/reject endpoint, and no admin mutation on user_certifications.
-  // So we wire the kit to REAL data (the most recently recorded credentials —
-  // the only real "submission" stream that exists) but keep the approve/reject
-  // controls disabled (`actionsEnabled={false}`) rather than fake a backend.
-  if (requestedUi === 'kit') {
-    const recent = await prisma.userCertification.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 25,
+
+  // ── Certifications Queue KIT — DEFAULT view (live review queue).
+  // Members upload proof via /api/member/certifications/upload, which flips the
+  // cert to `status='pending'` with a stored proof path. This loads that real
+  // pending queue and the kit's Approve/Reject buttons POST to
+  // /api/admin/certifications/review. The legacy cohort-analytics view is kept
+  // behind ?ui=legacy.
+  if (requestedUi !== 'legacy') {
+    const pending = await prisma.userCertification.findMany({
+      where: { status: 'pending' },
+      orderBy: { submittedAt: 'desc' },
+      take: 50,
       select: {
         id: true,
         certName: true,
-        createdAt: true,
+        proofUrl: true,
+        submittedAt: true,
         user: { select: { fullName: true, email: true, enrolledProgram: true } },
       },
     });
 
-    const submissions: CertSubmission[] = recent.map((c) => ({
-      id: c.id,
-      credential: c.certName,
-      member: c.user.fullName ?? c.user.email ?? 'Unknown member',
-      meta: `${cohortLabel(c.user.enrolledProgram)} · recorded ${c.createdAt.toLocaleDateString(
-        'en-US',
-        { month: 'short', day: 'numeric', year: 'numeric' },
-      )}`,
-      // No admin-side endpoint exists to sign the proof file (cert-files/{userId}/{certId}.{ext}
-      // in the member-files bucket), and we may not add API routes here, so we
-      // can't surface a real proof URL. Leave undefined → kit shows "No proof".
-      proofHref: undefined,
-    }));
+    // The `member-files` bucket is private; proofUrl stores the stable storage
+    // path. Mint short-lived signed URLs at render time (same pattern as
+    // /api/admin/members/[id]/resume-urls). Sign best-effort — a failure for
+    // one file shouldn't blank the whole queue.
+    const supabase = getSupabaseAdmin();
+    const submissions: CertSubmission[] = await Promise.all(
+      pending.map(async (c) => {
+        let proofHref: string | undefined;
+        if (c.proofUrl) {
+          try {
+            const { data } = await supabase.storage
+              .from('member-files')
+              .createSignedUrl(c.proofUrl, 3600);
+            proofHref = data?.signedUrl ?? undefined;
+          } catch (err) {
+            console.error('[admin/certifications] sign proof url failed:', err);
+          }
+        }
+        const submittedLabel = c.submittedAt
+          ? c.submittedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : 'recently';
+        return {
+          id: c.id,
+          credential: c.certName,
+          member: c.user.fullName ?? c.user.email ?? 'Unknown member',
+          meta: `${cohortLabel(c.user.enrolledProgram)} · submitted ${submittedLabel}`,
+          proofHref,
+        };
+      }),
+    );
 
     return (
       <CertificationsQueueKit
         submissions={submissions}
         awaitingCount={submissions.length}
-        actionsEnabled={false}
-        subtitle="Most recently recorded credentials. Members log certs directly — there is no review/verification step yet."
+        actionsEnabled
+        subtitle="Member-submitted credential proof awaiting review. Approve to count toward outcomes, or reject to send back."
       />
     );
   }

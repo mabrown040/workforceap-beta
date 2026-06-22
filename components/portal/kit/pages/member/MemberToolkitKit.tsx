@@ -65,7 +65,7 @@ export function MemberToolkitKit({
             <Wand2 size={13} />
             AI Career Toolkit
           </div>
-          <h2 className="h-font" style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
+          <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
             {heroTitle}
           </h2>
           <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4 }}>{heroSubtitle}</p>

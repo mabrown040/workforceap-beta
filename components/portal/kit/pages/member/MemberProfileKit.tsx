@@ -250,8 +250,10 @@ export function MemberProfileKit({
         </div>
 
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
-          {/* Account details (2-wide) */}
-          <div className="wa-kit-card" style={{ gridColumn: 'span 2' }}>
+          {/* Account details (2-wide on lg; full-width single column below — the
+              span only applies where the 3-col grid exists so it can't create an
+              overflowing implicit track on mobile/tablet). */}
+          <div className="wa-kit-card lg:wa-col-span-2">
             <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Account Details</h3>
             <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-4">
               <FormField

@@ -18,6 +18,7 @@ const baseCenter: AdminCommandCenter = {
     atRiskCount: 0,
     interviewingCount: 0,
     applicationsPendingCount: 0,
+    certificationsPendingCount: 0,
     oldestPendingApplicationDays: null,
   },
 };

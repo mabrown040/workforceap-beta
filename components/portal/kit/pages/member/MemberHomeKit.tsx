@@ -115,7 +115,7 @@ export function MemberHomeKit({
             <Home size={13} />
             <span>{greeting}</span>
           </div>
-          <h2 className="h-font" style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
+          <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
             Keep climbing, {firstName}.
           </h2>
         </div>
@@ -135,7 +135,7 @@ export function MemberHomeKit({
           {/* Program progress ring (2-wide) */}
           <div
             className="wa-kit-card"
-            style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', gap: 24 }}
+            style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}
           >
             <ProgressRing pct={pct} size={112} color="accent" />
             <div>

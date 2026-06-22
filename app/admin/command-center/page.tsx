@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Bell, TriangleAlert, UserPlus, Briefcase } from 'lucide-react';
+import { Bell, TriangleAlert, UserPlus, Briefcase, Award } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser, withAuthGuc } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -58,6 +58,7 @@ export default async function AdminCommandCenterPage({
         atRiskCount: 0,
         interviewingCount: 0,
         applicationsPendingCount: 0,
+        certificationsPendingCount: 0,
         oldestPendingApplicationDays: null,
       },
     };
@@ -111,6 +112,16 @@ export default async function AdminCommandCenterPage({
         detail: 'Eligibility + program-fit review pending',
         actionLabel: `${totals.applicationsPendingCount} items`,
         href: '/admin/wioa-screening',
+      },
+      {
+        id: 'certifications',
+        icon: <Award size={14} aria-hidden />,
+        iconColor: 'var(--wa-gold)',
+        title: `${totals.certificationsPendingCount} ${totals.certificationsPendingCount === 1 ? 'certification' : 'certifications'} awaiting review`,
+        detail: 'Verify proof to count toward outcomes',
+        actionLabel: `${totals.certificationsPendingCount} items`,
+        urgent: totals.certificationsPendingCount > 0,
+        href: '/admin/certifications',
       },
       {
         id: 'interviewing',

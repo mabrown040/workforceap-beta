@@ -102,8 +102,10 @@ export function MemberProgressKit({
             <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 12 }}>{readinessNote}</p>
           </div>
 
-          {/* This week + milestones (2-wide) */}
-          <div className="wa-kit-card" style={{ gridColumn: 'span 2' }}>
+          {/* This week + milestones (2-wide on lg; full-width single column on
+              mobile/tablet — span only applies where the 3-col grid exists so
+              it can't force an overflowing implicit track at narrow widths). */}
+          <div className="wa-kit-card lg:wa-col-span-2">
             <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>This Week</h3>
             <div className="wa-grid wa-grid-cols-2 sm:wa-grid-cols-4 wa-gap-3" style={{ marginBottom: 20 }}>
               {weekStats.map((stat) => (
@@ -137,8 +139,8 @@ export function MemberProgressKit({
                     >
                       {meta.icon}
                     </div>
-                    <span style={{ fontSize: 14, fontWeight: 600, flex: 1, color: meta.dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>{m.label}</span>
-                    <span style={{ fontSize: 10, fontWeight: m.state === 'active' ? 700 : 400, color: meta.whenColor }}>{m.when}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600, flex: 1, minWidth: 0, color: meta.dim ? 'var(--wa-muted)' : 'var(--wa-text)' }}>{m.label}</span>
+                    <span style={{ fontSize: 10, fontWeight: m.state === 'active' ? 700 : 400, color: meta.whenColor, flexShrink: 0, whiteSpace: 'nowrap' }}>{m.when}</span>
                   </div>
                 );
               })}

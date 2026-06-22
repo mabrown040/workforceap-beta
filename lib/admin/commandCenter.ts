@@ -42,13 +42,17 @@ export async function getAdminCommandCenter(
   const now = options?.now ?? new Date();
   const atRiskCutoff = new Date(now.getTime() - AT_RISK_DAYS * DAY_MS);
 
-  const [needsReply, atRisk, interviewing, applicationsPending, programHealth] = await Promise.all([
-    loadNeedsReply(orgId, now, limit),
-    loadAtRisk(orgId, now, atRiskCutoff, limit),
-    loadInterviewing(orgId, limit),
-    loadApplicationsPending(orgId, now, limit),
-    loadProgramHealth(orgId),
-  ]);
+  const [needsReply, atRisk, interviewing, applicationsPending, programHealth, certificationsPendingCount] =
+    await Promise.all([
+      loadNeedsReply(orgId, now, limit),
+      loadAtRisk(orgId, now, atRiskCutoff, limit),
+      loadInterviewing(orgId, limit),
+      loadApplicationsPending(orgId, now, limit),
+      loadProgramHealth(orgId),
+      prisma.userCertification.count({
+        where: { status: 'pending', user: { organizationId: orgId, deletedAt: null } },
+      }),
+    ]);
 
   const center: AdminCommandCenter = {
     needsReply,
@@ -61,10 +65,11 @@ export async function getAdminCommandCenter(
       atRiskCount: 0,
       interviewingCount: 0,
       applicationsPendingCount: 0,
+      certificationsPendingCount: 0,
       oldestPendingApplicationDays: null,
     },
   };
-  return { ...center, totals: bucketCommandCenterTotals(center) };
+  return { ...center, totals: bucketCommandCenterTotals(center, { certificationsPendingCount }) };
 }
 
 async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<AdminNeedsReplyRow[]> {

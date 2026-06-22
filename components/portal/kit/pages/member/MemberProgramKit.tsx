@@ -100,7 +100,7 @@ export function MemberProgramKit({
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.7 }}>
               Current Program
             </div>
-            <h2 className="h-font" style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
+            <h2 className="h-font" style={{ fontSize: 'clamp(21px, 5.5vw, 28px)', fontWeight: 800, letterSpacing: '-0.03em', marginTop: 4 }}>
               {programTitle}
             </h2>
             <p style={{ fontSize: 14, opacity: 0.8, marginTop: 4 }}>

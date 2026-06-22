@@ -72,7 +72,7 @@ export function MemberCertificatesKit({
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4">
           {/* Earned certificates */}
           {earned.map((cert) => (
-            <div key={cert.id} className="wa-kit-card wa-kit-card--hover wa-flex wa-gap-5" style={{ borderColor: '#ece2c8' }}>
+            <div key={cert.id} className="wa-kit-card wa-kit-card--hover wa-flex wa-gap-4 sm:wa-gap-5" style={{ borderColor: '#ece2c8' }}>
               <div
                 style={{
                   width: 64,
@@ -88,13 +88,13 @@ export function MemberCertificatesKit({
               >
                 <Award size={26} />
               </div>
-              <div style={{ flex: 1 }}>
-                <div className="wa-flex wa-items-center wa-gap-2">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="wa-flex wa-flex-wrap wa-items-center wa-gap-2">
                   <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
-                  {cert.verified ? <CheckCircle2 size={15} color="var(--wa-success)" aria-label="Verified" /> : null}
+                  {cert.verified ? <CheckCircle2 size={15} color="var(--wa-success)" aria-label="Verified" style={{ flexShrink: 0 }} /> : null}
                 </div>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>{cert.meta}</p>
-                <div className="wa-flex wa-gap-2" style={{ marginTop: 12 }}>
+                <div className="wa-flex wa-flex-wrap wa-gap-2" style={{ marginTop: 12 }}>
                   <button
                     type="button"
                     className="wa-kit-focus wa-flex wa-items-center wa-gap-1"
@@ -137,7 +137,7 @@ export function MemberCertificatesKit({
             return (
               <div
                 key={cert.id}
-                className="wa-kit-card wa-flex wa-gap-5"
+                className="wa-kit-card wa-flex wa-gap-4 sm:wa-gap-5"
                 style={{ gridColumn: '1 / -1', background: 'var(--wa-accent-soft)', borderColor: '#f3d4dc' }}
               >
                 <div
@@ -156,10 +156,10 @@ export function MemberCertificatesKit({
                 >
                   <Hourglass size={26} />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div className="wa-flex wa-items-center wa-justify-between wa-gap-2">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="wa-flex wa-flex-wrap wa-items-center wa-justify-between wa-gap-2">
                     <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>{cert.title}</h3>
-                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--wa-accent)' }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--wa-accent)', flexShrink: 0 }}>
                       In Progress · {pct}%
                     </span>
                   </div>

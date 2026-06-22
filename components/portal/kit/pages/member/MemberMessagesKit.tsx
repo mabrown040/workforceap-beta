@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Circle } from 'lucide-react';
+import { ArrowLeft, Circle } from 'lucide-react';
 import { DesignSurface, Avatar, ChatThread, type ChatMessage } from '@/components/portal/kit';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
@@ -90,6 +90,11 @@ export function MemberMessagesKit({
 }: MemberMessagesKitProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(messagesProp);
   const [error, setError] = useState<string | null>(null);
+  // Mobile single-pane navigation: on phones the list and thread cannot sit
+  // side-by-side, so we show one pane at a time with a back button. Desktop
+  // (md+) ignores this and keeps the two-pane layout via CSS. Default to the
+  // open thread so members land on the active conversation.
+  const [mobileView, setMobileView] = useState<'list' | 'thread'>('thread');
   // Keep latest "other" initials available to the realtime callback without
   // re-subscribing when they change.
   const otherInitialsRef = useRef(otherInitials);
@@ -211,8 +216,12 @@ export function MemberMessagesKit({
           className="wa-kit-card wa-grid wa-grid-cols-1 md:wa-grid-cols-3"
           style={{ padding: 0, overflow: 'hidden', minHeight: 520 }}
         >
-          {/* Conversation list */}
-          <div style={{ borderRight: '1px solid var(--wa-border)' }}>
+          {/* Conversation list — single pane on mobile (hidden when a thread is
+              open), always visible alongside the thread on md+. */}
+          <div
+            className={`${mobileView === 'list' ? 'wa-block' : 'wa-hidden'} md:wa-block`}
+            style={{ borderRight: '1px solid var(--wa-border)' }}
+          >
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--wa-border)' }}>
               <h3 style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>Messages</h3>
             </div>
@@ -221,6 +230,7 @@ export function MemberMessagesKit({
                 <button
                   key={c.id}
                   type="button"
+                  onClick={() => setMobileView('thread')}
                   className="wa-kit-focus"
                   style={{
                     display: 'block',
@@ -256,11 +266,36 @@ export function MemberMessagesKit({
             </div>
           </div>
 
-          {/* Active thread */}
-          <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column' }}>
+          {/* Active thread — single pane on mobile (hidden when the list is
+              open), always visible beside the list on md+. Display is driven by
+              classes (not inline) so the mobile hide/show can win over flex. */}
+          <div
+            className={`${mobileView === 'thread' ? 'wa-flex' : 'wa-hidden'} md:wa-flex md:wa-col-span-2`}
+            style={{ flexDirection: 'column' }}
+          >
             <div className="wa-flex wa-items-center wa-gap-3" style={{ padding: '16px 20px', borderBottom: '1px solid var(--wa-border)' }}>
+              {/* Mobile-only back button → return to the conversation list. */}
+              <button
+                type="button"
+                onClick={() => setMobileView('list')}
+                aria-label="Back to messages"
+                className="wa-kit-focus wa-flex wa-items-center wa-justify-center md:wa-hidden"
+                style={{
+                  width: 36,
+                  height: 36,
+                  flexShrink: 0,
+                  marginLeft: -4,
+                  borderRadius: 999,
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'var(--wa-text)',
+                  cursor: 'pointer',
+                }}
+              >
+                <ArrowLeft size={18} />
+              </button>
               <Avatar initials={activeInitials} size={36} gradient={false} />
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{activeName}</div>
                 <div className="wa-flex wa-items-center wa-gap-1" style={{ fontSize: 10, fontWeight: 700, color: 'var(--wa-success)' }}>
                   {activeOnline ? <Circle size={6} fill="currentColor" /> : null}

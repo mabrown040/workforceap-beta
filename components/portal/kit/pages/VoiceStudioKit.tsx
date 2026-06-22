@@ -153,6 +153,7 @@ export function VoiceStudioKit({
                 borderRadius: 12,
                 padding: 4,
                 border: '1px solid #404040',
+                maxWidth: '100%',
               }}
             >
               {TABS.map((t) => {
@@ -301,7 +302,7 @@ function CoachesPanel({ onMockInterview }: { onMockInterview: () => void }) {
             <Headset size={13} />
             <span>Talk it out</span>
           </div>
-          <h2 className="h-font" style={{ fontSize: 30, marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
+          <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
             Voice Coaches
           </h2>
           <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>
@@ -420,7 +421,7 @@ function CoachCardView({ card, onClick }: { card: CoachCard; onClick?: () => voi
       style={{
         textAlign: 'left',
         borderRadius: 24,
-        padding: 28,
+        padding: 'clamp(20px, 5vw, 28px)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -492,7 +493,7 @@ function SessionPanel({
           <div
             className="lg:wa-col-span-3"
             style={{
-              padding: 32,
+              padding: 'clamp(20px, 5vw, 32px)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -511,7 +512,7 @@ function SessionPanel({
             </div>
 
             {/* mic orb */}
-            <div style={{ position: 'relative', width: 224, height: 224, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '24px 0' }}>
+            <div style={{ position: 'relative', width: 'min(224px, 60vw)', height: 'min(224px, 60vw)', maxWidth: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '24px 0' }}>
               <span className="vs-orb-ring" style={ringStyle} />
               <span className="vs-orb-ring vs-d2" style={ringStyle} />
               <span className="vs-orb-ring vs-d3" style={ringStyle} />
@@ -547,7 +548,7 @@ function SessionPanel({
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Coach is asking about your AWS experience</p>
 
             {/* controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 32 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 12, marginTop: 32 }}>
               <button className="vs-focus-dark" aria-label="Mute" style={circleBtn}>
                 <MicOff size={16} />
               </button>
@@ -761,7 +762,7 @@ function StudioPanel({
         style={{
           background: 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)',
           borderRadius: 24,
-          padding: 28,
+          padding: 'clamp(20px, 5vw, 28px)',
           color: '#fff',
           display: 'flex',
           flexWrap: 'wrap',
@@ -788,7 +789,7 @@ function StudioPanel({
             Career Studio
             <span style={{ padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: 4, fontSize: 8 }}>BETA</span>
           </div>
-          <h2 className="h-font" style={{ fontSize: 30, marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
+          <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
             Resume Studio
           </h2>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
@@ -969,7 +970,7 @@ function StudioPanel({
             background: 'linear-gradient(to bottom right, #a47f38, #7d5f26)',
             color: '#fff',
             borderRadius: 24,
-            padding: 28,
+            padding: 'clamp(20px, 5vw, 28px)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -1136,7 +1137,7 @@ function ToolkitPanel({
           <Sparkles size={13} />
           <span>AI Career Toolkit</span>
         </div>
-        <h2 className="h-font" style={{ fontSize: 30, marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
+        <h2 className="h-font" style={{ fontSize: 'clamp(22px, 6vw, 30px)', marginTop: 4, fontWeight: 800, letterSpacing: '-0.03em' }}>
           Everything to get hired, in order.
         </h2>
         <p style={{ fontSize: 14, color: 'var(--wa-muted)', marginTop: 4 }}>

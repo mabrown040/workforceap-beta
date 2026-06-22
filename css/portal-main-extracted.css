@@ -1589,6 +1589,27 @@ html.dark .workspace-tab-bar {
     }
 }
 
+/* ── Member flat top-nav (#2069): single-level scrollable nav, no left sidebar.
+   The flat items reuse the .workspace-tab pill styling (active = crimson). ── */
+.workspace-tab--flat {
+    flex-direction: row;
+    gap: 0.4rem;
+}
+@media (min-width: 1024px) {
+    /* Members navigate entirely from the flat top-nav — hide the contextual rail
+       and let content go full-width/centered. Safe (no orphaned pages): every
+       member route is present in the flat nav (see docs/PORTAL_NAV_SPEC.md §2). */
+    html[data-portal-role="member"] .workspace-sidebar {
+        display: none !important;
+    }
+    html[data-portal-role="member"] .workspace-shell-main {
+        max-width: var(--max-width, 1120px);
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+    }
+}
+
 .workspace-drawer-overlay {
     display: none;
     position: fixed;

@@ -124,6 +124,32 @@ export default function WorkspaceShell({
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
   const desktopNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
   const mobileDrawerNavItems = navItems;
+  // Member flat top-nav (#2069): a single-level, horizontally-scrollable nav that
+  // matches the wa-v2-member mockup — the mockup's primary destinations come first,
+  // then every remaining page follows in the same row. Because ALL items live in
+  // this one nav, the contextual left sidebar can be hidden for members (portal CSS)
+  // without orphaning any page (the failure mode that got the earlier CSS-only
+  // sidebar-hide reverted — see docs/PORTAL_NAV_SPEC.md §2).
+  const MEMBER_PRIMARY_HREFS = [
+    '/dashboard',
+    '/dashboard/program',
+    '/dashboard/jobs',
+    '/dashboard/certifications',
+    '/dashboard/ai-tools',
+    '/dashboard/readiness',
+    '/dashboard/messages',
+    '/dashboard/profile',
+  ];
+  const memberFlatNav =
+    portalRole === 'member'
+      ? [
+          ...MEMBER_PRIMARY_HREFS.flatMap((h) => {
+            const it = navItems.find((i) => i.href === h);
+            return it ? [it] : [];
+          }),
+          ...navItems.filter((i) => !MEMBER_PRIMARY_HREFS.includes(i.href)),
+        ]
+      : [];
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
@@ -461,26 +487,53 @@ export default function WorkspaceShell({
       />
 
       {hasTabs && activeTab && (
-        <nav ref={tabBarRef} className="workspace-tab-bar" aria-label={tNav('workspaceTabs')}>
+        <nav
+          ref={tabBarRef}
+          className={`workspace-tab-bar${portalRole === 'member' ? ' workspace-tab-bar--flat' : ''}`}
+          aria-label={tNav('workspaceTabs')}
+        >
           <div className="workspace-tab-bar-inner">
-            {NAV_TAB_ORDER.map((tab) => {
-              const meta = NAV_TAB_META[tab];
-              const isActive = tab === activeTab;
-              // Find the first item in this tab to link to
-              const firstItem = navItems.find((i) => i.tab === tab);
-              return (
-                <Link
-                  key={tab}
-                  href={firstItem?.href ?? '/dashboard'}
-                  prefetch={false}
-                  className={`workspace-tab${isActive ? ' workspace-tab--active' : ''}`}
-                  onClick={closeDrawer}
-                >
-                  <span className="material-symbols-outlined workspace-tab-icon" aria-hidden>{meta.icon}</span>
-                  <span className="workspace-tab-label">{translateLabel(meta.label)}</span>
-                </Link>
-              );
-            })}
+            {portalRole === 'member'
+              ? /* Flat single-level member nav (#2069) — every page in one scrollable row. */
+                memberFlatNav.map((item) => {
+                  const isActive =
+                    activeHref === item.href ||
+                    isActiveRoute(pathname, item.href, item.aliases ?? []);
+                  const b = badgeTotalForItem(badges, item);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      prefetch={false}
+                      className={`workspace-tab workspace-tab--flat${isActive ? ' workspace-tab--active' : ''}`}
+                      onClick={closeDrawer}
+                      {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}
+                    >
+                      <span className="workspace-tab-label">{translateLabel(item.label)}</span>
+                      {b > 0 ? (
+                        <span className="workspace-nav-badge">{b > 99 ? '99+' : b}</span>
+                      ) : null}
+                    </Link>
+                  );
+                })
+              : NAV_TAB_ORDER.map((tab) => {
+                  const meta = NAV_TAB_META[tab];
+                  const isActive = tab === activeTab;
+                  // Find the first item in this tab to link to
+                  const firstItem = navItems.find((i) => i.tab === tab);
+                  return (
+                    <Link
+                      key={tab}
+                      href={firstItem?.href ?? '/dashboard'}
+                      prefetch={false}
+                      className={`workspace-tab${isActive ? ' workspace-tab--active' : ''}`}
+                      onClick={closeDrawer}
+                    >
+                      <span className="material-symbols-outlined workspace-tab-icon" aria-hidden>{meta.icon}</span>
+                      <span className="workspace-tab-label">{translateLabel(meta.label)}</span>
+                    </Link>
+                  );
+                })}
           </div>
         </nav>
       )}

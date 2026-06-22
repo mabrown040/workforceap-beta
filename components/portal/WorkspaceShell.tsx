@@ -493,7 +493,7 @@ export default function WorkspaceShell({
                   {!isCollapsedDesktop ? (
                     <span className="workspace-sidebar-brand-text">
                       <span className="workspace-sidebar-brand-name">WorkforceAP</span>
-                      <span className="workspace-sidebar-brand-sub">Admin · {contextLabel}</span>
+                      <span className="workspace-sidebar-brand-sub">{translateLabel(workspaceLabel)}</span>
                     </span>
                   ) : null}
                 </div>

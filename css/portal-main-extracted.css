@@ -9364,24 +9364,58 @@ html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-signo
   color: #d4d4d4 !important;
 }
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link:hover {
-  background: rgba(255, 255, 255, 0.07) !important;
+  background: #242424 !important;
   color: #ffffff !important;
 }
+/* Active = solid crimson fill + white (matches admin-full mockup) */
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link.active {
-  background: rgba(255, 255, 255, 0.12) !important;
+  background: var(--wa-accent, #ad2c4d) !important;
+  color: #ffffff !important;
+}
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link.active .workspace-sidebar-icon,
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link.active svg {
   color: #ffffff !important;
 }
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-group-label,
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-label {
-  color: #8f8f8f !important;
+  color: #6b6b6b !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  font-size: 0.625rem;
 }
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-nav svg,
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link .material-symbols-outlined {
   color: inherit !important;
 }
+/* Flat groups — no card chrome, matching the mockup's clean grouped list */
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-group {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 0 0.85rem !important;
+}
+/* Dense flat items + crimson count-badge pills */
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link {
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+html[data-portal-role]:not([data-portal-role='member']) .workspace-nav-badge {
+  background: var(--wa-accent, #ad2c4d) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+}
+/* On an active (crimson) row, keep the badge legible (translucent white). */
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link.active .workspace-nav-badge {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
 }
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-toolbar,
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-inner {
@@ -9440,7 +9474,13 @@ html[data-portal-role='admin'] .workspace-sidebar-brand-sub {
 }
 /* In-rail search styled to read like the mockup's "Search admin…" field. */
 html[data-portal-role='admin'] .workspace-sidebar-search {
-  padding: 0.1rem 0 0.55rem;
+  padding: 0.1rem 0 0.6rem;
+  margin-bottom: 0.35rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+/* Footer divider matching the mockup's border-top. */
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-footer {
+  border-top: 1px solid #2a2a2a !important;
 }
 html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn {
   width: 100%;

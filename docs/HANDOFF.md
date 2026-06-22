@@ -71,7 +71,18 @@ Files: `app/(portal)/dashboard/page.tsx` (member, warm surface), `app/admin/page
 
 ## TODO (for whoever picks this up)
 
-- [ ] Re-verify employer/partner/counselor `?ui=kit` render after the 6543 redeploy (build SHA in latest commit).
+- [ ] **Employer/Partner/Counselor `?ui=kit` can't be tested with the super-admin account.**
+      VERIFIED 2026-06-22 on the 6543 pooler: all 3 return 200 but render the error boundary
+      *for the super-admin*. Root cause is NOT the pool (that was the earlier `EMAXCONNSESSION`).
+      It's that these pages resolve a persona context and bounce non-persona users — e.g.
+      `app/(portal)/employer/page.tsx:70` → `getEmployerForUser(user.id)` returns null for Mike
+      (no employer row) → `if (superAdmin) redirect('/admin/employers')`, so the kit branch never
+      runs for the super-admin. Same shape in partner/counselor.
+      **Two ways to finish:** (a) seed a demo employer + partner + counselor account (each with its
+      persona row) and test `?ui=kit` signed in as those; OR (b) also check the kit `DataTable`
+      renders for unguarded relation access — e.g. `row.student.fullName` / `row.job.title` should
+      be `row.student?.fullName` — a null relation there throws into the error boundary too.
+      Member (`/en/dashboard?ui=kit`) + Admin (`/admin?ui=kit`) ARE verified rendering on real data.
 - [ ] Optionally seed Mike's demo account with a program enrollment + course progress so the member dashboard shows populated stats.
 - [ ] **CI red on master:** `/dev/kit` static prerender calls `getDefaultOrganizationId()` at build time → `localhost:5432`. Skip org resolution at build (pattern: `shouldSkipOptionalDbQueriesAtBuild`).
 - [ ] Make preview build run `prisma migrate deploy` against demo (now that demo is baselined) so migrations auto-apply in the loop. Prod already does (`build:with-migrate`).

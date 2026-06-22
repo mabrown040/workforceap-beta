@@ -6,8 +6,6 @@
 export function shouldSkipOptionalDbQueriesAtBuild(): boolean {
   if (process.env.WORKFORCEAP_FORCE_DB_BUILD === '1') return false;
   if (process.env.__PRISMA_PLACEHOLDER_DB === '1') return true;
-  // GitHub Actions runs `npx next build` (not npm run build) with a stub DATABASE_URL.
-  if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') return true;
 
   const isBuildLifecycle =
     process.env.npm_lifecycle_event === 'build' || process.env.NEXT_PHASE === 'phase-production-build';

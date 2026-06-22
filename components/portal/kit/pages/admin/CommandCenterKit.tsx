@@ -32,10 +32,26 @@ import {
  */
 
 /** A single "What needs you today" work-queue row. */
+/**
+ * Icon key for a queue row. Pass a STRING key, NOT the LucideIcon component —
+ * this is a Client Component, and passing a function/component reference across
+ * the Server→Client boundary throws "Functions cannot be passed directly to
+ * Client Components". The server picks a key; we map it to the icon here.
+ */
+export type CommandCenterIconKey = 'alert' | 'bell' | 'award' | 'userplus' | 'briefcase';
+
+const QUEUE_ICONS: Record<CommandCenterIconKey, LucideIcon> = {
+  alert: TriangleAlert,
+  bell: Bell,
+  award: Award,
+  userplus: UserPlus,
+  briefcase: Briefcase,
+};
+
 export interface CommandCenterQueueItem {
   id: string;
-  /** lucide icon component for the row's colored chip. */
-  icon: LucideIcon;
+  /** Icon key (mapped to a lucide icon client-side — see QUEUE_ICONS). */
+  icon: CommandCenterIconKey;
   /** Chip background color (CSS color / token). Mockup roles: crimson/gold/info/green. */
   iconColor: string;
   title: string;
@@ -90,7 +106,7 @@ const DEFAULT_KPIS: KpiItem[] = [
 const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
   {
     id: 'inactive',
-    icon: TriangleAlert,
+    icon: 'alert',
     iconColor: 'var(--wa-accent)',
     title: '5 students inactive 14+ days',
     detail: 'Cloud & IT cohort · likely to drop',
@@ -99,7 +115,7 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
   },
   {
     id: 'certifications',
-    icon: Award,
+    icon: 'award',
     iconColor: 'var(--wa-gold)',
     title: '12 certifications awaiting approval',
     detail: 'Verify proof to count toward outcomes',
@@ -107,7 +123,7 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
   },
   {
     id: 'applicants',
-    icon: UserPlus,
+    icon: 'userplus',
     iconColor: 'var(--wa-info)',
     title: '8 new applicants need eligibility review',
     detail: 'WIOA screening pending',
@@ -115,7 +131,7 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
   },
   {
     id: 'placements',
-    icon: Briefcase,
+    icon: 'briefcase',
     iconColor: 'var(--wa-success)',
     title: '3 placements to confirm',
     detail: 'Employers reported hires',
@@ -225,7 +241,7 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
  * per-row color the mockup shows.
  */
 function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onAction?: () => void }) {
-  const Icon = item.icon;
+  const Icon = QUEUE_ICONS[item.icon] ?? Bell;
   const actionStyle: React.CSSProperties = {
     flexShrink: 0,
     padding: '6px 12px',

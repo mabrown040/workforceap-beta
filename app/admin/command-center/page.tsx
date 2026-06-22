@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Bell, TriangleAlert, UserPlus, Briefcase } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser, withAuthGuc } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
@@ -84,7 +83,7 @@ export default async function AdminCommandCenterPage({
     const queueItems: CommandCenterQueueItem[] = [
       {
         id: 'at-risk',
-        icon: TriangleAlert,
+        icon: 'alert' as const,
         iconColor: 'var(--wa-accent)',
         title: `${totals.atRiskCount} ${totals.atRiskCount === 1 ? 'student' : 'students'} inactive 14+ days`,
         detail: 'Enrolled, gone quiet — likely to drop',
@@ -94,7 +93,7 @@ export default async function AdminCommandCenterPage({
       },
       {
         id: 'needs-reply',
-        icon: Bell,
+        icon: 'bell' as const,
         iconColor: 'var(--wa-info)',
         title: `${totals.needsReplyCount} ${totals.needsReplyCount === 1 ? 'message' : 'messages'} awaiting your reply`,
         detail: 'Members are waiting on a response',
@@ -103,7 +102,7 @@ export default async function AdminCommandCenterPage({
       },
       {
         id: 'applications',
-        icon: UserPlus,
+        icon: 'userplus' as const,
         iconColor: 'var(--wa-gold)',
         title: `${totals.applicationsPendingCount} ${totals.applicationsPendingCount === 1 ? 'application needs' : 'applications need'} review`,
         detail: 'Eligibility + program-fit review pending',
@@ -112,7 +111,7 @@ export default async function AdminCommandCenterPage({
       },
       {
         id: 'interviewing',
-        icon: Briefcase,
+        icon: 'briefcase' as const,
         iconColor: 'var(--wa-success)',
         title: `${totals.interviewingCount} ${totals.interviewingCount === 1 ? 'candidate' : 'candidates'} interviewing`,
         detail: 'Phone screens, interviews, and offers to prep',

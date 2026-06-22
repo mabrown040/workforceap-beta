@@ -19,6 +19,7 @@
  */
 
 import { prisma } from '@/lib/db/prisma';
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { getDefaultOrganizationId } from '@/lib/tenant/organization';
 import {
   customDomainCache,
@@ -29,6 +30,7 @@ import { isCanonicalHost, normalizeHost } from '@/lib/tenant/hostMatch';
 
 export const WAP_ORG_ID_HEADER = 'x-wap-org-id';
 export const WAP_HOST_HEADER = 'x-wap-host';
+const BUILD_FALLBACK_ORG_ID = 'build-placeholder-org';
 
 /** Minimal shape of `headers()` / `Request.headers` we accept. */
 export type HeadersLike = {
@@ -79,6 +81,10 @@ export async function resolveOrgFromRequest(
   const cache = options.cache ?? customDomainCache;
   const lookup = options.lookup ?? defaultLookup;
   const fallback = options.defaultOrgId ?? getDefaultOrganizationId;
+
+  if (!options.defaultOrgId && shouldSkipOptionalDbQueriesAtBuild()) {
+    return BUILD_FALLBACK_ORG_ID;
+  }
 
   // 1. Middleware already attached an orgId — trust it ONLY when
   // x-wap-host is also present (proves middleware ran, not client spoofing).

@@ -167,6 +167,8 @@ export default async function EmployerDashboardPage({
             rows={kitRecent}
             rowKey={(row) => row.id}
             mobile="scroll"
+            emptyTitle="No candidates yet"
+            emptyDescription="New job applications will appear here as candidates enter the pipeline."
           />
         </div>
       </DesignSurface>

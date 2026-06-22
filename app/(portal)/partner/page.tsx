@@ -186,6 +186,7 @@ export default async function PartnerDashboardPage({
           orderBy: { referredAt: 'desc' },
           take: 10,
           select: {
+            id: true,
             referredAt: true,
             member: { select: { id: true, fullName: true, enrolledAt: true } },
           },
@@ -303,6 +304,8 @@ export default async function PartnerDashboardPage({
               rows={referralRows}
               rowKey={(row) => row.id}
               mobile="scroll"
+              emptyTitle="No referred members yet"
+              emptyDescription="New referrals will appear here after members apply through this partner."
             />
           </div>
         </DesignSurface>

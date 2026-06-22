@@ -22,6 +22,8 @@ interface DataTableProps<T> {
   cardRender?: (row: T) => ReactNode;
   minWidth?: number;
   onRowClick?: (row: T) => void;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
 /**
@@ -38,6 +40,8 @@ export function DataTable<T>({
   cardRender,
   minWidth = 600,
   onRowClick,
+  emptyTitle = 'No rows yet',
+  emptyDescription,
 }: DataTableProps<T>) {
   const cell = (col: Column<T>, row: T): ReactNode =>
     col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '');
@@ -56,19 +60,34 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr
-                key={rowKey(row)}
-                onClick={onRowClick ? () => onRowClick(row) : undefined}
-                style={onRowClick ? { cursor: 'pointer' } : undefined}
-              >
-                {columns.map((c) => (
-                  <td key={c.key} style={c.align === 'right' ? { textAlign: 'right' } : undefined}>
-                    {cell(c, row)}
-                  </td>
-                ))}
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length || 1}>
+                  <div className="wa-kit-card wa-kit-card--sm" style={{ margin: 0 }}>
+                    <div style={{ fontWeight: 700, color: 'var(--wa-text)' }}>{emptyTitle}</div>
+                    {emptyDescription ? (
+                      <div style={{ marginTop: 4, fontSize: 13, color: 'var(--wa-muted)' }}>
+                        {emptyDescription}
+                      </div>
+                    ) : null}
+                  </div>
+                </td>
               </tr>
-            ))}
+            ) : (
+              rows.map((row) => (
+                <tr
+                  key={rowKey(row)}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  style={onRowClick ? { cursor: 'pointer' } : undefined}
+                >
+                  {columns.map((c) => (
+                    <td key={c.key} style={c.align === 'right' ? { textAlign: 'right' } : undefined}>
+                      {cell(c, row)}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -84,11 +103,22 @@ export function DataTable<T>({
     <>
       <div className="wa-hidden lg:wa-block">{tableEl}</div>
       <div className="lg:wa-hidden wa-space-y-2">
-        {rows.map((row) => (
-          <div key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined}>
-            {cardRender(row)}
+        {rows.length === 0 ? (
+          <div className="wa-kit-card wa-kit-card--sm">
+            <div style={{ fontWeight: 700, color: 'var(--wa-text)' }}>{emptyTitle}</div>
+            {emptyDescription ? (
+              <div style={{ marginTop: 4, fontSize: 13, color: 'var(--wa-muted)' }}>
+                {emptyDescription}
+              </div>
+            ) : null}
           </div>
-        ))}
+        ) : (
+          rows.map((row) => (
+            <div key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined}>
+              {cardRender(row)}
+            </div>
+          ))
+        )}
       </div>
     </>
   );

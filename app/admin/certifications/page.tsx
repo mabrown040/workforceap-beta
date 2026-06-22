@@ -6,6 +6,7 @@ import { isAdmin } from '@/lib/auth/roles';
 import { getCertificationsCohortStats } from '@/lib/admin/cohortAnalytics';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
+import { CertificationsQueueKit } from '@/components/portal/kit/pages/admin-subviews/CertificationsQueueKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -15,10 +16,20 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function AdminCertificationsAnalyticsPage() {
+export default async function AdminCertificationsAnalyticsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/certifications');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  if (requestedUi === 'kit') {
+    return <CertificationsQueueKit />;
+  }
 
   const [rows, recentCerts] = await Promise.all([
     getCertificationsCohortStats(),

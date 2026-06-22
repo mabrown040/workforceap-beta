@@ -28,6 +28,7 @@ import {
   getCounselorStarterProfileReview,
   getStarterProfileFieldLabels,
 } from "@/lib/member/starterProfileReview";
+import { MemberProfileKit } from "@/components/portal/kit/pages/member/MemberProfileKit";
 
 const chunkLoadingCard = (
   label: string,
@@ -67,9 +68,19 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function DashboardProfilePage() {
+export default async function DashboardProfilePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect("/login?redirectTo=/dashboard/profile");
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === "string" ? params.ui : null;
+  if (requestedUi === "kit") {
+    return <MemberProfileKit />;
+  }
 
   const userSelect = {
     id: true,

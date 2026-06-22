@@ -19,6 +19,7 @@ import ProgramChangeRequestModal from '@/components/portal/ProgramChangeRequestM
 import { canBypassMemberAssessment } from '@/lib/auth/roles';
 import StaffViewBanner from '@/components/portal/StaffViewBanner';
 import { formatDate } from '@/lib/i18n/date';
+import { MemberProgramKit } from '@/components/portal/kit/pages/member/MemberProgramKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -29,9 +30,19 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function ProgramPage() {
+export default async function ProgramPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/program');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  if (requestedUi === 'kit') {
+    return <MemberProgramKit />;
+  }
 
   const activeViews = await getActivePrograms();
   let pickerPrograms = activeViews

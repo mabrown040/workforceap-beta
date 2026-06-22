@@ -8,6 +8,7 @@ import PageHeader from '@/components/portal/PageHeader';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
 import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobileClient';
 import { getTranslations } from 'next-intl/server';
+import { MemberMessagesKit } from '@/components/portal/kit/pages/member/MemberMessagesKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('messages');
@@ -18,9 +19,20 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function MemberMessagesPage() {
+export default async function MemberMessagesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/messages');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  if (requestedUi === 'kit') {
+    return <MemberMessagesKit />;
+  }
+
   const t = await getTranslations('messages');
 
   const thread = await getOrCreateMemberCounselorThread(user.id);

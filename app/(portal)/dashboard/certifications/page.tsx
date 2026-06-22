@@ -16,6 +16,7 @@ import {
   CertificationViewButton,
 } from '@/components/portal/CertificationVaultActions';
 import CertificationAddForm from '@/components/portal/CertificationAddForm';
+import { MemberCertificatesKit } from '@/components/portal/kit/pages/member/MemberCertificatesKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -25,9 +26,19 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function DashboardCertificationsPage() {
+export default async function DashboardCertificationsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/certifications');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  if (requestedUi === 'kit') {
+    return <MemberCertificatesKit />;
+  }
 
   // Resolve the member's pathway from their enrolled program. Returns null
   // when the member has no enrolled program — pathway-dependent UI is gated

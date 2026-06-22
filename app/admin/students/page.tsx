@@ -4,6 +4,7 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import { getTranslations } from 'next-intl/server';
+import { StudentsRosterKit } from '@/components/portal/kit/pages/admin-subviews/StudentsRosterKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
@@ -26,6 +27,11 @@ export default async function AdminStudentsPage({
   if (!hasAdmin) redirect('/dashboard');
 
   const params = (await searchParams) ?? {};
+  const requestedUi = typeof params.ui === 'string' ? params.ui : null;
+  if (requestedUi === 'kit') {
+    return <StudentsRosterKit />;
+  }
+
   const query = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (typeof value === 'string') query.set(key, value);

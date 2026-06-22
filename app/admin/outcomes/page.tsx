@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { getBoardSnapshot, BoardOutcomesPeriod } from '@/lib/admin/boardOutcomes';
 import { getActorOrganizationId } from '@/lib/tenant/organization';
 import OutcomesSnapshot from '@/components/admin/OutcomesSnapshot';
+import { BoardOutcomesKit } from '@/components/portal/kit/pages/admin-subviews/BoardOutcomesKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
@@ -20,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function OutcomesPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ period?: string }>;
+  searchParams?: Promise<{ period?: string; ui?: string }>;
 }) {
   const user = await getUser();
   if (!user) {
@@ -32,8 +33,13 @@ export default async function OutcomesPage({
     redirect('/dashboard');
   }
 
-  const orgId = await getActorOrganizationId(user.id);
   const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  if (requestedUi === 'kit') {
+    return <BoardOutcomesKit />;
+  }
+
+  const orgId = await getActorOrganizationId(user.id);
   const period = (params?.period ?? 'all-time') as BoardOutcomesPeriod;
   const snapshot = await getBoardSnapshot(period, orgId ?? undefined);
 

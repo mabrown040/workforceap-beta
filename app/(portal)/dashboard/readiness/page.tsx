@@ -10,6 +10,7 @@ import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCa
 import CompactReadinessCoach from '@/components/portal/CompactReadinessCoach';
 import ReadinessCoachReturnButton from '@/components/portal/ReadinessCoachReturnButton';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
+import { MemberProgressKit } from '@/components/portal/kit/pages/member/MemberProgressKit';
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
@@ -70,9 +71,19 @@ function getPriorityAction(breakdown: Awaited<ReturnType<typeof getScoreBreakdow
   return null;
 }
 
-export default async function DashboardReadinessPage() {
+export default async function DashboardReadinessPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/readiness');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  if (requestedUi === 'kit') {
+    return <MemberProgressKit />;
+  }
 
   const [breakdown, checklistSections] = await Promise.all([
     getScoreBreakdownSafe(user.id),

@@ -11,6 +11,7 @@ import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalAp
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
 import { getTranslations } from 'next-intl/server';
+import { MemberJobsKit } from '@/components/portal/kit/pages/member/MemberJobsKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -21,8 +22,19 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function JobsPage() {
+export default async function JobsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  if (requestedUi === 'kit') {
+    return <MemberJobsKit />;
+  }
+
   const t = await getTranslations('dashboard');
 
   let ageGroup: 'under14' | 'youth14to17' | 'adult18plus' = 'adult18plus';

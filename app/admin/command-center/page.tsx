@@ -7,6 +7,7 @@ import { getAdminCommandCenter } from '@/lib/admin/commandCenter';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminCommandCenterClient from '@/components/admin/AdminCommandCenterClient';
+import { CommandCenterKit } from '@/components/portal/kit/pages/admin/CommandCenterKit';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,12 +19,22 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function AdminCommandCenterPage() {
+export default async function AdminCommandCenterPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/command-center');
 
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  if (requestedUi === 'kit') {
+    return <CommandCenterKit />;
+  }
 
   const data = await withAuthGuc(() => getAdminCommandCenter(user.id, { perSectionLimit: 8 })).catch((err) => {
     console.error('[admin/command-center] failed to load command center:', err);

@@ -7,7 +7,10 @@ const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 // See the $transaction override below. Flattens interactive transactions into
 // plain queries when the only reachable DB is a transaction-mode pooler that
 // hangs Prisma interactive transactions (preview/demo). Never enable in prod.
-const FLATTEN_TX = process.env.PRISMA_FLATTEN_TX === '1';
+const FLATTEN_TX =
+  process.env.PRISMA_FLATTEN_TX === '1' ||
+  process.env.VERCEL_ENV === 'preview' ||
+  process.env.VERCEL_ENV === 'development';
 
 function escapeSqlString(value: string): string {
   return value.replace(/'/g, "''");
@@ -53,6 +56,24 @@ export function buildGucSql(ctx: GucContext): string {
   return `SELECT ${parts.join(', ')};`;
 }
 
+function installFlattenTxOverride(client: PrismaClient): void {
+  if (!FLATTEN_TX) return;
+
+  const originalTransaction = client.$transaction.bind(client) as (
+    ...args: unknown[]
+  ) => Promise<unknown>;
+  (client as unknown as { $transaction: (...args: unknown[]) => Promise<unknown> }).$transaction =
+    async (...args: unknown[]) => {
+      if (typeof args[0] === 'function') {
+        return (args[0] as (tx: PrismaClient) => Promise<unknown>)(client);
+      }
+      if (Array.isArray(args[0])) {
+        return Promise.all(args[0] as Promise<unknown>[]);
+      }
+      return originalTransaction(...args);
+    };
+}
+
 function createPrismaClient(): PrismaClient {
   const client = new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
@@ -63,6 +84,14 @@ function createPrismaClient(): PrismaClient {
     // `timeout` bounds the transaction body, which for these reads is tiny.
     transactionOptions: { maxWait: 5000, timeout: 10000 },
   });
+
+  installFlattenTxOverride(client);
+
+  // GUC layer doubles pooler checkouts per query; disabled until FORCE RLS flip (see master postmortem).
+  const gucEnabled = process.env.WAP_RLS_GUC_ENABLED === 'true';
+  if (!gucEnabled) {
+    return client;
+  }
 
   /**
    * GUC-setting middleware.

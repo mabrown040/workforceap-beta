@@ -9341,3 +9341,42 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
     /* Lock paint order — prevents flash of unstyled state on route change */
     will-change: auto;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * STAFF DARK RAIL — match docs/mockups/workforceap-admin-full.html (#161616).
+ * Staff portals (admin / employer / partner / counselor) get the dark dense
+ * "command" sidebar in BOTH light and dark mode — the mockup's signature look.
+ * Member portal stays light/warm. Scoped via the data-portal-role hook set in
+ * WorkspaceShell. Desktop rail only (≥1024px); mobile drawer keeps its own bg.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar {
+    background: #161616 !important;
+    border-right: 1px solid #2a2a2a !important;
+    border-left: none !important;
+    color: #e5e5e5 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link,
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-home-link,
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-signout {
+    color: #d4d4d4 !important;
+  }
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.07) !important;
+    color: #ffffff !important;
+  }
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link.active {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+  }
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-group-label,
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-label {
+    color: #8f8f8f !important;
+  }
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-nav svg,
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link .material-symbols-outlined {
+    color: inherit !important;
+  }
+}

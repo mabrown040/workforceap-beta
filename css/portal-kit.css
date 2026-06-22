@@ -144,3 +144,21 @@
 .wa-kit-table tbody tr:hover {
   background: var(--wa-bg);
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * MEMBER NAV → top-nav only (portal redesign).
+ * Members navigate via the top tab-bar (Home / My Program / Jobs / Career
+ * Toolkit). The desktop left rail was a redundant second nav level, so hide it
+ * ≥1024px and let content go full-width. Mobile keeps the drawer (hamburger).
+ * Scoped to html[data-portal-role="member"] — staff portals (employer/partner/
+ * counselor/admin) keep their sidebar. Account/sign-out live in the top bar.
+ * ─────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  html[data-portal-role='member'] .workspace-sidebar {
+    display: none !important;
+  }
+  html[data-portal-role='member'] .workspace-shell-main {
+    width: 100%;
+    max-width: none;
+  }
+}

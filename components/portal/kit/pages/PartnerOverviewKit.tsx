@@ -13,6 +13,7 @@
  */
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { Lightbulb } from 'lucide-react';
 import { StatTile } from '@/components/portal/kit';
 import { colorVar, type KitColor } from '@/components/portal/kit/tokens';
 
@@ -60,7 +61,7 @@ export function PartnerKpiGrid({ items }: { items: PartnerKpiTile[] }) {
 // ── Attention / CTA card (accent-soft background) ─────────────────────────────
 
 export function PartnerAttentionCard({
-  icon = '💡',
+  icon = <Lightbulb size={20} aria-hidden />,
   title,
   body,
   href,

@@ -103,6 +103,8 @@ export function MemberJobsKit({
             rowKey={(r) => r.id}
             mobile="scroll"
             minWidth={560}
+            emptyTitle="No applications yet"
+            emptyDescription="Track jobs you apply to and they'll show up here."
           />
         </div>
 

@@ -31,6 +31,7 @@ export function FeatureTile({ icon, title, body, badge, tone = 'crimson', href, 
         textAlign: 'left',
         cursor: 'pointer',
         border: 'none',
+        transition: 'box-shadow 0.2s, transform 0.2s',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

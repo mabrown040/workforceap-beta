@@ -61,7 +61,7 @@ const DEFAULT_SESSIONS: SessionKitRow[] = [
     type: 'Mock interview',
     when: 'Thu 6 PM',
     status: 'Scheduled',
-    href: '#',
+    href: '/admin/sessions/demo-1',
   },
   {
     id: 'demo-2',
@@ -72,7 +72,7 @@ const DEFAULT_SESSIONS: SessionKitRow[] = [
     type: 'Walk-in',
     when: 'Now',
     status: 'In session',
-    href: '#',
+    href: '/admin/sessions/demo-2',
   },
 ];
 
@@ -165,7 +165,7 @@ export function SessionsKit({ sessions = DEFAULT_SESSIONS, total }: SessionsKitP
           sessions === DEFAULT_SESSIONS
             ? undefined
             : (row) => {
-                if (row.href && row.href !== '#') window.location.href = row.href;
+                if (row.href) window.location.href = row.href;
               }
         }
         cardRender={(row) => (

@@ -27,6 +27,7 @@ export function FormField({ label, full, children, ...inputProps }: FormFieldPro
             outline: 'none',
             background: 'var(--wa-surface)',
             color: 'var(--wa-text)',
+            transition: 'border-color 0.2s, box-shadow 0.2s',
           }}
         />
       )}
@@ -50,7 +51,9 @@ export function Toggle({ checked = false, onChange, label }: ToggleProps) {
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange?.(e.target.checked)}
-          style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
+          aria-label={label}
+          className="wa-kit-focus"
+          style={{ position: 'absolute', inset: 0, margin: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer', borderRadius: 999 }}
         />
         <span
           style={{

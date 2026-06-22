@@ -6,7 +6,12 @@ export type VoiceAgentSurfaceProps = {
   badge: string;
   headline?: string;
   subtext?: string;
-  icon: string;
+  /**
+   * Icon tile content. Prefer a lucide-react SVG element (no emoji as icons).
+   * Widened from `string` so voice surfaces can pass real SVG icons; existing
+   * string/glyph callers remain valid (`string` is a `ReactNode`).
+   */
+  icon: ReactNode;
   /** CSS color used for icon tile border and ambient glow */
   glowColor: string;
   /** Full CSS gradient for outer ring */

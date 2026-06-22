@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Search } from 'lucide-react';
 
 interface UniversalSearchProps {
   placeholder?: string;
@@ -17,7 +18,7 @@ export function UniversalSearch({ placeholder = 'Find anything…', onSearch, hi
   const [q, setQ] = useState('');
   return (
     <div style={{ position: 'relative', width: '100%', maxWidth: 520 }}>
-      <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--wa-muted)', fontSize: 13 }}>⌕</span>
+      <Search size={15} aria-hidden="true" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'var(--wa-muted)', pointerEvents: 'none' }} />
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}
@@ -34,6 +35,7 @@ export function UniversalSearch({ placeholder = 'Find anything…', onSearch, hi
           fontSize: 13,
           outline: 'none',
           color: 'var(--wa-text)',
+          transition: 'border-color 0.2s, box-shadow 0.2s',
         }}
       />
       {hint ? (

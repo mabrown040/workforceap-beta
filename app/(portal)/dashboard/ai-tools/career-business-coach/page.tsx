@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { Briefcase } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import PageHeader from '@/components/portal/PageHeader';
@@ -71,7 +72,7 @@ export default async function CareerBusinessCoachPage() {
           badge="Career & Business Coach"
           headline="Talk through any career or business challenge"
           subtext="Project management, sales, marketing, communication — get guidance tailored to your situation."
-          icon="💼"
+          icon={<Briefcase size={22} aria-hidden="true" />}
           glowColor="#2563eb"
           gradient="linear-gradient(135deg, #1e40af 0%, #2563eb 45%, #60a5fa 100%)"
         >

@@ -20,6 +20,7 @@ import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voice';
 import { getTranslations } from 'next-intl/server';
+import { BarChart3, Download, Target } from 'lucide-react';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
@@ -358,21 +359,21 @@ export default async function PartnerDashboardPage({
             <PartnerQuickActions
               actions={[
                 {
-                  icon: '📊',
+                  icon: <BarChart3 size={16} aria-hidden />,
                   tone: 'accent',
                   title: t('exportData'),
                   body: t('csvPdfReports'),
                   href: '/partner/exports',
                 },
                 {
-                  icon: '📥',
+                  icon: <Download size={16} aria-hidden />,
                   tone: 'info',
                   title: t('newReferral'),
                   body: t('shareReferralLink'),
                   href: '/partner/guide',
                 },
                 {
-                  icon: '🎯',
+                  icon: <Target size={16} aria-hidden />,
                   tone: 'gold',
                   title: t('milestonesAndUpdates'),
                   body: t('viewPlacementReports'),

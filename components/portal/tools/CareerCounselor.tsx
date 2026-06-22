@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { Mic, Volume2, Check } from 'lucide-react';
 import type { Conversation } from '@elevenlabs/client';
 import ToolFollowThrough from './ToolFollowThrough';
 
@@ -197,7 +198,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
         </p>
 
         {voiceError && (
-          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.85rem', color: '#fca5a5' }}>
+          <div role="alert" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.85rem', color: 'var(--color-error, #b91c1c)', fontWeight: 600 }}>
             {voiceError}
           </div>
         )}
@@ -226,7 +227,7 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
               "You'll get a personalized action plan after",
             ].map((item) => (
               <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                <span style={{ color: ACCENT, marginTop: '0.1rem', flexShrink: 0 }}>✓</span>
+                <Check size={16} aria-hidden="true" style={{ color: ACCENT, marginTop: '0.1rem', flexShrink: 0 }} />
                 {item}
               </li>
             ))}
@@ -284,11 +285,22 @@ export default function CareerCounselor({ firstName }: { firstName?: string }) {
             {agentSpeaking ? 'Your counselor is speaking…' : 'Listening — speak when ready'}
           </div>
           <div style={{
-            display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: 999,
+            display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+            padding: '0.25rem 0.75rem', borderRadius: 999,
             background: ACCENT_BG, border: `1px solid ${ACCENT_BORDER}`,
             fontSize: '0.8rem', color: ACCENT, fontWeight: 600,
           }}>
-            {agentSpeaking ? '🔊 Speaking' : '🎙️ Listening'}
+            {agentSpeaking ? (
+              <>
+                <Volume2 size={14} aria-hidden="true" />
+                Speaking
+              </>
+            ) : (
+              <>
+                <Mic size={14} aria-hidden="true" />
+                Listening
+              </>
+            )}
           </div>
         </div>
 

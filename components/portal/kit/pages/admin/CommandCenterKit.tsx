@@ -217,8 +217,8 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
             <Plus size={14} aria-hidden /> Add Student
           </button>
         )}
-        <button
-          type="button"
+        <a
+          href="/admin/messages"
           aria-label="Notifications"
           className="wa-kit-focus"
           style={{
@@ -231,11 +231,11 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            color: '#525252',
+            color: 'var(--wa-muted)',
           }}
         >
           <Bell size={16} aria-hidden />
-        </button>
+        </a>
       </div>
     </div>
   );

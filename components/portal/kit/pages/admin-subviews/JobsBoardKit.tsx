@@ -162,7 +162,7 @@ export function JobsBoardKit({
               color: '#fff',
             }}
           >
-            <Plus className="h-4 w-4" /> Post Job
+            <Plus className="h-4 w-4" aria-hidden /> Post Job
           </a>
         }
       />

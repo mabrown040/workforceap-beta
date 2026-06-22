@@ -223,7 +223,11 @@ export function AgentInboxKit({
           }}
         >
           Showing {rows.length} awaiting review · approve or dismiss in the{' '}
-          <a href="/admin/agent-inbox?ui=legacy" style={{ color: 'var(--wa-accent)' }}>
+          <a
+            href="/admin/agent-inbox?ui=legacy"
+            className="wa-kit-focus"
+            style={{ color: 'var(--wa-accent)' }}
+          >
             review queue
           </a>
         </p>

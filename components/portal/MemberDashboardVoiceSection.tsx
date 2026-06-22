@@ -1,5 +1,6 @@
 'use client';
 
+import { Mic, Target, Sparkles, AudioLines } from 'lucide-react';
 import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
 import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
@@ -33,7 +34,7 @@ export default function MemberDashboardVoiceSection() {
         >
           <VoiceCoachLauncherCard
             badge="Introduction"
-            icon="🎤"
+            icon={<Mic size={22} aria-hidden="true" />}
             glowColor="#7c3aed"
             gradient="linear-gradient(135deg, #5b21b6, #7c3aed, #c4b5fd)"
             title="AI Elevator Introduction"
@@ -43,6 +44,7 @@ export default function MemberDashboardVoiceSection() {
           />
           <VoiceCoachLauncherCard
             {...readinessVoiceSurface}
+            icon={<Target size={22} aria-hidden="true" />}
             title="AI Readiness Coach"
             description="Talk through your next milestone, interview prep, and certifications with the dashboard AI coach."
             href="/dashboard/readiness"
@@ -50,6 +52,7 @@ export default function MemberDashboardVoiceSection() {
           />
           <VoiceCoachLauncherCard
             {...resumeCoachVoiceSurface}
+            icon={<Sparkles size={22} aria-hidden="true" />}
             badge="Resume enhancer"
             title="Resume & Experience Enhancer"
             description="Open the dedicated resume coach to practice your pitch and refine your resume inside a synced workspace."
@@ -58,6 +61,7 @@ export default function MemberDashboardVoiceSection() {
           />
           <VoiceCoachLauncherCard
             {...mockInterviewVoiceSurface}
+            icon={<AudioLines size={22} aria-hidden="true" />}
             badge="Job / role interview"
             title="Voice Interview Practice"
             description="Launch the full mock interview experience with setup guidance and optional recording."

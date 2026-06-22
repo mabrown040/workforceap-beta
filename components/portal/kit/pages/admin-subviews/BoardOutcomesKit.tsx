@@ -66,12 +66,12 @@ const DEFAULT_EXPORTS: FunderExport[] = [
   {
     label: 'Outcomes CSV',
     description: 'Placements, wages & retention by cohort — board-ready.',
-    href: '#',
+    href: '/api/admin/outcomes/snapshot?format=csv',
   },
   {
     label: 'Demographics report',
     description: 'Enrollment & outcomes broken out by demographic.',
-    href: '#',
+    href: '/api/admin/outcomes/snapshot?format=md',
   },
 ];
 
@@ -169,16 +169,16 @@ export function BoardOutcomesKit({
                 }}
               >
                 {exp.label === 'Demographics report' ? (
-                  <Users size={18} />
+                  <Users size={18} aria-hidden />
                 ) : (
-                  <FileSpreadsheet size={18} />
+                  <FileSpreadsheet size={18} aria-hidden />
                 )}
               </div>
               <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
                 <div style={{ fontWeight: 700, fontSize: 14 }}>{exp.label}</div>
                 <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{exp.description}</div>
               </div>
-              <ArrowRight size={16} style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
+              <ArrowRight size={16} aria-hidden style={{ color: 'var(--wa-muted)', flexShrink: 0 }} />
             </a>
           ))}
         </div>

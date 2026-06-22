@@ -346,7 +346,11 @@ export function DataRetentionKit({ storage, policies, recentRuns }: DataRetentio
       >
         Member records are never auto-deleted — only log/telemetry tables are in scope. To run the
         cleanup job manually, open the{' '}
-        <a href="?ui=legacy" style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>
+        <a
+          href="/admin/data-retention?ui=legacy"
+          className="wa-kit-focus"
+          style={{ color: 'var(--wa-accent)', fontWeight: 700 }}
+        >
           legacy view
         </a>
         .

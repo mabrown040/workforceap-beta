@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { ArrowUp } from 'lucide-react';
 
 export interface ChatMessage {
   id: string;
@@ -64,12 +65,13 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
           style={{ flex: 1, fontSize: 13, border: 'none', outline: 'none', background: 'transparent', color: 'var(--wa-text)' }}
         />
         <button
+          type="button"
           onClick={send}
           aria-label="Send"
           className="wa-kit-focus"
-          style={{ width: 40, height: 40, borderRadius: 999, border: 'none', cursor: 'pointer', background: 'var(--wa-accent)', color: '#fff', flexShrink: 0 }}
+          style={{ width: 44, height: 44, borderRadius: 999, border: 'none', cursor: 'pointer', background: 'var(--wa-accent)', color: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s' }}
         >
-          ↑
+          <ArrowUp size={18} aria-hidden="true" />
         </button>
       </div>
     </div>

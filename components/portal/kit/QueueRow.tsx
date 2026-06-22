@@ -28,8 +28,20 @@ export function QueueRow({ tone, icon, title, meta, flag, action, onClick }: Que
   return (
     <div
       onClick={onClick}
-      className="wa-kit-card wa-kit-card--sm wa-kit-card--hover"
-      style={{ background: t.bg, borderColor: 'transparent', display: 'flex', alignItems: 'center', gap: 12, cursor: onClick ? 'pointer' : undefined }}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      className={`wa-kit-card wa-kit-card--sm wa-kit-card--hover${onClick ? ' wa-kit-focus' : ''}`}
+      style={{ background: t.bg, borderColor: 'transparent', display: 'flex', alignItems: 'center', gap: 12, minHeight: 44, cursor: onClick ? 'pointer' : undefined }}
     >
       <div style={{ width: 38, height: 38, borderRadius: 12, background: t.c, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {icon}

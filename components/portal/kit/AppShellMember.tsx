@@ -50,16 +50,20 @@ export function AppShellMember({ brand, topRight, tabs, activeId, hrefs = {}, ch
                 key={t.id}
                 href={hrefs[t.id]}
                 className="wa-kit-focus"
+                aria-current={on ? 'page' : undefined}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
+                  minHeight: 44,
                   padding: '8px 14px',
                   fontSize: 14,
                   fontWeight: 600,
                   whiteSpace: 'nowrap',
+                  cursor: 'pointer',
                   borderBottom: `2px solid ${on ? 'var(--wa-accent)' : 'transparent'}`,
                   color: on ? 'var(--wa-accent)' : 'var(--wa-muted)',
+                  transition: 'color 0.2s, border-color 0.2s',
                 }}
               >
                 {t.icon}
@@ -95,9 +99,10 @@ export function AppShellMember({ brand, topRight, tabs, activeId, hrefs = {}, ch
               key={t.id}
               href={hrefs[t.id]}
               className="wa-kit-focus"
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, color: on ? 'var(--wa-accent)' : 'var(--wa-muted)' }}
+              aria-current={on ? 'page' : undefined}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, minWidth: 44, minHeight: 44, cursor: 'pointer', color: on ? 'var(--wa-accent)' : 'var(--wa-muted)', transition: 'color 0.2s' }}
             >
-              <span style={{ fontSize: 16 }}>{t.icon}</span>
+              <span style={{ fontSize: 16, display: 'flex' }}>{t.icon}</span>
               <span style={{ fontSize: 9, fontWeight: on ? 700 : 600 }}>{t.label}</span>
             </a>
           );

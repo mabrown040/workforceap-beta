@@ -90,7 +90,7 @@ export function MentorsDirectoryKit({
           style={{ padding: '2.5rem 1.5rem', textAlign: 'center', color: 'var(--wa-muted)' }}
         >
           <div style={{ fontSize: 28, marginBottom: 8, display: 'flex', justifyContent: 'center' }}>
-            <GraduationCap size={32} />
+            <GraduationCap size={32} aria-hidden />
           </div>
           <div style={{ fontWeight: 700, color: 'var(--wa-text)', marginBottom: 4 }}>
             No mentors yet

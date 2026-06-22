@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { Menu } from 'lucide-react';
 
 export interface NavItem {
   id: string;
@@ -60,15 +61,18 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
                 return (
                   <button
                     key={it.id}
+                    type="button"
                     onClick={() => { onNavigate?.(it.id); setOpen(false); }}
                     className="wa-kit-focus"
+                    aria-current={on ? 'page' : undefined}
                     style={{
                       width: '100%',
+                      minHeight: 44,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       gap: 10,
-                      padding: '7px 10px',
+                      padding: '8px 10px',
                       borderRadius: 8,
                       border: 'none',
                       cursor: 'pointer',
@@ -77,6 +81,7 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
                       marginBottom: 2,
                       background: on ? 'var(--wa-accent)' : 'transparent',
                       color: on ? '#fff' : '#cfcfcf',
+                      transition: 'background-color 0.2s, color 0.2s',
                     }}
                   >
                     <span style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
@@ -97,7 +102,7 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
 
       <div className="lg:wa-ml-64" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <header style={{ position: 'sticky', top: 0, zIndex: 30, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--wa-border)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={() => setOpen(true)} className="lg:wa-hidden wa-kit-focus" aria-label="Open menu" style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid var(--wa-border)', background: 'transparent', cursor: 'pointer', flexShrink: 0 }}>≡</button>
+          <button type="button" onClick={() => setOpen(true)} className="lg:wa-hidden wa-kit-focus" aria-label="Open menu" style={{ width: 44, height: 44, borderRadius: 8, border: '1px solid var(--wa-border)', background: 'transparent', color: 'var(--wa-text)', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s, border-color 0.2s' }}><Menu size={20} aria-hidden="true" /></button>
           <div style={{ flex: 1, minWidth: 0 }}>{topbar}</div>
         </header>
         <main style={{ flex: 1, padding: 16 }}>{children}</main>

@@ -120,7 +120,7 @@ function ProgramTile({ card }: { card: ProgramCard }) {
             flexShrink: 0,
           }}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-5 w-5" aria-hidden />
         </div>
         {card.completion != null ? (
           <StatusTag tone={healthy ? 'ok' : 'alert'}>{healthy ? 'Healthy' : 'Attention'}</StatusTag>
@@ -227,7 +227,7 @@ export function ProgramsCatalogKit({
               color: '#fff',
             }}
           >
-            <Plus className="h-4 w-4" /> New Program
+            <Plus className="h-4 w-4" aria-hidden /> New Program
           </a>
         }
       />
@@ -247,7 +247,7 @@ export function ProgramsCatalogKit({
           className="wa-kit-card"
           style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--wa-muted)' }}
         >
-          <BookOpen className="h-6 w-6" style={{ margin: '0 auto 10px', opacity: 0.5 }} />
+          <BookOpen className="h-6 w-6" aria-hidden style={{ margin: '0 auto 10px', opacity: 0.5 }} />
           <p style={{ fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>No programs yet</p>
           <p style={{ fontSize: 12, margin: '4px 0 0' }}>
             Add your first program to start tracking enrollment and completion.

@@ -53,7 +53,7 @@ export function DataTable<T>({
           <thead>
             <tr>
               {columns.map((c) => (
-                <th key={c.key} style={c.align === 'right' ? { textAlign: 'right' } : undefined}>
+                <th key={c.key} scope="col" style={c.align === 'right' ? { textAlign: 'right' } : undefined}>
                   {c.header}
                 </th>
               ))}
@@ -78,6 +78,19 @@ export function DataTable<T>({
                 <tr
                   key={rowKey(row)}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  onKeyDown={
+                    onRowClick
+                      ? (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onRowClick(row);
+                          }
+                        }
+                      : undefined
+                  }
+                  role={onRowClick ? 'button' : undefined}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  className={onRowClick ? 'wa-kit-focus' : undefined}
                   style={onRowClick ? { cursor: 'pointer' } : undefined}
                 >
                   {columns.map((c) => (
@@ -114,7 +127,24 @@ export function DataTable<T>({
           </div>
         ) : (
           rows.map((row) => (
-            <div key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined}>
+            <div
+              key={rowKey(row)}
+              onClick={onRowClick ? () => onRowClick(row) : undefined}
+              onKeyDown={
+                onRowClick
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onRowClick(row);
+                      }
+                    }
+                  : undefined
+              }
+              role={onRowClick ? 'button' : undefined}
+              tabIndex={onRowClick ? 0 : undefined}
+              className={onRowClick ? 'wa-kit-focus' : undefined}
+              style={onRowClick ? { cursor: 'pointer' } : undefined}
+            >
               {cardRender(row)}
             </div>
           ))

@@ -73,12 +73,14 @@
   text-transform: uppercase;
   padding: 3px 10px;
 }
+/* Tag text is small (9px) → darkened foregrounds to clear WCAG AA (4.5:1) on the
+   soft tints. Dark-mode overrides below lighten them for the translucent tints. */
 .wa-kit-tag--ok {
-  color: var(--wa-success);
+  color: #2e7d32;
   background: #eef7ef;
 }
 .wa-kit-tag--warn {
-  color: var(--wa-gold);
+  color: #7a5e29;
   background: var(--wa-gold-soft);
 }
 .wa-kit-tag--alert {
@@ -86,13 +88,19 @@
   background: var(--wa-accent-soft);
 }
 .wa-kit-tag--info {
-  color: var(--wa-info);
+  color: #1f5a87;
   background: var(--wa-info-soft);
 }
 .wa-kit-tag--muted {
-  color: var(--wa-muted);
+  color: #525252;
   background: var(--wa-border);
 }
+/* Dark mode: lighten tag text so it stays ≥4.5:1 on the translucent-dark tints. */
+html.dark .wa-kit-tag--ok, [data-theme='dark'] .wa-kit-tag--ok { color: #74c878; background: rgba(74, 155, 79, 0.18); }
+html.dark .wa-kit-tag--warn, [data-theme='dark'] .wa-kit-tag--warn { color: #d8b25e; }
+html.dark .wa-kit-tag--alert, [data-theme='dark'] .wa-kit-tag--alert { color: #e58aa1; }
+html.dark .wa-kit-tag--info, [data-theme='dark'] .wa-kit-tag--info { color: #74b3e3; }
+html.dark .wa-kit-tag--muted, [data-theme='dark'] .wa-kit-tag--muted { color: #c8c8c8; background: rgba(255, 255, 255, 0.08); }
 
 .wa-kit-bar-track {
   height: 8px;

@@ -21,6 +21,7 @@ import {
 } from '@/lib/employer/jobPostingApplicationStatus';
 import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
 import { getTranslations } from 'next-intl/server';
+import { Mic, Zap, SquarePen, MessageSquare } from 'lucide-react';
 import {
   DesignSurface,
   KpiStrip,
@@ -224,7 +225,7 @@ export default async function EmployerDashboardPage({
               flexShrink: 0,
             }}
           >
-            🎤
+            <Mic className="h-8 w-8" aria-hidden />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px' }}>
@@ -282,7 +283,7 @@ export default async function EmployerDashboardPage({
                 flexShrink: 0,
               }}
             >
-              ⚡
+              <Zap className="h-5 w-5" aria-hidden />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 15 }}>Review 1 candidate now</div>
@@ -301,13 +302,13 @@ export default async function EmployerDashboardPage({
           className="wa-mt-5 wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4"
         >
           <FeatureTile
-            icon="📝"
+            icon={<SquarePen size={22} aria-hidden />}
             title="Post a role"
             body="Hire from the WorkforceAP pipeline."
             href="/employer/jobs/new"
           />
           <FeatureTile
-            icon="💬"
+            icon={<MessageSquare size={22} aria-hidden />}
             title="Messages"
             body="Pending replies from candidates."
             tone="gold"

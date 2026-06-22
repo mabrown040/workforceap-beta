@@ -8,6 +8,7 @@ import {
   type MutableRefObject,
   type UIEvent,
 } from 'react';
+import { Check, X, AlertTriangle } from 'lucide-react';
 import type { BaseSessionConfig, Conversation } from '@elevenlabs/client';
 
 type VoiceDisconnectDetails = {
@@ -798,7 +799,7 @@ export default function PortalVoiceSession({
               fontWeight: 600,
             }}
           >
-            <span style={{ color: 'var(--color-accent)', marginRight: '0.5rem' }}>⚠</span>
+            <AlertTriangle size={15} aria-hidden="true" style={{ color: 'var(--color-accent)', marginRight: '0.5rem', verticalAlign: '-2px', display: 'inline-block' }} />
             {voiceError}
           </div>
         ) : null}
@@ -1165,9 +1166,13 @@ export default function PortalVoiceSession({
                       fontWeight: 600,
                       fontSize: '0.82rem',
                       cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
                     }}
                   >
-                    ✓ Approve
+                    <Check size={14} aria-hidden="true" />
+                    Approve
                   </button>
                   <button
                     type="button"
@@ -1181,9 +1186,13 @@ export default function PortalVoiceSession({
                       fontWeight: 600,
                       fontSize: '0.82rem',
                       cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
                     }}
                   >
-                    ✗ Deny
+                    <X size={14} aria-hidden="true" />
+                    Deny
                   </button>
                 </div>
               </div>

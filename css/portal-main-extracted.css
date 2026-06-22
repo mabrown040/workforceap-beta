@@ -1734,8 +1734,11 @@ html:not(.dark) .workspace-sidebar.open::before {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    /* Touch target ≥44×44 (was 32×32). */
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     padding: 0;
     border: 1px solid var(--color-gray-300);
     border-radius: var(--radius-sm);
@@ -1743,6 +1746,7 @@ html:not(.dark) .workspace-sidebar.open::before {
     color: var(--color-primary);
     cursor: pointer;
     flex-shrink: 0;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
 .workspace-sidebar-collapse-btn:hover {
     background: var(--color-gray-100);
@@ -1786,7 +1790,7 @@ html.dark .workspace-sidebar-group-label {
     text-decoration: none;
     min-width: 0;
     border: 1px solid transparent;
-    transition: all 0.14s ease;
+    transition: all 0.15s ease;
 }
 .workspace-sidebar-icon {
     display: flex;
@@ -1931,9 +1935,13 @@ html.dark .workspace-sidebar-group-label {
 .workspace-sidebar-link:focus-visible,
 .workspace-sidebar-collapse-btn:focus-visible,
 .workspace-sidebar-home-link:focus-visible,
-.workspace-sidebar-signout:focus-visible {
+.workspace-sidebar-signout:focus-visible,
+.workspace-shell-brand:focus-visible,
+.workspace-shell-public-site-link:focus-visible,
+.workspace-shell-header__meta .portal-icon-btn:focus-visible {
     outline: 2px solid color-mix(in srgb, var(--color-accent) 72%, white 28%);
     outline-offset: 2px;
+    border-radius: var(--radius-sm);
 }
 .workspace-sidebar-footer {
     margin-top: 1.5rem;
@@ -9399,7 +9407,9 @@ html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link.
 }
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-group-label,
 html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-label {
-  color: #6b6b6b !important;
+  /* Contrast fix: #6b6b6b on #161616 was ~3.4:1 (fails WCAG AA). #9a9a9a on
+     #161616 is ~5.7:1 — passes 4.5:1 while keeping the muted "label" feel. */
+  color: #9a9a9a !important;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-weight: 700;
@@ -9519,9 +9529,25 @@ html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn:hover 
   background: #262626 !important;
 }
 html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn .material-symbols-outlined {
-  color: #6b6b6b;
+  /* Contrast fix: #6b6b6b on #222 was ~3.0:1; #9a9a9a is ~5.7:1 (passes AA). */
+  color: #9a9a9a;
+}
+/* Focus ring for the in-rail search trigger on the dark command rail. The
+   accent-mix ring reads clearly on #161616/#222. */
+html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--wa-accent, #ad2c4d) 60%, white 40%);
+  outline-offset: 2px;
 }
 /* Collapsed desktop rail: center the brand mark, hide search. */
 html[data-portal-role='admin'] .workspace-sidebar--collapsed .workspace-sidebar-brand {
   justify-content: center;
+}
+
+/* ── Global search dialog focus state ──
+   The search field sits inside a modal dialog and is auto-focused on open.
+   Its container already shows a border, so a subtle inset ring on the field
+   gives keyboard users a visible focus indicator without a doubled outline. */
+.global-search-input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 -2px 0 0 var(--color-accent, #ad2c4d);
 }

@@ -97,7 +97,7 @@ function EmployerTile({ card, index }: { card: EmployerCard; index: number }) {
             flexShrink: 0,
           }}
         >
-          <Building2 className="h-5 w-5" />
+          <Building2 className="h-5 w-5" aria-hidden />
         </div>
         <StatusTag tone={tag.tone}>{tag.label}</StatusTag>
       </div>
@@ -185,7 +185,7 @@ export function EmployersDirectoryKit({
               color: '#fff',
             }}
           >
-            <Plus className="h-4 w-4" /> Add Employer
+            <Plus className="h-4 w-4" aria-hidden /> Add Employer
           </a>
         }
       />
@@ -205,7 +205,7 @@ export function EmployersDirectoryKit({
           className="wa-kit-card"
           style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--wa-muted)' }}
         >
-          <Building2 className="h-6 w-6" style={{ margin: '0 auto 10px', opacity: 0.5 }} />
+          <Building2 className="h-6 w-6" aria-hidden style={{ margin: '0 auto 10px', opacity: 0.5 }} />
           <p style={{ fontWeight: 700, color: 'var(--wa-text)', margin: 0 }}>No employers yet</p>
           <p style={{ fontSize: 12, margin: '4px 0 0' }}>
             Add your first hiring partner to start tracking open roles and hires.

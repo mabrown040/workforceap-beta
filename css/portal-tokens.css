@@ -28,6 +28,7 @@
   /* — neutrals — */
   --wa-bg: #f7f8fa;
   --wa-surface: #ffffff;
+  --wa-surface-2: #f4f4f5; /* subtle raised fill (icon tiles, chips) */
   --wa-text: #1a1a1a;
   --wa-muted: #737373;
   --wa-border: #e8e8e8;
@@ -71,6 +72,7 @@ html.dark,
 [data-theme='dark'] {
   --wa-bg: #0f1115;
   --wa-surface: #1a1b1f;
+  --wa-surface-2: #26272c; /* raised fill on dark (icon tiles, chips) */
   --wa-text: #f4f4f5;
   --wa-muted: #a1a1aa;
   --wa-border: #2c2d33;

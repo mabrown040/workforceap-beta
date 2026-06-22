@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db/prisma';
 import { RETENTION_TABLES, getCutoffDate } from '@/lib/retention/config';
 import PageHeader from '@/components/portal/PageHeader';
 import DataRetentionClient from '@/components/admin/DataRetentionClient';
+import { DataRetentionKit } from '@/components/portal/kit/pages/admin-subviews/DataRetentionKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -78,12 +79,19 @@ async function fetchPolicies() {
   return results;
 }
 
-export default async function AdminDataRetentionPage() {
+export default async function AdminDataRetentionPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/data-retention');
 
   const superAdmin = await isSuperAdmin(user.id);
   if (!superAdmin) redirect('/admin');
+
+  const params = (await searchParams) ?? {};
+  const requestedUi = typeof params.ui === 'string' ? params.ui : null;
 
   const [storage, policies, recentRuns] = await Promise.all([
     fetchStorageStats(),
@@ -95,19 +103,42 @@ export default async function AdminDataRetentionPage() {
     }),
   ]);
 
-  return (
-    <div>
-      <PageHeader
-        title="Data Retention"
-        subtitle="Policies, storage usage, and compliance cleanup."
-      />
-      <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
-        <DataRetentionClient
-          storage={storage}
-          policies={policies}
-          recentRuns={recentRuns}
+  // ---------------------------------------------------------------------------
+  // LEGACY: the full interactive view incl. the "Run Cleanup Now" purge action.
+  // Kept verbatim behind ?ui=legacy as the escape hatch — purge logic untouched.
+  // ---------------------------------------------------------------------------
+  if (requestedUi === 'legacy') {
+    return (
+      <div>
+        <PageHeader
+          title="Data Retention"
+          subtitle="Policies, storage usage, and compliance cleanup."
         />
+        <div style={{ maxWidth: '80rem', margin: '0 auto' }}>
+          <DataRetentionClient
+            storage={storage}
+            policies={policies}
+            recentRuns={recentRuns}
+          />
+        </div>
       </div>
-    </div>
+    );
+  }
+
+  // DEFAULT: read-only dense kit treatment.
+  return (
+    <DataRetentionKit
+      storage={storage}
+      policies={policies}
+      recentRuns={recentRuns.map((r) => ({
+        id: r.id,
+        jobName: r.jobName,
+        status: r.status,
+        startedAt: r.startedAt.toISOString(),
+        completedAt: r.completedAt ? r.completedAt.toISOString() : null,
+        recordsProcessed: r.recordsProcessed,
+        errorMessage: r.errorMessage,
+      }))}
+    />
   );
 }

@@ -7,6 +7,12 @@ import { prisma } from '@/lib/db/prisma';
 import { CRON_REGISTRY, CRON_CATEGORY_COLOR } from '@/lib/admin/cronRegistry';
 import PageHeader from '@/components/portal/PageHeader';
 import EmailCronsClient from '@/components/admin/EmailCronsClient';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  EmailCronsKit,
+  type EmailCronRow,
+  type EmailCronDisplayStatus,
+} from '@/components/portal/kit/pages/admin-subviews/EmailCronsKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -16,10 +22,30 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function AdminEmailCronsPage() {
+/** Relative last-run caption: "just now", "5m ago", "3h ago", "2d ago", "—". */
+function timeAgo(iso: string | null): string {
+  if (!iso) return '—';
+  const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 0) return 'just now';
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+export default async function AdminEmailCronsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/email-crons');
   try { await requireAdmin(user.id); } catch { redirect('/dashboard'); }
+
+  const { ui } = await searchParams;
 
   // Load last run for each cron from WorkflowDiagnostic
   const cronKeys = CRON_REGISTRY.map(c => c.workflowKey);
@@ -77,6 +103,49 @@ export default async function AdminEmailCronsPage() {
   const enabledCount = cronData.filter(c => c.enabled).length;
 
   const cronSecretMissing = !process.env.CRON_SECRET || process.env.CRON_SECRET.length < 16;
+
+  // Design-kit default: dense roster, one row per registered cron.
+  if (ui !== 'legacy') {
+    const STATUS_MAP: Record<string, EmailCronDisplayStatus> = {
+      ok: 'Success',
+      success: 'Success',
+      error: 'Retrying',
+      errored: 'Retrying',
+    };
+
+    const rows: EmailCronRow[] = cronData.map((c) => {
+      let status: EmailCronDisplayStatus;
+      if (!c.enabled) status = 'Disabled';
+      else if (!c.lastRunStatus) status = 'Pending';
+      else status = STATUS_MAP[c.lastRunStatus] ?? 'Pending';
+      return {
+        id: c.id,
+        job: c.name,
+        schedule: c.scheduleLabel,
+        lastRun: timeAgo(c.lastRunAt),
+        status,
+      };
+    });
+
+    const failing = rows.filter((r) => r.status === 'Retrying').length;
+    const lastRunIso = cronData
+      .map((c) => c.lastRunAt)
+      .filter((d): d is string => Boolean(d))
+      .sort()
+      .at(-1) ?? null;
+
+    return (
+      <DesignSurface surface="dense">
+        <EmailCronsKit
+          jobs={rows}
+          totalJobs={cronData.length}
+          enabled={enabledCount}
+          failing={failing}
+          lastRun={timeAgo(lastRunIso)}
+        />
+      </DesignSurface>
+    );
+  }
 
   return (
     <div>

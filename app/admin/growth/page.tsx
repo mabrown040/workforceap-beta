@@ -31,6 +31,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { CONVERSION_VALUE_USD } from '@/lib/analytics/conversionValue';
+import { GrowthKit } from '@/components/portal/kit/pages/admin-subviews/GrowthKit';
+import type { KpiItem, RankDatum } from '@/components/portal/kit';
 
 export const dynamic = 'force-dynamic';
 
@@ -130,7 +132,11 @@ async function loadLoginCountLast24h(orgId: string): Promise<number> {
   });
 }
 
-export default async function AdminGrowthPage() {
+export default async function AdminGrowthPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/growth');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
@@ -145,7 +151,69 @@ export default async function AdminGrowthPage() {
   );
 
   const totalSignups7d = utmRows.reduce((acc, r) => acc + r.count, 0);
+  const sp = await searchParams;
+  const requestedUi = typeof sp.ui === 'string' ? sp.ui : null;
 
+  // ── DEFAULT (design-kit) PATH — dense Growth view with real data. Runs
+  // after the auth/role guard so access control is preserved. Empty data
+  // degrades to KPI zeros + empty RankBars/DataTable states. ──
+  if (requestedUi !== 'legacy') {
+    const totalApplyEvents24h = applyBreakdown.reduce((acc, r) => acc + r.count, 0);
+
+    // Signups by UTM source (7d), aggregated across medium/campaign.
+    const bySourceCount = new Map<string, number>();
+    for (const r of utmRows) {
+      bySourceCount.set(r.source, (bySourceCount.get(r.source) ?? 0) + r.count);
+    }
+    const rankedSources = [...bySourceCount.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6);
+    const sourceMax = Math.max(1, ...rankedSources.map(([, c]) => c));
+    const signupsBySource: RankDatum[] = rankedSources.map(([source, count]) => ({
+      label: source,
+      value: count,
+      pct: Math.round((count / sourceMax) * 100),
+      color: 'success',
+    }));
+
+    const kpis: KpiItem[] = [
+      { label: 'Signups (7d)', value: totalSignups7d.toLocaleString('en-US'), color: 'success' },
+      { label: 'Apply Events (24h)', value: totalApplyEvents24h.toLocaleString('en-US'), color: 'accent' },
+      { label: 'Logins (24h)', value: loginCount24h.toLocaleString('en-US'), color: 'info' },
+      { label: 'UTM Sources (7d)', value: bySourceCount.size.toLocaleString('en-US'), color: 'gold' },
+    ];
+
+    return (
+      <GrowthKit
+        kpis={kpis}
+        signupsBySource={signupsBySource.length > 0 ? signupsBySource : undefined}
+        utmRows={utmRows.map((r) => ({
+          source: r.source,
+          medium: r.medium,
+          campaign: r.campaign,
+          count: r.count,
+          latest: `${r.latest.toISOString().replace('T', ' ').slice(0, 16)} UTC`,
+        }))}
+        applyEvents={applyBreakdown.map((r) => ({ eventName: r.eventName, count: r.count }))}
+        conversionValues={Object.entries(CONVERSION_VALUE_USD).map(([name, value]) => ({
+          name,
+          valueUsd: Number(value),
+        }))}
+        headerAction={
+          <Link
+            href={GA4_FUNNEL_DASHBOARD_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-outline btn-sm"
+          >
+            Open GA4 dashboard
+          </Link>
+        }
+      />
+    );
+  }
+
+  // ── LEGACY PATH (?ui=legacy) — original PortalCard-based dashboard. ──
   const sectionGap: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',

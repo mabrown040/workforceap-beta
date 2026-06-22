@@ -19,7 +19,7 @@ export interface DiagnosticTile {
   name: string;
   /** Which built-in icon to render (kept as a string so no component ref
    *  crosses a server→client boundary). */
-  icon: 'app' | 'database' | 'email' | 'integrations';
+  iconKey: 'app' | 'database' | 'email' | 'integrations';
   /** Short human status, e.g. "Healthy", "Degraded", "—". */
   status: string;
   /** Semantic tone driving the tile color. */
@@ -34,7 +34,7 @@ export interface DiagnosticsKitProps {
   noteCaption?: string;
 }
 
-const ICONS: Record<DiagnosticTile['icon'], ReactNode> = {
+const ICONS: Record<DiagnosticTile['iconKey'], ReactNode> = {
   app: <Activity size={18} aria-hidden />,
   database: <Database size={18} aria-hidden />,
   email: <Mail size={18} aria-hidden />,
@@ -85,7 +85,7 @@ export function DiagnosticsKit({ tiles, note, noteCaption }: DiagnosticsKitProps
                   color: swatch.fg,
                 }}
               >
-                {ICONS[tile.icon]}
+                {ICONS[tile.iconKey]}
               </div>
               <div style={{ minWidth: 0 }}>
                 <div

@@ -149,21 +149,21 @@ const WARN_STATUSES = ['warn', 'fallback', 'fallback_used'];
  */
 function deriveSubsystemTile(
   name: string,
-  icon: DiagnosticTile['icon'],
+  iconKey: DiagnosticTile['iconKey'],
   rows: { status: string }[],
 ): DiagnosticTile {
   if (rows.length === 0) {
-    return { name, icon, status: 'No recent activity', tone: 'muted' };
+    return { name, iconKey, status: 'No recent activity', tone: 'muted' };
   }
   const errors = rows.filter((r) => ERROR_STATUSES.includes(r.status)).length;
   const warns = rows.filter((r) => WARN_STATUSES.includes(r.status)).length;
   if (errors > 0) {
-    return { name, icon, status: `Degraded · ${errors} error${errors === 1 ? '' : 's'}`, tone: 'alert' };
+    return { name, iconKey, status: `Degraded · ${errors} error${errors === 1 ? '' : 's'}`, tone: 'alert' };
   }
   if (warns > 0) {
-    return { name, icon, status: `Fallbacks · ${warns}`, tone: 'warn' };
+    return { name, iconKey, status: `Fallbacks · ${warns}`, tone: 'warn' };
   }
-  return { name, icon, status: 'Healthy', tone: 'ok' };
+  return { name, iconKey, status: 'Healthy', tone: 'ok' };
 }
 
 export default async function AdminDiagnosticsPage({
@@ -466,10 +466,10 @@ export default async function AdminDiagnosticsPage({
   const tiles: DiagnosticTile[] = [
     // App: this request reached the server and authorized an admin, so the app
     // tier is provably serving.
-    { name: 'App', icon: 'app', status: 'Operational', tone: 'ok' },
+    { name: 'App', iconKey: 'app', status: 'Operational', tone: 'ok' },
     dbOk
-      ? { name: 'Database', icon: 'database', status: 'Healthy', tone: 'ok' }
-      : { name: 'Database', icon: 'database', status: 'Unreachable', tone: 'alert' },
+      ? { name: 'Database', iconKey: 'database', status: 'Healthy', tone: 'ok' }
+      : { name: 'Database', iconKey: 'database', status: 'Unreachable', tone: 'alert' },
     deriveSubsystemTile('Email Queue', 'email', emailRows),
     deriveSubsystemTile('Integrations', 'integrations', integrationRows),
   ];

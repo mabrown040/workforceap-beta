@@ -29,7 +29,7 @@ export interface ExportOption {
   /** Real route the card links to (API download endpoint or legacy view). */
   href: string;
   /** Which file icon to show. */
-  icon?: 'csv' | 'xlsx' | 'roster' | 'filters' | 'download';
+  iconKey?: 'csv' | 'xlsx' | 'roster' | 'filters' | 'download';
   /** Tile tint. */
   tone?: ExportTone;
   /** Optional short status pill (e.g. "PII gated"). */
@@ -51,7 +51,7 @@ const DEFAULT_EXPORTS: ExportOption[] = [
     title: 'Placement outcomes (CSV)',
     description: 'Board-ready · YTD',
     href: '/admin/exports?ui=legacy',
-    icon: 'csv',
+    iconKey: 'csv',
     tone: 'success',
   },
   {
@@ -59,7 +59,7 @@ const DEFAULT_EXPORTS: ExportOption[] = [
     title: 'WIOA compliance (XLSX)',
     description: 'Funder report · this quarter',
     href: '/admin/exports?ui=legacy',
-    icon: 'xlsx',
+    iconKey: 'xlsx',
     tone: 'muted',
   },
   {
@@ -67,7 +67,7 @@ const DEFAULT_EXPORTS: ExportOption[] = [
     title: 'Full member roster',
     description: '847 records · PII gated',
     href: '/admin/exports?ui=legacy',
-    icon: 'roster',
+    iconKey: 'roster',
     tone: 'info',
     badge: 'PII gated',
     badgeTone: 'warn',
@@ -82,7 +82,7 @@ const TONE_TINT: Record<ExportTone, { bg: string; fg: string }> = {
   muted: { bg: 'var(--wa-surface-2, #f4f4f5)', fg: 'var(--wa-text)' },
 };
 
-function exportIcon(kind: ExportOption['icon']): ReactNode {
+function exportIcon(kind: ExportOption['iconKey']): ReactNode {
   switch (kind) {
     case 'csv':
       return <FileSpreadsheet className="h-5 w-5" />;
@@ -127,7 +127,7 @@ function ExportTile({ option }: { option: ExportOption }) {
             flexShrink: 0,
           }}
         >
-          {exportIcon(option.icon)}
+          {exportIcon(option.iconKey)}
         </div>
         {option.badge ? <StatusTag tone={option.badgeTone ?? 'muted'}>{option.badge}</StatusTag> : null}
       </div>

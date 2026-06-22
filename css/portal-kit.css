@@ -87,7 +87,7 @@
 }
 .wa-kit-tag--info {
   color: var(--wa-info);
-  background: #eef5fb;
+  background: var(--wa-info-soft);
 }
 .wa-kit-tag--muted {
   color: var(--wa-muted);

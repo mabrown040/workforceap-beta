@@ -16,7 +16,7 @@ interface QueueRowProps {
 const TONE: Record<QueueTone, { c: string; bg: string }> = {
   red: { c: 'var(--wa-accent)', bg: 'var(--wa-accent-soft)' },
   yellow: { c: 'var(--wa-gold)', bg: 'var(--wa-gold-soft)' },
-  blue: { c: 'var(--wa-info)', bg: '#eef5fb' },
+  blue: { c: 'var(--wa-info)', bg: 'var(--wa-info-soft)' },
 };
 
 /**

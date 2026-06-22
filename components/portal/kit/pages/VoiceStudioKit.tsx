@@ -429,8 +429,8 @@ function CoachCardView({ card, onClick }: { card: CoachCard; onClick?: () => voi
       break;
     case 'counselor':
       cardStyle = { background: 'var(--wa-surface)', border: '1px solid var(--wa-border)', color: 'var(--wa-text)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' };
-      iconChip = { background: '#eef5fb', color: 'var(--wa-info)', border: '1px solid #d6e6f3' };
-      badgeStyle = { background: '#eef5fb', color: 'var(--wa-info)' };
+      iconChip = { background: 'var(--wa-info-soft)', color: 'var(--wa-info)', border: '1px solid #d6e6f3' };
+      badgeStyle = { background: 'var(--wa-info-soft)', color: 'var(--wa-info)' };
       bodyColor = 'var(--wa-muted)';
       ctaColor = 'var(--wa-info)';
       break;
@@ -1241,7 +1241,7 @@ function ToolCardView({ tool }: { tool: ToolCard }) {
     accent === 'gold'
       ? { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' }
       : accent === 'blue'
-        ? { background: '#eef5fb', color: 'var(--wa-info)' }
+        ? { background: 'var(--wa-info-soft)', color: 'var(--wa-info)' }
         : { background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' };
   const cardBorder = accent === 'gold' ? '#ece2c8' : 'var(--wa-border)';
   const tagStyle =

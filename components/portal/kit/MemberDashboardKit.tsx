@@ -93,7 +93,7 @@ export function MemberDashboardKit({
           {jobSearchUrl ? (
             <div className="wa-kit-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ width: 44, height: 44, borderRadius: 'var(--wa-radius-sm)', background: '#eef5fb', color: 'var(--wa-info)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Briefcase size={20} /></div>
+                <div style={{ width: 44, height: 44, borderRadius: 'var(--wa-radius-sm)', background: 'var(--wa-info-soft)', color: 'var(--wa-info)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Briefcase size={20} /></div>
                 <h3 style={{ fontWeight: 800, fontSize: 17, marginTop: 14, letterSpacing: '-.02em' }}>Find Jobs</h3>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>Roles matched to your program.</p>
               </div>

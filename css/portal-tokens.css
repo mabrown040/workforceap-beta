@@ -22,6 +22,7 @@
   --wa-gold: #a47f38;
   --wa-gold-soft: #fef3c7;
   --wa-info: #2b7bb9;
+  --wa-info-soft: #eef5fb;
   --wa-success: #4a9b4f;
 
   /* — neutrals — */
@@ -76,6 +77,7 @@ html.dark,
   /* brand soft-tints become translucent so they sit on dark surfaces */
   --wa-accent-soft: rgba(173, 44, 77, 0.18);
   --wa-gold-soft: rgba(164, 127, 56, 0.20);
+  --wa-info-soft: rgba(43, 123, 185, 0.18);
   --wa-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   --wa-shadow-lg: 0 14px 28px rgba(0, 0, 0, 0.6);
 }

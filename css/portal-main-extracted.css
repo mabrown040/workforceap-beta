@@ -9380,3 +9380,21 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
     color: inherit !important;
   }
 }
+
+/* STAFF DARK RAIL — fix inner group cards (were light surface-container-low,
+ * unreadable on the #161616 rail). Make them faint translucent-dark cards. */
+@media (min-width: 1024px) {
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-group {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-toolbar,
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-inner {
+    background: transparent !important;
+  }
+  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-collapse-btn {
+    color: #d4d4d4 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
+}

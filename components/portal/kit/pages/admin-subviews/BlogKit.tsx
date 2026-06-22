@@ -1,6 +1,7 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Plus, Sparkles } from 'lucide-react';
 import {
   DesignSurface,
   SectionHeader,
@@ -62,6 +63,7 @@ const STATUS_TONE: Record<BlogDisplayStatus, KitTone> = {
 };
 
 export function BlogKit({ posts = DEFAULT_POSTS }: BlogKitProps) {
+  const router = useRouter();
   const columns: Column<BlogRow>[] = [
     {
       key: 'title',
@@ -100,24 +102,44 @@ export function BlogKit({ posts = DEFAULT_POSTS }: BlogKitProps) {
         kicker="Content"
         goal="Marketing & resource posts"
         action={
-          <a
-            href="/admin/blog/new"
-            className="wa-kit-focus"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              background: 'var(--wa-accent)',
-              color: '#fff',
-            }}
-          >
-            <Plus className="h-4 w-4" /> New Post
-          </a>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <a
+              href="/admin/blog/ai"
+              className="wa-kit-focus"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '8px 16px',
+                borderRadius: 999,
+                fontSize: 13,
+                fontWeight: 700,
+                textDecoration: 'none',
+                color: 'var(--wa-text)',
+                border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+              }}
+            >
+              <Sparkles className="h-4 w-4" /> AI Assistant
+            </a>
+            <a
+              href="/admin/blog/new"
+              className="wa-kit-focus"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '8px 16px',
+                borderRadius: 999,
+                fontSize: 13,
+                fontWeight: 700,
+                textDecoration: 'none',
+                background: 'var(--wa-accent)',
+                color: '#fff',
+              }}
+            >
+              <Plus className="h-4 w-4" /> New Post
+            </a>
+          </div>
         }
       />
 
@@ -125,6 +147,7 @@ export function BlogKit({ posts = DEFAULT_POSTS }: BlogKitProps) {
         columns={columns}
         rows={posts}
         rowKey={(row) => row.id}
+        onRowClick={(row) => router.push(`/admin/blog/${row.id}/edit`)}
         minWidth={720}
         mobile="cards"
         cardRender={(row) => (

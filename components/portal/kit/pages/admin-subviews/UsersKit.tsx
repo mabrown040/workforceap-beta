@@ -51,6 +51,19 @@ const addUserStyle: CSSProperties = {
   textDecoration: 'none',
 };
 
+const manageUsersStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '8px 16px',
+  borderRadius: 8,
+  color: 'var(--wa-text)',
+  fontWeight: 700,
+  fontSize: 13,
+  textDecoration: 'none',
+  border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+};
+
 export function UsersKit({ users, total }: UsersKitProps) {
   const UserCell = ({ row }: { row: UserRow }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
@@ -114,9 +127,14 @@ export function UsersKit({ users, total }: UsersKitProps) {
         kicker="People"
         goal="Staff accounts & roles"
         action={
-          <Link href="/admin/invites/new" style={addUserStyle} className="wa-kit-focus">
-            <Plus className="h-4 w-4" aria-hidden /> Add User
-          </Link>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <Link href="/admin/users?ui=legacy" style={manageUsersStyle} className="wa-kit-focus">
+              Manage
+            </Link>
+            <Link href="/admin/invites/new" style={addUserStyle} className="wa-kit-focus">
+              <Plus className="h-4 w-4" aria-hidden /> Add User
+            </Link>
+          </div>
         }
       />
 

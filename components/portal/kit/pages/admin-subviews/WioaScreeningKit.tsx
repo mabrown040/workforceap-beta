@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   DesignSurface,
   SectionHeader,
@@ -128,6 +129,31 @@ export function WioaScreeningKit({
       header: 'Reviewer',
       render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.reviewer}</span>,
     },
+    {
+      key: 'open',
+      header: '',
+      align: 'right',
+      render: (row) => (
+        <Link
+          href={`/admin/members/${row.id}`}
+          className="wa-kit-focus"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            padding: '6px 14px',
+            borderRadius: 999,
+            fontSize: 12,
+            fontWeight: 700,
+            textDecoration: 'none',
+            color: 'var(--wa-text)',
+            border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Open
+        </Link>
+      ),
+    },
   ];
 
   return (
@@ -136,6 +162,26 @@ export function WioaScreeningKit({
         title="Funding eligibility"
         kicker="Compliance"
         goal="WIOA screening & compliance"
+        action={
+          <a
+            href="/admin/wioa-screening?ui=legacy"
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              color: 'var(--wa-text)',
+              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+            }}
+          >
+            Review queue
+          </a>
+        }
       />
 
       <div className="wa-mb-5">
@@ -161,10 +207,28 @@ export function WioaScreeningKit({
               <div style={{ minWidth: 0, flex: 1 }}>
                 <StudentCell row={row} />
               </div>
-              <div style={{ flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                 <StatusTag tone={DETERMINATION_TONE[row.determination]}>
                   {row.determination}
                 </StatusTag>
+                <Link
+                  href={`/admin/members/${row.id}`}
+                  className="wa-kit-focus"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    padding: '6px 12px',
+                    borderRadius: 999,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    color: 'var(--wa-text)',
+                    border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Open
+                </Link>
               </div>
             </div>
             <div

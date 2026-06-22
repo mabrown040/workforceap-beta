@@ -148,14 +148,25 @@ export default async function AdminInvitesPage({
   }));
 
   const action = (
-    <Link
-      href="/admin/invites/new"
-      className="btn btn-primary"
-      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-    >
-      <Send size={16} />
-      Send Invites
-    </Link>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+      {/* Manage = the legacy table with per-row resend/revoke controls, which the
+          read-only kit table doesn't carry. Keep them reachable. */}
+      <Link
+        href="/admin/invites?ui=legacy"
+        className="btn btn-outline"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+      >
+        Manage
+      </Link>
+      <Link
+        href="/admin/invites/new"
+        className="btn btn-primary"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+      >
+        <Send size={16} />
+        Send Invites
+      </Link>
+    </div>
   );
 
   return (

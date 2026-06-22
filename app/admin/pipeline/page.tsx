@@ -147,6 +147,26 @@ export default async function PipelinePage({
       funnel={hasAny ? bars : []}
       funnelTitle="Funnel"
       funnelSubtitle="last 90 days"
+      headerAction={
+        <a
+          href="/admin/pipeline?ui=legacy"
+          className="wa-kit-focus"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '8px 16px',
+            borderRadius: 999,
+            fontSize: 13,
+            fontWeight: 700,
+            textDecoration: 'none',
+            color: 'var(--wa-text)',
+            border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+          }}
+        >
+          Stale applications
+        </a>
+      }
     />
   );
 }

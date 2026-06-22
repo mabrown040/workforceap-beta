@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import {
   DesignSurface,
@@ -93,6 +94,7 @@ export function JobsBoardKit({
   openRoles = 127,
   employers = 48,
 }: JobsBoardKitProps) {
+  const router = useRouter();
   const subtitle = `${openRoles.toLocaleString()} open ${
     openRoles === 1 ? 'role' : 'roles'
   } across ${employers.toLocaleString()} ${employers === 1 ? 'employer' : 'employers'}`;
@@ -169,6 +171,7 @@ export function JobsBoardKit({
         columns={columns}
         rows={jobs}
         rowKey={(row) => row.id}
+        onRowClick={(row) => router.push(`/admin/jobs/${row.id}`)}
         minWidth={760}
         mobile="cards"
         cardRender={(row) => (

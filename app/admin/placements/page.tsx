@@ -147,6 +147,7 @@ export default async function AdminPlacementsPage({
 
   const rows: PlacementRow[] = placements.map((p) => ({
     id: p.id,
+    memberId: p.user?.id ?? null,
     student: p.user?.fullName?.trim() || p.user?.email || 'Unknown member',
     employer: p.employerName || '—',
     role: p.jobTitle || '—',

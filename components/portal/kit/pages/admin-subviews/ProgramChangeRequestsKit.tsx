@@ -117,7 +117,31 @@ export function ProgramChangeRequestsKit({
 
   return (
     <DesignSurface surface="dense" className="wa-p-6">
-      <SectionHeader title="Program change requests" kicker="Enrollment" goal={subtitle} />
+      <SectionHeader
+        title="Program change requests"
+        kicker="Enrollment"
+        goal={subtitle}
+        action={
+          <a
+            href="/admin/program-change-requests?ui=legacy"
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              color: 'var(--wa-text)',
+              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+            }}
+          >
+            Review &amp; decide
+          </a>
+        }
+      />
 
       <DataTable<ProgramChangeRow>
         columns={columns}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   DesignSurface,
   SectionHeader,
@@ -135,6 +136,7 @@ export function StudentsRosterKit({
   students = DEFAULT_STUDENTS,
   total = 847,
 }: StudentsRosterKitProps) {
+  const router = useRouter();
   const [active, setActive] = useState<StudentFilter>('All');
 
   const counts: Record<StudentFilter, number> = {
@@ -274,6 +276,7 @@ export function StudentsRosterKit({
         columns={columns}
         rows={visible}
         rowKey={(row) => row.id}
+        onRowClick={(row) => router.push(`/admin/members/${row.id}`)}
         minWidth={760}
         mobile="cards"
         cardRender={(row) => (

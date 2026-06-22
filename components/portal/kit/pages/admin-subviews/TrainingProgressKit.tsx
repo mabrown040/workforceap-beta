@@ -139,6 +139,26 @@ export function TrainingProgressKit({
         title="Training progress"
         kicker="Programs"
         goal="Live B4B + LMS progress across all members"
+        action={
+          <a
+            href="/admin/training-progress?ui=legacy"
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              color: 'var(--wa-text)',
+              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+            }}
+          >
+            Detailed view
+          </a>
+        }
       />
 
       <div className="wa-mb-5">

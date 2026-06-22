@@ -85,6 +85,26 @@ export function AiEfficacyKit({
         title="AI Efficacy"
         kicker="Analytics"
         goal="Does AI tool use correlate with outcomes?"
+        action={
+          <a
+            href="/admin/analytics/ai-efficacy?ui=legacy"
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              color: 'var(--wa-text)',
+              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+            }}
+          >
+            Filter &amp; export
+          </a>
+        }
       />
 
       <div className="wa-mb-5">

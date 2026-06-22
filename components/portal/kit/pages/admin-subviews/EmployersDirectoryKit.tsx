@@ -73,7 +73,7 @@ function EmployerTile({ card, index }: { card: EmployerCard; index: number }) {
   const tag = STATUS_TAG[card.status];
   return (
     <a
-      href={`/admin/employers?ui=legacy#${card.id}`}
+      href={`/admin/employers/${card.id}`}
       className="wa-kit-card wa-kit-card--hover wa-kit-focus"
       style={{
         display: 'flex',

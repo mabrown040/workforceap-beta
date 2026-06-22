@@ -163,6 +163,26 @@ export function CareerMappingsKit({
         title="Career paths"
         kicker="Matching"
         goal="Program → role mappings that power matching"
+        action={
+          <a
+            href="/admin/career-mappings?ui=legacy"
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              color: 'var(--wa-text)',
+              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+            }}
+          >
+            Edit mappings
+          </a>
+        }
       />
 
       <div className="wa-mb-5">

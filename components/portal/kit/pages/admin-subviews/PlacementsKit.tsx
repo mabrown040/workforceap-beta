@@ -1,3 +1,6 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
 import {
   DesignSurface,
   SectionHeader,
@@ -30,6 +33,12 @@ export type ConfirmStatus = 'Pending' | 'Confirmed';
 
 export interface PlacementRow {
   id: string;
+  /**
+   * Member (User) id for this placement — used to drill into the member's
+   * detail page on row click (parity with the legacy table's "Member" link).
+   * Null when the placement has no linked user.
+   */
+  memberId?: string | null;
   /** Student / member display name. */
   student: string;
   employer: string;
@@ -75,6 +84,8 @@ export function PlacementsKit({
   toConfirm,
   total,
 }: PlacementsKitProps) {
+  const router = useRouter();
+
   const kpis: KpiItem[] = [
     { label: 'YTD', value: ytd, color: 'success' },
     { label: 'Avg Wage', value: avgWage },
@@ -169,6 +180,9 @@ export function PlacementsKit({
         rows={placements}
         rowKey={(row) => row.id}
         minWidth={720}
+        onRowClick={(row) => {
+          if (row.memberId) router.push(`/admin/members/${row.memberId}`);
+        }}
         mobile="cards"
         cardRender={(row) => (
           <div className="wa-kit-card wa-kit-card--sm">

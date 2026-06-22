@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import StaleApplicationsBanner from './StaleApplicationsBanner';
 
 const STAGES = [
   { key: 'holding', label: 'Holding Room', color: '#6b7280', desc: 'Invited, not yet in Coursera' },
@@ -26,6 +27,17 @@ export default function PipelineLegacyView() {
   const [loadError, setLoadError] = useState(false);
   const [riskStats, setRiskStats] = useState<AtRiskStats | null>(null);
   const [riskLoading, setRiskLoading] = useState(true);
+  const [staleApps, setStaleApps] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/admin/pipeline/stale')
+      .then((r) => {
+        if (!r.ok) throw new Error(`stale ${r.status}`);
+        return r.json();
+      })
+      .then((d) => { setStaleApps(d.staleApps || []); })
+      .catch(() => { /* non-fatal: banner just stays hidden */ });
+  }, []);
 
   useEffect(() => {
     fetch('/api/admin/pipeline')
@@ -53,6 +65,8 @@ export default function PipelineLegacyView() {
     <div className="admin-page">
       <h1 className="admin-page-title">{t('memberPipeline')}</h1>
       <p className="admin-page-subtitle">{t('sevenStageJourney')}</p>
+
+      <StaleApplicationsBanner staleApps={staleApps} />
 
       {loadError ? (
         <div

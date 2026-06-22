@@ -131,7 +131,31 @@ export function AssessmentsKit({
 
   return (
     <DesignSurface surface="dense" className="wa-p-6">
-      <SectionHeader title="Assessments" kicker="Members" goal={subtitle} />
+      <SectionHeader
+        title="Assessments"
+        kicker="Members"
+        goal={subtitle}
+        action={
+          <a
+            href="/admin/assessments?ui=legacy"
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              color: 'var(--wa-text)',
+              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+            }}
+          >
+            Results &amp; export
+          </a>
+        }
+      />
 
       <DataTable<AssessmentRow>
         columns={columns}

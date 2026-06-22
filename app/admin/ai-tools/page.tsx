@@ -3,23 +3,46 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { getAiToolsCohortStats } from '@/lib/admin/cohortAnalytics';
+import { getAiToolsCohortStats, getAiToolUsageCounts } from '@/lib/admin/cohortAnalytics';
 import PageHeader from '@/components/portal/PageHeader';
 import DataTable from '@/components/portal/ui/DataTable';
+import { DesignSurface } from '@/components/portal/kit';
+import { AiToolsAdminKit } from '@/components/portal/kit/pages/admin-subviews/AiToolsAdminKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-    title: 'AI tools analytics',
-    description: 'AI tool usage by cohort.',
+    title: 'AI tools',
+    description: 'Admin view of member AI toolkit usage & config.',
     path: '/admin/ai-tools',
   });
 }
 
-export default async function AdminAiToolsAnalyticsPage() {
+export default async function AdminAiToolsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/ai-tools');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
+  const params = (await searchParams) ?? {};
+  const requestedUi = typeof params.ui === 'string' ? params.ui : null;
+
+  // --- DEFAULT: kit card grid of the AI toolkit with real per-tool usage ---
+  if (requestedUi !== 'legacy') {
+    // Lean per-tool counts (groupBy toolType + voice-session count). Degrades to
+    // [] on failure, in which case cards render with "—" instead of counts.
+    const usage = await getAiToolUsageCounts().catch(() => []);
+
+    return (
+      <DesignSurface surface="dense">
+        <AiToolsAdminKit usage={usage} />
+      </DesignSurface>
+    );
+  }
+
+  // --- LEGACY (?ui=legacy): original cohort-by-cohort usage analytics table ---
   const rows = await getAiToolsCohortStats();
 
   return (

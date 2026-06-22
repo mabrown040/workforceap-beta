@@ -462,6 +462,58 @@ export async function getAiToolsCohortStats(): Promise<AiToolsCohortRow[]> {
   return rows;
 }
 
+/** Per-tool usage row for the AI tools admin card grid. */
+export type AiToolUsageRow = {
+  /** AIToolType enum value (or 'voice_session' for the merged voice bucket). */
+  toolType: string;
+  /** Total runs/sessions recorded for this tool. */
+  uses: number;
+};
+
+/**
+ * Lean per-tool usage counts for the AI tools admin view (card grid).
+ *
+ * Two cheap reads, grouped/counted in-process:
+ *  - `aIToolResult` grouped by `toolType` (text/result tools), and
+ *  - voice coach sessions from `member_events` (merged into a single
+ *    `voice_session` bucket) so the "Voice Coaches" card has a real count.
+ *
+ * No `$transaction`, no per-tool HTTP. Degrades to `[]` on failure so the page
+ * can render the catalog without counts.
+ */
+export async function getAiToolUsageCounts(): Promise<AiToolUsageRow[]> {
+  const [byType, voiceCount] = await Promise.all([
+    prisma.aIToolResult
+      .groupBy({ by: ['toolType'], _count: { _all: true } })
+      .catch((reason: unknown) => {
+        console.error('[admin/ai-tools] tool usage groupBy failed', reason);
+        return [] as Array<{ toolType: string; _count: { _all: number } }>;
+      }),
+    prisma
+      .$queryRaw<Array<{ count: bigint }>>`
+        SELECT COUNT(*)::bigint AS count
+        FROM "member_events"
+        WHERE "event_name" = 'ai_tool_run_started'
+          AND "entity_type" = 'ai_tool'
+          AND COALESCE(metadata->>'tool', '') IN (${Prisma.join(VOICE_TOOL_TYPES)})
+      `
+      .catch((reason: unknown) => {
+        console.error('[admin/ai-tools] voice session count failed', reason);
+        return [] as Array<{ count: bigint }>;
+      }),
+  ]);
+
+  const rows: AiToolUsageRow[] = byType.map((g) => ({
+    toolType: String(g.toolType),
+    uses: g._count._all,
+  }));
+
+  const voiceUses = Number(voiceCount[0]?.count ?? 0);
+  if (voiceUses > 0) rows.push({ toolType: 'voice_session', uses: voiceUses });
+
+  return rows;
+}
+
 export type CertificationsCohortRow = {
   cohortKey: string;
   cohortLabel: string;

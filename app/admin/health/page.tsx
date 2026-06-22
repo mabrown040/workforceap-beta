@@ -1,9 +1,18 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { RefreshCw } from 'lucide-react';
 import PageHeader from '@/components/portal/PageHeader';
-import type { HealthResponse, HealthChecks, HealthStatus } from '@/app/api/admin/health/route';
+import type { HealthResponse, HealthStatus, SubsystemCheck } from '@/app/api/admin/health/route';
+import {
+  SystemHealthKit,
+  statusToKitColor,
+  type HealthTile,
+  type TileStatus,
+} from '@/components/portal/kit/pages/admin-subviews/SystemHealthKit';
+import type { RankDatum } from '@/components/portal/kit';
 
 interface AlertEntry {
   id: string;
@@ -274,11 +283,154 @@ function AlertLog({ alerts }: { alerts: AlertEntry[] }) {
   );
 }
 
-/* ─── Main page ─── */
+/* ─── DEFAULT (design-kit) render ─── */
 
-export default function AdminHealthPage() {
-  const { data, loading, error, refetch } = useHealthData();
+/** Map a subsystem check status to the kit tile status. */
+function toTileStatus(status: SubsystemCheck['status']): TileStatus {
+  return status; // 'ok' | 'degraded' | 'fail' are shared with TileStatus
+}
 
+/** Worst-of reducer for the "Integrations" rollup tile. */
+function worstStatus(statuses: SubsystemCheck['status'][]): TileStatus {
+  if (statuses.some((s) => s === 'fail')) return 'fail';
+  if (statuses.some((s) => s === 'degraded')) return 'degraded';
+  return 'ok';
+}
+
+function statusText(status: TileStatus, okText: string): string {
+  switch (status) {
+    case 'ok':
+      return okText;
+    case 'degraded':
+      return 'Degraded';
+    case 'fail':
+      return 'Down';
+    default:
+      return '—';
+  }
+}
+
+/** Status → bar fill percentage (no fabricated uptime; reflects current state). */
+function statusPct(status: SubsystemCheck['status']): number {
+  switch (status) {
+    case 'ok':
+      return 100;
+    case 'degraded':
+      return 55;
+    case 'fail':
+      return 18;
+    default:
+      return 0;
+  }
+}
+
+function HealthKitView({
+  data,
+  refetch,
+}: {
+  data: HealthResponse;
+  refetch: () => void;
+}) {
+  const { status, checks, generatedAt } = data;
+
+  // Four status tiles mapped to the mockup (App / Database / Email / Integrations)
+  // from REAL checks. "App" is derived from the overall roll-up (the page only
+  // renders this view because /api/admin/health responded, so the app + route
+  // are at least serving; overall status reflects subsystem rollup). "Integrations"
+  // rolls up the external-integration subsystems we actually check: webhooks,
+  // xAPI ingestion, and AI tools.
+  const integrationsStatus = worstStatus([
+    checks.webhooks.status,
+    checks.xapi.status,
+    checks.aiTools.status,
+  ]);
+
+  const appStatus: TileStatus =
+    status === 'healthy' ? 'ok' : status === 'degraded' ? 'degraded' : 'fail';
+
+  const tiles: HealthTile[] = [
+    { label: 'App', status: appStatus, statusText: statusText(appStatus, 'Operational') },
+    {
+      label: 'Database',
+      status: toTileStatus(checks.database.status),
+      statusText: statusText(
+        toTileStatus(checks.database.status),
+        checks.database.latencyMs != null ? `Healthy · ${checks.database.latencyMs}ms` : 'Healthy',
+      ),
+    },
+    {
+      label: 'Email',
+      status: toTileStatus(checks.email.status),
+      statusText: statusText(toTileStatus(checks.email.status), 'Flowing'),
+    },
+    {
+      label: 'Integrations',
+      status: integrationsStatus,
+      statusText: statusText(integrationsStatus, 'Synced'),
+    },
+  ];
+
+  // "Integration uptime (30d)" — there is NO 30-day uptime store, so we do not
+  // fabricate 99.9%-style figures. Instead each bar reflects the CURRENT health
+  // of an integration subsystem we actually check, with its status note as the
+  // value and a status-derived fill. Bars are colored by status.
+  const uptime: RankDatum[] = [
+    {
+      label: 'Webhooks',
+      value: statusText(toTileStatus(checks.webhooks.status), 'OK'),
+      pct: statusPct(checks.webhooks.status),
+      color: statusToKitColor(toTileStatus(checks.webhooks.status)),
+    },
+    {
+      label: 'xAPI ingestion',
+      value: statusText(toTileStatus(checks.xapi.status), 'OK'),
+      pct: statusPct(checks.xapi.status),
+      color: statusToKitColor(toTileStatus(checks.xapi.status)),
+    },
+    {
+      label: 'AI tools',
+      value: statusText(toTileStatus(checks.aiTools.status), 'OK'),
+      pct: statusPct(checks.aiTools.status),
+      color: statusToKitColor(toTileStatus(checks.aiTools.status)),
+    },
+    {
+      label: 'Redis cache',
+      value: statusText(toTileStatus(checks.redis.status), 'OK'),
+      pct: statusPct(checks.redis.status),
+      color: statusToKitColor(toTileStatus(checks.redis.status)),
+    },
+  ];
+
+  return (
+    <SystemHealthKit
+      title="System Health"
+      goal="Services & integrations"
+      tiles={tiles}
+      uptime={uptime}
+      uptimeCaption={`Current integration status · checked ${new Date(generatedAt).toLocaleTimeString()} · no 30-day uptime store, bars reflect live status`}
+      headerAction={
+        <button
+          onClick={refetch}
+          className="btn btn-outline btn-small"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+        >
+          <RefreshCw size={14} />
+          Refresh
+        </button>
+      }
+    />
+  );
+}
+
+/* ─── LEGACY render (?ui=legacy) ─── */
+
+function LegacyHealthView({
+  data,
+  refetch,
+}: {
+  data: HealthResponse;
+  refetch: () => void;
+}) {
   // No historical store yet — render a flat line at the current value rather
   // than fabricated variance, so the sparkline never implies trends we don't have.
   const makeHistory = (base: number, _variance = 0.2, points = 24) => {
@@ -286,7 +438,6 @@ export default function AdminHealthPage() {
   };
 
   const alerts: AlertEntry[] = useMemo(() => {
-    if (!data) return [];
     const entries: AlertEntry[] = [];
     const ts = data.generatedAt;
 
@@ -312,31 +463,6 @@ export default function AdminHealthPage() {
 
     return entries.sort((a, b) => b.severity.localeCompare(a.severity));
   }, [data]);
-
-  if (loading) {
-    return (
-      <div>
-        <PageHeader title="System Health" subtitle="Real-time monitoring of all platform subsystems." />
-        <div style={{ padding: '2rem', textAlign: 'center' }}>
-          <p>Loading health data…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <div>
-        <PageHeader title="System Health" subtitle="Real-time monitoring of all platform subsystems." />
-        <div style={{ padding: '2rem', color: 'var(--color-accent)' }}>
-          <p>Error loading health data: {error || 'No data'}</p>
-          <button onClick={refetch} className="btn btn-primary btn-sm" style={{ marginTop: '1rem' }}>
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const { status, checks, generatedAt } = data;
 
@@ -501,4 +627,43 @@ export default function AdminHealthPage() {
       </section>
     </div>
   );
+}
+
+/* ─── Main page ─── */
+
+export default function AdminHealthPage() {
+  const { data, loading, error, refetch } = useHealthData();
+  const searchParams = useSearchParams();
+  const legacy = searchParams?.get('ui') === 'legacy';
+
+  if (loading) {
+    return (
+      <div>
+        <PageHeader title="System Health" subtitle="Services & integrations" />
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <p>Loading health data…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div>
+        <PageHeader title="System Health" subtitle="Services & integrations" />
+        <div style={{ padding: '2rem', color: 'var(--color-accent)' }}>
+          <p>Error loading health data: {error || 'No data'}</p>
+          <button onClick={refetch} className="btn btn-primary btn-sm" style={{ marginTop: '1rem' }}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (legacy) {
+    return <LegacyHealthView data={data} refetch={refetch} />;
+  }
+
+  return <HealthKitView data={data} refetch={refetch} />;
 }

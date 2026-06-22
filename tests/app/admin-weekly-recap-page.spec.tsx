@@ -16,10 +16,24 @@ vi.mock('@/lib/auth/server', () => ({
 
 vi.mock('@/lib/auth/roles', () => ({
   isAdmin: vi.fn(),
+  isSuperAdmin: vi.fn(),
+}));
+
+vi.mock('@/lib/tenant/organization', () => ({
+  getActorOrganizationId: vi.fn(),
 }));
 
 vi.mock('@/lib/admin/cohortAnalytics', () => ({
   getWeeklyRecapCohortStats: vi.fn(),
+  getWeeklyScoreboardStats: vi.fn(),
+}));
+
+vi.mock('@/lib/db/prisma', () => ({
+  prisma: {
+    user: { count: vi.fn() },
+    placementRecord: { count: vi.fn() },
+    userCertification: { count: vi.fn() },
+  },
 }));
 
 vi.mock('@/components/portal/PageHeader', () => ({
@@ -32,8 +46,9 @@ vi.mock('@/components/portal/ui/DataTable', () => ({
 
 import AdminWeeklyRecapAnalyticsPage from '@/app/admin/weekly-recap/page';
 import { getUser } from '@/lib/auth/server';
-import { isAdmin } from '@/lib/auth/roles';
+import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
 import { getWeeklyRecapCohortStats } from '@/lib/admin/cohortAnalytics';
+import { prisma } from '@/lib/db/prisma';
 
 describe('AdminWeeklyRecapAnalyticsPage authorization', () => {
   beforeEach(() => {
@@ -43,7 +58,7 @@ describe('AdminWeeklyRecapAnalyticsPage authorization', () => {
   it('redirects unauthenticated users before checking roles or loading analytics', async () => {
     vi.mocked(getUser).mockResolvedValue(null);
 
-    await expect(AdminWeeklyRecapAnalyticsPage()).rejects.toThrow(
+    await expect(AdminWeeklyRecapAnalyticsPage({})).rejects.toThrow(
       'REDIRECT:/login?redirectTo=/admin/weekly-recap',
     );
 
@@ -55,7 +70,7 @@ describe('AdminWeeklyRecapAnalyticsPage authorization', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
 
-    await expect(AdminWeeklyRecapAnalyticsPage()).rejects.toThrow('REDIRECT:/dashboard');
+    await expect(AdminWeeklyRecapAnalyticsPage({})).rejects.toThrow('REDIRECT:/dashboard');
 
     expect(isAdmin).toHaveBeenCalledWith('user-1');
     expect(getWeeklyRecapCohortStats).not.toHaveBeenCalled();
@@ -64,10 +79,14 @@ describe('AdminWeeklyRecapAnalyticsPage authorization', () => {
   it('loads weekly recap analytics for admins', async () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'admin-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(true);
-    vi.mocked(getWeeklyRecapCohortStats).mockResolvedValue([]);
+    vi.mocked(isSuperAdmin).mockResolvedValue(true);
+    vi.mocked(prisma.user.count).mockResolvedValue(0 as any);
+    vi.mocked(prisma.placementRecord.count).mockResolvedValue(0 as any);
+    vi.mocked(prisma.userCertification.count).mockResolvedValue(0 as any);
 
-    await expect(AdminWeeklyRecapAnalyticsPage()).resolves.toBeTruthy();
+    // Default render is the design-kit recap fed by lean week-over-week counts.
+    await expect(AdminWeeklyRecapAnalyticsPage({})).resolves.toBeTruthy();
 
-    expect(getWeeklyRecapCohortStats).toHaveBeenCalledTimes(1);
+    expect(prisma.user.count).toHaveBeenCalled();
   });
 });

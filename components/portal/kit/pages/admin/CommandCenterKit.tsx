@@ -250,7 +250,7 @@ function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onActi
         display: 'flex',
         alignItems: 'center',
         gap: 12,
-        background: item.urgent ? 'var(--wa-accent-soft)' : '#fafafa',
+        background: item.urgent ? 'var(--wa-accent-soft)' : 'var(--wa-bg)',
         borderColor: item.urgent ? '#f3d4dc' : 'var(--wa-border)',
       }}
     >

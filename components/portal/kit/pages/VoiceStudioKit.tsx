@@ -881,7 +881,7 @@ function StudioPanel({
               <div
                 style={{
                   padding: 16,
-                  background: '#fafafa',
+                  background: 'var(--wa-bg)',
                   border: '1px solid var(--wa-border)',
                   borderRadius: 16,
                   fontSize: 12,
@@ -1012,7 +1012,7 @@ function IssueRow({ issue }: { issue: Issue }) {
         alignItems: 'flex-start',
         gap: 12,
         padding: 14,
-        background: '#fafafa',
+        background: 'var(--wa-bg)',
         border: '1px solid var(--wa-border)',
         borderRadius: 16,
       }}

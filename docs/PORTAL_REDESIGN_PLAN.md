@@ -181,6 +181,7 @@ These were the real reasons the logged-in preview "didn't work":
 
 - Preview component kit: `…/dev/kit` on the current preview deployment (200 on preview, 404 on prod)
 - Preview dashboard proof (sample data, always renders): `…/dev/dashboard`
+- **Decision board (three links + sign-off doc):** `…/dev/compare` · `docs/PORTAL_UI_DECISION_MOCKUP.md`
 - Logged-in dashboard on real demo data: `…/en/dashboard?ui=kit` (sign in first)
 - Component contracts: `docs/PORTAL_DESIGN_KIT.md`
 - Static concept mockups: `/home/claw/workforceap-concept-{calm,dense,bold}.html` (lab server)

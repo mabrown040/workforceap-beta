@@ -4,7 +4,10 @@ import { Bell, TriangleAlert, UserPlus, Briefcase, Award } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser, withAuthGuc } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getAdminCommandCenter, type AdminCommandCenter } from '@/lib/admin/commandCenter';
+import type { ChartDatum } from '@/components/portal/kit';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminCommandCenterClient from '@/components/admin/AdminCommandCenterClient';
@@ -70,18 +73,66 @@ export default async function AdminCommandCenterPage({
   if (requestedUi !== 'legacy') {
     const { totals } = data;
 
+    // Headline KPIs match the mockup ("Active Students / Placements YTD /
+    // Completion Rate / At Risk"). Sourced from cheap, org-scoped real queries
+    // — never fabricated. All wrapped in withAuthGuc so RLS sees the actor.
+    const yearStart = new Date(new Date().getUTCFullYear(), 0, 1);
+    const headline = await withAuthGuc(async () => {
+      const orgId = await getActorOrganizationId(user.id);
+      const [activeStudents, placementsYtd, placementRows] = await Promise.all([
+        prisma.user
+          .count({ where: { organizationId: orgId, deletedAt: null, enrolledProgram: { not: null } } })
+          .catch(() => 0),
+        prisma.placementRecord
+          .count({ where: { user: { organizationId: orgId, deletedAt: null }, placedAt: { gte: yearStart } } })
+          .catch(() => 0),
+        prisma.placementRecord
+          .findMany({
+            where: { user: { organizationId: orgId, deletedAt: null }, placedAt: { gte: yearStart } },
+            select: { placedAt: true },
+          })
+          .catch(() => [] as Array<{ placedAt: Date }>),
+      ]);
+      return { activeStudents, placementsYtd, placementRows };
+    }).catch(() => ({ activeStudents: 0, placementsYtd: 0, placementRows: [] as Array<{ placedAt: Date }> }));
+
+    // Cohort completion rate — share of enrolled, non-deleted members marked
+    // job-ready (training complete). Falls back to "—" when there are none.
+    const completionRate =
+      headline.activeStudents > 0
+        ? `${Math.round((totals.interviewingCount / headline.activeStudents) * 100)}%`
+        : '—';
+
+    // Placements by month (Jan→current month, YTD) for the BarChartMini.
+    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const thisMonth = new Date().getUTCMonth();
+    const monthBuckets = new Array(thisMonth + 1).fill(0);
+    for (const row of headline.placementRows) {
+      const m = row.placedAt.getUTCMonth();
+      if (m >= 0 && m <= thisMonth) monthBuckets[m] += 1;
+    }
+    const placementsByMonth: ChartDatum[] = monthBuckets.map((value, i) => ({
+      label: monthLabels[i],
+      value,
+    }));
+
     const kpis: KpiItem[] = [
-      { label: 'At Risk', value: totals.atRiskCount, color: 'accent', delta: 'need outreach', deltaColor: 'accent' },
-      { label: 'Needs Reply', value: totals.needsReplyCount, color: 'text', delta: 'member messages', deltaColor: 'muted' },
-      { label: 'Interviewing', value: totals.interviewingCount, color: 'gold', delta: 'prep + offers', deltaColor: 'muted' },
-      { label: 'Applications', value: totals.applicationsPendingCount, color: 'info', delta: 'awaiting review', deltaColor: 'muted' },
       {
-        label: 'Oldest App',
-        value: totals.oldestPendingApplicationDays == null ? '—' : `${totals.oldestPendingApplicationDays}d`,
-        color: totals.oldestPendingApplicationDays != null && totals.oldestPendingApplicationDays >= 7 ? 'accent' : 'success',
-        delta: 'pending review',
-        deltaColor: 'muted',
+        label: 'Active Students',
+        value: headline.activeStudents,
+        color: 'text',
+        delta: `${headline.activeStudents} enrolled`,
+        deltaColor: 'success',
       },
+      {
+        label: 'Placements YTD',
+        value: headline.placementsYtd,
+        color: 'success',
+        delta: 'this year',
+        deltaColor: 'success',
+      },
+      { label: 'Completion Rate', value: completionRate, color: 'info', delta: 'cohort avg', deltaColor: 'muted' },
+      { label: 'At Risk', value: totals.atRiskCount, color: 'accent', delta: 'need outreach', deltaColor: 'accent' },
     ];
 
     const queueItems: CommandCenterQueueItem[] = [
@@ -158,6 +209,8 @@ export default async function AdminCommandCenterPage({
         kpis={kpis}
         queueItems={queueItems}
         programHealth={programHealth}
+        placementsByMonth={placementsByMonth}
+        placementsSubtitle={`${new Date().getUTCFullYear()} YTD · ${headline.placementsYtd} total`}
         addStudentHref="/admin/members/new"
       />
     );

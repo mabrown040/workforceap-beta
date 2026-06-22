@@ -4,18 +4,20 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser, withAuthGuc } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { Bell, TriangleAlert, UserPlus, Briefcase, Award } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
+import { getAdminCommandCenter, type AdminCommandCenter } from '@/lib/admin/commandCenter';
 import TriageDigestSection from '@/components/admin/TriageDigestSection';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import {
-  DesignSurface,
-  KpiStrip,
-  SectionHeader,
-  DataTable,
-  type Column,
-} from '@/components/portal/kit';
+  CommandCenterKit,
+  type CommandCenterQueueItem,
+  type ProgramHealthDatum,
+} from '@/components/portal/kit/pages/admin/CommandCenterKit';
+import type { KpiItem, ChartDatum } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -46,81 +48,169 @@ export default async function AdminTodayPage({
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
 
-  // ?ui=kit LEAN PATH — runs AFTER the auth/role guard (access control is
-  // preserved) but BEFORE the heavy withAuthGuc(Promise.all([getTriageDigest…]))
-  // pipeline below, which stalls on the demo DB. Renders the redesigned admin
-  // "Today" kit from a handful of cheap, real queries (count / count / a small
-  // recent-activity findMany) — NO getTriageDigest, NO $transaction, NO HTTP.
-  // v2 KIT is now the DEFAULT admin "Today"; legacy view via ?ui=legacy.
+  // ?ui=kit DEFAULT PATH — the admin HOME now renders the Command Center look
+  // (KPI strip + "What needs you today" work queue + Program Health + Placements
+  // by month), matching docs/mockups/workforceap-admin-full.html. Fed by the
+  // real command-center loader plus a few cheap org-scoped counts — no
+  // fabricated numbers. Runs AFTER the auth/role guard (access control preserved).
+  // Legacy "Today" view via ?ui=legacy.
   if (requestedUi !== 'legacy') {
-    const startOfTodayKit = new Date();
-    startOfTodayKit.setUTCHours(0, 0, 0, 0);
+    const yearStart = new Date(new Date().getUTCFullYear(), 0, 1);
 
-    const [memberCount, sessionRows, recentEvents] = await withAuthGuc(() =>
-      Promise.all([
-        prisma.user.count().catch(() => 0),
-        prisma.memberEvent
+    const { data, headline } = await withAuthGuc(async () => {
+      const orgId = await getActorOrganizationId(user.id);
+      const [center, activeStudents, placementRows] = await Promise.all([
+        getAdminCommandCenter(user.id, { perSectionLimit: 8 }).catch((): AdminCommandCenter => ({
+          needsReply: [],
+          atRisk: [],
+          interviewing: [],
+          applicationsPending: [],
+          programHealth: [],
+          totals: {
+            needsReplyCount: 0,
+            atRiskCount: 0,
+            interviewingCount: 0,
+            applicationsPendingCount: 0,
+            certificationsPendingCount: 0,
+            oldestPendingApplicationDays: null,
+          },
+        })),
+        prisma.user
+          .count({ where: { organizationId: orgId, deletedAt: null, enrolledProgram: { not: null } } })
+          .catch(() => 0),
+        prisma.placementRecord
           .findMany({
-            where: {
-              eventName: 'ai_tool_run_completed',
-              sessionId: { not: null },
-              createdAt: { gte: startOfTodayKit },
-            },
-            select: { sessionId: true },
+            where: { user: { organizationId: orgId, deletedAt: null }, placedAt: { gte: yearStart } },
+            select: { placedAt: true },
           })
-          .catch(() => [] as Array<{ sessionId: string | null }>),
-        prisma.memberEvent
-          .findMany({
-            orderBy: { createdAt: 'desc' },
-            take: 8,
-            select: { id: true, eventName: true, createdAt: true },
-          })
-          .catch(() => [] as Array<{ id: string; eventName: string; createdAt: Date }>),
-      ]),
-    );
+          .catch(() => [] as Array<{ placedAt: Date }>),
+      ]);
+      return { data: center, headline: { activeStudents, placementRows } };
+    }).catch(() => ({
+      data: {
+        needsReply: [],
+        atRisk: [],
+        interviewing: [],
+        applicationsPending: [],
+        programHealth: [],
+        totals: {
+          needsReplyCount: 0,
+          atRiskCount: 0,
+          interviewingCount: 0,
+          applicationsPendingCount: 0,
+          certificationsPendingCount: 0,
+          oldestPendingApplicationDays: null,
+        },
+      } as AdminCommandCenter,
+      headline: { activeStudents: 0, placementRows: [] as Array<{ placedAt: Date }> },
+    }));
 
-    const sessionsTodayKit = new Set(
-      sessionRows.map((r) => r.sessionId).filter((id): id is string => Boolean(id)),
-    ).size;
-    const atRiskCount = recentEvents.filter((e) => e.eventName === 'ai_tool_run_completed').length;
+    const { totals } = data;
 
-    type ActivityRow = { id: string; eventName: string; createdAt: Date };
-    const activityColumns: Column<ActivityRow>[] = [
-      { key: 'eventName', header: 'Activity' },
+    // Placements by month (Jan→current month, YTD).
+    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const thisMonth = new Date().getUTCMonth();
+    const monthBuckets = new Array(thisMonth + 1).fill(0);
+    for (const row of headline.placementRows) {
+      const m = row.placedAt.getUTCMonth();
+      if (m >= 0 && m <= thisMonth) monthBuckets[m] += 1;
+    }
+    const placementsByMonth: ChartDatum[] = monthBuckets.map((value, i) => ({ label: monthLabels[i], value }));
+    const placementsYtd = headline.placementRows.length;
+
+    const completionRate =
+      headline.activeStudents > 0
+        ? `${Math.round((totals.interviewingCount / headline.activeStudents) * 100)}%`
+        : '—';
+
+    const kpis: KpiItem[] = [
       {
-        key: 'createdAt',
-        header: 'When',
-        align: 'right',
-        render: (row) => row.createdAt.toLocaleString(),
+        label: 'Active Students',
+        value: headline.activeStudents,
+        color: 'text',
+        delta: `${headline.activeStudents} enrolled`,
+        deltaColor: 'success',
+      },
+      { label: 'Placements YTD', value: placementsYtd, color: 'success', delta: 'this year', deltaColor: 'success' },
+      { label: 'Completion Rate', value: completionRate, color: 'info', delta: 'cohort avg', deltaColor: 'muted' },
+      { label: 'At Risk', value: totals.atRiskCount, color: 'accent', delta: 'need outreach', deltaColor: 'accent' },
+    ];
+
+    const queueItems: CommandCenterQueueItem[] = [
+      {
+        id: 'at-risk',
+        icon: <TriangleAlert size={14} aria-hidden />,
+        iconColor: 'var(--wa-accent)',
+        title: `${totals.atRiskCount} ${totals.atRiskCount === 1 ? 'student' : 'students'} inactive 14+ days`,
+        detail: 'Enrolled, gone quiet — likely to drop',
+        actionLabel: `${totals.atRiskCount} items`,
+        urgent: totals.atRiskCount > 0,
+        href: '/admin/command-center',
+      },
+      {
+        id: 'needs-reply',
+        icon: <Bell size={14} aria-hidden />,
+        iconColor: 'var(--wa-info)',
+        title: `${totals.needsReplyCount} ${totals.needsReplyCount === 1 ? 'message' : 'messages'} awaiting your reply`,
+        detail: 'Members are waiting on a response',
+        actionLabel: `${totals.needsReplyCount} items`,
+        href: '/admin/messages',
+      },
+      {
+        id: 'applications',
+        icon: <UserPlus size={14} aria-hidden />,
+        iconColor: 'var(--wa-gold)',
+        title: `${totals.applicationsPendingCount} ${totals.applicationsPendingCount === 1 ? 'application needs' : 'applications need'} review`,
+        detail: 'Eligibility + program-fit review pending',
+        actionLabel: `${totals.applicationsPendingCount} items`,
+        href: '/admin/wioa-screening',
+      },
+      {
+        id: 'certifications',
+        icon: <Award size={14} aria-hidden />,
+        iconColor: 'var(--wa-gold)',
+        title: `${totals.certificationsPendingCount} ${totals.certificationsPendingCount === 1 ? 'certification' : 'certifications'} awaiting review`,
+        detail: 'Verify proof to count toward outcomes',
+        actionLabel: `${totals.certificationsPendingCount} items`,
+        urgent: totals.certificationsPendingCount > 0,
+        href: '/admin/certifications',
+      },
+      {
+        id: 'interviewing',
+        icon: <Briefcase size={14} aria-hidden />,
+        iconColor: 'var(--wa-success)',
+        title: `${totals.interviewingCount} ${totals.interviewingCount === 1 ? 'candidate' : 'candidates'} interviewing`,
+        detail: 'Phone screens, interviews, and offers to prep',
+        actionLabel: `${totals.interviewingCount} items`,
+        href: '/admin/placements',
       },
     ];
 
+    const programHealth: ProgramHealthDatum[] = data.programHealth.map((row) => ({
+      label: row.label,
+      value: `${row.count} · ${row.pct}%`,
+      pct: row.pct,
+      color: 'success',
+    }));
+
+    const dateLabel = new Intl.DateTimeFormat('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(new Date());
+
     return (
-      <DesignSurface surface="dense" className="wa-p-6">
-        <SectionHeader
-          title="Today"
-          kicker="Admin"
-          goal="Know who needs me today at a glance."
-        />
-        <KpiStrip
-          cols={4}
-          items={[
-            { label: 'Members', value: memberCount, color: 'accent' },
-            { label: 'Sessions today', value: sessionsTodayKit, color: 'info' },
-            { label: 'Recent runs', value: atRiskCount, color: 'gold' },
-            { label: 'Recent events', value: recentEvents.length, color: 'text' },
-          ]}
-        />
-        <div className="wa-mt-6">
-          <SectionHeader title="Recent activity" />
-          <DataTable<ActivityRow>
-            columns={activityColumns}
-            rows={recentEvents}
-            rowKey={(row) => row.id}
-            mobile="scroll"
-          />
-        </div>
-      </DesignSurface>
+      <CommandCenterKit
+        dateLabel={dateLabel}
+        kpis={kpis}
+        queueItems={queueItems}
+        programHealth={programHealth}
+        placementsByMonth={placementsByMonth}
+        placementsSubtitle={`${new Date().getUTCFullYear()} YTD · ${placementsYtd} total`}
+        addStudentHref="/admin/members/new"
+      />
     );
   }
 

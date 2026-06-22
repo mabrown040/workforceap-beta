@@ -15,8 +15,10 @@ import {
   SectionHeader,
   StatusTag,
   RankBars,
+  BarChartMini,
   type KpiItem,
   type RankDatum,
+  type ChartDatum,
 } from '@/components/portal/kit';
 
 /**
@@ -71,6 +73,14 @@ export interface CommandCenterKitProps {
   queueItems?: CommandCenterQueueItem[];
   /** Program Health breakdown rows. */
   programHealth?: ProgramHealthDatum[];
+  /**
+   * "Placements by month" vertical bar chart (mockup: board outcomes). Each
+   * datum is one month, e.g. `{ label: 'Jun', value: 90 }`. The final bar is
+   * highlighted to read as "this month".
+   */
+  placementsByMonth?: ChartDatum[];
+  /** Sub-caption under the "Placements by month" title, e.g. "2026 YTD · 213 total". */
+  placementsSubtitle?: string;
   /** Fired when the header "Add Student" button is pressed. */
   onAddStudent?: () => void;
   /**
@@ -127,6 +137,16 @@ const DEFAULT_QUEUE: CommandCenterQueueItem[] = [
     detail: 'Employers reported hires',
     actionLabel: 'Confirm',
   },
+];
+
+// Mockup "Placements by month" — 2026 YTD bars (board outcomes panel).
+const DEFAULT_PLACEMENTS_BY_MONTH: ChartDatum[] = [
+  { label: 'Jan', value: 38 },
+  { label: 'Feb', value: 46 },
+  { label: 'Mar', value: 55 },
+  { label: 'Apr', value: 62 },
+  { label: 'May', value: 78 },
+  { label: 'Jun', value: 90 },
 ];
 
 const DEFAULT_PROGRAM_HEALTH: ProgramHealthDatum[] = [
@@ -297,6 +317,8 @@ export function CommandCenterKit({
   kpis = DEFAULT_KPIS,
   queueItems = DEFAULT_QUEUE,
   programHealth = DEFAULT_PROGRAM_HEALTH,
+  placementsByMonth = DEFAULT_PLACEMENTS_BY_MONTH,
+  placementsSubtitle = '2026 YTD',
   onAddStudent,
   addStudentHref,
   onQueueAction,
@@ -353,6 +375,23 @@ export function CommandCenterKit({
           <RankBars data={programHealth} />
         </section>
       </div>
+
+      {/* Placements by month — board-outcomes bar chart (mockup `board`),
+          surfaced on the command center so the operator sees the trend in
+          context. The final month is highlighted to read as "this month". */}
+      {placementsByMonth.length > 0 ? (
+        <section className="wa-kit-card wa-mt-5" style={{ minWidth: 0 }}>
+          <div style={{ marginBottom: 16 }}>
+            <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>
+              Placements by month
+            </h3>
+            <p style={{ fontSize: 11, color: 'var(--wa-muted)', margin: '4px 0 0' }}>
+              {placementsSubtitle}
+            </p>
+          </div>
+          <BarChartMini data={placementsByMonth} highlightLast height={176} />
+        </section>
+      ) : null}
     </DesignSurface>
   );
 }

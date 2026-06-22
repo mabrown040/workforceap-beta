@@ -30,7 +30,7 @@ import MemberPortalTopNav from './MemberPortalTopNav';
 import GlobalSearch from './GlobalSearch';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 import LanguageToggle from '@/components/portal/LanguageToggle';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useWorkspaceMobileScrollChrome } from '@/hooks/useWorkspaceMobileScrollChrome';
 
 // Map non-member portal roles to MobileBottomNav variants. Member uses
@@ -108,7 +108,17 @@ export default function WorkspaceShell({
   orgAccentColor?: string | null;
   children: React.ReactNode;
 }) {
-  const pathname = usePathname() ?? '';
+  const locale = useLocale();
+  // next/navigation usePathname() keeps the locale prefix (e.g. /en/admin), but
+  // nav hrefs are locale-less (/admin) — strip the active locale so active-route
+  // matching (and the crimson active rail item) works across every portal.
+  const rawPathname = usePathname() ?? '';
+  const pathname =
+    rawPathname === `/${locale}`
+      ? '/'
+      : rawPathname.startsWith(`/${locale}/`)
+        ? rawPathname.slice(locale.length + 1)
+        : rawPathname;
   const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(navItems));
   const hasTabs = navItems.some((i) => i.tab);
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;

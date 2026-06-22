@@ -164,7 +164,7 @@ export function VoiceStudioKit({
               <div>
                 <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>Voice AI + Career Studio</div>
                 <div style={{ fontSize: 10, color: '#a3a3a3' }}>
-                  Reskinned to DESIGN.md · crimson #ad2c4d primary, gold #a47f38 achievement
+                  Voice coaching, resume support, and career tools in one workspace
                 </div>
               </div>
             </div>
@@ -222,7 +222,7 @@ export function VoiceStudioKit({
         </main>
 
         <footer style={{ background: '#1a1a1a', color: '#737373', fontSize: 10, textAlign: 'center', padding: '12px 16px' }}>
-          Crimson #ad2c4d primary · gold #a47f38 achievement · blue #2b7bb9 supporting · WCAG AA focus rings · reduced-motion aware
+          Built for focused practice, clearer next steps, and staff-supported career momentum
         </footer>
       </div>
     </DesignSurface>
@@ -599,20 +599,29 @@ function SessionPanel({
 
             {/* controls */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 12, marginTop: 32 }}>
-              <button className="vs-focus-dark" aria-label="Mute" style={circleBtn}>
+              <button
+                className="vs-focus-dark"
+                aria-label="Mute unavailable"
+                disabled
+                title="Live mute control is not connected yet"
+                style={disabledCircleBtn}
+              >
                 <MicOff size={16} />
               </button>
               <button
                 className="vs-focus-dark"
+                disabled
+                title="Ending live sessions is not connected yet"
                 style={{
                   padding: '12px 24px',
                   borderRadius: 999,
-                  background: 'var(--wa-accent)',
+                  background: 'rgba(255,255,255,0.12)',
                   color: '#fff',
                   fontWeight: 700,
                   fontSize: 14,
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: 'not-allowed',
+                  opacity: 0.55,
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
@@ -621,7 +630,13 @@ function SessionPanel({
                 <PhoneOff size={15} />
                 End Session
               </button>
-              <button className="vs-focus-dark" aria-label="Camera" style={circleBtn}>
+              <button
+                className="vs-focus-dark"
+                aria-label="Camera unavailable"
+                disabled
+                title="Camera control is not connected yet"
+                style={disabledCircleBtn}
+              >
                 <Video size={16} />
               </button>
             </div>
@@ -729,6 +744,12 @@ const circleBtn: React.CSSProperties = {
   border: 'none',
   cursor: 'pointer',
   color: '#fff',
+};
+
+const disabledCircleBtn: React.CSSProperties = {
+  ...circleBtn,
+  cursor: 'not-allowed',
+  opacity: 0.55,
 };
 
 const bubble: React.CSSProperties = {

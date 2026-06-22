@@ -154,11 +154,11 @@ export default async function ProgramPage({
         modulesComplete={completedCount}
         modulesTotal={totalCourses}
         estRemaining={hoursRemaining > 0 ? `${hoursRemaining} hrs remaining` : 'Almost done'}
-        resumeHref="/dashboard"
+        resumeHref="/dashboard/learning"
         modules={modules}
         // Live session + missions aren't loaded on this route — keep the kit
-        // defaults and point the missions CTA at the training home.
-        missionsHref="/dashboard"
+        // defaults and point the missions CTA at the live missions page.
+        missionsHref="/dashboard/missions"
       />
     );
   }

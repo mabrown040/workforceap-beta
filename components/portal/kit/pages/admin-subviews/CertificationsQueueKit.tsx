@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Award, Check, FileText } from 'lucide-react';
 import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 
@@ -82,6 +82,12 @@ export function CertificationsQueueKit({
   // Per-row in-flight action and error, keyed by submission id.
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setRows(submissions);
+    setErrors({});
+    setPendingId(null);
+  }, [submissions]);
 
   // Header count tracks the live queue length once actions are enabled so it
   // refreshes as rows are approved/rejected. When disabled it shows the

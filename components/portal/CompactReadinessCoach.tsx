@@ -2,8 +2,8 @@
 
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 
-const ACCENT = '#0d9488';
-const ACCENT_DARK = '#0f766e';
+const ACCENT = '#a47f38';
+const ACCENT_DARK = '#7d5f26';
 
 export default function CompactReadinessCoach() {
   return (

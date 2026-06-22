@@ -283,7 +283,7 @@ export default function WioaQualificationClient({
                   : 'Talk through your goals, barriers, and likely qualification before staff reviews the details.'
               }
               icon="🎙️"
-              glowColor="#0d9488"
+              glowColor="#2b7bb9"
               gradient="linear-gradient(135deg, #99f6e4 0%, #14b8a6 45%, #0f766e 100%)"
             >
               <PortalVoiceSessionLazy
@@ -291,8 +291,8 @@ export default function WioaQualificationClient({
                 sessionPayload={voicePayload}
                 title="WIOA Qualification Assessment"
                 description="Talk through your work goals, barriers, and likely qualification before the formal review."
-                accent="#0d9488"
-                accentDark="#0f766e"
+                accent="#2b7bb9"
+                accentDark="#1f5a87"
                 speakingLabel="Guide is speaking…"
                 listeningLabel="Listening…"
               />

@@ -296,8 +296,8 @@ export default function VoiceInterviewScaffold() {
                 completionPayload={{ sessionId, role: role.trim(), interviewType }}
                 title="Voice mock interview"
                 description="Answer out loud. The coach will listen and respond like a real interviewer."
-                accent="#7c3aed"
-                accentDark="#5b21b6"
+                accent="#ad2c4d"
+                accentDark="#8b1f38"
                 speakingLabel="Interviewer is speaking…"
                 listeningLabel="Your turn — take your time"
                 liveTranscriptCoachLabel="Interviewer"

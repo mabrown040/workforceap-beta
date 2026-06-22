@@ -410,8 +410,8 @@ export default function ResumeCoachWorkspace() {
             onPostSessionParsingChange={setPostSessionParsing}
             title="Talk through your resume"
             description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
-            accent="#2563eb"
-            accentDark="#1d4ed8"
+            accent="#ad2c4d"
+            accentDark="#8b1f38"
             speakingLabel="Coach is speaking…"
             listeningLabel="Listening — describe your background"
             onAcceptSuggestion={handleAccept}

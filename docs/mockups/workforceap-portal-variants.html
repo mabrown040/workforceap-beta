@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkforceAP Member Portal • Design Variants</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .heading-font {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .bento-card {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                       box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Focus rings (WCAG AA Compliant) */
+        .focus-ring:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #ad2c4d;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#F7F8FA] text-[#1A1A1A] min-h-screen flex flex-col">
+
+    <!-- GLOBAL CONTROLLER & HEADING -->
+    <header class="bg-[#1A1A1A] text-white py-4 px-6 shadow-md z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-y-4">
+            <div class="flex items-center gap-x-3">
+                <div class="w-8 h-8 bg-[#ad2c4d] rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-layer-group text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">WorkforceAP Design Lab</h1>
+                    <p class="text-[10px] text-[#A3A3A3]">Toggle variants to see the complete Member Portal redesign</p>
+                </div>
+            </div>
+            
+            <!-- VARIANT CHANGER -->
+            <div class="flex items-center bg-[#262626] rounded-full p-1 border border-[#404040]">
+                <button onclick="switchVariant('light-bento')" id="btn-light-bento" class="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#ad2c4d] text-white transition-all">
+                    A: Bento Light
+                </button>
+                <button onclick="switchVariant('dark-glow')" id="btn-dark-glow" class="px-4 py-1.5 text-xs font-semibold rounded-full text-[#A3A3A3] hover:text-white transition-all">
+                    B: Dark Glow
+                </button>
+                <button onclick="switchVariant('editorial')" id="btn-editorial" class="px-4 py-1.5 text-xs font-semibold rounded-full text-[#A3A3A3] hover:text-white transition-all">
+                    C: High-Density Editorial
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTAINER FOR VARIANTS -->
+    <main class="flex-grow flex flex-col">
+
+        <!-- ============================================ -->
+        <!-- VARIANT A: CLEAN BENTO LIGHT -->
+        <!-- ============================================ -->
+        <section id="variant-light-bento" class="flex-grow flex flex-col animate-fade-in-up">
+            
+            <!-- Dashboard Shell -->
+            <div class="bg-[#F7F8FA] flex-grow p-4 md:p-8">
+                <div class="max-w-7xl mx-auto space-y-6">
+                    
+                    <!-- Title Bar -->
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-y-4">
+                        <div>
+                            <div class="flex items-center gap-x-2 text-xs font-bold text-[#ad2c4d] tracking-widest uppercase">
+                                <i class="fa-solid fa-house-chimney"></i>
+                                <span>MEMBER PORTAL</span>
+                            </div>
+                            <h2 class="heading-font text-4xl font-extrabold mt-1 text-[#1A1A1A]">Welcome back, Mike.</h2>
+                        </div>
+                        <div class="flex items-center gap-x-3 text-sm">
+                            <div class="px-4 py-2 bg-white border border-[#e8e8e8] rounded-full flex items-center gap-x-2 text-xs font-bold shadow-sm">
+                                <i class="fa-solid fa-circle-check text-[#4a9b4f] text-sm"></i>
+                                <span>AWS Certified Practitioner Course: 78% Done</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bento Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[minmax(190px,auto)]">
+                        
+                        <!-- Block 1: Active Progress (2x1 Span) -->
+                        <div class="md:col-span-2 bg-[#ffffff] border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento-card shadow-sm">
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="px-3 py-1 rounded-full bg-emerald-50 text-[#4a9b4f] border border-emerald-100 text-[10px] font-bold tracking-wider uppercase w-fit">In Progress</div>
+                                        <div class="mt-4">
+                                            <h3 class="text-2xl font-extrabold tracking-tight text-[#1A1A1A]">AWS Cloud Practitioner Essentials</h3>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-5xl font-extrabold tracking-tighter text-[#ad2c4d] tabular-nums">78%</div>
+                                        <div class="text-[9px] text-[#737373] font-bold tracking-wider">COMPLETED</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden">
+                                    <div class="h-2 bg-[#ad2c4d] rounded-full" style="width: 78%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-[#737373] font-semibold">
+                                    <span>Next Module: AWS Shared Responsibility Model</span>
+                                    <span class="text-[#ad2c4d]">Due Thursday</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Block 2: Career Toolkit (1x1 Span) -->
+                        <div onclick="alert('Demo: Redirecting to /en/dashboard/ai-tools')" class="bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white rounded-3xl p-8 flex flex-col justify-between bento-card cursor-pointer shadow-lg shadow-red-900/10">
+                            <div class="flex justify-between items-start">
+                                <div class="p-3 w-fit bg-white/10 rounded-2xl">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
+                                </div>
+                                <div class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/20 rounded-full">AI DRIVEN</div>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-2xl tracking-tight">Career Toolkit</h3>
+                                <p class="text-xs text-white/80 mt-1">Audit your resume and generate bespoke cover letters in seconds.</p>
+                            </div>
+                        </div>
+
+                        <!-- Block 3: AI Advisor (1x1 Span) -->
+                        <div class="bg-[#ffffff] border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento-card shadow-sm">
+                            <div>
+                                <div class="flex justify-between">
+                                    <div class="p-3 w-fit bg-[# Light] text-[#ad2c4d] rounded-2xl border border-[#e8e8e8]">
+                                        <i class="fa-regular fa-comments text-xl"></i>
+                                    </div>
+                                    <div class="flex h-2 w-2 relative">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#ad2c4d]"></span>
+                                    </div>
+                                </div>
+                                <div class="mt-5">
+                                    <h3 class="font-extrabold text-xl tracking-tight text-[#1A1A1A]">AI Advisor</h3>
+                                    <p class="text-xs text-[#737373] mt-1">Instant, 24/7 career feedback.</p>
+                                </div>
+                            </div>
+                            <div class="text-xs text-[#ad2c4d] font-bold flex items-center gap-x-1.5 cursor-pointer hover:underline">
+                                <span>Read 1 unread message</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- Block 4: Job Application Pipeline (2x2 Span - High Data Density) -->
+                        <div class="md:col-span-2 lg:col-span-2 bg-[#ffffff] border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento-card shadow-sm">
+                            <div>
+                                <div class="flex justify-between items-start mb-6">
+                                    <div>
+                                        <h3 class="font-extrabold text-xl tracking-tight text-[#1A1A1A]">Active Job Pipeline</h3>
+                                        <p class="text-xs text-[#737373] mt-0.5">Tracking your local interview stages</p>
+                                    </div>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#f5f5f5] text-[#525252]">4 Active</span>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <!-- Row 1 -->
+                                    <div class="flex items-center justify-between p-3.5 bg-[#fafafa] border border-[#e8e8e8] rounded-2xl hover:bg-[#f5f5f5] transition-colors">
+                                        <div class="flex items-center gap-x-3">
+                                            <div class="w-10 h-10 rounded-xl bg-white border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">S</div>
+                                            <div>
+                                                <div class="font-bold text-xs text-[#1A1A1A]">Salesforce Administrator</div>
+                                                <div class="text-[10px] text-[#737373] font-semibold uppercase">Deloitte • Austin, TX</div>
+                                            </div>
+                                        </div>
+                                        <div class="px-3 py-1 rounded-full bg-orange-100 text-amber-800 text-[10px] font-bold uppercase">Interviewing</div>
+                                    </div>
+                                    
+                                    <!-- Row 2 -->
+                                    <div class="flex items-center justify-between p-3.5 bg-[#fafafa] border border-[#e8e8e8] rounded-2xl hover:bg-[#f5f5f5] transition-colors">
+                                        <div class="flex items-center gap-x-3">
+                                            <div class="w-10 h-10 rounded-xl bg-white border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">A</div>
+                                            <div>
+                                                <div class="font-bold text-xs text-[#1A1A1A]">Agentforce Solutions Engineer</div>
+                                                <div class="text-[10px] text-[#737373] font-semibold uppercase">Accenture • Remote</div>
+                                            </div>
+                                        </div>
+                                        <div class="px-3 py-1 rounded-full bg-[#f5f5f5] text-[#525252] text-[10px] font-bold uppercase">Applied</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center border-t border-[#e8e8e8] pt-4 mt-6">
+                                <span class="text-[10px] text-[#737373] font-bold">LAST SYNCED: 3m ago</span>
+                                <button class="px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">
+                                    View Job Board
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Block 5: Learning Hub (1x1) -->
+                        <div class="bg-[#ffffff] border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento-card shadow-sm">
+                            <div>
+                                <div class="p-3 w-fit bg-[# Light] text-[#a47f38] rounded-2xl border border-[#e8e8e8]">
+                                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                                </div>
+                                <div class="mt-5">
+                                    <h3 class="font-extrabold text-xl tracking-tight text-[#1A1A1A]">Learning Hub</h3>
+                                    <p class="text-xs text-[#737373] mt-1">Access your connected B2B courses on Coursera.</p>
+                                </div>
+                            </div>
+                            <div class="text-xs text-[#ad2c4d] font-bold flex items-center gap-x-1 cursor-pointer hover:underline">
+                                <span>Go to courses</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- Block 6: Milestones / Badges (1x1) -->
+                        <div class="bg-[#ffffff] border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento-card shadow-sm">
+                            <div>
+                                <div class="p-3 w-fit bg-[#FEF3C7] text-[#a47f38] rounded-2xl">
+                                    <i class="fa-solid fa-award text-xl"></i>
+                                </div>
+                                <div class="mt-5">
+                                    <h3 class="font-extrabold text-xl tracking-tight text-[#1A1A1A]">Certifications</h3>
+                                    <p class="text-xs text-[#737373] mt-1">You have earned 2 industry credentials.</p>
+                                </div>
+                            </div>
+                            <div class="text-xs text-[#a47f38] font-bold flex items-center gap-x-1.5">
+                                <i class="fa-solid fa-medal"></i>
+                                <span>AWS &amp; Salesforce live</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VARIANT B: MODERN DARK GLOW -->
+        <!-- ============================================ -->
+        <section id="variant-dark-glow" class="hidden flex-grow flex flex-col bg-[#121212] text-[#fafafa] animate-fade-in-up">
+            
+            <div class="p-4 md:p-8 flex-grow">
+                <div class="max-w-7xl mx-auto space-y-6">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-y-4">
+                        <div>
+                            <span class="text-xs font-bold text-[#ad2c4d] tracking-widest uppercase">SAAS INTERFACE V2</span>
+                            <h2 class="heading-font text-4xl font-extrabold text-white mt-1">Hello, Michael.</h2>
+                        </div>
+                        <div class="px-4 py-2 bg-[#1A1A1A] border border-[#404040] rounded-full flex items-center gap-x-2 text-xs font-bold text-[#A3A3A3]">
+                            <span class="w-2 h-2 rounded-full bg-[#ad2c4d]"></span>
+                            <span>All production services operational</span>
+                        </div>
+                    </div>
+
+                    <!-- Bento Dark Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[minmax(190px,auto)]">
+                        
+                        <!-- 1. Progress Card with Crimson Glow -->
+                        <div class="md:col-span-2 bg-[#1A1A1A] border border-[#262626] rounded-3xl p-8 flex flex-col justify-between shadow-xl shadow-black/40 hover:border-[#ad2c4d]/50 transition-all duration-300">
+                            <div class="flex justify-between">
+                                <div>
+                                    <span class="text-[10px] font-bold tracking-wider bg-[#ad2c4d]/10 text-[#ad2c4d] border border-[#ad2c4d]/20 px-2 py-0.5 rounded-full">CREDENTIAL SPRINT</span>
+                                    <h3 class="text-2xl font-extrabold tracking-tight text-white mt-3">AWS Solutions Architect</h3>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-5xl font-black text-[#ad2c4d] tracking-tighter">78%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="h-2 bg-[#262626] rounded-full overflow-hidden mb-3">
+                                    <div class="h-2 bg-gradient-to-r from-[#ad2c4d] to-[#8b1f38] rounded-full" style="width: 78%"></div>
+                                </div>
+                                <span class="text-xs text-[#A3A3A3]">Next review milestone tomorrow • 10:00 AM</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. AI Advisor glassmorphism card -->
+                        <div class="bg-[#1A1A1A]/60 border border-white/5 rounded-3xl p-8 flex flex-col justify-between hover:border-[#ad2c4d]/50 transition-all duration-300">
+                            <div class="p-3 w-fit bg-white/5 rounded-2xl text-[#ad2c4d]">
+                                <i class="fa-solid fa-robot text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-2xl tracking-tight text-white">AI Advisor</h3>
+                                <p class="text-xs text-[#A3A3A3] mt-1">Live interactive career mentoring session waiting.</p>
+                                <span class="text-xs font-bold text-[#ad2c4d] hover:underline mt-4 inline-block cursor-pointer">Resume Chat &rarr;</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Gold Tier / Achievements Card -->
+                        <div class="bg-gradient-to-br from-[#262626] to-[#1A1A1A] border border-[#a47f38]/30 rounded-3xl p-8 flex flex-col justify-between shadow-xl">
+                            <div class="flex justify-between">
+                                <div class="p-3 w-fit bg-[#a47f38]/10 text-[#a47f38] rounded-2xl border border-[#a47f38]/20">
+                                    <i class="fa-solid fa-trophy text-xl"></i>
+                                </div>
+                                <span class="text-[9px] font-bold bg-[#a47f38]/10 text-[#a47f38] px-2 py-0.5 rounded-full border border-[#a47f38]/20">GOLD TIER</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-white">Verified Placement</h3>
+                                <p class="text-xs text-[#A3A3A3] mt-1">Your AWS &amp; Salesforce achievements are synced.</p>
+                            </div>
+                        </div>
+
+                        <!-- 4. Dense Pipeline Card (Dark) -->
+                        <div class="md:col-span-2 lg:col-span-2 bg-[#1A1A1A] border border-[#262626] rounded-3xl p-8 flex flex-col justify-between hover:border-[#ad2c4d]/30 transition-all duration-300">
+                            <div>
+                                <div class="flex justify-between items-center mb-6">
+                                    <div>
+                                        <h3 class="font-extrabold text-xl tracking-tight text-white">Your Applications</h3>
+                                        <p class="text-xs text-[#A3A3A3] mt-0.5">Tracking 4 active opportunities</p>
+                                    </div>
+                                    <button class="text-xs font-bold text-[#ad2c4d] hover:underline">View Pipeline</button>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="p-4 bg-[#121212] border border-[#262626] rounded-2xl">
+                                        <div class="flex justify-between text-xs mb-2">
+                                            <span class="font-bold text-white">Deloitte</span>
+                                            <span class="text-amber-500 font-semibold">Interview</span>
+                                        </div>
+                                        <p class="text-xs text-[#A3A3A3]">Salesforce Admin • Austin</p>
+                                    </div>
+                                    <div class="p-4 bg-[#121212] border border-[#262626] rounded-2xl">
+                                        <div class="flex justify-between text-xs mb-2">
+                                            <span class="font-bold text-white">Accenture</span>
+                                            <span class="text-[#A3A3A3] font-semibold">Applied</span>
+                                        </div>
+                                        <p class="text-xs text-[#A3A3A3]">Solutions Eng • Remote</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-t border-[#262626] pt-4 mt-6 flex justify-between items-center text-xs text-[#A3A3A3]">
+                                <span>Last synced 3m ago</span>
+                                <button class="px-5 py-2.5 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-bold rounded-full transition-colors">
+                                    + Add New
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 5. Career Toolkit (Dark) -->
+                        <div class="bg-gradient-to-br from-[#1A1A1A] to-[#121212] border border-[#262626] rounded-3xl p-8 flex flex-col justify-between">
+                            <div class="p-3 w-fit bg-[#ad2c4d]/10 text-[#ad2c4d] rounded-2xl border border-[#ad2c4d]/20">
+                                <i class="fa-solid fa-bolt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-2xl tracking-tight text-white">Toolkit</h3>
+                                <p class="text-xs text-[#A3A3A3] mt-1">Audit your resumes instantly.</p>
+                            </div>
+                        </div>
+
+                        <!-- 6. Resources -->
+                        <div class="bg-[#1A1A1A] border border-[#262626] rounded-3xl p-8 flex flex-col justify-between">
+                            <div class="p-3 w-fit bg-white/5 rounded-2xl text-[#2b7bb9]">
+                                <i class="fa-solid fa-folder-open text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-white">Resources</h3>
+                                <p class="text-xs text-[#A3A3A3] mt-px">Browse the training guides.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VARIANT C: HIGH-DENSITY EDITORIAL -->
+        <!-- ============================================ -->
+        <section id="variant-editorial" class="hidden flex-grow flex flex-col bg-white animate-fade-in-up">
+            
+            <div class="p-4 md:p-8 flex-grow">
+                <div class="max-w-7xl mx-auto space-y-8">
+                    
+                    <!-- Title block with thick editorial border -->
+                    <div class="border-b-[4px] border-[#1A1A1A] pb-6">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <span class="text-xs font-extrabold uppercase tracking-widest text-[#ad2c4d]">MEMBERSHIP DASHBOARD</span>
+                                <h2 class="heading-font text-5xl font-black text-[#1A1A1A] mt-2">M. Alan Brown</h2>
+                            </div>
+                            <div class="text-right text-xs font-bold text-[#737373]">
+                                <span>ISSUE NO. 04</span><br>
+                                <span>DATE: JUNE 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        <!-- Left & Center columns: High-Density Listings -->
+                        <div class="lg:col-span-2 space-y-8">
+                            
+                            <!-- Section: Active Programs -->
+                            <div class="space-y-4">
+                                <h3 class="text-xs font-black uppercase tracking-widest text-[#1A1A1A] border-b border-[#e8e8e8] pb-2">Active Training Catalog</h3>
+                                
+                                <div class="border border-[#1A1A1A] p-6 hover:shadow-lg transition-shadow">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="text-xl font-bold text-[#1A1A1A]">AWS Cloud Practitioner Essentials</h4>
+                                            <p class="text-xs text-[#737373] mt-1">AWS Technical Partner Track • Cohort 2026-A</p>
+                                        </div>
+                                        <span class="px-3 py-1 bg-[#1A1A1A] text-white text-[10px] font-bold uppercase tracking-wider">78% DONE</span>
+                                    </div>
+                                    <div class="mt-6">
+                                        <div class="h-1.5 bg-[#f5f5f5] rounded-full overflow-hidden">
+                                            <div class="h-1.5 bg-[#ad2c4d]" style="width: 78%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center text-xs mt-4">
+                                        <span class="text-[#737373]">Next Target: Security &amp; Compliance Module</span>
+                                        <a href="#" class="font-bold text-[#ad2c4d] hover:underline">Resume Module &rarr;</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section: Job Tracker (High-Density List) -->
+                            <div class="space-y-4">
+                                <h3 class="text-xs font-black uppercase tracking-widest text-[#1A1A1A] border-b border-[#e8e8e8] pb-2">Your Job Pipeline</h3>
+                                
+                                <div class="space-y-3">
+                                    <!-- Row 1 -->
+                                    <div class="flex items-center justify-between border-b border-[#e8e8e8] pb-4">
+                                        <div>
+                                            <h4 class="font-bold text-sm text-[#1A1A1A]">Salesforce Administrator</h4>
+                                            <p class="text-xs text-[#737373]">Deloitte • Austin, TX</p>
+                                        </div>
+                                        <span class="text-xs font-bold text-amber-600 tracking-wider uppercase bg-amber-50 px-2.5 py-0.5 border border-amber-200 rounded">Interview Scheduled</span>
+                                    </div>
+                                    <!-- Row 2 -->
+                                    <div class="flex items-center justify-between border-b border-[#e8e8e8] pb-4">
+                                        <div>
+                                            <h4 class="font-bold text-sm text-[#1A1A1A]">Agentforce Solutions Engineer</h4>
+                                            <p class="text-xs text-[#737373]">Accenture • Remote</p>
+                                        </div>
+                                        <span class="text-xs font-bold text-[#525252] tracking-wider uppercase bg-[#f5f5f5] px-2.5 py-0.5 rounded">Applied</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Right Column: Sidebar (Widgets & Info) -->
+                        <div class="space-y-8 border-l border-[#e8e8e8] pl-0 lg:pl-8">
+                            
+                            <!-- Widget: Career Toolkit CTA -->
+                            <div class="border-[2px] border-[#ad2c4d] p-6 text-center space-y-4">
+                                <h3 class="text-xs font-black uppercase tracking-widest text-[#ad2c4d]">AI CO-PILOT ACCESS</h3>
+                                <h4 class="text-2xl font-black text-[#1A1A1A] leading-tight">Instant Resume Audit</h4>
+                                <p class="text-xs text-[#737373] leading-relaxed">Our AI Career Toolkit analyzes your resume against live Austin, TX job descriptions to find skill gaps.</p>
+                                <button class="w-full py-3 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-bold text-xs rounded-full transition-colors focus-ring">
+                                    LAUNCH TOOLKIT
+                                </button>
+                            </div>
+
+                            <!-- Widget: Advisor -->
+                            <div class="space-y-4">
+                                <h3 class="text-xs font-black uppercase tracking-widest text-[#1A1A1A] border-b border-[#e8e8e8] pb-2">Advisor Status</h3>
+                                <div class="flex items-center gap-x-3">
+                                    <div class="w-10 h-10 rounded-full bg-[#f5f5f5] border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">
+                                        KS
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-xs text-[#1A1A1A]">Karen S.</div>
+                                        <div class="text-[10px] text-[#737373]">Senior Career Counselor</div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-[#737373]">Karen has reviewed your Salesforce certifications. Check your messages for feedback.</p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#1A1A1A] text-[#737373] py-6 px-6 border-t border-[#262626]">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs gap-y-4">
+            <div>
+                <span>&copy; 2026 Workforce Advancement Project. All rights reserved.</span>
+            </div>
+            <div class="flex gap-x-4">
+                <a href="#" class="hover:underline">Privacy Policy</a>
+                <a href="#" class="hover:underline">Terms of Service</a>
+                <a href="#" class="hover:underline">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- TOGGLE LOGIC -->
+    <script>
+        function switchVariant(variantId) {
+            // Hide all variants
+            document.getElementById('variant-light-bento').classList.add('hidden');
+            document.getElementById('variant-dark-glow').classList.add('hidden');
+            document.getElementById('variant-editorial').classList.add('hidden');
+
+            // Show selected variant
+            if (variantId === 'light-bento') {
+                document.getElementById('variant-light-bento').classList.remove('hidden');
+            } else if (variantId === 'dark-glow') {
+                document.getElementById('variant-dark-glow').classList.remove('hidden');
+            } else if (variantId === 'editorial') {
+                document.getElementById('variant-editorial').classList.remove('hidden');
+            }
+
+            // Update button styles
+            const buttons = ['light-bento', 'dark-glow', 'editorial'];
+            buttons.forEach(btn => {
+                const el = document.getElementById('btn-' + btn);
+                if (btn === variantId) {
+                    el.className = "px-4 py-1.5 text-xs font-semibold rounded-full bg-[#ad2c4d] text-white transition-all";
+                } else {
+                    el.className = "px-4 py-1.5 text-xs font-semibold rounded-full text-[#A3A3A3] hover:text-white transition-all";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Mobile Proof (Hybrid)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;background:#e9ebee}
+.h-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.03em}
+.tabnum{font-variant-numeric:tabular-nums}
+/* phone frame */
+.phone{width:390px;max-width:100%;height:780px;background:#fff;border-radius:38px;border:10px solid #1a1a1a;box-shadow:0 24px 50px rgba(0,0,0,.22);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.notch{height:26px;background:#1a1a1a;flex-shrink:0;display:flex;align-items:flex-start;justify-content:center}
+.notch:after{content:'';width:120px;height:18px;background:#1a1a1a;border-radius:0 0 14px 14px;margin-top:-2px}
+.screen{flex:1;overflow-y:auto;background:#F7F8FA}
+.screen::-webkit-scrollbar{width:0}
+.grad-c{background:linear-gradient(135deg,#ad2c4d,#8b1f38);color:#fff}
+.grad-ink{background:linear-gradient(135deg,#1a1a1a,#3a0f1c);color:#fff}
+.tag{display:inline-flex;padding:2px 8px;border-radius:999px;font-size:8px;font-weight:700;text-transform:uppercase}
+@media(max-width:1280px){.phones{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body class="min-h-screen">
+<header class="bg-[#1a1a1a] text-white px-6 py-5">
+  <div class="max-w-6xl mx-auto flex items-center gap-3">
+    <div class="w-9 h-9 bg-[#ad2c4d] rounded-xl flex items-center justify-center"><i class="fa-solid fa-mobile-screen"></i></div>
+    <div><h1 class="h-font text-lg">Mobile Proof — the hybrid, at phone width</h1><p class="text-[11px] text-[#a3a3a3]">Each surface-type degrades cleanly to 390px. Open this on your actual phone too — the frames just stack.</p></div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-8">
+  <p class="text-sm text-[#525252] mb-6 max-w-3xl">Your call: <b>Bold + Calm for members</b>, <b>Dense Command for data/CSV/chart views</b>, <b>admin-full</b> for admin. Below, one screen per surface-type at real phone size, proving the modes hold up on mobile.</p>
+  <div class="phones flex gap-8 justify-center flex-wrap">
+
+    <!-- ===== PHONE 1: MEMBER (Bold + Calm hybrid) ===== -->
+    <div>
+      <div class="text-center mb-2 text-xs font-bold text-[#737373] uppercase tracking-wider">Member · Bold + Calm</div>
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <!-- top bar -->
+        <div class="px-4 pt-3 pb-2 flex items-center justify-between">
+          <div><div class="text-[10px] font-bold text-[#ad2c4d] uppercase tracking-widest">Good morning</div><div class="h-font text-xl">Hi, Mike</div></div>
+          <div class="flex items-center gap-2"><span class="tag bg-[#fdf2f4] text-[#ad2c4d]"><i class="fa-solid fa-fire mr-1"></i>12d</span><div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white flex items-center justify-center text-[10px] font-bold">MB</div></div>
+        </div>
+        <!-- BOLD: gradient hero + ring -->
+        <div class="mx-4 grad-c rounded-3xl p-5 flex items-center gap-4" style="box-shadow:0 10px 24px rgba(173,44,77,.25)">
+          <div class="relative shrink-0" style="width:74px;height:74px"><svg width="74" height="74" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="13"/><circle cx="60" cy="60" r="52" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="71.9" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex items-center justify-center"><span class="tabnum font-extrabold text-base">78%</span></div></div>
+          <div><div class="text-[10px] font-bold uppercase opacity-70">Keep climbing</div><div class="font-extrabold text-base leading-tight">AWS Cloud Practitioner</div><button class="mt-2 px-4 py-1.5 bg-white text-[#ad2c4d] text-[11px] font-bold rounded-full">Resume</button></div>
+        </div>
+        <!-- CALM: single next action -->
+        <div class="mx-4 mt-3 bg-white border border-[#eceaea] rounded-3xl p-4 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-[#fdf2f4] text-[#ad2c4d] flex items-center justify-center"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="flex-1"><div class="text-[10px] font-bold text-[#ad2c4d] uppercase">Do this next</div><div class="font-bold text-sm">Shared Responsibility Model</div><div class="text-[11px] text-[#737373]">~25 min · due Thursday</div></div>
+        </div>
+        <!-- stat tiles 2x2 -->
+        <div class="mx-4 mt-3 grid grid-cols-2 gap-2.5">
+          <div class="bg-white border border-[#eceaea] rounded-2xl p-3"><div class="text-[9px] font-bold text-[#737373] uppercase">Jobs</div><div class="tabnum text-2xl font-extrabold text-[#2b7bb9]">4</div></div>
+          <div class="bg-white border border-[#eceaea] rounded-2xl p-3"><div class="text-[9px] font-bold text-[#737373] uppercase">Certs</div><div class="tabnum text-2xl font-extrabold text-[#a47f38]">2</div></div>
+          <div class="bg-white border border-[#eceaea] rounded-2xl p-3"><div class="text-[9px] font-bold text-[#737373] uppercase">Points</div><div class="tabnum text-2xl font-extrabold text-[#4a9b4f]">1,240</div></div>
+          <div class="bg-white border border-[#eceaea] rounded-2xl p-3"><div class="text-[9px] font-bold text-[#737373] uppercase">Readiness</div><div class="tabnum text-2xl font-extrabold text-[#ad2c4d]">84</div></div>
+        </div>
+        <!-- feature card -->
+        <div class="mx-4 mt-3 grad-c rounded-3xl p-4 flex items-center justify-between">
+          <div><div class="font-extrabold text-base">Career Toolkit</div><div class="text-[11px] opacity-80">Resume + cover letters</div></div>
+          <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
+        </div>
+        <div class="h-20"></div>
+        <!-- bottom tab nav -->
+        <div class="sticky bottom-0 bg-white border-t border-[#e8e8e8] px-2 py-2 flex justify-around">
+          <div class="flex flex-col items-center gap-0.5 text-[#ad2c4d]"><i class="fa-solid fa-house"></i><span class="text-[9px] font-bold">Journey</span></div>
+          <div class="flex flex-col items-center gap-0.5 text-[#a3a3a3]"><i class="fa-solid fa-book-open"></i><span class="text-[9px] font-semibold">Program</span></div>
+          <div class="flex flex-col items-center gap-0.5 text-[#a3a3a3]"><i class="fa-solid fa-briefcase"></i><span class="text-[9px] font-semibold">Jobs</span></div>
+          <div class="flex flex-col items-center gap-0.5 text-[#a3a3a3]"><i class="fa-solid fa-user"></i><span class="text-[9px] font-semibold">Me</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ===== PHONE 2: DATA / CHART (Dense Command) ===== -->
+    <div>
+      <div class="text-center mb-2 text-xs font-bold text-[#737373] uppercase tracking-wider">Data &amp; Charts · Dense</div>
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="px-4 pt-3 pb-2 flex items-center gap-3 border-b border-[#e8e8e8] sticky top-0 bg-white/95 backdrop-blur z-10">
+          <button class="w-8 h-8 rounded-lg border border-[#e8e8e8] flex items-center justify-center"><i class="fa-solid fa-bars text-xs"></i></button>
+          <div class="h-font text-base">Board Outcomes</div>
+        </div>
+        <!-- KPI 2-col -->
+        <div class="px-3 pt-3 grid grid-cols-2 gap-2">
+          <div class="bg-white border border-[#e4e4e4] rounded-lg p-2.5"><div class="text-[8px] font-bold text-[#737373] uppercase">Placement %</div><div class="tabnum text-xl font-extrabold text-[#4a9b4f]">68%</div></div>
+          <div class="bg-white border border-[#e4e4e4] rounded-lg p-2.5"><div class="text-[8px] font-bold text-[#737373] uppercase">Avg Wage</div><div class="tabnum text-xl font-extrabold">$58k</div></div>
+          <div class="bg-white border border-[#e4e4e4] rounded-lg p-2.5"><div class="text-[8px] font-bold text-[#737373] uppercase">Credentials</div><div class="tabnum text-xl font-extrabold text-[#a47f38]">541</div></div>
+          <div class="bg-white border border-[#e4e4e4] rounded-lg p-2.5"><div class="text-[8px] font-bold text-[#737373] uppercase">Retention</div><div class="tabnum text-xl font-extrabold text-[#2b7bb9]">84%</div></div>
+        </div>
+        <!-- chart -->
+        <div class="mx-3 mt-3 bg-white border border-[#e4e4e4] rounded-lg p-3">
+          <div class="font-bold text-xs mb-2">Placements by month · 213 YTD</div>
+          <div class="flex items-end justify-between gap-1.5 h-28">
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t" style="height:38%;background:#f3d4dc"></div><span class="text-[7px] text-[#737373] font-bold">Jan</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t" style="height:46%;background:#f3d4dc"></div><span class="text-[7px] text-[#737373] font-bold">Feb</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t" style="height:55%;background:#f3d4dc"></div><span class="text-[7px] text-[#737373] font-bold">Mar</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t" style="height:62%;background:#f3d4dc"></div><span class="text-[7px] text-[#737373] font-bold">Apr</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t" style="height:78%;background:#f3d4dc"></div><span class="text-[7px] text-[#737373] font-bold">May</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t" style="height:90%;background:#ad2c4d"></div><span class="text-[7px] text-[#ad2c4d] font-bold">Jun</span></div>
+          </div>
+        </div>
+        <!-- by program bars -->
+        <div class="mx-3 mt-3 bg-white border border-[#e4e4e4] rounded-lg p-3">
+          <div class="font-bold text-xs mb-2">By program</div>
+          <div class="space-y-2 text-[11px]">
+            <div><div class="flex justify-between mb-0.5"><span class="font-semibold">Cloud &amp; IT</span><span class="tabnum text-[#737373]">82</span></div><div class="h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden"><div class="h-1.5 rounded-full" style="width:100%;background:#2b7bb9"></div></div></div>
+            <div><div class="flex justify-between mb-0.5"><span class="font-semibold">Healthcare</span><span class="tabnum text-[#737373]">61</span></div><div class="h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden"><div class="h-1.5 rounded-full" style="width:74%;background:#2b7bb9"></div></div></div>
+            <div><div class="flex justify-between mb-0.5"><span class="font-semibold">Data &amp; AI</span><span class="tabnum text-[#737373]">38</span></div><div class="h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden"><div class="h-1.5 rounded-full" style="width:46%;background:#2b7bb9"></div></div></div>
+          </div>
+        </div>
+        <!-- CSV exports -->
+        <div class="mx-3 mt-3 mb-4 bg-white border border-[#e4e4e4] rounded-lg p-3">
+          <div class="font-bold text-xs mb-2">Funder exports</div>
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2 p-2 rounded bg-[#fafafa]"><i class="fa-solid fa-file-csv text-[#4a9b4f]"></i><span class="text-[11px] font-semibold flex-1">Outcomes CSV</span><i class="fa-solid fa-download text-[#737373] text-xs"></i></div>
+            <div class="flex items-center gap-2 p-2 rounded bg-[#fafafa]"><i class="fa-solid fa-file-lines text-[#2b7bb9]"></i><span class="text-[11px] font-semibold flex-1">Demographics report</span><i class="fa-solid fa-download text-[#737373] text-xs"></i></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ===== PHONE 3: TABLE → cards (Dense, responsive) ===== -->
+    <div>
+      <div class="text-center mb-2 text-xs font-bold text-[#737373] uppercase tracking-wider">Roster/CSV table · Dense→cards</div>
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="px-4 pt-3 pb-2 flex items-center gap-3 border-b border-[#e8e8e8] sticky top-0 bg-white/95 backdrop-blur z-10">
+          <button class="w-8 h-8 rounded-lg border border-[#e8e8e8] flex items-center justify-center"><i class="fa-solid fa-bars text-xs"></i></button>
+          <div class="h-font text-base">Students</div>
+          <span class="ml-auto tag bg-[#fdf2f4] text-[#ad2c4d]">847</span>
+        </div>
+        <!-- filter chips scroll -->
+        <div class="px-3 pt-2 pb-1 flex gap-1.5 overflow-x-auto text-[11px] font-bold">
+          <span class="px-3 py-1.5 rounded-full bg-[#ad2c4d] text-white whitespace-nowrap">All</span>
+          <span class="px-3 py-1.5 rounded-full bg-white border border-[#e4e4e4] whitespace-nowrap">Job-Ready</span>
+          <span class="px-3 py-1.5 rounded-full bg-white border border-[#e4e4e4] whitespace-nowrap">At Risk</span>
+          <span class="px-3 py-1.5 rounded-full bg-white border border-[#e4e4e4] whitespace-nowrap">In Training</span>
+        </div>
+        <!-- on mobile the wide table becomes stacked cards -->
+        <div class="px-3 pt-2 pb-4 space-y-2">
+          <p class="text-[10px] text-[#a3a3a3] px-1">Wide table → stacked cards on mobile (no horizontal squish)</p>
+          <div class="bg-white border border-[#e4e4e4] rounded-xl p-3">
+            <div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white flex items-center justify-center text-[10px] font-bold">MB</div><div class="flex-1"><div class="font-bold text-xs">Mike Brown</div><div class="text-[10px] text-[#737373]">Cloud &amp; IT · S. Chen</div></div><span class="tag bg-[#FEF3C7] text-[#a47f38]">Job-Ready</span></div>
+            <div class="flex items-center gap-3 mt-2.5 text-[10px]"><div class="flex-1"><div class="text-[#737373]">Progress</div><div class="h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden mt-0.5"><div class="h-1.5 bg-[#ad2c4d]" style="width:78%"></div></div></div><div class="text-center"><div class="text-[#737373]">Readiness</div><div class="font-extrabold text-[#4a9b4f] text-sm">84</div></div></div>
+          </div>
+          <div class="bg-white border border-[#e4e4e4] rounded-xl p-3">
+            <div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-full bg-[#2b7bb9] text-white flex items-center justify-center text-[10px] font-bold">JD</div><div class="flex-1"><div class="font-bold text-xs">Jasmine Davis</div><div class="text-[10px] text-[#737373]">Healthcare · R. Patel</div></div><span class="tag bg-[#eef7ef] text-[#4a9b4f]">Placed</span></div>
+            <div class="flex items-center gap-3 mt-2.5 text-[10px]"><div class="flex-1"><div class="text-[#737373]">Progress</div><div class="h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden mt-0.5"><div class="h-1.5 bg-[#4a9b4f]" style="width:92%"></div></div></div><div class="text-center"><div class="text-[#737373]">Readiness</div><div class="font-extrabold text-[#4a9b4f] text-sm">91</div></div></div>
+          </div>
+          <div class="bg-white border border-[#f3d4dc] rounded-xl p-3 bg-[#fffbfb]">
+            <div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-full bg-[#737373] text-white flex items-center justify-center text-[10px] font-bold">CT</div><div class="flex-1"><div class="font-bold text-xs">Carlos Torres</div><div class="text-[10px] text-[#737373]">Trades · S. Chen</div></div><span class="tag bg-[#fdf2f4] text-[#ad2c4d]">At Risk</span></div>
+            <div class="flex items-center gap-3 mt-2.5 text-[10px]"><div class="flex-1"><div class="text-[#737373]">Progress</div><div class="h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden mt-0.5"><div class="h-1.5 bg-[#ad2c4d]" style="width:34%"></div></div></div><div class="text-center"><div class="text-[#737373]">Readiness</div><div class="font-extrabold text-[#ad2c4d] text-sm">41</div></div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <div class="max-w-3xl mx-auto mt-10 bg-white border border-[#e8e8e8] rounded-2xl p-5">
+    <h3 class="font-extrabold text-base tracking-tight mb-2">The mobile rules baked into the system</h3>
+    <ul class="text-sm text-[#525252] space-y-1.5">
+      <li><i class="fa-solid fa-check text-[#4a9b4f] mr-2"></i><b>Member:</b> bottom tab nav (Journey/Program/Jobs/Me), gradient hero + ring scale down, stat tiles go 2-col.</li>
+      <li><i class="fa-solid fa-check text-[#4a9b4f] mr-2"></i><b>Staff (admin/counselor/employer):</b> sidebar collapses to a hamburger drawer (already live in the admin full build).</li>
+      <li><i class="fa-solid fa-check text-[#4a9b4f] mr-2"></i><b>Charts:</b> stack vertically, bars stay readable, KPI strips go 2-col.</li>
+      <li><i class="fa-solid fa-check text-[#4a9b4f] mr-2"></i><b>Wide tables / CSV rosters:</b> become stacked cards on mobile — no horizontal squish, the row's key fields surface as a mini-card.</li>
+    </ul>
+  </div>
+</main>
+</body>
+</html>

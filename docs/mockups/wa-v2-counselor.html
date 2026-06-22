@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=1280">
+<title>Counselor Dashboard — v2 Kit</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wa-accent: #ad2c4d; --wa-accent-dark: #8b1f38; --wa-accent-soft: #fdf2f4;
+    --wa-gold: #a47f38; --wa-gold-soft: #fef3c7;
+    --wa-info: #2b7bb9; --wa-success: #4a9b4f;
+    --wa-bg: #f7f8fa; --wa-surface: #fff; --wa-text: #1a1a1a; --wa-muted: #737373; --wa-border: #e8e8e8;
+    --wa-radius: 26px; --wa-radius-sm: 16px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', sans-serif; background: var(--wa-bg); color: var(--wa-text); -webkit-font-smoothing: antialiased; }
+  .wa-kit-card { background: var(--wa-surface); border: 1px solid var(--wa-border); border-radius: var(--wa-radius); padding: 22px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .wa-kit-card--sm { padding: 14px; border-radius: var(--wa-radius-sm); }
+
+  .topbar { position: sticky; top: 0; z-index: 30; background: rgba(255,255,255,.9); backdrop-filter: blur(8px); border-bottom: 1px solid var(--wa-border); padding: 12px 24px; display: flex; align-items: center; gap: 12px; }
+  .content { max-width: 1100px; margin: 0 auto; padding: 20px 24px; }
+
+  .kicker { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--wa-accent); }
+  .h-font { font-family: 'Inter', sans-serif; letter-spacing: -.03em; font-weight: 800; }
+
+  /* big stat card */
+  .stat-hero { background: var(--wa-accent); color: #fff; border-radius: var(--wa-radius); padding: 22px 24px; position: relative; overflow: hidden; }
+  .stat-hero .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; opacity: .85; }
+  .stat-hero .val { font-size: 48px; font-weight: 800; margin-top: 6px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat-hero .ghost { position: absolute; right: 18px; bottom: -6px; opacity: .12; font-size: 110px; line-height: 1; }
+  .stat-secondary { background: var(--wa-surface); border: 1px solid var(--wa-border); border-radius: var(--wa-radius); padding: 18px 22px; position: relative; }
+  .stat-secondary .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--wa-muted); }
+  .stat-secondary .val { font-size: 40px; font-weight: 800; margin-top: 6px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat-secondary .accent { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; border-radius: 0 0 var(--wa-radius) var(--wa-radius); }
+
+  .stat-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+
+  /* filter pills */
+  .filters { display: flex; gap: 8px; margin-bottom: 14px; }
+  .pill { padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--wa-border); background: var(--wa-surface); color: var(--wa-text); }
+  .pill.active { background: var(--wa-accent); color: #fff; border-color: var(--wa-accent); }
+
+  .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .section-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -.02em; margin: 0; }
+
+  /* empty state */
+  .empty { border: 1.5px dashed var(--wa-border); border-radius: var(--wa-radius); padding: 48px 24px; text-align: center; }
+  .empty .icon { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 999px; background: var(--wa-bg); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .empty h3 { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+  .empty p { font-size: 13px; color: var(--wa-muted); margin: 0 0 20px; max-width: 440px; margin-left: auto; margin-right: auto; }
+  .empty-btns { display: flex; gap: 10px; justify-content: center; }
+  .btn { padding: 9px 18px; border-radius: 999px; font-weight: 700; font-size: 13px; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .btn--primary { background: var(--wa-accent); color: #fff; border: none; }
+  .btn--secondary { background: transparent; color: var(--wa-text); border: 1px solid var(--wa-border); }
+
+  /* assistant accordion */
+  .accordion { background: var(--wa-surface); border: 1px solid var(--wa-border); border-radius: 999px; padding: 12px 20px; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; cursor: pointer; }
+  .accordion .triangle { font-size: 10px; color: var(--wa-muted); }
+  .accordion .title { font-weight: 700; font-size: 13px; }
+  .accordion .hint { font-size: 12px; color: var(--wa-muted); margin-left: auto; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div style="display:flex; align-items:center; gap:8px;">
+    <div style="width:32px; height:32px; border-radius:8px; background:var(--wa-accent);"></div>
+    <div>
+      <div style="font-weight:800; letter-spacing:-.02em;">WorkforceAP</div>
+      <div class="kicker" style="font-size:9px;">COUNSELOR PORTAL</div>
+    </div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="display:flex; align-items:center; gap:10px; font-size:13px;">
+    <div style="padding:4px 10px; background:var(--wa-bg); border:1px solid var(--wa-border); border-radius:999px; font-weight:600; font-size:11px; color:var(--wa-muted);">Super admin preview</div>
+    <span style="font-weight:700;">Michael</span>
+    <div style="width:32px; height:32px; border-radius:999px; background:var(--wa-accent); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px;">M</div>
+  </div>
+</header>
+
+<div class="content">
+
+  <div class="kicker">Counselor Dashboard</div>
+  <h1 class="h-font" style="font-size:34px; margin: 4px 0 18px;">
+    Evening, <span style="color:var(--wa-accent);">Michael</span>
+  </h1>
+
+  <div class="accordion">
+    <span class="triangle">▶</span>
+    <span class="title">Counselor assistant</span>
+    <span class="hint">(tap to open)</span>
+  </div>
+
+  <!-- KPIs -->
+  <div class="stat-grid">
+    <div class="stat-hero">
+      <div class="lbl">Your students</div>
+      <div class="val">0</div>
+      <div class="ghost">👥</div>
+      <div style="font-size:11px; opacity:.85; margin-top:4px;">Currently assigned to you</div>
+    </div>
+    <div class="stat-secondary">
+      <div class="lbl">In a program</div>
+      <div class="val">0</div>
+      <div class="accent" style="background:var(--wa-gold);"></div>
+    </div>
+    <div class="stat-secondary">
+      <div class="lbl">Awaiting reply</div>
+      <div class="val">0</div>
+      <div class="accent" style="background:var(--wa-accent);"></div>
+    </div>
+  </div>
+
+  <!-- Roster -->
+  <div class="filters">
+    <div class="pill active">All</div>
+    <div class="pill">At risk</div>
+    <div class="pill">Upcoming session</div>
+    <div class="pill">New</div>
+  </div>
+
+  <div class="section-head">
+    <h2>Active Roster</h2>
+    <div style="display:flex; gap:6px;">
+      <div class="pill" style="padding:6px 10px; font-size:12px;">☰</div>
+    </div>
+  </div>
+
+  <div class="empty">
+    <div class="icon">🔍</div>
+    <h3>No students assigned yet</h3>
+    <p>Students will appear here once assigned by an administrator. In the meantime, explore the counselor guide.</p>
+    <div class="empty-btns">
+      <a class="btn btn--primary">Counselor guide</a>
+      <a class="btn btn--secondary">Resources</a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

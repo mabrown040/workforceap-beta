@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Admin Suite (Consolidated)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.h-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.03em}
+.tabnum{font-variant-numeric:tabular-nums}
+.bento{transition:box-shadow .2s,border-color .2s,background-color .15s}
+.focus-ring:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #ad2c4d}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fade .3s ease forwards}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.bento{transition:none}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#d4d4d4;border-radius:4px}
+</style>
+</head>
+<body class="bg-[#F7F8FA] text-[#1A1A1A] min-h-screen">
+
+<div class="flex min-h-screen">
+  <!-- SIDEBAR (admin = dense, command-center personality) -->
+  <aside class="hidden lg:flex flex-col w-60 bg-[#1a1a1a] text-white fixed h-screen z-40">
+    <div class="px-5 py-4 flex items-center gap-2.5 border-b border-[#2a2a2a]">
+      <div class="w-8 h-8 bg-[#ad2c4d] rounded-lg flex items-center justify-center"><i class="fa-solid fa-shield-halved text-sm"></i></div>
+      <div><div class="font-extrabold text-sm leading-none">WorkforceAP</div><div class="text-[10px] text-[#a3a3a3] mt-0.5">Admin · Austin</div></div>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-2.5 py-3 space-y-1 text-sm">
+      <div class="px-2.5 text-[10px] font-bold tracking-widest text-[#666] uppercase mb-1 mt-1">Run the org</div>
+      <button data-view="today" class="nav-btn w-full flex items-center gap-3 px-2.5 py-2 rounded-lg font-semibold text-left text-[#d4d4d4] hover:bg-[#262626] focus-ring"><i class="fa-solid fa-bolt w-4 text-center"></i>Command Center</button>
+      <button data-view="outcomes" class="nav-btn w-full flex items-center gap-3 px-2.5 py-2 rounded-lg font-semibold text-left text-[#d4d4d4] hover:bg-[#262626] focus-ring"><i class="fa-solid fa-chart-line w-4 text-center"></i>Outcomes &amp; Metrics</button>
+      <div class="px-2.5 text-[10px] font-bold tracking-widest text-[#666] uppercase mb-1 mt-3">People</div>
+      <button data-view="students" class="nav-btn w-full flex items-center justify-between px-2.5 py-2 rounded-lg font-semibold text-left text-[#d4d4d4] hover:bg-[#262626] focus-ring"><span class="flex items-center gap-3"><i class="fa-solid fa-users w-4 text-center"></i>Students</span><span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-[#ad2c4d]">847</span></button>
+      <button class="w-full flex items-center gap-3 px-2.5 py-2 rounded-lg font-semibold text-left text-[#777] hover:bg-[#262626] focus-ring"><i class="fa-solid fa-graduation-cap w-4 text-center"></i>Programs</button>
+      <button class="w-full flex items-center gap-3 px-2.5 py-2 rounded-lg font-semibold text-left text-[#777] hover:bg-[#262626] focus-ring"><i class="fa-solid fa-handshake w-4 text-center"></i>Partners &amp; Employers</button>
+      <button class="w-full flex items-center gap-3 px-2.5 py-2 rounded-lg font-semibold text-left text-[#777] hover:bg-[#262626] focus-ring"><i class="fa-solid fa-gear w-4 text-center"></i>System</button>
+    </nav>
+    <div class="px-3 py-3 border-t border-[#2a2a2a]">
+      <button data-view="consolidation" class="nav-btn w-full text-left text-[10px] text-[#a3a3a3] hover:text-white flex items-center gap-2 focus-ring rounded px-2 py-1"><i class="fa-solid fa-compress"></i>See the consolidation →</button>
+    </div>
+  </aside>
+
+  <div class="flex-1 lg:ml-60 flex flex-col min-w-0">
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-[#e8e8e8] px-4 md:px-7 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <h1 id="page-title" class="h-font text-lg truncate">Command Center</h1>
+        <span class="hidden sm:inline text-xs text-[#737373]">Tue, Jun 21 · 9:42 AM</span>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <div class="relative hidden md:block"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[#a3a3a3] text-xs"></i><input placeholder="Find a student, program, employer…" class="text-xs border border-[#e8e8e8] rounded-full pl-8 pr-3 py-2 w-72 outline-none focus-ring" aria-label="Search"></div>
+        <button class="px-3 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white text-xs font-semibold rounded-full transition-colors focus-ring"><i class="fa-solid fa-plus mr-1"></i>Add Student</button>
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#a47f38] to-[#7d5f26] text-white flex items-center justify-center font-bold text-xs">DB</div>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 md:p-7">
+
+    <!-- ============ COMMAND CENTER (consolidates Today+Overview+Dashboard+Command Center) ============ -->
+    <section data-view-panel="today" class="view-panel fade space-y-5">
+      <!-- metric row -->
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Active Students</div><div class="tabnum text-3xl font-extrabold mt-1">847</div><div class="text-[10px] text-[#4a9b4f] font-bold mt-0.5"><i class="fa-solid fa-arrow-up"></i> 32 this month</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Placements YTD</div><div class="tabnum text-3xl font-extrabold text-[#4a9b4f] mt-1">213</div><div class="text-[10px] text-[#4a9b4f] font-bold mt-0.5"><i class="fa-solid fa-arrow-up"></i> 18 this month</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Completion Rate</div><div class="tabnum text-3xl font-extrabold text-[#2b7bb9] mt-1">71<span class="text-lg">%</span></div><div class="text-[10px] text-[#737373] font-bold mt-0.5">cohort avg</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Job-Ready Now</div><div class="tabnum text-3xl font-extrabold text-[#a47f38] mt-1">64</div><div class="text-[10px] text-[#737373] font-bold mt-0.5">ready to place</div></div>
+        <div class="bg-[#fdf2f4] border border-[#f3d4dc] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#ad2c4d] uppercase tracking-wider">At Risk</div><div class="tabnum text-3xl font-extrabold text-[#ad2c4d] mt-1">19</div><div class="text-[10px] text-[#ad2c4d] font-bold mt-0.5">need outreach</div></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- work queue: what needs you today -->
+        <div class="lg:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm">
+          <div class="flex items-center justify-between mb-4"><h3 class="font-extrabold text-lg tracking-tight">What needs you today</h3><span class="px-2.5 py-0.5 rounded-full bg-[#fdf2f4] text-[#ad2c4d] text-[10px] font-bold">7 items</span></div>
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-[#fdf2f4] border border-[#f3d4dc] hover:bg-[#fbe8ec] transition-colors cursor-pointer"><div class="w-8 h-8 rounded-lg bg-[#ad2c4d] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="flex-1"><div class="font-bold text-sm">5 students inactive 14+ days</div><div class="text-[11px] text-[#737373]">Cloud & IT cohort · likely to drop without outreach</div></div><button class="px-3 py-1.5 bg-[#ad2c4d] text-white text-[11px] font-semibold rounded-full">Assign outreach</button></div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-[#fafafa] border border-[#e8e8e8] hover:bg-[#f5f5f5] transition-colors cursor-pointer"><div class="w-8 h-8 rounded-lg bg-[#a47f38] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-award"></i></div><div class="flex-1"><div class="font-bold text-sm">12 certifications awaiting approval</div><div class="text-[11px] text-[#737373]">Members submitted proof · verify to count toward outcomes</div></div><button class="px-3 py-1.5 border border-[#e8e8e8] text-[11px] font-semibold rounded-full">Review</button></div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-[#fafafa] border border-[#e8e8e8] hover:bg-[#f5f5f5] transition-colors cursor-pointer"><div class="w-8 h-8 rounded-lg bg-[#2b7bb9] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-user-plus"></i></div><div class="flex-1"><div class="font-bold text-sm">8 new applicants need eligibility review</div><div class="text-[11px] text-[#737373]">WIOA screening pending</div></div><button class="px-3 py-1.5 border border-[#e8e8e8] text-[11px] font-semibold rounded-full">Open queue</button></div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-[#fafafa] border border-[#e8e8e8] hover:bg-[#f5f5f5] transition-colors cursor-pointer"><div class="w-8 h-8 rounded-lg bg-[#4a9b4f] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-briefcase"></i></div><div class="flex-1"><div class="font-bold text-sm">3 placements to confirm</div><div class="text-[11px] text-[#737373]">Employers reported hires · confirm for board reporting</div></div><button class="px-3 py-1.5 border border-[#e8e8e8] text-[11px] font-semibold rounded-full">Confirm</button></div>
+          </div>
+        </div>
+        <!-- program health -->
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm">
+          <h3 class="font-extrabold text-lg tracking-tight mb-4">Program Health</h3>
+          <div class="space-y-3.5">
+            <div><div class="flex justify-between text-xs mb-1"><span class="font-bold">Cloud & IT</span><span class="text-[#737373] tabnum">312 · 74%</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#4a9b4f] rounded-full" style="width:74%"></div></div></div>
+            <div><div class="flex justify-between text-xs mb-1"><span class="font-bold">Data & AI</span><span class="text-[#737373] tabnum">198 · 68%</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#4a9b4f] rounded-full" style="width:68%"></div></div></div>
+            <div><div class="flex justify-between text-xs mb-1"><span class="font-bold">Healthcare</span><span class="text-[#737373] tabnum">156 · 81%</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#4a9b4f] rounded-full" style="width:81%"></div></div></div>
+            <div><div class="flex justify-between text-xs mb-1"><span class="font-bold">Skilled Trades</span><span class="text-[#ad2c4d] tabnum font-bold">81 · 52%</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#ad2c4d] rounded-full" style="width:52%"></div></div></div>
+            <div><div class="flex justify-between text-xs mb-1"><span class="font-bold">Manufacturing</span><span class="text-[#737373] tabnum">100 · 70%</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#4a9b4f] rounded-full" style="width:70%"></div></div></div>
+          </div>
+          <p class="text-[11px] text-[#ad2c4d] font-semibold mt-4"><i class="fa-solid fa-circle-info"></i> Skilled Trades completion is low — worth a look.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STUDENTS (consolidates members + interview-ready + job-ready + training + duplicates) ============ -->
+    <section data-view-panel="students" class="view-panel hidden fade space-y-5">
+      <!-- the consolidation: saved views replace separate pages -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button class="px-3.5 py-2 rounded-full text-xs font-bold bg-[#ad2c4d] text-white focus-ring">All Students <span class="tabnum opacity-80">847</span></button>
+        <button class="px-3.5 py-2 rounded-full text-xs font-bold bg-white border border-[#e8e8e8] hover:border-[#ad2c4d] transition-colors focus-ring">Job-Ready <span class="tabnum text-[#737373]">64</span></button>
+        <button class="px-3.5 py-2 rounded-full text-xs font-bold bg-white border border-[#e8e8e8] hover:border-[#ad2c4d] transition-colors focus-ring">Interview-Ready <span class="tabnum text-[#737373]">88</span></button>
+        <button class="px-3.5 py-2 rounded-full text-xs font-bold bg-white border border-[#e8e8e8] hover:border-[#ad2c4d] transition-colors focus-ring">In Training <span class="tabnum text-[#737373]">612</span></button>
+        <button class="px-3.5 py-2 rounded-full text-xs font-bold bg-white border border-[#f3d4dc] text-[#ad2c4d] hover:bg-[#fdf2f4] transition-colors focus-ring">At Risk <span class="tabnum">19</span></button>
+        <button class="px-3.5 py-2 rounded-full text-xs font-bold bg-white border border-[#e8e8e8] hover:border-[#ad2c4d] transition-colors focus-ring">Possible Duplicates <span class="tabnum text-[#737373]">4</span></button>
+        <div class="ml-auto flex gap-2"><button class="px-3 py-2 border border-[#e8e8e8] rounded-full text-xs font-semibold hover:bg-[#fafafa] focus-ring"><i class="fa-solid fa-filter mr-1"></i>Filter</button><button class="px-3 py-2 border border-[#e8e8e8] rounded-full text-xs font-semibold hover:bg-[#fafafa] focus-ring"><i class="fa-solid fa-download mr-1"></i>Export</button></div>
+      </div>
+
+      <div class="bg-white border border-[#e8e8e8] rounded-3xl overflow-hidden bento shadow-sm">
+        <div class="overflow-x-auto"><table class="w-full text-left min-w-[760px]">
+          <thead><tr class="text-[9px] uppercase tracking-wider text-[#a3a3a3] border-b border-[#e8e8e8] bg-[#fafafa]">
+            <th class="px-4 py-3 font-bold">Student</th><th class="px-2 py-3 font-bold">Program</th><th class="px-2 py-3 font-bold">Progress</th><th class="px-2 py-3 font-bold">Readiness</th><th class="px-2 py-3 font-bold">Counselor</th><th class="px-2 py-3 font-bold">Status</th><th class="px-4 py-3 font-bold text-right">Last active</th>
+          </tr></thead>
+          <tbody class="text-xs">
+            <tr data-view="student360" class="nav-btn border-b border-[#f5f5f5] hover:bg-[#fafafa] cursor-pointer">
+              <td class="px-4 py-3"><div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white flex items-center justify-center font-bold text-[10px]">MB</div><div><div class="font-bold">Mike Brown</div><div class="text-[10px] text-[#737373]">Austin, TX</div></div></div></td>
+              <td class="px-2 py-3 text-[#525252]">Cloud & IT</td>
+              <td class="px-2 py-3"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-1.5 bg-[#ad2c4d]" style="width:78%"></div></div><span class="tabnum text-[10px] text-[#737373]">78%</span></div></td>
+              <td class="px-2 py-3"><span class="tabnum font-bold text-[#4a9b4f]">84</span></td>
+              <td class="px-2 py-3 text-[#525252]">S. Chen</td>
+              <td class="px-2 py-3"><span class="px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#a47f38] text-[9px] font-bold uppercase">Job-Ready</span></td>
+              <td class="px-4 py-3 text-right text-[#737373]">2h ago</td>
+            </tr>
+            <tr class="border-b border-[#f5f5f5] hover:bg-[#fafafa] cursor-pointer">
+              <td class="px-4 py-3"><div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-full bg-[#2b7bb9] text-white flex items-center justify-center font-bold text-[10px]">JD</div><div><div class="font-bold">Jasmine Davis</div><div class="text-[10px] text-[#737373]">Austin, TX</div></div></div></td>
+              <td class="px-2 py-3 text-[#525252]">Healthcare</td>
+              <td class="px-2 py-3"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-1.5 bg-[#4a9b4f]" style="width:92%"></div></div><span class="tabnum text-[10px] text-[#737373]">92%</span></div></td>
+              <td class="px-2 py-3"><span class="tabnum font-bold text-[#4a9b4f]">91</span></td>
+              <td class="px-2 py-3 text-[#525252]">R. Patel</td>
+              <td class="px-2 py-3"><span class="px-2 py-0.5 rounded-full bg-emerald-50 text-[#4a9b4f] text-[9px] font-bold uppercase">Placed</span></td>
+              <td class="px-4 py-3 text-right text-[#737373]">1d ago</td>
+            </tr>
+            <tr class="border-b border-[#f5f5f5] hover:bg-[#fafafa] cursor-pointer bg-[#fffbfb]">
+              <td class="px-4 py-3"><div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-full bg-[#737373] text-white flex items-center justify-center font-bold text-[10px]">CT</div><div><div class="font-bold">Carlos Torres</div><div class="text-[10px] text-[#737373]">Round Rock, TX</div></div></div></td>
+              <td class="px-2 py-3 text-[#525252]">Skilled Trades</td>
+              <td class="px-2 py-3"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-1.5 bg-[#ad2c4d]" style="width:34%"></div></div><span class="tabnum text-[10px] text-[#737373]">34%</span></div></td>
+              <td class="px-2 py-3"><span class="tabnum font-bold text-[#ad2c4d]">41</span></td>
+              <td class="px-2 py-3 text-[#525252]">S. Chen</td>
+              <td class="px-2 py-3"><span class="px-2 py-0.5 rounded-full bg-[#fdf2f4] text-[#ad2c4d] text-[9px] font-bold uppercase">At Risk</span></td>
+              <td class="px-4 py-3 text-right text-[#ad2c4d] font-bold">16d ago</td>
+            </tr>
+            <tr class="border-b border-[#f5f5f5] hover:bg-[#fafafa] cursor-pointer">
+              <td class="px-4 py-3"><div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-full bg-[#a47f38] text-white flex items-center justify-center font-bold text-[10px]">AW</div><div><div class="font-bold">Aisha Williams</div><div class="text-[10px] text-[#737373]">Austin, TX</div></div></div></td>
+              <td class="px-2 py-3 text-[#525252]">Data & AI</td>
+              <td class="px-2 py-3"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-1.5 bg-[#4a9b4f]" style="width:88%"></div></div><span class="tabnum text-[10px] text-[#737373]">88%</span></div></td>
+              <td class="px-2 py-3"><span class="tabnum font-bold text-[#4a9b4f]">79</span></td>
+              <td class="px-2 py-3 text-[#525252]">R. Patel</td>
+              <td class="px-2 py-3"><span class="px-2 py-0.5 rounded-full bg-blue-50 text-[#2b7bb9] text-[9px] font-bold uppercase">Interviewing</span></td>
+              <td class="px-4 py-3 text-right text-[#737373]">5h ago</td>
+            </tr>
+          </tbody>
+        </table></div>
+        <div class="px-4 py-3 border-t border-[#e8e8e8] flex items-center justify-between text-xs text-[#737373]"><span>Showing 4 of 847</span><div class="flex gap-1"><button class="w-7 h-7 rounded-lg border border-[#e8e8e8] hover:bg-[#fafafa] focus-ring">1</button><button class="w-7 h-7 rounded-lg hover:bg-[#fafafa] focus-ring">2</button><button class="w-7 h-7 rounded-lg hover:bg-[#fafafa] focus-ring">3</button></div></div>
+      </div>
+      <p class="text-center text-xs text-[#737373]">Click any student to open their 360° view →</p>
+    </section>
+
+    <!-- ============ STUDENT 360 (consolidates [id] + lifecycle + readiness + stakeholder) ============ -->
+    <section data-view-panel="student360" class="view-panel hidden fade space-y-5">
+      <button data-view="students" class="nav-btn text-xs font-semibold text-[#737373] hover:text-[#ad2c4d] focus-ring rounded"><i class="fa-solid fa-arrow-left mr-1"></i>Back to Students</button>
+      <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm flex flex-col md:flex-row md:items-center gap-5">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white flex items-center justify-center font-extrabold text-xl shrink-0">MB</div>
+        <div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><h2 class="h-font text-2xl">Mike Brown</h2><span class="px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#a47f38] text-[10px] font-bold uppercase">Job-Ready</span></div><p class="text-sm text-[#737373]">Cloud & IT · Austin, TX · Enrolled May 2 · Counselor: Sarah Chen</p></div>
+        <div class="flex gap-2"><button class="px-4 py-2 border border-[#e8e8e8] text-xs font-semibold rounded-full hover:bg-[#fafafa] focus-ring"><i class="fa-solid fa-comment mr-1"></i>Message</button><button class="px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white text-xs font-semibold rounded-full transition-colors focus-ring">Log Placement</button></div>
+      </div>
+      <!-- the consolidation: lifecycle + readiness + stakeholder become tabs in ONE page -->
+      <div class="flex gap-1 border-b border-[#e8e8e8] text-sm">
+        <button class="px-4 py-2.5 font-bold border-b-2 border-[#ad2c4d] text-[#ad2c4d]">Overview</button>
+        <button class="px-4 py-2.5 font-semibold text-[#737373] border-b-2 border-transparent hover:text-[#1a1a1a]">Lifecycle</button>
+        <button class="px-4 py-2.5 font-semibold text-[#737373] border-b-2 border-transparent hover:text-[#1a1a1a]">Readiness</button>
+        <button class="px-4 py-2.5 font-semibold text-[#737373] border-b-2 border-transparent hover:text-[#1a1a1a]">Stakeholders</button>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm flex flex-col items-center text-center">
+          <h3 class="text-[10px] font-bold tracking-widest uppercase text-[#737373] mb-2">Readiness</h3>
+          <div class="relative"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#f0eef0" stroke-width="11"/><circle cx="60" cy="60" r="52" fill="none" stroke="#4a9b4f" stroke-width="11" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="52.3" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span class="tabnum text-3xl font-extrabold text-[#4a9b4f]">84</span></div></div>
+          <p class="text-[11px] text-[#737373] mt-2">Top 20% of cohort</p>
+        </div>
+        <div class="lg:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm">
+          <h3 class="font-extrabold text-base tracking-tight mb-4">Journey timeline</h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3"><div class="w-7 h-7 rounded-full bg-[#4a9b4f] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div><span class="text-sm font-semibold flex-1">Enrolled · WIOA eligible</span><span class="text-[10px] text-[#737373]">May 2</span></div>
+            <div class="flex items-center gap-3"><div class="w-7 h-7 rounded-full bg-[#4a9b4f] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-award"></i></div><span class="text-sm font-semibold flex-1">Earned Salesforce Admin cert</span><span class="text-[10px] text-[#737373]">Mar 18</span></div>
+            <div class="flex items-center gap-3"><div class="w-7 h-7 rounded-full bg-[#ad2c4d] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-bolt text-[10px]"></i></div><span class="text-sm font-semibold flex-1">Interviewing at Deloitte</span><span class="text-[10px] text-[#ad2c4d] font-bold">This week</span></div>
+            <div class="flex items-center gap-3 opacity-60"><div class="w-7 h-7 rounded-full bg-[#e8e8e8] text-[#a3a3a3] flex items-center justify-center text-xs"><i class="fa-solid fa-flag-checkered text-[10px]"></i></div><span class="text-sm font-semibold flex-1 text-[#737373]">Placement</span><span class="text-[10px] text-[#a3a3a3]">Goal</span></div>
+          </div>
+        </div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-5 bento shadow-sm"><div class="text-[10px] font-bold uppercase tracking-wider text-[#737373]">Certifications</div><div class="tabnum text-2xl font-extrabold text-[#a47f38] mt-1">2</div><p class="text-[11px] text-[#737373]">AWS · Salesforce</p></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-5 bento shadow-sm"><div class="text-[10px] font-bold uppercase tracking-wider text-[#737373]">Applications</div><div class="tabnum text-2xl font-extrabold mt-1">4</div><p class="text-[11px] text-[#737373]">1 interviewing</p></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-5 bento shadow-sm"><div class="text-[10px] font-bold uppercase tracking-wider text-[#737373]">Course Progress</div><div class="tabnum text-2xl font-extrabold text-[#ad2c4d] mt-1">78%</div><p class="text-[11px] text-[#737373]">AWS Practitioner</p></div>
+      </div>
+    </section>
+
+    <!-- ============ OUTCOMES & METRICS (consolidates metrics + analytics + board + outcomes) ============ -->
+    <section data-view-panel="outcomes" class="view-panel hidden fade space-y-5">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div><h2 class="h-font text-2xl">Outcomes &amp; Metrics</h2><p class="text-sm text-[#737373]">Board-ready · everything in one place</p></div>
+        <div class="flex gap-2"><select class="text-xs border border-[#e8e8e8] rounded-full px-3 py-2 outline-none focus-ring"><option>2026 YTD</option><option>Last quarter</option><option>All time</option></select><button class="px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white text-xs font-semibold rounded-full transition-colors focus-ring"><i class="fa-solid fa-file-export mr-1"></i>Board Report</button></div>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Placement Rate</div><div class="tabnum text-3xl font-extrabold text-[#4a9b4f] mt-1">68<span class="text-lg">%</span></div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Avg Starting Wage</div><div class="tabnum text-3xl font-extrabold mt-1">$58<span class="text-lg">k</span></div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Credentials Earned</div><div class="tabnum text-3xl font-extrabold text-[#a47f38] mt-1">541</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">90-Day Retention</div><div class="tabnum text-3xl font-extrabold text-[#2b7bb9] mt-1">84<span class="text-lg">%</span></div></div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm">
+          <h3 class="font-extrabold text-base tracking-tight mb-1">Placements by month</h3><p class="text-[11px] text-[#737373] mb-5">2026 YTD · 213 total</p>
+          <div class="flex items-end justify-between gap-2 h-44">
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-[#ad2c4d] rounded-t-lg" style="height:38%"></div><span class="text-[9px] text-[#737373] font-bold">Jan</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-[#ad2c4d] rounded-t-lg" style="height:46%"></div><span class="text-[9px] text-[#737373] font-bold">Feb</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-[#ad2c4d] rounded-t-lg" style="height:55%"></div><span class="text-[9px] text-[#737373] font-bold">Mar</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-[#ad2c4d] rounded-t-lg" style="height:62%"></div><span class="text-[9px] text-[#737373] font-bold">Apr</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-[#ad2c4d] rounded-t-lg" style="height:78%"></div><span class="text-[9px] text-[#737373] font-bold">May</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full bg-gradient-to-t from-[#ad2c4d] to-[#c4456a] rounded-t-lg" style="height:90%"></div><span class="text-[9px] text-[#ad2c4d] font-bold">Jun</span></div>
+          </div>
+        </div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm">
+          <h3 class="font-extrabold text-base tracking-tight mb-4">Placements by program</h3>
+          <div class="space-y-3 text-xs">
+            <div><div class="flex justify-between mb-1"><span class="font-bold">Cloud & IT</span><span class="tabnum text-[#737373]">82</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#2b7bb9]" style="width:100%"></div></div></div>
+            <div><div class="flex justify-between mb-1"><span class="font-bold">Healthcare</span><span class="tabnum text-[#737373]">61</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#2b7bb9]" style="width:74%"></div></div></div>
+            <div><div class="flex justify-between mb-1"><span class="font-bold">Data & AI</span><span class="tabnum text-[#737373]">38</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#2b7bb9]" style="width:46%"></div></div></div>
+            <div><div class="flex justify-between mb-1"><span class="font-bold">Manufacturing</span><span class="tabnum text-[#737373]">22</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#2b7bb9]" style="width:27%"></div></div></div>
+            <div><div class="flex justify-between mb-1"><span class="font-bold">Skilled Trades</span><span class="tabnum text-[#737373]">10</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#2b7bb9]" style="width:12%"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONSOLIDATION STORY ============ -->
+    <section data-view-panel="consolidation" class="view-panel hidden fade space-y-5">
+      <div class="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-3xl p-7 text-white">
+        <div class="text-[11px] font-bold tracking-widest uppercase text-[#ad2c4d]"><i class="fa-solid fa-compress"></i> The value-add</div>
+        <h2 class="h-font text-3xl mt-1">Fewer pages. Same power. Less to learn.</h2>
+        <p class="text-sm text-white/70 mt-2 max-w-2xl">The redesign isn't just paint — it's a chance to collapse overlapping admin pages into focused workspaces. Your dad learns 4 surfaces instead of 20.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm">
+          <h3 class="font-extrabold text-lg tracking-tight mb-1 text-[#ad2c4d]">Command Center</h3>
+          <p class="text-xs text-[#737373] mb-3">Replaces 4 overlapping dashboards →</p>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/admin (Today)</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/command-center</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/overview</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/dashboard</span>
+          </div>
+        </div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm">
+          <h3 class="font-extrabold text-lg tracking-tight mb-1 text-[#ad2c4d]">Students</h3>
+          <p class="text-xs text-[#737373] mb-3">Filters replace 5 separate pages →</p>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/members/interview-ready</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/members/job-ready</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/members/training</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/members/duplicates</span>
+          </div>
+        </div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm">
+          <h3 class="font-extrabold text-lg tracking-tight mb-1 text-[#ad2c4d]">Student 360°</h3>
+          <p class="text-xs text-[#737373] mb-3">Tabs replace 3 separate detail pages →</p>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/members/[id]/lifecycle</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/members/[id]/readiness</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/members/[id]/stakeholder</span>
+          </div>
+        </div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm">
+          <h3 class="font-extrabold text-lg tracking-tight mb-1 text-[#ad2c4d]">Outcomes &amp; Metrics</h3>
+          <p class="text-xs text-[#737373] mb-3">One report surface replaces 4 →</p>
+          <div class="flex flex-wrap gap-1.5 text-[10px]">
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/metrics</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/analytics</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/board</span>
+            <span class="px-2 py-1 bg-[#fafafa] border border-[#e8e8e8] rounded-md line-through text-[#a3a3a3]">/outcomes</span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-[#fdf2f4] border border-[#f3d4dc] rounded-2xl px-5 py-4 flex items-center gap-4">
+        <div class="text-center"><div class="tabnum text-3xl font-extrabold text-[#ad2c4d]">16</div><div class="text-[10px] font-bold text-[#737373] uppercase">pages today</div></div>
+        <i class="fa-solid fa-arrow-right text-[#ad2c4d]"></i>
+        <div class="text-center"><div class="tabnum text-3xl font-extrabold text-[#4a9b4f]">4</div><div class="text-[10px] font-bold text-[#737373] uppercase">focused workspaces</div></div>
+        <p class="text-xs text-[#525252] ml-2">Same data, same capabilities — but your dad and his team learn and navigate a quarter of the surface area. Consolidation is the real ROI of the redesign.</p>
+      </div>
+    </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const titles={today:'Command Center',students:'Students',student360:'Student 360°',outcomes:'Outcomes & Metrics',consolidation:'Consolidation'};
+function activate(v){
+  document.querySelectorAll('.view-panel').forEach(p=>p.classList.toggle('hidden',p.dataset.viewPanel!==v));
+  const live=document.querySelector('.view-panel[data-view-panel="'+v+'"]');
+  if(live){live.classList.remove('fade');void live.offsetWidth;live.classList.add('fade');}
+  document.getElementById('page-title').textContent=titles[v]||'Admin';
+  document.querySelectorAll('aside .nav-btn[data-view]').forEach(b=>{
+    const on=b.dataset.view===v;
+    b.classList.toggle('bg-[#262626]',on);
+    b.classList.toggle('text-white',on);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.nav-btn[data-view]').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.view)));
+activate('today');
+</script>
+</body>
+</html>

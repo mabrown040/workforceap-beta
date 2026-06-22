@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkforceAP • Admin &amp; Partner Portals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .heading-font {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        /* Focus rings (WCAG AA Compliant) */
+        .focus-ring:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #ad2c4d;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#F7F8FA] text-[#1A1A1A] min-h-screen flex flex-col">
+
+    <!-- GLOBAL NAVBAR -->
+    <header class="bg-[#1A1A1A] text-white py-4 px-6 shadow-md z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-y-4">
+            <div class="flex items-center gap-x-3">
+                <div class="w-8 h-8 bg-[#ad2c4d] rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-sliders text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">WorkforceAP Management Studio</h1>
+                    <p class="text-[10px] text-[#A3A3A3]">Fidelity views for Admin Operations and Referral Partners</p>
+                </div>
+            </div>
+            
+            <!-- PORTAL SWITCHER -->
+            <div class="flex items-center bg-[#262626] rounded-full p-1 border border-[#404040]">
+                <button onclick="switchPortal('admin')" id="btn-admin" class="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#ad2c4d] text-white transition-all">
+                    Admin Portal (High-Density)
+                </button>
+                <button onclick="switchPortal('partner')" id="btn-partner" class="px-4 py-1.5 text-xs font-semibold rounded-full text-[#A3A3A3] hover:text-white transition-all">
+                    Partner Portal (Referrals &amp; Metrics)
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN INTERFACE -->
+    <main class="flex-grow flex flex-col">
+
+        <!-- ============================================ -->
+        <!-- VIEW 1: ADMIN PORTAL -->
+        <!-- ============================================ -->
+        <section id="portal-admin" class="flex-grow flex flex-col p-4 md:p-8 animate-fade-in-up">
+            <div class="max-w-7xl mx-auto space-y-6 w-full">
+                
+                <!-- Stat Strip -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 border border-[#e8e8e8] rounded-2xl shadow-sm flex items-center gap-x-4">
+                        <div class="p-3 bg-red-50 text-[#ad2c4d] rounded-xl"><i class="fa-solid fa-users text-xl"></i></div>
+                        <div>
+                            <div class="text-xs text-[#737373] font-semibold">TOTAL ACTIVE MEMBERS</div>
+                            <div class="text-2xl font-extrabold tracking-tight mt-0.5">1,658</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 border border-[#e8e8e8] rounded-2xl shadow-sm flex items-center gap-x-4">
+                        <div class="p-3 bg-amber-50 text-[#a47f38] rounded-xl"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
+                        <div>
+                            <div class="text-xs text-[#737373] font-semibold">AT-RISK ESCALATIONS</div>
+                            <div class="text-2xl font-extrabold tracking-tight mt-0.5">24</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 border border-[#e8e8e8] rounded-2xl shadow-sm flex items-center gap-x-4">
+                        <div class="p-3 bg-emerald-50 text-[#4a9b4f] rounded-xl"><i class="fa-solid fa-check-double text-xl"></i></div>
+                        <div>
+                            <div class="text-xs text-[#737373] font-semibold">PLACED IN JOBS (Q2)</div>
+                            <div class="text-2xl font-extrabold tracking-tight mt-0.5">142</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 border border-[#e8e8e8] rounded-2xl shadow-sm flex items-center gap-x-4">
+                        <div class="p-3 bg-blue-50 text-[#2b7bb9] rounded-xl"><i class="fa-solid fa-database text-xl"></i></div>
+                        <div>
+                            <div class="text-xs text-[#737373] font-semibold">PRISMA CLIENT GUC</div>
+                            <div class="text-xs font-bold text-[#2b7bb9] mt-1.5 uppercase">SYS_OPERATIONAL</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Main Workspace -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Left: Control/Filter Pane -->
+                    <div class="lg:col-span-1 bg-white border border-[#e8e8e8] rounded-3xl p-6 h-fit space-y-6">
+                        <div>
+                            <h3 class="font-bold text-sm text-[#1A1A1A] uppercase tracking-wider mb-3">Filter Members</h3>
+                            <div class="space-y-2">
+                                <label class="block text-xs font-semibold text-[#737373]">By Pathway</label>
+                                <select class="w-full bg-[#fafafa] border border-[#d4d4d4] rounded-lg p-2.5 text-xs font-medium focus-ring">
+                                    <option>All Pathways</option>
+                                    <option>Salesforce Administrator</option>
+                                    <option>AWS Cloud Practitioner</option>
+                                    <option>MuleSoft Developer</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-[#737373] mb-2">Escalation Status</label>
+                            <div class="space-y-2 text-xs">
+                                <label class="flex items-center gap-x-2">
+                                    <input type="checkbox" checked class="rounded border-[#d4d4d4] text-[#ad2c4d] focus:ring-[#ad2c4d]">
+                                    <span class="font-medium">Show At-Risk only (24)</span>
+                                </label>
+                                <label class="flex items-center gap-x-2">
+                                    <input type="checkbox" class="rounded border-[#d4d4d4] text-[#ad2c4d] focus:ring-[#ad2c4d]">
+                                    <span class="font-medium">WIOA Qualifications pending</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-[#e8e8e8] pt-4">
+                            <button class="w-full py-2.5 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-bold text-xs rounded-full transition-colors focus-ring">
+                                + Add Member
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: High Density Table -->
+                    <div class="lg:col-span-3 bg-white border border-[#e8e8e8] rounded-3xl p-6 shadow-sm overflow-hidden flex flex-col justify-between">
+                        <div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-y-3 mb-6">
+                                <div>
+                                    <h3 class="font-bold text-base text-[#1A1A1A]">Registered Members Directory</h3>
+                                    <p class="text-xs text-[#737373]">Search across 1,658 candidates</p>
+                                </div>
+                                <div class="relative w-full sm:w-64">
+                                    <input type="text" placeholder="Search members by name, email..." class="w-full pl-9 pr-4 py-2 bg-[#fafafa] border border-[#d4d4d4] rounded-full text-xs focus-ring">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-[#a3a3a3] text-xs"></i>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-[#e8e8e8] text-[10px] font-black text-[#737373] uppercase tracking-wider">
+                                            <th class="pb-3">Candidate</th>
+                                            <th class="pb-3">Pathway</th>
+                                            <th class="pb-3">Progress</th>
+                                            <th class="pb-3">At-Risk Score</th>
+                                            <th class="pb-3 text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-xs divide-y divide-[#e8e8e8]">
+                                        <!-- Row 1 -->
+                                        <tr class="hover:bg-[#fafafa] transition-colors">
+                                            <td class="py-4">
+                                                <div class="flex items-center gap-x-3">
+                                                    <div class="w-8 h-8 rounded-full bg-[#f5f5f5] border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">MB</div>
+                                                    <div>
+                                                        <div class="font-bold text-[#1A1A1A]">Mike Brown</div>
+                                                        <div class="text-[10px] text-[#737373]">mabrown040@gmail.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-4 font-semibold text-[#525252]">AWS Essentials</td>
+                                            <td class="py-4">
+                                                <div class="flex items-center gap-x-2">
+                                                    <div class="w-16 bg-[#e8e8e8] h-1.5 rounded-full overflow-hidden">
+                                                        <div class="bg-[#ad2c4d] h-full" style="width: 78%"></div>
+                                                    </div>
+                                                    <span class="font-bold text-[10px] text-[#ad2c4d]">78%</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-4"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">LOW (12)</span></td>
+                                            <td class="py-4 text-right">
+                                                <button class="text-xs font-semibold text-[#ad2c4d] hover:underline">Manage</button>
+                                            </td>
+                                        </tr>
+                                        <!-- Row 2 -->
+                                        <tr class="hover:bg-[#fafafa] transition-colors">
+                                            <td class="py-4">
+                                                <div class="flex items-center gap-x-3">
+                                                    <div class="w-8 h-8 rounded-full bg-[#f5f5f5] border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">SD</div>
+                                                    <div>
+                                                        <div class="font-bold text-[#1A1A1A]">Sarah Jenkins</div>
+                                                        <div class="text-[10px] text-[#737373]">s.jenkins@gmail.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-4 font-semibold text-[#525252]">Salesforce Admin</td>
+                                            <td class="py-4">
+                                                <div class="flex items-center gap-x-2">
+                                                    <div class="w-16 bg-[#e8e8e8] h-1.5 rounded-full overflow-hidden">
+                                                        <div class="bg-[#ad2c4d] h-full" style="width: 42%"></div>
+                                                    </div>
+                                                    <span class="font-bold text-[10px] text-[#ad2c4d]">42%</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-4"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">MEDIUM (48)</span></td>
+                                            <td class="py-4 text-right">
+                                                <button class="text-xs font-semibold text-[#ad2c4d] hover:underline">Manage</button>
+                                            </td>
+                                        </tr>
+                                        <!-- Row 3 -->
+                                        <tr class="hover:bg-[#fafafa] transition-colors">
+                                            <td class="py-4">
+                                                <div class="flex items-center gap-x-3">
+                                                    <div class="w-8 h-8 rounded-full bg-[#f5f5f5] border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">KD</div>
+                                                    <div>
+                                                        <div class="font-bold text-[#1A1A1A]">David Vance</div>
+                                                        <div class="text-[10px] text-[#737373]">dvance_austin@yahoo.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-4 font-semibold text-[#525252]">MuleSoft Dev</td>
+                                            <td class="py-4">
+                                                <div class="flex items-center gap-x-2">
+                                                    <div class="w-16 bg-[#e8e8e8] h-1.5 rounded-full overflow-hidden">
+                                                        <div class="bg-[#ad2c4d] h-full" style="width: 15%"></div>
+                                                    </div>
+                                                    <span class="font-bold text-[10px] text-[#ad2c4d]">15%</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-4"><span class="px-2 py-0.5 rounded bg-red-100 text-red-800 text-[10px] font-bold">HIGH (82)</span></td>
+                                            <td class="py-4 text-right">
+                                                <button class="text-xs font-semibold text-[#ad2c4d] hover:underline">Manage</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="flex justify-between items-center mt-6 pt-4 border-t border-[#e8e8e8] text-xs text-[#737373] font-semibold">
+                                <span>Showing 1-3 of 1,658 members</span>
+                                <div class="flex gap-x-2">
+                                    <button class="px-3 py-1 bg-[#f5f5f5] border border-[#e8e8e8] rounded-lg cursor-not-allowed" disabled>Prev</button>
+                                    <button class="px-3 py-1 bg-white border border-[#e8e8e8] rounded-lg hover:bg-[#fafafa]">Next</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 2: PARTNER PORTAL -->
+        <!-- ============================================ -->
+        <section id="portal-partner" class="hidden flex-grow flex flex-col p-4 md:p-8 animate-fade-in-up">
+            <div class="max-w-7xl mx-auto space-y-6 w-full">
+                
+                <!-- Partner Title Bar -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-[#e8e8e8] pb-6 gap-y-4">
+                    <div>
+                        <div class="flex items-center gap-x-2 text-xs font-bold text-[#ad2c4d] tracking-widest uppercase">
+                            <i class="fa-solid fa-handshake"></i>
+                            <span>COMMUNITY REFERRAL PORTAL</span>
+                        </div>
+                        <h2 class="heading-font text-4xl font-extrabold text-[#1A1A1A] mt-1">Capital Area Workforce Board</h2>
+                    </div>
+                    <div class="flex gap-x-3">
+                        <button class="px-5 py-2.5 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-bold text-xs rounded-full transition-colors focus-ring shadow-sm">
+                            + Refer New Candidate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left: Pipeline Summary & Active Referrals -->
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <!-- Referral Tracking Cards -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="bg-white p-6 border border-[#e8e8e8] rounded-2xl shadow-sm text-center">
+                                <div class="text-3xl font-black text-[#ad2c4d]">12</div>
+                                <div class="text-xs text-[#737373] font-bold mt-1 uppercase">Active Training</div>
+                            </div>
+                            <div class="bg-white p-6 border border-[#e8e8e8] rounded-2xl shadow-sm text-center">
+                                <div class="text-3xl font-black text-[#a47f38]">5</div>
+                                <div class="text-xs text-[#737373] font-bold mt-1 uppercase">Pending Audit</div>
+                            </div>
+                            <div class="bg-white p-6 border border-[#e8e8e8] rounded-2xl shadow-sm text-center">
+                                <div class="text-3xl font-black text-[#4a9b4f]">48</div>
+                                <div class="text-xs text-[#737373] font-bold mt-1 uppercase">Successful Placements</div>
+                            </div>
+                        </div>
+
+                        <!-- Active Referrals List -->
+                        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 shadow-sm">
+                            <h3 class="font-bold text-base text-[#1A1A1A] mb-4">Your Referred Candidates</h3>
+                            <div class="divide-y divide-[#e8e8e8] text-xs">
+                                
+                                <!-- Candidate 1 -->
+                                <div class="py-4 flex items-center justify-between">
+                                    <div class="flex items-center gap-x-3">
+                                        <div class="w-9 h-9 rounded-xl bg-[# Light] border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">AM</div>
+                                        <div>
+                                            <div class="font-bold text-[#1A1A1A]">Ashley Martinez</div>
+                                            <div class="text-[10px] text-[#737373]">Referred June 15, 2026</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-x-4">
+                                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase border border-emerald-200">Enrolled (78%)</span>
+                                        <button class="font-semibold text-[#ad2c4d] hover:underline">Track &rarr;</button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Candidate 2 -->
+                                <div class="py-4 flex items-center justify-between">
+                                    <div class="flex items-center gap-x-3">
+                                        <div class="w-9 h-9 rounded-xl bg-[# Light] border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">JC</div>
+                                        <div>
+                                            <div class="font-bold text-[#1A1A1A]">James Carter</div>
+                                            <div class="text-[10px] text-[#737373]">Referred June 10, 2026</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-x-4">
+                                        <span class="px-2.5 py-0.5 rounded-full bg-[#f5f5f5] text-[#525252] text-[10px] font-bold uppercase">Pre-assessment pending</span>
+                                        <button class="font-semibold text-[#ad2c4d] hover:underline">Track &rarr;</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right: Quick Actions & Settings -->
+                    <div class="lg:col-span-1 space-y-6">
+                        
+                        <!-- Voice Sessions Widget -->
+                        <div class="bg-gradient-to-tr from-[#1A1A1A] to-[#262626] text-white rounded-3xl p-7 shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <div class="p-3 bg-white/10 rounded-2xl text-[#ad2c4d]">
+                                    <i class="fa-solid fa-microphone-lines text-xl"></i>
+                                </div>
+                                <span class="text-[9px] font-bold tracking-widest uppercase bg-white/20 px-2 py-0.5 rounded-full">INTEGRATION</span>
+                            </div>
+                            <div class="mt-6">
+                                <h3 class="font-extrabold text-xl tracking-tight">AI Voice Sessions</h3>
+                                <p class="text-xs text-[#A3A3A3] mt-1 leading-relaxed">Review transcript analytics and automated candidate sentiment logs for your agency referred applicants.</p>
+                                <button class="w-full mt-4 py-2.5 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-bold text-xs rounded-full transition-colors focus-ring">
+                                    Open Voice Console
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Organization Contacts -->
+                        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 shadow-sm space-y-4">
+                            <h3 class="font-bold text-xs text-[#1A1A1A] uppercase tracking-wider border-b border-[#e8e8e8] pb-2">Your Agency Support</h3>
+                            <div class="flex items-center gap-x-3">
+                                <div class="w-10 h-10 rounded-full bg-[#f5f5f5] border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">
+                                    KS
+                                </div>
+                                <div>
+                                    <div class="font-bold text-xs text-[#1A1A1A]">Karen S.</div>
+                                    <div class="text-[10px] text-[#737373]">Partner Success Coordinator</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#1A1A1A] text-[#737373] py-6 px-6 border-t border-[#262626]">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between text-xs gap-y-4">
+            <div>
+                <span>&copy; 2026 Workforce Advancement Project. All rights reserved.</span>
+            </div>
+            <div class="flex gap-x-4">
+                <a href="#" class="hover:underline">Privacy Policy</a>
+                <a href="#" class="hover:underline">Terms of Service</a>
+                <a href="#" class="hover:underline">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- TOGGLE LOGIC -->
+    <script>
+        function switchPortal(portalId) {
+            // Hide all portals
+            document.getElementById('portal-admin').classList.add('hidden');
+            document.getElementById('portal-partner').classList.add('hidden');
+
+            // Show selected portal
+            if (portalId === 'admin') {
+                document.getElementById('portal-admin').classList.remove('hidden');
+            } else if (portalId === 'partner') {
+                document.getElementById('portal-partner').classList.remove('hidden');
+            }
+
+            // Update button styles
+            const buttons = ['admin', 'partner'];
+            buttons.forEach(btn => {
+                const el = document.getElementById('btn-' + btn);
+                if (btn === portalId) {
+                    el.className = "px-4 py-1.5 text-xs font-semibold rounded-full bg-[#ad2c4d] text-white transition-all";
+                } else {
+                    el.className = "px-4 py-1.5 text-xs font-semibold rounded-full text-[#A3A3A3] hover:text-white transition-all";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

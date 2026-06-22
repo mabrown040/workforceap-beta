@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Admin (Full Build)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.h-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.03em}
+.tabnum{font-variant-numeric:tabular-nums}
+.bento{transition:box-shadow .2s,border-color .2s,background-color .15s}
+.focus-ring:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #ad2c4d}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fade .25s ease forwards}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.bento{transition:none}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:4px}
+.nav-a{transition:background-color .12s,color .12s}
+.kpi{background:#fff;border:1px solid #e8e8e8;border-radius:16px;padding:16px}
+.panel-card{background:#fff;border:1px solid #e8e8e8;border-radius:20px;padding:24px}
+th{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#a3a3a3;font-weight:700;text-align:left;padding:10px;background:#fafafa}
+td{padding:10px;font-size:12px;border-bottom:1px solid #f5f5f5}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:9px;font-weight:700;text-transform:uppercase}
+</style>
+</head>
+<body class="bg-[#F7F8FA] text-[#1A1A1A]">
+
+<div class="flex min-h-screen">
+  <!-- mobile drawer overlay -->
+  <div id="overlay" class="hidden fixed inset-0 bg-black/50 z-40 lg:hidden" onclick="toggleNav(false)"></div>
+  <!-- ===== FULL ADMIN SIDEBAR ===== -->
+  <aside id="sidebar" class="w-64 bg-[#161616] text-white fixed h-screen z-50 flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-200">
+    <div class="px-5 py-4 flex items-center gap-2.5 border-b border-[#2a2a2a] shrink-0">
+      <div class="w-8 h-8 bg-[#ad2c4d] rounded-lg flex items-center justify-center"><i class="fa-solid fa-shield-halved text-sm"></i></div>
+      <div><div class="font-extrabold text-sm leading-none">WorkforceAP</div><div class="text-[10px] text-[#a3a3a3] mt-0.5">Admin · Austin</div></div>
+    </div>
+    <div class="px-3.5 py-2.5 border-b border-[#2a2a2a] shrink-0">
+      <div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[#666] text-xs"></i><input placeholder="Search admin…" class="w-full bg-[#222] border border-[#333] rounded-lg pl-8 pr-2 py-1.5 text-xs text-white outline-none focus-ring" aria-label="Search admin"></div>
+    </div>
+    <nav id="nav" class="flex-1 overflow-y-auto px-2.5 py-3 text-[13px]"></nav>
+    <div class="px-4 py-3 border-t border-[#2a2a2a] shrink-0 flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#a47f38] to-[#7d5f26] flex items-center justify-center font-bold text-xs">DB</div>
+      <div class="min-w-0"><div class="text-xs font-bold truncate">Dad (Owner)</div><div class="text-[10px] text-[#a3a3a3]">Super Admin</div></div>
+      <a href="/" class="ml-auto text-[#a3a3a3] hover:text-white text-xs focus-ring rounded" title="Design Lab"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="flex-1 lg:ml-64 flex flex-col min-w-0">
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-[#e8e8e8] px-4 md:px-7 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <button onclick="toggleNav(true)" class="lg:hidden w-9 h-9 rounded-lg border border-[#e8e8e8] flex items-center justify-center focus-ring shrink-0" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+        <h1 id="ptitle" class="h-font text-lg truncate">Command Center</h1>
+        <span id="pcrumb" class="hidden sm:inline text-xs text-[#737373]">/admin</span>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <span class="text-xs text-[#737373] tabnum">Tue, Jun 21 · 9:42 AM</span>
+        <button class="px-3 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white text-xs font-semibold rounded-full transition-colors focus-ring"><i class="fa-solid fa-plus mr-1"></i>Add Student</button>
+        <button class="w-9 h-9 rounded-full border border-[#e8e8e8] flex items-center justify-center hover:bg-[#fafafa] focus-ring" aria-label="Notifications"><i class="fa-regular fa-bell text-[#525252]"></i></button>
+      </div>
+    </header>
+    <main id="stage" class="flex-1 p-4 md:p-7"></main>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ADMIN NAV — mirrors lib/nav/portalNav.ts exactly
+   ============================================================ */
+const GROUPS=[
+  {label:'Run the org',items:[
+    {id:'today',t:'Command Center',ic:'fa-bolt',href:'/admin'},
+    {id:'overview',t:'Detailed overview',ic:'fa-chart-column',href:'/admin/overview'},
+  ]},
+  {label:'Students',items:[
+    {id:'members',t:'Students',ic:'fa-users',href:'/admin/members',badge:'847'},
+    {id:'messages',t:'Messages',ic:'fa-comment',href:'/admin/messages',badge:'6'},
+  ]},
+  {label:'Programs',items:[
+    {id:'programs',t:'Programs',ic:'fa-book-open',href:'/admin/programs'},
+    {id:'program-requests',t:'Program requests',ic:'fa-code-branch',href:'/admin/program-change-requests',badge:'3'},
+    {id:'training-progress',t:'Training progress',ic:'fa-table',href:'/admin/training-progress'},
+    {id:'assessments',t:'Assessments',ic:'fa-clipboard-check',href:'/admin/assessments'},
+    {id:'certifications',t:'Certificates',ic:'fa-award',href:'/admin/certifications',badge:'12'},
+    {id:'career-mappings',t:'Career paths',ic:'fa-bullseye',href:'/admin/career-mappings'},
+    {id:'wioa',t:'Funding eligibility',ic:'fa-clipboard-list',href:'/admin/wioa-screening'},
+  ]},
+  {label:'Partners & Employers',items:[
+    {id:'partners',t:'Partners',ic:'fa-handshake',href:'/admin/partners'},
+    {id:'employers',t:'Employers',ic:'fa-building',href:'/admin/employers'},
+    {id:'screening-packs',t:'Employer screening',ic:'fa-list-check',href:'/admin/employer-screening-packs'},
+    {id:'jobs',t:'Jobs',ic:'fa-briefcase',href:'/admin/jobs'},
+    {id:'mentors',t:'Mentors',ic:'fa-graduation-cap',href:'/admin/mentors'},
+    {id:'counselors',t:'Counselors',ic:'fa-user-tie',href:'/admin/counselors'},
+    {id:'subgroups',t:'Subgroups',ic:'fa-user-group',href:'/admin/subgroups'},
+  ]},
+  {label:'Outcomes',items:[
+    {id:'board',t:'Board outcomes',ic:'fa-arrow-trend-up',href:'/admin/board'},
+    {id:'outcomes',t:'Placement outcomes',ic:'fa-chart-line',href:'/admin/outcomes'},
+    {id:'placements',t:'Placements',ic:'fa-briefcase',href:'/admin/placements'},
+    {id:'placement-surveys',t:'Placement surveys',ic:'fa-clipboard-check',href:'/admin/placement-surveys'},
+    {id:'analytics',t:'Analytics',ic:'fa-chart-column',href:'/admin/analytics'},
+  ]},
+  {label:'Content',items:[
+    {id:'blog',t:'Blog',ic:'fa-file-lines',href:'/admin/blog'},
+    {id:'invites',t:'Invites',ic:'fa-envelope',href:'/admin/invites'},
+  ]},
+  {label:'Advanced',items:[
+    {id:'sessions',t:'In-office sessions',ic:'fa-wand-magic-sparkles',href:'/admin/sessions'},
+    {id:'pipeline',t:'Applications funnel',ic:'fa-filter',href:'/admin/pipeline'},
+    {id:'duplicates',t:'Duplicate students',ic:'fa-triangle-exclamation',href:'/admin/members/duplicates'},
+    {id:'users',t:'Users',ic:'fa-user',href:'/admin/users'},
+    {id:'exports',t:'Exports',ic:'fa-download',href:'/admin/exports'},
+    {id:'coursera',t:'Coursera',ic:'fa-rotate',href:'/admin/coursera'},
+    {id:'metrics',t:'Metrics',ic:'fa-chart-line',href:'/admin/metrics'},
+    {id:'weekly-recap',t:'Weekly recap',ic:'fa-chart-column',href:'/admin/weekly-recap'},
+    {id:'ai-tools',t:'AI tools',ic:'fa-wand-magic-sparkles',href:'/admin/ai-tools'},
+    {id:'ai-efficacy',t:'AI Efficacy',ic:'fa-bullseye',href:'/admin/analytics/ai-efficacy'},
+    {id:'diagnostics',t:'Diagnostics',ic:'fa-wave-square',href:'/admin/diagnostics'},
+    {id:'crons',t:'Cron Monitor',ic:'fa-stopwatch',href:'/admin/crons'},
+    {id:'health',t:'System Health',ic:'fa-heart-pulse',href:'/admin/health'},
+    {id:'audit',t:'Audit logs',ic:'fa-shield-halved',href:'/admin/audit-logs'},
+  ]},
+];
+
+/* ---------- render sidebar ---------- */
+const nav=document.getElementById('nav');
+const idMeta={};
+GROUPS.forEach(g=>{
+  const sec=document.createElement('div');sec.className='mb-3';
+  sec.innerHTML=`<div class="px-2.5 text-[10px] font-bold tracking-widest text-[#666] uppercase mb-1 mt-1">${g.label}</div>`;
+  g.items.forEach(it=>{
+    idMeta[it.id]={t:it.t,href:it.href};
+    const b=document.createElement('button');
+    b.className='nav-a w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg font-semibold text-left text-[#cfcfcf] hover:bg-[#242424] focus-ring mb-0.5';
+    b.dataset.id=it.id;
+    b.innerHTML=`<span class="flex items-center gap-3 truncate"><i class="fa-solid ${it.ic} w-4 text-center text-[12px] text-[#888]"></i>${it.t}</span>${it.badge?`<span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-[#ad2c4d] text-white">${it.badge}</span>`:''}`;
+    b.addEventListener('click',()=>{activate(it.id);toggleNav(false);});
+    sec.appendChild(b);
+  });
+  nav.appendChild(sec);
+});
+
+/* ============================================================
+   SHARED RENDER HELPERS
+   ============================================================ */
+const C={crimson:'#ad2c4d',gold:'#a47f38',info:'#2b7bb9',green:'#4a9b4f',muted:'#737373'};
+function kpiRow(arr){return `<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">${arr.map(k=>`<div class="kpi bento"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">${k.l}</div><div class="tabnum text-3xl font-extrabold mt-1" style="color:${k.c||'#1a1a1a'}">${k.v}</div>${k.sub?`<div class="text-[10px] font-bold mt-0.5" style="color:${k.sc||C.muted}">${k.sub}</div>`:''}</div>`).join('')}</div>`;}
+function header(t,sub,action){return `<div class="flex items-end justify-between flex-wrap gap-3 mb-5"><div><h2 class="h-font text-2xl">${t}</h2>${sub?`<p class="text-sm text-[#737373] mt-1">${sub}</p>`:''}</div>${action||''}</div>`;}
+function btn(label,kind){const s=kind==='primary'?'bg-[#ad2c4d] hover:bg-[#8b1f38] text-white':'border border-[#e8e8e8] hover:bg-[#fafafa] text-[#1a1a1a]';return `<button class="px-4 py-2 ${s} text-xs font-semibold rounded-full transition-colors focus-ring">${label}</button>`;}
+function statusTag(s){const m={ok:['#4a9b4f','#eef7ef'],warn:['#a47f38','#FEF3C7'],alert:['#ad2c4d','#fdf2f4'],info:['#2b7bb9','#eef5fb'],muted:['#737373','#f5f5f5']};const[c,bg]=m[s.k]||m.muted;return `<span class="tag" style="color:${c};background:${bg}">${s.t}</span>`;}
+function table(cols,rows){return `<div class="panel-card !p-0 overflow-hidden bento"><div class="overflow-x-auto"><table class="w-full border-collapse min-w-[640px]"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr class="hover:bg-[#fafafa] cursor-pointer">${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;}
+function cards(arr){return `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">${arr.map(c=>`<div class="panel-card bento hover:shadow-md cursor-pointer"><div class="flex justify-between items-start"><div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg" style="background:${c.bg||'#fdf2f4'};color:${c.ic||C.crimson}"><i class="fa-solid ${c.icon}"></i></div>${c.tag?statusTag(c.tag):''}</div><h4 class="font-bold text-base mt-3">${c.t}</h4><p class="text-[11px] text-[#737373]">${c.d}</p>${c.foot?`<div class="flex justify-between text-xs mt-3 pt-3 border-t border-[#e8e8e8]">${c.foot}</div>`:''}</div>`).join('')}</div>`;}
+function bars(title,sub,arr){return `<div class="panel-card bento"><h3 class="font-extrabold text-base tracking-tight">${title}</h3>${sub?`<p class="text-[11px] text-[#737373] mb-4">${sub}</p>`:''}<div class="space-y-3 text-xs">${arr.map(b=>`<div><div class="flex justify-between mb-1"><span class="font-bold">${b.l}</span><span class="tabnum text-[#737373]">${b.v}</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 rounded-full" style="width:${b.p}%;background:${b.c||C.crimson}"></div></div></div>`).join('')}</div></div>`;}
+function form(title,fields){return `<div class="panel-card bento max-w-2xl"><h3 class="font-extrabold text-lg tracking-tight mb-4">${title}</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${fields.map(f=>`<div${f.full?' class="sm:col-span-2"':''}><label class="text-[10px] font-bold uppercase tracking-wider text-[#737373]">${f.l}</label>${f.type==='select'?`<select class="mt-1 w-full text-sm border border-[#e8e8e8] rounded-xl px-3 py-2.5 outline-none focus-ring bg-white">${f.opts.map(o=>`<option>${o}</option>`).join('')}</select>`:f.type==='toggle'?`<div class="mt-2"><span class="relative inline-block w-10 h-6"><input type="checkbox" ${f.on?'checked':''} class="peer sr-only"><span class="absolute inset-0 rounded-full bg-[#e8e8e8] peer-checked:bg-[#ad2c4d] transition-colors"></span><span class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></span></span></div>`:`<input value="${f.v||''}" class="mt-1 w-full text-sm border border-[#e8e8e8] rounded-xl px-3 py-2.5 outline-none focus-ring">`}</div>`).join('')}</div><div class="mt-5">${btn('Save Changes','primary')}</div></div>`;}
+function note(t){return `<div class="panel-card bento"><p class="text-sm text-[#525252] leading-relaxed">${t}</p></div>`;}
+
+/* ============================================================
+   PAGE REGISTRY — every admin route renders a real screen
+   ============================================================ */
+const PAGES={
+  /* ---------- RUN THE ORG ---------- */
+  today:()=>kpiRow([
+      {l:'Active Students',v:'847',c:'#1a1a1a',sub:'↑ 32 this month',sc:C.green},
+      {l:'Placements YTD',v:'213',c:C.green,sub:'↑ 18 this month',sc:C.green},
+      {l:'Completion',v:'71%',c:C.info,sub:'cohort avg'},
+      {l:'At Risk',v:'19',c:C.crimson,sub:'need outreach',sc:C.crimson},
+    ])+`<div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="lg:col-span-2 panel-card bento"><div class="flex items-center justify-between mb-4"><h3 class="font-extrabold text-lg tracking-tight">What needs you today</h3><span class="tag" style="color:${C.crimson};background:#fdf2f4">7 items</span></div>
+      <div class="space-y-2.5">
+        ${[['fa-triangle-exclamation',C.crimson,'5 students inactive 14+ days','Cloud & IT cohort · likely to drop','Assign outreach',true],
+           ['fa-award',C.gold,'12 certifications awaiting approval','Verify proof to count toward outcomes','Review',false],
+           ['fa-user-plus',C.info,'8 new applicants need eligibility review','WIOA screening pending','Open queue',false],
+           ['fa-briefcase',C.green,'3 placements to confirm','Employers reported hires','Confirm',false]
+          ].map(r=>`<div class="flex items-center gap-3 p-3 rounded-2xl ${r[5]?'bg-[#fdf2f4] border border-[#f3d4dc]':'bg-[#fafafa] border border-[#e8e8e8]'} hover:brightness-[.99] cursor-pointer"><div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs text-white" style="background:${r[1]}"><i class="fa-solid ${r[0]}"></i></div><div class="flex-1"><div class="font-bold text-sm">${r[2]}</div><div class="text-[11px] text-[#737373]">${r[3]}</div></div><button class="px-3 py-1.5 ${r[5]?'bg-[#ad2c4d] text-white':'border border-[#e8e8e8]'} text-[11px] font-semibold rounded-full">${r[4]}</button></div>`).join('')}
+      </div></div>
+      ${bars('Program Health','',[{l:'Cloud & IT',v:'312 · 74%',p:74,c:C.green},{l:'Data & AI',v:'198 · 68%',p:68,c:C.green},{l:'Healthcare',v:'156 · 81%',p:81,c:C.green},{l:'Skilled Trades',v:'81 · 52%',p:52,c:C.crimson},{l:'Manufacturing',v:'100 · 70%',p:70,c:C.green}])}
+    </div>`,
+
+  overview:()=>kpiRow([{l:'Students',v:'847',c:C.info},{l:'Placements',v:'213',c:C.green},{l:'Avg Wage',v:'$58k'},{l:'Credentials',v:'541',c:C.gold}])+
+    `<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">${bars('Enrollment by program','847 total',[{l:'Cloud & IT',v:'312',p:100,c:C.info},{l:'Data & AI',v:'198',p:63,c:C.info},{l:'Healthcare',v:'156',p:50,c:C.info},{l:'Manufacturing',v:'100',p:32,c:C.info},{l:'Skilled Trades',v:'81',p:26,c:C.info}])}${bars('Outcomes funnel','this cohort',[{l:'Enrolled',v:'847',p:100},{l:'Completed training',v:'601',p:71},{l:'Job-ready',v:'288',p:34},{l:'Placed',v:'213',p:25,c:C.green}])}</div>`,
+
+  /* ---------- STUDENTS ---------- */
+  members:()=>`<div class="flex flex-wrap items-center gap-2 mb-4">
+      <button class="px-3.5 py-2 rounded-full text-xs font-bold bg-[#ad2c4d] text-white focus-ring">All <span class="opacity-80 tabnum">847</span></button>
+      ${['Job-Ready · 64','Interview-Ready · 88','In Training · 612'].map(f=>`<button class="px-3.5 py-2 rounded-full text-xs font-bold bg-white border border-[#e8e8e8] hover:border-[#ad2c4d] transition-colors focus-ring">${f}</button>`).join('')}
+      <button class="px-3.5 py-2 rounded-full text-xs font-bold bg-white border border-[#f3d4dc] text-[#ad2c4d] hover:bg-[#fdf2f4] focus-ring">At Risk · 19</button>
+      <div class="ml-auto flex gap-2">${btn('<i class="fa-solid fa-filter mr-1"></i>Filter','ghost')}${btn('<i class="fa-solid fa-download mr-1"></i>Export','ghost')}</div></div>`+
+    table(['Student','Program','Progress','Readiness','Counselor','Status','Last active'],[
+      ['<b>Mike Brown</b><br><span class="text-[10px] text-[#737373]">Austin, TX</span>','Cloud & IT','78%','<b style="color:#4a9b4f">84</b>','S. Chen',statusTag({k:'warn',t:'Job-Ready'}),'2h ago'],
+      ['<b>Jasmine Davis</b><br><span class="text-[10px] text-[#737373]">Austin, TX</span>','Healthcare','92%','<b style="color:#4a9b4f">91</b>','R. Patel',statusTag({k:'ok',t:'Placed'}),'1d ago'],
+      ['<b>Carlos Torres</b><br><span class="text-[10px] text-[#737373]">Round Rock</span>','Skilled Trades','34%','<b style="color:#ad2c4d">41</b>','S. Chen',statusTag({k:'alert',t:'At Risk'}),'<b style="color:#ad2c4d">16d ago</b>'],
+      ['<b>Aisha Williams</b><br><span class="text-[10px] text-[#737373]">Austin, TX</span>','Data & AI','88%','<b style="color:#4a9b4f">79</b>','R. Patel',statusTag({k:'info',t:'Interviewing'}),'5h ago'],
+    ])+`<p class="text-center text-xs text-[#737373] mt-3">Showing 4 of 847 · click a row for the Student 360° view</p>`,
+
+  messages:()=>header('Messages','Member ↔ staff threads')+table(['From','Subject','Channel','Status','Updated'],[
+      ['<b>Mike Brown</b>','Question about exam voucher','In-app',statusTag({k:'alert',t:'Unread'}),'12m ago'],
+      ['<b>Tanya Reed</b>','Schedule change request','Email',statusTag({k:'muted',t:'Replied'}),'2h ago'],
+      ['<b>Carlos Torres</b>','Re: outreach check-in','SMS',statusTag({k:'alert',t:'Unread'}),'1d ago'],
+    ]),
+
+  /* ---------- PROGRAMS ---------- */
+  programs:()=>header('Programs','11 active · 847 enrolled',btn('<i class="fa-solid fa-plus mr-1"></i>New Program','primary'))+cards([
+      {icon:'fa-cloud',bg:'#eef5fb',ic:C.info,t:'Cloud & IT',d:'AWS, CompTIA, Salesforce',tag:{k:'ok',t:'Healthy'},foot:'<span class="text-[#737373]">312 enrolled</span><span class="font-bold" style="color:#4a9b4f">74%</span>'},
+      {icon:'fa-heart-pulse',t:'Healthcare',d:'CNA, Medical Assistant',tag:{k:'ok',t:'Healthy'},foot:'<span class="text-[#737373]">156 enrolled</span><span class="font-bold" style="color:#4a9b4f">81%</span>'},
+      {icon:'fa-helmet-safety',bg:'#FEF3C7',ic:C.gold,t:'Skilled Trades',d:'HVAC, Electrical, Welding',tag:{k:'alert',t:'Attention'},foot:'<span class="text-[#737373]">81 enrolled</span><span class="font-bold" style="color:#ad2c4d">52%</span>'},
+      {icon:'fa-robot',bg:'#f3eefb',ic:'#7c3aed',t:'Data & AI',d:'Analytics, ML, Prompting',tag:{k:'ok',t:'Healthy'},foot:'<span class="text-[#737373]">198 enrolled</span><span class="font-bold" style="color:#4a9b4f">68%</span>'},
+      {icon:'fa-industry',bg:'#eef5fb',ic:C.info,t:'Manufacturing',d:'CNC, Quality, Logistics',tag:{k:'ok',t:'Healthy'},foot:'<span class="text-[#737373]">100 enrolled</span><span class="font-bold" style="color:#4a9b4f">70%</span>'},
+    ]),
+
+  'program-requests':()=>header('Program change requests','3 pending approval')+table(['Student','Current','Requested','Reason','Status'],[
+      ['<b>Devon Hill</b>','Manufacturing','Cloud & IT','Found cloud more relevant',statusTag({k:'warn',t:'Pending'})],
+      ['<b>Lena Ortiz</b>','Data & AI','Healthcare','Family in nursing',statusTag({k:'warn',t:'Pending'})],
+      ['<b>Sam Cole</b>','Skilled Trades','Manufacturing','Schedule conflict',statusTag({k:'warn',t:'Pending'})],
+    ]),
+
+  'training-progress':()=>header('Training progress','Live B4B + LMS progress across all members')+kpiRow([{l:'On Track',v:'612',c:C.green},{l:'Behind',v:'154',c:C.gold},{l:'Stalled',v:'81',c:C.crimson},{l:'Avg %',v:'71%',c:C.info}])+table(['Student','Program','Modules','% Complete','Pace'],[
+      ['<b>Mike Brown</b>','AWS Practitioner','7 / 9','78%',statusTag({k:'ok',t:'On track'})],
+      ['<b>Carlos Torres</b>','HVAC Fundamentals','3 / 9','34%',statusTag({k:'alert',t:'Stalled'})],
+      ['<b>Aisha Williams</b>','Data Analytics','8 / 9','88%',statusTag({k:'ok',t:'Ahead'})],
+    ]),
+
+  assessments:()=>header('Assessments','Skills + readiness assessments')+table(['Assessment','Type','Completions','Avg Score','Status'],[
+      ['Cloud Fundamentals Quiz','Knowledge','288','82%',statusTag({k:'ok',t:'Live'})],
+      ['Workforce Readiness','Soft skills','504','76%',statusTag({k:'ok',t:'Live'})],
+      ['Typing & Computer Basics','Baseline','611','—',statusTag({k:'ok',t:'Live'})],
+    ]),
+
+  certifications:()=>header('Certifications queue','12 awaiting review · verify proof to count toward outcomes',btn('Approve all verified','primary'))+
+    `<div class="space-y-3">${[
+      ['fa-aws','AWS Cloud Practitioner','Mike Brown · Cloud & IT · ID AWS-CP-8841 · 2h ago'],
+      ['fa-heart-pulse','Certified Nursing Assistant','Tanya Reed · Healthcare · TX State Board · 5h ago'],
+      ['fa-helmet-safety','EPA 608 Certification','Carlos Torres · Skilled Trades · 1d ago'],
+    ].map(r=>`<div class="panel-card bento !py-4 flex items-center gap-4 hover:shadow-md"><div class="w-11 h-11 rounded-xl bg-[#FEF3C7] text-[#a47f38] flex items-center justify-center text-lg shrink-0"><i class="fa-brands ${r[0]}"></i></div><div class="flex-1 min-w-0"><div class="font-bold text-sm">${r[1]}</div><div class="text-[11px] text-[#737373]">${r[2]}</div></div><a href="#" class="text-[11px] font-bold text-[#2b7bb9] hover:underline focus-ring rounded shrink-0">View proof</a><div class="flex gap-2 shrink-0"><button class="px-3 py-1.5 bg-[#4a9b4f] text-white text-[11px] font-bold rounded-full focus-ring"><i class="fa-solid fa-check"></i> Approve</button><button class="px-3 py-1.5 border border-[#e8e8e8] text-[11px] font-bold rounded-full hover:bg-[#fafafa] focus-ring">Reject</button></div></div>`).join('')}</div>`,
+
+  'career-mappings':()=>header('Career paths','Program → role mappings that power matching')+cards([
+      {icon:'fa-cloud',bg:'#eef5fb',ic:C.info,t:'Cloud & IT → Cloud Support',d:'12 mapped roles · 8 employer partners'},
+      {icon:'fa-heart-pulse',t:'Healthcare → Medical Assistant',d:'9 mapped roles · 6 employer partners'},
+      {icon:'fa-robot',bg:'#f3eefb',ic:'#7c3aed',t:'Data & AI → Data Analyst',d:'7 mapped roles · 5 employer partners'},
+    ]),
+
+  wioa:()=>header('Funding eligibility','WIOA screening & compliance',btn('<i class="fa-solid fa-download mr-1"></i>Compliance export','ghost'))+kpiRow([{l:'Eligible',v:'724',c:C.green},{l:'Pending Review',v:'8',c:C.gold},{l:'Need Docs',v:'31',c:C.crimson},{l:'Not Eligible',v:'84'}])+table(['Student','Category','Docs','Determination','Reviewer'],[
+      ['<b>Mike Brown</b>','Adult','Complete',statusTag({k:'ok',t:'Eligible'}),'A. Reyes'],
+      ['<b>Jordan Pike</b>','Dislocated Worker','Missing W-2',statusTag({k:'warn',t:'Pending'}),'—'],
+      ['<b>Nia Foster</b>','Youth','Complete',statusTag({k:'ok',t:'Eligible'}),'A. Reyes'],
+    ]),
+
+  /* ---------- PARTNERS & EMPLOYERS ---------- */
+  partners:()=>header('Partners','Workforce centers, nonprofits, referral orgs',btn('<i class="fa-solid fa-plus mr-1"></i>Add Partner','primary'))+cards([
+      {icon:'fa-building-columns',t:'Austin Workforce Board',d:'142 referrals · 38 placed',foot:'<span class="text-[#737373]">Active</span><span class="font-bold" style="color:#4a9b4f">27% placement</span>'},
+      {icon:'fa-hands-holding-child',bg:'#eef7ef',ic:C.green,t:'Goodwill Central TX',d:'88 referrals · 21 placed',foot:'<span class="text-[#737373]">Active</span><span class="font-bold" style="color:#4a9b4f">24% placement</span>'},
+      {icon:'fa-people-roof',bg:'#eef5fb',ic:C.info,t:'Veterans Resource Center',d:'54 referrals · 19 placed',foot:'<span class="text-[#737373]">Active</span><span class="font-bold" style="color:#4a9b4f">35% placement</span>'},
+    ]),
+
+  employers:()=>header('Employers','48 partners · 127 open roles',btn('<i class="fa-solid fa-plus mr-1"></i>Add Employer','primary'))+cards([
+      {icon:'fa-building',t:'Deloitte',d:'Tech & Consulting',foot:'<span class="text-[#737373]">9 open roles</span><span class="font-bold" style="color:#4a9b4f">18 hires</span>'},
+      {icon:'fa-building',bg:'#eef5fb',ic:C.info,t:'Dell Technologies',d:'Hardware & IT',foot:'<span class="text-[#737373]">12 open roles</span><span class="font-bold" style="color:#4a9b4f">24 hires</span>'},
+      {icon:'fa-building',bg:'#FEF3C7',ic:C.gold,t:"St. David's HealthCare",d:'Healthcare',foot:'<span class="text-[#737373]">15 open roles</span><span class="font-bold" style="color:#4a9b4f">31 hires</span>'},
+    ]),
+
+  'screening-packs':()=>header('Employer screening','Pre-built candidate screening packs per employer')+table(['Employer','Role family','Checks','Used','Status'],[
+      ['Deloitte','Salesforce Admin','Background + skills',statusTag({k:'muted',t:'18×'}),statusTag({k:'ok',t:'Active'})],
+      ['Dell','IT Support','Skills + typing',statusTag({k:'muted',t:'24×'}),statusTag({k:'ok',t:'Active'})],
+    ]),
+
+  jobs:()=>header('Jobs','127 open roles across 48 employers',btn('<i class="fa-solid fa-plus mr-1"></i>Post Job','primary'))+table(['Role','Employer','Location','Wage','Applicants','Status'],[
+      ['Salesforce Administrator','Deloitte','Austin, TX','$72–88k','14',statusTag({k:'ok',t:'Open'})],
+      ['IT Support Specialist','Dell','Round Rock','$58–70k','9',statusTag({k:'ok',t:'Open'})],
+      ['Medical Assistant',"St. David's",'Austin, TX','$48–55k','22',statusTag({k:'warn',t:'Closing'})],
+    ]),
+
+  mentors:()=>header('Mentors','Industry volunteers paired with members')+cards([
+      {icon:'fa-user-tie',bg:'#eef5fb',ic:C.info,t:'David Kim',d:'Cloud Architect @ AWS · 4 mentees'},
+      {icon:'fa-user-tie',t:'Maria Gonzalez',d:'RN @ St. David\'s · 3 mentees'},
+      {icon:'fa-user-tie',bg:'#f3eefb',ic:'#7c3aed',t:'James Okoro',d:'Data Lead @ IBM · 5 mentees'},
+    ]),
+
+  counselors:()=>header('Counselors','Staff caseload & performance')+kpiRow([{l:'Counselors',v:'6'},{l:'Avg Caseload',v:'141',c:C.info},{l:'At-Risk Owned',v:'19',c:C.crimson},{l:'Avg Response',v:'3.2h',c:C.green}])+table(['Counselor','Caseload','At-risk','Placements','Avg response','Load'],[
+      ['<b>Sarah Chen</b>','156','11','42','2.1h',statusTag({k:'alert',t:'Over'})],
+      ['<b>Raj Patel</b>','138','5','38','3.0h',statusTag({k:'ok',t:'Balanced'})],
+      ['<b>Ana Reyes</b>','129','3','31','4.4h',statusTag({k:'ok',t:'Balanced'})],
+    ]),
+
+  subgroups:()=>header('Subgroups','Cohorts, chapters & special programs',btn('<i class="fa-solid fa-plus mr-1"></i>New Subgroup','primary'))+cards([
+      {icon:'fa-user-group',t:'Veterans Cohort',d:'48 members · Cloud & IT focus'},
+      {icon:'fa-user-group',bg:'#eef7ef',ic:C.green,t:'Spring 2026 Healthcare',d:'62 members · CNA track'},
+      {icon:'fa-user-group',bg:'#FEF3C7',ic:C.gold,t:'Youth Build (16–24)',d:'34 members · trades'},
+    ]),
+
+  /* ---------- OUTCOMES ---------- */
+  board:()=>header('Board outcomes','Quarterly · board-ready',btn('<i class="fa-solid fa-file-export mr-1"></i>Generate Board Report','primary'))+kpiRow([{l:'Placement Rate',v:'68%',c:C.green},{l:'Avg Wage',v:'$58k'},{l:'Credentials',v:'541',c:C.gold},{l:'90-Day Retention',v:'84%',c:C.info}])+
+    `<div class="grid grid-cols-1 lg:grid-cols-3 gap-5"><div class="lg:col-span-2 panel-card bento"><h3 class="font-extrabold text-base mb-1">Placements by month</h3><p class="text-[11px] text-[#737373] mb-4">2026 YTD · 213 total</p><div class="flex items-end justify-between gap-2 h-44">${[38,46,55,62,78,90].map((h,i)=>`<div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t-lg" style="height:${h}%;background:${i===5?'linear-gradient(to top,#ad2c4d,#c4456a)':'#ad2c4d'}"></div><span class="text-[9px] text-[#737373] font-bold">${['Jan','Feb','Mar','Apr','May','Jun'][i]}</span></div>`).join('')}</div></div>${bars('By program','213 total',[{l:'Cloud & IT',v:'82',p:100,c:C.info},{l:'Healthcare',v:'61',p:74,c:C.info},{l:'Data & AI',v:'38',p:46,c:C.info},{l:'Manufacturing',v:'22',p:27,c:C.info},{l:'Skilled Trades',v:'10',p:12,c:C.info}])}</div>`,
+
+  outcomes:()=>header('Placement outcomes','Detailed outcome tracking')+kpiRow([{l:'Placed',v:'213',c:C.green},{l:'In Progress',v:'288',c:C.info},{l:'Avg Time-to-Place',v:'47d'},{l:'Wage Gain',v:'+62%',c:C.green}])+table(['Cohort','Enrolled','Completed','Placed','Rate'],[
+      ['Spring 2026','312','228','156','50%'],['Winter 2025','268','201','143','53%'],['Fall 2025','267','172','97','36%'],
+    ]),
+
+  placements:()=>header('Placements','Confirmed hires & wage data',btn('<i class="fa-solid fa-download mr-1"></i>Export','ghost'))+kpiRow([{l:'YTD',v:'213',c:C.green},{l:'Avg Wage',v:'$58k'},{l:'Retention 90d',v:'84%',c:C.info},{l:'To Confirm',v:'3',c:C.crimson}])+table(['Student','Employer','Role','Wage','Survey','Status'],[
+      ['<b>Jasmine Davis</b>',"St. David's",'Medical Assistant','$52k',statusTag({k:'muted',t:'Pending'}),'<button class="px-3 py-1 bg-[#ad2c4d] text-white text-[10px] font-bold rounded-full">Confirm</button>'],
+      ['<b>Marcus Lee</b>','Dell','IT Support','$61k',statusTag({k:'ok',t:'Done'}),statusTag({k:'ok',t:'Confirmed'})],
+      ['<b>Aisha Williams</b>','IBM','Data Analyst','$72k',statusTag({k:'ok',t:'Done'}),statusTag({k:'ok',t:'Confirmed'})],
+    ]),
+
+  'placement-surveys':()=>header('Placement surveys','30/90/180-day follow-up tracking')+kpiRow([{l:'Sent',v:'213'},{l:'Completed',v:'179',c:C.green},{l:'Response Rate',v:'84%',c:C.info},{l:'Still Employed',v:'92%',c:C.green}])+table(['Student','Stage','Sent','Status','Still employed'],[
+      ['<b>Marcus Lee</b>','90-day','Jun 1',statusTag({k:'ok',t:'Complete'}),'Yes'],
+      ['<b>Carlos Mendez</b>','30-day','Jun 18',statusTag({k:'info',t:'Sent'}),'—'],
+    ]),
+
+  analytics:()=>header('Analytics','Engagement & funnel analytics')+kpiRow([{l:'WAU',v:'612',c:C.info},{l:'Avg Session',v:'14m'},{l:'AI Tool Uses',v:'2,418',c:C.crimson},{l:'Voice Sessions',v:'344',c:C.gold}])+`<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">${bars('Most-used tools','last 30 days',[{l:'Resume Studio',v:'612',p:100,c:C.crimson},{l:'Interview Practice',v:'488',p:80,c:C.crimson},{l:'Job Match Scorer',v:'401',p:66,c:C.crimson},{l:'Cover Letter',v:'277',p:45,c:C.crimson}])}${bars('Weekly active by program','',[{l:'Cloud & IT',v:'241',p:100,c:C.info},{l:'Healthcare',v:'118',p:49,c:C.info},{l:'Data & AI',v:'142',p:59,c:C.info}])}</div>`,
+
+  /* ---------- CONTENT ---------- */
+  blog:()=>header('Blog','Marketing & resource posts',btn('<i class="fa-solid fa-plus mr-1"></i>New Post','primary'))+table(['Title','Author','Category','Status','Updated'],[
+      ['5 AWS Certs That Get You Hired','Team','Career',statusTag({k:'ok',t:'Published'}),'Jun 10'],
+      ['How WIOA Funding Works','A. Reyes','Guides',statusTag({k:'warn',t:'Draft'}),'Jun 18'],
+    ]),
+
+  invites:()=>header('Invites','Bulk member & partner invitations',btn('<i class="fa-solid fa-paper-plane mr-1"></i>Send Invites','primary'))+kpiRow([{l:'Sent',v:'1,204'},{l:'Accepted',v:'847',c:C.green},{l:'Pending',v:'212',c:C.gold},{l:'Rate',v:'70%',c:C.info}])+table(['Email','Type','Sent','Status'],[
+      ['new.member@email.com','Member','2d ago',statusTag({k:'gold',t:'Pending'})],
+      ['partner@org.com','Partner','5d ago',statusTag({k:'ok',t:'Accepted'})],
+    ]),
+
+  /* ---------- ADVANCED ---------- */
+  sessions:()=>header('In-office sessions','Walk-in & scheduled counselor sessions')+table(['Member','Counselor','Type','When','Status'],[
+      ['<b>Mike Brown</b>','S. Chen','Mock interview','Thu 6 PM',statusTag({k:'info',t:'Scheduled'})],
+      ['<b>Lena Ortiz</b>','R. Patel','Walk-in','Now',statusTag({k:'ok',t:'In session'})],
+    ]),
+
+  pipeline:()=>header('Applications funnel','Where applicants drop off')+bars('Funnel','last 90 days',[{l:'Started application',v:'1,204',p:100,c:C.info},{l:'Completed intake',v:'968',p:80,c:C.info},{l:'Eligibility cleared',v:'847',p:70,c:C.info},{l:'Enrolled',v:'724',p:60,c:C.green},{l:'Active',v:'612',p:51,c:C.green}]),
+
+  duplicates:()=>header('Duplicate students','Likely duplicate accounts to merge')+table(['Match','Student A','Student B','Confidence','Action'],[
+      ['Email + name','mike.brown@…','m.brown@…','94%','<button class="px-3 py-1 border border-[#e8e8e8] text-[10px] font-bold rounded-full">Review & merge</button>'],
+      ['Phone','j.davis (id 412)','jdavis (id 889)','81%','<button class="px-3 py-1 border border-[#e8e8e8] text-[10px] font-bold rounded-full">Review & merge</button>'],
+    ]),
+
+  users:()=>header('Users','Staff accounts & roles',btn('<i class="fa-solid fa-plus mr-1"></i>Add User','primary'))+table(['Name','Email','Role','Last login','Status'],[
+      ['<b>Dad (Owner)</b>','owner@workforceap.org','Super Admin','Now',statusTag({k:'ok',t:'Active'})],
+      ['<b>Sarah Chen</b>','schen@workforceap.org','Counselor','2h ago',statusTag({k:'ok',t:'Active'})],
+      ['<b>Ana Reyes</b>','areyes@workforceap.org','Counselor','1d ago',statusTag({k:'ok',t:'Active'})],
+    ]),
+
+  exports:()=>header('Exports','Download data for board, funders & compliance')+cards([
+      {icon:'fa-file-csv',bg:'#eef7ef',ic:C.green,t:'Placement outcomes (CSV)',d:'Board-ready · YTD'},
+      {icon:'fa-file-excel',t:'WIOA compliance (XLSX)',d:'Funder report · this quarter'},
+      {icon:'fa-file-lines',bg:'#eef5fb',ic:C.info,t:'Full member roster',d:'847 records · PII gated'},
+    ]),
+
+  coursera:()=>`<div class="grid grid-cols-1 lg:grid-cols-3 gap-5"><div class="panel-card bento"><div class="flex items-center gap-2 mb-3"><div class="w-9 h-9 rounded-lg bg-emerald-50 text-[#4a9b4f] flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></div><div><div class="font-bold text-sm">Sync Status</div><div class="text-[10px] text-[#4a9b4f] font-bold uppercase">Healthy</div></div></div><div class="space-y-2 text-xs">${[['Last sync','3 min ago'],['Learners synced','812 / 847'],['B4B API latency','240ms'],['Errors (24h)','0']].map(r=>`<div class="flex justify-between"><span class="text-[#737373]">${r[0]}</span><span class="font-bold">${r[1]}</span></div>`).join('')}</div><button class="mt-4 w-full py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white text-xs font-semibold rounded-full focus-ring"><i class="fa-solid fa-arrows-rotate mr-1"></i>Force Sync</button></div><div class="lg:col-span-2 panel-card bento" style="border-color:#f3d4dc"><div class="flex items-center justify-between mb-2"><h3 class="font-extrabold text-base">Unmatched Learners</h3><span class="tag" style="color:${C.crimson};background:#fdf2f4">35 to link</span></div><p class="text-xs text-[#737373] mb-3">Coursera emails with no matching member. Link so progress flows in.</p><div class="space-y-2">${[['j.davis.work@gmail.com','AWS Cloud Practitioner · 64%'],['carlos.t.trades@yahoo.com','HVAC Fundamentals · 30%'],['areed2024@outlook.com','Data Analytics · 88%']].map(r=>`<div class="flex items-center justify-between p-3 bg-[#fafafa] border border-[#e8e8e8] rounded-xl"><div><div class="font-bold text-xs">${r[0]}</div><div class="text-[10px] text-[#737373]">${r[1]}</div></div><button class="px-3 py-1.5 bg-[#2b7bb9] text-white text-[10px] font-bold rounded-full focus-ring">Link</button></div>`).join('')}</div></div></div>`,
+
+  metrics:()=>header('Metrics','Raw platform metrics')+kpiRow([{l:'API p50',v:'180ms',c:C.green},{l:'API p99',v:'920ms',c:C.gold},{l:'Error rate',v:'0.2%',c:C.green},{l:'Uptime 30d',v:'99.95%',c:C.green}])+bars('Requests by surface','last 24h',[{l:'Member portal',v:'48k',p:100,c:C.info},{l:'Admin',v:'12k',p:25,c:C.info},{l:'API / webhooks',v:'31k',p:65,c:C.info}]),
+
+  'weekly-recap':()=>header('Weekly recap','Auto-generated weekly summary')+kpiRow([{l:'New Students',v:'+32',c:C.green},{l:'Placements',v:'+18',c:C.green},{l:'Certs Earned',v:'+27',c:C.gold},{l:'At-Risk Δ',v:'-4',c:C.green}])+note('This recap is emailed to staff every Monday 8 AM and posted here. The redesign keeps the same content but renders it as scannable cards instead of a wall of text.'),
+
+  'ai-tools':()=>header('AI tools','Admin view of member AI toolkit usage & config')+cards([
+      {icon:'fa-file-lines',t:'Resume Studio',d:'612 uses · Beta',tag:{k:'ok',t:'On'}},
+      {icon:'fa-microphone-lines',bg:'#fdf2f4',ic:C.crimson,t:'Voice Coaches',d:'344 sessions',tag:{k:'ok',t:'On'}},
+      {icon:'fa-route',bg:'#FEF3C7',ic:C.gold,t:'Training Bridge',d:'188 uses · Beta',tag:{k:'warn',t:'Beta'}},
+    ]),
+
+  'ai-efficacy':()=>header('AI Efficacy','Does AI tool use correlate with outcomes?')+kpiRow([{l:'AI Users Placed',v:'74%',c:C.green},{l:'Non-Users Placed',v:'51%',c:C.muted},{l:'Lift',v:'+23pp',c:C.crimson},{l:'Confidence',v:'High',c:C.green}])+note('Members who used 3+ AI tools placed at 74% vs 51% for non-users. The redesign surfaces this lift to justify the toolkit investment to funders and the board.'),
+
+  diagnostics:()=>header('Diagnostics','Live system diagnostics')+`<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">${[['App','ok','Operational','fa-check'],['Database','ok','Healthy','fa-database'],['Email Queue','alert','Degraded','fa-triangle-exclamation'],['Integrations','ok','All synced','fa-arrows-rotate']].map(s=>{const c=s[1]==='ok'?C.green:C.crimson;const bg=s[1]==='ok'?'#eef7ef':'#fdf2f4';return `<div class="kpi bento flex items-center gap-3"><div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:${bg};color:${c}"><i class="fa-solid ${s[3]}"></i></div><div><div class="text-[10px] font-bold text-[#737373] uppercase">${s[0]}</div><div class="font-bold text-sm" style="color:${c}">${s[2]}</div></div></div>`;}).join('')}</div>`+note('Email queue degraded — weekly recap send retrying. Auto-recovers; see Cron Monitor.'),
+
+  crons:()=>header('Cron Monitor','Scheduled jobs')+table(['Job','Schedule','Last run','Duration','Status'],[
+      ['Coursera B4B Sync','Every 15 min','3 min ago','2.4s',statusTag({k:'ok',t:'Success'})],
+      ['At-Risk Scoring','Daily 6 AM','3h ago','18s',statusTag({k:'ok',t:'Success'})],
+      ['Weekly Recap Emails','Mon 8 AM','2d ago','—',statusTag({k:'alert',t:'Retrying'})],
+      ['Placement Survey Sends','Daily 9 AM','42m ago','4.1s',statusTag({k:'ok',t:'Success'})],
+    ]),
+
+  health:()=>header('System Health','Services & integrations')+`<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">${[['App',C.green,'Operational','fa-check'],['Database',C.green,'Healthy','fa-database'],['Email',C.crimson,'Degraded','fa-triangle-exclamation'],['Integrations',C.green,'Synced','fa-arrows-rotate']].map(s=>`<div class="kpi bento flex items-center gap-3"><div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:${s[1]===C.green?'#eef7ef':'#fdf2f4'};color:${s[1]}"><i class="fa-solid ${s[3]}"></i></div><div><div class="text-[10px] font-bold text-[#737373] uppercase">${s[0]}</div><div class="font-bold text-sm" style="color:${s[1]}">${s[2]}</div></div></div>`).join('')}</div>`+bars('Integration uptime (30d)','',[{l:'Coursera B4B',v:'99.9%',p:99,c:C.green},{l:'Stripe',v:'100%',p:100,c:C.green},{l:'SendGrid',v:'97.2%',p:97,c:C.gold},{l:'Supabase',v:'99.95%',p:99,c:C.green}]),
+
+  audit:()=>header('Audit logs','Every privileged action, immutable')+table(['When','Actor','Action','Target','IP'],[
+      ['9:41 AM','Dad (Owner)','Confirmed placement','Jasmine Davis','73.x.x.12'],
+      ['9:38 AM','S. Chen','Approved certification','Mike Brown','73.x.x.44'],
+      ['9:30 AM','System','Ran B4B sync','812 learners','—'],
+      ['Yesterday','A. Reyes','Exported WIOA report','Q2 compliance','73.x.x.91'],
+    ]),
+};
+
+/* ============================================================
+   NAV ACTIVATION
+   ============================================================ */
+const stage=document.getElementById('stage');
+function toggleNav(open){
+  const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');
+  if(open){sb.classList.remove('-translate-x-full');ov.classList.remove('hidden');}
+  else{sb.classList.add('-translate-x-full');ov.classList.add('hidden');}
+}
+function activate(id){
+  const meta=idMeta[id]||{t:'Admin',href:'/admin'};
+  document.getElementById('ptitle').textContent=meta.t;
+  document.getElementById('pcrumb').textContent=meta.href;
+  const fn=PAGES[id];
+  stage.innerHTML=`<div class="fade">${fn?fn():note('Screen scaffolded — wires to <code>'+meta.href+'</code> when built.')}</div>`;
+  document.querySelectorAll('#nav .nav-a').forEach(b=>{
+    const on=b.dataset.id===id;
+    b.classList.toggle('bg-[#ad2c4d]',on);
+    b.classList.toggle('text-white',on);
+    b.classList.toggle('text-[#cfcfcf]',!on);
+  });
+  // member rows in Students open 360 — keep simple: clicking row does nothing destructive
+  stage.scrollTo?.({top:0});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+activate('today');
+</script>
+</body>
+</html>

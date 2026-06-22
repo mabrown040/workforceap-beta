@@ -35,11 +35,16 @@ import { buildPartnerReferralBadge, isOutcomesSocialProofEnabled } from '@/lib/o
 import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
 import {
   DesignSurface,
-  KpiStrip,
   SectionHeader as KitSectionHeader,
   DataTable as KitDataTable,
   QueueRow,
 } from '@/components/portal/kit';
+import {
+  PartnerKpiGrid,
+  PartnerAttentionCard,
+  PartnerAssistantAccordion,
+  PartnerQuickActions,
+} from '@/components/portal/kit/pages/PartnerOverviewKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('partner');
@@ -224,15 +229,54 @@ export default async function PartnerDashboardPage({
             goal={t('referralsProgressOutcomes', { partnerName: ctx.partner.name })}
           />
 
-          <KpiStrip
-            cols={4}
+          <PartnerKpiGrid
             items={[
-              { label: t('membersReferred'), value: referredCount, color: 'accent' },
-              { label: t('membersEnrolled'), value: enrolledCount, color: 'info' },
-              { label: t('membersPlaced'), value: placedCount, color: 'success' },
-              { label: t('placementRate'), value: `${placementRate}%`, color: 'gold' },
+              {
+                label: t('membersReferred'),
+                value: referredCount,
+                subtitle: t('inYourPortal'),
+                color: 'accent',
+              },
+              {
+                label: t('membersEnrolled'),
+                value: enrolledCount,
+                subtitle: t('startedAProgram'),
+                color: 'info',
+              },
+              {
+                label: t('membersPlaced'),
+                value: placedCount,
+                subtitle: t('verifiedHires'),
+                color: 'success',
+              },
+              {
+                label: t('placementRate'),
+                value: `${placementRate}%`,
+                subtitle: t('placementEstimate'),
+                color: 'gold',
+              },
             ]}
           />
+
+          <PartnerAttentionCard
+            title={t('nextActionReviewProgress')}
+            body={t('nextActionReviewProgressTip')}
+            href="/partner/referred-members"
+          />
+
+          <PartnerAssistantAccordion title={t('partnerAssistant')} hint="(tap to open)">
+            <VoiceAgentSurface {...partnerVoiceSurface}>
+              <PortalVoiceSessionLazy
+                sessionEndpoint="/api/partner/voice-session"
+                title={t('partnerAssistant')}
+                description={t('askAboutReferrals')}
+                accent="var(--color-amber)"
+                accentDark="var(--color-amber)"
+                speakingLabel={t('assistantSpeaking')}
+                listeningLabel={t('assistantListening')}
+              />
+            </VoiceAgentSurface>
+          </PartnerAssistantAccordion>
 
           {pendingPlacementEvents.length > 0 ? (
             <div className="wa-flex wa-flex-col wa-gap-3">
@@ -306,6 +350,35 @@ export default async function PartnerDashboardPage({
               mobile="scroll"
               emptyTitle="No referred members yet"
               emptyDescription="New referrals will appear here after members apply through this partner."
+            />
+          </div>
+
+          <div className="wa-flex wa-flex-col wa-gap-3">
+            <KitSectionHeader title={t('quickActions')} />
+            <PartnerQuickActions
+              actions={[
+                {
+                  icon: '📊',
+                  tone: 'accent',
+                  title: t('exportData'),
+                  body: t('csvPdfReports'),
+                  href: '/partner/exports',
+                },
+                {
+                  icon: '📥',
+                  tone: 'info',
+                  title: t('newReferral'),
+                  body: t('shareReferralLink'),
+                  href: '/partner/guide',
+                },
+                {
+                  icon: '🎯',
+                  tone: 'gold',
+                  title: t('milestonesAndUpdates'),
+                  body: t('viewPlacementReports'),
+                  href: '/partner/milestones',
+                },
+              ]}
             />
           </div>
         </DesignSurface>

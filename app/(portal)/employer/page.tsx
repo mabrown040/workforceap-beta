@@ -27,6 +27,8 @@ import {
   DataTable,
   StatusTag,
   SectionHeader,
+  Avatar,
+  FeatureTile,
   type Column,
   type KitTone,
 } from '@/components/portal/kit';
@@ -38,6 +40,28 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t('manageJobPostings'),
     path: '/employer',
   });
+}
+
+/** Two-letter initials from a full name for the applicant avatar. */
+function kitInitials(name: string | null | undefined): string {
+  if (!name) return '—';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '—';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+/** Compact "applied 2h ago" relative time for the applicant showcase. */
+function kitTimeAgo(date: Date | null | undefined): string {
+  if (!date) return '—';
+  const diffMs = Date.now() - date.getTime();
+  const mins = Math.round(diffMs / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  return `${days}d ago`;
 }
 
 /** Maps a hiring pipeline status to a portal-kit StatusTag tone. */
@@ -85,8 +109,10 @@ export default async function EmployerDashboardPage({
     const [
       kitOpenRoles,
       kitTotalCandidates,
-      kitPipeline,
+      kitReviewing,
       kitInterviews,
+      kitOffered,
+      kitHired,
       kitRecent,
     ] = await Promise.all([
       prisma.job.count({ where: { employerId: ctx.employerId, status: 'live' } }),
@@ -94,13 +120,16 @@ export default async function EmployerDashboardPage({
         where: { job: { employerId: ctx.employerId } },
       }),
       prisma.jobPostingApplication.count({
-        where: {
-          job: { employerId: ctx.employerId },
-          status: { in: ['interview', 'offered', 'hired'] },
-        },
+        where: { job: { employerId: ctx.employerId }, status: 'reviewing' },
       }),
       prisma.jobPostingApplication.count({
         where: { job: { employerId: ctx.employerId }, status: 'interview' },
+      }),
+      prisma.jobPostingApplication.count({
+        where: { job: { employerId: ctx.employerId }, status: 'offered' },
+      }),
+      prisma.jobPostingApplication.count({
+        where: { job: { employerId: ctx.employerId }, status: 'hired' },
       }),
       prisma.jobPostingApplication.findMany({
         where: { job: { employerId: ctx.employerId } },
@@ -112,6 +141,11 @@ export default async function EmployerDashboardPage({
         },
       }),
     ]);
+
+    // Screened = everyone past the initial "pending" gate.
+    const kitScreened =
+      kitReviewing + kitInterviews + kitOffered + kitHired;
+    const kitTopApplicant = kitRecent[0] ?? null;
 
     type KitRow = (typeof kitRecent)[number];
     const kitColumns: Column<KitRow>[] = [
@@ -151,15 +185,220 @@ export default async function EmployerDashboardPage({
           kicker="Employer portal"
           goal="See open roles, pipeline, and the latest candidates at a glance."
         />
+
+        {/* ── KPI pipeline (6 stages) ── */}
         <KpiStrip
-          cols={4}
+          cols={6}
           items={[
-            { label: 'Open roles', value: kitOpenRoles, color: 'accent' },
-            { label: 'Candidates in pipeline', value: kitTotalCandidates, color: 'info' },
-            { label: 'Interviewing or later', value: kitPipeline, color: 'success' },
-            { label: 'Interviews', value: kitInterviews, color: 'gold' },
+            { label: 'Candidates', value: kitTotalCandidates },
+            { label: 'In Review', value: kitReviewing, color: 'gold' },
+            { label: 'Screened', value: kitScreened },
+            { label: 'Interview', value: kitInterviews, color: 'info' },
+            { label: 'Offer', value: kitOffered, color: 'accent' },
+            { label: 'Hired', value: kitHired, color: 'success' },
           ]}
         />
+
+        {/* ── Voice Assistant card ── */}
+        <div
+          className="wa-mt-5 wa-kit-card"
+          style={{
+            background: 'linear-gradient(135deg, #1a2340, #0f1a30)',
+            border: 'none',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+          }}
+        >
+          <div
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: 999,
+              background: 'linear-gradient(135deg, #2b7bb9, #1a4a70)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 32,
+              flexShrink: 0,
+            }}
+          >
+            🎤
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px' }}>
+              Employer Voice Assistant
+            </h3>
+            <p style={{ fontSize: 12, opacity: 0.8, margin: '0 0 12px' }}>
+              Review pending applications, screen candidates, and triage messages hands-free.
+            </p>
+            <Link
+              href="/employer/applications"
+              style={{
+                background: 'var(--wa-info)',
+                color: '#fff',
+                border: 'none',
+                padding: '8px 14px',
+                borderRadius: 999,
+                fontWeight: 700,
+                fontSize: 12,
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              ▶ Start voice session
+            </Link>
+          </div>
+        </div>
+
+        {/* ── Review-candidate banner ── */}
+        {kitTopApplicant ? (
+          <Link
+            href={`/employer/jobs/${kitTopApplicant.jobId}`}
+            className="wa-mt-5"
+            style={{
+              background: 'var(--wa-accent)',
+              color: '#fff',
+              borderRadius: 'var(--wa-radius)',
+              padding: '16px 22px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              textDecoration: 'none',
+            }}
+          >
+            <div
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 12,
+                background: 'rgba(255,255,255,0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              ⚡
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>Review 1 candidate now</div>
+              <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>
+                {kitTopApplicant.student?.fullName ?? 'New candidate'} —{' '}
+                {kitTopApplicant.job?.title ?? 'Open role'} · submitted{' '}
+                {kitTimeAgo(kitTopApplicant.appliedAt)}
+              </div>
+            </div>
+            <span style={{ fontSize: 20 }}>→</span>
+          </Link>
+        ) : null}
+
+        {/* ── Quick-action cards ── */}
+        <div
+          className="wa-mt-5 wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4"
+        >
+          <FeatureTile
+            icon="📝"
+            title="Post a role"
+            body="Hire from the WorkforceAP pipeline."
+            href="/employer/jobs/new"
+          />
+          <FeatureTile
+            icon="💬"
+            title="Messages"
+            body="Pending replies from candidates."
+            tone="gold"
+            href="/employer/messages"
+          />
+        </div>
+
+        {/* ── Recent applicants showcase ── */}
+        <div className="wa-mt-5 wa-kit-card">
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-end',
+              marginBottom: 16,
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  color: 'var(--wa-accent)',
+                }}
+              >
+                Recent activity
+              </div>
+              <h3
+                style={{
+                  fontSize: 20,
+                  fontWeight: 800,
+                  letterSpacing: '-0.03em',
+                  margin: 0,
+                }}
+              >
+                Recent applicants
+              </h3>
+            </div>
+            <Link
+              href="/employer/applications"
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: 'var(--wa-accent)',
+                textDecoration: 'none',
+              }}
+            >
+              View all →
+            </Link>
+          </div>
+
+          {kitRecent.length === 0 ? (
+            <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>
+              New job applications will appear here as candidates enter the pipeline.
+            </p>
+          ) : (
+            kitRecent.map((app, i) => (
+              <Link
+                key={app.id}
+                href={`/employer/jobs/${app.jobId}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '12px 0',
+                  borderBottom:
+                    i < kitRecent.length - 1 ? '1px solid var(--wa-border)' : 'none',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                }}
+              >
+                <Avatar initials={kitInitials(app.student?.fullName)} size={36} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>
+                    {app.student?.fullName ?? '—'}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>
+                    {app.job?.title ?? 'Open role'} · applied {kitTimeAgo(app.appliedAt)}
+                  </div>
+                </div>
+                <StatusTag tone={kitStatusTone(app.status)}>
+                  {employerJobPostingApplicationStatusLabel(app.status)}
+                </StatusTag>
+              </Link>
+            ))
+          )}
+        </div>
+
+        {/* ── Full candidate table (dense staff surface) ── */}
         <div className="wa-mt-6">
           <SectionHeader title="Latest candidates" />
           <DataTable<KitRow>

@@ -23,6 +23,7 @@
  * Spec: docs/PORTING_GUIDE.md
  */
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   Mic,
   MicOff,
@@ -60,6 +61,33 @@ import {
 import { DesignSurface } from '../DesignSurface';
 
 type StudioTab = 'coaches' | 'session' | 'studio' | 'toolkit';
+
+/**
+ * Real routes each card opens. Most live under /dashboard/ai-tools/*; the
+ * counselor has its own top-level route. Keyed by a stable string so card data
+ * can reference a route without repeating the literal path.
+ */
+const TOOL_HREF = {
+  'readiness-coach': '/dashboard/ai-tools/readiness-coach',
+  'resume-coach': '/dashboard/ai-tools/resume-coach',
+  counselor: '/dashboard/counselor',
+  'career-business-coach': '/dashboard/ai-tools/career-business-coach',
+  'elevator-pitch': '/dashboard/ai-tools/elevator-pitch',
+  'resume-studio': '/dashboard/ai-tools/resume-studio',
+  'resume-rewriter': '/dashboard/ai-tools/resume-rewriter',
+  'cover-letter': '/dashboard/ai-tools/cover-letter',
+  'skill-checkpoints': '/dashboard/ai-tools/skill-checkpoints',
+  'interview-practice': '/dashboard/ai-tools/interview-practice',
+  'interview-coach': '/dashboard/ai-tools/interview-coach',
+  'job-match-scorer': '/dashboard/ai-tools/job-match-scorer',
+  'skill-mapper': '/dashboard/ai-tools/skill-mapper',
+  'training-bridge': '/dashboard/ai-tools/training-bridge',
+  'linkedin-headline': '/dashboard/ai-tools/linkedin-headline',
+  'linkedin-about': '/dashboard/ai-tools/linkedin-about',
+  'gap-analyzer': '/dashboard/ai-tools/gap-analyzer',
+  'salary-negotiation': '/dashboard/ai-tools/salary-negotiation',
+  'benefits-cliff': '/dashboard/ai-tools/benefits-cliff',
+} as const;
 
 const TABS: Array<{ id: StudioTab; label: string }> = [
   { id: 'coaches', label: 'Voice Coaches' },
@@ -188,9 +216,9 @@ export function VoiceStudioKit({
           {tab === 'coaches' && <CoachesPanel onMockInterview={() => setTab('session')} />}
           {tab === 'session' && <SessionPanel clock={sessionClock} exchanges={exchanges} clarity={clarity} points={points} />}
           {tab === 'studio' && (
-            <StudioPanel score={score} ringC={ringC} ringR={ringR} ringOffset={ringOffset} onTalkItThrough={() => setTab('session')} />
+            <StudioPanel score={score} ringC={ringC} ringR={ringR} ringOffset={ringOffset} />
           )}
-          {tab === 'toolkit' && <ToolkitPanel onResumeStudio={() => setTab('studio')} onInterviewPractice={() => setTab('session')} />}
+          {tab === 'toolkit' && <ToolkitPanel />}
         </main>
 
         <footer style={{ background: '#1a1a1a', color: '#737373', fontSize: 10, textAlign: 'center', padding: '12px 16px' }}>
@@ -214,6 +242,9 @@ interface CoachCard {
   body: string;
   ctaIcon: LucideIcon;
   cta: string;
+  /** Real route this card opens. Omitted for the Mock Interview demo card,
+   * which instead switches to the in-page Live Session tab. */
+  href?: string;
 }
 
 const COACH_CARDS: CoachCard[] = [
@@ -226,6 +257,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Interviews, certifications, and next steps — talked through out loud.',
     ctaIcon: Mic,
     cta: 'Start session',
+    href: TOOL_HREF['readiness-coach'],
   },
   {
     key: 'resume',
@@ -236,6 +268,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Voice feedback on your bullets and framing. Pairs with your live draft.',
     ctaIcon: Mic,
     cta: 'Start session',
+    href: TOOL_HREF['resume-coach'],
   },
   {
     key: 'mock',
@@ -256,6 +289,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Private voice session — then your personalized action plan.',
     ctaIcon: Mic,
     cta: 'Start session',
+    href: TOOL_HREF.counselor,
   },
   {
     key: 'business',
@@ -266,6 +300,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Broader career, PM, sales, marketing and business guidance.',
     ctaIcon: Mic,
     cta: 'Start session',
+    href: TOOL_HREF['career-business-coach'],
   },
   {
     key: 'elevator',
@@ -276,6 +311,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Generate a sharp intro, save it, then rehearse it on camera.',
     ctaIcon: ArrowRight,
     cta: 'Build mine',
+    href: TOOL_HREF['elevator-pitch'],
   },
 ];
 
@@ -414,23 +450,21 @@ function CoachCardView({ card, onClick }: { card: CoachCard; onClick?: () => voi
       break;
   }
 
-  return (
-    <button
-      onClick={onClick}
-      className="wa-kit-focus"
-      style={{
-        textAlign: 'left',
-        borderRadius: 24,
-        padding: 'clamp(20px, 5vw, 28px)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        cursor: 'pointer',
-        minHeight: 210,
-        border: 'none',
-        ...cardStyle,
-      }}
-    >
+  const sharedStyle: React.CSSProperties = {
+    textAlign: 'left',
+    borderRadius: 24,
+    padding: 'clamp(20px, 5vw, 28px)',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    cursor: 'pointer',
+    minHeight: 210,
+    border: 'none',
+    ...cardStyle,
+  };
+
+  const inner = (
+    <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ padding: 12, borderRadius: 16, display: 'inline-flex', ...iconChip }}>
           <Icon size={20} />
@@ -466,6 +500,22 @@ function CoachCardView({ card, onClick }: { card: CoachCard; onClick?: () => voi
           {cta}
         </div>
       </div>
+    </>
+  );
+
+  // Cards with a real route navigate via Link; the Mock Interview card (no
+  // href) keeps its in-page tab-switch onClick instead.
+  if (card.href) {
+    return (
+      <Link href={card.href} className="wa-kit-focus" style={{ ...sharedStyle, textDecoration: 'none' }}>
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <button onClick={onClick} className="wa-kit-focus" style={sharedStyle}>
+      {inner}
     </button>
   );
 }
@@ -746,13 +796,11 @@ function StudioPanel({
   ringC,
   ringR,
   ringOffset,
-  onTalkItThrough,
 }: {
   score: number;
   ringC: number;
   ringR: number;
   ringOffset: number;
-  onTalkItThrough: () => void;
 }) {
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -796,7 +844,8 @@ function StudioPanel({
             Score it, fix the top issues with AI rewrites, or talk it through out loud — all in one place.
           </p>
         </div>
-        <button
+        <Link
+          href={TOOL_HREF['resume-studio']}
           className="vs-focus-dark"
           style={{
             padding: '12px 20px',
@@ -811,11 +860,12 @@ function StudioPanel({
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
+            textDecoration: 'none',
           }}
         >
           <Upload size={14} />
           Upload Resume
-        </button>
+        </Link>
       </div>
 
       {/* score + issues */}
@@ -928,7 +978,8 @@ function StudioPanel({
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-            <button
+            <Link
+              href={TOOL_HREF['resume-rewriter']}
               className="wa-kit-focus"
               style={{
                 padding: '8px 16px',
@@ -939,11 +990,15 @@ function StudioPanel({
                 borderRadius: 999,
                 border: 'none',
                 cursor: 'pointer',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
               }}
             >
               Accept Rewrite
-            </button>
-            <button
+            </Link>
+            <Link
+              href={TOOL_HREF['resume-rewriter']}
               className="wa-kit-focus"
               style={{
                 padding: '8px 16px',
@@ -954,16 +1009,19 @@ function StudioPanel({
                 borderRadius: 999,
                 cursor: 'pointer',
                 color: 'var(--wa-text)',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
               }}
             >
               Regenerate
-            </button>
+            </Link>
           </div>
         </div>
 
-        {/* gold "Talk it through" voice card */}
-        <button
-          onClick={onTalkItThrough}
+        {/* gold "Talk it through" voice card → Resume Coach voice session */}
+        <Link
+          href={TOOL_HREF['resume-coach']}
           className="wa-kit-focus"
           style={{
             textAlign: 'left',
@@ -977,6 +1035,7 @@ function StudioPanel({
             cursor: 'pointer',
             border: 'none',
             boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)',
+            textDecoration: 'none',
           }}
         >
           <div>
@@ -992,7 +1051,7 @@ function StudioPanel({
             <Mic size={13} />
             Start voice session
           </div>
-        </button>
+        </Link>
       </div>
     </section>
   );
@@ -1036,7 +1095,8 @@ function IssueRow({ issue }: { issue: Issue }) {
         <div style={{ fontWeight: 700, fontSize: 12 }}>{title}</div>
         <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{body}</div>
       </div>
-      <button
+      <Link
+        href={TOOL_HREF['resume-rewriter']}
         className="wa-kit-focus"
         style={{
           padding: '6px 12px',
@@ -1048,10 +1108,14 @@ function IssueRow({ issue }: { issue: Issue }) {
           border: 'none',
           cursor: 'pointer',
           flexShrink: 0,
+          textDecoration: 'none',
+          display: 'inline-flex',
+          alignItems: 'center',
+          whiteSpace: 'nowrap',
         }}
       >
         Fix with AI
-      </button>
+      </Link>
     </div>
   );
 }
@@ -1068,8 +1132,8 @@ interface ToolCard {
   body: string;
   accent: ToolAccent;
   tag?: 'BETA' | 'VOICE';
-  /** internal navigation, if any. */
-  goto?: 'studio' | 'session';
+  /** Real route this tool opens. */
+  href: string;
 }
 
 interface ToolStep {
@@ -1083,42 +1147,36 @@ const TOOLKIT_STEPS: ToolStep[] = [
     n: 1,
     title: 'Get your resume & applications ready',
     tools: [
-      { Icon: FileText, title: 'Resume Studio', body: 'Score, rewrite & talk through your resume.', accent: 'crimson', tag: 'BETA', goto: 'studio' },
-      { Icon: MailOpen, title: 'Cover Letter', body: 'Tailored to any saved job in seconds.', accent: 'crimson' },
-      { Icon: CheckCircle2, title: 'Skill Checkpoints', body: "Verify what you've actually mastered.", accent: 'crimson' },
+      { Icon: FileText, title: 'Resume Studio', body: 'Score, rewrite & talk through your resume.', accent: 'crimson', tag: 'BETA', href: TOOL_HREF['resume-studio'] },
+      { Icon: MailOpen, title: 'Cover Letter', body: 'Tailored to any saved job in seconds.', accent: 'crimson', href: TOOL_HREF['cover-letter'] },
+      { Icon: CheckCircle2, title: 'Skill Checkpoints', body: "Verify what you've actually mastered.", accent: 'crimson', href: TOOL_HREF['skill-checkpoints'] },
     ],
   },
   {
     n: 2,
     title: 'Pre-interview prep & role targeting',
     tools: [
-      { Icon: AudioLines, title: 'Interview Practice', body: 'Live mock interviews with voice coaching.', accent: 'crimson', tag: 'VOICE', goto: 'session' },
-      { Icon: Headset, title: 'Interview Coach', body: 'Question-by-question guidance.', accent: 'crimson' },
-      { Icon: Search, title: 'Job Match Scorer', body: 'See how you match a specific job.', accent: 'blue' },
-      { Icon: Network, title: 'Skill Mapper', body: 'Find skills employers want.', accent: 'blue' },
-      { Icon: Route, title: 'Training Bridge', body: 'Map missing skills to free training.', accent: 'gold', tag: 'BETA' },
+      { Icon: AudioLines, title: 'Interview Practice', body: 'Live mock interviews with voice coaching.', accent: 'crimson', tag: 'VOICE', href: TOOL_HREF['interview-practice'] },
+      { Icon: Headset, title: 'Interview Coach', body: 'Question-by-question guidance.', accent: 'crimson', href: TOOL_HREF['interview-coach'] },
+      { Icon: Search, title: 'Job Match Scorer', body: 'See how you match a specific job.', accent: 'blue', href: TOOL_HREF['job-match-scorer'] },
+      { Icon: Network, title: 'Skill Mapper', body: 'Find skills employers want.', accent: 'blue', href: TOOL_HREF['skill-mapper'] },
+      { Icon: Route, title: 'Training Bridge', body: 'Map missing skills to free training.', accent: 'gold', tag: 'BETA', href: TOOL_HREF['training-bridge'] },
     ],
   },
   {
     n: 3,
     title: 'Polish your profile & job-search strategy',
     tools: [
-      { Icon: Linkedin, title: 'LinkedIn Headline', body: 'A headline recruiters stop on.', accent: 'blue' },
-      { Icon: UserPen, title: 'LinkedIn About', body: 'Write your professional story.', accent: 'blue' },
-      { Icon: Search, title: 'Gap Analyzer', body: "See what's missing for a job.", accent: 'crimson' },
-      { Icon: MessagesSquare, title: 'Salary Negotiation', body: 'Practice asking for better pay.', accent: 'crimson' },
-      { Icon: Scale, title: 'Benefits Cliff Check', body: 'Will this offer leave you better off?', accent: 'gold', tag: 'BETA' },
+      { Icon: Linkedin, title: 'LinkedIn Headline', body: 'A headline recruiters stop on.', accent: 'blue', href: TOOL_HREF['linkedin-headline'] },
+      { Icon: UserPen, title: 'LinkedIn About', body: 'Write your professional story.', accent: 'blue', href: TOOL_HREF['linkedin-about'] },
+      { Icon: Search, title: 'Gap Analyzer', body: "See what's missing for a job.", accent: 'crimson', href: TOOL_HREF['gap-analyzer'] },
+      { Icon: MessagesSquare, title: 'Salary Negotiation', body: 'Practice asking for better pay.', accent: 'crimson', href: TOOL_HREF['salary-negotiation'] },
+      { Icon: Scale, title: 'Benefits Cliff Check', body: 'Will this offer leave you better off?', accent: 'gold', tag: 'BETA', href: TOOL_HREF['benefits-cliff'] },
     ],
   },
 ];
 
-function ToolkitPanel({
-  onResumeStudio,
-  onInterviewPractice,
-}: {
-  onResumeStudio: () => void;
-  onInterviewPractice: () => void;
-}) {
+function ToolkitPanel() {
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
@@ -1168,13 +1226,7 @@ function ToolkitPanel({
           </div>
           <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
             {step.tools.map((tool) => (
-              <ToolCardView
-                key={tool.title}
-                tool={tool}
-                onClick={
-                  tool.goto === 'studio' ? onResumeStudio : tool.goto === 'session' ? onInterviewPractice : undefined
-                }
-              />
+              <ToolCardView key={tool.title} tool={tool} />
             ))}
           </div>
         </div>
@@ -1183,8 +1235,8 @@ function ToolkitPanel({
   );
 }
 
-function ToolCardView({ tool, onClick }: { tool: ToolCard; onClick?: () => void }) {
-  const { Icon, title, body, accent, tag } = tool;
+function ToolCardView({ tool }: { tool: ToolCard }) {
+  const { Icon, title, body, accent, tag, href } = tool;
   const accentStyle =
     accent === 'gold'
       ? { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' }
@@ -1198,8 +1250,8 @@ function ToolCardView({ tool, onClick }: { tool: ToolCard; onClick?: () => void 
       : { background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' };
 
   return (
-    <button
-      onClick={onClick}
+    <Link
+      href={href}
       className="wa-kit-focus"
       style={{
         textAlign: 'left',
@@ -1210,6 +1262,8 @@ function ToolCardView({ tool, onClick }: { tool: ToolCard; onClick?: () => void 
         cursor: 'pointer',
         display: 'block',
         width: '100%',
+        textDecoration: 'none',
+        color: 'var(--wa-text)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1224,7 +1278,7 @@ function ToolCardView({ tool, onClick }: { tool: ToolCard; onClick?: () => void 
       </div>
       <h4 style={{ fontWeight: 700, fontSize: 14, marginTop: 12 }}>{title}</h4>
       <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{body}</p>
-    </button>
+    </Link>
   );
 }
 

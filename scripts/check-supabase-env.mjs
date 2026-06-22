@@ -15,6 +15,12 @@ const DEMO_REF = 'esbdrgaonplpvzmtrdhw'; // workforceap-demo
 const PROD_REF = 'jqddnyuszufndwwezdwp'; // real project
 
 // VERCEL_ENV is 'production' | 'preview' | 'development'. Fall back to NODE_ENV.
+// CI uses stub DB URLs — guard only applies to real Vercel deploys and local dev.
+if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
+  console.log('[supabase-env-guard] CI — skipping project ref check');
+  process.exit(0);
+}
+
 const env = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
 
 const urls = {

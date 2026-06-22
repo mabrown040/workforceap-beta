@@ -4,6 +4,12 @@ import type { GucContext } from './gucContext';
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
+/** Preview/demo pooler (6543 txn-mode) hangs Prisma interactive $transaction — flatten to plain queries. Never prod. */
+const FLATTEN_TX =
+  process.env.PRISMA_FLATTEN_TX === '1' ||
+  process.env.VERCEL_ENV === 'preview' ||
+  process.env.VERCEL_ENV === 'development';
+
 function escapeSqlString(value: string): string {
   return value.replace(/'/g, "''");
 }
@@ -48,6 +54,25 @@ export function buildGucSql(ctx: GucContext): string {
   return `SELECT ${parts.join(', ')};`;
 }
 
+/** Flatten interactive transactions when the txn-mode pooler would hang until 504. */
+function installFlattenTxOverride(client: PrismaClient): void {
+  if (!FLATTEN_TX) return;
+
+  const originalTransaction = client.$transaction.bind(client) as (
+    ...args: unknown[]
+  ) => Promise<unknown>;
+  (client as unknown as { $transaction: (...args: unknown[]) => Promise<unknown> }).$transaction =
+    async (...args: unknown[]) => {
+      if (typeof args[0] === 'function') {
+        return (args[0] as (tx: PrismaClient) => Promise<unknown>)(client);
+      }
+      if (Array.isArray(args[0])) {
+        return Promise.all(args[0] as Promise<unknown>[]);
+      }
+      return originalTransaction(...args);
+    };
+}
+
 function createPrismaClient(): PrismaClient {
   const client = new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
@@ -76,6 +101,8 @@ function createPrismaClient(): PrismaClient {
   // Re-enable (set WAP_RLS_GUC_ENABLED=true) in the SAME change that flips
   // FORCE ROW LEVEL SECURITY and moves RLS reads onto a per-query-batched GUC
   // path — otherwise fail-open would mean silent empty reads.
+  installFlattenTxOverride(client);
+
   const gucEnabled = process.env.WAP_RLS_GUC_ENABLED === 'true';
   if (!gucEnabled) {
     return client;
@@ -162,6 +189,16 @@ function createPrismaClient(): PrismaClient {
    */
   const originalTransaction = client.$transaction.bind(client) as any;
   (client as any).$transaction = async function (...args: unknown[]) {
+    if (FLATTEN_TX) {
+      if (typeof args[0] === 'function') {
+        return (args[0] as (tx: PrismaClient) => Promise<unknown>)(client as unknown as PrismaClient);
+      }
+      if (Array.isArray(args[0])) {
+        return Promise.all(args[0] as Promise<unknown>[]);
+      }
+      return originalTransaction(...args);
+    }
+
     const ctx = getGucContext();
     if (!ctx) {
       // No auth context — fall back to the original behaviour.

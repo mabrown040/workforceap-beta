@@ -44,7 +44,8 @@ export default async function CounselorPortalPage({
   // assigned-members KPI, plus the already-try/catch-wrapped command center +
   // priority queue helpers (which return safe empty shapes on failure). No
   // $transaction, no external calls, no take:5000 scans.
-  if (requestedUi === 'kit') {
+  // v2 KIT is the DEFAULT counselor overview; legacy view via ?ui=legacy.
+  if (requestedUi !== 'legacy') {
     const kitIsAdmin = await isAdmin(user.id);
     const kitCounselor = await prisma.counselor.findFirst({
       where: { userId: user.id, active: true },

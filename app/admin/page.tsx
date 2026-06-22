@@ -51,7 +51,8 @@ export default async function AdminTodayPage({
   // pipeline below, which stalls on the demo DB. Renders the redesigned admin
   // "Today" kit from a handful of cheap, real queries (count / count / a small
   // recent-activity findMany) — NO getTriageDigest, NO $transaction, NO HTTP.
-  if (requestedUi === 'kit') {
+  // v2 KIT is now the DEFAULT admin "Today"; legacy view via ?ui=legacy.
+  if (requestedUi !== 'legacy') {
     const startOfTodayKit = new Date();
     startOfTodayKit.setUTCHours(0, 0, 0, 0);
 

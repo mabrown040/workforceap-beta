@@ -144,10 +144,11 @@ async function renderMemberDashboard(
   },
 ) {
 
-  // ?ui=kit LEAN PATH (runs BEFORE the heavy pipeline) — render the redesigned
-  // dashboard from a few simple, fast queries. Skips loadMemberCareerBriefBundle /
-  // getMemberState / B4B entirely (those stall on the demo). Real data.
-  if (args.requestedUi === 'kit') {
+  // v2 KIT is now the DEFAULT dashboard; the legacy dashboard stays reachable via
+  // ?ui=legacy (escape hatch / rollback). Renders MemberDashboardKit from a few
+  // simple, fast queries — skips loadMemberCareerBriefBundle / getMemberState /
+  // B4B (those stall on the demo). Real data; complete for what the kit shows.
+  if (args.requestedUi !== 'legacy') {
     const ku = await prisma.user.findUnique({
       where: { id: user.id },
       select: { fullName: true, enrolledProgram: true },

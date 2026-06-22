@@ -146,6 +146,53 @@ async function renderMemberDashboard(
   const __t = Date.now();
   const mark = (s: string) => console.log(`[dashtime] ${s} @${Date.now() - __t}ms`);
   mark('start');
+
+  // ?ui=kit LEAN PATH (runs BEFORE the heavy pipeline) — render the redesigned
+  // dashboard from a few simple, fast queries. Skips loadMemberCareerBriefBundle /
+  // getMemberState / B4B entirely (those stall on the demo). Real data.
+  if (args.requestedUi === 'kit') {
+    const ku = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { fullName: true, enrolledProgram: true },
+    });
+    const [leanEnrollment, leanAiCount, leanActions] = await Promise.all([
+      prisma.courseEnrollment.findFirst({
+        where: { userId: user.id, isPrimary: true },
+        select: { programSlug: true },
+      }),
+      prisma.aIToolResult.count({ where: { userId: user.id } }),
+      prisma.memberNextBestAction.findMany({
+        where: { memberId: user.id, status: 'PENDING' },
+        orderBy: { priority: 'desc' },
+        take: 3,
+        select: { title: true, ctaHref: true },
+      }),
+    ]);
+    const leanSlug = leanEnrollment?.programSlug ?? ku?.enrolledProgram ?? null;
+    const leanProgram = leanSlug ? getProgramBySlug(leanSlug) : undefined;
+    const leanTotal = leanProgram?.courses?.length ?? 0;
+    const leanCompleted = leanSlug
+      ? await prisma.courseProgress.count({
+          where: { userId: user.id, programSlug: leanSlug, status: 'COMPLETED' },
+        })
+      : 0;
+    const leanPct = leanTotal ? Math.round((leanCompleted / leanTotal) * 100) : 0;
+    const firstNameLean = (ku?.fullName ?? user.email ?? 'there').split(' ')[0] || 'there';
+    return (
+      <MemberDashboardKit
+        firstName={firstNameLean}
+        progressPercent={leanPct}
+        programTitle={leanProgram?.title ?? null}
+        completedCount={leanCompleted}
+        totalCourses={leanTotal}
+        nextMilestone={null}
+        recommendedActions={leanActions.map((a) => ({ label: a.title, href: a.ctaHref ?? '/dashboard' }))}
+        aiToolsUsedCount={leanAiCount}
+        jobSearchUrl={null}
+      />
+    );
+  }
+
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   mark('after loadMemberCareerBriefBundleSafe');
   if (!dbUser) {
@@ -169,49 +216,6 @@ async function renderMemberDashboard(
   // closes the equivalent gap on the home page (#1079 only enriched the
   // training page, so the home dashboard kept reading 0% from local rows
   // for any never-synced learner). See lib/coursera/dashboardAutoSync.ts.
-  // ?ui=kit LEAN PATH — render the redesigned dashboard from a handful of
-  // simple, fast queries instead of the full renderMemberDashboard pipeline
-  // (getMemberState / B4B / career-brief), which can stall on the demo. Real
-  // data, no heavy aggregation. This is the Phase-1 preview surface.
-  if (args.requestedUi === 'kit') {
-    const firstNameLean = (dbUser.fullName ?? user.email ?? 'there').split(' ')[0] || 'there';
-    const [leanEnrollment, leanAiCount, leanActions] = await Promise.all([
-      prisma.courseEnrollment.findFirst({
-        where: { userId: user.id, isPrimary: true },
-        select: { programSlug: true },
-      }),
-      prisma.aIToolResult.count({ where: { userId: user.id } }),
-      prisma.memberNextBestAction.findMany({
-        where: { memberId: user.id, status: 'PENDING' },
-        orderBy: { priority: 'desc' },
-        take: 3,
-        select: { title: true, ctaHref: true },
-      }),
-    ]);
-    const leanSlug = leanEnrollment?.programSlug ?? dbUser.enrolledProgram ?? null;
-    const leanProgram = leanSlug ? getProgramBySlug(leanSlug) : undefined;
-    const leanTotal = leanProgram?.courses?.length ?? 0;
-    const leanCompleted = leanSlug
-      ? await prisma.courseProgress.count({
-          where: { userId: user.id, programSlug: leanSlug, status: 'COMPLETED' },
-        })
-      : 0;
-    const leanPct = leanTotal ? Math.round((leanCompleted / leanTotal) * 100) : 0;
-    return (
-      <MemberDashboardKit
-        firstName={firstNameLean}
-        progressPercent={leanPct}
-        programTitle={leanProgram?.title ?? null}
-        completedCount={leanCompleted}
-        totalCourses={leanTotal}
-        nextMilestone={null}
-        recommendedActions={leanActions.map((a) => ({ label: a.title, href: a.ctaHref ?? '/dashboard' }))}
-        aiToolsUsedCount={leanAiCount}
-        jobSearchUrl={null}
-      />
-    );
-  }
-
   mark('before maybeAutoSyncCourseraOnDashboard');
   await maybeAutoSyncCourseraOnDashboard({
     userId: user.id,

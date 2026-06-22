@@ -9345,56 +9345,51 @@ html[data-portal-role="member"] .portal-voice-session__idle-overlay {
 /* ═══════════════════════════════════════════════════════════════════════════
  * STAFF DARK RAIL — match docs/mockups/workforceap-admin-full.html (#161616).
  * Staff portals (admin / employer / partner / counselor) get the dark dense
- * "command" sidebar in BOTH light and dark mode — the mockup's signature look.
- * Member portal stays light/warm. Scoped via the data-portal-role hook set in
- * WorkspaceShell. Desktop rail only (≥1024px); mobile drawer keeps its own bg.
+ * "command" sidebar — DESKTOP rail AND MOBILE drawer, in both light + dark.
+ * Member portal stays light/warm. Scoped via the data-portal-role hook.
+ * (No viewport gate — colors apply at all widths; the drawer/rail positioning
+ *  is handled by the existing responsive rules.)
  * ═══════════════════════════════════════════════════════════════════════════ */
-@media (min-width: 1024px) {
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar {
-    background: #161616 !important;
-    border-right: 1px solid #2a2a2a !important;
-    border-left: none !important;
-    color: #e5e5e5 !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link,
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-home-link,
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-signout {
-    color: #d4d4d4 !important;
-  }
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link:hover {
-    background: rgba(255, 255, 255, 0.07) !important;
-    color: #ffffff !important;
-  }
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link.active {
-    background: rgba(255, 255, 255, 0.12) !important;
-    color: #ffffff !important;
-  }
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-group-label,
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-label {
-    color: #8f8f8f !important;
-  }
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-nav svg,
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link .material-symbols-outlined {
-    color: inherit !important;
-  }
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar {
+  background: #161616 !important;
+  border-right: 1px solid #2a2a2a !important;
+  border-left: none !important;
+  color: #e5e5e5 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
-
-/* STAFF DARK RAIL — fix inner group cards (were light surface-container-low,
- * unreadable on the #161616 rail). Make them faint translucent-dark cards. */
-@media (min-width: 1024px) {
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-group {
-    background: rgba(255, 255, 255, 0.04) !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
-  }
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-toolbar,
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-inner {
-    background: transparent !important;
-  }
-  html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-collapse-btn {
-    color: #d4d4d4 !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-  }
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link,
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-home-link,
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-signout {
+  color: #d4d4d4 !important;
+}
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #ffffff !important;
+}
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link.active {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-group-label,
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-label {
+  color: #8f8f8f !important;
+}
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-nav svg,
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-link .material-symbols-outlined {
+  color: inherit !important;
+}
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-group {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-toolbar,
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-inner {
+  background: transparent !important;
+}
+html[data-portal-role]:not([data-portal-role='member']) .workspace-sidebar-collapse-btn,
+html[data-portal-role]:not([data-portal-role='member']) .workspace-menu-btn {
+  color: #d4d4d4 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
 }

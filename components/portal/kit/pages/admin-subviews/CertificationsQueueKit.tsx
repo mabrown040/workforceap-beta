@@ -6,8 +6,14 @@ import { DesignSurface, SectionHeader } from '@/components/portal/kit';
  * (dense). Mockup: workforceap-admin-subviews.html "Certifications Queue".
  * Target route: /admin/certifications
  *
- * Pure read/presentational view — Approve / Reject are stubs (the orchestrator
- * wires the mutations later), so no 'use client' yet.
+ * Pure read/presentational view. The data (submissions / awaiting count /
+ * proof links) is wired to the real `user_certifications` records by the route.
+ *
+ * NOTE on Approve / Reject: the WorkforceAP backend has no credential-review
+ * workflow — members record certs directly (they're "earned" on submit) and
+ * there is no pending/verified status or admin approve/reject endpoint. So
+ * those controls are disabled unless the route explicitly opts in via
+ * `actionsEnabled` once a real mutation exists. We never fake the mutation.
  */
 export interface CertSubmission {
   id: string;
@@ -17,7 +23,7 @@ export interface CertSubmission {
   member: string;
   /** Program + any credential id / issuer + submitted-at, as one meta line. */
   meta: string;
-  /** Where "View proof" points (wire to the uploaded proof later). */
+  /** Where "View proof" points (the real uploaded-proof URL when present). */
   proofHref?: string;
 }
 
@@ -25,6 +31,15 @@ export interface CertificationsQueueKitProps {
   submissions?: CertSubmission[];
   /** Awaiting-review count for the header. Defaults to submissions.length. */
   awaitingCount?: number;
+  /**
+   * Enable the Approve / Reject / Approve-all controls. Defaults to `false`
+   * because no real approve/reject backend exists yet — when off, the controls
+   * render disabled with an explanatory note instead of doing nothing silently.
+   * Set to `true` (and pass the handlers below) once a mutation is available.
+   */
+  actionsEnabled?: boolean;
+  /** Optional explanatory line shown under the header (e.g. how the list is sourced). */
+  subtitle?: string;
 }
 
 const DEFAULT_SUBMISSIONS: CertSubmission[] = [
@@ -54,6 +69,8 @@ const DEFAULT_SUBMISSIONS: CertSubmission[] = [
 export function CertificationsQueueKit({
   submissions = DEFAULT_SUBMISSIONS,
   awaitingCount,
+  actionsEnabled = false,
+  subtitle,
 }: CertificationsQueueKitProps) {
   const count = awaitingCount ?? submissions.length;
 
@@ -95,12 +112,14 @@ export function CertificationsQueueKit({
               {count} awaiting review
             </h3>
             <p style={{ fontSize: 13, opacity: 0.85, margin: 0 }}>
-              Verify proof to count toward outcomes.
+              {subtitle ?? 'Verify proof to count toward outcomes.'}
             </p>
           </div>
           <button
             type="button"
             className="wa-kit-focus"
+            disabled={!actionsEnabled}
+            title={actionsEnabled ? undefined : 'Credential review is not yet available'}
             style={{
               alignSelf: 'flex-start',
               whiteSpace: 'nowrap',
@@ -111,15 +130,38 @@ export function CertificationsQueueKit({
               color: '#fff',
               fontWeight: 700,
               fontSize: 14,
-              cursor: 'pointer',
+              cursor: actionsEnabled ? 'pointer' : 'not-allowed',
+              opacity: actionsEnabled ? 1 : 0.5,
             }}
           >
             Approve all verified
           </button>
         </div>
+        {!actionsEnabled && (
+          <p
+            style={{
+              fontSize: 12,
+              opacity: 0.75,
+              margin: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            Review actions are read-only — no approve/reject workflow is wired yet.
+          </p>
+        )}
       </div>
 
       <div className="wa-space-y-3">
+        {submissions.length === 0 && (
+          <div
+            className="wa-kit-card wa-kit-card--sm"
+            style={{ textAlign: 'center', color: 'var(--wa-muted)', fontSize: 13 }}
+          >
+            Nothing to review right now.
+          </div>
+        )}
         {submissions.map((sub) => (
           <div
             key={sub.id}
@@ -149,26 +191,47 @@ export function CertificationsQueueKit({
               </div>
             </div>
 
-            <a
-              href={sub.proofHref ?? '#'}
-              className="wa-hidden md:wa-inline-flex wa-kit-focus"
-              style={{
-                alignItems: 'center',
-                gap: 4,
-                fontSize: 12,
-                fontWeight: 700,
-                color: 'var(--wa-info)',
-                textDecoration: 'none',
-                flexShrink: 0,
-              }}
-            >
-              <FileText size={13} /> View proof
-            </a>
+            {sub.proofHref ? (
+              <a
+                href={sub.proofHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="wa-hidden md:wa-inline-flex wa-kit-focus"
+                style={{
+                  alignItems: 'center',
+                  gap: 4,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: 'var(--wa-info)',
+                  textDecoration: 'none',
+                  flexShrink: 0,
+                }}
+              >
+                <FileText size={13} /> View proof
+              </a>
+            ) : (
+              <span
+                className="wa-hidden md:wa-inline-flex"
+                style={{
+                  alignItems: 'center',
+                  gap: 4,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: 'var(--wa-muted)',
+                  flexShrink: 0,
+                }}
+                title="No proof file on record"
+              >
+                <FileText size={13} /> No proof
+              </span>
+            )}
 
             <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
               <button
                 type="button"
                 className="wa-kit-focus"
+                disabled={!actionsEnabled}
+                title={actionsEnabled ? undefined : 'Credential review is not yet available'}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -180,7 +243,8 @@ export function CertificationsQueueKit({
                   color: '#fff',
                   fontWeight: 700,
                   fontSize: 12,
-                  cursor: 'pointer',
+                  cursor: actionsEnabled ? 'pointer' : 'not-allowed',
+                  opacity: actionsEnabled ? 1 : 0.5,
                 }}
               >
                 <Check size={13} /> Approve
@@ -188,6 +252,8 @@ export function CertificationsQueueKit({
               <button
                 type="button"
                 className="wa-kit-focus"
+                disabled={!actionsEnabled}
+                title={actionsEnabled ? undefined : 'Credential review is not yet available'}
                 style={{
                   padding: '7px 14px',
                   borderRadius: 999,
@@ -196,7 +262,8 @@ export function CertificationsQueueKit({
                   color: 'var(--wa-text)',
                   fontWeight: 700,
                   fontSize: 12,
-                  cursor: 'pointer',
+                  cursor: actionsEnabled ? 'pointer' : 'not-allowed',
+                  opacity: actionsEnabled ? 1 : 0.5,
                 }}
               >
                 Reject

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { DesignSurface, Avatar, FormField, Toggle } from '@/components/portal/kit';
+import { getErrorMessageFromResponse } from '@/lib/fetchWithTimeout';
 
 /**
  * Member Portal — PROFILE view (account details + notification prefs).
@@ -12,6 +14,16 @@ import { DesignSurface, Avatar, FormField, Toggle } from '@/components/portal/ki
  *
  * Target route: app/(portal)/dashboard/profile
  * Surface: warm (member-facing).
+ *
+ * Real save mechanism (reuses the same endpoints the legacy
+ * DashboardProfileForm + SettingsForm already POST to):
+ *   - Account details  → PATCH /api/member/dashboard-profile
+ *   - Notification prefs → PATCH /api/member/settings
+ *
+ * The `dashboard-profile` endpoint upserts the whole Profile row, so the
+ * page passes through existing profile fields the kit form does not edit
+ * (phone/address/linkedin/bio/…) via `accountPassthrough` to avoid wiping
+ * them on save.
  */
 
 interface ProfileBadge {
@@ -20,10 +32,34 @@ interface ProfileBadge {
   color: string;
 }
 
+/**
+ * Notification preference. `field` ties the toggle to the real boolean column
+ * persisted by PATCH /api/member/settings. When omitted (e.g. default demo
+ * prefs), the toggle is local-only.
+ */
 interface NotificationPref {
   key: string;
   label: string;
   enabled: boolean;
+  field?: 'notificationsUpdates' | 'notificationsReminders';
+}
+
+/**
+ * Existing profile fields the kit form does NOT surface but which the
+ * dashboard-profile upsert would otherwise overwrite. Passed through on save
+ * so we never clobber data the member entered on the legacy form.
+ */
+export interface MemberProfileAccountPassthrough {
+  phone?: string | null;
+  address?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  referralSource?: string | null;
+  linkedin?: string | null;
+  bio?: string | null;
+  hasEmploymentBarrier?: boolean;
+  barrierTypes?: string[];
+  employmentStatusAtEnroll?: string | null;
 }
 
 export interface MemberProfileKitProps {
@@ -36,6 +72,18 @@ export interface MemberProfileKitProps {
   programInterest?: string;
   programOptions?: string[];
   notifications?: NotificationPref[];
+  /**
+   * Existing profile values to round-trip on save (see
+   * MemberProfileAccountPassthrough). When provided alongside live data, the
+   * "Save Changes" button persists to PATCH /api/member/dashboard-profile.
+   */
+  accountPassthrough?: MemberProfileAccountPassthrough;
+  /**
+   * When true, the Account Details save and notification toggles persist to the
+   * real endpoints. When false (the default for the standalone demo), the form
+   * stays local-only so the kit can be previewed without a backend.
+   */
+  live?: boolean;
 }
 
 const DEFAULT_BADGES: ProfileBadge[] = [
@@ -63,11 +111,106 @@ export function MemberProfileKit({
   programInterest = 'Cloud & IT',
   programOptions = DEFAULT_PROGRAM_OPTIONS,
   notifications = DEFAULT_NOTIFICATIONS,
+  accountPassthrough,
+  live = false,
 }: MemberProfileKitProps) {
+  const router = useRouter();
   const [prefs, setPrefs] = useState<NotificationPref[]>(notifications);
 
-  const togglePref = (key: string, value: boolean) =>
-    setPrefs((prev) => prev.map((p) => (p.key === key ? { ...p, enabled: value } : p)));
+  // Account-details form state (only Full Name + Location are editable +
+  // persisted; Email and Program Interest are read-only here).
+  const [fullName, setFullName] = useState(name);
+  const [loc, setLoc] = useState(location);
+  const [savingAccount, setSavingAccount] = useState(false);
+  const [accountError, setAccountError] = useState<string | null>(null);
+  const [accountSaved, setAccountSaved] = useState(false);
+
+  // Notification toggle state (per-key error/saving).
+  const [savingPref, setSavingPref] = useState<string | null>(null);
+  const [prefError, setPrefError] = useState<string | null>(null);
+
+  const togglePref = async (key: string, value: boolean) => {
+    const pref = prefs.find((p) => p.key === key);
+    const prev = prefs;
+    // Optimistic update.
+    setPrefs((cur) => cur.map((p) => (p.key === key ? { ...p, enabled: value } : p)));
+
+    // Local-only toggle (demo prefs without a mapped column, or non-live mode).
+    if (!live || !pref?.field) return;
+
+    setPrefError(null);
+    setSavingPref(key);
+    try {
+      const res = await fetch('/api/member/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [pref.field]: value }),
+      });
+      if (!res.ok) {
+        setPrefs(prev); // revert
+        setPrefError(await getErrorMessageFromResponse(res));
+        return;
+      }
+      router.refresh();
+    } catch {
+      setPrefs(prev); // revert
+      setPrefError('Could not save notification setting. Please try again.');
+    } finally {
+      setSavingPref(null);
+    }
+  };
+
+  const handleSaveAccount = async () => {
+    if (!live) return;
+    setAccountError(null);
+    setAccountSaved(false);
+
+    // Full Name → first/last (endpoint requires both, min 1 char each).
+    const trimmedName = fullName.trim();
+    const parts = trimmedName.split(/\s+/).filter(Boolean);
+    const firstName = parts[0] ?? '';
+    const lastName = parts.slice(1).join(' ');
+    if (!firstName || !lastName) {
+      setAccountError('Please enter your full name (first and last).');
+      return;
+    }
+
+    const pt = accountPassthrough ?? {};
+    setSavingAccount(true);
+    try {
+      const res = await fetch('/api/member/dashboard-profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          // Location maps to the city field; round-trip the rest of the
+          // address so the upsert does not wipe it.
+          city: loc.trim() || null,
+          state: pt.state ?? null,
+          zip: pt.zip ?? null,
+          phone: pt.phone ?? null,
+          address: pt.address ?? null,
+          referralSource: pt.referralSource ?? null,
+          linkedin: pt.linkedin ?? null,
+          bio: pt.bio ?? null,
+          hasEmploymentBarrier: pt.hasEmploymentBarrier ?? false,
+          barrierTypes: pt.barrierTypes ?? [],
+          employmentStatusAtEnroll: pt.employmentStatusAtEnroll ?? null,
+        }),
+      });
+      if (!res.ok) {
+        setAccountError(await getErrorMessageFromResponse(res));
+        return;
+      }
+      setAccountSaved(true);
+      router.refresh();
+    } catch {
+      setAccountError('Could not save your details. Please try again.');
+    } finally {
+      setSavingAccount(false);
+    }
+  };
 
   return (
     <DesignSurface surface="warm">
@@ -111,12 +254,21 @@ export function MemberProfileKit({
           <div className="wa-kit-card" style={{ gridColumn: 'span 2' }}>
             <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Account Details</h3>
             <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 wa-gap-4">
-              <FormField label="Full Name" defaultValue={name} />
-              <FormField label="Email" type="email" defaultValue={email} />
-              <FormField label="Location" defaultValue={location} />
+              <FormField
+                label="Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
+              <FormField label="Email" type="email" value={email} readOnly disabled />
+              <FormField
+                label="Location"
+                value={loc}
+                onChange={(e) => setLoc(e.target.value)}
+              />
               <FormField label="Program Interest">
                 <select
-                  defaultValue={programInterest}
+                  value={programInterest}
+                  disabled
                   className="wa-kit-focus"
                   style={{
                     marginTop: 4,
@@ -130,7 +282,7 @@ export function MemberProfileKit({
                     color: 'var(--wa-text)',
                   }}
                 >
-                  {programOptions.map((opt) => (
+                  {[programInterest, ...programOptions.filter((o) => o !== programInterest)].map((opt) => (
                     <option key={opt} value={opt}>
                       {opt}
                     </option>
@@ -138,8 +290,25 @@ export function MemberProfileKit({
                 </select>
               </FormField>
             </div>
+            {live ? (
+              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 8 }}>
+                Email and program are managed by your counselor and can&apos;t be changed here.
+              </p>
+            ) : null}
+            {accountError ? (
+              <p role="alert" style={{ fontSize: 13, color: 'var(--wa-accent)', fontWeight: 600, marginTop: 12 }}>
+                {accountError}
+              </p>
+            ) : null}
+            {accountSaved && !accountError ? (
+              <p role="status" aria-live="polite" style={{ fontSize: 13, color: 'var(--wa-success)', fontWeight: 600, marginTop: 12 }}>
+                Saved.
+              </p>
+            ) : null}
             <button
               type="button"
+              onClick={handleSaveAccount}
+              disabled={!live || savingAccount}
               className="wa-kit-focus"
               style={{
                 marginTop: 20,
@@ -150,19 +319,30 @@ export function MemberProfileKit({
                 fontSize: 14,
                 borderRadius: 999,
                 border: 'none',
-                cursor: 'pointer',
+                cursor: !live || savingAccount ? 'not-allowed' : 'pointer',
+                opacity: !live || savingAccount ? 0.7 : 1,
               }}
             >
-              Save Changes
+              {savingAccount ? 'Saving…' : 'Save Changes'}
             </button>
           </div>
 
           {/* Notifications */}
           <div className="wa-kit-card">
             <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Notifications</h3>
+            {prefError ? (
+              <p role="alert" style={{ fontSize: 13, color: 'var(--wa-accent)', fontWeight: 600, marginBottom: 12 }}>
+                {prefError}
+              </p>
+            ) : null}
             <div className="wa-space-y-4">
               {prefs.map((p) => (
-                <Toggle key={p.key} label={p.label} checked={p.enabled} onChange={(v) => togglePref(p.key, v)} />
+                <Toggle
+                  key={p.key}
+                  label={savingPref === p.key ? `${p.label} (saving…)` : p.label}
+                  checked={p.enabled}
+                  onChange={(v) => togglePref(p.key, v)}
+                />
               ))}
             </div>
           </div>

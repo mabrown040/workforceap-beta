@@ -78,9 +78,6 @@ export default async function DashboardProfilePage({
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === "string" ? params.ui : null;
-  if (requestedUi === "kit") {
-    return <MemberProfileKit />;
-  }
 
   const userSelect = {
     id: true,
@@ -228,6 +225,61 @@ export default async function DashboardProfilePage({
   const starterProfileMissingLabels = getStarterProfileFieldLabels(
     starterProfileReview.missing,
   );
+
+  // Kit profile is the DEFAULT; legacy is available at ?ui=legacy.
+  // Wires to the same real endpoints the legacy forms use:
+  //   account details → PATCH /api/member/dashboard-profile
+  //   notifications   → PATCH /api/member/settings
+  if (requestedUi !== "legacy") {
+    const kitLocation = [dbUser.profile?.city, dbUser.profile?.state]
+      .filter((part) => part && part.trim())
+      .join(", ");
+    const kitHeadline = program?.title
+      ? `${program.title}${kitLocation ? ` · ${kitLocation}` : ""}`
+      : kitLocation || "WorkforceAP Member";
+
+    return (
+      <MemberProfileKit
+        live
+        name={dbUser.fullName ?? ""}
+        initials={initials}
+        headline={kitHeadline}
+        badges={[]}
+        email={dbUser.email}
+        location={kitLocation}
+        programInterest={program?.title ?? dbUser.enrolledProgram ?? "Not enrolled"}
+        programOptions={
+          program?.title ? [program.title] : dbUser.enrolledProgram ? [dbUser.enrolledProgram] : ["Not enrolled"]
+        }
+        notifications={[
+          {
+            key: "updates",
+            label: "Updates from WorkforceAP",
+            enabled: dbUser.notificationsUpdates ?? true,
+            field: "notificationsUpdates",
+          },
+          {
+            key: "reminders",
+            label: "Training reminders",
+            enabled: dbUser.notificationsReminders ?? true,
+            field: "notificationsReminders",
+          },
+        ]}
+        accountPassthrough={{
+          phone: dbUser.profile?.profilePhone ?? dbUser.phone ?? null,
+          address: dbUser.profile?.profileAddress ?? null,
+          state: dbUser.profile?.state ?? null,
+          zip: dbUser.profile?.zip ?? null,
+          referralSource: dbUser.profile?.referralSource ?? null,
+          linkedin: dbUser.profile?.profileLinkedin ?? null,
+          bio: dbUser.profile?.profileBio ?? null,
+          hasEmploymentBarrier: dbUser.profile?.hasEmploymentBarrier ?? false,
+          barrierTypes: dbUser.profile?.barrierTypes ?? [],
+          employmentStatusAtEnroll: dbUser.profile?.employmentStatusAtEnroll ?? null,
+        }}
+      />
+    );
+  }
 
   return (
     <>

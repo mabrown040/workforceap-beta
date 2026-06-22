@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import { Circle } from 'lucide-react';
 import { DesignSurface, Avatar, ChatThread, type ChatMessage } from '@/components/portal/kit';
 
@@ -12,6 +13,10 @@ import { DesignSurface, Avatar, ChatThread, type ChatMessage } from '@/component
  *
  * Target route: app/(portal)/dashboard/messages
  * Surface: warm (member-facing).
+ *
+ * Real wiring: when `memberUserId` is supplied, the composer POSTs to the
+ * existing legacy member↔counselor endpoint (`/api/member/messages`), the
+ * same mechanism `MemberCounselorChatClient` uses. No new backend.
  */
 
 interface Conversation {
@@ -31,7 +36,21 @@ export interface MemberMessagesKitProps {
   activeInitials?: string;
   activeOnline?: boolean;
   messages?: ChatMessage[];
+  /**
+   * Optional explicit send handler. When omitted but `memberUserId` is set,
+   * the composer falls back to the real `/api/member/messages` endpoint.
+   * Backward compatible: callers that pass `onSend` keep their behavior.
+   */
   onSend?: (text: string) => void;
+  /**
+   * Current member user id. When provided, the Kit becomes a real, sending
+   * inbox backed by the existing counselor-thread API. Initials shown on the
+   * member's own bubbles are not needed (right-aligned), so this is only used
+   * to enable the live send path.
+   */
+  memberUserId?: string;
+  /** Initials for the "other" party (counselor) on incoming bubbles. */
+  otherInitials?: string;
 }
 
 const DEFAULT_CONVERSATIONS: Conversation[] = [
@@ -56,9 +75,71 @@ export function MemberMessagesKit({
   activeRole = 'Career Counselor',
   activeInitials = 'SC',
   activeOnline = true,
-  messages = DEFAULT_MESSAGES,
+  messages: messagesProp = DEFAULT_MESSAGES,
   onSend,
+  memberUserId,
+  otherInitials = activeInitials,
 }: MemberMessagesKitProps) {
+  const [messages, setMessages] = useState<ChatMessage[]>(messagesProp);
+  const [error, setError] = useState<string | null>(null);
+
+  // Live send path: reuse the existing legacy endpoint that
+  // MemberCounselorChatClient posts to. Only active when a real member id is
+  // present and no explicit onSend override was passed.
+  const sendLive = useCallback(
+    async (text: string) => {
+      setError(null);
+      // Optimistic append so the thread feels responsive; reconcile on response.
+      const tempId = `temp-${Date.now()}`;
+      setMessages((prev) => [...prev, { id: tempId, from: 'self', text }]);
+      try {
+        const r = await fetch('/api/member/messages', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ body: text }),
+        });
+        const data = (await r.json().catch(() => ({}))) as {
+          error?: string;
+          message?: { id: string; body: string };
+        };
+        if (!r.ok || !data.message) {
+          setMessages((prev) => prev.filter((m) => m.id !== tempId));
+          setError(typeof data.error === 'string' ? data.error : 'Send failed');
+          return;
+        }
+        const saved = data.message;
+        setMessages((prev) =>
+          prev.map((m) => (m.id === tempId ? { id: saved.id, from: 'self', text: saved.body } : m)),
+        );
+        try {
+          window.dispatchEvent(new CustomEvent('wa-nav-badges-refresh'));
+        } catch {
+          /* ignore */
+        }
+      } catch {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        setError('Network error');
+      }
+    },
+    [],
+  );
+
+  const handleSend = useCallback(
+    (text: string) => {
+      if (onSend) {
+        onSend(text);
+        return;
+      }
+      if (memberUserId) {
+        void sendLive(text);
+      }
+    },
+    [onSend, memberUserId, sendLive],
+  );
+
+  const canSend = Boolean(onSend) || Boolean(memberUserId);
+
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }}>
@@ -124,7 +205,16 @@ export function MemberMessagesKit({
               </div>
             </div>
             <div style={{ flex: 1, padding: 20, display: 'flex', flexDirection: 'column' }}>
-              <ChatThread messages={messages} placeholder={`Message ${activeName.split(' ')[0]}…`} onSend={onSend} />
+              {error ? (
+                <p role="alert" style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--wa-danger, #dc2626)' }}>
+                  {error}
+                </p>
+              ) : null}
+              <ChatThread
+                messages={messages}
+                placeholder={`Message ${activeName.split(' ')[0]}…`}
+                onSend={canSend ? handleSend : undefined}
+              />
             </div>
           </div>
         </div>

@@ -3,10 +3,13 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { getCertificationsCohortStats } from '@/lib/admin/cohortAnalytics';
+import { getCertificationsCohortStats, cohortLabel } from '@/lib/admin/cohortAnalytics';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
-import { CertificationsQueueKit } from '@/components/portal/kit/pages/admin-subviews/CertificationsQueueKit';
+import {
+  CertificationsQueueKit,
+  type CertSubmission,
+} from '@/components/portal/kit/pages/admin-subviews/CertificationsQueueKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -27,8 +30,47 @@ export default async function AdminCertificationsAnalyticsPage({
 
   const params = await searchParams;
   const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+  // ── Certifications Queue KIT — OPT-IN only (?ui=kit), NOT promoted to default.
+  // WorkforceAP has no credential-review workflow: members record certs
+  // directly (earned on submit) and there is no pending/verified status, no
+  // approve/reject endpoint, and no admin mutation on user_certifications.
+  // So we wire the kit to REAL data (the most recently recorded credentials —
+  // the only real "submission" stream that exists) but keep the approve/reject
+  // controls disabled (`actionsEnabled={false}`) rather than fake a backend.
   if (requestedUi === 'kit') {
-    return <CertificationsQueueKit />;
+    const recent = await prisma.userCertification.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 25,
+      select: {
+        id: true,
+        certName: true,
+        createdAt: true,
+        user: { select: { fullName: true, email: true, enrolledProgram: true } },
+      },
+    });
+
+    const submissions: CertSubmission[] = recent.map((c) => ({
+      id: c.id,
+      credential: c.certName,
+      member: c.user.fullName ?? c.user.email ?? 'Unknown member',
+      meta: `${cohortLabel(c.user.enrolledProgram)} · recorded ${c.createdAt.toLocaleDateString(
+        'en-US',
+        { month: 'short', day: 'numeric', year: 'numeric' },
+      )}`,
+      // No admin-side endpoint exists to sign the proof file (cert-files/{userId}/{certId}.{ext}
+      // in the member-files bucket), and we may not add API routes here, so we
+      // can't surface a real proof URL. Leave undefined → kit shows "No proof".
+      proofHref: undefined,
+    }));
+
+    return (
+      <CertificationsQueueKit
+        submissions={submissions}
+        awaitingCount={submissions.length}
+        actionsEnabled={false}
+        subtitle="Most recently recorded credentials. Members log certs directly — there is no review/verification step yet."
+      />
+    );
   }
 
   const [rows, recentCerts] = await Promise.all([

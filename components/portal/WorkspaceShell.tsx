@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback, startTransition } from 'react';
-import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, ShieldHalf } from 'lucide-react';
 import { getBestActiveHref, isActiveRoute } from '@/lib/nav/activeRoute';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import {
@@ -403,12 +403,8 @@ export default function WorkspaceShell({
               Viewing as
             </span>
           ) : null}
-          {/* Global search — admin only, hidden on mobile */}
-          {portalRole === 'admin' && (
-            <div className="wa-hidden md:wa-block">
-              <GlobalSearch />
-            </div>
-          )}
+          {/* Global search for admin now lives in the command rail (see
+              workspace-sidebar-search below), matching the admin-full mockup. */}
           <PortalHeaderActions badges={badges} />
           {attributionLabel ? (
             <span
@@ -486,7 +482,24 @@ export default function WorkspaceShell({
         >
           <div className="workspace-sidebar-inner">
             <div className="workspace-sidebar-toolbar">
-              <div className="workspace-sidebar-label">{!wide && hasTabs && activeTab ? translateLabel(NAV_TAB_META[activeTab].label) : translateLabel(workspaceLabel)}</div>
+              {portalRole === 'admin' ? (
+                /* Branded admin command-rail header (matches admin-full mockup:
+                   shield tile + product + "Admin · {org}"). Collapses to just
+                   the mark when the rail is collapsed. */
+                <div className="workspace-sidebar-brand" title={`Admin · ${contextLabel}`}>
+                  <span className="workspace-sidebar-brand-mark" aria-hidden>
+                    <ShieldHalf size={16} />
+                  </span>
+                  {!isCollapsedDesktop ? (
+                    <span className="workspace-sidebar-brand-text">
+                      <span className="workspace-sidebar-brand-name">WorkforceAP</span>
+                      <span className="workspace-sidebar-brand-sub">Admin · {contextLabel}</span>
+                    </span>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="workspace-sidebar-label">{!wide && hasTabs && activeTab ? translateLabel(NAV_TAB_META[activeTab].label) : translateLabel(workspaceLabel)}</div>
+              )}
               {wide ? (
                 <button
                   type="button"
@@ -499,6 +512,13 @@ export default function WorkspaceShell({
                 </button>
               ) : null}
             </div>
+            {/* In-rail admin search — matches the mockup's "Search admin…" placement.
+                Hidden when the desktop rail is collapsed. */}
+            {portalRole === 'admin' && !isCollapsedDesktop ? (
+              <div className="workspace-sidebar-search">
+                <GlobalSearch />
+              </div>
+            ) : null}
             <nav aria-label={`${translateLabel(workspaceLabel)} navigation`} className="workspace-sidebar-nav">
               <ul className="workspace-sidebar-list workspace-sidebar-list--root">
                 {GROUP_ORDER.map((group) => {

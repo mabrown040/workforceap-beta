@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   ArrowLeftRight,
   Award,
+  Zap,
   BarChart3,
   BookOpen,
   Briefcase,
@@ -53,6 +54,7 @@ export type NavGroup =
   | 'insights'
   | 'manage'
   // Admin-first, plain-language groups (non-technical owner view)
+  | 'runTheOrg'
   | 'students'
   | 'programs'
   | 'partnersEmployers'
@@ -112,16 +114,18 @@ export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
   insights: 'Insights',
   manage: 'Manage',
   // Admin-first, plain-language groups
+  runTheOrg: 'Run the org',
   students: 'Students',
-  programs: 'Programs & Training',
+  programs: 'Programs',
   partnersEmployers: 'Partners & Employers',
   outcomes: 'Outcomes',
-  advanced: 'Advanced / System',
+  advanced: 'Advanced',
 };
 
 export const GROUP_ORDER: NavGroup[] = [
   'primary',
   // Admin daily-first groups (rendered only when items use them)
+  'runTheOrg',
   'students',
   'programs',
   'partnersEmployers',
@@ -342,10 +346,12 @@ export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [];
  * Every existing route/href is preserved — this is a reorder + relabel only.
  */
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  // ── Today screen — the home / "who needs you today" ──
-  { href: '/admin', label: 'Today', group: 'primary', Icon: Home },
-  { href: '/admin/command-center', label: 'Command center', group: 'primary', Icon: ListChecks },
-  { href: '/admin/overview', label: 'Detailed overview', group: 'primary', Icon: BarChart3 },
+  // ── Run the org — the home / "who needs you today" ──
+  // /admin IS the Command Center (renders CommandCenterKit); the old separate
+  // /admin/command-center entry was redundant (same view) so it's dropped from
+  // the rail — the route still exists and is reachable directly.
+  { href: '/admin', label: 'Command Center', group: 'runTheOrg', Icon: Zap },
+  { href: '/admin/overview', label: 'Detailed overview', group: 'runTheOrg', Icon: BarChart3 },
 
   // ── Students — the people you manage day to day ──
   // Single entry → the full-kit roster (StudentsRosterKit) at /admin/students,

@@ -9393,3 +9393,74 @@ html[data-portal-role]:not([data-portal-role='member']) .workspace-menu-btn {
   border-color: rgba(255, 255, 255, 0.12) !important;
   background: rgba(255, 255, 255, 0.05) !important;
 }
+
+/* ── Admin command rail: branded header + in-rail search (admin-full mockup) ── */
+html[data-portal-role='admin'] .workspace-sidebar-toolbar {
+  border-bottom: 1px solid #2a2a2a;
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.1rem;
+}
+html[data-portal-role='admin'] .workspace-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+html[data-portal-role='admin'] .workspace-sidebar-brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--wa-accent, #ad2c4d);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+html[data-portal-role='admin'] .workspace-sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.1;
+}
+html[data-portal-role='admin'] .workspace-sidebar-brand-name {
+  font-weight: 800;
+  font-size: 0.875rem;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+html[data-portal-role='admin'] .workspace-sidebar-brand-sub {
+  font-size: 0.625rem;
+  color: #a3a3a3;
+  margin-top: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* In-rail search styled to read like the mockup's "Search admin…" field. */
+html[data-portal-role='admin'] .workspace-sidebar-search {
+  padding: 0.1rem 0 0.55rem;
+}
+html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  background: #222 !important;
+  border: 1px solid #333 !important;
+  color: #9a9a9a !important;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.78rem;
+}
+html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn:hover {
+  border-color: #444 !important;
+  background: #262626 !important;
+}
+html[data-portal-role='admin'] .workspace-sidebar-search .portal-icon-btn .material-symbols-outlined {
+  color: #6b6b6b;
+}
+/* Collapsed desktop rail: center the brand mark, hide search. */
+html[data-portal-role='admin'] .workspace-sidebar--collapsed .workspace-sidebar-brand {
+  justify-content: center;
+}

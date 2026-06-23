@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { Check, X, AlertTriangle } from 'lucide-react';
 import type { BaseSessionConfig, Conversation } from '@elevenlabs/client';
+import { VoiceOrb } from './kit/VoiceOrb';
 
 type VoiceDisconnectDetails = {
   reason?: string;
@@ -166,9 +167,8 @@ export type PortalVoiceSessionProps = {
 };
 
 const PULSE_STYLE = `
-@keyframes pvs-breathe { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.08); opacity: 1; } }
-@keyframes pvs-pulse-ring { 0% { transform: scale(0.95); opacity: 0.6; } 70% { transform: scale(1.15); opacity: 0; } 100% { transform: scale(1.15); opacity: 0; } }
 @keyframes pvs-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.pvs-focus-dark:focus-visible { outline: none; box-shadow: 0 0 0 2px #121212, 0 0 0 4px #ad2c4d; }
 `;
 
 /** Sent with `sendContextualUpdate`; keep in sync with resume-coach session body limits (~6000). */
@@ -242,6 +242,19 @@ export default function PortalVoiceSession({
     const el = e.currentTarget;
     const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
     liveTranscriptStickBottomRef.current = nearBottom;
+  }, []);
+
+  /** Live audio level (0..1) for the reactive orb — max of mic + agent volume. */
+  const getLevel = useCallback(() => {
+    const c = convRef.current;
+    if (!c) return 0;
+    try {
+      const i = typeof c.getInputVolume === 'function' ? c.getInputVolume() : 0;
+      const o = typeof c.getOutputVolume === 'function' ? c.getOutputVolume() : 0;
+      return Math.max(i || 0, o || 0);
+    } catch {
+      return 0;
+    }
   }, []);
 
   function stopVideoRecordingStream() {
@@ -751,60 +764,68 @@ export default function PortalVoiceSession({
     setLiveLines([]);
   }
 
-  const bgSoft = `${accent}14`;
-
   // UX: Detect empty/disconnected transcript and warn the user
   const transcriptWasEmpty = phase === 'done' && transcriptRef.current.length === 0;
   const hadConnectionIssue = phase === 'done' && disconnectIssueRef.current;
 
   if (phase === 'pre') {
     return (
-      <div style={{ maxWidth: 560, animation: 'pvs-fade-in 0.4s ease both' }}>
+      <div
+        style={{
+          maxWidth: 560,
+          background: '#1a1a1a',
+          borderRadius: 24,
+          padding: 'clamp(20px, 5vw, 32px)',
+          boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)',
+          animation: 'pvs-fade-in 0.4s ease both',
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}>
-          <div style={{ position: 'relative', width: 72, height: 72 }}>
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '50%',
-                background: `radial-gradient(circle at 35% 35%, ${accent}, ${accentDark})`,
-                animation: 'pvs-breathe 3.5s ease-in-out infinite',
-                boxShadow: `0 0 28px ${accent}44`,
-              }}
-            />
-          </div>
+          <VoiceOrb
+            getLevel={getLevel}
+            active={false}
+            connecting={false}
+            accent={accent}
+            accentDark={accentDark}
+            size={120}
+          />
         </div>
         {titleAs === 'h2' ? (
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem', textAlign: 'center' }}>
             {title}
           </h2>
         ) : (
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem', textAlign: 'center' }}>
             {title}
           </h3>
         )}
-        <p style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', marginBottom: '1.25rem', lineHeight: 1.55, fontSize: '0.9rem' }}>
+        <p style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center', marginBottom: '1.25rem', lineHeight: 1.55, fontSize: '0.9rem' }}>
           {description}
         </p>
         {voiceError ? (
           <div
+            role="alert"
             style={{
-              background: 'var(--surface-container-high)',
-              border: '1px solid var(--outline-variant)',
-              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.5rem',
+              background: 'rgba(173,44,77,0.15)',
+              border: '1px solid rgba(173,44,77,0.4)',
+              borderRadius: 12,
               padding: '0.75rem 1rem',
               marginBottom: '1rem',
               fontSize: '0.85rem',
-              color: 'var(--color-on-surface)',
+              color: '#f0a9b8',
               fontWeight: 600,
             }}
           >
-            <AlertTriangle size={15} aria-hidden="true" style={{ color: 'var(--color-accent)', marginRight: '0.5rem', verticalAlign: '-2px', display: 'inline-block' }} />
-            {voiceError}
+            <AlertTriangle size={15} aria-hidden="true" style={{ flexShrink: 0, marginTop: 1 }} />
+            <span>{voiceError}</span>
           </div>
         ) : null}
         <button
           type="button"
+          className="pvs-focus-dark"
           onClick={() => void startSession()}
           style={{
             display: 'block',
@@ -812,11 +833,12 @@ export default function PortalVoiceSession({
             background: accent,
             color: '#fff',
             border: 0,
-            borderRadius: 10,
+            borderRadius: 12,
             padding: '0.875rem',
             fontWeight: 700,
             fontSize: '1rem',
             cursor: 'pointer',
+            transition: 'background 0.2s, box-shadow 0.2s',
             boxShadow: `0 4px 20px ${accent}44`,
           }}
         >
@@ -828,50 +850,56 @@ export default function PortalVoiceSession({
 
   if (phase === 'connecting') {
     return (
-      <div style={{ maxWidth: 560, textAlign: 'center', padding: '1rem 0' }}>
+      <div
+        style={{
+          maxWidth: 560,
+          textAlign: 'center',
+          background: '#1a1a1a',
+          borderRadius: 24,
+          padding: 'clamp(20px, 5vw, 32px)',
+          boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)',
+          animation: 'pvs-fade-in 0.35s ease both',
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-          <div
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: '50%',
-              background: `radial-gradient(circle at 35% 35%, ${accent}, ${accentDark})`,
-              animation: 'pvs-breathe 1.8s ease-in-out infinite',
-            }}
+          <VoiceOrb
+            getLevel={getLevel}
+            active={false}
+            connecting={true}
+            accent={accent}
+            accentDark={accentDark}
+            size={120}
           />
         </div>
-        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem' }}>Connecting…</p>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>Connecting…</p>
       </div>
     );
   }
 
   if (phase === 'active') {
     return (
-      <div style={{ maxWidth: 560, animation: 'pvs-fade-in 0.35s ease both' }}>
+      <div
+        style={{
+          maxWidth: 560,
+          background: '#1a1a1a',
+          borderRadius: 24,
+          padding: 'clamp(20px, 5vw, 32px)',
+          boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)',
+          animation: 'pvs-fade-in 0.35s ease both',
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}>
-          <div style={{ position: 'relative', width: 88, height: 88 }}>
-            <div
-              style={{
-                position: 'absolute',
-                inset: -6,
-                borderRadius: '50%',
-                border: `2px solid ${accent}`,
-                animation: 'pvs-pulse-ring 2s ease-out infinite',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '50%',
-                background: `radial-gradient(circle at 35% 35%, ${accent}, ${accentDark})`,
-                animation: 'pvs-breathe 2s ease-in-out infinite',
-              }}
-            />
-          </div>
+          <VoiceOrb
+            getLevel={getLevel}
+            active={true}
+            connecting={false}
+            accent={accent}
+            accentDark={accentDark}
+            size={120}
+          />
         </div>
         <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-          <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.35rem' }}>
+          <div style={{ fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '0.35rem' }}>
             {agentSpeaking ? speakingLabel : listeningLabel}
           </div>
           <span
@@ -879,7 +907,7 @@ export default function PortalVoiceSession({
               display: 'inline-block',
               padding: '0.2rem 0.65rem',
               borderRadius: 999,
-              background: bgSoft,
+              background: 'rgba(173,44,77,0.18)',
               fontSize: '0.75rem',
               color: accent,
               fontWeight: 600,
@@ -896,17 +924,16 @@ export default function PortalVoiceSession({
             aria-relevant="additions"
             style={{
               marginBottom: '1.25rem',
-              borderRadius: 12,
-              border: '1px solid var(--outline-variant)',
-              background: 'linear-gradient(180deg, var(--surface-container-low) 0%, var(--surface-container-lowest) 100%)',
+              borderRadius: 16,
+              border: '1px solid #262626',
+              background: '#0f0f10',
               overflow: 'hidden',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
             }}
           >
             <div
               style={{
                 padding: '0.5rem 0.75rem',
-                borderBottom: '1px solid var(--outline-variant)',
+                borderBottom: '1px solid #262626',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -919,12 +946,12 @@ export default function PortalVoiceSession({
                   fontWeight: 700,
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
-                  color: 'var(--color-on-surface-variant)',
+                  color: 'rgba(255,255,255,0.6)',
                 }}
               >
                 Live transcript
               </span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--color-on-surface-variant)', opacity: 0.85 }}>
+              <span style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)' }}>
                 Powered by ElevenLabs
               </span>
             </div>
@@ -940,7 +967,7 @@ export default function PortalVoiceSession({
               }}
             >
               {liveLines.length === 0 ? (
-                <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', fontStyle: 'italic' }}>
+                <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
                   {agentSpeaking
                     ? 'Coach is speaking — text will appear here.'
                     : 'Waiting for speech — your words will show up as you talk.'}
@@ -965,7 +992,7 @@ export default function PortalVoiceSession({
                           fontWeight: 800,
                           letterSpacing: '0.06em',
                           textTransform: 'uppercase',
-                          color: isAgent ? accent : 'var(--color-on-surface-variant)',
+                          color: isAgent ? accent : 'rgba(255,255,255,0.55)',
                           minWidth: '3.25rem',
                           marginTop: '0.15rem',
                         }}
@@ -974,9 +1001,9 @@ export default function PortalVoiceSession({
                       </span>
                       <span
                         style={{
-                          color: 'var(--color-on-surface)',
+                          color: isAgent ? 'rgba(255,255,255,0.9)' : '#fff',
                           wordBreak: 'break-word',
-                          borderLeft: `2px solid ${isAgent ? `${accent}55` : 'var(--outline-variant)'}`,
+                          borderLeft: `2px solid ${isAgent ? `${accent}88` : 'rgba(255,255,255,0.2)'}`,
                           paddingLeft: '0.5rem',
                         }}
                       >
@@ -992,16 +1019,18 @@ export default function PortalVoiceSession({
 
         <button
           type="button"
+          className="pvs-focus-dark"
           onClick={endSession}
           style={{
             width: '100%',
             background: accent,
             color: '#fff',
             border: 0,
-            borderRadius: 10,
+            borderRadius: 12,
             padding: '0.75rem',
             fontWeight: 700,
             cursor: 'pointer',
+            transition: 'background 0.2s, box-shadow 0.2s',
           }}
         >
           End session
@@ -1013,23 +1042,36 @@ export default function PortalVoiceSession({
   const activeSuggestions = suggestions.filter((_, i) => !dismissed.has(i));
 
   return (
-    <div style={{ maxWidth: 560 }}>
+    <div
+      style={{
+        maxWidth: 560,
+        background: '#1a1a1a',
+        borderRadius: 24,
+        padding: 'clamp(20px, 5vw, 32px)',
+        boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)',
+        animation: 'pvs-fade-in 0.4s ease both',
+      }}
+    >
       <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
         {/* UX CLARITY: Warn when no transcript was captured due to disconnect or error */}
         {transcriptWasEmpty || hadConnectionIssue ? (
           <div
+            role="alert"
             style={{
-              background: 'rgba(239,68,68,0.08)',
-              border: '1px solid rgba(239,68,68,0.25)',
-              borderRadius: 8,
+              background: 'rgba(173,44,77,0.15)',
+              border: '1px solid rgba(173,44,77,0.4)',
+              borderRadius: 12,
               padding: '0.75rem 1rem',
               marginBottom: '1rem',
               fontSize: '0.85rem',
-              color: '#b91c1c',
+              color: '#f0a9b8',
               textAlign: 'left',
             }}
           >
-            <strong>Session ended with no conversation recorded.</strong>
+            <strong style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <AlertTriangle size={15} aria-hidden="true" style={{ flexShrink: 0 }} />
+              Session ended with no conversation recorded.
+            </strong>
             <p style={{ margin: '0.25rem 0 0', lineHeight: 1.4 }}>
               {hadConnectionIssue
                 ? 'The connection was interrupted. Your microphone may not have transmitted audio, or the voice service may have disconnected unexpectedly.'
@@ -1037,21 +1079,23 @@ export default function PortalVoiceSession({
             </p>
           </div>
         ) : (
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '1rem', fontSize: '0.9rem' }}>
             Session ended.
           </p>
         )}
         <button
           type="button"
+          className="pvs-focus-dark"
           onClick={reset}
           style={{
-            background: 'var(--surface-container-highest)',
-            color: 'var(--color-on-surface)',
-            border: '1px solid var(--outline-variant)',
-            borderRadius: 10,
+            background: 'rgba(255,255,255,0.1)',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 12,
             padding: '0.65rem 1.25rem',
             fontWeight: 600,
             cursor: 'pointer',
+            transition: 'background 0.2s, box-shadow 0.2s',
           }}
         >
           Start again
@@ -1059,14 +1103,14 @@ export default function PortalVoiceSession({
       </div>
 
       {parsingSuggestions && (
-        <p style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', marginTop: '1rem' }}>
+        <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginTop: '1rem' }}>
           Extracting suggestions from your session…
         </p>
       )}
 
       {activeSuggestions.length > 0 && (
         <div style={{ marginTop: '1.25rem' }}>
-          <h4 style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>
+          <h4 style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.6)', marginBottom: '0.75rem' }}>
             Coach suggestions ({activeSuggestions.length})
           </h4>
           {suggestions.map((s, i) =>
@@ -1074,9 +1118,9 @@ export default function PortalVoiceSession({
               <div
                 key={i}
                 style={{
-                  background: 'var(--surface-container-low, #f8f5f4)',
-                  border: '1px solid var(--outline-variant, #e0d6d3)',
-                  borderRadius: 12,
+                  background: '#0f0f10',
+                  border: '1px solid #262626',
+                  borderRadius: 16,
                   padding: '1rem',
                   marginBottom: '0.75rem',
                   animation: 'pvs-fade-in 0.3s ease both',
@@ -1095,8 +1139,8 @@ export default function PortalVoiceSession({
                       style={{
                         borderRadius: 10,
                         padding: '0.65rem 0.75rem',
-                        background: 'rgba(127,127,127,0.08)',
-                        border: '1px solid var(--outline-variant)',
+                        background: '#f3f4f6',
+                        border: '1px solid #e5e7eb',
                         minWidth: 0,
                       }}
                     >
@@ -1106,7 +1150,7 @@ export default function PortalVoiceSession({
                           fontWeight: 700,
                           textTransform: 'uppercase',
                           letterSpacing: '0.06em',
-                          color: 'var(--color-on-surface-variant)',
+                          color: '#6b7280',
                         }}
                       >
                         Before
@@ -1117,7 +1161,7 @@ export default function PortalVoiceSession({
                           fontSize: '0.85rem',
                           lineHeight: 1.45,
                           textDecoration: 'line-through',
-                          color: 'var(--color-on-surface-variant)',
+                          color: '#6b7280',
                         }}
                       >
                         {s.original}
@@ -1128,8 +1172,8 @@ export default function PortalVoiceSession({
                     style={{
                       borderRadius: 10,
                       padding: '0.65rem 0.75rem',
-                      background: 'rgba(22, 101, 52, 0.1)',
-                      border: '1px solid rgba(22, 101, 52, 0.28)',
+                      background: '#ecfdf5',
+                      border: '1px solid #d1fae5',
                       minWidth: 0,
                     }}
                   >
@@ -1149,10 +1193,11 @@ export default function PortalVoiceSession({
                     </p>
                   </div>
                 </div>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem', fontStyle: 'italic' }}>{s.context}</p>
+                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.75rem', fontStyle: 'italic' }}>{s.context}</p>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <button
                     type="button"
+                    className="pvs-focus-dark"
                     onClick={() => {
                       onAcceptSuggestion?.(s);
                       setDismissed((prev) => new Set(prev).add(i));
@@ -1166,6 +1211,7 @@ export default function PortalVoiceSession({
                       fontWeight: 600,
                       fontSize: '0.82rem',
                       cursor: 'pointer',
+                      transition: 'background 0.2s, box-shadow 0.2s',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '0.375rem',
@@ -1176,16 +1222,18 @@ export default function PortalVoiceSession({
                   </button>
                   <button
                     type="button"
+                    className="pvs-focus-dark"
                     onClick={() => setDismissed((prev) => new Set(prev).add(i))}
                     style={{
                       background: 'transparent',
-                      color: 'var(--color-on-surface-variant)',
-                      border: '1px solid var(--outline-variant)',
+                      color: 'rgba(255,255,255,0.7)',
+                      border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: 8,
                       padding: '0.45rem 1rem',
                       fontWeight: 600,
                       fontSize: '0.82rem',
                       cursor: 'pointer',
+                      transition: 'background 0.2s, box-shadow 0.2s',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '0.375rem',

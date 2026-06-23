@@ -60,8 +60,30 @@ import {
 } from 'lucide-react';
 import type { Conversation } from '@elevenlabs/client';
 import { DesignSurface } from '../DesignSurface';
+import { VoiceOrb } from '../VoiceOrb';
 
 type StudioTab = 'coaches' | 'session' | 'studio' | 'toolkit';
+
+/**
+ * Config for a voice agent that the Live Session tab can run. Each voice coach
+ * card picks one of these and switches to the session tab, so every agent uses
+ * the same live-session experience instead of navigating to a separate page.
+ */
+export type SessionAgentConfig = {
+  label: string;
+  /** POST endpoint that mints the ElevenLabs signed URL. */
+  endpoint: string;
+  /** JSON body for the endpoint (e.g. interview role/type). */
+  payload?: Record<string, unknown>;
+  accent: string;
+  accentDark: string;
+};
+
+const AGENT_ACCENT = {
+  crimson: { accent: '#ad2c4d', accentDark: '#8b1f38' },
+  gold: { accent: '#a47f38', accentDark: '#7d5f26' },
+  blue: { accent: '#2b7bb9', accentDark: '#1f5a87' },
+} as const;
 
 /**
  * Real routes each card opens. Most live under /dashboard/ai-tools/*; the
@@ -118,6 +140,19 @@ export function VoiceStudioKit({
   sessionPayload = { role: 'a general professional role', interviewType: 'behavioral' },
 }: VoiceStudioKitProps) {
   const [tab, setTab] = useState<StudioTab>(initialTab);
+
+  const defaultAgent: SessionAgentConfig = {
+    label: 'Mock Interview',
+    endpoint: sessionEndpoint,
+    payload: sessionPayload,
+    ...AGENT_ACCENT.crimson,
+  };
+  const [agent, setAgent] = useState<SessionAgentConfig>(defaultAgent);
+
+  const pickAgent = (next: SessionAgentConfig) => {
+    setAgent(next);
+    setTab('session');
+  };
 
   // Resume score ring geometry (matches mockup: r=52, stroke=11 → C≈326.7).
   const ringR = 52;
@@ -213,8 +248,8 @@ export function VoiceStudioKit({
         </header>
 
         <main style={{ flexGrow: 1, width: '100%', maxWidth: 1280, margin: '0 auto', padding: 16, boxSizing: 'border-box' }}>
-          {tab === 'coaches' && <CoachesPanel onMockInterview={() => setTab('session')} />}
-          {tab === 'session' && <SessionPanel sessionEndpoint={sessionEndpoint} sessionPayload={sessionPayload} />}
+          {tab === 'coaches' && <CoachesPanel onPick={pickAgent} />}
+          {tab === 'session' && <SessionPanel agent={agent} />}
           {tab === 'studio' && (
             <StudioPanel score={score} ringC={ringC} ringR={ringR} ringOffset={ringOffset} />
           )}
@@ -242,9 +277,10 @@ interface CoachCard {
   body: string;
   ctaIcon: LucideIcon;
   cta: string;
-  /** Real route this card opens. Omitted for the Mock Interview demo card,
-   * which instead switches to the in-page Live Session tab. */
+  /** Real route this card opens (non-voice cards, e.g. the elevator builder). */
   href?: string;
+  /** Voice agent this card runs — clicking opens the in-page Live Session tab. */
+  agent?: SessionAgentConfig;
 }
 
 const COACH_CARDS: CoachCard[] = [
@@ -257,7 +293,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Interviews, certifications, and next steps — talked through out loud.',
     ctaIcon: Mic,
     cta: 'Start session',
-    href: TOOL_HREF['readiness-coach'],
+    agent: { label: 'Readiness Coach', endpoint: '/api/member/readiness/voice-session', ...AGENT_ACCENT.gold },
   },
   {
     key: 'resume',
@@ -268,7 +304,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Voice feedback on your bullets and framing. Pairs with your live draft.',
     ctaIcon: Mic,
     cta: 'Start session',
-    href: TOOL_HREF['resume-coach'],
+    agent: { label: 'Resume Coach', endpoint: '/api/member/resume-coach/session', ...AGENT_ACCENT.crimson },
   },
   {
     key: 'mock',
@@ -276,9 +312,15 @@ const COACH_CARDS: CoachCard[] = [
     Icon: AudioLines,
     badge: 'PRACTICE',
     title: 'Mock Interview',
-    body: 'Answer out loud. Optional camera recording for review afterward.',
+    body: 'Answer out loud to realistic interview questions, then review your transcript.',
     ctaIcon: Play,
     cta: 'Try it live',
+    agent: {
+      label: 'Mock Interview',
+      endpoint: '/api/interview/session',
+      payload: { role: 'a general professional role', interviewType: 'behavioral' },
+      ...AGENT_ACCENT.crimson,
+    },
   },
   {
     key: 'counselor',
@@ -289,7 +331,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Private voice session — then your personalized action plan.',
     ctaIcon: Mic,
     cta: 'Start session',
-    href: TOOL_HREF.counselor,
+    agent: { label: 'Career Counselor', endpoint: '/api/counselor/session', ...AGENT_ACCENT.blue },
   },
   {
     key: 'business',
@@ -300,7 +342,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Broader career, PM, sales, marketing and business guidance.',
     ctaIcon: Mic,
     cta: 'Start session',
-    href: TOOL_HREF['career-business-coach'],
+    agent: { label: 'Career & Business Coach', endpoint: '/api/member/career-business-coach/voice-session', ...AGENT_ACCENT.crimson },
   },
   {
     key: 'elevator',
@@ -315,7 +357,7 @@ const COACH_CARDS: CoachCard[] = [
   },
 ];
 
-function CoachesPanel({ onMockInterview }: { onMockInterview: () => void }) {
+function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void }) {
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div
@@ -389,14 +431,14 @@ function CoachesPanel({ onMockInterview }: { onMockInterview: () => void }) {
 
       <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-5">
         {COACH_CARDS.map((c) => (
-          <CoachCardView key={c.key} card={c} onClick={c.key === 'mock' ? onMockInterview : undefined} />
+          <CoachCardView key={c.key} card={c} onPick={onPick} />
         ))}
       </div>
     </section>
   );
 }
 
-function CoachCardView({ card, onClick }: { card: CoachCard; onClick?: () => void }) {
+function CoachCardView({ card, onPick }: { card: CoachCard; onPick: (agent: SessionAgentConfig) => void }) {
   const { variant, Icon, badge, title, body, ctaIcon: Cta, cta } = card;
 
   // Per-variant styling roles, pulled from the mockup.
@@ -503,8 +545,16 @@ function CoachCardView({ card, onClick }: { card: CoachCard; onClick?: () => voi
     </>
   );
 
-  // Cards with a real route navigate via Link; the Mock Interview card (no
-  // href) keeps its in-page tab-switch onClick instead.
+  // Voice coaches open the in-page Live Session tab with their own agent;
+  // non-voice cards (the elevator builder) still navigate via a real route.
+  if (card.agent) {
+    const agent = card.agent;
+    return (
+      <button type="button" onClick={() => onPick(agent)} className="wa-kit-focus" style={sharedStyle}>
+        {inner}
+      </button>
+    );
+  }
   if (card.href) {
     return (
       <Link href={card.href} className="wa-kit-focus" style={{ ...sharedStyle, textDecoration: 'none' }}>
@@ -512,11 +562,10 @@ function CoachCardView({ card, onClick }: { card: CoachCard; onClick?: () => voi
       </Link>
     );
   }
-
   return (
-    <button onClick={onClick} className="wa-kit-focus" style={sharedStyle}>
+    <div className="wa-kit-focus" style={sharedStyle}>
       {inner}
-    </button>
+    </div>
   );
 }
 
@@ -535,17 +584,13 @@ function formatClock(totalSeconds: number): string {
 
 /**
  * Live Voice Session — a REAL ElevenLabs conversation (mints a signed URL from
- * `sessionEndpoint`, then runs `Conversation.startSession`). Preserves the dark
- * orb/transcript visual from the mockup; everything in it (timer, transcript,
- * mute, end) is now driven by the live session, not canned content.
+ * `agent.endpoint`, then runs `Conversation.startSession`). Every voice coach
+ * routes through this one panel, so the experience is identical across agents;
+ * the audio-reactive orb, timer, transcript, mute and end are all driven by the
+ * live session, not canned content.
  */
-function SessionPanel({
-  sessionEndpoint,
-  sessionPayload,
-}: {
-  sessionEndpoint: string;
-  sessionPayload: Record<string, unknown>;
-}) {
+function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
+  const { label, endpoint, payload, accent, accentDark } = agent;
   const [phase, setPhase] = useState<SessionPhase>('idle');
   const [error, setError] = useState('');
   const [agentSpeaking, setAgentSpeaking] = useState(false);
@@ -613,11 +658,11 @@ function SessionPanel({
     let signedUrl: string;
     let dynamicVariables: Record<string, string | number | boolean> | undefined;
     try {
-      const res = await fetch(sessionEndpoint, {
+      const res = await fetch(endpoint, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sessionPayload ?? {}),
+        body: JSON.stringify(payload ?? {}),
       });
       const data = (await res.json()) as {
         signedUrl?: string;
@@ -692,7 +737,20 @@ function SessionPanel({
       setError(err instanceof Error ? err.message : 'Voice session failed to start.');
       setPhase('idle');
     }
-  }, [sessionEndpoint, sessionPayload]);
+  }, [endpoint, payload]);
+
+  // Live audio level (0..1) for the reactive orb — max of mic + agent volume.
+  const getLevel = useCallback(() => {
+    const c = convRef.current;
+    if (!c) return 0;
+    try {
+      const input = typeof c.getInputVolume === 'function' ? c.getInputVolume() : 0;
+      const output = typeof c.getOutputVolume === 'function' ? c.getOutputVolume() : 0;
+      return Math.max(input || 0, output || 0);
+    } catch {
+      return 0;
+    }
+  }, []);
 
   const end = useCallback(() => {
     intentionalRef.current = true;
@@ -727,25 +785,25 @@ function SessionPanel({
   // Status line (top-left of the orb panel).
   const status =
     phase === 'active'
-      ? 'CONNECTED · Mock Interview'
+      ? `CONNECTED · ${label}`
       : phase === 'connecting'
         ? 'CONNECTING…'
         : phase === 'ended'
           ? 'SESSION ENDED'
-          : 'READY · Mock Interview';
+          : `READY · ${label}`;
   const dotColor = phase === 'active' ? 'var(--wa-success)' : phase === 'connecting' ? 'var(--wa-gold)' : 'rgba(255,255,255,0.4)';
 
   // Big status caption under the orb.
   const caption =
     phase === 'active'
       ? agentSpeaking
-        ? 'Coach is speaking…'
+        ? `${label} is speaking…`
         : 'Listening — speak when ready'
       : phase === 'connecting'
         ? 'Connecting to your coach…'
         : phase === 'ended'
           ? 'Session ended'
-          : 'Start a live mock interview';
+          : `Start a live session with the ${label}`;
   const subCaption =
     phase === 'active'
       ? muted
@@ -754,7 +812,7 @@ function SessionPanel({
       : phase === 'ended'
         ? 'Your transcript is saved. Review it or run another round.'
         : phase === 'idle'
-          ? 'Speak with an AI interview coach. Microphone required.'
+          ? 'Real-time voice coaching. Microphone required.'
           : ' ';
 
   return (
@@ -783,34 +841,17 @@ function SessionPanel({
               {formatClock(elapsed)}
             </div>
 
-            {/* mic orb — rings + pulse animate only while the session is live */}
-            <div style={{ position: 'relative', width: 'min(224px, 60vw)', height: 'min(224px, 60vw)', maxWidth: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '24px 0' }}>
-              {isLive && !muted ? (
-                <>
-                  <span className="vs-orb-ring" style={ringStyle} />
-                  <span className="vs-orb-ring vs-d2" style={ringStyle} />
-                  <span className="vs-orb-ring vs-d3" style={ringStyle} />
-                </>
-              ) : null}
-              <div
-                className={isLive && !muted ? 'vs-orb-core' : undefined}
-                style={{
-                  width: 160,
-                  height: 160,
-                  borderRadius: 999,
-                  background: muted
-                    ? 'linear-gradient(to bottom right, #4b4b4b, #2a2a2a)'
-                    : 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 25px 50px -12px rgba(120,20,38,0.4)',
-                  opacity: phase === 'idle' || phase === 'ended' ? 0.7 : 1,
-                  transition: 'background 0.2s, opacity 0.2s',
-                }}
-              >
-                {muted ? <MicOff size={40} /> : <Mic size={40} />}
-              </div>
+            {/* audio-reactive orb — core scale + rings track live mic/agent volume */}
+            <div style={{ margin: '20px 0' }}>
+              <VoiceOrb
+                getLevel={getLevel}
+                active={isLive}
+                muted={muted}
+                connecting={phase === 'connecting'}
+                accent={accent}
+                accentDark={accentDark}
+                size={168}
+              />
             </div>
 
             {/* equalizer — only while the coach is actively speaking */}
@@ -820,7 +861,7 @@ function SessionPanel({
                   <span
                     key={i}
                     className="vs-eqbar"
-                    style={{ width: 4, background: 'var(--wa-accent)', borderRadius: 999, animationDelay: `${delay}s` }}
+                    style={{ width: 4, background: accent, borderRadius: 999, animationDelay: `${delay}s` }}
                   />
                 ))}
               </div>
@@ -865,7 +906,7 @@ function SessionPanel({
                     aria-pressed={muted}
                     title={muted ? 'Unmute microphone' : 'Mute microphone'}
                     onClick={toggleMute}
-                    style={{ ...circleBtn, background: muted ? 'var(--wa-accent)' : 'rgba(255,255,255,0.1)' }}
+                    style={{ ...circleBtn, background: muted ? accent : 'rgba(255,255,255,0.1)' }}
                   >
                     {muted ? <MicOff size={16} /> : <Mic size={16} />}
                   </button>
@@ -876,7 +917,7 @@ function SessionPanel({
                     style={{
                       padding: '12px 24px',
                       borderRadius: 999,
-                      background: 'var(--wa-accent)',
+                      background: accent,
                       color: '#fff',
                       fontWeight: 700,
                       fontSize: 14,
@@ -922,7 +963,7 @@ function SessionPanel({
                   style={{
                     padding: '12px 28px',
                     borderRadius: 999,
-                    background: 'var(--wa-accent)',
+                    background: accent,
                     color: '#fff',
                     fontWeight: 700,
                     fontSize: 14,
@@ -953,7 +994,7 @@ function SessionPanel({
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ fontWeight: 700, color: '#fff', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Captions size={15} color="var(--wa-accent)" />
+                <Captions size={15} color={accent} />
                 Live Transcript
               </h3>
               <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
@@ -979,7 +1020,7 @@ function SessionPanel({
                 lines.map((line, i) =>
                   line.speaker === 'agent' ? (
                     <div key={`${i}-${line.text.slice(0, 16)}`}>
-                      <div style={transcriptLabelCoach}>Coach</div>
+                      <div style={{ ...transcriptLabelCoach, color: accent }}>Coach</div>
                       <div style={{ ...bubble, background: '#1a1a1a', color: 'rgba(255,255,255,0.9)', borderTopLeftRadius: 4 }}>
                         {line.text}
                       </div>
@@ -990,7 +1031,7 @@ function SessionPanel({
                       <div
                         style={{
                           ...bubble,
-                          background: 'var(--wa-accent)',
+                          background: accent,
                           color: '#fff',
                           borderTopRightRadius: 4,
                           display: 'inline-block',
@@ -1038,14 +1079,6 @@ function SessionStat({ value, label, color }: { value: string; label: string; co
     </div>
   );
 }
-
-const ringStyle: React.CSSProperties = {
-  position: 'absolute',
-  width: 160,
-  height: 160,
-  borderRadius: 999,
-  border: '1px solid var(--wa-accent)',
-};
 
 const circleBtn: React.CSSProperties = {
   width: 48,

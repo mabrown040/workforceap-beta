@@ -191,7 +191,7 @@ async function LegacyMentorsView() {
         subtitle="Review mentor applications and toggle active mentor availability."
       />
 
-      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem' }}>
         {mentors.map((mentor) => {
           const status = getMentorStatusLabel(mentor);
           return (

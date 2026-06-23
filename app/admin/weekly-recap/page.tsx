@@ -197,7 +197,7 @@ export default async function AdminWeeklyRecapAnalyticsPage({
             />
           </div>
 
-          <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+          <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.625rem' }}>
             {rows.map((r) => (
               <div key={r.cohortKey} style={{ background: 'var(--surface-container)', borderRadius: 'var(--radius-lg)', padding: '0.875rem 1rem' }}>
                 <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>{r.cohortLabel}</div>

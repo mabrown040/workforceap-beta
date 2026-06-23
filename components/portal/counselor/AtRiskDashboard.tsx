@@ -957,7 +957,7 @@ export default function AtRiskDashboard() {
       )}
 
       {/* Mobile cards */}
-      <div className="wa-block md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="wa-block md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem' }}>
         {filteredMembers.length === 0 ? (
           <PortalEmptyState
             title="No at-risk members match your filters"

@@ -251,7 +251,7 @@ async function renderLegacy({
 
       <AdminJobsFilterTabs currentFilter={currentFilter} tabs={tabs} />
 
-      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem' }}>
         {jobs.map((job) => (
           <div
             key={job.id}

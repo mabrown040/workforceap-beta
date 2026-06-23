@@ -287,11 +287,23 @@ export default function AIEfficacyDashboard() {
         </button>
       </div>
 
-      {error && (
+      {error && /organization context required/i.test(error) ? (
+        /* Superadmins have no single org in context — guide them to pick one
+           rather than dumping a raw error string. */
+        <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+          <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+            Select an organization to view AI efficacy
+          </p>
+          <p style={{ margin: '0.5rem 0 0', fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+            This report compares placement outcomes within a single organization. Use the workspace
+            context switcher in the top bar to choose an organization, then reload this page.
+          </p>
+        </div>
+      ) : error ? (
         <div className="portal-card portal-card--flat" style={{ padding: '1rem 1.25rem', marginBottom: '1.5rem', background: 'rgba(173,44,77,0.1)', color: ACCENT }}>
           {error}
         </div>
-      )}
+      ) : null}
 
       {!loading && !error && !hasActivity && (
         <div className="portal-card portal-card--flat" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>

@@ -102,7 +102,7 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
 
       <div className="lg:wa-ml-64" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <header style={{ position: 'sticky', top: 0, zIndex: 30, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--wa-border)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button type="button" onClick={() => setOpen(true)} className="lg:wa-hidden wa-kit-focus" aria-label="Open menu" style={{ width: 44, height: 44, borderRadius: 8, border: '1px solid var(--wa-border)', background: 'transparent', color: 'var(--wa-text)', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s, border-color 0.2s' }}><Menu size={20} aria-hidden="true" /></button>
+          <button type="button" onClick={() => setOpen(true)} className="lg:wa-hidden wa-kit-focus wa-flex" aria-label="Open menu" style={{ width: 44, height: 44, borderRadius: 8, border: '1px solid var(--wa-border)', background: 'transparent', color: 'var(--wa-text)', cursor: 'pointer', flexShrink: 0, alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s, border-color 0.2s' }}><Menu size={20} aria-hidden="true" /></button>
           <div style={{ flex: 1, minWidth: 0 }}>{topbar}</div>
         </header>
         <main style={{ flex: 1, padding: 16 }}>{children}</main>

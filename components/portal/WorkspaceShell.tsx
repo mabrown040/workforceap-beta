@@ -122,7 +122,16 @@ export default function WorkspaceShell({
   const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(navItems));
   const hasTabs = navItems.some((i) => i.tab);
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
-  const desktopNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
+  // Members now use the left command-rail on desktop (the flat top-nav is hidden
+  // there), and that rail is the ONLY nav — so it must show every item grouped by
+  // `group`, not just the active tab's slice (which would strand most pages).
+  // Tab-filtering still drives the member flat top-nav on mobile/tablet.
+  const desktopNavItems =
+    portalRole === 'member'
+      ? navItems
+      : hasTabs && activeTab
+        ? navItems.filter((i) => i.tab === activeTab)
+        : navItems;
   const mobileDrawerNavItems = navItems;
   // Member flat top-nav (#2069): a single-level, horizontally-scrollable nav that
   // matches the wa-v2-member mockup — the mockup's primary destinations come first,

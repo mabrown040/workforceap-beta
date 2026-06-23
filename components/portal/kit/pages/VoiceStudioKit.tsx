@@ -50,8 +50,6 @@ import {
   Palette,
   ArrowRight,
   Upload,
-  Hash,
-  KeyRound,
   Play,
   Circle,
   FlaskConical,
@@ -77,6 +75,12 @@ export type SessionAgentConfig = {
   payload?: Record<string, unknown>;
   accent: string;
   accentDark: string;
+  /**
+   * When true, the idle state asks the member for a target role + interview
+   * type before starting (used by Mock Interview), and merges them into the
+   * POST payload as `{ role, interviewType }`.
+   */
+  askRole?: boolean;
 };
 
 const AGENT_ACCENT = {
@@ -119,11 +123,25 @@ const TABS: Array<{ id: StudioTab; label: string }> = [
   { id: 'toolkit', label: 'AI Toolkit' },
 ];
 
+/** Real, instant structural-read data for the Resume Studio tab. */
+export type ResumeStudioIssue = { title: string; detail: string };
+export type ResumeStudioData = {
+  /** Whether the member has a resume on file. */
+  hasResume: boolean;
+  /** Deterministic structural score 0–100 (instant; not the full AI composite). */
+  structuralScore?: number;
+  /** Real issues derived from the weakest structural dimensions. */
+  issues?: ResumeStudioIssue[];
+};
+
 export interface VoiceStudioKitProps {
   /** Which tab to show first. */
   initialTab?: StudioTab;
-  /** Resume score shown in the Career Studio ring (0–100). */
-  resumeScore?: number;
+  /**
+   * Real resume data for the Resume Studio tab, computed server-side from the
+   * member's actual resume (deterministic structural read — no fabricated data).
+   */
+  resumeStudio?: ResumeStudioData;
   /**
    * POST endpoint the Live Session tab calls to mint an ElevenLabs signed URL.
    * Defaults to the mock-interview agent endpoint.
@@ -135,7 +153,7 @@ export interface VoiceStudioKitProps {
 
 export function VoiceStudioKit({
   initialTab = 'coaches',
-  resumeScore = 72,
+  resumeStudio = { hasResume: false },
   sessionEndpoint = '/api/interview/session',
   sessionPayload = { role: 'a general professional role', interviewType: 'behavioral' },
 }: VoiceStudioKitProps) {
@@ -145,6 +163,7 @@ export function VoiceStudioKit({
     label: 'Mock Interview',
     endpoint: sessionEndpoint,
     payload: sessionPayload,
+    askRole: true,
     ...AGENT_ACCENT.crimson,
   };
   const [agent, setAgent] = useState<SessionAgentConfig>(defaultAgent);
@@ -153,12 +172,6 @@ export function VoiceStudioKit({
     setAgent(next);
     setTab('session');
   };
-
-  // Resume score ring geometry (matches mockup: r=52, stroke=11 → C≈326.7).
-  const ringR = 52;
-  const ringC = 2 * Math.PI * ringR; // ≈ 326.7
-  const score = Math.max(0, Math.min(100, Math.round(resumeScore)));
-  const ringOffset = ringC * (1 - score / 100); // 72 → ≈91.5
 
   return (
     <DesignSurface surface="warm">
@@ -251,7 +264,7 @@ export function VoiceStudioKit({
           {tab === 'coaches' && <CoachesPanel onPick={pickAgent} />}
           {tab === 'session' && <SessionPanel agent={agent} />}
           {tab === 'studio' && (
-            <StudioPanel score={score} ringC={ringC} ringR={ringR} ringOffset={ringOffset} />
+            <StudioPanel data={resumeStudio} />
           )}
           {tab === 'toolkit' && <ToolkitPanel />}
         </main>
@@ -318,7 +331,8 @@ const COACH_CARDS: CoachCard[] = [
     agent: {
       label: 'Mock Interview',
       endpoint: '/api/interview/session',
-      payload: { role: 'a general professional role', interviewType: 'behavioral' },
+      payload: { interviewType: 'behavioral' },
+      askRole: true,
       ...AGENT_ACCENT.crimson,
     },
   },
@@ -590,13 +604,15 @@ function formatClock(totalSeconds: number): string {
  * live session, not canned content.
  */
 function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
-  const { label, endpoint, payload, accent, accentDark } = agent;
+  const { label, endpoint, payload, accent, accentDark, askRole } = agent;
   const [phase, setPhase] = useState<SessionPhase>('idle');
   const [error, setError] = useState('');
   const [agentSpeaking, setAgentSpeaking] = useState(false);
   const [muted, setMuted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [lines, setLines] = useState<TranscriptLine[]>([]);
+  const [role, setRole] = useState('');
+  const [interviewType, setInterviewType] = useState('behavioral');
 
   const convRef = useRef<Conversation | null>(null);
   const intentionalRef = useRef(false);
@@ -658,11 +674,14 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
     let signedUrl: string;
     let dynamicVariables: Record<string, string | number | boolean> | undefined;
     try {
+      const effectivePayload = askRole
+        ? { ...(payload ?? {}), role: role.trim() || 'a general professional role', interviewType }
+        : payload ?? {};
       const res = await fetch(endpoint, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload ?? {}),
+        body: JSON.stringify(effectivePayload),
       });
       const data = (await res.json()) as {
         signedUrl?: string;
@@ -737,7 +756,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
       setError(err instanceof Error ? err.message : 'Voice session failed to start.');
       setPhase('idle');
     }
-  }, [endpoint, payload]);
+  }, [endpoint, payload, askRole, role, interviewType]);
 
   // Live audio level (0..1) for the reactive orb — max of mic + agent volume.
   const getLevel = useCallback(() => {
@@ -892,6 +911,58 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
               >
                 <AlertTriangle size={14} aria-hidden style={{ flexShrink: 0, marginTop: 1 }} />
                 <span>{error}</span>
+              </div>
+            ) : null}
+
+            {/* role picker — only for agents that ask (Mock Interview), before start */}
+            {phase === 'idle' && askRole ? (
+              <div style={{ width: '100%', maxWidth: 360, marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}>
+                <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                    Target role
+                  </span>
+                  <input
+                    type="text"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    placeholder="e.g. Cloud Support Associate"
+                    className="vs-focus-dark"
+                    style={{
+                      background: '#0f0f10',
+                      border: '1px solid #404040',
+                      borderRadius: 10,
+                      padding: '10px 12px',
+                      color: '#fff',
+                      fontSize: 14,
+                    }}
+                  />
+                </label>
+                <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)' }}>
+                    Interview type
+                  </span>
+                  <select
+                    value={interviewType}
+                    onChange={(e) => setInterviewType(e.target.value)}
+                    className="vs-focus-dark"
+                    style={{
+                      background: '#0f0f10',
+                      border: '1px solid #404040',
+                      borderRadius: 10,
+                      padding: '10px 12px',
+                      color: '#fff',
+                      fontSize: 14,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <option value="behavioral">Behavioral</option>
+                    <option value="technical">Technical</option>
+                    <option value="general">General / screening</option>
+                  </select>
+                </label>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                  Leave the role blank for a general practice interview.
+                </p>
               </div>
             ) : null}
 
@@ -1120,50 +1191,27 @@ const transcriptLabelYou: React.CSSProperties = {
 /* VIEW: RESUME STUDIO (BETA) — Career Studio                   */
 /* ============================================================ */
 
-interface Issue {
-  Icon: LucideIcon;
-  title: string;
-  body: string;
-  /** crimson Fix button or gold Fix button. */
-  fixTone: 'crimson' | 'gold';
-  chipTone: 'crimson' | 'gold';
+/** Color band for the real structural score ring. */
+function scoreBand(score: number): { color: string; label: string } {
+  if (score >= 85) return { color: 'var(--wa-success)', label: 'Interview-ready structure' };
+  if (score >= 70) return { color: 'var(--wa-gold)', label: 'Solid — a few fixes to go' };
+  return { color: 'var(--wa-accent)', label: 'Needs work — start with the fixes below' };
 }
 
-const ISSUES: Issue[] = [
-  {
-    Icon: Zap,
-    title: 'Weak action verbs in 4 bullets',
-    body: '"Responsible for…" reads passive. AI can rewrite to lead with impact.',
-    fixTone: 'crimson',
-    chipTone: 'crimson',
-  },
-  {
-    Icon: Hash,
-    title: 'No quantified results',
-    body: 'Add numbers (%, $, time saved) to show impact employers can measure.',
-    fixTone: 'crimson',
-    chipTone: 'crimson',
-  },
-  {
-    Icon: KeyRound,
-    title: 'Missing keywords for "Cloud Support"',
-    body: 'Add: IAM, EC2, troubleshooting, ticketing — matched from your target jobs.',
-    fixTone: 'gold',
-    chipTone: 'gold',
-  },
-];
+function StudioPanel({ data }: { data: ResumeStudioData }) {
+  const hasResume = data.hasResume;
+  const score =
+    typeof data.structuralScore === 'number'
+      ? Math.max(0, Math.min(100, Math.round(data.structuralScore)))
+      : null;
+  const issues = data.issues ?? [];
+  const band = score !== null ? scoreBand(score) : null;
 
-function StudioPanel({
-  score,
-  ringC,
-  ringR,
-  ringOffset,
-}: {
-  score: number;
-  ringC: number;
-  ringR: number;
-  ringOffset: number;
-}) {
+  // Ring geometry (r=52, stroke=11 → C≈326.7).
+  const ringR = 52;
+  const ringC = 2 * Math.PI * ringR;
+  const ringOffset = score !== null ? ringC * (1 - score / 100) : ringC;
+
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* crimson gradient banner */}
@@ -1203,11 +1251,13 @@ function StudioPanel({
             Resume Studio
           </h2>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-            Score it, fix the top issues with AI rewrites, or talk it through out loud — all in one place.
+            {hasResume
+              ? 'Your instant structural read and top fixes — then full AI scoring, rewrites, and voice coaching.'
+              : 'Add your resume to get an instant structural read, full AI scoring, and rewrites.'}
           </p>
         </div>
         <Link
-          href={TOOL_HREF['resume-studio']}
+          href={hasResume ? TOOL_HREF['resume-studio'] + '?view=score' : TOOL_HREF['resume-studio']}
           className="vs-focus-dark"
           style={{
             padding: '12px 20px',
@@ -1226,207 +1276,209 @@ function StudioPanel({
           }}
         >
           <Upload size={14} />
-          Upload Resume
+          {hasResume ? 'Open full analysis' : 'Add résumé'}
         </Link>
       </div>
 
-      {/* score + issues */}
-      <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
-        {/* score ring card */}
+      {hasResume && score !== null ? (
+        <>
+          {/* score + fixes */}
+          <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
+            {/* real structural score ring */}
+            <div
+              className="wa-kit-card"
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+            >
+              <h3 style={{ fontWeight: 800, fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--wa-muted)', marginBottom: 12 }}>
+                Structure Score
+              </h3>
+              <div style={{ position: 'relative' }}>
+                <svg width="150" height="150" viewBox="0 0 120 120" role="img" aria-label={`Structure score ${score} of 100`}>
+                  <circle cx="60" cy="60" r={ringR} fill="none" stroke="#f0eef0" strokeWidth="11" />
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r={ringR}
+                    fill="none"
+                    stroke={band?.color ?? 'var(--wa-gold)'}
+                    strokeWidth="11"
+                    strokeLinecap="round"
+                    strokeDasharray={ringC.toFixed(1)}
+                    strokeDashoffset={ringOffset.toFixed(1)}
+                    transform="rotate(-90 60 60)"
+                  />
+                </svg>
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontSize: 36, fontWeight: 800, color: band?.color ?? 'var(--wa-gold)', fontVariantNumeric: 'tabular-nums' }}>{score}</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--wa-muted)', letterSpacing: '0.08em' }}>OF 100</span>
+                </div>
+              </div>
+              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 12 }}>
+                {band?.label}. This is the instant structural read — run the full AI analysis for market &amp; skills-match scoring.
+              </p>
+            </div>
+
+            {/* real top fixes */}
+            <div className="wa-kit-card lg:wa-col-span-2">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em' }}>Top Fixes</h3>
+                {issues.length > 0 ? (
+                  <span style={{ padding: '2px 10px', borderRadius: 999, background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', fontSize: 10, fontWeight: 700 }}>
+                    {issues.length} found
+                  </span>
+                ) : null}
+              </div>
+              {issues.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {issues.map((issue, i) => (
+                    <IssueRow key={i} issue={issue} />
+                  ))}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: 14, background: 'var(--wa-bg)', border: '1px solid var(--wa-border)', borderRadius: 16 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'var(--wa-accent-soft)', color: 'var(--wa-success)' }}>
+                    <CheckCircle2 size={15} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 12 }}>No structural issues</div>
+                    <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>
+                      Your formatting, bullets, and quantification look strong. Run the full analysis for market &amp; skills-coverage insights.
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* go-deeper CTA + voice card */}
+          <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
+            <div className="wa-kit-card lg:wa-col-span-2" style={{ display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', marginBottom: 6 }}>Take it further</h3>
+              <p style={{ fontSize: 13, color: 'var(--wa-muted)', marginBottom: 16, lineHeight: 1.5 }}>
+                The full AI analysis scores your resume against live job-market keywords and O*NET skills coverage, then
+                rewrites weak bullets to lead with measurable impact.
+              </p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 'auto' }}>
+                <Link
+                  href={TOOL_HREF['resume-studio'] + '?view=score'}
+                  className="wa-kit-focus"
+                  style={{
+                    padding: '10px 18px',
+                    background: 'var(--wa-accent)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: 13,
+                    borderRadius: 999,
+                    border: 'none',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Sparkles size={14} />
+                  Run full analysis
+                </Link>
+                <Link
+                  href={TOOL_HREF['resume-rewriter']}
+                  className="wa-kit-focus"
+                  style={{
+                    padding: '10px 18px',
+                    background: 'transparent',
+                    border: '1px solid var(--wa-border)',
+                    fontWeight: 600,
+                    fontSize: 13,
+                    borderRadius: 999,
+                    cursor: 'pointer',
+                    color: 'var(--wa-text)',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  Rewrite a bullet
+                </Link>
+              </div>
+            </div>
+
+            {/* gold "Talk it through" voice card → Resume Coach voice session */}
+            <Link
+              href={TOOL_HREF['resume-coach']}
+              className="wa-kit-focus"
+              style={{
+                textAlign: 'left',
+                background: 'linear-gradient(to bottom right, #a47f38, #7d5f26)',
+                color: '#fff',
+                borderRadius: 24,
+                padding: 'clamp(20px, 5vw, 28px)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                border: 'none',
+                boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)',
+                textDecoration: 'none',
+              }}
+            >
+              <div>
+                <div style={{ padding: 12, width: 'fit-content', background: 'rgba(255,255,255,0.15)', borderRadius: 16, display: 'inline-flex' }}>
+                  <Headset size={20} />
+                </div>
+                <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', marginTop: 16 }}>Talk it through</h3>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
+                  Prefer to discuss it out loud? Open the Resume Coach voice session with your draft loaded.
+                </p>
+              </div>
+              <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700 }}>
+                <Mic size={13} />
+                Start voice session
+              </div>
+            </Link>
+          </div>
+        </>
+      ) : (
+        /* no resume on file — honest empty state */
         <div
           className="wa-kit-card"
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}
+          style={{ textAlign: 'center', padding: '48px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}
         >
-          <h3 style={{ fontWeight: 800, fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--wa-muted)', marginBottom: 12 }}>
-            Resume Score
-          </h3>
-          <div style={{ position: 'relative' }}>
-            <svg width="150" height="150" viewBox="0 0 120 120" role="img" aria-label={`Resume score ${score} of 100`}>
-              <circle cx="60" cy="60" r={ringR} fill="none" stroke="#f0eef0" strokeWidth="11" />
-              <circle
-                cx="60"
-                cy="60"
-                r={ringR}
-                fill="none"
-                stroke="var(--wa-gold)"
-                strokeWidth="11"
-                strokeLinecap="round"
-                strokeDasharray={ringC.toFixed(1)}
-                strokeDashoffset={ringOffset.toFixed(1)}
-                transform="rotate(-90 60 60)"
-              />
-            </svg>
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 36, fontWeight: 800, color: 'var(--wa-gold)', fontVariantNumeric: 'tabular-nums' }}>{score}</span>
-              <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--wa-muted)', letterSpacing: '0.08em' }}>OF 100</span>
-            </div>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <FileText size={26} />
           </div>
-          <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 12 }}>
-            Solid. Fix the 3 issues on the right to reach the 85+ &quot;interview-ready&quot; band.
+          <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', margin: 0 }}>No resume on file yet</h3>
+          <p style={{ fontSize: 13, color: 'var(--wa-muted)', maxWidth: 420, margin: 0, lineHeight: 1.5 }}>
+            Add your resume to see an instant structure score, your top fixes, and the full AI analysis with market &amp;
+            skills-match scoring.
           </p>
+          <Link
+            href={TOOL_HREF['resume-studio']}
+            className="wa-kit-focus"
+            style={{
+              marginTop: 4,
+              padding: '10px 20px',
+              background: 'var(--wa-accent)',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: 14,
+              borderRadius: 999,
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Upload size={14} />
+            Add your resume
+          </Link>
         </div>
-
-        {/* top issues card */}
-        <div className="wa-kit-card lg:wa-col-span-2">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em' }}>Top Issues to Fix</h3>
-            <span style={{ padding: '2px 10px', borderRadius: 999, background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)', fontSize: 10, fontWeight: 700 }}>
-              3 found
-            </span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {ISSUES.map((issue, i) => (
-              <IssueRow key={i} issue={issue} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* before/after rewrite + voice card */}
-      <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
-        <div className="wa-kit-card lg:wa-col-span-2">
-          <h3 style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.02em', marginBottom: 16 }}>AI Rewrite Preview</h3>
-          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4">
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--wa-muted)', marginBottom: 8 }}>
-                Before
-              </div>
-              <div
-                style={{
-                  padding: 16,
-                  background: 'var(--wa-bg)',
-                  border: '1px solid var(--wa-border)',
-                  borderRadius: 16,
-                  fontSize: 12,
-                  color: '#525252',
-                  lineHeight: 1.6,
-                }}
-              >
-                Responsible for helping customers with cloud issues and was part of the team that managed deployments.
-              </div>
-            </div>
-            <div>
-              <div
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: 'var(--wa-success)',
-                  marginBottom: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                }}
-              >
-                <Sparkles size={12} />
-                After
-              </div>
-              <div
-                style={{
-                  padding: 16,
-                  background: '#ecfdf5',
-                  border: '1px solid #d1fae5',
-                  borderRadius: 16,
-                  fontSize: 12,
-                  color: 'var(--wa-text)',
-                  lineHeight: 1.6,
-                  fontWeight: 500,
-                }}
-              >
-                Resolved 40+ weekly customer cloud issues across IAM and EC2, and co-led deployments that cut release
-                errors by 30%.
-              </div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-            <Link
-              href={TOOL_HREF['resume-rewriter']}
-              className="wa-kit-focus"
-              style={{
-                padding: '8px 16px',
-                background: 'var(--wa-accent)',
-                color: '#fff',
-                fontWeight: 600,
-                fontSize: 12,
-                borderRadius: 999,
-                border: 'none',
-                cursor: 'pointer',
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-              }}
-            >
-              Accept Rewrite
-            </Link>
-            <Link
-              href={TOOL_HREF['resume-rewriter']}
-              className="wa-kit-focus"
-              style={{
-                padding: '8px 16px',
-                background: 'transparent',
-                border: '1px solid var(--wa-border)',
-                fontWeight: 600,
-                fontSize: 12,
-                borderRadius: 999,
-                cursor: 'pointer',
-                color: 'var(--wa-text)',
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-              }}
-            >
-              Regenerate
-            </Link>
-          </div>
-        </div>
-
-        {/* gold "Talk it through" voice card → Resume Coach voice session */}
-        <Link
-          href={TOOL_HREF['resume-coach']}
-          className="wa-kit-focus"
-          style={{
-            textAlign: 'left',
-            background: 'linear-gradient(to bottom right, #a47f38, #7d5f26)',
-            color: '#fff',
-            borderRadius: 24,
-            padding: 'clamp(20px, 5vw, 28px)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            cursor: 'pointer',
-            border: 'none',
-            boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)',
-            textDecoration: 'none',
-          }}
-        >
-          <div>
-            <div style={{ padding: 12, width: 'fit-content', background: 'rgba(255,255,255,0.15)', borderRadius: 16, display: 'inline-flex' }}>
-              <Headset size={20} />
-            </div>
-            <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', marginTop: 16 }}>Talk it through</h3>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>
-              Prefer to discuss it out loud? Open the Resume Coach voice session with this draft loaded.
-            </p>
-          </div>
-          <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700 }}>
-            <Mic size={13} />
-            Start voice session
-          </div>
-        </Link>
-      </div>
+      )}
     </section>
   );
 }
 
-function IssueRow({ issue }: { issue: Issue }) {
-  const { Icon, title, body, fixTone, chipTone } = issue;
-  const chipStyle =
-    chipTone === 'gold'
-      ? { background: 'var(--wa-gold-soft)', color: 'var(--wa-gold)' }
-      : { background: 'var(--wa-accent-soft)', color: 'var(--wa-accent)' };
-  const fixBg = fixTone === 'gold' ? 'var(--wa-gold)' : 'var(--wa-accent)';
-
+function IssueRow({ issue }: { issue: ResumeStudioIssue }) {
+  const { title, detail } = issue;
   return (
     <div
       style={{
@@ -1448,21 +1500,22 @@ function IssueRow({ issue }: { issue: Issue }) {
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          ...chipStyle,
+          background: 'var(--wa-accent-soft)',
+          color: 'var(--wa-accent)',
         }}
       >
-        <Icon size={13} />
+        <Sparkles size={13} />
       </div>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 700, fontSize: 12 }}>{title}</div>
-        <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{body}</div>
+        <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>{detail}</div>
       </div>
       <Link
         href={TOOL_HREF['resume-rewriter']}
         className="wa-kit-focus"
         style={{
           padding: '6px 12px',
-          background: fixBg,
+          background: 'var(--wa-accent)',
           color: '#fff',
           fontWeight: 600,
           fontSize: 10,

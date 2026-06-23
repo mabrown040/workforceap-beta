@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
-import { VoiceStudioKit } from '@/components/portal/kit/pages/VoiceStudioKit';
+import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
+import { scoreStructural } from '@/lib/ai/resumeScore';
+import { VoiceStudioKit, type ResumeStudioData, type ResumeStudioIssue } from '@/components/portal/kit/pages/VoiceStudioKit';
 
 /**
  * Voice + Career Studio — the unified voice-AI + career-tools workspace.
@@ -37,5 +39,42 @@ export default async function VoiceStudioPage({
     ? (requestedTab as StudioTab)
     : undefined;
 
-  return <VoiceStudioKit initialTab={initialTab} />;
+  const resumeStudio = await loadResumeStudioData(user.id);
+
+  return <VoiceStudioKit initialTab={initialTab} resumeStudio={resumeStudio} />;
+}
+
+/** Human labels for each structural dimension surfaced as a "top fix". */
+const DIMENSION_LABEL: Record<string, string> = {
+  structure: 'Formatting & structure',
+  quantification: 'Quantify your impact',
+  actionVerbs: 'Lead with stronger verbs',
+  bulletLength: 'Tighten bullet length',
+  contact: 'Complete your contact info',
+};
+
+/**
+ * Computes the Resume Studio tab's REAL data from the member's actual resume:
+ * a deterministic structural score (instant — no LLM / external calls) plus the
+ * real issue notes from the weakest dimensions. Returns hasResume:false when
+ * there's nothing on file. Never throws — the tab degrades to the empty state.
+ */
+async function loadResumeStudioData(userId: string): Promise<ResumeStudioData> {
+  try {
+    const text = await getMemberResumePlainText(userId, 8000);
+    if (text.trim().length === 0) return { hasResume: false };
+
+    const structural = scoreStructural(text);
+    const issues: ResumeStudioIssue[] = Object.entries(structural.breakdown)
+      .map(([key, sub]) => ({ key, score: sub.score, detail: sub.notes[0] ?? '' }))
+      .filter((d) => d.score < 85 && d.detail)
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 3)
+      .map((d) => ({ title: DIMENSION_LABEL[d.key] ?? 'Resume fix', detail: d.detail }));
+
+    return { hasResume: true, structuralScore: structural.composite, issues };
+  } catch (err) {
+    console.error('[studio page] resume data load failed', err);
+    return { hasResume: false };
+  }
 }

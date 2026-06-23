@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
-import { isSuperAdmin } from '@/lib/auth/roles';
+import { getProfileRole, isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import MemberWorkspaceShell from '@/components/portal/MemberWorkspaceShell';
 import { getPortalSwitcherRoles } from '@/lib/auth/portalRoleSwitcher';
@@ -19,6 +19,11 @@ export default async function DashboardLayout({
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
+
+  const profileRole = await getProfileRole(user.id);
+  if (profileRole === 'admin') {
+    redirect('/admin');
+  }
 
   const portalRolesPromise = getPortalSwitcherRoles(user.id);
   const superAdminPromise = isSuperAdmin(user.id);

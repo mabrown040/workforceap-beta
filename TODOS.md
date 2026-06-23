@@ -616,6 +616,52 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 
 ---
 
+## TODO-069: §H-DEP4 dual audit trails for 7 admin routes (batch 12) — ✓ Fixed PR #2004
+
+**What:** 7 admin routes (9 handlers) missing both audit calls:
+- `admin/chapters` POST, `admin/coursera/canonical-course-mappings` POST+DELETE
+- `admin/employer-screening-packs` POST, `admin/employer-screening-packs/[id]` PATCH+DELETE
+- `admin/members/at-risk` PATCH, `admin/messages/threads` POST, `admin/milestone-cascades/synthetic` POST
+
+**Fixed:** PR #2004. Fire-and-forget `auditLog` + `logAuditEvent` per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #2004 open / gate-merge pending.
+
+---
+
+## TODO-068: §H-DEP4 dual audit trails for 10 admin routes (batch 11) — ✓ Fixed PR #2003
+
+**What:** 10 admin routes (12 handlers) missing both audit calls:
+- `admin/invites` POST, `admin/members/[id]/messages` POST, `admin/members/[id]/program` PATCH
+- `admin/members/[id]/send-interview-link` POST, `admin/members/[id]/skill-checkpoints` POST
+- `admin/partners` POST, `admin/programs/catalog` POST+PATCH, `admin/subgroups` POST
+- `admin/testimonials/[id]` PATCH+DELETE, `admin/users` POST
+
+**Fixed:** PR #2003. Fire-and-forget `auditLog` + `logAuditEvent` per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #2003 open / gate-merge pending.
+
+---
+
+## TODO-067: §H-DEP4 dual audit trails for 9 admin routes (batch 10) — ✓ Fixed PR #2002
+
+**What:** 9 admin routes missing both `auditLog` + `logAuditEvent`:
+- `admin/counselors` POST
+- `admin/members/[id]/award-points` POST
+- `admin/members/[id]/counselor` POST
+- `admin/members/[id]/edit-profile` PATCH
+- `admin/members/[id]/enrollment-funding` POST
+- `admin/members/[id]/notes` POST
+- `admin/members/[id]/send-eligibility-link` POST
+- `admin/members/[id]/subgroup` POST + DELETE
+- `admin/settings/organization` PATCH
+
+**Fixed:** PR #2002. Fire-and-forget `auditLog` + `logAuditEvent` added to all mutation paths per §H-DEP4.
+
+**Status:** Completed 2026-06-17. PR #2002 open / gate-merge pending.
+
+---
+
 ## TODO-066: §H-DEP4 dual audit trails + security fixes for 4 misc routes — ✓ Fixed PR #2000
 
 **What:** 4 routes from an earlier stash needing audit sweep + security fixes:
@@ -770,6 +816,60 @@ Design and UX debt tracked from plan-design-review (2026-05-05, branch `split/pr
 **Fixed:** PR #1993.
 
 **Status:** Completed 2026-06-17. PR #1993 open / gate-merge pending.
+
+---
+
+## TODO-087: Redundant `/api/auth/me` fetches on every authed page load
+
+**What:** A single authed page load (verified on `/en/admin`, reproducible) fires `/api/auth/me` **4 times** and `/api/member/notifications` **2 times** — each `auth/me` a separate 0.47–1.2s round-trip. Multiple client components/providers appear to each fetch the current user independently instead of sharing one cached result.
+
+**Why:** Every authenticated page in the app pays 3–4× the auth latency and DB load it should. At ~0.5–1.2s per call this is a meaningful chunk of perceived load time and multiplies backend `auth/me` traffic across all roles. (Also: an *admin* page is calling the *member* notifications endpoint twice — likely a second, unrelated layout-scoping bug to confirm.)
+
+**How to fix:** De-duplicate via a single shared client auth context / SWR (or React Query) key for `auth/me` so all consumers read one in-flight request + cache, rather than each mounting its own fetch. Audit which components mount `auth/me` and `member/notifications` on the admin layout.
+
+**Pros:** Cuts authed-page latency and backend auth traffic 3–4×; single source of truth for client-side current-user. **Cons:** Touches shared layout/provider wiring; needs care to not regress auth-state freshness after login/logout/role-switch.
+
+**Found:** 2026-06-18, overnight QA loop (gstack network sweep of `/admin/metrics` and `/admin`). Not user-breaking (pages render 200) — perf/architecture debt.
+
+---
+
+## TODO-088: Public contact form is broken on prod — every submission returns 429 (HIGH)
+
+**What:** `POST /api/contact` returns **429 "Too many submissions"** for *every* request on production — verified reproducible from 3 distinct client IPs on the first request (so it is not real per-IP rate limiting). Real users cannot submit the contact form at all.
+
+**Root cause:** The contact rate limiter is **fail-closed** when Upstash is not configured (`lib/rate-limit.ts`, by design — see the "Contact/confirmation remain fail-closed (spam risk)" comment). On prod, **Upstash is not configured** (`/api/health` reports `redis: skipped`), and `RATE_LIMIT_ALLOW_MISSING_UPSTASH=1` is evidently set (the module's production fatal-guard did not crash the app). So the limiter instance is `null` → contact returns `{ success: false }` → 429 for everyone. By contrast `/api/auth/forgot-password` fails *open* and works (returns 400 on empty body). Turnstile captcha is also **off** on prod (no widget on `/en/contact`; `NEXT_PUBLIC_CAPTCHA_ENABLED` ≠ `true`), so there is no spam control active either way.
+
+**Why:** This is the org's primary "contact us" channel for prospective members/employers. It is silently dead — users fill the form and get a generic "too many submissions" error. No leads/inquiries arrive via the form.
+
+**How to fix (decision needed — infra/security posture):**
+1. **Preferred:** configure `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` on the prod Vercel project → the limiter works → form submits and stays spam-protected.
+2. Enable Turnstile (`NEXT_PUBLIC_CAPTCHA_ENABLED=true` + `TURNSTILE_SECRET_KEY`/site key) as the spam control, and let the contact limiter fail-open when captcha is on.
+3. (Weakest) make the contact limiter fail-open like signup/apply — accepts the spam risk the code deliberately guards against.
+
+**Second consequence — auth/abuse rate limiting is OFF (security):** The same missing-Upstash condition also makes the **fail-open** limiters (login, forgot-password, signup, AI tools) no-ops in production. Verified: 10 rapid `POST /api/auth/login` attempts from one IP all returned 401 with **no 429** — app-level brute-force/abuse protection on auth is effectively disabled, leaving only Supabase's coarser built-in auth rate limits as a backstop. So "no Upstash" simultaneously **breaks** contact (fail-closed) **and disables** auth rate limiting (fail-open). This makes option 1 (configure Upstash) the clear fix — it restores both at once.
+
+**Found:** 2026-06-18, overnight QA loop (functional test of `/api/contact` validation; auth rate-limit probe). User-facing P1 (contact dead) + security (auth rate limiting disabled) — both resolved by configuring Upstash.
+
+---
+
+## TODO-089: Soft-404 on all dynamic content routes (programs, blog) — returns 200, not 404
+
+**What:** Unknown slugs on rewrite-served dynamic routes return **HTTP 200** with a "Page not found" / "That program page is not available." UI instead of a real **404**. Verified on prod: `/en/programs/<bogus>` → 200, `/en/blog/<bogus>` → 200 (both `x-matched-path: /programs/[slug]` etc., `x-vercel-cache: MISS` — not a cache artifact). True top-level unknown routes (`/en/foo`) correctly 404 via `/_not-found`.
+
+**Why:** Soft-404s let Google index unlimited junk URLs as real pages, diluting crawl budget and SEO. (User-facing impact is low — the not-found UI renders fine.)
+
+**Root cause:** i18n is done via `middleware.ts` `NextResponse.rewrite()` (strips the locale prefix: `/en/programs/x` → `/programs/x`), NOT a `[locale]` route segment. For rewritten requests, Next does not enforce the dynamic-route 404 gate, and `notFound()` called inside the page renders the not-found boundary but with a **200** status (the 404 isn't propagated back through the rewrite).
+
+**Attempted + did NOT work:** PR #2057 set `export const dynamicParams = false` on `programs/[slug]`. It's harmless (valid programs still prerender) and semantically fine, but it does **not** fix the soft-404 — the middleware rewrite bypasses the static-params gate, so unknown slugs still render with 200. Confirmed on prod after deploy. **The soft-404 is still open.**
+
+**How to fix (needs real investigation — don't guess again):**
+1. Handle not-found status at the middleware layer — e.g. for known dynamic prefixes, validate the slug against the catalog before rewriting and `NextResponse.rewrite` to the not-found route / return a 404, or
+2. Migrate i18n from middleware-rewrite to a `[locale]` route segment (bigger change; makes `dynamicParams=false` + `notFound()` behave correctly), or
+3. Investigate next-intl's recommended pattern for propagating `notFound()` 404 status through the rewrite (version-specific).
+
+Affects: `app/(decision-journey)/programs/[slug]`, `app/blog/[slug]` (and any other rewrite-served dynamic route).
+
+**Found:** 2026-06-18, overnight QA loop (404-handling check). SEO hygiene, P2.
 
 ---
 

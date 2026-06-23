@@ -39,7 +39,21 @@ export default async function CareersPage() {
         minHeight="min(100vh, 44rem)"
         overlayGradient="linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.78) 50%, rgba(173,44,77,0.22) 100%)"
         eyebrow={t('heroEyebrow')}
-        headline={t('heroHeadline')}
+        headline={
+          <h1
+            style={{
+              margin: 0,
+              color: 'var(--color-white)',
+              fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
+              fontWeight: 800,
+              lineHeight: 1.02,
+              letterSpacing: '-0.03em',
+              maxWidth: '20ch',
+            }}
+          >
+            {t('heroHeadline')}
+          </h1>
+        }
         subheadline={t('heroSubhead')}
       >
         <a href="#open-roles" className={marketingPrimaryButtonClasses()} style={{ marginTop: '1.5rem', display: 'inline-flex' }}>

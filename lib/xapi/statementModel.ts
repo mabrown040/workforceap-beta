@@ -121,7 +121,7 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
   const verb = statement.verb && typeof statement.verb === 'object'
     ? (statement.verb as Record<string, unknown>)
     : null;
-  const verbId = typeof verb?.id === 'string' ? verb.id : '';
+  const verbId = typeof verb?.id === 'string' && verb.id.trim() !== '' ? verb.id.trim() : 'unknown';
 
   const result = statement.result && typeof statement.result === 'object'
     ? (statement.result as Record<string, unknown>)
@@ -197,7 +197,7 @@ export function parseXapiStatement(statement: Record<string, unknown>): ParsedXa
     courseName,
     courseSlug,
     statementId,
-    verbId: verbId || undefined,
+    verbId: verbId,
     courseObjectId: objectId,
     courseraCourseId,
     courseraProgramId,

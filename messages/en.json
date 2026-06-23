@@ -2204,7 +2204,8 @@
     "adminUnavailableDesc": "We could not finish loading the admin workspace (often a short database issue). Wait a moment and reload, or try again from the home page.",
     "retryAdminHome": "Retry admin home",
     "memberDashboard": "Member dashboard",
-    "workforceAPHome": "WorkforceAP home"
+    "workforceAPHome": "WorkforceAP home",
+    "loadingCharts": "Loading charts…"
   },
   "employer": {
     "employerOverview": "Employer overview",

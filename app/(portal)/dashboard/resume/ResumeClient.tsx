@@ -231,7 +231,7 @@ export default function ResumeClient({
           ref={fileInputRef}
           id="resume-upload-input"
           type="file"
-          accept=".pdf,.doc,.docx"
+          accept=".pdf,.doc,.docx,.txt"
           onChange={handleFileInput}
           className="sr-only"
         />
@@ -255,7 +255,7 @@ export default function ResumeClient({
               color: "var(--color-on-surface-variant)",
             }}
           >
-            PDF, DOC, DOCX — max 5MB
+            PDF, DOC, DOCX, TXT — max 5MB
           </p>
         </label>
       </div>

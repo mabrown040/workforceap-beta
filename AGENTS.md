@@ -45,10 +45,44 @@ Note: `npm run build` runs ESLint at build time (gate flipped 2026-05-20 — `es
 
 ### Environment notes
 
-- The app's public marketing pages (homepage, programs, contact, FAQ, etc.) work without any external services or environment variables.
-- Portal/auth pages (`/dashboard/*`, `/admin/*`, `/employer/*`, etc.) require Supabase credentials (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) and a Postgres database.
-- Prisma generates with a placeholder DB URL when no `DATABASE_URL` / `POSTGRES_PRISMA_URL` is set, so `corepack pnpm@10 install --frozen-lockfile` and `npm run build` succeed without credentials.
+- Dependencies are restored on startup by the update script (`corepack pnpm@10 install --frozen-lockfile`), whose `postinstall` runs `prisma generate`. No manual install step is needed before running the app.
+- Prisma generates with a placeholder DB URL when no `DATABASE_URL` / `POSTGRES_PRISMA_URL` is set, so install and `npm run build` succeed without credentials (the build does not execute runtime DB queries).
 - The homepage redirects from `/` to `/en` (i18n locale prefix). Use `curl -L http://localhost:3000/` to follow the redirect.
+
+#### A running Postgres is required to serve pages (not just portal/auth)
+
+The root layout (`app/layout.tsx` → `lib/tenant/organization.ts`) queries `prisma.organization` for the default org on **every** request, so even the public marketing pages (`/en`, `/en/programs`, `/en/faq`, …) return **HTTP 500** at runtime unless a Postgres DB is reachable and the default org (slug `workforceap`) is seeded. (This supersedes any older note claiming marketing pages run with no external services.)
+
+#### Local Postgres setup (Cursor Cloud)
+
+A local PostgreSQL 16 server is installed in the VM for development. After a fresh VM boot, start it and verify the DB before running the app:
+
+```bash
+sudo pg_ctlcluster 16 main start   # start the cluster (idempotent; ignore "already running")
+pg_lsclusters                      # should show 16/main online on port 5432
+```
+
+DB connection is configured via gitignored `.env.local` and `.env` (Next reads `.env.local`; the Prisma wrapper `scripts/prisma-env.js` reads `.env`), both pointing at:
+`postgresql://wap:wap@127.0.0.1:5432/workforceap` (role `wap` / db `workforceap`).
+
+If the DB/schema/seed is missing (e.g. fresh DB), create the schema and seed the default org + demo data with:
+
+```bash
+npm run db:push    # syncs schema.prisma directly (NOT migrate — see below)
+npm run db:seed    # upserts default org `workforceap`, roles, programs, demo jobs, blog
+```
+
+**Do not use `npm run db:migrate:deploy` for local dev** — the migration history has a duplicate `partner_users` migration (`20260319100000_add_partner_users` and `20260320000000_add_partner_users`) that fails with Prisma `P3018` / Postgres `42P07 relation "partner_users" already exists`. Production uses `build:with-migrate` (`scripts/safe-migrate.cjs` + `resolve-failed-migration*`) to work around it; for local dev, `db:push` is simpler and authoritative.
+
+#### Features that still need external credentials (degrade gracefully)
+
+These render their UI but fail at the action step without the listed secrets:
+- **Career quiz / find-your-path / interest profiler** — need `ONET_API_KEY` (scoring returns "Career matching tools are not configured").
+- **Contact form** (`/api/contact`) — needs `RESEND_API_KEY` (returns 503 otherwise).
+- **Apply / signup + all portal/auth pages** (`/dashboard/*`, `/admin/*`, `/employer/*`, …) — need Supabase creds (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`).
+- **Donate** — needs Stripe keys.
+
+A good credential-free smoke test of core functionality is the interactive program comparison tool at `/en/program-comparison` (select 2+ programs → side-by-side matrix; fully client-side over the seeded catalog).
 
 ## Stitch MCP (designs)
 

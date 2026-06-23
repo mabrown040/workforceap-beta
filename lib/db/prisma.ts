@@ -4,9 +4,7 @@ import type { GucContext } from './gucContext';
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-// See the $transaction override below. Flattens interactive transactions into
-// plain queries when the only reachable DB is a transaction-mode pooler that
-// hangs Prisma interactive transactions (preview/demo). Never enable in prod.
+/** Preview/demo pooler (6543 txn-mode) hangs Prisma interactive $transaction — flatten to plain queries. Never prod. */
 const FLATTEN_TX =
   process.env.PRISMA_FLATTEN_TX === '1' ||
   process.env.VERCEL_ENV === 'preview' ||
@@ -56,6 +54,7 @@ export function buildGucSql(ctx: GucContext): string {
   return `SELECT ${parts.join(', ')};`;
 }
 
+/** Flatten interactive transactions when the txn-mode pooler would hang until 504. */
 function installFlattenTxOverride(client: PrismaClient): void {
   if (!FLATTEN_TX) return;
 
@@ -85,9 +84,25 @@ function createPrismaClient(): PrismaClient {
     transactionOptions: { maxWait: 5000, timeout: 10000 },
   });
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // P0 INCIDENT FIX (portal 504 / FUNCTION_INVOCATION_TIMEOUT):
+  // The GUC middleware below issues a separate `SELECT set_config(...)` before
+  // every query (2 pooler checkouts per query) and wraps reads in interactive
+  // `$transaction()` calls that each acquire a pooled connection. On serverless
+  // against the Supabase pooler this saturates the connection pool — the portal
+  // entry path alone fires ~10 queries (incl. getPortalSwitcherRoles' 6 parallel
+  // role lookups), so authenticated portal routes hung 60s+ and returned 504.
+  //
+  // RLS is enabled but NOT forced (relforcerowsecurity=false) and the app
+  // connects as the table owner, so these GUCs are not yet load-bearing for
+  // authorization (see the FAIL-OPEN notes below). We therefore disable the
+  // GUC layer by default to remove the overhead and keep the portal up.
+  //
+  // Re-enable (set WAP_RLS_GUC_ENABLED=true) in the SAME change that flips
+  // FORCE ROW LEVEL SECURITY and moves RLS reads onto a per-query-batched GUC
+  // path — otherwise fail-open would mean silent empty reads.
   installFlattenTxOverride(client);
 
-  // GUC layer doubles pooler checkouts per query; disabled until FORCE RLS flip (see master postmortem).
   const gucEnabled = process.env.WAP_RLS_GUC_ENABLED === 'true';
   if (!gucEnabled) {
     return client;
@@ -134,34 +149,9 @@ function createPrismaClient(): PrismaClient {
       return next(params);
     }
 
-    const explicitCtx = getGucContext();
-    let ctx: GucContext | undefined = explicitCtx ?? undefined;
+    const ctx = getGucContext();
 
-    // Lazy-resolve from the authenticated session when no explicit ALS context
-    // is active. This covers server components (RSC pages) whose Prisma calls
-    // fall outside the root layout's gucContextStorage.run() scope — see #1611.
-    //
-    // `resolveAuthGucContext` uses React `cache()`, so it is one Supabase +
-    // one DB round-trip per request, deduplicated across all RSC queries.
-    // Outside a React request (crons, build-time) `getUser()` returns null and
-    // falls through to ANONYMOUS_GUC_CONTEXT without throwing.
-    //
-    // Dynamic import avoids a circular dependency: lib/auth/server.ts imports
-    // `prisma` from this file, so a static import would cycle at init time.
-    if (!ctx) {
-      try {
-        const { resolveAuthGucContext } = await import('../auth/server');
-        ctx = await resolveAuthGucContext();
-      } catch {
-        // anonymous fallback — same as before this change
-      }
-    }
-
-    // Only warn for EXPLICITLY-set GUC contexts not wrapped in $transaction.
-    // Lazily-resolved RSC contexts use per-query set_config and don't require
-    // $transaction wrapping (RLS enforcement is not yet forced — see comment
-    // on requiresExplicitTransactionForGucContext).
-    if (requiresExplicitTransactionForGucContext(explicitCtx, inTransaction)) {
+    if (requiresExplicitTransactionForGucContext(ctx, inTransaction)) {
       // FAIL-OPEN (P0 hotfix): #1631 made this throw, which 500'd every
       // withApiGuc route still using bare prisma calls — including
       // /api/auth/login — for ~24h in prod. RLS is enabled but NOT forced
@@ -177,6 +167,16 @@ function createPrismaClient(): PrismaClient {
       );
     }
 
+    // Development-only warning when queries run outside any GUC context.
+    // In production we silently fall back to anonymous so the site stays up.
+    if (!ctx && process.env.NODE_ENV === 'development') {
+      console.warn(
+        `[prisma:guc] Query "${params.model ?? 'raw'}.${params.action}" ran without an active GUC context. ` +
+          `Wrap the call site in withApiGuc(), withAuthGuc(), runWithGucContext(), or ensure ` +
+          `the root layout gucContextStorage.run() is active.`
+      );
+    }
+
     const sql = buildGucSql(ctx ?? { userId: null, orgId: null, role: 'anonymous' });
     await (client as any).$executeRawUnsafe(sql);
 
@@ -189,16 +189,6 @@ function createPrismaClient(): PrismaClient {
    */
   const originalTransaction = client.$transaction.bind(client) as any;
   (client as any).$transaction = async function (...args: unknown[]) {
-    // PRISMA_FLATTEN_TX escape hatch: Prisma interactive transactions
-    // (`$transaction(async (tx) => ...)`) hang over Supabase's transaction-mode
-    // pooler (port 6543) — they sit idle in the pool/protocol and never resolve,
-    // which 504s any RSC page that uses one (member dashboard, admin, etc.) while
-    // single-query pages load fine. When this flag is set (preview/demo that can
-    // only reach the 6543 pooler), run the transaction body as plain sequential
-    // queries: each query self-sets its GUC via the per-query middleware (the
-    // same path single queries already use). Safe ONLY because RLS is enabled but
-    // NOT forced here (see the middleware note); losing atomicity/transaction-local
-    // GUCs is acceptable for the demo. NEVER set this in production.
     if (FLATTEN_TX) {
       if (typeof args[0] === 'function') {
         return (args[0] as (tx: PrismaClient) => Promise<unknown>)(client as unknown as PrismaClient);
@@ -209,19 +199,9 @@ function createPrismaClient(): PrismaClient {
       return originalTransaction(...args);
     }
 
-    let ctx = getGucContext();
+    const ctx = getGucContext();
     if (!ctx) {
-      // Lazy-resolve for RSC pages (same as the middleware above). If that
-      // also returns null/anonymous, fall through to no-GUC transaction.
-      try {
-        const { resolveAuthGucContext } = await import('../auth/server');
-        ctx = await resolveAuthGucContext();
-      } catch {
-        // fall through
-      }
-    }
-    if (!ctx || ctx.role === 'anonymous') {
-      // No auth context (or anonymous) — fall back to the original behaviour.
+      // No auth context — fall back to the original behaviour.
       return inTransactionStorage.run(true, () => originalTransaction(...args));
     }
 

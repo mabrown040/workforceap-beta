@@ -18,9 +18,9 @@
  * keep working unchanged.
  */
 
-import { prisma } from '@/lib/db/prisma';
 import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
-import { getDefaultOrganizationId } from '@/lib/tenant/organization';
+import { prisma } from '@/lib/db/prisma';
+import { DEFAULT_ORG_ID, getDefaultOrganizationId } from '@/lib/tenant/organization';
 import {
   customDomainCache,
   NO_ORG_SENTINEL,
@@ -78,6 +78,10 @@ export async function resolveOrgFromRequest(
   headers: HeadersLike,
   options: ResolveOptions = {}
 ): Promise<string> {
+  if (process.env.__PRISMA_PLACEHOLDER_DB === '1' || shouldSkipOptionalDbQueriesAtBuild()) {
+    return DEFAULT_ORG_ID;
+  }
+
   const cache = options.cache ?? customDomainCache;
   const lookup = options.lookup ?? defaultLookup;
   const fallback = options.defaultOrgId ?? getDefaultOrganizationId;

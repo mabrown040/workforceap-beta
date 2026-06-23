@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { unstable_rethrow } from 'next/navigation';
 import { createServerClient } from '@supabase/ssr';
 import { normalizePostLoginRedirect, resolveRoleAwarePostLoginRedirect } from '@/lib/auth/postLoginRedirect';
 import { getSupabaseCookieOptions, SESSION_ONLY_COOKIE } from '@/lib/supabaseCookieOptions';
@@ -12,15 +13,16 @@ import { getSupabaseEnv } from '@/lib/supabase/env';
 import { logger } from '@/lib/observability/logger';
 import { trackEvent } from '@/lib/events/track';
 
-import { withApiGuc } from '@/lib/db/withRequestGuc';
-export const POST = withApiGuc(async (request: Request) => {
+import { withAnonymousGuc } from '@/lib/db/withRequestGuc';
+
+async function handleLogin(request: Request) {
   try {
-  let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-  }
+    let body: { email?: string; password?: string; redirectTo?: string; rememberMe?: boolean };
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    }
 
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
   const password = typeof body?.password === 'string' ? body.password : '';
@@ -39,7 +41,7 @@ export const POST = withApiGuc(async (request: Request) => {
   // one IP gets a fresh bucket per email. `checkAuthIpRateLimit` caps
   // the total auth attempts from any single IP regardless of which
   // email is being tried.
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = getClientIpFromRequest(request);
   const rateLimitKey = `login:${ip}:${email.toLowerCase()}`;
   const [emailBucket, ipBucket] = await Promise.all([
     checkAuthRateLimit(rateLimitKey, request),
@@ -203,7 +205,12 @@ export const POST = withApiGuc(async (request: Request) => {
   return NextResponse.redirect(new URL(roleAwareRedirect, request.url), 302);
 
   } catch (error) {
+    unstable_rethrow(error);
     logger.error('/auth/login error', { err: error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-});
+}
+
+export function POST(request: Request) {
+  return withAnonymousGuc(() => handleLogin(request));
+}

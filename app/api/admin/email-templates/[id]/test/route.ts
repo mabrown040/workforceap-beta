@@ -7,6 +7,8 @@ import { Resend } from 'resend';
 import { sanitizeEmailSubjectLine } from '@/lib/email/escapeHtml';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
@@ -64,6 +66,8 @@ export const POST = withApiGuc(async (
       );
     }
 
+    void auditLog({ actorUserId: user.id, action: 'admin_email_template_test_sent', targetType: 'User', targetId: user.id, metadata: { templateId: id, sentTo: to } }).catch(() => {});
+    logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'EmailTemplateTest', id }, result: { success: true, extensions: { sentTo: to } } }).catch(() => {});
     return NextResponse.json({ ok: true, sentTo: to, subject: rendered.subject });
   } catch (error) {
     console.error('/admin/email-templates/[id]/test error:', error);

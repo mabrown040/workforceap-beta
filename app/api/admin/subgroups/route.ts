@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 const SUBGROUP_TYPES = ['partner', 'manager', 'church'] as const;
 
@@ -112,6 +114,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       _count: { select: { members: true } },
     },
   }));
+  void auditLog({ actorUserId: user.id, action: 'admin_subgroup_created', targetType: 'User', targetId: user.id, metadata: { subgroupId: subgroup.id, name } }).catch(() => {});
+  logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Subgroup', id: subgroup.id }, result: { success: true, extensions: { name } } }).catch(() => {});
   return NextResponse.json(subgroup, { status: 201 });
 
   } catch (error) {

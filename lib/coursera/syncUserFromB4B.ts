@@ -3,7 +3,6 @@ import 'server-only';
 import { CourseProgressStatus } from '@prisma/client';
 
 import {
-  B4BTimeoutError,
   getCourseGradebookReports,
   getEnrollmentReports,
   listPrograms,
@@ -215,13 +214,10 @@ export async function syncUserFromB4B(args: {
           `[syncUserFromB4B] enrollmentReports failed for program=${program.id} email=${email}:`,
           err instanceof Error ? err.message : err,
         );
-        // Timeouts are transient — don't spam Sentry.
-        if (!(err instanceof B4BTimeoutError)) {
-          captureApiError(err, {
-            route: 'coursera/sync-user-from-b4b',
-            extra: { step: 'enrollmentReports', programId: program.id, email },
-          });
-        }
+        captureApiError(err, {
+          route: 'coursera/sync-user-from-b4b',
+          extra: { step: 'enrollmentReports', programId: program.id, email },
+        });
       }
     }
     return out;
@@ -239,13 +235,10 @@ export async function syncUserFromB4B(args: {
         `[syncUserFromB4B] gradebook fetch failed for email=${email}:`,
         err instanceof Error ? err.message : err,
       );
-      // Timeouts are transient — don't spam Sentry.
-      if (!(err instanceof B4BTimeoutError)) {
-        captureApiError(err, {
-          route: 'coursera/sync-user-from-b4b',
-          extra: { step: 'courseGradebookReports', email },
-        });
-      }
+      captureApiError(err, {
+        route: 'coursera/sync-user-from-b4b',
+        extra: { step: 'courseGradebookReports', email },
+      });
       return [];
     }
   })();

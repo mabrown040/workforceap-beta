@@ -46,24 +46,49 @@ export const GET = withApiGuc(async () => {
       );
     }
 
+    const role = await getProfileRole(user.id);
+    const superAdmin = role === 'super_admin';
+
+    if (superAdmin) {
+      const availablePortals = await getPortalSwitcherRoles(user.id, {
+        superAdmin: true,
+        userRoleNames: ['super_admin'],
+        hasEmployer: false,
+        hasPartner: false,
+        hasCounselor: false,
+        hasAdmin: true,
+      });
+
+      return NextResponse.json(
+        {
+          role,
+          partner: null,
+          employer: null,
+          counselor: null,
+          superAdmin: true,
+          canAccessMemberDashboard: false,
+          availablePortals,
+        },
+        { headers: { 'Cache-Control': 'no-store' } }
+      );
+    }
+
     // Fetch each primitive once, then hand them to getPortalSwitcherRoles as
     // precomputed inputs. Previously the switcher re-fetched partner / counselor
     // / employer / roles / super-admin internally, doubling DB work on this
     // frequently polled endpoint and amplifying connection-pool pressure
     // (Sentry JAVASCRIPT-NEXTJS-T: "Unable to start a transaction in the given time").
-    const [role, partnerCtx, counselorCtx, superAdmin, employerNav, userRoleNames, adminAccess] =
+    const [partnerCtx, counselorCtx, employerNav, userRoleNames, adminAccess] =
       await Promise.all([
-        getProfileRole(user.id),
         getPartnerForUser(user.id),
         getCounselorForUser(user.id),
-        isSuperAdmin(user.id),
         getEmployerAccountForNav(user.id),
         getUserRoles(user.id),
         isAdmin(user.id),
       ]);
 
     const availablePortals = await getPortalSwitcherRoles(user.id, {
-      superAdmin,
+      superAdmin: false,
       userRoleNames,
       hasEmployer: !!employerNav,
       hasPartner: !!partnerCtx,
@@ -71,7 +96,7 @@ export const GET = withApiGuc(async () => {
       hasAdmin: adminAccess,
     });
 
-    const partnerExclusive = !!partnerCtx && !superAdmin;
+    const partnerExclusive = !!partnerCtx;
     const canAccessMemberDashboard = !partnerExclusive;
 
     return NextResponse.json(
@@ -80,7 +105,7 @@ export const GET = withApiGuc(async () => {
         partner: partnerCtx ? { partnerId: partnerCtx.partnerId, name: partnerCtx.partner.name } : null,
         employer: employerNav,
         counselor: counselorCtx ? { counselorId: counselorCtx.counselorId, partnerId: counselorCtx.partnerId } : null,
-        superAdmin,
+        superAdmin: false,
         canAccessMemberDashboard,
         availablePortals,
       },

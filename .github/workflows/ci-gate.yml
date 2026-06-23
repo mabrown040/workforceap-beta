@@ -94,7 +94,7 @@ jobs:
         run: node scripts/verify-high-risk-tenant-routes.cjs
 
       - name: Build
-        run: npx next build
+        run: npm run build
         env:
           SKIP_ENV_VALIDATION: "1"
           RATE_LIMIT_ALLOW_MISSING_UPSTASH: "1"

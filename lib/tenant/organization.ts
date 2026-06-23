@@ -1,12 +1,19 @@
+import { shouldSkipOptionalDbQueriesAtBuild } from '@/lib/db/optionalBuildDb';
 import { prisma } from '@/lib/db/prisma';
 
 export const DEFAULT_ORG_SLUG = 'workforceap';
+
+/** Seeded default org id — safe fallback at build time when DB is unreachable. */
+export const DEFAULT_ORG_ID = '00000000-0000-4000-8000-000000000001';
 
 let cachedDefaultOrgId: string | null = null;
 
 /** Single-tenant default org (migration seeds slug workforceap). */
 export async function getDefaultOrganizationId(): Promise<string> {
   if (cachedDefaultOrgId) return cachedDefaultOrgId;
+  if (process.env.__PRISMA_PLACEHOLDER_DB === '1' || shouldSkipOptionalDbQueriesAtBuild()) {
+    return DEFAULT_ORG_ID;
+  }
   const row = await prisma.organization.findUnique({
     where: { slug: DEFAULT_ORG_SLUG },
     select: { id: true },

@@ -108,9 +108,23 @@ export async function getPortalSwitcherRoles(
 }
 
 async function fetchPortalSwitcherInputs(userId: string): Promise<PortalSwitcherInputs> {
-  const [superAdmin, userRoleNames, employerNav, partnerCtx, counselorCtx, adminAccess] = await Promise.all([
+  const [superAdmin, userRoleNames] = await Promise.all([
     isSuperAdmin(userId),
     getUserRoles(userId),
+  ]);
+
+  if (superAdmin) {
+    return {
+      superAdmin: true,
+      userRoleNames,
+      hasEmployer: false,
+      hasPartner: false,
+      hasCounselor: false,
+      hasAdmin: true,
+    };
+  }
+
+  const [employerNav, partnerCtx, counselorCtx, adminAccess] = await Promise.all([
     getEmployerAccountForNav(userId),
     getPartnerForUser(userId),
     getCounselorForUser(userId),

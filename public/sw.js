@@ -1,7 +1,13 @@
 /**
- * WorkforceAP Service Worker v7 — PWA offline support + push notifications.
+ * WorkforceAP Service Worker v8 — PWA offline support + push notifications.
  * Caches shell assets; push events show branded notifications.
  *
+ * v8: bump CACHE_NAME to force a full cache purge on every client (drops any
+ *     stale shell/offline/asset entries that were wedging mobile clients on
+ *     the loading skeleton or the "You're offline" page after the dashboard
+ *     reliability fixes). Also stop intercepting RSC payload requests
+ *     (`?_rsc=` / `RSC: 1`) — serving a stale/partial RSC response can hang
+ *     client-side navigation on the skeleton; always let those hit the network.
  * v7: stop caching fonts.googleapis.com / fonts.gstatic.com (icons are self-hosted).
  *     Bumps CACHE_NAME so clients drop any stale full Material Symbols from Google.
  * v6: strip locale prefix before matching authenticated routes so
@@ -13,7 +19,7 @@
  *     stale JS/CSS bundles from the service worker cache on mobile clients.
  */
 
-const CACHE_NAME = 'workforceap-v7';
+const CACHE_NAME = 'workforceap-v8';
 const OFFLINE_PAGE = '/offline.html';
 const STATIC_ASSETS = [
   '/images/wap_logo.png',
@@ -52,6 +58,11 @@ self.addEventListener('fetch', (event) => {
   // This avoids stale UI after deploys when a mobile client briefly falls back
   // to an older cached JS/CSS asset.
   if (url.pathname.startsWith('/_next/')) return;
+
+  // Never intercept React Server Component payloads. A cached or partial RSC
+  // response can wedge client-side navigation on the loading skeleton (and
+  // serve stale dashboard data). Always let these hit the network directly.
+  if (url.searchParams.has('_rsc') || event.request.headers.get('RSC') === '1') return;
 
   // Navigation requests (HTML pages): network-first with offline fallback.
   //

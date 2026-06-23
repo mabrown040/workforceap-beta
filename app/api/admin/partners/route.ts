@@ -8,6 +8,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { z } from 'zod';
 
 import { withApiGuc } from '@/lib/db/withRequestGuc';
+import { auditLog } from '@/lib/audit';
+import { logAuditEvent } from '@/lib/audit/log';
 
 /**
  * Track A — Tenant Isolation Hardening (Sprint A.2 batch 1).
@@ -104,6 +106,8 @@ export const GET = withApiGuc(_GET);async function _POST(request: NextRequest) {
       const partner = await withTenantScope(orgId, (db) =>
         db.partner.create({ data: { ...rest, referralCode, organizationId: orgId } }),
       );
+      void auditLog({ actorUserId: user.id, action: 'admin_partner_created', targetType: 'User', targetId: user.id, metadata: { partnerId: partner.id, name: partner.name } }).catch(() => {});
+      logAuditEvent({ user: { id: user.id, role: 'admin' }, verb: 'created', object: { type: 'Partner', id: partner.id }, result: { success: true, extensions: { name: partner.name } } }).catch(() => {});
       return NextResponse.json(partner, { status: 201 });
     } catch (error) {
       // Belt-and-braces: catch the unique-constraint race that the

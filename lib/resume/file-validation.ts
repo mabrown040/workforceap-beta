@@ -22,6 +22,8 @@ export function validateFileType(
   fileName: string,
   options?: { allowTxt?: boolean }
 ): boolean {
+  const buf = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
+
   const ext = fileName.split('.').pop()?.toLowerCase() || '';
   if (!ALLOWED_EXTENSIONS.has(ext)) return false;
 
@@ -29,12 +31,12 @@ export function validateFileType(
     return options?.allowTxt === true;
   }
 
-  if (buffer.length < 4) return false;
+  if (buf.length < 4) return false;
 
   // Some files might contain a UTF-8 BOM or some padding before the actual magic bytes.
   // We search for the magic bytes within the first 1024 bytes of the file.
-  const searchLimit = Math.min(buffer.length, 1024);
-  const searchArea = buffer.subarray(0, searchLimit);
+  const searchLimit = Math.min(buf.length, 1024);
+  const searchArea = buf.subarray(0, searchLimit);
 
   const magicMatches = MAGIC_BYTES.some((m) => {
     if (m.ext !== ext) return false;
@@ -65,7 +67,7 @@ export function validateFileType(
   // to `mammoth` downstream. Confirm the archive is actually a DOCX by checking
   // for the canonical DOCX entries in the ZIP central directory.
   if (ext === 'docx') {
-    return isDocxArchive(buffer);
+    return isDocxArchive(buf);
   }
 
   return true;

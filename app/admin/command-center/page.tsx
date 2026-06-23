@@ -96,9 +96,9 @@ export default async function AdminCommandCenterPage({
       return { activeStudents, placementsYtd, placementRows };
     }).catch(() => ({ activeStudents: 0, placementsYtd: 0, placementRows: [] as Array<{ placedAt: Date }> }));
 
-    // Cohort completion rate — share of enrolled, non-deleted members marked
-    // job-ready (training complete). Falls back to "—" when there are none.
-    const completionRate =
+    // Share of enrolled, non-deleted members currently in the interviewing
+    // placement bucket. Falls back to "—" when there are none.
+    const interviewingShare =
       headline.activeStudents > 0
         ? `${Math.round((totals.interviewingCount / headline.activeStudents) * 100)}%`
         : '—';
@@ -131,7 +131,7 @@ export default async function AdminCommandCenterPage({
         delta: 'this year',
         deltaColor: 'success',
       },
-      { label: 'Completion Rate', value: completionRate, color: 'info', delta: 'cohort avg', deltaColor: 'muted' },
+      { label: 'Interviewing Share', value: interviewingShare, color: 'info', delta: 'of enrolled', deltaColor: 'muted' },
       { label: 'At Risk', value: totals.atRiskCount, color: 'accent', delta: 'need outreach', deltaColor: 'accent' },
     ];
 
@@ -162,7 +162,7 @@ export default async function AdminCommandCenterPage({
         title: `${totals.applicationsPendingCount} ${totals.applicationsPendingCount === 1 ? 'application needs' : 'applications need'} review`,
         detail: 'Eligibility + program-fit review pending',
         actionLabel: `${totals.applicationsPendingCount} items`,
-        href: '/admin/wioa-screening',
+        href: '/admin/command-center?ui=legacy',
       },
       {
         id: 'certifications',

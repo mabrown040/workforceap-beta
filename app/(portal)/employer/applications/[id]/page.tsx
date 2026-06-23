@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { buildPageMetadata } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -32,8 +33,7 @@ export default async function EmployerApplicationPage({
   const superAdmin = await isSuperAdmin(user.id);
   const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
   if (!ctx) {
-    if (superAdmin) redirect('/admin/employers');
-    redirect('/dashboard');
+    redirect(await unlinkedEmployerHref(user.id));
   }
 
   const { id } = await params;

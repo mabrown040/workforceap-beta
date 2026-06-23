@@ -490,9 +490,8 @@ export default function WorkspaceShell({
         className={`workspace-drawer-overlay ${drawerOpen ? 'open' : ''}`}
         onClick={closeDrawer}
         onKeyDown={(e) => e.key === 'Escape' && closeDrawer()}
-        role="button"
+        role="presentation"
         tabIndex={-1}
-        aria-hidden
       />
 
       {hasTabs && activeTab && (
@@ -515,6 +514,7 @@ export default function WorkspaceShell({
                       href={item.href}
                       prefetch={false}
                       className={`workspace-tab workspace-tab--flat${isActive ? ' workspace-tab--active' : ''}`}
+                      aria-current={isActive ? 'page' : undefined}
                       onClick={closeDrawer}
                       {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}
                     >
@@ -536,6 +536,7 @@ export default function WorkspaceShell({
                       href={firstItem?.href ?? '/dashboard'}
                       prefetch={false}
                       className={`workspace-tab${isActive ? ' workspace-tab--active' : ''}`}
+                      aria-current={isActive ? 'page' : undefined}
                       onClick={closeDrawer}
                     >
                       <span className="material-symbols-outlined workspace-tab-icon" aria-hidden>{meta.icon}</span>
@@ -549,6 +550,7 @@ export default function WorkspaceShell({
 
       <div className="workspace-shell-body">
         <aside
+          id="workspace-sidebar"
           ref={trapRef}
           className={`workspace-sidebar ${drawerOpen ? 'open' : ''} ${isCollapsedDesktop ? 'workspace-sidebar--collapsed' : ''}`}
         >
@@ -616,6 +618,7 @@ export default function WorkspaceShell({
                                 href={item.href}
                                 prefetch={false}
                                 className={`workspace-sidebar-link${isActive ? ' active' : ''}`}
+                                aria-current={isActive ? 'page' : undefined}
                                 onClick={closeDrawer}
                                 title={isCollapsedDesktop ? translateLabel(item.label) : undefined}
                                 {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}

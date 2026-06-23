@@ -81,6 +81,7 @@ export function MemberToolkitKit({
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+        <h1 className="sr-only">Career toolkit</h1>
         {/* Gradient hero */}
         <div className="wa-kit-card wa-kit-card--gradient-crimson">
           <div className="wa-flex wa-items-center wa-gap-2" style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.7 }}>
@@ -99,9 +100,10 @@ export function MemberToolkitKit({
             const ctaStyle = {
               marginTop: 16,
               width: '100%',
-              padding: '8px 0',
+              minHeight: 44,
+              padding: '10px 0',
               background: 'var(--wa-accent)',
-              color: '#fff',
+              color: 'var(--wa-on-accent)',
               fontWeight: 600,
               fontSize: 12,
               borderRadius: 999,
@@ -190,11 +192,13 @@ export function MemberToolkitKit({
                 href="/dashboard/ai-tools/career-business-coach"
                 className="wa-kit-focus"
                 style={{
-                  display: 'inline-block',
+                  display: 'inline-flex',
+                  alignItems: 'center',
                   marginTop: 8,
+                  minHeight: 44,
                   padding: '8px 16px',
                   background: 'var(--wa-accent)',
-                  color: '#fff',
+                  color: 'var(--wa-on-accent)',
                   fontWeight: 600,
                   fontSize: 12,
                   borderRadius: 999,

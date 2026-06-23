@@ -319,11 +319,12 @@ export function CertificationsQueueKit({
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
-                      padding: '7px 14px',
+                      minHeight: 44,
+                      padding: '8px 14px',
                       borderRadius: 999,
                       border: 'none',
                       background: 'var(--wa-success)',
-                      color: '#fff',
+                      color: 'var(--wa-on-accent)',
                       fontWeight: 700,
                       fontSize: 12,
                       cursor: actionsEnabled && !isBusy ? 'pointer' : 'not-allowed',
@@ -339,7 +340,8 @@ export function CertificationsQueueKit({
                     onClick={() => handleReview(sub.id, 'reject')}
                     title={actionsEnabled ? undefined : 'Credential review is not yet available'}
                     style={{
-                      padding: '7px 14px',
+                      minHeight: 44,
+                      padding: '8px 14px',
                       borderRadius: 999,
                       border: '1px solid var(--wa-border)',
                       background: 'var(--wa-surface)',

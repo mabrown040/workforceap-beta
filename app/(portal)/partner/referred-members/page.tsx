@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation';
 import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 
 import { buildPageMetadataAsync } from '@/app/seo';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PartnerInviteMemberButton from '@/components/portal/PartnerInviteMemberButton';
 import PageHeader from '@/components/portal/PageHeader';
 import PartnerMembersList from '@/components/portal/PartnerMembersList';
@@ -72,7 +71,6 @@ export default async function PartnerReferredMembersPage() {
       <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PartnerReferredMembersMobile rows={rows} />
 
-        <MobileBottomNav variant="partner" />
       </div>
 
       <div className="wa-hidden md:wa-block">

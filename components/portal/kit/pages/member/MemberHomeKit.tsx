@@ -93,7 +93,7 @@ export function MemberHomeKit({
     {
       key: 'company',
       header: 'Company',
-      render: (row) => <span style={{ color: '#525252' }}>{row.company}</span>,
+      render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.company}</span>,
     },
     {
       key: 'stage',
@@ -102,10 +102,22 @@ export function MemberHomeKit({
       render: (row) => <StatusTag tone={row.tone}>{row.stage}</StatusTag>,
     },
   ];
+  const pipelineCard = (row: PipelineRow) => (
+    <div className="wa-kit-card wa-kit-card--sm">
+      <div className="wa-flex wa-items-start wa-justify-between wa-gap-3">
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--wa-text)' }}>{row.role}</div>
+          <div style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>{row.company}</div>
+        </div>
+        <StatusTag tone={row.tone}>{row.stage}</StatusTag>
+      </div>
+    </div>
+  );
 
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+        <h1 className="sr-only">Member dashboard</h1>
         {/* Greeting */}
         <div>
           <div
@@ -134,10 +146,10 @@ export function MemberHomeKit({
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 lg:wa-grid-cols-4 wa-gap-5">
           {/* Program progress ring (2-wide) */}
           <div
-            className="wa-kit-card"
-            style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}
+            className="wa-kit-card md:wa-col-span-2"
+            style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}
           >
-            <ProgressRing pct={pct} size={112} color="accent" />
+            <ProgressRing pct={pct} size={112} color="accent" label="Course completion" />
             <div>
               <StatusTag tone="ok">{programStatus}</StatusTag>
               <h3 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 8 }}>{programTitle}</h3>
@@ -154,8 +166,9 @@ export function MemberHomeKit({
                   alignItems: 'center',
                   gap: 6,
                   padding: '8px 16px',
+                  minHeight: 44,
                   background: 'var(--wa-accent)',
-                  color: '#fff',
+                  color: 'var(--wa-on-accent)',
                   fontWeight: 600,
                   fontSize: 12,
                   borderRadius: 999,
@@ -198,7 +211,7 @@ export function MemberHomeKit({
           {/* Next Badge */}
           <div
             className="wa-kit-card"
-            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 180, borderColor: '#ece2c8' }}
+            style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 180, borderColor: 'var(--wa-gold-soft)' }}
           >
             <div>
               <div
@@ -226,7 +239,7 @@ export function MemberHomeKit({
           </div>
 
           {/* Active Job Pipeline (2-wide) */}
-          <div className="wa-kit-card" style={{ gridColumn: 'span 2' }}>
+          <div className="wa-kit-card md:wa-col-span-2">
             <div className="wa-flex wa-items-center wa-justify-between" style={{ marginBottom: 12 }}>
               <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em' }}>Active Job Pipeline</h3>
               <a
@@ -241,7 +254,8 @@ export function MemberHomeKit({
               columns={pipelineColumns}
               rows={pipeline}
               rowKey={(row) => `${row.role}-${row.company}`}
-              mobile="scroll"
+              mobile="cards"
+              cardRender={pipelineCard}
               minWidth={520}
               emptyTitle="No active applications"
               emptyDescription="Saved and submitted jobs will appear here."

@@ -4,7 +4,6 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
@@ -454,7 +453,6 @@ export default async function CounselorStudentsPage({
         )}
       </div>
 
-      <MobileBottomNav variant="counselor" />
     </PortalPageFrame>
   );
 }

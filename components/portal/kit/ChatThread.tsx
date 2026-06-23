@@ -25,8 +25,8 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
   const [text, setText] = useState('');
   const send = () => {
     const t = text.trim();
-    if (!t) return;
-    onSend?.(t);
+    if (!t || !onSend) return;
+    onSend(t);
     setText('');
   };
   return (
@@ -35,7 +35,7 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
         {messages.map((m) => (
           <div key={m.id} style={{ display: 'flex', gap: 10, justifyContent: m.from === 'self' ? 'flex-end' : 'flex-start' }}>
             {m.from === 'other' && m.author ? (
-              <div style={{ width: 28, height: 28, borderRadius: 999, background: 'var(--wa-info)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>
+              <div style={{ width: 28, height: 28, borderRadius: 999, background: 'var(--wa-info)', color: 'var(--wa-on-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>
                 {m.author}
               </div>
             ) : null}
@@ -46,7 +46,7 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
                 padding: '10px 14px',
                 borderRadius: 18,
                 ...(m.from === 'self'
-                  ? { background: 'var(--wa-accent)', color: '#fff', borderTopRightRadius: 4 }
+                  ? { background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', borderTopRightRadius: 4 }
                   : { background: 'var(--wa-bg)', border: '1px solid var(--wa-border)', borderTopLeftRadius: 4 }),
               }}
             >
@@ -69,7 +69,8 @@ export function ChatThread({ messages, placeholder = 'Type a message…', onSend
           onClick={send}
           aria-label="Send"
           className="wa-kit-focus"
-          style={{ width: 44, height: 44, borderRadius: 999, border: 'none', cursor: 'pointer', background: 'var(--wa-accent)', color: '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s' }}
+          disabled={!onSend}
+          style={{ width: 44, height: 44, borderRadius: 999, border: 'none', cursor: onSend ? 'pointer' : 'not-allowed', background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', opacity: onSend ? 1 : 0.6, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s' }}
         >
           <ArrowUp size={18} aria-hidden="true" />
         </button>

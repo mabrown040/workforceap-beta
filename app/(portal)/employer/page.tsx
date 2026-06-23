@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
@@ -94,8 +95,7 @@ export default async function EmployerDashboardPage({
 
   const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
   if (!ctx) {
-    if (superAdmin) redirect('/admin/employers');
-    redirect('/dashboard');
+    redirect(await unlinkedEmployerHref(user.id));
   }
 
   // ── ?ui=kit LEAN PATH ──────────────────────────────────────────────────
@@ -182,6 +182,7 @@ export default async function EmployerDashboardPage({
 
     return (
       <DesignSurface surface="dense" className="wa-p-6">
+        <h1 className="wa-sr-only">Employer overview</h1>
         <SectionHeader
           title="Employer overview"
           kicker="Employer portal"
@@ -222,11 +223,11 @@ export default async function EmployerDashboardPage({
         {/* ── Review-candidate banner ── */}
         {kitTopApplicant ? (
           <Link
-            href={`/employer/jobs/${kitTopApplicant.jobId}`}
+            href={`/employer/applications/${kitTopApplicant.id}`}
             className="wa-mt-5"
             style={{
               background: 'var(--wa-accent)',
-              color: '#fff',
+              color: 'var(--wa-on-accent)',
               borderRadius: 'var(--wa-radius)',
               padding: '16px 22px',
               display: 'flex',
@@ -250,7 +251,9 @@ export default async function EmployerDashboardPage({
               <Zap className="h-5 w-5" aria-hidden />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 15 }}>Review 1 candidate now</div>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>
+                Review latest candidate
+              </div>
               <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>
                 {kitTopApplicant.student?.fullName ?? 'New candidate'} —{' '}
                 {kitTopApplicant.job?.title ?? 'Open role'} · submitted{' '}
@@ -274,7 +277,7 @@ export default async function EmployerDashboardPage({
           <FeatureTile
             icon={<MessageSquare size={22} aria-hidden />}
             title="Messages"
-            body="Pending replies from candidates."
+            body="Open candidate and staff conversations."
             tone="gold"
             href="/employer/messages"
           />
@@ -394,8 +397,7 @@ export default async function EmployerDashboardPage({
     },
   });
   if (!employerRow) {
-    if (superAdmin) redirect('/admin/employers');
-    redirect('/dashboard');
+    redirect(await unlinkedEmployerHref(user.id));
   }
 
   const t = await getTranslations('employer');

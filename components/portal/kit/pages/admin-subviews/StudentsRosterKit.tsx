@@ -112,12 +112,8 @@ const STATUS_TONE: Record<StudentStatus, KitTone> = {
   'In Training': 'muted',
 };
 
-/** A student matches "In Training" if they are not yet job-ready/placed/interviewing. */
 function matchesFilter(student: StudentRow, filter: StudentFilter): boolean {
   if (filter === 'All') return true;
-  if (filter === 'In Training') {
-    return student.status === 'In Training' || student.status === 'At Risk';
-  }
   return student.status === filter;
 }
 
@@ -143,7 +139,7 @@ export function StudentsRosterKit({
     All: total,
     'Job-Ready': students.filter((s) => matchesFilter(s, 'Job-Ready')).length,
     'At Risk': students.filter((s) => s.status === 'At Risk').length,
-    'In Training': students.filter((s) => matchesFilter(s, 'In Training')).length,
+    'In Training': students.filter((s) => s.status === 'In Training').length,
   };
 
   const visible = students.filter((s) => matchesFilter(s, active));
@@ -246,15 +242,16 @@ export function StudentsRosterKit({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 6,
+                minHeight: 44,
                 padding: '8px 14px',
                 borderRadius: 999,
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: 'pointer',
                 border: '1px solid',
-                borderColor: on ? 'transparent' : isRisk ? '#f3d4dc' : 'var(--wa-border)',
+                borderColor: on ? 'transparent' : isRisk ? 'var(--wa-accent-soft)' : 'var(--wa-border)',
                 background: on ? 'var(--wa-accent)' : 'var(--wa-surface)',
-                color: on ? '#fff' : isRisk ? 'var(--wa-accent)' : 'var(--wa-text)',
+                color: on ? 'var(--wa-on-accent)' : isRisk ? 'var(--wa-accent)' : 'var(--wa-text)',
               }}
             >
               {f}
@@ -262,7 +259,7 @@ export function StudentsRosterKit({
                 style={{
                   fontVariantNumeric: 'tabular-nums',
                   opacity: on ? 0.85 : 0.6,
-                  color: on ? '#fff' : isRisk ? 'var(--wa-accent)' : 'var(--wa-muted)',
+                  color: on ? 'var(--wa-on-accent)' : isRisk ? 'var(--wa-accent)' : 'var(--wa-muted)',
                 }}
               >
                 {counts[f]}

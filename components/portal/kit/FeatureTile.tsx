@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 
 interface FeatureTileProps {
   icon?: ReactNode;
@@ -17,27 +18,12 @@ interface FeatureTileProps {
  * Mockup: member home Career Toolkit / Next Badge.
  */
 export function FeatureTile({ icon, title, body, badge, tone = 'crimson', href, onClick }: FeatureTileProps) {
-  const Tag = href ? 'a' : 'button';
-  return (
-    <Tag
-      href={href}
-      onClick={onClick}
-      className={`wa-kit-card wa-kit-card--gradient-${tone} wa-kit-card--hover wa-kit-focus`}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        minHeight: 170,
-        textAlign: 'left',
-        cursor: 'pointer',
-        border: 'none',
-        transition: 'box-shadow 0.2s, transform 0.2s',
-      }}
-    >
+  const content = (
+    <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         {icon ? <div style={{ fontSize: 22, lineHeight: 1 }}>{icon}</div> : <span />}
         {badge ? (
-          <span style={{ padding: '2px 9px', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', background: 'rgba(255,255,255,0.2)', borderRadius: 999 }}>
+          <span style={{ padding: '2px 9px', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', background: 'rgba(255,255,255,0.2)', borderRadius: 999 }}>
             {badge}
           </span>
         ) : null}
@@ -46,6 +32,40 @@ export function FeatureTile({ icon, title, body, badge, tone = 'crimson', href, 
         <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em' }}>{title}</h3>
         {body ? <p style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>{body}</p> : null}
       </div>
-    </Tag>
+    </>
+  );
+  const className = `wa-kit-card wa-kit-card--gradient-${tone} wa-kit-card--hover wa-kit-focus`;
+  const style = {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    minHeight: 170,
+    textAlign: 'left',
+    cursor: 'pointer',
+    border: 'none',
+    transition: 'box-shadow 0.2s, transform 0.2s',
+  } as const;
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className={className}
+        style={{ ...style, textDecoration: 'none' }}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`wa-kit-card wa-kit-card--gradient-${tone} wa-kit-card--hover wa-kit-focus`}
+      style={style}
+    >
+      {content}
+    </button>
   );
 }

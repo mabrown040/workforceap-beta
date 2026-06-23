@@ -190,7 +190,7 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
   { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
-  { href: '/dashboard/ai-tools', label: 'Career Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/toolkit', label: 'Career Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/ai-tools'], tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },
   { href: '/dashboard/ai-tools/studio', label: 'Voice + Career Studio', group: 'workflows', tab: 'me', Icon: Sparkles },
   {

@@ -87,6 +87,7 @@ export function MemberCertificatesKit({
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+        <h1 className="sr-only">Certificates and achievements</h1>
         {/* KPI strip */}
         <KpiStrip
           items={[
@@ -99,14 +100,22 @@ export function MemberCertificatesKit({
 
         <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4">
           {/* Earned certificates */}
+          {earned.length === 0 ? (
+            <div className="wa-kit-card wa-kit-card--sm">
+              <div style={{ fontWeight: 800, color: 'var(--wa-text)' }}>No certificates yet</div>
+              <p style={{ marginTop: 4, fontSize: 13, color: 'var(--wa-muted)' }}>
+                Completed credentials will appear here after they are logged and verified.
+              </p>
+            </div>
+          ) : null}
           {earned.map((cert) => (
-            <div key={cert.id} className="wa-kit-card wa-kit-card--hover wa-flex wa-gap-4 sm:wa-gap-5" style={{ borderColor: '#ece2c8' }}>
+            <div key={cert.id} className="wa-kit-card wa-kit-card--hover wa-flex wa-gap-4 sm:wa-gap-5" style={{ borderColor: 'var(--wa-gold-soft)' }}>
               <div
                 style={{
                   width: 64,
                   height: 64,
                   borderRadius: 'var(--wa-radius-sm)',
-                  background: 'var(--wa-gold-soft, #FEF3C7)',
+                      background: 'var(--wa-gold-soft)',
                   color: 'var(--wa-gold)',
                   display: 'flex',
                   alignItems: 'center',
@@ -129,9 +138,10 @@ export function MemberCertificatesKit({
                     className="wa-kit-focus wa-flex wa-items-center wa-gap-1"
                     title="Download your certificate records (CSV)"
                     style={{
-                      padding: '6px 12px',
+                      minHeight: 44,
+                      padding: '10px 12px',
                       background: 'var(--wa-gold)',
-                      color: '#fff',
+                      color: 'var(--wa-on-accent)',
                       fontWeight: 600,
                       fontSize: 11,
                       borderRadius: 999,
@@ -155,7 +165,7 @@ export function MemberCertificatesKit({
               <div
                 key={cert.id}
                 className="wa-kit-card wa-flex wa-gap-4 sm:wa-gap-5"
-                style={{ gridColumn: '1 / -1', background: 'var(--wa-accent-soft)', borderColor: '#f3d4dc' }}
+                style={{ gridColumn: '1 / -1', background: 'var(--wa-accent-soft)', borderColor: 'var(--wa-accent-soft)' }}
               >
                 <div
                   style={{
@@ -168,7 +178,7 @@ export function MemberCertificatesKit({
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
-                    border: '1px solid #f3d4dc',
+                    border: '1px solid var(--wa-accent-soft)',
                   }}
                 >
                   <Hourglass size={26} />

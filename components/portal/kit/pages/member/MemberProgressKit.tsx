@@ -51,9 +51,9 @@ const DEFAULT_MILESTONES: Milestone[] = [
 ];
 
 const MILESTONE_META: Record<MilestoneState, { icon: LucideIcon; iconSize: number; iconBg: string; iconColor: string; whenColor: string; dim: boolean }> = {
-  done: { icon: Check, iconSize: 13, iconBg: 'var(--wa-success)', iconColor: '#fff', whenColor: 'var(--wa-muted)', dim: false },
-  active: { icon: Zap, iconSize: 11, iconBg: 'var(--wa-accent)', iconColor: '#fff', whenColor: 'var(--wa-accent)', dim: false },
-  goal: { icon: Flag, iconSize: 11, iconBg: '#e8e8e8', iconColor: '#a3a3a3', whenColor: '#a3a3a3', dim: true },
+  done: { icon: Check, iconSize: 13, iconBg: 'var(--wa-success)', iconColor: 'var(--wa-on-accent)', whenColor: 'var(--wa-muted)', dim: false },
+  active: { icon: Zap, iconSize: 11, iconBg: 'var(--wa-accent)', iconColor: 'var(--wa-on-accent)', whenColor: 'var(--wa-accent)', dim: false },
+  goal: { icon: Flag, iconSize: 11, iconBg: 'var(--wa-surface-2)', iconColor: 'var(--wa-muted)', whenColor: 'var(--wa-muted)', dim: true },
 };
 
 export function MemberProgressKit({
@@ -68,6 +68,7 @@ export function MemberProgressKit({
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+        <h1 className="sr-only">Readiness progress</h1>
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
           {/* Job readiness ring */}
           <div className="wa-kit-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
@@ -76,9 +77,16 @@ export function MemberProgressKit({
             >
               Job Readiness
             </h3>
-            <div style={{ position: 'relative', width: 160, height: 160 }}>
+            <div
+              role="progressbar"
+              aria-label="Job readiness"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={score}
+              style={{ position: 'relative', width: 160, height: 160 }}
+            >
               <svg width={160} height={160} viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r={RING_R} fill="none" stroke="#f0eef0" strokeWidth="11" />
+                <circle cx="60" cy="60" r={RING_R} fill="none" stroke="var(--wa-track)" strokeWidth="11" />
                 <circle
                   cx="60"
                   cy="60"

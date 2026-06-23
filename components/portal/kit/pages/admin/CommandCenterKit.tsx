@@ -169,9 +169,10 @@ const ADD_STUDENT_STYLE: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: 6,
+  minHeight: 44,
   padding: '8px 14px',
   background: 'var(--wa-accent)',
-  color: '#fff',
+  color: 'var(--wa-on-accent)',
   fontSize: 12,
   fontWeight: 600,
   borderRadius: 999,
@@ -222,8 +223,8 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
           aria-label="Notifications"
           className="wa-kit-focus"
           style={{
-            width: 36,
-            height: 36,
+            width: 44,
+            height: 44,
             borderRadius: 999,
             border: '1px solid var(--wa-border)',
             background: 'var(--wa-surface)',
@@ -253,7 +254,8 @@ function CommandCenterHeader({ dateLabel, onAddStudent, addStudentHref }: Header
 function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onAction?: () => void }) {
     const actionStyle: React.CSSProperties = {
     flexShrink: 0,
-    padding: '6px 12px',
+    minHeight: 44,
+    padding: '8px 12px',
     fontSize: 11,
     fontWeight: 600,
     borderRadius: 999,
@@ -261,7 +263,7 @@ function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onActi
     textDecoration: 'none',
     border: item.urgent ? 'none' : '1px solid var(--wa-border)',
     background: item.urgent ? 'var(--wa-accent)' : 'var(--wa-surface)',
-    color: item.urgent ? '#fff' : 'var(--wa-text)',
+    color: item.urgent ? 'var(--wa-on-accent)' : 'var(--wa-text)',
   };
   return (
     <div
@@ -271,7 +273,7 @@ function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onActi
         alignItems: 'center',
         gap: 12,
         background: item.urgent ? 'var(--wa-accent-soft)' : 'var(--wa-bg)',
-        borderColor: item.urgent ? '#f3d4dc' : 'var(--wa-border)',
+        borderColor: item.urgent ? 'var(--wa-accent-soft)' : 'var(--wa-border)',
       }}
     >
       {/* Icon + text stay locked together; the action is the wrap target so on
@@ -286,7 +288,7 @@ function WorkQueueRow({ item, onAction }: { item: CommandCenterQueueItem; onActi
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fff',
+            color: 'var(--wa-on-accent)',
             background: item.iconColor,
           }}
         >

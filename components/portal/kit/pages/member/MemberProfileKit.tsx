@@ -215,6 +215,7 @@ export function MemberProfileKit({
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+        <h1 className="sr-only">My profile</h1>
         {/* Profile header */}
         <div className="wa-kit-card wa-flex wa-flex-col sm:wa-flex-row wa-items-center wa-gap-5">
           <Avatar initials={initials} size={80} gradient />
@@ -232,24 +233,9 @@ export function MemberProfileKit({
               ))}
             </div>
           </div>
-          <button
-            type="button"
-            disabled
-            title="Photo upload coming soon"
-            className="wa-kit-focus"
-            style={{
-              padding: '8px 16px',
-              border: '1px solid var(--wa-border)',
-              background: 'transparent',
-              fontWeight: 600,
-              fontSize: 12,
-              borderRadius: 999,
-              cursor: 'not-allowed',
-              opacity: 0.5,
-            }}
-          >
-            Edit Photo
-          </button>
+          <p style={{ maxWidth: 180, fontSize: 12, color: 'var(--wa-muted)', textAlign: 'center' }}>
+            Ask your advisor if your profile photo needs to change.
+          </p>
         </div>
 
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
@@ -319,7 +305,7 @@ export function MemberProfileKit({
                 marginTop: 20,
                 padding: '10px 20px',
                 background: 'var(--wa-accent)',
-                color: '#fff',
+                color: 'var(--wa-on-accent)',
                 fontWeight: 600,
                 fontSize: 14,
                 borderRadius: 999,

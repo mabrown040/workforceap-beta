@@ -42,8 +42,8 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
         className={`${open ? 'wa-translate-x-0' : '-wa-translate-x-full'} lg:wa-translate-x-0 wa-transition-transform wa-duration-200`}
         style={{
           width: 256,
-          background: '#161616',
-          color: '#fff',
+          background: 'var(--wa-sidebar-bg)',
+          color: 'var(--wa-sidebar-text)',
           position: 'fixed',
           height: '100vh',
           zIndex: 50,
@@ -51,11 +51,11 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
           flexDirection: 'column',
         }}
       >
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #2a2a2a', flexShrink: 0 }}>{brand}</div>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--wa-sidebar-border)', flexShrink: 0 }}>{brand}</div>
         <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 10px', fontSize: 13 }}>
           {groups.map((g) => (
             <div key={g.label} style={{ marginBottom: 12 }}>
-              <div style={{ padding: '0 10px', fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#666', marginBottom: 4 }}>{g.label}</div>
+              <div style={{ padding: '0 10px', fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--wa-sidebar-label)', marginBottom: 4 }}>{g.label}</div>
               {g.items.map((it) => {
                 const on = it.id === activeId;
                 return (
@@ -63,7 +63,7 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
                     key={it.id}
                     type="button"
                     onClick={() => { onNavigate?.(it.id); setOpen(false); }}
-                    className="wa-kit-focus"
+                    className="wa-kit-focus wa-kit-focus--on-dark"
                     aria-current={on ? 'page' : undefined}
                     style={{
                       width: '100%',
@@ -80,7 +80,7 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
                       fontWeight: 600,
                       marginBottom: 2,
                       background: on ? 'var(--wa-accent)' : 'transparent',
-                      color: on ? '#fff' : '#cfcfcf',
+                      color: on ? 'var(--wa-on-accent)' : 'var(--wa-sidebar-muted)',
                       transition: 'background-color 0.2s, color 0.2s',
                     }}
                   >
@@ -89,7 +89,7 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{it.label}</span>
                     </span>
                     {it.badge != null ? (
-                      <span style={{ padding: '1px 7px', fontSize: 9, fontWeight: 700, borderRadius: 999, background: 'var(--wa-accent)', color: '#fff' }}>{it.badge}</span>
+                      <span style={{ padding: '1px 7px', fontSize: 10, fontWeight: 700, borderRadius: 999, background: 'var(--wa-accent)', color: 'var(--wa-on-accent)' }}>{it.badge}</span>
                     ) : null}
                   </button>
                 );
@@ -97,11 +97,11 @@ export function AppShellSidebar({ brand, groups, activeId, onNavigate, footer, t
             </div>
           ))}
         </nav>
-        {footer ? <div style={{ padding: '12px 16px', borderTop: '1px solid #2a2a2a', flexShrink: 0 }}>{footer}</div> : null}
+        {footer ? <div style={{ padding: '12px 16px', borderTop: '1px solid var(--wa-sidebar-border)', flexShrink: 0 }}>{footer}</div> : null}
       </aside>
 
       <div className="lg:wa-ml-64" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <header style={{ position: 'sticky', top: 0, zIndex: 30, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--wa-border)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <header style={{ position: 'sticky', top: 0, zIndex: 30, background: 'var(--wa-shell-header-bg)', backdropFilter: 'blur(8px)', borderBottom: '1px solid var(--wa-border)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <button type="button" onClick={() => setOpen(true)} className="lg:wa-hidden wa-kit-focus wa-flex" aria-label="Open menu" style={{ width: 44, height: 44, borderRadius: 8, border: '1px solid var(--wa-border)', background: 'transparent', color: 'var(--wa-text)', cursor: 'pointer', flexShrink: 0, alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s, border-color 0.2s' }}><Menu size={20} aria-hidden="true" /></button>
           <div style={{ flex: 1, minWidth: 0 }}>{topbar}</div>
         </header>

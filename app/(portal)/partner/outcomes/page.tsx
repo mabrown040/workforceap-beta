@@ -8,7 +8,6 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import { loadPartnerReferralBundle } from '@/lib/partner/referralBundle';
 import { memberProgramCompleted } from '@/lib/partner/memberProgress';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 
@@ -109,9 +108,6 @@ export default async function PartnerOutcomesPage() {
             </p>
           </div>
         )}
-        <div className="md:wa-hidden">
-          <MobileBottomNav variant="partner" />
-        </div>
       </div>
     </PortalPageFrame>
   );

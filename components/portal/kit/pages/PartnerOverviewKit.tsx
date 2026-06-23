@@ -13,7 +13,7 @@
  */
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Lightbulb } from 'lucide-react';
+import { ChevronRight, Lightbulb } from 'lucide-react';
 import { StatTile } from '@/components/portal/kit';
 import { colorVar, type KitColor } from '@/components/portal/kit/tokens';
 
@@ -90,7 +90,7 @@ export function PartnerAttentionCard({
           height: 44,
           borderRadius: 'var(--wa-radius-sm)',
           background: 'var(--wa-accent)',
-          color: '#fff',
+          color: 'var(--wa-on-accent)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -104,9 +104,7 @@ export function PartnerAttentionCard({
         <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--wa-text)' }}>{title}</div>
         <div style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>{body}</div>
       </div>
-      <span aria-hidden style={{ fontSize: 18, color: 'var(--wa-accent)', flexShrink: 0 }}>
-        →
-      </span>
+      <ChevronRight size={18} aria-hidden style={{ color: 'var(--wa-accent)', flexShrink: 0 }} />
     </Link>
   );
 }

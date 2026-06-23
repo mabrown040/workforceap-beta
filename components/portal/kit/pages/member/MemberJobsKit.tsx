@@ -57,15 +57,28 @@ export function MemberJobsKit({
 }: MemberJobsKitProps) {
   const columns: Column<ApplicationRow>[] = [
     { key: 'role', header: 'Role', render: (r) => <span style={{ fontWeight: 700 }}>{r.role}</span> },
-    { key: 'company', header: 'Company', render: (r) => <span style={{ color: '#525252' }}>{r.company}</span> },
-    { key: 'location', header: 'Location', render: (r) => <span style={{ color: '#525252' }}>{r.location}</span> },
+    { key: 'company', header: 'Company', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.company}</span> },
+    { key: 'location', header: 'Location', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.location}</span> },
     { key: 'applied', header: 'Applied', render: (r) => <span style={{ color: 'var(--wa-muted)' }}>{r.applied}</span> },
     { key: 'stage', header: 'Stage', align: 'right', render: (r) => <StatusTag tone={r.tone}>{r.stage}</StatusTag> },
   ];
+  const applicationCard = (row: ApplicationRow) => (
+    <div className="wa-kit-card wa-kit-card--sm">
+      <div className="wa-flex wa-items-start wa-justify-between wa-gap-3">
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--wa-text)' }}>{row.role}</div>
+          <div style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>{row.company}</div>
+          <div style={{ marginTop: 2, fontSize: 12, color: 'var(--wa-muted)' }}>{row.location} · {row.applied}</div>
+        </div>
+        <StatusTag tone={row.tone}>{row.stage}</StatusTag>
+      </div>
+    </div>
+  );
 
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+        <h1 className="sr-only">Job pipeline</h1>
         {/* KPI strip */}
         <KpiStrip
           items={[
@@ -86,7 +99,7 @@ export function MemberJobsKit({
             <a
               href={browseHref}
               className="wa-kit-focus"
-              style={{ display: 'inline-flex', alignItems: 'center', padding: '8px 16px', background: 'var(--wa-accent)', color: '#fff', fontWeight: 600, fontSize: 12, borderRadius: 999, textDecoration: 'none', whiteSpace: 'nowrap' }}
+              style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44, padding: '8px 16px', background: 'var(--wa-accent)', color: 'var(--wa-on-accent)', fontWeight: 600, fontSize: 12, borderRadius: 999, textDecoration: 'none', whiteSpace: 'nowrap' }}
             >
               Browse Job Board
             </a>
@@ -95,7 +108,8 @@ export function MemberJobsKit({
             columns={columns}
             rows={applications}
             rowKey={(r) => r.id}
-            mobile="scroll"
+            mobile="cards"
+            cardRender={applicationCard}
             minWidth={560}
             emptyTitle="No applications yet"
             emptyDescription="Track jobs you apply to and they'll show up here."
@@ -144,7 +158,8 @@ export function MemberJobsKit({
                     marginTop: 12,
                     display: 'block',
                     width: '100%',
-                    padding: '6px 0',
+                    minHeight: 44,
+                    padding: '10px 0',
                     border: '1px solid var(--wa-accent)',
                     color: 'var(--wa-accent)',
                     background: 'transparent',

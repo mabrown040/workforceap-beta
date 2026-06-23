@@ -58,7 +58,7 @@ const MODULE_META: Record<ModuleState, { label: string; color: string; icon: Luc
     iconSize: 13,
     bg: 'var(--wa-bg)',
     iconBg: 'var(--wa-success)',
-    iconColor: '#fff',
+    iconColor: 'var(--wa-on-accent)',
   },
   active: {
     label: 'In Progress',
@@ -66,19 +66,19 @@ const MODULE_META: Record<ModuleState, { label: string; color: string; icon: Luc
     icon: Play,
     iconSize: 11,
     bg: 'var(--wa-accent-soft)',
-    border: '1px solid #f3d4dc',
+    border: '1px solid var(--wa-accent-soft)',
     iconBg: 'var(--wa-accent)',
-    iconColor: '#fff',
+    iconColor: 'var(--wa-on-accent)',
   },
   locked: {
     label: 'Locked',
-    color: '#a3a3a3',
+    color: 'var(--wa-muted)',
     icon: Lock,
     iconSize: 11,
     bg: 'var(--wa-surface)',
     border: '1px solid var(--wa-border)',
-    iconBg: '#e8e8e8',
-    iconColor: '#a3a3a3',
+    iconBg: 'var(--wa-surface-2)',
+    iconColor: 'var(--wa-muted)',
   },
 };
 
@@ -140,13 +140,14 @@ export function MemberProgramKit({
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }} className="wa-space-y-5">
+        <h1 className="sr-only">My program</h1>
         {/* Gradient hero */}
         <div
           className="wa-kit-card wa-kit-card--gradient-crimson wa-flex wa-flex-col md:wa-flex-row md:wa-items-center"
           style={{ gap: 24 }}
         >
           <div style={{ flexShrink: 0, margin: '0 auto' }}>
-            <ProgressRing pct={pct} size={120} onDark />
+            <ProgressRing pct={pct} size={120} onDark label="Program progress" />
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', opacity: 0.7 }}>
@@ -167,7 +168,7 @@ export function MemberProgramKit({
               alignItems: 'center',
               gap: 6,
               padding: '12px 20px',
-              background: '#fff',
+              background: 'var(--wa-on-accent)',
               color: 'var(--wa-accent)',
               fontWeight: 700,
               fontSize: 14,
@@ -182,7 +183,7 @@ export function MemberProgramKit({
 
         <div className="wa-grid wa-grid-cols-1 lg:wa-grid-cols-3 wa-gap-5">
           {/* Modules list (2-wide) */}
-          <div className="wa-kit-card" style={{ gridColumn: 'span 2' }}>
+          <div className="wa-kit-card lg:wa-col-span-2">
             <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>Modules</h3>
             <div className="wa-space-y-2">
               {modules.map((m) => {
@@ -247,9 +248,10 @@ export function MemberProgramKit({
                   style={{
                     marginTop: 12,
                     width: '100%',
-                    padding: '8px 0',
+                    minHeight: 44,
+                    padding: '10px 0',
                     background: 'var(--wa-accent)',
-                    color: '#fff',
+                    color: 'var(--wa-on-accent)',
                     fontWeight: 600,
                     fontSize: 12,
                     borderRadius: 999,
@@ -262,7 +264,7 @@ export function MemberProgramKit({
               </div>
             )}
 
-            <div className="wa-kit-card" style={{ background: '#faf7f0', borderColor: '#ece2c8' }}>
+            <div className="wa-kit-card" style={{ background: 'var(--wa-gold-soft)', borderColor: 'var(--wa-gold-soft)' }}>
               <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-gold)', marginBottom: 8 }}>
                 <Target size={15} />
                 <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Skill Missions</h3>

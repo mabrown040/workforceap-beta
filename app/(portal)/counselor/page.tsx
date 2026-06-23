@@ -10,7 +10,6 @@ import CounselorCommandCenter from '@/components/portal/counselor/CounselorComma
 import CounselorPriorityQueue from '@/components/portal/counselor/CounselorPriorityQueue';
 import AtRiskSummaryWidget from '@/components/portal/counselor/AtRiskSummaryWidget';
 import { getCounselorPriorityQueue } from '@/lib/counselor/priorityQueue';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorPortalVoiceBlock from '@/components/portal/CounselorPortalVoiceBlock';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -21,7 +20,7 @@ import { getGoodTimeOfDayPhrase } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import PortalCard from '@/components/portal/ui/PortalCard';
-import { DesignSurface, KpiStrip, QueueRow, SectionHeader, type QueueTone } from '@/components/portal/kit';
+import { DesignSurface, FeatureTile, KpiStrip, QueueRow, SectionHeader, type QueueTone } from '@/components/portal/kit';
 
 export default async function CounselorPortalPage({
   searchParams,
@@ -100,8 +99,17 @@ export default async function CounselorPortalPage({
     return (
       <DesignSurface surface="dense">
         <div style={{ padding: 'clamp(1rem, 4vw, 1.5rem)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <h1 className="wa-sr-only">Counselor overview</h1>
           <SectionHeader title="Counselor overview" goal="Know who needs me today." />
           <KpiStrip items={kitStats} cols={4} />
+          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
+            <FeatureTile title="Inbox" body="Reply to member messages." href="/counselor/inbox" />
+            <FeatureTile title="Sessions" body="Run check-ins and walk-ins." href="/counselor/sessions" tone="gold" />
+            <FeatureTile title="Triage queue" body="Prioritize students who need support." href="/counselor/triage" />
+            <FeatureTile title="At-risk members" body="Review inactivity and blockers." href="/counselor/at-risk" tone="gold" />
+            <FeatureTile title="Placements" body="Track job placement follow-up." href="/counselor/placements" />
+            <FeatureTile title="Inactive members" body="Find members who have gone quiet." href="/counselor/inactive-members" tone="gold" />
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <SectionHeader title="Triage" goal={`${kitQueue.totals.total} member${kitQueue.totals.total === 1 ? '' : 's'} in queue`} />
             {triageRows.length === 0 ? (
@@ -405,7 +413,6 @@ export default async function CounselorPortalPage({
             )}
           </div>
         </div>
-        <MobileBottomNav variant="counselor" />
       </div>
       {/* ── Desktop View ── */}
       <div className="wa-hidden md:wa-block">

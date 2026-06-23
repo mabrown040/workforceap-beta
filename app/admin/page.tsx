@@ -118,7 +118,7 @@ export default async function AdminTodayPage({
     const placementsByMonth: ChartDatum[] = monthBuckets.map((value, i) => ({ label: monthLabels[i], value }));
     const placementsYtd = headline.placementRows.length;
 
-    const completionRate =
+    const interviewingShare =
       headline.activeStudents > 0
         ? `${Math.round((totals.interviewingCount / headline.activeStudents) * 100)}%`
         : '—';
@@ -132,7 +132,7 @@ export default async function AdminTodayPage({
         deltaColor: 'success',
       },
       { label: 'Placements YTD', value: placementsYtd, color: 'success', delta: 'this year', deltaColor: 'success' },
-      { label: 'Completion Rate', value: completionRate, color: 'info', delta: 'cohort avg', deltaColor: 'muted' },
+      { label: 'Interviewing Share', value: interviewingShare, color: 'info', delta: 'of enrolled', deltaColor: 'muted' },
       { label: 'At Risk', value: totals.atRiskCount, color: 'accent', delta: 'need outreach', deltaColor: 'accent' },
     ];
 
@@ -145,7 +145,7 @@ export default async function AdminTodayPage({
         detail: 'Enrolled, gone quiet — likely to drop',
         actionLabel: `${totals.atRiskCount} items`,
         urgent: totals.atRiskCount > 0,
-        href: '/admin/command-center',
+        href: '/admin/command-center?ui=legacy',
       },
       {
         id: 'needs-reply',
@@ -163,7 +163,7 @@ export default async function AdminTodayPage({
         title: `${totals.applicationsPendingCount} ${totals.applicationsPendingCount === 1 ? 'application needs' : 'applications need'} review`,
         detail: 'Eligibility + program-fit review pending',
         actionLabel: `${totals.applicationsPendingCount} items`,
-        href: '/admin/wioa-screening',
+        href: '/admin/command-center?ui=legacy',
       },
       {
         id: 'certifications',

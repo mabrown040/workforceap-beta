@@ -25,6 +25,10 @@
 .wa-kit-card--hover:hover {
   box-shadow: var(--wa-shadow-lg);
 }
+.wa-kit-card--hover:active {
+  box-shadow: var(--wa-shadow);
+  transform: scale(0.99);
+}
 .wa-kit-card--tinted {
   background: var(--wa-accent-soft);
   border-color: transparent;
@@ -32,12 +36,12 @@
 .wa-kit-card--gradient-crimson {
   background: linear-gradient(135deg, var(--wa-accent), var(--wa-accent-dark));
   border-color: transparent;
-  color: #fff;
+  color: var(--wa-on-accent);
 }
 .wa-kit-card--gradient-gold {
-  background: linear-gradient(135deg, var(--wa-gold), #7d5f26);
+  background: linear-gradient(135deg, var(--wa-gold), var(--wa-gold-dark));
   border-color: transparent;
-  color: #fff;
+  color: var(--wa-on-accent);
 }
 /* When pop is off (dense), gradient tiles fall back to calm tints. */
 [data-surface='dense'] .wa-kit-card--gradient-crimson {
@@ -68,7 +72,7 @@
   align-items: center;
   gap: 5px;
   border-radius: 999px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   padding: 3px 10px;
@@ -77,7 +81,7 @@
    soft tints. Dark-mode overrides below lighten them for the translucent tints. */
 .wa-kit-tag--ok {
   color: #2e7d32;
-  background: #eef7ef;
+  background: rgba(74, 155, 79, 0.12);
 }
 .wa-kit-tag--warn {
   color: #7a5e29;
@@ -92,7 +96,7 @@
   background: var(--wa-info-soft);
 }
 .wa-kit-tag--muted {
-  color: #525252;
+  color: var(--wa-muted);
   background: var(--wa-border);
 }
 /* Dark mode: lighten tag text so it stays ≥4.5:1 on the translucent-dark tints. */
@@ -105,7 +109,7 @@ html.dark .wa-kit-tag--muted, [data-theme='dark'] .wa-kit-tag--muted { color: #c
 .wa-kit-bar-track {
   height: 8px;
   border-radius: 999px;
-  background: #f0eef0;
+  background: var(--wa-track);
   overflow: hidden;
 }
 .wa-kit-bar-fill {
@@ -118,6 +122,10 @@ html.dark .wa-kit-tag--muted, [data-theme='dark'] .wa-kit-tag--muted { color: #c
 .wa-kit-focus:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--wa-surface), 0 0 0 4px var(--wa-accent);
+}
+.wa-kit-focus--on-dark:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--wa-sidebar-bg), 0 0 0 4px var(--wa-accent);
 }
 
 /* DataTable (dense desktop). Mobile falls back to stacked cards in the component. */
@@ -132,7 +140,7 @@ html.dark .wa-kit-tag--muted, [data-theme='dark'] .wa-kit-tag--muted { color: #c
   border-collapse: collapse;
 }
 .wa-kit-table th {
-  font-size: 9px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--wa-muted);
@@ -151,4 +159,24 @@ html.dark .wa-kit-tag--muted, [data-theme='dark'] .wa-kit-tag--muted { color: #c
 }
 .wa-kit-table tbody tr:hover {
   background: var(--wa-bg);
+}
+
+.wa-kit-field-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--wa-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wa-kit-card,
+  .wa-kit-bar-fill,
+  .wa-kit-table tbody tr {
+    transition: none !important;
+  }
+
+  .wa-kit-card--hover:active {
+    transform: none;
+  }
 }

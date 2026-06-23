@@ -212,6 +212,7 @@ export function MemberMessagesKit({
   return (
     <DesignSurface surface="warm">
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16 }}>
+        <h1 className="sr-only">Messages</h1>
         <div
           className="wa-kit-card wa-grid wa-grid-cols-1 md:wa-grid-cols-3"
           style={{ padding: 0, overflow: 'hidden', minHeight: 520 }}
@@ -281,8 +282,8 @@ export function MemberMessagesKit({
                 aria-label="Back to messages"
                 className="wa-kit-focus wa-flex wa-items-center wa-justify-center md:wa-hidden"
                 style={{
-                  width: 36,
-                  height: 36,
+                  width: 44,
+                  height: 44,
                   flexShrink: 0,
                   marginLeft: -4,
                   borderRadius: 999,

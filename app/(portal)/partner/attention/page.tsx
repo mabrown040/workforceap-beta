@@ -8,7 +8,6 @@ import PageHeader from '@/components/portal/PageHeader';
 import PartnerAttentionClient from '@/components/partner/PartnerAttentionClient';
 import PartnerWorkflowTimeline from '@/components/partner/PartnerWorkflowTimeline';
 import { listPartnerWorkflowEvents } from '@/lib/portal/workflowEvents';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -56,9 +55,6 @@ export default async function PartnerAttentionPage({
         />
         <PartnerWorkflowTimeline events={events} />
         <PartnerAttentionClient initialTier={initialTier} />
-        <div className="md:wa-hidden">
-          <MobileBottomNav variant="partner" />
-        </div>
       </div>
     </PortalPageFrame>
   );

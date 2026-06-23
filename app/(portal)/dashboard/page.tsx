@@ -265,7 +265,7 @@ async function renderMemberDashboard(
         pipeline={leanPipelineRows.length > 0 ? leanPipelineRows : []}
         resumeHref={topLeanAction?.ctaHref ?? programHref}
         coursesHref={programHref}
-        toolkitHref="/dashboard/ai-tools"
+        toolkitHref="/dashboard/toolkit"
         jobsHref="/dashboard/jobs"
       />
     );

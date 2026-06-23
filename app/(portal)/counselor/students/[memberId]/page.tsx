@@ -7,7 +7,6 @@ import PageHeader from '@/components/portal/PageHeader';
 import AdminMemberCounselorChatClient from '@/components/admin/AdminMemberCounselorChatClient';
 import Link from 'next/link';
 import { compactStringIds, getMessageAuthorName, getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import StatusBadge from '@/components/portal/StatusBadge';
 import { getProgramBySlug } from '@/lib/content/programs';
@@ -1057,7 +1056,6 @@ export default async function CounselorStudentDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <MobileBottomNav variant="counselor" />
     </>
   );
 }

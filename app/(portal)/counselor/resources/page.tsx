@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 const WORKFLOW_LINKS = [
@@ -94,7 +93,6 @@ export default async function CounselorResourcesPage() {
         <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', maxWidth: '40rem', lineHeight: 1.6, padding: '0 1rem' }}>
           <Link href="/dashboard/help">Help &amp; support</Link> for account and access issues.
         </p>
-        <MobileBottomNav variant="counselor" />
       </div>
 
       {/* Desktop View */}

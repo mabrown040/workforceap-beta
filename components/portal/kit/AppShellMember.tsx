@@ -31,7 +31,7 @@ export function AppShellMember({ brand, topRight, tabs, activeId, hrefs = {}, ch
           position: 'sticky',
           top: 0,
           zIndex: 30,
-          background: 'rgba(255,255,255,0.9)',
+          background: 'var(--wa-shell-header-bg)',
           backdropFilter: 'blur(8px)',
           borderBottom: '1px solid var(--wa-border)',
           padding: '12px 16px',
@@ -103,7 +103,7 @@ export function AppShellMember({ brand, topRight, tabs, activeId, hrefs = {}, ch
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, minWidth: 44, minHeight: 44, cursor: 'pointer', color: on ? 'var(--wa-accent)' : 'var(--wa-muted)', transition: 'color 0.2s' }}
             >
               <span style={{ fontSize: 16, display: 'flex' }}>{t.icon}</span>
-              <span style={{ fontSize: 9, fontWeight: on ? 700 : 600 }}>{t.label}</span>
+              <span style={{ fontSize: 10, fontWeight: on ? 700 : 600 }}>{t.label}</span>
             </a>
           );
         })}

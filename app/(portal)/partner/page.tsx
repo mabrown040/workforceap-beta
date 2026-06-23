@@ -15,7 +15,6 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { PARTNER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voice';
@@ -224,6 +223,7 @@ export default async function PartnerDashboardPage({
     return (
       <PortalPageFrame maxWidth="80rem">
         <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
+          <h1 className="wa-sr-only">Partner overview</h1>
           <KitSectionHeader
             kicker={t('partnerDashboard')}
             title={ctx.partner.name}
@@ -310,7 +310,7 @@ export default async function PartnerDashboardPage({
                         href={`/partner/referred-members/${ev.userId}`}
                         className="portal-section-action"
                       >
-                        {t('viewAll')}
+                        Review
                       </Link>
                     }
                   />
@@ -344,7 +344,7 @@ export default async function PartnerDashboardPage({
                   ),
                 },
                 { key: 'status', header: t('status') },
-                { key: 'referred', header: t('enrollmentDate') },
+                { key: 'referred', header: 'Referred' },
               ]}
               rows={referralRows}
               rowKey={(row) => row.id}
@@ -876,7 +876,6 @@ export default async function PartnerDashboardPage({
         </div>
       </div>
 
-      <MobileBottomNav variant="partner" />
     </div>
 
     {/* ── DESKTOP SECTION ── */}

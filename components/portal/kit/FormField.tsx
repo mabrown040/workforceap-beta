@@ -1,6 +1,7 @@
 'use client';
 
 import type { InputHTMLAttributes, ReactNode } from 'react';
+import { cloneElement, isValidElement, useId } from 'react';
 
 interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -9,13 +10,23 @@ interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 /** Labeled input/select field. Mockup: profile/settings forms. */
-export function FormField({ label, full, children, ...inputProps }: FormFieldProps) {
+export function FormField({ label, full, children, id, ...inputProps }: FormFieldProps) {
+  const generatedId = useId();
+  const fieldId = id ?? generatedId;
+  const labeledChild = isValidElement<{ id?: string; className?: string }>(children)
+    ? cloneElement(children, {
+        id: children.props.id ?? fieldId,
+        className: ['wa-kit-focus', children.props.className].filter(Boolean).join(' '),
+      })
+    : children;
+
   return (
     <div style={full ? { gridColumn: '1 / -1' } : undefined}>
-      <label className="wa-kit-stat-label">{label}</label>
-      {children ?? (
+      <label className="wa-kit-field-label" htmlFor={fieldId}>{label}</label>
+      {labeledChild ?? (
         <input
           {...inputProps}
+          id={fieldId}
           className="wa-kit-focus"
           style={{
             marginTop: 4,
@@ -43,11 +54,14 @@ interface ToggleProps {
 
 /** Crimson switch. Mockup: notification preference toggles. */
 export function Toggle({ checked = false, onChange, label }: ToggleProps) {
+  const id = useId();
   return (
-    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', gap: 12 }}>
+    <label htmlFor={id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', gap: 12, minHeight: 44 }}>
       {label ? <span style={{ fontSize: 14, fontWeight: 600 }}>{label}</span> : null}
-      <span style={{ position: 'relative', display: 'inline-block', width: 40, height: 24, flexShrink: 0 }}>
+      <span style={{ position: 'relative', display: 'inline-flex', width: 44, height: 44, flexShrink: 0, alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ position: 'relative', display: 'inline-block', width: 40, height: 24 }}>
         <input
+          id={id}
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange?.(e.target.checked)}
@@ -77,6 +91,7 @@ export function Toggle({ checked = false, onChange, label }: ToggleProps) {
             transition: 'transform .15s',
           }}
         />
+        </span>
       </span>
     </label>
   );

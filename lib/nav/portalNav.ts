@@ -424,6 +424,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/diagnostics', label: 'Diagnostics', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
   { href: '/admin/crons', label: 'Cron Monitor', group: 'advanced', Icon: Timer, requiresSuperAdminContext: true },
   { href: '/admin/health', label: 'System Health', group: 'advanced', Icon: HeartPulse, requiresSuperAdminContext: true },
+  { href: '/admin/what-workforceap-does', label: 'What WorkforceAP does', group: 'advanced', Icon: Layers, requiresSuperAdminContext: true },
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/webhook-events', label: 'Webhook events', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
   { href: '/admin/email-crons', label: 'Email & Crons', group: 'advanced', Icon: MessageSquare, requiresSuperAdminContext: true },

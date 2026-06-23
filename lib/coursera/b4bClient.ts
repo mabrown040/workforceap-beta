@@ -177,6 +177,16 @@ export class B4BApiError extends Error {
   }
 }
 
+export class B4BTimeoutError extends Error {
+  readonly timeoutMs: number;
+
+  constructor(timeoutMs: number) {
+    super(`Coursera B4B request timed out after ${timeoutMs}ms`);
+    this.name = 'B4BTimeoutError';
+    this.timeoutMs = timeoutMs;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Internals                                                          */
 /* ------------------------------------------------------------------ */
@@ -221,6 +231,10 @@ function fetchImpl(): FetchLike {
 const TRANSIENT_B4B_STATUSES = new Set([429, 502, 503, 504]);
 const B4B_FETCH_MAX_ATTEMPTS = 3;
 const B4B_FETCH_BASE_DELAY_MS = 400;
+// Per-request timeout for all B4B reads. Generous enough for slow Coursera
+// responses, tight enough to not outlive the dashboard 5s render deadline by
+// much. Can be overridden via COURSERA_B4B_TIMEOUT_MS env var.
+const B4B_REQUEST_TIMEOUT_MS = Number(process.env.COURSERA_B4B_TIMEOUT_MS) || 10_000;
 
 function isTransientHttpStatus(status: number): boolean {
   return TRANSIENT_B4B_STATUSES.has(status);
@@ -230,6 +244,10 @@ function isTransientHttpStatus(status: number): boolean {
  * Retries a few times on rate limits, upstream 5xx, and network failures.
  * Used for OAuth + all B4B REST reads. Writes keep a single attempt so we
  * never double-submit a Coursera enrollment POST after a timeout.
+ *
+ * AbortError / DOMException TimeoutError (from AbortSignal.timeout in the
+ * caller) are re-wrapped as B4BTimeoutError so callers can distinguish
+ * "Coursera slow" from "Coursera HTTP error" without instanceof DOMException.
  */
 async function fetchWithTransientRetry(operation: () => Promise<Response>): Promise<Response> {
   let lastError: unknown;
@@ -242,6 +260,15 @@ async function fetchWithTransientRetry(operation: () => Promise<Response>): Prom
       }
       return response;
     } catch (err) {
+      // Re-wrap AbortError / DOMException TimeoutError as our typed class so
+      // callers get a stable instanceof check rather than name-string matching.
+      if (
+        err instanceof B4BTimeoutError ||
+        (err instanceof Error &&
+          (err.name === 'AbortError' || err.name === 'TimeoutError'))
+      ) {
+        throw err instanceof B4BTimeoutError ? err : new B4BTimeoutError(B4B_REQUEST_TIMEOUT_MS);
+      }
       lastError = err;
       if (attempt < B4B_FETCH_MAX_ATTEMPTS) {
         await new Promise((r) => setTimeout(r, B4B_FETCH_BASE_DELAY_MS * attempt));
@@ -360,7 +387,14 @@ export async function fetchB4B(path: string, init: RequestInit = {}): Promise<Re
 
   const method = (init.method ?? 'GET').toUpperCase();
   const isSafeRead = method === 'GET' || method === 'HEAD';
-  const run = () => fetchImpl()(url, { ...init, headers });
+  // Add a per-attempt timeout for reads so a stalled Coursera connection
+  // surfaces as B4BTimeoutError rather than hanging indefinitely.
+  const run = () =>
+    fetchImpl()(url, {
+      ...init,
+      headers,
+      ...(isSafeRead ? { signal: AbortSignal.timeout(B4B_REQUEST_TIMEOUT_MS) } : {}),
+    });
   // Never retry POST/PUT writes — Coursera may have applied the mutation
   // before the connection dropped, and a retry would duplicate side effects.
   return isSafeRead ? fetchWithTransientRetry(run) : run();

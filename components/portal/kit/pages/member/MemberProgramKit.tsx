@@ -1,3 +1,5 @@
+'use client';
+
 import { Play, Check, Lock, CalendarDays, Target, ArrowRight } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { DesignSurface, ProgressRing } from '@/components/portal/kit';
@@ -27,8 +29,15 @@ export interface MemberProgramKitProps {
   estRemaining?: string;
   resumeHref?: string;
   modules?: ProgramModule[];
+  /** Next live session title. Card is hidden unless this is provided. */
   liveSessionTitle?: string;
+  /** Human-readable schedule, e.g. "Thu, Jun 26 · 6:00 PM CT". */
   liveSessionWhen?: string;
+  /** Optional ISO/parseable start used to build the calendar (.ics) download. */
+  liveSessionStart?: string | number | Date;
+  /** Optional duration in minutes for the calendar event (default 60). */
+  liveSessionDurationMinutes?: number;
+  /** Summary line for the missions card. Honest empty-state copy if omitted. */
   missionsSummary?: string;
   missionsHref?: string;
 }
@@ -81,12 +90,52 @@ export function MemberProgramKit({
   estRemaining = '4 hrs remaining',
   resumeHref = '#',
   modules = DEFAULT_MODULES,
-  liveSessionTitle = 'Exam Prep Q&A',
-  liveSessionWhen = 'Thu, Jun 26 · 6:00 PM CT',
-  missionsSummary = '3 active missions · 450 pts available this week',
+  liveSessionTitle,
+  liveSessionWhen,
+  liveSessionStart,
+  liveSessionDurationMinutes = 60,
+  missionsSummary,
   missionsHref = '#',
 }: MemberProgramKitProps) {
   const pct = Math.max(0, Math.min(100, Math.round(progressPercent)));
+
+  // Only show the Next Live Session card when we have a real session to show.
+  const hasLiveSession = Boolean(liveSessionTitle);
+  const sessionStart = liveSessionStart != null ? new Date(liveSessionStart) : null;
+  const hasValidStart = sessionStart != null && !Number.isNaN(sessionStart.getTime());
+
+  const handleAddToCalendar = () => {
+    if (!liveSessionTitle) return;
+    const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+    const escape = (s: string) => s.replace(/([\\,;])/g, '\\$1').replace(/\n/g, '\\n');
+    const now = new Date();
+    const start = hasValidStart ? sessionStart : now;
+    const end = new Date(start.getTime() + liveSessionDurationMinutes * 60_000);
+    const uid = `${start.getTime()}-${Math.random().toString(36).slice(2)}@workforceap`;
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//WorkforceAP//Member Portal//EN',
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTAMP:${fmt(now)}`,
+      `DTSTART:${fmt(start)}`,
+      `DTEND:${fmt(end)}`,
+      `SUMMARY:${escape(liveSessionTitle)}`,
+      liveSessionWhen ? `DESCRIPTION:${escape(liveSessionWhen)}` : null,
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].filter((l): l is string => l !== null);
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${liveSessionTitle.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <DesignSurface surface="warm">
@@ -181,39 +230,46 @@ export function MemberProgramKit({
 
           {/* Sidebar: live session + missions */}
           <div className="wa-space-y-5">
-            <div className="wa-kit-card">
-              <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-accent)', marginBottom: 8 }}>
-                <CalendarDays size={15} />
-                <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Next Live Session</h3>
+            {hasLiveSession && (
+              <div className="wa-kit-card">
+                <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-accent)', marginBottom: 8 }}>
+                  <CalendarDays size={15} />
+                  <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Next Live Session</h3>
+                </div>
+                <p style={{ fontSize: 14, fontWeight: 700 }}>{liveSessionTitle}</p>
+                {liveSessionWhen && (
+                  <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>{liveSessionWhen}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={handleAddToCalendar}
+                  className="wa-kit-focus"
+                  style={{
+                    marginTop: 12,
+                    width: '100%',
+                    padding: '8px 0',
+                    background: 'var(--wa-accent)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: 12,
+                    borderRadius: 999,
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Add to Calendar
+                </button>
               </div>
-              <p style={{ fontSize: 14, fontWeight: 700 }}>{liveSessionTitle}</p>
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>{liveSessionWhen}</p>
-              <button
-                type="button"
-                className="wa-kit-focus"
-                style={{
-                  marginTop: 12,
-                  width: '100%',
-                  padding: '8px 0',
-                  background: 'var(--wa-accent)',
-                  color: '#fff',
-                  fontWeight: 600,
-                  fontSize: 12,
-                  borderRadius: 999,
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                Add to Calendar
-              </button>
-            </div>
+            )}
 
             <div className="wa-kit-card" style={{ background: '#faf7f0', borderColor: '#ece2c8' }}>
               <div className="wa-flex wa-items-center wa-gap-2" style={{ color: 'var(--wa-gold)', marginBottom: 8 }}>
                 <Target size={15} />
                 <h3 style={{ fontWeight: 800, fontSize: 13, letterSpacing: '-0.02em' }}>Skill Missions</h3>
               </div>
-              <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>{missionsSummary}</p>
+              <p style={{ fontSize: 12, color: 'var(--wa-muted)' }}>
+                {missionsSummary ?? 'View your active missions and points to earn this week.'}
+              </p>
               <a
                 href={missionsHref}
                 className="wa-kit-focus"

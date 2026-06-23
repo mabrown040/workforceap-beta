@@ -36,9 +36,14 @@ import type { KpiItem, RankDatum } from '@/components/portal/kit';
 
 export const dynamic = 'force-dynamic';
 
-// TODO(growth): swap for the real GA4 property ID + report URL once
-// the workspace is provisioned. Hardcoded placeholder for now.
-const GA4_FUNNEL_DASHBOARD_URL = 'https://analytics.google.com/analytics/web/#/p000000000/reports/dashboard';
+// Resolved from env once the GA4 workspace is provisioned. Until
+// `GA4_FUNNEL_DASHBOARD_URL` is set we render no live-looking link —
+// see `ga4Note` below — rather than pointing admins at a non-existent
+// property (the old hardcoded `p000000000` placeholder showed a GA4
+// error).
+const GA4_FUNNEL_DASHBOARD_URL = process.env.GA4_FUNNEL_DASHBOARD_URL?.trim() || null;
+
+const ga4Note = 'GA4 dashboard link not configured yet — set GA4_FUNNEL_DASHBOARD_URL.';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -200,14 +205,16 @@ export default async function AdminGrowthPage({
           valueUsd: Number(value),
         }))}
         headerAction={
-          <Link
-            href={GA4_FUNNEL_DASHBOARD_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-outline btn-sm"
-          >
-            Open GA4 dashboard
-          </Link>
+          GA4_FUNNEL_DASHBOARD_URL ? (
+            <Link
+              href={GA4_FUNNEL_DASHBOARD_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-outline btn-sm"
+            >
+              Open GA4 dashboard
+            </Link>
+          ) : undefined
         }
       />
     );
@@ -296,14 +303,20 @@ export default async function AdminGrowthPage({
           Funnel step-by-step drop-off lives in GA4. The data is not queryable
           from this app today.
         </p>
-        <Link
-          href={GA4_FUNNEL_DASHBOARD_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="btn btn-outline btn-sm"
-        >
-          Open GA4 dashboard
-        </Link>
+        {GA4_FUNNEL_DASHBOARD_URL ? (
+          <Link
+            href={GA4_FUNNEL_DASHBOARD_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-outline btn-sm"
+          >
+            Open GA4 dashboard
+          </Link>
+        ) : (
+          <p style={{ margin: 0, fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
+            {ga4Note}
+          </p>
+        )}
       </PortalCard>
 
       {/* Section 3: Last 24h apply attempts by event name */}
@@ -354,14 +367,20 @@ export default async function AdminGrowthPage({
               → success) is dataLayer-only — fetch via GA4 Data API later. */}
           Per-step login funnel drop-off lives in GA4.
         </p>
-        <Link
-          href={GA4_FUNNEL_DASHBOARD_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="btn btn-outline btn-sm"
-        >
-          Open GA4 login funnel
-        </Link>
+        {GA4_FUNNEL_DASHBOARD_URL ? (
+          <Link
+            href={GA4_FUNNEL_DASHBOARD_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-outline btn-sm"
+          >
+            Open GA4 login funnel
+          </Link>
+        ) : (
+          <p style={{ margin: 0, fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>
+            {ga4Note}
+          </p>
+        )}
       </PortalCard>
 
       {/* Conversion value reference — what Google Ads "import with value" uses */}

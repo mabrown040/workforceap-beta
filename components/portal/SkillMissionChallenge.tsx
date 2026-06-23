@@ -909,7 +909,7 @@ function PhaseCelebration({
 
       <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         <a
-          href="/dashboard/career/resume-studio"
+          href="/dashboard/ai-tools/resume-studio"
           style={{
             display: 'inline-flex',
             alignItems: 'center',

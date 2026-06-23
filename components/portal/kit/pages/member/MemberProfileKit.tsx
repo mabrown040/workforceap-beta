@@ -234,6 +234,8 @@ export function MemberProfileKit({
           </div>
           <button
             type="button"
+            disabled
+            title="Photo upload coming soon"
             className="wa-kit-focus"
             style={{
               padding: '8px 16px',
@@ -242,7 +244,8 @@ export function MemberProfileKit({
               fontWeight: 600,
               fontSize: 12,
               borderRadius: 999,
-              cursor: 'pointer',
+              cursor: 'not-allowed',
+              opacity: 0.5,
             }}
           >
             Edit Photo

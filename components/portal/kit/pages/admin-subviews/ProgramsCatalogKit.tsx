@@ -10,7 +10,7 @@ import {
   BarChart3,
   Laptop,
   BookOpen,
-  Plus,
+  SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -212,7 +212,7 @@ export function ProgramsCatalogKit({
         goal={subtitle}
         action={
           <a
-            href="/admin/programs?ui=legacy#create"
+            href="/admin/programs?ui=legacy"
             className="wa-kit-focus"
             style={{
               display: 'inline-flex',
@@ -227,7 +227,7 @@ export function ProgramsCatalogKit({
               color: '#fff',
             }}
           >
-            <Plus className="h-4 w-4" aria-hidden /> New Program
+            <SlidersHorizontal className="h-4 w-4" aria-hidden /> Manage catalog
           </a>
         }
       />

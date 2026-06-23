@@ -4,62 +4,107 @@ import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { trackAIToolRun, trackToolLaunch } from '@/lib/analytics/events';
 import { getResumeExtractionWarning } from '@/lib/resume/extractionQuality';
-import ResumeAnalysisPanel from './ResumeAnalysisPanel';
+import ResumeAnalysisPanel, { type ResumeSectionAuditCard } from './ResumeAnalysisPanel';
 import ResumeScoreBreakdown, { type ResumeScorePayload } from './ResumeScoreBreakdown';
 import ToolFollowThrough from './ToolFollowThrough';
 import { useHydrateMemberResumePlainText } from '@/hooks/useHydrateMemberResumePlainText';
 
-const sectionAuditCards = [
-  {
-    title: 'Summary',
-    status: 'Review',
+// Static visual styling per audit card. The *status* (Pass/Review) is derived
+// from the real per-resume structural subscores below — never hardcoded.
+const SECTION_AUDIT_STYLE = {
+  structure: {
+    title: 'Sections & structure',
     description: 'See strengths and improvements in the analysis text.',
     accent: '#1565c0',
     accentSoft: 'rgba(21, 101, 192, 0.12)',
-    statusColor: '#1565c0',
   },
-  {
-    title: 'Experience',
-    status: 'Review',
+  quantification: {
+    title: 'Quantified achievements',
     description: 'Check bullets for metrics, scope, and strong action verbs.',
     accent: '#ed8b00',
     accentSoft: 'rgba(237, 139, 0, 0.14)',
-    statusColor: '#b26a00',
   },
-  {
-    title: 'Skills & keywords',
-    status: 'Review',
-    description: 'Align skills with your target roles and ATS phrasing.',
+  actionVerbs: {
+    title: 'Action-verb openers',
+    description: 'Lead bullets with strong action verbs aligned to your target roles.',
     accent: '#2e7d32',
     accentSoft: 'rgba(46, 125, 50, 0.12)',
-    statusColor: 'var(--color-green)',
   },
-  {
-    title: 'Education & certs',
-    status: 'Review',
-    description: 'Ensure dates, credentials, and program names are easy to verify.',
+  contact: {
+    title: 'Contact essentials',
+    description: 'Ensure email, phone, and location are present and ATS-parsable.',
     accent: '#6a1b9a',
     accentSoft: 'rgba(106, 27, 154, 0.12)',
-    statusColor: '#6a1b9a',
   },
-];
+} as const;
 
-const missingMetrics = [
-  'Add quantified outcomes where possible (%, $, time saved)',
-  'Clarify role scope (team size, budget, geography)',
-  'Tighten formatting for ATS parsing',
-];
+// Order in which audit cards appear when the corresponding subscore exists.
+const SECTION_AUDIT_ORDER = ['structure', 'quantification', 'actionVerbs', 'contact'] as const;
 
-const bulletSuggestions = [
-  {
-    before: 'Responsible for customer onboarding',
-    after: 'Onboarded 40+ customers per quarter, cutting average setup time from 5 days to 2.',
-  },
-  {
-    before: 'Helped improve sales',
-    after: 'Supported a 12% lift in regional sales by refining outreach sequences and follow-up cadence.',
-  },
-];
+const PASS_STYLE = { status: 'Pass', statusColor: 'var(--color-green)', accent: '#2e7d32', accentSoft: 'rgba(46, 125, 50, 0.12)' };
+
+/**
+ * Build per-section audit cards from the real deterministic structural subscores
+ * returned by the resume-strength API. Each card's status (Pass/Review) reflects
+ * that resume's actual subscore rather than a constant.
+ */
+function deriveSectionAuditCards(payload: ResumeScorePayload | null): ResumeSectionAuditCard[] {
+  const breakdown = payload?.structural?.breakdown;
+  if (!breakdown) return [];
+  return SECTION_AUDIT_ORDER.flatMap((key) => {
+    const sub = breakdown[key as keyof typeof breakdown];
+    if (!sub) return [];
+    const style = SECTION_AUDIT_STYLE[key];
+    const isPass = sub.score >= 70;
+    return [{
+      title: style.title,
+      status: isPass ? 'Pass' : 'Review',
+      description: style.description,
+      accent: isPass ? PASS_STYLE.accent : style.accent,
+      accentSoft: isPass ? PASS_STYLE.accentSoft : style.accentSoft,
+      statusColor: isPass ? PASS_STYLE.statusColor : '#b26a00',
+    }];
+  });
+}
+
+/**
+ * Surface the real per-resume findings the deterministic scorer produced for the
+ * weakest structural dimensions (quantification, structure, contact). These are the
+ * actual `notes` computed from this resume, not generic tips.
+ */
+function deriveMissingMetrics(payload: ResumeScorePayload | null): string[] {
+  const breakdown = payload?.structural?.breakdown;
+  if (!breakdown) return [];
+  const findings: string[] = [];
+  for (const key of ['quantification', 'structure', 'contact', 'bulletLength'] as const) {
+    const sub = breakdown[key];
+    if (sub && sub.score < 80) {
+      for (const note of sub.notes) {
+        const trimmed = note.trim();
+        // Skip purely informational tallies; keep actionable gaps.
+        if (trimmed && !findings.includes(trimmed)) findings.push(trimmed);
+      }
+    }
+  }
+  return findings;
+}
+
+/** Collect the real "must-have" keywords this resume already covers / is missing across target occupations. */
+function deriveKeyword(
+  payload: ResumeScorePayload | null,
+  field: 'mustHavePresent' | 'mustHaveMissing',
+): string[] {
+  const market = payload?.marketCoverage;
+  if (!market) return [];
+  const seen = new Set<string>();
+  for (const m of market) {
+    if (m.source === 'unavailable') continue;
+    for (const kw of m[field]) {
+      if (!seen.has(kw.phrase)) seen.add(kw.phrase);
+    }
+  }
+  return Array.from(seen).slice(0, 8);
+}
 
 export default function ResumeStrengthForm() {
   const [resume, setResume] = useState('');
@@ -162,6 +207,10 @@ export default function ResumeStrengthForm() {
   };
 
   const scorePercent = scorePayload?.composite ?? 0;
+  const sectionAuditCards = deriveSectionAuditCards(scorePayload);
+  const missingMetrics = deriveMissingMetrics(scorePayload);
+  const matchedSkills = deriveKeyword(scorePayload, 'mustHavePresent');
+  const missingSkills = deriveKeyword(scorePayload, 'mustHaveMissing');
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="portal-ai-tool-form">
@@ -213,12 +262,12 @@ export default function ResumeStrengthForm() {
             scorePercent={scorePercent}
             gaugeLabel="Overall strength"
             extractionWarning={extractionWarning}
-            matchedSkills={['ATS-friendly structure', 'Clear sections', 'Action-oriented language']}
-            missingSkills={['See priority improvements in analysis']}
+            matchedSkills={matchedSkills}
+            missingSkills={missingSkills}
             analysisText={output}
             sectionAuditCards={sectionAuditCards}
             missingMetrics={missingMetrics}
-            bulletSuggestions={bulletSuggestions}
+            bulletSuggestions={[]}
             exportTitle="Resume Strength Analysis"
             pdfToolName="Resume Analysis"
           />

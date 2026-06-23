@@ -257,8 +257,8 @@ async function renderMemberDashboard(
         activeJobs={leanActiveJobs}
         certs={leanCertCount}
         points={leanPointsRow?.totalPoints ?? 0}
-        nextLesson={topLeanAction?.title ?? undefined}
-        nextLessonDue={topLeanAction ? 'Recommended next step' : undefined}
+        nextLesson={topLeanAction?.title ?? leanProgram?.title ?? 'Continue your training'}
+        nextLessonDue={topLeanAction ? 'Recommended next step' : 'Up next'}
         nextBadgeName={nextBadgeName}
         nextBadgePercent={nextBadgePercent}
         nextBadgeRemaining={nextBadgeRemaining}

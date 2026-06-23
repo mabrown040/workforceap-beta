@@ -1,5 +1,9 @@
+'use client';
+
 import { CheckCircle2, Download, Award, Hourglass } from 'lucide-react';
 import { DesignSurface, KpiStrip } from '@/components/portal/kit';
+import ShareButton from '@/components/ui/ShareButton';
+import { buildCertificateShare, getBrowserShareOrigin } from '@/lib/og/shareAchievementLinks';
 
 /**
  * Member Portal — CERTIFICATES view.
@@ -15,6 +19,12 @@ interface EarnedCert {
   title: string;
   meta: string;
   verified?: boolean;
+  /**
+   * ISO date the credential was earned. When present, the Share action builds a
+   * dated share link via `buildCertificateShare`; the route should forward the
+   * member's real `earnedAt` here. Title-only sharing is used when omitted.
+   */
+  earnedAtIso?: string;
 }
 
 interface InProgressCert {
@@ -47,6 +57,24 @@ const DEFAULT_IN_PROGRESS: InProgressCert[] = [
     note: 'Complete AWS Practitioner first to unlock the exam voucher.',
   },
 ];
+
+/**
+ * Share action for an earned certificate card. Mirrors the legacy
+ * CertificationViewButton wiring: builds the dated share link via
+ * `buildCertificateShare` and hands the title/text/url to the shared
+ * `ShareButton` (Web Share API with copy-link fallback).
+ */
+function EarnedCertShareButton({ title, earnedAtIso }: { title: string; earnedAtIso?: string }) {
+  const share = buildCertificateShare({
+    origin: getBrowserShareOrigin(),
+    certificateTitle: title,
+    // Pass the real earned date through when the route forwards it; otherwise
+    // leave it empty rather than inventing one (the share link's date param is
+    // simply omitted). The shared credential title is real either way.
+    earnedAtIso: earnedAtIso ?? '',
+  });
+  return <ShareButton url={share.url} title={share.title} text={share.text} />;
+}
 
 export function MemberCertificatesKit({
   earnedCount = 2,
@@ -95,9 +123,11 @@ export function MemberCertificatesKit({
                 </div>
                 <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 2 }}>{cert.meta}</p>
                 <div className="wa-flex wa-flex-wrap wa-gap-2" style={{ marginTop: 12 }}>
-                  <button
-                    type="button"
+                  <a
+                    href="/api/member/certifications/export"
+                    download="my-certificates.csv"
                     className="wa-kit-focus wa-flex wa-items-center wa-gap-1"
+                    title="Download your certificate records (CSV)"
                     style={{
                       padding: '6px 12px',
                       background: 'var(--wa-gold)',
@@ -107,25 +137,12 @@ export function MemberCertificatesKit({
                       borderRadius: 999,
                       border: 'none',
                       cursor: 'pointer',
+                      textDecoration: 'none',
                     }}
                   >
                     <Download size={11} /> Download
-                  </button>
-                  <button
-                    type="button"
-                    className="wa-kit-focus"
-                    style={{
-                      padding: '6px 12px',
-                      border: '1px solid var(--wa-border)',
-                      background: 'transparent',
-                      fontWeight: 600,
-                      fontSize: 11,
-                      borderRadius: 999,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Share
-                  </button>
+                  </a>
+                  <EarnedCertShareButton title={cert.title} earnedAtIso={cert.earnedAtIso} />
                 </div>
               </div>
             </div>

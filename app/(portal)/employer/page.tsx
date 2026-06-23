@@ -21,7 +21,7 @@ import {
 } from '@/lib/employer/jobPostingApplicationStatus';
 import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
 import { getTranslations } from 'next-intl/server';
-import { Mic, Zap, SquarePen, MessageSquare } from 'lucide-react';
+import { Zap, SquarePen, MessageSquare } from 'lucide-react';
 import {
   DesignSurface,
   KpiStrip,
@@ -107,6 +107,7 @@ export default async function EmployerDashboardPage({
   const params = await searchParams;
   // v2 kit is the DEFAULT employer overview; legacy via ?ui=legacy.
   if (params?.ui !== 'legacy') {
+    const kitT = await getTranslations('employer');
     const [
       kitOpenRoles,
       kitTotalCandidates,
@@ -200,59 +201,22 @@ export default async function EmployerDashboardPage({
           ]}
         />
 
-        {/* ── Voice Assistant card ── */}
-        <div
-          className="wa-mt-5 wa-kit-card"
-          style={{
-            background: 'linear-gradient(135deg, #1a2340, #0f1a30)',
-            border: 'none',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-          }}
-        >
-          <div
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 999,
-              background: 'linear-gradient(135deg, #2b7bb9, #1a4a70)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 32,
-              flexShrink: 0,
-            }}
-          >
-            <Mic className="h-8 w-8" aria-hidden />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 4px' }}>
-              Employer Voice Assistant
-            </h3>
-            <p style={{ fontSize: 12, opacity: 0.8, margin: '0 0 12px' }}>
-              Review pending applications, screen candidates, and triage messages hands-free.
-            </p>
-            <Link
-              href="/employer/applications"
-              style={{
-                background: 'var(--wa-info)',
-                color: '#fff',
-                border: 'none',
-                padding: '8px 14px',
-                borderRadius: 999,
-                fontWeight: 700,
-                fontSize: 12,
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              ▶ Start voice session
-            </Link>
-          </div>
+        {/* ── Voice Assistant ── */}
+        {/* Mounts the real ElevenLabs voice surface (same wiring as the legacy
+            path) so the start control actually opens a hands-free session
+            against /api/employer/voice-session — not a Link to the apps list. */}
+        <div className="wa-mt-5">
+          <VoiceAgentSurface {...employerVoiceSurface}>
+            <PortalVoiceSessionLazy
+              sessionEndpoint="/api/employer/voice-session"
+              title={kitT('employerVoiceAssistant')}
+              description={kitT('askAboutPostingRoles')}
+              accent="var(--color-blue)"
+              accentDark="var(--color-blue)"
+              speakingLabel={kitT('assistantIsSpeaking')}
+              listeningLabel={kitT('listeningAskYourQuestion')}
+            />
+          </VoiceAgentSurface>
         </div>
 
         {/* ── Review-candidate banner ── */}

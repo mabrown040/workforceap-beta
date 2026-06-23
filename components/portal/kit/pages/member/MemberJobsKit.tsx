@@ -45,12 +45,6 @@ const DEFAULT_APPLICATIONS: ApplicationRow[] = [
   { id: 'a4', role: 'Junior Cloud Engineer', company: 'Oracle', location: 'Austin, TX', applied: 'Jun 18', stage: 'Applied', tone: 'muted' },
 ];
 
-const DEFAULT_RECOMMENDED: RecommendedJob[] = [
-  { id: 'r1', logo: 'IBM', match: '94% match', title: 'Cloud Solutions Analyst', meta: 'IBM · Austin, TX · $72k–88k' },
-  { id: 'r2', logo: 'DX', match: '89% match', title: 'IT Support Specialist', meta: 'Dell · Round Rock, TX · $58k–70k' },
-  { id: 'r3', logo: 'VM', match: '85% match', title: 'Associate DevOps Eng.', meta: 'VMware · Remote · $80k–95k' },
-];
-
 export function MemberJobsKit({
   saved = 9,
   applied = 4,
@@ -59,7 +53,7 @@ export function MemberJobsKit({
   syncedLabel = 'Synced 3m ago',
   browseHref = '#',
   applications = DEFAULT_APPLICATIONS,
-  recommended = DEFAULT_RECOMMENDED,
+  recommended = [],
 }: MemberJobsKitProps) {
   const columns: Column<ApplicationRow>[] = [
     { key: 'role', header: 'Role', render: (r) => <span style={{ fontWeight: 700 }}>{r.role}</span> },
@@ -111,6 +105,14 @@ export function MemberJobsKit({
         {/* Recommended for you */}
         <div>
           <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 12 }}>Recommended for you</h3>
+          {recommended.length === 0 ? (
+            <div className="wa-kit-card wa-kit-card--sm">
+              <p style={{ fontSize: 13, fontWeight: 600 }}>No recommendations yet</p>
+              <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 4 }}>
+                Keep your profile and certifications up to date and we&rsquo;ll surface matching roles here.
+              </p>
+            </div>
+          ) : (
           <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
             {recommended.map((job) => (
               <div key={job.id} className="wa-kit-card wa-kit-card--sm wa-kit-card--hover">
@@ -135,11 +137,12 @@ export function MemberJobsKit({
                 </div>
                 <h4 style={{ fontWeight: 700, fontSize: 14, marginTop: 12 }}>{job.title}</h4>
                 <p style={{ fontSize: 11, color: 'var(--wa-muted)', marginTop: 2 }}>{job.meta}</p>
-                <button
-                  type="button"
+                <a
+                  href={`/dashboard/jobs/${job.id}`}
                   className="wa-kit-focus"
                   style={{
                     marginTop: 12,
+                    display: 'block',
                     width: '100%',
                     padding: '6px 0',
                     border: '1px solid var(--wa-accent)',
@@ -148,14 +151,17 @@ export function MemberJobsKit({
                     fontWeight: 600,
                     fontSize: 12,
                     borderRadius: 999,
+                    textAlign: 'center',
+                    textDecoration: 'none',
                     cursor: 'pointer',
                   }}
                 >
                   Quick Apply
-                </button>
+                </a>
               </div>
             ))}
           </div>
+          )}
         </div>
       </div>
     </DesignSurface>

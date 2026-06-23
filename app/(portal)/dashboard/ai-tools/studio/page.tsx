@@ -6,7 +6,6 @@ import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText'
 import { scoreStructural } from '@/lib/ai/resumeScore';
 import {
   VoiceStudioKit,
-  VOICE_STUDIO_AGENT_KEYS,
   type ResumeStudioData,
   type ResumeStudioIssue,
   type VoiceStudioAgentKey,
@@ -19,6 +18,7 @@ import {
  */
 const STUDIO_TABS = ['coaches', 'session', 'studio', 'toolkit'] as const;
 type StudioTab = (typeof STUDIO_TABS)[number];
+const STUDIO_AGENTS: VoiceStudioAgentKey[] = ['readiness', 'resume', 'mock', 'counselor', 'business'];
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -45,7 +45,7 @@ export default async function VoiceStudioPage({
   )
     ? (requestedTab as StudioTab)
     : undefined;
-  const initialAgent: VoiceStudioAgentKey | undefined = VOICE_STUDIO_AGENT_KEYS.includes(
+  const initialAgent: VoiceStudioAgentKey | undefined = STUDIO_AGENTS.includes(
     requestedAgent as VoiceStudioAgentKey,
   )
     ? (requestedAgent as VoiceStudioAgentKey)

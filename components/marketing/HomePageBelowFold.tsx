@@ -61,7 +61,7 @@ export default async function HomePageBelowFold({
         aria-label="No-cost career training"
         style={{
           background: 'var(--surface-container-lowest)',
-          padding: 'clamp(2.5rem, 6vw, 4.5rem) clamp(1rem, 4vw, 2rem)',
+          padding: 'clamp(3.25rem, 7vw, 6rem) clamp(1rem, 4vw, 2rem)',
         }}
       >
         <div style={{ maxWidth: '880px', margin: '0 auto', textAlign: 'center' }}>
@@ -100,7 +100,7 @@ export default async function HomePageBelowFold({
       <section
         className="home-program-showcase home-program-showcase--early"
         aria-label="Available programs"
-        style={{ padding: 'clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}
+        style={{ padding: 'clamp(4rem, 7vw, 7.5rem) clamp(1rem, 4vw, 2rem)', maxWidth: '1400px', margin: '0 auto' }}
       >
         <div className="home-program-showcase__header">
           <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>
@@ -115,7 +115,7 @@ export default async function HomePageBelowFold({
         </div>
         <div
           className="home-program-showcase__grid"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: '2rem' }}
         >
           {homeProgramShowcase.map((p, index) => {
             const cardHint = homepageProgramCardHint(p.slug);
@@ -234,7 +234,7 @@ export default async function HomePageBelowFold({
         aria-labelledby="home-contrast-heading"
         style={{
           background: 'var(--surface-container-low)',
-          padding: 'clamp(2rem, 4vw, 3.25rem) 0',
+          padding: 'clamp(3rem, 5vw, 4.5rem) 0',
           borderTop: '1px solid rgba(0,0,0,0.06)',
         }}
       >
@@ -345,7 +345,7 @@ export default async function HomePageBelowFold({
       </section>
 
       {/* ===== A Network Built for Success — Stakeholder Cards (Partnerships) ===== */}
-      <section aria-label="Partnerships" style={{ background: 'var(--surface-container-low)', padding: 'clamp(3rem, 6vw, 6rem) 0' }}>
+      <section aria-label="Partnerships" style={{ background: 'var(--surface-container-low)', padding: 'clamp(4rem, 7vw, 7.5rem) 0' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2rem)' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <span className="text-label-upper" style={{ color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'inline-block' }}>

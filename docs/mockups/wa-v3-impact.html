@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — Public Impact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wa-accent:#ad2c4d; --wa-accent-dark:#8c0f37; --wa-accent-soft:#fdf2f4; --wa-on-accent:#fff;
+    --wa-gold:#a47f38; --wa-gold-dark:#7d5f26; --wa-gold-soft:#fef3c7;
+    --wa-info:#2b7bb9; --wa-info-soft:#eef5fb; --wa-success:#4a9b4f;
+    --wa-bg:#f7f4f1; --wa-surface:#fff; --wa-text:#1a1a1a; --wa-muted:#6e6a66; --wa-border:#ece7e2;
+    --wa-radius:24px; --wa-radius-sm:14px;
+    --wa-shadow:0 1px 2px rgba(0,0,0,.04); --wa-shadow-lg:0 18px 44px -22px rgba(60,30,40,.4);
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+    --plum:#3a1326; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--wa-text);background:var(--wa-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--wa-accent)}
+  .muted{color:var(--wa-muted)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--primary{background:var(--wa-accent);color:#fff;box-shadow:0 12px 30px -12px rgba(173,44,77,.6)}
+  .btn--primary:hover{background:var(--wa-accent-dark)}
+  .btn--ghost{background:#fff;border-color:var(--wa-border);color:var(--wa-text)}
+  .btn--ghost:hover{border-color:var(--wa-accent);color:var(--wa-accent)}
+  .btn--light{background:#fff;color:var(--wa-accent)}
+  svg{display:block}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--wa-border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--wa-accent),var(--plum));display:grid;place-items:center;color:#fff;font-weight:800}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:15px;color:var(--wa-muted)}
+  .nav-links a:hover{color:var(--wa-accent)}
+  .nav-links a[aria-current="page"]{color:var(--wa-accent)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* IMPACT HERO band */
+  .impact-hero{
+    background:
+      radial-gradient(120% 120% at 85% 0%, rgba(164,127,56,.30), transparent 55%),
+      linear-gradient(150deg, rgba(173,44,77,.90), rgba(58,19,38,.94) 92%),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat;
+    color:#fff;position:relative;overflow:hidden;
+    padding:clamp(56px,7vw,92px) 0 clamp(48px,6vw,72px)}
+  .impact-hero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:38px 38px;mask:radial-gradient(120% 80% at 80% 10%,#000,transparent 70%);pointer-events:none}
+  .impact-hero .wrap{position:relative;z-index:1}
+  .impact-hero .eyebrow{color:var(--wa-gold-soft)}
+  .impact-hero h1{font-size:clamp(32px,4.6vw,56px);margin:14px 0 0;max-width:18ch}
+  .impact-hero .lede{color:rgba(255,255,255,.86);margin-top:16px;max-width:60ch;font-size:clamp(15px,1.1vw,18px)}
+
+  /* hero metric tile */
+  .hero-metric{margin-top:34px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);border-left:4px solid var(--wa-gold-soft);border-radius:var(--wa-radius);padding:clamp(22px,3vw,34px);backdrop-filter:blur(6px);max-width:560px}
+  .hero-metric .v{font-family:var(--display);font-weight:800;font-size:clamp(44px,6vw,64px);line-height:1;color:#fff}
+  .hero-metric .v.empty{color:rgba(255,255,255,.55)}
+  .hero-metric .lbl{font-weight:700;font-size:18px;margin-top:10px}
+  .hero-metric .desc{font-size:14px;color:rgba(255,255,255,.78);margin-top:6px;line-height:1.55}
+
+  section.band{padding:clamp(48px,6vw,84px) 0}
+  section.band--surface{background:#fff;border-top:1px solid var(--wa-border);border-bottom:1px solid var(--wa-border)}
+  section.band--dark{background:var(--plum);color:#f3e9ed}
+  section.band--dark .sec-head p{color:#cdbcc6}
+  .sec-head{max-width:760px;margin-bottom:34px}
+  .sec-head h2{font-size:clamp(26px,3.4vw,42px);margin-top:10px}
+  .sec-head p{margin-top:14px;font-size:16px;color:var(--wa-muted)}
+  .narrow{max-width:880px;margin:0 auto}
+
+  /* preview panel + stat cards */
+  .preview-panel{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:clamp(20px,3vw,30px);box-shadow:var(--wa-shadow)}
+  .preview-heading{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--wa-muted);margin-bottom:18px}
+  .stat-grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:640px){.stat-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}}
+  .stat-card{background:var(--wa-bg);border:1px solid var(--wa-border);border-radius:var(--wa-radius-sm);padding:22px;position:relative}
+  .stat-card .sv{font-family:var(--display);font-weight:800;font-size:38px;line-height:1;color:var(--wa-accent)}
+  .stat-card .sv.empty{color:#bcb4ae}
+  .stat-card .sl{font-weight:600;font-size:14.5px;margin-top:10px;line-height:1.4}
+  .stat-card .footnote{display:block;margin-top:8px;font-size:12.5px;font-weight:400;color:var(--wa-muted);line-height:1.45}
+  .stat-card .pill{display:inline-block;margin-top:12px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--wa-gold-dark);background:var(--wa-gold-soft);border:1px solid #efe2c4;border-radius:999px;padding:4px 10px}
+  .methodology{margin-top:18px;font-size:13px;color:var(--wa-muted);max-width:46rem;line-height:1.6}
+  .section-link{display:inline-flex;align-items:center;gap:6px;margin-top:18px;font-weight:700;font-size:14px;color:var(--wa-accent)}
+  .section-link:hover{text-decoration:underline}
+
+  /* info card (empty states) */
+  .info-card{background:var(--wa-surface);border:1px dashed var(--wa-border);border-radius:var(--wa-radius);padding:clamp(22px,3vw,30px)}
+  .info-card .eyebrow{display:block;margin-bottom:8px}
+  .info-card h3{font-size:20px;margin-bottom:8px}
+  .info-card p{font-size:15px;color:var(--wa-muted);line-height:1.6}
+  section.band--dark .info-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.18)}
+  section.band--dark .info-card h3{color:#fff}
+  section.band--dark .info-card p{color:#cdbcc6}
+
+  /* programs table */
+  .ptable{width:100%;border-collapse:collapse;background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);overflow:hidden}
+  .ptable th,.ptable td{padding:14px 18px;text-align:left;font-size:14.5px}
+  .ptable th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--wa-muted);font-weight:700;border-bottom:1px solid var(--wa-border)}
+  .ptable th.r,.ptable td.r{text-align:right}
+  .ptable td{border-bottom:1px solid var(--wa-border)}
+  .ptable tr:last-child td{border-bottom:none}
+
+  /* member stories */
+  .stories{display:grid;grid-template-columns:1fr;gap:20px}
+  @media(min-width:640px){.stories{grid-template-columns:repeat(auto-fit,minmax(17.5rem,1fr))}}
+
+  /* funders */
+  .funder-card{background:linear-gradient(150deg,#fff,var(--wa-accent-soft));border:1px solid #f3d9df;border-radius:var(--wa-radius);padding:clamp(26px,4vw,40px)}
+  .funder-card .eyebrow{display:block;margin-bottom:10px}
+  .funder-card h3{font-size:clamp(22px,2.6vw,30px)}
+  .funder-card p{font-size:16px;color:var(--wa-muted);margin-top:12px;max-width:54ch;line-height:1.65}
+  .funder-actions{margin-top:24px;display:flex;flex-wrap:wrap;gap:12px}
+  @media(max-width:639px){.funder-actions{flex-direction:column}.funder-actions .btn{width:100%;justify-content:center}}
+  section.band--dark .funder-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.18)}
+  section.band--dark .funder-card p{color:#cdbcc6}
+
+  footer{background:#211a1d;color:#cabfc4;padding:60px 0 36px}
+  .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;margin-bottom:14px}
+  footer a{display:block;color:#a99ea4;font-size:14px;margin-bottom:9px}footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #382c30;margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a7d83}
+
+/* mobile nav */
+.nav-in{position:relative}
+.nav-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.nav-burger{display:none;flex-direction:column;gap:5px;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid var(--wa-border);border-radius:12px;background:var(--wa-surface,#fff);cursor:pointer}
+.nav-burger span{display:block;width:20px;height:2px;background:var(--wa-text,#1a1a1a);border-radius:2px;transition:transform .2s,opacity .2s}
+.nav-toggle:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle:checked ~ .nav-burger span:nth-child(2){opacity:0}
+.nav-toggle:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:880px){
+  .nav-burger{display:flex;position:absolute;right:24px;top:12px}
+  .nav-cta{display:none}
+  .nav-toggle:checked ~ .nav-links{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--wa-surface,#fff);border-bottom:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg,0 12px 28px rgba(0,0,0,.08));padding:18px 24px;gap:18px;font-size:16px}
+}
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in"><input class="nav-toggle" type="checkbox" id="nvt" aria-label="Open menu"><label for="nvt" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <a class="brand" href="#"><span class="mark">W</span> WorkforceAP</a>
+  <div class="nav-links"><a href="#">Programs</a><a href="#">How it works</a><a href="#">Who we serve</a><a href="#" aria-current="page">Impact</a><a href="#">About</a></div>
+  <div class="nav-cta"><a class="btn btn--ghost" style="padding:10px 18px">Sign in</a><a class="btn btn--primary" style="padding:10px 20px">Apply now</a></div>
+</div></nav>
+
+<!-- HERO + MEMBERS SERVED METRIC -->
+<header class="impact-hero"><div class="wrap">
+  <span class="eyebrow">Impact reporting</span>
+  <h1>Measured progress, published carefully</h1>
+  <p class="lede">Metrics appear here once there is enough verified data to share publicly&mdash;figures stay blank until then.</p>
+
+  <div class="hero-metric">
+    <div class="v empty" aria-label="Not published yet">&mdash;</div>
+    <div class="lbl">Members served</div>
+    <div class="desc">Member counts and cohort rates publish here as verified member and employer activity is recorded&mdash;not before.</div>
+  </div>
+</div></header>
+
+<!-- COHORT METRICS PREVIEW -->
+<section class="band" aria-labelledby="cohort-preview-heading"><div class="wrap">
+  <div class="preview-panel">
+    <p id="cohort-preview-heading" class="preview-heading">Cohort metrics we publish when verified</p>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="sv empty">&mdash;</div>
+        <div class="sl">Completion rate (enrolled cohort)
+          <span class="footnote">Published once enrolled program cohorts have recorded activity.</span>
+        </div>
+        <span class="pill">Not published yet</span>
+      </div>
+      <div class="stat-card">
+        <div class="sv empty">&mdash;</div>
+        <div class="sl">Placement rate (enrolled cohort)
+          <span class="footnote">Published once enrolled program cohorts have recorded activity.</span>
+        </div>
+        <span class="pill">Not published yet</span>
+      </div>
+      <div class="stat-card">
+        <div class="sv empty">&mdash;</div>
+        <div class="sl">Avg. salary increase
+          <span class="footnote">Reported after placement follow-ups; insufficient paired data to show an average yet.</span>
+        </div>
+        <span class="pill">Not published yet</span>
+      </div>
+    </div>
+    <p class="methodology">Dash (&mdash;) means a metric is not published yet. Rates use enrolled program cohorts; salary averages use paired offer and follow-up wages where both are on file.</p>
+  </div>
+</div></section>
+
+<!-- PROGRAMS -->
+<section class="band band--surface" aria-label="Programs"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">Programs</span><h2>Programs</h2><p>Per-program breakdowns publish here once enrolled cohorts have recorded activity.</p></div>
+  <table class="ptable">
+    <thead><tr>
+      <th scope="col">Program</th>
+      <th scope="col" class="r">Enrolled</th>
+      <th scope="col" class="r">Completed</th>
+      <th scope="col" class="r">Avg. time to complete</th>
+    </tr></thead>
+    <tbody><tr>
+      <td colspan="4" style="color:var(--wa-muted)">No enrolled program cohorts recorded yet.</td>
+    </tr></tbody>
+  </table>
+</div></section>
+
+<!-- EMPLOYERS -->
+<section class="band" aria-label="Employers"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">Employers</span><h2>Employers</h2><p>Employer counts and pipeline activity publish here once records are on file.</p></div>
+  <div class="info-card">
+    <h3>Employer metrics not published yet</h3>
+    <p>Partnership counts, job posts, and placement records appear here once active employer activity is on file.</p>
+  </div>
+  <p class="methodology" style="margin-top:18px">Counts reflect registered employer accounts on file&mdash;not verified hiring outcomes unless noted.</p>
+  <a class="section-link" href="#">Become a hiring partner
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+</div></section>
+
+<!-- MEMBER STORIES -->
+<section class="band band--surface" aria-label="Member stories"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">Member stories</span><h2>Member stories</h2><p>Consented member stories appear only after staff review.</p></div>
+  <div class="info-card">
+    <h3>No member stories published yet</h3>
+    <p>WorkforceAP shows member stories only after consent and staff review.</p>
+  </div>
+</div></section>
+
+<!-- FUNDERS -->
+<section class="band band--dark" aria-label="Funders"><div class="wrap narrow">
+  <div class="sec-head"><h2 style="color:#fff">Funders</h2></div>
+  <div class="funder-card">
+    <span class="eyebrow">Nonprofit model</span>
+    <h3>Grant-funded access</h3>
+    <p>WorkforceAP is a 501(c)(3) nonprofit. Funded by grants and partners, no-cost for qualifying members.</p>
+    <div class="funder-actions">
+      <a class="btn btn--ghost" href="#">Placement outcomes detail</a>
+      <a class="btn btn--primary" href="#">Apply</a>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><a class="brand" style="color:#fff;margin-bottom:12px"><span class="mark">W</span> WorkforceAP</a>
+      <p style="max-width:300px;color:#a99ea4;font-size:14px">Empowering People. Advancing Futures. A 501(c)(3) nonprofit — career training, certificates, and job support at no cost to qualifying members.</p></div>
+    <div><h4>Programs</h4><a>IT Support</a><a>AI Developer</a><a>Project Management</a><a>All certificates</a></div>
+    <div><h4>About</h4><a>How it works</a><a>Our mission</a><a>Partners</a><a>Impact</a></div>
+    <div><h4>Get started</h4><a>Apply</a><a>See programs</a><a>For employers</a><a>Contact</a></div>
+  </div>
+  <div class="fbar"><span>© 2026 Workforce Advancement Project · 501(c)(3)</span><span>Privacy · Terms · Accessibility</span></div>
+</div></footer>
+
+</body>
+</html>

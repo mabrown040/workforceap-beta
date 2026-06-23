@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Privacy Policy — WorkforceAP</title>
+<meta name="description" content="Privacy Policy for the Workforce Advancement Project — how we collect, use, share, and protect your information, including the full list of sub-processors." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wa-accent:#ad2c4d; --wa-accent-dark:#8c0f37; --wa-accent-soft:#fdf2f4; --wa-on-accent:#fff;
+    --wa-gold:#a47f38; --wa-gold-dark:#7d5f26; --wa-gold-soft:#fef3c7;
+    --wa-info:#2b7bb9; --wa-info-soft:#eef5fb; --wa-success:#4a9b4f;
+    --wa-bg:#f7f4f1; --wa-surface:#fff; --wa-text:#1a1a1a; --wa-muted:#6e6a66; --wa-border:#ece7e2;
+    --wa-radius:24px; --wa-radius-sm:14px;
+    --wa-shadow:0 1px 2px rgba(0,0,0,.04); --wa-shadow-lg:0 18px 44px -22px rgba(60,30,40,.4);
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+    --plum:#3a1326; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--wa-text);background:var(--wa-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--wa-accent)}
+  .muted{color:var(--wa-muted)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--primary{background:var(--wa-accent);color:#fff;box-shadow:0 12px 30px -12px rgba(173,44,77,.6)}
+  .btn--primary:hover{background:var(--wa-accent-dark)}
+  .btn--ghost{background:#fff;border-color:var(--wa-border);color:var(--wa-text)}
+  .btn--ghost:hover{border-color:var(--wa-accent);color:var(--wa-accent)}
+  .btn--light{background:#fff;color:var(--wa-accent)}
+  svg{display:block}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--wa-border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--wa-accent),var(--plum));display:grid;place-items:center;color:#fff;font-weight:800}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:15px;color:var(--wa-muted)}
+  .nav-links a:hover{color:var(--wa-accent)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* PAGE HERO — crimson→plum gradient with hero photo overlay */
+  .phero{background:
+      radial-gradient(120% 120% at 85% 0%, rgba(164,127,56,.30), transparent 55%),
+      linear-gradient(150deg, rgba(173,44,77,.90), rgba(58,19,38,.94) 92%),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat;
+    color:#fff;position:relative;overflow:hidden;padding:clamp(48px,6vw,84px) 0}
+  .phero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:38px 38px;mask:radial-gradient(120% 80% at 80% 10%,#000,transparent 70%);pointer-events:none}
+  .phero .inner{position:relative;max-width:860px}
+  .phero .ribbon{display:inline-block;background:rgba(255,255,255,.16);color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:6px 13px;border-radius:999px;backdrop-filter:blur(6px)}
+  .phero h1{font-size:clamp(34px,5vw,58px);margin:18px 0 0}
+  .phero .sub{color:rgba(255,255,255,.86);margin-top:14px;font-size:clamp(15px,1.1vw,17px)}
+
+  /* CONTENT */
+  section.content{padding:clamp(44px,6vw,76px) 0}
+  .doc{max-width:860px;margin:0 auto}
+  .notice{background:var(--wa-info-soft);border:1px solid #d3e3f1;border-radius:var(--wa-radius-sm);padding:14px 18px;margin-bottom:26px;font-size:14.5px;line-height:1.6;color:#234}
+  .notice a{color:var(--wa-accent);font-weight:600;text-decoration:underline}
+
+  .markdown-body{line-height:1.75;font-size:16px;color:#2a2724}
+  .markdown-body p{margin:0 0 16px}
+  .markdown-body h2{font-size:clamp(22px,2.6vw,30px);margin:42px 0 12px;padding-top:14px;border-top:1px solid var(--wa-border);letter-spacing:-.025em}
+  .markdown-body h2:first-of-type{border-top:none;padding-top:0;margin-top:0}
+  .markdown-body h3{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:-.01em;margin:26px 0 8px;color:var(--wa-accent-dark)}
+  .markdown-body ul{margin:0 0 18px;padding-left:22px}
+  .markdown-body li{margin:0 0 8px}
+  .markdown-body a{color:var(--wa-accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+  .markdown-body a:hover{color:var(--wa-accent-dark)}
+  .markdown-body strong{font-weight:700;color:var(--wa-text)}
+
+  .table-wrap{overflow-x:auto;margin:18px 0 24px;border:1px solid var(--wa-border);border-radius:var(--wa-radius-sm);background:#fff}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  caption{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  th,td{padding:11px 14px;border-bottom:1px solid var(--wa-border);vertical-align:top;text-align:left}
+  thead th{font-weight:700;background:var(--wa-accent-soft);color:var(--wa-accent-dark);border-bottom:2px solid #f3d9df;font-family:var(--display);font-size:13px;letter-spacing:.01em}
+  tbody th{font-weight:700;color:var(--wa-text);white-space:nowrap}
+  tbody tr:last-child th,tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#faf7f4}
+
+  .contact-block{background:linear-gradient(150deg,#fff,var(--wa-accent-soft));border:1px solid #f3d9df;border-radius:var(--wa-radius);padding:24px 28px;margin-top:8px}
+  .contact-block p{margin:0}
+
+  footer{background:#211a1d;color:#cabfc4;padding:60px 0 36px}
+  .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;margin-bottom:14px}
+  footer a{display:block;color:#a99ea4;font-size:14px;margin-bottom:9px}footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #382c30;margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a7d83}
+
+/* mobile nav */
+.nav-in{position:relative}
+.nav-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.nav-burger{display:none;flex-direction:column;gap:5px;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid var(--wa-border);border-radius:12px;background:var(--wa-surface,#fff);cursor:pointer}
+.nav-burger span{display:block;width:20px;height:2px;background:var(--wa-text,#1a1a1a);border-radius:2px;transition:transform .2s,opacity .2s}
+.nav-toggle:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle:checked ~ .nav-burger span:nth-child(2){opacity:0}
+.nav-toggle:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:880px){
+  .nav-burger{display:flex;position:absolute;right:24px;top:12px}
+  .nav-cta{display:none}
+  .nav-toggle:checked ~ .nav-links{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--wa-surface,#fff);border-bottom:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg,0 12px 28px rgba(0,0,0,.08));padding:18px 24px;gap:18px;font-size:16px}
+}
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in"><input class="nav-toggle" type="checkbox" id="nvt" aria-label="Open menu"><label for="nvt" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <a class="brand" href="/"><span class="mark">W</span> WorkforceAP</a>
+  <div class="nav-links"><a href="/#programs">Programs</a><a href="/#how">How it works</a><a href="/#network">Who we serve</a><a href="/#trust">About</a></div>
+  <div class="nav-cta"><a class="btn btn--ghost" style="padding:10px 18px">Sign in</a><a class="btn btn--primary" style="padding:10px 20px">Apply now</a></div>
+</div></nav>
+
+<!-- PAGE HERO -->
+<header class="phero"><div class="wrap"><div class="inner">
+  <span class="ribbon">501(c)(3) nonprofit · built in Austin</span>
+  <h1>Privacy Policy</h1>
+  <p class="sub">Last updated: May 19, 2026</p>
+</div></div></header>
+
+<section class="content"><div class="wrap"><div class="doc">
+
+  <div class="markdown-body">
+    <p>
+      This Privacy Policy explains how the Workforce Advancement Project (&ldquo;WorkforceAP,&rdquo;
+      &ldquo;we,&rdquo; or &ldquo;us&rdquo;) collects, uses, shares, and protects your information when you use our
+      platform at workforceap.org and related services. By using our services, you agree to the practices
+      described here.
+    </p>
+
+    <h2>1. Information We Collect</h2>
+    <p>We collect the following categories of information:</p>
+    <h3>1.1 Account &amp; contact information</h3>
+    <ul>
+      <li>Name, email address, phone number, mailing address, and password</li>
+      <li>Account preferences and communication settings</li>
+    </ul>
+    <h3>1.2 Eligibility &amp; demographic information</h3>
+    <p>
+      To match you with appropriate programs and to satisfy federal, state, and local grant
+      reporting requirements (including the Workforce Innovation and Opportunity Act, or WIOA),
+      we may collect:
+    </p>
+    <ul>
+      <li>Date of birth and age</li>
+      <li>Race, ethnicity, and gender identity</li>
+      <li>Veteran status and service history</li>
+      <li>Disability status and accommodation needs</li>
+      <li>Citizenship and work-authorization status</li>
+      <li>Household income, employment status, and education level</li>
+      <li>Public-benefit participation (SNAP, TANF, etc.) when relevant to eligibility</li>
+      <li>Employment-barrier information (housing, childcare, justice-system involvement, etc.)</li>
+      <li>Parent/guardian contact information (for minor participants)</li>
+    </ul>
+    <p>
+      Several of these fields are classified as &ldquo;Sensitive Personal Information&rdquo; under the
+      California Consumer Privacy Act (CCPA/CPRA), Texas Data Privacy and Security Act (Texas
+      SB 1827), and similar laws. See Section 8 (Your Rights) for how to restrict their use.
+    </p>
+    <h3>1.3 Career &amp; assessment data</h3>
+    <ul>
+      <li>Resume content, job history, skills inventories, and certifications</li>
+      <li>Career-interest assessment responses, quiz answers, and pathway selections</li>
+      <li>Course enrollments, course progress, and assessment scores</li>
+      <li>Voice-coach session transcripts, interview-practice responses, and AI-generated artifacts</li>
+      <li>Counselor notes and case-management records</li>
+      <li>Job-application activity and placement outcomes (employer, role, salary, retention)</li>
+    </ul>
+    <h3>1.4 Technical &amp; usage data</h3>
+    <ul>
+      <li>Device, browser, and IP-derived approximate location</li>
+      <li>Pages viewed, features used, and time spent</li>
+      <li>Cookies, local storage, and similar identifiers (see Section 6)</li>
+      <li>Error reports and performance telemetry</li>
+    </ul>
+
+    <h2>2. How We Use Your Information</h2>
+    <p>We use the information we collect to:</p>
+    <ul>
+      <li>Determine program eligibility and personalize program recommendations</li>
+      <li>Deliver coursework, certifications, coaching, and career-services through our platform and partners</li>
+      <li>Match you with employers, partner organizations, and job opportunities</li>
+      <li>Provide AI-assisted tools (resume coaching, interview practice, career counseling, skill mapping)</li>
+      <li>Send service notices, reminders, and (with your consent) program updates</li>
+      <li>Comply with grant reporting, audit, and program-evaluation requirements</li>
+      <li>Improve the platform&rsquo;s safety, performance, and security</li>
+      <li>Train and refine our internal machine-learning models using de-identified or aggregated data (see Section 4)</li>
+    </ul>
+
+    <h2>3. Service providers and sub-processors</h2>
+    <p>
+      We do not sell your personal information for cross-context behavioral advertising. We share
+      information only with the categories of recipients listed below, each bound by contractual
+      confidentiality and security obligations. The following vendors process member data on our
+      behalf today. We update this list when sub-processors change; material changes are
+      communicated under Section 12.
+    </p>
+
+    <div class="table-wrap">
+      <table aria-label="Sub-processors that process WorkforceAP member data">
+        <caption>Sub-processors that process WorkforceAP member data, including what is shared, the purpose, and links to each vendor&apos;s DPA or privacy policy.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Vendor</th>
+            <th scope="col">What we send</th>
+            <th scope="col">Why</th>
+            <th scope="col">DPA / privacy link</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Supabase</th>
+            <td>Authentication, profile fields, training and outcome records</td>
+            <td>Primary database + auth host</td>
+            <td><a href="https://supabase.com/legal/dpa" target="_blank" rel="noreferrer noopener">Supabase DPA</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Vercel</th>
+            <td>Page renders, edge function execution, performance + Web Analytics</td>
+            <td>Application hosting, edge compute, performance telemetry</td>
+            <td><a href="https://vercel.com/legal/dpa" target="_blank" rel="noreferrer noopener">Vercel DPA</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Sentry</th>
+            <td>Error events (PII scrubbed by our scrubber before transmission), session replay with sensitive inputs masked</td>
+            <td>Production error monitoring + replay for incident triage</td>
+            <td><a href="https://sentry.io/legal/dpa/" target="_blank" rel="noreferrer noopener">Sentry DPA</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Resend</th>
+            <td>Member email address + transactional / nudge email content</td>
+            <td>Transactional and program email delivery</td>
+            <td><a href="https://resend.com/legal/dpa" target="_blank" rel="noreferrer noopener">Resend DPA</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Anthropic (Claude)</th>
+            <td>AI tool inputs — resume text, job descriptions, member-supplied prompts and uploaded text</td>
+            <td>AI-powered career advisor, resume coach, cover-letter draft, skill mapping</td>
+            <td><a href="https://www.anthropic.com/legal/commercial-terms" target="_blank" rel="noreferrer noopener">Anthropic Commercial Terms</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Groq</th>
+            <td>Voice-coach transcripts + AI tool prompt content routed for low-latency inference</td>
+            <td>Voice transcription and AI inference (latency-sensitive paths)</td>
+            <td><a href="https://groq.com/privacy-policy/" target="_blank" rel="noreferrer noopener">Groq Privacy Policy</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Google (Gemini)</th>
+            <td>AI tool inputs routed as a secondary AI provider</td>
+            <td>AI inference fallback when primary providers are unavailable</td>
+            <td><a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer noopener">Google Privacy Policy</a></td>
+          </tr>
+          <tr>
+            <th scope="row">ElevenLabs</th>
+            <td>Text passed for voice synthesis and, where you opt in, member voice samples</td>
+            <td>Voice synthesis for interview-practice and advisor playback</td>
+            <td><a href="https://elevenlabs.io/privacy" target="_blank" rel="noreferrer noopener">ElevenLabs Privacy Policy</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Coursera</th>
+            <td>Member email (for Coursera for Business enrollment + xAPI completion mapping)</td>
+            <td>Course catalog, enrollment, and completion reporting</td>
+            <td><a href="https://www.coursera.org/about/privacy" target="_blank" rel="noreferrer noopener">Coursera Privacy Policy</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Upstash</th>
+            <td>Rate-limit counters keyed on IP address and email hash (no raw email stored)</td>
+            <td>Abuse prevention and request rate limiting</td>
+            <td><a href="https://upstash.com/trust" target="_blank" rel="noreferrer noopener">Upstash Trust Center</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Formspree</th>
+            <td>Contact form submissions (name, email, topic, message) — used only when the static contact form route is enabled</td>
+            <td>Static-form intake fallback for the public contact form</td>
+            <td><a href="https://formspree.io/privacy" target="_blank" rel="noreferrer noopener">Formspree Privacy Policy</a></td>
+          </tr>
+          <tr>
+            <th scope="row">Cloudflare Turnstile</th>
+            <td>CAPTCHA challenge result token and the IP that produced it</td>
+            <td>Bot mitigation on public forms (apply, contact, WIOA screening)</td>
+            <td><a href="https://www.cloudflare.com/privacy/" target="_blank" rel="noreferrer noopener">Cloudflare Privacy Policy</a></td>
+          </tr>
+          <tr>
+            <th scope="row">OpenAI</th>
+            <td>Reserved — not currently in active production use; listed for transparency in case a future feature routes inputs here</td>
+            <td>Optional AI inference provider (inactive)</td>
+            <td><a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noreferrer noopener">OpenAI Privacy Policy</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Each provider receives only the data necessary to perform its function. Where a provider
+      offers it, we use the no-training, business-data variant of their service (for example,
+      Anthropic&rsquo;s commercial API does not train on customer prompts by default).
+    </p>
+
+    <h3>3.1 Program partners</h3>
+    <p>
+      Certification providers (IBM, Google, Amazon, Microsoft, CompTIA, and others) and our
+      workforce funding partners receive the information needed to enroll you in their courses
+      and report completion back to us, and to meet grant reporting obligations.
+    </p>
+    <h3>3.2 Employers &amp; placement partners</h3>
+    <p>
+      With your explicit consent, we may share your resume, profile, and contact information with
+      prospective employers as part of job-placement assistance. You can withdraw consent for
+      specific employers at any time in your account settings.
+    </p>
+    <h3>3.3 Counselors &amp; community partners</h3>
+    <p>
+      Your assigned career advisor and the partner organization that referred you (if any) may
+      view your enrollment status, progress, and outcomes to provide coaching and to satisfy
+      grant-reporting requirements. Counselors are bound by the same confidentiality obligations
+      we are.
+    </p>
+    <h3>3.4 Grant funders &amp; auditors</h3>
+    <p>
+      When required by federal, state, or local grant agreements (including WIOA, TAA, and
+      equivalent programs), we share participant-level information with the granting agency or
+      its designated evaluators. Where the grant permits, we share aggregated, de-identified data
+      only.
+    </p>
+    <h3>3.5 Legal requirements</h3>
+    <p>
+      We may disclose information when required by law, subpoena, court order, or to protect the
+      rights, property, or safety of WorkforceAP, our members, or others.
+    </p>
+
+    <h2>4. AI processing &amp; model training</h2>
+    <p>
+      We use artificial-intelligence tools to provide core platform features: the career advisor,
+      voice-based coaching, resume rewriting, interview practice, skill mapping, job-match scoring,
+      cover-letter drafting, and similar member tools. When you use these tools, the relevant inputs
+      you provide — including resume text, job descriptions you paste, voice-session transcripts,
+      and your responses to AI prompts — are transmitted to the third-party AI providers named in
+      Section 3 (Anthropic, Groq, Google Gemini, ElevenLabs) to generate the response you see.
+    </p>
+    <p>
+      We retain conversation logs, transcripts, and AI outputs as part of your member record so you
+      can revisit prior sessions and so we can improve the service. We may also use this data, in
+      de-identified or aggregated form, to:
+    </p>
+    <ul>
+      <li>Evaluate the performance of our AI tools and refine prompts, retrieval strategies, and routing logic</li>
+      <li>Train, fine-tune, or evaluate machine-learning models that we operate ourselves or commission for use within our platform</li>
+      <li>Generate analytics, benchmarks, and reports about workforce outcomes</li>
+    </ul>
+    <p>
+      <strong>What this means in practice:</strong> de-identification removes direct identifiers
+      (name, email, phone, full address, account ID) before data is used for model training or
+      cross-member analytics. We do not sell training data to third parties. You can opt out of
+      having your data used for AI-model training (other than the real-time AI tools you actively
+      use) through your account&rsquo;s Privacy &amp; Data page or by emailing
+      <a href="mailto:privacy@workforceap.org">privacy@workforceap.org</a>.
+    </p>
+
+    <h2>5. Data security</h2>
+    <p>
+      We use industry-standard safeguards including TLS-encrypted transit, encryption at rest for
+      member databases and stored files, role-based access controls, multi-factor authentication
+      for staff, and regular security audits. Despite our efforts, no method of transmission or
+      storage is perfectly secure; we cannot guarantee absolute security.
+    </p>
+
+    <h2>6. Cookies, local storage &amp; analytics</h2>
+    <p>
+      We use cookies, local storage, and similar technologies to keep you signed in, remember
+      your preferences (theme, locale), persist in-progress applications, and understand how the
+      platform is used. We use Vercel Analytics and Sentry session replay (sensitive inputs
+      masked) for product analytics and error tracking, and we may add Google Tag Manager +
+      Google Analytics for first-party measurement.
+    </p>
+    <p>
+      We honor the &ldquo;Global Privacy Control&rdquo; (GPC) browser signal as an opt-out of
+      cross-context advertising and analytics where required by law. You can also manage your
+      consent through the cookie banner displayed on first visit. Disabling required cookies may
+      affect core functionality such as signing in.
+    </p>
+
+    <h2>7. Data retention</h2>
+    <p>We retain personal information for the periods needed to operate our services and meet legal obligations:</p>
+    <ul>
+      <li>Active account data: for the life of your account and any program participation</li>
+      <li>WIOA/grant-mandated records: as long as required by the funding agency (typically 3–6 years after program exit)</li>
+      <li>Application logs, telemetry, and security logs: up to 12 months</li>
+      <li>De-identified or aggregated analytics: indefinitely</li>
+      <li>Records of deletion requests and consent: as required by applicable privacy law</li>
+    </ul>
+    <p>
+      When you delete your account, we anonymize or remove your personal information except where
+      we are required to retain it (for example, financial records, completed-course transcripts
+      required by an issuer, or grant-reporting fields locked by the funder).
+    </p>
+
+    <h2>8. Your rights</h2>
+    <p>
+      Depending on where you live, you may have one or more of the following rights with respect
+      to your personal information:
+    </p>
+    <ul>
+      <li><strong>Access:</strong> request a copy of the personal information we hold about you</li>
+      <li><strong>Correct:</strong> ask us to fix inaccurate or incomplete information</li>
+      <li><strong>Delete:</strong> request deletion of your account and associated data</li>
+      <li><strong>Port:</strong> receive a copy of your data in a structured, machine-readable format</li>
+      <li><strong>Limit sensitive-info use:</strong> tell us not to use Sensitive Personal Information beyond what is necessary to deliver the service</li>
+      <li><strong>Opt out of AI-model training:</strong> exclude your data from any non-real-time AI-training use (see Section 4)</li>
+      <li><strong>Opt out of marketing:</strong> stop promotional emails at any time using the unsubscribe link or your account settings</li>
+      <li><strong>Non-discrimination:</strong> we will not deny you services or treat you differently for exercising these rights</li>
+    </ul>
+
+    <h3>8.1 How to request a copy of your data</h3>
+    <p>
+      You can export every record we hold about you from your account&rsquo;s
+      <a href="/account/privacy">Privacy &amp; Data</a> page. The export covers your profile,
+      applications, messages, course progress, AI tool outputs, and consent history. It is
+      produced as a structured JSON file you can download immediately. If you prefer to receive
+      the export by another method, email
+      <a href="mailto:privacy@workforceap.org">privacy@workforceap.org</a> from the email address
+      on your account and we will respond within the timelines required by applicable law
+      (typically 45 days under CCPA/CPRA and Texas SB 1827; 30 days under GDPR).
+    </p>
+
+    <h3>8.2 How to delete your account</h3>
+    <p>
+      You can permanently delete your account from your
+      <a href="/account/privacy">Privacy &amp; Data</a> page using the &ldquo;Delete My
+      Account&rdquo; button. Deletion anonymizes your personal information; records we are
+      required by law or grant agreement to retain (financial records, WIOA-locked outcome
+      fields, completed-course transcripts) remain in a redacted form. If the in-product flow
+      is unavailable to you, email
+      <a href="mailto:privacy@workforceap.org">privacy@workforceap.org</a> and we will process
+      your request manually.
+    </p>
+
+    <h2>9. State-specific disclosures</h2>
+    <h3>9.1 California residents (CCPA/CPRA)</h3>
+    <p>
+      California residents have the right to: (a) know what categories and specific pieces of
+      personal information we have collected about them and the sources, business purposes, and
+      recipient categories listed above; (b) request correction of inaccurate personal
+      information; (c) request deletion of personal information, subject to exceptions; (d) opt
+      out of any &ldquo;sale&rdquo; or &ldquo;sharing&rdquo; of personal information for
+      cross-context behavioral advertising (we do not engage in either today); (e) limit the use
+      and disclosure of Sensitive Personal Information to what is necessary to deliver the
+      service; and (f) non-discrimination for exercising these rights.
+    </p>
+    <p>
+      <strong>How to exercise your California rights:</strong> use the
+      <a href="/account/privacy">Privacy &amp; Data</a> page in your account, or email
+      <a href="mailto:privacy@workforceap.org">privacy@workforceap.org</a> with the subject line
+      &ldquo;California privacy request.&rdquo; You may designate an authorized agent in writing
+      to submit a request on your behalf. We will verify your identity by matching the request
+      against the email address and recent activity on your account, and we may ask for
+      additional information if the request is unusually broad or risky to grant without
+      verification.
+    </p>
+    <h3>9.2 Texas (Texas Data Privacy and Security Act)</h3>
+    <p>
+      Texas residents have access, correction, deletion, portability, and opt-out rights
+      comparable to those described above. To submit a request, use the channels in Section 8.
+    </p>
+    <h3>9.3 Other states</h3>
+    <p>
+      We extend the rights in Section 8 to all members where comparable state privacy laws apply
+      (including Colorado, Virginia, Connecticut, Utah, Oregon, and Montana). Contact us if you
+      need help submitting a request specific to your state.
+    </p>
+    <h3>9.4 European Economic Area &amp; United Kingdom</h3>
+    <p>
+      The platform is primarily intended for users in the United States. If you access the
+      platform from the EEA or UK, our legal basis for processing is your consent (Article 6(1)(a)
+      GDPR) for AI-tool use and marketing, and contract or legitimate interest for service
+      delivery. Special-category data (Article 9) — including racial/ethnic origin and health
+      status — is processed only with your explicit consent. You may withdraw consent at any time
+      by contacting <a href="mailto:privacy@workforceap.org">privacy@workforceap.org</a>.
+    </p>
+
+    <h2>10. Children&rsquo;s privacy and minor consent</h2>
+    <h3>10.1 Age requirements</h3>
+    <p>
+      Our platform is generally intended for users 16 years of age and older. In some school- or
+      partner-supported programs, minors ages 13–17 may participate with parent or guardian
+      consent and any additional program approvals. We do not knowingly collect personal
+      information from children under 13 without verifiable parental consent, as required by the
+      Children&rsquo;s Online Privacy Protection Act (COPPA).
+    </p>
+    <h3>10.2 Minors (ages 13–17)</h3>
+    <p>For minors who participate in an approved program experience, we require:</p>
+    <ul>
+      <li><strong>Parental or guardian consent</strong> to our Terms of Service and this Privacy Policy before the minor can access our services</li>
+      <li><strong>Guardian contact information</strong> for communication about the minor&rsquo;s participation</li>
+      <li><strong>Educational-records consent</strong> if applicable, under FERPA</li>
+    </ul>
+    <h3>10.3 High school partnerships</h3>
+    <p>When partnering with high schools and educational institutions, we comply with FERPA for student records, collect only necessary information with appropriate consent, provide parents/guardians access to their minor&rsquo;s information on request, allow consent revocation and data deletion at any time, maintain enhanced access controls for minor records, and share student progress with authorized school officials only when consent is provided.</p>
+    <h3>10.4 Parental rights</h3>
+    <p>Parents and guardians of minors have the right to review, correct, or request deletion of their child&rsquo;s information, refuse further collection, and receive notice of significant changes to our minor-data practices. To exercise these rights or to report information collected from a child under 13 without proper consent, contact us immediately at <a href="mailto:privacy@workforceap.org">privacy@workforceap.org</a>.</p>
+
+    <h2>11. WIOA participants &amp; grant records</h2>
+    <p>
+      If you participate in a WIOA-funded program, federal regulations (20 CFR Part 603 and
+      related rules) govern the collection, use, and protection of your information. Your
+      eligibility documentation, case-management records, and outcome data may be shared with
+      the workforce development board, the Texas Workforce Commission (or your state equivalent),
+      the U.S. Department of Labor, and authorized evaluators. We use these records solely for
+      program administration, performance reporting, and authorized research. The retention
+      period set by your grantor takes precedence over the default retention in Section 7.
+    </p>
+
+    <h2>12. Changes to this policy</h2>
+    <p>
+      We may update this Privacy Policy from time to time. For material changes — including any
+      addition or removal of a sub-processor in Section 3 — we will notify you by email or
+      in-product notice at least 14 days before the change takes effect. The &ldquo;Last
+      updated&rdquo; date at the top of this page reflects the current version. Continued use of
+      the services after a change indicates acceptance of the updated policy.
+    </p>
+
+    <h2>13. Contact us</h2>
+    <p>
+      For questions about this Privacy Policy, to submit a data request, or to report a privacy
+      concern, contact us:
+    </p>
+    <div class="contact-block">
+      <p>
+        <strong>Workforce Advancement Project</strong><br />
+        Privacy inquiries: <a href="mailto:privacy@workforceap.org">privacy@workforceap.org</a><br />
+        General contact: <a href="mailto:info@workforceap.org">info@workforceap.org</a><br />
+        Phone: <a href="tel:+15127771808">(512) 777-1808</a><br />
+        <a href="/contact">Contact form</a>
+      </p>
+    </div>
+  </div>
+
+</div></div></section>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><a class="brand" style="color:#fff;margin-bottom:12px"><span class="mark">W</span> WorkforceAP</a>
+      <p style="max-width:300px;color:#a99ea4;font-size:14px">Empowering People. Advancing Futures. A 501(c)(3) nonprofit — career training, certificates, and job support at no cost to qualifying members.</p></div>
+    <div><h4>Programs</h4><a href="/#programs">IT Support</a><a href="/#programs">AI Developer</a><a href="/#programs">Project Management</a><a href="/#programs">All certificates</a></div>
+    <div><h4>About</h4><a href="/#how">How it works</a><a href="/#trust">Our mission</a><a href="/#network">Partners</a><a href="/">Find Your Path</a></div>
+    <div><h4>Get started</h4><a href="/">Apply</a><a href="/#programs">See programs</a><a href="/#network">For employers</a><a href="/contact">Contact</a></div>
+  </div>
+  <div class="fbar"><span>© 2026 Workforce Advancement Project · 501(c)(3)</span><span>Privacy · Terms · Accessibility</span></div>
+</div></footer>
+
+</body>
+</html>

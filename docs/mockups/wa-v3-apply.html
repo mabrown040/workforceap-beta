@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — Start Your Application (Blend)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wa-accent:#ad2c4d; --wa-accent-dark:#8c0f37; --wa-accent-soft:#fdf2f4; --wa-on-accent:#fff;
+    --wa-gold:#a47f38; --wa-gold-dark:#7d5f26; --wa-gold-soft:#fef3c7;
+    --wa-info:#2b7bb9; --wa-info-soft:#eef5fb; --wa-success:#4a9b4f;
+    --wa-bg:#f7f4f1; --wa-surface:#fff; --wa-text:#1a1a1a; --wa-muted:#6e6a66; --wa-border:#ece7e2;
+    --wa-radius:24px; --wa-radius-sm:14px;
+    --wa-shadow:0 1px 2px rgba(0,0,0,.04); --wa-shadow-lg:0 18px 44px -22px rgba(60,30,40,.4);
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+    --plum:#3a1326; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--wa-text);background:var(--wa-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--wa-accent)}
+  .muted{color:var(--wa-muted)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--primary{background:var(--wa-accent);color:#fff;box-shadow:0 12px 30px -12px rgba(173,44,77,.6)}
+  .btn--primary:hover{background:var(--wa-accent-dark)}
+  .btn--ghost{background:#fff;border-color:var(--wa-border);color:var(--wa-text)}
+  .btn--ghost:hover{border-color:var(--wa-accent);color:var(--wa-accent)}
+  .btn--light{background:#fff;color:var(--wa-accent)}
+  .btn--gold{background:var(--wa-gold);color:#fff}
+  .btn--gold:hover{background:var(--wa-gold-dark)}
+  svg{display:block}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--wa-border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--wa-accent),var(--plum));display:grid;place-items:center;color:#fff;font-weight:800}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:15px;color:var(--wa-muted)}
+  .nav-links a:hover{color:var(--wa-accent)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* HERO — crimson→plum gradient w/ real photo overlay */
+  .apply-hero{position:relative;overflow:hidden;text-align:center;color:#fff;
+    padding:clamp(48px,6vw,84px) 0 clamp(52px,6vw,88px);
+    background:
+      radial-gradient(120% 120% at 85% 0%, rgba(164,127,56,.30), transparent 55%),
+      linear-gradient(170deg, rgba(173,44,77,.92), rgba(58,19,38,.94) 60%, rgba(140,15,55,.95) 100%),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat;}
+  .apply-hero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:38px 38px;mask:radial-gradient(120% 80% at 80% 10%,#000,transparent 70%);pointer-events:none}
+  .apply-hero .wrap{position:relative;z-index:1}
+  .hero-label{display:inline-flex;align-items:center;gap:8px;padding:7px 15px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;backdrop-filter:blur(6px)}
+  .apply-hero h1{font-size:clamp(34px,5vw,58px);margin:20px 0 0}
+  .hero-social{margin-top:14px;font-size:14px;font-weight:600;color:rgba(255,255,255,.8)}
+  .pilot-tag{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:6px 13px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);font-size:12.5px;font-weight:600;color:#fff}
+  .pilot-tag .d{width:7px;height:7px;border-radius:50%;background:var(--wa-gold-soft)}
+  .hero-desc{max-width:660px;margin:18px auto 0;font-size:clamp(15px,1.1vw,17px);color:rgba(255,255,255,.88);line-height:1.65}
+  .hero-desc strong{color:var(--wa-gold-soft);font-weight:700}
+  .hero-help-compact{margin:18px auto 0;font-size:14px;color:rgba(255,255,255,.85);display:none}
+  .hero-help-compact a{color:var(--wa-gold-soft);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+  .hero-start-cta{margin:24px auto 0;display:none}
+  /* hero help card (desktop) */
+  .help-card{display:flex;flex-direction:column;gap:12px;max-width:660px;margin:30px auto 0;padding:22px 24px;border-radius:var(--wa-radius-sm);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);text-align:left}
+  .help-card .ht{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.88)}
+  .help-card .hb{font-size:14px;line-height:1.6;color:rgba(255,255,255,.86)}
+  .help-card .ha{display:flex;flex-wrap:wrap;gap:12px}
+  .help-card .btn--outline{background:transparent;border-color:rgba(255,255,255,.34);color:#fff}
+  .help-card .btn--outline:hover{border-color:#fff}
+
+  /* GRID: sidebar + main form */
+  .apply-grid{display:grid;grid-template-columns:1fr 2fr;gap:24px;max-width:var(--max);margin:0 auto;padding:clamp(40px,5vw,64px) 24px}
+  .sidebar{position:sticky;top:90px;align-self:start;display:flex;flex-direction:column;gap:18px}
+  .side-card{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:26px;box-shadow:var(--wa-shadow)}
+  .side-card h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--wa-muted);margin-bottom:18px}
+  .prog-list{list-style:none}
+  .prog-list li{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--wa-border)}
+  .prog-list li:last-child{border-bottom:none}
+  .prog-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-family:var(--display);font-weight:800;font-size:14px;flex-shrink:0;background:var(--wa-accent-soft);color:var(--wa-accent)}
+  .prog-list li.active .prog-num{background:var(--wa-accent);color:#fff}
+  .prog-lbl{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--wa-muted)}
+  .prog-list li.active .prog-lbl{font-weight:700;color:var(--wa-text)}
+  .prog-lbl .ic{color:var(--wa-muted)}
+  .prog-list li.active .prog-lbl .ic{color:var(--wa-accent)}
+  .next-card h3{font-size:14px;font-weight:700;color:var(--wa-text);margin-bottom:12px}
+  .next-card ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:9px;font-size:13.5px;color:var(--wa-muted);line-height:1.5}
+  .next-card .call{font-size:13.5px;color:var(--wa-muted);margin-top:14px}
+  .next-card .call a{color:var(--wa-gold-dark);font-weight:700}
+
+  /* main form area */
+  .main-form{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:clamp(28px,3vw,40px);box-shadow:var(--wa-shadow-lg)}
+  .trust-strip{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+  .trust-pill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--wa-text);background:var(--wa-bg);border:1px solid var(--wa-border);border-radius:999px;padding:7px 13px}
+  .trust-pill .d{width:7px;height:7px;border-radius:50%}
+  .form-kicker{font-size:13px;color:var(--wa-muted);margin-bottom:18px}
+  /* eligibility form mock */
+  .form-section{margin-bottom:26px}
+  .form-section h3{font-size:20px;margin-bottom:4px}
+  .form-section .sub{font-size:14px;color:var(--wa-muted);margin-bottom:18px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:13.5px;font-weight:600;margin-bottom:7px}
+  .field input,.field select{width:100%;font-family:var(--body);font-size:15px;padding:13px 15px;border:1.5px solid var(--wa-border);border-radius:var(--wa-radius-sm);background:#fff;color:var(--wa-text);transition:border-color .18s,box-shadow .18s}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--wa-accent);box-shadow:0 0 0 3px var(--wa-accent-soft)}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:560px){.field-row{grid-template-columns:1fr}}
+  .qchoice{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .qchip{flex:1 1 auto;min-width:120px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;padding:12px 16px;border:1.5px solid var(--wa-border);border-radius:var(--wa-radius-sm);background:#fff;cursor:pointer;transition:border-color .18s,background .18s,color .18s}
+  .qchip:hover{border-color:var(--wa-accent);color:var(--wa-accent)}
+  .form-submit{margin-top:8px}
+  /* docs checklist (details) */
+  .docs{margin-top:26px;border-top:1px solid var(--wa-border);padding-top:22px}
+  .docs summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--wa-text);list-style-position:outside;padding-left:4px}
+  .docs summary::-webkit-details-marker{color:var(--wa-success)}
+  .docs .body{margin-top:14px}
+  .docs h4{font-size:17px;margin-bottom:8px}
+  .docs .lead,.docs .note{font-size:13.5px;color:var(--wa-muted);line-height:1.55;margin:0 0 12px}
+  .docs ul{margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:7px;font-size:13.5px;color:var(--wa-muted);line-height:1.5}
+  .docs .note{margin:12px 0 0}
+
+  /* supplemental cards */
+  .supp-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:var(--max);margin:0 auto;padding:0 24px clamp(48px,6vw,80px)}
+  .supp-card{display:flex;align-items:flex-start;gap:14px;background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:26px}
+  .supp-card .sic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;flex-shrink:0}
+  .supp-card h3{font-size:17px;margin-bottom:6px}
+  .supp-card p{font-size:13.5px;color:var(--wa-muted);line-height:1.55;margin:0}
+  .supp-card p a{color:inherit;text-decoration:underline}
+
+  /* CERT PARTNERS */
+  .creds{padding:34px 0;border-top:1px solid var(--wa-border);border-bottom:1px solid var(--wa-border);background:var(--wa-surface)}
+  .creds .lab{text-align:center;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--wa-muted);margin-bottom:18px}
+  .creds .row{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 34px;align-items:center}
+  .creds .row span{font-family:var(--display);font-weight:800;font-size:19px;color:#9b938c;letter-spacing:-.01em}
+
+  footer{background:#211a1d;color:#cabfc4;padding:60px 0 36px}
+  .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;margin-bottom:14px}
+  footer a{display:block;color:#a99ea4;font-size:14px;margin-bottom:9px}footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #382c30;margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a7d83}
+
+  /* sticky mobile CTA */
+  .sticky-cta{display:none}
+
+  /* mobile nav */
+  .nav-in{position:relative}
+  .nav-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  .nav-burger{display:none;flex-direction:column;gap:5px;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid var(--wa-border);border-radius:12px;background:var(--wa-surface,#fff);cursor:pointer}
+  .nav-burger span{display:block;width:20px;height:2px;background:var(--wa-text,#1a1a1a);border-radius:2px;transition:transform .2s,opacity .2s}
+  .nav-toggle:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .nav-toggle:checked ~ .nav-burger span:nth-child(2){opacity:0}
+  .nav-toggle:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  @media(max-width:880px){
+    .nav-burger{display:flex;position:absolute;right:24px;top:12px}
+    .nav-cta{display:none}
+    .nav-toggle:checked ~ .nav-links{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--wa-surface,#fff);border-bottom:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg,0 12px 28px rgba(0,0,0,.08));padding:18px 24px;gap:18px;font-size:16px}
+  }
+
+  /* RESPONSIVE: form-first on mobile, hide desktop-only bits */
+  @media(max-width:768px){
+    .apply-hero .hero-social,
+    .hero-desc,
+    .help-card{display:none}
+    .hero-help-compact,
+    .hero-start-cta{display:block}
+    .hero-start-cta{display:inline-flex;align-items:center;justify-content:center}
+    .apply-grid{grid-template-columns:1fr;padding:32px 16px;gap:18px}
+    .main-form{order:-1}
+    .sidebar{position:static;order:1}
+    .sidebar .prog-card{display:none}
+    .supp-row{grid-template-columns:1fr;padding-inline:16px}
+    .supp-row .supp-card:nth-child(2){display:none}
+    body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+    .sticky-cta{display:block;position:fixed;left:0;right:0;bottom:0;z-index:40;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.96);border-top:1px solid var(--wa-border);box-shadow:0 -8px 24px rgba(0,0,0,.08);backdrop-filter:blur(8px)}
+    .sticky-cta .btn{width:100%;justify-content:center}
+  }
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in"><input class="nav-toggle" type="checkbox" id="nvt" aria-label="Open menu"><label for="nvt" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <a class="brand" href="#"><span class="mark">W</span> WorkforceAP</a>
+  <div class="nav-links"><a href="#programs">Programs</a><a href="#how">How it works</a><a href="#network">Who we serve</a><a href="#trust">About</a></div>
+  <div class="nav-cta"><a class="btn btn--ghost" style="padding:10px 18px">Sign in</a><a class="btn btn--primary" style="padding:10px 20px" href="#apply-form-start">Apply now</a></div>
+</div></nav>
+
+<!-- HERO -->
+<section class="apply-hero"><div class="wrap">
+  <span class="hero-label">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+    Member Application
+  </span>
+  <h1>Start Your Application</h1>
+  <p class="hero-social">Join members building their careers</p>
+  <span class="pilot-tag"><span class="d"></span>Limited availability — accepting applications now</span>
+  <p class="hero-desc">
+    Share how we can reach you and answer three quick eligibility questions — work situation, household income, and work authorization. Then you'll pick programs and create your account. A member advisor follows up within 1–2 business days.
+    <strong> Programs are offered no cost for qualifying members.</strong>
+    <span> No prior experience required. We'll help you confirm fit and eligibility for next steps.</span>
+  </p>
+  <p class="hero-help-compact">Questions? Call <a href="tel:+15127771808">(512) 777-1808</a></p>
+  <a href="#apply-form-start" class="btn btn--gold hero-start-cta">Start your application</a>
+  <!-- desktop help card -->
+  <div class="help-card">
+    <p class="ht">Need help getting started?</p>
+    <p class="hb">You can still reach us directly. Call an advisor or send a message, and we'll help you start the application manually and explain the funding path, eligibility, and next step before you commit.</p>
+    <div class="ha">
+      <a href="#" class="btn btn--outline">Contact an advisor</a>
+      <a href="tel:+15127771808" class="btn btn--gold">Call (512) 777-1808</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- GRID: sidebar + form -->
+<div class="apply-grid">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" aria-label="Application steps">
+    <div class="side-card prog-card">
+      <h2>Application Progress</h2>
+      <ol class="prog-list">
+        <li class="active">
+          <span class="prog-num">1</span>
+          <span class="prog-lbl"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>You &amp; eligibility</span>
+        </li>
+        <li>
+          <span class="prog-num">2</span>
+          <span class="prog-lbl"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Program choices</span>
+        </li>
+        <li>
+          <span class="prog-num">3</span>
+          <span class="prog-lbl"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg>Account</span>
+        </li>
+      </ol>
+    </div>
+
+    <details class="side-card next-card" open>
+      <summary style="cursor:pointer;font-size:14px;font-weight:700">What happens next?</summary>
+      <div style="margin-top:14px">
+        <h3>What happens next?</h3>
+        <ol>
+          <li>Submit your application and tell us what kind of work or training you want.</li>
+          <li>A WorkforceAP advisor reviews your information and follows up within 1–2 business days in most cases.</li>
+          <li>We talk through fit, eligibility, and the best next step for your situation.</li>
+          <li>If needed, we guide you to screening, documentation, interview, or program-readiness steps.</li>
+          <li>You get a clearer recommendation for training, support, and job-readiness next steps.</li>
+        </ol>
+        <p class="call">Questions? Call <a href="tel:+15127771808">(512) 777-1808</a></p>
+      </div>
+    </details>
+  </aside>
+
+  <!-- MAIN FORM -->
+  <div class="main-form" id="apply-form-start" role="region" aria-label="Application form">
+    <div class="trust-strip">
+      <span class="trust-pill"><span class="d" style="background:var(--wa-success)"></span>No cost for qualifying members</span>
+      <span class="trust-pill"><span class="d" style="background:var(--wa-gold)"></span>Reviewed by a real team · 1–2 business days</span>
+      <span class="trust-pill"><span class="d" style="background:var(--wa-info)"></span>About 5 minutes</span>
+    </div>
+    <p class="form-kicker">Save and finish later on this device</p>
+
+    <form onsubmit="return false">
+      <div class="form-section">
+        <h3>You &amp; eligibility</h3>
+        <p class="sub">Three quick questions plus how we can reach you.</p>
+        <div class="field-row">
+          <div class="field"><label for="fname">First name</label><input id="fname" type="text" autocomplete="given-name" placeholder="First name" /></div>
+          <div class="field"><label for="lname">Last name</label><input id="lname" type="text" autocomplete="family-name" placeholder="Last name" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" /></div>
+          <div class="field"><label for="phone">Phone</label><input id="phone" type="tel" autocomplete="tel" placeholder="(512) 555-0100" /></div>
+        </div>
+        <div class="field">
+          <label>What's your current work situation?</label>
+          <div class="qchoice">
+            <button type="button" class="qchip">Employed</button>
+            <button type="button" class="qchip">Unemployed</button>
+            <button type="button" class="qchip">Looking to change careers</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="income">Household income range</label>
+          <select id="income">
+            <option value="" selected disabled>Select a range</option>
+            <option>Prefer to discuss with an advisor</option>
+            <option>Lower income</option>
+            <option>Moderate income</option>
+            <option>Higher income</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Are you authorized to work in the U.S.?</label>
+          <div class="qchoice">
+            <button type="button" class="qchip">Yes</button>
+            <button type="button" class="qchip">Not sure</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-submit">
+        <button type="submit" class="btn btn--primary" style="width:100%;justify-content:center">Continue to program choices</button>
+      </div>
+    </form>
+
+    <noscript>
+      <div style="margin-top:16px">
+        <h2 style="font-size:18px">Start your application</h2>
+        <p class="muted" style="font-size:14px">If the form doesn't load, call <a href="tel:+15127771808" style="color:var(--wa-accent);font-weight:700">(512) 777-1808</a> or email <a href="mailto:info@workforceap.org" style="color:var(--wa-accent);font-weight:700">info@workforceap.org</a>.</p>
+      </div>
+    </noscript>
+
+    <!-- Docs checklist -->
+    <details class="docs">
+      <summary>Documents we may ask for later (not needed to start)</summary>
+      <div class="body">
+        <h4>Documentation we may review together</h4>
+        <p class="lead">You don't need every document to start — nothing uploads on this page. If we move forward together, we sometimes ask for:</p>
+        <ul>
+          <li>Government-issued photo ID</li>
+          <li>Proof of income or unemployment status (pay stub, unemployment letter, or self-certification)</li>
+          <li>Work authorization (if not a US citizen)</li>
+          <li>Social Security card or number (for tax reporting)</li>
+        </ul>
+        <p class="note">Don't worry if you don't have everything right now — our team will help.</p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<!-- SUPPLEMENTAL CARDS -->
+<div class="supp-row" role="region" aria-label="Program information">
+  <div class="supp-card">
+    <span class="sic" style="background:var(--wa-accent-soft);color:var(--wa-success)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    </span>
+    <div>
+      <h3>Secure Data Handling</h3>
+      <p>Your information is sent over encrypted connections and protected with access controls. We do not sell your personal information, and any limited sharing follows our <a href="#">Privacy Policy</a>.</p>
+    </div>
+  </div>
+  <div class="supp-card">
+    <span class="sic" style="background:var(--wa-info-soft);color:var(--wa-info)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
+    </span>
+    <div>
+      <h3>Someone Will Follow Up</h3>
+      <p>A member advisor reviews every application within 1–2 business days in most cases and reaches out to help you find the right program fit.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CERT PARTNERS -->
+<div class="creds"><div class="wrap">
+  <div class="lab">Certifications recognized by employers</div>
+  <div class="row"><span>IBM</span><span>Google</span><span>Microsoft</span><span>AWS</span><span>CompTIA</span><span style="font-size:15px;color:#b4aca6">+ CPT &amp; CLT</span></div>
+</div></div>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><a class="brand" style="color:#fff;margin-bottom:12px" href="#"><span class="mark">W</span> WorkforceAP</a>
+      <p style="max-width:300px;color:#a99ea4;font-size:14px">Empowering People. Advancing Futures. A 501(c)(3) nonprofit — career training, certificates, and job support at no cost to qualifying members.</p></div>
+    <div><h4>Programs</h4><a href="#">IT Support</a><a href="#">AI Developer</a><a href="#">Project Management</a><a href="#">All certificates</a></div>
+    <div><h4>About</h4><a href="#">How it works</a><a href="#">Our mission</a><a href="#">Partners</a><a href="#">Find Your Path</a></div>
+    <div><h4>Get started</h4><a href="#apply-form-start">Apply</a><a href="#">See programs</a><a href="#">For employers</a><a href="#">Contact</a></div>
+  </div>
+  <div class="fbar"><span>© 2026 Workforce Advancement Project · 501(c)(3)</span><span>Privacy · Terms · Accessibility</span></div>
+</div></footer>
+
+<!-- sticky mobile CTA -->
+<div class="sticky-cta"><a href="#apply-form-start" class="btn btn--gold">Start your application</a></div>
+
+</body>
+</html>

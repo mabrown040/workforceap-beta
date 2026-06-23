@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Accessibility Statement — WorkforceAP</title>
+<meta name="description" content="Read Workforce Advancement Project accessibility commitments, our WCAG 2.1 AA target, known exceptions, and how to report an accessibility barrier." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wa-accent:#ad2c4d; --wa-accent-dark:#8c0f37; --wa-accent-soft:#fdf2f4; --wa-on-accent:#fff;
+    --wa-gold:#a47f38; --wa-gold-dark:#7d5f26; --wa-gold-soft:#fef3c7;
+    --wa-info:#2b7bb9; --wa-info-soft:#eef5fb; --wa-success:#4a9b4f;
+    --wa-bg:#f7f4f1; --wa-surface:#fff; --wa-text:#1a1a1a; --wa-muted:#6e6a66; --wa-border:#ece7e2;
+    --wa-radius:24px; --wa-radius-sm:14px;
+    --wa-shadow:0 1px 2px rgba(0,0,0,.04); --wa-shadow-lg:0 18px 44px -22px rgba(60,30,40,.4);
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+    --plum:#3a1326; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--wa-text);background:var(--wa-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--wa-accent)}
+  .muted{color:var(--wa-muted)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--primary{background:var(--wa-accent);color:#fff;box-shadow:0 12px 30px -12px rgba(173,44,77,.6)}
+  .btn--primary:hover{background:var(--wa-accent-dark)}
+  .btn--ghost{background:#fff;border-color:var(--wa-border);color:var(--wa-text)}
+  .btn--ghost:hover{border-color:var(--wa-accent);color:var(--wa-accent)}
+  .btn--light{background:#fff;color:var(--wa-accent)}
+  .btn:focus-visible,a:focus-visible{outline:3px solid var(--wa-accent);outline-offset:2px;border-radius:6px}
+  svg{display:block}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .skip-link{position:absolute;left:12px;top:-48px;background:var(--wa-accent);color:#fff;padding:10px 16px;border-radius:10px;font-weight:700;z-index:100;transition:top .2s}
+  .skip-link:focus{top:12px}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--wa-border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--wa-accent),var(--plum));display:grid;place-items:center;color:#fff;font-weight:800}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:15px;color:var(--wa-muted)}
+  .nav-links a:hover{color:var(--wa-accent)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* PAGE HERO */
+  .page-hero{padding:clamp(36px,5vw,60px) 0 clamp(28px,4vw,44px)}
+  .page-hero .inner{
+    border-radius:var(--wa-radius);overflow:hidden;position:relative;
+    color:#fff;padding:clamp(32px,5vw,56px);
+    background:
+      radial-gradient(120% 120% at 85% 0%, rgba(164,127,56,.30), transparent 55%),
+      linear-gradient(150deg, rgba(173,44,77,.88), rgba(58,19,38,.94) 92%),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat;
+    box-shadow:var(--wa-shadow-lg)}
+  .page-hero .inner::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:38px 38px;mask:radial-gradient(120% 80% at 80% 10%,#000,transparent 70%);pointer-events:none}
+  .page-hero .eyebrow{color:var(--wa-gold-soft)}
+  .page-hero h1{font-size:clamp(32px,4.4vw,54px);margin:14px 0 0;max-width:18ch}
+  .page-hero p{color:rgba(255,255,255,.88);margin-top:18px;max-width:62ch;font-size:clamp(15px,1.1vw,17px);position:relative}
+  .reviewed{margin-top:20px;font-size:13px;font-weight:600;color:rgba(255,255,255,.78);position:relative}
+
+  /* CONTENT */
+  section.content{padding:clamp(36px,5vw,64px) 0 clamp(56px,7vw,90px)}
+  .stack{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+  .card{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:clamp(24px,3vw,34px);box-shadow:var(--wa-shadow)}
+  .card . chead{display:flex}
+  .card-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .card .ic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;flex:none}
+  .card h2{font-size:clamp(20px,2.2vw,25px);letter-spacing:-.02em}
+  .card p{color:var(--wa-muted);line-height:1.75;margin-bottom:.85rem}
+  .card p:last-child{margin-bottom:0}
+  .card ul{color:var(--wa-muted);line-height:1.8;padding-left:1.25rem;margin:0}
+  .card ul li{margin-bottom:.55rem}
+  .card ul li:last-child{margin-bottom:0}
+  .card a{color:var(--wa-accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+  .card a:hover{color:var(--wa-accent-dark)}
+  .contact-list{list-style:none;padding-left:0;display:flex;flex-direction:column;gap:.55rem}
+  .contact-list li{display:flex;gap:8px;align-items:baseline;color:var(--wa-text);font-weight:500}
+  .contact-list .lab{color:var(--wa-muted);font-weight:600;min-width:64px}
+
+  /* CTA */
+  .cta{background:linear-gradient(150deg,var(--wa-accent),var(--plum));color:#fff;border-radius:28px;padding:clamp(36px,5vw,60px);text-align:center;position:relative;overflow:hidden;max-width:860px;margin:0 auto}
+  .cta::after{content:"";position:absolute;inset:0;background:radial-gradient(100% 100% at 90% 0%,rgba(164,127,56,.3),transparent 55%);pointer-events:none}
+  .cta h2{font-size:clamp(24px,3.2vw,38px);position:relative}
+  .cta p{margin:14px auto 0;max-width:540px;color:rgba(255,255,255,.88);font-size:16px;position:relative}
+  .cta .acts{margin-top:26px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+
+  footer{background:#211a1d;color:#cabfc4;padding:60px 0 36px}
+  .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;margin-bottom:14px}
+  footer a{display:block;color:#a99ea4;font-size:14px;margin-bottom:9px}footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #382c30;margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a7d83}
+
+/* mobile nav */
+.nav-in{position:relative}
+.nav-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.nav-burger{display:none;flex-direction:column;gap:5px;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid var(--wa-border);border-radius:12px;background:var(--wa-surface,#fff);cursor:pointer}
+.nav-burger span{display:block;width:20px;height:2px;background:var(--wa-text,#1a1a1a);border-radius:2px;transition:transform .2s,opacity .2s}
+.nav-toggle:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle:checked ~ .nav-burger span:nth-child(2){opacity:0}
+.nav-toggle:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.nav-toggle:focus-visible ~ .nav-burger{outline:3px solid var(--wa-accent);outline-offset:2px}
+@media(max-width:880px){
+  .nav-burger{display:flex;position:absolute;right:24px;top:12px}
+  .nav-cta{display:none}
+  .nav-toggle:checked ~ .nav-links{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--wa-surface,#fff);border-bottom:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg,0 12px 28px rgba(0,0,0,.08));padding:18px 24px;gap:18px;font-size:16px}
+}
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav><div class="wrap nav-in"><input class="nav-toggle" type="checkbox" id="nvt" aria-label="Open menu"><label for="nvt" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <a class="brand" href="#"><span class="mark">W</span> WorkforceAP</a>
+  <div class="nav-links"><a href="#programs">Programs</a><a href="#how">How it works</a><a href="#network">Who we serve</a><a href="#trust">About</a></div>
+  <div class="nav-cta"><a class="btn btn--ghost" style="padding:10px 18px">Sign in</a><a class="btn btn--primary" style="padding:10px 20px">Apply now</a></div>
+</div></nav>
+
+<main id="main">
+
+<!-- PAGE HERO -->
+<header class="page-hero"><div class="wrap">
+  <div class="inner">
+    <span class="eyebrow">Accessibility</span>
+    <h1>Accessibility Statement</h1>
+    <p>Workforce Advancement Project works to make this site easier to use for members, partners, employers, and community supporters. We aim to provide clear content, readable layouts, keyboard-usable navigation, and mobile-friendly access on slow devices and limited connections.</p>
+    <p class="reviewed">Last reviewed: May 19, 2026</p>
+  </div>
+</div></header>
+
+<!-- CONTENT -->
+<section class="content"><div class="wrap">
+  <div class="stack">
+
+    <!-- Conformance commitment -->
+    <article class="card">
+      <div class="card-head">
+        <span class="ic" style="background:var(--wa-info-soft);color:var(--wa-info)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 4v5c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7z"/></svg>
+        </span>
+        <h2>Our conformance commitment</h2>
+      </div>
+      <p>We target conformance with the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA across both the public marketing site and the member portal. That includes meaningful page structure, descriptive link text, keyboard operability, sufficient color contrast, alternative text for informational images, captions or transcripts for prerecorded media we publish, and form fields with associated labels and error messaging that screen readers can announce.</p>
+      <p>We test against this target with automated tooling on every pull request and with periodic manual screen-reader review. Where a third-party component or partner system is embedded in our pages, we work with that provider to surface accessibility issues to them and to substitute components when a fix is not available.</p>
+    </article>
+
+    <!-- Known exceptions -->
+    <article class="card">
+      <div class="card-head">
+        <span class="ic" style="background:var(--wa-gold-soft);color:var(--wa-gold-dark)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        </span>
+        <h2>Known exceptions we are actively fixing</h2>
+      </div>
+      <p>We track every known accessibility gap. The following items are open as of the last reviewed date above and are on our active burn-down list:</p>
+      <ul>
+        <li>A small number of admin-only data tables are rendered as bare HTML tables without full header semantics. These are not member-facing. Tracked in our internal QA queue and being migrated to our standard accessible table component.</li>
+        <li>One marketing image is missing meaningful alternative text and is currently presented as decorative. Replacement copy is queued for the next content review.</li>
+        <li>Some AI-generated outputs (resume drafts, interview feedback) may not yet include landmark structure consistent with the rest of the portal. We are adding semantic wrappers to the AI-tool result views.</li>
+      </ul>
+    </article>
+
+    <!-- Help -->
+    <article class="card">
+      <div class="card-head">
+        <span class="ic" style="background:var(--wa-accent-soft);color:var(--wa-accent)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </span>
+        <h2>If you need help using this site</h2>
+      </div>
+      <p>If you run into a barrier while using WorkforceAP.org — anything that prevents you from completing an application, reading content, or using a tool — please contact us. We will respond within five business days and will do our best to provide the information or support you need in another format while we work on a permanent fix.</p>
+      <ul class="contact-list">
+        <li><span class="lab">Email:</span> <a href="mailto:info@workforceap.org">info@workforceap.org</a></li>
+        <li><span class="lab">Phone:</span> <a href="tel:+15127771808">(512) 777-1808</a></li>
+        <li><span class="lab" style="min-width:0"></span> <a href="/contact?topic=accessibility">Report an accessibility issue via our contact form</a></li>
+      </ul>
+    </article>
+
+    <!-- Ongoing improvements -->
+    <article class="card">
+      <div class="card-head">
+        <span class="ic" style="background:var(--wa-info-soft);color:var(--wa-success)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+        </span>
+        <h2>Ongoing improvements</h2>
+      </div>
+      <p>We continue improving content clarity, color contrast, tap targets, and responsive behavior across public and member-facing pages. New components ship with an accessibility review checklist; existing surfaces are audited on a rolling basis.</p>
+      <p>If something is hard to read, navigate, or complete, please tell us. That feedback helps us improve access for the people this work is meant to serve.</p>
+    </article>
+
+    <!-- CTA -->
+    <div class="cta">
+      <h2>Found a barrier? Tell us.</h2>
+      <p>We review every report and follow up — and we will work with you to provide what you need in another format while we fix it.</p>
+      <div class="acts">
+        <a class="btn btn--light" href="/contact?topic=accessibility">Report an accessibility issue</a>
+        <a class="btn" style="background:rgba(255,255,255,.14);color:#fff" href="mailto:info@workforceap.org">Email us</a>
+      </div>
+    </div>
+
+  </div>
+</div></section>
+
+</main>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><a class="brand" style="color:#fff;margin-bottom:12px" href="#"><span class="mark">W</span> WorkforceAP</a>
+      <p style="max-width:300px;color:#a99ea4;font-size:14px">Empowering People. Advancing Futures. A 501(c)(3) nonprofit — career training, certificates, and job support at no cost to qualifying members.</p></div>
+    <div><h4>Programs</h4><a>IT Support</a><a>AI Developer</a><a>Project Management</a><a>All certificates</a></div>
+    <div><h4>About</h4><a>How it works</a><a>Our mission</a><a>Partners</a><a>Find Your Path</a></div>
+    <div><h4>Get started</h4><a>Apply</a><a>See programs</a><a>For employers</a><a>Contact</a></div>
+  </div>
+  <div class="fbar"><span>© 2026 Workforce Advancement Project · 501(c)(3)</span><span>Privacy · Terms · Accessibility</span></div>
+</div></footer>
+
+</body>
+</html>

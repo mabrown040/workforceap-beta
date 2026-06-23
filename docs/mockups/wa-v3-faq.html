@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — FAQ (Blend)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wa-accent:#ad2c4d; --wa-accent-dark:#8c0f37; --wa-accent-soft:#fdf2f4; --wa-on-accent:#fff;
+    --wa-gold:#a47f38; --wa-gold-dark:#7d5f26; --wa-gold-soft:#fef3c7;
+    --wa-info:#2b7bb9; --wa-info-soft:#eef5fb; --wa-success:#4a9b4f;
+    --wa-bg:#f7f4f1; --wa-surface:#fff; --wa-text:#1a1a1a; --wa-muted:#6e6a66; --wa-border:#ece7e2;
+    --wa-radius:24px; --wa-radius-sm:14px;
+    --wa-shadow:0 1px 2px rgba(0,0,0,.04); --wa-shadow-lg:0 18px 44px -22px rgba(60,30,40,.4);
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+    --plum:#3a1326; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--wa-text);background:var(--wa-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--wa-accent)}
+  .muted{color:var(--wa-muted)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--primary{background:var(--wa-accent);color:#fff;box-shadow:0 12px 30px -12px rgba(173,44,77,.6)}
+  .btn--primary:hover{background:var(--wa-accent-dark)}
+  .btn--ghost{background:#fff;border-color:var(--wa-border);color:var(--wa-text)}
+  .btn--ghost:hover{border-color:var(--wa-accent);color:var(--wa-accent)}
+  .btn--light{background:#fff;color:var(--wa-accent)}
+  svg{display:block}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--wa-border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--wa-accent),var(--plum));display:grid;place-items:center;color:#fff;font-weight:800}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:15px;color:var(--wa-muted)}
+  .nav-links a:hover{color:var(--wa-accent)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* HERO (compact knowledge-base header on warm canvas with photo overlay) */
+  .faq-hero{padding:clamp(40px,6vw,72px) 0 clamp(36px,5vw,56px);position:relative;overflow:hidden;
+    background:
+      radial-gradient(120% 120% at 90% 0%, rgba(164,127,56,.20), transparent 55%),
+      linear-gradient(150deg, rgba(173,44,77,.92), rgba(58,19,38,.94) 92%),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat;
+    color:#fff}
+  .faq-hero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:38px 38px;mask:radial-gradient(120% 80% at 85% 10%,#000,transparent 70%);pointer-events:none}
+  .faq-hero .wrap{position:relative;z-index:1}
+  .kb-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.16);color:#fff;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:6px 13px;border-radius:999px;backdrop-filter:blur(6px);margin-bottom:18px}
+  .faq-hero h1{font-size:clamp(34px,5vw,58px);max-width:18ch}
+  .faq-hero h1 .accent{color:var(--wa-gold-soft)}
+  .faq-hero p{color:rgba(255,255,255,.88);margin-top:16px;max-width:46ch;font-size:clamp(15px,1.1vw,17px);font-weight:400}
+
+  section.band{padding:clamp(48px,6vw,80px) 0}
+
+  /* QUICK ANSWERS card */
+  .quick{margin-top:-32px;position:relative;z-index:5}
+  .quick-card{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);box-shadow:var(--wa-shadow-lg);padding:clamp(22px,3vw,34px)}
+  .quick-card .sec-head{margin-bottom:22px}
+  .quick-card .sec-head h2{font-size:clamp(20px,2.4vw,26px);margin-top:6px}
+  .qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  .qcard{background:var(--wa-bg);border:1px solid var(--wa-border);border-radius:var(--wa-radius-sm);padding:20px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s,border-color .2s}
+  .qcard:hover{transform:translateY(-3px);box-shadow:var(--wa-shadow-lg);border-color:#f0cdd5}
+  .qcard h3{font-size:16px}
+  .qcard p{font-size:14px;color:var(--wa-muted);flex:1}
+  .qcard .go{margin-top:4px;font-weight:700;font-size:13.5px;color:var(--wa-accent);display:inline-flex;gap:6px;align-items:center}
+
+  /* FAQ EDITORIAL LAYOUT */
+  .faq-layout{display:grid;grid-template-columns:280px 1fr;gap:40px;align-items:flex-start}
+  .faq-sidebar{position:sticky;top:88px}
+  .side-group{margin-bottom:18px}
+  .side-group .lab{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--wa-muted);margin-bottom:8px;padding-left:12px}
+  .cat-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:none;border-radius:12px;background:transparent;color:var(--wa-muted);font-family:var(--body);font-weight:500;font-size:14.5px;cursor:pointer;text-align:left;transition:background-color .15s,color .15s}
+  .cat-btn:hover{background:var(--wa-accent-soft);color:var(--wa-accent)}
+  .cat-btn svg{flex-shrink:0}
+
+  .support-card{margin-top:14px;padding:20px;background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius-sm)}
+  .support-card .sic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--wa-accent-soft);color:var(--wa-accent);margin-bottom:10px}
+  .support-card .h{font-weight:700;font-size:14.5px;color:var(--wa-text);margin-bottom:6px}
+  .support-card p{font-size:13px;color:var(--wa-muted);line-height:1.5;margin-bottom:14px}
+  .support-card .btn{width:100%;justify-content:center;padding:10px;font-size:13px}
+
+  /* category panels (CSS radio switch) */
+  .cat-radio{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  .cat-panel{display:none}
+  #c-general:checked ~ .faq-layout .panel-general,
+  #c-applying:checked ~ .faq-layout .panel-applying,
+  #c-cost:checked ~ .faq-layout .panel-cost,
+  #c-programs:checked ~ .faq-layout .panel-programs,
+  #c-placement:checked ~ .faq-layout .panel-placement,
+  #c-members:checked ~ .faq-layout .panel-members,
+  #c-employers:checked ~ .faq-layout .panel-employers{display:block}
+
+  /* active cat highlight */
+  #c-general:checked ~ .faq-layout .faq-sidebar label[for="c-general"],
+  #c-applying:checked ~ .faq-layout .faq-sidebar label[for="c-applying"],
+  #c-cost:checked ~ .faq-layout .faq-sidebar label[for="c-cost"],
+  #c-programs:checked ~ .faq-layout .faq-sidebar label[for="c-programs"],
+  #c-placement:checked ~ .faq-layout .faq-sidebar label[for="c-placement"],
+  #c-members:checked ~ .faq-layout .faq-sidebar label[for="c-members"],
+  #c-employers:checked ~ .faq-layout .faq-sidebar label[for="c-employers"]{background:var(--wa-accent-soft);color:var(--wa-accent);font-weight:700}
+
+  .panel-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .panel-head .pic{color:var(--wa-accent)}
+  .panel-head h2{font-size:clamp(22px,2.6vw,28px)}
+
+  .emp-banner{padding:18px 22px;margin-bottom:22px;border-radius:var(--wa-radius-sm);background:linear-gradient(135deg,rgba(173,44,77,.12) 0%,rgba(173,44,77,.04) 100%);border:1px solid rgba(173,44,77,.15);display:flex;align-items:center;gap:14px}
+  .emp-banner svg{color:var(--wa-accent);flex-shrink:0}
+  .emp-banner .h{font-weight:700;font-size:14.5px;color:var(--wa-text)}
+  .emp-banner p{font-size:13px;color:var(--wa-muted)}
+  .emp-banner a{color:var(--wa-accent);font-weight:700}
+
+  /* accordion (CSS-only details) */
+  .acc{display:flex;flex-direction:column;gap:12px}
+  details.qa{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius-sm);overflow:hidden;transition:border-color .15s}
+  details.qa[open]{border-color:#f0cdd5}
+  details.qa summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;cursor:pointer;font-weight:600;font-size:16px;color:var(--wa-text);list-style:none}
+  details.qa summary::-webkit-details-marker{display:none}
+  details.qa summary .chev{flex-shrink:0;color:var(--wa-muted);transition:transform .25s}
+  details.qa[open] summary .chev{transform:rotate(180deg)}
+  details.qa .body{padding:0 22px 20px;color:var(--wa-muted);line-height:1.7;font-size:15px}
+  details.qa .body a.link{display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:var(--wa-accent);font-weight:700;font-size:14px}
+
+  /* bottom CTA */
+  .bottom-cta{margin-top:60px;border-radius:28px;background:linear-gradient(150deg,#fff,var(--wa-accent-soft));border:1px solid #f3d9df;padding:clamp(28px,4vw,48px);display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center}
+  .bottom-cta h2{font-size:clamp(24px,3vw,32px);margin-bottom:12px}
+  .bottom-cta p{color:var(--wa-muted);line-height:1.6;margin-bottom:24px;max-width:30ch}
+  .bottom-cta .acts{display:flex;gap:12px;flex-wrap:wrap}
+  .cta-art{display:flex;align-items:center;justify-content:center;background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);aspect-ratio:4/3;
+    background-image:radial-gradient(100% 100% at 80% 0%,rgba(164,127,56,.12),transparent 55%),linear-gradient(150deg,#fff,var(--wa-bg))}
+  .cta-art .inner{text-align:center;color:var(--wa-muted)}
+  .cta-art .inner svg{margin:0 auto 12px;color:var(--wa-accent);opacity:.7}
+  .cta-art .inner .lab{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
+
+  footer{background:#211a1d;color:#cabfc4;padding:60px 0 36px}
+  .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;margin-bottom:14px}
+  footer a{display:block;color:#a99ea4;font-size:14px;margin-bottom:9px}footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #382c30;margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a7d83}
+
+  @media(max-width:880px){
+    .faq-layout{grid-template-columns:1fr;gap:28px}
+    .faq-sidebar{position:static}
+    .faq-sidebar nav{display:flex;flex-wrap:wrap;gap:6px}
+    .side-group{margin-bottom:0;width:100%}
+    .cat-btn{width:auto;border:1px solid var(--wa-border)}
+    .bottom-cta{grid-template-columns:1fr}
+    .cta-art{order:-1}
+  }
+
+/* mobile nav (injected) */
+.nav-in{position:relative}
+.nav-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.nav-burger{display:none;flex-direction:column;gap:5px;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid var(--wa-border);border-radius:12px;background:var(--wa-surface,#fff);cursor:pointer}
+.nav-burger span{display:block;width:20px;height:2px;background:var(--wa-text,#1a1a1a);border-radius:2px;transition:transform .2s,opacity .2s}
+.nav-toggle:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle:checked ~ .nav-burger span:nth-child(2){opacity:0}
+.nav-toggle:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:880px){
+  .nav-burger{display:flex;position:absolute;right:24px;top:12px}
+  .nav-cta{display:none}
+  .nav-toggle:checked ~ .nav-links{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--wa-surface,#fff);border-bottom:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg,0 12px 28px rgba(0,0,0,.08));padding:18px 24px;gap:18px;font-size:16px}
+}
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in"><input class="nav-toggle" type="checkbox" id="nvt" aria-label="Open menu"><label for="nvt" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <a class="brand" href="/"><span class="mark">W</span> WorkforceAP</a>
+  <div class="nav-links"><a href="/programs">Programs</a><a href="/how-it-works">How it works</a><a href="/partners">Partnerships</a><a href="/what-we-do">About Us</a></div>
+  <div class="nav-cta"><a class="btn btn--ghost" href="/signin" style="padding:10px 18px">Sign in</a><a class="btn btn--primary" href="/apply" style="padding:10px 20px">Apply now</a></div>
+</div></nav>
+
+<!-- HERO: Knowledge Base -->
+<header class="faq-hero"><div class="wrap">
+  <span class="kb-chip">Knowledge Base</span>
+  <h1>How can we help you <span class="accent">bridge the gap?</span></h1>
+  <p>Answers that address your concerns, whether you're applying, supporting someone who is, or deciding if WorkforceAP is right for you.</p>
+</div></header>
+
+<!-- QUICK ANSWERS -->
+<section class="quick"><div class="wrap">
+  <div class="quick-card">
+    <div class="sec-head"><span class="eyebrow">Quick answers</span><h2>Start with the questions people ask most.</h2></div>
+    <div class="qgrid">
+      <a class="qcard" href="/programs">
+        <h3>How much do WorkforceAP programs cost?</h3>
+        <p>Programs are offered no cost for qualifying members. WorkforceAP helps you understand the funding path, eligibility, and next step before you commit.</p>
+        <span class="go">Browse programs →</span>
+      </a>
+      <a class="qcard" href="/find-your-path">
+        <h3>Do I need prior tech experience?</h3>
+        <p>No. Many members start from zero. If computers still feel new, there are beginner-safe options designed to help you build confidence first.</p>
+        <span class="go">Find your path →</span>
+      </a>
+      <a class="qcard" href="/apply">
+        <h3>What happens after I apply?</h3>
+        <p>WorkforceAP reviews your goals, confirms fit, and follows up with next steps. That can include intake guidance, documentation review, or program-specific support.</p>
+        <span class="go">Start application →</span>
+      </a>
+      <a class="qcard" href="/programs">
+        <h3>How long do programs take?</h3>
+        <p>Most programs take about 3–5 months at roughly 10 hours per week. Digital Literacy is shorter and works well as an on-ramp if you need a gentler start.</p>
+        <span class="go">See program timelines →</span>
+      </a>
+    </div>
+  </div>
+</div></section>
+
+<!-- FAQ EDITORIAL -->
+<section class="band"><div class="wrap">
+
+  <!-- category radio switches (default General) -->
+  <input class="cat-radio" type="radio" name="faqcat" id="c-general" checked>
+  <input class="cat-radio" type="radio" name="faqcat" id="c-applying">
+  <input class="cat-radio" type="radio" name="faqcat" id="c-cost">
+  <input class="cat-radio" type="radio" name="faqcat" id="c-programs">
+  <input class="cat-radio" type="radio" name="faqcat" id="c-placement">
+  <input class="cat-radio" type="radio" name="faqcat" id="c-members">
+  <input class="cat-radio" type="radio" name="faqcat" id="c-employers">
+
+  <div class="faq-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="faq-sidebar">
+      <nav>
+        <div class="side-group">
+          <p class="lab">General Questions</p>
+          <label class="cat-btn" for="c-general"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .8-1 1.7M12 17h.01"/></svg>General Questions</label>
+          <label class="cat-btn" for="c-applying"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Applying &amp; Eligibility</label>
+          <label class="cat-btn" for="c-cost"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Cost &amp; Funding</label>
+        </div>
+        <div class="side-group">
+          <p class="lab">For Members</p>
+          <label class="cat-btn" for="c-programs"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 3 2 6 2s6-1 6-2v-5"/></svg>Programs &amp; Training</label>
+          <label class="cat-btn" for="c-placement"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Job Placement</label>
+          <label class="cat-btn" for="c-members"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>For Members</label>
+        </div>
+        <div class="side-group">
+          <p class="lab">For Employers</p>
+          <label class="cat-btn" for="c-employers"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-4 7 4v13"/><path d="M9 21v-5h6v5"/></svg>For Employers</label>
+        </div>
+      </nav>
+
+      <div class="support-card">
+        <div class="sic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-7h3zM3 19a2 2 0 0 0 2 2h1v-7H3z"/></svg></div>
+        <p class="h">Still need support?</p>
+        <p>Reach out and WorkforceAP can help you figure out the right next step.</p>
+        <a class="btn btn--primary" href="/contact">Contact Us</a>
+      </div>
+    </aside>
+
+    <!-- PANELS -->
+    <div>
+
+      <!-- GENERAL -->
+      <div class="cat-panel panel-general">
+        <div class="panel-head"><span class="pic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .8-1 1.7M12 17h.01"/></svg></span><h2>General Questions</h2></div>
+        <div class="acc">
+          <details class="qa"><summary>What is Workforce Advancement Project (WorkforceAP)?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Workforce Advancement Project (WorkforceAP) is a national nonprofit and 501(c)(3) that helps members explore career training, industry credentials, and next-step support. Programs are offered through WorkforceAP and partner-backed pathways.</p><a class="link" href="/what-we-do">Learn About Our Mission <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Is it really no-cost to members?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Programs are available at no cost to members. Exact eligibility and funding path can vary by program and situation, and WorkforceAP will walk you through the right next step during intake.</p><a class="link" href="/programs">View Programs <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Who qualifies?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Eligibility depends on the program, funding path, location, and your situation. If you're unsure, start with the application and WorkforceAP can help you understand the best next step.</p><a class="link" href="/apply">Start the application <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>How long do programs take?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. Everything is designed so you can participate while working, parenting, or managing other commitments.</p><a class="link" href="/programs">View Programs <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Can I talk to someone before I apply?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Yes. If you have questions or want to talk through whether this is a good fit, reach out. WorkforceAP can help you understand your options before you commit to anything.</p><a class="link" href="/contact">Contact Us <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+        </div>
+      </div>
+
+      <!-- APPLYING -->
+      <div class="cat-panel panel-applying">
+        <div class="panel-head"><span class="pic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span><h2>Applying &amp; Eligibility</h2></div>
+        <div class="acc">
+          <details class="qa"><summary>What if I'm not technical?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>That's exactly who we built this for. Our programs start from zero — no coding background, no IT history, no prior tech experience required. We've helped career-changers, people re-entering the workforce, and adults who've never worked in tech land roles in IT, cybersecurity, and data analytics. What matters most is your commitment to showing up and finishing.</p><a class="link" href="/find-your-path">Take the Career Quiz <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>What if I'm starting over?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Starting over is one of the most common reasons people come to us. Whether you left a job, got laid off, are leaving a difficult situation, or are just ready for a different path — we work with you from where you are now. Your advisor will help you pick the right program, set a realistic pace, and stay on track through the whole process.</p><a class="link" href="/find-your-path">Find Your Path <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>What are the eligibility requirements?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Requirements vary by pathway and funding source. WorkforceAP reviews your goals, location, readiness, and any funding options that may apply, then helps you understand the right next step.</p><a class="link" href="/programs">View All Programs <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>What happens after I apply?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>After you apply, WorkforceAP reviews your information, follows up if more context is needed, and helps you understand the next step for your pathway. That may include a conversation, documentation review, or program guidance.</p><a class="link" href="/apply">Start Your Application <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Is there an application fee?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>No. There is no application fee. We review your goals, confirm fit, and share next steps. Applying does not cost anything, and qualifying pathways are offered at no cost to members.</p></div></details>
+          <details class="qa"><summary>When do programs start?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Program timing depends on the pathway, partner schedule, and available cohorts. WorkforceAP will help you understand what is currently open and what the next available start looks like.</p><a class="link" href="/how-it-works">See How It Works <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+        </div>
+      </div>
+
+      <!-- COST -->
+      <div class="cat-panel panel-cost">
+        <div class="panel-head"><span class="pic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg></span><h2>Cost &amp; Funding</h2></div>
+        <div class="acc">
+          <details class="qa"><summary>How much does the program cost?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Our programs are available at no cost to members. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.</p><a class="link" href="/programs">View Programs <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>What does 'qualifying' mean?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>It means eligibility is reviewed based on the pathway, funding source, and your situation. If you are not sure, apply and WorkforceAP can help clarify your options.</p><a class="link" href="/apply">Start the application <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Do I need to pay anything back?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>No. This is not a loan. Training is funded through grants and partnerships. WorkforceAP does not use income-sharing agreements (ISAs) or member loans for these pathways.</p><a class="link" href="/blog">Read Success Stories <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Are certification exam fees included?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Certification support can vary by program and funding path. WorkforceAP can explain what is included for the pathway you are considering.</p><a class="link" href="/programs">View Programs <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+        </div>
+      </div>
+
+      <!-- PROGRAMS -->
+      <div class="cat-panel panel-programs">
+        <div class="panel-head"><span class="pic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 3 2 6 2s6-1 6-2v-5"/></svg></span><h2>Programs &amp; Training</h2></div>
+        <div class="acc">
+          <details class="qa"><summary>How long do programs take?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. All programs are designed to be completed while working part-time or managing family responsibilities.</p><a class="link" href="/programs">View Program Details <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Is this online?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Yes. All training is delivered virtually — you can participate from home, a library, or anywhere with a reliable internet connection. You do not need to commute, relocate, or take time off work to attend. Some programs include optional in-person events and local career fairs if you want them.</p><a class="link" href="/programs">See Available Programs <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Do I need a laptop?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>You need access to a computer and reliable internet to participate. If you do not have a laptop, apply anyway. WorkforceAP can talk through available support options, including laptop help when a pathway or funding source allows it.</p><a class="link" href="/what-we-do">Learn About Support <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>What certifications will I earn?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>You'll earn industry-recognized certificates from partners like Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials employers hire against.</p><a class="link" href="/salary-guide">View Certification Paths <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>What if I fail a certification exam?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Many certification providers allow retakes. We work with you to prepare for exams and, when available, support retake options. Your advisor can help you understand the specific retake policy for your program.</p><a class="link" href="/how-it-works">See How It Works <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+        </div>
+      </div>
+
+      <!-- PLACEMENT -->
+      <div class="cat-panel panel-placement">
+        <div class="panel-head"><span class="pic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span><h2>Job Placement</h2></div>
+        <div class="acc">
+          <details class="qa"><summary>Do you help members find jobs?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Yes. WorkforceAP provides support like resume help, interview prep, career guidance, and employer-facing support as members move toward job readiness.</p><a class="link" href="/salary-guide">Explore Career Outcomes <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>What kind of jobs will I qualify for?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Entry-level to mid-level roles in IT, cybersecurity, data analytics, project management, healthcare, and skilled trades. Starting salaries range from $38K to $145K depending on the program.</p><a class="link" href="/salary-guide">See Salary Guide <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>How soon after completing the program can I get hired?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Hiring timelines vary by market, role, location, and the path you choose. Many members begin preparing and applying during training so they are ready for the next step as they finish.</p><a class="link" href="/blog">Read Career Tips <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+        </div>
+      </div>
+
+      <!-- MEMBERS -->
+      <div class="cat-panel panel-members">
+        <div class="panel-head"><span class="pic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span><h2>For Members</h2></div>
+        <div class="acc">
+          <details class="qa"><summary>What support do I get during training?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>You receive a dedicated advisor, access to our member portal with career readiness tools (resume help, interview practice), and job-search guidance as you move toward job readiness.</p><a class="link" href="/what-we-do">Learn About Our Mission <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Is there a counselor or advisor assigned to me?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Yes. Each member is assigned an advisor who supports you from intake through training and job-search preparation. Your advisor helps with program pacing, career goals, and connecting you to resources.</p><a class="link" href="/leadership">Meet the Team <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Can I work while enrolled?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Yes. Programs are designed to be flexible for working adults. Most programs are paced for about 10 hours per week, and Digital Literacy is lighter at roughly 5 hours per week.</p><a class="link" href="/programs">Check Program Flexibility <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>What if I fall behind?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Your advisor will work with you to adjust your pace. We're invested in your completion — not just your enrollment. Life happens, and we'll help you get back on track.</p><a class="link" href="/leadership">Meet the Team <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Is this too good to be true?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>We get it. Training at no cost to members can feel hard to trust at first. We're funded by grants, employer partnerships, and community support. Our success metric is your employment, not collecting fees from members.</p><a class="link" href="/leadership">Meet the Team <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+        </div>
+      </div>
+
+      <!-- EMPLOYERS -->
+      <div class="cat-panel panel-employers">
+        <div class="emp-banner">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 11l3 3 5-6"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M3 12l2 8h14l2-8"/></svg>
+          <div><p class="h">Employer Partnership Inquiries</p><p>Looking to hire certified talent? <a href="/partners">Learn about our partnership model →</a></p></div>
+        </div>
+        <div class="panel-head"><span class="pic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-4 7 4v13"/><path d="M9 21v-5h6v5"/></svg></span><h2>For Employers</h2></div>
+        <div class="acc">
+          <details class="qa"><summary>How do employer partnerships work?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>We train and support candidates in high-demand fields, and we help employers connect with members whose training paths align with their hiring needs. Partnership structures can vary based on role type, timing, and employer needs.</p><a class="link" href="/partners">Partner With Us <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>What certifications do your graduates hold?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Graduates earn industry-recognized certifications from Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials you'd see on any qualified candidate's resume.</p><a class="link" href="/programs">View Programs <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Can I refer someone from my community?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Yes. We serve communities nationwide. Refer anyone who could benefit — we intake, assess, and connect them with the right program. No harm in applying.</p><a class="link" href="/partners">Refer Someone <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+          <details class="qa"><summary>Is this legitimate?<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary><div class="body"><p>Yes. WorkforceAP is a nonprofit and 501(c)(3) with public-facing leadership, real contact paths, and partner-backed training pathways. If you want to talk through fit or partnership questions, our team can help.</p><a class="link" href="/partners">Partner With Us <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></details>
+        </div>
+      </div>
+
+      <!-- BOTTOM CTA -->
+      <div class="bottom-cta">
+        <div>
+          <h2>Didn't find your answer?</h2>
+          <p>Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.</p>
+          <div class="acts">
+            <a class="btn btn--primary" href="/contact">Contact Us</a>
+            <a class="btn btn--ghost" href="/apply">Apply Now</a>
+          </div>
+        </div>
+        <div class="cta-art">
+          <div class="inner">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <div class="lab">We're here to help</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><a class="brand" href="/" style="color:#fff;margin-bottom:12px"><span class="mark">W</span> WorkforceAP</a>
+      <p style="max-width:300px;color:#a99ea4;font-size:14px">Empowering People. Advancing Futures. A 501(c)(3) nonprofit — career training, certificates, and job support at no cost to qualifying members.</p></div>
+    <div><h4>Programs</h4><a href="/programs">IT Support</a><a href="/programs">AI Developer</a><a href="/programs">Project Management</a><a href="/programs">All certificates</a></div>
+    <div><h4>About</h4><a href="/how-it-works">How it works</a><a href="/what-we-do">Our mission</a><a href="/partners">Partners</a><a href="/find-your-path">Find Your Path</a></div>
+    <div><h4>Get started</h4><a href="/apply">Apply</a><a href="/programs">See programs</a><a href="/partners">For employers</a><a href="/contact">Contact</a></div>
+  </div>
+  <div class="fbar"><span>© 2026 Workforce Advancement Project · 501(c)(3)</span><span>Privacy · Terms · Accessibility</span></div>
+</div></footer>
+
+</body>
+</html>

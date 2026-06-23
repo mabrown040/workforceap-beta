@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — For Employers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wa-accent:#ad2c4d; --wa-accent-dark:#8c0f37; --wa-accent-soft:#fdf2f4; --wa-on-accent:#fff;
+    --wa-gold:#a47f38; --wa-gold-dark:#7d5f26; --wa-gold-soft:#fef3c7;
+    --wa-info:#2b7bb9; --wa-info-dark:#1f5d8c; --wa-info-soft:#eef5fb; --wa-success:#4a9b4f;
+    --wa-bg:#f7f4f1; --wa-surface:#fff; --wa-text:#1a1a1a; --wa-muted:#6e6a66; --wa-border:#ece7e2;
+    --wa-radius:24px; --wa-radius-sm:14px;
+    --wa-shadow:0 1px 2px rgba(0,0,0,.04); --wa-shadow-lg:0 18px 44px -22px rgba(60,30,40,.4);
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+    --plum:#3a1326; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--wa-text);background:var(--wa-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--wa-info)}
+  .muted{color:var(--wa-muted)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn:focus-visible{outline:3px solid var(--wa-info);outline-offset:3px}
+  .btn--primary{background:var(--wa-accent);color:#fff;box-shadow:0 12px 30px -12px rgba(173,44,77,.6)}
+  .btn--primary:hover{background:var(--wa-accent-dark)}
+  .btn--info{background:var(--wa-info);color:#fff;box-shadow:0 12px 30px -12px rgba(43,123,185,.55)}
+  .btn--info:hover{background:var(--wa-info-dark)}
+  .btn--ghost{background:#fff;border-color:var(--wa-border);color:var(--wa-text)}
+  .btn--ghost:hover{border-color:var(--wa-info);color:var(--wa-info)}
+  .btn--light{background:#fff;color:var(--wa-accent)}
+  a:focus-visible{outline:3px solid var(--wa-info);outline-offset:3px;border-radius:4px}
+  svg{display:block}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--wa-border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--wa-accent),var(--plum));display:grid;place-items:center;color:#fff;font-weight:800}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:15px;color:var(--wa-muted)}
+  .nav-links a:hover{color:var(--wa-accent)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* BENTO HERO */
+  .hero{padding:clamp(40px,6vw,72px) 0 clamp(48px,6vw,80px)}
+  .bento{display:grid;grid-template-columns:1.25fr .95fr;grid-auto-rows:auto;gap:18px}
+  @media(max-width:900px){.bento{grid-template-columns:1fr}}
+  .tile{border-radius:var(--wa-radius);padding:30px;background:var(--wa-surface);border:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg)}
+  .tile--hero{grid-row:span 2;background:
+      radial-gradient(120% 120% at 85% 0%, rgba(164,127,56,.30), transparent 55%),
+      linear-gradient(150deg, rgba(173,44,77,.86), rgba(58,19,38,.92) 92%),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat;
+    color:#fff;display:flex;flex-direction:column;justify-content:center;padding:clamp(30px,4vw,46px);position:relative;overflow:hidden}
+  .tile--hero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:38px 38px;mask:radial-gradient(120% 80% at 80% 10%,#000,transparent 70%);pointer-events:none}
+  .ribbon{align-self:flex-start;background:rgba(255,255,255,.16);color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:6px 13px;border-radius:999px;backdrop-filter:blur(6px)}
+  .tile--hero h1{font-size:clamp(36px,5vw,62px);margin:20px 0 0}
+  .tile--hero h1 .accent{color:var(--wa-gold-soft)}
+  .tile--hero p{color:rgba(255,255,255,.86);margin-top:16px;max-width:46ch;font-size:clamp(15px,1.1vw,17px)}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:7px 13px}
+  .chip .d{width:7px;height:7px;border-radius:50%}
+
+  .tile--claim{display:flex;flex-direction:column;gap:6px;justify-content:center}
+  .tile--claim .k{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1.15}
+  .tile--claim .s{font-size:13.5px;color:var(--wa-muted)}
+  .tile--info{background:linear-gradient(150deg,var(--wa-info-soft),#fff);border-color:#d4e6f3}
+  .tile--info .k{color:var(--wa-info-dark)}
+  .tile--gold{background:linear-gradient(150deg,var(--wa-gold-soft),#fff);border-color:#efe2c4}
+  .tile--gold .k{color:var(--wa-gold-dark)}
+
+  /* cert partner row */
+  .creds{padding:34px 0;border-top:1px solid var(--wa-border);border-bottom:1px solid var(--wa-border)}
+  .creds .lab{text-align:center;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--wa-muted);margin-bottom:18px}
+  .creds .row{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 34px;align-items:center}
+  .creds .row span{font-family:var(--display);font-weight:800;font-size:19px;color:#9b938c;letter-spacing:-.01em}
+
+  section.band{padding:clamp(56px,7vw,96px) 0}
+  .sec-head{max-width:660px;margin-bottom:42px}
+  .sec-head h2{font-size:clamp(28px,3.6vw,46px);margin-top:12px}
+  .sec-head p{margin-top:14px;font-size:17px;color:var(--wa-muted)}
+
+  /* value props */
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:880px){.tri{grid-template-columns:1fr}}
+  .acard{background:#fff;border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:28px;transition:transform .2s,box-shadow .2s,border-color .2s}
+  .acard:hover{transform:translateY(-4px);box-shadow:var(--wa-shadow-lg);border-color:#d4e6f3}
+  .acard h3{font-size:20px;margin:14px 0 6px}
+  .acard .ic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center}
+  .acard p{font-size:15px;color:var(--wa-muted)}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:780px){.steps{grid-template-columns:1fr}}
+  .step{background:#fff;border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:28px}
+  .step .n{width:38px;height:38px;border-radius:50%;background:var(--wa-info-soft);color:var(--wa-info);display:grid;place-items:center;font-family:var(--display);font-weight:800;margin-bottom:16px}
+  .step h3{font-size:19px;margin-bottom:8px}
+  .step p{font-size:15px;color:var(--wa-muted)}
+
+  /* roles grid */
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:880px){.pgrid{grid-template-columns:1fr}}
+  .pcard{background:#fff;border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:26px;display:flex;flex-direction:column;gap:10px}
+  .pcard .ic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;margin-bottom:6px}
+  .pcard h3{font-size:19px}
+  .pcard .area{font-size:13px;color:var(--wa-muted)}
+  .note{font-size:13px;color:var(--wa-muted);margin-top:22px}
+
+  /* trust band */
+  .trust{background:linear-gradient(150deg,#fff,var(--wa-info-soft));border:1px solid #d4e6f3;border-radius:28px;padding:clamp(30px,4vw,48px);display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  @media(max-width:780px){.trust{grid-template-columns:1fr;text-align:left}}
+  .trust .t .k{font-family:var(--display);font-weight:800;font-size:18px;margin-bottom:6px}
+  .trust .t p{font-size:14px;color:var(--wa-muted)}
+
+  /* FAQ */
+  .faq{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:780px){.faq{grid-template-columns:1fr}}
+  .qa{background:#fff;border:1px solid var(--wa-border);border-radius:var(--wa-radius-sm);padding:24px}
+  .qa h3{font-size:16.5px;margin-bottom:8px}
+  .qa p{font-size:14.5px;color:var(--wa-muted)}
+
+  .cta{background:linear-gradient(150deg,var(--wa-accent),var(--plum));color:#fff;border-radius:28px;padding:clamp(40px,6vw,72px);text-align:center;position:relative;overflow:hidden}
+  .cta::after{content:"";position:absolute;inset:0;background:radial-gradient(100% 100% at 90% 0%,rgba(43,123,185,.34),transparent 55%);pointer-events:none}
+  .cta h2{font-size:clamp(28px,4vw,48px);position:relative}
+  .cta p{margin:16px auto 0;max-width:560px;color:rgba(255,255,255,.86);font-size:17px;position:relative}
+  .cta .acts{margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+
+  footer{background:#211a1d;color:#cabfc4;padding:60px 0 36px}
+  .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;margin-bottom:14px}
+  footer a{display:block;color:#a99ea4;font-size:14px;margin-bottom:9px}footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #382c30;margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a7d83}
+
+/* mobile nav (injected) */
+.nav-in{position:relative}
+.nav-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.nav-burger{display:none;flex-direction:column;gap:5px;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid var(--wa-border);border-radius:12px;background:var(--wa-surface,#fff);cursor:pointer}
+.nav-burger span{display:block;width:20px;height:2px;background:var(--wa-text,#1a1a1a);border-radius:2px;transition:transform .2s,opacity .2s}
+.nav-toggle:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle:checked ~ .nav-burger span:nth-child(2){opacity:0}
+.nav-toggle:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:880px){
+  .nav-burger{display:flex;position:absolute;right:24px;top:12px}
+  .nav-cta{display:none}
+  .nav-toggle:checked ~ .nav-links{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--wa-surface,#fff);border-bottom:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg,0 12px 28px rgba(0,0,0,.08));padding:18px 24px;gap:18px;font-size:16px}
+}
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in"><input class="nav-toggle" type="checkbox" id="nvt" aria-label="Open menu"><label for="nvt" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <a class="brand" href="wa-v3-home-blend.html"><span class="mark">W</span> WorkforceAP</a>
+  <div class="nav-links"><a href="wa-v3-home-blend.html#programs">Programs</a><a href="wa-v3-home-blend.html#how">How it works</a><a href="wa-v3-home-blend.html#network">Who we serve</a><a href="wa-v3-home-blend.html#trust">About</a></div>
+  <div class="nav-cta"><a class="btn btn--ghost" style="padding:10px 18px">Sign in</a><a class="btn btn--primary" style="padding:10px 20px">Apply now</a></div>
+</div></nav>
+
+<!-- BENTO HERO -->
+<header class="hero"><div class="wrap">
+  <div class="bento">
+    <div class="tile tile--hero">
+      <span class="ribbon">Employer hiring partners</span>
+      <h1>Build your talent pipeline<br><span class="accent">with WorkforceAP.</span></h1>
+      <p>Connect with employer-recognized, screening-ready candidates trained on certificates from IBM, Google, Microsoft, AWS and CompTIA — aligned to your open roles in IT, operations, healthcare and skilled trades.</p>
+      <div class="hero-actions">
+        <a class="btn btn--info">Talk with us about hiring</a>
+        <a class="btn" style="background:rgba(255,255,255,.14);color:#fff">See how it works</a>
+      </div>
+      <div class="chips">
+        <span class="chip"><span class="d" style="background:var(--wa-info)"></span>Employer-recognized certificates</span>
+        <span class="chip"><span class="d" style="background:var(--wa-gold)"></span>Screening-ready candidates</span>
+      </div>
+    </div>
+
+    <div class="tile tile--claim tile--info">
+      <div class="k">Train candidates aligned to your open job roles</div>
+      <div class="s">Candidate sourcing matched to the titles, skills and locations you are hiring for.</div>
+    </div>
+
+    <div class="tile tile--claim tile--gold">
+      <div class="k">Train candidates ready for hire</div>
+      <div class="s">Readiness review — structured training, certifications where applicable, and advisor check-ins before introductions.</div>
+    </div>
+  </div>
+</div></header>
+
+<!-- CERT PARTNERS -->
+<div class="creds"><div class="wrap">
+  <div class="lab">Certifications recognized by employers</div>
+  <div class="row"><span>IBM</span><span>Google</span><span>Microsoft</span><span>AWS</span><span>CompTIA</span><span style="font-size:15px;color:#b4aca6">+ CPT &amp; CLT</span></div>
+</div></div>
+
+<!-- VALUE PROPS -->
+<section class="band" id="why"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">What hiring partners can expect</span><h2>Aligned candidates, ready to interview.</h2><p>WorkforceAP prepares members for employer-recognized roles, then introduces qualified candidates to your team.</p></div>
+  <div class="tri">
+    <div class="acard"><div class="ic" style="background:var(--wa-info-soft);color:var(--wa-info)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+      <h3>Candidate sourcing</h3><p>Train candidates aligned to your open job roles — matched on titles, skills, and locations.</p></div>
+    <div class="acard"><div class="ic" style="background:var(--wa-info-soft);color:var(--wa-info)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      <h3>Readiness review</h3><p>Train candidates ready for hire through structured training and readiness review aligned to your requirements.</p></div>
+    <div class="acard"><div class="ic" style="background:var(--wa-accent-soft);color:var(--wa-accent)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M3 21c0-4 3.5-6 6-6M16 11l2 2 4-4"/></svg></div>
+      <h3>Talent introduction</h3><p>Introduction of qualified candidates to your team — you run interviews and make offers on your timeline.</p></div>
+  </div>
+</div></section>
+
+<!-- HOW IT WORKS -->
+<section class="band" id="how" style="background:#fff;border-top:1px solid var(--wa-border);border-bottom:1px solid var(--wa-border)"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">How it works</span><h2>How it works.</h2><p>Three steps from role requirements to qualified candidate introductions.</p></div>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>Tell us your roles</h3><p>Share titles, skills, locations, and hiring needs on a 20-minute call or via intake.</p></div>
+    <div class="step"><div class="n">2</div><h3>We train + match</h3><p>WorkforceAP prepares candidates through structured training, certifications where applicable, and readiness review aligned to your requirements.</p></div>
+    <div class="step"><div class="n">3</div><h3>You interview &amp; hire</h3><p>You run interviews and make offers on your timeline. We support onboarding so hires stick.</p></div>
+  </div>
+</div></section>
+
+<!-- ROLES WE SUPPORT -->
+<section class="band" id="roles"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">Roles we support</span><h2>Roles we support.</h2><p>Examples of roles where WorkforceAP can help screen for training fit, readiness, and support needs.</p></div>
+  <div class="pgrid">
+    <div class="pcard"><div class="ic" style="background:var(--wa-info-soft);color:var(--wa-info)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>
+      <h3>IT support</h3><div class="area">IBM &amp; Google certificate pathways</div></div>
+    <div class="pcard"><div class="ic" style="background:var(--wa-gold-soft);color:var(--wa-gold-dark)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
+      <h3>Operations</h3><div class="area">Microsoft &amp; CompTIA certificate pathways</div></div>
+    <div class="pcard"><div class="ic" style="background:var(--wa-accent-soft);color:var(--wa-accent)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg></div>
+      <h3>Healthcare pathways</h3><div class="area">Occupational certificate tracks</div></div>
+  </div>
+  <p class="note">Illustrative role examples only — not verified employer testimonials or placement guarantees. Verified partner stories publish on our impact page after consent and review.</p>
+</div></section>
+
+<!-- TRUST -->
+<section class="band" id="trust" style="background:#fff;border-top:1px solid var(--wa-border)"><div class="wrap">
+  <div class="trust">
+    <div class="t"><div class="k">25+ years of experience</div><p>Built in Austin on 25+ years of workforce-development experience across public, nonprofit, and employer-serving organizations.</p></div>
+    <div class="t"><div class="k">501(c)(3) nonprofit</div><p>A mission-driven nonprofit — member training and support at no cost to qualifying members, through funded pathways.</p></div>
+    <div class="t"><div class="k">Employer-recognized</div><p>20 occupational &amp; professional certificates tied to employers, with IBM, Google, Microsoft, AWS and CompTIA tracks.</p></div>
+  </div>
+</div></section>
+
+<!-- FAQ -->
+<section class="band" id="faq" style="background:#fff;border-top:1px solid var(--wa-border)"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow">Employer FAQ</span><h2>Employer FAQ.</h2></div>
+  <div class="faq">
+    <div class="qa"><h3>How long does onboarding take?</h3><p>Most hiring partners complete onboarding in one 20-minute call plus a short intake. Candidate timing depends on role requirements, available training pathways, and member readiness.</p></div>
+    <div class="qa"><h3>How are candidates vetted?</h3><p>Members complete structured training, industry certifications where applicable, advisor check-ins, and readiness review before we introduce them to your roles.</p></div>
+    <div class="qa"><h3>Do you require exclusivity?</h3><p>No. You can keep using your existing ATS and agencies. We ask for clear role definitions and timely feedback on candidates we send.</p></div>
+    <div class="qa"><h3>What geographic areas do you cover?</h3><p>Share your locations on the intro call and we will confirm fit. WorkforceAP is built in Austin.</p></div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="band"><div class="wrap"><div class="cta">
+  <h2>Ready to build your talent pipeline?</h2>
+  <p>Tell us about your open roles and we will follow up within 1 to 2 business days. Submit intake details or schedule a hiring partner call.</p>
+  <div class="acts"><a class="btn btn--light">Talk with us about hiring</a><a class="btn" style="background:rgba(255,255,255,.14);color:#fff">Submit employer intake</a></div>
+</div></div></section>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><a class="brand" style="color:#fff;margin-bottom:12px"><span class="mark">W</span> WorkforceAP</a>
+      <p style="max-width:300px;color:#a99ea4;font-size:14px">Empowering People. Advancing Futures. A 501(c)(3) nonprofit — career training, certificates, and job support at no cost to qualifying members.</p></div>
+    <div><h4>Programs</h4><a>IT Support</a><a>AI Developer</a><a>Project Management</a><a>All certificates</a></div>
+    <div><h4>About</h4><a>How it works</a><a>Our mission</a><a>Partners</a><a>Find Your Path</a></div>
+    <div><h4>Get started</h4><a>Apply</a><a>See programs</a><a href="wa-v3-employers.html">For employers</a><a>Contact</a></div>
+  </div>
+  <div class="fbar"><span>© 2026 Workforce Advancement Project · 501(c)(3)</span><span>Privacy · Terms · Accessibility</span></div>
+</div></footer>
+
+</body>
+</html>

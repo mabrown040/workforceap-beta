@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — v3 Home (Art-of-Possible Reskin)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --crimson:#ad2c4d; --crimson-dark:#8b1f38; --gold:#a47f38; --blue:#2b7bb9; --green:#4a9b4f;
+    --ink:#16131a; --ink-2:#4a4550; --line:#e9e4ea; --bg:#ffffff; --bg-2:#faf7f8; --bg-3:#f3eef1;
+    --max:1200px; --r:18px;
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);letter-spacing:-0.03em;line-height:1.04;font-weight:800}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--crimson)}
+  .muted{color:var(--ink-2)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--primary{background:var(--crimson);color:#fff;box-shadow:0 10px 30px -10px rgba(173,44,77,.55)}
+  .btn--primary:hover{background:var(--crimson-dark)}
+  .btn--ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+  .btn--ghost:hover{border-color:var(--crimson);color:var(--crimson)}
+  .btn--light{background:#fff;color:var(--crimson)}
+
+  /* ===== NAV ===== */
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--crimson),var(--crimson-dark));display:grid;place-items:center;color:#fff;font-size:15px}
+  .nav-links{display:flex;gap:30px;font-weight:600;font-size:15px;color:var(--ink-2)}
+  .nav-links a:hover{color:var(--crimson)}
+  .nav-cta{display:flex;gap:12px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* ===== HERO ===== */
+  .hero{position:relative;overflow:hidden;background:
+     radial-gradient(1100px 520px at 88% -10%, rgba(164,127,56,.10), transparent 60%),
+     radial-gradient(900px 560px at -5% 8%, rgba(43,123,185,.10), transparent 55%),
+     var(--bg)}
+  .hero-in{padding:clamp(64px,9vw,128px) 0 clamp(56px,7vw,104px)}
+  .hero h1{font-size:clamp(44px,7.5vw,92px)}
+  .hero h1 .accent{color:var(--crimson)}
+  .hero-lead{font-size:clamp(18px,1.4vw,22px);max-width:620px;margin:26px 0 8px;color:var(--ink-2)}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+  .hero-trust{display:flex;gap:22px;flex-wrap:wrap;margin-top:30px;font-size:14px;font-weight:600;color:var(--ink-2)}
+  .hero-trust span{display:inline-flex;align-items:center;gap:8px}
+  .hero-trust .dot{width:7px;height:7px;border-radius:50%}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+  /* stat card cluster */
+  .hero-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .stat{border:1px solid var(--line);border-radius:var(--r);padding:24px;background:#fff;box-shadow:0 22px 50px -34px rgba(22,19,26,.4)}
+  .stat .n{font-family:var(--display);font-weight:800;font-size:clamp(34px,4vw,46px);letter-spacing:-.04em;line-height:1}
+  .stat .l{font-size:13px;font-weight:600;color:var(--ink-2);margin-top:8px}
+  .stat--crimson{background:linear-gradient(150deg,var(--crimson),var(--crimson-dark));border-color:transparent;color:#fff}
+  .stat--crimson .l{color:rgba(255,255,255,.85)}
+  .stat--span{grid-column:1/-1}
+  .stat--gold .n{color:var(--gold)} .stat--blue .n{color:var(--blue)} .stat--green .n{color:var(--green)}
+
+  /* ===== SECTION SHELL ===== */
+  section.band{padding:clamp(64px,8vw,118px) 0}
+  .sec-head{max-width:680px;margin-bottom:48px}
+  .sec-head h2{font-size:clamp(30px,4vw,52px);margin-top:12px}
+  .sec-head p{margin-top:16px;font-size:18px;color:var(--ink-2)}
+  .alt{background:var(--bg-2)}
+
+  /* programs */
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  @media(max-width:900px){.pgrid{grid-template-columns:1fr}}
+  .pcard{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#fff;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s,border-color .2s}
+  .pcard:hover{transform:translateY(-4px);box-shadow:0 28px 60px -34px rgba(22,19,26,.45);border-color:rgba(173,44,77,.35)}
+  .pcard .top{height:150px;background:linear-gradient(135deg,#2a2430,#16131a);position:relative;display:flex;align-items:flex-end;padding:18px}
+  .pcard .top.g1{background:linear-gradient(135deg,#3a2030,#8b1f38)}
+  .pcard .top.g2{background:linear-gradient(135deg,#1d3a4a,#2b7bb9)}
+  .pcard .top.g3{background:linear-gradient(135deg,#3a3320,#a47f38)}
+  .pcard .tag{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.16);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:999px;backdrop-filter:blur(6px)}
+  .pcard .body{padding:22px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .pcard h3{font-size:20px;letter-spacing:-.02em}
+  .pcard .meta{font-size:13px;color:var(--ink-2)}
+  .pcard .go{margin-top:auto;font-weight:700;font-size:14px;color:var(--crimson);display:inline-flex;gap:6px;align-items:center}
+
+  /* journey */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  @media(max-width:900px){.steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.steps{grid-template-columns:1fr}}
+  .step{padding-top:22px;border-top:3px solid var(--crimson)}
+  .step .num{font-family:var(--display);font-weight:800;font-size:15px;color:var(--crimson)}
+  .step h3{font-size:20px;margin:12px 0 8px}
+  .step p{font-size:15px;color:var(--ink-2)}
+
+  /* tri-audience */
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  @media(max-width:900px){.tri{grid-template-columns:1fr}}
+  .acard{border:1px solid var(--line);border-radius:var(--r);padding:30px;background:#fff}
+  .acard .ic{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-size:22px;margin-bottom:18px}
+  .acard h3{font-size:22px;margin-bottom:10px}
+  .acard ul{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:12px}
+  .acard li{font-size:15px;color:var(--ink-2);padding-left:26px;position:relative}
+  .acard li::before{content:"";position:absolute;left:0;top:8px;width:13px;height:13px;border-radius:50%;border:3px solid var(--crimson)}
+  .acard--job .ic{background:rgba(173,44,77,.1);color:var(--crimson)}
+  .acard--emp .ic{background:rgba(43,123,185,.1);color:var(--blue)}
+  .acard--emp li::before{border-color:var(--blue)}
+  .acard--part .ic{background:rgba(164,127,56,.12);color:var(--gold)}
+  .acard--part li::before{border-color:var(--gold)}
+
+  /* quote */
+  .quote{max-width:900px;margin:0 auto;text-align:center}
+  .quote blockquote{font-family:var(--display);font-weight:700;font-size:clamp(24px,3.2vw,38px);letter-spacing:-.02em;line-height:1.25}
+  .quote .by{margin-top:24px;font-size:15px;color:var(--ink-2);font-weight:600}
+
+  /* CTA band */
+  .cta{background:linear-gradient(135deg,var(--crimson),var(--crimson-dark));color:#fff;border-radius:28px;padding:clamp(40px,6vw,72px);text-align:center}
+  .cta h2{font-size:clamp(30px,4.5vw,54px)}
+  .cta p{margin:18px auto 0;max-width:560px;color:rgba(255,255,255,.86);font-size:18px}
+  .cta .acts{margin-top:34px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+  /* footer */
+  footer{background:#16131a;color:#cfc8d2;padding:70px 0 40px;margin-top:0}
+  .fgrid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px}
+  @media(max-width:780px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;letter-spacing:.04em;margin-bottom:16px}
+  footer a{display:block;color:#a79fad;font-size:14px;margin-bottom:10px}
+  footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #2a2530;margin-top:48px;padding-top:24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:#8a8290}
+  .ribbon{display:inline-block;background:var(--gold);color:#16131a;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin-bottom:18px}
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="brand"><span class="mark">W</span> WorkforceAP</a>
+    <div class="nav-links">
+      <a href="#programs">Programs</a>
+      <a href="#how">How it works</a>
+      <a href="#audiences">Who we serve</a>
+      <a href="#outcomes">Outcomes</a>
+    </div>
+    <div class="nav-cta">
+      <a class="btn btn--ghost" style="padding:10px 18px">Sign in</a>
+      <a class="btn btn--primary" style="padding:10px 20px">Apply free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap hero-in">
+    <div class="hero-grid">
+      <div>
+        <span class="ribbon">Grant-funded · No cost to members</span>
+        <h1>Empowering people.<br><span class="accent">Advancing futures.</span></h1>
+        <p class="hero-lead">Free training, industry certifications, and real job placement — with a counselor, an AI career toolkit, and an employer network behind every step.</p>
+        <div class="hero-actions">
+          <a class="btn btn--primary">Start your application →</a>
+          <a class="btn btn--ghost">Explore programs</a>
+        </div>
+        <div class="hero-trust">
+          <span><span class="dot" style="background:var(--green)"></span> No tuition, ever</span>
+          <span><span class="dot" style="background:var(--blue)"></span> Google · IBM · Microsoft certs</span>
+          <span><span class="dot" style="background:var(--gold)"></span> Placement support</span>
+        </div>
+      </div>
+      <div class="hero-cards">
+        <div class="stat stat--crimson stat--span">
+          <div class="n">2,000+</div>
+          <div class="l">members advancing their careers with WorkforceAP</div>
+        </div>
+        <div class="stat stat--gold"><div class="n">20</div><div class="l">funded program pathways</div></div>
+        <div class="stat stat--blue"><div class="n">87%</div><div class="l">complete &amp; certify</div></div>
+        <div class="stat stat--green stat--span"><div class="n">$0</div><div class="l">upfront cost — tuition is covered by workforce grants &amp; partners</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- PROGRAMS -->
+<section class="band" id="programs">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Featured pathways</span>
+      <h2>Career training that ends in a real job.</h2>
+      <p>Stackable certificates aligned to in-demand roles and the local market — start where you are.</p>
+    </div>
+    <div class="pgrid">
+      <a class="pcard"><div class="top g2"><span class="tag">IT &amp; Cloud</span></div><div class="body"><h3>IT Support Professional</h3><div class="meta">Google &amp; IBM · ~6 months · entry-level ready</div><span class="go">View pathway →</span></div></a>
+      <a class="pcard"><div class="top g1"><span class="tag">AI &amp; Data</span></div><div class="body"><h3>AI Professional Developer</h3><div class="meta">IBM · ~8 months · portfolio projects</div><span class="go">View pathway →</span></div></a>
+      <a class="pcard"><div class="top g3"><span class="tag">Business</span></div><div class="body"><h3>Project Management</h3><div class="meta">Microsoft · ~5 months · PMP-aligned</div><span class="go">View pathway →</span></div></a>
+    </div>
+    <div style="margin-top:36px"><a class="btn btn--ghost">See all 20 programs</a></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="band alt" id="how">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">How it works</span><h2>One supported path, start to placement.</h2></div>
+    <div class="steps">
+      <div class="step"><div class="num">01</div><h3>Apply &amp; qualify</h3><p>Free eligibility check and intake with a real counselor — minutes, not paperwork.</p></div>
+      <div class="step"><div class="num">02</div><h3>Train &amp; certify</h3><p>Coursera coursework, workspace email, and exams — fully funded, at your pace.</p></div>
+      <div class="step"><div class="num">03</div><h3>Get interview-ready</h3><p>AI resume studio, mock interviews, and skill missions that become proof.</p></div>
+      <div class="step"><div class="num">04</div><h3>Land the role</h3><p>Employer matches, placement support, and follow-through after you start.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCES -->
+<section class="band" id="audiences">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">Who we serve</span><h2>One platform, three operating views.</h2></div>
+    <div class="tri">
+      <div class="acard acard--job"><div class="ic">◆</div><h3>Job seekers</h3><p class="muted">A path into training, certifications, and real jobs.</p>
+        <ul><li>Free training &amp; certs</li><li>AI career toolkit + voice coaching</li><li>Support from first application to placement</li></ul></div>
+      <div class="acard acard--emp"><div class="ic">◆</div><h3>Employers</h3><p class="muted">Aligned candidates instead of unstructured resumes.</p>
+        <ul><li>Post roles &amp; build pipelines</li><li>Screening-ready, certified talent</li><li>Apprenticeships &amp; follow-through</li></ul></div>
+      <div class="acard acard--part"><div class="ic">◆</div><h3>Boards &amp; partners</h3><p class="muted">Members, outcomes, and activity in one place.</p>
+        <ul><li>Track training &amp; placement</li><li>Coordinate counselors &amp; programs</li><li>Reporting without manual assembly</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="band alt">
+  <div class="wrap quote">
+    <span class="eyebrow">Why it works</span>
+    <blockquote style="margin-top:18px">“Applications, training, placements, and follow-up live together — so staff spend time on people, not paperwork, and members never fall through the cracks.”</blockquote>
+    <div class="by">— The WorkforceAP operating model</div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="band">
+  <div class="wrap">
+    <div class="cta">
+      <h2>Your next step is free.</h2>
+      <p>Check your eligibility in minutes. No cost, no commitment — just a clearer path to a better job.</p>
+      <div class="acts">
+        <a class="btn btn--light">Start your application</a>
+        <a class="btn" style="background:rgba(255,255,255,.14);color:#fff">Find your path</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <a class="brand" style="color:#fff;margin-bottom:14px"><span class="mark">W</span> WorkforceAP</a>
+        <p style="max-width:300px;color:#a79fad;font-size:14px">Empowering People. Advancing Futures. Grant-funded workforce training, certification, and placement.</p>
+      </div>
+      <div><h4>Programs</h4><a>IT Support</a><a>AI Developer</a><a>Project Management</a><a>All pathways</a></div>
+      <div><h4>About</h4><a>How it works</a><a>Outcomes</a><a>Leadership</a><a>Partners</a></div>
+      <div><h4>Get started</h4><a>Apply</a><a>Eligibility</a><a>For employers</a><a>Contact</a></div>
+    </div>
+    <div class="fbar"><span>© 2026 Workforce Advancement Project</span><span>Privacy · Terms · Accessibility</span></div>
+  </div>
+</footer>
+
+</body>
+</html>

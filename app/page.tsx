@@ -3,16 +3,13 @@ import dynamic from 'next/dynamic';
 import { buildPageMetadataAsync } from '@/app/seo';
 import LocalizedLinkServer from '@/components/LocalizedLinkServer';
 import Image from 'next/image';
-import { Check } from 'lucide-react';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
-import TrustStrip from '@/components/marketing/TrustStrip';
 import LanguageToggle from '@/components/portal/LanguageToggle';
 
 import { getTranslations } from 'next-intl/server';
-import { marketingButtonPresets, marketingButtonClasses } from '@/lib/marketing/buttonClasses';
 import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 const HomePageBelowFold = dynamic(() => import('@/components/marketing/HomePageBelowFold'));
@@ -95,182 +92,79 @@ export default async function HomePage() {
   const programCount = WORKFORCEAP_PROGRAM_CATALOG_SIZE;
 
   return (
-    <div className="homepage" style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}>
+    <div className="wa-v3">
 
-      {/* ===== HERO: Full-bleed background image with gradient overlay (all viewports) ===== */}
-      <section className="home-hero" style={{
-        position: 'relative',
-        minHeight: 'min(85vh, 820px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-      }}>
-        {/* Background image */}
-        <Image
-          src={HERO_IMAGE_SRC}
-          alt="Collaborative workspace"
-          fill
-          priority={true}
-          fetchPriority="high"
-          sizes={MARKETING_FULL_BLEED_HERO_SIZES}
-          quality={85}
-          placeholder="blur"
-          blurDataURL={HERO_IMAGE_BLUR}
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
-        />
-        {/* Gradient overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          /* Hardcode bottom to #121416 to ensure contrast against white text */
-          background: 'linear-gradient(180deg, rgba(28,31,36,0.52) 0%, rgba(28,31,36,0.78) 55%, #121416 100%)',
-          zIndex: 1,
-        }} />
+      {/* ===== BENTO HERO: real next/image photo layered behind crimson→plum gradient ===== */}
+      <header className="wa-hero">
+        <div className="wa-wrap">
+          <div className="wa-bento">
+            <div className="wa-tile wa-tile--hero">
+              {/* Real hero photo via next/image (kept as <Image>, not a CSS bg) */}
+              <div className="wa-hero-photo" aria-hidden="true">
+                <Image
+                  src={HERO_IMAGE_SRC}
+                  alt=""
+                  fill
+                  priority={true}
+                  fetchPriority="high"
+                  sizes={MARKETING_FULL_BLEED_HERO_SIZES}
+                  quality={85}
+                  placeholder="blur"
+                  blurDataURL={HERO_IMAGE_BLUR}
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                />
+              </div>
 
-        <div
-          className="home-hero__inner"
-          style={{
-          position: 'relative',
-          zIndex: 2,
-          maxWidth: '1400px',
-          width: '100%',
-          padding: 'clamp(5.5rem, 12vw, 8rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 8vw, 6rem)',
-          boxSizing: 'border-box',
-        }}
-        >
-          <h1
-            className="text-display-lg"
-            style={{
-              color: 'var(--home-hero-fg, #f2f2f5)',
-              marginBottom: '1.5rem',
-              lineHeight: 1.05,
-              fontSize: 'clamp(1.5rem, 4vw + 0.5rem, 4.5rem)',
-            }}
-          >
-            {t('heroTagline')}{' '}
-            <span style={{ color: 'var(--color-accent)' }}>{t('heroTaglineAccent')}</span>
-          </h1>
+              <span className="wa-ribbon">{t('memberPromiseEyebrow')}</span>
+              <h1>
+                {t('heroTagline')}
+                <br />
+                <span className="wa-accent">{t('heroTaglineAccent')}</span>
+              </h1>
+              <p>{t('heroBody1')}</p>
 
-          <div style={{ maxWidth: '980px', display: 'flex', flexDirection: 'column', gap: '0.9rem', marginBottom: '1rem' }}>
-            <p
-              className="home-hero__body-org"
-              style={{
-              fontSize: 'clamp(1rem, 0.5vw + 0.95rem, 1.22rem)',
-              color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.88))',
-              lineHeight: 1.7,
-              margin: 0,
-            }}
-            >
-              {t('heroBody1')}
-            </p>
+              <div className="wa-hero-actions">
+                <LocalizedLinkServer href="/apply" className="wa-btn wa-btn--light">
+                  {t('heroMobilePrimaryCta')}
+                </LocalizedLinkServer>
+                <LocalizedLinkServer href="/programs#program-catalog" className="wa-btn wa-btn--translucent">
+                  {t('browsePrograms')}
+                </LocalizedLinkServer>
+              </div>
 
-            <p style={{
-              fontSize: 'clamp(0.98rem, 0.45vw + 0.92rem, 1.12rem)',
-              color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.82))',
-              lineHeight: 1.65,
-              margin: 0,
-            }}>
-              {t('heroBody2')}
-            </p>
-
-            {/* Mobile-only primary CTA pill (≥44px tap target, ≥1.05rem font, accent fill, white text).
-                Hidden on desktop via CSS — the canonical primary CTA below the step pills covers that. */}
-            <LocalizedLinkServer
-              href="/apply"
-              className={marketingButtonClasses({
-                variant: 'primary',
-                radius: 'lg',
-                large: true,
-                className: 'home-hero__mobile-primary-cta',
-              })}
-            >
-              {t('heroMobilePrimaryCta')}
-            </LocalizedLinkServer>
-          </div>
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '2rem', maxWidth: '720px' }}>
-            {([t('heroStep1'), t('heroStep2'), t('heroStep3')] as const).map((step, index) => (
-              <div
-                key={index}
-                className={marketingButtonPresets.heroStepCapsuleOnDark('marketing-hero-step-pill')}
-              >
-                <span className={marketingButtonPresets.stepNumPill('marketing-hero-step-pill__index')}>
-                  {index + 1}
+              <div className="wa-chips">
+                <span className="wa-chip">
+                  <span className="wa-d" style={{ background: 'var(--wa-success)' }} aria-hidden="true" />
+                  {t('trustNoCost')}
                 </span>
-                <span className="marketing-hero-step-pill__label">{step}</span>
+                <span className="wa-chip">
+                  <span className="wa-d" style={{ background: 'var(--wa-gold)' }} aria-hidden="true" />
+                  {t('trustReviewed')}
+                </span>
               </div>
-            ))}
-          </div>
+            </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-            <LocalizedLinkServer
-              href="/apply"
-              className={marketingButtonPresets.heroPrimary('home-hero__cta-primary')}
-            >
-              {t('heroMobilePrimaryCta')}
-            </LocalizedLinkServer>
-            <LocalizedLinkServer
-              href="/programs#programs-quick-start"
-              className={marketingButtonPresets.heroGhostOnDark('home-hero__cta-ghost')}
-            >
-              {t('browsePrograms')}
-            </LocalizedLinkServer>
-          </div>
-          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}><Check size={15} aria-hidden style={{ flexShrink: 0 }} /> {t('trustGrant')}</span>
-              <span style={{ opacity: 0.5 }}>·</span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}><Check size={15} aria-hidden style={{ flexShrink: 0 }} /> {t('trustNoCard')}</span>
-              <span style={{ opacity: 0.5 }}>·</span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}><Check size={15} aria-hidden style={{ flexShrink: 0 }} /> {t('trustNoCost')}</span>
-            </p>
-          </div>
+            <div className="wa-tile wa-tile--claim wa-tile--gold">
+              <div className="wa-k">{t('memberCardCount')}</div>
+              <div className="wa-s">{t('description')}</div>
+            </div>
 
-          <div
-            className="home-hero__trust-cards"
-            style={{
-            marginTop: '1.5rem',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
-            gap: '0.875rem',
-            maxWidth: '980px',
-          }}
-          >
-            {([
-              { icon: 'group', title: t('trustReviewed'), desc: t('trustReviewedDetail') },
-              { icon: 'verified_user', title: t('trustYears'), desc: t('trustYearsDetail') },
-              { icon: 'target', title: t('trustEmployer'), desc: t('trustEmployerDetail') },
-            ] as const).map((item) => (
-              <div
-                key={item.title}
-                style={{
-                  background: 'rgba(15, 18, 24, 0.52)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  backdropFilter: 'blur(10px)',
-                  borderRadius: '1rem',
-                  padding: '1rem',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.125rem' }} aria-hidden="true">
-                    {item.icon}
-                  </span>
-                  <p style={{ margin: 0, color: 'var(--home-hero-fg, #f2f2f5)', fontWeight: 700, fontSize: '0.95rem' }}>{item.title}</p>
-                </div>
-                <p style={{ margin: 0, color: 'var(--home-hero-fg-muted, rgba(242, 242, 245, 0.82))', lineHeight: 1.6, fontSize: '0.875rem' }}>
-                  {item.desc}
-                </p>
+            <div className="wa-tile wa-tile--claim wa-tile--team">
+              <div className="wa-av" aria-hidden="true">
+                <span />
+                <span />
+                <span />
               </div>
-            ))}
+              <div className="wa-k">{t('trustReviewed')}</div>
+              <div className="wa-s">{t('trustReviewedDetail')}</div>
+            </div>
           </div>
         </div>
-      </section>
-
-      <TrustStrip variant="home" />
+      </header>
 
       <HomePageBelowFold homeProgramShowcase={homeProgramShowcase} programCount={programCount} />
 
-      <div style={{ textAlign: 'center', padding: '1rem 0', color: 'var(--color-on-surface-variant)' }}>
+      <div className="wa-lang-row">
         <LanguageToggle compact />
       </div>
 

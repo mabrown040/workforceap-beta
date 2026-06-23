@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — What We Do</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wa-accent:#ad2c4d; --wa-accent-dark:#8c0f37; --wa-accent-soft:#fdf2f4; --wa-on-accent:#fff;
+    --wa-gold:#a47f38; --wa-gold-dark:#7d5f26; --wa-gold-soft:#fef3c7;
+    --wa-info:#2b7bb9; --wa-info-soft:#eef5fb; --wa-success:#4a9b4f;
+    --wa-bg:#f7f4f1; --wa-surface:#fff; --wa-text:#1a1a1a; --wa-muted:#6e6a66; --wa-border:#ece7e2;
+    --wa-radius:24px; --wa-radius-sm:14px;
+    --wa-shadow:0 1px 2px rgba(0,0,0,.04); --wa-shadow-lg:0 18px 44px -22px rgba(60,30,40,.4);
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+    --plum:#3a1326; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--wa-text);background:var(--wa-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--wa-accent)}
+  .muted{color:var(--wa-muted)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--primary{background:var(--wa-accent);color:#fff;box-shadow:0 12px 30px -12px rgba(173,44,77,.6)}
+  .btn--primary:hover{background:var(--wa-accent-dark)}
+  .btn--ghost{background:#fff;border-color:var(--wa-border);color:var(--wa-text)}
+  .btn--ghost:hover{border-color:var(--wa-accent);color:var(--wa-accent)}
+  .btn--light{background:#fff;color:var(--wa-accent)}
+  svg{display:block}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--wa-border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--wa-accent),var(--plum));display:grid;place-items:center;color:#fff;font-weight:800}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:15px;color:var(--wa-muted)}
+  .nav-links a:hover{color:var(--wa-accent)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* PHOTO HERO (crimson→plum gradient over real photo) */
+  .photo-hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;
+    background:
+      linear-gradient(to top, rgba(0,0,0,.5) 0%, transparent 42%),
+      linear-gradient(135deg, rgba(18,20,22,.94) 0%, rgba(18,20,22,.72) 45%, rgba(173,44,77,.45) 100%),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat;}
+  .photo-hero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:40px 40px;mask:radial-gradient(120% 80% at 82% 8%,#000,transparent 70%);pointer-events:none}
+  .photo-hero .wrap{position:relative;z-index:2;padding-top:88px;padding-bottom:88px}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);color:#ffe082;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px}
+  .photo-hero h1{font-size:clamp(40px,5.5vw,72px);font-weight:800;line-height:.96;letter-spacing:-.03em;color:#fff;max-width:14ch;margin-bottom:24px;text-shadow:0 2px 32px rgba(0,0,0,.55)}
+  .photo-hero h1 .accent{color:#ffb2bc}
+  .photo-hero .lede{font-size:clamp(17px,1.4vw,20px);color:rgba(255,255,255,.94);max-width:44ch;line-height:1.6;margin-bottom:34px;text-shadow:0 1px 18px rgba(0,0,0,.5)}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px}
+  .btn--onaccent{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.28)}
+  .btn--onaccent:hover{background:rgba(255,255,255,.22)}
+
+  /* FIND YOUR PATH band */
+  .findpath{text-align:center;padding:44px 24px;background:var(--wa-surface);border-bottom:1px solid var(--wa-border)}
+  .findpath p{font-size:18px;color:var(--wa-muted);margin-bottom:18px}
+  .findpath .acts{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+
+  section.band{padding:clamp(56px,7vw,96px) 0}
+  .sec-head{max-width:660px;margin-bottom:42px}
+  .sec-head.center{margin:0 auto 48px;text-align:center}
+  .sec-head h2{font-size:clamp(28px,3.6vw,46px);margin-top:12px}
+  .sec-head p{margin-top:14px;font-size:17px;color:var(--wa-muted)}
+
+  /* LEGACY section */
+  .legacy{display:grid;grid-template-columns:5fr 7fr;gap:clamp(32px,5vw,64px);align-items:center}
+  @media(max-width:900px){.legacy{grid-template-columns:1fr}}
+  .legacy-portrait{position:relative;max-width:420px}
+  @media(max-width:900px){.legacy-portrait{margin:0 auto}}
+  .legacy-portrait .img{border-radius:var(--wa-radius);overflow:hidden;aspect-ratio:3/4;background:
+      linear-gradient(150deg, rgba(173,44,77,.18), rgba(58,19,38,.32)),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat}
+  .legacy-portrait .badge{position:absolute;bottom:-22px;right:-18px;background:var(--wa-accent);color:#fff;padding:22px 28px;border-radius:var(--wa-radius-sm);box-shadow:var(--wa-shadow-lg)}
+  .legacy-portrait .badge .k{font-family:var(--display);font-size:40px;font-weight:800;line-height:1}
+  .legacy-portrait .badge .s{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.92;margin-top:4px}
+  .legacy-text h2{font-size:clamp(28px,3.6vw,46px)}
+  .legacy-text h2 .accent{color:var(--wa-accent)}
+  .legacy-text blockquote{border-left:3px solid var(--wa-accent);padding-left:22px;margin:24px 0;color:var(--wa-muted);font-size:18px;font-style:italic;line-height:1.7}
+  .legacy-text .body{color:var(--wa-muted);line-height:1.75;margin-bottom:24px}
+  .legacy-text .body strong{color:var(--wa-text)}
+  .legacy-chip{padding:22px 24px;background:var(--wa-gold-soft);border-radius:var(--wa-radius-sm);border-left:3px solid var(--wa-gold);max-width:420px}
+  .legacy-chip .k{color:var(--wa-gold-dark);font-family:var(--display);font-size:18px;font-weight:800;line-height:1.3}
+  .legacy-chip .s{font-size:13px;color:var(--wa-muted);margin-top:8px;font-weight:600}
+
+  /* BENTO impact grid */
+  .bento{display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:minmax(180px,auto);gap:18px}
+  .bcard{border-radius:var(--wa-radius);padding:32px;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;background:var(--wa-surface);border:1px solid var(--wa-border);box-shadow:var(--wa-shadow);transition:transform .2s,box-shadow .2s,border-color .2s;overflow:hidden}
+  .bcard:hover{transform:translateY(-4px);box-shadow:var(--wa-shadow-lg);border-color:#f0cdd5}
+  .bcard h3{font-size:21px;color:var(--wa-text)}
+  .bcard p{font-size:14.5px;color:var(--wa-muted);line-height:1.7}
+  .bcard .ic{color:var(--wa-accent)}
+  .bcard.feature{grid-column:span 4;grid-row:span 2;background:linear-gradient(150deg,var(--wa-accent),var(--plum));color:#fff;border:none;position:relative}
+  .bcard.feature::after{content:"";position:absolute;inset:0;background:radial-gradient(110% 90% at 85% 5%,rgba(164,127,56,.3),transparent 55%);pointer-events:none}
+  .bcard.feature h3{color:#fff;font-size:24px;position:relative}
+  .bcard.feature p{color:rgba(255,255,255,.85);position:relative}
+  .bcard.feature .ic{color:rgba(255,255,255,.92);position:relative}
+  .bcard.wide{grid-column:span 8}
+  .bcard.half{grid-column:span 4}
+  @media(max-width:900px){.bento>div{grid-column:span 12 !important;grid-row:span 1 !important}}
+
+  /* VALUES */
+  .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:900px){.vgrid{grid-template-columns:1fr}}
+  .vcard{position:relative;overflow:hidden;background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:34px;transition:transform .2s,box-shadow .2s}
+  .vcard:hover{transform:translateY(-4px);box-shadow:var(--wa-shadow-lg)}
+  .vcard .ghost{position:absolute;top:-10px;right:14px;font-family:var(--display);font-size:128px;font-weight:800;color:var(--wa-accent);opacity:.06;line-height:1;pointer-events:none}
+  .vcard .num{font-size:12px;font-weight:700;color:var(--wa-accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+  .vcard h3{font-size:22px;margin-bottom:10px}
+  .vcard p{font-size:15px;color:var(--wa-muted);line-height:1.7}
+
+  /* CTA */
+  .cta{background:linear-gradient(150deg,var(--wa-accent),var(--plum));color:#fff;border-radius:28px;padding:clamp(40px,6vw,72px);text-align:center;position:relative;overflow:hidden}
+  .cta::after{content:"";position:absolute;inset:0;background:radial-gradient(100% 100% at 90% 0%,rgba(164,127,56,.3),transparent 55%);pointer-events:none}
+  .cta h2{font-size:clamp(28px,4vw,48px);position:relative}
+  .cta p{margin:16px auto 0;max-width:560px;color:rgba(255,255,255,.86);font-size:17px;position:relative}
+  .cta .acts{margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+
+  footer{background:#211a1d;color:#cabfc4;padding:60px 0 36px}
+  .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;margin-bottom:14px}
+  footer a{display:block;color:#a99ea4;font-size:14px;margin-bottom:9px}footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #382c30;margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a7d83}
+
+/* mobile nav (injected) */
+.nav-in{position:relative}
+.nav-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.nav-burger{display:none;flex-direction:column;gap:5px;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid var(--wa-border);border-radius:12px;background:var(--wa-surface,#fff);cursor:pointer}
+.nav-burger span{display:block;width:20px;height:2px;background:var(--wa-text,#1a1a1a);border-radius:2px;transition:transform .2s,opacity .2s}
+.nav-toggle:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle:checked ~ .nav-burger span:nth-child(2){opacity:0}
+.nav-toggle:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:880px){
+  .nav-burger{display:flex;position:absolute;right:24px;top:12px}
+  .nav-cta{display:none}
+  .nav-toggle:checked ~ .nav-links{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--wa-surface,#fff);border-bottom:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg,0 12px 28px rgba(0,0,0,.08));padding:18px 24px;gap:18px;font-size:16px}
+}
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in"><input class="nav-toggle" type="checkbox" id="nvt" aria-label="Open menu"><label for="nvt" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <a class="brand" href="#"><span class="mark">W</span> WorkforceAP</a>
+  <div class="nav-links"><a href="#programs">Programs</a><a href="#how">How it works</a><a href="#network">Who we serve</a><a href="#trust">About</a></div>
+  <div class="nav-cta"><a class="btn btn--ghost" style="padding:10px 18px">Sign in</a><a class="btn btn--primary" style="padding:10px 20px">Apply now</a></div>
+</div></nav>
+
+<!-- PHOTO HERO -->
+<header class="photo-hero"><div class="wrap">
+  <span class="hero-eyebrow">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6l9-3 9 3-9 3-9-3z"/><path d="M3 6v6M21 6v6M7 8v6c0 1.5 5 1.5 5 1.5s5 0 5-1.5V8"/></svg>
+    Built on Decades of Workforce Experience
+  </span>
+  <h1>Creating <span class="accent">Opportunity</span></h1>
+  <p class="lede">Employer-aligned training. No cost for qualifying members. Career support throughout the journey. A model that works — and scales.</p>
+  <div class="hero-actions">
+    <a class="btn btn--primary">Explore Our Impact
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <a class="btn btn--onaccent">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 11l-3 3 3 3M3 14h7M16 13l3-3-3-3M21 10h-7"/></svg>
+      Partner With Us</a>
+  </div>
+</div></header>
+
+<!-- FIND YOUR PATH -->
+<section class="findpath">
+  <p>Not sure where to start?</p>
+  <div class="acts">
+    <a class="btn btn--primary">Find Your Path Quiz</a>
+    <a class="btn btn--ghost">Check WIOA Options</a>
+  </div>
+</section>
+
+<!-- LEGACY -->
+<section class="band" style="background:var(--wa-surface);border-bottom:1px solid var(--wa-border)"><div class="wrap">
+  <div class="legacy">
+    <div class="legacy-portrait">
+      <div class="img" role="img" aria-label="WorkforceAP team collaborating on workforce development"></div>
+      <div class="badge"><div class="k">25+</div><div class="s">Years Experience</div></div>
+    </div>
+    <div class="legacy-text">
+      <h2>Investing in the Future <span class="accent">Workforce</span></h2>
+      <blockquote>Built on 25+ years of workforce development leadership across Goodwill, Austin Area Urban League, and state and local initiatives. We know what works. Employers help shape talent pipelines. Grants and partnerships fund access. We don&rsquo;t charge members.</blockquote>
+      <p class="body">Some programs may align with <strong>WIOA (Workforce Innovation and Opportunity Act)</strong> eligibility guidelines criteria, including low-income individuals, dislocated workers, adult learners, and veterans seeking career advancement.</p>
+      <div class="legacy-chip">
+        <div class="k">Nonprofit &amp; 501(c)(3)</div>
+        <div class="s">WorkforceAP is a national nonprofit and 501(c)(3) organization serving communities nationwide.</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- MAKING AN IMPACT — BENTO -->
+<section class="band" id="programs"><div class="wrap">
+  <div class="sec-head center"><span class="eyebrow">Our Values</span><h2>What guides everything we do</h2></div>
+  <div class="bento">
+    <div class="bcard feature">
+      <svg class="ic" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 3 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg>
+      <h3>Employer-Influenced Curricula</h3>
+      <p>Training programs shaped with employer input — Google, IBM, AWS, Microsoft, CompTIA — so credentials map to real hiring needs.</p>
+    </div>
+    <div class="bcard wide">
+      <svg class="ic" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0"/></svg>
+      <h3>Zero-Barrier Access</h3>
+      <p>No cost for qualifying members. No prerequisites. Funding comes from WIOA, grants, employer partners, and community partnerships that can cover access for eligible participants.</p>
+    </div>
+    <div class="bcard half">
+      <svg class="ic" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l2.5 5 5.5.8-4 3.9.9 5.5L12 20l-4.9 2.6.9-5.5-4-3.9 5.5-.8L12 2z"/></svg>
+      <h3>Validated Outcomes</h3>
+      <p>Industry-recognized certificates. Skills assessments. Job placement support. We track member progress and career outcomes over time.</p>
+    </div>
+    <div class="bcard half">
+      <svg class="ic" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="2"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M10.5 10.5L6.5 7M13.5 10.5L17.5 7M10.5 13.5L6.5 17M13.5 13.5L17.5 17"/></svg>
+      <h3>Regional Scalability</h3>
+      <p>A repeatable model built to serve communities nationwide — not just one local market.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- VALUES -->
+<section class="band" id="trust" style="background:var(--wa-surface);border-top:1px solid var(--wa-border)"><div class="wrap">
+  <div class="vgrid">
+    <div class="vcard">
+      <span class="ghost">01</span>
+      <div class="num">01</div>
+      <h3>Access as Foundation</h3>
+      <p>Fair access to opportunity. We work with community organizations, public partners, and employers so more people can reach training and careers.</p>
+    </div>
+    <div class="vcard">
+      <span class="ghost">02</span>
+      <div class="num">02</div>
+      <h3>Outcome Focus</h3>
+      <p>Every program, partnership, and investment is designed to expand opportunities, strengthen skills, and deliver meaningful life and career outcomes.</p>
+    </div>
+    <div class="vcard">
+      <span class="ghost">03</span>
+      <div class="num">03</div>
+      <h3>Key Partnerships</h3>
+      <p>Government, Employers, Non-profit &amp; Community Organizations, and Churches — we bring the right people together so members don&rsquo;t have to figure it out alone.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="band" id="how"><div class="wrap"><div class="cta">
+  <h2>Ready to build your future?</h2>
+  <p>Take the first step toward a meaningful career. Our programs are offered at no cost for qualifying members — apply in about 5 minutes and a real team follows up in 1 to 2 business days.</p>
+  <div class="acts">
+    <a class="btn btn--light">Apply Now
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <a class="btn" style="background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.28)">Browse Programs</a>
+  </div>
+</div></div></section>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><a class="brand" style="color:#fff;margin-bottom:12px"><span class="mark">W</span> WorkforceAP</a>
+      <p style="max-width:300px;color:#a99ea4;font-size:14px">Empowering People. Advancing Futures. A 501(c)(3) nonprofit — career training, certificates, and job support at no cost to qualifying members.</p></div>
+    <div><h4>Programs</h4><a>IT Support</a><a>AI Developer</a><a>Project Management</a><a>All certificates</a></div>
+    <div><h4>About</h4><a>What we do</a><a>Our mission</a><a>Partners</a><a>Find Your Path</a></div>
+    <div><h4>Get started</h4><a>Apply</a><a>See programs</a><a>For employers</a><a>Contact</a></div>
+  </div>
+  <div class="fbar"><span>© 2026 Workforce Advancement Project · 501(c)(3)</span><span>Privacy · Terms · Accessibility</span></div>
+</div></footer>
+
+</body>
+</html>

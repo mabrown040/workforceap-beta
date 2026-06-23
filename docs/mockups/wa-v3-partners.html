@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — Community &amp; Employer Partners</title>
+<meta name="description" content="Partner with WorkforceAP: community orgs refer the people we serve, training centers co-deliver, public agencies align, and funders support the model. Clear next steps for each." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wa-accent:#ad2c4d; --wa-accent-dark:#8c0f37; --wa-accent-soft:#fdf2f4; --wa-on-accent:#fff;
+    --wa-gold:#a47f38; --wa-gold-dark:#7d5f26; --wa-gold-soft:#fef3c7;
+    --wa-info:#2b7bb9; --wa-info-soft:#eef5fb; --wa-success:#4a9b4f;
+    --wa-bg:#f7f4f1; --wa-surface:#fff; --wa-text:#1a1a1a; --wa-muted:#6e6a66; --wa-border:#ece7e2;
+    --wa-radius:24px; --wa-radius-sm:14px;
+    --wa-shadow:0 1px 2px rgba(0,0,0,.04); --wa-shadow-lg:0 18px 44px -22px rgba(60,30,40,.4);
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+    --plum:#3a1326; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--wa-text);background:var(--wa-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--wa-accent)}
+  .eyebrow--gold{color:var(--wa-gold-dark)}
+  .muted{color:var(--wa-muted)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--wa-gold);outline-offset:3px}
+  .btn--primary{background:var(--wa-accent);color:#fff;box-shadow:0 12px 30px -12px rgba(173,44,77,.6)}
+  .btn--primary:hover{background:var(--wa-accent-dark)}
+  .btn--gold{background:var(--wa-gold);color:#fff;box-shadow:0 12px 30px -12px rgba(164,127,56,.6)}
+  .btn--gold:hover{background:var(--wa-gold-dark)}
+  .btn--ghost{background:#fff;border-color:var(--wa-border);color:var(--wa-text)}
+  .btn--ghost:hover{border-color:var(--wa-gold);color:var(--wa-gold-dark)}
+  .btn--light{background:#fff;color:var(--wa-accent)}
+  svg{display:block}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--wa-border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--wa-accent),var(--plum));display:grid;place-items:center;color:#fff;font-weight:800}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:15px;color:var(--wa-muted)}
+  .nav-links a:hover{color:var(--wa-accent)}
+  .nav-links a[aria-current]{color:var(--wa-accent)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* BENTO HERO */
+  .hero{padding:clamp(40px,6vw,72px) 0 clamp(48px,6vw,80px)}
+  .bento{display:grid;grid-template-columns:1.25fr .95fr;grid-auto-rows:auto;gap:18px}
+  @media(max-width:900px){.bento{grid-template-columns:1fr}}
+  .tile{border-radius:var(--wa-radius);padding:30px;background:var(--wa-surface);border:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg)}
+  .tile--hero{grid-row:span 2;background:
+      radial-gradient(120% 120% at 85% 0%, rgba(164,127,56,.30), transparent 55%),
+      linear-gradient(150deg, rgba(173,44,77,.86), rgba(58,19,38,.92) 92%),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat;
+    color:#fff;display:flex;flex-direction:column;justify-content:center;padding:clamp(30px,4vw,46px);position:relative;overflow:hidden}
+  .tile--hero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:38px 38px;mask:radial-gradient(120% 80% at 80% 10%,#000,transparent 70%);pointer-events:none}
+  .ribbon{align-self:flex-start;background:rgba(255,255,255,.16);color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:6px 13px;border-radius:999px;backdrop-filter:blur(6px)}
+  .tile--hero h1{font-size:clamp(36px,5vw,62px);margin:20px 0 0}
+  .tile--hero h1 .accent{color:var(--wa-gold-soft)}
+  .tile--hero p{color:rgba(255,255,255,.86);margin-top:16px;max-width:46ch;font-size:clamp(15px,1.1vw,17px)}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:7px 13px}
+  .chip .d{width:7px;height:7px;border-radius:50%}
+
+  .tile--claim{display:flex;flex-direction:column;gap:6px;justify-content:center}
+  .tile--claim .k{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;line-height:1.15}
+  .tile--claim .s{font-size:13.5px;color:var(--wa-muted)}
+  .tile--gold{background:linear-gradient(150deg,var(--wa-gold-soft),#fff);border-color:#efe2c4}
+  .tile--gold .k{color:var(--wa-gold-dark)}
+  .tile--team{background:var(--wa-accent-soft);border-color:#f3d9df}
+  .tile--team .av{display:flex;margin-bottom:12px}
+  .tile--team .av span{width:34px;height:34px;border-radius:50%;border:2px solid #fff;margin-left:-8px;background:linear-gradient(135deg,var(--wa-gold),var(--wa-gold-dark))}
+  .tile--team .av span:first-child{margin-left:0}
+
+  /* lanes row */
+  .creds{padding:34px 0;border-top:1px solid var(--wa-border);border-bottom:1px solid var(--wa-border)}
+  .creds .lab{text-align:center;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--wa-muted);margin-bottom:18px}
+  .creds .row{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 30px;align-items:center}
+  .creds .row span{font-family:var(--display);font-weight:800;font-size:16px;color:#9b938c;letter-spacing:-.01em}
+
+  section.band{padding:clamp(56px,7vw,96px) 0}
+  .sec-head{max-width:680px;margin-bottom:42px}
+  .sec-head h2{font-size:clamp(28px,3.6vw,46px);margin-top:12px}
+  .sec-head h2 .accent{color:var(--wa-gold-dark)}
+  .sec-head p{margin-top:14px;font-size:17px;color:var(--wa-muted)}
+
+  /* narrative split */
+  .split{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+  @media(max-width:880px){.split{grid-template-columns:1fr;gap:28px}}
+  .split h2{font-size:clamp(26px,3.4vw,42px)}
+  .split h2 .accent{color:var(--wa-gold-dark)}
+  .split p{margin-top:16px;font-size:16px;color:var(--wa-muted)}
+  .stepslist{list-style:none;margin-top:24px;display:flex;flex-direction:column;gap:14px}
+  .stepslist li{display:flex;gap:14px;align-items:flex-start;font-size:15px}
+  .stepslist .n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--wa-gold-soft);color:var(--wa-gold-dark);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:14px}
+  .quotecard{background:linear-gradient(150deg,var(--wa-gold-soft),#fff);border:1px solid #efe2c4;border-radius:28px;padding:clamp(28px,4vw,44px)}
+  .quotecard .qmark{color:var(--wa-gold);font-family:var(--display);font-size:54px;line-height:.5;font-weight:800}
+  .quotecard blockquote{font-family:var(--display);font-weight:700;font-size:clamp(19px,2.2vw,24px);letter-spacing:-.02em;line-height:1.3;color:var(--wa-text);margin-top:12px}
+
+  /* pathways grid */
+  .pgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:780px){.pgrid{grid-template-columns:1fr}}
+  .pcard{background:#fff;border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:28px;display:flex;flex-direction:column;gap:10px;transition:transform .2s,box-shadow .2s,border-color .2s}
+  .pcard:hover{transform:translateY(-4px);box-shadow:var(--wa-shadow-lg);border-color:#efe2c4}
+  .pcard .ic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;margin-bottom:6px}
+  .pcard .typetag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--wa-gold-dark)}
+  .pcard h3{font-size:21px}
+  .pcard .who{font-size:13.5px;color:var(--wa-muted);font-weight:600}
+  .pcard .why{font-size:15px;color:var(--wa-muted)}
+  .pcard .go{margin-top:auto;font-weight:700;font-size:14px;color:var(--wa-gold-dark);display:inline-flex;gap:6px;align-items:center}
+  .pcard .go:hover{color:var(--wa-gold)}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:780px){.steps{grid-template-columns:1fr}}
+  .step{background:#fff;border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:28px}
+  .step .n{width:38px;height:38px;border-radius:50%;background:var(--wa-gold-soft);color:var(--wa-gold-dark);display:grid;place-items:center;font-family:var(--display);font-weight:800;margin-bottom:16px}
+  .step h3{font-size:19px;margin-bottom:8px}
+  .step p{font-size:15px;color:var(--wa-muted)}
+
+  /* platform / why tri */
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:880px){.tri{grid-template-columns:1fr}}
+  .acard{background:#fff;border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:28px}
+  .acard h3{font-size:19px;margin:14px 0 6px}
+  .acard .ic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center}
+  .acard p{font-size:15px;color:var(--wa-muted)}
+
+  /* why values */
+  .vgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:780px){.vgrid{grid-template-columns:1fr}}
+  .vcard{display:flex;gap:16px;background:#fff;border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:26px}
+  .vcard .ic{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--wa-gold-soft);color:var(--wa-gold-dark)}
+  .vcard h3{font-size:17px;margin-bottom:6px}
+  .vcard p{font-size:14.5px;color:var(--wa-muted)}
+
+  /* trust */
+  .trust{background:linear-gradient(150deg,#fff,var(--wa-gold-soft));border:1px solid #efe2c4;border-radius:28px;padding:clamp(30px,4vw,48px);display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  @media(max-width:780px){.trust{grid-template-columns:1fr;text-align:left}}
+  .trust .t .k{font-family:var(--display);font-weight:800;font-size:18px;margin-bottom:6px;color:var(--wa-gold-dark)}
+  .trust .t p{font-size:14px;color:var(--wa-muted)}
+
+  /* FAQ */
+  .faq{max-width:840px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .faq details{background:#fff;border:1px solid var(--wa-border);border-radius:var(--wa-radius-sm);padding:4px 22px;transition:border-color .2s}
+  .faq details[open]{border-color:#efe2c4}
+  .faq summary{list-style:none;cursor:pointer;font-family:var(--display);font-weight:700;font-size:16.5px;padding:16px 0;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary .pl{flex:none;color:var(--wa-gold);transition:transform .2s}
+  .faq details[open] summary .pl{transform:rotate(45deg)}
+  .faq details p{padding:0 0 18px;font-size:15px;color:var(--wa-muted)}
+
+  /* signup */
+  .signup{background:#fff;border:1px solid var(--wa-border);border-radius:28px;padding:clamp(28px,4vw,48px);display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;box-shadow:var(--wa-shadow-lg)}
+  @media(max-width:780px){.signup{grid-template-columns:1fr;gap:28px}}
+  .signup h2{font-size:clamp(24px,3vw,34px)}
+  .signup .sub{margin-top:14px;font-size:16px;color:var(--wa-muted)}
+  .signup .alt{margin-top:22px;font-size:14px;color:var(--wa-muted)}
+  .signup .alt a{color:var(--wa-gold-dark);font-weight:700}
+  .form{display:flex;flex-direction:column;gap:14px}
+  .form label{font-size:13px;font-weight:700;color:var(--wa-text);display:block;margin-bottom:6px}
+  .form input,.form select{width:100%;font-family:var(--body);font-size:15px;padding:13px 15px;border:1.5px solid var(--wa-border);border-radius:var(--wa-radius-sm);background:var(--wa-bg);color:var(--wa-text)}
+  .form input:focus,.form select:focus{outline:none;border-color:var(--wa-gold)}
+  .form .btn{justify-content:center;margin-top:6px}
+  .form .fineprint{font-size:12.5px;color:var(--wa-muted);text-align:center}
+
+  /* CTA */
+  .cta{background:linear-gradient(150deg,var(--wa-accent),var(--plum));color:#fff;border-radius:28px;padding:clamp(40px,6vw,72px);text-align:center;position:relative;overflow:hidden}
+  .cta::after{content:"";position:absolute;inset:0;background:radial-gradient(100% 100% at 90% 0%,rgba(164,127,56,.4),transparent 55%);pointer-events:none}
+  .cta h2{font-size:clamp(28px,4vw,48px);position:relative}
+  .cta p{margin:16px auto 0;max-width:560px;color:rgba(255,255,255,.86);font-size:17px;position:relative}
+  .cta .acts{margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+
+  footer{background:#211a1d;color:#cabfc4;padding:60px 0 36px}
+  .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;margin-bottom:14px}
+  footer a{display:block;color:#a99ea4;font-size:14px;margin-bottom:9px}footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #382c30;margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a7d83}
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+/* mobile nav (injected) */
+.nav-in{position:relative}
+.nav-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.nav-burger{display:none;flex-direction:column;gap:5px;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid var(--wa-border);border-radius:12px;background:var(--wa-surface,#fff);cursor:pointer}
+.nav-burger span{display:block;width:20px;height:2px;background:var(--wa-text,#1a1a1a);border-radius:2px;transition:transform .2s,opacity .2s}
+.nav-toggle:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle:checked ~ .nav-burger span:nth-child(2){opacity:0}
+.nav-toggle:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:880px){
+  .nav-burger{display:flex;position:absolute;right:24px;top:12px}
+  .nav-cta{display:none}
+  .nav-toggle:checked ~ .nav-links{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--wa-surface,#fff);border-bottom:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg,0 12px 28px rgba(0,0,0,.08));padding:18px 24px;gap:18px;font-size:16px}
+}
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in"><input class="nav-toggle" type="checkbox" id="nvt" aria-label="Open menu"><label for="nvt" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <a class="brand" href="wa-v3-home-blend.html"><span class="mark">W</span> WorkforceAP</a>
+  <div class="nav-links"><a href="wa-v3-home-blend.html#programs">Programs</a><a href="wa-v3-home-blend.html#how">How it works</a><a href="wa-v3-home-blend.html#network">Who we serve</a><a href="#" aria-current="page">Partners</a><a href="wa-v3-home-blend.html#trust">About</a></div>
+  <div class="nav-cta"><a class="btn btn--ghost" style="padding:10px 18px">Partner sign in</a><a class="btn btn--primary" style="padding:10px 20px" href="#signup">Become a partner</a></div>
+</div></nav>
+
+<!-- BENTO HERO -->
+<header class="hero"><div class="wrap">
+  <div class="bento">
+    <div class="tile tile--hero">
+      <span class="ribbon">A Legacy of Opportunity</span>
+      <h1>Build Your Community's<br><span class="accent">Future</span></h1>
+      <p>Community partners refer the people we serve. Training centers, public agencies, and funders each have a clear path too.</p>
+      <div class="hero-actions">
+        <a class="btn btn--gold" href="#signup">Become a partner</a>
+        <a class="btn" style="background:rgba(255,255,255,.14);color:#fff" href="#pathways">Browse partnership types</a>
+      </div>
+      <div class="chips">
+        <span class="chip"><span class="d" style="background:var(--wa-success)"></span>No cost to refer</span>
+        <span class="chip"><span class="d" style="background:var(--wa-gold)"></span>Reviewed by a real team · 1–2 business days</span>
+      </div>
+    </div>
+
+    <div class="tile tile--claim tile--gold">
+      <div class="k">No cost to qualifying members</div>
+      <div class="s">Refer the people you serve to employer-recognized training — at no cost to refer, and no cost to qualifying members.</div>
+    </div>
+
+    <div class="tile tile--claim tile--team">
+      <div class="av"><span></span><span></span><span></span></div>
+      <div class="k">Reviewed by a real team</div>
+      <div class="s">Referrals are reviewed by WorkforceAP staff — follow-up in 1 to 2 business days.</div>
+    </div>
+  </div>
+</div></header>
+
+<!-- PARTNER LANES -->
+<div class="creds"><div class="wrap">
+  <div class="lab">Built for the partnership lanes we serve</div>
+  <div class="row">
+    <span>Workforce boards</span><span>Nonprofits</span><span>Reentry programs</span><span>Community centers</span><span>Training centers</span><span>Public agencies</span><span style="color:#b4aca6">+ Funders</span>
+  </div>
+</div></div>
+
+<!-- NARRATIVE -->
+<section class="band" id="referral"><div class="wrap">
+  <div class="split">
+    <div>
+      <span class="eyebrow eyebrow--gold">Empowering those who empower others</span>
+      <h2 style="margin-top:12px">Empowering Those Who <span class="accent">Empower Others</span></h2>
+      <p>Referral partners send us candidates who may benefit from career training offered at no cost for qualifying members. We reach out within 1 to 2 business days and walk them through the process. We welcome referrals of individuals motivated to improve the quality of their life and interested in training in technology, healthcare, manufacturing, or skilled trades.</p>
+      <ul class="stepslist">
+        <li><span class="n">1</span><span>Submit a referral via our contact form or partner portal.</span></li>
+        <li><span class="n">2</span><span>We contact the candidate within 1 to 2 business days.</span></li>
+        <li><span class="n">3</span><span>Accepted members receive training, certificates, and job placement support.</span></li>
+        <li><span class="n">4</span><span>You receive updates when referred individuals complete programs.</span></li>
+      </ul>
+    </div>
+    <div class="quotecard">
+      <div class="qmark">&ldquo;</div>
+      <blockquote>We partner with employers who hire, orgs who refer, workforce boards who align, and funders who scale. Building a skilled workforce takes all of us working together.</blockquote>
+    </div>
+  </div>
+</div></section>
+
+<!-- PARTNERSHIP PATHWAYS -->
+<section class="band" id="pathways" style="background:#fff;border-top:1px solid var(--wa-border);border-bottom:1px solid var(--wa-border)"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow eyebrow--gold">Partnership Pathways</span><h2>Partnership <span class="accent">Pathways</span></h2><p>Four clear lanes. Pick the one that fits your organization — each comes with a defined next step.</p></div>
+  <div class="pgrid">
+
+    <div class="pcard">
+      <div class="ic" style="background:var(--wa-gold-soft);color:var(--wa-gold-dark)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.3 3.1-5 7-5s7 1.7 7 5"/><path d="M17.5 7.5l2 2 3-3.5"/></svg>
+      </div>
+      <span class="typetag">You are</span>
+      <h3>Referral Partners</h3>
+      <div class="who">Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.</div>
+      <p class="why">Refer clients who need career training. We follow up within 1 to 2 business days. There is no cost to refer. You get updates when referred individuals complete programs.</p>
+      <a class="go" href="#signup">Register your organization →</a>
+    </div>
+
+    <div class="pcard">
+      <div class="ic" style="background:var(--wa-info-soft);color:var(--wa-info)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M7 10v5c0 1.5 2.2 2.5 5 2.5s5-1 5-2.5v-5"/></svg>
+      </div>
+      <span class="typetag">You are</span>
+      <h3>Training Centers</h3>
+      <div class="who">Educational institutions, community colleges, vocational schools, digital literacy centers.</div>
+      <p class="why">Co-deliver employer-recognized certification programs. We bring the employer pipeline; you bring the learning environment.</p>
+      <a class="go" href="#signup">Explore co-delivery →</a>
+    </div>
+
+    <div class="pcard">
+      <div class="ic" style="background:var(--wa-accent-soft);color:var(--wa-accent)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21h18M5 21V8l7-4 7 4v13"/><path d="M9 21v-5h6v5"/></svg>
+      </div>
+      <span class="typetag">You are</span>
+      <h3>Public Agencies</h3>
+      <div class="who">Workforce Solutions, TWC, WIOA providers, government workforce programs.</div>
+      <p class="why">Align your participants with employer-recognized, in-demand certifications. We handle training and placement; you strengthen outcomes for your population.</p>
+      <a class="go" href="#signup">Discuss alignment →</a>
+    </div>
+
+    <div class="pcard">
+      <div class="ic" style="background:var(--wa-gold-soft);color:var(--wa-gold-dark)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.8 2.5 1.8-1 1.5-2.5 1.7-2.5.7-2.5 1.7 1 1.8 2.5 1.8 2.5-.7 2.5-1.7"/></svg>
+      </div>
+      <span class="typetag">You are</span>
+      <h3>Philanthropic Funders</h3>
+      <div class="who">Foundations, corporate giving, impact investors, individual donors.</div>
+      <p class="why">Fund a model built around employer-aligned training, no participant debt, and real job outcomes — delivered by a 501(c)(3) nonprofit built in Austin.</p>
+      <a class="go" href="#signup">Learn how to support →</a>
+    </div>
+
+  </div>
+</div></section>
+
+<!-- HOW PARTNERSHIPS START -->
+<section class="band" id="how"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow eyebrow--gold">How partnerships start</span><h2>How partnerships <span class="accent">start</span></h2><p>Three steps — and we follow up within 1 to 2 business days.</p></div>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>Email or sign up</h3><p>Fill the signup form below or email <a href="mailto:partners@workforceap.org" style="color:var(--wa-gold-dark);font-weight:700">partners@workforceap.org</a> with a quick note about your org.</p></div>
+    <div class="step"><div class="n">2</div><h3>Get portal access</h3><p>We set up your partner portal and share your referral link after our team reviews and follows up, in 1 to 2 business days.</p></div>
+    <div class="step"><div class="n">3</div><h3>Start referring</h3><p>Send referrals via the portal, your link, or a CSV upload — and track milestones as they land.</p></div>
+  </div>
+</div></section>
+
+<!-- WHY PARTNERS PICK -->
+<section class="band" id="why" style="background:#fff;border-top:1px solid var(--wa-border);border-bottom:1px solid var(--wa-border)"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow eyebrow--gold">Why partners pick WorkforceAP</span><h2>Why partners pick <span class="accent">WorkforceAP</span></h2><p>Built for the people who refer, fund, and follow up on outcomes.</p></div>
+  <div class="vgrid">
+    <div class="vcard"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12h4l3 7 4-14 3 7h4"/></svg></div><div><h3>Real-time referral tracking</h3><p>See every referral move from intake to placement — no emailing for status updates.</p></div></div>
+    <div class="vcard"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3v5h5"/><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M8 13h8M8 17h6"/></svg></div><div><h3>Outcome reporting for funders</h3><p>Export enrollment, completion, and placement data — WIOA-aligned where applicable.</p></div></div>
+    <div class="vcard"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div><div><h3>Consent-gated privacy</h3><p>Member consent gates every data exchange. You see what you need; nothing you do not.</p></div></div>
+    <div class="vcard"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1-1.7 2.5-1.7s2.5.8 2.5 1.8-1 1.5-2.5 1.7-2.5.7-2.5 1.7 1 1.8 2.5 1.8 2.5-.7 2.5-1.7"/></svg></div><div><h3>Zero referral fees</h3><p>We never charge to refer, and there is no cost to qualifying members. Member services are funded by grants and partnerships.</p></div></div>
+  </div>
+</div></section>
+
+<!-- PLATFORM / DIGITAL INTEGRATION -->
+<section class="band" id="platform"><div class="wrap">
+  <div class="sec-head"><span class="eyebrow eyebrow--gold">Digital integration, human impact</span><h2>Digital Integration, <span class="accent">Human Impact</span></h2><p>The partner portal handles the busywork so your team can focus on people.</p></div>
+  <div class="tri">
+    <div class="acard"><div class="ic" style="background:var(--wa-gold-soft);color:var(--wa-gold-dark)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7"/><path d="M16 16l2 2 4-4"/></svg></div><h3>Smart intake</h3><p>Structured enrollment and eligibility screening streamlines onboarding so counselors can focus on high-touch support.</p></div>
+    <div class="acard"><div class="ic" style="background:var(--wa-gold-soft);color:var(--wa-gold-dark)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 14l3-3 2 2 4-4"/></svg></div><h3>Real-time dashboards</h3><p>Partners access live data on referral status, enrollment progress, certification completions, and placement outcomes.</p></div>
+    <div class="acard"><div class="ic" style="background:var(--wa-gold-soft);color:var(--wa-gold-dark)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l2 2 5-5"/><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/></svg></div><h3>Verification &amp; reporting</h3><p>Credential verification and WIOA-compliant reporting support accountability across every partnership.</p></div>
+  </div>
+</div></section>
+
+<!-- TRUST -->
+<section class="band" style="background:#fff;border-top:1px solid var(--wa-border)"><div class="wrap">
+  <div class="trust">
+    <div class="t"><div class="k">25+ years of experience</div><p>Built in Austin on 25+ years of workforce-development experience across public, nonprofit, and employer-serving organizations.</p></div>
+    <div class="t"><div class="k">501(c)(3) nonprofit</div><p>A mission-driven nonprofit — training and support at no cost to qualifying members, through funded pathways.</p></div>
+    <div class="t"><div class="k">Employer-recognized</div><p>20 occupational &amp; professional certificates tied to employers and real job support — IBM, Google, Microsoft, AWS, CompTIA (+ CPT, CLT).</p></div>
+  </div>
+</div></div></section>
+
+<!-- FAQ -->
+<section class="band" id="faq"><div class="wrap">
+  <div class="sec-head" style="margin:0 auto 42px;text-align:center"><span class="eyebrow eyebrow--gold">Partner FAQ</span><h2>Partner <span class="accent">FAQ</span></h2></div>
+  <div class="faq">
+    <details open><summary>Who can become a partner?<span class="pl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><p>Employers, workforce development boards, non-profit services, churches, community organizations, social service agencies, and educational institutions can partner with WorkforceAP to refer candidates or hire graduates.</p></details>
+    <details><summary>Is there a cost to refer candidates?<span class="pl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><p>No. There is no cost to refer someone. We welcome partners who want to connect individuals in their network with our career training programs, offered at no cost for qualifying members.</p></details>
+    <details><summary>How do I refer someone?<span class="pl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><p>Use the referral partner registration form on this page to get a partner portal and referral link. You can also email <a href="mailto:info@workforceap.org" style="color:var(--wa-gold-dark);font-weight:700">info@workforceap.org</a> or call (512) 777-1808 with the candidate's name and contact information.</p></details>
+    <details><summary>Can I hire WorkforceAP graduates?<span class="pl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><p>Yes. We actively connect employers with job-ready graduates. Reach out to discuss your hiring needs and we can share candidate profiles and schedule introductions.</p></details>
+    <details><summary>What reporting do partners receive?<span class="pl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><p>Partners receive regular updates on referral status, program completion, and placement outcomes. Our digital platform provides real-time dashboards for tracking progress.</p></details>
+    <details><summary>Do you share member contact info?<span class="pl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><p>Only with explicit member consent, and only the fields you need for follow-up. Members can revoke at any time, and you will see consent state on every record.</p></details>
+    <details><summary>Can we bulk-import referrals?<span class="pl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></summary><p>Yes — CSV upload with column mapping. We validate rows, deduplicate against existing members, and surface errors row-by-row before commit.</p></details>
+  </div>
+</div></section>
+
+<!-- SIGNUP -->
+<section class="band" id="signup" style="background:#fff;border-top:1px solid var(--wa-border)"><div class="wrap">
+  <div class="signup">
+    <div>
+      <span class="eyebrow eyebrow--gold">Referral partners</span>
+      <h2 style="margin-top:12px">Register your organization</h2>
+      <p class="sub">Refer the members you serve and track outcomes. Submit the form — our team reviews it and activates your partner portal in 1 to 2 business days.</p>
+      <p class="alt">Already registered? <a href="#">Partner sign in</a></p>
+      <p class="alt">Training centers, public agencies, and funders: <a href="wa-v3-home-blend.html">contact us for the right path</a>.</p>
+    </div>
+    <form class="form" onsubmit="return false">
+      <div>
+        <label for="org">Organization name</label>
+        <input id="org" name="org" type="text" autocomplete="organization" placeholder="Your organization" required />
+      </div>
+      <div>
+        <label for="name">Your name</label>
+        <input id="name" name="name" type="text" autocomplete="name" placeholder="First and last name" required />
+      </div>
+      <div>
+        <label for="email">Work email</label>
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@organization.org" required />
+      </div>
+      <div>
+        <label for="type">Partnership type</label>
+        <select id="type" name="type">
+          <option>Referral partner</option>
+          <option>Training center</option>
+          <option>Public agency</option>
+          <option>Philanthropic funder</option>
+          <option>Employer (hiring)</option>
+        </select>
+      </div>
+      <button class="btn btn--gold" type="submit">Register as a referral partner</button>
+      <p class="fineprint">No cost to refer. Reviewed by a real team — follow-up in 1 to 2 business days.</p>
+    </form>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="band"><div class="wrap"><div class="cta">
+  <h2>Start a Partnership</h2>
+  <p>Clear next steps, real outcomes, and a team that follows up within 1 to 2 business days.</p>
+  <div class="acts"><a class="btn btn--light" href="#signup">Register as a referral partner</a><a class="btn" style="background:rgba(255,255,255,.14);color:#fff" href="wa-v3-home-blend.html#network">I am hiring (employers)</a></div>
+</div></div></section>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><a class="brand" style="color:#fff;margin-bottom:12px"><span class="mark">W</span> WorkforceAP</a>
+      <p style="max-width:300px;color:#a99ea4;font-size:14px">Empowering People. Advancing Futures. A 501(c)(3) nonprofit — career training, certificates, and job support at no cost to qualifying members.</p></div>
+    <div><h4>Programs</h4><a href="wa-v3-home-blend.html#programs">IT Support</a><a href="wa-v3-home-blend.html#programs">AI Developer</a><a href="wa-v3-home-blend.html#programs">Project Management</a><a href="wa-v3-home-blend.html#programs">All certificates</a></div>
+    <div><h4>About</h4><a href="wa-v3-home-blend.html#how">How it works</a><a href="wa-v3-home-blend.html#trust">Our mission</a><a href="#" aria-current="page">Partners</a><a href="wa-v3-home-blend.html">Find Your Path</a></div>
+    <div><h4>Get started</h4><a href="#signup">Become a partner</a><a href="#pathways">Partnership types</a><a href="wa-v3-home-blend.html#network">For employers</a><a href="mailto:partners@workforceap.org">Contact</a></div>
+  </div>
+  <div class="fbar"><span>© 2026 Workforce Advancement Project · 501(c)(3)</span><span>Privacy · Terms · Accessibility</span></div>
+</div></footer>
+
+</body>
+</html>

@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — Empowering People. Advancing Futures.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --wa-accent: #ad2c4d;
+    --wa-accent-dark: #8c0f37;
+    --wa-accent-soft: #fdf2f4;
+    --wa-on-accent: #fff;
+    --wa-gold: #a47f38;
+    --wa-gold-dark: #7d5f26;
+    --wa-gold-soft: #fef3c7;
+    --wa-info: #2b7bb9;
+    --wa-info-soft: #eef5fb;
+    --wa-success: #4a9b4f;
+    --wa-bg: #f7f8fa;
+    --wa-surface: #fff;
+    --wa-text: #1a1a1a;
+    --wa-muted: #737373;
+    --wa-border: #e8e8e8;
+    --wa-radius: 24px;
+    --wa-radius-sm: 14px;
+    --wa-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+    --wa-shadow-lg: 0 12px 28px rgba(0, 0, 0, .08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--wa-text);
+    background: var(--wa-bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  a:focus-visible, button:focus-visible {
+    outline: 3px solid var(--wa-info);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 14px 26px;
+    border-radius: var(--wa-radius-sm);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
+    white-space: nowrap;
+  }
+  .btn svg { width: 18px; height: 18px; }
+  .btn-primary {
+    background: var(--wa-accent);
+    color: var(--wa-on-accent);
+    box-shadow: 0 8px 20px rgba(173, 44, 77, .35);
+  }
+  .btn-primary:hover {
+    background: var(--wa-accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(140, 15, 55, .45);
+  }
+  .btn-ghost {
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+    border-color: rgba(255, 255, 255, .45);
+  }
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, .18);
+    border-color: #fff;
+    transform: translateY(-2px);
+  }
+  .btn-outline {
+    background: var(--wa-surface);
+    color: var(--wa-accent);
+    border-color: var(--wa-border);
+  }
+  .btn-outline:hover {
+    border-color: var(--wa-accent);
+    background: var(--wa-accent-soft);
+    transform: translateY(-2px);
+  }
+
+  /* ---------- Header ---------- */
+  header.site {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(247, 248, 250, .82);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--wa-border);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: -0.03em;
+  }
+  .brand .mark {
+    width: 38px; height: 38px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, var(--wa-accent), var(--wa-accent-dark));
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .brand .mark svg { width: 22px; height: 22px; }
+  .nav-links { display: flex; align-items: center; gap: 30px; }
+  .nav-links a.link {
+    font-weight: 500;
+    color: #404040;
+    font-size: .95rem;
+    transition: color .2s ease;
+  }
+  .nav-links a.link:hover { color: var(--wa-accent); }
+  .nav-cta { display: flex; align-items: center; gap: 14px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background: #2a0712;
+    color: #fff;
+    isolation: isolate;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(60% 70% at 18% 22%, rgba(173, 44, 77, .85) 0%, transparent 60%),
+      radial-gradient(55% 65% at 85% 18%, rgba(140, 15, 55, .9) 0%, transparent 58%),
+      radial-gradient(70% 80% at 72% 88%, rgba(164, 127, 56, .42) 0%, transparent 60%),
+      radial-gradient(60% 75% at 10% 92%, rgba(43, 123, 185, .35) 0%, transparent 60%),
+      linear-gradient(160deg, #3a0a1a 0%, #2a0712 55%, #1a0309 100%);
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(80% 80% at 50% 30%, #000 0%, transparent 75%);
+    mask-image: radial-gradient(80% 80% at 50% 30%, #000 0%, transparent 75%);
+  }
+  .hero-inner {
+    padding: 96px 24px 120px;
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #ffe1ea;
+    background: rgba(255, 255, 255, .1);
+    border: 1px solid rgba(255, 255, 255, .2);
+    padding: 8px 16px;
+    border-radius: 999px;
+    margin-bottom: 26px;
+  }
+  .eyebrow .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--wa-gold);
+    box-shadow: 0 0 0 4px rgba(164, 127, 56, .3);
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 5.2vw, 4.3rem);
+    font-weight: 800;
+    margin-bottom: 22px;
+  }
+  .hero h1 .accent {
+    display: block;
+    background: linear-gradient(100deg, var(--wa-gold) 10%, #e9c878 60%, #fff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero .promise {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .hero .sub {
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, .85);
+    max-width: 540px;
+    margin-bottom: 34px;
+  }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  /* Floating glassy chips column */
+  .chip-stack {
+    position: relative;
+    display: grid;
+    gap: 18px;
+  }
+  .glass-chip {
+    background: rgba(255, 255, 255, .09);
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: var(--wa-radius);
+    padding: 22px 24px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .35);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    transition: transform .25s ease, border-color .25s ease, background .25s ease;
+  }
+  .glass-chip:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, .5);
+    background: rgba(255, 255, 255, .14);
+  }
+  .glass-chip .ico {
+    width: 46px; height: 46px;
+    flex-shrink: 0;
+    border-radius: 13px;
+    display: grid; place-items: center;
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .25);
+  }
+  .glass-chip .ico svg { width: 24px; height: 24px; stroke: #fff; fill: none; }
+  .glass-chip .ico.gold { background: rgba(164, 127, 56, .3); border-color: rgba(233, 200, 120, .5); }
+  .glass-chip .ico.gold svg { stroke: #f1d68f; }
+  .glass-chip .ico.info { background: rgba(43, 123, 185, .32); border-color: rgba(120, 185, 235, .5); }
+  .glass-chip .ico.info svg { stroke: #aed6f3; }
+  .glass-chip .label { font-weight: 700; font-size: 1.02rem; color: #fff; font-family:'Plus Jakarta Sans',sans-serif; }
+  .glass-chip .meta { font-size: .85rem; color: rgba(255, 255, 255, .78); }
+  .chip-stack .glass-chip:nth-child(1) { margin-right: 34px; }
+  .chip-stack .glass-chip:nth-child(2) { margin-left: 44px; }
+  .chip-stack .glass-chip:nth-child(3) { margin-right: 12px; }
+
+  /* ---------- Certifications row ---------- */
+  .certs {
+    background: var(--wa-surface);
+    border-bottom: 1px solid var(--wa-border);
+    padding: 44px 0;
+  }
+  .certs .label {
+    text-align: center;
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--wa-muted);
+    margin-bottom: 26px;
+  }
+  .logo-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px 16px;
+  }
+  .logo-pill {
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+    color: #404040;
+    padding: 12px 22px;
+    border: 1px solid var(--wa-border);
+    border-radius: 999px;
+    background: var(--wa-bg);
+    transition: transform .2s ease, border-color .2s ease, color .2s ease;
+    cursor: default;
+  }
+  .logo-pill:hover { transform: translateY(-2px); border-color: var(--wa-accent); color: var(--wa-accent); }
+
+  /* ---------- Generic section ---------- */
+  section { padding: 96px 0; }
+  .band-tint { background: var(--wa-surface); }
+  .sec-head { max-width: 660px; margin: 0 auto 56px; text-align: center; }
+  .sec-head .kicker {
+    display: inline-block;
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--wa-accent);
+    margin-bottom: 14px;
+  }
+  .sec-head h2 { font-size: clamp(2rem, 3.6vw, 2.8rem); font-weight: 800; margin-bottom: 16px; }
+  .sec-head p { color: var(--wa-muted); font-size: 1.08rem; }
+
+  /* ---------- Trust cards ---------- */
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+  .trust-card {
+    background: var(--wa-surface);
+    border: 1px solid var(--wa-border);
+    border-radius: var(--wa-radius);
+    padding: 30px;
+    box-shadow: var(--wa-shadow);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .trust-card:hover { transform: translateY(-3px); box-shadow: var(--wa-shadow-lg); }
+  .trust-card .ico {
+    width: 50px; height: 50px;
+    border-radius: 14px;
+    display: grid; place-items: center;
+    margin-bottom: 18px;
+  }
+  .trust-card .ico.a { background: var(--wa-accent-soft); }
+  .trust-card .ico.a svg { stroke: var(--wa-accent); }
+  .trust-card .ico.g { background: var(--wa-gold-soft); }
+  .trust-card .ico.g svg { stroke: var(--wa-gold-dark); }
+  .trust-card .ico.i { background: var(--wa-info-soft); }
+  .trust-card .ico.i svg { stroke: var(--wa-info); }
+  .trust-card .ico svg { width: 26px; height: 26px; fill: none; }
+  .trust-card h3 { font-size: 1.18rem; margin-bottom: 8px; }
+  .trust-card p { color: var(--wa-muted); font-size: .96rem; }
+
+  /* ---------- Program area pills ---------- */
+  .area-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .area-card {
+    background: var(--wa-surface);
+    border: 1px solid var(--wa-border);
+    border-radius: var(--wa-radius-sm);
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    cursor: pointer;
+  }
+  .area-card:hover { transform: translateY(-3px); box-shadow: var(--wa-shadow-lg); border-color: var(--wa-accent); }
+  .area-card .ico { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; display: grid; place-items: center; background: var(--wa-accent-soft); }
+  .area-card .ico svg { width: 22px; height: 22px; stroke: var(--wa-accent); fill: none; }
+  .area-card span.txt { font-weight: 600; font-size: .98rem; }
+
+  /* ---------- Program feature cards ---------- */
+  .prog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+  }
+  .prog-card {
+    position: relative;
+    background: var(--wa-surface);
+    border: 1px solid var(--wa-border);
+    border-radius: var(--wa-radius);
+    padding: 30px;
+    overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease;
+    cursor: pointer;
+  }
+  .prog-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 5px;
+    background: linear-gradient(90deg, var(--wa-accent), var(--wa-gold));
+  }
+  .prog-card:hover { transform: translateY(-5px); box-shadow: var(--wa-shadow-lg); }
+  .prog-card .tag {
+    display: inline-block;
+    font-size: .76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--wa-info);
+    background: var(--wa-info-soft);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .prog-card h3 { font-size: 1.32rem; margin-bottom: 10px; }
+  .prog-card p { color: var(--wa-muted); font-size: .96rem; margin-bottom: 18px; }
+  .prog-card .more {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-weight: 600; font-size: .92rem; color: var(--wa-accent);
+    transition: gap .2s ease;
+  }
+  .prog-card:hover .more { gap: 12px; }
+  .prog-card .more svg { width: 16px; height: 16px; stroke: var(--wa-accent); fill: none; }
+  .center-cta { text-align: center; margin-top: 44px; }
+
+  /* ---------- How it works (dark band) ---------- */
+  .how {
+    background: linear-gradient(165deg, #2a0712 0%, #3a0a1a 100%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .how::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(50% 60% at 80% 10%, rgba(164,127,56,.28) 0, transparent 60%),
+                radial-gradient(50% 60% at 15% 95%, rgba(43,123,185,.25) 0, transparent 60%);
+  }
+  .how .wrap { position: relative; }
+  .how .sec-head h2 { color: #fff; }
+  .how .sec-head .kicker { color: #e9c878; }
+  .how .sec-head p { color: rgba(255,255,255,.82); }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .step {
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: var(--wa-radius);
+    padding: 32px;
+    transition: transform .25s ease, background .25s ease;
+  }
+  .step:hover { transform: translateY(-4px); background: rgba(255,255,255,.1); }
+  .step .num {
+    width: 48px; height: 48px;
+    border-radius: 13px;
+    display: grid; place-items: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #fff;
+    background: linear-gradient(135deg, var(--wa-accent), var(--wa-gold));
+    margin-bottom: 20px;
+  }
+  .step h3 { font-size: 1.18rem; margin-bottom: 10px; color: #fff; }
+  .step p { color: rgba(255, 255, 255, .8); font-size: .96rem; }
+
+  /* ---------- Audience / network ---------- */
+  .aud-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+  .aud-card {
+    border-radius: var(--wa-radius);
+    padding: 84px 30px 34px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transition: transform .25s ease, box-shadow .25s ease;
+    cursor: pointer;
+  }
+  .aud-card:hover { transform: translateY(-5px); box-shadow: var(--wa-shadow-lg); }
+  .aud-card.seekers { background: linear-gradient(155deg, var(--wa-accent), var(--wa-accent-dark)); }
+  .aud-card.employers { background: linear-gradient(155deg, var(--wa-info), #1c5a8a); }
+  .aud-card.partners { background: linear-gradient(155deg, var(--wa-gold), var(--wa-gold-dark)); }
+  .aud-card .ico {
+    position: absolute;
+    top: 28px; left: 30px;
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .18);
+    border: 1px solid rgba(255, 255, 255, .3);
+    display: grid; place-items: center;
+  }
+  .aud-card .ico svg { width: 26px; height: 26px; stroke: #fff; fill: none; }
+  .aud-card h3 { font-size: 1.45rem; margin-bottom: 8px; }
+  .aud-card p { color: rgba(255, 255, 255, .92); font-size: .96rem; margin-bottom: 16px; }
+  .aud-card .more {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-weight: 600; font-size: .92rem;
+    transition: gap .2s ease;
+  }
+  .aud-card:hover .more { gap: 12px; }
+  .aud-card .more svg { width: 16px; height: 16px; stroke: #fff; fill: none; }
+
+  /* ---------- Final CTA ---------- */
+  .final {
+    background: linear-gradient(135deg, var(--wa-accent-dark), var(--wa-accent) 70%, #c14563);
+    color: #fff;
+    text-align: center;
+    border-radius: var(--wa-radius);
+    padding: 72px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .final::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(40% 80% at 85% 20%, rgba(164,127,56,.45) 0, transparent 60%),
+                radial-gradient(40% 80% at 10% 90%, rgba(255,255,255,.15) 0, transparent 55%);
+  }
+  .final > * { position: relative; }
+  .final h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 16px; }
+  .final p { color: rgba(255, 255, 255, .92); font-size: 1.12rem; max-width: 600px; margin: 0 auto 32px; }
+  .final-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .final .btn-primary { background: #fff; color: var(--wa-accent-dark); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .final .btn-primary:hover { background: #fff; color: var(--wa-accent-dark); }
+
+  .claim-chips { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+  .claim-chip {
+    font-size: .88rem; font-weight: 600;
+    background: rgba(255, 255, 255, .16);
+    border: 1px solid rgba(255, 255, 255, .35);
+    padding: 8px 16px;
+    border-radius: 999px;
+  }
+
+  /* ---------- Footer ---------- */
+  footer.site {
+    background: #1a0309;
+    color: rgba(255, 255, 255, .72);
+    padding: 56px 0 36px;
+  }
+  .foot-top { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; margin-bottom: 40px; }
+  .foot-brand { max-width: 320px; }
+  .foot-brand .brand { color: #fff; margin-bottom: 14px; }
+  .foot-brand p { font-size: .92rem; }
+  .foot-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+  .foot-col h4 { color: #fff; font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px; font-family:'Plus Jakarta Sans',sans-serif;}
+  .foot-col a { display: block; font-size: .92rem; margin-bottom: 9px; transition: color .2s ease; }
+  .foot-col a:hover { color: #fff; }
+  .foot-bottom { border-top: 1px solid rgba(255, 255, 255, .12); padding-top: 24px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: .85rem; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; padding: 72px 24px 90px; }
+    .chip-stack .glass-chip { margin: 0 !important; }
+    .area-grid { grid-template-columns: repeat(2, 1fr); }
+    .prog-grid, .steps, .trust-grid, .aud-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 560px) {
+    .area-grid { grid-template-columns: 1fr; }
+    section { padding: 64px 0; }
+    .hero-actions .btn, .final-actions .btn { width: 100%; justify-content: center; }
+    .foot-cols { gap: 32px; }
+    .nav-cta .link { display: none; }
+  }
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site">
+  <div class="wrap nav">
+    <a href="#" class="brand" aria-label="WorkforceAP home">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-4l11-11 4 4L7 21H3z"/><path d="M14 6l4 4"/></svg>
+      </span>
+      WorkforceAP
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="link" href="#programs">Programs</a>
+      <a class="link" href="#how">How it works</a>
+      <a class="link" href="#network">Network</a>
+      <a class="link" href="#about">About</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="link" href="#programs" style="font-weight:600;">Find Your Path</a>
+      <a class="btn btn-primary" href="#apply">Apply now</a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>501(c)(3) nonprofit · built in Austin</span>
+      <h1>Empowering People.<span class="accent">Advancing Futures.</span></h1>
+      <p class="promise">Career training and certificates — no cost to qualifying members.</p>
+      <p class="sub">Start with Find Your Path, see programs that fit, and get advisor guidance, resume help, and job-search support.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#apply">
+          Apply now
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#programs">Find Your Path</a>
+      </div>
+    </div>
+
+    <div class="chip-stack" aria-label="What WorkforceAP offers">
+      <div class="glass-chip">
+        <span class="ico gold">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg>
+        </span>
+        <div>
+          <div class="label">No cost for qualifying members</div>
+          <div class="meta">Career training and certificates</div>
+        </div>
+      </div>
+      <div class="glass-chip">
+        <span class="ico">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3L12 16.8 6.5 19.5l1-6.3L3 8.9 9 8z"/></svg>
+        </span>
+        <div>
+          <div class="label">20 certificates</div>
+          <div class="meta">High-demand occupational &amp; professional</div>
+        </div>
+      </div>
+      <div class="glass-chip">
+        <span class="ico info">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+        </span>
+        <div>
+          <div class="label">25+ years of workforce experience</div>
+          <div class="meta">Employer-recognized pathways</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Certifications -->
+<section class="certs" aria-label="Certifications">
+  <div class="wrap">
+    <p class="label">Certifications recognized by employers</p>
+    <div class="logo-row">
+      <span class="logo-pill">IBM</span>
+      <span class="logo-pill">Google</span>
+      <span class="logo-pill">Microsoft</span>
+      <span class="logo-pill">AWS</span>
+      <span class="logo-pill">CompTIA</span>
+      <span class="logo-pill">CPT</span>
+      <span class="logo-pill">CLT</span>
+    </div>
+  </div>
+</section>
+
+<!-- About / who we are -->
+<section class="band-tint" id="about">
+  <div class="wrap">
+    <div class="sec-head" style="margin-bottom:48px;">
+      <span class="kicker">Who we are</span>
+      <h2>A nonprofit built to advance every future</h2>
+      <p>Workforce Advancement Project (WorkforceAP) is a 501(c)(3) nonprofit that equips individuals, nonprofits, counselors, and community advisors with workforce-readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job-placement assistance — at no cost to qualifying members.</p>
+    </div>
+    <div class="trust-grid">
+      <div class="trust-card">
+        <div class="ico a"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18a4 4 0 0 0-8 0"/><circle cx="12" cy="9" r="3.5"/><path d="M3 20a9 9 0 0 1 18 0"/></svg></div>
+        <h3>Reviewed by a real team</h3>
+        <p>Every application is reviewed by a real team — advisor follow-up in 1 to 2 business days.</p>
+      </div>
+      <div class="trust-card">
+        <div class="ico g"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M5 8c0-3 3-5 7-5s7 2 7 5"/><path d="M5 8v6a7 7 0 0 0 14 0V8"/></svg></div>
+        <h3>Built on 25+ years of experience</h3>
+        <p>Two and a half decades of workforce experience shape every program and pathway we offer.</p>
+      </div>
+      <div class="trust-card">
+        <div class="ico i"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/></svg></div>
+        <h3>Employer-recognized pathways</h3>
+        <p>Train toward certificates that employers know and trust across high-demand industries.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Program areas + featured programs -->
+<section id="programs">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">Programs &amp; certificates</span>
+      <h2>Find a pathway that fits your goals</h2>
+      <p>Explore program areas spanning digital skills, technology, healthcare, and the skilled trades — all leading to employer-recognized certificates.</p>
+    </div>
+
+    <div class="area-grid">
+      <div class="area-card"><span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span><span class="txt">Digital Literacy</span></div>
+      <div class="area-card"><span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3M14 5l-4 14"/></svg></span><span class="txt">Tech / IT</span></div>
+      <div class="area-card"><span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><span class="txt">Data</span></div>
+      <div class="area-card"><span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="12" rx="3"/><path d="M9 7V4h6v3M9 13h.01M15 13h.01M2 12h3M19 12h3"/></svg></span><span class="txt">AI</span></div>
+      <div class="area-card"><span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.5-1.6 2-3.5 2-5a5 5 0 0 0-9-3 5 5 0 0 0-9 3c0 1.5.5 3.4 2 5l7 7z"/><path d="M12 8v4M10 10h4"/></svg></span><span class="txt">Healthcare</span></div>
+      <div class="area-card"><span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l6-3 6 3 6-3v15"/><path d="M9 21V9M15 12v9"/></svg></span><span class="txt">Manufacturing</span></div>
+      <div class="area-card"><span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7l3-3 3 3-3 3M17 4l3 3"/><path d="M13 8L4 17l3 3 9-9"/></svg></span><span class="txt">Skilled Trades</span></div>
+      <a class="area-card" href="#apply" style="border-color:var(--wa-accent);background:var(--wa-accent-soft);"><span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="txt" style="color:var(--wa-accent);">See all programs</span></a>
+    </div>
+
+    <div class="prog-grid" style="margin-top:34px;">
+      <article class="prog-card">
+        <span class="tag">Tech / IT</span>
+        <h3>IT Support Professional (IBM &amp; Google)</h3>
+        <p>Hands-on training toward an employer-recognized IT support certificate.</p>
+        <span class="more">Explore program <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </article>
+      <article class="prog-card">
+        <span class="tag">Artificial Intelligence</span>
+        <h3>AI Professional Developer (IBM)</h3>
+        <p>Build practical AI skills and earn a professional developer certificate.</p>
+        <span class="more">Explore program <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </article>
+      <article class="prog-card">
+        <span class="tag">Management</span>
+        <h3>Project Management Professional (Microsoft)</h3>
+        <p>Develop in-demand project management skills with a professional certificate.</p>
+        <span class="more">Explore program <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </article>
+      <article class="prog-card">
+        <span class="tag">Digital Literacy</span>
+        <h3>Digital Literacy &amp; Empowerment</h3>
+        <p>Build foundational digital skills and the confidence to take the next step.</p>
+        <span class="more">Explore program <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </article>
+    </div>
+
+    <div class="center-cta">
+      <a class="btn btn-outline" href="#">See all programs
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">How it works</span>
+      <h2>Three steps to your next opportunity</h2>
+      <p>Apply in about 5 minutes, see programs that match your goals, and get personal advisor follow-up.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>Start your application — about 5 minutes</h3>
+        <p>A quick 5-minute start that helps us understand your goals.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>See programs that match your goals</h3>
+        <p>Use the 5-minute pathfinder to see employer-recognized programs that fit you.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>Get advisor follow-up and job support</h3>
+        <p>A real team reviews your application with follow-up in 1 to 2 business days.</p>
+      </div>
+    </div>
+    <div class="center-cta">
+      <a class="btn btn-primary" href="#apply">Start your application
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Network / audiences -->
+<section class="band-tint" id="network">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">For everyone in the pipeline</span>
+      <h2>A Network Built for Success</h2>
+      <p>WorkforceAP connects the people who are advancing their careers with the employers and partners who need them.</p>
+    </div>
+    <div class="aud-grid">
+      <a class="aud-card seekers" href="#apply">
+        <span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+        <h3>Job seekers</h3>
+        <p>Training, certificates, resume help, and job-search support — at no cost to qualifying members.</p>
+        <span class="more">Find Your Path <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="aud-card employers" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></span>
+        <h3>Employers</h3>
+        <p>Connect with candidates trained on employer-recognized pathways across high-demand industries.</p>
+        <span class="more">Partner with us <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="aud-card partners" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M2 21a6 6 0 0 1 12 0M14 21a6 6 0 0 1 8-5"/></svg></span>
+        <h3>Boards &amp; partners</h3>
+        <p>Work with a 501(c)(3) nonprofit built on 25+ years of workforce experience to strengthen your community.</p>
+        <span class="more">Get involved <svg viewBox="0 0 24 24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section id="apply">
+  <div class="wrap">
+    <div class="final">
+      <h2>Empowering People. Advancing Futures.</h2>
+      <p>Career training and certificates — no cost to qualifying members. Apply in about 5 minutes and a real team will follow up.</p>
+      <div class="claim-chips">
+        <span class="claim-chip">No cost for qualifying members</span>
+        <span class="claim-chip">20 certificates</span>
+        <span class="claim-chip">25+ years of experience</span>
+        <span class="claim-chip">501(c)(3) nonprofit</span>
+      </div>
+      <div class="final-actions">
+        <a class="btn btn-primary" href="#">Apply now
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#programs">See all programs</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a href="#" class="brand">
+          <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-4l11-11 4 4L7 21H3z"/><path d="M14 6l4 4"/></svg></span>
+          WorkforceAP
+        </a>
+        <p>Workforce Advancement Project — a 501(c)(3) nonprofit built in Austin, advancing futures through training and employer-recognized certificates.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Programs</h4>
+          <a href="#">Tech / IT</a>
+          <a href="#">Data &amp; AI</a>
+          <a href="#">Healthcare</a>
+          <a href="#">Skilled Trades</a>
+        </div>
+        <div class="foot-col">
+          <h4>Get started</h4>
+          <a href="#">Find Your Path</a>
+          <a href="#">Apply now</a>
+          <a href="#">See all programs</a>
+        </div>
+        <div class="foot-col">
+          <h4>Network</h4>
+          <a href="#">Job seekers</a>
+          <a href="#">Employers</a>
+          <a href="#">Boards &amp; partners</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; 2026 Workforce Advancement Project. 501(c)(3) nonprofit.</span>
+      <span>Built in Austin · 25+ years of workforce experience</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

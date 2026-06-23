@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — Board &amp; Leadership</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --wa-accent:#ad2c4d; --wa-accent-dark:#8c0f37; --wa-accent-soft:#fdf2f4; --wa-on-accent:#fff;
+    --wa-gold:#a47f38; --wa-gold-dark:#7d5f26; --wa-gold-soft:#fef3c7;
+    --wa-info:#2b7bb9; --wa-info-soft:#eef5fb; --wa-success:#4a9b4f;
+    --wa-bg:#f7f4f1; --wa-surface:#fff; --wa-text:#1a1a1a; --wa-muted:#6e6a66; --wa-border:#ece7e2;
+    --wa-radius:24px; --wa-radius-sm:14px;
+    --wa-shadow:0 1px 2px rgba(0,0,0,.04); --wa-shadow-lg:0 18px 44px -22px rgba(60,30,40,.4);
+    --display:'Plus Jakarta Sans','Inter',sans-serif; --body:'Inter',-apple-system,sans-serif;
+    --plum:#3a1326; --max:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);color:var(--wa-text);background:var(--wa-bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1.05}
+  a{text-decoration:none;color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--wa-accent)}
+  .muted{color:var(--wa-muted)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;border-radius:999px;padding:14px 26px;cursor:pointer;border:1.5px solid transparent;transition:transform .18s,box-shadow .18s,background .18s,color .18s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--primary{background:var(--wa-accent);color:#fff;box-shadow:0 12px 30px -12px rgba(173,44,77,.6)}
+  .btn--primary:hover{background:var(--wa-accent-dark)}
+  .btn--ghost{background:#fff;border-color:var(--wa-border);color:var(--wa-text)}
+  .btn--ghost:hover{border-color:var(--wa-accent);color:var(--wa-accent)}
+  .btn--light{background:#fff;color:var(--wa-accent)}
+  .btn--light:hover{transform:translateY(-2px)}
+  .btn--outline-light{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.35)}
+  .btn--outline-light:hover{background:rgba(255,255,255,.24)}
+  svg{display:block}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--wa-border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px}
+  .brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--wa-accent),var(--plum));display:grid;place-items:center;color:#fff;font-weight:800}
+  .nav-links{display:flex;gap:28px;font-weight:600;font-size:15px;color:var(--wa-muted)}
+  .nav-links a:hover{color:var(--wa-accent)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  /* ── Split hero ── */
+  .lead-hero{padding:clamp(44px,6vw,76px) 0 clamp(40px,5vw,64px)}
+  .split-hero-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:28px;align-items:stretch}
+  @media(max-width:768px){.split-hero-grid{grid-template-columns:1fr}}
+  .hero-main{border-radius:var(--wa-radius);padding:clamp(30px,4vw,52px);color:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;
+    background:
+      radial-gradient(120% 120% at 85% 0%, rgba(164,127,56,.30), transparent 55%),
+      linear-gradient(150deg, rgba(173,44,77,.88), rgba(58,19,38,.94) 92%),
+      url('https://www.workforceap.org/images/hero-people.webp') center/cover no-repeat;
+    box-shadow:var(--wa-shadow-lg)}
+  .hero-main::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:38px 38px;mask:radial-gradient(120% 80% at 80% 10%,#000,transparent 70%);pointer-events:none}
+  .hero-main .eyebrow{color:var(--wa-gold-soft)}
+  .hero-main h1{font-size:clamp(34px,5vw,58px);margin:18px 0 0}
+  .hero-main h1 .accent{color:var(--wa-gold-soft)}
+  .hero-main p{color:rgba(255,255,255,.88);margin-top:20px;max-width:54ch;font-size:clamp(15px,1.1vw,17px)}
+  .quote-card{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:30px;box-shadow:var(--wa-shadow-lg);display:flex;flex-direction:column;justify-content:center}
+  .quote-card .qhead{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .quote-card .qbadge{width:38px;height:38px;border-radius:11px;background:var(--wa-accent-soft);color:var(--wa-accent);display:grid;place-items:center;flex-shrink:0}
+  .quote-card .qlabel{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--wa-accent)}
+  .quote-card blockquote{font-family:var(--display);font-weight:700;font-size:clamp(16px,1.5vw,19px);line-height:1.45;letter-spacing:-.01em;color:var(--wa-text)}
+
+  /* ── Sections ── */
+  section.band{padding:clamp(48px,6vw,84px) 0}
+  .band--alt{background:#f1ece7}
+  .sec-head{max-width:660px;margin-bottom:40px}
+  .sec-head h2{font-size:clamp(26px,3.4vw,42px);margin-top:10px}
+
+  /* exec grid */
+  .exec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+  .exec-card{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer}
+  .exec-card:hover{transform:translateY(-4px);box-shadow:var(--wa-shadow-lg);border-color:#f0cdd5}
+  .exec-photo{position:relative;aspect-ratio:3/4;max-height:340px;overflow:hidden;background:linear-gradient(150deg,var(--wa-accent-soft),#fff)}
+  .exec-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .exec-photo .founder{position:absolute;top:14px;left:14px;background:var(--wa-accent);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:999px}
+  .exec-body{padding:22px 24px 26px;display:flex;flex-direction:column;gap:8px}
+  .exec-body .role{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--wa-accent)}
+  .exec-body h3{font-size:21px;font-weight:800}
+  .exec-body .mission{font-size:13.5px;font-weight:600;color:var(--wa-accent-dark);line-height:1.5;background:var(--wa-accent-soft);border-left:3px solid var(--wa-accent);padding:10px 12px;border-radius:0 10px 10px 0}
+  .exec-body .bio{font-size:14px;color:var(--wa-muted);line-height:1.6}
+  .exec-body .go{margin-top:auto;font-weight:700;font-size:13.5px;color:var(--wa-accent);display:inline-flex;gap:6px;align-items:center;padding-top:6px}
+
+  /* board grid */
+  .board-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+  .board-card{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);padding:30px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;height:100%;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer}
+  .board-card:hover{transform:translateY(-4px);box-shadow:var(--wa-shadow-lg);border-color:#f0cdd5}
+  .board-photo{width:148px;height:148px;border-radius:50%;overflow:hidden;flex-shrink:0;border:3px solid var(--wa-accent-soft);background:linear-gradient(150deg,var(--wa-accent-soft),#fff)}
+  .board-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .board-card .role{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--wa-accent)}
+  .board-card h3{font-size:18px;font-weight:800}
+  .board-body{flex:1;text-align:left;display:flex;flex-direction:column;gap:8px}
+  .board-body .mission{font-size:13px;font-weight:600;color:var(--wa-accent-dark);line-height:1.5;background:var(--wa-accent-soft);border-left:3px solid var(--wa-accent);padding:9px 11px;border-radius:0 10px 10px 0}
+  .board-body .bio{font-size:13.5px;color:var(--wa-muted);line-height:1.55}
+  .board-card .go{color:var(--wa-accent);opacity:.85}
+
+  /* consultant */
+  .consult-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;align-items:stretch}
+  .consult-card{background:var(--wa-surface);border:1px solid var(--wa-border);border-radius:var(--wa-radius);overflow:hidden;height:100%;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s,border-color .2s;cursor:pointer}
+  .consult-card:hover{transform:translateY(-4px);box-shadow:var(--wa-shadow-lg);border-color:#f0cdd5}
+  .consult-photo{position:relative;aspect-ratio:16/10;max-height:280px;overflow:hidden;background:linear-gradient(150deg,var(--wa-accent-soft),#fff)}
+  .consult-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .consult-body{padding:22px 24px 26px;display:flex;flex-direction:column;gap:8px}
+  .consult-body .role{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--wa-accent)}
+  .consult-body h3{font-size:20px;font-weight:800}
+  .consult-body .mission{font-size:13.5px;font-weight:600;color:var(--wa-accent-dark);line-height:1.5;background:var(--wa-accent-soft);border-left:3px solid var(--wa-accent);padding:10px 12px;border-radius:0 10px 10px 0}
+  .consult-body .bio{font-size:14px;color:var(--wa-muted);line-height:1.6}
+
+  /* CTA */
+  .cta{background:linear-gradient(150deg,var(--wa-accent),var(--plum));color:#fff;border-radius:28px;padding:clamp(40px,6vw,72px);text-align:center;position:relative;overflow:hidden}
+  .cta::after{content:"";position:absolute;inset:0;background:radial-gradient(100% 100% at 90% 0%,rgba(164,127,56,.3),transparent 55%);pointer-events:none}
+  .cta .cta-ic{width:60px;height:60px;border-radius:16px;background:rgba(255,255,255,.16);display:grid;place-items:center;margin:0 auto 18px;position:relative}
+  .cta h2{font-size:clamp(26px,4vw,46px);position:relative}
+  .cta p{margin:16px auto 0;max-width:560px;color:rgba(255,255,255,.88);font-size:17px;position:relative}
+  .cta .acts{margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+
+  footer{background:#211a1d;color:#cabfc4;padding:60px 0 36px}
+  .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+  footer h4{color:#fff;font-family:var(--display);font-size:14px;margin-bottom:14px}
+  footer a{display:block;color:#a99ea4;font-size:14px;margin-bottom:9px}footer a:hover{color:#fff}
+  .fbar{border-top:1px solid #382c30;margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a7d83}
+
+  /* mobile nav */
+  .nav-in{position:relative}
+  .nav-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  .nav-burger{display:none;flex-direction:column;gap:5px;width:44px;height:44px;align-items:center;justify-content:center;border:1px solid var(--wa-border);border-radius:12px;background:var(--wa-surface,#fff);cursor:pointer}
+  .nav-burger span{display:block;width:20px;height:2px;background:var(--wa-text,#1a1a1a);border-radius:2px;transition:transform .2s,opacity .2s}
+  .nav-toggle:checked ~ .nav-burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .nav-toggle:checked ~ .nav-burger span:nth-child(2){opacity:0}
+  .nav-toggle:checked ~ .nav-burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  @media(max-width:880px){
+    .nav-burger{display:flex;position:absolute;right:24px;top:12px}
+    .nav-cta{display:none}
+    .nav-toggle:checked ~ .nav-links{display:flex !important;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--wa-surface,#fff);border-bottom:1px solid var(--wa-border);box-shadow:var(--wa-shadow-lg,0 12px 28px rgba(0,0,0,.08));padding:18px 24px;gap:18px;font-size:16px}
+  }
+
+/* a11y fine-tune (ui-ux-pro-max): visible focus + reduced motion */
+a:focus-visible,button:focus-visible,label:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--wa-accent,#ad2c4d);outline-offset:2px;border-radius:6px}
+.tile--hero a:focus-visible,.cta a:focus-visible,nav a:focus-visible{outline-color:var(--wa-accent,#ad2c4d);box-shadow:0 0 0 4px rgba(255,255,255,.65)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in"><input class="nav-toggle" type="checkbox" id="nvt" aria-label="Open menu"><label for="nvt" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <a class="brand"><span class="mark">W</span> WorkforceAP</a>
+  <div class="nav-links"><a href="#programs">Programs</a><a href="#how">How it works</a><a href="#network">Who we serve</a><a href="#trust">About</a></div>
+  <div class="nav-cta"><a class="btn btn--ghost" style="padding:10px 18px">Sign in</a><a class="btn btn--primary" style="padding:10px 20px">Apply now</a></div>
+</div></nav>
+
+<!-- ── Hero ── -->
+<header class="lead-hero"><div class="wrap">
+  <div class="split-hero-grid">
+    <div class="hero-main">
+      <span class="eyebrow">Our Leadership</span>
+      <h1>Stewards of the <span class="accent">Future Workforce.</span></h1>
+      <p>Our governance team combines decades of workforce development leadership, employer-side tech credibility, military and operations discipline, and deep community roots — connecting workforce training to real outcomes across the nation.</p>
+    </div>
+    <aside class="quote-card">
+      <div class="qhead">
+        <span class="qbadge" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+        </span>
+        <span class="qlabel">Established 2025</span>
+      </div>
+      <blockquote>“This isn't a generic nonprofit team. These are people who've run programs at scale, led at Goodwill and Urban League, built systems at IBM and Microsoft, commanded in the Army and at AWS — and who show up nationwide.”</blockquote>
+    </aside>
+  </div>
+</div></header>
+
+<!-- ── Executive Council ── -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Executive Council</span>
+    <h2>Operational Leadership</h2>
+  </div>
+  <div class="exec-grid">
+
+    <a class="exec-card" href="#">
+      <div class="exec-photo">
+        <img src="https://www.workforceap.org/images/michael-brown.webp" alt="Michael A. Brown" loading="lazy" style="object-position:center 24%" />
+        <span class="founder">Founder</span>
+      </div>
+      <div class="exec-body">
+        <span class="role">Executive Director, CEO</span>
+        <h3>Michael A. Brown, PMP, ChE</h3>
+        <p class="mission">25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — and a recurring Vision given to Michael Brown by God for serving His people — the barrier-breaking experience that built WorkforceAP.</p>
+        <p class="bio">Michael Brown, PMP, ChE (Chemical Engineering, Texas A&amp;M University), is a highly accomplished engineer and business executive with a distinguished career spanning several decades. WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a recurring Vision given to Michael Brown by God for serving His people. He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development across the public and private sectors.</p>
+        <span class="go">View profile
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </div>
+    </a>
+
+    <a class="exec-card" href="#">
+      <div class="exec-photo">
+        <img src="https://www.workforceap.org/images/adriane-brown.jpg" alt="Adriane Brown" loading="lazy" />
+      </div>
+      <div class="exec-body">
+        <span class="role">Chief Operating Officer</span>
+        <h3>Adriane Brown</h3>
+        <p class="mission">Operations leader who scales workforce programs. Brings systems rigor so every member gets the support they need — from intake through placement.</p>
+        <p class="bio">Texas A&amp;M grad. IBM, Accenture — built statewide tech systems for Texas. Co-led Brown &amp; Associates to national reach. Microsoft Project Management certificate. Women's Ministry Leader, Celebration Church.</p>
+        <span class="go">View profile
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </div>
+    </a>
+
+  </div>
+</div></section>
+
+<!-- ── Board of Trustees ── -->
+<section class="band band--alt"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Board of Trustees</span>
+    <h2>Strategic Governance</h2>
+  </div>
+  <div class="board-grid">
+
+    <a class="board-card" href="#">
+      <div class="board-photo"><img src="https://www.workforceap.org/images/lakecia-gunter.jpg" alt="Lakecia Gunter" loading="lazy" /></div>
+      <div class="board-body">
+        <span class="role">Board Member</span>
+        <h3>Lakecia Gunter</h3>
+        <p class="mission">Employer-side credibility. Our employer partners are the rooms she helps shape — Microsoft, enterprise partners, and the tech pathways our graduates walk into.</p>
+        <p class="bio">CTO, Global Partner Solutions at Microsoft. 25 years in tech. SUCCESS Magazine Women of Influence 2023. MS Electrical Engineering, Georgia Tech. Board Director, IDEX Corporation.</p>
+      </div>
+      <span class="go" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </span>
+    </a>
+
+    <a class="board-card" href="#">
+      <div class="board-photo"><img src="https://www.workforceap.org/images/brandon-frye.jpg" alt="Brandon Frye" loading="lazy" /></div>
+      <div class="board-body">
+        <span class="role">Board Member</span>
+        <h3>Brandon Frye</h3>
+        <p class="mission">Highly respected entrepreneur that influences direction and resources. Built a Fastest Growing Company; board leadership strengthens community pipelines and employer connections.</p>
+        <p class="bio">Co-founded Interstate Connections — Austin Business Journal "Fastest Growing Private Company." CFO, The Business Bible. Texas Alliance for Life board. Former Chairman, Concordia High School.</p>
+      </div>
+      <span class="go" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </span>
+    </a>
+
+    <a class="board-card" href="#">
+      <div class="board-photo"><img src="https://www.workforceap.org/images/derrick-fishback.jpg" alt="Col. Derrick Fishback" loading="lazy" /></div>
+      <div class="board-body">
+        <span class="role">Board Member (Ret.)</span>
+        <h3>Col. Derrick Fishback</h3>
+        <p class="mission">30 years Army + Fortune 500 tech. The employer trust that opens doors — AWS, IBM, Dell — plus the discipline that turns training into outcomes.</p>
+        <p class="bio">Col. U.S. Army (Ret.). Commanded 1,800+ personnel. Led cloud transformation at AWS, IBM, Dell. Two master's degrees; Harvard, Geneva, London, Erasmus. Board President, Jazz Society of Pensacola.</p>
+      </div>
+      <span class="go" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </span>
+    </a>
+
+  </div>
+</div></section>
+
+<!-- ── Lead Consultant ── -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Advisory</span>
+    <h2>Lead Consultant</h2>
+  </div>
+  <div class="consult-grid">
+
+    <a class="consult-card" href="#">
+      <div class="consult-photo"><img src="https://www.workforceap.org/images/michael-brown-ii.webp" alt="Michael Brown II" loading="lazy" /></div>
+      <div class="consult-body">
+        <span class="role">Lead Consultant</span>
+        <h3>Michael Brown II</h3>
+        <p class="mission">Bridges strategy and delivery — helping WorkforceAP turn training partnerships into measurable placement and retention outcomes.</p>
+        <p class="bio">Consultant to Workforce Advancement Project on program design, employer alignment, and scaling high-touch career services for underserved communities.</p>
+      </div>
+    </a>
+
+  </div>
+</div></section>
+
+<!-- ── CTA ── -->
+<section class="band band--alt"><div class="wrap">
+  <div class="cta">
+    <span class="cta-ic" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+    </span>
+    <h2>Join the Mission</h2>
+    <p>Whether you want to partner, volunteer, serve on the board, or support workforce development nationwide — we want to hear from you.</p>
+    <div class="acts">
+      <a class="btn btn--light" href="#">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+        Get in Touch
+      </a>
+      <a class="btn btn--outline-light" href="#">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        View Programs
+      </a>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div><a class="brand" style="color:#fff;margin-bottom:12px"><span class="mark">W</span> WorkforceAP</a>
+      <p style="max-width:300px;color:#a99ea4;font-size:14px">Empowering People. Advancing Futures. A 501(c)(3) nonprofit — career training, certificates, and job support at no cost to qualifying members.</p></div>
+    <div><h4>Programs</h4><a>IT Support</a><a>AI Developer</a><a>Project Management</a><a>All certificates</a></div>
+    <div><h4>About</h4><a>How it works</a><a>Our mission</a><a>Partners</a><a>Find Your Path</a></div>
+    <div><h4>Get started</h4><a>Apply</a><a>See programs</a><a>For employers</a><a>Contact</a></div>
+  </div>
+  <div class="fbar"><span>© 2026 Workforce Advancement Project · 501(c)(3)</span><span>Privacy · Terms · Accessibility</span></div>
+</div></footer>
+
+</body>
+</html>

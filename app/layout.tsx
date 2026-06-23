@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import { Inter } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import { headers } from 'next/headers';
 import { DEFAULT_LOCALE, WAP_LOCALE_HEADER, isAppLocale, isRtlLocale } from '@/lib/i18n/config';
 import type { AbstractIntlMessages } from 'next-intl';
@@ -26,6 +26,7 @@ import { prisma } from '@/lib/db/prisma';
 import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 import '@/css/main.css';
 import '@/css/marketing.css';
+import '@/css/marketing-v3.css';
 import '@/css/language-toggle.css';
 import '@/css/marketing-a11y.css';
 import DeferredRootChrome from '@/components/DeferredRootChrome';
@@ -36,6 +37,13 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['600', '700', '800'],
+  variable: '--font-display',
 });
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-53JCT6WN';
@@ -178,7 +186,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const htmlClassName = reserveMobileBottomNav ? 'wap-reserve-mobile-bottom-nav' : undefined;
 
   return await gucContextStorage.run(gucCtx, async () => (
-    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${inter.variable}${htmlClassName ? ' ' + htmlClassName : ''}`}>
+    <html lang={htmlLang} dir={htmlDir} suppressHydrationWarning className={`${inter.variable} ${plusJakartaSans.variable}${htmlClassName ? ' ' + htmlClassName : ''}`}>
       <head>
         <ThemeInitScript />
         <script

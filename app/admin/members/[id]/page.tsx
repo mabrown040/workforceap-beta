@@ -29,7 +29,7 @@ import AdminMemberWorkspaceEmail from '@/components/admin/AdminMemberWorkspaceEm
 import CreateSuccessToast from './CreateSuccessToast';
 import { formatPhone } from '@/lib/formatPhone';
 import { compactStringIds, getMessageAuthorName, getOrCreateMemberCounselorThread, serializeMessage } from '@/lib/messages/counselorThread';
-import { ClipboardList, CheckCircle } from 'lucide-react';
+import { AlertTriangle, ClipboardList, CheckCircle } from 'lucide-react';
 import { parseWioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import type { WioaReviewStatus } from '@/lib/wioa/wioaReview';
 import AdminMemberWioaReviewPanel from '@/components/admin/AdminMemberWioaReviewPanel';
@@ -481,17 +481,17 @@ export default async function AdminMemberDetailPage({
         title={member.fullName}
         subtitle={member.email}
         action={
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <Link href={`/admin/members/${id}/stakeholder`} className="btn btn-outline">Open stakeholder view</Link>
-            <Link href={`/admin/members/${id}/lifecycle`} className="btn btn-outline">
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'stretch', flexWrap: 'wrap', maxWidth: 430 }}>
+            <Link href={`/admin/members/${id}/stakeholder`} className="btn btn-outline" style={{ flex: '1 1 10rem', justifyContent: 'center', minHeight: 44, textAlign: 'center' }}>Open stakeholder view</Link>
+            <Link href={`/admin/members/${id}/lifecycle`} className="btn btn-outline" style={{ flex: '1 1 8rem', justifyContent: 'center', minHeight: 44 }}>
               <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', marginRight: '0.25rem', verticalAlign: 'middle' }} aria-hidden="true">timeline</span>
               Lifecycle
             </Link>
-            <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline">
+            <Link href={`/admin/members/${id}/readiness`} className="btn btn-outline" style={{ flex: '1 1 8rem', justifyContent: 'center', minHeight: 44 }}>
               <ClipboardList size={18} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
               Readiness
             </Link>
-            <Link href="/admin/members" className="btn btn-outline">← Back to Members</Link>
+            <Link href="/admin/members" className="btn btn-outline" style={{ flex: '1 1 10rem', justifyContent: 'center', minHeight: 44 }}>Back to Members</Link>
           </div>
         }
       />
@@ -700,7 +700,10 @@ export default async function AdminMemberDetailPage({
 
           {member.userCertifications && member.userCertifications.length > 0 && (
             <div style={{ marginTop: '1.5rem', background: '#fff3cd', border: '1px solid #ffeeba', padding: '1rem', borderRadius: '0.5rem' }}>
-              <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem', color: '#856404' }}>⚠️ Unverified External Certifications</h3>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.5rem', color: '#856404' }}>
+                <AlertTriangle size={16} aria-hidden />
+                Unverified External Certifications
+              </h3>
               <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#856404' }}>
                 {member.userCertifications.map((cert: any) => (
                   <li key={cert.id}>

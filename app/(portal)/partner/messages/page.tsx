@@ -9,7 +9,6 @@ import PageHeader from '@/components/portal/PageHeader';
 import PortalTeamChatClient from '@/components/portal/PortalTeamChatClient';
 import { getOrCreatePartnerMessageThread } from '@/lib/messages/portalThreads';
 import { serializeMessage } from '@/lib/messages/counselorThread';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PortalCard from '@/components/portal/ui/PortalCard';
 import { InboxRowLayout } from '@/components/portal/ui/inbox/InboxPrimitives';
@@ -81,7 +80,6 @@ export default async function PartnerMessagesPage() {
               emptyHint="No messages yet. Reach out about referrals, milestones, or program questions."
             />
           </div>
-          <MobileBottomNav variant="partner" />
         </div>
 
         <div className="wa-hidden md:wa-block">

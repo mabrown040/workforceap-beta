@@ -8,6 +8,8 @@ import PageHeader from '@/components/portal/PageHeader';
 import MemberCounselorChatClient from '@/components/portal/MemberCounselorChatClient';
 import MemberMessagesMobileClient from '@/components/portal/MemberMessagesMobileClient';
 import { getTranslations } from 'next-intl/server';
+import { MemberMessagesKit } from '@/components/portal/kit/pages/member/MemberMessagesKit';
+import type { ChatMessage } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('messages');
@@ -18,9 +20,17 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function MemberMessagesPage() {
+export default async function MemberMessagesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/messages');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+
   const t = await getTranslations('messages');
 
   const thread = await getOrCreateMemberCounselorThread(user.id);
@@ -65,6 +75,53 @@ export default async function MemberMessagesPage() {
   const counselorInitials = counselorName
     ? counselorName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'CS';
+
+  // ── New design-kit inbox (default). Opt out with ?ui=legacy. ──
+  // Reuses the same real counselor thread + the existing legacy send endpoint
+  // (`POST /api/member/messages`) that MemberCounselorChatClient posts to.
+  if (requestedUi !== 'legacy') {
+    const kitMessages: ChatMessage[] = messages.map((m) => {
+      const mine = m.authorId === user.id;
+      return {
+        id: m.id,
+        from: mine ? 'self' : 'other',
+        text: m.body ?? '',
+        ...(mine ? {} : { author: counselorInitials }),
+      };
+    });
+
+    const activeName = counselorName ?? t('inbox');
+    const conversations = [
+      {
+        id: thread.id,
+        name: activeName,
+        role: counselorName ? t('memberPortal') : t('inbox'),
+        preview: lastMsgText,
+        unread: unreadCount > 0,
+        active: true,
+      },
+    ];
+
+    return (
+      <>
+        <PageHeader
+          title={t('inbox')}
+          breadcrumbs={[{ label: t('memberPortal'), href: '/dashboard' }, { label: t('inbox') }]}
+        />
+        <MemberMessagesKit
+          memberUserId={user.id}
+          threadId={thread.id}
+          conversations={conversations}
+          activeName={activeName}
+          activeRole={counselorName ? 'Career Counselor' : 'Support'}
+          activeInitials={counselorInitials}
+          activeOnline={Boolean(thread.counselorUserId)}
+          otherInitials={counselorInitials}
+          messages={kitMessages}
+        />
+      </>
+    );
+  }
 
   return (
     <>

@@ -1,22 +1,30 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db/prisma';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isSuperAdmin } from '@/lib/auth/roles';
-import { redirect } from 'next/navigation';
 import PartnersTableClient from '@/components/admin/PartnersTableClient';
 import PageHeader from '@/components/portal/PageHeader';
+import {
+  PartnersDirectoryKit,
+  type PartnerCard,
+} from '@/components/portal/kit/pages/admin-subviews/PartnersDirectoryKit';
 
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
-  title: 'Admin - Partners',
-  description: 'Manage partner organizations.',
-  path: '/admin/partners',
-});
+    title: 'Admin - Partners',
+    description: 'Manage partner organizations.',
+    path: '/admin/partners',
+  });
 }
 
+/** Cap the lean directory so first paint stays cheap. */
+const PARTNER_LIMIT = 60;
+
+/** Legacy management table data (unchanged from the prior default render). */
 async function loadAdminPartnersData() {
   return Promise.all([
     prisma.partner.findMany({
@@ -52,12 +60,9 @@ async function loadAdminPartnersData() {
 
 type PartnersPayload = Awaited<ReturnType<typeof loadAdminPartnersData>>;
 
-export default async function AdminPartnersPage() {
-  const user = await getUser();
-  if (!user) redirect('/login?redirectTo=/admin/partners');
-  if (!(await isAdmin(user.id))) redirect('/dashboard');
-
-  const superAdmin = await isSuperAdmin(user.id);
+/** The prior default render, preserved behind `?ui=legacy`. */
+async function LegacyPartnersTable({ userId }: { userId: string }) {
+  const superAdmin = await isSuperAdmin(userId);
 
   let partners: PartnersPayload[0];
   let subgroups: PartnersPayload[1];
@@ -103,9 +108,7 @@ export default async function AdminPartnersPage() {
           role="alert"
         >
           <h3>Could not load partners</h3>
-          <p style={{ marginBottom: '0.75rem' }}>
-            {loadError}
-          </p>
+          <p style={{ marginBottom: '0.75rem' }}>{loadError}</p>
           <p style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
             Common fix: apply the latest database migration on your hosting environment, then refresh this page.
           </p>
@@ -128,4 +131,76 @@ export default async function AdminPartnersPage() {
       ) : null}
     </div>
   );
+}
+
+export default async function AdminPartnersPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/partners');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const params = (await searchParams) ?? {};
+  const requestedUi = typeof params.ui === 'string' ? params.ui : null;
+
+  // Legacy → render the full management table (preserves the prior default).
+  if (requestedUi === 'legacy') {
+    return <LegacyPartnersTable userId={user.id} />;
+  }
+
+  // --- DEFAULT: real (lean) partner directory wired into PartnersDirectoryKit ---
+
+  // Lean directory (name + referral count) + full count + placed-per-partner,
+  // all in parallel. Aggregate failures degrade gracefully (the grid still
+  // renders; placed counts just fall back to 0).
+  const [partnersResult, totalResult, placedResult] = await Promise.allSettled([
+    prisma.partner.findMany({
+      take: PARTNER_LIMIT,
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        active: true,
+        status: true,
+        _count: { select: { referrals: true } },
+      },
+    }),
+    prisma.partner.count(),
+    // "Placed" per partner = referred members whose memberStatus is 'placed'.
+    prisma.partnerReferral.groupBy({
+      by: ['partnerId'],
+      where: { member: { memberStatus: 'placed' } },
+      _count: { _all: true },
+    }),
+  ]);
+
+  // If the core directory query fails, fall back to the legacy management table
+  // rather than rendering a fabricated/empty kit.
+  if (partnersResult.status === 'rejected') {
+    console.error('[admin/partners] directory load failed', partnersResult.reason);
+    return <LegacyPartnersTable userId={user.id} />;
+  }
+
+  const rows = partnersResult.value;
+  const total = totalResult.status === 'fulfilled' ? totalResult.value : rows.length;
+
+  const placedMap = new Map<string, number>();
+  if (placedResult.status === 'fulfilled') {
+    for (const row of placedResult.value) placedMap.set(row.partnerId, row._count._all);
+  }
+
+  const partners: PartnerCard[] = rows.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    referrals: p._count.referrals,
+    placed: placedMap.get(p.id) ?? 0,
+    active: p.active && p.status === 'active',
+    status: p.status,
+  }));
+
+  return <PartnersDirectoryKit partners={partners} total={total} />;
 }

@@ -6,6 +6,10 @@ import DataTable from '@/components/portal/ui/DataTable';
 import { getUser } from '@/lib/auth/server';
 import { requireAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import {
+  MentorsDirectoryKit,
+  type MentorCard,
+} from '@/components/portal/kit/pages/admin-subviews/MentorsDirectoryKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -13,6 +17,35 @@ export async function generateMetadata(): Promise<Metadata> {
   description: 'Review mentor applications and manage mentor activation.',
   path: '/admin/mentors',
 });
+}
+
+/** Cap the directory so first paint stays cheap. */
+const MENTOR_LIMIT = 200;
+
+/** Build initials from a full name (e.g. "David Kim" → "DK"). */
+function initialsFrom(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '??';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+/**
+ * Mentor.title is free text, often "Role at Company" (e.g. "Senior Software
+ * Engineer at Google"). The card shows "{Role} @ {Company}", so strip a
+ * trailing " at <company>" / " @ <company>" from the title when it duplicates
+ * the company column.
+ */
+function roleFrom(title: string, company: string): string {
+  const trimmed = title.trim();
+  const lowered = trimmed.toLowerCase();
+  const co = company.trim().toLowerCase();
+  if (co) {
+    for (const sep of [` at ${co}`, ` @ ${co}`, `, ${co}`]) {
+      if (lowered.endsWith(sep)) return trimmed.slice(0, trimmed.length - sep.length).trim();
+    }
+  }
+  return trimmed;
 }
 
 async function updateMentorAction(formData: FormData) {
@@ -56,11 +89,87 @@ const actionButtonStyle = {
   fontWeight: 600,
 };
 
-export default async function AdminMentorsPage() {
+export default async function AdminMentorsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/mentors');
   await requireAdmin(user.id);
 
+  const params = (await searchParams) ?? {};
+  const requestedUi = typeof params.ui === 'string' ? params.ui : null;
+
+  if (requestedUi === 'legacy') {
+    return <LegacyMentorsView />;
+  }
+
+  // --- DEFAULT: real (lean) mentor directory wired into MentorsDirectoryKit ---
+
+  // Lean directory page + full count + mentee counts (distinct members per
+  // mentor, via mentor sessions), all in parallel. Aggregate failures degrade
+  // gracefully — the directory must still render.
+  const [mentorsResult, totalResult, activeResult, sessionPairsResult] = await Promise.allSettled([
+    prisma.mentor.findMany({
+      take: MENTOR_LIMIT,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        fullName: true,
+        title: true,
+        company: true,
+        isActive: true,
+        approvedAt: true,
+      },
+    }),
+    prisma.mentor.count(),
+    prisma.mentor.count({ where: { isActive: true, approvedAt: { not: null } } }),
+    // Distinct (mentor, member) pairs → one row per pairing. groupBy gives us
+    // the unique member set per mentor without loading every session.
+    prisma.mentorSession.groupBy({
+      by: ['mentorId', 'memberId'],
+    }),
+  ]);
+
+  // If the core directory query fails, fall back to the proven legacy view
+  // rather than rendering a fabricated/empty kit.
+  if (mentorsResult.status === 'rejected') {
+    console.error('[admin/mentors] directory load failed', mentorsResult.reason);
+    return <LegacyMentorsView />;
+  }
+
+  const mentorRows = mentorsResult.value;
+  const total = totalResult.status === 'fulfilled' ? totalResult.value : mentorRows.length;
+  const activeCount =
+    activeResult.status === 'fulfilled'
+      ? activeResult.value
+      : mentorRows.filter((m) => m.isActive && m.approvedAt).length;
+
+  // Mentee count = number of distinct members a mentor has session(s) with.
+  const menteeCountMap = new Map<string, number>();
+  if (sessionPairsResult.status === 'fulfilled') {
+    for (const row of sessionPairsResult.value) {
+      menteeCountMap.set(row.mentorId, (menteeCountMap.get(row.mentorId) ?? 0) + 1);
+    }
+  }
+
+  const mentors: MentorCard[] = mentorRows.map((m) => ({
+    id: m.id,
+    name: m.fullName,
+    initials: initialsFrom(m.fullName),
+    role: roleFrom(m.title, m.company),
+    company: m.company || '—',
+    mentees: menteeCountMap.get(m.id) ?? 0,
+    isActive: m.isActive,
+    isApproved: Boolean(m.approvedAt),
+  }));
+
+  return <MentorsDirectoryKit mentors={mentors} total={total} activeCount={activeCount} />;
+}
+
+/** Original mentor admin workspace (table + approve/deactivate). Behind ?ui=legacy. */
+async function LegacyMentorsView() {
   const mentors = await prisma.mentor.findMany({
     take: 5000,
     orderBy: { createdAt: 'desc' },
@@ -82,7 +191,7 @@ export default async function AdminMentorsPage() {
         subtitle="Review mentor applications and toggle active mentor availability."
       />
 
-      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem' }}>
         {mentors.map((mentor) => {
           const status = getMentorStatusLabel(mentor);
           return (

@@ -3,9 +3,14 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
-import { getCertificationsCohortStats } from '@/lib/admin/cohortAnalytics';
+import { getCertificationsCohortStats, cohortLabel } from '@/lib/admin/cohortAnalytics';
 import { prisma } from '@/lib/db/prisma';
+import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import PageHeader from '@/components/portal/PageHeader';
+import {
+  CertificationsQueueKit,
+  type CertSubmission,
+} from '@/components/portal/kit/pages/admin-subviews/CertificationsQueueKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -15,10 +20,78 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function AdminCertificationsAnalyticsPage() {
+export default async function AdminCertificationsAnalyticsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/certifications');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+
+  // ── Certifications Queue KIT — DEFAULT view (live review queue).
+  // Members upload proof via /api/member/certifications/upload, which flips the
+  // cert to `status='pending'` with a stored proof path. This loads that real
+  // pending queue and the kit's Approve/Reject buttons POST to
+  // /api/admin/certifications/review. The legacy cohort-analytics view is kept
+  // behind ?ui=legacy.
+  if (requestedUi !== 'legacy') {
+    const pending = await prisma.userCertification.findMany({
+      where: { status: 'pending' },
+      orderBy: { submittedAt: 'desc' },
+      take: 50,
+      select: {
+        id: true,
+        certName: true,
+        proofUrl: true,
+        submittedAt: true,
+        user: { select: { fullName: true, email: true, enrolledProgram: true } },
+      },
+    });
+
+    // The `member-files` bucket is private; proofUrl stores the stable storage
+    // path. Mint short-lived signed URLs at render time (same pattern as
+    // /api/admin/members/[id]/resume-urls). Sign best-effort — a failure for
+    // one file shouldn't blank the whole queue.
+    const supabase = getSupabaseAdmin();
+    const submissions: CertSubmission[] = await Promise.all(
+      pending.map(async (c) => {
+        let proofHref: string | undefined;
+        if (c.proofUrl) {
+          try {
+            const { data } = await supabase.storage
+              .from('member-files')
+              .createSignedUrl(c.proofUrl, 3600);
+            proofHref = data?.signedUrl ?? undefined;
+          } catch (err) {
+            console.error('[admin/certifications] sign proof url failed:', err);
+          }
+        }
+        const submittedLabel = c.submittedAt
+          ? c.submittedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+          : 'recently';
+        return {
+          id: c.id,
+          credential: c.certName,
+          member: c.user.fullName ?? c.user.email ?? 'Unknown member',
+          meta: `${cohortLabel(c.user.enrolledProgram)} · submitted ${submittedLabel}`,
+          proofHref,
+        };
+      }),
+    );
+
+    return (
+      <CertificationsQueueKit
+        submissions={submissions}
+        awaitingCount={submissions.length}
+        actionsEnabled
+        subtitle="Member-submitted credential proof awaiting review. Approve to count toward outcomes, or reject to send back."
+      />
+    );
+  }
 
   const [rows, recentCerts] = await Promise.all([
     getCertificationsCohortStats(),

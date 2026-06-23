@@ -10,7 +10,6 @@ import CounselorCommandCenter from '@/components/portal/counselor/CounselorComma
 import CounselorPriorityQueue from '@/components/portal/counselor/CounselorPriorityQueue';
 import AtRiskSummaryWidget from '@/components/portal/counselor/AtRiskSummaryWidget';
 import { getCounselorPriorityQueue } from '@/lib/counselor/priorityQueue';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorPortalVoiceBlock from '@/components/portal/CounselorPortalVoiceBlock';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -21,13 +20,127 @@ import { getGoodTimeOfDayPhrase } from '@/lib/time/greeting';
 import { getProgramBySlug } from '@/lib/content/programs';
 import { computeTrainingProgress } from '@/lib/member/trainingProgress';
 import PortalCard from '@/components/portal/ui/PortalCard';
+import { DesignSurface, FeatureTile, KpiStrip, QueueRow, SectionHeader, type QueueTone } from '@/components/portal/kit';
 
-export default async function CounselorPortalPage() {
+export default async function CounselorPortalPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/counselor');
 
   const allowed = (await isCounselor(user.id)) || (await isAdmin(user.id));
   if (!allowed) redirect('/dashboard');
+
+  const requestedUi = (await searchParams)?.ui ?? null;
+
+  // ── ?ui=kit LEAN PATH ──────────────────────────────────────────────────
+  // Runs AFTER the auth/role guard (access control preserved) but BEFORE the
+  // heavy data pipeline (counselorAssignment.findMany take:5000 + the message
+  // reply-scan), which stalls on the demo DB. Renders the redesigned counselor
+  // overview kit from a handful of cheap queries only: a single count for the
+  // assigned-members KPI, plus the already-try/catch-wrapped command center +
+  // priority queue helpers (which return safe empty shapes on failure). No
+  // $transaction, no external calls, no take:5000 scans.
+  // v2 kit is the DEFAULT counselor overview; legacy via ?ui=legacy.
+  if (requestedUi !== 'legacy') {
+    const kitIsAdmin = await isAdmin(user.id);
+    const kitCounselor = await prisma.counselor.findFirst({
+      where: { userId: user.id, active: true },
+      select: { id: true },
+    });
+
+    const assignedCount = kitCounselor
+      ? await prisma.counselorAssignment.count({
+          where: { counselor: { userId: user.id, active: true }, active: true },
+        })
+      : 0;
+
+    let kitCenter;
+    try {
+      kitCenter = await getCounselorCommandCenter(user.id, {
+        isAdmin: kitIsAdmin && !kitCounselor,
+        perSectionLimit: 5,
+      });
+    } catch {
+      kitCenter = {
+        needsReply: [],
+        atRisk: [],
+        interviewing: [],
+        totals: { needsReplyCount: 0, atRiskCount: 0, interviewingCount: 0, slaBreachCount: 0 },
+      };
+    }
+
+    let kitQueue: Awaited<ReturnType<typeof getCounselorPriorityQueue>> = {
+      rows: [],
+      totals: { critical: 0, warning: 0, ontrack: 0, total: 0 },
+    };
+    try {
+      kitQueue = await getCounselorPriorityQueue(user.id, { isAdmin: kitIsAdmin && !kitCounselor });
+    } catch (err) {
+      console.error('[counselor:kit] priority queue failed:', err);
+    }
+
+    const kitStats = [
+      { label: 'Assigned members', value: assignedCount, color: 'accent' as const },
+      { label: 'Needs attention', value: kitQueue.totals.critical + kitQueue.totals.warning, color: kitQueue.totals.critical > 0 ? ('accent' as const) : ('text' as const) },
+      { label: 'Awaiting reply', value: kitCenter.totals.needsReplyCount, color: kitCenter.totals.needsReplyCount > 0 ? ('accent' as const) : ('text' as const) },
+      { label: 'On track', value: kitQueue.totals.ontrack, color: 'success' as const },
+    ];
+
+    const bucketTone: Record<typeof kitQueue.rows[number]['bucket'], QueueTone> = {
+      critical: 'red',
+      warning: 'yellow',
+      ontrack: 'blue',
+    };
+    const triageRows = kitQueue.rows.slice(0, 12);
+
+    return (
+      <DesignSurface surface="dense">
+        <div style={{ padding: 'clamp(1rem, 4vw, 1.5rem)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <h1 className="wa-sr-only">Counselor overview</h1>
+          <SectionHeader title="Counselor overview" goal="Know who needs me today." />
+          <KpiStrip items={kitStats} cols={4} />
+          <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-3 wa-gap-4">
+            <FeatureTile title="Inbox" body="Reply to member messages." href="/counselor/inbox" />
+            <FeatureTile title="Sessions" body="Run check-ins and walk-ins." href="/counselor/sessions" tone="gold" />
+            <FeatureTile title="Triage queue" body="Prioritize students who need support." href="/counselor/triage" />
+            <FeatureTile title="At-risk members" body="Review inactivity and blockers." href="/counselor/at-risk" tone="gold" />
+            <FeatureTile title="Placements" body="Track job placement follow-up." href="/counselor/placements" />
+            <FeatureTile title="Inactive members" body="Find members who have gone quiet." href="/counselor/inactive-members" tone="gold" />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <SectionHeader title="Triage" goal={`${kitQueue.totals.total} member${kitQueue.totals.total === 1 ? '' : 's'} in queue`} />
+            {triageRows.length === 0 ? (
+              <div className="wa-kit-card wa-kit-card--sm" style={{ fontSize: 13, color: 'var(--wa-muted)' }}>
+                No members need attention right now.
+              </div>
+            ) : (
+              triageRows.map((row) => (
+                <QueueRow
+                  key={row.memberId}
+                  tone={bucketTone[row.bucket]}
+                  title={row.memberName}
+                  meta={row.blockerReason}
+                  flag={row.bucket === 'critical' ? 'Urgent' : row.bucket === 'warning' ? 'Watch' : undefined}
+                  action={
+                    <Link
+                      href={`/counselor/students/${row.memberId}`}
+                      className="btn btn-sm btn-secondary"
+                      style={{ fontSize: 11, textDecoration: 'none' }}
+                    >
+                      View
+                    </Link>
+                  }
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </DesignSurface>
+    );
+  }
 
   const counselor = await prisma.counselor.findFirst({
     where: { userId: user.id, active: true },
@@ -300,7 +413,6 @@ export default async function CounselorPortalPage() {
             )}
           </div>
         </div>
-        <MobileBottomNav variant="counselor" />
       </div>
       {/* ── Desktop View ── */}
       <div className="wa-hidden md:wa-block">

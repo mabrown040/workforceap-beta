@@ -1,0 +1,205 @@
+'use client';
+
+import {
+  DesignSurface,
+  SectionHeader,
+  DataTable,
+  StatusTag,
+  type Column,
+  type KitTone,
+} from '@/components/portal/kit';
+
+/**
+ * Program change requests — admin review queue rendered as a dense table.
+ * Mockup: workforceap-admin-full.html "program-requests" view.
+ * Target route: /admin/program-change-requests
+ *
+ * Columns: Student · Current · Requested · Reason · Status.
+ * Status is a StatusTag (Pending=warn, Approved=ok, Rejected=alert, …). Wide
+ * table collapses to stacked cards on mobile via DataTable mobile="cards".
+ *
+ * This is a pure presenter: the page resolves program slugs → friendly titles
+ * and the raw status enum → display status server-side, then hands rows down.
+ */
+
+/** Display status mapped from the underlying ProgramChangeRequestStatus enum. */
+export type ProgramChangeDisplayStatus =
+  | 'Pending'
+  | 'Approved'
+  | 'Rejected'
+  | 'Cancelled';
+
+export interface ProgramChangeRow {
+  id: string;
+  /** Student full name (falls back to email/id at the page layer). */
+  student: string;
+  /** Friendly current-program label, e.g. "Manufacturing" or "—". */
+  current: string;
+  /** Friendly requested-program label, e.g. "Cloud & IT". */
+  requested: string;
+  reason: string;
+  status: ProgramChangeDisplayStatus;
+}
+
+export interface ProgramChangeRequestsKitProps {
+  requests?: ProgramChangeRow[];
+  /** Count of requests still awaiting review (for the subtitle). */
+  pendingCount?: number;
+}
+
+const DEFAULT_REQUESTS: ProgramChangeRow[] = [
+  {
+    id: 'devon-hill',
+    student: 'Devon Hill',
+    current: 'Manufacturing',
+    requested: 'Cloud & IT',
+    reason: 'Found cloud more relevant',
+    status: 'Pending',
+  },
+  {
+    id: 'lena-ortiz',
+    student: 'Lena Ortiz',
+    current: 'Data & AI',
+    requested: 'Healthcare',
+    reason: 'Family in nursing',
+    status: 'Pending',
+  },
+  {
+    id: 'sam-cole',
+    student: 'Sam Cole',
+    current: 'Skilled Trades',
+    requested: 'Manufacturing',
+    reason: 'Schedule conflict',
+    status: 'Pending',
+  },
+];
+
+const STATUS_TONE: Record<ProgramChangeDisplayStatus, KitTone> = {
+  Pending: 'warn',
+  Approved: 'ok',
+  Rejected: 'alert',
+  Cancelled: 'muted',
+};
+
+export function ProgramChangeRequestsKit({
+  requests = DEFAULT_REQUESTS,
+  pendingCount = 3,
+}: ProgramChangeRequestsKitProps) {
+  const subtitle = `${pendingCount.toLocaleString()} pending approval`;
+
+  const columns: Column<ProgramChangeRow>[] = [
+    {
+      key: 'student',
+      header: 'Student',
+      render: (row) => <span style={{ fontWeight: 700 }}>{row.student}</span>,
+    },
+    {
+      key: 'current',
+      header: 'Current',
+      render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.current}</span>,
+    },
+    {
+      key: 'requested',
+      header: 'Requested',
+      render: (row) => <span style={{ fontWeight: 600 }}>{row.requested}</span>,
+    },
+    {
+      key: 'reason',
+      header: 'Reason',
+      render: (row) => <span style={{ color: 'var(--wa-muted)' }}>{row.reason}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (row) => <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>,
+    },
+  ];
+
+  return (
+    <DesignSurface surface="dense" className="wa-p-6">
+      <SectionHeader
+        title="Program change requests"
+        kicker="Enrollment"
+        goal={subtitle}
+        action={
+          <a
+            href="/admin/program-change-requests?ui=legacy"
+            className="wa-kit-focus"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              color: 'var(--wa-text)',
+              border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
+            }}
+          >
+            Review &amp; decide
+          </a>
+        }
+      />
+
+      <DataTable<ProgramChangeRow>
+        columns={columns}
+        rows={requests}
+        rowKey={(row) => row.id}
+        minWidth={760}
+        mobile="cards"
+        cardRender={(row) => (
+          <div className="wa-kit-card wa-kit-card--sm">
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 10,
+              }}
+            >
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {row.student}
+                </div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: 'var(--wa-muted)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {row.current} → {row.requested}
+                </div>
+              </div>
+              <div style={{ flexShrink: 0 }}>
+                <StatusTag tone={STATUS_TONE[row.status]}>{row.status}</StatusTag>
+              </div>
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                color: 'var(--wa-muted)',
+                marginTop: 12,
+              }}
+            >
+              {row.reason}
+            </div>
+          </div>
+        )}
+        emptyTitle="No program change requests"
+        emptyDescription="When members request to switch programs, they'll appear here for review."
+      />
+    </DesignSurface>
+  );
+}

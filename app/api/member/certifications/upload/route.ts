@@ -66,7 +66,23 @@ function storageErrorMessage(error: { message?: string } | null): string {
         console.error('[cert-upload] storage upload failed', error);
         return NextResponse.json({ error: storageErrorMessage(error) }, { status: 500 });
       }
-  
+
+      // Proof submitted → enter the admin review queue. We persist the stable
+      // storage path (the `member-files` bucket is private) as `proofUrl`; the
+      // admin queue mints a short-lived signed URL from it at render time
+      // (same pattern as `/api/admin/members/[id]/resume-urls`). Flip status to
+      // `pending` and stamp `submittedAt` so the row surfaces for review.
+      await prisma.$transaction((tx) =>
+        tx.userCertification.update({
+          where: { id: cert.id },
+          data: {
+            status: 'pending',
+            proofUrl: storagePath,
+            submittedAt: new Date(),
+          },
+        }),
+      );
+
       return NextResponse.json({ success: true, storagePath });
     } catch (e) {
       console.error('[cert-upload] storage upload failed', e);

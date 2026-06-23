@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Check } from 'lucide-react';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import GoogleDocsStyleResumeEditor from '@/components/portal/GoogleDocsStyleResumeEditor';
@@ -31,8 +32,18 @@ function CopyDraftButton({ text }: { text: string }) {
         padding: 0,
       }}
     >
-      <span aria-live="polite">
-        {copied ? '✓ Copied' : 'Copy'}
+      <span
+        aria-live="polite"
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+      >
+        {copied ? (
+          <>
+            <Check className="h-3.5 w-3.5" aria-hidden />
+            Copied
+          </>
+        ) : (
+          'Copy'
+        )}
       </span>
     </button>
   );
@@ -410,8 +421,8 @@ export default function ResumeCoachWorkspace() {
             onPostSessionParsingChange={setPostSessionParsing}
             title="Talk through your resume"
             description="Practice your pitch, discuss experience bullets, or get advice on framing your background."
-            accent="#2563eb"
-            accentDark="#1d4ed8"
+            accent="#ad2c4d"
+            accentDark="#8b1f38"
             speakingLabel="Coach is speaking…"
             listeningLabel="Listening — describe your background"
             onAcceptSuggestion={handleAccept}
@@ -517,8 +528,10 @@ export default function ResumeCoachWorkspace() {
                     handleAccept(activeInlineSuggestion);
                     dismissSuggestion(activeInlineSuggestion.id);
                   }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                 >
-                  ✓ Apply
+                  <Check className="h-4 w-4" aria-hidden />
+                  Apply
                 </button>
                 <button
                   type="button"
@@ -610,8 +623,10 @@ export default function ResumeCoachWorkspace() {
                         handleAccept(s);
                         dismissSuggestion(s.id);
                       }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                     >
-                      ✓ Apply
+                      <Check className="h-4 w-4" aria-hidden />
+                      Apply
                     </button>
                     <button
                       type="button"

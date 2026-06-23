@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Concept: Dense Command</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.h-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.02em}
+.tabnum{font-variant-numeric:tabular-nums}
+.bento{transition:box-shadow .15s,border-color .15s,background-color .12s}
+.focus-ring:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #ad2c4d}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.fade{animation:fade .2s ease forwards}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.bento{transition:none}}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:3px}
+/* DENSE: sharp corners, tight, hairline borders, compact */
+.card{background:#fff;border:1px solid #e4e4e4;border-radius:10px;padding:14px}
+.kbar{background:#fff;border:1px solid #e4e4e4;border-radius:8px;padding:10px 12px}
+</style>
+</head>
+<body class="bg-[#eef0f2] text-[#1A1A1A]">
+<div class="flex min-h-screen">
+  <aside class="w-52 bg-[#141414] text-white fixed h-screen z-40 flex flex-col">
+    <div class="px-4 py-3 border-b border-[#2a2a2a]">
+      <div class="text-[10px] font-bold tracking-widest text-[#ad2c4d] uppercase">Concept</div>
+      <div class="h-font text-base leading-tight">Dense Command</div>
+      <div class="text-[10px] text-[#888] mt-0.5">Everything visible · compact · power-user</div>
+    </div>
+    <div class="px-3.5 py-1.5 text-[10px] font-bold tracking-widest text-[#666] uppercase">Persona</div>
+    <nav id="prail" class="flex-1 px-2 space-y-0.5 text-[13px]"></nav>
+    <div class="px-3.5 py-2.5 border-t border-[#2a2a2a] space-y-1">
+      <div class="text-[10px] font-bold tracking-widest text-[#666] uppercase mb-0.5">Compare</div>
+      <a href="/workforceap-concept-calm.html" class="block text-xs text-[#999] hover:text-white">○ Calm Focus</a>
+      <a href="/workforceap-concept-dense.html" class="block text-xs font-bold text-white">● Dense Command</a>
+      <a href="/workforceap-concept-bold.html" class="block text-xs text-[#999] hover:text-white">○ Bold Motivation</a>
+      <a href="/" class="block text-[10px] text-[#666] hover:text-white mt-1.5"><i class="fa-solid fa-arrow-left mr-1"></i>Design Lab</a>
+    </div>
+  </aside>
+
+  <div class="flex-1 ml-52 flex flex-col min-w-0">
+    <header class="sticky top-0 z-30 bg-white border-b border-[#e4e4e4] px-5 pt-3">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3"><h1 id="ptitle" class="h-font text-lg">Member</h1><p id="pgoal" class="text-[11px] text-[#737373]"></p></div>
+        <div class="text-[10px] text-[#a3a3a3]">Concept B of 3 · open all three to compare</div>
+      </div>
+      <div id="stabs" class="flex gap-1 mt-2"></div>
+    </header>
+    <main id="stage" class="flex-1 p-5"></main>
+  </div>
+</div>
+
+<script>
+const C={crimson:'#ad2c4d',crimsonDk:'#8b1f38',gold:'#a47f38',info:'#2b7bb9',green:'#4a9b4f',muted:'#737373'};
+function kpis(arr){return `<div class="grid grid-cols-3 lg:grid-cols-6 gap-2.5 mb-3">${arr.map(k=>`<div class="kbar bento"><div class="text-[9px] font-bold text-[#737373] uppercase tracking-wide">${k.l}</div><div class="tabnum text-2xl font-extrabold leading-none mt-1" style="color:${k.c||'#1a1a1a'}">${k.v}</div>${k.sub?`<div class="text-[9px] font-bold mt-0.5" style="color:${k.sc||C.muted}">${k.sub}</div>`:''}</div>`).join('')}</div>`;}
+function tag(t,k){const m={ok:['#4a9b4f','#eef7ef'],warn:['#a47f38','#FEF3C7'],alert:['#ad2c4d','#fdf2f4'],info:['#2b7bb9','#eef5fb'],muted:['#737373','#f5f5f5']};const[c,bg]=m[k]||m.muted;return `<span class="tabnum" style="color:${c};background:${bg};padding:2px 7px;border-radius:5px;font-size:8px;font-weight:700;text-transform:uppercase">${t}</span>`;}
+function table(cols,rows,title,action){return `<div class="card !p-0 overflow-hidden bento">${title?`<div class="flex items-center justify-between px-3 py-2 border-b border-[#e4e4e4]"><span class="font-bold text-xs">${title}</span>${action||''}</div>`:''}<div class="overflow-x-auto"><table class="w-full border-collapse min-w-[560px]"><thead><tr>${cols.map(c=>`<th style="font-size:8px;text-transform:uppercase;letter-spacing:.05em;color:#a3a3a3;font-weight:700;text-align:left;padding:7px 10px;background:#fafafa">${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr class="hover:bg-[#fafafa] cursor-pointer">${r.map(c=>`<td style="padding:7px 10px;font-size:11px;border-bottom:1px solid #f2f2f2">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;}
+function bars(title,arr){return `<div class="card bento"><div class="font-bold text-xs mb-3">${title}</div><div class="space-y-2 text-[11px]">${arr.map(b=>`<div><div class="flex justify-between mb-0.5"><span class="font-semibold">${b.l}</span><span class="tabnum text-[#737373]">${b.v}</span></div><div class="h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden"><div class="h-1.5 rounded-full" style="width:${b.p}%;background:${b.c||C.crimson}"></div></div></div>`).join('')}</div></div>`;}
+function miniqueue(title,rows){return `<div class="card !p-0 bento overflow-hidden"><div class="px-3 py-2 border-b border-[#e4e4e4] font-bold text-xs">${title}</div><div class="divide-y divide-[#f2f2f2]">${rows.map(r=>`<div class="flex items-center gap-2 px-3 py-2 hover:bg-[#fafafa] cursor-pointer"><span class="w-1.5 h-1.5 rounded-full shrink-0" style="background:${r.c}"></span><div class="flex-1 min-w-0"><div class="font-bold text-[11px] truncate">${r.t}</div><div class="text-[10px] text-[#737373] truncate">${r.m}</div></div><button class="text-[10px] font-bold px-2 py-0.5 rounded" style="color:${r.c};background:${r.bg}">${r.a}</button></div>`).join('')}</div></div>`;}
+
+const PERSONAS=[
+  {id:'member',t:'Member',ic:'fa-user',goal:'Feel progress · know next step · get hired',screens:[['home','Home'],['program','Program'],['jobs','Jobs']]},
+  {id:'employer',t:'Employer',ic:'fa-building',goal:'Review fast · fill roles',screens:[['home','Overview'],['pipeline','Pipeline'],['queue','Work Queue']]},
+  {id:'partner',t:'Partner',ic:'fa-handshake',goal:'Prove impact · catch slipping members',screens:[['home','Overview'],['attention','Attention'],['outcomes','Outcomes']]},
+  {id:'counselor',t:'Counselor',ic:'fa-user-tie',goal:'Who needs me today · act in one click',screens:[['home','Overview'],['triage','Triage'],['atrisk','At-Risk']]},
+  {id:'admin',t:'Admin',ic:'fa-shield-halved',goal:'Run the org at a glance · drill anywhere',screens:[['home','Command'],['students','Students'],['board','Board']]},
+];
+
+const S={
+/* MEMBER — dense: stats + everything on one screen */
+'member-home':()=>kpis([{l:'Course',v:'78%',c:C.crimson},{l:'Jobs',v:'4',c:C.info},{l:'Certs',v:'2',c:C.gold},{l:'Points',v:'1,240',c:C.green},{l:'Streak',v:'12d'},{l:'Readiness',v:'84'}])+
+  `<div class="grid grid-cols-1 lg:grid-cols-3 gap-3"><div class="lg:col-span-2 space-y-3">${table(['Module','Status'],[['Shared Responsibility Model',tag('In progress','alert')],['Billing & Pricing',tag('Locked','muted')]],'AWS Cloud Practitioner · 78%',`<button class="text-[10px] font-bold text-[#ad2c4d]">Resume →</button>`)}${table(['Role','Company','Stage'],[['Salesforce Admin','Deloitte',tag('Interviewing','warn')],['Agentforce SE','Accenture',tag('Applied','muted')],['Cloud Support','Indeed',tag('Screening','info')]],'Job pipeline')}</div><div class="space-y-3">${miniqueue('Do next',[{c:C.crimson,bg:'#fdf2f4',t:'Finish current module',m:'Due Thursday',a:'Go'},{c:C.info,bg:'#eef5fb',t:'Prep Deloitte interview',m:'Thu 2pm',a:'Prep'}])}</div></div>`,
+'member-program':()=>kpis([{l:'Progress',v:'78%',c:C.crimson},{l:'Modules',v:'7/9'},{l:'Hours left',v:'~4'},{l:'Pace',v:'Ahead',c:C.green},{l:'Next session',v:'Thu'},{l:'Certs',v:'2',c:C.gold}])+
+  table(['Module','State','Detail'],[['Cloud Concepts',tag('Done','ok'),'Completed Jun 2'],['Security & Compliance',tag('Done','ok'),'Completed Jun 8'],['Shared Responsibility Model',tag('In progress','alert'),'Resume now'],['Billing & Pricing',tag('Locked','muted'),'—'],['Exam Readiness',tag('Locked','muted'),'—']],'Modules'),
+'member-jobs':()=>kpis([{l:'Saved',v:'9'},{l:'Applied',v:'4',c:C.info},{l:'Interviewing',v:'1',c:C.gold},{l:'Offers',v:'0'},{l:'Matches',v:'12',c:C.crimson},{l:'Avg match',v:'87%'}])+
+  table(['Role','Company','Location','Applied','Stage'],[['Salesforce Administrator','Deloitte','Austin','Jun 12',tag('Interviewing','warn')],['Agentforce SE','Accenture','Remote','Jun 14',tag('Applied','muted')],['Cloud Support Associate','Indeed','Austin','Jun 16',tag('Screening','info')],['Junior Cloud Engineer','Oracle','Austin','Jun 18',tag('Applied','muted')]],'Application pipeline'),
+
+/* EMPLOYER */
+'employer-home':()=>kpis([{l:'Live Roles',v:'9',c:C.info},{l:'New Matches',v:'5',c:C.crimson},{l:'Applicants',v:'34'},{l:'Interviewing',v:'3',c:C.gold},{l:'Hires YTD',v:'18',c:C.green},{l:'Avg review',v:'1.2d'}])+
+  `<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">${table(['Candidate','Role','Match','Stage'],[['A. Williams','Data Analyst','88%',tag('Interviewing','warn')],['M. Lee','IT Support','84%',tag('Offer','gold')],['J. Park','Cloud Assoc','81%',tag('Contacted','info')]],'Recent matches')}${bars('Pipeline by stage',[{l:'New',v:'2',p:20,c:C.muted},{l:'Contacted',v:'3',p:30,c:C.info},{l:'Interviewing',v:'3',p:30,c:C.gold},{l:'Offer',v:'1',p:10},{l:'Hired',v:'1',p:10,c:C.green}])}</div>`,
+'employer-pipeline':()=>`<div class="grid grid-cols-2 lg:grid-cols-5 gap-2.5">${[['New',2,C.muted],['Contacted',3,C.info],['Interviewing',3,C.gold],['Offer',1,C.crimson],['Hired',1,C.green]].map(col=>`<div class="card !p-2 bento"><div class="flex items-center justify-between mb-2 px-1"><span class="text-[11px] font-bold">${col[0]}</span><span class="tabnum text-[10px] font-bold" style="color:${col[2]}">${col[1]}</span></div><div class="space-y-1.5">${Array.from({length:col[1]}).map((_,i)=>`<div class="p-2 rounded-md bg-[#fafafa] border border-[#eee]"><div class="font-bold text-[10px]">Candidate ${i+1}</div><div class="text-[9px] text-[#737373]">Cloud & IT · 8${7-i}%</div></div>`).join('')}</div></div>`).join('')}</div>`,
+'employer-queue':()=>kpis([{l:'Total',v:'7',c:C.crimson},{l:'Review today',v:'5'},{l:'Stale 48h',v:'1',c:C.gold},{l:'Interview',v:'1',c:C.info},{l:'Jobs pending',v:'2'},{l:'Unread',v:'3'}])+
+  table(['Priority','Task','Detail','Age','Action'],[
+    [tag('High','alert'),'Review 5 applications','Cloud Support role','<24h','<button class="text-[10px] font-bold text-[#ad2c4d]">Review</button>'],
+    [tag('Med','warn'),'Stale match','No contact in 48h','2d','<button class="text-[10px] font-bold text-[#ad2c4d]">Open</button>'],
+    [tag('Low','info'),'Schedule interview','Candidate accepted','5h','<button class="text-[10px] font-bold text-[#ad2c4d]">Schedule</button>'],
+  ],'Work queue'),
+
+/* PARTNER */
+'partner-home':()=>kpis([{l:'Referred',v:'142',c:C.info},{l:'In Training',v:'88'},{l:'Certified',v:'37',c:C.gold},{l:'Placed',v:'38',c:C.green},{l:'Placement %',v:'27%',c:C.green},{l:'Need Attn',v:'5',c:C.crimson}])+
+  `<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">${miniqueue('Needs attention',[{c:C.crimson,bg:'#fdf2f4',t:'Devon Hill',m:'No activity 12d',a:'Check'},{c:C.crimson,bg:'#fdf2f4',t:'Maria Santos',m:'Stalled training',a:'Check'},{c:C.gold,bg:'#FEF3C7',t:'Lena Ortiz',m:'Reply overdue',a:'Nudge'}])}${bars('Members by stage',[{l:'Approved',v:'142',p:100,c:C.info},{l:'In training',v:'88',p:62,c:C.info},{l:'Certified',v:'37',p:26,c:C.gold},{l:'Placed',v:'38',p:27,c:C.green}])}</div>`,
+'partner-attention':()=>`<div class="flex gap-1.5 mb-3">${['High · 2','Medium · 4','Watch · 3','All · 9'].map((f,i)=>`<button class="px-3 py-1.5 rounded text-[11px] font-bold ${i===0?'bg-[#ad2c4d] text-white':'bg-white border border-[#e4e4e4]'} focus-ring">${f}</button>`).join('')}</div>`+
+  table(['Member','Tier','Flag','Program','Owner','Next action'],[
+    ['<b>Devon Hill</b>',tag('High','alert'),'No activity 12d','Manufacturing','You','<button class="text-[10px] font-bold text-[#ad2c4d]">Check in</button>'],
+    ['<b>Maria Santos</b>',tag('High','alert'),'Stalled training','Healthcare','You','<button class="text-[10px] font-bold text-[#ad2c4d]">Check in</button>'],
+    ['<b>Lena Ortiz</b>',tag('Med','warn'),'Reply overdue','Data & AI','Counselor','<button class="text-[10px] font-bold text-[#ad2c4d]">Nudge</button>'],
+    ['<b>Sam Cole</b>',tag('Med','warn'),'Assessment incomplete','Trades','You','<button class="text-[10px] font-bold text-[#ad2c4d]">Nudge</button>'],
+  ],'Attention queue'),
+'partner-outcomes':()=>kpis([{l:'Placement %',v:'27%',c:C.green},{l:'Avg Wage',v:'$56k'},{l:'Certified',v:'37',c:C.gold},{l:'Completions',v:'61',c:C.info},{l:'Retention',v:'84%'},{l:'Referrals',v:'142'}])+
+  `<div class="grid grid-cols-1 lg:grid-cols-2 gap-3">${bars('Placements by program',[{l:'Cloud & IT',v:'14',p:100,c:C.info},{l:'Healthcare',v:'11',p:79,c:C.info},{l:'Data & AI',v:'7',p:50,c:C.info},{l:'Trades',v:'6',p:43,c:C.info}])}${table(['Export','Scope'],[['Outcomes CSV','Placements + wages · Q2','<button class="text-[10px] font-bold text-[#ad2c4d]">Download</button>'],['Demographics','Funder report','<button class="text-[10px] font-bold text-[#ad2c4d]">Download</button>'],['Full referrals','All 142','<button class="text-[10px] font-bold text-[#ad2c4d]">Download</button>']].map(r=>[r[0],r[1],r[2]]),'Funder exports')}</div>`,
+
+/* COUNSELOR */
+'counselor-home':()=>kpis([{l:'Caseload',v:'156',c:C.info},{l:'Urgent',v:'3',c:C.crimson},{l:'Watch',v:'7',c:C.gold},{l:'Wins',v:'4',c:C.green},{l:'Unread',v:'5'},{l:'Avg reply',v:'2.1h'}])+
+  `<div class="grid grid-cols-1 lg:grid-cols-3 gap-3"><div class="lg:col-span-2">${table(['Member','Flag','Program','Last active','Action'],[['<b>Carlos Torres</b>',tag('Inactive','alert'),'Trades','16d','<button class="text-[10px] font-bold text-[#ad2c4d]">Call</button>'],['<b>Tanya Reed</b>',tag('Overdue 52h','alert'),'Healthcare','3d','<button class="text-[10px] font-bold text-[#ad2c4d]">Reply</button>'],['<b>Devon Hill</b>',tag('Inactive','alert'),'Manufacturing','11d','<button class="text-[10px] font-bold text-[#ad2c4d]">Call</button>']],'Urgent today')}</div>${miniqueue('Celebrate (4)',[{c:C.info,bg:'#eef5fb',t:'Aisha Williams',m:'Cert earned',a:'Send'},{c:C.info,bg:'#eef5fb',t:'Marcus Lee',m:'Course done',a:'Send'}])}</div>`,
+'counselor-triage':()=>kpis([{l:'Red',v:'3',c:C.crimson},{l:'Yellow',v:'7',c:C.gold},{l:'Blue',v:'4',c:C.info},{l:'Caseload',v:'156'},{l:'SLA breaches',v:'2',c:C.crimson},{l:'Avg reply',v:'2.1h'}])+
+  `<div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+   ${['red','yellow','blue'].map(t=>{const cfg={red:[C.crimson,'Urgent — today',[['Carlos Torres','No activity 16d'],['Tanya Reed','Reply overdue 52h'],['Devon Hill','No activity 11d']]],yellow:[C.gold,'Watch — this week',[['Sam Cole','Assessment incomplete'],['Nia Foster','SLA warning 30h'],['Jordan Pike','Stale training']]],blue:[C.info,'Celebrate',[['Aisha Williams','Cert earned'],['Marcus Lee','Course done']]]}[t];return `<div class="card !p-0 bento overflow-hidden"><div class="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-white" style="background:${cfg[0]}">${cfg[1]} · ${cfg[2].length}</div><div class="divide-y divide-[#f2f2f2]">${cfg[2].map(r=>`<div class="px-3 py-2 hover:bg-[#fafafa] cursor-pointer"><div class="font-bold text-[11px]">${r[0]}</div><div class="text-[10px] text-[#737373]">${r[1]}</div></div>`).join('')}</div></div>`;}).join('')}</div>`,
+'counselor-atrisk':()=>kpis([{l:'Critical ≥70',v:'3',c:C.crimson},{l:'High 50-69',v:'8',c:C.gold},{l:'Medium 30-49',v:'14',c:C.info},{l:'Low <30',v:'131',c:C.green},{l:'Avg score',v:'22'},{l:'Trend',v:'↓ 4',c:C.green}])+
+  table(['Member','Score','Level','Top factors','Last active','Action'],[
+    ['<b>Carlos Torres</b>','82',tag('Critical','alert'),'No login 14d · Stalled training','16d','<button class="text-[10px] font-bold text-[#ad2c4d]">Outreach</button>'],
+    ['<b>Devon Hill</b>','71',tag('Critical','alert'),'No login 14d · No applications','11d','<button class="text-[10px] font-bold text-[#ad2c4d]">Outreach</button>'],
+    ['<b>Sam Cole</b>','58',tag('High','warn'),'Assessment incomplete','6d','<button class="text-[10px] font-bold text-[#ad2c4d]">Monitor</button>'],
+    ['<b>Nia Foster</b>','52',tag('High','warn'),'No resume · No applications','4d','<button class="text-[10px] font-bold text-[#ad2c4d]">Monitor</button>'],
+  ],'At-risk members'),
+
+/* ADMIN */
+'admin-home':()=>kpis([{l:'Students',v:'847',c:C.info},{l:'Placements',v:'213',c:C.green},{l:'Completion',v:'71%',c:C.gold},{l:'At Risk',v:'19',c:C.crimson},{l:'Job-Ready',v:'64'},{l:'New (mo)',v:'+32',c:C.green}])+
+  `<div class="grid grid-cols-1 lg:grid-cols-3 gap-3"><div class="lg:col-span-2">${table(['Priority','Item','Detail','Action'],[[tag('High','alert'),'5 inactive 14d+','Cloud & IT cohort','<button class="text-[10px] font-bold text-[#ad2c4d]">Assign</button>'],[tag('Med','warn'),'12 certs to approve','Verify for outcomes','<button class="text-[10px] font-bold text-[#ad2c4d]">Review</button>'],[tag('Med','info'),'8 eligibility reviews','WIOA pending','<button class="text-[10px] font-bold text-[#ad2c4d]">Open</button>'],[tag('Low','ok'),'3 placements to confirm','Employer reported','<button class="text-[10px] font-bold text-[#ad2c4d]">Confirm</button>']],'What needs you today')}</div>${bars('Program health',[{l:'Cloud & IT',v:'74%',p:74,c:C.green},{l:'Healthcare',v:'81%',p:81,c:C.green},{l:'Data & AI',v:'68%',p:68,c:C.green},{l:'Trades',v:'52%',p:52,c:C.crimson},{l:'Mfg',v:'70%',p:70,c:C.green}])}</div>`,
+'admin-students':()=>`<div class="flex gap-1.5 mb-3">${['All · 847','Job-Ready · 64','Interview-Ready · 88','In Training · 612','At Risk · 19'].map((f,i)=>`<button class="px-3 py-1.5 rounded text-[11px] font-bold ${i===0?'bg-[#ad2c4d] text-white':'bg-white border border-[#e4e4e4]'} focus-ring">${f}</button>`).join('')}</div>`+
+  table(['Student','Program','Progress','Readiness','Counselor','Status','Last active'],[
+    ['<b>Mike Brown</b>','Cloud & IT','78%','<b style="color:#4a9b4f">84</b>','S. Chen',tag('Job-Ready','warn'),'2h'],
+    ['<b>Jasmine Davis</b>','Healthcare','92%','<b style="color:#4a9b4f">91</b>','R. Patel',tag('Placed','ok'),'1d'],
+    ['<b>Carlos Torres</b>','Trades','34%','<b style="color:#ad2c4d">41</b>','S. Chen',tag('At Risk','alert'),'16d'],
+    ['<b>Aisha Williams</b>','Data & AI','88%','<b style="color:#4a9b4f">79</b>','R. Patel',tag('Interviewing','info'),'5h'],
+  ],'All students · 847'),
+'admin-board':()=>kpis([{l:'Placement %',v:'68%',c:C.green},{l:'Avg Wage',v:'$58k'},{l:'Credentials',v:'541',c:C.gold},{l:'Retention 90d',v:'84%',c:C.info},{l:'Placements',v:'213',c:C.green},{l:'Cohorts',v:'3'}])+
+  `<div class="grid grid-cols-1 lg:grid-cols-3 gap-3"><div class="lg:col-span-2 card bento"><div class="font-bold text-xs mb-3">Placements by month · 213 YTD</div><div class="flex items-end justify-between gap-2 h-32">${[38,46,55,62,78,90].map((h,i)=>`<div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t" style="height:${h}%;background:${i===5?C.crimson:'#f3d4dc'}"></div><span class="text-[8px] text-[#737373] font-bold">${['Jan','Feb','Mar','Apr','May','Jun'][i]}</span></div>`).join('')}</div></div>${bars('By program',[{l:'Cloud & IT',v:'82',p:100,c:C.info},{l:'Healthcare',v:'61',p:74,c:C.info},{l:'Data & AI',v:'38',p:46,c:C.info},{l:'Mfg',v:'22',p:27,c:C.info},{l:'Trades',v:'10',p:12,c:C.info}])}</div>`,
+};
+
+let cur={p:'member',s:'home'};
+const prail=document.getElementById('prail'),stabs=document.getElementById('stabs'),stage=document.getElementById('stage');
+PERSONAS.forEach(p=>{const b=document.createElement('button');b.className='nav-p w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded font-semibold text-left text-[#cfcfcf] hover:bg-[#242424] focus-ring';b.dataset.p=p.id;b.innerHTML=`<i class="fa-solid ${p.ic} w-4 text-center text-[12px] text-[#888]"></i>${p.t}`;b.onclick=()=>{cur={p:p.id,s:p.screens[0][0]};render();};prail.appendChild(b);});
+function render(){
+  const P=PERSONAS.find(x=>x.id===cur.p);
+  document.getElementById('ptitle').textContent=P.t;
+  document.getElementById('pgoal').innerHTML=`<i class="fa-solid fa-bullseye text-[#ad2c4d] mr-1"></i><b>Goal:</b> ${P.goal}`;
+  stabs.innerHTML=P.screens.map(s=>`<button data-s="${s[0]}" class="px-3 py-1.5 text-[13px] font-semibold rounded-t border-b-2 ${s[0]===cur.s?'border-[#ad2c4d] text-[#ad2c4d]':'border-transparent text-[#737373] hover:text-[#1a1a1a]'}">${s[1]}</button>`).join('');
+  stabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{cur.s=b.dataset.s;render();});
+  const fn=S[cur.p+'-'+cur.s];
+  stage.innerHTML=`<div class="fade">${fn?fn():'<div class="card">Screen pending.</div>'}</div>`;
+  prail.querySelectorAll('.nav-p').forEach(b=>{const on=b.dataset.p===cur.p;b.classList.toggle('bg-[#ad2c4d]',on);b.classList.toggle('text-white',on);b.classList.toggle('text-[#cfcfcf]',!on);});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

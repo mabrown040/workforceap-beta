@@ -120,28 +120,80 @@ function deriveMissingMetrics(parsed: ParsedMatchOutput | null): string[] {
   return metrics.slice(0, 3);
 }
 
-function deriveBulletSuggestions(parsed: ParsedMatchOutput | null): BulletSuggestion[] {
+const BULLET_STOPWORDS = new Set([
+  'with', 'that', 'this', 'from', 'your', 'have', 'will', 'into', 'more',
+  'them', 'they', 'their', 'about', 'which', 'using', 'used', 'role', 'roles',
+  'resume', 'consider', 'adding', 'include', 'highlight', 'emphasize', 'quantify',
+  'should', 'could', 'would', 'where', 'when', 'what', 'than', 'then', 'such',
+]);
+
+function bulletKeywords(text: string): string[] {
+  return Array.from(
+    new Set(
+      (text.toLowerCase().match(/[a-z][a-z0-9+#.]{3,}/g) ?? []).filter(
+        (w) => !BULLET_STOPWORDS.has(w)
+      )
+    )
+  );
+}
+
+// Pull candidate resume bullet/lines from the member's actual pasted resume so
+// the "Before" we show is the user's real content — never invented text.
+function resumeBulletLines(resumeText: string): string[] {
+  return resumeText
+    .split('\n')
+    .map((line) => line.replace(/^\s*[•\-*–·●○▪►]+\s*/, '').trim())
+    .filter((line) => {
+      const words = line.split(/\s+/).filter(Boolean);
+      return words.length >= 4 && line.length <= 320;
+    });
+}
+
+function deriveBulletSuggestions(
+  parsed: ParsedMatchOutput | null,
+  resumeText: string
+): BulletSuggestion[] {
   if (!parsed || parsed.quickWins.length === 0) return [];
-  
-  // Convert quick wins into before/after suggestions
-  return parsed.quickWins.slice(0, 2).map((win, idx) => {
-    // Generate a generic "before" based on the win type
-    let before = 'Current bullet point lacks specific details';
-    if (/keyword|skill|tool/i.test(win)) {
-      before = 'Used various tools and skills in previous roles';
-    } else if (/highlight|prominent|emphasize/i.test(win)) {
-      before = 'Responsible for project deliverables';
-    } else if (/quantif|metric|number/i.test(win)) {
-      before = 'Improved team efficiency and productivity';
-    } else if (/lead|manage|team/i.test(win)) {
-      before = 'Worked with team members on various projects';
-    }
-    
-    return {
-      before,
+
+  const lines = resumeBulletLines(resumeText);
+  if (lines.length === 0) return [];
+
+  const usedLineIndexes = new Set<number>();
+  const suggestions: BulletSuggestion[] = [];
+
+  for (const win of parsed.quickWins) {
+    if (suggestions.length >= 2) break;
+
+    const winKeywords = bulletKeywords(win);
+    if (winKeywords.length === 0) continue;
+
+    // Find the member's own resume line that best overlaps the quick-win's
+    // keywords. Only pair a suggestion when we can anchor it to real content.
+    let bestIdx = -1;
+    let bestScore = 0;
+    lines.forEach((line, idx) => {
+      if (usedLineIndexes.has(idx)) return;
+      const lineLower = line.toLowerCase();
+      const score = winKeywords.reduce(
+        (acc, kw) => (lineLower.includes(kw) ? acc + 1 : acc),
+        0
+      );
+      if (score > bestScore) {
+        bestScore = score;
+        bestIdx = idx;
+      }
+    });
+
+    if (bestIdx === -1 || bestScore === 0) continue;
+
+    usedLineIndexes.add(bestIdx);
+    suggestions.push({
+      before: lines[bestIdx],
       after: win,
-    };
-  });
+    });
+  }
+
+  return suggestions;
 }
 
 function extractSkillsFromAnalysis(parsed: ParsedMatchOutput | null, resumeText: string, jobDesc: string): { matched: string[]; missing: string[] } {
@@ -279,7 +331,7 @@ export default function JobMatchScorerForm() {
   // Derive display data from parsed output
   const sectionAuditCards = deriveSectionAuditCards(parsedOutput, resume);
   const missingMetrics = deriveMissingMetrics(parsedOutput);
-  const bulletSuggestions = deriveBulletSuggestions(parsedOutput);
+  const bulletSuggestions = deriveBulletSuggestions(parsedOutput, resume);
   const { matched: matchedSkills, missing: missingSkills } = extractSkillsFromAnalysis(parsedOutput, resume, jobDescription);
   const scorePercent = parsedOutput?.matchScore ?? 0;
 

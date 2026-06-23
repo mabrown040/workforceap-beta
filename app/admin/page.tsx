@@ -4,11 +4,20 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser, withAuthGuc } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { Bell, TriangleAlert, UserPlus, Briefcase, Award } from 'lucide-react';
 import { prisma } from '@/lib/db/prisma';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
 import { getTriageDigest, type TriageDigest } from '@/lib/admin/triageDigest';
+import { getAdminCommandCenter, type AdminCommandCenter } from '@/lib/admin/commandCenter';
 import TriageDigestSection from '@/components/admin/TriageDigestSection';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
+import {
+  CommandCenterKit,
+  type CommandCenterQueueItem,
+  type ProgramHealthDatum,
+} from '@/components/portal/kit/pages/admin/CommandCenterKit';
+import type { KpiItem, ChartDatum } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -25,12 +34,185 @@ export async function generateMetadata(): Promise<Metadata> {
  * cards, alerts, recent tables, super-admin views, quick links) lives one
  * click away at /admin/overview.
  */
-export default async function AdminTodayPage() {
+export default async function AdminTodayPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login');
 
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+
+  // ?ui=kit DEFAULT PATH — the admin HOME now renders the Command Center look
+  // (KPI strip + "What needs you today" work queue + Program Health + Placements
+  // by month), matching docs/mockups/workforceap-admin-full.html. Fed by the
+  // real command-center loader plus a few cheap org-scoped counts — no
+  // fabricated numbers. Runs AFTER the auth/role guard (access control preserved).
+  // Legacy "Today" view via ?ui=legacy.
+  if (requestedUi !== 'legacy') {
+    const yearStart = new Date(new Date().getUTCFullYear(), 0, 1);
+
+    const { data, headline } = await withAuthGuc(async () => {
+      const orgId = await getActorOrganizationId(user.id);
+      const [center, activeStudents, placementRows] = await Promise.all([
+        getAdminCommandCenter(user.id, { perSectionLimit: 8 }).catch((): AdminCommandCenter => ({
+          needsReply: [],
+          atRisk: [],
+          interviewing: [],
+          applicationsPending: [],
+          programHealth: [],
+          totals: {
+            needsReplyCount: 0,
+            atRiskCount: 0,
+            interviewingCount: 0,
+            applicationsPendingCount: 0,
+            certificationsPendingCount: 0,
+            oldestPendingApplicationDays: null,
+          },
+        })),
+        prisma.user
+          .count({ where: { organizationId: orgId, deletedAt: null, enrolledProgram: { not: null } } })
+          .catch(() => 0),
+        prisma.placementRecord
+          .findMany({
+            where: { user: { organizationId: orgId, deletedAt: null }, placedAt: { gte: yearStart } },
+            select: { placedAt: true },
+          })
+          .catch(() => [] as Array<{ placedAt: Date }>),
+      ]);
+      return { data: center, headline: { activeStudents, placementRows } };
+    }).catch(() => ({
+      data: {
+        needsReply: [],
+        atRisk: [],
+        interviewing: [],
+        applicationsPending: [],
+        programHealth: [],
+        totals: {
+          needsReplyCount: 0,
+          atRiskCount: 0,
+          interviewingCount: 0,
+          applicationsPendingCount: 0,
+          certificationsPendingCount: 0,
+          oldestPendingApplicationDays: null,
+        },
+      } as AdminCommandCenter,
+      headline: { activeStudents: 0, placementRows: [] as Array<{ placedAt: Date }> },
+    }));
+
+    const { totals } = data;
+
+    // Placements by month (Jan→current month, YTD).
+    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const thisMonth = new Date().getUTCMonth();
+    const monthBuckets = new Array(thisMonth + 1).fill(0);
+    for (const row of headline.placementRows) {
+      const m = row.placedAt.getUTCMonth();
+      if (m >= 0 && m <= thisMonth) monthBuckets[m] += 1;
+    }
+    const placementsByMonth: ChartDatum[] = monthBuckets.map((value, i) => ({ label: monthLabels[i], value }));
+    const placementsYtd = headline.placementRows.length;
+
+    const interviewingShare =
+      headline.activeStudents > 0
+        ? `${Math.round((totals.interviewingCount / headline.activeStudents) * 100)}%`
+        : '—';
+
+    const kpis: KpiItem[] = [
+      {
+        label: 'Active Students',
+        value: headline.activeStudents,
+        color: 'text',
+        delta: `${headline.activeStudents} enrolled`,
+        deltaColor: 'success',
+      },
+      { label: 'Placements YTD', value: placementsYtd, color: 'success', delta: 'this year', deltaColor: 'success' },
+      { label: 'Interviewing Share', value: interviewingShare, color: 'info', delta: 'of enrolled', deltaColor: 'muted' },
+      { label: 'At Risk', value: totals.atRiskCount, color: 'accent', delta: 'need outreach', deltaColor: 'accent' },
+    ];
+
+    const queueItems: CommandCenterQueueItem[] = [
+      {
+        id: 'at-risk',
+        icon: <TriangleAlert size={14} aria-hidden />,
+        iconColor: 'var(--wa-accent)',
+        title: `${totals.atRiskCount} ${totals.atRiskCount === 1 ? 'student' : 'students'} inactive 14+ days`,
+        detail: 'Enrolled, gone quiet — likely to drop',
+        actionLabel: `${totals.atRiskCount} items`,
+        urgent: totals.atRiskCount > 0,
+        href: '/admin/command-center?ui=legacy',
+      },
+      {
+        id: 'needs-reply',
+        icon: <Bell size={14} aria-hidden />,
+        iconColor: 'var(--wa-info)',
+        title: `${totals.needsReplyCount} ${totals.needsReplyCount === 1 ? 'message' : 'messages'} awaiting your reply`,
+        detail: 'Members are waiting on a response',
+        actionLabel: `${totals.needsReplyCount} items`,
+        href: '/admin/messages',
+      },
+      {
+        id: 'applications',
+        icon: <UserPlus size={14} aria-hidden />,
+        iconColor: 'var(--wa-gold)',
+        title: `${totals.applicationsPendingCount} ${totals.applicationsPendingCount === 1 ? 'application needs' : 'applications need'} review`,
+        detail: 'Eligibility + program-fit review pending',
+        actionLabel: `${totals.applicationsPendingCount} items`,
+        href: '/admin/command-center?ui=legacy',
+      },
+      {
+        id: 'certifications',
+        icon: <Award size={14} aria-hidden />,
+        iconColor: 'var(--wa-gold)',
+        title: `${totals.certificationsPendingCount} ${totals.certificationsPendingCount === 1 ? 'certification' : 'certifications'} awaiting review`,
+        detail: 'Verify proof to count toward outcomes',
+        actionLabel: `${totals.certificationsPendingCount} items`,
+        urgent: totals.certificationsPendingCount > 0,
+        href: '/admin/certifications',
+      },
+      {
+        id: 'interviewing',
+        icon: <Briefcase size={14} aria-hidden />,
+        iconColor: 'var(--wa-success)',
+        title: `${totals.interviewingCount} ${totals.interviewingCount === 1 ? 'candidate' : 'candidates'} interviewing`,
+        detail: 'Phone screens, interviews, and offers to prep',
+        actionLabel: `${totals.interviewingCount} items`,
+        href: '/admin/placements',
+      },
+    ];
+
+    const programHealth: ProgramHealthDatum[] = data.programHealth.map((row) => ({
+      label: row.label,
+      value: `${row.count} · ${row.pct}%`,
+      pct: row.pct,
+      color: 'success',
+    }));
+
+    const dateLabel = new Intl.DateTimeFormat('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(new Date());
+
+    return (
+      <CommandCenterKit
+        dateLabel={dateLabel}
+        kpis={kpis}
+        queueItems={queueItems}
+        programHealth={programHealth}
+        placementsByMonth={placementsByMonth}
+        placementsSubtitle={`${new Date().getUTCFullYear()} YTD · ${placementsYtd} total`}
+        addStudentHref="/admin/members/new"
+      />
+    );
+  }
 
   // "Today" is the operator's local day. Server runs in UTC; using UTC day
   // start is good enough for a count at-a-glance and avoids a tz dependency.

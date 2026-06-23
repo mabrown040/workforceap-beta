@@ -10,7 +10,6 @@ import PageHeader from '@/components/portal/PageHeader';
 import { DefinitionList, DefinitionRow } from '@/components/portal/ui/DefinitionList';
 import PartnerNotificationPrefs from '@/components/partner/PartnerNotificationPrefs';
 import PartnerContactEditForm from '@/components/partner/PartnerContactEditForm';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -48,7 +47,7 @@ export default async function PartnerSettingsPage() {
       tourCompletedAt: true,
     },
   });
-  if (!partner) redirect('/dashboard');
+  if (!partner) redirect(await unlinkedPartnerHref(user.id));
 
   return (
     <>
@@ -98,7 +97,6 @@ export default async function PartnerSettingsPage() {
         <a href="mailto:info@workforceap.org">contact our team</a>.
       </p>
       </div>
-      <MobileBottomNav variant="partner" />
     </>
   );
 }

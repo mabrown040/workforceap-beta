@@ -901,10 +901,10 @@ export default function AtRiskDashboard() {
                       </button>
                     )}
                     <Link
-                      href={`/dashboard/messages?to=${encodeURIComponent(row.userId)}`}
+                      href={`/counselor/students/${encodeURIComponent(row.userId)}#counselor-member-messages`}
                       className="btn btn-outline btn-sm"
                       style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
-                      title="Open internal message thread with this member"
+                      title="Open the counselor message thread with this member"
                     >
                       <MessageSquare size={12} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
                       Message
@@ -957,7 +957,7 @@ export default function AtRiskDashboard() {
       )}
 
       {/* Mobile cards */}
-      <div className="wa-block md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="wa-block md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem' }}>
         {filteredMembers.length === 0 ? (
           <PortalEmptyState
             title="No at-risk members match your filters"
@@ -1213,10 +1213,10 @@ function MobileAtRiskCard({
         </span>
         <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
           <Link
-            href={`/dashboard/messages?to=${encodeURIComponent(row.userId)}`}
+            href={`/counselor/students/${encodeURIComponent(row.userId)}#counselor-member-messages`}
             className="btn btn-outline btn-sm"
             style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
-            title="Open internal message thread with this member"
+            title="Open the counselor message thread with this member"
           >
             <MessageSquare size={12} style={{ marginRight: '0.35rem', verticalAlign: 'middle' }} />
             Message

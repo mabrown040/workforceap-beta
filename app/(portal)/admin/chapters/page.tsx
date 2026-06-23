@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import PortalPageFrame from "@/components/portal/PortalPageFrame";
 import PageHeader from "@/components/portal/PageHeader";
 import DataTable, { type DataTableColumn } from "@/components/portal/ui/DataTable";
@@ -69,11 +68,7 @@ export default function AdminChaptersPage() {
     {
       key: "name",
       header: "Name",
-      cell: (ch) => (
-        <Link href={`/admin/chapters/${ch.id}`} className="text-blue-600 hover:underline">
-          {ch.name}
-        </Link>
-      ),
+      cell: (ch) => <span className="font-medium text-gray-900">{ch.name}</span>,
     },
     { key: "location", header: "Location", cell: (ch) => `${ch.city || ""}${ch.state ? `, ${ch.state}` : ""}` },
     { key: "leader", header: "Leader", cell: (ch) => ch.leader?.fullName || "—" },

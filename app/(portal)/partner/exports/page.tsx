@@ -6,7 +6,6 @@ import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -44,9 +43,6 @@ export default async function PartnerExportsPage() {
         <a href="/api/partner/export/referrals?preset=demographics" className="btn btn-muted">
           Demographics + placement (funder reporting)
         </a>
-      </div>
-      <div className="md:wa-hidden">
-        <MobileBottomNav variant="partner" />
       </div>
     </div>
     </PortalPageFrame>

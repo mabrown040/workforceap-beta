@@ -12,6 +12,11 @@ import TrainingProgressClient, {
   type CurriculumRow,
   type RawCourseraRow,
 } from '@/components/admin/TrainingProgressClient';
+import {
+  TrainingProgressKit,
+  type TrainingRow,
+  type Pace,
+} from '@/components/portal/kit/pages/admin-subviews/TrainingProgressKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -24,11 +29,181 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminTrainingProgressPage() {
+/** Members idle this long (with incomplete work) count as Stalled. */
+const STALLED_IDLE_DAYS = 21;
+
+export default async function AdminTrainingProgressPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/training-progress');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
+  const params = (await searchParams) ?? {};
+  const requestedUi = typeof params.ui === 'string' ? params.ui : null;
+
+  // ─── Legacy: the original sortable dual-table (canonical + raw Coursera) ───
+  if (requestedUi === 'legacy') {
+    return renderLegacy();
+  }
+
+  // ─── DEFAULT: lean per-learner pace roster (design kit) ───
+  // One pass over members + their primary enrollment + canonical course
+  // progress. All lean (findMany take:N / count); no $transaction, no HTTP.
+  const [learnersResult, enrollmentsResult, progressResult] = await Promise.allSettled([
+    prisma.user.findMany({
+      take: 5000,
+      where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },
+      orderBy: [{ fullName: 'asc' }],
+      select: { id: true, fullName: true, enrolledProgram: true },
+    }),
+    // Primary program per learner drives the single pace row we show.
+    prisma.courseEnrollment.findMany({
+      take: 5000,
+      where: { isPrimary: true },
+      select: { userId: true, programSlug: true },
+    }),
+    prisma.courseProgress.findMany({
+      take: 20000,
+      select: {
+        userId: true,
+        programSlug: true,
+        courseSlug: true,
+        status: true,
+        percentComplete: true,
+        lastActivityAt: true,
+      },
+    }),
+  ]);
+
+  // If we can't load learners we degrade to the proven legacy view rather than
+  // render a fake/empty kit.
+  if (learnersResult.status === 'rejected') {
+    console.error('[admin/training-progress] learner load failed', learnersResult.reason);
+    redirect('/admin/training-progress?ui=legacy');
+  }
+
+  const learners = learnersResult.value;
+
+  // Primary program per learner (falls back to legacy User.enrolledProgram
+  // when no CourseEnrollment row exists yet — e.g. seeded users).
+  const primaryByUser = new Map<string, string>();
+  if (enrollmentsResult.status === 'fulfilled') {
+    for (const e of enrollmentsResult.value) {
+      if (!primaryByUser.has(e.userId)) primaryByUser.set(e.userId, e.programSlug);
+    }
+  } else {
+    console.error(
+      '[admin/training-progress] enrollment load failed',
+      enrollmentsResult.reason,
+    );
+  }
+
+  // Progress keyed by user+program+course; tracks the most recent activity per
+  // (user, program) for the Stalled heuristic.
+  const progressByKey = new Map<
+    string,
+    { status: string; percentComplete: number }
+  >();
+  const lastActivityByUserProgram = new Map<string, Date>();
+  if (progressResult.status === 'fulfilled') {
+    for (const p of progressResult.value) {
+      progressByKey.set(`${p.userId}:${p.programSlug}:${p.courseSlug}`, {
+        status: p.status,
+        percentComplete: p.percentComplete,
+      });
+      if (p.lastActivityAt) {
+        const upKey = `${p.userId}:${p.programSlug}`;
+        const cur = lastActivityByUserProgram.get(upKey);
+        if (!cur || p.lastActivityAt > cur) {
+          lastActivityByUserProgram.set(upKey, p.lastActivityAt);
+        }
+      }
+    }
+  } else {
+    console.error(
+      '[admin/training-progress] progress load failed',
+      progressResult.reason,
+    );
+  }
+
+  const idleCutoff = new Date();
+  idleCutoff.setDate(idleCutoff.getDate() - STALLED_IDLE_DAYS);
+
+  /**
+   * Pace heuristic (lean — derived from % complete + recency):
+   *   Ahead    → ≥ 85% complete (and not yet fully done counts as ahead too)
+   *   Stalled  → incomplete AND no activity in the idle window (or never active)
+   *   Behind   → < 40% complete but recently active
+   *   On track → everything else
+   */
+  function derivePace(percent: number, lastActivity: Date | undefined): Pace {
+    const complete = percent >= 100;
+    if (percent >= 85) return 'Ahead';
+    if (!complete && (!lastActivity || lastActivity < idleCutoff)) return 'Stalled';
+    if (percent < 40) return 'Behind';
+    return 'On track';
+  }
+
+  const rows: TrainingRow[] = [];
+  for (const learner of learners) {
+    const programSlug = primaryByUser.get(learner.id) ?? learner.enrolledProgram;
+    if (!programSlug) continue; // not enrolled in anything we can chart
+    const program = getProgramBySlug(programSlug);
+    if (!program || program.courses.length === 0) continue;
+
+    const total = program.courses.length;
+    let done = 0;
+    let percentSum = 0;
+    for (const course of program.courses) {
+      const prog = progressByKey.get(`${learner.id}:${programSlug}:${course.slug}`);
+      if (prog?.status === 'COMPLETED') done += 1;
+      percentSum += prog?.percentComplete ?? 0;
+    }
+    const percentComplete = Math.round(percentSum / total);
+
+    // Skip learners with literally zero engagement in their program so the
+    // roster reflects *active* training, matching the mockup's live framing.
+    const lastActivity = lastActivityByUserProgram.get(`${learner.id}:${programSlug}`);
+    if (percentComplete === 0 && done === 0 && !lastActivity) continue;
+
+    rows.push({
+      id: `${learner.id}:${programSlug}`,
+      student: learner.fullName?.trim() || 'Unnamed learner',
+      program: program.title,
+      modulesDone: done,
+      modulesTotal: total,
+      percentComplete,
+      pace: derivePace(percentComplete, lastActivity),
+    });
+  }
+
+  // Sort most-complete first so the live, healthy learners lead.
+  rows.sort((a, b) => b.percentComplete - a.percentComplete);
+
+  const onTrack = rows.filter((r) => r.pace === 'On track' || r.pace === 'Ahead').length;
+  const behind = rows.filter((r) => r.pace === 'Behind').length;
+  const stalled = rows.filter((r) => r.pace === 'Stalled').length;
+  const avgPercent =
+    rows.length > 0
+      ? Math.round(rows.reduce((s, r) => s + r.percentComplete, 0) / rows.length)
+      : 0;
+
+  return (
+    <TrainingProgressKit
+      rows={rows}
+      onTrack={onTrack}
+      behind={behind}
+      stalled={stalled}
+      avgPercent={avgPercent}
+    />
+  );
+}
+
+/** Original sortable dual-table view (canonical curriculum + raw Coursera). */
+async function renderLegacy() {
   const learners = await prisma.user.findMany({
     take: 5000,
     where: { deletedAt: null, ...MEMBER_OR_DOGFOOD_WHERE },

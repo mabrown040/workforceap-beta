@@ -7,7 +7,6 @@ import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import PartnerMilestonesView from '@/components/partner/PartnerMilestonesView';
 import PartnerMilestonesMobile from '@/components/partner/PartnerMilestonesMobile';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -40,7 +39,6 @@ export default async function PartnerMilestonesPage() {
       {/* ── MOBILE SECTION ── */}
       <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
         <PartnerMilestonesMobile />
-        <MobileBottomNav variant="partner" />
       </div>
 
       {/* ── DESKTOP SECTION ── */}

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Bento Design Shotgun (off Variant A)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap');
+
+body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; -webkit-font-smoothing:antialiased; }
+.heading-font { font-family:'Plus Jakarta Sans','Inter',sans-serif; font-weight:800; letter-spacing:-0.03em; }
+.serif { font-family:'Newsreader',Georgia,serif; }
+
+/* Shared bento hover — color/shadow only, never transform-shift (ui-ux-pro-max: no layout shift) */
+.bento { transition: box-shadow .2s cubic-bezier(.4,0,.2,1), border-color .2s, background-color .2s; }
+
+/* WCAG AA focus ring (#ad2c4d on white halo) */
+.focus-ring:focus-visible { outline:none; box-shadow:0 0 0 2px #fff,0 0 0 4px #ad2c4d; }
+.focus-ring-dark:focus-visible { outline:none; box-shadow:0 0 0 2px #121212,0 0 0 4px #ad2c4d; }
+
+@keyframes fadeInUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.fade-in { animation: fadeInUp .4s cubic-bezier(.34,1.56,.64,1) forwards; }
+
+@media (prefers-reduced-motion: reduce){ .fade-in{animation:none} .bento{transition:none} .animate-ping{animation:none} }
+
+/* Progress ring helper */
+.ring-bg { stroke:#f0eef0; }
+</style>
+</head>
+<body class="bg-[#0f0f10] text-[#1A1A1A] min-h-screen flex flex-col">
+
+<!-- ============ CONTROLLER ============ -->
+<header class="bg-[#1A1A1A] text-white py-3 px-5 shadow-lg sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+    <div class="flex items-center gap-x-3">
+      <div class="w-8 h-8 bg-[#ad2c4d] rounded-lg flex items-center justify-center shrink-0">
+        <i class="fa-solid fa-burst text-white text-sm"></i>
+      </div>
+      <div>
+        <h1 class="text-sm font-bold tracking-tight">Bento Design Shotgun</h1>
+        <p class="text-[10px] text-[#A3A3A3]">6 directions off Variant A — same content, same tokens. Pick a winner.</p>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-1.5 bg-[#262626] rounded-xl p-1 border border-[#404040]">
+      <button data-shot="s1" class="shot-btn px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-[#ad2c4d] text-white">1 · Refined</button>
+      <button data-shot="s2" class="shot-btn px-3 py-1.5 text-[11px] font-semibold rounded-lg text-[#A3A3A3] hover:text-white">2 · Soft Clay</button>
+      <button data-shot="s3" class="shot-btn px-3 py-1.5 text-[11px] font-semibold rounded-lg text-[#A3A3A3] hover:text-white">3 · Editorial</button>
+      <button data-shot="s4" class="shot-btn px-3 py-1.5 text-[11px] font-semibold rounded-lg text-[#A3A3A3] hover:text-white">4 · Crimson</button>
+      <button data-shot="s5" class="shot-btn px-3 py-1.5 text-[11px] font-semibold rounded-lg text-[#A3A3A3] hover:text-white">5 · Stat-Dense</button>
+      <button data-shot="s6" class="shot-btn px-3 py-1.5 text-[11px] font-semibold rounded-lg text-[#A3A3A3] hover:text-white">6 · Gold</button>
+    </div>
+  </div>
+</header>
+
+<main class="flex-grow flex flex-col">
+
+<!-- ============================================================ -->
+<!-- SHOT 1 — REFINED BASELINE (bugs fixed, spacing polished)     -->
+<!-- ============================================================ -->
+<section data-shot-panel="s1" class="shot-panel flex-grow bg-[#F7F8FA] fade-in">
+  <div class="p-4 md:p-8"><div class="max-w-7xl mx-auto space-y-6">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-y-4">
+      <div>
+        <div class="flex items-center gap-x-2 text-xs font-bold text-[#ad2c4d] tracking-widest uppercase">
+          <i class="fa-solid fa-house-chimney"></i><span>Member Portal</span>
+        </div>
+        <h2 class="heading-font text-4xl mt-1">Welcome back, Mike.</h2>
+      </div>
+      <div class="px-4 py-2 bg-white border border-[#e8e8e8] rounded-full flex items-center gap-x-2 text-xs font-bold shadow-sm">
+        <i class="fa-solid fa-circle-check text-[#4a9b4f]"></i><span>AWS Practitioner: 78% Done</span>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[minmax(190px,auto)]">
+      <!-- progress 2x -->
+      <div class="md:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="px-3 py-1 rounded-full bg-emerald-50 text-[#4a9b4f] border border-emerald-100 text-[10px] font-bold tracking-wider uppercase">In Progress</span>
+            <h3 class="text-2xl font-extrabold tracking-tight mt-4">AWS Cloud Practitioner Essentials</h3>
+          </div>
+          <div class="text-right"><div class="text-5xl font-extrabold tracking-tighter text-[#ad2c4d] tabular-nums">78%</div><div class="text-[9px] text-[#737373] font-bold tracking-wider">COMPLETED</div></div>
+        </div>
+        <div class="space-y-3">
+          <div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 bg-[#ad2c4d] rounded-full" style="width:78%"></div></div>
+          <div class="flex justify-between text-xs text-[#737373] font-semibold"><span>Next: AWS Shared Responsibility Model</span><span class="text-[#ad2c4d]">Due Thursday</span></div>
+        </div>
+      </div>
+      <!-- toolkit crimson -->
+      <button class="text-left bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white rounded-3xl p-8 flex flex-col justify-between bento cursor-pointer shadow-lg shadow-red-900/10 hover:shadow-xl focus-ring">
+        <div class="flex justify-between items-start">
+          <div class="p-3 bg-white/10 rounded-2xl"><i class="fa-solid fa-wand-magic-sparkles text-xl"></i></div>
+          <span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/20 rounded-full">AI DRIVEN</span>
+        </div>
+        <div><h3 class="font-extrabold text-2xl tracking-tight">Career Toolkit</h3><p class="text-xs text-white/80 mt-1">Audit your resume and generate cover letters in seconds.</p></div>
+      </button>
+      <!-- ai advisor -->
+      <div class="bg-white border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md">
+        <div>
+          <div class="flex justify-between">
+            <div class="p-3 bg-[#f7f8fa] text-[#ad2c4d] rounded-2xl border border-[#e8e8e8]"><i class="fa-regular fa-comments text-xl"></i></div>
+            <span class="flex h-2 w-2 relative"><span class="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative rounded-full h-2 w-2 bg-[#ad2c4d]"></span></span>
+          </div>
+          <div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight">AI Advisor</h3><p class="text-xs text-[#737373] mt-1">Instant, 24/7 career feedback.</p></div>
+        </div>
+        <a href="#" class="text-xs text-[#ad2c4d] font-bold flex items-center gap-x-1.5 hover:underline focus-ring rounded"><span>1 unread message</span><i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <!-- pipeline 2x -->
+      <div class="md:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md">
+        <div>
+          <div class="flex justify-between items-start mb-6"><div><h3 class="font-extrabold text-xl tracking-tight">Active Job Pipeline</h3><p class="text-xs text-[#737373] mt-0.5">Tracking your local interview stages</p></div><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#f5f5f5] text-[#525252]">4 Active</span></div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3.5 bg-[#fafafa] border border-[#e8e8e8] rounded-2xl hover:bg-[#f5f5f5] transition-colors"><div class="flex items-center gap-x-3"><div class="w-10 h-10 rounded-xl bg-white border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">S</div><div><div class="font-bold text-xs">Salesforce Administrator</div><div class="text-[10px] text-[#737373] font-semibold uppercase">Deloitte • Austin, TX</div></div></div><span class="px-3 py-1 rounded-full bg-orange-100 text-amber-800 text-[10px] font-bold uppercase">Interviewing</span></div>
+            <div class="flex items-center justify-between p-3.5 bg-[#fafafa] border border-[#e8e8e8] rounded-2xl hover:bg-[#f5f5f5] transition-colors"><div class="flex items-center gap-x-3"><div class="w-10 h-10 rounded-xl bg-white border border-[#e8e8e8] flex items-center justify-center font-bold text-[#ad2c4d]">A</div><div><div class="font-bold text-xs">Agentforce Solutions Engineer</div><div class="text-[10px] text-[#737373] font-semibold uppercase">Accenture • Remote</div></div></div><span class="px-3 py-1 rounded-full bg-[#f5f5f5] text-[#525252] text-[10px] font-bold uppercase">Applied</span></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center border-t border-[#e8e8e8] pt-4 mt-6"><span class="text-[10px] text-[#737373] font-bold">LAST SYNCED: 3m ago</span><button class="px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">View Job Board</button></div>
+      </div>
+      <!-- learning hub -->
+      <div class="bg-white border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md">
+        <div><div class="p-3 w-fit bg-[#f7f8fa] text-[#2b7bb9] rounded-2xl border border-[#e8e8e8]"><i class="fa-solid fa-graduation-cap text-xl"></i></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight">Learning Hub</h3><p class="text-xs text-[#737373] mt-1">Your connected Coursera B2B courses.</p></div></div>
+        <a href="#" class="text-xs text-[#ad2c4d] font-bold flex items-center gap-x-1.5 hover:underline focus-ring rounded"><span>Go to courses</span><i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <!-- certs -->
+      <div class="bg-white border border-[#e8e8e8] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md">
+        <div><div class="p-3 w-fit bg-[#FEF3C7] text-[#a47f38] rounded-2xl"><i class="fa-solid fa-award text-xl"></i></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight">Certifications</h3><p class="text-xs text-[#737373] mt-1">You have earned 2 industry credentials.</p></div></div>
+        <div class="text-xs text-[#a47f38] font-bold flex items-center gap-x-1.5"><i class="fa-solid fa-medal"></i><span>AWS &amp; Salesforce live</span></div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SHOT 2 — SOFT CLAY (warm, big radius, layered soft shadows)  -->
+<!-- ============================================================ -->
+<section data-shot-panel="s2" class="shot-panel hidden flex-grow bg-[#FBFAF8] fade-in">
+  <div class="p-4 md:p-8"><div class="max-w-7xl mx-auto space-y-7">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-y-4">
+      <div>
+        <div class="flex items-center gap-x-2 text-xs font-bold text-[#ad2c4d] tracking-widest uppercase"><i class="fa-solid fa-mug-hot"></i><span>Member Portal</span></div>
+        <h2 class="heading-font text-4xl mt-1 text-[#2b2424]">Good morning, Mike.</h2>
+      </div>
+      <div class="px-5 py-2.5 bg-white rounded-full flex items-center gap-x-2 text-xs font-bold" style="box-shadow:6px 6px 16px #ece8e2,-6px -6px 16px #ffffff"><i class="fa-solid fa-circle-check text-[#4a9b4f]"></i><span>AWS Practitioner: 78%</span></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-7 auto-rows-[minmax(200px,auto)]">
+      <div class="md:col-span-2 bg-white rounded-[2rem] p-9 flex flex-col justify-between bento" style="box-shadow:8px 8px 20px #ece8e2,-8px -8px 20px #ffffff">
+        <div class="flex items-start justify-between">
+          <div><span class="px-3 py-1 rounded-full bg-emerald-50 text-[#4a9b4f] text-[10px] font-bold uppercase tracking-wider">In Progress</span><h3 class="text-2xl font-extrabold tracking-tight mt-4 text-[#2b2424]">AWS Cloud Practitioner</h3></div>
+          <div class="text-right"><div class="text-5xl font-extrabold tracking-tighter text-[#ad2c4d] tabular-nums">78%</div></div>
+        </div>
+        <div class="space-y-3"><div class="h-3 rounded-full overflow-hidden" style="background:#f0ece6;box-shadow:inset 2px 2px 5px #e2ddd6,inset -2px -2px 5px #fff"><div class="h-3 bg-gradient-to-r from-[#ad2c4d] to-[#c4456a] rounded-full" style="width:78%"></div></div><div class="flex justify-between text-xs text-[#8a7f78] font-semibold"><span>Next: Shared Responsibility Model</span><span class="text-[#ad2c4d]">Due Thursday</span></div></div>
+      </div>
+      <button class="text-left bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white rounded-[2rem] p-9 flex flex-col justify-between bento cursor-pointer focus-ring" style="box-shadow:8px 8px 24px rgba(173,44,77,.25)">
+        <div class="flex justify-between items-start"><div class="p-3.5 bg-white/15 rounded-2xl"><i class="fa-solid fa-wand-magic-sparkles text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/20 rounded-full">AI</span></div>
+        <div><h3 class="font-extrabold text-2xl tracking-tight">Career Toolkit</h3><p class="text-xs text-white/80 mt-1">Resume audit + instant cover letters.</p></div>
+      </button>
+      <div class="bg-white rounded-[2rem] p-9 flex flex-col justify-between bento" style="box-shadow:8px 8px 20px #ece8e2,-8px -8px 20px #ffffff">
+        <div><div class="flex justify-between"><div class="p-3.5 text-[#ad2c4d] rounded-2xl" style="background:#FBFAF8;box-shadow:inset 3px 3px 6px #ece8e2,inset -3px -3px 6px #fff"><i class="fa-regular fa-comments text-xl"></i></div><span class="flex h-2 w-2 relative"><span class="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative rounded-full h-2 w-2 bg-[#ad2c4d]"></span></span></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight text-[#2b2424]">AI Advisor</h3><p class="text-xs text-[#8a7f78] mt-1">24/7 career feedback.</p></div></div>
+        <a href="#" class="text-xs text-[#ad2c4d] font-bold flex items-center gap-x-1.5 hover:underline focus-ring rounded"><span>1 unread</span><i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <div class="md:col-span-2 bg-white rounded-[2rem] p-9 flex flex-col justify-between bento" style="box-shadow:8px 8px 20px #ece8e2,-8px -8px 20px #ffffff">
+        <div>
+          <div class="flex justify-between items-start mb-5"><div><h3 class="font-extrabold text-xl tracking-tight text-[#2b2424]">Active Job Pipeline</h3><p class="text-xs text-[#8a7f78]">Local interview stages</p></div><span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:#f0ece6;color:#8a7f78">4 Active</span></div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-4 rounded-2xl" style="background:#FBFAF8;box-shadow:inset 3px 3px 6px #ece8e2,inset -3px -3px 6px #fff"><div class="flex items-center gap-x-3"><div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center font-bold text-[#ad2c4d]" style="box-shadow:3px 3px 6px #ece8e2,-3px -3px 6px #fff">S</div><div><div class="font-bold text-xs text-[#2b2424]">Salesforce Administrator</div><div class="text-[10px] text-[#8a7f78] font-semibold uppercase">Deloitte • Austin</div></div></div><span class="px-3 py-1 rounded-full bg-orange-100 text-amber-800 text-[10px] font-bold uppercase">Interviewing</span></div>
+            <div class="flex items-center justify-between p-4 rounded-2xl" style="background:#FBFAF8;box-shadow:inset 3px 3px 6px #ece8e2,inset -3px -3px 6px #fff"><div class="flex items-center gap-x-3"><div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center font-bold text-[#ad2c4d]" style="box-shadow:3px 3px 6px #ece8e2,-3px -3px 6px #fff">A</div><div><div class="font-bold text-xs text-[#2b2424]">Agentforce SE</div><div class="text-[10px] text-[#8a7f78] font-semibold uppercase">Accenture • Remote</div></div></div><span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase" style="background:#f0ece6;color:#8a7f78">Applied</span></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center pt-4 mt-5" style="border-top:1px solid #f0ece6"><span class="text-[10px] text-[#8a7f78] font-bold">SYNCED 3m ago</span><button class="px-5 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">View Job Board</button></div>
+      </div>
+      <div class="bg-white rounded-[2rem] p-9 flex flex-col justify-between bento" style="box-shadow:8px 8px 20px #ece8e2,-8px -8px 20px #ffffff"><div><div class="p-3.5 w-fit text-[#2b7bb9] rounded-2xl" style="background:#FBFAF8;box-shadow:inset 3px 3px 6px #ece8e2,inset -3px -3px 6px #fff"><i class="fa-solid fa-graduation-cap text-xl"></i></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight text-[#2b2424]">Learning Hub</h3><p class="text-xs text-[#8a7f78] mt-1">Coursera B2B courses.</p></div></div><a href="#" class="text-xs text-[#ad2c4d] font-bold flex items-center gap-x-1.5 hover:underline focus-ring rounded"><span>Go to courses</span><i class="fa-solid fa-arrow-right"></i></a></div>
+      <div class="bg-white rounded-[2rem] p-9 flex flex-col justify-between bento" style="box-shadow:8px 8px 20px #ece8e2,-8px -8px 20px #ffffff"><div><div class="p-3.5 w-fit text-[#a47f38] rounded-2xl" style="background:#FEF6E2;box-shadow:inset 3px 3px 6px #f0e6cc,inset -3px -3px 6px #fff"><i class="fa-solid fa-award text-xl"></i></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight text-[#2b2424]">Certifications</h3><p class="text-xs text-[#8a7f78] mt-1">2 industry credentials earned.</p></div></div><div class="text-xs text-[#a47f38] font-bold flex items-center gap-x-1.5"><i class="fa-solid fa-medal"></i><span>AWS &amp; Salesforce</span></div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SHOT 3 — EDITORIAL FLAT (sharp, hairline, no shadow, serif)  -->
+<!-- ============================================================ -->
+<section data-shot-panel="s3" class="shot-panel hidden flex-grow bg-white fade-in">
+  <div class="p-4 md:p-10"><div class="max-w-7xl mx-auto">
+    <div class="border-b-2 border-[#1a1a1a] pb-5 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-y-3">
+      <div>
+        <div class="text-[10px] font-bold tracking-[0.25em] text-[#ad2c4d] uppercase">Member Portal — Austin</div>
+        <h2 class="serif text-5xl mt-1 text-[#1a1a1a]" style="font-weight:600">Welcome back, Mike.</h2>
+      </div>
+      <div class="text-xs font-semibold text-[#525252] flex items-center gap-2"><i class="fa-solid fa-circle-check text-[#4a9b4f]"></i>AWS Practitioner Course · 78% complete</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-px bg-[#e8e8e8] border border-[#e8e8e8] auto-rows-[minmax(190px,auto)]">
+      <div class="md:col-span-2 bg-white p-8 flex flex-col justify-between bento hover:bg-[#fafafa]">
+        <div class="flex items-start justify-between"><div><div class="text-[10px] font-bold tracking-widest uppercase text-[#4a9b4f]">In Progress</div><h3 class="serif text-3xl mt-2 text-[#1a1a1a]" style="font-weight:600">AWS Cloud Practitioner Essentials</h3></div><div class="text-right"><div class="text-6xl serif text-[#ad2c4d] tabular-nums" style="font-weight:600">78</div><div class="text-[9px] font-bold tracking-widest text-[#737373]">PERCENT</div></div></div>
+        <div><div class="h-px bg-[#e8e8e8] relative mb-3"><div class="absolute h-px bg-[#ad2c4d] top-0 left-0" style="width:78%"></div></div><div class="flex justify-between text-xs text-[#525252]"><span>Next — Shared Responsibility Model</span><span class="font-bold text-[#1a1a1a]">Due Thu</span></div></div>
+      </div>
+      <button class="text-left bg-[#ad2c4d] text-white p-8 flex flex-col justify-between bento cursor-pointer hover:bg-[#8b1f38] focus-ring"><div class="flex justify-between items-start"><i class="fa-solid fa-wand-magic-sparkles text-2xl"></i><span class="text-[9px] font-bold tracking-widest border border-white/40 px-2 py-0.5">AI DRIVEN</span></div><div><h3 class="serif text-3xl" style="font-weight:600">Career Toolkit</h3><p class="text-xs text-white/80 mt-1">Resume audit + cover letters.</p></div></button>
+      <div class="bg-white p-8 flex flex-col justify-between bento hover:bg-[#fafafa]"><div><div class="flex justify-between items-start"><i class="fa-regular fa-comments text-2xl text-[#ad2c4d]"></i><span class="flex h-2 w-2 relative"><span class="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative rounded-full h-2 w-2 bg-[#ad2c4d]"></span></span></div><h3 class="serif text-2xl mt-4 text-[#1a1a1a]" style="font-weight:600">AI Advisor</h3><p class="text-xs text-[#525252] mt-1">24/7 career feedback.</p></div><a href="#" class="text-xs font-bold text-[#ad2c4d] flex items-center gap-1.5 hover:underline focus-ring">1 unread <i class="fa-solid fa-arrow-right text-[10px]"></i></a></div>
+      <div class="md:col-span-2 bg-white p-8 flex flex-col justify-between bento hover:bg-[#fafafa]">
+        <div><div class="flex justify-between items-baseline mb-5 border-b border-[#e8e8e8] pb-3"><h3 class="serif text-2xl text-[#1a1a1a]" style="font-weight:600">Active Job Pipeline</h3><span class="text-[10px] font-bold tracking-widest text-[#737373] uppercase">4 Active</span></div>
+          <div class="divide-y divide-[#e8e8e8]">
+            <div class="flex items-center justify-between py-3 hover:pl-1 transition-all"><div><div class="font-bold text-sm text-[#1a1a1a]">Salesforce Administrator</div><div class="text-[10px] text-[#737373] uppercase tracking-wide">Deloitte · Austin, TX</div></div><span class="text-[10px] font-bold uppercase tracking-wide text-amber-700">Interviewing</span></div>
+            <div class="flex items-center justify-between py-3 hover:pl-1 transition-all"><div><div class="font-bold text-sm text-[#1a1a1a]">Agentforce Solutions Engineer</div><div class="text-[10px] text-[#737373] uppercase tracking-wide">Accenture · Remote</div></div><span class="text-[10px] font-bold uppercase tracking-wide text-[#737373]">Applied</span></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center pt-4 mt-4 border-t border-[#1a1a1a]"><span class="text-[10px] font-bold tracking-widest text-[#737373]">SYNCED 3M AGO</span><button class="text-xs font-bold text-[#ad2c4d] flex items-center gap-1.5 hover:gap-2.5 transition-all focus-ring">View Job Board <i class="fa-solid fa-arrow-right text-[10px]"></i></button></div>
+      </div>
+      <div class="bg-white p-8 flex flex-col justify-between bento hover:bg-[#fafafa]"><div><i class="fa-solid fa-graduation-cap text-2xl text-[#2b7bb9]"></i><h3 class="serif text-2xl mt-4 text-[#1a1a1a]" style="font-weight:600">Learning Hub</h3><p class="text-xs text-[#525252] mt-1">Connected Coursera courses.</p></div><a href="#" class="text-xs font-bold text-[#ad2c4d] flex items-center gap-1.5 hover:underline focus-ring">Go to courses <i class="fa-solid fa-arrow-right text-[10px]"></i></a></div>
+      <div class="bg-white p-8 flex flex-col justify-between bento hover:bg-[#fafafa]"><div><i class="fa-solid fa-award text-2xl text-[#a47f38]"></i><h3 class="serif text-2xl mt-4 text-[#1a1a1a]" style="font-weight:600">Certifications</h3><p class="text-xs text-[#525252] mt-1">2 industry credentials.</p></div><div class="text-xs font-bold text-[#a47f38] flex items-center gap-1.5"><i class="fa-solid fa-medal"></i>AWS &amp; Salesforce</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SHOT 4 — CRIMSON FORWARD (brand band, tinted base, bold)     -->
+<!-- ============================================================ -->
+<section data-shot-panel="s4" class="shot-panel hidden flex-grow bg-[#fdf2f4] fade-in">
+  <div class="p-4 md:p-8"><div class="max-w-7xl mx-auto space-y-6">
+    <div class="bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] rounded-3xl p-8 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-red-900/20">
+      <div><div class="text-[11px] font-bold tracking-widest uppercase text-white/70">Member Portal</div><h2 class="heading-font text-4xl mt-1">Welcome back, Mike.</h2><p class="text-sm text-white/80 mt-1">You're 78% through AWS Cloud Practitioner — keep the streak alive.</p></div>
+      <button class="px-6 py-3 bg-white text-[#ad2c4d] font-bold text-sm rounded-full hover:bg-white/90 transition-colors focus-ring-dark whitespace-nowrap">Resume Course <i class="fa-solid fa-play ml-1 text-xs"></i></button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 auto-rows-[minmax(180px,auto)]">
+      <div class="md:col-span-2 bg-white border border-[#f3d4dc] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md">
+        <div class="flex items-start justify-between"><div><span class="px-3 py-1 rounded-full bg-[#ad2c4d] text-white text-[10px] font-bold uppercase tracking-wider">In Progress</span><h3 class="text-2xl font-extrabold tracking-tight mt-4">AWS Cloud Practitioner</h3></div><div class="text-5xl font-extrabold text-[#ad2c4d] tabular-nums tracking-tighter">78%</div></div>
+        <div class="space-y-2"><div class="h-2.5 bg-[#fdf2f4] rounded-full overflow-hidden"><div class="h-2.5 bg-gradient-to-r from-[#ad2c4d] to-[#c4456a] rounded-full" style="width:78%"></div></div><div class="flex justify-between text-xs text-[#737373] font-semibold"><span>Next: Shared Responsibility Model</span><span class="text-[#ad2c4d] font-bold">Due Thursday</span></div></div>
+      </div>
+      <button class="text-left bg-[#1a1a1a] text-white rounded-3xl p-8 flex flex-col justify-between bento cursor-pointer shadow-lg hover:bg-[#262626] focus-ring"><div class="flex justify-between items-start"><div class="p-3 bg-[#ad2c4d] rounded-2xl"><i class="fa-solid fa-wand-magic-sparkles text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/10 rounded-full">AI</span></div><div><h3 class="font-extrabold text-2xl tracking-tight">Career Toolkit</h3><p class="text-xs text-white/70 mt-1">Resume audit + cover letters.</p></div></button>
+      <div class="bg-white border border-[#f3d4dc] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md"><div><div class="flex justify-between"><div class="p-3 bg-[#fdf2f4] text-[#ad2c4d] rounded-2xl"><i class="fa-regular fa-comments text-xl"></i></div><span class="flex h-2 w-2 relative"><span class="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative rounded-full h-2 w-2 bg-[#ad2c4d]"></span></span></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight">AI Advisor</h3><p class="text-xs text-[#737373] mt-1">24/7 career feedback.</p></div></div><a href="#" class="text-xs text-[#ad2c4d] font-bold flex items-center gap-x-1.5 hover:underline focus-ring rounded">1 unread <i class="fa-solid fa-arrow-right"></i></a></div>
+      <div class="md:col-span-2 bg-white border border-[#f3d4dc] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md">
+        <div><div class="flex justify-between items-start mb-5"><div><h3 class="font-extrabold text-xl tracking-tight">Active Job Pipeline</h3><p class="text-xs text-[#737373] mt-0.5">Local interview stages</p></div><span class="px-3 py-1 rounded-full text-xs font-bold bg-[#ad2c4d] text-white">4 Active</span></div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3.5 bg-[#fdf2f4] rounded-2xl hover:bg-[#fbe8ec] transition-colors"><div class="flex items-center gap-x-3"><div class="w-10 h-10 rounded-xl bg-[#ad2c4d] text-white flex items-center justify-center font-bold">S</div><div><div class="font-bold text-xs">Salesforce Administrator</div><div class="text-[10px] text-[#737373] font-semibold uppercase">Deloitte • Austin, TX</div></div></div><span class="px-3 py-1 rounded-full bg-orange-100 text-amber-800 text-[10px] font-bold uppercase">Interviewing</span></div>
+            <div class="flex items-center justify-between p-3.5 bg-[#fdf2f4] rounded-2xl hover:bg-[#fbe8ec] transition-colors"><div class="flex items-center gap-x-3"><div class="w-10 h-10 rounded-xl bg-[#1a1a1a] text-white flex items-center justify-center font-bold">A</div><div><div class="font-bold text-xs">Agentforce Solutions Engineer</div><div class="text-[10px] text-[#737373] font-semibold uppercase">Accenture • Remote</div></div></div><span class="px-3 py-1 rounded-full bg-white text-[#525252] text-[10px] font-bold uppercase">Applied</span></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center border-t border-[#f3d4dc] pt-4 mt-5"><span class="text-[10px] text-[#737373] font-bold">SYNCED 3m ago</span><button class="px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">View Job Board</button></div>
+      </div>
+      <div class="bg-white border border-[#f3d4dc] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md"><div><div class="p-3 w-fit bg-[#fdf2f4] text-[#2b7bb9] rounded-2xl"><i class="fa-solid fa-graduation-cap text-xl"></i></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight">Learning Hub</h3><p class="text-xs text-[#737373] mt-1">Coursera B2B courses.</p></div></div><a href="#" class="text-xs text-[#ad2c4d] font-bold flex items-center gap-x-1.5 hover:underline focus-ring rounded">Go to courses <i class="fa-solid fa-arrow-right"></i></a></div>
+      <div class="bg-white border border-[#f3d4dc] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md"><div><div class="p-3 w-fit bg-[#FEF3C7] text-[#a47f38] rounded-2xl"><i class="fa-solid fa-award text-xl"></i></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight">Certifications</h3><p class="text-xs text-[#737373] mt-1">2 industry credentials.</p></div></div><div class="text-xs text-[#a47f38] font-bold flex items-center gap-x-1.5"><i class="fa-solid fa-medal"></i>AWS &amp; Salesforce</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SHOT 5 — STAT-DENSE (compact, number-forward, power user)    -->
+<!-- ============================================================ -->
+<section data-shot-panel="s5" class="shot-panel hidden flex-grow bg-[#F7F8FA] fade-in">
+  <div class="p-4 md:p-6"><div class="max-w-7xl mx-auto space-y-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3"><h2 class="heading-font text-2xl">Dashboard</h2><span class="text-xs text-[#737373]">Mike • Austin, TX</span></div>
+      <div class="flex items-center gap-2 text-[11px] font-semibold text-[#737373]"><i class="fa-solid fa-circle text-[#4a9b4f] text-[6px]"></i> All systems synced 3m ago</div>
+    </div>
+    <!-- KPI strip -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Course Progress</div><div class="text-3xl font-extrabold text-[#ad2c4d] tabular-nums mt-1">78<span class="text-lg">%</span></div></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Active Jobs</div><div class="text-3xl font-extrabold text-[#1a1a1a] tabular-nums mt-1">4</div></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Certifications</div><div class="text-3xl font-extrabold text-[#a47f38] tabular-nums mt-1">2</div></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Points</div><div class="text-3xl font-extrabold text-[#2b7bb9] tabular-nums mt-1">1,240</div></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[minmax(150px,auto)]">
+      <div class="md:col-span-2 bg-white border border-[#e8e8e8] rounded-2xl p-5 flex flex-col justify-between bento hover:shadow-sm">
+        <div class="flex items-start justify-between"><div><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded bg-emerald-50 text-[#4a9b4f] text-[9px] font-bold uppercase">In Progress</span><h3 class="font-bold text-sm">AWS Cloud Practitioner</h3></div></div><span class="text-2xl font-extrabold text-[#ad2c4d] tabular-nums">78%</span></div>
+        <div class="space-y-1.5"><div class="h-1.5 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-1.5 bg-[#ad2c4d] rounded-full" style="width:78%"></div></div><div class="flex justify-between text-[11px] text-[#737373] font-medium"><span>Next: Shared Responsibility Model</span><span class="text-[#ad2c4d] font-bold">Thu</span></div></div>
+      </div>
+      <button class="text-left bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white rounded-2xl p-5 flex flex-col justify-between bento cursor-pointer hover:shadow-md focus-ring"><div class="flex justify-between"><i class="fa-solid fa-wand-magic-sparkles text-lg"></i><span class="text-[8px] font-bold tracking-widest bg-white/20 rounded px-1.5 py-0.5">AI</span></div><div><h3 class="font-bold text-base">Career Toolkit</h3><p class="text-[11px] text-white/80">Resume + cover letters</p></div></button>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 flex flex-col justify-between bento hover:shadow-sm"><div class="flex justify-between"><i class="fa-regular fa-comments text-lg text-[#ad2c4d]"></i><span class="flex h-2 w-2 relative"><span class="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative rounded-full h-2 w-2 bg-[#ad2c4d]"></span></span></div><div><h3 class="font-bold text-sm">AI Advisor</h3><a href="#" class="text-[11px] text-[#ad2c4d] font-bold hover:underline focus-ring rounded">1 unread →</a></div></div>
+      <div class="md:col-span-2 lg:col-span-3 bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-sm">
+        <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm">Active Job Pipeline</h3><button class="text-[11px] font-bold text-[#ad2c4d] hover:underline focus-ring rounded">View Job Board →</button></div>
+        <table class="w-full text-left"><thead><tr class="text-[9px] uppercase tracking-wider text-[#a3a3a3] border-b border-[#e8e8e8]"><th class="pb-2 font-bold">Role</th><th class="pb-2 font-bold">Company</th><th class="pb-2 font-bold">Location</th><th class="pb-2 font-bold text-right">Stage</th></tr></thead>
+        <tbody class="text-xs">
+          <tr class="border-b border-[#f5f5f5] hover:bg-[#fafafa]"><td class="py-2.5 font-bold">Salesforce Administrator</td><td class="py-2.5 text-[#525252]">Deloitte</td><td class="py-2.5 text-[#525252]">Austin, TX</td><td class="py-2.5 text-right"><span class="px-2 py-0.5 rounded-full bg-orange-100 text-amber-800 text-[9px] font-bold uppercase">Interviewing</span></td></tr>
+          <tr class="border-b border-[#f5f5f5] hover:bg-[#fafafa]"><td class="py-2.5 font-bold">Agentforce Solutions Engineer</td><td class="py-2.5 text-[#525252]">Accenture</td><td class="py-2.5 text-[#525252]">Remote</td><td class="py-2.5 text-right"><span class="px-2 py-0.5 rounded-full bg-[#f5f5f5] text-[#525252] text-[9px] font-bold uppercase">Applied</span></td></tr>
+          <tr class="hover:bg-[#fafafa]"><td class="py-2.5 font-bold">Cloud Support Associate</td><td class="py-2.5 text-[#525252]">Indeed</td><td class="py-2.5 text-[#525252]">Austin, TX</td><td class="py-2.5 text-right"><span class="px-2 py-0.5 rounded-full bg-blue-50 text-[#2b7bb9] text-[9px] font-bold uppercase">Screening</span></td></tr>
+        </tbody></table>
+      </div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 flex flex-col justify-between bento hover:shadow-sm"><div class="flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-[#2b7bb9]"></i><h3 class="font-bold text-sm">Learning Hub</h3></div><a href="#" class="text-[11px] text-[#ad2c4d] font-bold hover:underline focus-ring rounded">Coursera courses →</a></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SHOT 6 — GOLD ACHIEVEMENT (gamified, rings, milestone gold)  -->
+<!-- ============================================================ -->
+<section data-shot-panel="s6" class="shot-panel hidden flex-grow bg-[#faf7f0] fade-in">
+  <div class="p-4 md:p-8"><div class="max-w-7xl mx-auto space-y-6">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-y-4">
+      <div><div class="flex items-center gap-x-2 text-xs font-bold text-[#a47f38] tracking-widest uppercase"><i class="fa-solid fa-trophy"></i><span>Your Journey</span></div><h2 class="heading-font text-4xl mt-1">Keep climbing, Mike.</h2></div>
+      <div class="px-4 py-2 bg-white border border-[#ece2c8] rounded-full flex items-center gap-x-2 text-xs font-bold shadow-sm"><i class="fa-solid fa-fire text-[#ad2c4d]"></i><span>12-day streak · 1,240 pts</span></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[minmax(190px,auto)]">
+      <!-- progress ring hero -->
+      <div class="md:col-span-2 bg-white border border-[#ece2c8] rounded-3xl p-8 flex items-center gap-7 bento shadow-sm hover:shadow-md">
+        <div class="relative shrink-0"><svg width="120" height="120" viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52" fill="none" stroke-width="12"/><circle cx="60" cy="60" r="52" fill="none" stroke="#ad2c4d" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="71.9" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span class="text-3xl font-extrabold text-[#ad2c4d] tabular-nums">78%</span><span class="text-[8px] font-bold text-[#737373] tracking-wider">DONE</span></div></div>
+        <div><span class="px-3 py-1 rounded-full bg-emerald-50 text-[#4a9b4f] border border-emerald-100 text-[10px] font-bold uppercase tracking-wider">In Progress</span><h3 class="text-2xl font-extrabold tracking-tight mt-3">AWS Cloud Practitioner</h3><p class="text-xs text-[#737373] mt-1">Next: Shared Responsibility Model · <span class="text-[#ad2c4d] font-bold">Due Thursday</span></p><button class="mt-4 px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">Resume <i class="fa-solid fa-play ml-1 text-[10px]"></i></button></div>
+      </div>
+      <button class="text-left bg-gradient-to-br from-[#a47f38] to-[#7d5f26] text-white rounded-3xl p-8 flex flex-col justify-between bento cursor-pointer shadow-lg shadow-yellow-900/10 hover:shadow-xl focus-ring"><div class="flex justify-between items-start"><div class="p-3 bg-white/15 rounded-2xl"><i class="fa-solid fa-wand-magic-sparkles text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/20 rounded-full">AI</span></div><div><h3 class="font-extrabold text-2xl tracking-tight">Career Toolkit</h3><p class="text-xs text-white/80 mt-1">Resume audit + cover letters.</p></div></button>
+      <!-- next badge -->
+      <div class="bg-white border border-[#ece2c8] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md"><div><div class="p-3 w-fit bg-[#FEF3C7] text-[#a47f38] rounded-2xl"><i class="fa-solid fa-medal text-xl"></i></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight">Next Badge</h3><p class="text-xs text-[#737373] mt-1">2 modules to "Cloud Foundations".</p></div></div><div class="h-1.5 bg-[#f5f0e2] rounded-full overflow-hidden"><div class="h-1.5 bg-[#a47f38] rounded-full" style="width:60%"></div></div></div>
+      <!-- pipeline -->
+      <div class="md:col-span-2 bg-white border border-[#ece2c8] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md">
+        <div><div class="flex justify-between items-start mb-5"><div><h3 class="font-extrabold text-xl tracking-tight">Active Job Pipeline</h3><p class="text-xs text-[#737373]">Local interview stages</p></div><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#f5f0e2] text-[#a47f38]">4 Active</span></div>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3.5 bg-[#faf7f0] border border-[#ece2c8] rounded-2xl hover:bg-[#f5f0e2] transition-colors"><div class="flex items-center gap-x-3"><div class="w-10 h-10 rounded-xl bg-white border border-[#ece2c8] flex items-center justify-center font-bold text-[#ad2c4d]">S</div><div><div class="font-bold text-xs">Salesforce Administrator</div><div class="text-[10px] text-[#737373] font-semibold uppercase">Deloitte • Austin</div></div></div><span class="px-3 py-1 rounded-full bg-orange-100 text-amber-800 text-[10px] font-bold uppercase">Interviewing</span></div>
+            <div class="flex items-center justify-between p-3.5 bg-[#faf7f0] border border-[#ece2c8] rounded-2xl hover:bg-[#f5f0e2] transition-colors"><div class="flex items-center gap-x-3"><div class="w-10 h-10 rounded-xl bg-white border border-[#ece2c8] flex items-center justify-center font-bold text-[#ad2c4d]">A</div><div><div class="font-bold text-xs">Agentforce SE</div><div class="text-[10px] text-[#737373] font-semibold uppercase">Accenture • Remote</div></div></div><span class="px-3 py-1 rounded-full bg-[#f5f0e2] text-[#a47f38] text-[10px] font-bold uppercase">Applied</span></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center border-t border-[#ece2c8] pt-4 mt-5"><span class="text-[10px] text-[#737373] font-bold">SYNCED 3m ago</span><button class="px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">View Job Board</button></div>
+      </div>
+      <!-- certs earned -->
+      <div class="bg-white border border-[#ece2c8] rounded-3xl p-8 flex flex-col justify-between bento shadow-sm hover:shadow-md"><div><div class="p-3 w-fit bg-[#FEF3C7] text-[#a47f38] rounded-2xl"><i class="fa-solid fa-award text-xl"></i></div><div class="mt-5"><h3 class="font-extrabold text-xl tracking-tight">Certifications</h3><p class="text-xs text-[#737373] mt-1">2 credentials earned. 1 in progress.</p></div></div><div class="flex gap-2"><span class="px-2.5 py-1 rounded-full bg-[#FEF3C7] text-[#a47f38] text-[10px] font-bold">AWS</span><span class="px-2.5 py-1 rounded-full bg-[#FEF3C7] text-[#a47f38] text-[10px] font-bold">Salesforce</span></div></div>
+    </div>
+  </div></div>
+</section>
+
+</main>
+
+<footer class="bg-[#1a1a1a] text-[#737373] text-[10px] text-center py-3 px-4">
+  Static mockup · zero production code · DESIGN.md tokens (crimson #ad2c4d) · SVG icons only · WCAG AA focus rings · responsive 375→1440px
+</footer>
+
+<script>
+const btns = document.querySelectorAll('.shot-btn');
+const panels = document.querySelectorAll('.shot-panel');
+function show(shot){
+  panels.forEach(p=>p.classList.toggle('hidden', p.dataset.shotPanel!==shot));
+  panels.forEach(p=>{ if(p.dataset.shotPanel===shot){ p.classList.remove('fade-in'); void p.offsetWidth; p.classList.add('fade-in'); }});
+  btns.forEach(b=>{
+    const on = b.dataset.shot===shot;
+    b.classList.toggle('bg-[#ad2c4d]', on);
+    b.classList.toggle('text-white', on);
+    b.classList.toggle('text-[#A3A3A3]', !on);
+  });
+}
+btns.forEach(b=>b.addEventListener('click',()=>show(b.dataset.shot)));
+// keyboard 1-6
+document.addEventListener('keydown',e=>{ if(e.key>='1'&&e.key<='6'){ show('s'+e.key);} });
+</script>
+</body>
+</html>

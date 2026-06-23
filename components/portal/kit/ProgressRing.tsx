@@ -9,6 +9,8 @@ interface ProgressRingProps {
   onDark?: boolean;
   /** Show the % label in the center (default true). */
   showLabel?: boolean;
+  /** Accessible label for the progress value. */
+  label?: string;
 }
 
 const R = 52;
@@ -18,13 +20,20 @@ const CIRC = 2 * Math.PI * R; // 326.7
  * SVG progress ring. Member program/readiness + the Bold concept hero.
  * Pure SVG, no deps. Pass onDark for the gradient-hero variant.
  */
-export function ProgressRing({ pct, size = 120, color = 'accent', onDark = false, showLabel = true }: ProgressRingProps) {
+export function ProgressRing({ pct, size = 120, color = 'accent', onDark = false, showLabel = true, label }: ProgressRingProps) {
   const clamped = Math.max(0, Math.min(100, pct));
   const offset = CIRC * (1 - clamped / 100);
-  const stroke = onDark ? '#ffffff' : colorVar(color);
-  const track = onDark ? 'rgba(255,255,255,0.2)' : '#f0eef0';
+  const stroke = onDark ? 'var(--wa-on-accent)' : colorVar(color);
+  const track = onDark ? 'rgba(255,255,255,0.2)' : 'var(--wa-track)';
   return (
-    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+    <div
+      role="progressbar"
+      aria-label={label ?? 'Progress'}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={clamped}
+      style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}
+    >
       <svg width={size} height={size} viewBox="0 0 120 120">
         <circle cx="60" cy="60" r={R} fill="none" stroke={track} strokeWidth="12" />
         <circle

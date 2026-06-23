@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import type { VoiceAgentSurfaceProps } from '@/components/portal/VoiceAgentSurface';
 
@@ -9,6 +10,8 @@ type VoiceCoachLauncherCardProps = Omit<VoiceAgentSurfaceProps, 'children'> & {
   description: string;
   href: string;
   ctaLabel: string;
+  ctaGradient?: string;
+  ctaShadow?: string;
 };
 
 export default function VoiceCoachLauncherCard({
@@ -16,6 +19,8 @@ export default function VoiceCoachLauncherCard({
   description,
   href,
   ctaLabel,
+  ctaGradient,
+  ctaShadow,
   ...surface
 }: VoiceCoachLauncherCardProps) {
   return (
@@ -46,16 +51,14 @@ export default function VoiceCoachLauncherCard({
             fontSize: '0.88rem',
             fontWeight: 700,
             color: '#fff',
-            background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-            boxShadow: '0 8px 24px rgba(173,44,77,0.2)',
+            background: ctaGradient ?? surface.gradient,
+            boxShadow: ctaShadow ?? `0 8px 24px ${surface.glowColor}33`,
             textAlign: 'center',
             padding: '0.65rem 2.5rem 0.65rem 1rem',
           }}
         >
           <span style={{ display: 'block', width: '100%', textAlign: 'center' }}>{ctaLabel}</span>
-          <span className="material-symbols-outlined" style={{ fontSize: '1rem', position: 'absolute', right: '0.9rem' }} aria-hidden>
-            arrow_forward
-          </span>
+          <ArrowRight size={16} aria-hidden style={{ position: 'absolute', right: '0.9rem' }} />
         </Link>
       </div>
     </VoiceAgentSurface>

@@ -46,10 +46,10 @@ function formatExpiry(iso: string): string {
 }
 
 const ACTION_TYPE_LABELS: Record<ActionDraft['type'], string> = {
-  celebrate_milestone: '📧 Celebration email',
-  suggest_next_course: '📚 Next-course suggestion',
-  request_peer_pair: '🤝 Peer-pair suggestion',
-  flag_for_counselor_call: '☎️ Flag for counselor call',
+  celebrate_milestone: 'Celebration email',
+  suggest_next_course: 'Next-course suggestion',
+  request_peer_pair: 'Peer-pair suggestion',
+  flag_for_counselor_call: 'Flag for counselor call',
 };
 
 export function AgentInboxClient({ cascades: initialCascades }: { cascades: CascadeCardWire[] }) {

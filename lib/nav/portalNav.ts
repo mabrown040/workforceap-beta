@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   ArrowLeftRight,
   Award,
+  Zap,
   BarChart3,
   BookOpen,
   Briefcase,
@@ -53,6 +54,7 @@ export type NavGroup =
   | 'insights'
   | 'manage'
   // Admin-first, plain-language groups (non-technical owner view)
+  | 'runTheOrg'
   | 'students'
   | 'programs'
   | 'partnersEmployers'
@@ -112,16 +114,18 @@ export const NAV_GROUP_LABELS: Record<NavGroup, string | null> = {
   insights: 'Insights',
   manage: 'Manage',
   // Admin-first, plain-language groups
+  runTheOrg: 'Run the org',
   students: 'Students',
-  programs: 'Programs & Training',
+  programs: 'Programs',
   partnersEmployers: 'Partners & Employers',
   outcomes: 'Outcomes',
-  advanced: 'Advanced / System',
+  advanced: 'Advanced',
 };
 
 export const GROUP_ORDER: NavGroup[] = [
   'primary',
   // Admin daily-first groups (rendered only when items use them)
+  'runTheOrg',
   'students',
   'programs',
   'partnersEmployers',
@@ -186,8 +190,9 @@ export const MEMBER_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/dashboard/resume', label: 'Resume', group: 'workflows', tab: 'jobs', Icon: FileText },
   { href: '/dashboard/readiness', label: 'My Progress', group: 'insights', tab: 'jobs', Icon: CheckCircle },
   // ── Tools tab ──
-  { href: '/dashboard/ai-tools', label: 'Career Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, tourTarget: 'tour-ai-tools' },
+  { href: '/dashboard/toolkit', label: 'Career Toolkit', group: 'workflows', tab: 'me', Icon: Sparkles, aliases: ['/dashboard/ai-tools'], tourTarget: 'tour-ai-tools' },
   { href: '/dashboard/counselor', label: 'AI Advisor', group: 'workflows', tab: 'me', Icon: Mic },
+  { href: '/dashboard/ai-tools/studio', label: 'Voice + Career Studio', group: 'workflows', tab: 'me', Icon: Sparkles },
   {
     href: '/dashboard/learning',
     label: 'Learning Hub',
@@ -341,17 +346,20 @@ export const GROUP_PORTAL_NAV_ITEMS: PortalNavItem[] = [];
  * Every existing route/href is preserved — this is a reorder + relabel only.
  */
 export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  // ── Today screen — the home / "who needs you today" ──
-  { href: '/admin', label: 'Today', group: 'primary', Icon: Home },
-  { href: '/admin/command-center', label: 'Command center', group: 'primary', Icon: ListChecks },
-  { href: '/admin/overview', label: 'Detailed overview', group: 'primary', Icon: BarChart3 },
+  // ── Run the org — the home / "who needs you today" ──
+  // /admin IS the Command Center (renders CommandCenterKit); the old separate
+  // /admin/command-center entry was redundant (same view) so it's dropped from
+  // the rail — the route still exists and is reachable directly.
+  { href: '/admin', label: 'Command Center', group: 'runTheOrg', Icon: Zap },
+  { href: '/admin/overview', label: 'Detailed overview', group: 'runTheOrg', Icon: BarChart3 },
 
   // ── Students — the people you manage day to day ──
-  // Single entry. The flavored sub-lists (Interview ready, Job ready,
-  // Duplicates, Applications funnel) live as chip links on /admin/members
-  // and/or in Advanced / System below — see PR #2 "consolidate student-list
-  // nav into filter chips". All underlying page.tsx routes are preserved.
-  { href: '/admin/members', label: 'Students', group: 'students', Icon: Users },
+  // Single entry → the full-kit roster (StudentsRosterKit) at /admin/students,
+  // which matches the admin-full mockup's Students view. The legacy management
+  // hub (/admin/members) remains reachable via /admin/students?ui=legacy and the
+  // flavored sub-lists (Interview ready, Job ready, Duplicates, Applications
+  // funnel) in Advanced / System below. All underlying page.tsx routes preserved.
+  { href: '/admin/students', label: 'Students', group: 'students', Icon: Users },
   {
     href: '/admin/messages',
     label: 'Messages',
@@ -416,6 +424,7 @@ export const ADMIN_PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/admin/diagnostics', label: 'Diagnostics', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
   { href: '/admin/crons', label: 'Cron Monitor', group: 'advanced', Icon: Timer, requiresSuperAdminContext: true },
   { href: '/admin/health', label: 'System Health', group: 'advanced', Icon: HeartPulse, requiresSuperAdminContext: true },
+  { href: '/admin/what-workforceap-does', label: 'What WorkforceAP does', group: 'advanced', Icon: Layers, requiresSuperAdminContext: true },
   { href: '/admin/audit-logs', label: 'Audit logs', group: 'advanced', Icon: Shield, requiresSuperAdminContext: true },
   { href: '/admin/webhook-events', label: 'Webhook events', group: 'advanced', Icon: Activity, requiresSuperAdminContext: true },
   { href: '/admin/email-crons', label: 'Email & Crons', group: 'advanced', Icon: MessageSquare, requiresSuperAdminContext: true },

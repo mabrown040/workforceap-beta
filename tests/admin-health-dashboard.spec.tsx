@@ -9,6 +9,15 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+// The portal reskin (#9588a888) made the kit-based `SystemHealthKit` view the
+// default render and moved the detailed subsystem dashboard (overall banner,
+// per-subsystem cards, related-page links) behind `?ui=legacy`. These tests
+// assert that detailed view, which is still a supported code path, so we drive
+// the legacy view explicitly via the search-params mock.
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams('ui=legacy'),
+}));
+
 vi.mock('@/components/portal/PageHeader', () => ({
   default: ({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) => (
     <div data-testid="page-header">

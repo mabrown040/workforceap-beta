@@ -558,6 +558,8 @@ export default function CourseraMappingsAdmin({
           (same catalog counts and <code style={{ fontSize: '0.85em' }}>MemberProgramProgress</code> averages as training dashboard).
         </p>
         <form method="get" action="/admin/coursera" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end', marginBottom: '1rem' }}>
+          {/* Keep the audit search on the legacy (interactive) view; the default route is the design-kit treatment. */}
+          <input type="hidden" name="ui" value="legacy" />
           <div style={{ flex: '1 1 220px', minWidth: 0 }}>
             <label htmlFor="coursera-audit-email" style={labelStyle}>
               Member email

@@ -42,6 +42,7 @@ import { isTrainingStaleForCounselorEscalation } from '@/lib/member/memberProgra
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 import DashboardErrorFallback from '@/components/error/DashboardErrorFallback';
 import { getMemberPoints } from '@/lib/member/points';
+import { getLevelForPoints, getNextLevel } from '@/lib/member/pointsConfig';
 import First90DaysCard from '@/components/portal/First90DaysCard';
 import {
   FIRST90_CHECK_IN_EVENT,
@@ -61,6 +62,8 @@ import MobileDiscoverSection from './_components/MobileDiscoverSection';
 import MobileQuickActions from './_components/MobileQuickActions';
 import MobileRecentActivity from './_components/MobileRecentActivity';
 import DesktopDashboard from './_components/DesktopDashboard';
+import { MemberDashboardKit } from '@/components/portal/kit';
+import { MemberHomeKit } from '@/components/portal/kit/pages/member/MemberHomeKit';
 import SkillMissionTeaserCard, {
   type SkillMissionTeaserData,
 } from '@/components/portal/SkillMissionTeaserCard';
@@ -98,7 +101,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ program?: string; tab?: string }>;
+  searchParams?: Promise<{ program?: string; tab?: string; ui?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard');
@@ -114,7 +117,7 @@ export default async function DashboardPage({
   const requestedTab = typeof params?.tab === 'string' ? params.tab.trim() : null;
 
   try {
-    return await renderMemberDashboard(user, t, { requestedProgramSlug, requestedTab });
+    return await renderMemberDashboard(user, t, { requestedProgramSlug, requestedTab, requestedUi: params?.ui ?? null });
   } catch (err) {
     // redirect()/notFound() work by throwing — rethrow them so they keep
     // navigating instead of being logged and rendered as the error fallback.
@@ -142,11 +145,138 @@ export default async function DashboardPage({
 async function renderMemberDashboard(
   user: NonNullable<Awaited<ReturnType<typeof getUser>>>,
   t: Awaited<ReturnType<typeof getTranslations>>,
-  args: { requestedProgramSlug: string | null; requestedTab?: string | null } = {
+  args: { requestedProgramSlug: string | null; requestedTab?: string | null; requestedUi?: string | null } = {
     requestedProgramSlug: null,
     requestedTab: null,
+    requestedUi: null,
   },
 ) {
+
+  // v2 KIT is now the DEFAULT dashboard; the legacy dashboard stays reachable via
+  // ?ui=legacy (escape hatch / rollback). Renders MemberDashboardKit from a few
+  // simple, fast queries — skips loadMemberCareerBriefBundle / getMemberState /
+  // B4B (those stall on the demo). Real data; complete for what the kit shows.
+  if (args.requestedUi !== 'legacy') {
+    const ku = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { fullName: true, enrolledProgram: true },
+    });
+    // Cheap, count/findMany-only queries — keep the lean path fast (no
+    // loadMemberCareerBriefBundle / getMemberState / B4B). These mirror the
+    // existing Promise.all style and feed the richer MemberHomeKit.
+    const [leanEnrollment, leanAiCount, leanActions, leanCertCount, leanPointsRow, leanActiveJobs, leanPipeline] = await Promise.all([
+      prisma.courseEnrollment.findFirst({
+        where: { userId: user.id, isPrimary: true },
+        select: { programSlug: true },
+      }),
+      prisma.aIToolResult.count({ where: { userId: user.id } }),
+      prisma.memberNextBestAction.findMany({
+        where: { memberId: user.id, status: 'PENDING' },
+        orderBy: { priority: 'desc' },
+        take: 3,
+        select: { title: true, ctaHref: true },
+      }),
+      // Earned certifications (logged via LogCertificationModal).
+      prisma.userCertification.count({ where: { userId: user.id } }),
+      // Lifetime points total (single denormalized row).
+      prisma.memberPoints.findUnique({
+        where: { userId: user.id },
+        select: { totalPoints: true },
+      }),
+      // Active pipeline = anything that isn't rejected/accepted.
+      prisma.jobApplication.count({
+        where: { userId: user.id, status: { notIn: ['REJECTED', 'ACCEPTED'] } },
+      }),
+      // A few recent active applications for the "Active Job Pipeline" card.
+      prisma.jobApplication.findMany({
+        where: { userId: user.id, status: { notIn: ['REJECTED', 'ACCEPTED'] } },
+        orderBy: { updatedAt: 'desc' },
+        take: 3,
+        select: { role: true, company: true, status: true },
+      }),
+    ]);
+    const leanSlug = leanEnrollment?.programSlug ?? ku?.enrolledProgram ?? null;
+    const leanProgram = leanSlug ? getProgramBySlug(leanSlug) : undefined;
+    const leanTotal = leanProgram?.courses?.length ?? 0;
+    const leanCompleted = leanSlug
+      ? await prisma.courseProgress.count({
+          where: { userId: user.id, programSlug: leanSlug, status: 'COMPLETED' },
+        })
+      : 0;
+    const leanPct = leanTotal ? Math.round((leanCompleted / leanTotal) * 100) : 0;
+    const firstNameLean = (ku?.fullName ?? user.email ?? 'there').split(' ')[0] || 'there';
+
+    // Map the top pending next-best-action to the "Next lesson" hint + the
+    // program resume link. Defaults preserve the kit's built-in copy.
+    const topLeanAction = leanActions[0] ?? null;
+    const programHref = leanSlug
+      ? `/dashboard?program=${encodeURIComponent(leanSlug)}`
+      : '/dashboard/program';
+
+    // JobApplicationStatus → pipeline stage label + tone for the kit table.
+    const stageToneByStatus: Record<string, { label: string; tone: 'warn' | 'muted' | 'info' }> = {
+      SAVED: { label: 'Saved', tone: 'muted' },
+      APPLIED: { label: 'Applied', tone: 'muted' },
+      PHONE_SCREEN: { label: 'Screening', tone: 'info' },
+      INTERVIEWING: { label: 'Interviewing', tone: 'warn' },
+      OFFER: { label: 'Offer', tone: 'warn' },
+    };
+    const leanPipelineRows = leanPipeline.map((j) => {
+      const meta = stageToneByStatus[j.status] ?? { label: 'Applied', tone: 'muted' as const };
+      return { role: j.role, company: j.company, stage: meta.label, tone: meta.tone };
+    });
+
+    // ── Next badge / milestone (REAL data) ──
+    // Derived from the points level ladder (lib/member/pointsConfig LEVELS:
+    // Starter→Builder→Achiever→Champion). We reuse the lean `leanPointsRow`
+    // already loaded above (no extra query): progress within the current level
+    // band toward the next level's `min` threshold. At the top level (Champion)
+    // there's no next threshold, so we fall back to a cert-count milestone.
+    const leanTotalPoints = leanPointsRow?.totalPoints ?? 0;
+    const currentLevel = getLevelForPoints(leanTotalPoints);
+    const nextLevel = getNextLevel(currentLevel.name);
+    let nextBadgeName: string | undefined;
+    let nextBadgePercent: number | undefined;
+    let nextBadgeRemaining: string | undefined;
+    if (nextLevel) {
+      const bandStart = currentLevel.min;
+      const bandEnd = nextLevel.min; // next level's entry threshold
+      const span = Math.max(1, bandEnd - bandStart);
+      const into = Math.max(0, leanTotalPoints - bandStart);
+      nextBadgePercent = Math.max(0, Math.min(100, Math.round((into / span) * 100)));
+      const remainingPts = Math.max(0, bandEnd - leanTotalPoints);
+      nextBadgeName = nextLevel.label;
+      nextBadgeRemaining = `${remainingPts} ${remainingPts === 1 ? 'point' : 'points'}`;
+    } else {
+      // Top of the ladder: no further level. Use the next certification as the
+      // milestone so the card still reflects real, forward-looking progress.
+      nextBadgeName = leanCertCount > 0 ? 'Next certification' : 'First certification';
+      nextBadgePercent = 0;
+      nextBadgeRemaining = '1 certification';
+    }
+
+    return (
+      <MemberHomeKit
+        firstName={firstNameLean}
+        coursePercent={leanPct}
+        programTitle={leanProgram?.title ?? undefined}
+        activeJobs={leanActiveJobs}
+        certs={leanCertCount}
+        points={leanPointsRow?.totalPoints ?? 0}
+        nextLesson={topLeanAction?.title ?? leanProgram?.title ?? 'Continue your training'}
+        nextLessonDue={topLeanAction ? 'Recommended next step' : 'Up next'}
+        nextBadgeName={nextBadgeName}
+        nextBadgePercent={nextBadgePercent}
+        nextBadgeRemaining={nextBadgeRemaining}
+        pipeline={leanPipelineRows.length > 0 ? leanPipelineRows : []}
+        resumeHref={topLeanAction?.ctaHref ?? programHref}
+        coursesHref={programHref}
+        toolkitHref="/dashboard/toolkit"
+        jobsHref="/dashboard/jobs"
+      />
+    );
+  }
+
   const { user: dbUser, careerBrief } = await loadMemberCareerBriefBundleSafe(user.id, { activeMemberOnly: true });
   if (!dbUser) {
     // Authenticated session without a member row — staff accounts land here
@@ -829,6 +959,27 @@ async function renderMemberDashboard(
       />
     </ErrorBoundary>
   );
+
+  // The v2 kit is the DEFAULT, rendered by the lean early-return at the top of
+  // this fn; ?ui=legacy falls through to the original dashboard below. This
+  // richer-data kit branch is currently unreachable (kept for the eventual prod
+  // path that runs the full pipeline). Condition matches the lean gate so the
+  // types line up — requestedUi is narrowed to 'legacy' by the time we get here.
+  if (args.requestedUi !== 'legacy') {
+    return (
+      <MemberDashboardKit
+        firstName={firstName}
+        progressPercent={progressPercentDisplay}
+        programTitle={program?.title ?? null}
+        completedCount={completedCount}
+        totalCourses={totalCourses}
+        nextMilestone={nextIncompleteCourse?.name ?? null}
+        recommendedActions={recommendedActions}
+        aiToolsUsedCount={recentTools.length}
+        jobSearchUrl={jobSearchUrl}
+      />
+    );
+  }
 
   return (
     <>

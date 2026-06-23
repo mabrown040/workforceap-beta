@@ -21,5 +21,5 @@ export async function unlinkedEmployerHref(userId: string): Promise<string> {
 
 /** Same as above for the Partner portal. */
 export async function unlinkedPartnerHref(userId: string): Promise<string> {
-  return (await isSuperAdmin(userId)) ? '/admin/partners' : '/dashboard';
+  return (await isSuperAdmin(userId)) ? '/admin/partners' : '/partners';
 }

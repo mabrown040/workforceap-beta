@@ -6,7 +6,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -240,9 +239,6 @@ export default async function PartnerGuidePage() {
             </a>
           </p>
         </div>
-      </div>
-      <div className="md:wa-hidden">
-        <MobileBottomNav variant="partner" />
       </div>
     </div>
   );

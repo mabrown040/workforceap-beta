@@ -6,4 +6,5 @@ export {
   employerVoiceSurface,
   partnerVoiceSurface,
   mockInterviewVoiceSurface,
+  careerBusinessVoiceSurface,
 } from '../voiceAgentSurfaces';

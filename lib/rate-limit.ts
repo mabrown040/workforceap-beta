@@ -148,13 +148,7 @@ async function failClosedLimit(
   limiter: Ratelimit | null,
   name: string,
   identifier: string,
-  request?: Request,
-  // When Upstash is not configured, some limiters must still let the request
-  // through rather than hard-block. Auth + password-reset set this so the
-  // site stays usable without Redis — Supabase enforces its own auth rate
-  // limits as the backstop. Spam-surface limiters (contact, confirmation)
-  // leave this false and stay fail-closed.
-  failOpenIfUnconfigured = false
+  request?: Request
 ): Promise<{ success: boolean; remaining?: number }> {
   if (isQaBypassRequest(request)) {
     logger.info(`[RATE-LIMIT] QA bypass active — allowing ${name} request for ${identifier}`);
@@ -166,18 +160,21 @@ async function failClosedLimit(
     return { success: result.success, remaining: result.remaining };
   }
 
-  // Limiter is null → Upstash not configured.
-  if (failOpenIfUnconfigured) {
-    // Login-critical limiter without Redis: allow rather than lock everyone
-    // out. Supabase's built-in auth throttling still applies.
-    logger.warn(`[RATE-LIMIT] ${name} limiter is null — allowing request for ${identifier} (fail-open: Upstash not configured)`);
-    return { success: true };
-  }
-
+  // Limiter is null → Upstash not configured
   if (isProduction) {
-    // Spam-surface limiter with no Redis in production: block rather than
-    // open an unbounded abuse vector. The boot assertion normally prevents
-    // reaching here; this is defense-in-depth.
+    // Operator explicitly opted out of Upstash (e.g. preview/staging via
+    // RATE_LIMIT_ALLOW_MISSING_UPSTASH=1). The boot assertion is skipped in
+    // that case, so honor the opt-out here too and fail OPEN — otherwise every
+    // auth/login/forgot-password request is blocked with a 429 on environments
+    // that intentionally run without Redis.
+    if (allowMissingUpstash) {
+      logger.warn(
+        `[RATE-LIMIT] ${name} limiter is null but RATE_LIMIT_ALLOW_MISSING_UPSTASH=1 — failing open for ${identifier}`
+      );
+      return { success: true };
+    }
+    // No opt-out: fail closed (defense-in-depth; the boot assertion normally
+    // prevents reaching here in real production).
     logger.error(`[RATE-LIMIT] ${name} limiter is null in production — blocking request for ${identifier}`);
     return { success: false, remaining: 0 };
   }
@@ -384,7 +381,7 @@ export async function checkApplySignupRateLimit(identifier: string): Promise<{ s
 }
 
 export async function checkAuthRateLimit(identifier: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedLimit(authRateLimiter, 'auth', identifier, request, true);
+  return failClosedLimit(authRateLimiter, 'auth', identifier, request);
 }
 
 /**
@@ -393,7 +390,7 @@ export async function checkAuthRateLimit(identifier: string, request?: Request):
  * is throttled by total attempts, not per-target-email buckets.
  */
 export async function checkAuthIpRateLimit(ip: string, request?: Request): Promise<{ success: boolean; remaining?: number }> {
-  return failClosedLimit(authIpRateLimiter, 'auth-ip', `auth-ip:${ip}`, request, true);
+  return failClosedLimit(authIpRateLimiter, 'auth-ip', `auth-ip:${ip}`, request);
 }
 
 /**
@@ -494,13 +491,13 @@ export async function checkInterestProfilerRateLimit(userId: string): Promise<{ 
 
 /** Forgot-password / reset email requests — per IP; fail-closed in production. */
 export async function checkForgotPasswordRateLimit(ip: string): Promise<{ success: boolean }> {
-  const r = await failClosedLimit(forgotPasswordRateLimiter, 'forgot-password', ip, undefined, true);
+  const r = await failClosedLimit(forgotPasswordRateLimiter, 'forgot-password', ip);
   return { success: r.success };
 }
 
 /** Forgot-password per-email cap — 3 requests per email per 24 h; fail-closed in production. */
 export async function checkForgotPasswordEmailRateLimit(email: string): Promise<{ success: boolean }> {
-  const r = await failClosedLimit(forgotPasswordEmailRateLimiter, 'forgot-password-email', email.toLowerCase(), undefined, true);
+  const r = await failClosedLimit(forgotPasswordEmailRateLimiter, 'forgot-password-email', email.toLowerCase());
   return { success: r.success };
 }
 

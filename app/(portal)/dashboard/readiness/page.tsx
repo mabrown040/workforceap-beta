@@ -10,6 +10,7 @@ import ReadinessMobileScoreCard from '@/components/portal/ReadinessMobileScoreCa
 import CompactReadinessCoach from '@/components/portal/CompactReadinessCoach';
 import ReadinessCoachReturnButton from '@/components/portal/ReadinessCoachReturnButton';
 import { getMemberReadinessSections } from '@/lib/readiness/memberReadinessSections';
+import { MemberProgressKit } from '@/components/portal/kit/pages/member/MemberProgressKit';
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
   return buildPageMetadataAsync({
@@ -70,9 +71,16 @@ function getPriorityAction(breakdown: Awaited<ReturnType<typeof getScoreBreakdow
   return null;
 }
 
-export default async function DashboardReadinessPage() {
+export default async function DashboardReadinessPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/readiness');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
 
   const [breakdown, checklistSections] = await Promise.all([
     getScoreBreakdownSafe(user.id),
@@ -84,6 +92,48 @@ export default async function DashboardReadinessPage() {
   const overallScore = Math.min(100, Object.values(breakdown).reduce((sum, b) => sum + b.earned, 0));
   const categories = buildCategories(breakdown);
   const priorityAction = getPriorityAction(breakdown);
+
+  // ── v2 KIT is the DEFAULT for Career Readiness (real data); legacy view stays
+  // reachable via ?ui=legacy. Runs AFTER the auth guard above and reuses the
+  // score breakdown + derived categories already loaded — no extra queries.
+  if (requestedUi !== 'legacy') {
+    // "This week" stats aren't tracked on this route; surface the four real
+    // readiness categories (the actual signal this page loads) as the stat
+    // tiles instead of the kit's fabricated weekly counters.
+    const weekStats = categories.map((cat) => ({
+      value: `${cat.pct}%`,
+      label: cat.label,
+      color: cat.color,
+    }));
+
+    // Milestones derived from the real categories: a category fully earned is
+    // "done"; the first not-yet-complete one is "active"; the rest are "goal".
+    // Mirrors the pathway milestone done/current/locked pattern.
+    const firstIncomplete = categories.findIndex((cat) => cat.pct < 100);
+    const milestones = categories.map((cat, i) => ({
+      label: cat.label,
+      when: cat.pct >= 100 ? 'Complete' : i === firstIncomplete ? 'In progress' : 'Goal',
+      state:
+        cat.pct >= 100
+          ? ('done' as const)
+          : i === firstIncomplete
+            ? ('active' as const)
+            : ('goal' as const),
+    }));
+
+    const readinessNote = priorityAction
+      ? `Next: ${priorityAction.label}`
+      : 'You\'ve hit every readiness milestone — keep your activity fresh to stay job ready.';
+
+    return (
+      <MemberProgressKit
+        readinessScore={overallScore}
+        readinessNote={readinessNote}
+        weekStats={weekStats}
+        milestones={milestones}
+      />
+    );
+  }
 
   return (
     <>

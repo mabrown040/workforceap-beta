@@ -4,7 +4,6 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import CounselorMessagesInboxClient from '@/components/portal/CounselorMessagesInboxClient';
 import { buildCounselorInboxRows } from '@/lib/messages/counselorInbox';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
@@ -52,7 +51,6 @@ export default async function CounselorMessagesHubPage() {
           <div style={{ minHeight: '50vh' }}>
             <CounselorMessagesInboxClient staffUserId={user.id} rows={rows} />
           </div>
-          <MobileBottomNav variant="counselor" />
         </div>
 
         {/* Desktop View */}

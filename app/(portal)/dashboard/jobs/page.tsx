@@ -11,6 +11,7 @@ import LogExternalApplicationButton from '@/components/portal/jobs/LogExternalAp
 import JobsListingClient from './JobsListingClient';
 import JobsBoardSkeleton from './JobsBoardSkeleton';
 import { getTranslations } from 'next-intl/server';
+import { MemberJobsKit } from '@/components/portal/kit/pages/member/MemberJobsKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('dashboard');
@@ -21,8 +22,16 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function JobsPage() {
+export default async function JobsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
+
   const t = await getTranslations('dashboard');
 
   let ageGroup: 'under14' | 'youth14to17' | 'adult18plus' = 'adult18plus';
@@ -155,6 +164,127 @@ export default async function JobsPage() {
     // Fallback to empty state if query fails
     initialJobs = [];
     initialTotal = 0;
+  }
+
+  // ── v2 KIT is the DEFAULT member job-pipeline view (real data); legacy
+  // public board stays reachable via ?ui=legacy. This board is public, so the
+  // pipeline kit only renders for a signed-in member — anonymous visitors fall
+  // through to the legacy public board below (preserving the current default).
+  if (requestedUi !== 'legacy' && user) {
+    // Pull the member's tracked applications (all statuses) — SAVED rows feed
+    // the "Saved" KPI; the rest drive the KPIs + pipeline table below.
+    let pipelineRows: Array<{
+      id: string;
+      role: string;
+      company: string;
+      location: string | null;
+      appliedAt: Date | null;
+      createdAt: Date;
+      status: 'SAVED' | 'APPLIED' | 'PHONE_SCREEN' | 'INTERVIEWING' | 'OFFER' | 'ACCEPTED' | 'REJECTED';
+    }> = [];
+    try {
+      pipelineRows = await prisma.jobApplication.findMany({
+        take: 200,
+        where: { userId: user.id },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          role: true,
+          company: true,
+          status: true,
+          appliedAt: true,
+          createdAt: true,
+          curatedJob: { select: { location: true } },
+        },
+      }).then((rows) =>
+        rows.map((r) => ({
+          id: r.id,
+          role: r.role,
+          company: r.company,
+          location: r.curatedJob?.location ?? null,
+          appliedAt: r.appliedAt,
+          createdAt: r.createdAt,
+          status: r.status,
+        })),
+      );
+    } catch {
+      pipelineRows = [];
+    }
+
+    const savedCount = pipelineRows.filter((r) => r.status === 'SAVED').length;
+    const appliedCount = pipelineRows.filter((r) =>
+      r.status === 'APPLIED' || r.status === 'PHONE_SCREEN',
+    ).length;
+    const interviewingCount = pipelineRows.filter((r) => r.status === 'INTERVIEWING').length;
+    const offersCount = pipelineRows.filter((r) =>
+      r.status === 'OFFER' || r.status === 'ACCEPTED',
+    ).length;
+
+    // Map the JobApplicationStatus enum to the kit's stage label + tone.
+    const STAGE_META: Record<
+      typeof pipelineRows[number]['status'],
+      { label: string; tone: 'ok' | 'warn' | 'alert' | 'info' | 'muted' }
+    > = {
+      SAVED: { label: 'Saved', tone: 'muted' },
+      APPLIED: { label: 'Applied', tone: 'muted' },
+      PHONE_SCREEN: { label: 'Screening', tone: 'info' },
+      INTERVIEWING: { label: 'Interviewing', tone: 'warn' },
+      OFFER: { label: 'Offer', tone: 'ok' },
+      ACCEPTED: { label: 'Accepted', tone: 'ok' },
+      REJECTED: { label: 'Closed', tone: 'alert' },
+    };
+    const fmtDay = (d: Date) =>
+      d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+    // Pipeline table excludes pure "saved" rows (those feed the Saved KPI only).
+    const applications = pipelineRows
+      .filter((r) => r.status !== 'SAVED')
+      .slice(0, 20)
+      .map((r) => ({
+        id: r.id,
+        role: r.role,
+        company: r.company,
+        location: r.location ?? '—',
+        applied: fmtDay(r.appliedAt ?? r.createdAt),
+        stage: STAGE_META[r.status].label,
+        tone: STAGE_META[r.status].tone,
+      }));
+
+    // "Recommended for you" reuses the prefetched live board jobs (already
+    // age/exclusion-filtered above). Match % isn't computed on this route, so
+    // we omit it via a neutral label rather than fabricate a score.
+    const recommended = initialJobs.slice(0, 3).map((job) => {
+      const salary =
+        job.salaryMin && job.salaryMax
+          ? `$${Math.round(job.salaryMin / 1000)}k–${Math.round(job.salaryMax / 1000)}k`
+          : null;
+      const meta = [job.employer.companyName, job.location, salary]
+        .filter(Boolean)
+        .join(' · ');
+      return {
+        id: job.id,
+        logo: (job.employer.companyName || '?').slice(0, 2).toUpperCase(),
+        match: 'New',
+        title: job.title,
+        meta,
+      };
+    });
+
+    return (
+      <MemberJobsKit
+        saved={savedCount}
+        applied={appliedCount}
+        interviewing={interviewingCount}
+        offers={offersCount}
+        syncedLabel={`${applications.length} active application${applications.length === 1 ? '' : 's'}`}
+        browseHref="/dashboard/jobs?ui=legacy"
+        // Pass the member's REAL rows (DataTable renders its own empty state).
+        // Recommended falls back to the kit's demo cards only when the live
+        // board returned nothing, to avoid a bare "Recommended" heading.
+        applications={applications}
+        recommended={recommended.length > 0 ? recommended : undefined}
+      />
+    );
   }
 
   return (

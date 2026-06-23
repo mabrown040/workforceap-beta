@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Concept: Calm Focus</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.h-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.03em}
+.tabnum{font-variant-numeric:tabular-nums}
+.bento{transition:box-shadow .2s,border-color .2s,background-color .15s}
+.focus-ring:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #ad2c4d}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fade .3s ease forwards}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.bento{transition:none}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:4px}
+/* CALM: large radius, soft shadow, generous space, NO gradients */
+.card{background:#fff;border:1px solid #eceaea;border-radius:26px;padding:30px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.hero{background:#fdf2f4;border:1px solid #f3d4dc;border-radius:30px;padding:34px}
+.tint{border-radius:18px}
+</style>
+</head>
+<body class="bg-[#F7F8FA] text-[#1A1A1A]">
+<div class="flex min-h-screen">
+  <!-- LAB PERSONA RAIL -->
+  <aside class="w-56 bg-[#161616] text-white fixed h-screen z-40 flex flex-col">
+    <div class="px-5 py-4 border-b border-[#2a2a2a]">
+      <div class="text-[10px] font-bold tracking-widest text-[#ad2c4d] uppercase">Concept</div>
+      <div class="h-font text-lg leading-tight">Calm Focus</div>
+      <div class="text-[10px] text-[#888] mt-1">Single-next-action · soft · low load</div>
+    </div>
+    <div class="px-4 py-2 text-[10px] font-bold tracking-widest text-[#666] uppercase">Persona</div>
+    <nav id="prail" class="flex-1 px-2.5 space-y-1 text-sm"></nav>
+    <div class="px-4 py-3 border-t border-[#2a2a2a] space-y-1.5">
+      <div class="text-[10px] font-bold tracking-widest text-[#666] uppercase mb-1">Compare</div>
+      <a href="/workforceap-concept-calm.html" class="block text-xs font-bold text-white">● Calm Focus</a>
+      <a href="/workforceap-concept-dense.html" class="block text-xs text-[#999] hover:text-white">○ Dense Command</a>
+      <a href="/workforceap-concept-bold.html" class="block text-xs text-[#999] hover:text-white">○ Bold Motivation</a>
+      <a href="/" class="block text-[10px] text-[#666] hover:text-white mt-2"><i class="fa-solid fa-arrow-left mr-1"></i>Design Lab</a>
+    </div>
+  </aside>
+
+  <div class="flex-1 ml-56 flex flex-col min-w-0">
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-[#e8e8e8] px-8 pt-4">
+      <div class="flex items-center justify-between gap-4">
+        <div><h1 id="ptitle" class="h-font text-2xl">Member</h1><p id="pgoal" class="text-xs text-[#737373] mt-0.5"></p></div>
+        <div class="text-[11px] text-[#a3a3a3]">Concept A of 3 · open all three in tabs to compare</div>
+      </div>
+      <div id="stabs" class="flex gap-1 mt-3"></div>
+    </header>
+    <main id="stage" class="flex-1 p-8 max-w-6xl"></main>
+  </div>
+</div>
+
+<script>
+const CONCEPT='calm';
+const C={crimson:'#ad2c4d',crimsonDk:'#8b1f38',gold:'#a47f38',info:'#2b7bb9',green:'#4a9b4f',muted:'#737373'};
+
+/* ---- shared helpers (calm styling) ---- */
+function ring(pct,color,size){size=size||120;const r=52,circ=326.7,off=circ*(1-pct/100);return `<div class="relative shrink-0" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${r}" fill="none" stroke="#f0eef0" stroke-width="11"/><circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span class="tabnum font-extrabold" style="font-size:${size*0.22}px;color:${color}">${pct}%</span></div></div>`;}
+function kpis(arr){return `<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">${arr.map(k=>`<div class="card !p-5 bento"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">${k.l}</div><div class="tabnum text-3xl font-extrabold mt-1" style="color:${k.c||'#1a1a1a'}">${k.v}</div>${k.sub?`<div class="text-[10px] font-bold mt-0.5" style="color:${k.sc||C.muted}">${k.sub}</div>`:''}</div>`).join('')}</div>`;}
+function tag(t,k){const m={ok:['#4a9b4f','#eef7ef'],warn:['#a47f38','#FEF3C7'],alert:['#ad2c4d','#fdf2f4'],info:['#2b7bb9','#eef5fb'],muted:['#737373','#f5f5f5']};const[c,bg]=m[k]||m.muted;return `<span class="tabnum" style="color:${c};background:${bg};padding:3px 10px;border-radius:999px;font-size:9px;font-weight:700;text-transform:uppercase">${t}</span>`;}
+function table(cols,rows){return `<div class="card !p-0 overflow-hidden bento"><div class="overflow-x-auto"><table class="w-full border-collapse min-w-[600px]"><thead><tr>${cols.map(c=>`<th style="font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#a3a3a3;font-weight:700;text-align:left;padding:14px 16px;background:#fafafa">${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr class="hover:bg-[#fafafa] cursor-pointer">${r.map(c=>`<td style="padding:14px 16px;font-size:12px;border-bottom:1px solid #f5f5f5">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;}
+
+/* calm "next action" hero */
+function heroAction(icon,kicker,title,body,cta){return `<div class="hero bento mb-6 flex flex-col md:flex-row md:items-center gap-6"><div class="w-16 h-16 rounded-2xl bg-white border border-[#f3d4dc] flex items-center justify-center text-2xl text-[#ad2c4d] shrink-0"><i class="fa-solid ${icon}"></i></div><div class="flex-1"><div class="text-[11px] font-bold tracking-widest uppercase text-[#ad2c4d]">${kicker}</div><h3 class="h-font text-2xl mt-1">${title}</h3><p class="text-sm text-[#737373] mt-1">${body}</p></div><button class="px-6 py-3 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-bold text-sm rounded-full transition-colors focus-ring whitespace-nowrap">${cta}</button></div>`;}
+function softTile(icon,color,bg,title,body,link){return `<div class="card bento hover:shadow-md cursor-pointer flex flex-col justify-between"><div><div class="w-12 h-12 tint flex items-center justify-center text-xl" style="background:${bg};color:${color}"><i class="fa-solid ${icon}"></i></div><h4 class="font-extrabold text-lg tracking-tight mt-4">${title}</h4><p class="text-xs text-[#737373] mt-1">${body}</p></div>${link?`<div class="text-xs font-bold mt-4 flex items-center gap-1.5" style="color:${color}">${link} <i class="fa-solid fa-arrow-right"></i></div>`:''}</div>`;}
+function riskRow(tone,name,meta,flag,action){const m={red:['#ad2c4d','#fdf2f4','#f3d4dc'],yellow:['#a47f38','#FEF3C7','#f0e6cc'],blue:['#2b7bb9','#eef5fb','#cfe2f0']};const[c,bg,bd]=m[tone];return `<div class="flex items-center gap-3 p-4 rounded-2xl bento hover:shadow-sm cursor-pointer" style="background:${bg};border:1px solid ${bd}"><div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs shrink-0" style="background:${c}"><i class="fa-solid ${tone==='red'?'fa-triangle-exclamation':tone==='yellow'?'fa-clock':'fa-star'}"></i></div><div class="flex-1 min-w-0"><div class="font-bold text-sm">${name}</div><div class="text-[11px] text-[#737373]">${meta}</div></div><span class="hidden md:inline text-[10px] font-bold uppercase" style="color:${c}">${flag}</span><button class="px-3 py-1.5 text-[11px] font-bold rounded-full text-white focus-ring" style="background:${c}">${action}</button></div>`;}
+
+/* ============ SCREEN REGISTRY ============ */
+const PERSONAS=[
+  {id:'member',t:'Member',ic:'fa-user',goal:'Feel progress · know the next step · get hired',screens:[['home','Home'],['program','My Program'],['jobs','Jobs']]},
+  {id:'employer',t:'Employer',ic:'fa-building',goal:'Review candidates fast · fill roles',screens:[['home','Overview'],['pipeline','Pipeline'],['queue','Work Queue']]},
+  {id:'partner',t:'Partner',ic:'fa-handshake',goal:'Prove impact · catch members who need help',screens:[['home','Overview'],['attention','Attention Queue'],['outcomes','Outcomes']]},
+  {id:'counselor',t:'Counselor',ic:'fa-user-tie',goal:'Know who needs me today · act in one click',screens:[['home','Overview'],['triage','Triage'],['atrisk','At-Risk']]},
+  {id:'admin',t:'Admin',ic:'fa-shield-halved',goal:'Run the org at a glance · drill when needed',screens:[['home','Command Center'],['students','Students'],['board','Board Outcomes']]},
+];
+
+const S={
+/* ---------- MEMBER ---------- */
+'member-home':()=>heroAction('fa-play','Pick up where you left off','Finish "Shared Responsibility Model"','You\'re 78% through AWS Cloud Practitioner. One module today keeps your streak alive.','Resume module')+
+  `<div class="grid grid-cols-1 md:grid-cols-3 gap-5">${softTile('fa-graduation-cap',C.info,'#eef5fb','My Program','7 of 9 modules complete.','View program')}${softTile('fa-briefcase',C.crimson,'#fdf2f4','Job Pipeline','4 active · 1 interview this week.','See jobs')}${softTile('fa-wand-magic-sparkles',C.gold,'#FEF3C7','Career Toolkit','Resume audit + cover letters.','Open toolkit')}</div>`,
+'member-program':()=>`<div class="card bento mb-6 flex flex-col md:flex-row md:items-center gap-7">${ring(78,C.crimson,128)}<div class="flex-1"><div class="text-[11px] font-bold tracking-widest uppercase text-[#ad2c4d]">Current program</div><h3 class="h-font text-2xl mt-1">AWS Cloud Practitioner</h3><p class="text-sm text-[#737373] mt-1">Next up: Shared Responsibility Model · about 4 hours left.</p><button class="mt-3 px-5 py-2.5 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full focus-ring">Resume</button></div></div>
+  <div class="card bento"><h4 class="font-extrabold text-lg tracking-tight mb-4">Modules</h4><div class="space-y-2.5">${[['Cloud Concepts','done'],['Security & Compliance','done'],['Shared Responsibility Model','now'],['Billing & Pricing','lock'],['Exam Readiness','lock']].map(m=>{const s=m[1];const ic=s==='done'?'fa-check':s==='now'?'fa-play':'fa-lock';const bg=s==='done'?'#4a9b4f':s==='now'?'#ad2c4d':'#e8e8e8';const tc=s==='lock'?'#a3a3a3':'#fff';return `<div class="flex items-center gap-3 p-3 rounded-2xl ${s==='now'?'bg-[#fdf2f4] border border-[#f3d4dc]':'bg-[#fafafa]'}"><div class="w-7 h-7 rounded-full flex items-center justify-center text-xs" style="background:${bg};color:${tc}"><i class="fa-solid ${ic} text-[9px]"></i></div><span class="font-semibold text-sm flex-1 ${s==='lock'?'text-[#737373]':''}">${m[0]}</span><span class="text-[10px] font-bold uppercase" style="color:${s==='done'?C.green:s==='now'?C.crimson:'#a3a3a3'}">${s==='done'?'Done':s==='now'?'In progress':'Locked'}</span></div>`;}).join('')}</div></div>`,
+'member-jobs':()=>heroAction('fa-calendar-check','Your next interview','Salesforce Administrator · Deloitte','Thursday 2:00 PM. Prep with the Interview Coach so you walk in ready.','Prep now')+
+  table(['Role','Company','Stage'],[
+    ['<b>Salesforce Administrator</b>','Deloitte',tag('Interviewing','warn')],
+    ['<b>Agentforce SE</b>','Accenture',tag('Applied','muted')],
+    ['<b>Cloud Support Associate</b>','Indeed',tag('Screening','info')],
+  ]),
+
+/* ---------- EMPLOYER ---------- */
+'employer-home':()=>heroAction('fa-user-check','Needs your review','5 candidates matched your live roles','Review today so strong matches don\'t go cold. Avg time-to-review on your account: 1.2 days.','Review candidates')+
+  kpis([{l:'Live Roles',v:'9',c:C.info},{l:'New Matches',v:'5',c:C.crimson},{l:'Interviewing',v:'3',c:C.gold},{l:'Hires YTD',v:'18',c:C.green}]),
+'employer-pipeline':()=>`<p class="text-sm text-[#737373] mb-4">Candidate pipeline across your live roles. Calm view: one stage in focus, the rest tucked tight.</p>
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">${[['New',2,'muted'],['Contacted',3,'info'],['Interviewing',3,'warn'],['Offer',1,'gold'],['Hired',1,'ok']].map(col=>`<div class="card !p-4 bento"><div class="flex items-center justify-between mb-3"><span class="text-xs font-bold">${col[0]}</span>${tag(col[1],col[2])}</div><div class="space-y-2">${Array.from({length:col[1]}).slice(0,2).map((_,i)=>`<div class="p-3 rounded-xl bg-[#fafafa] border border-[#eceaea]"><div class="font-bold text-[11px]">Candidate ${i+1}</div><div class="text-[10px] text-[#737373]">Cloud & IT · 8${6-i}% match</div></div>`).join('')}${col[1]>2?`<div class="text-[10px] text-[#a3a3a3] text-center">+${col[1]-2} more</div>`:''}</div></div>`).join('')}</div>`,
+'employer-queue':()=>`<div class="flex gap-2 mb-4">${['All · 7','Review today · 5','Stale 48h+ · 1','Interview · 1'].map((f,i)=>`<button class="px-3.5 py-2 rounded-full text-xs font-bold ${i===0?'bg-[#ad2c4d] text-white':'bg-white border border-[#e8e8e8]'} focus-ring">${f}</button>`).join('')}</div>
+  <div class="space-y-3">${[['fa-user-check','5 applications to review','Submitted in the last 24h','Review'],['fa-clock','1 match going stale','No contact in 48h — reach out','Open'],['fa-calendar','1 interview to schedule','Candidate accepted — pick a time','Schedule']].map(r=>`<div class="card bento !py-4 flex items-center gap-4 hover:shadow-md"><div class="w-10 h-10 tint bg-[#fdf2f4] text-[#ad2c4d] flex items-center justify-center"><i class="fa-solid ${r[0]}"></i></div><div class="flex-1"><div class="font-bold text-sm">${r[1]}</div><div class="text-[11px] text-[#737373]">${r[2]}</div></div><button class="px-4 py-2 bg-[#ad2c4d] text-white text-xs font-semibold rounded-full focus-ring">${r[3]}</button></div>`).join('')}</div>`,
+
+/* ---------- PARTNER ---------- */
+'partner-home':()=>heroAction('fa-hand-holding-heart','3 referrals need attention','Devon, Lena, and 1 more are slipping','A quick check-in now keeps your placement rate strong. They\'re flagged medium-risk.','Open attention queue')+
+  kpis([{l:'Referred',v:'142',c:C.info},{l:'In Training',v:'88'},{l:'Certified',v:'37',c:C.gold},{l:'Placed',v:'38',c:C.green,sub:'27% rate',sc:C.green}]),
+'partner-attention':()=>`<p class="text-sm text-[#737373] mb-4">Members you referred, tiered by urgency. Calm view leads with the few that need you today.</p>
+  <div class="space-y-3">${[['red','Devon Hill','No activity 12 days · Manufacturing','High','Check in'],['red','Maria Santos','Stalled in training · Healthcare','High','Check in'],['yellow','Lena Ortiz','Reply overdue · Data & AI','Watch','Nudge'],['yellow','Sam Cole','Assessment incomplete · Trades','Watch','Nudge']].map(r=>riskRow(r[0],r[1],r[2],r[3],r[4])).join('')}</div>`,
+'partner-outcomes':()=>kpis([{l:'Placement Rate',v:'27%',c:C.green},{l:'Avg Wage',v:'$56k'},{l:'Certified',v:'37',c:C.gold},{l:'Completions',v:'61',c:C.info}])+
+  `<div class="grid grid-cols-1 lg:grid-cols-2 gap-5"><div class="card bento"><h4 class="font-extrabold text-lg tracking-tight mb-1">Your impact, ready for funders</h4><p class="text-xs text-[#737373] mb-4">One click exports the funder-ready CSV.</p><div class="space-y-2.5">${[['fa-file-csv','Outcomes export','Placements + wages, this quarter'],['fa-file-lines','Demographics + placement','For funder reporting']].map(x=>`<div class="flex items-center gap-3 p-3 rounded-2xl bg-[#fafafa] border border-[#eceaea] hover:bg-[#f5f5f5] cursor-pointer"><div class="w-9 h-9 tint bg-[#eef7ef] text-[#4a9b4f] flex items-center justify-center"><i class="fa-solid ${x[0]}"></i></div><div class="flex-1"><div class="font-bold text-xs">${x[1]}</div><div class="text-[10px] text-[#737373]">${x[2]}</div></div><i class="fa-solid fa-download text-[#737373]"></i></div>`).join('')}</div></div><div class="card bento"><h4 class="font-extrabold text-lg tracking-tight mb-4">Members by stage</h4><div class="space-y-3 text-xs">${[['Approved','142',100],['In training','88',62],['Certified','37',26],['Placed','38',27]].map(b=>`<div><div class="flex justify-between mb-1"><span class="font-bold">${b[0]}</span><span class="tabnum text-[#737373]">${b[1]}</span></div><div class="h-2 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2 rounded-full" style="width:${b[2]}%;background:${C.info}"></div></div></div>`).join('')}</div></div></div>`,
+
+/* ---------- COUNSELOR ---------- */
+'counselor-home':()=>heroAction('fa-bolt','First thing today','3 members need urgent outreach','Two have gone quiet 10+ days, one reply is 48h overdue. Clear these and you\'re ahead.','Open triage')+
+  kpis([{l:'My Caseload',v:'156',c:C.info},{l:'Urgent',v:'3',c:C.crimson},{l:'Watch',v:'7',c:C.gold},{l:'Wins to send',v:'4',c:C.green}]),
+'counselor-triage':()=>`<p class="text-sm text-[#737373] mb-4">Red = today · Yellow = this week · Blue = celebrate. Calm view shows red first, the rest collapse.</p>
+  <div class="mb-5"><div class="text-[11px] font-bold uppercase tracking-widest text-[#ad2c4d] mb-2">Urgent — today</div><div class="space-y-2.5">${[['red','Carlos Torres','No activity 16 days · Skilled Trades','Inactive','Call'],['red','Tanya Reed','Reply overdue 52h · Healthcare','Overdue','Reply'],['red','Devon Hill','No activity 11 days · Manufacturing','Inactive','Call']].map(r=>riskRow(r[0],r[1],r[2],r[3],r[4])).join('')}</div></div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="card !p-5 bento"><div class="text-[11px] font-bold uppercase tracking-widest text-[#a47f38] mb-2">Watch — this week (7)</div><p class="text-xs text-[#737373]">SLA warnings + stalled training. Tap to expand.</p></div><div class="card !p-5 bento"><div class="text-[11px] font-bold uppercase tracking-widest text-[#2b7bb9] mb-2">Celebrate (4)</div><p class="text-xs text-[#737373]">Recent certs & completions — send a nudge.</p></div></div>`,
+'counselor-atrisk':()=>kpis([{l:'Critical ≥70',v:'3',c:C.crimson},{l:'High 50–69',v:'8',c:C.gold},{l:'Medium 30–49',v:'14',c:C.info},{l:'Low <30',v:'131',c:C.green}])+
+  table(['Member','Risk','Top factors','Last active'],[
+    ['<b>Carlos Torres</b>','<b style="color:#ad2c4d">82 · Critical</b>','No login 14d · Stalled training','16d ago'],
+    ['<b>Devon Hill</b>','<b style="color:#ad2c4d">71 · Critical</b>','No login 14d · No applications','11d ago'],
+    ['<b>Sam Cole</b>','<b style="color:#a47f38">58 · High</b>','Assessment incomplete','6d ago'],
+  ]),
+
+/* ---------- ADMIN ---------- */
+'admin-home':()=>heroAction('fa-triangle-exclamation','What needs you first','19 students at risk this week','Cloud & IT is driving most of it. Assign outreach now to protect completion rate.','Assign outreach')+
+  kpis([{l:'Active Students',v:'847',c:C.info},{l:'Placements YTD',v:'213',c:C.green},{l:'Completion',v:'71%',c:C.gold},{l:'At Risk',v:'19',c:C.crimson}]),
+'admin-students':()=>`<div class="flex gap-2 mb-4">${['All · 847','Job-Ready · 64','At Risk · 19'].map((f,i)=>`<button class="px-3.5 py-2 rounded-full text-xs font-bold ${i===0?'bg-[#ad2c4d] text-white':'bg-white border border-[#e8e8e8]'} focus-ring">${f}</button>`).join('')}</div>`+
+  table(['Student','Program','Progress','Readiness','Status'],[
+    ['<b>Mike Brown</b>','Cloud & IT','78%','<b style="color:#4a9b4f">84</b>',tag('Job-Ready','warn')],
+    ['<b>Jasmine Davis</b>','Healthcare','92%','<b style="color:#4a9b4f">91</b>',tag('Placed','ok')],
+    ['<b>Carlos Torres</b>','Skilled Trades','34%','<b style="color:#ad2c4d">41</b>',tag('At Risk','alert')],
+  ]),
+'admin-board':()=>kpis([{l:'Placement Rate',v:'68%',c:C.green},{l:'Avg Wage',v:'$58k'},{l:'Credentials',v:'541',c:C.gold},{l:'90-Day Retention',v:'84%',c:C.info}])+
+  `<div class="card bento"><h4 class="font-extrabold text-lg tracking-tight mb-1">Placements by month</h4><p class="text-xs text-[#737373] mb-5">2026 YTD · 213 total</p><div class="flex items-end justify-between gap-3 h-40">${[38,46,55,62,78,90].map((h,i)=>`<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full rounded-t-xl" style="height:${h}%;background:${i===5?'#ad2c4d':'#f3d4dc'}"></div><span class="text-[9px] text-[#737373] font-bold">${['Jan','Feb','Mar','Apr','May','Jun'][i]}</span></div>`).join('')}</div></div>`,
+};
+
+/* ============ NAV / RENDER ============ */
+let cur={p:'member',s:'home'};
+const prail=document.getElementById('prail'),stabs=document.getElementById('stabs'),stage=document.getElementById('stage');
+PERSONAS.forEach(p=>{const b=document.createElement('button');b.className='nav-p w-full flex items-center gap-3 px-2.5 py-2 rounded-lg font-semibold text-left text-[#cfcfcf] hover:bg-[#242424] focus-ring';b.dataset.p=p.id;b.innerHTML=`<i class="fa-solid ${p.ic} w-4 text-center text-[12px] text-[#888]"></i>${p.t}`;b.onclick=()=>{cur={p:p.id,s:p.screens[0][0]};render();};prail.appendChild(b);});
+function render(){
+  const P=PERSONAS.find(x=>x.id===cur.p);
+  document.getElementById('ptitle').textContent=P.t;
+  document.getElementById('pgoal').innerHTML=`<i class="fa-solid fa-bullseye text-[#ad2c4d] mr-1"></i><b>Goal:</b> ${P.goal}`;
+  stabs.innerHTML=P.screens.map(s=>`<button data-s="${s[0]}" class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 ${s[0]===cur.s?'border-[#ad2c4d] text-[#ad2c4d]':'border-transparent text-[#737373] hover:text-[#1a1a1a]'}">${s[1]}</button>`).join('');
+  stabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{cur.s=b.dataset.s;render();});
+  const fn=S[cur.p+'-'+cur.s];
+  stage.innerHTML=`<div class="fade">${fn?fn():'<div class="card">Screen pending.</div>'}</div>`;
+  prail.querySelectorAll('.nav-p').forEach(b=>{const on=b.dataset.p===cur.p;b.classList.toggle('bg-[#ad2c4d]',on);b.classList.toggle('text-white',on);b.classList.toggle('text-[#cfcfcf]',!on);});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

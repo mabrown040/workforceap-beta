@@ -6,7 +6,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
-import MobileBottomNav from '@/components/MobileBottomNav';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('counselor');
@@ -281,7 +280,6 @@ export default async function CounselorGuidePage() {
         </div>
       </section>
     </div>
-    <MobileBottomNav variant="counselor" />
     </>
   );
 }

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Portal Redesign — Design Lab</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.h-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.03em}
+.card{transition:box-shadow .2s,transform .15s,border-color .2s}
+.card:hover{box-shadow:0 16px 32px rgba(0,0,0,.08);border-color:#ad2c4d}
+.focus-ring:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #ad2c4d}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fade .4s cubic-bezier(.34,1.56,.64,1) forwards}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.card{transition:none}}
+</style>
+</head>
+<body class="bg-[#F7F8FA] text-[#1A1A1A] min-h-screen">
+
+<header class="bg-gradient-to-br from-[#1a1a1a] via-[#1a1a1a] to-[#3a0f1c] text-white">
+  <div class="max-w-5xl mx-auto px-5 py-12 md:py-16 fade">
+    <div class="flex items-center gap-2.5 mb-5">
+      <div class="w-9 h-9 bg-[#ad2c4d] rounded-xl flex items-center justify-center"><i class="fa-solid fa-burst"></i></div>
+      <span class="text-xs font-bold tracking-widest uppercase text-[#a3a3a3]">WorkforceAP · Design Lab</span>
+    </div>
+    <h1 class="h-font text-4xl md:text-5xl leading-tight">The portal, reimagined as<br>one system.</h1>
+    <p class="text-base text-white/70 mt-4 max-w-2xl leading-relaxed">A guided walk through the redesign — from first direction, to the full member experience, to the AI tools, to the admin views your team runs every day. Same design system underneath all of it. Built to roll out safely, page by page.</p>
+    <div class="flex flex-wrap gap-2 mt-6 text-[11px] font-semibold">
+      <span class="px-3 py-1.5 bg-white/10 rounded-full"><i class="fa-solid fa-palette mr-1 text-[#ad2c4d]"></i>DESIGN.md tokens</span>
+      <span class="px-3 py-1.5 bg-white/10 rounded-full"><i class="fa-solid fa-universal-access mr-1 text-[#ad2c4d]"></i>WCAG AA</span>
+      <span class="px-3 py-1.5 bg-white/10 rounded-full"><i class="fa-solid fa-mobile-screen mr-1 text-[#ad2c4d]"></i>Responsive</span>
+      <span class="px-3 py-1.5 bg-white/10 rounded-full"><i class="fa-solid fa-shield-halved mr-1 text-[#ad2c4d]"></i>Zero production code touched</span>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-5 py-10 md:py-14">
+
+  <!-- 3 CONCEPTS — the decision -->
+  <div class="text-xs font-bold tracking-widest uppercase text-[#ad2c4d] mb-1">Decide the direction</div>
+  <h2 class="h-font text-2xl mb-1">3 concepts, every persona</h2>
+  <p class="text-sm text-[#525252] mb-5 max-w-2xl">Each concept is a complete design direction — layout <em>and</em> personality — rendered across all five personas' key screens (Member, Employer, Partner, Counselor, Admin). Pick the persona on the left, flip between its screens, and check each against its stated goal. <b>Open all three in browser tabs to compare A/B/C on the same screen.</b></p>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+    <a href="/workforceap-concept-calm.html" class="card block bg-white border border-[#e8e8e8] rounded-3xl p-6 focus-ring">
+      <div class="w-11 h-11 rounded-2xl bg-[#fdf2f4] text-[#ad2c4d] flex items-center justify-center text-lg"><i class="fa-solid fa-feather"></i></div>
+      <h3 class="h-font text-lg mt-3">Calm Focus</h3>
+      <p class="text-xs text-[#737373] mt-1">Single-next-action first. Soft, spacious, low cognitive load. Best bet for members + first-timers.</p>
+      <div class="text-xs text-[#ad2c4d] font-bold mt-3">Concept A <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+    <a href="/workforceap-concept-dense.html" class="card block bg-[#1a1a1a] text-white rounded-3xl p-6 focus-ring">
+      <div class="w-11 h-11 rounded-2xl bg-[#ad2c4d] text-white flex items-center justify-center text-lg"><i class="fa-solid fa-table-cells"></i></div>
+      <h3 class="h-font text-lg mt-3">Dense Command</h3>
+      <p class="text-xs text-white/70 mt-1">Everything-visible cockpit. Compact, sharp, KPI strips + tables. Best bet for admin/counselor/employer.</p>
+      <div class="text-xs text-[#ff8da3] font-bold mt-3">Concept B <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+    <a href="/workforceap-concept-bold.html" class="card block rounded-3xl p-6 focus-ring text-white" style="background:linear-gradient(135deg,#ad2c4d,#8b1f38)">
+      <div class="w-11 h-11 rounded-2xl bg-white/15 text-white flex items-center justify-center text-lg"><i class="fa-solid fa-fire"></i></div>
+      <h3 class="h-font text-lg mt-3">Bold Motivation</h3>
+      <p class="text-xs text-white/80 mt-1">Momentum-driven. Gradients, rings, streaks, celebration. Best bet for members + partners.</p>
+      <div class="text-xs text-white font-bold mt-3">Concept C <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+  </div>
+
+  <a href="/workforceap-mobile-proof.html" class="card block bg-white border border-[#e8e8e8] rounded-3xl p-5 mb-12 focus-ring flex items-center gap-4">
+    <div class="w-11 h-11 rounded-2xl bg-[#1a1a1a] text-white flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-mobile-screen"></i></div>
+    <div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><h3 class="h-font text-lg">Mobile Proof</h3><span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#4a9b4f] text-[10px] font-bold uppercase">All surface-types @ 390px</span></div><p class="text-xs text-[#737373] mt-0.5">The hybrid on a phone: member (Bold+Calm) · charts/CSV (Dense) · roster table → cards. Open on your phone too.</p></div>
+    <i class="fa-solid fa-arrow-right text-[#ad2c4d]"></i>
+  </a>
+
+  <div class="text-xs font-bold tracking-widest uppercase text-[#ad2c4d] mb-1">Walk it in order</div>
+  <h2 class="h-font text-2xl mb-6">The full story, start to finish</h2>
+
+  <div class="space-y-4">
+
+    <!-- 1 -->
+    <a href="/workforceap-bento-shotgun.html" class="card block bg-white border border-[#e8e8e8] rounded-3xl p-6 md:p-7 focus-ring">
+      <div class="flex items-start gap-5">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-[#fdf2f4] text-[#ad2c4d] items-center justify-center font-extrabold text-lg shrink-0">1</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap"><h3 class="h-font text-xl">Design Shotgun</h3><span class="px-2.5 py-0.5 rounded-full bg-[#fdf2f4] text-[#ad2c4d] text-[10px] font-bold uppercase">Explore</span></div>
+          <p class="text-sm text-[#525252] mt-1">Six directions off the bento layout — Refined, Soft Clay, Editorial, Crimson, Stat-Dense, Gold. This is where we picked the look.</p>
+          <div class="text-xs text-[#ad2c4d] font-bold mt-3 flex items-center gap-1.5">Open <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+        <i class="fa-solid fa-grip text-[#e8e8e8] text-3xl hidden md:block"></i>
+      </div>
+    </a>
+
+    <!-- 2 -->
+    <a href="/workforceap-member-suite.html" class="card block bg-white border border-[#e8e8e8] rounded-3xl p-6 md:p-7 focus-ring">
+      <div class="flex items-start gap-5">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-[#fdf2f4] text-[#ad2c4d] items-center justify-center font-extrabold text-lg shrink-0">2</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap"><h3 class="h-font text-xl">Member Portal Suite</h3><span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-[#4a9b4f] text-[10px] font-bold uppercase">8 views</span></div>
+          <p class="text-sm text-[#525252] mt-1">The full member experience in Gold × Stat-Dense — Home, Program, Jobs, Career Toolkit, Certificates, Progress, Messages, Profile. The winning direction, applied everywhere.</p>
+          <div class="text-xs text-[#ad2c4d] font-bold mt-3 flex items-center gap-1.5">Open <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+        <i class="fa-solid fa-user text-[#e8e8e8] text-3xl hidden md:block"></i>
+      </div>
+    </a>
+
+    <!-- 3 -->
+    <a href="/workforceap-voice-studio.html" class="card block bg-white border border-[#e8e8e8] rounded-3xl p-6 md:p-7 focus-ring">
+      <div class="flex items-start gap-5">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-[#fdf2f4] text-[#ad2c4d] items-center justify-center font-extrabold text-lg shrink-0">3</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap"><h3 class="h-font text-xl">Voice AI + Career Studio</h3><span class="px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#a47f38] text-[10px] font-bold uppercase">Beta</span></div>
+          <p class="text-sm text-[#525252] mt-1">All five voice coaches brought into one brand family, the live voice session experience, and the beta Resume Studio — score, AI rewrite, and talk-it-through in one place.</p>
+          <div class="text-xs text-[#ad2c4d] font-bold mt-3 flex items-center gap-1.5">Open <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+        <i class="fa-solid fa-microphone-lines text-[#e8e8e8] text-3xl hidden md:block"></i>
+      </div>
+    </a>
+
+    <!-- 4 -->
+    <a href="/workforceap-admin-suite.html" class="card block bg-white border border-[#e8e8e8] rounded-3xl p-6 md:p-7 focus-ring">
+      <div class="flex items-start gap-5">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-[#fdf2f4] text-[#ad2c4d] items-center justify-center font-extrabold text-lg shrink-0">4</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap"><h3 class="h-font text-xl">Admin Suite</h3><span class="px-2.5 py-0.5 rounded-full bg-[#fdf2f4] text-[#ad2c4d] text-[10px] font-bold uppercase">16 → 4 pages</span></div>
+          <p class="text-sm text-[#525252] mt-1">For Dad. Command Center, student management with smart filters, the Student 360° view, board-ready outcomes — and the consolidation story: 16 overlapping pages become 4 focused workspaces.</p>
+          <div class="text-xs text-[#ad2c4d] font-bold mt-3 flex items-center gap-1.5">Open <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+        <i class="fa-solid fa-shield-halved text-[#e8e8e8] text-3xl hidden md:block"></i>
+      </div>
+    </a>
+
+    <!-- 4b — full admin -->
+    <a href="/workforceap-admin-full.html" class="card block bg-[#1a1a1a] text-white rounded-3xl p-6 md:p-7 focus-ring">
+      <div class="flex items-start gap-5">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-[#ad2c4d] text-white items-center justify-center font-extrabold text-lg shrink-0"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap"><h3 class="h-font text-xl">Admin — Full Build</h3><span class="px-2.5 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold uppercase">Every page · 39 screens</span></div>
+          <p class="text-sm text-white/70 mt-1">The complete admin app on desktop — full sidebar matching your real nav, every route rendered, no dead links. This is the "take it live" reference. Best viewed wide.</p>
+          <div class="text-xs text-[#ff8da3] font-bold mt-3 flex items-center gap-1.5">Open the full admin <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+        <i class="fa-solid fa-table-cells-large text-white/15 text-3xl hidden md:block"></i>
+      </div>
+    </a>
+
+    <!-- 5 -->
+    <a href="/workforceap-design-system.html" class="card block bg-white border border-[#e8e8e8] rounded-3xl p-6 md:p-7 focus-ring">
+      <div class="flex items-start gap-5">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-[#1a1a1a] text-white items-center justify-center font-extrabold text-lg shrink-0">5</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap"><h3 class="h-font text-xl">Live Design System</h3><span class="px-2.5 py-0.5 rounded-full bg-[#1a1a1a] text-white text-[10px] font-bold uppercase">The engine</span></div>
+          <p class="text-sm text-[#525252] mt-1">Why it stays consistent. Change the accent, pop, corner style, density, or mode in the control rail — the whole portal moves at once. One source of truth, every page follows.</p>
+          <div class="text-xs text-[#ad2c4d] font-bold mt-3 flex items-center gap-1.5">Open <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+        <i class="fa-solid fa-sliders text-[#e8e8e8] text-3xl hidden md:block"></i>
+      </div>
+    </a>
+
+    <!-- 6 — original, for contrast -->
+    <a href="/workforceap-portal-variants.html" class="card block bg-[#fafafa] border border-dashed border-[#d4d4d4] rounded-3xl p-6 md:p-7 focus-ring">
+      <div class="flex items-start gap-5">
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-white border border-[#e8e8e8] text-[#737373] items-center justify-center font-extrabold text-lg shrink-0"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap"><h3 class="h-font text-xl text-[#525252]">Where we started</h3><span class="px-2.5 py-0.5 rounded-full bg-[#f5f5f5] text-[#737373] text-[10px] font-bold uppercase">Original 3 variants</span></div>
+          <p class="text-sm text-[#737373] mt-1">The first round — A: Bento Light, B: Dark Glow, C: Editorial. Useful for before/after context.</p>
+          <div class="text-xs text-[#737373] font-bold mt-3 flex items-center gap-1.5">Open <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- the why -->
+  <div class="mt-10 bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] rounded-3xl p-7 md:p-8 text-white">
+    <div class="text-[11px] font-bold tracking-widest uppercase text-white/70 mb-1">The point of all this</div>
+    <h3 class="h-font text-2xl">Not a coat of paint — a system.</h3>
+    <p class="text-sm text-white/85 mt-2 max-w-2xl leading-relaxed">Every screen here is built from the same handful of components reading the same tokens. That's what makes the whole site changeable in one place, consistent across 124 pages, and simple enough that a member — or your dad — can find and use what they need without thinking. It rolls out one page at a time, each one safe and reversible.</p>
+    <div class="flex flex-wrap gap-3 mt-5 text-xs font-semibold">
+      <div class="px-3 py-2 bg-white/10 rounded-xl"><i class="fa-solid fa-layer-group mr-1.5"></i>One component set</div>
+      <div class="px-3 py-2 bg-white/10 rounded-xl"><i class="fa-solid fa-compress mr-1.5"></i>Fewer pages to learn</div>
+      <div class="px-3 py-2 bg-white/10 rounded-xl"><i class="fa-solid fa-route mr-1.5"></i>Ships page-by-page</div>
+    </div>
+  </div>
+</main>
+
+<footer class="bg-[#1a1a1a] text-[#737373] text-[11px] text-center py-5 px-4">
+  WorkforceAP Design Lab · static mockups · zero production code touched · served from the lab on .150
+</footer>
+</body>
+</html>

@@ -972,11 +972,8 @@ export default async function AdminCourseraHealthPage() {
               {
                 key: 'action',
                 header: 'Action',
-                cell: (row) => (
-                  <Link
-                    href={`/admin/coursera?focusSlug=${encodeURIComponent(row.courseSlug)}`}
-                    style={{ fontWeight: 600 }}
-                  >
+                cell: () => (
+                  <Link href="/admin/coursera?ui=legacy" style={{ fontWeight: 600 }}>
                     Map this →
                   </Link>
                 ),

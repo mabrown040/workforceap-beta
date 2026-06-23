@@ -56,6 +56,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
   const [saving, setSaving] = useState(false);
   const [assignBusy, setAssignBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     const tr = searchParams?.get('tier');
@@ -81,27 +82,36 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
   );
 
   const reload = useCallback(async () => {
-    const [r1, r2, r3, r4] = await Promise.all([
-      fetch('/api/partner/members/needs-attention', { credentials: 'include' }),
-      fetch('/api/partner/outreach', { credentials: 'include' }),
-      fetch('/api/partner/referral-members', { credentials: 'include' }),
-      fetch('/api/partner/team-assign', { credentials: 'include' }),
-    ]);
-    if (r1.ok) {
-      const d = (await r1.json()) as { members: AttentionMember[] };
-      setRows(d.members);
-    }
-    if (r2.ok) {
-      const d = (await r2.json()) as { logs: LogRow[] };
-      setLogs(d.logs);
-    }
-    if (r3.ok) {
-      const d = (await r3.json()) as { members: MemberOption[] };
-      setAllMembers(d.members);
-    }
-    if (r4.ok) {
-      const d = (await r4.json()) as { users: TeamUser[] };
-      setTeam(d.users);
+    setLoadError(null);
+    try {
+      const [r1, r2, r3, r4] = await Promise.all([
+        fetch('/api/partner/members/needs-attention', { credentials: 'include' }),
+        fetch('/api/partner/outreach', { credentials: 'include' }),
+        fetch('/api/partner/referral-members', { credentials: 'include' }),
+        fetch('/api/partner/team-assign', { credentials: 'include' }),
+      ]);
+      if (!r1.ok) {
+        setRows([]);
+        setLoadError('The attention queue could not load. Try again in a moment.');
+      } else {
+        const d = (await r1.json()) as { members: AttentionMember[] };
+        setRows(d.members);
+      }
+      if (r2.ok) {
+        const d = (await r2.json()) as { logs: LogRow[] };
+        setLogs(d.logs);
+      }
+      if (r3.ok) {
+        const d = (await r3.json()) as { members: MemberOption[] };
+        setAllMembers(d.members);
+      }
+      if (r4.ok) {
+        const d = (await r4.json()) as { users: TeamUser[] };
+        setTeam(d.users);
+      }
+    } catch {
+      setRows([]);
+      setLoadError('The attention queue could not load. Check your connection and retry.');
     }
   }, []);
 
@@ -193,7 +203,8 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
               type="button"
               className={`partner-tier-filter${tierFilter === t ? ' is-active' : ''}`}
               onClick={() => pushTierRoute(t)}
-              aria-current={tierFilter === t ? 'true' : undefined}
+              role="tab"
+              aria-selected={tierFilter === t}
             >
               <span className="partner-tier-filter-inner">
                 {t === 'all' ? 'All' : t}
@@ -204,7 +215,14 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
             </button>
           ))}
         </div>
-        {!rows ? (
+        {loadError ? (
+          <div role="alert" className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>{loadError}</p>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => void reload()}>
+              Retry
+            </button>
+          </div>
+        ) : !rows ? (
           <p>Loading…</p>
         ) : filtered.length === 0 ? (
           <p style={{ color: 'var(--color-on-surface-variant)' }}>No members in this filter. Try “All” or check back later.</p>

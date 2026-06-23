@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Member Portal Suite (Gold × Stat-Dense)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.heading-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.03em}
+.bento{transition:box-shadow .2s cubic-bezier(.4,0,.2,1),border-color .2s,background-color .2s}
+.nav-item{transition:background-color .15s,color .15s}
+.focus-ring:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #ad2c4d}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeInUp .35s cubic-bezier(.34,1.56,.64,1) forwards}
+@media (prefers-reduced-motion:reduce){.fade-in{animation:none}.bento{transition:none}.animate-ping{animation:none}}
+.ring-bg{stroke:#f0eef0}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#d4d4d4;border-radius:4px}
+</style>
+</head>
+<body class="bg-[#F7F8FA] text-[#1A1A1A] min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="hidden lg:flex flex-col w-64 bg-white border-r border-[#e8e8e8] fixed h-screen z-40">
+    <div class="px-5 py-5 flex items-center gap-2.5 border-b border-[#e8e8e8]">
+      <div class="w-9 h-9 bg-[#ad2c4d] rounded-xl flex items-center justify-center shrink-0"><i class="fa-solid fa-burst text-white"></i></div>
+      <div><div class="font-extrabold text-sm tracking-tight leading-none">WorkforceAP</div><div class="text-[10px] text-[#737373] mt-0.5">Member Portal</div></div>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+      <div>
+        <div class="px-3 text-[10px] font-bold tracking-widest text-[#a3a3a3] uppercase mb-1.5">Journey</div>
+        <button data-view="home" class="nav-btn nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-left focus-ring"><i class="fa-solid fa-house-chimney w-4 text-center"></i>Home</button>
+        <button data-view="progress" class="nav-btn nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-left focus-ring"><i class="fa-solid fa-chart-line w-4 text-center"></i>My Progress</button>
+      </div>
+      <div>
+        <div class="px-3 text-[10px] font-bold tracking-widest text-[#a3a3a3] uppercase mb-1.5">Program</div>
+        <button data-view="program" class="nav-btn nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-left focus-ring"><i class="fa-solid fa-book-open w-4 text-center"></i>My Program</button>
+        <button data-view="certs" class="nav-btn nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-left focus-ring"><i class="fa-solid fa-award w-4 text-center"></i>Certificates</button>
+      </div>
+      <div>
+        <div class="px-3 text-[10px] font-bold tracking-widest text-[#a3a3a3] uppercase mb-1.5">Jobs</div>
+        <button data-view="jobs" class="nav-btn nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-semibold text-left focus-ring"><span class="flex items-center gap-3"><i class="fa-solid fa-briefcase w-4 text-center"></i>Job Pipeline</span><span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-[#ad2c4d] text-white">4</span></button>
+        <button data-view="toolkit" class="nav-btn nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-left focus-ring"><i class="fa-solid fa-wand-magic-sparkles w-4 text-center"></i>Career Toolkit</button>
+      </div>
+      <div>
+        <div class="px-3 text-[10px] font-bold tracking-widest text-[#a3a3a3] uppercase mb-1.5">Me</div>
+        <button data-view="messages" class="nav-btn nav-item w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-semibold text-left focus-ring"><span class="flex items-center gap-3"><i class="fa-solid fa-comments w-4 text-center"></i>Messages</span><span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-[#ad2c4d] text-white">1</span></button>
+        <button data-view="profile" class="nav-btn nav-item w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold text-left focus-ring"><i class="fa-solid fa-user w-4 text-center"></i>Profile</button>
+      </div>
+    </nav>
+    <div class="px-3 py-3 border-t border-[#e8e8e8]">
+      <div class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-[#fafafa] cursor-pointer">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white flex items-center justify-center font-bold text-sm">MB</div>
+        <div class="min-w-0"><div class="text-xs font-bold truncate">Mike Brown</div><div class="text-[10px] text-[#737373] truncate">Austin, TX</div></div>
+        <i class="fa-solid fa-gear text-[#a3a3a3] text-xs ml-auto"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="flex-1 lg:ml-64 flex flex-col min-w-0">
+
+    <!-- Top bar -->
+    <header class="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-[#e8e8e8] px-4 md:px-8 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <button class="lg:hidden w-9 h-9 rounded-lg border border-[#e8e8e8] flex items-center justify-center focus-ring" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+        <h1 id="page-title" class="heading-font text-xl truncate">Home</h1>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#faf7f0] border border-[#ece2c8] rounded-full text-xs font-bold text-[#a47f38]"><i class="fa-solid fa-fire text-[#ad2c4d]"></i>12-day streak</div>
+        <div class="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#e8e8e8] rounded-full text-xs font-bold"><i class="fa-solid fa-coins text-[#a47f38]"></i><span class="tabular-nums">1,240</span></div>
+        <button class="w-9 h-9 rounded-full border border-[#e8e8e8] flex items-center justify-center hover:bg-[#fafafa] focus-ring" aria-label="Notifications"><i class="fa-regular fa-bell text-[#525252]"></i></button>
+      </div>
+    </header>
+
+    <!-- Mobile view switcher -->
+    <div class="lg:hidden bg-white border-b border-[#e8e8e8] px-4 py-2 flex gap-1.5 overflow-x-auto text-xs font-semibold">
+      <button data-view="home" class="nav-btn nav-item px-3 py-1.5 rounded-full whitespace-nowrap">Home</button>
+      <button data-view="program" class="nav-btn nav-item px-3 py-1.5 rounded-full whitespace-nowrap">Program</button>
+      <button data-view="jobs" class="nav-btn nav-item px-3 py-1.5 rounded-full whitespace-nowrap">Jobs</button>
+      <button data-view="certs" class="nav-btn nav-item px-3 py-1.5 rounded-full whitespace-nowrap">Certs</button>
+      <button data-view="toolkit" class="nav-btn nav-item px-3 py-1.5 rounded-full whitespace-nowrap">Toolkit</button>
+      <button data-view="progress" class="nav-btn nav-item px-3 py-1.5 rounded-full whitespace-nowrap">Progress</button>
+      <button data-view="messages" class="nav-btn nav-item px-3 py-1.5 rounded-full whitespace-nowrap">Messages</button>
+      <button data-view="profile" class="nav-btn nav-item px-3 py-1.5 rounded-full whitespace-nowrap">Profile</button>
+    </div>
+
+    <main class="flex-1 p-4 md:p-8">
+
+    <!-- ============ VIEW: HOME ============ -->
+    <section data-view-panel="home" class="view-panel fade-in space-y-5">
+      <div>
+        <div class="flex items-center gap-x-2 text-xs font-bold text-[#ad2c4d] tracking-widest uppercase"><i class="fa-solid fa-house-chimney"></i><span>Good morning</span></div>
+        <h2 class="heading-font text-3xl mt-1">Keep climbing, Mike.</h2>
+      </div>
+      <!-- KPI strip -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Course</div><div class="text-3xl font-extrabold text-[#ad2c4d] tabular-nums mt-1">78<span class="text-lg">%</span></div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Active Jobs</div><div class="text-3xl font-extrabold tabular-nums mt-1">4</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Certs</div><div class="text-3xl font-extrabold text-[#a47f38] tabular-nums mt-1">2</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Points</div><div class="text-3xl font-extrabold text-[#2b7bb9] tabular-nums mt-1">1,240</div></div>
+      </div>
+      <!-- bento -->
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 auto-rows-[minmax(180px,auto)]">
+        <div class="md:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-7 flex items-center gap-6 bento shadow-sm hover:shadow-md">
+          <div class="relative shrink-0"><svg width="112" height="112" viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52" fill="none" stroke-width="12"/><circle cx="60" cy="60" r="52" fill="none" stroke="#ad2c4d" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="71.9" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span class="text-2xl font-extrabold text-[#ad2c4d] tabular-nums">78%</span></div></div>
+          <div><span class="px-3 py-1 rounded-full bg-emerald-50 text-[#4a9b4f] border border-emerald-100 text-[10px] font-bold uppercase tracking-wider">In Progress</span><h3 class="text-xl font-extrabold tracking-tight mt-2">AWS Cloud Practitioner</h3><p class="text-xs text-[#737373] mt-1">Next: Shared Responsibility Model · <span class="text-[#ad2c4d] font-bold">Due Thursday</span></p><button class="mt-3 px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">Resume <i class="fa-solid fa-play ml-1 text-[10px]"></i></button></div>
+        </div>
+        <button data-view="toolkit" class="nav-btn text-left bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white rounded-3xl p-7 flex flex-col justify-between bento cursor-pointer shadow-lg shadow-red-900/10 hover:shadow-xl focus-ring"><div class="flex justify-between items-start"><div class="p-3 bg-white/10 rounded-2xl"><i class="fa-solid fa-wand-magic-sparkles text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/20 rounded-full">AI</span></div><div><h3 class="font-extrabold text-xl tracking-tight">Career Toolkit</h3><p class="text-xs text-white/80 mt-1">Resume audit + cover letters.</p></div></button>
+        <div class="bg-white border border-[#ece2c8] rounded-3xl p-7 flex flex-col justify-between bento shadow-sm hover:shadow-md"><div><div class="p-3 w-fit bg-[#FEF3C7] text-[#a47f38] rounded-2xl"><i class="fa-solid fa-medal text-xl"></i></div><div class="mt-4"><h3 class="font-extrabold text-lg tracking-tight">Next Badge</h3><p class="text-xs text-[#737373] mt-1">2 modules to "Cloud Foundations".</p></div></div><div class="h-1.5 bg-[#f5f0e2] rounded-full overflow-hidden"><div class="h-1.5 bg-[#a47f38] rounded-full" style="width:60%"></div></div></div>
+        <div class="md:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm hover:shadow-md">
+          <div class="flex justify-between items-center mb-3"><h3 class="font-extrabold text-lg tracking-tight">Active Job Pipeline</h3><button data-view="jobs" class="nav-btn text-[11px] font-bold text-[#ad2c4d] hover:underline focus-ring rounded">View all →</button></div>
+          <table class="w-full text-left"><tbody class="text-xs">
+            <tr class="border-b border-[#f5f5f5]"><td class="py-2 font-bold">Salesforce Administrator</td><td class="py-2 text-[#525252]">Deloitte</td><td class="py-2 text-right"><span class="px-2 py-0.5 rounded-full bg-orange-100 text-amber-800 text-[9px] font-bold uppercase">Interviewing</span></td></tr>
+            <tr class="border-b border-[#f5f5f5]"><td class="py-2 font-bold">Agentforce SE</td><td class="py-2 text-[#525252]">Accenture</td><td class="py-2 text-right"><span class="px-2 py-0.5 rounded-full bg-[#f5f5f5] text-[#525252] text-[9px] font-bold uppercase">Applied</span></td></tr>
+            <tr><td class="py-2 font-bold">Cloud Support Associate</td><td class="py-2 text-[#525252]">Indeed</td><td class="py-2 text-right"><span class="px-2 py-0.5 rounded-full bg-blue-50 text-[#2b7bb9] text-[9px] font-bold uppercase">Screening</span></td></tr>
+          </tbody></table>
+        </div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-7 flex flex-col justify-between bento shadow-sm hover:shadow-md"><div><div class="p-3 w-fit bg-[#f7f8fa] text-[#2b7bb9] rounded-2xl border border-[#e8e8e8]"><i class="fa-solid fa-graduation-cap text-xl"></i></div><div class="mt-4"><h3 class="font-extrabold text-lg tracking-tight">Learning Hub</h3><p class="text-xs text-[#737373] mt-1">Coursera B2B courses.</p></div></div><a href="#" class="text-xs text-[#ad2c4d] font-bold flex items-center gap-x-1.5 hover:underline focus-ring rounded"><span>Go to courses</span><i class="fa-solid fa-arrow-right"></i></a></div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: MY PROGRAM ============ -->
+    <section data-view-panel="program" class="view-panel hidden fade-in space-y-5">
+      <div class="bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] rounded-3xl p-7 text-white flex flex-col md:flex-row md:items-center gap-6 shadow-lg shadow-red-900/15">
+        <div class="relative shrink-0 mx-auto md:mx-0"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="12"/><circle cx="60" cy="60" r="52" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="71.9" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex items-center justify-center"><span class="text-3xl font-extrabold tabular-nums">78%</span></div></div>
+        <div class="flex-1"><div class="text-[11px] font-bold tracking-widest uppercase text-white/70">Current Program</div><h2 class="heading-font text-3xl mt-1">AWS Cloud Practitioner Essentials</h2><p class="text-sm text-white/80 mt-1">7 of 9 modules complete · Est. 4 hrs remaining</p></div>
+        <button class="px-5 py-3 bg-white text-[#ad2c4d] font-bold text-sm rounded-full hover:bg-white/90 transition-colors focus-ring whitespace-nowrap">Resume Module <i class="fa-solid fa-play ml-1 text-xs"></i></button>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm">
+          <h3 class="font-extrabold text-lg tracking-tight mb-4">Modules</h3>
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-[#fafafa]"><div class="w-7 h-7 rounded-full bg-[#4a9b4f] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div><span class="font-semibold text-sm flex-1">Cloud Concepts</span><span class="text-[10px] font-bold text-[#4a9b4f] uppercase">Done</span></div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-[#fafafa]"><div class="w-7 h-7 rounded-full bg-[#4a9b4f] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div><span class="font-semibold text-sm flex-1">Security &amp; Compliance</span><span class="text-[10px] font-bold text-[#4a9b4f] uppercase">Done</span></div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-[#fdf2f4] border border-[#f3d4dc]"><div class="w-7 h-7 rounded-full bg-[#ad2c4d] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-play text-[9px]"></i></div><span class="font-semibold text-sm flex-1">Shared Responsibility Model</span><span class="text-[10px] font-bold text-[#ad2c4d] uppercase">In Progress</span></div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white border border-[#e8e8e8] opacity-70"><div class="w-7 h-7 rounded-full bg-[#e8e8e8] text-[#a3a3a3] flex items-center justify-center text-xs"><i class="fa-solid fa-lock text-[9px]"></i></div><span class="font-semibold text-sm flex-1 text-[#737373]">Billing &amp; Pricing</span><span class="text-[10px] font-bold text-[#a3a3a3] uppercase">Locked</span></div>
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-white border border-[#e8e8e8] opacity-70"><div class="w-7 h-7 rounded-full bg-[#e8e8e8] text-[#a3a3a3] flex items-center justify-center text-xs"><i class="fa-solid fa-lock text-[9px]"></i></div><span class="font-semibold text-sm flex-1 text-[#737373]">Exam Readiness</span><span class="text-[10px] font-bold text-[#a3a3a3] uppercase">Locked</span></div>
+          </div>
+        </div>
+        <div class="space-y-5">
+          <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm"><div class="flex items-center gap-2 text-[#ad2c4d] mb-2"><i class="fa-solid fa-calendar-day"></i><h3 class="font-extrabold text-sm tracking-tight">Next Live Session</h3></div><p class="text-sm font-bold">Exam Prep Q&amp;A</p><p class="text-xs text-[#737373] mt-0.5">Thu, Jun 26 · 6:00 PM CT</p><button class="mt-3 w-full py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">Add to Calendar</button></div>
+          <div class="bg-[#faf7f0] border border-[#ece2c8] rounded-3xl p-6 bento"><div class="flex items-center gap-2 text-[#a47f38] mb-2"><i class="fa-solid fa-target"></i><h3 class="font-extrabold text-sm tracking-tight">Skill Missions</h3></div><p class="text-xs text-[#737373]">3 active missions · 450 pts available this week</p><a href="#" class="mt-2 inline-flex text-xs font-bold text-[#a47f38] hover:underline focus-ring rounded">View missions →</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: JOBS ============ -->
+    <section data-view-panel="jobs" class="view-panel hidden fade-in space-y-5">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Saved</div><div class="text-3xl font-extrabold tabular-nums mt-1">9</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Applied</div><div class="text-3xl font-extrabold text-[#2b7bb9] tabular-nums mt-1">4</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Interviewing</div><div class="text-3xl font-extrabold text-[#a47f38] tabular-nums mt-1">1</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Offers</div><div class="text-3xl font-extrabold text-[#4a9b4f] tabular-nums mt-1">0</div></div>
+      </div>
+      <div class="bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm">
+        <div class="flex justify-between items-center mb-4"><div><h3 class="font-extrabold text-lg tracking-tight">Application Pipeline</h3><p class="text-xs text-[#737373]">Synced 3m ago</p></div><button class="px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">Browse Job Board</button></div>
+        <div class="overflow-x-auto"><table class="w-full text-left min-w-[560px]">
+          <thead><tr class="text-[9px] uppercase tracking-wider text-[#a3a3a3] border-b border-[#e8e8e8]"><th class="pb-2 font-bold">Role</th><th class="pb-2 font-bold">Company</th><th class="pb-2 font-bold">Location</th><th class="pb-2 font-bold">Applied</th><th class="pb-2 font-bold text-right">Stage</th></tr></thead>
+          <tbody class="text-xs">
+            <tr class="border-b border-[#f5f5f5] hover:bg-[#fafafa]"><td class="py-3 font-bold">Salesforce Administrator</td><td class="py-3 text-[#525252]">Deloitte</td><td class="py-3 text-[#525252]">Austin, TX</td><td class="py-3 text-[#737373]">Jun 12</td><td class="py-3 text-right"><span class="px-2.5 py-0.5 rounded-full bg-orange-100 text-amber-800 text-[9px] font-bold uppercase">Interviewing</span></td></tr>
+            <tr class="border-b border-[#f5f5f5] hover:bg-[#fafafa]"><td class="py-3 font-bold">Agentforce Solutions Engineer</td><td class="py-3 text-[#525252]">Accenture</td><td class="py-3 text-[#525252]">Remote</td><td class="py-3 text-[#737373]">Jun 14</td><td class="py-3 text-right"><span class="px-2.5 py-0.5 rounded-full bg-[#f5f5f5] text-[#525252] text-[9px] font-bold uppercase">Applied</span></td></tr>
+            <tr class="border-b border-[#f5f5f5] hover:bg-[#fafafa]"><td class="py-3 font-bold">Cloud Support Associate</td><td class="py-3 text-[#525252]">Indeed</td><td class="py-3 text-[#525252]">Austin, TX</td><td class="py-3 text-[#737373]">Jun 16</td><td class="py-3 text-right"><span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-[#2b7bb9] text-[9px] font-bold uppercase">Screening</span></td></tr>
+            <tr class="hover:bg-[#fafafa]"><td class="py-3 font-bold">Junior Cloud Engineer</td><td class="py-3 text-[#525252]">Oracle</td><td class="py-3 text-[#525252]">Austin, TX</td><td class="py-3 text-[#737373]">Jun 18</td><td class="py-3 text-right"><span class="px-2.5 py-0.5 rounded-full bg-[#f5f5f5] text-[#525252] text-[9px] font-bold uppercase">Applied</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div>
+        <h3 class="font-extrabold text-lg tracking-tight mb-3">Recommended for you</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md"><div class="flex justify-between items-start"><div class="w-10 h-10 rounded-xl bg-[#fdf2f4] text-[#ad2c4d] flex items-center justify-center font-bold">IBM</div><span class="text-[9px] font-bold text-[#4a9b4f] uppercase">94% match</span></div><h4 class="font-bold text-sm mt-3">Cloud Solutions Analyst</h4><p class="text-[11px] text-[#737373]">IBM · Austin, TX · $72k–88k</p><button class="mt-3 w-full py-1.5 border border-[#ad2c4d] text-[#ad2c4d] font-semibold text-xs rounded-full hover:bg-[#fdf2f4] transition-colors focus-ring">Quick Apply</button></div>
+          <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md"><div class="flex justify-between items-start"><div class="w-10 h-10 rounded-xl bg-[#fdf2f4] text-[#ad2c4d] flex items-center justify-center font-bold">DX</div><span class="text-[9px] font-bold text-[#4a9b4f] uppercase">89% match</span></div><h4 class="font-bold text-sm mt-3">IT Support Specialist</h4><p class="text-[11px] text-[#737373]">Dell · Round Rock, TX · $58k–70k</p><button class="mt-3 w-full py-1.5 border border-[#ad2c4d] text-[#ad2c4d] font-semibold text-xs rounded-full hover:bg-[#fdf2f4] transition-colors focus-ring">Quick Apply</button></div>
+          <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md"><div class="flex justify-between items-start"><div class="w-10 h-10 rounded-xl bg-[#fdf2f4] text-[#ad2c4d] flex items-center justify-center font-bold">VM</div><span class="text-[9px] font-bold text-[#4a9b4f] uppercase">85% match</span></div><h4 class="font-bold text-sm mt-3">Associate DevOps Eng.</h4><p class="text-[11px] text-[#737373]">VMware · Remote · $80k–95k</p><button class="mt-3 w-full py-1.5 border border-[#ad2c4d] text-[#ad2c4d] font-semibold text-xs rounded-full hover:bg-[#fdf2f4] transition-colors focus-ring">Quick Apply</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: CAREER TOOLKIT ============ -->
+    <section data-view-panel="toolkit" class="view-panel hidden fade-in space-y-5">
+      <div class="bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] rounded-3xl p-7 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-red-900/15">
+        <div><div class="text-[11px] font-bold tracking-widest uppercase text-white/70 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i>AI Career Toolkit</div><h2 class="heading-font text-3xl mt-1">Get hired faster.</h2><p class="text-sm text-white/80 mt-1">AI tools tuned to your AWS path and local Austin market.</p></div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm hover:shadow-md flex flex-col justify-between"><div><div class="p-3 w-fit bg-[#fdf2f4] text-[#ad2c4d] rounded-2xl"><i class="fa-solid fa-file-lines text-xl"></i></div><h3 class="font-extrabold text-lg tracking-tight mt-4">Resume Audit</h3><p class="text-xs text-[#737373] mt-1">Score your resume against the role and get fix-it suggestions.</p></div><button class="mt-4 w-full py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">Run Audit</button></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm hover:shadow-md flex flex-col justify-between"><div><div class="p-3 w-fit bg-[#fdf2f4] text-[#ad2c4d] rounded-2xl"><i class="fa-solid fa-envelope-open-text text-xl"></i></div><h3 class="font-extrabold text-lg tracking-tight mt-4">Cover Letter</h3><p class="text-xs text-[#737373] mt-1">Generate a tailored cover letter for any saved job in seconds.</p></div><button class="mt-4 w-full py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">Generate</button></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-6 bento shadow-sm hover:shadow-md flex flex-col justify-between"><div><div class="p-3 w-fit bg-[#fdf2f4] text-[#ad2c4d] rounded-2xl"><i class="fa-solid fa-microphone-lines text-xl"></i></div><h3 class="font-extrabold text-lg tracking-tight mt-4">Interview Prep</h3><p class="text-xs text-[#737373] mt-1">Practice common questions with instant AI feedback.</p></div><button class="mt-4 w-full py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">Start Session</button></div>
+      </div>
+      <div class="bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm">
+        <div class="flex items-center gap-3 mb-4"><div class="p-2.5 bg-[#fdf2f4] text-[#ad2c4d] rounded-xl"><i class="fa-regular fa-comments"></i></div><div><h3 class="font-extrabold text-lg tracking-tight">AI Advisor</h3><p class="text-xs text-[#737373]">24/7 career guidance</p></div><span class="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-[#4a9b4f]"><i class="fa-solid fa-circle text-[6px]"></i>Online</span></div>
+        <div class="space-y-3">
+          <div class="flex gap-2.5"><div class="w-7 h-7 rounded-full bg-[#ad2c4d] text-white flex items-center justify-center text-[10px] shrink-0"><i class="fa-solid fa-robot"></i></div><div class="bg-[#fafafa] border border-[#e8e8e8] rounded-2xl rounded-tl-sm px-4 py-2.5 text-xs max-w-md">Hey Mike — you're 78% through AWS Practitioner. Want me to draft a cover letter for the Deloitte Salesforce role while you finish the last modules?</div></div>
+          <div class="flex gap-2.5 justify-end"><div class="bg-[#ad2c4d] text-white rounded-2xl rounded-tr-sm px-4 py-2.5 text-xs max-w-md">Yes, and tailor it to my Austin location.</div></div>
+        </div>
+        <div class="mt-4 flex items-center gap-2 border border-[#e8e8e8] rounded-full px-4 py-2.5"><input type="text" placeholder="Ask your advisor anything…" class="flex-1 text-xs bg-transparent outline-none" aria-label="Message AI advisor"><button class="w-7 h-7 rounded-full bg-[#ad2c4d] text-white flex items-center justify-center focus-ring" aria-label="Send"><i class="fa-solid fa-arrow-up text-xs"></i></button></div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: CERTIFICATES ============ -->
+    <section data-view-panel="certs" class="view-panel hidden fade-in space-y-5">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white border border-[#ece2c8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Earned</div><div class="text-3xl font-extrabold text-[#a47f38] tabular-nums mt-1">2</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">In Progress</div><div class="text-3xl font-extrabold text-[#ad2c4d] tabular-nums mt-1">1</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Learning Hrs</div><div class="text-3xl font-extrabold tabular-nums mt-1">86</div></div>
+        <div class="bg-white border border-[#e8e8e8] rounded-2xl p-4 bento hover:shadow-sm"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">Verified</div><div class="text-3xl font-extrabold text-[#4a9b4f] tabular-nums mt-1">2</div></div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white border border-[#ece2c8] rounded-3xl p-6 bento shadow-sm hover:shadow-md flex gap-5">
+          <div class="w-16 h-16 rounded-2xl bg-[#FEF3C7] text-[#a47f38] flex items-center justify-center text-2xl shrink-0"><i class="fa-brands fa-aws"></i></div>
+          <div class="flex-1"><div class="flex items-center gap-2"><h3 class="font-extrabold text-base tracking-tight">AWS Cloud Practitioner</h3><i class="fa-solid fa-circle-check text-[#4a9b4f] text-sm" title="Verified"></i></div><p class="text-xs text-[#737373] mt-0.5">Issued May 2026 · Credential ID AWS-CP-8841</p><div class="flex gap-2 mt-3"><button class="px-3 py-1.5 bg-[#a47f38] hover:bg-[#7d5f26] text-white font-semibold text-[11px] rounded-full transition-colors focus-ring"><i class="fa-solid fa-download mr-1"></i>Download</button><button class="px-3 py-1.5 border border-[#e8e8e8] font-semibold text-[11px] rounded-full hover:bg-[#fafafa] transition-colors focus-ring">Share</button></div></div>
+        </div>
+        <div class="bg-white border border-[#ece2c8] rounded-3xl p-6 bento shadow-sm hover:shadow-md flex gap-5">
+          <div class="w-16 h-16 rounded-2xl bg-[#FEF3C7] text-[#a47f38] flex items-center justify-center text-2xl shrink-0"><i class="fa-brands fa-salesforce"></i></div>
+          <div class="flex-1"><div class="flex items-center gap-2"><h3 class="font-extrabold text-base tracking-tight">Salesforce Administrator</h3><i class="fa-solid fa-circle-check text-[#4a9b4f] text-sm" title="Verified"></i></div><p class="text-xs text-[#737373] mt-0.5">Issued Mar 2026 · Credential ID SF-ADM-2207</p><div class="flex gap-2 mt-3"><button class="px-3 py-1.5 bg-[#a47f38] hover:bg-[#7d5f26] text-white font-semibold text-[11px] rounded-full transition-colors focus-ring"><i class="fa-solid fa-download mr-1"></i>Download</button><button class="px-3 py-1.5 border border-[#e8e8e8] font-semibold text-[11px] rounded-full hover:bg-[#fafafa] transition-colors focus-ring">Share</button></div></div>
+        </div>
+        <div class="bg-[#fdf2f4] border border-[#f3d4dc] rounded-3xl p-6 bento flex gap-5 md:col-span-2">
+          <div class="w-16 h-16 rounded-2xl bg-white text-[#ad2c4d] flex items-center justify-center text-2xl shrink-0 border border-[#f3d4dc]"><i class="fa-solid fa-hourglass-half"></i></div>
+          <div class="flex-1"><div class="flex items-center justify-between"><h3 class="font-extrabold text-base tracking-tight">AWS Solutions Architect Associate</h3><span class="text-[10px] font-bold text-[#ad2c4d] uppercase">In Progress · 40%</span></div><div class="h-1.5 bg-white rounded-full overflow-hidden mt-3"><div class="h-1.5 bg-[#ad2c4d] rounded-full" style="width:40%"></div></div><p class="text-xs text-[#737373] mt-2">Complete AWS Practitioner first to unlock the exam voucher.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: MY PROGRESS ============ -->
+    <section data-view-panel="progress" class="view-panel hidden fade-in space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm flex flex-col items-center text-center">
+          <h3 class="font-extrabold text-sm tracking-widest uppercase text-[#737373] mb-3">Job Readiness</h3>
+          <div class="relative"><svg width="160" height="160" viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52" fill="none" stroke-width="11"/><circle cx="60" cy="60" r="52" fill="none" stroke="#4a9b4f" stroke-width="11" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="52.3" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span class="text-4xl font-extrabold text-[#4a9b4f] tabular-nums">84</span><span class="text-[9px] font-bold text-[#737373] tracking-wider">OF 100</span></div></div>
+          <p class="text-xs text-[#737373] mt-3">You're in the top 20% of your cohort. Finish AWS Practitioner to reach "Job Ready".</p>
+        </div>
+        <div class="lg:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm">
+          <h3 class="font-extrabold text-lg tracking-tight mb-4">This Week</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <div class="text-center p-3 bg-[#fafafa] rounded-2xl"><div class="text-2xl font-extrabold text-[#ad2c4d] tabular-nums">5.2</div><div class="text-[10px] font-bold text-[#737373] uppercase">Hrs Learned</div></div>
+            <div class="text-center p-3 bg-[#fafafa] rounded-2xl"><div class="text-2xl font-extrabold text-[#2b7bb9] tabular-nums">3</div><div class="text-[10px] font-bold text-[#737373] uppercase">Jobs Applied</div></div>
+            <div class="text-center p-3 bg-[#fafafa] rounded-2xl"><div class="text-2xl font-extrabold text-[#a47f38] tabular-nums">2</div><div class="text-[10px] font-bold text-[#737373] uppercase">Modules</div></div>
+            <div class="text-center p-3 bg-[#fafafa] rounded-2xl"><div class="text-2xl font-extrabold text-[#4a9b4f] tabular-nums">+320</div><div class="text-[10px] font-bold text-[#737373] uppercase">Points</div></div>
+          </div>
+          <h4 class="font-bold text-xs uppercase tracking-wider text-[#737373] mb-3">Milestones</h4>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3"><div class="w-7 h-7 rounded-full bg-[#4a9b4f] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div><span class="text-sm font-semibold flex-1">Completed intake &amp; eligibility</span><span class="text-[10px] text-[#737373]">May 2</span></div>
+            <div class="flex items-center gap-3"><div class="w-7 h-7 rounded-full bg-[#4a9b4f] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></div><span class="text-sm font-semibold flex-1">Earned first certification</span><span class="text-[10px] text-[#737373]">Mar 18</span></div>
+            <div class="flex items-center gap-3"><div class="w-7 h-7 rounded-full bg-[#ad2c4d] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-bolt text-[10px]"></i></div><span class="text-sm font-semibold flex-1">First interview scheduled</span><span class="text-[10px] text-[#ad2c4d] font-bold">This week</span></div>
+            <div class="flex items-center gap-3 opacity-60"><div class="w-7 h-7 rounded-full bg-[#e8e8e8] text-[#a3a3a3] flex items-center justify-center text-xs"><i class="fa-solid fa-flag-checkered text-[10px]"></i></div><span class="text-sm font-semibold flex-1 text-[#737373]">Job placement</span><span class="text-[10px] text-[#a3a3a3]">Goal</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: MESSAGES ============ -->
+    <section data-view-panel="messages" class="view-panel hidden fade-in">
+      <div class="bg-white border border-[#e8e8e8] rounded-3xl overflow-hidden bento shadow-sm grid grid-cols-1 md:grid-cols-3 min-h-[520px]">
+        <div class="border-r border-[#e8e8e8] md:col-span-1">
+          <div class="px-5 py-4 border-b border-[#e8e8e8]"><h3 class="font-extrabold text-base tracking-tight">Messages</h3></div>
+          <div class="divide-y divide-[#f5f5f5]">
+            <div class="px-5 py-4 bg-[#fdf2f4] border-l-2 border-[#ad2c4d] cursor-pointer"><div class="flex items-center justify-between"><span class="font-bold text-sm">Sarah Chen</span><span class="w-2 h-2 rounded-full bg-[#ad2c4d]"></span></div><div class="text-[10px] text-[#737373] uppercase tracking-wide">Your Counselor</div><p class="text-xs text-[#525252] mt-1 truncate">Great progress this week! Let's talk about…</p></div>
+            <div class="px-5 py-4 hover:bg-[#fafafa] cursor-pointer"><div class="flex items-center justify-between"><span class="font-bold text-sm">WorkforceAP Team</span></div><div class="text-[10px] text-[#737373] uppercase tracking-wide">Support</div><p class="text-xs text-[#737373] mt-1 truncate">Your AWS exam voucher is ready.</p></div>
+          </div>
+        </div>
+        <div class="md:col-span-2 flex flex-col">
+          <div class="px-5 py-4 border-b border-[#e8e8e8] flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#2b7bb9] to-[#1f5d8c] text-white flex items-center justify-center font-bold text-xs">SC</div><div><div class="font-bold text-sm">Sarah Chen</div><div class="text-[10px] text-[#4a9b4f] font-bold flex items-center gap-1"><i class="fa-solid fa-circle text-[6px]"></i>Online · Career Counselor</div></div></div>
+          <div class="flex-1 p-5 space-y-3 overflow-y-auto">
+            <div class="flex gap-2.5"><div class="w-7 h-7 rounded-full bg-[#2b7bb9] text-white flex items-center justify-center text-[10px] shrink-0">SC</div><div class="bg-[#fafafa] border border-[#e8e8e8] rounded-2xl rounded-tl-sm px-4 py-2.5 text-xs max-w-sm">Hi Mike! Great progress — 78% on AWS Practitioner. How are you feeling about the Deloitte interview?</div></div>
+            <div class="flex gap-2.5 justify-end"><div class="bg-[#ad2c4d] text-white rounded-2xl rounded-tr-sm px-4 py-2.5 text-xs max-w-sm">A little nervous about the technical questions honestly.</div></div>
+            <div class="flex gap-2.5"><div class="w-7 h-7 rounded-full bg-[#2b7bb9] text-white flex items-center justify-center text-[10px] shrink-0">SC</div><div class="bg-[#fafafa] border border-[#e8e8e8] rounded-2xl rounded-tl-sm px-4 py-2.5 text-xs max-w-sm">Totally normal. Let's do a mock interview Thursday. I'll also flag the Interview Prep tool in your Career Toolkit — it's tuned for Salesforce admin roles.</div></div>
+          </div>
+          <div class="p-4 border-t border-[#e8e8e8] flex items-center gap-2"><input type="text" placeholder="Message Sarah…" class="flex-1 text-sm border border-[#e8e8e8] rounded-full px-4 py-2.5 outline-none focus-ring" aria-label="Message counselor"><button class="w-10 h-10 rounded-full bg-[#ad2c4d] text-white flex items-center justify-center focus-ring" aria-label="Send"><i class="fa-solid fa-arrow-up"></i></button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: PROFILE ============ -->
+    <section data-view-panel="profile" class="view-panel hidden fade-in space-y-5">
+      <div class="bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm flex flex-col sm:flex-row items-center gap-5">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white flex items-center justify-center font-extrabold text-2xl shrink-0">MB</div>
+        <div class="text-center sm:text-left flex-1"><h2 class="heading-font text-2xl">Mike Brown</h2><p class="text-sm text-[#737373]">AWS Cloud Practitioner candidate · Austin, TX</p><div class="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start"><span class="px-2.5 py-1 rounded-full bg-[#FEF3C7] text-[#a47f38] text-[10px] font-bold">2 Certs</span><span class="px-2.5 py-1 rounded-full bg-emerald-50 text-[#4a9b4f] text-[10px] font-bold">84 Readiness</span><span class="px-2.5 py-1 rounded-full bg-[#fdf2f4] text-[#ad2c4d] text-[10px] font-bold">12-day streak</span></div></div>
+        <button class="px-4 py-2 border border-[#e8e8e8] font-semibold text-xs rounded-full hover:bg-[#fafafa] transition-colors focus-ring">Edit Photo</button>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm">
+          <h3 class="font-extrabold text-lg tracking-tight mb-4">Account Details</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="text-[10px] font-bold uppercase tracking-wider text-[#737373]">Full Name</label><input type="text" value="Mike Brown" class="mt-1 w-full text-sm border border-[#e8e8e8] rounded-xl px-3 py-2.5 outline-none focus-ring"></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-wider text-[#737373]">Email</label><input type="email" value="mike.brown@email.com" class="mt-1 w-full text-sm border border-[#e8e8e8] rounded-xl px-3 py-2.5 outline-none focus-ring"></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-wider text-[#737373]">Location</label><input type="text" value="Austin, TX" class="mt-1 w-full text-sm border border-[#e8e8e8] rounded-xl px-3 py-2.5 outline-none focus-ring"></div>
+            <div><label class="text-[10px] font-bold uppercase tracking-wider text-[#737373]">Program Interest</label><select class="mt-1 w-full text-sm border border-[#e8e8e8] rounded-xl px-3 py-2.5 outline-none focus-ring bg-white"><option>Cloud &amp; IT</option><option>Data &amp; AI</option><option>Healthcare</option><option>Skilled Trades</option></select></div>
+          </div>
+          <button class="mt-5 px-5 py-2.5 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-sm rounded-full transition-colors focus-ring">Save Changes</button>
+        </div>
+        <div class="bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm">
+          <h3 class="font-extrabold text-lg tracking-tight mb-4">Notifications</h3>
+          <div class="space-y-4">
+            <label class="flex items-center justify-between cursor-pointer"><span class="text-sm font-semibold">Job matches</span><span class="relative inline-block w-10 h-6"><input type="checkbox" checked class="peer sr-only"><span class="absolute inset-0 rounded-full bg-[#e8e8e8] peer-checked:bg-[#ad2c4d] transition-colors"></span><span class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></span></span></label>
+            <label class="flex items-center justify-between cursor-pointer"><span class="text-sm font-semibold">Counselor messages</span><span class="relative inline-block w-10 h-6"><input type="checkbox" checked class="peer sr-only"><span class="absolute inset-0 rounded-full bg-[#e8e8e8] peer-checked:bg-[#ad2c4d] transition-colors"></span><span class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></span></span></label>
+            <label class="flex items-center justify-between cursor-pointer"><span class="text-sm font-semibold">Course reminders</span><span class="relative inline-block w-10 h-6"><input type="checkbox" class="peer sr-only"><span class="absolute inset-0 rounded-full bg-[#e8e8e8] peer-checked:bg-[#ad2c4d] transition-colors"></span><span class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></span></span></label>
+            <label class="flex items-center justify-between cursor-pointer"><span class="text-sm font-semibold">Weekly recap email</span><span class="relative inline-block w-10 h-6"><input type="checkbox" checked class="peer sr-only"><span class="absolute inset-0 rounded-full bg-[#e8e8e8] peer-checked:bg-[#ad2c4d] transition-colors"></span><span class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full peer-checked:translate-x-4 transition-transform"></span></span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const titles={home:'Home',program:'My Program',jobs:'Job Pipeline',toolkit:'Career Toolkit',certs:'Certificates',progress:'My Progress',messages:'Messages',profile:'Profile'};
+const navBtns=document.querySelectorAll('.nav-btn');
+const panels=document.querySelectorAll('.view-panel');
+function activate(view){
+  panels.forEach(p=>p.classList.toggle('hidden',p.dataset.viewPanel!==view));
+  const live=document.querySelector('.view-panel[data-view-panel="'+view+'"]');
+  if(live){live.classList.remove('fade-in');void live.offsetWidth;live.classList.add('fade-in');}
+  document.getElementById('page-title').textContent=titles[view]||'Home';
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    const on=b.dataset.view===view;
+    // sidebar buttons get crimson tint; mobile pills too
+    b.classList.toggle('bg-[#fdf2f4]',on);
+    b.classList.toggle('text-[#ad2c4d]',on);
+    b.classList.toggle('text-[#404040]',!on && !b.closest('.bg-gradient-to-br'));
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+navBtns.forEach(b=>b.addEventListener('click',()=>activate(b.dataset.view)));
+// default text color for inactive nav
+document.querySelectorAll('aside .nav-btn, .lg\\:hidden .nav-btn').forEach(b=>b.classList.add('text-[#404040]'));
+activate('home');
+</script>
+</body>
+</html>

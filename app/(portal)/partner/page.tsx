@@ -15,11 +15,11 @@ import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalEntryClient from '@/components/onboarding/PortalEntryClient';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { PARTNER_PORTAL_TOUR_STEPS } from '@/lib/onboarding/portalTourSteps';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 import VoiceAgentSurface from '@/components/portal/VoiceAgentSurface';
 import { partnerVoiceSurface } from '@/lib/portal/voice';
 import { getTranslations } from 'next-intl/server';
+import { BarChart3, Download, Target } from 'lucide-react';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import StatusBadge from '@/components/portal/StatusBadge';
 import PortalKpiCard from '@/components/portal/PortalKpiCard';
@@ -32,6 +32,19 @@ import PartnerConnectPayoutButton from '@/components/partner/PartnerConnectPayou
 import { getPartnerPlacementPayoutUsd } from '@/lib/partner/partnerPayout';
 import { isReferralPartner } from '@/lib/partner/partnerType';
 import { buildPartnerReferralBadge, isOutcomesSocialProofEnabled } from '@/lib/outcomes/socialProof';
+import { MEMBER_ONLY_WHERE } from '@/lib/admin/memberOnlyWhere';
+import {
+  DesignSurface,
+  SectionHeader as KitSectionHeader,
+  DataTable as KitDataTable,
+  QueueRow,
+} from '@/components/portal/kit';
+import {
+  PartnerKpiGrid,
+  PartnerAttentionCard,
+  PartnerAssistantAccordion,
+  PartnerQuickActions,
+} from '@/components/portal/kit/pages/PartnerOverviewKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('partner');
@@ -44,7 +57,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const JOURNEY_STAGES = ['applied', 'enrolled', 'in_training', 'certified', 'placed'] as const;
 
-export default async function PartnerDashboardPage() {
+export default async function PartnerDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
+  const requestedUi = (await searchParams)?.ui ?? null;
+
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/partner');
 
@@ -122,6 +141,251 @@ export default async function PartnerDashboardPage() {
   if (!partnerRow) redirect(await unlinkedPartnerHref(user.id));
 
   const t = await getTranslations('partner');
+
+  // ── ?ui=kit LEAN PATH (runs AFTER auth/partner guards, BEFORE the heavy
+  // loadPartnerReferralBundle + Promise.all aggregations that stall on the
+  // demo DB). Renders the redesigned partner overview from a handful of cheap
+  // count/findMany queries only. NO bundle, NO $transaction, NO external HTTP.
+  // v2 kit is the DEFAULT partner overview; legacy via ?ui=legacy.
+  if (requestedUi !== 'legacy') {
+    const memberFilter = {
+      deletedAt: null,
+      organizationId: ctx.partner.organizationId,
+      ...MEMBER_ONLY_WHERE,
+    };
+    const [referredCount, enrolledCount, placedCount, pendingPlacementEvents, recentReferrals] =
+      await Promise.all([
+        prisma.partnerReferral.count({
+          where: {
+            partnerId: ctx.partnerId,
+            partner: { organizationId: ctx.partner.organizationId },
+            member: memberFilter,
+          },
+        }),
+        prisma.partnerReferral.count({
+          where: {
+            partnerId: ctx.partnerId,
+            partner: { organizationId: ctx.partner.organizationId },
+            member: { ...memberFilter, enrolledAt: { not: null } },
+          },
+        }),
+        prisma.placementRecord.count({
+          where: {
+            user: {
+              partnerReferrals: { some: { partnerId: ctx.partnerId } },
+              organizationId: ctx.partner.organizationId,
+            },
+          },
+        }),
+        prisma.memberEvent.findMany({
+          where: {
+            eventName: 'PLACEMENT_CONFIRMATION_SUBMITTED',
+            user: { partnerReferrals: { some: { partnerId: ctx.partnerId } } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 8,
+          select: { id: true, userId: true, metadata: true, createdAt: true },
+        }),
+        prisma.partnerReferral.findMany({
+          where: { partnerId: ctx.partnerId },
+          orderBy: { referredAt: 'desc' },
+          take: 10,
+          select: {
+            id: true,
+            referredAt: true,
+            member: { select: { id: true, fullName: true, enrolledAt: true } },
+          },
+        }),
+      ]);
+
+    const placementRate =
+      referredCount > 0 ? Math.round((placedCount / referredCount) * 100) : 0;
+
+    type ReferralKitRow = {
+      id: string;
+      name: string;
+      status: string;
+      referred: string;
+    };
+    const referralRows: ReferralKitRow[] = recentReferrals
+      .map((r) => {
+        const m = r.member;
+        if (!m) return null;
+        return {
+          id: m.id,
+          name: m.fullName ?? t('memberFallback'),
+          status: m.enrolledAt ? t('membersEnrolled') : t('membersReferred'),
+          referred: r.referredAt.toLocaleDateString('en-US'),
+        };
+      })
+      .filter((row): row is ReferralKitRow => row !== null);
+
+    return (
+      <PortalPageFrame maxWidth="80rem">
+        <DesignSurface surface="dense" className="wa-flex wa-flex-col wa-gap-6">
+          <h1 className="wa-sr-only">Partner overview</h1>
+          <KitSectionHeader
+            kicker={t('partnerDashboard')}
+            title={ctx.partner.name}
+            goal={t('referralsProgressOutcomes', { partnerName: ctx.partner.name })}
+          />
+
+          <PartnerKpiGrid
+            items={[
+              {
+                label: t('membersReferred'),
+                value: referredCount,
+                subtitle: t('inYourPortal'),
+                color: 'accent',
+              },
+              {
+                label: t('membersEnrolled'),
+                value: enrolledCount,
+                subtitle: t('startedAProgram'),
+                color: 'info',
+              },
+              {
+                label: t('membersPlaced'),
+                value: placedCount,
+                subtitle: t('verifiedHires'),
+                color: 'success',
+              },
+              {
+                label: t('placementRate'),
+                value: `${placementRate}%`,
+                subtitle: t('placementEstimate'),
+                color: 'gold',
+              },
+            ]}
+          />
+
+          <PartnerAttentionCard
+            title={t('nextActionReviewProgress')}
+            body={t('nextActionReviewProgressTip')}
+            href="/partner/referred-members"
+          />
+
+          <PartnerAssistantAccordion title={t('partnerAssistant')} hint="(tap to open)">
+            <VoiceAgentSurface {...partnerVoiceSurface}>
+              <PortalVoiceSessionLazy
+                sessionEndpoint="/api/partner/voice-session"
+                title={t('partnerAssistant')}
+                description={t('askAboutReferrals')}
+                accent="var(--color-amber)"
+                accentDark="var(--color-amber)"
+                speakingLabel={t('assistantSpeaking')}
+                listeningLabel={t('assistantListening')}
+              />
+            </VoiceAgentSurface>
+          </PartnerAssistantAccordion>
+
+          {pendingPlacementEvents.length > 0 ? (
+            <div className="wa-flex wa-flex-col wa-gap-3">
+              <KitSectionHeader
+                title={t('nextActionReviewPlacements', { count: pendingPlacementEvents.length })}
+                goal={t('nextActionReviewPlacementsTip')}
+                action={
+                  <Link href="/partner/outcomes" className="portal-section-action">
+                    {t('viewAll')}
+                  </Link>
+                }
+              />
+              {pendingPlacementEvents.map((ev) => {
+                const label =
+                  ev.metadata &&
+                  typeof ev.metadata === 'object' &&
+                  ev.metadata !== null &&
+                  'label' in ev.metadata
+                    ? String((ev.metadata as { label?: string }).label)
+                    : t('pendingVerification');
+                return (
+                  <QueueRow
+                    key={ev.id}
+                    tone="yellow"
+                    title={label}
+                    meta={ev.createdAt.toLocaleDateString('en-US')}
+                    flag={t('pendingVerification')}
+                    action={
+                      <Link
+                        href={`/partner/referred-members/${ev.userId}`}
+                        className="portal-section-action"
+                      >
+                        Review
+                      </Link>
+                    }
+                  />
+                );
+              })}
+            </div>
+          ) : null}
+
+          <div className="wa-flex wa-flex-col wa-gap-3">
+            <KitSectionHeader
+              title={t('referredMembers')}
+              goal={t('enrollmentAndPlacementDates')}
+              action={
+                <Link href="/partner/referred-members" className="portal-section-action">
+                  {t('viewAll')}
+                </Link>
+              }
+            />
+            <KitDataTable<ReferralKitRow>
+              columns={[
+                {
+                  key: 'name',
+                  header: t('name'),
+                  render: (row) => (
+                    <Link
+                      href={`/partner/referred-members/${row.id}`}
+                      style={{ fontWeight: 600, color: 'var(--color-accent)', textDecoration: 'none' }}
+                    >
+                      {row.name}
+                    </Link>
+                  ),
+                },
+                { key: 'status', header: t('status') },
+                { key: 'referred', header: 'Referred' },
+              ]}
+              rows={referralRows}
+              rowKey={(row) => row.id}
+              mobile="scroll"
+              emptyTitle="No referred members yet"
+              emptyDescription="New referrals will appear here after members apply through this partner."
+            />
+          </div>
+
+          <div className="wa-flex wa-flex-col wa-gap-3">
+            <KitSectionHeader title={t('quickActions')} />
+            <PartnerQuickActions
+              actions={[
+                {
+                  icon: <BarChart3 size={16} aria-hidden />,
+                  tone: 'accent',
+                  title: t('exportData'),
+                  body: t('csvPdfReports'),
+                  href: '/partner/exports',
+                },
+                {
+                  icon: <Download size={16} aria-hidden />,
+                  tone: 'info',
+                  title: t('newReferral'),
+                  body: t('shareReferralLink'),
+                  href: '/partner/guide',
+                },
+                {
+                  icon: <Target size={16} aria-hidden />,
+                  tone: 'gold',
+                  title: t('milestonesAndUpdates'),
+                  body: t('viewPlacementReports'),
+                  href: '/partner/milestones',
+                },
+              ]}
+            />
+          </div>
+        </DesignSurface>
+      </PortalPageFrame>
+    );
+  }
 
   const isPendingApproval = partnerRow.status === 'pending_approval';
 
@@ -612,7 +876,6 @@ export default async function PartnerDashboardPage() {
         </div>
       </div>
 
-      <MobileBottomNav variant="partner" />
     </div>
 
     {/* ── DESKTOP SECTION ── */}

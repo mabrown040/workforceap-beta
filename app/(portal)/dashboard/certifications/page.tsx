@@ -16,6 +16,7 @@ import {
   CertificationViewButton,
 } from '@/components/portal/CertificationVaultActions';
 import CertificationAddForm from '@/components/portal/CertificationAddForm';
+import { MemberCertificatesKit } from '@/components/portal/kit/pages/member/MemberCertificatesKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -25,9 +26,16 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function DashboardCertificationsPage() {
+export default async function DashboardCertificationsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/certifications');
+
+  const params = await searchParams;
+  const requestedUi = typeof params?.ui === 'string' ? params.ui : null;
 
   // Resolve the member's pathway from their enrolled program. Returns null
   // when the member has no enrolled program — pathway-dependent UI is gated
@@ -63,6 +71,53 @@ export default async function DashboardCertificationsPage() {
     ? buildPathwayMilestones(primaryPathway, pathwayRows)
     : [];
   const currentMilestone = pathwayMilestones.find((m) => m.status === 'current');
+
+  // ── v2 KIT is the DEFAULT for My Certificates (real data); legacy view stays
+  // reachable via ?ui=legacy. Runs AFTER the auth guard above and reuses the
+  // certs + pathway data already loaded — no extra queries.
+  if (requestedUi !== 'legacy') {
+    // Earned certs → kit cards. earnedAt is a Date here (raw Prisma select,
+    // not the ISO-mapped certRows used by the legacy mobile rows below).
+    const earned = certs.map((c) => ({
+      id: c.id,
+      title: c.certName,
+      meta: `Issued ${c.earnedAt.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })}`,
+      // Coursera/manual certs aren't credential-verified through us, so we
+      // don't claim "verified" — leave the badge off.
+      verified: false,
+    }));
+
+    // In-progress cert = the member's current pathway milestone, surfaced as a
+    // single in-progress card with the overall pathway completion percent.
+    const inProgress =
+      primaryPathway && currentMilestone
+        ? [
+            {
+              id: `${primaryPathway.id}-${currentMilestone.stepIndex}`,
+              title: currentMilestone.label,
+              percent: pathwayPct,
+              note: `${currentMilestone.detail} · ${completedSteps} of ${primaryPathway.steps.length} steps in ${primaryPathway.title}`,
+            },
+          ]
+        : [];
+
+    return (
+      <MemberCertificatesKit
+        earnedCount={certs.length}
+        inProgressCount={inProgress.length}
+        verifiedCount={0}
+        // Learning-hours isn't loaded on this route; pass 0 rather than let the
+        // kit's fabricated default (86) show next to real counts.
+        learningHours={0}
+        earned={earned}
+        inProgress={inProgress}
+      />
+    );
+  }
   const mobileProgressIcon = currentMilestone?.icon ?? 'route';
   const mobileProgressTitle = currentMilestone?.label ?? primaryPathway?.title ?? '';
   const mobileProgressSubtitle = primaryPathway

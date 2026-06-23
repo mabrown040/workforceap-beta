@@ -1,5 +1,6 @@
 'use client';
 
+import { Mic, Target, Sparkles, AudioLines } from 'lucide-react';
 import VoiceCoachLauncherCard from '@/components/portal/VoiceCoachLauncherCard';
 import { mockInterviewVoiceSurface, readinessVoiceSurface, resumeCoachVoiceSurface } from '@/lib/portal/voice';
 
@@ -7,9 +8,9 @@ const AI_COACHES_BAND_STYLE = {
   padding: '1.25rem clamp(0.75rem, 3vw, 1.25rem) 1.5rem',
   borderRadius: '1rem',
   background:
-    'linear-gradient(180deg, color-mix(in srgb, #2563eb 16%, var(--surface-container-low)) 0%, color-mix(in srgb, #60a5fa 12%, var(--surface-container-low)) 45%, color-mix(in srgb, #2563eb 14%, var(--surface-container-low)) 100%)',
-  border: '1px solid color-mix(in srgb, #3b82f6 22%, var(--outline-variant))',
-  boxShadow: 'inset 0 1px 0 color-mix(in srgb, #fff 35%, transparent)',
+    'var(--surface-container-low)',
+  border: '1px solid var(--outline-variant)',
+  boxShadow: 'none',
 } as const;
 
 /** Member home (`/dashboard`) — four voice tools in product order inside a soft blue band. */
@@ -33,36 +34,39 @@ export default function MemberDashboardVoiceSection() {
         >
           <VoiceCoachLauncherCard
             badge="Introduction"
-            icon="🎤"
-            glowColor="#7c3aed"
-            gradient="linear-gradient(135deg, #5b21b6, #7c3aed, #c4b5fd)"
-            title="AI Elevator Introduction"
+            icon={<Mic size={22} aria-hidden="true" />}
+            glowColor="#a47f38"
+            gradient="linear-gradient(135deg, #a47f38, #7d5f26)"
+            title="Elevator Introduction"
             description="Generate a clean 10 to 20 second intro, save it, and email it to yourself right away."
             href="/dashboard/ai-tools/elevator-pitch"
-            ctaLabel="Start elevator introduction"
+            ctaLabel="Build intro"
           />
           <VoiceCoachLauncherCard
             {...readinessVoiceSurface}
-            title="AI Readiness Coach"
-            description="Talk through your next milestone, interview prep, and certifications with the dashboard AI coach."
-            href="/dashboard/readiness"
-            ctaLabel="Start readiness coach"
+            icon={<Target size={22} aria-hidden="true" />}
+            title="Readiness Coach"
+            description="Interviews, certifications, and next steps — talked through out loud."
+            href="/dashboard/ai-tools/studio?tab=session&agent=readiness"
+            ctaLabel="Start voice session"
           />
           <VoiceCoachLauncherCard
             {...resumeCoachVoiceSurface}
-            badge="Resume enhancer"
+            icon={<Sparkles size={22} aria-hidden="true" />}
+            badge="RESUME"
             title="Resume & Experience Enhancer"
             description="Open the dedicated resume coach to practice your pitch and refine your resume inside a synced workspace."
-            href="/dashboard/ai-tools/resume-studio?view=coach"
-            ctaLabel="Start resume enhancer"
+            href="/dashboard/ai-tools/studio?tab=session&agent=resume"
+            ctaLabel="Start voice session"
           />
           <VoiceCoachLauncherCard
             {...mockInterviewVoiceSurface}
-            badge="Job / role interview"
+            icon={<AudioLines size={22} aria-hidden="true" />}
+            badge="PRACTICE"
             title="Voice Interview Practice"
             description="Launch the full mock interview experience with setup guidance and optional recording."
-            href="/dashboard/ai-tools/voice-interview"
-            ctaLabel="Start voice interviewer"
+            href="/dashboard/ai-tools/studio?tab=session&agent=mock"
+            ctaLabel="Start practice"
           />
         </div>
       </div>

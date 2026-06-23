@@ -9,6 +9,11 @@ import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
 import { getTranslations } from 'next-intl/server';
 import AdminExportForm from './AdminExportForm';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  ExportsKit,
+  type ExportOption,
+} from '@/components/portal/kit/pages/admin-subviews/ExportsKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -18,10 +23,16 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function AdminExportsPage() {
+export default async function AdminExportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
+
+  const { ui: requestedUi } = await searchParams;
 
   const programs = PROGRAMS.map((p) => ({ slug: p.slug, title: p.title }));
   const stages = Object.entries(PIPELINE_STAGE_LABELS).map(([value, label]) => ({
@@ -30,6 +41,45 @@ export default async function AdminExportsPage() {
   }));
   const t = await getTranslations('admin');
 
+  // --- DEFAULT: kit card-grid of the REAL export options this page exposes ---
+  if (requestedUi !== 'legacy') {
+    const exports: ExportOption[] = [
+      {
+        id: 'member-training-report',
+        title: 'Member Training Report',
+        description: 'Demographics, progress, certs & placements · filterable CSV',
+        href: '/admin/exports?ui=legacy',
+        iconKey: 'filters',
+        tone: 'accent',
+      },
+      {
+        id: 'funder-program-summary',
+        title: t('exportFunderCsvTitle'),
+        description: 'Grant reporting · per-program enrollment, completion & placements',
+        href: '/api/admin/funder-program-summary',
+        iconKey: 'csv',
+        tone: 'success',
+        newTab: true,
+      },
+      {
+        id: 'program-catalog',
+        title: 'Program Catalog',
+        description: 'State agency submissions · costs, duration & certifications',
+        href: '/api/admin/programs/export-twc',
+        iconKey: 'roster',
+        tone: 'info',
+        download: true,
+      },
+    ];
+
+    return (
+      <DesignSurface surface="dense">
+        <ExportsKit exports={exports} />
+      </DesignSurface>
+    );
+  }
+
+  // --- LEGACY (?ui=legacy): the existing export workspace with filter form ---
   return (
     <PortalPageFrame>
       <div style={{ marginBottom: '2rem' }}>

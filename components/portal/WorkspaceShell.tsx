@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect, useCallback, startTransition } from 'react';
-import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, ShieldHalf } from 'lucide-react';
 import { getBestActiveHref, isActiveRoute } from '@/lib/nav/activeRoute';
 import { PRODUCT_COPY } from '@/lib/nav/workspaceCopy';
 import {
@@ -30,7 +30,7 @@ import MemberPortalTopNav from './MemberPortalTopNav';
 import GlobalSearch from './GlobalSearch';
 import type { PortalSwitcherRole } from '@/lib/auth/portalRoleSwitcher';
 import LanguageToggle from '@/components/portal/LanguageToggle';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useWorkspaceMobileScrollChrome } from '@/hooks/useWorkspaceMobileScrollChrome';
 
 // Map non-member portal roles to MobileBottomNav variants. Member uses
@@ -108,12 +108,57 @@ export default function WorkspaceShell({
   orgAccentColor?: string | null;
   children: React.ReactNode;
 }) {
-  const pathname = usePathname() ?? '';
+  const locale = useLocale();
+  // next/navigation usePathname() keeps the locale prefix (e.g. /en/admin), but
+  // nav hrefs are locale-less (/admin) — strip the active locale so active-route
+  // matching (and the crimson active rail item) works across every portal.
+  const rawPathname = usePathname() ?? '';
+  const pathname =
+    rawPathname === `/${locale}`
+      ? '/'
+      : rawPathname.startsWith(`/${locale}/`)
+        ? rawPathname.slice(locale.length + 1)
+        : rawPathname;
   const activeHref = getBestActiveHref(pathname, navItemsForActiveRoute(navItems));
   const hasTabs = navItems.some((i) => i.tab);
   const activeTab = hasTabs ? getActiveTab(pathname, navItems) : null;
-  const desktopNavItems = hasTabs && activeTab ? navItems.filter((i) => i.tab === activeTab) : navItems;
+  // Members now use the left command-rail on desktop (the flat top-nav is hidden
+  // there), and that rail is the ONLY nav — so it must show every item grouped by
+  // `group`, not just the active tab's slice (which would strand most pages).
+  // Tab-filtering still drives the member flat top-nav on mobile/tablet.
+  const desktopNavItems =
+    portalRole === 'member'
+      ? navItems
+      : hasTabs && activeTab
+        ? navItems.filter((i) => i.tab === activeTab)
+        : navItems;
   const mobileDrawerNavItems = navItems;
+  // Member flat top-nav (#2069): a single-level, horizontally-scrollable nav that
+  // matches the wa-v2-member mockup — the mockup's primary destinations come first,
+  // then every remaining page follows in the same row. Because ALL items live in
+  // this one nav, the contextual left sidebar can be hidden for members (portal CSS)
+  // without orphaning any page (the failure mode that got the earlier CSS-only
+  // sidebar-hide reverted — see docs/PORTAL_NAV_SPEC.md §2).
+  const MEMBER_PRIMARY_HREFS = [
+    '/dashboard',
+    '/dashboard/program',
+    '/dashboard/jobs',
+    '/dashboard/certifications',
+    '/dashboard/ai-tools',
+    '/dashboard/readiness',
+    '/dashboard/messages',
+    '/dashboard/profile',
+  ];
+  const memberFlatNav =
+    portalRole === 'member'
+      ? [
+          ...MEMBER_PRIMARY_HREFS.flatMap((h) => {
+            const it = navItems.find((i) => i.href === h);
+            return it ? [it] : [];
+          }),
+          ...navItems.filter((i) => !MEMBER_PRIMARY_HREFS.includes(i.href)),
+        ]
+      : [];
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [wide, setWide] = useState(false);
@@ -403,12 +448,8 @@ export default function WorkspaceShell({
               Viewing as
             </span>
           ) : null}
-          {/* Global search — admin only, hidden on mobile */}
-          {portalRole === 'admin' && (
-            <div className="wa-hidden md:wa-block">
-              <GlobalSearch />
-            </div>
-          )}
+          {/* Global search for admin now lives in the command rail (see
+              workspace-sidebar-search below), matching the admin-full mockup. */}
           <PortalHeaderActions badges={badges} />
           {attributionLabel ? (
             <span
@@ -449,44 +490,90 @@ export default function WorkspaceShell({
         className={`workspace-drawer-overlay ${drawerOpen ? 'open' : ''}`}
         onClick={closeDrawer}
         onKeyDown={(e) => e.key === 'Escape' && closeDrawer()}
-        role="button"
+        role="presentation"
         tabIndex={-1}
-        aria-hidden
       />
 
       {hasTabs && activeTab && (
-        <nav ref={tabBarRef} className="workspace-tab-bar" aria-label={tNav('workspaceTabs')}>
+        <nav
+          ref={tabBarRef}
+          className={`workspace-tab-bar${portalRole === 'member' ? ' workspace-tab-bar--flat' : ''}`}
+          aria-label={tNav('workspaceTabs')}
+        >
           <div className="workspace-tab-bar-inner">
-            {NAV_TAB_ORDER.map((tab) => {
-              const meta = NAV_TAB_META[tab];
-              const isActive = tab === activeTab;
-              // Find the first item in this tab to link to
-              const firstItem = navItems.find((i) => i.tab === tab);
-              return (
-                <Link
-                  key={tab}
-                  href={firstItem?.href ?? '/dashboard'}
-                  prefetch={false}
-                  className={`workspace-tab${isActive ? ' workspace-tab--active' : ''}`}
-                  onClick={closeDrawer}
-                >
-                  <span className="material-symbols-outlined workspace-tab-icon" aria-hidden>{meta.icon}</span>
-                  <span className="workspace-tab-label">{translateLabel(meta.label)}</span>
-                </Link>
-              );
-            })}
+            {portalRole === 'member'
+              ? /* Flat single-level member nav (#2069) — every page in one scrollable row. */
+                memberFlatNav.map((item) => {
+                  const isActive =
+                    activeHref === item.href ||
+                    isActiveRoute(pathname, item.href, item.aliases ?? []);
+                  const b = badgeTotalForItem(badges, item);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      prefetch={false}
+                      className={`workspace-tab workspace-tab--flat${isActive ? ' workspace-tab--active' : ''}`}
+                      aria-current={isActive ? 'page' : undefined}
+                      onClick={closeDrawer}
+                      {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}
+                    >
+                      <span className="workspace-tab-label">{translateLabel(item.label)}</span>
+                      {b > 0 ? (
+                        <span className="workspace-nav-badge">{b > 99 ? '99+' : b}</span>
+                      ) : null}
+                    </Link>
+                  );
+                })
+              : NAV_TAB_ORDER.map((tab) => {
+                  const meta = NAV_TAB_META[tab];
+                  const isActive = tab === activeTab;
+                  // Find the first item in this tab to link to
+                  const firstItem = navItems.find((i) => i.tab === tab);
+                  return (
+                    <Link
+                      key={tab}
+                      href={firstItem?.href ?? '/dashboard'}
+                      prefetch={false}
+                      className={`workspace-tab${isActive ? ' workspace-tab--active' : ''}`}
+                      aria-current={isActive ? 'page' : undefined}
+                      onClick={closeDrawer}
+                    >
+                      <span className="material-symbols-outlined workspace-tab-icon" aria-hidden>{meta.icon}</span>
+                      <span className="workspace-tab-label">{translateLabel(meta.label)}</span>
+                    </Link>
+                  );
+                })}
           </div>
         </nav>
       )}
 
       <div className="workspace-shell-body">
         <aside
+          id="workspace-sidebar"
           ref={trapRef}
           className={`workspace-sidebar ${drawerOpen ? 'open' : ''} ${isCollapsedDesktop ? 'workspace-sidebar--collapsed' : ''}`}
         >
           <div className="workspace-sidebar-inner">
             <div className="workspace-sidebar-toolbar">
-              <div className="workspace-sidebar-label">{!wide && hasTabs && activeTab ? translateLabel(NAV_TAB_META[activeTab].label) : translateLabel(workspaceLabel)}</div>
+              {portalRole === 'admin' ? (
+                /* Branded admin command-rail header (matches admin-full mockup:
+                   shield tile + product + "Admin · {org}"). Collapses to just
+                   the mark when the rail is collapsed. */
+                <div className="workspace-sidebar-brand" title={`Admin · ${contextLabel}`}>
+                  <span className="workspace-sidebar-brand-mark" aria-hidden>
+                    <ShieldHalf size={16} />
+                  </span>
+                  {!isCollapsedDesktop ? (
+                    <span className="workspace-sidebar-brand-text">
+                      <span className="workspace-sidebar-brand-name">WorkforceAP</span>
+                      <span className="workspace-sidebar-brand-sub">{translateLabel(workspaceLabel)}</span>
+                    </span>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="workspace-sidebar-label">{!wide && hasTabs && activeTab ? translateLabel(NAV_TAB_META[activeTab].label) : translateLabel(workspaceLabel)}</div>
+              )}
               {wide ? (
                 <button
                   type="button"
@@ -499,6 +586,13 @@ export default function WorkspaceShell({
                 </button>
               ) : null}
             </div>
+            {/* In-rail admin search — matches the mockup's "Search admin…" placement.
+                Hidden when the desktop rail is collapsed. */}
+            {portalRole === 'admin' && !isCollapsedDesktop ? (
+              <div className="workspace-sidebar-search">
+                <GlobalSearch />
+              </div>
+            ) : null}
             <nav aria-label={`${translateLabel(workspaceLabel)} navigation`} className="workspace-sidebar-nav">
               <ul className="workspace-sidebar-list workspace-sidebar-list--root">
                 {GROUP_ORDER.map((group) => {
@@ -524,6 +618,7 @@ export default function WorkspaceShell({
                                 href={item.href}
                                 prefetch={false}
                                 className={`workspace-sidebar-link${isActive ? ' active' : ''}`}
+                                aria-current={isActive ? 'page' : undefined}
                                 onClick={closeDrawer}
                                 title={isCollapsedDesktop ? translateLabel(item.label) : undefined}
                                 {...(item.tourTarget ? { 'data-tour': item.tourTarget } : {})}

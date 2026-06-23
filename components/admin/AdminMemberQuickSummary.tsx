@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { Sparkles } from 'lucide-react';
 
 /**
  * One-click AI "quick summary" for a member, shown on the admin member-detail
@@ -55,11 +56,12 @@ export default function AdminMemberQuickSummary({ memberId }: { memberId: string
           cursor: isPending ? 'wait' : 'pointer',
         }}
       >
+        <Sparkles size={16} aria-hidden />
         {isPending
           ? 'Summarizing…'
           : summary
-            ? '✨ Re-summarize this student'
-            : '✨ Summarize this student'}
+            ? 'Re-summarize this student'
+            : 'Summarize this student'}
       </button>
 
       {error ? (

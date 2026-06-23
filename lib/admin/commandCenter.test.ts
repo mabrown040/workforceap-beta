@@ -12,11 +12,13 @@ const baseCenter: AdminCommandCenter = {
   atRisk: [],
   interviewing: [],
   applicationsPending: [],
+  programHealth: [],
   totals: {
     needsReplyCount: 0,
     atRiskCount: 0,
     interviewingCount: 0,
     applicationsPendingCount: 0,
+    certificationsPendingCount: 0,
     oldestPendingApplicationDays: null,
   },
 };
@@ -103,6 +105,7 @@ describe('admin command center helpers', () => {
       atRiskCount: 1,
       interviewingCount: 1,
       applicationsPendingCount: 1,
+      certificationsPendingCount: 0,
       oldestPendingApplicationDays: 14,
     });
   });

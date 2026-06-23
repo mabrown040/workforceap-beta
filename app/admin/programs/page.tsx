@@ -9,6 +9,11 @@ import { PROGRAMS } from '@/lib/content/programs';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import AdminProgramCatalogClient from '@/components/admin/AdminProgramCatalogClient';
+import {
+  ProgramsCatalogKit,
+  type ProgramCard,
+} from '@/components/portal/kit/pages/admin-subviews/ProgramsCatalogKit';
+import { DesignSurface } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -18,37 +23,64 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default async function AdminProgramsPage() {
+/** Build a short credential/skills description line for a program card. */
+function describeProgram(skills: string[], partner: string): string {
+  const top = skills.slice(0, 3).filter(Boolean);
+  if (top.length > 0) return top.join(', ');
+  return partner || 'Workforce program';
+}
+
+export default async function AdminProgramsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/programs');
 
   const hasAdmin = await isAdmin(user.id);
   if (!hasAdmin) redirect('/dashboard');
 
+  const params = (await searchParams) ?? {};
+  const requestedUi = typeof params.ui === 'string' ? params.ui : null;
+
   // Multi-program-aware: count members per program from `course_enrollments`
   // (the source of truth for multi-program learners). A learner with rows in
   // both `it-cyber` and `ai-software` is counted once under each program,
-  // not just under their primary `User.enrolledProgram`.
-  const enrollmentRows = await prisma.courseEnrollment.findMany({
-    take: 5000,
-    where: { user: { deletedAt: null } },
-    select: {
-      programSlug: true,
-      user: {
-        select: {
-          id: true,
-          assessmentScorePct: true,
-          memberProgramProgress: {
-            select: { programSlug: true, coursesCompleted: true },
+  // not just under their primary `User.enrolledProgram`. Lean + degrades
+  // gracefully: a failed aggregate still renders the catalog with empty stats.
+  const enrollmentResult = await prisma.courseEnrollment
+    .findMany({
+      take: 5000,
+      where: { user: { deletedAt: null } },
+      select: {
+        programSlug: true,
+        user: {
+          select: {
+            id: true,
+            assessmentScorePct: true,
+            memberProgramProgress: {
+              select: { programSlug: true, coursesCompleted: true },
+            },
           },
         },
       },
-    },
-  });
+    })
+    .catch((reason: unknown) => {
+      console.error('[admin/programs] enrollment load failed', reason);
+      return [] as Array<{
+        programSlug: string;
+        user: {
+          id: string;
+          assessmentScorePct: number | null;
+          memberProgramProgress: Array<{ programSlug: string; coursesCompleted: number }>;
+        };
+      }>;
+    });
 
   const byProgram = new Map<string, { count: number; scores: number[]; completed: number }>();
   const seenLearners = new Set<string>();
-  for (const e of enrollmentRows) {
+  for (const e of enrollmentResult) {
     const slug = e.programSlug;
     const prog = byProgram.get(slug) ?? { count: 0, scores: [], completed: 0 };
     prog.count++;
@@ -78,6 +110,36 @@ export default async function AdminProgramsPage() {
     };
   });
 
+  // --- DEFAULT: kit program catalog (card grid + StatusTag) ---
+  if (requestedUi !== 'legacy') {
+    // Card per enrolled program (mockup shows only programs with learners).
+    // Completion % is derived leanly from coursesCompleted / total course slots;
+    // when no progress is recorded the % is omitted rather than shown as 0.
+    const cards: ProgramCard[] = programStats
+      .filter(({ stats }) => stats.count > 0)
+      .map(({ program, stats, progressPct }) => ({
+        slug: program.slug,
+        title: program.title,
+        description: describeProgram(program.skills, program.partner),
+        category: program.category,
+        enrolled: stats.count,
+        completion: stats.completed > 0 ? progressPct : null,
+      }));
+
+    const activePrograms = cards.length;
+
+    return (
+      <DesignSurface surface="dense">
+        <ProgramsCatalogKit
+          programs={cards}
+          activePrograms={activePrograms}
+          totalEnrolled={totalEnrollments}
+        />
+      </DesignSurface>
+    );
+  }
+
+  // --- LEGACY (?ui=legacy): original catalog editor + enrollment stats ---
   return (
     <PortalPageFrame>
       <PageHeader

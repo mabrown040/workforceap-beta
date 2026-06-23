@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Target, ArrowRight } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
@@ -60,9 +61,11 @@ export default async function SkillMissionsPage() {
           className="content-card"
           style={{ maxWidth: '560px', textAlign: 'center', padding: '2.5rem 1.5rem' }}
         >
-          <p style={{ fontSize: '2.5rem', margin: '0 0 0.75rem' }} aria-hidden>
-            🎯
-          </p>
+          <Target
+            size={40}
+            aria-hidden="true"
+            style={{ color: 'var(--color-accent)', margin: '0 auto 0.75rem', display: 'block' }}
+          />
           <h2 className="portal-section-title" style={{ marginBottom: '0.5rem' }}>
             Your missions unlock with a program
           </h2>
@@ -77,8 +80,13 @@ export default async function SkillMissionsPage() {
             complete. Pass a mission to earn a resume bullet and a STAR story you can use in
             interviews.
           </p>
-          <Link href="/dashboard/program" className="btn btn-primary">
-            Choose my program →
+          <Link
+            href="/dashboard/program"
+            className="btn btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            Choose my program
+            <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </div>
       )}

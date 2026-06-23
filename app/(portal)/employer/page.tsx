@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getEmployerForUser, isSuperAdmin } from '@/lib/auth/roles';
+import { unlinkedEmployerHref } from '@/lib/auth/portalGuards';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
@@ -21,6 +22,18 @@ import {
 } from '@/lib/employer/jobPostingApplicationStatus';
 import EmployerHiringIntentPanel from '@/components/employer/EmployerHiringIntentPanel';
 import { getTranslations } from 'next-intl/server';
+import { Zap, SquarePen, MessageSquare } from 'lucide-react';
+import {
+  DesignSurface,
+  KpiStrip,
+  DataTable,
+  StatusTag,
+  SectionHeader,
+  Avatar,
+  FeatureTile,
+  type Column,
+  type KitTone,
+} from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('employer');
@@ -31,7 +44,50 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function EmployerDashboardPage() {
+/** Two-letter initials from a full name for the applicant avatar. */
+function kitInitials(name: string | null | undefined): string {
+  if (!name) return '—';
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '—';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+/** Compact "applied 2h ago" relative time for the applicant showcase. */
+function kitTimeAgo(date: Date | null | undefined): string {
+  if (!date) return '—';
+  const diffMs = Date.now() - date.getTime();
+  const mins = Math.round(diffMs / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  return `${days}d ago`;
+}
+
+/** Maps a hiring pipeline status to a portal-kit StatusTag tone. */
+function kitStatusTone(status: string): KitTone {
+  switch (status) {
+    case 'hired':
+      return 'ok';
+    case 'rejected':
+      return 'alert';
+    case 'offered':
+    case 'interview':
+      return 'info';
+    case 'reviewing':
+      return 'warn';
+    default:
+      return 'muted';
+  }
+}
+
+export default async function EmployerDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/employer');
 
@@ -39,8 +95,291 @@ export default async function EmployerDashboardPage() {
 
   const ctx = await getEmployerForUser(user.id, { isSuperAdminHint: superAdmin });
   if (!ctx) {
-    if (superAdmin) redirect('/admin/employers');
-    redirect('/dashboard');
+    redirect(await unlinkedEmployerHref(user.id));
+  }
+
+  // ── ?ui=kit LEAN PATH ──────────────────────────────────────────────────
+  // Runs AFTER the auth/role guard (access control preserved: user + ctx
+  // resolved) but BEFORE the heavy `prisma.employer.findUnique`, the
+  // 9-query `Promise.all`, the take:5000 hired-application scan, and the
+  // aIJobMatch match-to-hire pass — all of which stall on the demo DB.
+  // Renders the redesigned employer kit from a handful of cheap queries.
+  const params = await searchParams;
+  // v2 kit is the DEFAULT employer overview; legacy via ?ui=legacy.
+  if (params?.ui !== 'legacy') {
+    const kitT = await getTranslations('employer');
+    const [
+      kitOpenRoles,
+      kitTotalCandidates,
+      kitReviewing,
+      kitInterviews,
+      kitOffered,
+      kitHired,
+      kitRecent,
+    ] = await Promise.all([
+      prisma.job.count({ where: { employerId: ctx.employerId, status: 'live' } }),
+      prisma.jobPostingApplication.count({
+        where: { job: { employerId: ctx.employerId } },
+      }),
+      prisma.jobPostingApplication.count({
+        where: { job: { employerId: ctx.employerId }, status: 'reviewing' },
+      }),
+      prisma.jobPostingApplication.count({
+        where: { job: { employerId: ctx.employerId }, status: 'interview' },
+      }),
+      prisma.jobPostingApplication.count({
+        where: { job: { employerId: ctx.employerId }, status: 'offered' },
+      }),
+      prisma.jobPostingApplication.count({
+        where: { job: { employerId: ctx.employerId }, status: 'hired' },
+      }),
+      prisma.jobPostingApplication.findMany({
+        where: { job: { employerId: ctx.employerId } },
+        orderBy: { appliedAt: 'desc' },
+        take: 5,
+        include: {
+          job: { select: { title: true } },
+          student: { select: { fullName: true } },
+        },
+      }),
+    ]);
+
+    // Screened = everyone past the initial "pending" gate.
+    const kitScreened =
+      kitReviewing + kitInterviews + kitOffered + kitHired;
+    const kitTopApplicant = kitRecent[0] ?? null;
+
+    type KitRow = (typeof kitRecent)[number];
+    const kitColumns: Column<KitRow>[] = [
+      {
+        key: 'candidate',
+        header: 'Candidate',
+        render: (row) => row.student?.fullName ?? '—',
+      },
+      {
+        key: 'role',
+        header: 'Role',
+        render: (row) => row.job?.title ?? '—',
+      },
+      {
+        key: 'applied',
+        header: 'Applied',
+        align: 'right',
+        render: (row) =>
+          row.appliedAt ? new Date(row.appliedAt).toLocaleDateString('en-US') : '—',
+      },
+      {
+        key: 'status',
+        header: 'Status',
+        align: 'right',
+        render: (row) => (
+          <StatusTag tone={kitStatusTone(row.status)}>
+            {employerJobPostingApplicationStatusLabel(row.status)}
+          </StatusTag>
+        ),
+      },
+    ];
+
+    return (
+      <DesignSurface surface="dense" className="wa-p-6">
+        <h1 className="wa-sr-only">Employer overview</h1>
+        <SectionHeader
+          title="Employer overview"
+          kicker="Employer portal"
+          goal="See open roles, pipeline, and the latest candidates at a glance."
+        />
+
+        {/* ── KPI pipeline (6 stages) ── */}
+        <KpiStrip
+          cols={6}
+          items={[
+            { label: 'Candidates', value: kitTotalCandidates },
+            { label: 'In Review', value: kitReviewing, color: 'gold' },
+            { label: 'Screened', value: kitScreened },
+            { label: 'Interview', value: kitInterviews, color: 'info' },
+            { label: 'Offer', value: kitOffered, color: 'accent' },
+            { label: 'Hired', value: kitHired, color: 'success' },
+          ]}
+        />
+
+        {/* ── Voice Assistant ── */}
+        {/* Mounts the real ElevenLabs voice surface (same wiring as the legacy
+            path) so the start control actually opens a hands-free session
+            against /api/employer/voice-session — not a Link to the apps list. */}
+        <div className="wa-mt-5">
+          <VoiceAgentSurface {...employerVoiceSurface}>
+            <PortalVoiceSessionLazy
+              sessionEndpoint="/api/employer/voice-session"
+              title={kitT('employerVoiceAssistant')}
+              description={kitT('askAboutPostingRoles')}
+              accent="var(--color-blue)"
+              accentDark="var(--color-blue)"
+              speakingLabel={kitT('assistantIsSpeaking')}
+              listeningLabel={kitT('listeningAskYourQuestion')}
+            />
+          </VoiceAgentSurface>
+        </div>
+
+        {/* ── Review-candidate banner ── */}
+        {kitTopApplicant ? (
+          <Link
+            href={`/employer/applications/${kitTopApplicant.id}`}
+            className="wa-mt-5"
+            style={{
+              background: 'var(--wa-accent)',
+              color: 'var(--wa-on-accent)',
+              borderRadius: 'var(--wa-radius)',
+              padding: '16px 22px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              textDecoration: 'none',
+            }}
+          >
+            <div
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 12,
+                background: 'rgba(255,255,255,0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Zap className="h-5 w-5" aria-hidden />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>
+                Review latest candidate
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>
+                {kitTopApplicant.student?.fullName ?? 'New candidate'} —{' '}
+                {kitTopApplicant.job?.title ?? 'Open role'} · submitted{' '}
+                {kitTimeAgo(kitTopApplicant.appliedAt)}
+              </div>
+            </div>
+            <span style={{ fontSize: 20 }}>→</span>
+          </Link>
+        ) : null}
+
+        {/* ── Quick-action cards ── */}
+        <div
+          className="wa-mt-5 wa-grid wa-grid-cols-1 md:wa-grid-cols-2 wa-gap-4"
+        >
+          <FeatureTile
+            icon={<SquarePen size={22} aria-hidden />}
+            title="Post a role"
+            body="Hire from the WorkforceAP pipeline."
+            href="/employer/jobs/new"
+          />
+          <FeatureTile
+            icon={<MessageSquare size={22} aria-hidden />}
+            title="Messages"
+            body="Open candidate and staff conversations."
+            tone="gold"
+            href="/employer/messages"
+          />
+        </div>
+
+        {/* ── Recent applicants showcase ── */}
+        <div className="wa-mt-5 wa-kit-card">
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-end',
+              marginBottom: 16,
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  color: 'var(--wa-accent)',
+                }}
+              >
+                Recent activity
+              </div>
+              <h3
+                style={{
+                  fontSize: 20,
+                  fontWeight: 800,
+                  letterSpacing: '-0.03em',
+                  margin: 0,
+                }}
+              >
+                Recent applicants
+              </h3>
+            </div>
+            <Link
+              href="/employer/applications"
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: 'var(--wa-accent)',
+                textDecoration: 'none',
+              }}
+            >
+              View all →
+            </Link>
+          </div>
+
+          {kitRecent.length === 0 ? (
+            <p style={{ fontSize: 13, color: 'var(--wa-muted)', margin: 0 }}>
+              New job applications will appear here as candidates enter the pipeline.
+            </p>
+          ) : (
+            kitRecent.map((app, i) => (
+              <Link
+                key={app.id}
+                href={`/employer/jobs/${app.jobId}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '12px 0',
+                  borderBottom:
+                    i < kitRecent.length - 1 ? '1px solid var(--wa-border)' : 'none',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                }}
+              >
+                <Avatar initials={kitInitials(app.student?.fullName)} size={36} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>
+                    {app.student?.fullName ?? '—'}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--wa-muted)' }}>
+                    {app.job?.title ?? 'Open role'} · applied {kitTimeAgo(app.appliedAt)}
+                  </div>
+                </div>
+                <StatusTag tone={kitStatusTone(app.status)}>
+                  {employerJobPostingApplicationStatusLabel(app.status)}
+                </StatusTag>
+              </Link>
+            ))
+          )}
+        </div>
+
+        {/* ── Full candidate table (dense staff surface) ── */}
+        <div className="wa-mt-6">
+          <SectionHeader title="Latest candidates" />
+          <DataTable<KitRow>
+            columns={kitColumns}
+            rows={kitRecent}
+            rowKey={(row) => row.id}
+            mobile="scroll"
+            emptyTitle="No candidates yet"
+            emptyDescription="New job applications will appear here as candidates enter the pipeline."
+          />
+        </div>
+      </DesignSurface>
+    );
   }
 
   const isPendingApproval = ctx.employer.status === 'pending_approval';
@@ -58,8 +397,7 @@ export default async function EmployerDashboardPage() {
     },
   });
   if (!employerRow) {
-    if (superAdmin) redirect('/admin/employers');
-    redirect('/dashboard');
+    redirect(await unlinkedEmployerHref(user.id));
   }
 
   const t = await getTranslations('employer');

@@ -6,7 +6,6 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { prisma } from '@/lib/db/prisma';
 
@@ -103,7 +102,6 @@ export default async function PartnerResourcesPage() {
         </Link>{' '}
         after they enroll.
       </p>
-      <MobileBottomNav variant="partner" />
     </div>
 
     {/* Desktop View */}

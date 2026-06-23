@@ -159,7 +159,7 @@ export default function AssessmentsTable({
       </form>
 
       {/* Mobile cards (≤768px) */}
-      <div className="md:wa-hidden" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+      <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.75rem', marginBottom: '1rem' }}>
         {sorted.length === 0 ? (
           <p style={{ color: 'var(--color-on-surface-variant)', textAlign: 'center', padding: '2rem' }}>No assessments match your filters.</p>
         ) : sorted.map((u) => {

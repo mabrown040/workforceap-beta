@@ -5,8 +5,11 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isSuperAdmin } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
+import { captureApiError } from '@/lib/observability/captureApiError';
 import AuditLogsClient from './AuditLogsClient';
 import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface } from '@/components/portal/kit';
+import { AuditLogsKit, type AuditRow } from '@/components/portal/kit/pages/admin-subviews/AuditLogsKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -46,8 +49,39 @@ function buildWhere(
 }
 
 type Props = {
-  searchParams?: Promise<{ page?: string; q?: string; event?: string; order?: string }>;
+  searchParams?: Promise<{ page?: string; q?: string; event?: string; order?: string; ui?: string }>;
 };
+
+/** Short "When" label: today → time only, yesterday → "Yesterday", else month/day. */
+function formatWhen(d: Date): string {
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) {
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  }
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+/** Title-case an event_name slug → "Confirmed placement". */
+function humanizeAction(name: string): string {
+  const s = name.replace(/[_-]+/g, ' ').trim();
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : name;
+}
+
+/** Read a source IP out of event metadata (best-effort) and mask it (73.x.x.12). */
+function maskIp(metadata: unknown): string {
+  if (!metadata || typeof metadata !== 'object') return '—';
+  const m = metadata as Record<string, unknown>;
+  const raw = m.ip ?? m.ipAddress ?? m.ip_address ?? m.remoteAddr ?? m.clientIp;
+  if (typeof raw !== 'string' || !raw.trim()) return '—';
+  const ip = raw.trim().split(',')[0].trim();
+  const parts = ip.split('.');
+  if (parts.length === 4) return `${parts[0]}.x.x.${parts[3]}`;
+  return ip; // IPv6 / non-dotted — show as-is
+}
 
 export default async function AdminAuditLogsPage({ searchParams }: Props) {
   const user = await getUser();
@@ -57,6 +91,11 @@ export default async function AdminAuditLogsPage({ searchParams }: Props) {
   if (!superAdmin) redirect('/admin');
 
   const sp = (await searchParams) ?? {};
+
+  // --- DEFAULT: design-kit audit trail wired into real (lean) event data ---
+  if (sp.ui !== 'legacy') {
+    return renderKit();
+  }
   const page = Math.max(1, parseInt(sp.page ?? '1', 10) || 1);
   const q = (sp.q ?? '').trim();
   const eventFilter = (sp.event ?? '').trim();
@@ -189,5 +228,68 @@ export default async function AdminAuditLogsPage({ searchParams }: Props) {
         eventTypes={eventTypesForSelect}
       />
     </>
+  );
+}
+
+/** Lean kit row count — first paint stays cheap. */
+const KIT_LIMIT = 50;
+
+/**
+ * Design-kit default: dense immutable audit trail → <AuditLogsKit/>.
+ * Lean reads only: latest N events + three scalar counts, run in parallel.
+ * Aggregate failures degrade to 0 so the table still renders.
+ */
+async function renderKit() {
+  const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+  const sevenDaysAgo = new Date(now);
+  sevenDaysAgo.setDate(now.getDate() - 7);
+
+  const [eventsResult, todayResult, weekResult, actorsResult] = await Promise.allSettled([
+    prisma.memberEvent.findMany({
+      take: KIT_LIMIT,
+      orderBy: { createdAt: 'desc' },
+      include: { user: { select: { fullName: true, email: true } } },
+    }),
+    prisma.memberEvent.count({ where: { createdAt: { gte: startOfToday } } }),
+    prisma.memberEvent.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
+    prisma.memberEvent
+      .groupBy({ by: ['userId'], where: { createdAt: { gte: sevenDaysAgo } } })
+      .then((rows) => rows.length),
+  ]);
+
+  // If the core list query fails, fall back to the proven legacy view rather
+  // than rendering an empty/fabricated kit.
+  if (eventsResult.status === 'rejected') {
+    captureApiError(eventsResult.reason, { route: 'admin/audit-logs', extra: { view: 'kit' } });
+    redirect('/admin/audit-logs?ui=legacy');
+  }
+
+  const rows: AuditRow[] = eventsResult.value.map((e) => ({
+    id: e.id,
+    when: formatWhen(e.createdAt),
+    actor: e.user?.fullName?.trim() || 'System',
+    actorEmail: e.user?.email?.trim() || '—',
+    action: humanizeAction(e.eventName),
+    target: e.entityType
+      ? `${e.entityType}${e.entityId ? ` #${e.entityId.slice(0, 8)}` : ''}`
+      : e.sourcePage?.trim() || '—',
+    ip: maskIp(e.metadata),
+  }));
+
+  const eventsToday = todayResult.status === 'fulfilled' ? todayResult.value : 0;
+  const eventsThisWeek = weekResult.status === 'fulfilled' ? weekResult.value : 0;
+  const distinctActors = actorsResult.status === 'fulfilled' ? actorsResult.value : 0;
+
+  return (
+    <DesignSurface surface="dense">
+      <AuditLogsKit
+        rows={rows}
+        eventsToday={eventsToday}
+        eventsThisWeek={eventsThisWeek}
+        distinctActors={distinctActors}
+      />
+    </DesignSurface>
   );
 }

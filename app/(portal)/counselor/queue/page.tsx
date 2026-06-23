@@ -5,7 +5,6 @@ import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import {
   formatTimeWaiting,
   getCounselorWorkQueue,
@@ -254,7 +253,6 @@ export default async function CounselorWorkQueuePage() {
         )}
       </section>
 
-      <MobileBottomNav variant="counselor" />
     </PortalPageFrame>
   );
 }

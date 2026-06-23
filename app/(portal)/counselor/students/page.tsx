@@ -4,7 +4,6 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin, isCounselor } from '@/lib/auth/roles';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
@@ -170,35 +169,62 @@ export default async function CounselorStudentsPage({
   }));
 
   // ── Analytics ───────────────────────────────────────────
-  let analyticsData: {
-    totalMembers: number;
-    activeMembers: number;
-    atRiskMembers: number;
-    avgProgress: number;
-    recentCompletions: number;
-    recentPlacements: number;
-    progressDistribution: { range: string; count: number }[];
-    byProgram: { program: string; members: number; avgProgress: number }[];
-    byStatus: { status: string; count: number }[];
-    recentActivity: { memberId: string; type: 'course_completed' | 'certification_earned' | 'placement_recorded'; date: string; metadata: Record<string, unknown> | null }[];
-    atRiskList: { memberId: string; riskScore: number; riskLevel: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'; enrolledProgram: string | null }[];
-  } | null = null;
+  // Per-member average progress from the already-loaded memberProgramProgress.
+  // A member's progress is the mean of their program averagePercent values.
+  const memberAvgProgress = assignments.map((a) => {
+    const percents = a.member.memberProgramProgress.map((p) => p.averagePercent);
+    if (percents.length === 0) return 0;
+    return percents.reduce((sum, p) => sum + p, 0) / percents.length;
+  });
 
-  // Fallback analytics from already-loaded data
-  const analytics = analyticsData ?? {
+  const avgProgress = memberAvgProgress.length
+    ? Math.round(memberAvgProgress.reduce((sum, p) => sum + p, 0) / memberAvgProgress.length)
+    : 0;
+
+  // Bucket each member's average progress into four ranges.
+  const progressBuckets = [0, 0, 0, 0];
+  for (const p of memberAvgProgress) {
+    if (p < 25) progressBuckets[0] += 1;
+    else if (p < 50) progressBuckets[1] += 1;
+    else if (p < 75) progressBuckets[2] += 1;
+    else progressBuckets[3] += 1;
+  }
+  const progressDistribution = [
+    { range: '0–25%', count: progressBuckets[0] },
+    { range: '25–50%', count: progressBuckets[1] },
+    { range: '50–75%', count: progressBuckets[2] },
+    { range: '75–100%', count: progressBuckets[3] },
+  ];
+
+  // 30-day completion / placement counts from member_events.
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const [recentCompletions, recentPlacements] = memberIds.length
+    ? await Promise.all([
+        prisma.memberEvent.count({
+          where: {
+            userId: { in: memberIds },
+            eventName: 'course_completed',
+            createdAt: { gte: thirtyDaysAgo },
+          },
+        }),
+        prisma.memberEvent.count({
+          where: {
+            userId: { in: memberIds },
+            eventName: 'placement_recorded',
+            createdAt: { gte: thirtyDaysAgo },
+          },
+        }),
+      ])
+    : [0, 0];
+
+  const analytics = {
     totalMembers: activeCount,
     activeMembers: enrolledCount,
     atRiskMembers: rosterRows.filter((r) => r.riskScore != null && r.riskLevel !== 'LOW').length,
-    avgProgress: 0,
-    recentCompletions: 0,
-    recentPlacements: 0,
-    progressDistribution: [
-      { range: '0–25%', count: 0 },
-      { range: '25–50%', count: 0 },
-      { range: '50–75%', count: 0 },
-      { range: '75–100%', count: 0 },
-    ],
-    byProgram: [],
+    avgProgress,
+    recentCompletions,
+    recentPlacements,
+    progressDistribution,
     byStatus: [
       { status: 'active', count: enrolledCount },
       { status: 'not_enrolled', count: activeCount - enrolledCount },
@@ -427,7 +453,6 @@ export default async function CounselorStudentsPage({
         )}
       </div>
 
-      <MobileBottomNav variant="counselor" />
     </PortalPageFrame>
   );
 }

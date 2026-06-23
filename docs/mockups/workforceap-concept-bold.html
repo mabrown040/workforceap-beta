@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Concept: Bold Motivation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.h-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.03em}
+.tabnum{font-variant-numeric:tabular-nums}
+.bento{transition:box-shadow .2s,transform .15s,border-color .2s}
+.bento:hover{box-shadow:0 14px 30px rgba(0,0,0,.08)}
+.focus-ring:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #ad2c4d}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fade .35s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes ping2{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.bento{transition:none}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:4px}
+/* BOLD: rounded, gradients, vivid */
+.card{background:#fff;border:1px solid #eceaea;border-radius:24px;padding:26px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.grad-c{background:linear-gradient(135deg,#ad2c4d,#8b1f38);color:#fff}
+.grad-g{background:linear-gradient(135deg,#a47f38,#7d5f26);color:#fff}
+.grad-i{background:linear-gradient(135deg,#2b7bb9,#1f5d8c);color:#fff}
+.grad-grn{background:linear-gradient(135deg,#4a9b4f,#3a7d3e);color:#fff}
+.grad-ink{background:linear-gradient(135deg,#1a1a1a,#3a0f1c);color:#fff}
+</style>
+</head>
+<body class="bg-[#F7F8FA] text-[#1A1A1A]">
+<div class="flex min-h-screen">
+  <aside class="w-56 bg-gradient-to-b from-[#1a1a1a] to-[#2a0c16] text-white fixed h-screen z-40 flex flex-col">
+    <div class="px-5 py-4 border-b border-white/10">
+      <div class="text-[10px] font-bold tracking-widest text-[#ff8da3] uppercase">Concept</div>
+      <div class="h-font text-lg leading-tight">Bold Motivation</div>
+      <div class="text-[10px] text-[#aaa] mt-1">Momentum · celebration · rings</div>
+    </div>
+    <div class="px-4 py-2 text-[10px] font-bold tracking-widest text-[#888] uppercase">Persona</div>
+    <nav id="prail" class="flex-1 px-2.5 space-y-1 text-sm"></nav>
+    <div class="px-4 py-3 border-t border-white/10 space-y-1.5">
+      <div class="text-[10px] font-bold tracking-widest text-[#888] uppercase mb-1">Compare</div>
+      <a href="/workforceap-concept-calm.html" class="block text-xs text-[#aaa] hover:text-white">○ Calm Focus</a>
+      <a href="/workforceap-concept-dense.html" class="block text-xs text-[#aaa] hover:text-white">○ Dense Command</a>
+      <a href="/workforceap-concept-bold.html" class="block text-xs font-bold text-white">● Bold Motivation</a>
+      <a href="/" class="block text-[10px] text-[#888] hover:text-white mt-2"><i class="fa-solid fa-arrow-left mr-1"></i>Design Lab</a>
+    </div>
+  </aside>
+
+  <div class="flex-1 ml-56 flex flex-col min-w-0">
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-[#e8e8e8] px-8 pt-4">
+      <div class="flex items-center justify-between gap-4">
+        <div><h1 id="ptitle" class="h-font text-2xl">Member</h1><p id="pgoal" class="text-xs text-[#737373] mt-0.5"></p></div>
+        <div class="text-[11px] text-[#a3a3a3]">Concept C of 3 · open all three to compare</div>
+      </div>
+      <div id="stabs" class="flex gap-1 mt-3"></div>
+    </header>
+    <main id="stage" class="flex-1 p-8 max-w-6xl"></main>
+  </div>
+</div>
+
+<script>
+const C={crimson:'#ad2c4d',crimsonDk:'#8b1f38',gold:'#a47f38',info:'#2b7bb9',green:'#4a9b4f',muted:'#737373'};
+function ring(pct,color,size){size=size||130;const r=52,circ=326.7,off=circ*(1-pct/100);return `<div class="relative shrink-0" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${r}" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="12"/><circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span class="tabnum font-extrabold" style="font-size:${size*0.24}px;color:${color}">${pct}%</span></div></div>`;}
+function ringLight(pct,color,size){size=size||130;const r=52,circ=326.7,off=circ*(1-pct/100);return `<div class="relative shrink-0" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 120 120"><circle cx="60" cy="60" r="${r}" fill="none" stroke="#f0eef0" stroke-width="12"/><circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span class="tabnum font-extrabold" style="font-size:${size*0.24}px;color:${color}">${pct}</span></div></div>`;}
+function kpis(arr){return `<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">${arr.map(k=>`<div class="card !p-5 bento"><div class="text-[10px] font-bold text-[#737373] uppercase tracking-wider">${k.l}</div><div class="tabnum text-4xl font-extrabold mt-1 tracking-tighter" style="color:${k.c||'#1a1a1a'}">${k.v}</div>${k.sub?`<div class="text-[10px] font-bold mt-0.5" style="color:${k.sc||C.green}">${k.sub}</div>`:''}</div>`).join('')}</div>`;}
+function tag(t,k){const m={ok:['#4a9b4f','#eef7ef'],warn:['#a47f38','#FEF3C7'],alert:['#ad2c4d','#fdf2f4'],info:['#2b7bb9','#eef5fb'],muted:['#737373','#f5f5f5']};const[c,bg]=m[k]||m.muted;return `<span class="tabnum" style="color:${c};background:${bg};padding:4px 11px;border-radius:999px;font-size:9px;font-weight:700;text-transform:uppercase">${t}</span>`;}
+function table(cols,rows){return `<div class="card !p-0 overflow-hidden bento"><div class="overflow-x-auto"><table class="w-full border-collapse min-w-[600px]"><thead><tr>${cols.map(c=>`<th style="font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#a3a3a3;font-weight:700;text-align:left;padding:14px 18px;background:#fafafa">${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr class="hover:bg-[#fafafa] cursor-pointer">${r.map(c=>`<td style="padding:14px 18px;font-size:12px;border-bottom:1px solid #f5f5f5">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;}
+/* bold gradient hero */
+function gradHero(grad,kicker,title,body,cta,extra){return `<div class="${grad} bento mb-6" style="border-radius:28px;padding:32px;box-shadow:0 14px 32px rgba(173,44,77,.18)"><div class="flex flex-col md:flex-row md:items-center gap-6">${extra||''}<div class="flex-1"><div class="text-[11px] font-bold tracking-widest uppercase opacity-70">${kicker}</div><h3 class="h-font text-3xl mt-1">${title}</h3><p class="text-sm opacity-85 mt-1">${body}</p></div>${cta?`<button class="px-6 py-3 bg-white font-bold text-sm rounded-full hover:bg-white/90 transition-colors focus-ring whitespace-nowrap" style="color:${C.crimson}">${cta}</button>`:''}</div></div>`;}
+function featTile(grad,icon,badge,title,body){return `<button class="${grad} bento text-left" style="border-radius:24px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;min-height:170px;border:none;cursor:pointer"><div class="flex justify-between items-start"><div class="p-3 rounded-2xl bg-white/15"><i class="fa-solid ${icon} text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/20 rounded-full">${badge}</span></div><div><h4 class="font-extrabold text-xl tracking-tight">${title}</h4><p class="text-xs opacity-80 mt-1">${body}</p></div></button>`;}
+function riskRow(tone,name,meta,flag,action){const m={red:['#ad2c4d','#fdf2f4'],yellow:['#a47f38','#FEF3C7'],blue:['#2b7bb9','#eef5fb']};const[c,bg]=m[tone];return `<div class="flex items-center gap-3 p-4 rounded-2xl bento cursor-pointer" style="background:${bg}"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0" style="background:${c}"><i class="fa-solid ${tone==='red'?'fa-fire':tone==='yellow'?'fa-clock':'fa-star'}"></i></div><div class="flex-1 min-w-0"><div class="font-bold text-sm">${name}</div><div class="text-[11px] text-[#737373]">${meta}</div></div><span class="hidden md:inline text-[10px] font-bold uppercase" style="color:${c}">${flag}</span><button class="px-4 py-2 text-[11px] font-bold rounded-full text-white focus-ring" style="background:${c}">${action}</button></div>`;}
+function bars(title,sub,arr){return `<div class="card bento"><h4 class="font-extrabold text-lg tracking-tight">${title}</h4>${sub?`<p class="text-[11px] text-[#737373] mb-4">${sub}</p>`:'<div class="mb-4"></div>'}<div class="space-y-3 text-xs">${arr.map(b=>`<div><div class="flex justify-between mb-1"><span class="font-bold">${b.l}</span><span class="tabnum text-[#737373]">${b.v}</span></div><div class="h-2.5 bg-[#f5f5f5] rounded-full overflow-hidden"><div class="h-2.5 rounded-full" style="width:${b.p}%;background:linear-gradient(90deg,${b.c||C.crimson},${b.c2||b.c||C.crimsonDk})"></div></div></div>`).join('')}</div></div>`;}
+
+const PERSONAS=[
+  {id:'member',t:'Member',ic:'fa-user',goal:'Feel progress · know the next step · get hired',screens:[['home','Home'],['program','My Program'],['jobs','Jobs']]},
+  {id:'employer',t:'Employer',ic:'fa-building',goal:'Review candidates fast · fill roles',screens:[['home','Overview'],['pipeline','Pipeline'],['queue','Work Queue']]},
+  {id:'partner',t:'Partner',ic:'fa-handshake',goal:'Prove impact · catch members who need help',screens:[['home','Overview'],['attention','Attention Queue'],['outcomes','Outcomes']]},
+  {id:'counselor',t:'Counselor',ic:'fa-user-tie',goal:'Know who needs me today · act in one click',screens:[['home','Overview'],['triage','Triage'],['atrisk','At-Risk']]},
+  {id:'admin',t:'Admin',ic:'fa-shield-halved',goal:'Run the org at a glance · drill when needed',screens:[['home','Command Center'],['students','Students'],['board','Board Outcomes']]},
+];
+
+const S={
+/* MEMBER — bold: gradient hero + ring + streak + celebration */
+'member-home':()=>gradHero('grad-c','12-day streak 🔥','Keep climbing, Mike.','You\'re 78% to your AWS cert — finish one module today to hit your weekly goal.','Resume',ring(78,'#fff',120))+
+  kpis([{l:'Course',v:'78%',c:C.crimson},{l:'Jobs',v:'4',c:C.info},{l:'Certs',v:'2',c:C.gold},{l:'Points',v:'1,240',c:C.green,sub:'↑ 320 this week'}])+
+  `<div class="grid grid-cols-1 md:grid-cols-3 gap-5">${featTile('grad-c','fa-wand-magic-sparkles','AI','Career Toolkit','Resume audit + cover letters.')}${featTile('grad-g','fa-medal','NEXT','Next Badge','2 modules to Cloud Foundations.')}${featTile('grad-i','fa-briefcase','HOT','Job Pipeline','1 interview this week!')}</div>`,
+'member-program':()=>`<div class="grad-c bento mb-6" style="border-radius:28px;padding:32px"><div class="flex flex-col md:flex-row md:items-center gap-7">${ring(78,'#fff',140)}<div class="flex-1"><div class="text-[11px] font-bold tracking-widest uppercase opacity-70">Current program</div><h3 class="h-font text-3xl mt-1">AWS Cloud Practitioner</h3><p class="text-sm opacity-85 mt-1">7 of 9 modules · you\'re ahead of pace. 🎯</p><button class="mt-3 px-5 py-2.5 bg-white text-[#ad2c4d] font-bold text-xs rounded-full focus-ring">Resume module</button></div></div></div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">${[['Modules done','7','fa-circle-check',C.green],['Day streak','12','fa-fire',C.crimson],['Points earned','1,240','fa-bolt',C.gold]].map(s=>`<div class="card bento flex items-center gap-4"><div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl text-white" style="background:${s[3]}"><i class="fa-solid ${s[2]}"></i></div><div><div class="tabnum text-2xl font-extrabold">${s[1]}</div><div class="text-[11px] text-[#737373] font-semibold">${s[0]}</div></div></div>`).join('')}</div>`,
+'member-jobs':()=>gradHero('grad-i','Interview Thursday 🎉','Salesforce Administrator @ Deloitte','You matched at 88%. Run a mock interview and walk in ready to win it.','Prep now')+
+  kpis([{l:'Applied',v:'4',c:C.info},{l:'Interviewing',v:'1',c:C.gold},{l:'Avg Match',v:'87%',c:C.crimson},{l:'Saved',v:'9'}])+
+  table(['Role','Company','Match','Stage'],[['<b>Salesforce Administrator</b>','Deloitte','88%',tag('Interviewing','warn')],['<b>Agentforce SE</b>','Accenture','82%',tag('Applied','muted')],['<b>Cloud Support Associate</b>','Indeed','79%',tag('Screening','info')]]),
+
+/* EMPLOYER — bold but professional: gradient header, vivid pipeline */
+'employer-home':()=>gradHero('grad-ink','Hiring momentum','18 hires and counting 🚀','5 fresh matches are waiting on your review — strong candidates move fast.','Review matches')+
+  kpis([{l:'Live Roles',v:'9',c:C.info},{l:'New Matches',v:'5',c:C.crimson},{l:'Interviewing',v:'3',c:C.gold},{l:'Hires YTD',v:'18',c:C.green,sub:'↑ 4 this month'}]),
+'employer-pipeline':()=>`<p class="text-sm text-[#737373] mb-4">Drag-style Kanban with vivid stage headers — momentum at a glance.</p><div class="grid grid-cols-2 lg:grid-cols-5 gap-3">${[['New',2,'grad-ink'],['Contacted',3,'grad-i'],['Interviewing',3,'grad-g'],['Offer',1,'grad-c'],['Hired',1,'grad-grn']].map(col=>`<div class="bg-white border border-[#eceaea] rounded-2xl overflow-hidden bento"><div class="${col[2]} px-3 py-2 flex items-center justify-between"><span class="text-xs font-bold">${col[0]}</span><span class="tabnum text-xs font-extrabold">${col[1]}</span></div><div class="p-2 space-y-2">${Array.from({length:col[1]}).map((_,i)=>`<div class="p-2.5 rounded-xl bg-[#fafafa] border border-[#eee]"><div class="font-bold text-[11px]">Candidate ${i+1}</div><div class="text-[10px] text-[#737373]">8${7-i}% match</div></div>`).join('')}</div></div>`).join('')}</div>`,
+'employer-queue':()=>kpis([{l:'To Review',v:'5',c:C.crimson},{l:'Stale 48h',v:'1',c:C.gold},{l:'Interview',v:'1',c:C.info},{l:'Jobs Pending',v:'2'}])+
+  `<div class="space-y-3">${[['grad-c','fa-user-check','5 applications to review','Submitted in last 24h','Review'],['grad-g','fa-clock','1 match going stale','No contact in 48h','Reach out'],['grad-i','fa-calendar','1 interview to schedule','Candidate accepted','Schedule']].map(r=>`<div class="${r[0]} bento" style="border-radius:20px;padding:18px 22px;display:flex;align-items:center;gap:16px"><div class="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center"><i class="fa-solid ${r[1]} text-lg"></i></div><div class="flex-1"><div class="font-bold text-base">${r[2]}</div><div class="text-xs opacity-80">${r[3]}</div></div><button class="px-5 py-2.5 bg-white font-bold text-xs rounded-full focus-ring" style="color:${C.crimson}">${r[4]}</button></div>`).join('')}</div>`,
+
+/* PARTNER — bold: celebrate impact */
+'partner-home':()=>gradHero('grad-grn','Your impact','38 people placed because of you 🎉','27% placement rate, well above benchmark. 3 members need a nudge to keep it climbing.','Open attention')+
+  kpis([{l:'Referred',v:'142',c:C.info},{l:'Certified',v:'37',c:C.gold},{l:'Placed',v:'38',c:C.green},{l:'Placement %',v:'27%',c:C.green,sub:'↑ 3pts'}]),
+'partner-attention':()=>`<p class="text-sm text-[#737373] mb-4">Members slipping — bold signal colors so urgency is unmissable.</p><div class="space-y-3">${[['red','Devon Hill','No activity 12 days · Manufacturing','High','Check in'],['red','Maria Santos','Stalled in training · Healthcare','High','Check in'],['yellow','Lena Ortiz','Reply overdue · Data & AI','Watch','Nudge'],['yellow','Sam Cole','Assessment incomplete · Trades','Watch','Nudge']].map(r=>riskRow(r[0],r[1],r[2],r[3],r[4])).join('')}</div>`,
+'partner-outcomes':()=>`<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">${[['grad-grn','27%','Placement rate','fa-arrow-trend-up'],['grad-g','$56k','Avg starting wage','fa-sack-dollar'],['grad-i','84%','90-day retention','fa-shield-heart']].map(s=>`<div class="${s[0]} bento" style="border-radius:24px;padding:24px"><i class="fa-solid ${s[3]} text-xl opacity-70"></i><div class="tabnum text-4xl font-extrabold tracking-tighter mt-2">${s[1]}</div><div class="text-xs opacity-85 font-semibold">${s[2]}</div></div>`).join('')}</div>`+
+  `<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">${bars('Placements by program','38 total',[{l:'Cloud & IT',v:'14',p:100,c:C.info},{l:'Healthcare',v:'11',p:79,c:C.info},{l:'Data & AI',v:'7',p:50,c:C.info},{l:'Trades',v:'6',p:43,c:C.info}])}<div class="card bento"><h4 class="font-extrabold text-lg tracking-tight mb-3">Funder-ready exports</h4><div class="space-y-2.5">${[['fa-file-csv','Outcomes CSV','Placements + wages'],['fa-file-lines','Demographics report','For funders']].map(x=>`<button class="w-full flex items-center gap-3 p-3 rounded-2xl bg-[#fafafa] hover:bg-[#f0f0f0] text-left focus-ring"><div class="w-9 h-9 rounded-xl bg-[#eef7ef] text-[#4a9b4f] flex items-center justify-center"><i class="fa-solid ${x[0]}"></i></div><div class="flex-1"><div class="font-bold text-xs">${x[1]}</div><div class="text-[10px] text-[#737373]">${x[2]}</div></div><i class="fa-solid fa-download text-[#737373]"></i></button>`).join('')}</div></div></div>`,
+
+/* COUNSELOR — bold: urgency pops, wins celebrated */
+'counselor-home':()=>gradHero('grad-c','Start here','3 people need you today','Two went quiet, one\'s waiting on a reply. Clear these and you\'re ahead of the curve.','Open triage')+
+  kpis([{l:'Caseload',v:'156',c:C.info},{l:'Urgent',v:'3',c:C.crimson},{l:'Watch',v:'7',c:C.gold},{l:'Wins to send',v:'4',c:C.green}]),
+'counselor-triage':()=>`<div class="space-y-5">
+  <div><div class="flex items-center gap-2 mb-2"><span class="w-2.5 h-2.5 rounded-full" style="background:${C.crimson}"></span><span class="text-[11px] font-bold uppercase tracking-widest" style="color:${C.crimson}">Urgent — today (3)</span></div><div class="space-y-2.5">${[['red','Carlos Torres','No activity 16 days · Trades','Inactive','Call'],['red','Tanya Reed','Reply overdue 52h · Healthcare','Overdue','Reply'],['red','Devon Hill','No activity 11 days · Mfg','Inactive','Call']].map(r=>riskRow(r[0],r[1],r[2],r[3],r[4])).join('')}</div></div>
+  <div><div class="flex items-center gap-2 mb-2"><span class="w-2.5 h-2.5 rounded-full" style="background:${C.info}"></span><span class="text-[11px] font-bold uppercase tracking-widest" style="color:${C.info}">Celebrate (4) 🎉</span></div><div class="space-y-2.5">${[['blue','Aisha Williams','Earned Data Analytics cert','Win','Send 🎉'],['blue','Marcus Lee','Completed final course','Win','Send 🎉']].map(r=>riskRow(r[0],r[1],r[2],r[3],r[4])).join('')}</div></div></div>`,
+'counselor-atrisk':()=>`<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6"><div class="grad-c bento" style="border-radius:24px;padding:22px"><div class="tabnum text-4xl font-extrabold">3</div><div class="text-xs opacity-85 font-semibold">Critical ≥70</div></div>${[['High 50–69','8',C.gold],['Medium 30–49','14',C.info],['Low <30','131',C.green]].map(s=>`<div class="card bento"><div class="tabnum text-4xl font-extrabold" style="color:${s[2]}">${s[1]}</div><div class="text-xs text-[#737373] font-semibold">${s[0]}</div></div>`).join('')}</div>`+
+  table(['Member','Score','Level','Top factors','Last active'],[
+    ['<b>Carlos Torres</b>','<b class="tabnum" style="color:#ad2c4d">82</b>',tag('Critical','alert'),'No login 14d · Stalled training','16d ago'],
+    ['<b>Devon Hill</b>','<b class="tabnum" style="color:#ad2c4d">71</b>',tag('Critical','alert'),'No login 14d · No applications','11d ago'],
+    ['<b>Sam Cole</b>','<b class="tabnum" style="color:#a47f38">58</b>',tag('High','warn'),'Assessment incomplete','6d ago'],
+  ]),
+
+/* ADMIN — bold: command with vivid metrics */
+'admin-home':()=>gradHero('grad-ink','Today at WorkforceAP','847 students, 213 placed this year 🚀','19 students need attention this week — most in Cloud & IT. Act now to protect completion.','Assign outreach')+
+  kpis([{l:'Active Students',v:'847',c:C.info},{l:'Placements YTD',v:'213',c:C.green,sub:'↑ 18 this month'},{l:'Completion',v:'71%',c:C.gold},{l:'At Risk',v:'19',c:C.crimson}]),
+'admin-students':()=>`<div class="flex flex-wrap gap-2 mb-4">${['All · 847','Job-Ready · 64','At Risk · 19'].map((f,i)=>`<button class="px-4 py-2 rounded-full text-xs font-bold ${i===0?'grad-c':'bg-white border border-[#e8e8e8]'} focus-ring">${f}</button>`).join('')}</div>`+
+  table(['Student','Program','Progress','Readiness','Status'],[
+    ['<b>Mike Brown</b>','Cloud & IT','78%','<b style="color:#4a9b4f">84</b>',tag('Job-Ready','warn')],
+    ['<b>Jasmine Davis</b>','Healthcare','92%','<b style="color:#4a9b4f">91</b>',tag('Placed','ok')],
+    ['<b>Carlos Torres</b>','Skilled Trades','34%','<b style="color:#ad2c4d">41</b>',tag('At Risk','alert')],
+    ['<b>Aisha Williams</b>','Data & AI','88%','<b style="color:#4a9b4f">79</b>',tag('Interviewing','info')],
+  ]),
+'admin-board':()=>`<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">${[['grad-grn','68%','Placement rate','fa-arrow-trend-up'],['grad-ink','$58k','Avg wage','fa-sack-dollar'],['grad-g','541','Credentials','fa-award'],['grad-i','84%','90-day retention','fa-shield-heart']].map(s=>`<div class="${s[0]} bento" style="border-radius:24px;padding:22px"><i class="fa-solid ${s[3]} opacity-70"></i><div class="tabnum text-4xl font-extrabold tracking-tighter mt-2">${s[1]}</div><div class="text-xs opacity-85 font-semibold">${s[2]}</div></div>`).join('')}</div>`+
+  `<div class="card bento"><h4 class="font-extrabold text-lg tracking-tight mb-1">Placements by month</h4><p class="text-xs text-[#737373] mb-5">2026 YTD · 213 total · trending up 📈</p><div class="flex items-end justify-between gap-3 h-40">${[38,46,55,62,78,90].map((h,i)=>`<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full rounded-t-xl" style="height:${h}%;background:${i===5?'linear-gradient(to top,#ad2c4d,#c4456a)':'linear-gradient(to top,#ad2c4d99,#ad2c4d55)'}"></div><span class="text-[9px] text-[#737373] font-bold">${['Jan','Feb','Mar','Apr','May','Jun'][i]}</span></div>`).join('')}</div></div>`,
+};
+
+let cur={p:'member',s:'home'};
+const prail=document.getElementById('prail'),stabs=document.getElementById('stabs'),stage=document.getElementById('stage');
+PERSONAS.forEach(p=>{const b=document.createElement('button');b.className='nav-p w-full flex items-center gap-3 px-2.5 py-2 rounded-lg font-semibold text-left text-[#cfcfcf] hover:bg-white/10 focus-ring';b.dataset.p=p.id;b.innerHTML=`<i class="fa-solid ${p.ic} w-4 text-center text-[12px] text-[#bbb]"></i>${p.t}`;b.onclick=()=>{cur={p:p.id,s:p.screens[0][0]};render();};prail.appendChild(b);});
+function render(){
+  const P=PERSONAS.find(x=>x.id===cur.p);
+  document.getElementById('ptitle').textContent=P.t;
+  document.getElementById('pgoal').innerHTML=`<i class="fa-solid fa-bullseye text-[#ad2c4d] mr-1"></i><b>Goal:</b> ${P.goal}`;
+  stabs.innerHTML=P.screens.map(s=>`<button data-s="${s[0]}" class="px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 ${s[0]===cur.s?'border-[#ad2c4d] text-[#ad2c4d]':'border-transparent text-[#737373] hover:text-[#1a1a1a]'}">${s[1]}</button>`).join('');
+  stabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{cur.s=b.dataset.s;render();});
+  const fn=S[cur.p+'-'+cur.s];
+  stage.innerHTML=`<div class="fade">${fn?fn():'<div class="card">Screen pending.</div>'}</div>`;
+  prail.querySelectorAll('.nav-p').forEach(b=>{const on=b.dataset.p===cur.p;b.classList.toggle('bg-[#ad2c4d]',on);b.classList.toggle('text-white',on);b.classList.toggle('text-[#cfcfcf]',!on);});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+render();
+</script>
+</body>
+</html>

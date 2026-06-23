@@ -22,7 +22,6 @@ Demo values go on **Preview + Development**. Real values go on **Production** on
 | `POSTGRES_PRISMA_URL` | demo pooled (`:6543?pgbouncer=true`) | real pooled |
 | `POSTGRES_URL_NON_POOLING` | demo direct (`:5432`) | real direct |
 | `DATABASE_URL` | demo pooled | real pooled |
-| `PRISMA_FLATTEN_TX` | optional (`1`) — **auto-enabled when `VERCEL_ENV=preview`** | **must be unset** |
 
 All connection strings + the service_role key come from the Supabase dashboard
 ("Connect" button → Prisma tab; Settings → API). Secrets live only in Vercel env

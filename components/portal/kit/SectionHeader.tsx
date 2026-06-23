@@ -30,8 +30,8 @@ export function SectionHeader({ title, goal, kicker, action }: SectionHeaderProp
           {title}
         </h2>
         {goal ? (
-          <p className="wa-text-xs wa-mt-1" style={{ color: 'var(--wa-muted)' }}>
-            <span style={{ color: 'var(--wa-accent)', fontWeight: 700 }}>Goal:</span> {goal}
+          <p className="wa-text-sm wa-mt-1" style={{ color: 'var(--wa-muted)' }}>
+            {goal}
           </p>
         ) : null}
       </div>

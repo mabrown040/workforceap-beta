@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import { Mic } from 'lucide-react';
 import type { WioaBarrier, WioaEligibilitySignal, WioaQualificationSnapshot } from '@/lib/wioa/wioaQualification';
 import { barrierLabel } from '@/lib/wioa/wioaQualification';
 import PortalCard from '@/components/portal/ui/PortalCard';
@@ -282,8 +283,8 @@ export default function WioaQualificationClient({
                   ? 'Talk through a quick walkthrough, then use the form to send the structured qualification assessment to our team.'
                   : 'Talk through your goals, barriers, and likely qualification before staff reviews the details.'
               }
-              icon="🎙️"
-              glowColor="#0d9488"
+              icon={<Mic size={22} aria-hidden="true" />}
+              glowColor="#2b7bb9"
               gradient="linear-gradient(135deg, #99f6e4 0%, #14b8a6 45%, #0f766e 100%)"
             >
               <PortalVoiceSessionLazy
@@ -291,8 +292,8 @@ export default function WioaQualificationClient({
                 sessionPayload={voicePayload}
                 title="WIOA Qualification Assessment"
                 description="Talk through your work goals, barriers, and likely qualification before the formal review."
-                accent="#0d9488"
-                accentDark="#0f766e"
+                accent="#2b7bb9"
+                accentDark="#1f5a87"
                 speakingLabel="Guide is speaking…"
                 listeningLabel="Listening…"
               />

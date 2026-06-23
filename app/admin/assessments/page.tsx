@@ -9,6 +9,11 @@ import AssessmentsTable from '@/components/admin/AssessmentsTable';
 import AdminDataLoadError from '@/components/admin/AdminDataLoadError';
 import { TableSkeleton } from '@/components/ui/Skeleton';
 import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  AssessmentsKit,
+  type AssessmentRow,
+} from '@/components/portal/kit/pages/admin-subviews/AssessmentsKit';
 // Server-only: holds the answer key. Used here to pre-compute per-question
 // correctness so AssessmentsTable (client) doesn't need to ship the key.
 import { ASSESSMENT_QUESTIONS, type QuestionChoice } from '@/lib/assessment/answer-key';
@@ -24,7 +29,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminAssessmentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ program?: string; minScore?: string; maxScore?: string; userId?: string }>;
+  searchParams: Promise<{
+    program?: string;
+    minScore?: string;
+    maxScore?: string;
+    userId?: string;
+    ui?: string;
+  }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/assessments');
@@ -33,6 +44,74 @@ export default async function AdminAssessmentsPage({
   if (!hasAdmin) redirect('/dashboard');
 
   const params = await searchParams;
+
+  // --- DEFAULT: design-kit assessments catalog wired into real (lean) data ---
+  if (params.ui !== 'legacy') {
+    return renderKit();
+  }
+
+  // --- LEGACY (?ui=legacy): the proven results table + per-member drill-in ---
+  return renderLegacy({ params });
+}
+
+/**
+ * Design-kit default: dense assessment catalog → <AssessmentsKit/>.
+ *
+ * The platform tracks one combined skills + readiness assessment per member
+ * (User.assessmentCompleted / assessmentScorePct). We feed REAL completion +
+ * average figures for that assessment. Lean: a single count + a single average
+ * aggregate, run in parallel; aggregate failures degrade gracefully.
+ */
+async function renderKit() {
+  const completedWhere = {
+    assessmentCompleted: true,
+    assessmentCompletedAt: { not: null } as const,
+  };
+
+  const [completionsResult, avgResult] = await Promise.allSettled([
+    prisma.user.count({ where: completedWhere }),
+    prisma.user.aggregate({
+      where: { ...completedWhere, assessmentScorePct: { not: null } },
+      _avg: { assessmentScorePct: true },
+    }),
+  ]);
+
+  // If the core count fails, fall back to the proven legacy table rather than
+  // rendering a fabricated/empty kit.
+  if (completionsResult.status === 'rejected') {
+    redirect('/admin/assessments?ui=legacy');
+  }
+
+  const completions = completionsResult.value;
+  const avgPct =
+    avgResult.status === 'fulfilled' ? avgResult.value._avg.assessmentScorePct : null;
+  const avgScore =
+    avgPct != null && completions > 0 ? `${Math.round(avgPct)}%` : '—';
+
+  const assessments: AssessmentRow[] = [
+    {
+      id: 'skills-readiness',
+      assessment: 'Skills & Readiness Assessment',
+      type: 'Knowledge',
+      completions,
+      avgScore,
+      status: 'Live',
+    },
+  ];
+
+  return (
+    <DesignSurface surface="dense">
+      <AssessmentsKit assessments={assessments} totalCompletions={completions} />
+    </DesignSurface>
+  );
+}
+
+/** Legacy results table + per-member drill-in (preserved behind ?ui=legacy). */
+async function renderLegacy({
+  params,
+}: {
+  params: { program?: string; minScore?: string; maxScore?: string; userId?: string };
+}) {
   const programFilter = params.program?.trim() || undefined;
   const minScore = params.minScore ? parseInt(params.minScore, 10) : undefined;
   const maxScore = params.maxScore ? parseInt(params.maxScore, 10) : undefined;

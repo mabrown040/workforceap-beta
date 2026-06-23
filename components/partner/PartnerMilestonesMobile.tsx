@@ -101,40 +101,6 @@ export default function PartnerMilestonesMobile() {
                     {m.kind}
                   </span>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button type="button"
-                    className="active:scale-[0.98] transition-all"
-                    style={{
-                      flex: 1,
-                      padding: '0.5rem',
-                      borderRadius: '0.5rem',
-                      background: 'var(--color-accent)',
-                      color: '#fff',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      border: 'none',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Approve
-                  </button>
-                  <button type="button"
-                    className="active:scale-[0.98] transition-all"
-                    style={{
-                      flex: 1,
-                      padding: '0.5rem',
-                      borderRadius: '0.5rem',
-                      background: 'var(--surface-container)',
-                      color: 'var(--color-on-surface-variant)',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      border: '1px solid #ebe7e7',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Reject
-                  </button>
-                </div>
               </div>
             ))}
           </div>

@@ -57,6 +57,31 @@ const fakeLookup = async (host: string): Promise<string | null> => {
   return FAKE_HOST_MAP[host] ?? null;
 };
 
+async function withEnv<T>(patch: Record<string, string | undefined>, run: () => Promise<T>): Promise<T> {
+  const previous = new Map<string, string | undefined>();
+  for (const key of Object.keys(patch)) {
+    previous.set(key, process.env[key]);
+    const value = patch[key];
+    if (value === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = value;
+    }
+  }
+
+  try {
+    return await run();
+  } finally {
+    for (const [key, value] of previous) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  }
+}
+
 // Tests -----------------------------------------------------------------
 
 test('resolveOrgFromRequest: canonical host returns default org', async () => {
@@ -93,6 +118,38 @@ test('resolveOrgFromRequest: vercel preview returns default org', async () => {
     defaultOrgId: fakeDefaultOrgId,
   });
   assert.equal(result, FAKE_DEFAULT_ORG);
+});
+
+test('resolveOrgFromRequest: build lifecycle skips default-org DB fallback', async () => {
+  await withEnv(
+    {
+      npm_lifecycle_event: 'build',
+      WORKFORCEAP_FORCE_DB_BUILD: undefined,
+      __PRISMA_PLACEHOLDER_DB: undefined,
+    },
+    async () => {
+      const headers = makeHeaders({ host: 'workforceap.org' });
+      let fallbackCalls = 0;
+      const result = await resolveOrgFromRequest(headers, {
+        cache: makeFakeCache(),
+        lookup: fakeLookup,
+        defaultOrgId: async () => {
+          fallbackCalls++;
+          return FAKE_DEFAULT_ORG;
+        },
+      });
+
+      assert.equal(result, FAKE_DEFAULT_ORG);
+      assert.equal(fallbackCalls, 1);
+
+      const productionResult = await resolveOrgFromRequest(headers, {
+        cache: makeFakeCache(),
+        lookup: fakeLookup,
+      });
+
+      assert.equal(productionResult, 'build-placeholder-org');
+    }
+  );
 });
 
 test('resolveOrgFromRequest: matching customDomain returns the orgId', async () => {

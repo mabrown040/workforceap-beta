@@ -505,6 +505,19 @@ export type BoardSnapshotKpis = {
   qualifiedLeads: number;
   fundedStarts: number;
   placementsThisMonth: number;
+  /**
+   * 90-day retention rate, as a whole-number percentage, over placements in
+   * the snapshot's org/period whose retention outcome is decided. A placement
+   * counts as retained when `retentionDecision === 'retained'` OR
+   * `retentionStatus` starts with `'retained'` (e.g. "retained_90d",
+   * "retained_180d"); as not-retained when `retentionDecision === 'not_retained'`
+   * OR `retentionStatus === 'separated'`. Placements that are still pending
+   * (`retentionDecision === 'pending'` and no decided `retentionStatus`) or
+   * have no retention data at all are excluded from the denominator.
+   *
+   * `null` when the denominator is 0 (no decided placements yet) — render as "—".
+   */
+  retentionRate: number | null;
 };
 
 export type BoardSnapshot = {
@@ -773,12 +786,17 @@ export async function getBoardSnapshot(
 
   // ── NEW: Top-line KPIs for /admin/outcomes hero row ──
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  // Period bounds for the retention query, matching how getBoardOutcomes scopes
+  // placements by `placedAt` for this period.
+  const retentionStart = startOfPeriod(period);
+  const retentionEnd = endOfPeriod(period);
   const [
     kpiTotalMembers,
     kpiActiveThisWeek,
     kpiQualifiedLeads,
     kpiFundedStarts,
     kpiPlacementsThisMonth,
+    retentionRows,
   ] = await Promise.all([
     prisma.user.count({
       where: { deletedAt: null, ...(organizationId ? { organizationId } : {}) },
@@ -817,7 +835,40 @@ export async function getBoardSnapshot(
         ...(organizationId ? { user: { organizationId } } : {}),
       },
     }),
+    // Retention: pull retention fields for placements in this org/period so we
+    // can compute the real 90-day retention rate below. Scoped by `placedAt`
+    // and org exactly like getBoardOutcomes' placement query.
+    prisma.placementRecord.findMany({
+      take: 10000, // headroom guard, not a paging boundary — board metrics must count the full cohort
+      where: {
+        ...(retentionStart ? { placedAt: { gte: retentionStart, lte: retentionEnd } } : {}),
+        ...(organizationId ? { user: { organizationId } } : {}),
+      },
+      select: { retentionStatus: true, retentionDecision: true },
+    }),
   ]);
+
+  // Real 90-day retention rate over placements with a *decided* outcome.
+  // Retained: retentionDecision === 'retained' OR retentionStatus starts with
+  // 'retained' (covers "retained_90d", "retained_180d").
+  // Not retained: retentionDecision === 'not_retained' OR retentionStatus === 'separated'.
+  // Pending / null outcomes are excluded from the denominator entirely.
+  let retainedCount = 0;
+  let notRetainedCount = 0;
+  for (const r of retentionRows) {
+    const isRetained =
+      r.retentionDecision === 'retained' || (r.retentionStatus?.startsWith('retained') ?? false);
+    const isNotRetained =
+      r.retentionDecision === 'not_retained' || r.retentionStatus === 'separated';
+    if (isRetained) {
+      retainedCount += 1;
+    } else if (isNotRetained) {
+      notRetainedCount += 1;
+    }
+  }
+  const retentionDenominator = retainedCount + notRetainedCount;
+  const retentionRate =
+    retentionDenominator > 0 ? Math.round((retainedCount / retentionDenominator) * 100) : null;
 
   return {
     generatedAt: now,
@@ -856,6 +907,7 @@ export async function getBoardSnapshot(
       qualifiedLeads: kpiQualifiedLeads,
       fundedStarts: kpiFundedStarts,
       placementsThisMonth: kpiPlacementsThisMonth,
+      retentionRate,
     },
   };
 }

@@ -27,9 +27,10 @@ vi.mock('@/lib/db/prisma', () => ({
   prisma: {
     partner: {
       findMany: vi.fn(),
+      count: vi.fn(),
     },
-    subgroup: {
-      findMany: vi.fn(),
+    partnerReferral: {
+      groupBy: vi.fn(),
     },
   },
 }));
@@ -40,6 +41,12 @@ vi.mock('@/components/admin/PartnersTableClient', () => ({
 
 vi.mock('@/components/portal/PageHeader', () => ({
   default: ({ title }: { title: string }) => <h1>{title}</h1>,
+}));
+
+// The default render is now the design-kit directory; stub it so the test
+// exercises the page's auth + data-loading path without rendering the kit tree.
+vi.mock('@/components/portal/kit/pages/admin-subviews/PartnersDirectoryKit', () => ({
+  PartnersDirectoryKit: () => null,
 }));
 
 import AdminPartnersPage from '@/app/admin/partners/page';
@@ -56,10 +63,10 @@ describe('AdminPartnersPage authorization', () => {
     vi.mocked(getUser).mockResolvedValue({ id: 'user-1' } as any);
     vi.mocked(isAdmin).mockResolvedValue(false);
 
-    await expect(AdminPartnersPage()).rejects.toThrow('REDIRECT:/dashboard');
+    await expect(AdminPartnersPage({})).rejects.toThrow('REDIRECT:/dashboard');
 
     expect(prisma.partner.findMany).not.toHaveBeenCalled();
-    expect(prisma.subgroup.findMany).not.toHaveBeenCalled();
+    expect(prisma.partnerReferral.groupBy).not.toHaveBeenCalled();
     expect(isSuperAdmin).not.toHaveBeenCalled();
   });
 
@@ -68,11 +75,11 @@ describe('AdminPartnersPage authorization', () => {
     vi.mocked(isAdmin).mockResolvedValue(true);
     vi.mocked(isSuperAdmin).mockResolvedValue(true);
     vi.mocked(prisma.partner.findMany).mockResolvedValue([]);
-    vi.mocked(prisma.subgroup.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.partner.count).mockResolvedValue(0);
+    vi.mocked(prisma.partnerReferral.groupBy).mockResolvedValue([] as any);
 
-    await expect(AdminPartnersPage()).resolves.toBeTruthy();
+    await expect(AdminPartnersPage({})).resolves.toBeTruthy();
 
     expect(prisma.partner.findMany).toHaveBeenCalledTimes(1);
-    expect(prisma.subgroup.findMany).toHaveBeenCalledTimes(1);
   });
 });

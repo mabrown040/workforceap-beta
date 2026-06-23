@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { AdminDashboardKit } from '@/components/portal/kit/pages/admin-subviews/AdminDashboardKit';
 
 const ExecutiveTrendCharts = dynamic(
   () => import('@/components/admin/ExecutiveTrendCharts'),
@@ -78,6 +80,9 @@ import MfaStatusBanner from '@/components/admin/MfaStatusBanner';
 import ErrorBoundary from '@/components/error/ErrorBoundary';
 
 export default function ExecutiveDashboardPage() {
+  const searchParams = useSearchParams();
+  const legacy = searchParams?.get('ui') === 'legacy';
+
   const [data, setData] = useState<MetricsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +125,19 @@ export default function ExecutiveDashboardPage() {
   const signupData = trends.signups.map((t) => ({ week: formatWeek(t.week), count: t.count }));
   const enrollmentData = trends.enrollments.map((t) => ({ week: formatWeek(t.week), count: t.count }));
   const viewData = trends.dashboardViews.map((t) => ({ week: formatWeek(t.week), count: t.count }));
+
+  // DEFAULT: design-kit Executive Dashboard. Legacy bespoke view via ?ui=legacy.
+  if (!legacy) {
+    return (
+      <AdminDashboardKit
+        summary={summary}
+        funnels={funnels}
+        signupData={signupData}
+        enrollmentData={enrollmentData}
+        viewData={viewData}
+      />
+    );
+  }
 
   return (
     <div style={{ padding: 'clamp(1rem, 3vw, 2rem)', maxWidth: 1200, margin: '0 auto' }}>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Target } from 'lucide-react';
 
 type ReadinessCoachReturnButtonProps = {
   targetId?: string;
@@ -39,15 +40,15 @@ export default function ReadinessCoachReturnButton({
         minHeight: '2.75rem',
         padding: '0 0.95rem',
         borderRadius: '999px',
-        border: '1px solid rgba(13, 148, 136, 0.24)',
-        background: 'linear-gradient(135deg, #0f766e, #14b8a6)',
+        border: '1px solid rgba(164, 127, 56, 0.32)',
+        background: 'linear-gradient(135deg, var(--wa-gold), var(--wa-gold-dark))',
         color: '#fff',
         fontSize: '0.82rem',
         fontWeight: 800,
-        boxShadow: '0 14px 30px rgba(13, 148, 136, 0.28)',
+        boxShadow: '0 14px 30px rgba(164, 127, 56, 0.28)',
       }}
     >
-      <span aria-hidden style={{ fontSize: '1rem', lineHeight: 1 }}>🎯</span>
+      <Target size={16} aria-hidden />
       Coach
     </button>
   );

@@ -6,11 +6,18 @@ export type VoiceAgentSurfaceProps = {
   badge: string;
   headline?: string;
   subtext?: string;
-  icon: string;
+  /**
+   * Icon tile content. Prefer a lucide-react SVG element (no emoji as icons).
+   * Widened from `string` so voice surfaces can pass real SVG icons; existing
+   * string/glyph callers remain valid (`string` is a `ReactNode`).
+   */
+  icon: ReactNode;
   /** CSS color used for icon tile border and ambient glow */
   glowColor: string;
   /** Full CSS gradient for outer ring */
   gradient: string;
+  /** Optional badge text color, defaults to the surface glow color. */
+  badgeColor?: string;
   children: ReactNode;
 };
 
@@ -24,6 +31,7 @@ export default function VoiceAgentSurface({
   icon,
   glowColor,
   gradient,
+  badgeColor,
   children,
 }: VoiceAgentSurfaceProps) {
   return (
@@ -95,7 +103,7 @@ export default function VoiceAgentSurface({
           <div style={{ minWidth: 0 }}>
             <p
               className="wa-text-[10px] wa-uppercase wa-tracking-[0.14em] wa-font-semibold"
-              style={{ color: 'var(--color-accent)', marginBottom: '0.35rem' }}
+              style={{ color: badgeColor ?? glowColor, marginBottom: '0.35rem' }}
             >
               {badge}
             </p>

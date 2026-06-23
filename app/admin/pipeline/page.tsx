@@ -1,152 +1,172 @@
-'use client';
+import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+import { CourseProgressStatus } from '@prisma/client';
+import { buildPageMetadataAsync } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+import { getActorOrganizationId } from '@/lib/tenant/organization';
+import { withTenantScope } from '@/lib/tenant/withTenantScope';
+import { PipelineFunnelKit } from '@/components/portal/kit/pages/admin-subviews/PipelineFunnelKit';
+import type { KpiItem, RankDatum } from '@/components/portal/kit';
+import PipelineLegacyView from './PipelineLegacyView';
 
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+export const dynamic = 'force-dynamic';
 
-const STAGES = [
-  { key: 'holding', label: 'Holding Room', color: '#6b7280', desc: 'Invited, not yet in Coursera' },
-  { key: 'funding', label: 'Funding Evaluated', color: '#f59e0b', desc: 'WIOA/qualification complete' },
-  { key: 'coursera', label: 'Coursera Enrolled', color: '#3b82f6', desc: 'In training' },
-  { key: 'paid', label: 'Payment Received', color: '#10b981', desc: 'Funding secured' },
-  { key: 'complete', label: 'Training Complete', color: '#8b5cf6', desc: 'Certificates earned' },
-  { key: 'ready', label: 'Workforce Ready', color: '#06b6d4', desc: 'Resume, interview, job match' },
-  { key: 'placed', label: 'Placed', color: '#f59e0b', desc: 'Employed' },
-];
+export async function generateMetadata(): Promise<Metadata> {
+  return buildPageMetadataAsync({
+    title: 'Applications funnel',
+    description: 'Where applicants drop off — the member application-to-active funnel.',
+    path: '/admin/pipeline',
+    robots: { index: false, follow: false },
+  });
+}
 
-type AtRiskStats = {
-  criticalCount: number;
-  alertsSentToday: number;
-  counselorsWithPending: Array<{ name: string; email: string; memberCount: number }>;
-};
+const FUNNEL_WINDOW_DAYS = 90;
 
-export default function PipelinePage() {
-  const t = useTranslations('admin');
-  const [data, setData] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
-  const [riskStats, setRiskStats] = useState<AtRiskStats | null>(null);
-  const [riskLoading, setRiskLoading] = useState(true);
+export default async function PipelinePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui?: string }>;
+}) {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/pipeline');
+  if (!(await isAdmin(user.id))) redirect('/dashboard');
 
-  useEffect(() => {
-    fetch('/api/admin/pipeline')
-      .then((r) => {
-        if (!r.ok) throw new Error(`pipeline ${r.status}`);
-        return r.json();
-      })
-      .then((d) => { setData(d.counts || {}); setLoading(false); })
-      .catch(() => { setLoadError(true); setLoading(false); });
-  }, []);
+  const sp = await searchParams;
+  const requestedUi = typeof sp.ui === 'string' ? sp.ui : null;
 
-  useEffect(() => {
-    fetch('/api/admin/pipeline/at-risk-stats')
-      .then((r) => {
-        if (!r.ok) throw new Error(`at-risk-stats ${r.status}`);
-        return r.json();
-      })
-      .then((d) => { setRiskStats(d); setRiskLoading(false); })
-      .catch(() => { setLoadError(true); setRiskLoading(false); });
-  }, []);
+  // ── LEGACY PATH (?ui=legacy) — preserves the original client-fetched
+  // 7-stage journey view exactly as it rendered before. ──
+  if (requestedUi === 'legacy') {
+    return <PipelineLegacyView />;
+  }
 
-  const total = Object.values(data).reduce((a, b) => a + (b || 0), 0);
+  // ── DEFAULT (design-kit) PATH — runs AFTER the auth/role guard so access
+  // control is preserved. All five stages are LEAN tenant-scoped `user.count`
+  // calls (no findMany, no $transaction). `User` is a tenant-scoped model, so
+  // withTenantScope auto-injects the org filter on every count. ──
+  const orgId = await getActorOrganizationId(user.id);
+
+  // Funnel cohort: members who STARTED their application in the last 90 days,
+  // so every stage measures the same cohort and the bars read as a true
+  // drop-off funnel (no learner from an older cohort inflating a later stage).
+  const windowStart = new Date(Date.now() - FUNNEL_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+  const cohortFilter = {
+    deletedAt: null,
+    userRoles: { some: { role: { name: 'member' } } },
+    createdAt: { gte: windowStart },
+  } as const;
+
+  const funnel = await withTenantScope(orgId, async (db) => {
+    // Stage 1 (top of funnel): every member in the cohort "started application".
+    // Stage 2: intake/assessment complete.
+    // Stage 3 (approx): WIOA eligibility screened — `wioaReviewStatus` set.
+    //   This is a lean proxy for "eligibility cleared" (a precise "cleared"
+    //   determination would need to scan the qualification JSON per member,
+    //   a heavy row scan we deliberately avoid).
+    // Stage 4: enrolled in at least one course.
+    // Stage 5 (success): actively training — has course progress that is
+    //   in-progress or completed.
+    // All five are lean tenant-scoped `user.count` calls (no findMany/$transaction).
+    const [started, intake, eligibility, enrolled, active] = await Promise.all([
+      db.user.count({ where: cohortFilter }),
+      db.user.count({ where: { ...cohortFilter, assessmentCompleted: true } }),
+      db.user.count({ where: { ...cohortFilter, wioaReviewStatus: { not: null } } }),
+      db.user.count({ where: { ...cohortFilter, courseEnrollments: { some: {} } } }),
+      db.user.count({
+        where: {
+          ...cohortFilter,
+          courseProgress: {
+            some: {
+              status: {
+                in: [CourseProgressStatus.IN_PROGRESS, CourseProgressStatus.COMPLETED],
+              },
+            },
+          },
+        },
+      }),
+    ]);
+    return { started, intake, eligibility, enrolled, active };
+  });
+
+  const total = funnel.started;
+  const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
+
+  const bars: RankDatum[] = [
+    {
+      label: 'Started application',
+      value: funnel.started.toLocaleString('en-US'),
+      pct: pct(funnel.started),
+      color: 'info',
+    },
+    {
+      label: 'Completed intake',
+      value: funnel.intake.toLocaleString('en-US'),
+      pct: pct(funnel.intake),
+      color: 'info',
+    },
+    {
+      label: 'Eligibility cleared',
+      value: funnel.eligibility.toLocaleString('en-US'),
+      pct: pct(funnel.eligibility),
+      color: 'info',
+    },
+    {
+      label: 'Enrolled',
+      value: funnel.enrolled.toLocaleString('en-US'),
+      pct: pct(funnel.enrolled),
+      color: 'success',
+    },
+    {
+      label: 'Active',
+      value: funnel.active.toLocaleString('en-US'),
+      pct: pct(funnel.active),
+      color: 'success',
+    },
+  ];
+
+  // Small headline KpiStrip of the funnel endpoints + conversion.
+  const kpis: KpiItem[] = [
+    { label: 'Started', value: funnel.started.toLocaleString('en-US'), color: 'text' },
+    { label: 'Enrolled', value: funnel.enrolled.toLocaleString('en-US'), color: 'success' },
+    { label: 'Active', value: funnel.active.toLocaleString('en-US'), color: 'success' },
+    {
+      label: 'Started → Active',
+      value: `${pct(funnel.active)}%`,
+      color: 'info',
+    },
+  ];
+
+  const hasAny = total > 0;
 
   return (
-    <div className="admin-page">
-      <h1 className="admin-page-title">{t('memberPipeline')}</h1>
-      <p className="admin-page-subtitle">{t('sevenStageJourney')}</p>
-
-      {loadError ? (
-        <div
-          role="alert"
+    <PipelineFunnelKit
+      title="Applications funnel"
+      goal="Where applicants drop off"
+      kpis={hasAny ? kpis : undefined}
+      funnel={hasAny ? bars : []}
+      funnelTitle="Funnel"
+      funnelSubtitle="last 90 days"
+      headerAction={
+        <a
+          href="/admin/pipeline?ui=legacy"
+          className="wa-kit-focus"
           style={{
-            padding: '0.75rem 1rem',
-            marginBottom: '1.5rem',
-            borderRadius: '0.5rem',
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            color: '#b91c1c',
-            fontSize: '0.875rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '8px 16px',
+            borderRadius: 999,
+            fontSize: 13,
+            fontWeight: 700,
+            textDecoration: 'none',
+            color: 'var(--wa-text)',
+            border: '1px solid var(--wa-border, rgba(0,0,0,0.12))',
           }}
         >
-          Some pipeline data failed to load — the numbers below may be incomplete. Refresh to retry.
-        </div>
-      ) : null}
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-        {STAGES.map((stage) => (
-          <div key={stage.key} className="portal-card portal-card--flat" style={{ borderLeft: `4px solid ${stage.color}`, padding: '1.25rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: stage.color, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>
-              {t(stage.key === 'holding' ? 'holdingRoom' : stage.key === 'funding' ? 'fundingEvaluated' : stage.key === 'coursera' ? 'courseraEnrolled' : stage.key === 'paid' ? 'paymentReceived' : stage.key === 'complete' ? 'trainingComplete' : stage.key === 'ready' ? 'workforceReady' : stage.key === 'placed' ? 'placed' : stage.label)}
-            </div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-on-surface)', marginBottom: '0.25rem' }}>
-              {loading ? '—' : (data[stage.key] || 0).toLocaleString()}
-            </div>
-            <div style={{ fontSize: '0.8125rem', color: 'var(--color-on-surface-variant)' }}>
-              {t(stage.key === 'holding' ? 'invitedNotYetCoursera' : stage.key === 'funding' ? 'wioaQualificationComplete' : stage.key === 'coursera' ? 'inTraining' : stage.key === 'paid' ? 'fundingSecured' : stage.key === 'complete' ? 'certificatesEarned' : stage.key === 'ready' ? 'resumeInterviewJobMatch' : stage.key === 'placed' ? 'employed' : stage.desc)}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* At-Risk Alert Stats */}
-      <div className="portal-card portal-card--flat" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>{t('atRiskAlerts')}</h3>
-          <span style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-            {t('updatedDaily8am')}
-          </span>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
-          <div style={{ textAlign: 'center', padding: '1rem', background: '#fef2f2', borderRadius: '0.5rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#dc2626', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              {t('criticalMembers')}
-            </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#dc2626' }}>
-              {riskLoading ? '—' : (riskStats?.criticalCount ?? 0).toLocaleString()}
-            </div>
-          </div>
-          <div style={{ textAlign: 'center', padding: '1rem', background: '#f0fdf4', borderRadius: '0.5rem' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              {t('alertsSentToday')}
-            </div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#16a34a' }}>
-              {riskLoading ? '—' : (riskStats?.alertsSentToday ?? 0).toLocaleString()}
-            </div>
-          </div>
-        </div>
-
-        {riskStats && riskStats.counselorsWithPending.length > 0 && (
-          <div>
-            <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9375rem', fontWeight: 700 }}>{t('counselorsWithPendingAlerts')}</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {riskStats.counselorsWithPending.map((c) => (
-                <div key={c.email} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.625rem 0.875rem', background: 'var(--surface-container)', borderRadius: '0.375rem' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{c.name}</span>
-                  <span style={{ fontSize: '0.8125rem', color: '#dc2626', fontWeight: 700 }}>
-                    {t('memberCount', { count: c.memberCount })}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>{t('totalMembersInPipeline')}</h3>
-          <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-accent)' }}>{total.toLocaleString()}</span>
-        </div>
-        <div style={{ height: '2rem', background: 'var(--surface-container)', borderRadius: '0.5rem', overflow: 'hidden', display: 'flex' }}>
-          {STAGES.map((stage) => {
-            const count = data[stage.key] || 0;
-            const pct = total > 0 ? (count / total) * 100 : 0;
-            return (
-              <div key={stage.key} style={{ width: `${pct}%`, background: stage.color, minWidth: count > 0 ? '2px' : 0 }} title={`${t(stage.key === 'holding' ? 'holdingRoom' : stage.key === 'funding' ? 'fundingEvaluated' : stage.key === 'coursera' ? 'courseraEnrolled' : stage.key === 'paid' ? 'paymentReceived' : stage.key === 'complete' ? 'trainingComplete' : stage.key === 'ready' ? 'workforceReady' : stage.key === 'placed' ? 'placed' : stage.label)}: ${count}`} />
-            );
-          })}
-        </div>
-      </div>
-    </div>
+          Stale applications
+        </a>
+      }
+    />
   );
 }

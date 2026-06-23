@@ -1,0 +1,493 @@
+'use client';
+
+import { useState, useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import PageHeader from '@/components/portal/PageHeader';
+
+interface FeatureFlag {
+  id: string;
+  key: string;
+  name: string;
+  description: string | null;
+  enabled: boolean;
+  rolloutPercentage: number;
+  allowedRoles: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+const ALL_ROLES = ['member', 'admin', 'super_admin', 'case_manager', 'counselor', 'partner', 'employer'];
+
+function RoleBadge({ role }: { role: string }) {
+  const colorMap: Record<string, string> = {
+    member: 'rgba(37,99,235,0.12)',
+    admin: 'rgba(74,155,79,0.12)',
+    super_admin: 'rgba(173,44,77,0.12)',
+    case_manager: 'rgba(217,119,6,0.12)',
+    counselor: 'rgba(124,58,237,0.12)',
+    partner: 'rgba(15,118,110,0.12)',
+    employer: 'rgba(79,70,229,0.12)',
+  };
+  const textMap: Record<string, string> = {
+    member: '#2563eb',
+    admin: '#4a9b4f',
+    super_admin: '#ad2c4d',
+    case_manager: '#d97706',
+    counselor: '#7c3aed',
+    partner: '#0f766e',
+    employer: '#4f46e5',
+  };
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        fontSize: '0.625rem',
+        fontWeight: 700,
+        padding: '0.15rem 0.5rem',
+        borderRadius: '9999px',
+        background: colorMap[role] ?? 'var(--surface-container-high)',
+        color: textMap[role] ?? 'var(--color-on-surface-variant)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+      }}
+    >
+      {role.replace('_', ' ')}
+    </span>
+  );
+}
+
+export default function AdminFeatureFlagsClient() {
+  const router = useRouter();
+  const [flags, setFlags] = useState<FeatureFlag[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Create form state
+  const [createKey, setCreateKey] = useState('');
+  const [createName, setCreateName] = useState('');
+  const [createDescription, setCreateDescription] = useState('');
+  const [createEnabled, setCreateEnabled] = useState(false);
+  const [createRollout, setCreateRollout] = useState(0);
+  const [createRoles, setCreateRoles] = useState<string[]>([]);
+
+  const loadFlags = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/feature-flags');
+      if (!res.ok) throw new Error('Failed to load');
+      const data = await res.json();
+      setFlags(data.flags ?? []);
+    } catch (err) {
+      setError('Failed to load feature flags');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadFlags();
+  }, [loadFlags]);
+
+  const toggleEnabled = async (flag: FeatureFlag) => {
+    setSavingId(flag.id);
+    try {
+      const res = await fetch(`/api/admin/feature-flags/${flag.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !flag.enabled }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      setFlags((prev) => prev.map((f) => (f.id === flag.id ? data.flag : f)));
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update flag');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const updateRollout = async (flag: FeatureFlag, value: number) => {
+    setSavingId(flag.id);
+    try {
+      const res = await fetch(`/api/admin/feature-flags/${flag.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rolloutPercentage: value }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      setFlags((prev) => prev.map((f) => (f.id === flag.id ? data.flag : f)));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update rollout');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const updateRoles = async (flag: FeatureFlag, roles: string[]) => {
+    setSavingId(flag.id);
+    try {
+      const res = await fetch(`/api/admin/feature-flags/${flag.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ allowedRoles: roles }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      setFlags((prev) => prev.map((f) => (f.id === flag.id ? data.flag : f)));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update roles');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const deleteFlag = async (id: string) => {
+    if (!confirm('Delete this feature flag?')) return;
+    setSavingId(id);
+    try {
+      const res = await fetch(`/api/admin/feature-flags/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed');
+      setFlags((prev) => prev.filter((f) => f.id !== id));
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete flag');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const createFlag = async () => {
+    if (!createKey.trim() || !createName.trim()) {
+      alert('Key and name are required');
+      return;
+    }
+    setSavingId('create');
+    try {
+      const res = await fetch('/api/admin/feature-flags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: createKey.trim(),
+          name: createName.trim(),
+          description: createDescription.trim() || undefined,
+          enabled: createEnabled,
+          rolloutPercentage: createRollout,
+          allowedRoles: createRoles,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Failed to create flag');
+        return;
+      }
+      const data = await res.json();
+      setFlags((prev) => [data.flag, ...prev]);
+      setShowCreate(false);
+      setCreateKey('');
+      setCreateName('');
+      setCreateDescription('');
+      setCreateEnabled(false);
+      setCreateRollout(0);
+      setCreateRoles([]);
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to create flag');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  return (
+    <div>
+      <PageHeader
+        title="Feature Flags"
+        subtitle={`${flags.length} flag${flags.length !== 1 ? 's' : ''}`}
+        action={
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => setShowCreate((s) => !s)}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }}>
+              {showCreate ? 'close' : 'add'}
+            </span>
+            {showCreate ? 'Cancel' : 'New Flag'}
+          </button>
+        }
+      />
+
+      {error && (
+        <div style={{ padding: '1rem', background: 'rgba(173,44,77,0.08)', color: '#ad2c4d', borderRadius: '0.625rem', marginBottom: '1rem' }}>
+          {error}
+        </div>
+      )}
+
+      {showCreate && (
+        <div className="portal-card portal-card--flat" style={{ padding: '1.25rem', marginBottom: '1rem' }}>
+          <h3 style={{ margin: '0 0 1rem', fontSize: '1rem' }}>Create Feature Flag</h3>
+          <div style={{ display: 'grid', gap: '0.875rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Key</span>
+                <input
+                  type="text"
+                  value={createKey}
+                  onChange={(e) => setCreateKey(e.target.value)}
+                  placeholder="e.g. coursera-v2"
+                  style={{ minHeight: '40px', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)' }}
+                />
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Name</span>
+                <input
+                  type="text"
+                  value={createName}
+                  onChange={(e) => setCreateName(e.target.value)}
+                  placeholder="e.g. Coursera Integration V2"
+                  style={{ minHeight: '40px', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)' }}
+                />
+              </label>
+            </div>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Description</span>
+              <input
+                type="text"
+                value={createDescription}
+                onChange={(e) => setCreateDescription(e.target.value)}
+                placeholder="Optional description"
+                style={{ minHeight: '40px', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', color: 'var(--color-on-surface)' }}
+              />
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem', alignItems: 'center' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={createEnabled}
+                  onChange={(e) => setCreateEnabled(e.target.checked)}
+                />
+                <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Enabled</span>
+              </label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Rollout: {createRollout}%</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={createRollout}
+                  onChange={(e) => setCreateRollout(Number(e.target.value))}
+                  style={{ width: '100%' }}
+                />
+              </label>
+            </div>
+            <div>
+              <span style={{ fontSize: '0.8125rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Allowed Roles</span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {ALL_ROLES.map((role) => (
+                  <label key={role} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', fontSize: '0.8125rem' }}>
+                    <input
+                      type="checkbox"
+                      checked={createRoles.includes(role)}
+                      onChange={(e) => {
+                        setCreateRoles((prev) =>
+                          e.target.checked ? [...prev, role] : prev.filter((r) => r !== role)
+                        );
+                      }}
+                    />
+                    <RoleBadge role={role} />
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={createFlag}
+                disabled={savingId === 'create'}
+              >
+                {savingId === 'create' ? 'Creating…' : 'Create Flag'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>Loading…</div>
+      ) : flags.length === 0 ? (
+        <div className="admin-empty-state">
+          <h3>No feature flags yet</h3>
+          <p>Create a flag to start rolling out features gradually.</p>
+          <button type="button" className="btn btn-primary" onClick={() => setShowCreate(true)}>
+            New Flag
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+          {flags.map((flag) => {
+            const isEditing = editingId === flag.id;
+            return (
+              <div
+                key={flag.id}
+                className="portal-card portal-card--flat"
+                style={{
+                  padding: '1rem 1.125rem',
+                  opacity: savingId === flag.id ? 0.6 : 1,
+                  transition: 'opacity 0.2s',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                  <div
+                    style={{
+                      width: '2.5rem',
+                      height: '2.5rem',
+                      borderRadius: '0.625rem',
+                      background: flag.enabled ? 'rgba(74,155,79,0.12)' : 'var(--surface-container)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <span
+                      className="material-symbols-outlined"
+                      style={{
+                        fontSize: '1.125rem',
+                        color: flag.enabled ? '#4a9b4f' : 'var(--color-on-surface-variant)',
+                        fontVariationSettings: "'FILL' 1",
+                      }}
+                    >
+                      {flag.enabled ? 'toggle_on' : 'toggle_off'}
+                    </span>
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem', flexWrap: 'wrap', marginBottom: '0.375rem' }}>
+                      <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: 0, lineHeight: 1.3 }}>
+                        {flag.name}
+                      </p>
+                      <span
+                        style={{
+                          fontSize: '0.625rem',
+                          fontWeight: 800,
+                          padding: '0.15rem 0.5rem',
+                          borderRadius: '9999px',
+                          background: flag.enabled ? 'rgba(74,155,79,0.12)' : 'var(--surface-container-high)',
+                          color: flag.enabled ? '#4a9b4f' : 'var(--color-on-surface-variant)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.08em',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {flag.enabled ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)', marginBottom: '0.5rem' }}>
+                      <code style={{ background: 'var(--surface-container)', padding: '0.1rem 0.35rem', borderRadius: '0.25rem' }}>{flag.key}</code>
+                      {flag.description && <span style={{ marginLeft: '0.5rem' }}>{flag.description}</span>}
+                    </div>
+
+                    {isEditing ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
+                        <label style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                          <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Rollout: {flag.rolloutPercentage}%</span>
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            value={flag.rolloutPercentage}
+                            onChange={(e) => updateRollout(flag, Number(e.target.value))}
+                            style={{ width: '100%' }}
+                          />
+                        </label>
+                        <div>
+                          <span style={{ fontSize: '0.8125rem', fontWeight: 600, display: 'block', marginBottom: '0.35rem' }}>Allowed Roles</span>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            {ALL_ROLES.map((role) => (
+                              <label key={role} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', fontSize: '0.8125rem' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={flag.allowedRoles.includes(role)}
+                                  onChange={(e) => {
+                                    const next = e.target.checked
+                                      ? [...flag.allowedRoles, role]
+                                      : flag.allowedRoles.filter((r) => r !== role);
+                                    updateRoles(flag, next);
+                                  }}
+                                />
+                                <RoleBadge role={role} />
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => setEditingId(null)}
+                          style={{ alignSelf: 'flex-start' }}
+                        >
+                          Done
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
+                        <span>Rollout: {flag.rolloutPercentage}%</span>
+                        <span>·</span>
+                        <span style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                          {flag.allowedRoles.length > 0 ? flag.allowedRoles.map((r) => <RoleBadge key={r} role={r} />) : <span>All roles</span>}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={() => toggleEnabled(flag)}
+                      disabled={savingId === flag.id}
+                    >
+                      {flag.enabled ? 'Disable' : 'Enable'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={() => setEditingId(isEditing ? null : flag.id)}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
+                        {isEditing ? 'close' : 'edit'}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={() => deleteFlag(flag.id)}
+                      disabled={savingId === flag.id}
+                      style={{ color: '#ad2c4d', borderColor: 'rgba(173,44,77,0.3)' }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>
+                        delete
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

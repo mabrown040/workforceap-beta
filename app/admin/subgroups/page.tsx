@@ -1,173 +1,118 @@
-﻿import Link from 'next/link';
-import { prisma } from '@/lib/db/prisma';
-import PageHeader from '@/components/portal/PageHeader';
-import DataTable from '@/components/portal/ui/DataTable';
-
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { buildPageMetadataAsync } from '@/app/seo';
+import { getUser } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/auth/roles';
+import { prisma } from '@/lib/db/prisma';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  SubgroupsDirectoryKit,
+  type SubgroupCard,
+  type SubgroupKind,
+} from '@/components/portal/kit/pages/admin-subviews/SubgroupsDirectoryKit';
+import AdminSubgroupsLegacy from './legacy';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
     title: 'Admin - Subgroups',
-    description: 'Manage member subgroups.',
+    description: 'Cohorts, chapters & special programs.',
     path: '/admin/subgroups',
   });
 }
 
-export default async function AdminSubgroupsPage() {
-  const subgroups = await prisma.subgroup.findMany({
-    take: 5000,
-    orderBy: { name: 'asc' },
-    include: {
-      leader: { select: { id: true, fullName: true, email: true } },
-      partner: { select: { id: true, name: true } },
-      _count: { select: { members: true } },
-    },
-  });
+/** Cap the lean directory so first paint stays cheap. */
+const DIRECTORY_LIMIT = 60;
+
+/**
+ * Focus line for "{N} members · {focus}". Prefers a real description, then the
+ * linked partner name (partner-type subgroups), and falls back to the type.
+ */
+function focusLine(args: {
+  description: string | null;
+  partnerName: string | null;
+  type: SubgroupKind;
+}): string {
+  const desc = args.description?.trim();
+  if (desc) return desc;
+  if (args.partnerName?.trim()) return args.partnerName.trim();
+  if (args.type === 'church') return 'Church chapter';
+  if (args.type === 'manager') return 'Managed cohort';
+  return 'Partner group';
+}
+
+export default async function AdminSubgroupsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const user = await getUser();
+  if (!user) redirect('/login?redirectTo=/admin/subgroups');
+
+  const hasAdmin = await isAdmin(user.id);
+  if (!hasAdmin) redirect('/dashboard');
+
+  const params = (await searchParams) ?? {};
+  const requestedUi = typeof params.ui === 'string' ? params.ui : null;
+
+  // Legacy escape hatch → the prior table/card workspace.
+  if (requestedUi === 'legacy') {
+    return <AdminSubgroupsLegacy />;
+  }
+
+  // --- DEFAULT: real (lean) subgroup directory wired into the design kit ---
+
+  const [subgroupsResult, totalResult, memberAggResult] = await Promise.allSettled([
+    prisma.subgroup.findMany({
+      take: DIRECTORY_LIMIT,
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        description: true,
+        partner: { select: { name: true } },
+        _count: { select: { members: true } },
+      },
+    }),
+    prisma.subgroup.count(),
+    // Total distinct member assignments across all subgroups (real aggregate).
+    prisma.memberSubgroup.groupBy({ by: ['subgroupId'], _count: { _all: true } }),
+  ]);
+
+  // If the core directory query fails, fall back to the proven legacy view
+  // rather than rendering a fabricated/empty kit.
+  if (subgroupsResult.status === 'rejected') {
+    console.error('[admin/subgroups] directory load failed', subgroupsResult.reason);
+    return <AdminSubgroupsLegacy />;
+  }
+
+  const rows = subgroupsResult.value;
+  const totalSubgroups = totalResult.status === 'fulfilled' ? totalResult.value : rows.length;
+
+  const totalMembers =
+    memberAggResult.status === 'fulfilled'
+      ? memberAggResult.value.reduce((sum, g) => sum + g._count._all, 0)
+      : rows.reduce((sum, r) => sum + r._count.members, 0);
+
+  const subgroups: SubgroupCard[] = rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    members: r._count.members,
+    focus: focusLine({
+      description: r.description,
+      partnerName: r.partner?.name ?? null,
+      type: r.type as SubgroupKind,
+    }),
+    kind: r.type as SubgroupKind,
+  }));
 
   return (
-    <div style={{ paddingTop: '1.5rem' }}>
-      <PageHeader
-        title="Subgroups"
-        action={
-          <Link
-            href="/admin/subgroups/new"
-            style={{
-              padding: '0.5rem 1rem',
-              background: 'var(--color-accent)',
-              color: 'white',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 600,
-            }}
-          >
-            Create Subgroup
-          </Link>
-        }
+    <DesignSurface surface="dense">
+      <SubgroupsDirectoryKit
+        subgroups={subgroups}
+        totalSubgroups={totalSubgroups}
+        totalMembers={totalMembers}
       />
-
-      <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem', maxWidth: '600px' }}>
-        Subgroups let partners, managers, and churches see all members assigned to their group. Members can be
-        assigned manually or auto-assigned when referred by a linked partner.
-      </p>
-
-      {subgroups.length === 0 ? (
-        <div className="admin-empty-state">
-          <h3>No subgroups yet</h3>
-          <p>
-            Create subgroups to give partners, managers, or churches visibility into their assigned members. Each
-            subgroup has a leader who can view member progress in the portal.
-          </p>
-          <Link href="/admin/subgroups/new" className="btn btn-primary">
-            Create Subgroup
-          </Link>
-        </div>
-      ) : (
-        <>
-          {/* Desktop table */}
-          <div className="admin-table-scroll admin-subgroup-desktop">
-            <DataTable
-              variant="admin"
-              tableClassName="admin-table"
-              scrollX={false}
-              rows={subgroups}
-              rowKey={(sg) => sg.id}
-              columns={[
-                {
-                  key: 'name',
-                  header: 'Name',
-                  cell: (sg) => (
-                    <>
-                      <div style={{ fontWeight: 600 }}>{sg.name}</div>
-                      {sg.description ? (
-                        <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', maxWidth: 200 }}>
-                          {sg.description}
-                        </div>
-                      ) : null}
-                    </>
-                  ),
-                },
-                {
-                  key: 'type',
-                  header: 'Type',
-                  cell: (sg) => (
-                    <span
-                      style={{
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '4px',
-                        fontSize: '0.8rem',
-                        textTransform: 'capitalize',
-                        background: 'var(--color-light)',
-                      }}
-                    >
-                      {sg.type}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'leader',
-                  header: 'Leader',
-                  cell: (sg) => (
-                    <>
-                      <div style={{ fontSize: '0.9rem' }}>{sg.leader.fullName}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>{sg.leader.email}</div>
-                    </>
-                  ),
-                },
-                { key: 'partner', header: 'Partner', cell: (sg) => sg.partner?.name ?? '—' },
-                {
-                  key: 'members',
-                  header: 'Members',
-                  align: 'center',
-                  cell: (sg) => sg._count.members,
-                },
-                {
-                  key: 'actions',
-                  header: 'Actions',
-                  cell: (sg) => (
-                    <Link
-                      href={`/admin/subgroups/${sg.id}`}
-                      style={{ color: 'var(--color-accent)', textDecoration: 'none', fontSize: '0.9rem' }}
-                    >
-                      Manage &rarr;
-                    </Link>
-                  ),
-                },
-              ]}
-            />
-          </div>
-
-          {/* Mobile cards */}
-          <ul className="admin-portal-card-list admin-subgroup-cards" aria-label="Subgroups (mobile layout)">
-            {subgroups.map((sg) => (
-              <li key={sg.id} className="admin-portal-card">
-                <div className="admin-portal-card__header">
-                  <div>
-                    <div style={{ fontWeight: 700 }}>{sg.name}</div>
-                    <div className="admin-portal-card__meta">{sg.leader.fullName}</div>
-                  </div>
-                  <span
-                    className="admin-portal-card__badge"
-                    style={{ background: 'var(--color-light)', color: 'var(--color-on-surface)' }}
-                  >
-                    {sg._count.members} members
-                  </span>
-                </div>
-                {sg.description ? <p className="admin-portal-card__meta">{sg.description}</p> : null}
-                <p className="admin-portal-card__meta">
-                  Type: <span style={{ textTransform: 'capitalize' }}>{sg.type}</span>
-                </p>
-                <p className="admin-portal-card__meta">Partner: {sg.partner?.name ?? '—'}</p>
-                <div className="admin-portal-card__actions">
-                  <Link href={`/admin/subgroups/${sg.id}`} style={{ color: 'var(--color-accent)', textDecoration: 'none', fontSize: '0.9rem' }}>
-                    Manage &rarr;
-                  </Link>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </div>
+    </DesignSurface>
   );
 }

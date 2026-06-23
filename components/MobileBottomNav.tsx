@@ -112,7 +112,7 @@ export default function MobileBottomNav({ variant = 'marketing', badgeCounts }: 
       {tabs.map((tab) => {
         const { href, label, icon } = tab;
         const tourTarget = 'tourTarget' in tab ? tab.tourTarget : undefined;
-        const exactMatch = ['/', '/dashboard', '/employer', '/counselor', '/partner'];
+        const exactMatch = ['/', '/dashboard', '/admin', '/employer', '/counselor', '/partner'];
         const isActive = exactMatch.includes(href)
           ? pathname === href
           : pathname.startsWith(href);

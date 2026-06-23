@@ -873,6 +873,14 @@ enum AIToolType {
   job_tailor
 }
 
+enum CertStatus {
+  pending
+  approved
+  rejected
+
+  @@map("cert_status")
+}
+
 model UserCertification {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
@@ -880,10 +888,20 @@ model UserCertification {
   earnedAt  DateTime @map("earned_at")
   createdAt DateTime @default(now()) @map("created_at")
 
+  // Verification / review workflow (additive). Default `approved` so existing
+  // rows and self-attested adds keep counting toward outcomes; proof
+  // submissions flip to `pending` and surface in the admin review queue.
+  status       CertStatus @default(approved)
+  proofUrl     String?    @map("proof_url")
+  submittedAt  DateTime?  @map("submitted_at")
+  reviewedAt   DateTime?  @map("reviewed_at")
+  reviewedById String?    @map("reviewed_by_id")
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, certName])
   @@index([userId])
+  @@index([status])
   @@map("user_certifications")
 }
 

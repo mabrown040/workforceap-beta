@@ -9,6 +9,8 @@ import { getActorOrganizationId } from '@/lib/tenant/organization';
 import PageHeader from '@/components/portal/PageHeader';
 import AdminAnalyticsCharts from '@/components/admin/AdminAnalyticsChartsLazy';
 import { getTranslations } from 'next-intl/server';
+import { MetricsKit } from '@/components/portal/kit/pages/admin-subviews/MetricsKit';
+import type { KpiItem, RankDatum } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('admin');
@@ -19,7 +21,11 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function AdminMetricsPage() {
+export default async function AdminMetricsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/metrics');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
@@ -27,6 +33,65 @@ export default async function AdminMetricsPage() {
   const orgId = await getActorOrganizationId(user.id);
   const data = await getAdminMetrics(orgId);
   const t = await getTranslations('admin');
+
+  const sp = await searchParams;
+  const requestedUi = typeof sp.ui === 'string' ? sp.ui : null;
+
+  // ── DEFAULT (design-kit) PATH — runs AFTER the auth/role guard, so access
+  // control is preserved. Reuses the same getAdminMetrics() loader the legacy
+  // analytics view uses (lean, Promise.allSettled internally; no $transaction).
+  // The legacy charts view is available via ?ui=legacy. ──
+  if (requestedUi !== 'legacy') {
+    // KPI strip mirrors the "Metrics" mockup (API p50 / p99 / Error rate /
+    // Uptime 30d). The admin metrics module has NO real source for infra
+    // latency/uptime/error-rate, so those tiles honestly render "—" rather
+    // than fabricating SLA numbers — there is no APM feeding this page.
+    const kpis: KpiItem[] = [
+      { label: 'API p50', value: '—', color: 'muted' },
+      { label: 'API p99', value: '—', color: 'muted' },
+      { label: 'Error rate', value: '—', color: 'muted' },
+      { label: 'Uptime 30d', value: '—', color: 'muted' },
+    ];
+
+    // "Requests by surface (last 24h)". The metrics module tracks real
+    // member-portal activity (the last entry of the daily-activity series is
+    // today / the most-recent 24h bucket: member events + AI tool runs +
+    // applications). There is no instrumented Admin or API/webhook request
+    // counter, so those surfaces honestly render "—" (pct 0) instead of
+    // inventing traffic. Member-portal volume is the one real count.
+    const today = data.dailyActivity.at(-1);
+    const memberPortal24h = today
+      ? today.events + today.aiTools + today.applications
+      : 0;
+
+    const bySurface: RankDatum[] = [
+      { label: 'Member portal', value: memberPortal24h, pct: 100, color: 'info' },
+      { label: 'Admin', value: '—', pct: 0, color: 'muted' },
+      { label: 'API / webhooks', value: '—', pct: 0, color: 'muted' },
+    ];
+
+    return (
+      <MetricsKit
+        title="Metrics"
+        goal="Raw platform metrics"
+        kpis={kpis}
+        bySurface={bySurface}
+        surfaceCaption="last 24h · member-portal events instrumented; admin & API surfaces not yet metered"
+        headerAction={
+          <a
+            href="/api/admin/funder-program-summary"
+            className="btn btn-outline btn-small"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">
+              download
+            </span>
+            {t('exportFunderCsv')}
+          </a>
+        }
+      />
+    );
+  }
 
   return (
     <div>

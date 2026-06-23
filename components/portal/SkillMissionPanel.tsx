@@ -250,7 +250,7 @@ function PassedCard({ mission }: { mission: SkillMissionSummaryItem }) {
 
       {mission.aiToolResultId && (
         <a
-          href="/dashboard/career/resume-studio"
+          href="/dashboard/ai-tools/resume-studio"
           style={{ fontSize: '0.78rem', color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}
         >
           View in Resume Studio →

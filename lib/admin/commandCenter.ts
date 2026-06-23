@@ -12,6 +12,7 @@ import {
   type AdminCommandCenter,
   type AdminInterviewingRow,
   type AdminNeedsReplyRow,
+  type AdminProgramHealthRow,
 } from '@/lib/admin/commandCenterHelpers';
 
 export { buildApplicationEmailPacket, bucketCommandCenterTotals } from '@/lib/admin/commandCenterHelpers';
@@ -23,12 +24,14 @@ export type {
   AdminCommandCenterTotals,
   AdminInterviewingRow,
   AdminNeedsReplyRow,
+  AdminProgramHealthRow,
   ApplicationEmailPacket,
 } from '@/lib/admin/commandCenterHelpers';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_LIMIT = 8;
 const AT_RISK_DAYS = 14;
+const PROGRAM_HEALTH_LIMIT = 5;
 
 export async function getAdminCommandCenter(
   actorUserId: string,
@@ -39,27 +42,34 @@ export async function getAdminCommandCenter(
   const now = options?.now ?? new Date();
   const atRiskCutoff = new Date(now.getTime() - AT_RISK_DAYS * DAY_MS);
 
-  const [needsReply, atRisk, interviewing, applicationsPending] = await Promise.all([
-    loadNeedsReply(orgId, now, limit),
-    loadAtRisk(orgId, now, atRiskCutoff, limit),
-    loadInterviewing(orgId, limit),
-    loadApplicationsPending(orgId, now, limit),
-  ]);
+  const [needsReply, atRisk, interviewing, applicationsPending, programHealth, certificationsPendingCount] =
+    await Promise.all([
+      loadNeedsReply(orgId, now, limit),
+      loadAtRisk(orgId, now, atRiskCutoff, limit),
+      loadInterviewing(orgId, limit),
+      loadApplicationsPending(orgId, now, limit),
+      loadProgramHealth(orgId),
+      prisma.userCertification.count({
+        where: { status: 'pending', user: { organizationId: orgId, deletedAt: null } },
+      }),
+    ]);
 
   const center: AdminCommandCenter = {
     needsReply,
     atRisk,
     interviewing,
     applicationsPending,
+    programHealth,
     totals: {
       needsReplyCount: 0,
       atRiskCount: 0,
       interviewingCount: 0,
       applicationsPendingCount: 0,
+      certificationsPendingCount: 0,
       oldestPendingApplicationDays: null,
     },
   };
-  return { ...center, totals: bucketCommandCenterTotals(center) };
+  return { ...center, totals: bucketCommandCenterTotals(center, { certificationsPendingCount }) };
 }
 
 async function loadNeedsReply(orgId: string, now: Date, limit: number): Promise<AdminNeedsReplyRow[]> {
@@ -238,6 +248,46 @@ async function loadApplicationsPending(
       }),
     };
   });
+}
+
+/**
+ * Per-program enrollment counts for the "Program Health" breakdown, scoped to
+ * the org. Cheap single groupBy over enrolled, non-deleted members. Slugs are
+ * resolved to catalog titles, sorted by count desc, and the top programs are
+ * returned. `pct` is the share relative to the top program's count so the bars
+ * render proportionally (the leading program is always full-width).
+ */
+async function loadProgramHealth(orgId: string): Promise<AdminProgramHealthRow[]> {
+  const grouped = await prisma.user.groupBy({
+    by: ['enrolledProgram'],
+    where: {
+      organizationId: orgId,
+      deletedAt: null,
+      enrolledProgram: { not: null },
+    },
+    _count: true,
+  });
+
+  const rows = grouped
+    .map((group) => {
+      const slug = group.enrolledProgram;
+      if (!slug) return null;
+      return {
+        programSlug: slug,
+        label: getProgramBySlug(slug)?.title ?? slug,
+        count: group._count,
+      };
+    })
+    .filter((row): row is { programSlug: string; label: string; count: number } => row != null)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, PROGRAM_HEALTH_LIMIT);
+
+  const topCount = rows[0]?.count ?? 0;
+
+  return rows.map((row) => ({
+    ...row,
+    pct: topCount > 0 ? Math.round((row.count / topCount) * 100) : 0,
+  }));
 }
 
 function jobApplicationStatusLabel(status: JobApplicationStatus): string {

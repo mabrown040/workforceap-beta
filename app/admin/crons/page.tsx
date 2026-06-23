@@ -4,9 +4,14 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import PageHeader from '@/components/portal/PageHeader';
-import DataTable from '@/components/portal/ui/DataTable';
 import { prisma } from '@/lib/db/prisma';
 import AdminCronsClient from '@/components/admin/AdminCronsClient';
+import { DesignSurface } from '@/components/portal/kit';
+import {
+  CronsMonitorKit,
+  type CronJobRow,
+  type CronDisplayStatus,
+} from '@/components/portal/kit/pages/admin-subviews/CronsMonitorKit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -16,25 +21,157 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const STATUS_COLOR: Record<string, string> = {
-  SUCCESS: 'rgba(74,155,79,0.12)',
-  FAILED: 'rgba(173,44,77,0.1)',
-  RUNNING: 'rgba(43,123,185,0.1)',
-  SKIPPED: 'rgba(255,187,0,0.1)',
+/** Most recent execution per distinct job we materialize for the dense board. */
+const BOARD_LIMIT = 50;
+
+/**
+ * Human schedule captions keyed by the jobName recorded in CronExecution
+ * (withCronLogging(name) — the route segment with hyphens → underscores).
+ * Derived from the committed vercel.json `crons` registry. Any jobName not
+ * listed renders "—" (schedule not tracked for that job).
+ */
+const SCHEDULE_BY_JOB: Record<string, string> = {
+  applicant_followup: 'Every 3 days, 11 AM',
+  at_risk_alerts: 'Mon 1 PM',
+  at_risk_check: 'Daily 6 AM',
+  coursera_auto_heal: 'Hourly :15',
+  coursera_b4b_sync: 'Every 6 hours',
+  coursera_sync: 'Every 6 hours',
+  coursera_training_sync: 'Hourly',
+  course_accountability: 'Daily 3 PM',
+  data_cleanup: 'Daily 7:30 AM',
+  deploy_health: 'Hourly',
+  inactive_nudge: 'Mon 10 AM',
+  inactivity_nudge: 'Wed 10 AM',
+  interview_reminders: 'Daily 2:30 PM',
+  milestone_cascade_draft: 'Hourly',
+  milestone_cascade_expire: 'Daily 9 AM',
+  milestone_celebration: 'Daily 11 AM',
+  partner_outcome_digest: 'Mon 1 PM',
+  placement_survey: 'Daily 2 PM',
+  smoke_test: 'Hourly',
+  stale_training_check: 'Daily 12:30 PM',
+  verification: 'Daily 11 AM',
+  weekly_recap: 'Sun 6 PM',
+  weekly_recap_email: 'Fri 10 PM',
+  wioa_report: 'Monthly (1st, 2 PM)',
 };
 
-const STATUS_TEXT_COLOR: Record<string, string> = {
-  SUCCESS: 'var(--color-green, #4a9b4f)',
-  FAILED: 'var(--color-accent)',
-  RUNNING: 'var(--color-blue, #2b7bb9)',
-  SKIPPED: 'var(--color-gold)',
+const DISPLAY_STATUS: Record<string, CronDisplayStatus> = {
+  SUCCESS: 'Success',
+  FAILED: 'Retrying',
+  RUNNING: 'Running',
+  SKIPPED: 'Disabled',
 };
 
-export default async function AdminCronsPage() {
+/** Compact relative caption: "3 min ago", "3h ago", "2d ago", … */
+function relativeTime(date: Date | null): string {
+  if (!date) return '—';
+  const diffMs = Date.now() - new Date(date).getTime();
+  if (diffMs < 0) return 'just now';
+  const sec = Math.floor(diffMs / 1000);
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min} min ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  return `${day}d ago`;
+}
+
+/** "2.4s" / "180ms" / "—" from durationMs. */
+function formatDuration(ms: number | null): string {
+  if (ms == null) return '—';
+  return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
+}
+
+export default async function AdminCronsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ui?: string }>;
+}) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/admin/crons');
   if (!(await isAdmin(user.id))) redirect('/dashboard');
 
+  const { ui } = await searchParams;
+
+  if (ui !== 'legacy') {
+    return renderKit();
+  }
+
+  return renderLegacy();
+}
+
+/** Design-kit default: one row per distinct cron job (its latest execution). */
+async function renderKit() {
+  // Distinct jobs (with latest-run timestamp) + recent execution slice, in
+  // parallel and lean. We resolve each job's latest execution from the recent
+  // slice; jobs whose latest run is older than the slice still appear via the
+  // groupBy with last-run filled from _max.startedAt.
+  const [jobGroups, recent] = await Promise.all([
+    prisma.cronExecution.groupBy({
+      by: ['jobName'],
+      _max: { startedAt: true },
+    }),
+    prisma.cronExecution.findMany({
+      orderBy: { startedAt: 'desc' },
+      take: 200,
+      select: {
+        jobName: true,
+        status: true,
+        startedAt: true,
+        durationMs: true,
+      },
+    }),
+  ]);
+
+  // Latest execution row per job (from the recent slice).
+  const latestByJob = new Map<string, (typeof recent)[number]>();
+  for (const exec of recent) {
+    if (!latestByJob.has(exec.jobName)) latestByJob.set(exec.jobName, exec);
+  }
+
+  // Most-recently-run jobs first (groupBy returns no guaranteed order).
+  const sortedGroups = [...jobGroups].sort(
+    (a, b) => (b._max.startedAt?.getTime() ?? 0) - (a._max.startedAt?.getTime() ?? 0),
+  );
+
+  const rows: CronJobRow[] = sortedGroups.slice(0, BOARD_LIMIT).map((g) => {
+    const latest = latestByJob.get(g.jobName);
+    const status: CronDisplayStatus = latest
+      ? DISPLAY_STATUS[latest.status] ?? 'Disabled'
+      : 'Disabled';
+    return {
+      id: g.jobName,
+      job: g.jobName,
+      schedule: SCHEDULE_BY_JOB[g.jobName] ?? '—',
+      lastRun: relativeTime(latest?.startedAt ?? g._max.startedAt ?? null),
+      duration: formatDuration(latest?.durationMs ?? null),
+      status,
+    };
+  });
+
+  const totalJobs = jobGroups.length;
+  const enabled = rows.filter((r) => r.status === 'Success').length;
+  const failing = rows.filter((r) => r.status === 'Retrying').length;
+  const lastRun = relativeTime(sortedGroups[0]?._max.startedAt ?? null);
+
+  return (
+    <DesignSurface surface="dense">
+      <CronsMonitorKit
+        jobs={rows}
+        totalJobs={totalJobs}
+        enabled={enabled}
+        failing={failing}
+        lastRun={lastRun}
+      />
+    </DesignSurface>
+  );
+}
+
+/** Legacy execution-log workspace (preserved behind ?ui=legacy). */
+async function renderLegacy() {
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 

@@ -28,6 +28,6 @@
 .portal-touch-target [role="button"]:focus-visible,
 .portal-touch-target input:focus-visible,
 .portal-touch-target select:focus-visible {
-  outline: 2px solid var(--color-primary, #2563eb);
+  outline: 2px solid var(--wa-accent, var(--color-accent, #ad2c4d));
   outline-offset: 2px;
 }

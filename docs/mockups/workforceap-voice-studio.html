@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkforceAP • Voice AI + Career Studio (Reskinned)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+.heading-font{font-family:'Plus Jakarta Sans','Inter',sans-serif;font-weight:800;letter-spacing:-.03em}
+.bento{transition:box-shadow .2s cubic-bezier(.4,0,.2,1),border-color .2s,background-color .2s}
+.focus-ring:focus-visible{outline:none;box-shadow:0 0 0 2px #fff,0 0 0 4px #ad2c4d}
+.focus-ring-dark:focus-visible{outline:none;box-shadow:0 0 0 2px #121212,0 0 0 4px #ad2c4d}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeInUp .35s cubic-bezier(.34,1.56,.64,1) forwards}
+/* Voice orb */
+@keyframes orbPulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.06);opacity:1}}
+@keyframes ring1{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+.orb-core{animation:orbPulse 2.4s ease-in-out infinite}
+.orb-ring{animation:ring1 2.8s ease-out infinite}
+.orb-ring.d2{animation-delay:.9s}
+.orb-ring.d3{animation-delay:1.8s}
+@keyframes eq{0%,100%{height:20%}50%{height:100%}}
+.eqbar{animation:eq 1s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.fade-in,.orb-core,.orb-ring,.eqbar{animation:none}.bento{transition:none}}
+</style>
+</head>
+<body class="bg-[#F7F8FA] text-[#1A1A1A] min-h-screen flex flex-col">
+
+<!-- HEADER + TABS -->
+<header class="sticky top-0 z-50 bg-[#1A1A1A] text-white">
+  <div class="max-w-7xl mx-auto px-4 md:px-8 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 bg-[#ad2c4d] rounded-lg flex items-center justify-center"><i class="fa-solid fa-microphone-lines text-sm"></i></div>
+      <div><div class="font-bold text-sm tracking-tight">Voice AI + Career Studio</div><div class="text-[10px] text-[#A3A3A3]">Reskinned to DESIGN.md · crimson #ad2c4d primary, gold #a47f38 achievement</div></div>
+    </div>
+    <div class="flex flex-wrap items-center gap-1.5 bg-[#262626] rounded-xl p-1 border border-[#404040]">
+      <button data-view="coaches" class="vbtn px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-[#ad2c4d] text-white">Voice Coaches</button>
+      <button data-view="session" class="vbtn px-3 py-1.5 text-[11px] font-semibold rounded-lg text-[#A3A3A3] hover:text-white">Live Session</button>
+      <button data-view="studio" class="vbtn px-3 py-1.5 text-[11px] font-semibold rounded-lg text-[#A3A3A3] hover:text-white">Resume Studio · Beta</button>
+      <button data-view="toolkit" class="vbtn px-3 py-1.5 text-[11px] font-semibold rounded-lg text-[#A3A3A3] hover:text-white">AI Toolkit</button>
+    </div>
+  </div>
+</header>
+
+<main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-8">
+
+<!-- ============ VIEW: VOICE COACHES HUB ============ -->
+<section data-view-panel="coaches" class="vpanel fade-in space-y-6">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
+    <div>
+      <div class="flex items-center gap-x-2 text-xs font-bold text-[#ad2c4d] tracking-widest uppercase"><i class="fa-solid fa-headset"></i><span>Talk it out</span></div>
+      <h2 class="heading-font text-3xl mt-1">Voice Coaches</h2>
+      <p class="text-sm text-[#737373] mt-1">Real-time spoken coaching. Your program context is included automatically.</p>
+    </div>
+    <div class="px-3 py-1.5 bg-white border border-[#e8e8e8] rounded-full text-[11px] font-bold flex items-center gap-2"><i class="fa-solid fa-circle text-[#4a9b4f] text-[6px]"></i>ElevenLabs · low-latency</div>
+  </div>
+
+  <!-- reskin note -->
+  <div class="bg-[#fdf2f4] border border-[#f3d4dc] rounded-2xl px-4 py-3 flex items-start gap-3 text-xs">
+    <i class="fa-solid fa-palette text-[#ad2c4d] mt-0.5"></i>
+    <div><span class="font-bold text-[#ad2c4d]">Reskin:</span> <span class="text-[#525252]">today each coach uses a different off-brand gradient (teal / blue / purple / magenta). Below, every coach is brought into the brand — crimson for action coaches, gold for the achievement/readiness coach, blue (supporting) for the counselor. One coherent family.</span></div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <!-- Readiness Coach — GOLD (achievement) -->
+    <button class="text-left bg-gradient-to-br from-[#a47f38] to-[#7d5f26] text-white rounded-3xl p-7 flex flex-col justify-between bento cursor-pointer shadow-lg shadow-yellow-900/10 hover:shadow-xl focus-ring min-h-[210px]">
+      <div class="flex justify-between items-start"><div class="p-3 bg-white/15 rounded-2xl"><i class="fa-solid fa-bullseye text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/20 rounded-full">READINESS</span></div>
+      <div><h3 class="font-extrabold text-xl tracking-tight">Readiness Coach</h3><p class="text-xs text-white/80 mt-1">Interviews, certifications, and next steps — talked through out loud.</p><div class="mt-3 inline-flex items-center gap-1.5 text-xs font-bold"><i class="fa-solid fa-microphone"></i>Start session</div></div>
+    </button>
+    <!-- Resume Coach — CRIMSON -->
+    <button class="text-left bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] text-white rounded-3xl p-7 flex flex-col justify-between bento cursor-pointer shadow-lg shadow-red-900/10 hover:shadow-xl focus-ring min-h-[210px]">
+      <div class="flex justify-between items-start"><div class="p-3 bg-white/15 rounded-2xl"><i class="fa-solid fa-wand-magic-sparkles text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/20 rounded-full">RESUME</span></div>
+      <div><h3 class="font-extrabold text-xl tracking-tight">Resume Coach</h3><p class="text-xs text-white/80 mt-1">Voice feedback on your bullets and framing. Pairs with your live draft.</p><div class="mt-3 inline-flex items-center gap-1.5 text-xs font-bold"><i class="fa-solid fa-microphone"></i>Start session</div></div>
+    </button>
+    <!-- Mock Interview — CRIMSON deep -->
+    <button data-view="session" class="vbtn text-left bg-gradient-to-br from-[#8b1f38] to-[#5e1426] text-white rounded-3xl p-7 flex flex-col justify-between bento cursor-pointer shadow-lg shadow-red-900/10 hover:shadow-xl focus-ring min-h-[210px]">
+      <div class="flex justify-between items-start"><div class="p-3 bg-white/15 rounded-2xl"><i class="fa-solid fa-microphone-lines text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/20 rounded-full">PRACTICE</span></div>
+      <div><h3 class="font-extrabold text-xl tracking-tight">Mock Interview</h3><p class="text-xs text-white/80 mt-1">Answer out loud. Optional camera recording for review afterward.</p><div class="mt-3 inline-flex items-center gap-1.5 text-xs font-bold"><i class="fa-solid fa-play"></i>Try it live</div></div>
+    </button>
+    <!-- Your Counselor — BLUE (supporting) -->
+    <button class="text-left bg-white border border-[#e8e8e8] rounded-3xl p-7 flex flex-col justify-between bento cursor-pointer shadow-sm hover:shadow-md focus-ring min-h-[210px]">
+      <div class="flex justify-between items-start"><div class="p-3 bg-blue-50 text-[#2b7bb9] rounded-2xl border border-blue-100"><i class="fa-solid fa-headphones text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-blue-50 text-[#2b7bb9] rounded-full">COUNSELOR</span></div>
+      <div><h3 class="font-extrabold text-xl tracking-tight">Talk to Your Counselor</h3><p class="text-xs text-[#737373] mt-1">Private voice session — then your personalized action plan.</p><div class="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[#2b7bb9]"><i class="fa-solid fa-microphone"></i>Start session</div></div>
+    </button>
+    <!-- Career & Business — neutral dark -->
+    <button class="text-left bg-[#1a1a1a] text-white rounded-3xl p-7 flex flex-col justify-between bento cursor-pointer shadow-lg hover:bg-[#262626] focus-ring min-h-[210px]">
+      <div class="flex justify-between items-start"><div class="p-3 bg-[#ad2c4d] rounded-2xl"><i class="fa-solid fa-briefcase text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-white/10 rounded-full">ADVANCED</span></div>
+      <div><h3 class="font-extrabold text-xl tracking-tight">Career &amp; Business Coach</h3><p class="text-xs text-white/70 mt-1">Broader career, PM, sales, marketing and business guidance.</p><div class="mt-3 inline-flex items-center gap-1.5 text-xs font-bold"><i class="fa-solid fa-microphone"></i>Start session</div></div>
+    </button>
+    <!-- Elevator Intro — gold light -->
+    <button class="text-left bg-[#faf7f0] border border-[#ece2c8] rounded-3xl p-7 flex flex-col justify-between bento cursor-pointer shadow-sm hover:shadow-md focus-ring min-h-[210px]">
+      <div class="flex justify-between items-start"><div class="p-3 bg-[#FEF3C7] text-[#a47f38] rounded-2xl"><i class="fa-solid fa-bolt text-xl"></i></div><span class="px-2.5 py-0.5 text-[9px] font-bold tracking-widest bg-[#FEF3C7] text-[#a47f38] rounded-full">10–20 SEC</span></div>
+      <div><h3 class="font-extrabold text-xl tracking-tight">Elevator Introduction</h3><p class="text-xs text-[#737373] mt-1">Generate a sharp intro, save it, then rehearse it on camera.</p><div class="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[#a47f38]"><i class="fa-solid fa-arrow-right"></i>Build mine</div></div>
+    </button>
+  </div>
+</section>
+
+<!-- ============ VIEW: LIVE VOICE SESSION ============ -->
+<section data-view-panel="session" class="vpanel hidden fade-in">
+  <div class="bg-[#1a1a1a] rounded-3xl overflow-hidden shadow-xl">
+    <div class="grid grid-cols-1 lg:grid-cols-5 min-h-[560px]">
+      <!-- Orb / status -->
+      <div class="lg:col-span-3 p-8 flex flex-col items-center justify-center text-white relative">
+        <div class="absolute top-6 left-6 flex items-center gap-2 text-xs font-bold"><span class="w-2 h-2 rounded-full bg-[#4a9b4f] animate-pulse"></span>CONNECTED · Mock Interview</div>
+        <div class="absolute top-6 right-6 flex items-center gap-2 text-xs text-white/60"><i class="fa-solid fa-clock"></i>04:12</div>
+        <!-- orb -->
+        <div class="relative w-56 h-56 flex items-center justify-center my-6">
+          <span class="orb-ring absolute w-40 h-40 rounded-full border border-[#ad2c4d]"></span>
+          <span class="orb-ring d2 absolute w-40 h-40 rounded-full border border-[#ad2c4d]"></span>
+          <span class="orb-ring d3 absolute w-40 h-40 rounded-full border border-[#ad2c4d]"></span>
+          <div class="orb-core w-40 h-40 rounded-full bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] flex items-center justify-center shadow-2xl shadow-red-900/40">
+            <i class="fa-solid fa-microphone text-4xl"></i>
+          </div>
+        </div>
+        <!-- equalizer -->
+        <div class="flex items-end gap-1 h-8 mb-3">
+          <span class="eqbar w-1 bg-[#ad2c4d] rounded-full" style="animation-delay:0s"></span>
+          <span class="eqbar w-1 bg-[#ad2c4d] rounded-full" style="animation-delay:.15s"></span>
+          <span class="eqbar w-1 bg-[#ad2c4d] rounded-full" style="animation-delay:.3s"></span>
+          <span class="eqbar w-1 bg-[#ad2c4d] rounded-full" style="animation-delay:.1s"></span>
+          <span class="eqbar w-1 bg-[#ad2c4d] rounded-full" style="animation-delay:.25s"></span>
+        </div>
+        <p class="text-sm font-semibold">Listening — speak when ready</p>
+        <p class="text-xs text-white/50 mt-1">Coach is asking about your AWS experience</p>
+        <!-- controls -->
+        <div class="flex items-center gap-3 mt-8">
+          <button class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors focus-ring-dark" aria-label="Mute"><i class="fa-solid fa-microphone-slash"></i></button>
+          <button class="px-6 py-3 rounded-full bg-[#ad2c4d] hover:bg-[#8b1f38] font-bold text-sm transition-colors focus-ring-dark"><i class="fa-solid fa-phone-slash mr-2"></i>End Session</button>
+          <button class="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors focus-ring-dark" aria-label="Camera"><i class="fa-solid fa-video"></i></button>
+        </div>
+      </div>
+      <!-- live transcript -->
+      <div class="lg:col-span-2 bg-[#0f0f10] border-t lg:border-t-0 lg:border-l border-[#262626] p-6 flex flex-col">
+        <div class="flex items-center justify-between mb-4"><h3 class="font-bold text-white text-sm flex items-center gap-2"><i class="fa-solid fa-closed-captioning text-[#ad2c4d]"></i>Live Transcript</h3><span class="text-[10px] text-white/40 font-bold">AUTO-SAVING</span></div>
+        <div class="flex-1 space-y-3 overflow-y-auto text-xs">
+          <div><div class="text-[10px] font-bold text-[#ad2c4d] uppercase tracking-wide mb-1">Coach</div><div class="bg-[#1a1a1a] text-white/90 rounded-2xl rounded-tl-sm px-3.5 py-2.5">Tell me about a time you solved a technical problem under pressure.</div></div>
+          <div class="text-right"><div class="text-[10px] font-bold text-white/60 uppercase tracking-wide mb-1">You</div><div class="bg-[#ad2c4d] text-white rounded-2xl rounded-tr-sm px-3.5 py-2.5 inline-block text-left">During my AWS labs, a deployment failed mid-demo. I traced it to an IAM policy...</div></div>
+          <div><div class="text-[10px] font-bold text-[#ad2c4d] uppercase tracking-wide mb-1">Coach</div><div class="bg-[#1a1a1a] text-white/90 rounded-2xl rounded-tl-sm px-3.5 py-2.5">Good — that's a strong STAR setup. Can you quantify the impact?</div></div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-[#262626] grid grid-cols-3 gap-2 text-center">
+          <div><div class="text-lg font-extrabold text-white tabular-nums">12</div><div class="text-[9px] text-white/40 font-bold uppercase">Exchanges</div></div>
+          <div><div class="text-lg font-extrabold text-[#4a9b4f] tabular-nums">86</div><div class="text-[9px] text-white/40 font-bold uppercase">Clarity</div></div>
+          <div><div class="text-lg font-extrabold text-[#a47f38] tabular-nums">+50</div><div class="text-[9px] text-white/40 font-bold uppercase">Points</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="text-center text-xs text-[#737373] mt-4">After the session ends, your transcript becomes a saved action plan with suggested next steps.</p>
+</section>
+
+<!-- ============ VIEW: RESUME STUDIO (BETA) — Career Studio ============ -->
+<section data-view-panel="studio" class="vpanel hidden fade-in space-y-5">
+  <div class="bg-gradient-to-br from-[#ad2c4d] to-[#8b1f38] rounded-3xl p-7 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-red-900/15">
+    <div><div class="text-[11px] font-bold tracking-widest uppercase text-white/70 flex items-center gap-2"><i class="fa-solid fa-flask"></i>Career Studio <span class="px-1.5 py-0.5 bg-white/20 rounded text-[8px]">BETA</span></div><h2 class="heading-font text-3xl mt-1">Resume Studio</h2><p class="text-sm text-white/80 mt-1">Score it, fix the top issues with AI rewrites, or talk it through out loud — all in one place.</p></div>
+    <button class="px-5 py-3 bg-white text-[#ad2c4d] font-bold text-sm rounded-full hover:bg-white/90 transition-colors focus-ring-dark whitespace-nowrap"><i class="fa-solid fa-arrow-up-from-bracket mr-1"></i>Upload Resume</button>
+  </div>
+
+  <!-- score + KPIs -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div class="bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm flex flex-col items-center text-center">
+      <h3 class="font-extrabold text-xs tracking-widest uppercase text-[#737373] mb-3">Resume Score</h3>
+      <div class="relative"><svg width="150" height="150" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#f0eef0" stroke-width="11"/><circle cx="60" cy="60" r="52" fill="none" stroke="#a47f38" stroke-width="11" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="91.5" transform="rotate(-90 60 60)"/></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><span class="text-4xl font-extrabold text-[#a47f38] tabular-nums">72</span><span class="text-[9px] font-bold text-[#737373] tracking-wider">OF 100</span></div></div>
+      <p class="text-xs text-[#737373] mt-3">Solid. Fix the 3 issues on the right to reach the 85+ "interview-ready" band.</p>
+    </div>
+    <div class="lg:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm">
+      <div class="flex items-center justify-between mb-4"><h3 class="font-extrabold text-lg tracking-tight">Top Issues to Fix</h3><span class="px-2.5 py-0.5 rounded-full bg-[#fdf2f4] text-[#ad2c4d] text-[10px] font-bold">3 found</span></div>
+      <div class="space-y-3">
+        <div class="flex items-start gap-3 p-3.5 bg-[#fafafa] border border-[#e8e8e8] rounded-2xl hover:bg-[#f5f5f5] transition-colors"><div class="w-7 h-7 rounded-full bg-[#fdf2f4] text-[#ad2c4d] flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-bolt"></i></div><div class="flex-1"><div class="font-bold text-xs">Weak action verbs in 4 bullets</div><div class="text-[11px] text-[#737373]">"Responsible for…" reads passive. AI can rewrite to lead with impact.</div></div><button class="px-3 py-1.5 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-[10px] rounded-full transition-colors focus-ring shrink-0">Fix with AI</button></div>
+        <div class="flex items-start gap-3 p-3.5 bg-[#fafafa] border border-[#e8e8e8] rounded-2xl hover:bg-[#f5f5f5] transition-colors"><div class="w-7 h-7 rounded-full bg-[#fdf2f4] text-[#ad2c4d] flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-hashtag"></i></div><div class="flex-1"><div class="font-bold text-xs">No quantified results</div><div class="text-[11px] text-[#737373]">Add numbers (%, $, time saved) to show impact employers can measure.</div></div><button class="px-3 py-1.5 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-[10px] rounded-full transition-colors focus-ring shrink-0">Fix with AI</button></div>
+        <div class="flex items-start gap-3 p-3.5 bg-[#fafafa] border border-[#e8e8e8] rounded-2xl hover:bg-[#f5f5f5] transition-colors"><div class="w-7 h-7 rounded-full bg-[#FEF3C7] text-[#a47f38] flex items-center justify-center text-xs shrink-0"><i class="fa-solid fa-key"></i></div><div class="flex-1"><div class="font-bold text-xs">Missing keywords for "Cloud Support"</div><div class="text-[11px] text-[#737373]">Add: IAM, EC2, troubleshooting, ticketing — matched from your target jobs.</div></div><button class="px-3 py-1.5 bg-[#a47f38] hover:bg-[#7d5f26] text-white font-semibold text-[10px] rounded-full transition-colors focus-ring shrink-0">Fix with AI</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- before/after rewrite + voice option -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div class="lg:col-span-2 bg-white border border-[#e8e8e8] rounded-3xl p-7 bento shadow-sm">
+      <h3 class="font-extrabold text-lg tracking-tight mb-4">AI Rewrite Preview</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><div class="text-[10px] font-bold uppercase tracking-wider text-[#737373] mb-2">Before</div><div class="p-4 bg-[#fafafa] border border-[#e8e8e8] rounded-2xl text-xs text-[#525252] leading-relaxed">Responsible for helping customers with cloud issues and was part of the team that managed deployments.</div></div>
+        <div><div class="text-[10px] font-bold uppercase tracking-wider text-[#4a9b4f] mb-2 flex items-center gap-1"><i class="fa-solid fa-wand-magic-sparkles"></i>After</div><div class="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-xs text-[#1a1a1a] leading-relaxed font-medium">Resolved 40+ weekly customer cloud issues across IAM and EC2, and co-led deployments that cut release errors by 30%.</div></div>
+      </div>
+      <div class="flex gap-2 mt-4"><button class="px-4 py-2 bg-[#ad2c4d] hover:bg-[#8b1f38] text-white font-semibold text-xs rounded-full transition-colors focus-ring">Accept Rewrite</button><button class="px-4 py-2 border border-[#e8e8e8] font-semibold text-xs rounded-full hover:bg-[#fafafa] transition-colors focus-ring">Regenerate</button></div>
+    </div>
+    <button class="text-left bg-gradient-to-br from-[#a47f38] to-[#7d5f26] text-white rounded-3xl p-7 flex flex-col justify-between bento cursor-pointer shadow-lg shadow-yellow-900/10 hover:shadow-xl focus-ring"><div><div class="p-3 w-fit bg-white/15 rounded-2xl"><i class="fa-solid fa-headset text-xl"></i></div><h3 class="font-extrabold text-xl tracking-tight mt-4">Talk it through</h3><p class="text-xs text-white/80 mt-1">Prefer to discuss it out loud? Open the Resume Coach voice session with this draft loaded.</p></div><div class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold"><i class="fa-solid fa-microphone"></i>Start voice session</div></button>
+  </div>
+</section>
+
+<!-- ============ VIEW: AI TOOLKIT HUB ============ -->
+<section data-view-panel="toolkit" class="vpanel hidden fade-in space-y-6">
+  <div>
+    <div class="flex items-center gap-x-2 text-xs font-bold text-[#ad2c4d] tracking-widest uppercase"><i class="fa-solid fa-wand-magic-sparkles"></i><span>AI Career Toolkit</span></div>
+    <h2 class="heading-font text-3xl mt-1">Everything to get hired, in order.</h2>
+    <p class="text-sm text-[#737373] mt-1">17 AI tools tuned to your AWS path and the Austin market. Work top to bottom.</p>
+  </div>
+
+  <!-- Step 1 -->
+  <div>
+    <div class="flex items-center gap-2 mb-3"><span class="w-6 h-6 rounded-full bg-[#ad2c4d] text-white flex items-center justify-center text-xs font-bold">1</span><h3 class="font-extrabold text-base tracking-tight">Get your resume &amp; applications ready</h3></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="flex items-center justify-between"><div class="p-2.5 bg-[#fdf2f4] text-[#ad2c4d] rounded-xl"><i class="fa-solid fa-file-lines"></i></div><span class="px-2 py-0.5 bg-[#fdf2f4] text-[#ad2c4d] text-[9px] font-bold rounded">BETA</span></div><h4 class="font-bold text-sm mt-3">Resume Studio</h4><p class="text-[11px] text-[#737373] mt-0.5">Score, rewrite & talk through your resume.</p></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="p-2.5 w-fit bg-[#fdf2f4] text-[#ad2c4d] rounded-xl"><i class="fa-solid fa-envelope-open-text"></i></div><h4 class="font-bold text-sm mt-3">Cover Letter</h4><p class="text-[11px] text-[#737373] mt-0.5">Tailored to any saved job in seconds.</p></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="p-2.5 w-fit bg-[#fdf2f4] text-[#ad2c4d] rounded-xl"><i class="fa-solid fa-circle-check"></i></div><h4 class="font-bold text-sm mt-3">Skill Checkpoints</h4><p class="text-[11px] text-[#737373] mt-0.5">Verify what you've actually mastered.</p></div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div>
+    <div class="flex items-center gap-2 mb-3"><span class="w-6 h-6 rounded-full bg-[#ad2c4d] text-white flex items-center justify-center text-xs font-bold">2</span><h3 class="font-extrabold text-base tracking-tight">Pre-interview prep &amp; role targeting</h3></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="flex items-center justify-between"><div class="p-2.5 bg-[#fdf2f4] text-[#ad2c4d] rounded-xl"><i class="fa-solid fa-microphone-lines"></i></div><span class="text-[9px] font-bold text-[#737373] uppercase">Voice</span></div><h4 class="font-bold text-sm mt-3">Interview Practice</h4><p class="text-[11px] text-[#737373] mt-0.5">Live mock interviews with voice coaching.</p></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="p-2.5 w-fit bg-[#fdf2f4] text-[#ad2c4d] rounded-xl"><i class="fa-solid fa-headset"></i></div><h4 class="font-bold text-sm mt-3">Interview Coach</h4><p class="text-[11px] text-[#737373] mt-0.5">Question-by-question guidance.</p></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="p-2.5 w-fit bg-blue-50 text-[#2b7bb9] rounded-xl"><i class="fa-solid fa-magnifying-glass-chart"></i></div><h4 class="font-bold text-sm mt-3">Job Match Scorer</h4><p class="text-[11px] text-[#737373] mt-0.5">See how you match a specific job.</p></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="p-2.5 w-fit bg-blue-50 text-[#2b7bb9] rounded-xl"><i class="fa-solid fa-sitemap"></i></div><h4 class="font-bold text-sm mt-3">Skill Mapper</h4><p class="text-[11px] text-[#737373] mt-0.5">Find skills employers want.</p></div>
+      <div class="bg-white border border-[#ece2c8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="flex items-center justify-between"><div class="p-2.5 bg-[#FEF3C7] text-[#a47f38] rounded-xl"><i class="fa-solid fa-route"></i></div><span class="px-2 py-0.5 bg-[#FEF3C7] text-[#a47f38] text-[9px] font-bold rounded">BETA</span></div><h4 class="font-bold text-sm mt-3">Training Bridge</h4><p class="text-[11px] text-[#737373] mt-0.5">Map missing skills to free training.</p></div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div>
+    <div class="flex items-center gap-2 mb-3"><span class="w-6 h-6 rounded-full bg-[#ad2c4d] text-white flex items-center justify-center text-xs font-bold">3</span><h3 class="font-extrabold text-base tracking-tight">Polish your profile &amp; job-search strategy</h3></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="p-2.5 w-fit bg-blue-50 text-[#2b7bb9] rounded-xl"><i class="fa-brands fa-linkedin"></i></div><h4 class="font-bold text-sm mt-3">LinkedIn Headline</h4><p class="text-[11px] text-[#737373] mt-0.5">A headline recruiters stop on.</p></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="p-2.5 w-fit bg-blue-50 text-[#2b7bb9] rounded-xl"><i class="fa-solid fa-user-pen"></i></div><h4 class="font-bold text-sm mt-3">LinkedIn About</h4><p class="text-[11px] text-[#737373] mt-0.5">Write your professional story.</p></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="p-2.5 w-fit bg-[#fdf2f4] text-[#ad2c4d] rounded-xl"><i class="fa-solid fa-magnifying-glass"></i></div><h4 class="font-bold text-sm mt-3">Gap Analyzer</h4><p class="text-[11px] text-[#737373] mt-0.5">See what's missing for a job.</p></div>
+      <div class="bg-white border border-[#e8e8e8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="p-2.5 w-fit bg-[#fdf2f4] text-[#ad2c4d] rounded-xl"><i class="fa-solid fa-comments-dollar"></i></div><h4 class="font-bold text-sm mt-3">Salary Negotiation</h4><p class="text-[11px] text-[#737373] mt-0.5">Practice asking for better pay.</p></div>
+      <div class="bg-white border border-[#ece2c8] rounded-2xl p-5 bento hover:shadow-md cursor-pointer"><div class="flex items-center justify-between"><div class="p-2.5 bg-[#FEF3C7] text-[#a47f38] rounded-xl"><i class="fa-solid fa-scale-balanced"></i></div><span class="px-2 py-0.5 bg-[#FEF3C7] text-[#a47f38] text-[9px] font-bold rounded">BETA</span></div><h4 class="font-bold text-sm mt-3">Benefits Cliff Check</h4><p class="text-[11px] text-[#737373] mt-0.5">Will this offer leave you better off?</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-[#1a1a1a] text-[#737373] text-[10px] text-center py-3 px-4">
+  Static mockup · zero production code · reskinned to DESIGN.md tokens (crimson #ad2c4d primary · gold #a47f38 achievement · blue #2b7bb9 supporting) · WCAG AA focus rings · reduced-motion aware
+</footer>
+
+<script>
+const btns=document.querySelectorAll('.vbtn');
+const panels=document.querySelectorAll('.vpanel');
+function show(v){
+  panels.forEach(p=>p.classList.toggle('hidden',p.dataset.viewPanel!==v));
+  const live=document.querySelector('.vpanel[data-view-panel="'+v+'"]');
+  if(live){live.classList.remove('fade-in');void live.offsetWidth;live.classList.add('fade-in');}
+  btns.forEach(b=>{const on=b.dataset.view===v;b.classList.toggle('bg-[#ad2c4d]',on);b.classList.toggle('text-white',on);b.classList.toggle('text-[#A3A3A3]',!on);});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+btns.forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
+</script>
+</body>
+</html>

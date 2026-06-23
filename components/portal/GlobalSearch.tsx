@@ -111,7 +111,8 @@ export default function GlobalSearch() {
             onChange={e => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search members, employers, partners, jobs…"
-            style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '1rem', color: 'var(--color-on-surface)', fontFamily: 'inherit' }}
+            className="global-search-input"
+            style={{ flex: 1, background: 'none', border: 'none', fontSize: '1rem', color: 'var(--color-on-surface)', fontFamily: 'inherit' }}
           />
           {loading && <span className="material-symbols-outlined" style={{ fontSize: '1rem', color: 'var(--color-on-surface-variant)', animation: 'spin 1s linear infinite' }}>progress_activity</span>}
           <kbd onClick={() => setOpen(false)} style={{ fontSize: '0.75rem', padding: '0.15rem 0.5rem', borderRadius: '0.25rem', background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)', border: '1px solid var(--outline-variant)', cursor: 'pointer' }}>Esc</kbd>

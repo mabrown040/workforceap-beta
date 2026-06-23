@@ -17,19 +17,44 @@
 :root {
   /* — brand (constant; mirrors DESIGN.md + tailwind.config.ts wa-brand-*) — */
   --wa-accent: #ad2c4d;
-  --wa-accent-dark: #8b1f38;
+  --wa-accent-dark: #8c0f37;
   --wa-accent-soft: #fdf2f4;
+  --wa-on-accent: #ffffff;
   --wa-gold: #a47f38;
+  --wa-gold-dark: #7d5f26;
   --wa-gold-soft: #fef3c7;
   --wa-info: #2b7bb9;
+  --wa-info-soft: #eef5fb;
   --wa-success: #4a9b4f;
+  --wa-danger: #dc2626;
+  --wa-danger-soft: rgba(220, 38, 38, 0.12);
+  --wa-violet: #7c3aed;
 
   /* — neutrals — */
   --wa-bg: #f7f8fa;
   --wa-surface: #ffffff;
+  --wa-surface-2: #f4f4f5; /* subtle raised fill (icon tiles, chips) */
   --wa-text: #1a1a1a;
   --wa-muted: #737373;
   --wa-border: #e8e8e8;
+  --wa-track: #f0eef0;
+  --wa-shell-header-bg: color-mix(in srgb, var(--wa-surface) 92%, transparent);
+  --wa-sidebar-bg: #161616;
+  --wa-sidebar-border: #2a2a2a;
+  --wa-sidebar-text: #ffffff;
+  --wa-sidebar-muted: #cfcfcf;
+  --wa-sidebar-label: #8a8a8a;
+
+  /* Bridge aliases so legacy portal selectors and kit components share a palette. */
+  --color-accent: var(--wa-accent);
+  --color-on-accent: var(--wa-on-accent);
+  --color-primary: var(--wa-accent);
+  --color-on-primary: var(--wa-on-accent);
+  --surface-container-low: var(--wa-surface);
+  --surface-container: var(--wa-surface);
+  --surface-container-high: var(--wa-surface-2);
+  --color-on-surface: var(--wa-text);
+  --color-on-surface-variant: var(--wa-muted);
 
   /* — shape / density / pop (overridden per surface below) — */
   --wa-radius: 20px;
@@ -57,6 +82,31 @@
   --wa-pad: 16px;
   --wa-pad-sm: 12px;
   --wa-pop: 0;
+}
+
+/*
+ * DARK MODE — flips the kit NEUTRALS; brand hues (accent/gold/info/success)
+ * stay constant since they read fine on dark. Activated by the app's existing
+ * theme system, which sets `html.dark` (system preference or explicit) and
+ * `[data-theme="dark"]` (explicit) — see components/theme/ThemeInitScript.tsx.
+ * Works under both surfaces (warm/dense only change radius/pad/pop, not color).
+ */
+html.dark,
+[data-theme='dark'] {
+  --wa-bg: #0f1115;
+  --wa-surface: #1a1b1f;
+  --wa-surface-2: #26272c; /* raised fill on dark (icon tiles, chips) */
+  --wa-text: #f4f4f5;
+  --wa-muted: #a1a1aa;
+  --wa-border: #2c2d33;
+  --wa-track: #2c2d33;
+  --wa-shell-header-bg: color-mix(in srgb, var(--wa-surface) 88%, transparent);
+  /* brand soft-tints become translucent so they sit on dark surfaces */
+  --wa-accent-soft: rgba(173, 44, 77, 0.18);
+  --wa-gold-soft: rgba(164, 127, 56, 0.20);
+  --wa-info-soft: rgba(43, 123, 185, 0.18);
+  --wa-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --wa-shadow-lg: 0 14px 28px rgba(0, 0, 0, 0.6);
 }
 
 /* Reduced motion: kit components gate their own animations on this too. */

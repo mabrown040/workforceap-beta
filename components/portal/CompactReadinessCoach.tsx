@@ -1,16 +1,17 @@
 'use client';
 
+import { Target } from 'lucide-react';
 import PortalVoiceSessionLazy from '@/components/portal/PortalVoiceSessionLazy';
 
-const ACCENT = '#0d9488';
-const ACCENT_DARK = '#0f766e';
+const ACCENT = '#a47f38';
+const ACCENT_DARK = '#7d5f26';
 
 export default function CompactReadinessCoach() {
   return (
     <div
       style={{
         borderRadius: '0.75rem',
-        border: `1px solid ${ACCENT}30`,
+        border: '1px solid var(--wa-gold-soft)',
         background: 'var(--surface-container-lowest)',
         overflow: 'hidden',
       }}
@@ -27,7 +28,7 @@ export default function CompactReadinessCoach() {
           textAlign: 'left',
         }}
       >
-        <span style={{ fontSize: '1rem', flexShrink: 0 }}>🎯</span>
+        <Target size={16} aria-hidden style={{ color: ACCENT, flexShrink: 0 }} />
         <span
           style={{
             fontSize: '0.875rem',
@@ -47,7 +48,7 @@ export default function CompactReadinessCoach() {
             flexShrink: 0,
           }}
         >
-          Always open
+          Voice
         </span>
       </div>
 

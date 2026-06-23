@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { AlertTriangle } from 'lucide-react';
 import styles from './MobileApplyFunnel.module.css';
 
 type Step = 'overview' | 'apply' | 'success' | 'tracked';
@@ -189,7 +190,10 @@ export default function MobileApplyFunnel({
         </label>
 
         {fieldErrors.consent && (
-          <p style={{ fontSize: '0.85rem', color: 'var(--color-error)', marginTop: '0.5rem' }}>⚠️ {fieldErrors.consent}</p>
+          <p style={{ display: 'flex', alignItems: 'flex-start', gap: '0.35rem', fontSize: '0.85rem', color: 'var(--color-error)', marginTop: '0.5rem' }} role="alert">
+            <AlertTriangle size={15} aria-hidden="true" style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+            {fieldErrors.consent}
+          </p>
         )}
 
         <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.75rem', lineHeight: 1.4 }}>
@@ -316,7 +320,10 @@ export default function MobileApplyFunnel({
                   </span>
                 </label>
                 {fieldErrors.consent && (
-                  <p className={styles['consent-error']}>⚠️ {fieldErrors.consent}</p>
+                  <p className={styles['consent-error']} role="alert" style={{ display: 'flex', alignItems: 'flex-start', gap: '0.35rem' }}>
+                    <AlertTriangle size={15} aria-hidden="true" style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+                    {fieldErrors.consent}
+                  </p>
                 )}
 
                 <label className={styles['consent-label']}>

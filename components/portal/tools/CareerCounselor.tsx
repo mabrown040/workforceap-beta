@@ -7,12 +7,11 @@ import ToolFollowThrough from './ToolFollowThrough';
 
 type Phase = 'pre' | 'connecting' | 'active' | 'ending' | 'plan';
 
-// Brand crimson (DESIGN.md / kit --wa-accent) — the "popping" voice color from
-// the voice-studio mockup. (Was off-brand pink #db2777.)
-const ACCENT = '#ad2c4d';
-const ACCENT_DARK = '#8b1f38';
-const ACCENT_BG = 'rgba(173, 44, 77, 0.1)';
-const ACCENT_BORDER = 'rgba(173, 44, 77, 0.28)';
+// Supporting blue lane for counselor/advisor conversations.
+const ACCENT = '#2b7bb9';
+const ACCENT_DARK = '#1f5a87';
+const ACCENT_BG = 'rgba(43, 123, 185, 0.12)';
+const ACCENT_BORDER = 'rgba(43, 123, 185, 0.28)';
 
 // Pulse animation keyframes injected once
 const PULSE_STYLE = `

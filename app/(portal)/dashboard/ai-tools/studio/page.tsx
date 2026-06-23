@@ -4,7 +4,13 @@ import { buildPageMetadataAsync } from '@/app/seo';
 import { getUser } from '@/lib/auth/server';
 import { getMemberResumePlainText } from '@/lib/member/getMemberResumePlainText';
 import { scoreStructural } from '@/lib/ai/resumeScore';
-import { VoiceStudioKit, type ResumeStudioData, type ResumeStudioIssue } from '@/components/portal/kit/pages/VoiceStudioKit';
+import {
+  VoiceStudioKit,
+  VOICE_STUDIO_AGENT_KEYS,
+  type ResumeStudioData,
+  type ResumeStudioIssue,
+  type VoiceStudioAgentKey,
+} from '@/components/portal/kit/pages/VoiceStudioKit';
 
 /**
  * Voice + Career Studio — the unified voice-AI + career-tools workspace.
@@ -26,22 +32,28 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function VoiceStudioPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ tab?: string }>;
+  searchParams?: Promise<{ tab?: string; agent?: string }>;
 }) {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/studio');
 
   const params = await searchParams;
   const requestedTab = typeof params?.tab === 'string' ? params.tab : '';
+  const requestedAgent = typeof params?.agent === 'string' ? params.agent : '';
   const initialTab: StudioTab | undefined = (STUDIO_TABS as readonly string[]).includes(
     requestedTab,
   )
     ? (requestedTab as StudioTab)
     : undefined;
+  const initialAgent: VoiceStudioAgentKey | undefined = VOICE_STUDIO_AGENT_KEYS.includes(
+    requestedAgent as VoiceStudioAgentKey,
+  )
+    ? (requestedAgent as VoiceStudioAgentKey)
+    : undefined;
 
   const resumeStudio = await loadResumeStudioData(user.id);
 
-  return <VoiceStudioKit initialTab={initialTab} resumeStudio={resumeStudio} />;
+  return <VoiceStudioKit initialTab={initialTab} initialAgent={initialAgent} resumeStudio={resumeStudio} />;
 }
 
 /** Human labels for each structural dimension surfaced as a "top fix". */

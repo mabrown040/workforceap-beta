@@ -47,7 +47,6 @@ import {
   Clock,
   PhoneOff,
   Captions,
-  Palette,
   ArrowRight,
   Upload,
   Play,
@@ -61,6 +60,8 @@ import { DesignSurface } from '../DesignSurface';
 import { VoiceOrb } from '../VoiceOrb';
 
 type StudioTab = 'coaches' | 'session' | 'studio' | 'toolkit';
+export type VoiceStudioAgentKey = 'readiness' | 'resume' | 'mock' | 'counselor' | 'business';
+export const VOICE_STUDIO_AGENT_KEYS: VoiceStudioAgentKey[] = ['readiness', 'resume', 'mock', 'counselor', 'business'];
 
 /**
  * Config for a voice agent that the Live Session tab can run. Each voice coach
@@ -88,6 +89,20 @@ const AGENT_ACCENT = {
   gold: { accent: '#a47f38', accentDark: '#7d5f26' },
   blue: { accent: '#2b7bb9', accentDark: '#1f5a87' },
 } as const;
+
+const SESSION_AGENTS: Record<VoiceStudioAgentKey, SessionAgentConfig> = {
+  readiness: { label: 'Readiness Coach', endpoint: '/api/member/readiness/voice-session', ...AGENT_ACCENT.gold },
+  resume: { label: 'Resume Coach', endpoint: '/api/member/resume-coach/session', ...AGENT_ACCENT.crimson },
+  mock: {
+    label: 'Mock Interview',
+    endpoint: '/api/interview/session',
+    payload: { interviewType: 'behavioral' },
+    askRole: true,
+    ...AGENT_ACCENT.crimson,
+  },
+  counselor: { label: 'Career Counselor', endpoint: '/api/counselor/session', ...AGENT_ACCENT.blue },
+  business: { label: 'Career & Business Coach', endpoint: '/api/member/career-business-coach/voice-session', ...AGENT_ACCENT.crimson },
+};
 
 /**
  * Real routes each card opens. Most live under /dashboard/ai-tools/*; the
@@ -117,10 +132,10 @@ const TOOL_HREF = {
 } as const;
 
 const TABS: Array<{ id: StudioTab; label: string }> = [
-  { id: 'coaches', label: 'Voice Coaches' },
-  { id: 'session', label: 'Live Session' },
-  { id: 'studio', label: 'Resume Studio · Beta' },
-  { id: 'toolkit', label: 'AI Toolkit' },
+  { id: 'coaches', label: 'Coaches' },
+  { id: 'session', label: 'Live' },
+  { id: 'studio', label: 'Resume' },
+  { id: 'toolkit', label: 'Toolkit' },
 ];
 
 /** Real, instant structural-read data for the Resume Studio tab. */
@@ -149,6 +164,8 @@ export interface VoiceStudioKitProps {
   sessionEndpoint?: string;
   /** JSON body posted to `sessionEndpoint` (e.g. interview role + type). */
   sessionPayload?: Record<string, unknown>;
+  /** Which voice coach to preselect when deep-linking to the Live tab. */
+  initialAgent?: VoiceStudioAgentKey;
 }
 
 export function VoiceStudioKit({
@@ -156,17 +173,20 @@ export function VoiceStudioKit({
   resumeStudio = { hasResume: false },
   sessionEndpoint = '/api/interview/session',
   sessionPayload = { role: 'a general professional role', interviewType: 'behavioral' },
+  initialAgent,
 }: VoiceStudioKitProps) {
   const [tab, setTab] = useState<StudioTab>(initialTab);
 
-  const defaultAgent: SessionAgentConfig = {
+  const fallbackAgent: SessionAgentConfig = {
     label: 'Mock Interview',
     endpoint: sessionEndpoint,
     payload: sessionPayload,
     askRole: true,
     ...AGENT_ACCENT.crimson,
   };
-  const [agent, setAgent] = useState<SessionAgentConfig>(defaultAgent);
+  const [agent, setAgent] = useState<SessionAgentConfig>(
+    initialAgent ? SESSION_AGENTS[initialAgent] : fallbackAgent,
+  );
 
   const pickAgent = (next: SessionAgentConfig) => {
     setAgent(next);
@@ -180,7 +200,13 @@ export function VoiceStudioKit({
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--wa-bg)', color: 'var(--wa-text)' }}>
         {/* ============ STICKY DARK HEADER + TABS ============ */}
         <header
-          style={{ position: 'sticky', top: 0, zIndex: 50, background: '#1a1a1a', color: '#fff' }}
+          style={{
+            position: 'sticky',
+            top: 'calc(var(--workspace-header-h, 3.25rem) + var(--member-portal-top-nav-h, 0px))',
+            zIndex: 25,
+            background: '#1a1a1a',
+            color: '#fff',
+          }}
         >
           <div
             className="wa-flex wa-flex-col lg:wa-flex-row"
@@ -210,9 +236,9 @@ export function VoiceStudioKit({
                 <AudioLines size={16} />
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>Voice AI + Career Studio</div>
+                <div style={{ fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>Voice + Career Studio</div>
                 <div style={{ fontSize: 10, color: '#a3a3a3' }}>
-                  Voice coaching, resume support, and career tools in one workspace
+                  Voice coaching, resume tools, and interview prep in one place.
                 </div>
               </div>
             </div>
@@ -226,6 +252,10 @@ export function VoiceStudioKit({
                 alignItems: 'center',
                 gap: 6,
                 overflowX: 'auto',
+                scrollbarWidth: 'none',
+                scrollSnapType: 'x proximity',
+                overscrollBehaviorX: 'contain',
+                touchAction: 'pan-x',
                 background: '#262626',
                 borderRadius: 12,
                 padding: 4,
@@ -254,6 +284,7 @@ export function VoiceStudioKit({
                       color: on ? 'var(--wa-on-accent)' : '#a3a3a3',
                       whiteSpace: 'nowrap',
                       flex: '0 0 auto',
+                      scrollSnapAlign: 'start',
                     }}
                   >
                     {t.label}
@@ -310,7 +341,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Interviews, certifications, and next steps — talked through out loud.',
     ctaIcon: Mic,
     cta: 'Start session',
-    agent: { label: 'Readiness Coach', endpoint: '/api/member/readiness/voice-session', ...AGENT_ACCENT.gold },
+    agent: SESSION_AGENTS.readiness,
   },
   {
     key: 'resume',
@@ -321,7 +352,7 @@ const COACH_CARDS: CoachCard[] = [
     body: 'Voice feedback on your bullets and framing. Pairs with your live draft.',
     ctaIcon: Mic,
     cta: 'Start session',
-    agent: { label: 'Resume Coach', endpoint: '/api/member/resume-coach/session', ...AGENT_ACCENT.crimson },
+    agent: SESSION_AGENTS.resume,
   },
   {
     key: 'mock',
@@ -331,36 +362,30 @@ const COACH_CARDS: CoachCard[] = [
     title: 'Mock Interview',
     body: 'Answer out loud to realistic interview questions, then review your transcript.',
     ctaIcon: Play,
-    cta: 'Try it live',
-    agent: {
-      label: 'Mock Interview',
-      endpoint: '/api/interview/session',
-      payload: { interviewType: 'behavioral' },
-      askRole: true,
-      ...AGENT_ACCENT.crimson,
-    },
+    cta: 'Start practice',
+    agent: SESSION_AGENTS.mock,
   },
   {
     key: 'counselor',
     variant: 'counselor',
     Icon: Headphones,
     badge: 'COUNSELOR',
-    title: 'Talk to Your Counselor',
+    title: 'Career Counselor',
     body: 'Private voice session — then your personalized action plan.',
     ctaIcon: Mic,
     cta: 'Start session',
-    agent: { label: 'Career Counselor', endpoint: '/api/counselor/session', ...AGENT_ACCENT.blue },
+    agent: SESSION_AGENTS.counselor,
   },
   {
     key: 'business',
-    variant: 'dark',
+    variant: 'crimson',
     Icon: Briefcase,
     badge: 'ADVANCED',
     title: 'Career & Business Coach',
     body: 'Broader career, PM, sales, marketing and business guidance.',
     ctaIcon: Mic,
     cta: 'Start session',
-    agent: { label: 'Career & Business Coach', endpoint: '/api/member/career-business-coach/voice-session', ...AGENT_ACCENT.crimson },
+    agent: SESSION_AGENTS.business,
   },
   {
     key: 'elevator',
@@ -370,7 +395,7 @@ const COACH_CARDS: CoachCard[] = [
     title: 'Elevator Introduction',
     body: 'Generate a sharp intro, save it, then rehearse it on camera.',
     ctaIcon: ArrowRight,
-    cta: 'Build mine',
+    cta: 'Build intro',
     href: TOOL_HREF['elevator-pitch'],
   },
 ];
@@ -419,32 +444,22 @@ function CoachesPanel({ onPick }: { onPick: (agent: SessionAgentConfig) => void 
           }}
         >
           <Circle size={7} fill="var(--wa-success)" color="var(--wa-success)" />
-          ElevenLabs · low-latency
+          Live voice · ~5 min
         </div>
       </div>
 
-      {/* reskin note callout */}
       <div
         style={{
-          background: 'var(--wa-accent-soft)',
-          border: '1px solid #f3d4dc',
+          background: 'var(--wa-surface)',
+          border: '1px solid var(--wa-border)',
           borderRadius: 16,
           padding: '12px 16px',
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: 12,
           fontSize: 12,
+          color: 'var(--wa-muted)',
         }}
       >
-        <Palette size={14} color="var(--wa-accent)" style={{ marginTop: 2, flexShrink: 0 }} />
-        <div>
-          <span style={{ fontWeight: 700, color: 'var(--wa-accent)' }}>Reskin:</span>{' '}
-          <span style={{ color: '#525252' }}>
-            today each coach uses a different off-brand gradient (teal / blue / purple / magenta). Below, every coach is
-            brought into the brand — crimson for action coaches, gold for the achievement/readiness coach, blue
-            (supporting) for the counselor. One coherent family.
-          </span>
-        </div>
+        <strong style={{ color: 'var(--wa-text)' }}>Pick a coach for what you need right now.</strong>{' '}
+        Each live session uses your program context automatically, so you can talk through next steps without setup.
       </div>
 
       <div className="wa-grid wa-grid-cols-1 md:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-5">
@@ -808,12 +823,12 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
   // Status line (top-left of the orb panel).
   const status =
     phase === 'active'
-      ? `CONNECTED · ${label}`
+      ? `Connected · ${label}`
       : phase === 'connecting'
-        ? 'CONNECTING…'
+        ? 'Connecting…'
         : phase === 'ended'
-          ? 'SESSION ENDED'
-          : `READY · ${label}`;
+          ? 'Session ended'
+          : `Ready · ${label}`;
   const dotColor = phase === 'active' ? 'var(--wa-success)' : phase === 'connecting' ? 'var(--wa-gold)' : 'rgba(255,255,255,0.4)';
 
   // Big status caption under the orb.
@@ -831,12 +846,12 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
     phase === 'active'
       ? muted
         ? 'Microphone muted — tap the mic to unmute'
-        : 'Answer out loud — your transcript saves automatically'
+        : 'Answer out loud — the live transcript appears on this page'
       : phase === 'ended'
-        ? 'Your transcript is saved. Review it or run another round.'
+        ? 'Review the transcript below, then run another round when you are ready.'
         : phase === 'idle'
           ? 'Real-time voice coaching. Microphone required.'
-          : ' ';
+          : 'Checking your microphone and connecting to your coach…';
 
   return (
     <section>
@@ -1140,7 +1155,7 @@ function SessionPanel({ agent }: { agent: SessionAgentConfig }) {
         </div>
       </div>
       <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--wa-muted)', marginTop: 16 }}>
-        Speak naturally with the AI coach. When the session ends, your transcript is saved for review.
+        Speak naturally with the AI coach. Your live transcript appears here while you practice.
       </p>
     </section>
   );
@@ -1406,13 +1421,13 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
               </div>
             </div>
 
-            {/* gold "Talk it through" voice card → Resume Coach voice session */}
+            {/* Crimson "Talk it through" voice card → unified Resume Coach session */}
             <Link
-              href={TOOL_HREF['resume-coach']}
+              href="/dashboard/ai-tools/studio?tab=session&agent=resume"
               className="wa-kit-focus"
               style={{
                 textAlign: 'left',
-                background: 'linear-gradient(to bottom right, #a47f38, #7d5f26)',
+                background: 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)',
                 color: '#fff',
                 borderRadius: 24,
                 padding: 'clamp(20px, 5vw, 28px)',
@@ -1421,13 +1436,13 @@ function StudioPanel({ data }: { data: ResumeStudioData }) {
                 justifyContent: 'space-between',
                 cursor: 'pointer',
                 border: 'none',
-                boxShadow: '0 10px 15px -3px rgba(120,93,38,0.15)',
+                boxShadow: '0 10px 15px -3px rgba(120,20,38,0.15)',
                 textDecoration: 'none',
               }}
             >
               <div>
                 <div style={{ padding: 12, width: 'fit-content', background: 'rgba(255,255,255,0.15)', borderRadius: 16, display: 'inline-flex' }}>
-                  <Headset size={20} />
+                  <Sparkles size={20} />
                 </div>
                 <h3 style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', marginTop: 16 }}>Talk it through</h3>
                 <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4 }}>

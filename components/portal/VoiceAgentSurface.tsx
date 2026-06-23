@@ -16,6 +16,8 @@ export type VoiceAgentSurfaceProps = {
   glowColor: string;
   /** Full CSS gradient for outer ring */
   gradient: string;
+  /** Optional badge text color, defaults to the surface glow color. */
+  badgeColor?: string;
   children: ReactNode;
 };
 
@@ -29,6 +31,7 @@ export default function VoiceAgentSurface({
   icon,
   glowColor,
   gradient,
+  badgeColor,
   children,
 }: VoiceAgentSurfaceProps) {
   return (
@@ -100,7 +103,7 @@ export default function VoiceAgentSurface({
           <div style={{ minWidth: 0 }}>
             <p
               className="wa-text-[10px] wa-uppercase wa-tracking-[0.14em] wa-font-semibold"
-              style={{ color: 'var(--color-accent)', marginBottom: '0.35rem' }}
+              style={{ color: badgeColor ?? glowColor, marginBottom: '0.35rem' }}
             >
               {badge}
             </p>

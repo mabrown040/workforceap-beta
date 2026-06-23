@@ -17,5 +17,5 @@ export default async function ReadinessCoachPage() {
   const user = await getUser();
   if (!user) redirect('/login?redirectTo=/dashboard/ai-tools/readiness-coach');
 
-  redirect('/dashboard/readiness');
+  redirect('/dashboard/ai-tools/studio?tab=session&agent=readiness');
 }

@@ -1,4 +1,4 @@
-import { Check, Zap, Flag } from 'lucide-react';
+import { ArrowRight, Check, Mic, Zap, Flag } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { DesignSurface } from '@/components/portal/kit';
 
@@ -30,7 +30,9 @@ export interface MemberProgressKitProps {
   readinessScore?: number;
   readinessNote?: string;
   weekStats?: WeekStat[];
+  statsHeading?: string;
   milestones?: Milestone[];
+  readinessCoachHref?: string;
 }
 
 const RING_R = 52;
@@ -60,7 +62,9 @@ export function MemberProgressKit({
   readinessScore = 84,
   readinessNote = "You're in the top 20% of your cohort. Finish AWS Practitioner to reach “Job Ready”.",
   weekStats = DEFAULT_WEEK_STATS,
+  statsHeading = 'Progress by area',
   milestones = DEFAULT_MILESTONES,
+  readinessCoachHref = '/dashboard/ai-tools/studio?tab=session&agent=readiness',
 }: MemberProgressKitProps) {
   const score = Math.max(0, Math.min(100, Math.round(readinessScore)));
   const offset = RING_CIRC * (1 - score / 100);
@@ -108,13 +112,36 @@ export function MemberProgressKit({
               </div>
             </div>
             <p style={{ fontSize: 12, color: 'var(--wa-muted)', marginTop: 12 }}>{readinessNote}</p>
+            <a
+              href={readinessCoachHref}
+              className="wa-kit-focus"
+              style={{
+                marginTop: 16,
+                width: '100%',
+                minHeight: 44,
+                borderRadius: 999,
+                background: 'linear-gradient(135deg, var(--wa-gold), var(--wa-gold-dark))',
+                color: 'var(--wa-on-accent)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                textDecoration: 'none',
+                fontSize: 13,
+                fontWeight: 800,
+              }}
+            >
+              <Mic size={14} aria-hidden />
+              Talk to Readiness Coach
+              <ArrowRight size={14} aria-hidden />
+            </a>
           </div>
 
           {/* This week + milestones (2-wide on lg; full-width single column on
               mobile/tablet — span only applies where the 3-col grid exists so
               it can't force an overflowing implicit track at narrow widths). */}
           <div className="wa-kit-card lg:wa-col-span-2">
-            <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>This Week</h3>
+            <h3 style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', marginBottom: 16 }}>{statsHeading}</h3>
             <div className="wa-grid wa-grid-cols-2 sm:wa-grid-cols-4 wa-gap-3" style={{ marginBottom: 20 }}>
               {weekStats.map((stat) => (
                 <div key={stat.label} style={{ textAlign: 'center', padding: 12, background: 'var(--wa-bg)', borderRadius: 'var(--wa-radius-sm)' }}>

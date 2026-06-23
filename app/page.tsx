@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { buildPageMetadataAsync } from '@/app/seo';
 import LocalizedLinkServer from '@/components/LocalizedLinkServer';
 import Image from 'next/image';
+import { Check } from 'lucide-react';
 import { getActivePrograms } from '@/lib/platform/programCatalog';
 import { PROGRAMS, WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { DynamicFooter, DynamicMobileBottomNav } from '@/components/marketing/dynamicMarketingChrome';
@@ -216,12 +217,12 @@ export default async function HomePage() {
             </LocalizedLinkServer>
           </div>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: 0 }}>
-              <span>✓ {t('trustGrant')}</span>
+            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--home-hero-fg-muted, rgba(242,242,245,0.7))', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}><Check size={15} aria-hidden style={{ flexShrink: 0 }} /> {t('trustGrant')}</span>
               <span style={{ opacity: 0.5 }}>·</span>
-              <span>✓ {t('trustNoCard')}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}><Check size={15} aria-hidden style={{ flexShrink: 0 }} /> {t('trustNoCard')}</span>
               <span style={{ opacity: 0.5 }}>·</span>
-              <span>✓ {t('trustNoCost')}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}><Check size={15} aria-hidden style={{ flexShrink: 0 }} /> {t('trustNoCost')}</span>
             </p>
           </div>
 

@@ -1,6 +1,7 @@
 import LocalizedLink from '@/components/LocalizedLink';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { ClipboardList, FileText, Handshake, Globe } from 'lucide-react';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { CTABand, SectionHeader, ValueCard } from '@/components/marketing/ui';
 
@@ -66,10 +67,10 @@ export default async function BecomeMentorPage() {
         />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
           {[
-            { icon: <span style={{ fontSize: '2rem' }}>📋</span>, title: t('benefit1Title'), desc: t('benefit1Desc') },
-            { icon: <span style={{ fontSize: '2rem' }}>📄</span>, title: t('benefit2Title'), desc: t('benefit2Desc') },
-            { icon: <span style={{ fontSize: '2rem' }}>🤝</span>, title: t('benefit3Title'), desc: t('benefit3Desc') },
-            { icon: <span style={{ fontSize: '2rem' }}>🌐</span>, title: t('benefit4Title'), desc: t('benefit4Desc') },
+            { icon: <ClipboardList size={30} aria-hidden />, title: t('benefit1Title'), desc: t('benefit1Desc') },
+            { icon: <FileText size={30} aria-hidden />, title: t('benefit2Title'), desc: t('benefit2Desc') },
+            { icon: <Handshake size={30} aria-hidden />, title: t('benefit3Title'), desc: t('benefit3Desc') },
+            { icon: <Globe size={30} aria-hidden />, title: t('benefit4Title'), desc: t('benefit4Desc') },
           ].map((b) => (
             <ValueCard key={b.title} icon={b.icon} title={b.title} description={b.desc} />
           ))}

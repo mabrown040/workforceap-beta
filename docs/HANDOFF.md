@@ -1,6 +1,6 @@
 # WAP Portal Redesign — Handoff
 
-**Branch:** `feature/portal-design-system` · **PR:** #2068 · **Updated:** 2026-06-22
+**Branch:** `feature/portal-design-system` · **PR:** #2068 · **Updated:** 2026-06-23
 **Full plan/spec:** `docs/PORTAL_REDESIGN_PLAN.md` · **Component contracts:** `docs/PORTAL_DESIGN_KIT.md`
 
 Pick this up cold. Everything below is verified live unless marked TODO.
@@ -18,7 +18,7 @@ The redesigned portal renders **signed-in on real demo data** behind `?ui=kit`.
 ## Test it
 
 - **Preview (stable alias, always latest):** `https://workforceap-beta-git-feature-p-793c79-mabrown040-5207s-projects.vercel.app`
-- **Login:** `mabrown040@gmail.com` / `Mabwofford2026!`  ← this is the **demo DB** super-admin (separate from prod)
+- **Login:** `mabrown040@gmail.com` / demo password from the shared preview credential channel. This is the **demo DB** super-admin (separate from prod).
 - Append `?ui=kit` to any persona landing to see the redesign.
 - Member dashboard shows `0%` because this account isn't enrolled in a program (real data). Seed an enrollment to populate.
 
@@ -42,7 +42,7 @@ Merge to master → Vercel Production → PROD Supabase (jqddnyuszufndwwezdwp)
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://esbdrgaonplpvzmtrdhw.supabase.co` |
 | `connection_limit` | **1** on 6543 (per-lambda). Do NOT use 5432 at runtime — it caps at 15 sessions and serverless exhausts it. |
 
-Demo DB password: `Mabwofford2026!` (user-provided; in Vercel env, not committed).
+Demo DB password is stored only in Vercel env / the shared preview credential channel; do not commit it.
 
 ## What got fixed this session (root causes of the 5-hour stall)
 

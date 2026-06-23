@@ -22,7 +22,7 @@
  *
  * Spec: docs/PORTING_GUIDE.md
  */
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Mic,
@@ -45,7 +45,6 @@ import {
   MessagesSquare,
   Scale,
   Clock,
-  Video,
   PhoneOff,
   Captions,
   Palette,
@@ -56,8 +55,10 @@ import {
   Play,
   Circle,
   FlaskConical,
+  AlertTriangle,
   type LucideIcon,
 } from 'lucide-react';
+import type { Conversation } from '@elevenlabs/client';
 import { DesignSurface } from '../DesignSurface';
 
 type StudioTab = 'coaches' | 'session' | 'studio' | 'toolkit';
@@ -101,21 +102,20 @@ export interface VoiceStudioKitProps {
   initialTab?: StudioTab;
   /** Resume score shown in the Career Studio ring (0–100). */
   resumeScore?: number;
-  /** Live-session running clock (top-right of orb panel). */
-  sessionClock?: string;
-  /** Live-session footer stats. */
-  exchanges?: number;
-  clarity?: number;
-  points?: number;
+  /**
+   * POST endpoint the Live Session tab calls to mint an ElevenLabs signed URL.
+   * Defaults to the mock-interview agent endpoint.
+   */
+  sessionEndpoint?: string;
+  /** JSON body posted to `sessionEndpoint` (e.g. interview role + type). */
+  sessionPayload?: Record<string, unknown>;
 }
 
 export function VoiceStudioKit({
   initialTab = 'coaches',
   resumeScore = 72,
-  sessionClock = '04:12',
-  exchanges = 12,
-  clarity = 86,
-  points = 50,
+  sessionEndpoint = '/api/interview/session',
+  sessionPayload = { role: 'a general professional role', interviewType: 'behavioral' },
 }: VoiceStudioKitProps) {
   const [tab, setTab] = useState<StudioTab>(initialTab);
 
@@ -214,7 +214,7 @@ export function VoiceStudioKit({
 
         <main style={{ flexGrow: 1, width: '100%', maxWidth: 1280, margin: '0 auto', padding: 16, boxSizing: 'border-box' }}>
           {tab === 'coaches' && <CoachesPanel onMockInterview={() => setTab('session')} />}
-          {tab === 'session' && <SessionPanel clock={sessionClock} exchanges={exchanges} clarity={clarity} points={points} />}
+          {tab === 'session' && <SessionPanel sessionEndpoint={sessionEndpoint} sessionPayload={sessionPayload} />}
           {tab === 'studio' && (
             <StudioPanel score={score} ringC={ringC} ringR={ringR} ringOffset={ringOffset} />
           )}
@@ -524,17 +524,239 @@ function CoachCardView({ card, onClick }: { card: CoachCard; onClick?: () => voi
 /* VIEW: LIVE VOICE SESSION                                      */
 /* ============================================================ */
 
+type SessionPhase = 'idle' | 'connecting' | 'active' | 'ended';
+type TranscriptLine = { speaker: 'agent' | 'user'; text: string };
+
+function formatClock(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+/**
+ * Live Voice Session — a REAL ElevenLabs conversation (mints a signed URL from
+ * `sessionEndpoint`, then runs `Conversation.startSession`). Preserves the dark
+ * orb/transcript visual from the mockup; everything in it (timer, transcript,
+ * mute, end) is now driven by the live session, not canned content.
+ */
 function SessionPanel({
-  clock,
-  exchanges,
-  clarity,
-  points,
+  sessionEndpoint,
+  sessionPayload,
 }: {
-  clock: string;
-  exchanges: number;
-  clarity: number;
-  points: number;
+  sessionEndpoint: string;
+  sessionPayload: Record<string, unknown>;
 }) {
+  const [phase, setPhase] = useState<SessionPhase>('idle');
+  const [error, setError] = useState('');
+  const [agentSpeaking, setAgentSpeaking] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [lines, setLines] = useState<TranscriptLine[]>([]);
+
+  const convRef = useRef<Conversation | null>(null);
+  const intentionalRef = useRef(false);
+  const phaseRef = useRef<SessionPhase>('idle');
+  const startedAtRef = useRef<number | null>(null);
+  const transcriptScrollRef = useRef<HTMLDivElement | null>(null);
+
+  const userTurns = lines.filter((l) => l.speaker === 'user').length;
+  const isLive = phase === 'active';
+
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
+
+  // Running clock — real elapsed time, only while the session is active.
+  useEffect(() => {
+    if (phase !== 'active') {
+      if (phase === 'idle') setElapsed(0);
+      return;
+    }
+    startedAtRef.current = Date.now();
+    setElapsed(0);
+    const id = window.setInterval(() => {
+      setElapsed(Math.floor((Date.now() - (startedAtRef.current ?? Date.now())) / 1000));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [phase]);
+
+  // Auto-follow the transcript as new lines arrive.
+  useEffect(() => {
+    const el = transcriptScrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [lines]);
+
+  // End any live session if the user leaves the tab/page.
+  useEffect(() => {
+    return () => {
+      intentionalRef.current = true;
+      convRef.current?.endSession();
+    };
+  }, []);
+
+  const start = useCallback(async () => {
+    setError('');
+    setLines([]);
+    intentionalRef.current = false;
+    setPhase('connecting');
+
+    // Mic probe first — keeps the permission prompt tied to the click.
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+    } catch {
+      setError('Microphone access is required. Allow it in your browser and try again.');
+      setPhase('idle');
+      return;
+    }
+
+    let signedUrl: string;
+    let dynamicVariables: Record<string, string | number | boolean> | undefined;
+    try {
+      const res = await fetch(sessionEndpoint, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sessionPayload ?? {}),
+      });
+      const data = (await res.json()) as {
+        signedUrl?: string;
+        dynamicVariables?: Record<string, string | number | boolean>;
+        error?: string;
+      };
+      if (!res.ok || !data.signedUrl) {
+        throw new Error(data.error ?? 'Voice sessions are not available right now.');
+      }
+      signedUrl = data.signedUrl;
+      dynamicVariables = data.dynamicVariables;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not start the session.');
+      setPhase('idle');
+      return;
+    }
+
+    const callbacks = {
+      onConnect: () => setPhase('active'),
+      onDisconnect: (details: unknown) => {
+        const intentional = intentionalRef.current;
+        intentionalRef.current = false;
+        setAgentSpeaking(false);
+        if (!intentional && phaseRef.current === 'connecting') {
+          const reason = (details as { message?: string } | undefined)?.message;
+          setError(reason || 'Connection lost before the session started. Please try again.');
+          setPhase('idle');
+        } else {
+          setPhase('ended');
+        }
+      },
+      onMessage: (event: unknown) => {
+        const ev = event as Record<string, unknown>;
+        const rawText =
+          typeof ev.message === 'string'
+            ? ev.message
+            : typeof ev.text === 'string'
+              ? ev.text
+              : '';
+        const text = rawText.trim();
+        if (!text) return;
+        const isAgent = ev.role === 'agent' || ev.source === 'ai' || ev.type === 'agent_response';
+        const isUser = ev.role === 'user' || ev.source === 'user' || ev.type === 'user_transcript';
+        if (isAgent) {
+          setAgentSpeaking(true);
+          setLines((prev) => [...prev, { speaker: 'agent', text }]);
+        } else if (isUser) {
+          setAgentSpeaking(false);
+          setLines((prev) => [...prev, { speaker: 'user', text }]);
+        }
+      },
+      onError: (msg: unknown) => {
+        setError(typeof msg === 'string' && msg ? msg : 'Connection error. Please try again.');
+        setPhase('idle');
+      },
+    };
+
+    try {
+      const { Conversation: ConversationClient } = await import('@elevenlabs/client');
+      const hasVars = Boolean(dynamicVariables && Object.keys(dynamicVariables).length > 0);
+      if (hasVars) {
+        try {
+          convRef.current = await ConversationClient.startSession({ signedUrl, dynamicVariables, ...callbacks });
+        } catch {
+          // Retry once without dynamic variables (agent may not declare them).
+          convRef.current = await ConversationClient.startSession({ signedUrl, ...callbacks });
+        }
+      } else {
+        convRef.current = await ConversationClient.startSession({ signedUrl, ...callbacks });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Voice session failed to start.');
+      setPhase('idle');
+    }
+  }, [sessionEndpoint, sessionPayload]);
+
+  const end = useCallback(() => {
+    intentionalRef.current = true;
+    convRef.current?.endSession();
+    setAgentSpeaking(false);
+    setPhase('ended');
+  }, []);
+
+  const reset = useCallback(() => {
+    intentionalRef.current = true;
+    convRef.current?.endSession();
+    convRef.current = null;
+    setPhase('idle');
+    setError('');
+    setLines([]);
+    setMuted(false);
+    setAgentSpeaking(false);
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    setMuted((prev) => {
+      const next = !prev;
+      try {
+        convRef.current?.setMicMuted(next);
+      } catch {
+        /* ignore — mute is best-effort */
+      }
+      return next;
+    });
+  }, []);
+
+  // Status line (top-left of the orb panel).
+  const status =
+    phase === 'active'
+      ? 'CONNECTED · Mock Interview'
+      : phase === 'connecting'
+        ? 'CONNECTING…'
+        : phase === 'ended'
+          ? 'SESSION ENDED'
+          : 'READY · Mock Interview';
+  const dotColor = phase === 'active' ? 'var(--wa-success)' : phase === 'connecting' ? 'var(--wa-gold)' : 'rgba(255,255,255,0.4)';
+
+  // Big status caption under the orb.
+  const caption =
+    phase === 'active'
+      ? agentSpeaking
+        ? 'Coach is speaking…'
+        : 'Listening — speak when ready'
+      : phase === 'connecting'
+        ? 'Connecting to your coach…'
+        : phase === 'ended'
+          ? 'Session ended'
+          : 'Start a live mock interview';
+  const subCaption =
+    phase === 'active'
+      ? muted
+        ? 'Microphone muted — tap the mic to unmute'
+        : 'Answer out loud — your transcript saves automatically'
+      : phase === 'ended'
+        ? 'Your transcript is saved. Review it or run another round.'
+        : phase === 'idle'
+          ? 'Speak with an AI interview coach. Microphone required.'
+          : ' ';
+
   return (
     <section>
       <div style={{ background: '#1a1a1a', borderRadius: 24, overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)' }}>
@@ -553,92 +775,168 @@ function SessionPanel({
             }}
           >
             <div style={{ position: 'absolute', top: 24, left: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700 }}>
-              <span className="vs-dot" style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--wa-success)' }} />
-              CONNECTED · Mock Interview
+              <span className={isLive ? 'vs-dot' : undefined} style={{ width: 8, height: 8, borderRadius: 999, background: dotColor }} />
+              {status}
             </div>
             <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
               <Clock size={13} />
-              {clock}
+              {formatClock(elapsed)}
             </div>
 
-            {/* mic orb */}
+            {/* mic orb — rings + pulse animate only while the session is live */}
             <div style={{ position: 'relative', width: 'min(224px, 60vw)', height: 'min(224px, 60vw)', maxWidth: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '24px 0' }}>
-              <span className="vs-orb-ring" style={ringStyle} />
-              <span className="vs-orb-ring vs-d2" style={ringStyle} />
-              <span className="vs-orb-ring vs-d3" style={ringStyle} />
+              {isLive && !muted ? (
+                <>
+                  <span className="vs-orb-ring" style={ringStyle} />
+                  <span className="vs-orb-ring vs-d2" style={ringStyle} />
+                  <span className="vs-orb-ring vs-d3" style={ringStyle} />
+                </>
+              ) : null}
               <div
-                className="vs-orb-core"
+                className={isLive && !muted ? 'vs-orb-core' : undefined}
                 style={{
                   width: 160,
                   height: 160,
                   borderRadius: 999,
-                  background: 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)',
+                  background: muted
+                    ? 'linear-gradient(to bottom right, #4b4b4b, #2a2a2a)'
+                    : 'linear-gradient(to bottom right, #ad2c4d, #8b1f38)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   boxShadow: '0 25px 50px -12px rgba(120,20,38,0.4)',
+                  opacity: phase === 'idle' || phase === 'ended' ? 0.7 : 1,
+                  transition: 'background 0.2s, opacity 0.2s',
                 }}
               >
-                <Mic size={40} />
+                {muted ? <MicOff size={40} /> : <Mic size={40} />}
               </div>
             </div>
 
-            {/* equalizer */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 32, marginBottom: 12 }}>
-              {[0, 0.15, 0.3, 0.1, 0.25].map((delay, i) => (
-                <span
-                  key={i}
-                  className="vs-eqbar"
-                  style={{ width: 4, background: 'var(--wa-accent)', borderRadius: 999, animationDelay: `${delay}s` }}
-                />
-              ))}
-            </div>
+            {/* equalizer — only while the coach is actively speaking */}
+            {isLive && agentSpeaking ? (
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 32, marginBottom: 12 }}>
+                {[0, 0.15, 0.3, 0.1, 0.25].map((delay, i) => (
+                  <span
+                    key={i}
+                    className="vs-eqbar"
+                    style={{ width: 4, background: 'var(--wa-accent)', borderRadius: 999, animationDelay: `${delay}s` }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div style={{ height: 32, marginBottom: 12 }} aria-hidden />
+            )}
 
-            <p style={{ fontSize: 14, fontWeight: 600 }}>Listening — speak when ready</p>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Coach is asking about your AWS experience</p>
+            <p style={{ fontSize: 14, fontWeight: 600 }}>{caption}</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4, textAlign: 'center', maxWidth: 320 }}>{subCaption}</p>
 
-            {/* controls */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 12, marginTop: 32 }}>
-              <button
-                className="vs-focus-dark"
-                aria-label="Mute unavailable"
-                disabled
-                title="Live mute control is not connected yet"
-                style={disabledCircleBtn}
-              >
-                <MicOff size={16} />
-              </button>
-              <button
-                className="vs-focus-dark"
-                disabled
-                title="Ending live sessions is not connected yet"
+            {error ? (
+              <div
+                role="alert"
                 style={{
-                  padding: '12px 24px',
-                  borderRadius: 999,
-                  background: 'rgba(255,255,255,0.12)',
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: 14,
-                  border: 'none',
-                  cursor: 'not-allowed',
-                  opacity: 0.55,
-                  display: 'inline-flex',
-                  alignItems: 'center',
+                  marginTop: 16,
+                  maxWidth: 360,
+                  display: 'flex',
+                  alignItems: 'flex-start',
                   gap: 8,
+                  background: 'rgba(173,44,77,0.15)',
+                  border: '1px solid rgba(173,44,77,0.4)',
+                  borderRadius: 12,
+                  padding: '10px 14px',
+                  fontSize: 12,
+                  color: '#f0a9b8',
+                  textAlign: 'left',
                 }}
               >
-                <PhoneOff size={15} />
-                End Session
-              </button>
-              <button
-                className="vs-focus-dark"
-                aria-label="Camera unavailable"
-                disabled
-                title="Camera control is not connected yet"
-                style={disabledCircleBtn}
-              >
-                <Video size={16} />
-              </button>
+                <AlertTriangle size={14} aria-hidden style={{ flexShrink: 0, marginTop: 1 }} />
+                <span>{error}</span>
+              </div>
+            ) : null}
+
+            {/* controls — real start / mute / end depending on phase */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 12, marginTop: 28 }}>
+              {phase === 'active' ? (
+                <>
+                  <button
+                    type="button"
+                    className="vs-focus-dark"
+                    aria-label={muted ? 'Unmute microphone' : 'Mute microphone'}
+                    aria-pressed={muted}
+                    title={muted ? 'Unmute microphone' : 'Mute microphone'}
+                    onClick={toggleMute}
+                    style={{ ...circleBtn, background: muted ? 'var(--wa-accent)' : 'rgba(255,255,255,0.1)' }}
+                  >
+                    {muted ? <MicOff size={16} /> : <Mic size={16} />}
+                  </button>
+                  <button
+                    type="button"
+                    className="vs-focus-dark"
+                    onClick={end}
+                    style={{
+                      padding: '12px 24px',
+                      borderRadius: 999,
+                      background: 'var(--wa-accent)',
+                      color: '#fff',
+                      fontWeight: 700,
+                      fontSize: 14,
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    <PhoneOff size={15} />
+                    End Session
+                  </button>
+                </>
+              ) : phase === 'connecting' ? (
+                <button
+                  type="button"
+                  className="vs-focus-dark"
+                  disabled
+                  style={{
+                    padding: '12px 28px',
+                    borderRadius: 999,
+                    background: 'rgba(255,255,255,0.12)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: 14,
+                    border: 'none',
+                    cursor: 'wait',
+                    opacity: 0.7,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <span className="vs-dot" style={{ width: 8, height: 8, borderRadius: 999, background: '#fff' }} />
+                  Connecting…
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="vs-focus-dark"
+                  onClick={() => void start()}
+                  style={{
+                    padding: '12px 28px',
+                    borderRadius: 999,
+                    background: 'var(--wa-accent)',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: 14,
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  {phase === 'ended' ? <Play size={15} /> : <Mic size={15} />}
+                  {phase === 'ended' ? 'Start again' : 'Start session'}
+                </button>
+              )}
             </div>
           </div>
 
@@ -658,37 +956,53 @@ function SessionPanel({
                 <Captions size={15} color="var(--wa-accent)" />
                 Live Transcript
               </h3>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>AUTO-SAVING</span>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+                {isLive ? 'LIVE' : phase === 'ended' ? 'SAVED' : 'IDLE'}
+              </span>
             </div>
 
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', fontSize: 12 }}>
-              <div>
-                <div style={transcriptLabelCoach}>Coach</div>
-                <div style={{ ...bubble, background: '#1a1a1a', color: 'rgba(255,255,255,0.9)', borderTopLeftRadius: 4 }}>
-                  Tell me about a time you solved a technical problem under pressure.
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={transcriptLabelYou}>You</div>
-                <div
-                  style={{
-                    ...bubble,
-                    background: 'var(--wa-accent)',
-                    color: '#fff',
-                    borderTopRightRadius: 4,
-                    display: 'inline-block',
-                    textAlign: 'left',
-                  }}
-                >
-                  During my AWS labs, a deployment failed mid-demo. I traced it to an IAM policy...
-                </div>
-              </div>
-              <div>
-                <div style={transcriptLabelCoach}>Coach</div>
-                <div style={{ ...bubble, background: '#1a1a1a', color: 'rgba(255,255,255,0.9)', borderTopLeftRadius: 4 }}>
-                  Good — that&apos;s a strong STAR setup. Can you quantify the impact?
-                </div>
-              </div>
+            <div
+              ref={transcriptScrollRef}
+              role="log"
+              aria-live="polite"
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', fontSize: 12, minHeight: 0 }}
+            >
+              {lines.length === 0 ? (
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', margin: 0 }}>
+                  {phase === 'active'
+                    ? 'Waiting for speech — your conversation will appear here.'
+                    : phase === 'connecting'
+                      ? 'Connecting…'
+                      : 'Start the session to begin a live transcript.'}
+                </p>
+              ) : (
+                lines.map((line, i) =>
+                  line.speaker === 'agent' ? (
+                    <div key={`${i}-${line.text.slice(0, 16)}`}>
+                      <div style={transcriptLabelCoach}>Coach</div>
+                      <div style={{ ...bubble, background: '#1a1a1a', color: 'rgba(255,255,255,0.9)', borderTopLeftRadius: 4 }}>
+                        {line.text}
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={`${i}-${line.text.slice(0, 16)}`} style={{ textAlign: 'right' }}>
+                      <div style={transcriptLabelYou}>You</div>
+                      <div
+                        style={{
+                          ...bubble,
+                          background: 'var(--wa-accent)',
+                          color: '#fff',
+                          borderTopRightRadius: 4,
+                          display: 'inline-block',
+                          textAlign: 'left',
+                        }}
+                      >
+                        {line.text}
+                      </div>
+                    </div>
+                  )
+                )
+              )}
             </div>
 
             <div
@@ -702,15 +1016,15 @@ function SessionPanel({
                 textAlign: 'center',
               }}
             >
-              <SessionStat value={String(exchanges)} label="Exchanges" color="#fff" />
-              <SessionStat value={String(clarity)} label="Clarity" color="var(--wa-success)" />
-              <SessionStat value={`+${points}`} label="Points" color="var(--wa-gold)" />
+              <SessionStat value={String(lines.length)} label="Exchanges" color="#fff" />
+              <SessionStat value={String(userTurns)} label="Your turns" color="var(--wa-success)" />
+              <SessionStat value={formatClock(elapsed)} label="Duration" color="var(--wa-gold)" />
             </div>
           </div>
         </div>
       </div>
       <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--wa-muted)', marginTop: 16 }}>
-        After the session ends, your transcript becomes a saved action plan with suggested next steps.
+        Speak naturally with the AI coach. When the session ends, your transcript is saved for review.
       </p>
     </section>
   );
@@ -744,12 +1058,6 @@ const circleBtn: React.CSSProperties = {
   border: 'none',
   cursor: 'pointer',
   color: '#fff',
-};
-
-const disabledCircleBtn: React.CSSProperties = {
-  ...circleBtn,
-  cursor: 'not-allowed',
-  opacity: 0.55,
 };
 
 const bubble: React.CSSProperties = {

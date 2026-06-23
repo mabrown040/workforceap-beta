@@ -638,12 +638,12 @@ html.dark .marketing-bottom-nav {
 
 .marketing-bottom-nav__link--active {
   background: linear-gradient(135deg, var(--color-accent-dark), var(--color-accent));
-  color: var(--color-white);
+  color: #fff;
   box-shadow: 0 8px 20px rgba(173, 44, 77, 0.22);
 }
 
 .marketing-bottom-nav__link--active .marketing-bottom-nav__label {
-  color: var(--color-white);
+  color: #fff;
 }
 
 .marketing-bottom-nav__label {

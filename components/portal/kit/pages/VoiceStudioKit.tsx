@@ -222,9 +222,10 @@ export function VoiceStudioKit({
               aria-label="Voice studio sections"
               style={{
                 display: 'flex',
-                flexWrap: 'wrap',
+                flexWrap: 'nowrap',
                 alignItems: 'center',
                 gap: 6,
+                overflowX: 'auto',
                 background: '#262626',
                 borderRadius: 12,
                 padding: 4,
@@ -242,14 +243,17 @@ export function VoiceStudioKit({
                     onClick={() => setTab(t.id)}
                     className="wa-kit-focus"
                     style={{
-                      padding: '6px 12px',
+                      minHeight: 44,
+                      padding: '8px 12px',
                       fontSize: 11,
                       fontWeight: 600,
                       borderRadius: 8,
                       border: 'none',
                       cursor: 'pointer',
                       background: on ? 'var(--wa-accent)' : 'transparent',
-                      color: on ? '#fff' : '#a3a3a3',
+                      color: on ? 'var(--wa-on-accent)' : '#a3a3a3',
+                      whiteSpace: 'nowrap',
+                      flex: '0 0 auto',
                     }}
                   >
                     {t.label}

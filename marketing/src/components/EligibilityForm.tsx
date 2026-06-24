@@ -104,7 +104,7 @@ export default function EligibilityForm() {
           <button className="btn btn--primary" type="submit" style={{ width: '100%', justifyContent: 'center' }}>
             Submit eligibility check →
           </button>
-          <p className="elig-fine">No cost for qualifying members · about 5 minutes · reviewed by a real team.</p>
+          <p className="elig-fine">No cost for members who qualify through scholarship/grant funded membership · about 5 minutes · reviewed by a real team.</p>
         </form>
       )}
     </div>

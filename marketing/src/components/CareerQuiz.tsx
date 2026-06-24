@@ -135,8 +135,8 @@ export default function CareerQuiz() {
         </ul>
 
         <p className="cq-result__lead">
-          Careers and no-cost WorkforceAP training can be matched to your {typeLabel || 'interest'} type. An
-          advisor confirms the best-fit path with you — at no cost to qualifying members.
+          Careers and WorkforceAP training can be matched to your {typeLabel || 'interest'} type. An
+          advisor confirms the best-fit path with you — at no cost to members who qualify through scholarship/grant funded membership.
         </p>
 
         <div className="cq-actions">

@@ -8,7 +8,7 @@ export interface Props {
 }
 const {
   title = 'WorkforceAP — Employer-aligned training & career support',
-  description = 'WorkforceAP is a 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to qualifying members.',
+  description = 'WorkforceAP is a 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to members who qualify through scholarship/grant funded membership.',
   lang = 'en',
 } = Astro.props;
 const t = useT(lang);
@@ -87,7 +87,7 @@ const path = Astro.url.pathname;
     <div class="fgrid">
       <div class="fbrand">
         <a class="brand" href="/"><span class="mark">▲</span>Workforce<b>AP</b></a>
-        <p>A 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to qualifying members.</p>
+        <p>A 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to members who qualify through scholarship/grant funded membership.</p>
       </div>
       <div><h4>Explore</h4><ul><li><a href="/programs">Programs</a></li><li><a href="/how-it-works">How it works</a></li><li><a href="/find-your-path">Find your path</a></li><li><a href="/outcomes">Outcomes</a></li></ul></div>
       <div><h4>Get involved</h4><ul><li><a href="/apply">Apply</a></li><li><a href="/employers">For employers</a></li><li><a href="/partners">Partners</a></li><li><a href="/mentor">Become a mentor</a></li><li><a href="/donate">Donate</a></li></ul></div>

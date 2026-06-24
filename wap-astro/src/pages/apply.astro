@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import EligibilityForm from '../components/EligibilityForm.tsx';
 
 const BARRIER_OPTIONS = [
   'Need in-demand occupation or certificate training',
@@ -83,99 +84,9 @@ const STEPS = [
     <p class="trust-strip__line">Training-aligned candidates · counselor-supported readiness · no-cost to members</p>
   </section>
 
-  <!-- Eligibility form (static visual representation) -->
+  <!-- Eligibility check — LIVE React island (hydrated on view via client:visible) -->
   <div class="apply-flow" data-variant="paid">
-    <form class="apply-step-content" role="region" aria-label="Eligibility application form">
-      <h2 class="apply-step-title">Quick eligibility check + how to reach you</h2>
-      <p class="apply-step-desc">Tell us how to reach you and answer 3 quick eligibility questions to get started.</p>
-
-      <!-- Funding questions -->
-      <div class="funding-questions">
-        <fieldset class="fset">
-          <legend>Employment status</legend>
-          <p class="q">Are you currently unemployed, working part-time when you want full-time work, or in a job that pays below what your skills or training should command (underemployed)?</p>
-          <div class="radio-row">
-            <label class="radio-card"><input type="radio" name="q1" disabled /><span class="radio-dot"></span><span>Yes</span></label>
-            <label class="radio-card"><input type="radio" name="q1" disabled /><span class="radio-dot"></span><span>No</span></label>
-          </div>
-        </fieldset>
-        <fieldset class="fset">
-          <legend>Household income</legend>
-          <p class="q">Is your household's total annual income below $60,000 before taxes?</p>
-          <div class="radio-row">
-            <label class="radio-card"><input type="radio" name="q2" disabled /><span class="radio-dot"></span><span>Yes</span></label>
-            <label class="radio-card"><input type="radio" name="q2" disabled /><span class="radio-dot"></span><span>No</span></label>
-          </div>
-        </fieldset>
-      </div>
-
-      <!-- How we reach you -->
-      <div class="apply-block">
-        <h3 class="apply-block__title">How we reach you</h3>
-        <div class="fgrid">
-          <div class="field">
-            <label>First Name *</label>
-            <input type="text" placeholder="First name" disabled />
-          </div>
-          <div class="field">
-            <label>Last Name *</label>
-            <input type="text" placeholder="Last name" disabled />
-          </div>
-          <div class="field">
-            <label>Email Address *</label>
-            <input type="email" placeholder="you@example.com" disabled />
-          </div>
-          <div class="field">
-            <label>Phone Number *</label>
-            <input type="tel" placeholder="(512) 555-0100" disabled />
-            <p class="hint">10-digit US number — your advisor uses this for follow-ups and application updates.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Eligibility screening details -->
-      <div class="apply-block">
-        <h3 class="apply-block__title">Eligibility screening details</h3>
-        <div class="fgrid">
-          <div class="field">
-            <label>Age group *</label>
-            <select disabled><option>Select age group</option><option>18–24</option><option>25–50</option><option>50+</option></select>
-          </div>
-          <div class="field">
-            <label>City *</label>
-            <input type="text" placeholder="City" disabled />
-          </div>
-          <div class="field">
-            <label>State *</label>
-            <input type="text" placeholder="State" disabled />
-          </div>
-          <div class="field">
-            <label>ZIP code *</label>
-            <input type="text" placeholder="ZIP" disabled />
-          </div>
-          <div class="field">
-            <label>County *</label>
-            <input type="text" placeholder="County" disabled />
-          </div>
-          <div class="field field--full">
-            <label>Primary barrier(s) — check all that apply *</label>
-            <div class="barriers" role="group" aria-label="Primary barriers">
-              {BARRIER_OPTIONS.map((label) => (
-                <label class="barrier"><input type="checkbox" disabled /><span class="barrier__label">{label}</span></label>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="apply-actions">
-        <a class="btn btn--primary cta-full" href="/apply/results">Continue — choose your programs →</a>
-      </div>
-
-      <p class="consent">By continuing you agree to our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms</a>.</p>
-      <p class="autosave">Progress saved automatically on this device.</p>
-      <p class="continue-hint">Complete the section above, then continue. If you're unsure on a question, pick the closest option — an advisor can clarify when we follow up.</p>
-    </form>
+    <EligibilityForm client:visible />
   </div>
 </div></section>
 

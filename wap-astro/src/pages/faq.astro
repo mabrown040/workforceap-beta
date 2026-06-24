@@ -121,116 +121,224 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   title="FAQ — WorkforceAP"
   description="Answers about applying, eligibility, certifications, and job placement. For applicants, parents, partners, and anyone with questions."
 >
-<!-- HERO -->
-<section class="hero faq-hero"><div class="wrap" style="max-width:760px;text-align:center;margin:0 auto">
-  <span class="eyebrow"><span class="dot"></span>Knowledge Base</span>
-  <h1>How can we help you <span class="grad-text">bridge the gap?</span></h1>
-  <p class="sub" style="margin:0 auto">Answers that address your concerns, whether you're applying, supporting someone who is, or deciding if WorkforceAP is right for you.</p>
-</div></section>
+<div class="faqx">
 
-<!-- QUICK ANSWERS -->
-<section class="band band--surface"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">Quick answers</span>
-    <h2>Start with the questions people ask most.</h2>
-  </div>
-  <div class="bento" style="grid-template-columns:repeat(2,1fr)">
-    {quick.map((item) => (
-      <a class="tool" href={item.href}>
-        <h3>{item.q}</h3>
-        <p>{item.a}</p>
-        <span class="qgo">{item.cta} →</span>
-      </a>
-    ))}
-  </div>
-</div></section>
+  <!-- ============================================================
+       HERO — DEPTH STAGE (shorter): crimson→plum depth band,
+       glow auras, luminosity-masked photo, gold pill + glass card.
+       ============================================================ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
 
-<!-- FULL FAQ -->
-<section class="band band--surface"><div class="wrap">
-  <div class="faq-layout">
-    <!-- Sidebar (static visual representation of the category nav) -->
-    <aside class="faq-sidebar">
-      <nav>
-        {sidebarGroups.map((group) => (
-          <div class="side-group">
-            <p class="side-lab">{group.label}</p>
-            {group.keys.map((key) => {
-              const cat = categories.find((c) => c.key === key)!;
-              return (
-                <a class="cat-link" href={`#${slugify(cat.key)}`}>
-                  <span class="cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}
-                </a>
-              );
-            })}
-          </div>
-        ))}
-      </nav>
-
-      <div class="support-card">
-        <div class="support-ic" aria-hidden="true">🎧</div>
-        <p class="support-h">Still need support?</p>
-        <p>Reach out and WorkforceAP can help you figure out the right next step.</p>
-        <a class="btn btn--primary" href="/contact">Contact Us</a>
+    <div class="wrap stage-grid">
+      <div class="lede">
+        <span class="pill"><span class="pill__star">★</span>Knowledge Base</span>
+        <h1>How can we help you <span class="shimmer">bridge the gap?</span></h1>
+        <p class="sub">Answers that address your concerns, whether you're applying, supporting someone who is, or deciding if WorkforceAP is right for you.</p>
       </div>
-    </aside>
 
-    <!-- Content -->
-    <div class="faq-main">
-      {categories.map((cat) => (
-        <div class="faq-cat" id={slugify(cat.key)}>
-          {cat.key === 'For Employers' && (
-            <div class="emp-banner">
-              <span class="emp-ic" aria-hidden="true">🏅</span>
-              <div>
-                <p class="emp-h">Employer Partnership Inquiries</p>
-                <p>Looking to hire certified talent? <a href="/partners">Learn about our partnership model →</a></p>
-              </div>
-            </div>
-          )}
-          <h2 class="faq-cat-head"><span class="faq-cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}</h2>
-          <div class="faq-list">
-            {cat.items.map((item) => (
-              <details class="faq-item">
-                <summary>
-                  <span class="faq-q">{item.q}</span>
-                  <span class="faq-chevron" aria-hidden="true">+</span>
-                </summary>
-                <div class="faq-a">
-                  <p>{item.a}</p>
-                  {item.link && <a href={item.link.href}>{item.link.text} →</a>}
-                </div>
-              </details>
-            ))}
-          </div>
-        </div>
+      <div class="hero-glass">
+        <div class="hg-ic" aria-hidden="true">💬</div>
+        <p class="hg-h">Still need support?</p>
+        <p class="hg-p">Reach out and WorkforceAP can help you figure out the right next step.</p>
+        <a class="dbtn dbtn--solid" href="/contact">Contact Us <span>→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK ANSWERS -->
+  <section class="band band--surface"><div class="wrap">
+    <div class="sec-head">
+      <span class="kick">Quick answers</span>
+      <h2>Start with the questions people ask most.</h2>
+    </div>
+    <div class="quick-grid">
+      {quick.map((item) => (
+        <a class="qcard" href={item.href}>
+          <h3>{item.q}</h3>
+          <p>{item.a}</p>
+          <span class="qgo">{item.cta} →</span>
+        </a>
       ))}
     </div>
-  </div>
+  </div></section>
 
-  <!-- Bottom CTA: "Didn't find your answer?" -->
-  <div class="faq-bottom-cta">
-    <div class="faq-bottom-copy">
-      <h2>Didn’t find your answer?</h2>
-      <p>Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.</p>
-      <div class="acts">
-        <a class="btn btn--primary" href="/contact">Contact Us</a>
-        <a class="btn btn--ghost" href="/apply">Apply Now</a>
+  <!-- FULL FAQ -->
+  <section class="band band--bg"><div class="wrap">
+    <div class="faq-layout">
+      <!-- Sidebar (static visual representation of the category nav) -->
+      <aside class="faq-sidebar">
+        <nav>
+          {sidebarGroups.map((group) => (
+            <div class="side-group">
+              <p class="side-lab">{group.label}</p>
+              {group.keys.map((key) => {
+                const cat = categories.find((c) => c.key === key)!;
+                return (
+                  <a class="cat-link" href={`#${slugify(cat.key)}`}>
+                    <span class="cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}
+                  </a>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+
+        <div class="support-card">
+          <div class="support-ic" aria-hidden="true">🎧</div>
+          <p class="support-h">Still need support?</p>
+          <p>Reach out and WorkforceAP can help you figure out the right next step.</p>
+          <a class="btn btn--primary" href="/contact">Contact Us</a>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <div class="faq-main">
+        {categories.map((cat) => (
+          <div class="faq-cat" id={slugify(cat.key)}>
+            {cat.key === 'For Employers' && (
+              <div class="emp-banner">
+                <span class="emp-ic" aria-hidden="true">🏅</span>
+                <div>
+                  <p class="emp-h">Employer Partnership Inquiries</p>
+                  <p>Looking to hire certified talent? <a href="/partners">Learn about our partnership model →</a></p>
+                </div>
+              </div>
+            )}
+            <h2 class="faq-cat-head"><span class="faq-cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}</h2>
+            <div class="faq-list">
+              {cat.items.map((item) => (
+                <details class="faq-item">
+                  <summary>
+                    <span class="faq-q">{item.q}</span>
+                    <span class="faq-chevron" aria-hidden="true">+</span>
+                  </summary>
+                  <div class="faq-a">
+                    <p>{item.a}</p>
+                    {item.link && <a href={item.link.href}>{item.link.text} →</a>}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
-    <div class="faq-cta-art">
-      <div class="faq-cta-inner">
-        <span class="faq-cta-ic" aria-hidden="true">💬</span>
-        <div class="side-lab">We’re here to help</div>
+  </div></section>
+
+  <!-- ============================================================
+       CLOSING CTA — crimson depth band: "Didn't find your answer?"
+       ============================================================ -->
+  <section class="close">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="grain grain--close"></div>
+    <div class="wrap close-grid">
+      <div class="faq-bottom-copy">
+        <span class="pill pill--solid"><span class="pill__star">★</span>We’re here to help</span>
+        <h2>Didn’t find your answer?</h2>
+        <p>Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.</p>
+        <div class="acts">
+          <a class="dbtn dbtn--solid" href="/contact">Contact Us <span>→</span></a>
+          <a class="dbtn dbtn--glass" href="/apply">Apply Now</a>
+        </div>
+      </div>
+      <div class="close-glass">
+        <div class="cg-ic" aria-hidden="true">💬</div>
+        <div class="cg-lab">We’re here to help</div>
       </div>
     </div>
-  </div>
-</div></section>
+  </section>
+
+</div>
 
 <style>
-  .faq-hero{padding:64px 0 36px}
-  .qgo{display:inline-block;margin-top:16px;font-weight:700;color:var(--crimson)}
+  /* ===================================================================
+     FAQX — DEPTH-LED fusion.
+     shorter depth stage hero → light quick-answer cards →
+     light sidebar + accordion body → crimson depth closing CTA.
+     =================================================================== */
+  .faqx{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
 
-  /* layout: sidebar + content (static visual rep of the live page) */
+  /* ---------------- DEPTH HERO STAGE (shorter) ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 130% at 82% -20%, #b8334f 0%, var(--accent-dark) 44%, var(--plum) 76%, #4a0e26 100%);
+    color:#fff;padding:84px 0 92px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:54px;align-items:center;position:relative;z-index:2}
+
+  /* glow auras */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:480px;height:480px;top:-150px;right:-110px;background:radial-gradient(circle,rgba(196,154,72,.5),transparent 68%)}
+  .aura--2{width:440px;height:440px;bottom:-190px;left:-130px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:360px;height:360px;top:24%;left:46%;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
+
+  /* luminosity-masked photo bleeding from right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 42%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 42%,#000 100%);opacity:.16}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  .pill--solid{margin-bottom:22px}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.4vw,64px);
+    line-height:1.03;letter-spacing:-.03em;margin:20px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.84);max-width:34em;margin:20px 0 0}
+
+  /* hero glass card */
+  .hero-glass{position:relative;border-radius:22px;padding:30px 28px;
+    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .hg-ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);margin-bottom:16px}
+  .hg-h{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;margin-bottom:8px}
+  .hg-p{font-size:15px;line-height:1.55;color:rgba(255,255,255,.82);margin-bottom:20px}
+
+  /* depth buttons */
+  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:14px 26px;
+    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
+  .dbtn:hover{transform:translateY(-2px)}
+  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
+    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
+  .dbtn--solid span{transition:transform .2s}
+  .dbtn--solid:hover span{transform:translateX(4px)}
+  .dbtn--glass{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.32);backdrop-filter:blur(8px)}
+  .dbtn--glass:hover{background:rgba(255,255,255,.2)}
+
+  /* ---------------- LIGHT BANDS ---------------- */
+  .band{padding:80px 0}
+  .band--surface{background:var(--surface);border-bottom:1px solid var(--border)}
+  .band--bg{background:var(--bg)}
+  .sec-head{margin-bottom:42px}
+  .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(28px,3.6vw,44px);line-height:1.04;letter-spacing:-.02em}
+
+  /* quick-answer cards */
+  .quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .qcard{display:block;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:30px 28px;box-shadow:var(--shadow);
+    border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .qcard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .qcard h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:19px;margin-bottom:12px;letter-spacing:-.01em}
+  .qcard p{color:var(--muted);font-size:15px;line-height:1.55}
+  .qcard:nth-child(2){border-top-color:var(--blue)}
+  .qcard:nth-child(3){border-top-color:var(--gold)}
+  .qcard:nth-child(4){border-top-color:var(--green)}
+  .qgo{display:inline-block;margin-top:16px;font-weight:800;color:var(--crimson)}
+
+  /* layout: sidebar + content */
   .faq-layout{display:grid;grid-template-columns:260px 1fr;gap:40px;align-items:start}
   .faq-sidebar{position:sticky;top:96px;display:flex;flex-direction:column;gap:24px}
   .side-group{margin-bottom:8px}
@@ -238,7 +346,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   .cat-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-weight:600;font-size:15px;color:var(--text);transition:background .15s,color .15s}
   .cat-link:hover{background:rgba(173,44,77,.08);color:var(--crimson)}
   .cat-ic{width:24px;text-align:center;font-size:16px}
-  .support-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:22px;text-align:left}
+  .support-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:22px;text-align:left;border-top:5px solid var(--gold)}
   .support-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:rgba(173,44,77,.1);margin-bottom:12px}
   .support-h{font-weight:800;font-size:17px;margin-bottom:6px}
   .support-card p{color:var(--muted);font-size:14px;margin-bottom:14px}
@@ -250,13 +358,13 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   .emp-h{font-weight:800;font-size:17px;margin-bottom:4px}
   .emp-banner p{color:var(--muted);font-size:15px}
   .emp-banner a{font-weight:700;color:var(--crimson)}
-  .faq-cat-head{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:800;margin-bottom:16px;scroll-margin-top:96px}
+  .faq-cat-head{display:flex;align-items:center;gap:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;margin-bottom:16px;scroll-margin-top:96px;letter-spacing:-.01em}
   .faq-cat-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:rgba(173,44,77,.1)}
   .faq-cat:nth-child(even) .faq-cat-ic{background:rgba(164,127,56,.14)}
 
   .faq-list{display:flex;flex-direction:column;gap:12px}
-  .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;transition:border-color .2s}
-  .faq-item[open]{border-color:rgba(173,44,77,.35)}
+  .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;transition:border-color .2s,box-shadow .2s}
+  .faq-item[open]{border-color:rgba(173,44,77,.35);box-shadow:var(--shadow-lg)}
   .faq-item summary{display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;padding:20px 22px;list-style:none;font-weight:700;font-size:17px}
   .faq-item summary::-webkit-details-marker{display:none}
   .faq-item summary:hover .faq-q{color:var(--crimson)}
@@ -267,25 +375,43 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
   .faq-a p{color:var(--muted);font-size:16px;margin-bottom:12px}
   .faq-a a{font-weight:700;color:var(--crimson)}
 
-  /* bottom CTA */
-  .faq-bottom-cta{display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:center;margin-top:56px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:40px}
-  .faq-bottom-copy h2{font-size:28px;font-weight:800;margin-bottom:12px}
-  .faq-bottom-copy p{color:var(--muted);font-size:17px;margin-bottom:20px;max-width:48ch}
-  .faq-bottom-cta .acts{display:flex;gap:14px;flex-wrap:wrap}
-  .faq-cta-art{display:grid;place-items:center}
-  .faq-cta-inner{display:grid;place-items:center;gap:14px;background:var(--grad);color:#fff;border-radius:18px;padding:40px;width:100%;text-align:center}
-  .faq-cta-ic{font-size:48px}
-  .faq-cta-inner .side-lab{color:rgba(255,255,255,.9)}
+  /* ---------------- CLOSING CTA — CRIMSON DEPTH ---------------- */
+  .close{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(130% 130% at 18% -20%, #b8334f 0%, var(--accent-dark) 46%, var(--plum) 78%, #4a0e26 100%);
+    color:#fff;padding:88px 0;
+  }
+  .grain--close{
+    -webkit-mask-image:linear-gradient(270deg,transparent 0%,transparent 44%,#000 100%);
+    mask-image:linear-gradient(270deg,transparent 0%,transparent 44%,#000 100%);opacity:.14}
+  .close-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:center}
+  .faq-bottom-copy h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,52px);line-height:1.0;letter-spacing:-.02em;margin-bottom:14px}
+  .faq-bottom-copy p{color:rgba(255,255,255,.86);font-size:18px;line-height:1.55;margin-bottom:24px;max-width:48ch}
+  .close .acts{display:flex;gap:14px;flex-wrap:wrap}
 
+  .close-glass{display:grid;place-items:center;gap:16px;
+    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    border-radius:22px;padding:48px;width:100%;text-align:center;
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset}
+  .cg-ic{font-size:52px}
+  .cg-lab{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9)}
+
+  /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:900px){
+    .stage{padding:64px 0 72px}
+    .stage-grid{grid-template-columns:1fr;gap:42px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+    .quick-grid{grid-template-columns:1fr}
     .faq-layout{grid-template-columns:1fr}
     .faq-sidebar{position:static}
-    .faq-bottom-cta{grid-template-columns:1fr}
+    .close-grid{grid-template-columns:1fr}
+    .grain--close{-webkit-mask-image:none;mask-image:none;opacity:.1}
   }
   @media(max-width:560px){
+    .band{padding:60px 0}
     .faq-item summary{font-size:16px;padding:16px 18px}
     .faq-a{padding:0 18px 18px}
-    .faq-bottom-cta{padding:28px}
+    .close .acts .dbtn{width:100%;justify-content:center}
   }
 </style>
 </Layout>

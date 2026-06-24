@@ -74,6 +74,19 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </section>
 
+  <!-- ===== MISSION STATEMENT (verbatim, per founder) — directly below hero ===== -->
+  <section class="mission">
+    <div class="wrap">
+      <span class="mission-eyebrow">Our mission</span>
+      <p class="mission-lead">Workforce Advancement Project (WorkforceAP) is a 501(c)(3) nonprofit that equips individuals, nonprofits, counselors, and community advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance to help secure meaningful employment, build lasting careers, and a better life no cost to the member.</p>
+      <p class="mission-action">Start with <a href="/find-your-path">Find Your Path</a>, see programs that fit, and get advisor guidance, resume help, and job-search support.</p>
+      <div class="mission-cta">
+        <a class="btn btn--primary" href="/find-your-path">Find Your Path →</a>
+        <a class="btn btn--ghost" href="/programs">See programs</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== CERT PARTNERS BAND ===== -->
   <section class="creds-band">
     <div class="wrap">
@@ -241,6 +254,15 @@ import Layout from '../layouts/Layout.astro';
   .dbtn--solid:hover span{transform:translateX(4px)}
   .dbtn--glass{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.32);backdrop-filter:blur(8px)}
   .dbtn--glass:hover{background:rgba(255,255,255,.2)}
+
+  /* mission statement band (light, directly below hero) */
+  .mission{background:var(--surface);border-bottom:1px solid var(--border);padding:60px 0}
+  .mission .wrap{max-width:920px;text-align:center}
+  .mission-eyebrow{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--crimson);margin-bottom:18px}
+  .mission-lead{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:clamp(20px,2.5vw,28px);line-height:1.45;color:var(--text);letter-spacing:-.01em}
+  .mission-action{margin-top:20px;font-size:18px;line-height:1.6;color:var(--muted)}
+  .mission-action a{color:var(--crimson);font-weight:700}
+  .mission-cta{margin-top:26px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
   .proof{display:flex;gap:30px;flex-wrap:wrap;margin-top:38px}
   .proof-i{display:flex;flex-direction:column;gap:2px}

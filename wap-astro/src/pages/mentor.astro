@@ -32,64 +32,238 @@ const benefits = [
   title="Become a Mentor — WorkforceAP"
   description="Volunteer your expertise to help job-seekers advance their careers. Log hours, earn a tax deduction letter, and give back to your community."
 >
-<!-- MENTOR WAITLIST BANNER -->
-<section class="waitlist" aria-label="Mentor waitlist"><div class="wrap waitlist-in">
-  <div class="waitlist-txt">
-    <span class="eyebrow"><span class="dot"></span>Mentor waitlist · Pre-launch</span>
-    <p>We're accepting mentor applications now and matching as our cohort grows. Most pairings start 4–8 weeks after you apply, when a member reaches the interview-prep stage of their program in your domain.</p>
-  </div>
-  <a class="btn btn--ghost" href="/mentor/apply">Join the waitlist</a>
-</div></section>
+<div class="mentor-depth">
 
-<!-- HERO (crimson→plum tile) -->
-<section class="band"><div class="wrap">
-  <div class="cta mentor-hero">
-    <h1>Share Your Expertise. Change a Career.</h1>
-    <p>WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it's tax-deductible.</p>
-    <div class="acts">
-      <a class="btn btn--light" href="/mentor/apply">Apply to Mentor</a>
+  <!-- MENTOR WAITLIST BANNER -->
+  <section class="waitlist" aria-label="Mentor waitlist"><div class="wrap waitlist-in">
+    <div class="waitlist-txt">
+      <span class="eyebrow"><span class="dot"></span>Mentor waitlist · Pre-launch</span>
+      <p>We're accepting mentor applications now and matching as our cohort grows. Most pairings start 4–8 weeks after you apply, when a member reaches the interview-prep stage of their program in your domain.</p>
     </div>
-  </div>
-</div></section>
+    <a class="btn btn--ghost" href="/mentor/apply">Join the waitlist</a>
+  </div></section>
 
-<!-- BENEFITS -->
-<section class="band band--surface"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">Why Mentor</span>
-    <h2>Why Mentor with <span class="grad-text">WorkforceAP</span>?</h2>
-  </div>
-  <div class="tri tri--4">
-    {benefits.map((b) => (
-      <div class="acard">
-        <div class={`ic ${b.ic}`}>{b.icon}</div>
-        <h3>{b.title}</h3>
-        <p>{b.desc}</p>
+  <!-- ============================================================
+       HERO — DEPTH STAGE (shorter): deep radial crimson→plum band,
+       gold/crimson/white glow auras, luminosity-masked photo,
+       white text, gold pill + glass impact card.
+       ============================================================ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-grid">
+      <div class="lede">
+        <span class="pill"><span class="pill__star">★</span>Volunteer · Tax-deductible · 501(c)(3)</span>
+        <h1>Share Your Expertise. <span class="shimmer">Change a Career.</span></h1>
+        <p class="sub">WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it's tax-deductible.</p>
+        <div class="acts">
+          <a class="dbtn dbtn--solid" href="/mentor/apply">Apply to Mentor <span>→</span></a>
+        </div>
       </div>
-    ))}
-  </div>
-  <div class="apply-cta">
-    <a class="btn btn--primary" href="/mentor/apply">Apply to Mentor →</a>
-  </div>
-</div></section>
+
+      <!-- glass impact card -->
+      <div class="deck">
+        <div class="gcard">
+          <div class="gcard-tag">Why your hours matter</div>
+          <div class="gcard-row">
+            <div class="gic">🌱</div>
+            <div>
+              <b>You guide, we handle the rest</b>
+              <span>Hours logged automatically, with a tax deduction letter generated from your sessions.</span>
+            </div>
+          </div>
+          <div class="meter">
+            <span>Cost to volunteer</span>
+            <strong>$0</strong>
+          </div>
+          <div class="chips">
+            <span>Hours auto-logged</span>
+            <span>Tax-deductible</span>
+            <span>Real impact</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFITS — light band, bold heading + glass/elevated cards -->
+  <section class="blk blk--cream"><div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow eyebrow--crimson">Why Mentor</span>
+      <h2>Why Mentor with <span class="grad-text">WorkforceAP</span>?</h2>
+    </div>
+    <div class="tri tri--4">
+      {benefits.map((b) => (
+        <div class="acard">
+          <div class={`ic ${b.ic}`}>{b.icon}</div>
+          <h3>{b.title}</h3>
+          <p>{b.desc}</p>
+        </div>
+      ))}
+    </div>
+    <div class="apply-cta">
+      <a class="btn btn--primary" href="/mentor/apply">Apply to Mentor →</a>
+    </div>
+  </div></section>
+
+  <!-- CLOSING CTA — bold full-bleed crimson with photo luminosity -->
+  <section class="close">
+    <div class="close__media" aria-hidden="true"></div>
+    <div class="close__veil" aria-hidden="true"></div>
+    <div class="close__inner wrap">
+      <span class="pill pill--solid"><span class="pill__star">★</span>Volunteer · Tax-deductible · 501(c)(3)</span>
+      <h2>Share Your Expertise.<br><span class="gold">Change a Career.</span></h2>
+      <p>WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it's tax-deductible.</p>
+      <div class="acts acts--center">
+        <a class="bbtn bbtn--gold" href="/mentor/apply">Apply to Mentor</a>
+      </div>
+    </div>
+  </section>
+
+</div>
 
 <style>
+  /* ===================================================================
+     MENTOR — DEPTH-LED restyle to match the home design language.
+     waitlist band → depth stage hero → light bold benefit cards →
+     bold full-bleed closing CTA.
+     =================================================================== */
+  .mentor-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- WAITLIST BANNER (light) ---------------- */
   .waitlist{background:var(--surface-2);border-bottom:1px solid var(--border)}
   .waitlist-in{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:18px 24px;flex-wrap:wrap}
   .waitlist-txt{flex:1;min-width:260px}
   .waitlist-txt p{margin-top:10px;color:var(--muted);font-size:15px;max-width:62em}
   .waitlist .btn{flex-shrink:0}
 
-  .mentor-hero{text-align:left;padding:54px 44px}
-  .mentor-hero h1{margin-top:0;font-size:clamp(32px,4.4vw,52px);font-weight:800;line-height:1.05}
-  .mentor-hero p{margin-left:0;margin-right:auto;text-align:left}
-  .mentor-hero .acts{justify-content:flex-start}
-  @media(max-width:560px){.mentor-hero{padding:44px 24px}}
+  /* ---------------- DEPTH HERO STAGE (shorter) ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:84px 0 96px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;position:relative;z-index:2}
 
+  /* glow auras — gold + crimson + white */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-160px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:380px;height:380px;top:30%;left:42%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  /* luminosity-masked real photo bleeding in from the right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.4vw,64px);
+    line-height:1.04;letter-spacing:-.03em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.82);max-width:32em;margin:22px 0 30px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .acts--center{justify-content:center}
+  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 28px;
+    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
+  .dbtn:hover{transform:translateY(-2px)}
+  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
+    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
+  .dbtn--solid span{transition:transform .2s}
+  .dbtn--solid:hover span{transform:translateX(4px)}
+
+  /* ---------------- GLASS IMPACT CARD ---------------- */
+  .deck{position:relative}
+  .gcard{border-radius:22px;padding:28px;
+    background:rgba(255,255,255,.13);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .gcard-tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:18px}
+  .gcard-row{display:flex;align-items:flex-start;gap:13px;margin-bottom:18px}
+  .gic{flex-shrink:0;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:21px;
+    background:rgba(74,155,79,.32);border:1px solid rgba(120,220,130,.4)}
+  .gcard-row b{display:block;font-weight:700;font-size:15px;margin-bottom:3px}
+  .gcard-row span{font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.5}
+  .meter{display:flex;align-items:baseline;justify-content:space-between;padding:14px 16px;border-radius:13px;
+    background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.12);margin-bottom:16px}
+  .meter span{font-size:13px;color:rgba(255,255,255,.8)}
+  .meter strong{font-family:'Plus Jakarta Sans';font-weight:800;font-size:26px;color:#f3d28f}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chips span{font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+
+  @media (prefers-reduced-motion: no-preference){
+    .deck{animation:mentor-float 8s ease-in-out infinite}
+    @keyframes mentor-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  }
+
+  /* ---------------- LIGHT BENEFITS BLOCK ---------------- */
+  .blk{width:100%;padding:90px 0}
+  .blk--cream{background:var(--bg);color:var(--text)}
+
+  .sec-head{margin-bottom:50px;text-align:center}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,4.6vw,54px);line-height:1.02;letter-spacing:-.02em}
+  .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px}
+  .eyebrow--crimson{color:var(--crimson)}
+  .grad-text{background:linear-gradient(100deg,var(--crimson),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  .tri{display:grid;gap:24px}
   .tri--4{grid-template-columns:repeat(4,1fr)}
   @media(max-width:980px){.tri--4{grid-template-columns:1fr 1fr}}
   @media(max-width:560px){.tri--4{grid-template-columns:1fr}}
-  .tri--4 .acard .ic{font-size:24px}
 
-  .apply-cta{text-align:center;margin-top:40px}
+  .acard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 28px;box-shadow:var(--shadow);
+    border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .acard:nth-child(2){border-top-color:var(--gold)}
+  .acard:nth-child(3){border-top-color:var(--green)}
+  .acard:nth-child(4){border-top-color:var(--blue)}
+  .acard .ic{font-size:30px;line-height:1;margin-bottom:16px}
+  .acard h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:19px;margin-bottom:9px}
+  .acard p{color:var(--muted);font-size:15px;line-height:1.55}
+
+  .apply-cta{text-align:center;margin-top:44px}
+
+  /* ---------------- BOLD FULL-BLEED CLOSING CTA ---------------- */
+  .close{
+    position:relative;overflow:hidden;
+    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
+  }
+  .close__media{position:absolute;inset:0;background:url('https://www.workforceap.org/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}
+  .pill--solid{margin-bottom:24px}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,62px);line-height:1.0;letter-spacing:-.03em;margin-bottom:18px}
+  .gold{color:#e9c879}
+  .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:40em;margin:0 auto 30px;line-height:1.5}
+
+  .bbtn{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:18px 34px;border-radius:14px;
+    border:2px solid transparent;transition:transform .15s,box-shadow .2s,background .2s,color .2s}
+  .bbtn:hover{transform:translateY(-3px)}
+  .bbtn--gold{background:linear-gradient(135deg,#e9c879,#a47f38);color:#3a2a08;box-shadow:0 16px 38px -12px rgba(164,127,56,.7)}
+  .bbtn--gold:hover{box-shadow:0 22px 50px -12px rgba(164,127,56,.8)}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 76px}
+    .stage-grid{grid-template-columns:1fr;gap:48px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+  }
+  @media(max-width:560px){
+    .blk{padding:62px 0}
+    .acts .bbtn{width:100%;justify-content:center}
+  }
 </style>
 </Layout>

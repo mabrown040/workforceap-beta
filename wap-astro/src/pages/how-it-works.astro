@@ -111,155 +111,241 @@ const WILL_NOT = [
   title="How It Works — WorkforceAP"
   description="Your path from application through certification and job placement — organized into three phases so you always know what we're focusing on together."
 >
-<!-- HERO -->
-<section class="hero"><div class="wrap" style="display:block">
-  <span class="eyebrow"><span class="dot"></span>Member Experience</span>
-  <h1 style="margin:20px 0">Your path <span class="grad-text">starts here.</span></h1>
-  <p class="sub" style="max-width:42em">No gatekeeping. Clear, Funded pathways for qualifying members. Just a guided process — from your first conversation with us to your first day on the job (and beyond).</p>
-  <div class="cta" style="display:flex;gap:14px;flex-wrap:wrap;margin:28px 0 0">
-    <a class="btn btn--primary" href="/find-your-path">Find your career →</a>
-    <a class="btn btn--ghost" href="/apply">Apply now</a>
-    <a class="btn btn--ghost" href="/programs">View programs</a>
-  </div>
+<div class="hiw">
 
-  <!-- Who can apply -->
-  <div class="applybox">
-    <div>
-      <span class="eyebrow"><span class="dot"></span>Member Experience</span>
-      <h2>Who can apply</h2>
-      <p>WorkforceAP is designed for adults who face barriers to employment — including low-income individuals, people with employment gaps, those with limited or no formal work history, justice-involved individuals, dislocated workers, veterans, and adult learners seeking a career change. WIOA eligibility can unlock additional funding.</p>
-      <a class="wioa" href="/apply">Check WIOA options →</a>
-    </div>
-    <div class="applybadge" aria-hidden="true">👥</div>
-  </div>
-</div></section>
+  <!-- ============================================================
+       HERO — DEPTH STAGE (shorter band): radial crimson→plum,
+       gold/crimson/white auras, luminosity-masked photo, gold pill,
+       white headline, and a translucent glass "who can apply" card.
+       ============================================================ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
 
-<!-- THE JOURNEY -->
-<section class="band band--surface" id="journey"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">Member Experience</span>
-    <h2>What Happens After You <span class="grad-text">Apply</span></h2>
-    <p>Three phases — get oriented, train and earn credentials, then move into work with people beside you the whole way.</p>
-  </div>
-
-  {PHASES.map((phase) => (
-    <div class="phase">
-      <div class="rail">
-        <div class="pnum">{phase.id}</div>
-        <div class="line" aria-hidden="true"></div>
+    <div class="wrap stage-grid">
+      <div class="lede">
+        <span class="pill"><span class="pill__star">★</span>Member Experience</span>
+        <h1>Your path <span class="shimmer">starts here.</span></h1>
+        <p class="sub">No gatekeeping. Clear, Funded pathways for qualifying members. Just a guided process — from your first conversation with us to your first day on the job (and beyond).</p>
+        <div class="acts">
+          <a class="dbtn dbtn--solid" href="/find-your-path">Find your career <span>→</span></a>
+          <a class="dbtn dbtn--glass" href="/apply">Apply now</a>
+          <a class="dbtn dbtn--glass" href="/programs">View programs</a>
+        </div>
       </div>
-      <div class="pbody">
-        <div class="plabel">{phase.label}</div>
-        <h3 class="ptitle">{phase.title}</h3>
-        <div class="jsteps">
-          {phase.steps.map((step) => (
-            <div class="si">
-              <span class="sidot">{step.num}</span>
-              <div>
-                <div class="st">{step.title}</div>
-                <div class="sdesc">{step.desc}</div>
-                <div class="swhy"><b>Why:</b> {step.why}</div>
+
+      <!-- Who can apply — translucent glass card -->
+      <div class="applyglass">
+        <span class="ag-eyebrow"><span class="ag-dot"></span>Member Experience</span>
+        <h2>Who can apply</h2>
+        <p>WorkforceAP is designed for adults who face barriers to employment — including low-income individuals, people with employment gaps, those with limited or no formal work history, justice-involved individuals, dislocated workers, veterans, and adult learners seeking a career change. WIOA eligibility can unlock additional funding.</p>
+        <a class="wioa" href="/apply">Check WIOA options →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE JOURNEY — light band, glass/elevated step cards -->
+  <section class="band band--surface" id="journey"><div class="wrap">
+    <div class="sec-head">
+      <span class="kick kick--crimson">Member Experience</span>
+      <h2>What Happens After You <span class="grad-text">Apply</span></h2>
+      <p>Three phases — get oriented, train and earn credentials, then move into work with people beside you the whole way.</p>
+    </div>
+
+    {PHASES.map((phase) => (
+      <div class="phase">
+        <div class="rail">
+          <div class="pnum">{phase.id}</div>
+          <div class="line" aria-hidden="true"></div>
+        </div>
+        <div class="pbody">
+          <div class="plabel">{phase.label}</div>
+          <h3 class="ptitle">{phase.title}</h3>
+          <div class="jsteps">
+            {phase.steps.map((step) => (
+              <div class="si">
+                <span class="sidot">{step.num}</span>
+                <div>
+                  <div class="st">{step.title}</div>
+                  <div class="sdesc">{step.desc}</div>
+                  <div class="swhy"><b>Why:</b> {step.why}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+      </div>
+    ))}
+
+    <!-- Mid-page CTA — avoid dead-end after the timeline -->
+    <div class="midcta">
+      <p>The application takes about ten minutes. It's a conversation, not an exam — and there's no application fee.</p>
+      <div class="acts">
+        <a class="btn btn--primary" href="/apply">Apply For Next Cohort</a>
+        <a class="btn btn--ghost" href="/find-your-path">Find your career</a>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- CAREER TRAINING BENEFITS — bold light band -->
+  <section class="band band--cream"><div class="wrap">
+    <div class="sec-head">
+      <span class="kick kick--crimson">Career Training Benefits</span>
+      <h2>Career Training <span class="grad-text">Benefits</span></h2>
+    </div>
+    <div class="tri" style="grid-template-columns:repeat(4,1fr)">
+      {trainingCards.map((card) => (
+        <div class="acard">
+          <div class={`ic ${card.cls}`}>{card.ic}</div>
+          <h3>{card.title}</h3>
+          <p>{card.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div></section>
+
+  <!-- SUPPORT FEATURES — light surface band -->
+  <section class="band band--surface"><div class="wrap">
+    <div class="feat">
+      <div class="fcard">
+        <div class="ic ic--b">💻</div>
+        <h3>Loaner Laptop Program</h3>
+        <p>Access to technology shouldn't be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.</p>
+        <ul>
+          <li><span class="chk">✓</span> Pre-configured with all necessary software</li>
+          <li><span class="chk">✓</span> Technical support included</li>
+          <li><span class="chk">✓</span> No upfront program cost for qualifying members</li>
+        </ul>
+      </div>
+      <div class="fcard">
+        <div class="ic ic--g">📅</div>
+        <h3>150-Day Post-Hire Support</h3>
+        <p>We don't just find you a job; we help you keep it. Our support continues for five months after your start date.</p>
+        <div class="bgrid">
+          <div class="bcell"><div class="blab">Benefit 01</div><div class="bval">Monthly Check-ins</div></div>
+          <div class="bcell"><div class="blab">Benefit 02</div><div class="bval">Conflict Resolution</div></div>
+          <div class="bcell"><div class="blab">Benefit 03</div><div class="bval">Advancement Coaching</div></div>
         </div>
       </div>
     </div>
-  ))}
+  </div></section>
 
-  <!-- Mid-page CTA — avoid dead-end after the timeline -->
-  <div class="midcta">
-    <p>The application takes about ten minutes. It's a conversation, not an exam — and there's no application fee.</p>
-    <div class="acts">
-      <a class="btn btn--primary" href="/apply">Apply For Next Cohort</a>
-      <a class="btn btn--ghost" href="/find-your-path">Find your career</a>
-    </div>
-  </div>
-</div></section>
-
-<!-- CAREER TRAINING BENEFITS -->
-<section class="band"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">Career Training Benefits</span>
-    <h2>Career Training <span class="grad-text">Benefits</span></h2>
-  </div>
-  <div class="tri" style="grid-template-columns:repeat(4,1fr)">
-    {trainingCards.map((card) => (
-      <div class="acard">
-        <div class={`ic ${card.cls}`}>{card.ic}</div>
-        <h3>{card.title}</h3>
-        <p>{card.desc}</p>
-      </div>
-    ))}
-  </div>
-</div></section>
-
-<!-- SUPPORT FEATURES -->
-<section class="band band--surface"><div class="wrap">
-  <div class="feat">
-    <div class="fcard">
-      <div class="ic ic--b">💻</div>
-      <h3>Loaner Laptop Program</h3>
-      <p>Access to technology shouldn't be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.</p>
-      <ul>
-        <li><span class="chk">✓</span> Pre-configured with all necessary software</li>
-        <li><span class="chk">✓</span> Technical support included</li>
-        <li><span class="chk">✓</span> No upfront program cost for qualifying members</li>
-      </ul>
-    </div>
-    <div class="fcard">
-      <div class="ic ic--g">📅</div>
-      <h3>150-Day Post-Hire Support</h3>
-      <p>We don't just find you a job; we help you keep it. Our support continues for five months after your start date.</p>
-      <div class="bgrid">
-        <div class="bcell"><div class="blab">Benefit 01</div><div class="bval">Monthly Check-ins</div></div>
-        <div class="bcell"><div class="blab">Benefit 02</div><div class="bval">Conflict Resolution</div></div>
-        <div class="bcell"><div class="blab">Benefit 03</div><div class="bval">Advancement Coaching</div></div>
+  <!-- PROGRAM COMMITMENT PANEL — bold light band -->
+  <section class="band band--cream"><div class="wrap">
+    <div class="commit" aria-labelledby="commit-head">
+      <h2 id="commit-head">What we will — and will not — promise</h2>
+      <p class="commit-intro">WorkforceAP provides <strong>career and employment assistance</strong>: training, tools, and staff support to improve your odds. We are transparent so partners and members can set expectations together.</p>
+      <div class="commit-grid">
+        <div class="commit-card commit-card--will">
+          <h3 class="commit-label commit-label--will">We will</h3>
+          <ul>
+            {WILL_DO.map((line) => (<li>{line}</li>))}
+          </ul>
+        </div>
+        <div class="commit-card commit-card--wont">
+          <h3 class="commit-label commit-label--wont">We will not</h3>
+          <ul>
+            {WILL_NOT.map((line) => (<li>{line}</li>))}
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
-</div></section>
+  </div></section>
 
-<!-- PROGRAM COMMITMENT PANEL -->
-<section class="band"><div class="wrap">
-  <div class="commit" aria-labelledby="commit-head">
-    <h2 id="commit-head">What we will — and will not — promise</h2>
-    <p class="commit-intro">WorkforceAP provides <strong>career and employment assistance</strong>: training, tools, and staff support to improve your odds. We are transparent so partners and members can set expectations together.</p>
-    <div class="commit-grid">
-      <div class="commit-card commit-card--will">
-        <h3 class="commit-label commit-label--will">We will</h3>
-        <ul>
-          {WILL_DO.map((line) => (<li>{line}</li>))}
-        </ul>
-      </div>
-      <div class="commit-card commit-card--wont">
-        <h3 class="commit-label commit-label--wont">We will not</h3>
-        <ul>
-          {WILL_NOT.map((line) => (<li>{line}</li>))}
-        </ul>
+  <!-- FINAL CTA — bold full-bleed crimson with photo luminosity -->
+  <section class="close">
+    <div class="close__media" aria-hidden="true"></div>
+    <div class="close__veil" aria-hidden="true"></div>
+    <div class="close__inner wrap">
+      <h2>Ready to take the first step?</h2>
+      <p>The application takes about ten minutes. It's a conversation, not an exam — and there's no application fee.</p>
+      <div class="acts acts--center">
+        <a class="bbtn bbtn--gold" href="/apply">Apply For Next Cohort</a>
+        <a class="bbtn bbtn--outline" href="/contact">Speak with an Advisor</a>
       </div>
     </div>
-  </div>
-</div></section>
+  </section>
 
-<!-- FINAL CTA -->
-<section class="band band--surface"><div class="wrap"><div class="cta">
-  <h2>Ready to take the first step?</h2>
-  <p>The application takes about ten minutes. It's a conversation, not an exam — and there's no application fee.</p>
-  <div class="acts">
-    <a class="btn btn--light" href="/apply">Apply For Next Cohort</a>
-    <a class="btn btn--translucent" href="/contact">Speak with an Advisor</a>
-  </div>
-</div></div></section>
+</div>
 
 <style>
-  /* Who-can-apply panel */
-  .applybox{display:grid;grid-template-columns:1.6fr .9fr;gap:30px;align-items:center;margin-top:44px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow)}
-  .applybox h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:800;margin:12px 0 10px}
-  .applybox p{color:var(--muted);font-size:16px}
-  .wioa{display:inline-flex;margin-top:16px;font-weight:700;color:var(--crimson)}
-  .applybadge{justify-self:center;width:120px;height:120px;border-radius:30px;display:grid;place-items:center;font-size:54px;background:var(--grad);color:#fff;box-shadow:var(--shadow-lg)}
-  @media(max-width:760px){.applybox{grid-template-columns:1fr}.applybadge{display:none}}
+  /* ===================================================================
+     HOW IT WORKS — DEPTH-LED restyle to match the home.
+     depth stage hero + glass apply card → light journey/benefit bands
+     with elevated cards → bold full-bleed crimson closing CTA.
+     =================================================================== */
+  .hiw{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE (shorter band) ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:84px 0 96px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center;position:relative;z-index:2}
+
+  /* glow auras — gold + crimson + white */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-160px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:380px;height:380px;top:30%;left:44%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  /* luminosity-masked real photo bleeding in from the right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);opacity:.18}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(40px,5.4vw,66px);
+    line-height:1.03;letter-spacing:-.03em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.84);max-width:34em;margin:22px 0 30px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .acts--center{justify-content:center}
+  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 26px;
+    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
+  .dbtn:hover{transform:translateY(-2px)}
+  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
+    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
+  .dbtn--solid span{transition:transform .2s}
+  .dbtn--solid:hover span{transform:translateX(4px)}
+  .dbtn--glass{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.32);backdrop-filter:blur(8px)}
+  .dbtn--glass:hover{background:rgba(255,255,255,.2)}
+
+  /* Who-can-apply — translucent glass card on the stage */
+  .applyglass{position:relative;z-index:2;border-radius:22px;padding:30px 32px;
+    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .ag-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.1em;
+    text-transform:uppercase;color:rgba(255,255,255,.8)}
+  .ag-dot{width:8px;height:8px;border-radius:50%;background:#f3d28f;box-shadow:0 0 10px #f3d28f}
+  .applyglass h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:800;margin:12px 0 12px}
+  .applyglass p{color:rgba(255,255,255,.85);font-size:15.5px;line-height:1.6}
+  .wioa{display:inline-flex;margin-top:16px;font-weight:800;color:#f3d28f}
+
+  /* ---------------- LIGHT BANDS ---------------- */
+  .band{padding:88px 0}
+  .band--surface{background:var(--surface)}
+  .band--cream{background:var(--bg)}
+
+  .sec-head{text-align:center;max-width:760px;margin:0 auto 56px}
+  .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px}
+  .kick--crimson{color:var(--crimson)}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,4.6vw,54px);line-height:1.04;letter-spacing:-.02em}
+  .sec-head p{margin-top:16px;color:var(--muted);font-size:18px;line-height:1.55}
+  .grad-text{background:linear-gradient(100deg,var(--crimson),var(--gold-dark));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
   /* Journey phases */
   .phase{display:grid;grid-template-columns:64px 1fr;gap:24px;max-width:880px;margin:0 auto}
@@ -271,7 +357,9 @@ const WILL_NOT = [
   .plabel{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dark)}
   .ptitle{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;margin:4px 0 20px}
   .jsteps{display:flex;flex-direction:column;gap:16px}
-  .si{display:flex;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow)}
+  .si{display:flex;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s}
+  .si:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+  .band--surface .si{background:var(--bg)}
   .sidot{width:30px;height:30px;border-radius:9px;background:rgba(173,44,77,.1);color:var(--crimson);display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0}
   .st{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:17px;margin-bottom:6px}
   .sdesc{color:var(--muted);font-size:15px}
@@ -283,16 +371,30 @@ const WILL_NOT = [
   .midcta p{color:var(--muted);font-size:16px;margin-bottom:18px}
   .midcta .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
-  /* Training benefits responsive */
+  /* Training benefit cards */
+  .tri{display:grid;gap:24px}
+  .acard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px 26px;box-shadow:var(--shadow);
+    border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .acard:nth-child(2){border-top-color:var(--blue)}
+  .acard:nth-child(3){border-top-color:var(--gold)}
+  .acard:nth-child(4){border-top-color:var(--green)}
+  .acard .ic{width:54px;height:54px;border-radius:15px;display:grid;place-items:center;font-size:24px;margin-bottom:18px}
+  .acard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:19px;font-weight:800;margin-bottom:10px}
+  .acard p{color:var(--muted);font-size:15px;line-height:1.55}
+  .ic--g{background:rgba(164,127,56,.12)}
+  .ic--c{background:rgba(173,44,77,.1)}
+  .ic--b{background:rgba(45,90,160,.1)}
   @media(max-width:880px){.tri{grid-template-columns:1fr 1fr !important}}
   @media(max-width:560px){.tri{grid-template-columns:1fr !important}}
 
   /* Support features */
   .feat{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-  .fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow)}
+  .fcard{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s}
+  .fcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
   .fcard .ic{width:54px;height:54px;border-radius:15px;display:grid;place-items:center;font-size:24px;margin-bottom:18px}
-  .fcard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:21px;font-weight:700;margin-bottom:10px}
-  .fcard p{color:var(--muted);font-size:15px}
+  .fcard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:21px;font-weight:800;margin-bottom:10px}
+  .fcard p{color:var(--muted);font-size:15px;line-height:1.55}
   .fcard ul{list-style:none;margin-top:18px;display:flex;flex-direction:column;gap:11px}
   .fcard li{display:flex;align-items:center;gap:11px;font-size:15px}
   .fcard li .chk{width:22px;height:22px;border-radius:7px;background:rgba(74,155,79,.15);color:var(--green);display:grid;place-items:center;font-size:13px;flex-shrink:0}
@@ -302,19 +404,52 @@ const WILL_NOT = [
   .bval{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px}
   @media(max-width:760px){.feat{grid-template-columns:1fr}.bgrid{grid-template-columns:1fr}}
 
-  .cta .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-
   /* Program commitment panel */
-  .commit{max-width:920px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 36px;box-shadow:var(--shadow)}
-  .commit h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;margin-bottom:12px}
+  .commit{max-width:920px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px;box-shadow:var(--shadow);border-top:6px solid var(--crimson)}
+  .commit h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(24px,3vw,30px);font-weight:800;margin-bottom:12px}
   .commit-intro{color:var(--muted);font-size:16px;line-height:1.55;margin-bottom:24px}
   .commit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-  .commit-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px}
+  .commit-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:22px}
+  .commit-card--will{border-left:4px solid var(--green)}
+  .commit-card--wont{border-left:4px solid var(--muted)}
   .commit-label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
   .commit-label--will{color:var(--green)}
   .commit-label--wont{color:var(--muted)}
   .commit-card ul{list-style:disc;padding-left:18px;margin:0;display:flex;flex-direction:column;gap:8px}
   .commit-card li{font-size:15px;line-height:1.5;color:var(--text)}
-  @media(max-width:760px){.commit-grid{grid-template-columns:1fr}.commit{padding:24px}}
+  @media(max-width:760px){.commit-grid{grid-template-columns:1fr}.commit{padding:26px 24px}}
+
+  /* ---------------- BOLD FULL-BLEED CLOSING CTA ---------------- */
+  .close{
+    position:relative;overflow:hidden;
+    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
+  }
+  .close__media{position:absolute;inset:0;background:url('https://www.workforceap.org/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,5vw,60px);line-height:1;letter-spacing:-.03em;margin-bottom:18px}
+  .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:38em;margin:0 auto 30px;line-height:1.5}
+
+  .bbtn{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:18px 34px;border-radius:14px;
+    border:2px solid transparent;transition:transform .15s,box-shadow .2s,background .2s,color .2s}
+  .bbtn:hover{transform:translateY(-3px)}
+  .bbtn--gold{background:linear-gradient(135deg,#e9c879,#a47f38);color:#3a2a08;box-shadow:0 16px 38px -12px rgba(164,127,56,.7)}
+  .bbtn--gold:hover{box-shadow:0 22px 50px -12px rgba(164,127,56,.8)}
+  .bbtn--outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+  .bbtn--outline:hover{background:#fff;color:var(--accent-dark);border-color:#fff}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 76px}
+    .stage-grid{grid-template-columns:1fr;gap:44px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+    .band{padding:64px 0}
+  }
+  @media(max-width:560px){
+    .acts .bbtn{width:100%;justify-content:center}
+  }
 </style>
 </Layout>
+</content>
+</invoke>

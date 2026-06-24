@@ -7,16 +7,42 @@ const lastUpdated = 'May 19, 2026';
   title="Terms of Service"
   description="Terms of Service for the Workforce Advancement Project — member, employer, and partner roles, AI tool use, governing law, and dispute resolution."
 >
-  <!-- ===== HERO ===== -->
-  <section class="band legal-hero">
-    <div class="wrap">
-      <h1>Terms of Service</h1>
-      <div class="legal-sub">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 7v5l3 2" />
-        </svg>
-        Last updated: {lastUpdated}
+<div class="legalx">
+
+  <!-- ===== HERO — DEPTH STAGE (shorter) ===== -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-grid">
+      <div class="lede">
+        <span class="pill"><span class="pill__star">★</span>501(c)(3) nonprofit · Legal</span>
+        <h1>Terms of Service</h1>
+        <div class="legal-sub">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 2" />
+          </svg>
+          Last updated: {lastUpdated}
+        </div>
+      </div>
+
+      <!-- glass card -->
+      <div class="hero-card">
+        <div class="hero-card__head">
+          <div class="ic">§</div>
+          <div>
+            <b>Member, employer &amp; partner roles</b>
+            <span>AI tool use, governing law, and dispute resolution.</span>
+          </div>
+        </div>
+        <div class="chips">
+          <span>Plain-language sections</span>
+          <span>Texas law</span>
+          <span>14 sections</span>
+        </div>
       </div>
     </div>
   </section>
@@ -233,45 +259,65 @@ const lastUpdated = 'May 19, 2026';
       </div>
     </div>
   </section>
-</Layout>
+
+</div>
 
 <style>
-  .legal-hero {
-    background: var(--grad);
-    color: #fff;
-    position: relative;
-    overflow: hidden;
-    text-align: center;
+  /* ===================================================================
+     LEGALX — DEPTH-LED restyle. Shorter crimson depth stage hero +
+     light surface band carrying the verbatim legal document.
+     =================================================================== */
+  .legalx{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE (shorter) ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 130% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:72px 0 84px;
   }
-  .legal-hero::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url('https://www.workforceap.org/images/hero-people.webp') center/cover;
-    opacity: .14;
-    mix-blend-mode: luminosity;
-  }
-  .legal-hero .wrap { position: relative; }
-  .legal-hero .eyebrow {
-    color: #fff;
-    background: rgba(255, 255, 255, .14);
-    border-color: rgba(255, 255, 255, .28);
-  }
-  .legal-hero .eyebrow .dot { background: #fff; }
-  .legal-hero h1 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(36px, 5vw, 56px);
-    font-weight: 800;
-    margin: 18px 0 14px;
-  }
-  .legal-sub {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, .88);
-  }
+  .stage-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;position:relative;z-index:2}
+
+  /* glow auras — gold + crimson + white */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:480px;height:480px;top:-150px;right:-110px;background:radial-gradient(circle,rgba(196,154,72,.5),transparent 68%)}
+  .aura--2{width:420px;height:420px;bottom:-180px;left:-130px;background:radial-gradient(circle,rgba(173,44,77,.55),transparent 70%)}
+  .aura--3{width:340px;height:340px;top:25%;left:46%;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
+
+  /* luminosity-masked real photo bleeding in from the right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);opacity:.16}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.4vw,60px);
+    line-height:1.02;letter-spacing:-.03em;margin:20px 0 16px}
+  .legal-sub{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:rgba(255,255,255,.88)}
+
+  /* hero glass card */
+  .hero-card{position:relative;border-radius:22px;padding:26px;
+    background:rgba(255,255,255,.13);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .hero-card__head{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+  .hero-card__head .ic{flex-shrink:0;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+    font-family:'Plus Jakarta Sans';background:rgba(243,210,143,.22);border:1px solid rgba(243,210,143,.4);
+    color:#f3d28f;font-weight:800;font-size:22px}
+  .hero-card__head b{display:block;font-weight:700;font-size:16px;margin-bottom:4px}
+  .hero-card__head span{font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.45}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chips span{font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+
+  /* ---------------- LIGHT CONTENT BAND ---------------- */
+  .band{padding:72px 0}
+  .band--surface{background:var(--bg)}
 
   .legal-doc {
     max-width: 760px;
@@ -281,6 +327,7 @@ const lastUpdated = 'May 19, 2026';
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: clamp(28px, 5vw, 56px);
+    border-top: 4px solid var(--gold);
   }
   .legal-doc h2 {
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -321,4 +368,13 @@ const lastUpdated = 'May 19, 2026';
     border-bottom: 1px solid rgba(173, 44, 77, .3);
   }
   .legal-doc a:hover { border-bottom-color: var(--crimson); }
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:56px 0 68px}
+    .stage-grid{grid-template-columns:1fr;gap:36px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.11}
+    .band{padding:56px 0}
+  }
 </style>
+</Layout>

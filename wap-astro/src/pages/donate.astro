@@ -74,137 +74,297 @@ const givingOptions = [
   title="Donate to WorkforceAP"
   description="Support Workforce Advancement Project with individual, corporate, or foundation giving. See what donations fund, suggested amounts, and how to start a contribution."
 >
-<!-- HERO -->
-<section class="hero"><div class="wrap grid">
-  <div>
-    <span class="eyebrow"><span class="dot"></span>Support WorkforceAP</span>
-    <h1>Fund real training, real support,<br><span class="grad-text">and real job outcomes</span></h1>
-    <p class="sub">Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work.</p>
-    <div class="cta">
-      <a class="btn btn--primary" href={MAILTO}>Start a donation by email</a>
-      <a class="btn btn--ghost" href="/contact?topic=partnership">Talk about corporate giving</a>
-    </div>
-    <div class="trustline">
-      <span><b>501(c)(3)</b> nonprofit</span><span class="sep"></span>
-      <span>EIN <b>41-2612389</b></span><span class="sep"></span>
-      <span>Donations may be <b>tax-deductible</b></span>
-    </div>
-  </div>
-  <div style="position:relative">
-    <div class="panel">
-      <div class="floatbadge">Every gift moves a member forward</div>
-      <div class="phead">
-        <div><small>Where it goes</small><div class="big">Access · readiness · outcomes</div></div>
-        <div class="ring">
-          <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/></svg>
+<div class="donate-depth">
+
+  <!-- ============================================================
+       HERO — SHORTER DEPTH STAGE: crimson→plum depth band, glow
+       auras, luminosity-masked photo, gold pill, white text +
+       a translucent glass "where it goes" card.
+       ============================================================ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-grid">
+      <div class="lede">
+        <span class="pill"><span class="pill__star">★</span>Support WorkforceAP</span>
+        <h1>Fund real training, real support,<br><span class="shimmer">and real job outcomes</span></h1>
+        <p class="sub">Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work.</p>
+        <div class="acts">
+          <a class="dbtn dbtn--solid" href={MAILTO}>Start a donation by email <span>→</span></a>
+          <a class="dbtn dbtn--glass" href="/contact?topic=partnership">Talk about corporate giving</a>
+        </div>
+        <div class="trustline">
+          <span><b>501(c)(3)</b> nonprofit</span><span class="sep"></span>
+          <span>EIN <b>41-2612389</b></span><span class="sep"></span>
+          <span>Donations may be <b>tax-deductible</b></span>
         </div>
       </div>
-      <div class="step"><div class="n">1</div><div class="t"><b>Training access</b><span>Start and stay in career training</span></div></div>
-      <div class="step"><div class="n">2</div><div class="t"><b>Career readiness</b><span>Resume, interview prep, follow-through</span></div></div>
-      <div class="step active"><div class="n">3</div><div class="t"><b>Employer outcomes</b><span>Turning training into hiring</span></div><span class="pill">Goal</span></div>
-      <p class="note">Public payment rails are being finalized — for now, email us and we coordinate your gift manually.</p>
-    </div>
-  </div>
-</div></section>
 
-<!-- WHAT YOUR DONATION FUNDS -->
-<section class="band band--surface"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">What your donation funds</span>
-    <h2>Donations support the work around <span class="grad-text">access, training, and placement</span></h2>
-    <p>WorkforceAP is building a workforce engine for people who need a real shot at a better job. Donations help fund the member support and operational work that makes that possible.</p>
-  </div>
-  <div class="tri">
-    {fundsCards.map((card) => (
-      <div class="acard">
-        <div class={`ic ${card.ic}`}>{card.emoji}</div>
-        <h3>{card.title}</h3>
-        <p>{card.description}</p>
+      <!-- translucent glass "where it goes" card -->
+      <div class="deck">
+        <div class="gcard">
+          <div class="floatbadge">Every gift moves a member forward</div>
+          <div class="phead">
+            <div><small>Where it goes</small><div class="big">Access · readiness · outcomes</div></div>
+            <div class="ring">
+              <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+          <div class="step"><div class="n">1</div><div class="t"><b>Training access</b><span>Start and stay in career training</span></div></div>
+          <div class="step"><div class="n">2</div><div class="t"><b>Career readiness</b><span>Resume, interview prep, follow-through</span></div></div>
+          <div class="step active"><div class="n">3</div><div class="t"><b>Employer outcomes</b><span>Turning training into hiring</span></div><span class="goalpill">Goal</span></div>
+          <p class="note">Public payment rails are being finalized — for now, email us and we coordinate your gift manually.</p>
+        </div>
       </div>
-    ))}
-  </div>
-</div></section>
-
-<!-- SUGGESTED AMOUNTS -->
-<section class="band"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">Suggested amounts</span>
-    <h2>Simple giving suggestions</h2>
-    <p>These are guidance points to make giving easier. If you want to give at another level, email us and we will make it work.</p>
-  </div>
-  <div class="amtgrid">
-    {suggestedAmounts.map((item) => (
-      <article class="amtcard">
-        <div class="amt grad-text">{item.amount}</div>
-        <h3>{item.title}</h3>
-        <p>{item.description}</p>
-      </article>
-    ))}
-  </div>
-</div></section>
-
-<!-- HOW TO GIVE RIGHT NOW -->
-<section class="band band--surface"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">How to give right now</span>
-    <h2>Email us to start the donation</h2>
-    <p>Public payment rails are being finalized. Until card, Cash App, and other donation methods are live, email us and we will coordinate the donation manually.</p>
-  </div>
-  <div class="tri">
-    {givingOptions.map((item) => (
-      <div class="acard">
-        <div class={`ic ${item.ic}`}>{item.emoji}</div>
-        <h3>{item.title}</h3>
-        <p>{item.description}</p>
-      </div>
-    ))}
-  </div>
-
-  <div class="contactcard">
-    <h3>Donation contact</h3>
-    <p>
-      Email <a class="clink" href={MAILTO}>{DONATION_EMAIL}</a> and tell us whether you are giving as an individual, company, foundation, or other organization.
-    </p>
-    <p>
-      If you want to talk first, call <a class="clink" href="tel:+15127771808">{DONATION_PHONE}</a>.
-    </p>
-    <div class="acts">
-      <a class="btn btn--primary" href={MAILTO}>Email about donating</a>
-      <a class="btn btn--ghost" href="/contact?topic=partnership">Contact the team</a>
     </div>
-  </div>
-</div></section>
+  </section>
 
-<!-- 501(c)(3) QUOTE -->
-<section class="band"><div class="wrap">
-  <div class="quote">
-    <div class="lab">Workforce Advancement Project</div>
-    <p>Workforce Advancement Project is a 501(c)(3) nonprofit. EIN: 41-2612389. Contributions are intended to support WorkforceAP&apos;s mission and may be tax-deductible to the extent allowed by law.</p>
-  </div>
-</div></section>
+  <!-- WHAT YOUR DONATION FUNDS — light band -->
+  <section class="band band--cream"><div class="wrap">
+    <div class="sec-head">
+      <span class="kick kick--crimson">What your donation funds</span>
+      <h2>Donations support the work around <span class="grad-text">access, training, and placement</span></h2>
+      <p>WorkforceAP is building a workforce engine for people who need a real shot at a better job. Donations help fund the member support and operational work that makes that possible.</p>
+    </div>
+    <div class="tri">
+      {fundsCards.map((card) => (
+        <div class="acard">
+          <div class={`ic ${card.ic}`}>{card.emoji}</div>
+          <h3>{card.title}</h3>
+          <p>{card.description}</p>
+        </div>
+      ))}
+    </div>
+  </div></section>
+
+  <!-- SUGGESTED AMOUNTS — surface band -->
+  <section class="band band--surface"><div class="wrap">
+    <div class="sec-head">
+      <span class="kick kick--crimson">Suggested amounts</span>
+      <h2>Simple giving suggestions</h2>
+      <p>These are guidance points to make giving easier. If you want to give at another level, email us and we will make it work.</p>
+    </div>
+    <div class="amtgrid">
+      {suggestedAmounts.map((item) => (
+        <article class="amtcard">
+          <div class="amt grad-text">{item.amount}</div>
+          <h3>{item.title}</h3>
+          <p>{item.description}</p>
+        </article>
+      ))}
+    </div>
+  </div></section>
+
+  <!-- HOW TO GIVE RIGHT NOW — light band -->
+  <section class="band band--cream"><div class="wrap">
+    <div class="sec-head">
+      <span class="kick kick--crimson">How to give right now</span>
+      <h2>Email us to start the donation</h2>
+      <p>Public payment rails are being finalized. Until card, Cash App, and other donation methods are live, email us and we will coordinate the donation manually.</p>
+    </div>
+    <div class="tri">
+      {givingOptions.map((item) => (
+        <div class="acard">
+          <div class={`ic ${item.ic}`}>{item.emoji}</div>
+          <h3>{item.title}</h3>
+          <p>{item.description}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="contactcard">
+      <h3>Donation contact</h3>
+      <p>
+        Email <a class="clink" href={MAILTO}>{DONATION_EMAIL}</a> and tell us whether you are giving as an individual, company, foundation, or other organization.
+      </p>
+      <p>
+        If you want to talk first, call <a class="clink" href="tel:+15127771808">{DONATION_PHONE}</a>.
+      </p>
+      <div class="acts acts--light">
+        <a class="btn btn--primary" href={MAILTO}>Email about donating</a>
+        <a class="btn btn--ghost" href="/contact?topic=partnership">Contact the team</a>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- 501(c)(3) — CLOSING CRIMSON CTA -->
+  <section class="close">
+    <div class="close__media" aria-hidden="true"></div>
+    <div class="close__veil" aria-hidden="true"></div>
+    <div class="close__inner wrap">
+      <div class="quote">
+        <div class="lab">Workforce Advancement Project</div>
+        <p>Workforce Advancement Project is a 501(c)(3) nonprofit. EIN: 41-2612389. Contributions are intended to support WorkforceAP&apos;s mission and may be tax-deductible to the extent allowed by law.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
 
 <style>
+  /* ===================================================================
+     DONATE — DEPTH aesthetic to match the home.
+     Shorter depth stage hero → alternating light bands with elevated
+     cards → closing crimson CTA band.
+     =================================================================== */
+  .donate-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE (shorter) ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:84px 0 96px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center;position:relative;z-index:2}
+
+  /* glow auras — gold + crimson + white */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-160px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:380px;height:380px;top:30%;left:42%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  /* luminosity-masked real photo bleeding in from the right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.2vw,64px);
+    line-height:1.04;letter-spacing:-.03em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.82);max-width:32em;margin:22px 0 30px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 28px;
+    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
+  .dbtn:hover{transform:translateY(-2px)}
+  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
+    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
+  .dbtn--solid span{transition:transform .2s}
+  .dbtn--solid:hover span{transform:translateX(4px)}
+  .dbtn--glass{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.32);backdrop-filter:blur(8px)}
+  .dbtn--glass:hover{background:rgba(255,255,255,.2)}
+
+  .trustline{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:32px;
+    font-size:14px;color:rgba(255,255,255,.78)}
+  .trustline b{color:#fff;font-weight:800}
+  .trustline .sep{width:1px;height:16px;background:rgba(255,255,255,.28)}
+
+  /* ---------------- GLASS "where it goes" CARD ---------------- */
+  .deck{position:relative}
+  .gcard{position:relative;border-radius:22px;padding:52px 28px 26px;
+    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff;overflow:hidden}
+  .floatbadge{position:absolute;top:16px;left:50%;transform:translateX(-50%);white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12px;
+    padding:7px 16px;border-radius:999px;box-shadow:0 10px 24px -8px rgba(164,127,56,.6)}
+  .phead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+  .phead small{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.72);font-weight:700}
+  .phead .big{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:21px;margin-top:6px}
+  .ring{flex-shrink:0;width:62px;height:62px}
+  .ring svg{width:100%;height:100%}
+  .step{display:flex;align-items:center;gap:13px;padding:12px 0;border-top:1px solid rgba(255,255,255,.12)}
+  .step .n{flex-shrink:0;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);font-weight:800;font-size:14px}
+  .step .t{flex:1}
+  .step .t b{display:block;font-weight:700;font-size:15px}
+  .step .t span{font-size:13px;color:rgba(255,255,255,.74)}
+  .step.active .n{background:rgba(243,210,143,.24);border-color:rgba(243,210,143,.4);color:#f3d28f}
+  .goalpill{font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px;
+    background:rgba(243,210,143,.2);color:#f3d28f;border:1px solid rgba(243,210,143,.3)}
+  .gcard .note{font-size:13px;color:rgba(255,255,255,.7);margin-top:16px;line-height:1.5}
+
+  @media (prefers-reduced-motion: no-preference){
+    .deck{animation:donate-float 8s ease-in-out infinite}
+    @keyframes donate-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  }
+
+  /* ---------------- ALTERNATING LIGHT BANDS ---------------- */
+  .band{padding:90px 0}
+  .band--cream{background:var(--bg);color:var(--text)}
+  .band--surface{background:var(--surface);color:var(--text);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+
+  .sec-head{max-width:760px;margin:0 auto 52px;text-align:center}
+  .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px}
+  .kick--crimson{color:var(--crimson)}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,52px);line-height:1.04;letter-spacing:-.02em}
+  .sec-head p{margin-top:18px;color:var(--muted);font-size:18px;line-height:1.6}
+
+  /* bold tri-cards (elevated) */
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .acard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:34px 30px;box-shadow:var(--shadow);
+    border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .band--surface .acard{background:var(--bg)}
+  .acard:nth-child(2){border-top-color:var(--blue)}
+  .acard:nth-child(3){border-top-color:var(--gold)}
+  .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .acard .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:24px;margin-bottom:18px}
+  .ic--c{background:rgba(173,44,77,.12);color:var(--crimson)}
+  .ic--b{background:rgba(43,123,185,.12);color:var(--blue)}
+  .ic--g{background:rgba(164,127,56,.14);color:var(--gold-dark)}
+  .acard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;margin-bottom:10px}
+  .acard p{color:var(--muted);font-size:16px;line-height:1.55}
+
   /* suggested amount cards */
   .amtgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
-  .amtcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .2s}
+  .amtcard{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);
+    border-top:6px solid var(--gold);transition:transform .18s,box-shadow .2s}
   .amtcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
   .amtcard .amt{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:34px;line-height:1.1;margin-bottom:6px}
   .amtcard h3{font-size:18px;font-weight:700;margin-bottom:8px}
-  .amtcard p{color:var(--muted);font-size:15px}
+  .amtcard p{color:var(--muted);font-size:15px;line-height:1.5}
   @media(max-width:880px){.amtgrid{grid-template-columns:1fr 1fr}}
   @media(max-width:560px){.amtgrid{grid-template-columns:1fr}}
 
-  /* donation contact card */
-  .contactcard{margin:36px auto 0;max-width:720px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);text-align:center}
-  .contactcard h3{font-size:22px;font-weight:700;margin-bottom:14px}
-  .contactcard p{color:var(--muted);font-size:16px;margin-bottom:12px}
+  /* donation contact card — elevated glass-on-light */
+  .contactcard{margin:40px auto 0;max-width:760px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px 34px;box-shadow:var(--shadow-lg);text-align:center;border-top:6px solid var(--crimson)}
+  .contactcard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;margin-bottom:16px}
+  .contactcard p{color:var(--muted);font-size:16px;margin-bottom:12px;line-height:1.6}
   .contactcard .clink{color:var(--crimson);font-weight:700}
   .contactcard .clink:hover{text-decoration:underline}
-  .contactcard .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .acts--light{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:24px}
 
-  /* 501(c)(3) quote band */
-  .quote{max-width:820px;margin:0 auto;text-align:center;background:var(--surface-2);border:1px dashed var(--border);border-radius:var(--radius);padding:34px 32px}
-  .quote .lab{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:12px}
-  .quote p{color:var(--muted);font-size:16px}
+  /* ---------------- CLOSING CRIMSON CTA BAND ---------------- */
+  .close{
+    position:relative;overflow:hidden;
+    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
+  }
+  .close__media{position:absolute;inset:0;background:url('https://www.workforceap.org/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.93) 0%,rgba(140,15,55,.91) 50%,rgba(109,20,55,.93) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;padding:84px 24px 88px;max-width:var(--max)}
+
+  .quote{max-width:840px;margin:0 auto;text-align:center;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius);
+    backdrop-filter:blur(16px);box-shadow:0 30px 70px -34px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.18) inset;
+    padding:40px 36px}
+  .quote .lab{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#f3d28f;margin-bottom:14px}
+  .quote p{color:rgba(255,255,255,.9);font-size:17px;line-height:1.6}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 76px}
+    .stage-grid{grid-template-columns:1fr;gap:56px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+    .tri{grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    .band{padding:60px 0}
+    .acts .dbtn{width:100%;justify-content:center}
+  }
 </style>
 </Layout>
+</content>
+</invoke>

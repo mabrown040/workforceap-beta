@@ -205,8 +205,6 @@ const nextConfig: NextConfig = {
       { source: '/salary-guide.html', destination: '/salary-guide', permanent: true },
       { source: '/program-comparison.html', destination: '/program-comparison', permanent: true },
 
-      { source: '/find-your-path', destination: '/career-quiz', permanent: true },
-      { source: '/:locale(en|es|fr|pt)/find-your-path', destination: '/:locale/career-quiz', permanent: true },
 
       // Programs quiz redirect (fix for broken internal link)
       { source: '/programs/quiz', destination: '/career-quiz', permanent: true },

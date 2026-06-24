@@ -1,0 +1,118 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Date this accessibility statement was last reviewed end-to-end.
+const ACCESSIBILITY_LAST_REVIEWED_AT = '2026-05-19';
+const lastReviewed = new Date(ACCESSIBILITY_LAST_REVIEWED_AT + 'T00:00:00Z').toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+<Layout
+  title="Accessibility Statement"
+  description="Read Workforce Advancement Project accessibility commitments, our WCAG 2.1 AA target, known exceptions, and how to report an accessibility barrier."
+>
+<!-- HERO -->
+<section class="a11y-hero">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot"></span>Accessibility</span>
+    <h1>Accessibility <span class="grad-text">Statement</span></h1>
+    <p class="intro">Workforce Advancement Project works to make this site easier to use for members, partners, employers, and community supporters. We aim to provide clear content, readable layouts, keyboard-usable navigation, and mobile-friendly access on slow devices and limited connections.</p>
+    <p class="reviewed">Last reviewed: <b>{lastReviewed}</b></p>
+  </div>
+</section>
+
+<!-- CONTENT -->
+<section class="band band--surface">
+  <div class="wrap">
+    <div class="a11y-stack">
+      <!-- Conformance commitment -->
+      <article class="acard a11y-card">
+        <div class="a11y-head">
+          <span class="ic ic--c" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 3l8 4v5c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7z"/></svg>
+          </span>
+          <h2>Our conformance commitment</h2>
+        </div>
+        <p>We target conformance with the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA across both the public marketing site and the member portal. That includes meaningful page structure, descriptive link text, keyboard operability, sufficient color contrast, alternative text for informational images, captions or transcripts for prerecorded media we publish, and form fields with associated labels and error messaging that screen readers can announce.</p>
+        <p>We test against this target with automated tooling on every pull request and with periodic manual screen-reader review. Where a third-party component or partner system is embedded in our pages, we work with that provider to surface accessibility issues to them and to substitute components when a fix is not available.</p>
+      </article>
+
+      <!-- Known exceptions -->
+      <article class="acard a11y-card">
+        <div class="a11y-head">
+          <span class="ic ic--g" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          </span>
+          <h2>Known exceptions we are actively fixing</h2>
+        </div>
+        <p>We track every known accessibility gap. The following items are open as of the last reviewed date above and are on our active burn-down list:</p>
+        <ul class="a11y-list">
+          <li>A small number of admin-only data tables are rendered as bare HTML tables without full header semantics. These are not member-facing. Tracked in our internal QA queue and being migrated to our standard accessible table component.</li>
+          <li>One marketing image is missing meaningful alternative text and is currently presented as decorative. Replacement copy is queued for the next content review.</li>
+          <li>Some AI-generated outputs (resume drafts, interview feedback) may not yet include landmark structure consistent with the rest of the portal. We are adding semantic wrappers to the AI-tool result views.</li>
+        </ul>
+      </article>
+
+      <!-- Help -->
+      <article class="acard a11y-card">
+        <div class="a11y-head">
+          <span class="ic ic--b" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </span>
+          <h2>If you need help using this site</h2>
+        </div>
+        <p>If you run into a barrier while using WorkforceAP.org — anything that prevents you from completing an application, reading content, or using a tool — please contact us. We will respond within five business days and will do our best to provide the information or support you need in another format while we work on a permanent fix.</p>
+        <ul class="a11y-contact">
+          <li><span class="lab">Email:</span> <a href="mailto:info@workforceap.org">info@workforceap.org</a></li>
+          <li><span class="lab">Phone:</span> <a href="tel:+15127771808">(512) 777-1808</a></li>
+          <li><span class="lab" aria-hidden="true"></span> <a href="/contact?topic=accessibility">Report an accessibility issue via our contact form</a></li>
+        </ul>
+      </article>
+
+      <!-- Ongoing improvements -->
+      <article class="acard a11y-card">
+        <div class="a11y-head">
+          <span class="ic ic--gr" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+          </span>
+          <h2>Ongoing improvements</h2>
+        </div>
+        <p>We continue improving content clarity, color contrast, tap targets, and responsive behavior across public and member-facing pages. New components ship with an accessibility review checklist; existing surfaces are audited on a rolling basis.</p>
+        <p>If something is hard to read, navigate, or complete, please tell us. That feedback helps us improve access for the people this work is meant to serve.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .a11y-hero { padding: 64px 0 40px; }
+  .a11y-hero h1 { font-size: clamp(36px, 5vw, 58px); font-weight: 800; margin: 18px 0 16px; }
+  .a11y-hero .intro { font-size: 19px; color: var(--muted); max-width: 50em; }
+  .a11y-hero .reviewed { margin-top: 16px; font-size: 14px; color: var(--muted); }
+  .a11y-hero .reviewed b { color: var(--text); }
+
+  .a11y-stack { display: flex; flex-direction: column; gap: 22px; max-width: 860px; margin: 0 auto; }
+  .a11y-card .a11y-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .a11y-card .a11y-head h2 { font-size: clamp(21px, 2.6vw, 27px); font-weight: 800; }
+  .a11y-card .ic { margin-bottom: 0; flex-shrink: 0; }
+  .a11y-card p { color: var(--muted); font-size: 16px; margin-bottom: 14px; }
+  .a11y-card p:last-child { margin-bottom: 0; }
+
+  .a11y-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .a11y-list li { position: relative; padding-left: 26px; color: var(--muted); font-size: 16px; }
+  .a11y-list li::before { content: ""; position: absolute; left: 0; top: 9px; width: 9px; height: 9px; border-radius: 50%; background: var(--gold-dark); }
+
+  .a11y-contact { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .a11y-contact li { display: flex; gap: 8px; font-size: 16px; flex-wrap: wrap; }
+  .a11y-contact .lab { min-width: 56px; font-weight: 700; color: var(--text); }
+  .a11y-contact a { color: var(--crimson); font-weight: 700; }
+  .a11y-contact a:hover { text-decoration: underline; }
+
+  @media (max-width: 560px) {
+    .a11y-card .a11y-head { align-items: flex-start; }
+  }
+</style>
+</Layout>

@@ -1,0 +1,215 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Real leadership data mirrored from the Next source (lib/content/leadership.ts).
+// Names, roles, and bios are the organization's real published content — not fabricated.
+const executives = [
+  {
+    slug: 'michael-brown',
+    name: 'Michael A. Brown, PMP, ChE',
+    role: 'Executive Director, CEO',
+    founder: true,
+    initials: 'MB',
+    missionRelevance:
+      '25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — the barrier-breaking experience that built WorkforceAP.',
+    cardBio:
+      'A PMP-certified Chemical Engineer (Texas A&M) and business executive with decades of leadership across the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, and Goodwill Central Texas — growing mission-driven programs through strategy, operational innovation, and continuous improvement.',
+  },
+  {
+    slug: 'adriane-brown',
+    name: 'Adriane Brown',
+    role: 'Chief Operating Officer',
+    founder: false,
+    initials: 'AB',
+    missionRelevance:
+      'Operations leader who scales workforce programs — bringing systems rigor so every member gets support from intake through placement.',
+    cardBio:
+      'Texas A&M MIS graduate with 25+ years of operations leadership. Began at IBM and Accenture building statewide technology systems for the State of Texas, co-led the growth of the Brown & Associates family of companies to national reach, and completed the Microsoft Project Management Certificate in 2025.',
+  },
+];
+
+const boardMembers = [
+  {
+    slug: 'lakecia-gunter',
+    name: 'Lakecia Gunter',
+    role: 'Board Member',
+    initials: 'LG',
+    missionRelevance:
+      'Employer-side credibility — Microsoft, enterprise partners, and the tech pathways our graduates walk into.',
+    cardBio:
+      'CTO, Global Partner Solutions at Microsoft. 25 years in tech, from digital logic design and DoD program management to Chief of Staff to the Intel CEO. SUCCESS Magazine Women of Influence 2023 finalist. MS Electrical Engineering, Georgia Tech. Board Director, IDEX Corporation.',
+  },
+  {
+    slug: 'brandon-frye',
+    name: 'Brandon Frye',
+    role: 'Board Member',
+    initials: 'BF',
+    missionRelevance:
+      'A respected entrepreneur who influences direction and resources — board leadership that strengthens community pipelines and employer connections.',
+    cardBio:
+      'Co-founded Interstate Connections — an Austin Business Journal "Fastest Growing Private Company." CFO of The Business Bible, board member of Texas Alliance for Life, and former Chairman of Concordia High School.',
+  },
+  {
+    slug: 'derrick-fishback',
+    name: 'Col. Derrick Fishback',
+    role: 'Board Member (Ret.)',
+    initials: 'DF',
+    missionRelevance:
+      '30 years U.S. Army plus Fortune 500 tech — the employer trust that opens doors at AWS, IBM, and Dell, with the discipline that turns training into outcomes.',
+    cardBio:
+      'Colonel, U.S. Army (Ret.), who commanded 1,800+ personnel and led cloud transformation at AWS with enterprise delivery at IBM and Dell. Two master’s degrees plus graduate study at Harvard, Geneva, London, and Erasmus. Board President, Jazz Society of Pensacola.',
+  },
+];
+
+const leadConsultants = [
+  {
+    slug: 'michael-brown-ii',
+    name: 'Michael Brown II',
+    role: 'Lead Consultant',
+    initials: 'M2',
+    missionRelevance:
+      'Bridges strategy and delivery — helping WorkforceAP turn training partnerships into measurable placement and retention outcomes.',
+    cardBio:
+      'Consultant to Workforce Advancement Project on program design, employer alignment, and scaling high-touch career services for underserved communities.',
+  },
+];
+---
+<Layout
+  title="Board & Leadership — WorkforceAP"
+  description="Meet the leadership team behind WorkforceAP — decades of workforce experience, employer-side tech credibility, military discipline, and nationwide community impact."
+>
+<!-- HERO -->
+<section class="hero"><div class="wrap grid">
+  <div>
+    <span class="eyebrow"><span class="dot"></span>Our Leadership</span>
+    <h1>Stewards of the<br><span class="grad-text">Future Workforce.</span></h1>
+    <p class="sub">Our governance team combines decades of workforce development leadership, employer-side tech credibility, military and operations discipline, and deep community roots — connecting workforce training to real outcomes across the nation.</p>
+    <div class="cta">
+      <a class="btn btn--primary" href="/contact">Get in touch →</a>
+      <a class="btn btn--ghost" href="/about">About WorkforceAP</a>
+    </div>
+    <div class="trustline">
+      <span><b>Established 2025</b></span><span class="sep"></span>
+      <span>A national <b>501(c)(3)</b> nonprofit</span><span class="sep"></span>
+      <span>Available <b>nationwide</b></span>
+    </div>
+  </div>
+  <div style="position:relative">
+    <aside class="quote-card">
+      <div class="qhead">
+        <span class="qbadge" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+        </span>
+        <span class="qlabel">Established 2025</span>
+      </div>
+      <blockquote>This isn't a generic nonprofit team. These are people who've run programs at scale, led at Goodwill and Urban League, built systems at IBM and Microsoft, commanded in the Army and at AWS — and who show up nationwide.</blockquote>
+    </aside>
+  </div>
+</div></section>
+
+<!-- EXECUTIVE COUNCIL -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Executive Council</span>
+    <h2>Operational <span class="grad-text">Leadership</span></h2>
+  </div>
+  <div class="tri lead-exec">
+    {executives.map((leader) => (
+      <a class="acard person" href={`/leadership/${leader.slug}`}>
+        <div class="portrait" aria-hidden="true">
+          <span class="initials">{leader.initials}</span>
+          {leader.founder && <span class="founder">Founder</span>}
+        </div>
+        <span class="role">{leader.role}</span>
+        <h3>{leader.name}</h3>
+        <p class="mission">{leader.missionRelevance}</p>
+        <p>{leader.cardBio}</p>
+        <span class="go">View profile →</span>
+      </a>
+    ))}
+  </div>
+</div></section>
+
+<!-- BOARD OF TRUSTEES -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Board of Trustees</span>
+    <h2>Strategic <span class="grad-text">Governance</span></h2>
+  </div>
+  <div class="tri">
+    {boardMembers.map((leader) => (
+      <a class="acard person" href={`/leadership/${leader.slug}`}>
+        <div class="portrait" aria-hidden="true">
+          <span class="initials">{leader.initials}</span>
+        </div>
+        <span class="role">{leader.role}</span>
+        <h3>{leader.name}</h3>
+        <p class="mission">{leader.missionRelevance}</p>
+        <p>{leader.cardBio}</p>
+        <span class="go">View profile →</span>
+      </a>
+    ))}
+  </div>
+</div></section>
+
+<!-- LEAD CONSULTANT -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Advisory</span>
+    <h2>Lead <span class="grad-text">Consultant</span></h2>
+  </div>
+  <div class="tri">
+    {leadConsultants.map((leader) => (
+      <a class="acard person" href={`/leadership/${leader.slug}`}>
+        <div class="portrait" aria-hidden="true">
+          <span class="initials">{leader.initials}</span>
+        </div>
+        <span class="role">{leader.role}</span>
+        <h3>{leader.name}</h3>
+        <p class="mission">{leader.missionRelevance}</p>
+        <p>{leader.cardBio}</p>
+        <span class="go">View profile →</span>
+      </a>
+    ))}
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="band"><div class="wrap">
+  <div class="cta">
+    <h2>Join the Mission</h2>
+    <p>Whether you want to partner, volunteer, serve on the board, or support workforce development nationwide — we want to hear from you.</p>
+    <div class="acts">
+      <a class="btn btn--light" href="/contact">Get in Touch</a>
+      <a class="btn btn--translucent" href="/programs">View Programs</a>
+    </div>
+  </div>
+</div></section>
+
+<style>
+  /* Quote card — hero companion (truthful, no fabricated metrics) */
+  .quote-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow-lg)}
+  .qhead{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .qbadge{width:40px;height:40px;border-radius:12px;background:rgba(74,155,79,.14);color:var(--green);display:grid;place-items:center;flex-shrink:0}
+  .qlabel{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-dark)}
+  .quote-card blockquote{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:21px;line-height:1.4;color:var(--text)}
+  .quote-card blockquote::before{content:'\201C';color:var(--crimson)}
+  .quote-card blockquote::after{content:'\201D';color:var(--crimson)}
+
+  /* Leader cards reuse .acard; add portrait + role + mission styling */
+  .person{display:flex;flex-direction:column}
+  .lead-exec{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:880px){.lead-exec{grid-template-columns:1fr}}
+
+  .portrait{position:relative;width:88px;height:88px;border-radius:20px;background:var(--grad);display:grid;place-items:center;margin-bottom:18px;box-shadow:0 12px 30px -10px rgba(173,44,77,.5)}
+  .portrait .initials{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:30px;color:#fff;letter-spacing:-.02em}
+  .portrait .founder{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,var(--gold),var(--gold-dark));padding:4px 11px;border-radius:999px;box-shadow:0 8px 20px -6px rgba(164,127,56,.6)}
+
+  .person .role{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--crimson)}
+  .person h3{font-size:22px;font-weight:700;margin:6px 0 12px}
+  .person .mission{color:var(--text);font-weight:600;font-size:15px;margin-bottom:12px}
+  .person p{color:var(--muted);font-size:15px;margin-bottom:16px}
+  .person .go{margin-top:auto;font-weight:700;color:var(--crimson);font-size:15px}
+  .person:hover .go{color:var(--accent-dark)}
+</style>
+</Layout>

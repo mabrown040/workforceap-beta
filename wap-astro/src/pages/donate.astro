@@ -1,0 +1,210 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const DONATION_EMAIL = 'info@workforceap.org';
+const DONATION_PHONE = '(512) 777-1808';
+const MAILTO = `mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`;
+
+const fundsCards = [
+  {
+    title: 'Training access',
+    description: 'Support the systems, guidance, and coordination that help qualified members start and stay in career training.',
+    ic: 'ic--b',
+    emoji: '🎓',
+  },
+  {
+    title: 'Career readiness',
+    description: 'Help fund resume support, interview prep, accountability, and the human follow-through that keeps members moving.',
+    ic: 'ic--c',
+    emoji: '📋',
+  },
+  {
+    title: 'Employer-connected outcomes',
+    description: 'Support the employer outreach, operations, and placement work that turn training into hiring opportunities.',
+    ic: 'ic--g',
+    emoji: '💼',
+  },
+];
+
+const suggestedAmounts = [
+  {
+    amount: '$25',
+    title: 'Member basics',
+    description: 'Helps cover job-search materials, communications, and small support costs that keep a member moving.',
+  },
+  {
+    amount: '$100',
+    title: 'Career readiness support',
+    description: 'Helps fund resume help, interview preparation, and advisor time for a member working toward placement.',
+  },
+  {
+    amount: '$250',
+    title: 'Training momentum',
+    description: 'Supports the operational work around training access, accountability, and member follow-through.',
+  },
+  {
+    amount: '$1,000+',
+    title: 'Cohort and employer pipeline support',
+    description: 'Helps WorkforceAP expand member support, employer engagement, and the systems that turn training into job outcomes.',
+  },
+];
+
+const givingOptions = [
+  {
+    title: 'Individual giving',
+    description: 'If you want to help one member keep moving toward a better job, this is the fastest way to support the mission.',
+    ic: 'ic--c',
+    emoji: '👤',
+  },
+  {
+    title: 'Corporate or organizational giving',
+    description: 'For sponsorships, matching gifts, workforce partnerships, or larger commitments, email us and we will coordinate the right path.',
+    ic: 'ic--b',
+    emoji: '🏢',
+  },
+  {
+    title: 'Alternative payment methods',
+    description: 'Credit card, Cash App, and additional payment rails are being finalized. For now, email us and we will route your donation manually.',
+    ic: 'ic--g',
+    emoji: '💳',
+  },
+];
+---
+<Layout
+  title="Donate to WorkforceAP"
+  description="Support Workforce Advancement Project with individual, corporate, or foundation giving. See what donations fund, suggested amounts, and how to start a contribution."
+>
+<!-- HERO -->
+<section class="hero"><div class="wrap grid">
+  <div>
+    <span class="eyebrow"><span class="dot"></span>Support WorkforceAP</span>
+    <h1>Fund real training, real support,<br><span class="grad-text">and real job outcomes</span></h1>
+    <p class="sub">Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work.</p>
+    <div class="cta">
+      <a class="btn btn--primary" href={MAILTO}>Start a donation by email</a>
+      <a class="btn btn--ghost" href="/contact?topic=partnership">Talk about corporate giving</a>
+    </div>
+    <div class="trustline">
+      <span><b>501(c)(3)</b> nonprofit</span><span class="sep"></span>
+      <span>EIN <b>41-2612389</b></span><span class="sep"></span>
+      <span>Donations may be <b>tax-deductible</b></span>
+    </div>
+  </div>
+  <div style="position:relative">
+    <div class="panel">
+      <div class="floatbadge">Every gift moves a member forward</div>
+      <div class="phead">
+        <div><small>Where it goes</small><div class="big">Access · readiness · outcomes</div></div>
+        <div class="ring">
+          <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="step"><div class="n">1</div><div class="t"><b>Training access</b><span>Start and stay in career training</span></div></div>
+      <div class="step"><div class="n">2</div><div class="t"><b>Career readiness</b><span>Resume, interview prep, follow-through</span></div></div>
+      <div class="step active"><div class="n">3</div><div class="t"><b>Employer outcomes</b><span>Turning training into hiring</span></div><span class="pill">Goal</span></div>
+      <p class="note">Public payment rails are being finalized — for now, email us and we coordinate your gift manually.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- WHAT YOUR DONATION FUNDS -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">What your donation funds</span>
+    <h2>Donations support the work around <span class="grad-text">access, training, and placement</span></h2>
+    <p>WorkforceAP is building a workforce engine for people who need a real shot at a better job. Donations help fund the member support and operational work that makes that possible.</p>
+  </div>
+  <div class="tri">
+    {fundsCards.map((card) => (
+      <div class="acard">
+        <div class={`ic ${card.ic}`}>{card.emoji}</div>
+        <h3>{card.title}</h3>
+        <p>{card.description}</p>
+      </div>
+    ))}
+  </div>
+</div></section>
+
+<!-- SUGGESTED AMOUNTS -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Suggested amounts</span>
+    <h2>Simple giving suggestions</h2>
+    <p>These are guidance points to make giving easier. If you want to give at another level, email us and we will make it work.</p>
+  </div>
+  <div class="amtgrid">
+    {suggestedAmounts.map((item) => (
+      <article class="amtcard">
+        <div class="amt grad-text">{item.amount}</div>
+        <h3>{item.title}</h3>
+        <p>{item.description}</p>
+      </article>
+    ))}
+  </div>
+</div></section>
+
+<!-- HOW TO GIVE RIGHT NOW -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">How to give right now</span>
+    <h2>Email us to start the donation</h2>
+    <p>Public payment rails are being finalized. Until card, Cash App, and other donation methods are live, email us and we will coordinate the donation manually.</p>
+  </div>
+  <div class="tri">
+    {givingOptions.map((item) => (
+      <div class="acard">
+        <div class={`ic ${item.ic}`}>{item.emoji}</div>
+        <h3>{item.title}</h3>
+        <p>{item.description}</p>
+      </div>
+    ))}
+  </div>
+
+  <div class="contactcard">
+    <h3>Donation contact</h3>
+    <p>
+      Email <a class="clink" href={MAILTO}>{DONATION_EMAIL}</a> and tell us whether you are giving as an individual, company, foundation, or other organization.
+    </p>
+    <p>
+      If you want to talk first, call <a class="clink" href="tel:+15127771808">{DONATION_PHONE}</a>.
+    </p>
+    <div class="acts">
+      <a class="btn btn--primary" href={MAILTO}>Email about donating</a>
+      <a class="btn btn--ghost" href="/contact?topic=partnership">Contact the team</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- 501(c)(3) QUOTE -->
+<section class="band"><div class="wrap">
+  <div class="quote">
+    <div class="lab">Workforce Advancement Project</div>
+    <p>Workforce Advancement Project is a 501(c)(3) nonprofit. EIN: 41-2612389. Contributions are intended to support WorkforceAP&apos;s mission and may be tax-deductible to the extent allowed by law.</p>
+  </div>
+</div></section>
+
+<style>
+  /* suggested amount cards */
+  .amtgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+  .amtcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .2s}
+  .amtcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .amtcard .amt{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:34px;line-height:1.1;margin-bottom:6px}
+  .amtcard h3{font-size:18px;font-weight:700;margin-bottom:8px}
+  .amtcard p{color:var(--muted);font-size:15px}
+  @media(max-width:880px){.amtgrid{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.amtgrid{grid-template-columns:1fr}}
+
+  /* donation contact card */
+  .contactcard{margin:36px auto 0;max-width:720px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);text-align:center}
+  .contactcard h3{font-size:22px;font-weight:700;margin-bottom:14px}
+  .contactcard p{color:var(--muted);font-size:16px;margin-bottom:12px}
+  .contactcard .clink{color:var(--crimson);font-weight:700}
+  .contactcard .clink:hover{text-decoration:underline}
+  .contactcard .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+
+  /* 501(c)(3) quote band */
+  .quote{max-width:820px;margin:0 auto;text-align:center;background:var(--surface-2);border:1px dashed var(--border);border-radius:var(--radius);padding:34px 32px}
+  .quote .lab{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:12px}
+  .quote p{color:var(--muted);font-size:16px}
+</style>
+</Layout>

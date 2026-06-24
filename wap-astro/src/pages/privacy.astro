@@ -1,0 +1,435 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Last-updated date for the privacy policy (mirrors PRIVACY_LAST_UPDATED_AT in the Next source).
+const lastUpdated = 'May 19, 2026';
+
+type SubProcessor = {
+  vendor: string;
+  data: string;
+  purpose: string;
+  link: string;
+  linkLabel: string;
+};
+
+// Sub-processors that receive member data on our behalf — verbatim from the Next source.
+const SUB_PROCESSORS: SubProcessor[] = [
+  {
+    vendor: 'Supabase',
+    data: 'Authentication, profile fields, training and outcome records',
+    purpose: 'Primary database + auth host',
+    link: 'https://supabase.com/legal/dpa',
+    linkLabel: 'Supabase DPA',
+  },
+  {
+    vendor: 'Vercel',
+    data: 'Page renders, edge function execution, performance + Web Analytics',
+    purpose: 'Application hosting, edge compute, performance telemetry',
+    link: 'https://vercel.com/legal/dpa',
+    linkLabel: 'Vercel DPA',
+  },
+  {
+    vendor: 'Sentry',
+    data: 'Error events (PII scrubbed by our scrubber before transmission), session replay with sensitive inputs masked',
+    purpose: 'Production error monitoring + replay for incident triage',
+    link: 'https://sentry.io/legal/dpa/',
+    linkLabel: 'Sentry DPA',
+  },
+  {
+    vendor: 'Resend',
+    data: 'Member email address + transactional / nudge email content',
+    purpose: 'Transactional and program email delivery',
+    link: 'https://resend.com/legal/dpa',
+    linkLabel: 'Resend DPA',
+  },
+  {
+    vendor: 'Anthropic (Claude)',
+    data: 'AI tool inputs — resume text, job descriptions, member-supplied prompts and uploaded text',
+    purpose: 'AI-powered career advisor, resume coach, cover-letter draft, skill mapping',
+    link: 'https://www.anthropic.com/legal/commercial-terms',
+    linkLabel: 'Anthropic Commercial Terms',
+  },
+  {
+    vendor: 'Groq',
+    data: 'Voice-coach transcripts + AI tool prompt content routed for low-latency inference',
+    purpose: 'Voice transcription and AI inference (latency-sensitive paths)',
+    link: 'https://groq.com/privacy-policy/',
+    linkLabel: 'Groq Privacy Policy',
+  },
+  {
+    vendor: 'Google (Gemini)',
+    data: 'AI tool inputs routed as a secondary AI provider',
+    purpose: 'AI inference fallback when primary providers are unavailable',
+    link: 'https://policies.google.com/privacy',
+    linkLabel: 'Google Privacy Policy',
+  },
+  {
+    vendor: 'ElevenLabs',
+    data: 'Text passed for voice synthesis and, where you opt in, member voice samples',
+    purpose: 'Voice synthesis for interview-practice and advisor playback',
+    link: 'https://elevenlabs.io/privacy',
+    linkLabel: 'ElevenLabs Privacy Policy',
+  },
+  {
+    vendor: 'Coursera',
+    data: 'Member email (for Coursera for Business enrollment + xAPI completion mapping)',
+    purpose: 'Course catalog, enrollment, and completion reporting',
+    link: 'https://www.coursera.org/about/privacy',
+    linkLabel: 'Coursera Privacy Policy',
+  },
+  {
+    vendor: 'Upstash',
+    data: 'Rate-limit counters keyed on IP address and email hash (no raw email stored)',
+    purpose: 'Abuse prevention and request rate limiting',
+    link: 'https://upstash.com/trust',
+    linkLabel: 'Upstash Trust Center',
+  },
+  {
+    vendor: 'Formspree',
+    data: 'Contact form submissions (name, email, topic, message) — used only when the static contact form route is enabled',
+    purpose: 'Static-form intake fallback for the public contact form',
+    link: 'https://formspree.io/privacy',
+    linkLabel: 'Formspree Privacy Policy',
+  },
+  {
+    vendor: 'Cloudflare Turnstile',
+    data: 'CAPTCHA challenge result token and the IP that produced it',
+    purpose: 'Bot mitigation on public forms (apply, contact, WIOA screening)',
+    link: 'https://www.cloudflare.com/privacy/',
+    linkLabel: 'Cloudflare Privacy Policy',
+  },
+  {
+    vendor: 'OpenAI',
+    data: 'Reserved — not currently in active production use; listed for transparency in case a future feature routes inputs here',
+    purpose: 'Optional AI inference provider (inactive)',
+    link: 'https://openai.com/policies/privacy-policy',
+    linkLabel: 'OpenAI Privacy Policy',
+  },
+];
+---
+<Layout
+  title="Privacy Policy — WorkforceAP"
+  description="How WorkforceAP, a 501(c)(3) nonprofit, collects, uses, shares, and protects your information."
+>
+  <!-- HERO -->
+  <section class="leg-hero">
+    <div class="wrap">
+      <span class="eyebrow leg-eyebrow"><span class="dot"></span>501(c)(3) nonprofit · built in Austin</span>
+      <h1>Privacy Policy</h1>
+      <p class="leg-sub">Last updated: {lastUpdated}</p>
+    </div>
+  </section>
+
+  <!-- CONTENT -->
+  <section class="band band--surface">
+    <div class="wrap">
+      <div class="leg-doc">
+        <p>
+          This Privacy Policy explains how the Workforce Advancement Project (&ldquo;WorkforceAP,&rdquo;
+          &ldquo;we,&rdquo; or &ldquo;us&rdquo;) collects, uses, shares, and protects your information when you use our
+          platform at workforceap.org and related services. By using our services, you agree to the practices
+          described here.
+        </p>
+
+        <h2>1. Information We Collect</h2>
+        <p>We collect the following categories of information:</p>
+        <h3>1.1 Account &amp; contact information</h3>
+        <ul>
+          <li>Name, email address, phone number, mailing address, and password</li>
+          <li>Account preferences and communication settings</li>
+        </ul>
+        <h3>1.2 Eligibility &amp; demographic information</h3>
+        <p>
+          To match you with appropriate programs and to satisfy federal, state, and local grant
+          reporting requirements (including the Workforce Innovation and Opportunity Act, or WIOA),
+          we may collect:
+        </p>
+        <ul>
+          <li>Date of birth and age</li>
+          <li>Race, ethnicity, and gender identity</li>
+          <li>Veteran status and service history</li>
+          <li>Disability status and accommodation needs</li>
+          <li>Citizenship and work-authorization status</li>
+          <li>Household income, employment status, and education level</li>
+          <li>Public-benefit participation (SNAP, TANF, etc.) when relevant to eligibility</li>
+          <li>Employment-barrier information (housing, childcare, justice-system involvement, etc.)</li>
+          <li>Parent/guardian contact information (for minor participants)</li>
+        </ul>
+        <p>
+          Several of these fields are classified as &ldquo;Sensitive Personal Information&rdquo; under the
+          California Consumer Privacy Act (CCPA/CPRA), Texas Data Privacy and Security Act (Texas
+          SB 1827), and similar laws. See Section 8 (Your Rights) for how to restrict their use.
+        </p>
+        <h3>1.3 Career &amp; assessment data</h3>
+        <ul>
+          <li>Resume content, job history, skills inventories, and certifications</li>
+          <li>Career-interest assessment responses, quiz answers, and pathway selections</li>
+          <li>Course enrollments, course progress, and assessment scores</li>
+          <li>Voice-coach session transcripts, interview-practice responses, and AI-generated artifacts</li>
+          <li>Counselor notes and case-management records</li>
+          <li>Job-application activity and placement outcomes (employer, role, salary, retention)</li>
+        </ul>
+        <h3>1.4 Technical &amp; usage data</h3>
+        <ul>
+          <li>Device, browser, and IP-derived approximate location</li>
+          <li>Pages viewed, features used, and time spent</li>
+          <li>Cookies, local storage, and similar identifiers (see Section 6)</li>
+          <li>Error reports and performance telemetry</li>
+        </ul>
+
+        <h2>2. How We Use Your Information</h2>
+        <p>We use the information we collect to:</p>
+        <ul>
+          <li>Determine program eligibility and personalize program recommendations</li>
+          <li>Deliver coursework, certifications, coaching, and career-services through our platform and partners</li>
+          <li>Match you with employers, partner organizations, and job opportunities</li>
+          <li>Provide AI-assisted tools (resume coaching, interview practice, career counseling, skill mapping)</li>
+          <li>Send service notices, reminders, and (with your consent) program updates</li>
+          <li>Comply with grant reporting, audit, and program-evaluation requirements</li>
+          <li>Improve the platform&rsquo;s safety, performance, and security</li>
+          <li>Train and refine our internal machine-learning models using de-identified or aggregated data (see Section 4)</li>
+        </ul>
+
+        <h2>3. Service providers and sub-processors</h2>
+        <p>
+          We do not sell your personal information for cross-context behavioral advertising. We share
+          information only with the categories of recipients listed below, each bound by contractual
+          confidentiality and security obligations. The following vendors process member data on our
+          behalf today. We update this list when sub-processors change; material changes are
+          communicated under Section 12.
+        </p>
+
+        <div class="leg-table-wrap" role="region" aria-label="Sub-processors table (scrollable)" tabindex="0">
+          <table aria-label="Sub-processors that process WorkforceAP member data">
+            <caption>
+              Sub-processors that process WorkforceAP member data, including what is shared, the purpose, and links to each vendor&apos;s DPA or privacy policy.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Vendor</th>
+                <th scope="col">What we send</th>
+                <th scope="col">Why</th>
+                <th scope="col">DPA / privacy link</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SUB_PROCESSORS.map((sp) => (
+                <tr>
+                  <th scope="row">{sp.vendor}</th>
+                  <td>{sp.data}</td>
+                  <td>{sp.purpose}</td>
+                  <td>
+                    <a href={sp.link} target="_blank" rel="noreferrer noopener">{sp.linkLabel}</a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          Each provider receives only the data necessary to perform its function. Where a provider
+          offers it, we use the no-training, business-data variant of their service (for example,
+          Anthropic&rsquo;s commercial API does not train on customer prompts by default).
+        </p>
+
+        <h3>3.2 Employers &amp; placement partners</h3>
+        <p>
+          With your explicit consent, we may share your resume, profile, and contact information with
+          prospective employers as part of job-placement assistance. You can withdraw consent for
+          specific employers at any time in your account settings.
+        </p>
+        <h3>3.4 Grant funders &amp; auditors</h3>
+        <p>
+          When required by federal, state, or local grant agreements (including WIOA, TAA, and
+          equivalent programs), we share participant-level information with the granting agency or
+          its designated evaluators. Where the grant permits, we share aggregated, de-identified data
+          only.
+        </p>
+
+        <h2>4. AI processing &amp; model training</h2>
+        <p>
+          We use artificial-intelligence tools to provide core platform features: the career advisor,
+          voice-based coaching, resume rewriting, interview practice, skill mapping, job-match scoring,
+          cover-letter drafting, and similar member tools. When you use these tools, the relevant inputs
+          you provide — including resume text, job descriptions you paste, voice-session transcripts,
+          and your responses to AI prompts — are transmitted to the third-party AI providers named in
+          Section 3 (Anthropic, Groq, Google Gemini, ElevenLabs) to generate the response you see.
+        </p>
+        <p>
+          <strong>What this means in practice:</strong> de-identification removes direct identifiers
+          (name, email, phone, full address, account ID) before data is used for model training or
+          cross-member analytics. We do not sell training data to third parties. You can opt out of
+          having your data used for AI-model training (other than the real-time AI tools you actively
+          use) through your account&rsquo;s Privacy &amp; Data page or by emailing
+          {' '}<a href="mailto:privacy@workforceap.org">privacy@workforceap.org</a>.
+        </p>
+
+        <h2>5. Data security</h2>
+        <p>
+          We use industry-standard safeguards including TLS-encrypted transit, encryption at rest for
+          member databases and stored files, role-based access controls, multi-factor authentication
+          for staff, and regular security audits. Despite our efforts, no method of transmission or
+          storage is perfectly secure; we cannot guarantee absolute security.
+        </p>
+
+        <h2>8. Your rights</h2>
+        <p>
+          Depending on where you live, you may have one or more of the following rights with respect
+          to your personal information:
+        </p>
+        <ul>
+          <li><strong>Access:</strong> request a copy of the personal information we hold about you</li>
+          <li><strong>Correct:</strong> ask us to fix inaccurate or incomplete information</li>
+          <li><strong>Delete:</strong> request deletion of your account and associated data</li>
+          <li><strong>Port:</strong> receive a copy of your data in a structured, machine-readable format</li>
+          <li><strong>Limit sensitive-info use:</strong> tell us not to use Sensitive Personal Information beyond what is necessary to deliver the service</li>
+          <li><strong>Opt out of AI-model training:</strong> exclude your data from any non-real-time AI-training use (see Section 4)</li>
+          <li><strong>Opt out of marketing:</strong> stop promotional emails at any time using the unsubscribe link or your account settings</li>
+          <li><strong>Non-discrimination:</strong> we will not deny you services or treat you differently for exercising these rights</li>
+        </ul>
+
+        <h2>13. Contact us</h2>
+        <p>
+          For questions about this Privacy Policy, to submit a data request, or to report a privacy
+          concern, contact us:
+        </p>
+        <div class="leg-contact">
+          <p>
+            <strong>Workforce Advancement Project</strong><br />
+            Privacy inquiries: <a href="mailto:privacy@workforceap.org">privacy@workforceap.org</a><br />
+            General contact: <a href="mailto:info@workforceap.org">info@workforceap.org</a><br />
+            Phone: <a href="tel:+15127771808">(512) 777-1808</a><br />
+            <a href="/contact">Contact form</a>
+          </p>
+        </div>
+
+        <p class="leg-foot-note">
+          This page shows a representative slice of our full Privacy Policy. Sections on cookies,
+          data retention, state-specific disclosures, children&rsquo;s privacy, WIOA records, and
+          policy changes are part of the complete document.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .leg-hero {
+      background: var(--grad);
+      color: #fff;
+      padding: 72px 0 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .leg-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: url('https://www.workforceap.org/images/hero-people.webp') center/cover;
+      opacity: .12;
+      mix-blend-mode: luminosity;
+    }
+    .leg-hero .wrap { position: relative; }
+    .leg-eyebrow {
+      color: #fff;
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.28);
+    }
+    .leg-eyebrow .dot { background: #fff; }
+    .leg-hero h1 {
+      font-size: clamp(36px,5vw,58px);
+      font-weight: 800;
+      margin: 18px 0 10px;
+    }
+    .leg-sub { color: rgba(255,255,255,.85); font-size: 16px; }
+
+    .leg-doc { max-width: 820px; margin: 0 auto; }
+    .leg-doc > p { color: var(--text); font-size: 16px; margin-bottom: 18px; }
+    .leg-doc h2 {
+      font-size: clamp(22px,2.6vw,30px);
+      font-weight: 800;
+      margin: 40px 0 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .leg-doc h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 26px 0 10px;
+      color: var(--accent-dark);
+    }
+    .leg-doc ul {
+      margin: 0 0 18px;
+      padding-left: 22px;
+      color: var(--text);
+    }
+    .leg-doc li { margin-bottom: 8px; font-size: 15px; }
+    .leg-doc a { color: var(--crimson); font-weight: 600; }
+    .leg-doc a:hover { text-decoration: underline; }
+
+    .leg-table-wrap {
+      overflow-x: auto;
+      margin: 18px 0 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .leg-table-wrap table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 720px;
+      font-size: 14px;
+    }
+    .leg-table-wrap caption {
+      caption-side: top;
+      text-align: left;
+      padding: 14px 16px;
+      color: var(--muted);
+      font-size: 13px;
+      background: var(--surface-2);
+    }
+    .leg-table-wrap th[scope="col"] {
+      text-align: left;
+      background: var(--surface-2);
+      color: var(--text);
+      font-weight: 700;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .leg-table-wrap th[scope="row"] {
+      text-align: left;
+      font-weight: 700;
+      color: var(--accent-dark);
+      padding: 12px 16px;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    .leg-table-wrap td {
+      padding: 12px 16px;
+      vertical-align: top;
+      color: var(--text);
+      border-top: 1px solid var(--border);
+    }
+    .leg-table-wrap tbody tr:nth-child(even) { background: var(--surface-2); }
+
+    .leg-contact {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin: 14px 0 26px;
+    }
+    .leg-contact p { font-size: 15px; line-height: 1.9; }
+
+    .leg-foot-note {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 13px;
+      background: var(--surface-2);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 16px 20px;
+    }
+  </style>
+</Layout>

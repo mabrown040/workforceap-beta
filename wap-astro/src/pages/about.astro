@@ -1,0 +1,75 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="About WorkforceAP"
+  description="WorkforceAP has spent 25+ years bridging the gap between education and industry, connecting skilled individuals with meaningful employment opportunities."
+>
+<!-- HERO -->
+<section class="hero"><div class="wrap">
+  <div class="about-hero">
+    <span class="eyebrow"><span class="dot"></span>About · 501(c)(3) nonprofit</span>
+    <h1>About <span class="grad-text">WorkforceAP</span></h1>
+    <p class="sub">Advancing careers through employer-aligned training and career support.</p>
+  </div>
+</div></section>
+
+<!-- MISSION -->
+<section class="band band--surface"><div class="wrap">
+  <div class="about-split">
+    <div class="about-prose">
+      <span class="eyebrow">Our mission</span>
+      <p>
+        WorkforceAP is dedicated to advancing careers and connecting skilled individuals
+        with meaningful employment opportunities. Our mission is to bridge the gap between
+        education and industry, ensuring that every participant is ready for the demands of
+        the modern workforce.
+      </p>
+      <p>
+        With over 25 years of workforce development leadership, we provide employer-aligned
+        training, comprehensive career support, and funded pathways for qualifying members.
+        Our programs are built around real industry needs—so graduates are job-ready from
+        day one.
+      </p>
+    </div>
+    <div class="about-photo" aria-hidden="true">
+      <div class="floatbadge">25+ years</div>
+      <div class="about-facts">
+        <div class="fact"><div class="k">501(c)(3)</div><p>Nonprofit organization</p></div>
+        <div class="fact"><div class="k">$0</div><p>For qualifying members</p></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- CLOSING CTA -->
+<section class="band"><div class="wrap"><div class="cta">
+  <h2>Your next step starts with one application.</h2>
+  <p>Apply in about 5 minutes — no cost for qualifying members. A real team reviews it and follows up in 1 to 2 business days.</p>
+  <div class="acts">
+    <a class="btn btn--light" href="/apply">Start your application</a>
+    <a class="btn btn--translucent" href="/find-your-path">Find Your Path</a>
+  </div>
+</div></div></section>
+
+<style>
+  .about-hero{max-width:760px}
+  .about-hero h1{font-size:clamp(40px,6vw,68px);font-weight:800;margin:20px 0}
+  .about-hero .sub{font-size:20px;color:var(--muted);max-width:34em}
+
+  .about-split{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+  .about-prose .eyebrow{margin-bottom:18px}
+  .about-prose p{font-size:18px;color:var(--text);margin-bottom:18px;line-height:1.7}
+  .about-prose p:last-child{margin-bottom:0}
+
+  .about-photo{position:relative;background:var(--grad);border-radius:var(--radius);padding:40px 28px;color:#fff;box-shadow:var(--shadow-lg);overflow:hidden}
+  .about-photo::after{content:"";position:absolute;inset:0;background:url('https://www.workforceap.org/images/hero-people.webp') center/cover;opacity:.16;mix-blend-mode:luminosity}
+  .about-facts{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:24px;text-align:center}
+  .about-facts .fact .k{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(26px,3vw,38px);color:#fff;-webkit-text-fill-color:#fff;background:none}
+  .about-facts .fact p{color:rgba(255,255,255,.85);font-size:14px;margin-top:6px}
+
+  @media(max-width:880px){
+    .about-split{grid-template-columns:1fr;gap:36px}
+  }
+</style>
+</Layout>

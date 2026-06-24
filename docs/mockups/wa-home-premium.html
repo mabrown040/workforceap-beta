@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkforceAP — Employer-aligned training & career support</title>
+<meta name="description" content="WorkforceAP is a 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to qualifying members." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+  /* ===== WorkforceAP blend tokens (light, premium) — improved from the Astro SaaS mock:
+     truth-locked copy, nonprofit positioning, on-brand crimson/gold palette ===== */
+  :root{
+    --crimson:#ad2c4d; --accent-dark:#8c0f37; --plum:#6d1437;
+    --gold:#a47f38; --gold-dark:#7d5f26; --blue:#2b7bb9; --green:#4a9b4f;
+    --bg:#f7f4f1; --surface:#ffffff; --surface-2:#fbf8f6;
+    --text:#1a1414; --muted:#6e6a66; --border:#ece5e0;
+    --radius:22px; --max:1180px;
+    --shadow:0 1px 2px rgba(28,20,20,.04),0 12px 40px -12px rgba(109,20,55,.14);
+    --shadow-lg:0 24px 70px -24px rgba(109,20,55,.30);
+    --grad:linear-gradient(135deg,var(--crimson) 0%,var(--accent-dark) 52%,var(--plum) 100%);
+    --grad-text:linear-gradient(100deg,var(--crimson),var(--gold));
+    font-family:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.display{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em;line-height:1.08}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .grad-text{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--crimson);background:rgba(173,44,77,.08);border:1px solid rgba(173,44,77,.18);padding:7px 14px;border-radius:999px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--crimson)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:16px;padding:14px 26px;border-radius:14px;border:1px solid transparent;cursor:pointer;transition:transform .15s,box-shadow .2s,background .2s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--primary{background:var(--grad);color:#fff;box-shadow:0 10px 30px -8px rgba(173,44,77,.5)}
+  .btn--ghost{background:var(--surface);border-color:var(--border);color:var(--text)}
+  .btn--ghost:hover{border-color:var(--crimson);color:var(--crimson)}
+  .btn--light{background:#fff;color:var(--accent-dark)}
+  .btn--translucent{background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.28)}
+
+  /* nav */
+  nav.top{position:sticky;top:0;z-index:50;background:rgba(247,244,241,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+  nav.top .row{display:flex;align-items:center;justify-content:space-between;height:72px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:'Plus Jakarta Sans';font-weight:800;font-size:20px}
+  .brand .mark{width:38px;height:38px;border-radius:11px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:18px}
+  .brand b{color:var(--crimson)}
+  .navlinks{display:flex;gap:30px}
+  .navlinks a{color:var(--muted);font-size:15px;font-weight:600}
+  .navlinks a:hover{color:var(--text)}
+  .navactions{display:flex;align-items:center;gap:14px}
+  @media(max-width:880px){.navlinks{display:none}.navactions .signin{display:none}}
+
+  /* hero */
+  .hero{padding:72px 0 56px}
+  .hero .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .hero h1{font-size:clamp(40px,6vw,68px);font-weight:800;margin:20px 0}
+  .hero .sub{font-size:20px;color:var(--muted);max-width:30em}
+  .hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin:28px 0 22px}
+  .trustline{display:flex;align-items:center;gap:14px;color:var(--muted);font-size:14px;flex-wrap:wrap}
+  .trustline b{color:var(--text)}
+  .trustline .sep{width:4px;height:4px;border-radius:50%;background:var(--border)}
+  @media(max-width:880px){.hero .grid{grid-template-columns:1fr;gap:36px}}
+
+  /* hero journey panel (reframed from the mock's fake "87%" widget → truthful steps) */
+  .panel{position:relative;background:var(--grad);border-radius:var(--radius);padding:28px;color:#fff;box-shadow:var(--shadow-lg);overflow:hidden}
+  .panel::after{content:"";position:absolute;inset:0;background:url('https://www.workforceap.org/images/hero-people.webp') center/cover;opacity:.14;mix-blend-mode:luminosity}
+  .panel .phead{position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .panel .phead small{color:rgba(255,255,255,.78);font-size:13px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  .panel .phead .big{font-family:'Plus Jakarta Sans';font-weight:800;font-size:26px}
+  .ring{width:64px;height:64px;position:relative;flex-shrink:0}
+  .step{position:relative;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.12);margin-bottom:10px;border:1px solid rgba(255,255,255,.14)}
+  .step.active{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4)}
+  .step .n{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.22);display:grid;place-items:center;font-weight:800;flex-shrink:0}
+  .step .t{flex:1}
+  .step .t b{display:block;font-weight:700}
+  .step .t span{font-size:13px;color:rgba(255,255,255,.8)}
+  .step .pill{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.22)}
+  .panel .note{position:relative;margin-top:14px;font-size:13px;color:rgba(255,255,255,.82)}
+  .floatbadge{position:absolute;top:-14px;right:-10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#fff;font-weight:800;font-size:13px;padding:9px 15px;border-radius:13px;box-shadow:0 12px 30px -8px rgba(164,127,56,.6)}
+
+  /* section scaffolding */
+  section.band{padding:68px 0}
+  .band--surface{background:var(--surface)}
+  .sec-head{text-align:center;max-width:640px;margin:0 auto 44px}
+  .sec-head h2{font-size:clamp(30px,4vw,46px);font-weight:800;margin:14px 0}
+  .sec-head p{color:var(--muted);font-size:19px}
+
+  /* cert partners */
+  .creds{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .creds .row{display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;padding:26px 0}
+  .creds .lab{width:100%;text-align:center;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+  .creds .logo{font-family:'Plus Jakarta Sans';font-weight:800;font-size:21px;color:#4a4440;opacity:.78}
+  .creds .extra{color:var(--gold-dark);font-weight:700;font-size:15px}
+
+  /* tools bento */
+  .bento{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .tool{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .2s}
+  .tool:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .tool.big{grid-column:span 2;grid-row:span 2}
+  .tool .ic{width:50px;height:50px;border-radius:13px;display:grid;place-items:center;margin-bottom:16px}
+  .ic--c{background:rgba(173,44,77,.12);color:var(--crimson)}
+  .ic--g{background:rgba(164,127,56,.14);color:var(--gold-dark)}
+  .ic--b{background:rgba(43,123,185,.12);color:var(--blue)}
+  .ic--gr{background:rgba(74,155,79,.12);color:var(--green)}
+  .tool h3{font-size:20px;font-weight:700;margin-bottom:8px}
+  .tool p{color:var(--muted);font-size:15px}
+  .tool .demo{margin-top:20px;padding-top:18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:9px}
+  .demo .line{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text)}
+  .demo .line .chk{width:20px;height:20px;border-radius:6px;background:rgba(74,155,79,.15);color:var(--green);display:grid;place-items:center;font-size:12px;flex-shrink:0}
+  .demo .bar{height:8px;border-radius:5px;background:var(--border);overflow:hidden}
+  .demo .bar i{display:block;height:100%;background:var(--grad)}
+  .demo .tag{display:inline-flex;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(43,123,185,.1);color:var(--blue);width:fit-content}
+  @media(max-width:880px){.bento{grid-template-columns:1fr}.tool.big{grid-column:span 1;grid-row:auto}}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+  .stepcard{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow)}
+  .stepcard .num{width:54px;height:54px;border-radius:15px;background:rgba(173,44,77,.1);color:var(--crimson);display:grid;place-items:center;font-family:'Plus Jakarta Sans';font-weight:800;font-size:21px;margin-bottom:18px}
+  .stepcard:nth-child(even) .num{background:rgba(164,127,56,.14);color:var(--gold-dark)}
+  .stepcard h3{font-size:18px;font-weight:700;margin-bottom:8px}
+  .stepcard p{color:var(--muted);font-size:15px}
+  @media(max-width:880px){.steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.steps{grid-template-columns:1fr}}
+
+  /* tri-audience (replaces fabricated testimonials) */
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .acard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow)}
+  .acard .ic{width:50px;height:50px;border-radius:13px;display:grid;place-items:center;margin-bottom:16px}
+  .acard h3{font-size:21px;font-weight:700;margin-bottom:8px}
+  .acard p{color:var(--muted);font-size:15px;margin-bottom:16px}
+  .acard a{font-weight:700;color:var(--crimson)}
+  @media(max-width:880px){.tri{grid-template-columns:1fr}}
+  .truth{max-width:680px;margin:30px auto 0;text-align:center;color:var(--muted);font-size:14px;background:var(--surface-2);border:1px dashed var(--border);border-radius:14px;padding:16px 20px}
+  .truth a{color:var(--crimson);font-weight:700}
+
+  /* trust facts band (replaces fabricated 50K/94%/3.2x) */
+  .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+  .fact .k{font-family:'Plus Jakarta Sans';font-weight:800;font-size:clamp(28px,3.4vw,42px);background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .fact p{color:var(--muted);font-size:15px;margin-top:4px}
+  @media(max-width:760px){.facts{grid-template-columns:1fr 1fr}}
+
+  /* cta */
+  .cta{background:var(--grad);border-radius:28px;padding:60px 32px;text-align:center;color:#fff;position:relative;overflow:hidden}
+  .cta::after{content:"";position:absolute;inset:0;background:url('https://www.workforceap.org/images/hero-people.webp') center/cover;opacity:.12;mix-blend-mode:luminosity}
+  .cta>*{position:relative}
+  .cta h2{font-size:clamp(30px,4.5vw,52px);font-weight:800;margin-bottom:14px}
+  .cta p{font-size:19px;color:rgba(255,255,255,.9);max-width:34em;margin:0 auto 26px}
+  .cta .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+  /* footer */
+  footer{background:var(--surface);border-top:1px solid var(--border);padding:54px 0 30px}
+  .fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:34px;margin-bottom:34px}
+  footer h4{font-size:14px;font-weight:700;margin-bottom:14px}
+  footer ul{list-style:none}
+  footer li{margin-bottom:10px}
+  footer li a{color:var(--muted);font-size:14px}
+  footer li a:hover{color:var(--crimson)}
+  .fbrand p{color:var(--muted);font-size:14px;max-width:30em;margin-top:12px}
+  .fbottom{border-top:1px solid var(--border);padding-top:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+  @media(max-width:760px){.fgrid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top"><div class="wrap row">
+  <a class="brand" href="#"><span class="mark">▲</span>Workforce<b>AP</b></a>
+  <div class="navlinks">
+    <a href="#tools">Programs</a><a href="#how">How it works</a><a href="#network">For employers</a><a href="#network">Partners</a>
+  </div>
+  <div class="navactions">
+    <a class="signin" href="/login" style="color:var(--muted);font-weight:600;font-size:15px">Sign in</a>
+    <a class="btn btn--primary" style="padding:10px 20px;font-size:15px" href="/apply">Apply now</a>
+  </div>
+</div></nav>
+
+<!-- HERO -->
+<section class="hero"><div class="wrap grid">
+  <div>
+    <span class="eyebrow"><span class="dot"></span>Workforce training · 501(c)(3) nonprofit</span>
+    <h1>Empowering People.<br><span class="grad-text">Advancing Futures.</span></h1>
+    <p class="sub">Employer-aligned training, professional certificates, and real career support — at no cost to qualifying members.</p>
+    <div class="cta">
+      <a class="btn btn--primary" href="/apply">Start your application →</a>
+      <a class="btn btn--ghost" href="#how">See how it works</a>
+    </div>
+    <div class="trustline">
+      <span><b>25+ years</b> in workforce development</span><span class="sep"></span>
+      <span><b>$0</b> for qualifying members</span><span class="sep"></span>
+      <span>Reviewed by a <b>real team</b></span>
+    </div>
+  </div>
+
+  <!-- Journey panel: truthful reframe of the mock's fake readiness widget -->
+  <div style="position:relative">
+    <div class="panel">
+      <div class="floatbadge">Employer-recognized certificates</div>
+      <div class="phead">
+        <div><small>Your pathway</small><div class="big">From apply to hired</div></div>
+        <div class="ring">
+          <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="88" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="step"><div class="n">1</div><div class="t"><b>Apply in about 5 minutes</b><span>No cost for qualifying members</span></div><span class="pill">~5 min</span></div>
+      <div class="step"><div class="n">2</div><div class="t"><b>Build job-ready skills</b><span>Employer-aligned program tracks</span></div></div>
+      <div class="step active"><div class="n">3</div><div class="t"><b>Earn a recognized certificate</b><span>IBM · Google · Microsoft · AWS · CompTIA</span></div><span class="pill">Goal</span></div>
+      <p class="note">A real team reviews your application and follows up in 1 to 2 business days.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- CERT PARTNERS -->
+<div class="creds"><div class="wrap row" style="display:block">
+  <div class="row" style="display:flex"><div class="lab">Employer-recognized credentials you can earn</div>
+    <span class="logo">IBM</span><span class="logo">Google</span><span class="logo">Microsoft</span><span class="logo">AWS</span><span class="logo">CompTIA</span><span class="extra">+ CPT &amp; CLT</span>
+  </div>
+</div></div>
+
+<!-- TOOLS BENTO (real member tools — truthful, no fabricated metrics) -->
+<section class="band band--surface" id="tools"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Member tools</span>
+    <h2>Tools that get you <span class="grad-text">job-ready</span></h2>
+    <p>Members get a connected toolkit — coaching, practice, and tracking — alongside their program.</p>
+  </div>
+  <div class="bento">
+    <div class="tool big">
+      <div class="ic ic--c">📄</div>
+      <h3>AI Resume Studio</h3>
+      <p>Build and refine your resume with guided, real-time feedback on clarity, formatting, and ATS readability — then export and apply.</p>
+      <div class="demo">
+        <div class="line"><span class="chk">✓</span> Contact &amp; summary complete</div>
+        <div class="line"><span class="chk">✓</span> Skills mapped to your target role</div>
+        <div class="line">ATS readability<div class="bar" style="flex:1"><i style="width:82%"></i></div></div>
+      </div>
+    </div>
+    <div class="tool"><div class="ic ic--g">🎙️</div><h3>AI Interview &amp; Voice Coach</h3><p>Practice real interview questions out loud and get coaching on your answers.</p><div class="demo"><span class="tag">Live voice session</span></div></div>
+    <div class="tool"><div class="ic ic--b">🧭</div><h3>Skills &amp; Career Mapping</h3><p>See how your experience lines up to in-demand roles and what to learn next.</p></div>
+    <div class="tool"><div class="ic ic--gr">🤝</div><h3>Mentor Support</h3><p>Connect with mentors and a career team that follow up — you're never doing it alone.</p></div>
+    <div class="tool"><div class="ic ic--b">🔎</div><h3>Program Matching</h3><p>Get matched to the training track that fits your goals from our catalog of programs.</p></div>
+    <div class="tool"><div class="ic ic--c">📊</div><h3>Progress Dashboard</h3><p>Track milestones from enrollment through certificate and job search in one place.</p></div>
+  </div>
+</div></section>
+
+<!-- HOW IT WORKS (real journey) -->
+<section class="band" id="how"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Simple process</span>
+    <h2>How <span class="grad-text">WorkforceAP</span> works</h2>
+    <p>Four steps from application to a recognized credential and career support.</p>
+  </div>
+  <div class="steps">
+    <div class="stepcard"><div class="num">01</div><h3>Apply</h3><p>Takes about 5 minutes. No cost for qualifying members — a real team reviews it.</p></div>
+    <div class="stepcard"><div class="num">02</div><h3>Get matched</h3><p>We match you to the program track that fits your goals and background.</p></div>
+    <div class="stepcard"><div class="num">03</div><h3>Train &amp; certify</h3><p>Build job-ready skills and earn an employer-recognized professional certificate.</p></div>
+    <div class="stepcard"><div class="num">04</div><h3>Launch</h3><p>Move into the workforce with resume, interview, and mentor support behind you.</p></div>
+  </div>
+</div></section>
+
+<!-- WHO WE SERVE (replaces fabricated testimonials) -->
+<section class="band band--surface" id="network"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">A connected network</span>
+    <h2>Built for members, employers &amp; partners</h2>
+  </div>
+  <div class="tri">
+    <div class="acard"><div class="ic ic--c">👥</div><h3>Members</h3><p>No-cost, employer-aligned training, professional certificates, and a team that supports you to job-ready.</p><a href="/apply">Start your application →</a></div>
+    <div class="acard"><div class="ic ic--b">🏢</div><h3>Employers</h3><p>Build a pipeline of training-aligned candidates for in-demand roles — no per-placement fees.</p><a href="#">Talk with us about hiring →</a></div>
+    <div class="acard"><div class="ic ic--gr">🏛️</div><h3>Partners</h3><p>Extend workforce impact in your community through referral and program partnerships.</p><a href="#">Explore partnership →</a></div>
+  </div>
+  <p class="truth">We're a nonprofit — so we don't inflate outcomes. We publish verified placement data as cohorts complete, with the methodology shown. <a href="/outcomes">See our outcomes →</a></p>
+</div></section>
+
+<!-- TRUST FACTS (real, no fabricated numbers) -->
+<section class="band"><div class="wrap facts">
+  <div class="fact"><div class="k">25+ yrs</div><p>In workforce development</p></div>
+  <div class="fact"><div class="k">501(c)(3)</div><p>Nonprofit organization</p></div>
+  <div class="fact"><div class="k">$0</div><p>For qualifying members</p></div>
+  <div class="fact"><div class="k">5</div><p>Employer-recognized cert tracks</p></div>
+</div></section>
+
+<!-- CTA -->
+<section class="band"><div class="wrap"><div class="cta">
+  <h2>Your next step starts with one application.</h2>
+  <p>Apply in about 5 minutes — no cost for qualifying members. A real team reviews it and follows up in 1 to 2 business days.</p>
+  <div class="acts">
+    <a class="btn btn--light" href="/apply">Start your application</a>
+    <a class="btn btn--translucent" href="/find-your-path">Find your path</a>
+    <a class="btn btn--translucent" href="#network">For employers</a>
+  </div>
+</div></div></section>
+
+<!-- FOOTER -->
+<footer><div class="wrap">
+  <div class="fgrid">
+    <div class="fbrand">
+      <a class="brand" href="#"><span class="mark">▲</span>Workforce<b>AP</b></a>
+      <p>A 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to qualifying members.</p>
+    </div>
+    <div><h4>Explore</h4><ul><li><a href="#tools">Programs</a></li><li><a href="#how">How it works</a></li><li><a href="/find-your-path">Find your path</a></li><li><a href="/outcomes">Outcomes</a></li></ul></div>
+    <div><h4>Get involved</h4><ul><li><a href="/apply">Apply</a></li><li><a href="#network">For employers</a></li><li><a href="#network">Partners</a></li><li><a href="/donate">Donate</a></li></ul></div>
+    <div><h4>Organization</h4><ul><li><a href="/about">About</a></li><li><a href="/leadership">Leadership</a></li><li><a href="/careers">Careers</a></li><li><a href="/contact">Contact</a></li></ul></div>
+  </div>
+  <div class="fbottom">
+    <span>© 2026 WorkforceAP · A national 501(c)(3) nonprofit. Available nationwide.</span>
+    <span style="display:flex;gap:18px"><a href="/privacy" style="color:inherit">Privacy</a><a href="/terms" style="color:inherit">Terms</a><a href="/accessibility" style="color:inherit">Accessibility</a></span>
+  </div>
+</div></footer>
+
+</body>
+</html>

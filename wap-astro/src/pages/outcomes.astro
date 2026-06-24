@@ -1,0 +1,152 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Truth-lock: this is a transparency page. We do NOT invent placement counts,
+// percentages, retention figures, or named testimonials. The live Next page
+// pulls these from internal placement records at request time. For this static
+// spike, the data slots render as "awaiting published data" placeholders so the
+// page stays visually complete without fabricating outcomes.
+const sections = [
+  { id: 'outcomes-by-program', title: 'By program (where recorded)' },
+  { id: 'outcomes-by-funding', title: 'By funding source (where recorded)' },
+  { id: 'outcomes-by-retention', title: 'Retention status (where recorded)' },
+];
+---
+<Layout
+  title="Outcomes snapshot — WorkforceAP"
+  description="Aggregate placement counts from WorkforceAP internal records — no guaranteed outcomes; funded access for qualifying members."
+>
+<!-- HERO / INTRO -->
+<section class="band band--surface ohero"><div class="wrap">
+  <div class="ogrid">
+    <div class="olead">
+      <span class="eyebrow"><span class="dot"></span>Transparency</span>
+      <h1>Placement outcomes <span class="grad-text">(aggregate)</span></h1>
+      <p class="ointro">
+        These counts come from internal placement records — not a promise of future results.
+        Programs may be available at no upfront cost for qualifying members through WorkforceAP
+        and partner-backed pathways. <a href="/programs">Browse programs</a>.
+      </p>
+    </div>
+
+    <!-- BIG STAT CARD (truthful: shows methodology, not a fabricated number) -->
+    <div class="statcard">
+      <div class="num">—</div>
+      <div class="lab">Members with a placement on file</div>
+      <div class="asof">Published per cohort as records are verified</div>
+      <div class="signal">
+        Follow-up signal rate: <strong>—</strong> reported with an approximate 95% interval
+        (Wilson score) once enough placements are on file. We publish the interval, not just the
+        point estimate — small samples get wide intervals on purpose.
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- METHODOLOGY NOTE -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">How we count</span>
+    <h2>Verified records, <span class="grad-text">honest math</span></h2>
+    <p>We're a nonprofit — so we don't inflate outcomes. Every figure traces back to a real placement record, with the methodology shown.</p>
+  </div>
+  <div class="tri">
+    <div class="acard"><div class="ic ic--c">📄</div><h3>From real records</h3><p>Counts are pulled from internal placement records. No seeded, illustrative, or projected outcomes are shown on this page.</p></div>
+    <div class="acard"><div class="ic ic--b">📐</div><h3>Wilson intervals</h3><p>Rates are reported with an approximate 95% Wilson-score interval. Small samples produce wide intervals — we show that rather than hide it.</p></div>
+    <div class="acard"><div class="ic ic--gr">🛡️</div><h3>PII-stripped</h3><p>Any placement stories are stripped of personal information. We never attach invented names or results to a member.</p></div>
+  </div>
+</div></section>
+
+<!-- VERIFIED PLACEMENT STORIES (static, PII-stripped representation) -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Verified placement stories</span>
+    <h2>Pulled from <span class="grad-text">live placement records</span></h2>
+    <p>PII-stripped cards drawn from real placement records. No seeded or illustrative outcomes are shown — cards appear here only as cohorts complete.</p>
+  </div>
+  <div class="stories">
+    <article class="scard scard--empty">
+      <span class="tag"><span class="chk">✓</span> Verified placement</span>
+      <h3>Job title from record</h3>
+      <p class="meta">Program · month / year</p>
+    </article>
+    <article class="scard scard--empty">
+      <span class="tag"><span class="chk">✓</span> Verified placement</span>
+      <h3>Job title from record</h3>
+      <p class="meta">Program · month / year</p>
+    </article>
+    <article class="scard scard--empty">
+      <span class="tag"><span class="chk">✓</span> Verified placement</span>
+      <h3>Job title from record</h3>
+      <p class="meta">Program · month / year</p>
+    </article>
+  </div>
+  <p class="truth">Verified placement stories appear here as cohorts complete. See the outcomes methodology before any figure is used externally.</p>
+</div></section>
+
+<!-- AGGREGATE BREAKDOWNS -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Aggregate breakdowns</span>
+    <h2>Where the numbers <span class="grad-text">come from</span></h2>
+    <p>As placements are recorded, counts populate below — by program, by funding source, and by retention status.</p>
+  </div>
+  <div class="bgrid">
+    {sections.map((s) => (
+      <div class="bcard" aria-labelledby={s.id}>
+        <h3 id={s.id}>{s.title}</h3>
+        <ul class="blist">
+          <li class="brow"><span>Awaiting published data</span><strong>—</strong></li>
+          <li class="brow"><span>Awaiting published data</span><strong>—</strong></li>
+          <li class="brow"><span>Unspecified</span><strong>—</strong></li>
+        </ul>
+      </div>
+    ))}
+  </div>
+</div></section>
+
+<!-- CLOSING CTA -->
+<section class="band"><div class="wrap"><div class="cta">
+  <h2>Ready to start your own pathway?</h2>
+  <p>Apply in about 5 minutes — no cost for qualifying members. A real team reviews it and follows up in 1 to 2 business days.</p>
+  <div class="acts">
+    <a class="btn btn--light" href="/apply">Start your application</a>
+    <a class="btn btn--translucent" href="/programs">Browse programs</a>
+  </div>
+</div></div></section>
+
+<style>
+  .ohero{padding-top:64px}
+  .ogrid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  .olead h1{font-size:clamp(36px,5vw,58px);font-weight:800;margin:18px 0}
+  .ointro{font-size:19px;color:var(--muted);max-width:34em}
+  .ointro a{color:var(--crimson);font-weight:700}
+  @media(max-width:880px){.ogrid{grid-template-columns:1fr;gap:32px}}
+
+  .statcard{background:var(--grad);border-radius:var(--radius);padding:34px;color:#fff;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+  .statcard .num{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(56px,9vw,84px);line-height:1}
+  .statcard .lab{font-weight:700;font-size:17px;margin-top:6px}
+  .statcard .asof{color:rgba(255,255,255,.78);font-size:13px;margin-top:6px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .statcard .signal{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.22);font-size:14px;color:rgba(255,255,255,.9)}
+  .statcard .signal strong{color:#fff}
+
+  .stories{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .scard--empty{border-style:dashed;background:var(--surface-2)}
+  .scard .tag{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(74,155,79,.12);color:var(--green)}
+  .scard .tag .chk{width:18px;height:18px;border-radius:5px;background:rgba(74,155,79,.18);display:grid;place-items:center;font-size:11px}
+  .scard h3{font-size:19px;font-weight:700;margin:14px 0 6px;color:var(--muted)}
+  .scard .meta{color:var(--muted);font-size:14px}
+  @media(max-width:880px){.stories{grid-template-columns:1fr}}
+
+  .bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .bcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow)}
+  .bcard h3{font-size:17px;font-weight:700;margin-bottom:14px}
+  .blist{list-style:none;display:flex;flex-direction:column;gap:2px}
+  .brow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:15px}
+  .brow:last-child{border-bottom:none}
+  .brow span{color:var(--muted)}
+  .brow strong{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--text)}
+  @media(max-width:880px){.bgrid{grid-template-columns:1fr}}
+</style>
+</Layout>

@@ -1,0 +1,311 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Quick-start lanes (verbatim from messages/en.json marketing.programs)
+const lanes = [
+  {
+    eyebrow: 'Beginner-friendly',
+    title: 'Digital Literacy',
+    desc: 'Build confidence with computers, email, and online tools.',
+    href: '/programs/digital-literacy-empowerment-class',
+    cta: 'Start here',
+  },
+  {
+    eyebrow: 'In-demand',
+    title: 'IT Support',
+    desc: 'Learn troubleshooting, networking, and security basics.',
+    href: '/programs/it-support-professional-certificate-ibm',
+    cta: 'View program',
+  },
+  {
+    eyebrow: 'Business-friendly',
+    title: 'Project Management',
+    desc: 'No tech background required. Agile and Scrum skills that transfer across industries.',
+    href: '/programs/project-management-professional-certificate-microsoft',
+    cta: 'View program',
+  },
+];
+
+// Representative catalog programs — real titles / categories / partners / durations
+// from lib/content/programs.ts (PROGRAMS). Salary ranges are the real strings.
+const programs = [
+  {
+    slug: 'digital-literacy-empowerment-class',
+    category: 'Digital Literacy', cat: 'gr', icon: '💻',
+    title: 'Digital Literacy Empowerment Class',
+    duration: '6 weeks, 5 hrs/week (30 hours total)',
+    salary: '$38K–$52K', partner: 'Grant', funding: 'No-cost (grant)',
+    skills: ['Digital literacy', 'Email', 'Online safety'],
+  },
+  {
+    slug: 'it-support-professional-certificate-ibm',
+    category: 'IT & Cybersecurity', cat: 'c', icon: '💻',
+    title: 'IT Support Professional Certificate (IBM)',
+    duration: '3–5 months, 10 hrs/week',
+    salary: '$55K–$72K', partner: 'IBM', funding: 'No-cost (WIOA)',
+    skills: ['Help desk', 'Hardware', 'Customer service'],
+  },
+  {
+    slug: 'ai-professional-developer-certificate-ibm',
+    category: 'AI & Software Dev', cat: 'g', icon: '🤖',
+    title: 'AI and Software Development Professional Certificate (IBM)',
+    duration: '3–5 months, 10 hrs/week',
+    salary: '$85K–$135K', partner: 'IBM', funding: 'No-cost (WIOA)',
+    skills: ['Python', 'AI/ML', 'Generative AI'],
+  },
+  {
+    slug: 'data-analytics-professional-certificate-google',
+    category: 'Cloud & Data', cat: 'b', icon: '📊',
+    title: 'Data Analytics Professional Certificate (Google)',
+    duration: '3–5 months, 10 hrs/week',
+    salary: '$72K–$102K', partner: 'Google', funding: 'No-cost (WIOA)',
+    skills: ['Spreadsheets', 'SQL', 'Tableau'],
+  },
+  {
+    slug: 'project-management-professional-certificate-microsoft',
+    category: 'Business', cat: 'g', icon: '💼',
+    title: 'Project Management Professional Certificate (Microsoft)',
+    duration: '3–5 months, 10 hrs/week',
+    salary: '$82K–$112K', partner: 'Microsoft', funding: 'No-cost (WIOA)',
+    skills: ['Agile', 'Scrum', 'Risk management'],
+  },
+  {
+    slug: 'certified-production-technician-cpt',
+    category: 'Manufacturing', cat: 'gr', icon: '🏭',
+    title: 'Certified Production Technician (CPT)',
+    duration: '3–5 months, 10 hrs/week',
+    salary: '$48K–$70K', partner: 'MSSC / NAM', funding: 'No-cost (WIOA)',
+    skills: ['Safety', 'Quality practices', 'Maintenance awareness'],
+  },
+];
+
+// "How to choose" — verbatim factor labels + copy from i18n
+const factors = [
+  { label: 'Your interests', desc: 'What work feels natural or exciting to you?', icon: '❤️' },
+  { label: 'Device access', desc: 'Some programs work on phones; others need a laptop.', icon: '💻' },
+  { label: 'Time available', desc: 'Most programs need 5–10 hours per week for 3–5 months.', icon: '⏱️' },
+  { label: 'Earning goal', desc: 'Entry-level roles start around $35K–$55K in Austin.', icon: '💰' },
+  { label: 'Growth path', desc: 'Some certificates lead directly to jobs; others are stepping stones.', icon: '📈' },
+];
+
+// Enrollment-to-employment journey (verbatim)
+const journey = [
+  { num: '1', title: 'Find your path', desc: 'Use the pathfinder to align your interests, timeline, and goals with the right program.' },
+  { num: '2', title: 'Build skills', desc: 'Complete training at your own pace or in cohort and earn an industry-recognized certificate.' },
+  { num: '3', title: 'Get job-ready', desc: 'Resume review, mock interviews, and practical prep for the roles you’re targeting.' },
+  { num: '4', title: 'Connect to work', desc: 'Employer-facing support, job-search guidance, and help finding openings that match your training.' },
+];
+---
+<Layout
+  title="Career Training Programs — Nationwide Certificates"
+  description="Explore career training programs offered at no cost to qualifying members, with industry certifications from IBM, Google, AWS, Microsoft, and CompTIA. Nationwide pathways supported by grants and partnerships."
+>
+<!-- HERO -->
+<section class="hero"><div class="wrap grid">
+  <div>
+    <span class="eyebrow"><span class="dot"></span>Career training programs</span>
+    <h1>Find the right program<br><span class="grad-text">for your goals</span></h1>
+    <p class="sub">Explore career training programs offered no cost for qualifying members, with certifications from IBM, Google, AWS, Microsoft, and CompTIA.</p>
+    <div class="cta">
+      <a class="btn btn--primary" href="#quick-start">Quick start →</a>
+      <a class="btn btn--ghost" href="/find-your-path">Find your path</a>
+    </div>
+    <div class="trustline">
+      <span><b>IBM · Google · Microsoft · AWS · CompTIA</b></span><span class="sep"></span>
+      <span><b>$0</b> for qualifying members</span><span class="sep"></span>
+      <span>Available nationwide</span>
+    </div>
+  </div>
+  <div style="position:relative">
+    <div class="panel">
+      <div class="floatbadge">Employer-recognized certificates</div>
+      <div class="phead">
+        <div><small>Quick start</small><div class="big">Start with a lane</div></div>
+      </div>
+      <div class="step active"><div class="n">A</div><div class="t"><b>Beginner-friendly</b><span>Digital Literacy</span></div><span class="pill">Start here</span></div>
+      <div class="step"><div class="n">B</div><div class="t"><b>In-demand</b><span>IT Support</span></div></div>
+      <div class="step"><div class="n">C</div><div class="t"><b>Business-friendly</b><span>Project Management</span></div></div>
+      <p class="note">Not sure? Take the 5-minute pathfinder and we'll match you to a track.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- CERT PARTNERS -->
+<div class="creds"><div class="wrap" style="display:block">
+  <div class="row" style="display:flex"><div class="lab">Industry certifications you can earn at no cost</div>
+    <span class="logo">IBM</span><span class="logo">Google</span><span class="logo">Microsoft</span><span class="logo">AWS</span><span class="logo">CompTIA</span><span class="extra">+ MSSC CPT &amp; CLT</span>
+  </div>
+</div></div>
+
+<!-- QUICK START LANES -->
+<section class="band band--surface" id="quick-start"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Quick start</span>
+    <h2>Start with the lane that <span class="grad-text">fits you best</span></h2>
+    <p>Not sure? <a href="/find-your-path" style="color:var(--crimson);font-weight:700">Take the 5-minute pathfinder →</a></p>
+  </div>
+  <div class="tri">
+    {lanes.map((l) => (
+      <a class="acard" href={l.href}>
+        <span class="eyebrow" style="margin-bottom:14px">{l.eyebrow}</span>
+        <h3>{l.title}</h3>
+        <p>{l.desc}</p>
+        <span style="font-weight:700;color:var(--crimson)">{l.cta} →</span>
+      </a>
+    ))}
+  </div>
+</div></section>
+
+<!-- HOW TO CHOOSE -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">How to choose a program</span>
+    <h2>How to <span class="grad-text">choose a program</span></h2>
+    <p>Pick what fits your life: your current skills, how much time you have, and the kind of work you want.</p>
+  </div>
+  <div class="choose">
+    {factors.map((f) => (
+      <div class="fcard">
+        <div class="fic">{f.icon}</div>
+        <h3>{f.label}</h3>
+        <p>{f.desc}</p>
+      </div>
+    ))}
+  </div>
+  <p class="truth">Still unsure? <a href="/find-your-path">The pathfinder guide helps in about five minutes.</a></p>
+</div></section>
+
+<!-- PROGRAM CATALOG -->
+<section class="band band--surface" id="program-catalog"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Browse the catalog</span>
+    <h2>Career training <span class="grad-text">programs</span></h2>
+    <p>Search by name, skill, partner, or topic — or browse by category. A representative selection is shown below.</p>
+  </div>
+
+  <!-- Static search + filter chips (visual only for this spike) -->
+  <div class="catalog-controls">
+    <div class="searchbox">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <span>Search programs by name, skill, partner, or topic…</span>
+    </div>
+    <div class="chips">
+      <span class="chip active">All programs</span>
+      <span class="chip">IT &amp; Cybersecurity</span>
+      <span class="chip">AI &amp; Software Dev</span>
+      <span class="chip">Cloud &amp; Data</span>
+      <span class="chip">Business</span>
+      <span class="chip">Healthcare</span>
+      <span class="chip">Manufacturing</span>
+      <span class="chip">Digital Literacy</span>
+    </div>
+  </div>
+
+  <div class="pgrid">
+    {programs.map((p) => (
+      <div class="pcard">
+        <div class="pcard-top">
+          <div class="ptags">
+            <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
+            <span class="fund-pill">{p.funding}</span>
+          </div>
+          <span class="picon">{p.icon}</span>
+        </div>
+        <h3>{p.title}</h3>
+        <div class="pmeta">
+          <span>⏱ {p.duration}</span>
+        </div>
+        <p class="prange">Starting range: <b>{p.salary}</b></p>
+        <p class="pdisc">Salary range is an Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.</p>
+        <div class="pskills">
+          {p.skills.map((s) => <span class="stag">{s}</span>)}
+        </div>
+        <div class="pcard-foot">
+          <span class="ppartner">Partner: {p.partner}</span>
+          <div class="pacts">
+            <a class="btn btn--ghost" style="padding:8px 16px;font-size:14px" href={`/programs/${p.slug}`}>View Program</a>
+            <a class="btn btn--primary" style="padding:8px 16px;font-size:14px" href={`/apply?program=${p.slug}`}>Get Started →</a>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="catalog-actions">
+    <a class="btn btn--primary" href="/find-your-path">Find Your Path — Take the Quiz</a>
+    <a class="btn btn--ghost" href="/program-comparison">Compare Programs</a>
+    <a class="btn btn--ghost" href="/salary-guide">View Salary Guide</a>
+  </div>
+  <p class="catalog-foot">Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.</p>
+</div></section>
+
+<!-- JOURNEY -->
+<section class="band"><div class="wrap">
+  <div class="sec-head" style="max-width:660px">
+    <span class="eyebrow">From enrollment to employment</span>
+    <h2>From enrollment to <span class="grad-text">employment</span></h2>
+    <p>WorkforceAP supports members at every step, from choosing a program to preparing for the job search in your field.</p>
+  </div>
+  <div class="steps">
+    {journey.map((s) => (
+      <div class="stepcard"><div class="num">0{s.num}</div><h3>{s.title}</h3><p>{s.desc}</p></div>
+    ))}
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="band" style="padding-top:0"><div class="wrap"><div class="cta">
+  <h2>Ready to start?</h2>
+  <p>Apply in minutes. A member advisor will follow up within 1–2 business days.</p>
+  <div class="acts">
+    <a class="btn btn--light" href="/apply">Apply Now →</a>
+    <a class="btn btn--translucent" href="/find-your-path">Find your path</a>
+  </div>
+</div></div></section>
+
+<style>
+  /* how-to-choose grid (reuses tokens, page-specific layout) */
+  .choose{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
+  .fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+  .fcard .fic{width:46px;height:46px;border-radius:12px;background:rgba(173,44,77,.1);display:grid;place-items:center;font-size:22px;margin-bottom:14px}
+  .fcard h3{font-size:16px;font-weight:700;margin-bottom:6px}
+  .fcard p{color:var(--muted);font-size:14px}
+  @media(max-width:980px){.choose{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:620px){.choose{grid-template-columns:1fr 1fr}}
+
+  /* catalog controls */
+  .catalog-controls{margin-bottom:30px}
+  .searchbox{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;color:var(--muted);font-size:15px;box-shadow:var(--shadow);max-width:560px;margin:0 auto 18px}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .chip{font-size:14px;font-weight:600;padding:8px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:default}
+  .chip.active{background:var(--grad);color:#fff;border-color:transparent}
+
+  /* program cards */
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:38px}
+  @media(max-width:980px){.pgrid{grid-template-columns:1fr 1fr}}
+  @media(max-width:680px){.pgrid{grid-template-columns:1fr}}
+  .pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .18s,box-shadow .2s}
+  .pcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .pcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .ptags{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .cat-pill{color:#fff;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700}
+  .cat--c{background:var(--crimson)}.cat--g{background:var(--gold-dark)}.cat--b{background:var(--blue)}.cat--gr{background:var(--green)}
+  .fund-pill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(74,155,79,.12);color:var(--green)}
+  .picon{font-size:26px}
+  .pcard h3{font-size:18px;font-weight:700;margin-bottom:10px}
+  .pmeta{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted);margin-bottom:8px}
+  .prange{font-size:14px;color:var(--text);margin-bottom:6px}
+  .prange b{color:var(--crimson)}
+  .pdisc{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.45}
+  .pskills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+  .stag{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:6px;font-size:13px}
+  .pcard-foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px}
+  .ppartner{font-size:13px;color:var(--muted)}
+  .pacts{display:flex;flex-wrap:wrap;gap:8px}
+
+  .catalog-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .catalog-foot{text-align:center;margin-top:20px;font-size:13px;color:var(--muted);max-width:640px;margin-left:auto;margin-right:auto}
+
+  .acard{display:flex;flex-direction:column}
+</style>
+</Layout>

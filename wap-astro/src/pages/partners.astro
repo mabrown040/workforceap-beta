@@ -1,0 +1,358 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Real copy mined from messages/en.json → marketing.partners (truth-locked).
+const partnerLanes = [
+  'State-of-the-art workforce readiness resources',
+  'Educational resources and support partnership',
+  "Refer members and track your clients' progress",
+  'See the difference a workforce system makes',
+  'Social service organizations',
+];
+
+const partnerSignupHref = '/partners#partner-signup';
+const partnerLoginHref = '/login?redirectTo=/partner';
+const partnershipContactHref = '/contact?topic=partnership';
+const employersHref = '/employers';
+
+const orgTypes = [
+  'Select…',
+  'Nonprofit',
+  'Church / faith organization',
+  'Community center',
+  'Workforce board',
+  'School / college',
+  'Veterans organization',
+  'Other',
+];
+const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
+---
+<Layout
+  title="Community & Employer Partners"
+  description="Partner with WorkforceAP: employers hire talent, referral orgs send candidates, workforce boards align, funders support scale. Clear next steps for each."
+>
+<!-- HERO -->
+<section class="hero"><div class="wrap grid">
+  <div>
+    <span class="eyebrow"><span class="dot"></span>A Legacy of Opportunity</span>
+    <h1>Build Your Community's<br><span class="grad-text">Future</span></h1>
+    <p class="sub">Community partners refer the people we serve. Training centers, public agencies, and funders each have a clear path too.</p>
+    <div class="cta">
+      <a class="btn btn--primary" href={partnerSignupHref}>Become a partner →</a>
+      <a class="btn btn--ghost" href={partnerLoginHref}>See partner portal</a>
+    </div>
+    <div class="trustline">
+      <span><b>No cost</b> to refer</span><span class="sep"></span>
+      <span>Portal in <b>1–2 business days</b></span><span class="sep"></span>
+      <span><b>Zero</b> referral fees</span>
+    </div>
+  </div>
+  <div style="position:relative">
+    <div class="panel">
+      <div class="floatbadge">Partner referral portal</div>
+      <div class="phead">
+        <div><small>Referral lifecycle</small><div class="big">From referral to placement</div></div>
+      </div>
+      <div class="step"><div class="n">1</div><div class="t"><b>Submit a referral</b><span>Via your link, the portal, or a CSV upload</span></div><span class="pill">2 clicks</span></div>
+      <div class="step"><div class="n">2</div><div class="t"><b>We contact the candidate</b><span>Within 24–48 hours</span></div></div>
+      <div class="step active"><div class="n">3</div><div class="t"><b>Watch milestones land</b><span>Enrolled · certified · placed</span></div><span class="pill">Live</span></div>
+      <p class="note">You receive updates when referred individuals complete programs.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- PARTNERSHIP LANES -->
+<div class="creds"><div class="wrap" style="display:block">
+  <div class="row" style="display:flex">
+    <div class="lab">Built for the partnership lanes we serve</div>
+    {partnerLanes.map((lane) => <span class="lane">{lane}</span>)}
+  </div>
+</div></div>
+
+<!-- HOW PARTNERSHIPS START -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">How partnerships start</span>
+    <h2>How <span class="grad-text">partnerships</span> start</h2>
+    <p>Three steps. Most orgs are referring inside a week.</p>
+  </div>
+  <div class="steps" style="grid-template-columns:repeat(3,1fr)">
+    <div class="stepcard"><div class="num">1</div><h3>Email or sign up</h3><p>Fill the signup form below or email partners@workforceap.org with a quick note about your org.</p></div>
+    <div class="stepcard"><div class="num">2</div><h3>Get portal access</h3><p>We provision your partner portal within 1–2 business days and share your unique referral link.</p></div>
+    <div class="stepcard"><div class="num">3</div><h3>Start referring</h3><p>Send referrals via the portal, your link, or a CSV upload. Watch milestones land in real time.</p></div>
+  </div>
+</div></section>
+
+<!-- WHY PARTNERS PICK WORKFORCEAP -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Why partners pick WorkforceAP</span>
+    <h2>Why partners pick <span class="grad-text">WorkforceAP</span></h2>
+    <p>Built for the people who refer, fund, and follow up on outcomes.</p>
+  </div>
+  <div class="vgrid">
+    <div class="vcard"><div class="ic ic--c">📈</div><div><h3>Real-time 1:1 tracking</h3><p>See every referral move from intake to placement. No more emailing for status updates — your dashboard always knows.</p></div></div>
+    <div class="vcard"><div class="ic ic--g">📄</div><div><h3>Outcome reporting for funders</h3><p>Export enrollment, completion, and placement data in funder-ready formats. WIOA-aligned where applicable.</p></div></div>
+    <div class="vcard"><div class="ic ic--b">🔒</div><div><h3>FERPA-conscious privacy</h3><p>Member consent gates every data exchange. You see what you need; nothing you do not.</p></div></div>
+    <div class="vcard"><div class="ic ic--gr">💲</div><div><h3>Zero referral fees</h3><p>We never charge to refer. Funding flows to partners after verified placement — never from member fees.</p></div></div>
+  </div>
+</div></section>
+
+<!-- WALKTHROUGH CTA -->
+<section class="band"><div class="wrap" style="max-width:760px">
+  <div class="demo-cta">
+    <div class="demo-ic">▶</div>
+    <div class="demo-body">
+      <span class="eyebrow">Want a walkthrough?</span>
+      <h2>Request a partner portal walkthrough</h2>
+      <p>We will walk you through the referral flow, milestone notifications, and the reports funders ask for.</p>
+    </div>
+    <a class="btn btn--primary" href={partnershipContactHref}>Request a walkthrough →</a>
+  </div>
+</div></section>
+
+<!-- PARTNERSHIP PATHWAYS -->
+<section id="partner-types" class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Partnership Pathways</span>
+    <h2>Partnership <span class="grad-text">Pathways</span></h2>
+  </div>
+  <div class="pgrid">
+    <div class="pcard">
+      <div class="ic ic--c">👥</div>
+      <span class="typetag">You are:</span>
+      <h3>Referral Partners</h3>
+      <div class="who">Nonprofits, social services, churches, reentry programs, community centers, workforce centers, federal one-stop centers.</div>
+      <p class="why">Refer clients who need career training. We follow up within 1-2 business days. There is no cost to refer. You get updates when referred individuals complete programs.</p>
+      <a class="go" href={partnerSignupHref}>Register your organization →</a>
+    </div>
+    <div class="pcard">
+      <div class="ic ic--b">🎓</div>
+      <span class="typetag">You are:</span>
+      <h3>Training Centers</h3>
+      <div class="who">Educational institutions, community colleges, vocational schools, digital literacy centers.</div>
+      <p class="why">Co-deliver employer-recognized certification programs. We bring the employer pipeline; you bring the learning environment.</p>
+      <a class="go" href={partnershipContactHref}>Explore Co-Delivery →</a>
+    </div>
+    <div class="pcard">
+      <div class="ic ic--gr">🏛️</div>
+      <span class="typetag">You are:</span>
+      <h3>Public Agencies</h3>
+      <div class="who">Workforce Solutions, TWC, WIOA providers, government workforce programs.</div>
+      <p class="why">Align your participants with employer-recognized in-demand certifications. We handle training and placement; you strengthen outcomes for your population.</p>
+      <a class="go" href={partnershipContactHref}>Discuss Alignment →</a>
+    </div>
+    <div class="pcard">
+      <div class="ic ic--g">❤️</div>
+      <span class="typetag">You are:</span>
+      <h3>Philanthropic Funders</h3>
+      <div class="who">Foundations, corporate giving, impact investors, individual donors.</div>
+      <p class="why">Fund a model that works. Employer-aligned training, no participant debt, measurable job outcomes. We're growing nationwide and building toward national scale.</p>
+      <a class="go" href={partnershipContactHref}>Learn How to Support →</a>
+    </div>
+  </div>
+</div></section>
+
+<!-- REFERRAL PARTNER SIGNUP -->
+<section id="partner-signup" class="band" style="scroll-margin-top:5rem"><div class="wrap">
+  <div class="signup">
+    <div class="signup-intro">
+      <span class="eyebrow">Referral partners</span>
+      <h2 style="margin-top:12px">Register your organization</h2>
+      <p class="signup-sub">Refer members, track outcomes, get paid. Submit the form — we activate your partner portal within 1–2 business days.</p>
+      <p class="signup-alt">Already registered? <a href={partnerLoginHref}>Partner sign in</a></p>
+      <p class="signup-alt">Training centers, public agencies, and funders: <a href={partnershipContactHref}>contact us for the right path</a></p>
+    </div>
+
+    <!-- Static visual representation of PartnerSignupForm (spike, not wired) -->
+    <form class="signup-form" onsubmit="return false">
+      <div class="fg">
+        <label for="ps-org">Organization name *</label>
+        <input id="ps-org" name="organization_name" required />
+      </div>
+      <div class="fg">
+        <label for="ps-contact">Contact name *</label>
+        <input id="ps-contact" name="contact_name" required />
+      </div>
+      <div class="fg">
+        <label for="ps-email">Contact email *</label>
+        <input id="ps-email" name="contact_email" type="email" required />
+      </div>
+      <div class="fg">
+        <label for="ps-phone">Contact phone</label>
+        <input id="ps-phone" name="contact_phone" type="tel" />
+      </div>
+      <div class="fg">
+        <label for="ps-type">Organization type *</label>
+        <select id="ps-type" name="org_type" required>
+          {orgTypes.map((o) => <option>{o}</option>)}
+        </select>
+      </div>
+      <div class="fg">
+        <label for="ps-area">City / county you serve *</label>
+        <input id="ps-area" name="serve_area" required />
+      </div>
+      <div class="fg">
+        <label for="ps-monthly">Estimated monthly referrals *</label>
+        <select id="ps-monthly" name="expected_monthly" required>
+          {monthly.map((o) => <option>{o}</option>)}
+        </select>
+      </div>
+      <div class="fg">
+        <label for="ps-hear">How did you hear about WorkforceAP?</label>
+        <textarea id="ps-hear" name="hear_about" rows="3"></textarea>
+      </div>
+      <div class="fg">
+        <label for="ps-password">Create password *</label>
+        <input id="ps-password" name="password" type="password" required />
+        <small class="hint">Must be at least 8 characters</small>
+      </div>
+      <div class="fg">
+        <label for="ps-confirm">Confirm password *</label>
+        <input id="ps-confirm" name="confirm_password" type="password" required />
+      </div>
+      <button type="submit" class="btn btn--primary" style="width:100%;justify-content:center">Create partner account</button>
+      <p class="fineprint">By signing up, you agree to our Terms of Service and Privacy Policy.</p>
+    </form>
+  </div>
+</div></section>
+
+<!-- DIGITAL INTEGRATION, HUMAN IMPACT -->
+<section class="band band--surface"><div class="wrap">
+  <div class="split">
+    <div>
+      <div class="sec-head" style="text-align:left;margin:0 0 24px">
+        <span class="eyebrow">Digital Integration,</span>
+        <h2 style="margin-top:14px">Digital Integration, <span class="grad-text">Human Impact</span></h2>
+      </div>
+      <div class="feat-rows">
+        <div class="feat-row">
+          <span class="ic ic--c">📝</span>
+          <div><h3>Smart Intake</h3><p>Structured enrollment and eligibility screening reduces onboarding time by 60%, letting counselors focus on high-touch support.</p></div>
+        </div>
+        <div class="feat-row">
+          <span class="ic ic--b">📊</span>
+          <div><h3>Real-Time Dashboards</h3><p>Partners access live data on referral status, enrollment progress, certification completions, and placement outcomes.</p></div>
+        </div>
+        <div class="feat-row">
+          <span class="ic ic--gr">✅</span>
+          <div><h3>Verification &amp; Reporting</h3><p>Automated credential verification and WIOA-compliant reporting ensures accountability across every partnership.</p></div>
+        </div>
+      </div>
+    </div>
+    <figure class="split-fig" aria-hidden="true"></figure>
+  </div>
+</div></section>
+
+<!-- PARTNER FAQ -->
+<section class="band"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">Partner FAQ</span>
+    <h2>Partner <span class="grad-text">FAQ</span></h2>
+  </div>
+  <div class="faq">
+    <details>
+      <summary>Can we co-brand the referral experience?<span class="pl">+</span></summary>
+      <p>Yes. Strategic partners get a co-branded landing page and referral link. Your logo, your colors, your voice — pointing at our intake.</p>
+    </details>
+    <details>
+      <summary>Do you share member contact info?<span class="pl">+</span></summary>
+      <p>Only with explicit member consent, and only the fields you need for follow-up. Members can revoke at any time, and you will see consent state on every record.</p>
+    </details>
+    <details>
+      <summary>What notifications do we get?<span class="pl">+</span></summary>
+      <p>Email + in-portal alerts on every milestone: application started, enrolled, certification earned, placed. You choose digest cadence in your partner settings.</p>
+    </details>
+    <details>
+      <summary>Can we bulk-import referrals?<span class="pl">+</span></summary>
+      <p>Yes — CSV upload with column mapping. We validate rows, deduplicate against existing members, and surface errors row-by-row before commit.</p>
+    </details>
+    <details>
+      <summary>Is there a fee to be a partner?<span class="pl">+</span></summary>
+      <p>No. We do not charge partners to refer. Member services are funded by grants and partnerships, so there is no cost to members.</p>
+    </details>
+    <details>
+      <summary>How do reports work?<span class="pl">+</span></summary>
+      <p>Pull placement, completion, and demographic reports straight from your partner dashboard. Schedule monthly exports to your inbox or your funder's data warehouse.</p>
+    </details>
+  </div>
+</div></section>
+
+<!-- CLOSING CTA -->
+<section class="band"><div class="wrap"><div class="cta">
+  <h2>Start a Partnership</h2>
+  <p>Clear next steps, real outcomes, and a team that follows up within 1–2 business days.</p>
+  <div class="acts">
+    <a class="btn btn--light" href={partnerSignupHref}>Register as a referral partner →</a>
+    <a class="btn btn--translucent" href={employersHref}>I am hiring (employers)</a>
+  </div>
+</div></div></section>
+
+<style>
+  /* Partnership lanes — reuse creds row styling */
+  .creds .lane{font-size:14px;font-weight:600;color:#4a4440;opacity:.85;max-width:14em;text-align:center;line-height:1.4}
+
+  /* Value grid (why partners pick us) */
+  .vgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .vcard{display:flex;gap:16px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow)}
+  .vcard .ic{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;flex-shrink:0;font-size:22px}
+  .vcard h3{font-size:19px;font-weight:700;margin-bottom:6px}
+  .vcard p{color:var(--muted);font-size:15px;line-height:1.55}
+
+  /* Walkthrough CTA */
+  .demo-cta{display:flex;align-items:center;gap:22px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow);flex-wrap:wrap}
+  .demo-ic{width:58px;height:58px;border-radius:16px;background:rgba(173,44,77,.1);color:var(--crimson);display:grid;place-items:center;font-size:22px;flex-shrink:0}
+  .demo-body{flex:1;min-width:240px}
+  .demo-body h2{font-size:24px;font-weight:800;margin:10px 0 6px}
+  .demo-body p{color:var(--muted);font-size:15px}
+
+  /* Pathway cards */
+  .pgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .pcard{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .2s}
+  .pcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .pcard .ic{width:50px;height:50px;border-radius:13px;display:grid;place-items:center;margin-bottom:14px;font-size:22px}
+  .pcard .typetag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .pcard h3{font-size:22px;font-weight:800;margin-bottom:10px}
+  .pcard .who{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px}
+  .pcard .why{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:16px}
+  .pcard .go{font-weight:700;color:var(--crimson);display:inline-block}
+
+  /* Signup section */
+  .signup{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px;align-items:start}
+  .signup-intro h2{font-size:clamp(28px,3.4vw,40px);font-weight:800}
+  .signup-sub{color:var(--muted);font-size:18px;margin:14px 0 18px;line-height:1.55}
+  .signup-alt{font-size:15px;color:var(--muted);margin-bottom:8px}
+  .signup-alt a{color:var(--crimson);font-weight:700}
+  .signup-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow)}
+  .fg{margin-bottom:16px}
+  .fg label{display:block;font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text)}
+  .fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:11px;font:inherit;font-size:15px;background:#fff;color:var(--text)}
+  .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--crimson);box-shadow:0 0 0 3px rgba(173,44,77,.12)}
+  .fg textarea{resize:vertical}
+  .fg .hint{display:block;font-size:13px;color:var(--muted);margin-top:5px}
+  .fineprint{font-size:13px;color:var(--muted);text-align:center;margin-top:14px}
+
+  /* Split: digital integration */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+  .feat-rows{display:flex;flex-direction:column;gap:20px}
+  .feat-row{display:flex;gap:16px}
+  .feat-row .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;font-size:20px}
+  .feat-row h3{font-size:18px;font-weight:700;margin-bottom:5px}
+  .feat-row p{color:var(--muted);font-size:15px;line-height:1.55}
+  .split-fig{margin:0;border-radius:var(--radius);min-height:340px;background:var(--grad);background-image:linear-gradient(135deg,rgba(0,0,0,.15),rgba(0,0,0,0)),url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center 40%;box-shadow:var(--shadow-lg)}
+
+  /* FAQ */
+  .faq{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .faq details{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 20px;box-shadow:var(--shadow)}
+  .faq summary{display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;list-style:none;padding:18px 0;font-weight:700;font-size:17px;color:var(--text)}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq .pl{flex-shrink:0;width:26px;height:26px;border-radius:8px;background:rgba(173,44,77,.1);color:var(--crimson);display:grid;place-items:center;font-size:18px;font-weight:700;transition:transform .2s}
+  .faq details[open] .pl{transform:rotate(45deg)}
+  .faq p{color:var(--muted);font-size:15px;line-height:1.6;padding:0 0 20px}
+
+  @media(max-width:900px){
+    .vgrid,.pgrid,.signup,.split{grid-template-columns:1fr}
+    .split-fig{min-height:240px;order:-1}
+  }
+</style>
+</Layout>

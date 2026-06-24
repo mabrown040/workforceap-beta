@@ -14,6 +14,25 @@ const nav = [
   { href: '/how-it-works', label: 'How it works' },
   { href: '/employers', label: 'For employers' },
   { href: '/partners', label: 'Partners' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+];
+// Comprehensive mobile menu (ties every route together for small screens)
+const mobileNav = [
+  { href: '/programs', label: 'Programs' },
+  { href: '/find-your-path', label: 'Find your path' },
+  { href: '/how-it-works', label: 'How it works' },
+  { href: '/what-we-do', label: 'What we do' },
+  { href: '/employers', label: 'For employers' },
+  { href: '/partners', label: 'Partners' },
+  { href: '/about', label: 'About' },
+  { href: '/leadership', label: 'Leadership' },
+  { href: '/impact', label: 'Impact' },
+  { href: '/outcomes', label: 'Outcomes' },
+  { href: '/faq', label: 'FAQ' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/login', label: 'Sign in' },
 ];
 const path = Astro.url.pathname;
 ---
@@ -29,16 +48,24 @@ const path = Astro.url.pathname;
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <nav class="top"><div class="wrap row">
-    <a class="brand" href="/"><span class="mark">▲</span>Workforce<b>AP</b></a>
-    <div class="navlinks">
-      {nav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+  <input class="navtoggle" type="checkbox" id="navtoggle" aria-hidden="true" />
+  <label class="hamburger" for="navtoggle" aria-label="Toggle menu"><span></span><span></span><span></span></label>
+  <nav class="top">
+    <div class="wrap row">
+      <a class="brand" href="/"><span class="mark">▲</span>Workforce<b>AP</b></a>
+      <div class="navlinks">
+        {nav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+      </div>
+      <div class="navactions">
+        <a class="signin" href="/login" style="color:var(--muted);font-weight:600;font-size:15px">Sign in</a>
+        <a class="btn btn--primary" style="padding:10px 20px;font-size:15px" href="/apply">Apply now</a>
+      </div>
     </div>
-    <div class="navactions">
-      <a class="signin" href="/login" style="color:var(--muted);font-weight:600;font-size:15px">Sign in</a>
-      <a class="btn btn--primary" style="padding:10px 20px;font-size:15px" href="/apply">Apply now</a>
-    </div>
-  </div></nav>
+  </nav>
+  <nav class="mobilemenu" aria-label="Mobile">
+    {mobileNav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+    <a class="btn btn--primary" href="/apply">Apply now</a>
+  </nav>
 
   <main>
     <slot />

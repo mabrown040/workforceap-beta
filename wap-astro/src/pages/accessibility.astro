@@ -14,13 +14,13 @@ const lastReviewed = new Date(ACCESSIBILITY_LAST_REVIEWED_AT + 'T00:00:00Z').toL
   title="Accessibility Statement"
   description="Read Workforce Advancement Project accessibility commitments, our WCAG 2.1 AA target, known exceptions, and how to report an accessibility barrier."
 >
-<!-- HERO -->
+<!-- HERO: statement header over crimson→plum gradient + photo -->
 <section class="a11y-hero">
   <div class="wrap">
-    <span class="eyebrow"><span class="dot"></span>Accessibility</span>
-    <h1>Accessibility <span class="grad-text">Statement</span></h1>
+    <span class="eyebrow a11y-eyebrow"><span class="dot"></span>Accessibility</span>
+    <h1>Accessibility Statement</h1>
     <p class="intro">Workforce Advancement Project works to make this site easier to use for members, partners, employers, and community supporters. We aim to provide clear content, readable layouts, keyboard-usable navigation, and mobile-friendly access on slow devices and limited connections.</p>
-    <p class="reviewed">Last reviewed: <b>{lastReviewed}</b></p>
+    <p class="reviewed">Last reviewed: {lastReviewed}</p>
   </div>
 </section>
 
@@ -88,11 +88,31 @@ const lastReviewed = new Date(ACCESSIBILITY_LAST_REVIEWED_AT + 'T00:00:00Z').toL
 </section>
 
 <style>
-  .a11y-hero { padding: 64px 0 40px; }
+  .a11y-hero {
+    background: var(--grad);
+    color: #fff;
+    padding: 72px 0 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .a11y-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url('https://www.workforceap.org/images/hero-people.webp') center/cover;
+    opacity: .12;
+    mix-blend-mode: luminosity;
+  }
+  .a11y-hero .wrap { position: relative; }
+  .a11y-eyebrow {
+    color: #fff;
+    background: rgba(255,255,255,.16);
+    border-color: rgba(255,255,255,.28);
+  }
+  .a11y-eyebrow .dot { background: #fff; }
   .a11y-hero h1 { font-size: clamp(36px, 5vw, 58px); font-weight: 800; margin: 18px 0 16px; }
-  .a11y-hero .intro { font-size: 19px; color: var(--muted); max-width: 50em; }
-  .a11y-hero .reviewed { margin-top: 16px; font-size: 14px; color: var(--muted); }
-  .a11y-hero .reviewed b { color: var(--text); }
+  .a11y-hero .intro { font-size: 19px; color: rgba(255,255,255,.9); max-width: 50em; }
+  .a11y-hero .reviewed { margin-top: 16px; font-size: 14px; color: rgba(255,255,255,.85); }
 
   .a11y-stack { display: flex; flex-direction: column; gap: 22px; max-width: 860px; margin: 0 auto; }
   .a11y-card .a11y-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }

@@ -31,35 +31,19 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
   title="Community & Employer Partners"
   description="Partner with WorkforceAP: employers hire talent, referral orgs send candidates, workforce boards align, funders support scale. Clear next steps for each."
 >
-<!-- HERO -->
-<section class="hero"><div class="wrap grid">
-  <div>
-    <span class="eyebrow"><span class="dot"></span>A Legacy of Opportunity</span>
-    <h1>Build Your Community's<br><span class="grad-text">Future</span></h1>
-    <p class="sub">Community partners refer the people we serve. Training centers, public agencies, and funders each have a clear path too.</p>
+<!-- HERO (image-backed, matches real /partners) -->
+<header class="p-hero"><div class="wrap">
+  <div class="p-hero-tile">
+    <div class="p-hero-photo" aria-hidden="true"></div>
+    <span class="eyebrow eyebrow--light">A Legacy of Opportunity</span>
+    <h1>Build Your Community's <span class="grad-text">Future</span></h1>
+    <p class="p-hero-copy">Community partners refer the people we serve. Training centers, public agencies, and funders each have a clear path too.</p>
     <div class="cta">
-      <a class="btn btn--primary" href={partnerSignupHref}>Become a partner →</a>
-      <a class="btn btn--ghost" href={partnerLoginHref}>See partner portal</a>
-    </div>
-    <div class="trustline">
-      <span><b>No cost</b> to refer</span><span class="sep"></span>
-      <span>Portal in <b>1–2 business days</b></span><span class="sep"></span>
-      <span><b>Zero</b> referral fees</span>
+      <a class="btn btn--light" href={partnerSignupHref}>Become a partner →</a>
+      <a class="btn btn--translucent" href={partnerLoginHref}>See partner portal</a>
     </div>
   </div>
-  <div style="position:relative">
-    <div class="panel">
-      <div class="floatbadge">Partner referral portal</div>
-      <div class="phead">
-        <div><small>Referral lifecycle</small><div class="big">From referral to placement</div></div>
-      </div>
-      <div class="step"><div class="n">1</div><div class="t"><b>Submit a referral</b><span>Via your link, the portal, or a CSV upload</span></div><span class="pill">2 clicks</span></div>
-      <div class="step"><div class="n">2</div><div class="t"><b>We contact the candidate</b><span>Within 24–48 hours</span></div></div>
-      <div class="step active"><div class="n">3</div><div class="t"><b>Watch milestones land</b><span>Enrolled · certified · placed</span></div><span class="pill">Live</span></div>
-      <p class="note">You receive updates when referred individuals complete programs.</p>
-    </div>
-  </div>
-</div></section>
+</div></header>
 
 <!-- PARTNERSHIP LANES -->
 <div class="creds"><div class="wrap" style="display:block">
@@ -289,6 +273,16 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
 </div></div></section>
 
 <style>
+  /* Image-backed hero tile (mirrors real /partners wa-p-hero) */
+  .p-hero{padding:72px 0 56px}
+  .p-hero-tile{position:relative;border-radius:28px;overflow:hidden;padding:clamp(40px,6vw,76px);color:#fff;box-shadow:var(--shadow-lg);isolation:isolate}
+  .p-hero-photo{position:absolute;inset:0;z-index:-2;background:var(--grad);background-image:linear-gradient(135deg,rgba(173,44,77,.92),rgba(122,30,84,.86)),url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center}
+  .p-hero-tile .eyebrow--light{color:#fff;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3)}
+  .p-hero-tile h1{font-size:clamp(40px,6vw,68px);font-weight:800;margin:20px 0;line-height:1.05}
+  .p-hero-tile .grad-text{-webkit-text-fill-color:initial;color:var(--gold)}
+  .p-hero-copy{font-size:20px;color:rgba(255,255,255,.92);max-width:32em}
+  .p-hero-tile .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+
   /* Partnership lanes — reuse creds row styling */
   .creds .lane{font-size:14px;font-weight:600;color:#4a4440;opacity:.85;max-width:14em;text-align:center;line-height:1.4}
 

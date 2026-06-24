@@ -107,6 +107,15 @@ const categories: Category[] = [
     ],
   },
 ];
+
+// Sidebar grouping mirrors the live Next page (FAQContent sidebarGroups).
+const sidebarGroups = [
+  { label: 'General Questions', keys: ['General Questions', 'Applying & Eligibility', 'Cost & Funding'] },
+  { label: 'For Members', keys: ['Programs & Training', 'Job Placement', 'For Members'] },
+  { label: 'For Employers', keys: ['For Employers'] },
+];
+
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 ---
 <Layout
   title="FAQ — WorkforceAP"
@@ -137,53 +146,111 @@ const categories: Category[] = [
 </div></section>
 
 <!-- FULL FAQ -->
-<section class="band"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">All questions</span>
-    <h2>Everything else, by <span class="grad-text">category</span></h2>
-    <p>Browse every answer. Still unsure? A real team is one message away.</p>
+<section class="band band--surface"><div class="wrap">
+  <div class="faq-layout">
+    <!-- Sidebar (static visual representation of the category nav) -->
+    <aside class="faq-sidebar">
+      <nav>
+        {sidebarGroups.map((group) => (
+          <div class="side-group">
+            <p class="side-lab">{group.label}</p>
+            {group.keys.map((key) => {
+              const cat = categories.find((c) => c.key === key)!;
+              return (
+                <a class="cat-link" href={`#${slugify(cat.key)}`}>
+                  <span class="cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}
+                </a>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
+
+      <div class="support-card">
+        <div class="support-ic" aria-hidden="true">🎧</div>
+        <p class="support-h">Still need support?</p>
+        <p>Reach out and WorkforceAP can help you figure out the right next step.</p>
+        <a class="btn btn--primary" href="/contact">Contact Us</a>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <div class="faq-main">
+      {categories.map((cat) => (
+        <div class="faq-cat" id={slugify(cat.key)}>
+          {cat.key === 'For Employers' && (
+            <div class="emp-banner">
+              <span class="emp-ic" aria-hidden="true">🏅</span>
+              <div>
+                <p class="emp-h">Employer Partnership Inquiries</p>
+                <p>Looking to hire certified talent? <a href="/partners">Learn about our partnership model →</a></p>
+              </div>
+            </div>
+          )}
+          <h2 class="faq-cat-head"><span class="faq-cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}</h2>
+          <div class="faq-list">
+            {cat.items.map((item) => (
+              <details class="faq-item">
+                <summary>
+                  <span class="faq-q">{item.q}</span>
+                  <span class="faq-chevron" aria-hidden="true">+</span>
+                </summary>
+                <div class="faq-a">
+                  <p>{item.a}</p>
+                  {item.link && <a href={item.link.href}>{item.link.text} →</a>}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   </div>
 
-  <div class="faq-cats">
-    {categories.map((cat) => (
-      <div class="faq-cat">
-        <h3 class="faq-cat-head"><span class="faq-cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}</h3>
-        <div class="faq-list">
-          {cat.items.map((item) => (
-            <details class="faq-item">
-              <summary>
-                <span class="faq-q">{item.q}</span>
-                <span class="faq-chevron" aria-hidden="true">+</span>
-              </summary>
-              <div class="faq-a">
-                <p>{item.a}</p>
-                {item.link && <a href={item.link.href}>{item.link.text} →</a>}
-              </div>
-            </details>
-          ))}
-        </div>
+  <!-- Bottom CTA: "Didn't find your answer?" -->
+  <div class="faq-bottom-cta">
+    <div class="faq-bottom-copy">
+      <h2>Didn’t find your answer?</h2>
+      <p>Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.</p>
+      <div class="acts">
+        <a class="btn btn--primary" href="/contact">Contact Us</a>
+        <a class="btn btn--ghost" href="/apply">Apply Now</a>
       </div>
-    ))}
+    </div>
+    <div class="faq-cta-art">
+      <div class="faq-cta-inner">
+        <span class="faq-cta-ic" aria-hidden="true">💬</span>
+        <div class="side-lab">We’re here to help</div>
+      </div>
+    </div>
   </div>
 </div></section>
-
-<!-- CTA -->
-<section class="band"><div class="wrap"><div class="cta">
-  <h2>Still have a question?</h2>
-  <p>Reach out and a WorkforceAP team member will respond within 1 to 2 business days. No question is too small.</p>
-  <div class="acts">
-    <a class="btn btn--light" href="/contact">Contact us</a>
-    <a class="btn btn--translucent" href="/apply">Start your application</a>
-    <a class="btn btn--translucent" href="/find-your-path">Find your path</a>
-  </div>
-</div></div></section>
 
 <style>
   .faq-hero{padding:64px 0 36px}
   .qgo{display:inline-block;margin-top:16px;font-weight:700;color:var(--crimson)}
 
-  .faq-cats{display:flex;flex-direction:column;gap:40px;max-width:880px;margin:0 auto}
-  .faq-cat-head{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:800;margin-bottom:16px}
+  /* layout: sidebar + content (static visual rep of the live page) */
+  .faq-layout{display:grid;grid-template-columns:260px 1fr;gap:40px;align-items:start}
+  .faq-sidebar{position:sticky;top:96px;display:flex;flex-direction:column;gap:24px}
+  .side-group{margin-bottom:8px}
+  .side-lab{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .cat-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-weight:600;font-size:15px;color:var(--text);transition:background .15s,color .15s}
+  .cat-link:hover{background:rgba(173,44,77,.08);color:var(--crimson)}
+  .cat-ic{width:24px;text-align:center;font-size:16px}
+  .support-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:22px;text-align:left}
+  .support-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:rgba(173,44,77,.1);margin-bottom:12px}
+  .support-h{font-weight:800;font-size:17px;margin-bottom:6px}
+  .support-card p{color:var(--muted);font-size:14px;margin-bottom:14px}
+  .support-card .btn{justify-content:center;width:100%;font-size:15px;padding:12px 18px}
+
+  .faq-main{display:flex;flex-direction:column;gap:40px}
+  .emp-banner{display:flex;gap:16px;align-items:flex-start;background:rgba(164,127,56,.1);border:1px solid rgba(164,127,56,.28);border-radius:16px;padding:18px 20px;margin-bottom:8px}
+  .emp-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:rgba(164,127,56,.18);flex-shrink:0}
+  .emp-h{font-weight:800;font-size:17px;margin-bottom:4px}
+  .emp-banner p{color:var(--muted);font-size:15px}
+  .emp-banner a{font-weight:700;color:var(--crimson)}
+  .faq-cat-head{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:800;margin-bottom:16px;scroll-margin-top:96px}
   .faq-cat-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:rgba(173,44,77,.1)}
   .faq-cat:nth-child(even) .faq-cat-ic{background:rgba(164,127,56,.14)}
 
@@ -200,9 +267,25 @@ const categories: Category[] = [
   .faq-a p{color:var(--muted);font-size:16px;margin-bottom:12px}
   .faq-a a{font-weight:700;color:var(--crimson)}
 
+  /* bottom CTA */
+  .faq-bottom-cta{display:grid;grid-template-columns:1.4fr 1fr;gap:32px;align-items:center;margin-top:56px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:40px}
+  .faq-bottom-copy h2{font-size:28px;font-weight:800;margin-bottom:12px}
+  .faq-bottom-copy p{color:var(--muted);font-size:17px;margin-bottom:20px;max-width:48ch}
+  .faq-bottom-cta .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .faq-cta-art{display:grid;place-items:center}
+  .faq-cta-inner{display:grid;place-items:center;gap:14px;background:var(--grad);color:#fff;border-radius:18px;padding:40px;width:100%;text-align:center}
+  .faq-cta-ic{font-size:48px}
+  .faq-cta-inner .side-lab{color:rgba(255,255,255,.9)}
+
+  @media(max-width:900px){
+    .faq-layout{grid-template-columns:1fr}
+    .faq-sidebar{position:static}
+    .faq-bottom-cta{grid-template-columns:1fr}
+  }
   @media(max-width:560px){
     .faq-item summary{font-size:16px;padding:16px 18px}
     .faq-a{padding:0 18px 18px}
+    .faq-bottom-cta{padding:28px}
   }
 </style>
 </Layout>

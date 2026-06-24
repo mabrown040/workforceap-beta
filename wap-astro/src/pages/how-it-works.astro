@@ -93,6 +93,19 @@ const trainingCards = [
   { ic: '📈', cls: 'ic--b', title: 'Direct Pipeline', desc: 'Support connecting to openings shared through our employer network and placement efforts.' },
   { ic: '💡', cls: 'ic--g', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
 ];
+
+// Program commitment panel — mirrored from components/portal/ProgramCommitmentPanel.tsx
+const WILL_DO = [
+  'Career training and professional certificate pathways (Coursera-aligned tracks)',
+  'Counselor messaging, application review, and program assignment',
+  'AI toolkit for resumes, interview practice, job match insights, and learning support',
+  'Job board access, application tracker, and employer pipeline connections where available',
+];
+const WILL_NOT = [
+  'Guaranteed job placement or a specific employer hire',
+  'Automatic enrollment in vendor certification exams (PMI, AWS, CompTIA, etc.) without staff confirmation',
+  'Legal eligibility determinations for WIOA or other funding — staff review applies',
+];
 ---
 <Layout
   title="How It Works — WorkforceAP"
@@ -102,7 +115,7 @@ const trainingCards = [
 <section class="hero"><div class="wrap" style="display:block">
   <span class="eyebrow"><span class="dot"></span>Member Experience</span>
   <h1 style="margin:20px 0">Your path <span class="grad-text">starts here.</span></h1>
-  <p class="sub" style="max-width:42em">No gatekeeping. Clear, funded pathways for qualifying members. Just a guided process — from your first conversation with us to your first day on the job (and beyond).</p>
+  <p class="sub" style="max-width:42em">No gatekeeping. Clear, Funded pathways for qualifying members. Just a guided process — from your first conversation with us to your first day on the job (and beyond).</p>
   <div class="cta" style="display:flex;gap:14px;flex-wrap:wrap;margin:28px 0 0">
     <a class="btn btn--primary" href="/find-your-path">Find your career →</a>
     <a class="btn btn--ghost" href="/apply">Apply now</a>
@@ -207,8 +220,30 @@ const trainingCards = [
   </div>
 </div></section>
 
+<!-- PROGRAM COMMITMENT PANEL -->
+<section class="band"><div class="wrap">
+  <div class="commit" aria-labelledby="commit-head">
+    <h2 id="commit-head">What we will — and will not — promise</h2>
+    <p class="commit-intro">WorkforceAP provides <strong>career and employment assistance</strong>: training, tools, and staff support to improve your odds. We are transparent so partners and members can set expectations together.</p>
+    <div class="commit-grid">
+      <div class="commit-card commit-card--will">
+        <h3 class="commit-label commit-label--will">We will</h3>
+        <ul>
+          {WILL_DO.map((line) => (<li>{line}</li>))}
+        </ul>
+      </div>
+      <div class="commit-card commit-card--wont">
+        <h3 class="commit-label commit-label--wont">We will not</h3>
+        <ul>
+          {WILL_NOT.map((line) => (<li>{line}</li>))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div></section>
+
 <!-- FINAL CTA -->
-<section class="band"><div class="wrap"><div class="cta">
+<section class="band band--surface"><div class="wrap"><div class="cta">
   <h2>Ready to take the first step?</h2>
   <p>The application takes about ten minutes. It's a conversation, not an exam — and there's no application fee.</p>
   <div class="acts">
@@ -268,5 +303,18 @@ const trainingCards = [
   @media(max-width:760px){.feat{grid-template-columns:1fr}.bgrid{grid-template-columns:1fr}}
 
   .cta .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+  /* Program commitment panel */
+  .commit{max-width:920px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 36px;box-shadow:var(--shadow)}
+  .commit h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;margin-bottom:12px}
+  .commit-intro{color:var(--muted);font-size:16px;line-height:1.55;margin-bottom:24px}
+  .commit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .commit-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:20px}
+  .commit-label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+  .commit-label--will{color:var(--green)}
+  .commit-label--wont{color:var(--muted)}
+  .commit-card ul{list-style:disc;padding-left:18px;margin:0;display:flex;flex-direction:column;gap:8px}
+  .commit-card li{font-size:15px;line-height:1.5;color:var(--text)}
+  @media(max-width:760px){.commit-grid{grid-template-columns:1fr}.commit{padding:24px}}
 </style>
 </Layout>

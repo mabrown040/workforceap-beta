@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 const benefits = [
   {
     ic: 'ic--c',
-    icon: '🕒',
+    icon: '📋',
     title: 'Hours Logged Automatically',
     desc: 'Every session is recorded. We track your total volunteer hours so you never have to.',
   },
@@ -32,7 +32,7 @@ const benefits = [
   title="Become a Mentor — WorkforceAP"
   description="Volunteer your expertise to help job-seekers advance their careers. Log hours, earn a tax deduction letter, and give back to your community."
 >
-<!-- WAITLIST BANNER -->
+<!-- MENTOR WAITLIST BANNER -->
 <section class="waitlist" aria-label="Mentor waitlist"><div class="wrap waitlist-in">
   <div class="waitlist-txt">
     <span class="eyebrow"><span class="dot"></span>Mentor waitlist · Pre-launch</span>
@@ -41,15 +41,13 @@ const benefits = [
   <a class="btn btn--ghost" href="/mentor/apply">Join the waitlist</a>
 </div></section>
 
-<!-- HERO -->
+<!-- HERO (crimson→plum tile) -->
 <section class="band"><div class="wrap">
   <div class="cta mentor-hero">
-    <span class="eyebrow eyebrow--light"><span class="dot" style="background:#fff"></span>Volunteer · 501(c)(3) nonprofit</span>
-    <h2>Share Your Expertise.<br>Change a Career.</h2>
+    <h1>Share Your Expertise. Change a Career.</h1>
     <p>WorkforceAP mentors are industry professionals who volunteer their time to guide job-seekers. Your experience is worth more than you think — and it's tax-deductible.</p>
     <div class="acts">
       <a class="btn btn--light" href="/mentor/apply">Apply to Mentor</a>
-      <a class="btn btn--translucent" href="/how-it-works">See how it works</a>
     </div>
   </div>
 </div></section>
@@ -59,7 +57,6 @@ const benefits = [
   <div class="sec-head">
     <span class="eyebrow">Why Mentor</span>
     <h2>Why Mentor with <span class="grad-text">WorkforceAP</span>?</h2>
-    <p>Real impact, recognized hours, and a network of motivated professionals — with the paperwork handled for you.</p>
   </div>
   <div class="tri tri--4">
     {benefits.map((b) => (
@@ -75,54 +72,6 @@ const benefits = [
   </div>
 </div></section>
 
-<!-- HOW MENTORING WORKS -->
-<section class="band"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">Simple process</span>
-    <h2>From application to <span class="grad-text">first session</span></h2>
-    <p>A real team reviews every application and matches you when a member reaches the right stage in your domain.</p>
-  </div>
-  <div class="steps">
-    <div class="stepcard"><div class="num">01</div><h3>Apply</h3><p>Tell us your domain and availability. Takes about 5 minutes — a real team reviews it.</p></div>
-    <div class="stepcard"><div class="num">02</div><h3>Join the waitlist</h3><p>We accept applications now and match as our cohort grows.</p></div>
-    <div class="stepcard"><div class="num">03</div><h3>Get matched</h3><p>Most pairings start 4–8 weeks out, when a member hits interview-prep in your field.</p></div>
-    <div class="stepcard"><div class="num">04</div><h3>Mentor & log hours</h3><p>Sessions are recorded automatically — your volunteer hours track themselves.</p></div>
-  </div>
-</div></section>
-
-<!-- APPLICATION FORM (static visual) -->
-<section class="band band--surface" id="apply"><div class="wrap apply-grid">
-  <div>
-    <span class="eyebrow">Apply to mentor</span>
-    <h2 class="apply-h">Tell us about your <span class="grad-text">expertise</span></h2>
-    <p class="apply-lede">Industry professionals from every field are welcome — career changers, veterans, and returning workers are counting on your experience.</p>
-    <ul class="apply-list">
-      <li><span class="chk">✓</span> Volunteer hours logged automatically</li>
-      <li><span class="chk">✓</span> Nonprofit tax-deduction letter on demand</li>
-      <li><span class="chk">✓</span> Reviewed by a real team in 1 to 2 business days</li>
-    </ul>
-  </div>
-  <form class="formcard" aria-label="Mentor application (preview)" onsubmit="return false">
-    <div class="field"><label>Full name</label><div class="ipt">Your name</div></div>
-    <div class="field"><label>Work email</label><div class="ipt">you@company.com</div></div>
-    <div class="field"><label>Area of expertise</label><div class="ipt sel">Select your domain ▾</div></div>
-    <div class="field"><label>Years of experience</label><div class="ipt sel">5–10 years ▾</div></div>
-    <div class="field"><label>Why do you want to mentor?</label><div class="ipt area">A few sentences about what you'd bring to a member…</div></div>
-    <button class="btn btn--primary" type="button" style="width:100%;justify-content:center">Apply to Mentor →</button>
-    <p class="formnote">This is a preview. Use <a href="/mentor/apply">the full application</a> to submit.</p>
-  </form>
-</div></section>
-
-<!-- CTA -->
-<section class="band"><div class="wrap"><div class="cta">
-  <h2>Your experience is worth more than you think.</h2>
-  <p>Volunteer your expertise to help job-seekers advance their careers. Log hours, earn a tax deduction letter, and give back to your community.</p>
-  <div class="acts">
-    <a class="btn btn--light" href="/mentor/apply">Apply to Mentor</a>
-    <a class="btn btn--translucent" href="/contact">Talk with our team</a>
-  </div>
-</div></div></section>
-
 <style>
   .waitlist{background:var(--surface-2);border-bottom:1px solid var(--border)}
   .waitlist-in{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:18px 24px;flex-wrap:wrap}
@@ -131,10 +80,9 @@ const benefits = [
   .waitlist .btn{flex-shrink:0}
 
   .mentor-hero{text-align:left;padding:54px 44px}
-  .mentor-hero h2{margin-top:18px}
+  .mentor-hero h1{margin-top:0;font-size:clamp(32px,4.4vw,52px);font-weight:800;line-height:1.05}
   .mentor-hero p{margin-left:0;margin-right:auto;text-align:left}
   .mentor-hero .acts{justify-content:flex-start}
-  .eyebrow--light{color:#fff;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.28)}
   @media(max-width:560px){.mentor-hero{padding:44px 24px}}
 
   .tri--4{grid-template-columns:repeat(4,1fr)}
@@ -143,21 +91,5 @@ const benefits = [
   .tri--4 .acard .ic{font-size:24px}
 
   .apply-cta{text-align:center;margin-top:40px}
-
-  .apply-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-  @media(max-width:880px){.apply-grid{grid-template-columns:1fr;gap:32px}}
-  .apply-h{font-size:clamp(28px,3.6vw,40px);font-weight:800;margin:14px 0}
-  .apply-lede{color:var(--muted);font-size:18px;max-width:30em}
-  .apply-list{list-style:none;margin-top:22px;display:flex;flex-direction:column;gap:12px}
-  .apply-list li{display:flex;align-items:center;gap:11px;font-size:15px;font-weight:600}
-  .apply-list .chk{width:22px;height:22px;border-radius:7px;background:rgba(74,155,79,.15);color:var(--green);display:grid;place-items:center;font-size:13px;flex-shrink:0}
-
-  .formcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:16px}
-  .field label{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:7px}
-  .ipt{border:1px solid var(--border);border-radius:12px;padding:13px 15px;color:var(--muted);font-size:15px;background:var(--surface-2)}
-  .ipt.sel{display:flex;justify-content:space-between;align-items:center}
-  .ipt.area{min-height:84px}
-  .formnote{font-size:13px;color:var(--muted);text-align:center;margin-top:2px}
-  .formnote a{color:var(--crimson);font-weight:700}
 </style>
 </Layout>

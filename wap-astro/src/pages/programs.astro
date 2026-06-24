@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-// Quick-start lanes (verbatim from messages/en.json marketing.programs)
+// ── Quick-start lanes (verbatim from messages/en.json marketing.programs.quickStartCard*) ──
 const lanes = [
   {
     eyebrow: 'Beginner-friendly',
@@ -26,60 +26,7 @@ const lanes = [
   },
 ];
 
-// Representative catalog programs — real titles / categories / partners / durations
-// from lib/content/programs.ts (PROGRAMS). Salary ranges are the real strings.
-const programs = [
-  {
-    slug: 'digital-literacy-empowerment-class',
-    category: 'Digital Literacy', cat: 'gr', icon: '💻',
-    title: 'Digital Literacy Empowerment Class',
-    duration: '6 weeks, 5 hrs/week (30 hours total)',
-    salary: '$38K–$52K', partner: 'Grant', funding: 'No-cost (grant)',
-    skills: ['Digital literacy', 'Email', 'Online safety'],
-  },
-  {
-    slug: 'it-support-professional-certificate-ibm',
-    category: 'IT & Cybersecurity', cat: 'c', icon: '💻',
-    title: 'IT Support Professional Certificate (IBM)',
-    duration: '3–5 months, 10 hrs/week',
-    salary: '$55K–$72K', partner: 'IBM', funding: 'No-cost (WIOA)',
-    skills: ['Help desk', 'Hardware', 'Customer service'],
-  },
-  {
-    slug: 'ai-professional-developer-certificate-ibm',
-    category: 'AI & Software Dev', cat: 'g', icon: '🤖',
-    title: 'AI and Software Development Professional Certificate (IBM)',
-    duration: '3–5 months, 10 hrs/week',
-    salary: '$85K–$135K', partner: 'IBM', funding: 'No-cost (WIOA)',
-    skills: ['Python', 'AI/ML', 'Generative AI'],
-  },
-  {
-    slug: 'data-analytics-professional-certificate-google',
-    category: 'Cloud & Data', cat: 'b', icon: '📊',
-    title: 'Data Analytics Professional Certificate (Google)',
-    duration: '3–5 months, 10 hrs/week',
-    salary: '$72K–$102K', partner: 'Google', funding: 'No-cost (WIOA)',
-    skills: ['Spreadsheets', 'SQL', 'Tableau'],
-  },
-  {
-    slug: 'project-management-professional-certificate-microsoft',
-    category: 'Business', cat: 'g', icon: '💼',
-    title: 'Project Management Professional Certificate (Microsoft)',
-    duration: '3–5 months, 10 hrs/week',
-    salary: '$82K–$112K', partner: 'Microsoft', funding: 'No-cost (WIOA)',
-    skills: ['Agile', 'Scrum', 'Risk management'],
-  },
-  {
-    slug: 'certified-production-technician-cpt',
-    category: 'Manufacturing', cat: 'gr', icon: '🏭',
-    title: 'Certified Production Technician (CPT)',
-    duration: '3–5 months, 10 hrs/week',
-    salary: '$48K–$70K', partner: 'MSSC / NAM', funding: 'No-cost (WIOA)',
-    skills: ['Safety', 'Quality practices', 'Maintenance awareness'],
-  },
-];
-
-// "How to choose" — verbatim factor labels + copy from i18n
+// ── "How to choose" factors (verbatim labels + copy from marketing.programs.howToChooseFactor*) ──
 const factors = [
   { label: 'Your interests', desc: 'What work feels natural or exciting to you?', icon: '❤️' },
   { label: 'Device access', desc: 'Some programs work on phones; others need a laptop.', icon: '💻' },
@@ -88,61 +35,227 @@ const factors = [
   { label: 'Growth path', desc: 'Some certificates lead directly to jobs; others are stepping stones.', icon: '📈' },
 ];
 
-// Enrollment-to-employment journey (verbatim)
+// ── Enrollment-to-employment journey (verbatim marketing.programs.journeyStep*) ──
 const journey = [
   { num: '1', title: 'Find your path', desc: 'Use the pathfinder to align your interests, timeline, and goals with the right program.' },
   { num: '2', title: 'Build skills', desc: 'Complete training at your own pace or in cohort and earn an industry-recognized certificate.' },
   { num: '3', title: 'Get job-ready', desc: 'Resume review, mock interviews, and practical prep for the roles you’re targeting.' },
   { num: '4', title: 'Connect to work', desc: 'Employer-facing support, job-search guidance, and help finding openings that match your training.' },
 ];
+
+// ════════════════════════════════════════════════════════════════════
+// FULL CATALOG — all 21 real programs from lib/content/programs.ts (PROGRAMS).
+// Real titles / category labels / durations / partners / funding sources /
+// skills (first 3) / salary ranges (the real "Starting salary: $X-$Y" strings).
+// Grouped by the real subgroups (lib/content/programSubgroup.ts) in real order.
+// ════════════════════════════════════════════════════════════════════
+type P = {
+  slug: string; category: string; cat: string; icon: string; title: string;
+  duration: string; salary: string; partner: string; funding: string; skills: string[];
+};
+
+// Category accent → blend pill class (crimson / gold / blue / green / neutral)
+// c=IT&Cyber(crimson) g=AI/Business(gold) b=Cloud/Net(blue) gr=Digital(green) h=Healthcare(crimson) m=Manufacturing(neutral)
+const subgroups: { id: string; label: string; description: string; programs: P[] }[] = [
+  {
+    id: 'digital-literacy',
+    label: 'Digital Literacy',
+    description: 'Foundational digital skills and confidence for today’s workplace.',
+    programs: [
+      { slug: 'digital-literacy-empowerment-class', category: 'Digital Literacy', cat: 'gr', icon: '💻',
+        title: 'Digital Literacy Empowerment Class', duration: '6 weeks, 5 hrs/week (30 hours total)',
+        salary: '$38K–$52K', partner: 'Grant', funding: 'Grant',
+        skills: ['Digital literacy', 'Email', 'Financial literacy'] },
+    ],
+  },
+  {
+    id: 'it-support',
+    label: 'IT Support',
+    description: 'Help desk, hardware, and core IT pathways.',
+    programs: [
+      { slug: 'it-support-professional-certificate-ibm', category: 'IT & Cybersecurity', cat: 'c', icon: '💻',
+        title: 'IT Support Professional Certificate (IBM)', duration: '3-5 months, 10 hrs/week',
+        salary: '$55K–$72K', partner: 'IBM', funding: 'WIOA',
+        skills: ['Help desk', 'Hardware', 'Software'] },
+      { slug: 'comptia-a-professional-certificate', category: 'IT & Cybersecurity', cat: 'c', icon: '🛡️',
+        title: 'CompTIA A+ Professional Certificate', duration: '3-5 months, 10 hrs/week',
+        salary: '$55K–$78K', partner: 'CompTIA', funding: 'WIOA',
+        skills: ['Hardware', 'Networking', 'Security'] },
+      { slug: 'comptia-network-professional-certificate', category: 'IT & Cybersecurity', cat: 'c', icon: '🛡️',
+        title: 'CompTIA Network+ Professional Certificate', duration: '3-5 months, 10 hrs/week',
+        salary: '$60K–$88K', partner: 'CompTIA', funding: 'WIOA',
+        skills: ['Networking', 'TCP/IP', 'Cisco'] },
+      { slug: 'comptia-security-professional-certificate', category: 'IT & Cybersecurity', cat: 'c', icon: '🛡️',
+        title: 'CompTIA Security+ Professional Certificate', duration: '3-5 months, 10 hrs/week',
+        salary: '$72K–$108K', partner: 'CompTIA', funding: 'WIOA',
+        skills: ['Network security', 'Risk management', 'Cryptography'] },
+      { slug: 'cybersecurity-professional-certificate-google', category: 'IT & Cybersecurity', cat: 'c', icon: '🛡️',
+        title: 'Cyber Security and Networking Professional Certificate (Network+, Sec+)', duration: '3-5 months, 10 hrs/week',
+        salary: '$75K–$112K', partner: 'Google', funding: 'WIOA',
+        skills: ['Linux', 'SQL', 'Python'] },
+    ],
+  },
+  {
+    id: 'database',
+    label: 'Database & Data Platforms',
+    description: 'Data storage, analytics, and data-centric roles.',
+    programs: [
+      { slug: 'data-analytics-professional-certificate-google', category: 'Cloud & Data', cat: 'g', icon: '📊',
+        title: 'Data Analytics Professional Certificate (Google)', duration: '3-5 months, 10 hrs/week',
+        salary: '$72K–$102K', partner: 'Google', funding: 'WIOA',
+        skills: ['Spreadsheets', 'SQL', 'R'] },
+      { slug: 'data-science-professional-certificate-ibm', category: 'Cloud & Data', cat: 'g', icon: '📊',
+        title: 'Data Science Professional Certificate (IBM)', duration: '3-5 months, 10 hrs/week',
+        salary: '$88K–$130K', partner: 'IBM', funding: 'WIOA',
+        skills: ['Python', 'SQL', 'Machine Learning'] },
+      { slug: 'aws-cloud-technology-amazon', category: 'Cloud & Data', cat: 'b', icon: '☁️',
+        title: 'AWS Cloud Technology Certificate', duration: '3-5 months, 10 hrs/week',
+        salary: '$95K–$145K', partner: 'Amazon Web Services', funding: 'WIOA',
+        skills: ['AWS', 'Cloud architecture', 'DevOps'] },
+    ],
+  },
+  {
+    id: 'programming',
+    label: 'Programming & Software',
+    description: 'Software development, automation, and engineering tracks.',
+    programs: [
+      { slug: 'ai-professional-developer-certificate-ibm', category: 'AI & Software Dev', cat: 'g', icon: '🤖',
+        title: 'AI and Software Development Professional Certificate (IBM)', duration: '3-5 months, 10 hrs/week',
+        salary: '$85K–$135K', partner: 'IBM', funding: 'WIOA',
+        skills: ['Python', 'AI/ML', 'Generative AI'] },
+      { slug: 'it-automation-with-python-google', category: 'IT & Cybersecurity', cat: 'c', icon: '💻',
+        title: 'IT Automation with Python Certificate (Google)', duration: '3-5 months, 10 hrs/week',
+        salary: '$78K–$98K', partner: 'Google', funding: 'WIOA',
+        skills: ['Python', 'Git', 'Bash'] },
+    ],
+  },
+  {
+    id: 'web-programming',
+    label: 'Web & Front End',
+    description: 'Web technologies, UX, and product-facing builds.',
+    programs: [
+      { slug: 'ux-design-professional-certificate-google', category: 'Business', cat: 'g', icon: '💼',
+        title: 'UX Design Professional Certificate (Google)', duration: '3-5 months, 10 hrs/week',
+        salary: '$88K–$120K', partner: 'Google', funding: 'WIOA',
+        skills: ['User research', 'Wireframing', 'Figma'] },
+    ],
+  },
+  {
+    id: 'leadership',
+    label: 'Leadership, Business, & Marketing',
+    description: 'Project management, marketing, UX, and business skills.',
+    programs: [
+      { slug: 'project-management-professional-certificate-microsoft', category: 'Business', cat: 'g', icon: '💼',
+        title: 'Project Management Professional Certificate (Microsoft)', duration: '3-5 months, 10 hrs/week',
+        salary: '$82K–$112K', partner: 'Microsoft', funding: 'WIOA',
+        skills: ['Agile', 'Scrum', 'MS Project'] },
+      { slug: 'digital-marketing-e-commerce-google', category: 'Business', cat: 'g', icon: '💼',
+        title: 'Digital Marketing & E-Commerce (Google)', duration: '3-5 months, 10 hrs/week',
+        salary: '$62K–$78K', partner: 'Google', funding: 'WIOA',
+        skills: ['SEO', 'SEM', 'Email marketing'] },
+    ],
+  },
+  {
+    id: 'medical',
+    label: 'Medical & Health IT',
+    description: 'Healthcare information and coding pathways.',
+    programs: [
+      { slug: 'medical-billing-and-coding-certificate', category: 'Healthcare', cat: 'gr', icon: '🩺',
+        title: 'Medical Billing and Coding Professional Certificate', duration: '4-6 months, 10 hrs/week',
+        salary: '$45K–$62K', partner: 'Coursera', funding: 'WIOA',
+        skills: ['Medical billing', 'Medical coding', 'Medical terminology'] },
+      { slug: 'health-information-technology-mchit', category: 'Healthcare', cat: 'gr', icon: '❤️',
+        title: 'Medical Billing, Coding, and Health Information Technology', duration: '3-5 months, 10 hrs/week',
+        salary: '$52K–$72K', partner: 'Healthcare Career Pathway', funding: 'WIOA',
+        skills: ['Medical coding', 'EHR', 'HIPAA'] },
+    ],
+  },
+  {
+    id: 'manufacturing-logistics',
+    label: 'Manufacturing & Logistics',
+    description: 'Production, supply chain, and technician credentials.',
+    programs: [
+      { slug: 'certified-production-technician-cpt', category: 'Manufacturing', cat: 'm', icon: '🏭',
+        title: 'Certified Production Technician (CPT)', duration: '3-5 months, 10 hrs/week',
+        salary: '$48K–$70K', partner: 'MSSC / NAM', funding: 'WIOA',
+        skills: ['Safety', 'Quality practices', 'Manufacturing processes'] },
+      { slug: 'certified-logistics-technician-clt', category: 'Manufacturing', cat: 'm', icon: '🏭',
+        title: 'Certified Logistics Technician (CLT)', duration: '3-5 months, 10 hrs/week',
+        salary: '$55K–$78K', partner: 'MSSC / NAM', funding: 'WIOA',
+        skills: ['Logistics fundamentals', 'Safety', 'Inventory'] },
+    ],
+  },
+  {
+    id: 'construction',
+    label: 'Construction & Trades',
+    description: 'Safety, trades readiness, and construction fundamentals.',
+    programs: [
+      { slug: 'core-construction-training-certificate', category: 'Construction & Trades', cat: 'm', icon: '🏗️',
+        title: 'Core Construction', duration: '5 hours per section',
+        salary: '$48K–$68K', partner: 'OSHA-10 / Grant', funding: 'WIOA',
+        skills: ['OSHA-10', 'Blueprint reading', 'Construction fundamentals'] },
+    ],
+  },
+  {
+    id: 'other',
+    label: 'Other',
+    description: 'Additional tracks.',
+    programs: [
+      { slug: 'it-support-and-entry-level-cyber-security-certificate', category: 'IT & Cybersecurity', cat: 'c', icon: '🛡️',
+        title: 'IT Support and Entry-level Cyber Security Certificate', duration: '3-5 months, 10 hrs/week',
+        salary: '$60K–$88K', partner: 'IBM / CompTIA', funding: 'WIOA',
+        skills: ['Help desk', 'Networking', 'Security fundamentals'] },
+    ],
+  },
+];
+
+const catalogSize = subgroups.reduce((n, s) => n + s.programs.length, 0); // 21
+
+// Starter "Start here" trio (real STARTER_PROGRAM_SLUGS from ProgramsContent.tsx)
+const starterSlugs = [
+  'digital-literacy-empowerment-class',
+  'it-support-professional-certificate-ibm',
+  'project-management-professional-certificate-microsoft',
+];
+const allPrograms = subgroups.flatMap((s) => s.programs);
+const starterPrograms = starterSlugs
+  .map((slug) => allPrograms.find((p) => p.slug === slug))
+  .filter((p): p is P => Boolean(p));
+
+// Filter chips (real labels + counts from ProgramsContent.tsx)
+const filterChips = [
+  { label: `All programs (${catalogSize})`, active: true },
+  ...subgroups
+    .filter((s) => s.programs.length > 0)
+    .map((s) => ({ label: `${s.id === 'digital-literacy' ? 'Digital Literacy' : s.id === 'it-support' ? 'IT Support' : s.id === 'database' ? 'Database' : s.id === 'programming' ? 'Programming' : s.id === 'web-programming' ? 'Web' : s.id === 'leadership' ? 'Leadership' : s.id === 'medical' ? 'Medical' : s.id === 'manufacturing-logistics' ? 'Mfg & Logistics' : s.id === 'construction' ? 'Construction' : 'Other'} (${s.programs.length})`, active: false })),
+];
 ---
 <Layout
   title="Career Training Programs — Nationwide Certificates"
   description="Explore career training programs offered at no cost to qualifying members, with industry certifications from IBM, Google, AWS, Microsoft, and CompTIA. Nationwide pathways supported by grants and partnerships."
 >
-<!-- HERO -->
+<!-- ══════════════════════════════════════════════ HERO — crimson→plum tile + photo ══════════════════════════════════════════════ -->
 <section class="hero"><div class="wrap grid">
-  <div>
-    <span class="eyebrow"><span class="dot"></span>Career training programs</span>
-    <h1>Find the right program<br><span class="grad-text">for your goals</span></h1>
+  <div class="prog-hero-tile">
+    <span class="ribbon">Career training programs</span>
+    <h1>Find the right program <span class="grad-light">for your goals</span></h1>
     <p class="sub">Explore career training programs offered no cost for qualifying members, with certifications from IBM, Google, AWS, Microsoft, and CompTIA.</p>
     <div class="cta">
-      <a class="btn btn--primary" href="#quick-start">Quick start →</a>
-      <a class="btn btn--ghost" href="/find-your-path">Find your path</a>
-    </div>
-    <div class="trustline">
-      <span><b>IBM · Google · Microsoft · AWS · CompTIA</b></span><span class="sep"></span>
-      <span><b>$0</b> for qualifying members</span><span class="sep"></span>
-      <span>Available nationwide</span>
+      <a class="btn btn--light" href="#programs-quick-start">Quick start</a>
+      <a class="btn btn--translucent" href="/find-your-path">Find your path</a>
     </div>
   </div>
-  <div style="position:relative">
-    <div class="panel">
-      <div class="floatbadge">Employer-recognized certificates</div>
-      <div class="phead">
-        <div><small>Quick start</small><div class="big">Start with a lane</div></div>
-      </div>
-      <div class="step active"><div class="n">A</div><div class="t"><b>Beginner-friendly</b><span>Digital Literacy</span></div><span class="pill">Start here</span></div>
-      <div class="step"><div class="n">B</div><div class="t"><b>In-demand</b><span>IT Support</span></div></div>
-      <div class="step"><div class="n">C</div><div class="t"><b>Business-friendly</b><span>Project Management</span></div></div>
-      <p class="note">Not sure? Take the 5-minute pathfinder and we'll match you to a track.</p>
-    </div>
-  </div>
+  <div class="prog-hero-photo" aria-hidden="true"></div>
 </div></section>
 
-<!-- CERT PARTNERS -->
-<div class="creds"><div class="wrap" style="display:block">
-  <div class="row" style="display:flex"><div class="lab">Industry certifications you can earn at no cost</div>
-    <span class="logo">IBM</span><span class="logo">Google</span><span class="logo">Microsoft</span><span class="logo">AWS</span><span class="logo">CompTIA</span><span class="extra">+ MSSC CPT &amp; CLT</span>
-  </div>
-</div></div>
-
-<!-- QUICK START LANES -->
-<section class="band band--surface" id="quick-start"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">Quick start</span>
-    <h2>Start with the lane that <span class="grad-text">fits you best</span></h2>
-    <p>Not sure? <a href="/find-your-path" style="color:var(--crimson);font-weight:700">Take the 5-minute pathfinder →</a></p>
+<!-- ══════════════════════════════════════════════ QUICK START — lanes that fit you best ══════════════════════════════════════════════ -->
+<section class="band band--surface" id="programs-quick-start"><div class="wrap">
+  <div class="sec-head qs-head">
+    <div>
+      <span class="eyebrow">Quick start</span>
+      <h2>Start with the lane that <span class="grad-text">fits you best.</span></h2>
+    </div>
+    <a class="qs-link" href="/find-your-path">Not sure? Take the 5-minute pathfinder →</a>
   </div>
   <div class="tri">
     {lanes.map((l) => (
@@ -156,7 +269,16 @@ const journey = [
   </div>
 </div></section>
 
-<!-- HOW TO CHOOSE -->
+<!-- ══════════════════════════════════════════════ TOOL ROUTING ══════════════════════════════════════════════ -->
+<section class="band" style="padding-bottom:0"><div class="wrap">
+  <div class="tools-row">
+    <a class="btn btn--primary" href="/find-your-path">Not sure? Take the 5-minute pathfinder</a>
+    <a class="btn btn--ghost" href="/program-comparison">Compare Programs</a>
+    <a class="btn btn--ghost" href="/salary-guide">View Salary Guide</a>
+  </div>
+</div></section>
+
+<!-- ══════════════════════════════════════════════ HOW TO CHOOSE ══════════════════════════════════════════════ -->
 <section class="band"><div class="wrap">
   <div class="sec-head">
     <span class="eyebrow">How to choose a program</span>
@@ -175,72 +297,109 @@ const journey = [
   <p class="truth">Still unsure? <a href="/find-your-path">The pathfinder guide helps in about five minutes.</a></p>
 </div></section>
 
-<!-- PROGRAM CATALOG -->
+<!-- ══════════════════════════════════════════════ PROGRAM CATALOG ══════════════════════════════════════════════ -->
 <section class="band band--surface" id="program-catalog"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">Browse the catalog</span>
-    <h2>Career training <span class="grad-text">programs</span></h2>
-    <p>Search by name, skill, partner, or topic — or browse by category. A representative selection is shown below.</p>
+  <div class="sec-head" style="text-align:left;align-items:flex-start;max-width:42rem">
+    <h2 style="margin-bottom:8px">Browse all {catalogSize} programs</h2>
+    <p>Search by name, skill, partner, or topic — or browse by category.</p>
   </div>
 
-  <!-- Static search + filter chips (visual only for this spike) -->
+  <!-- Static search + filter chips (visual representation only) -->
   <div class="catalog-controls">
     <div class="searchbox">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <span>Search programs by name, skill, partner, or topic…</span>
     </div>
     <div class="chips">
-      <span class="chip active">All programs</span>
-      <span class="chip">IT &amp; Cybersecurity</span>
-      <span class="chip">AI &amp; Software Dev</span>
-      <span class="chip">Cloud &amp; Data</span>
-      <span class="chip">Business</span>
-      <span class="chip">Healthcare</span>
-      <span class="chip">Manufacturing</span>
-      <span class="chip">Digital Literacy</span>
+      {filterChips.map((c) => (
+        <span class={c.active ? 'chip active' : 'chip'}>{c.label}</span>
+      ))}
     </div>
   </div>
 
-  <div class="pgrid">
-    {programs.map((p) => (
-      <div class="pcard">
-        <div class="pcard-top">
-          <div class="ptags">
-            <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
-            <span class="fund-pill">{p.funding}</span>
-          </div>
-          <span class="picon">{p.icon}</span>
-        </div>
-        <h3>{p.title}</h3>
-        <div class="pmeta">
-          <span>⏱ {p.duration}</span>
-        </div>
-        <p class="prange">Starting range: <b>{p.salary}</b></p>
-        <p class="pdisc">Salary range is an Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.</p>
-        <div class="pskills">
-          {p.skills.map((s) => <span class="stag">{s}</span>)}
-        </div>
-        <div class="pcard-foot">
-          <span class="ppartner">Partner: {p.partner}</span>
-          <div class="pacts">
-            <a class="btn btn--ghost" style="padding:8px 16px;font-size:14px" href={`/programs/${p.slug}`}>View Program</a>
-            <a class="btn btn--primary" style="padding:8px 16px;font-size:14px" href={`/apply?program=${p.slug}`}>Get Started →</a>
-          </div>
-        </div>
+  <!-- Start here — three safest first choices (real starter framing) -->
+  <section class="starter">
+    <div class="starter-head">
+      <div>
+        <p class="starter-eyebrow">Start here</p>
+        <h3>Not sure which one fits? Start with these three.</h3>
       </div>
-    ))}
-  </div>
+      <a class="btn btn--primary" href="/career-quiz">Take the 2-minute quiz</a>
+    </div>
+    <p class="starter-lead">These are the safest first choices for members who are new, want the fastest job path, or prefer a business-friendly route.</p>
+    <div class="pgrid">
+      {starterPrograms.map((p) => (
+        <div class="pcard">
+          <div class="pcard-top">
+            <div class="ptags">
+              <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
+              <span class="fund-pill">{p.funding}</span>
+            </div>
+            <span class="picon">{p.icon}</span>
+          </div>
+          <h3>{p.title}</h3>
+          <div class="pmeta"><span>⏱ {p.duration}</span><span class="prange-inline">Starting range: <b>{p.salary}</b></span></div>
+          <p class="pdisc">Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.</p>
+          <div class="pskills">{p.skills.map((s) => <span class="stag">{s}</span>)}</div>
+          <div class="pcard-foot">
+            <span class="ppartner">Partner: {p.partner}</span>
+            <div class="pacts">
+              <a class="btn btn--ghost" style="padding:8px 16px;font-size:14px" href={`/programs/${p.slug}`}>View Program</a>
+              <a class="btn btn--primary" style="padding:8px 16px;font-size:14px" href={`/apply?program=${p.slug}`}>Get Started →</a>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+    <a class="see-all" href="#all-programs">See all {catalogSize} programs ↓</a>
+  </section>
 
+  <!-- All programs, grouped by real subgroup (fully expanded) -->
+  <div id="all-programs"></div>
+  {subgroups.map((sg) => (
+    <section class="subgroup" id={`subgroup-${sg.id}`}>
+      <div class="subgroup-head">
+        <h3>{sg.label}</h3>
+        <span class="subgroup-count">{sg.programs.length} program{sg.programs.length !== 1 ? 's' : ''}</span>
+      </div>
+      <p class="subgroup-desc">{sg.description}</p>
+      <div class="pgrid">
+        {sg.programs.map((p) => (
+          <div class="pcard">
+            <div class="pcard-top">
+              <div class="ptags">
+                <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
+                <span class="fund-pill">{p.funding}</span>
+              </div>
+              <span class="picon">{p.icon}</span>
+            </div>
+            <h3>{p.title}</h3>
+            <div class="pmeta"><span>⏱ {p.duration}</span><span class="prange-inline">Starting range: <b>{p.salary}</b></span></div>
+            <p class="pdisc">Salary range is Austin market estimate (Lightcast/BLS, Jan 2026). Actual pay depends on experience and employer.</p>
+            <div class="pskills">{p.skills.map((s) => <span class="stag">{s}</span>)}</div>
+            <div class="pcard-foot">
+              <span class="ppartner">Partner: {p.partner}</span>
+              <div class="pacts">
+                <a class="btn btn--ghost" style="padding:8px 16px;font-size:14px" href={`/programs/${p.slug}`}>View Program</a>
+                <a class="btn btn--primary" style="padding:8px 16px;font-size:14px" href={`/apply?program=${p.slug}`}>Get Started →</a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  ))}
+
+  <p class="catalog-foot">Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.</p>
   <div class="catalog-actions">
-    <a class="btn btn--primary" href="/find-your-path">Find Your Path — Take the Quiz</a>
+    <a class="btn btn--primary" href="/career-quiz">Find Your Path — Take the Quiz</a>
     <a class="btn btn--ghost" href="/program-comparison">Compare Programs</a>
     <a class="btn btn--ghost" href="/salary-guide">View Salary Guide</a>
   </div>
-  <p class="catalog-foot">Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.</p>
 </div></section>
 
-<!-- JOURNEY -->
-<section class="band"><div class="wrap">
+<!-- ══════════════════════════════════════════════ JOURNEY — 4-step flow ══════════════════════════════════════════════ -->
+<section class="band band--surface"><div class="wrap">
   <div class="sec-head" style="max-width:660px">
     <span class="eyebrow">From enrollment to employment</span>
     <h2>From enrollment to <span class="grad-text">employment</span></h2>
@@ -253,7 +412,7 @@ const journey = [
   </div>
 </div></section>
 
-<!-- CTA -->
+<!-- ══════════════════════════════════════════════ CTA — crimson→plum band ══════════════════════════════════════════════ -->
 <section class="band" style="padding-top:0"><div class="wrap"><div class="cta">
   <h2>Ready to start?</h2>
   <p>Apply in minutes. A member advisor will follow up within 1–2 business days.</p>
@@ -264,7 +423,26 @@ const journey = [
 </div></div></section>
 
 <style>
-  /* how-to-choose grid (reuses tokens, page-specific layout) */
+  /* hero — crimson→plum tile + photo (page-specific layout) */
+  .prog-hero-tile{position:relative;background:var(--grad);border-radius:var(--radius);padding:48px 44px;color:#fff;box-shadow:var(--shadow-lg);overflow:hidden}
+  .prog-hero-tile .ribbon{display:inline-block;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);color:#fff;font-weight:700;font-size:13px;letter-spacing:.02em;padding:7px 14px;border-radius:999px;margin-bottom:20px}
+  .prog-hero-tile h1{font-size:clamp(34px,5vw,56px);font-weight:800;margin:0 0 16px;line-height:1.06}
+  .prog-hero-tile .grad-light{color:var(--gold)}
+  .prog-hero-tile .sub{color:rgba(255,255,255,.9);font-size:18px;max-width:34em;margin-bottom:26px}
+  .prog-hero-tile .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .prog-hero-photo{border-radius:var(--radius);min-height:380px;box-shadow:var(--shadow-lg);background:url('https://www.workforceap.org/images/hero-people.webp') center/cover}
+  @media(max-width:880px){.prog-hero-photo{min-height:240px}}
+
+  /* quick-start head row */
+  .qs-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;text-align:left;flex-wrap:wrap}
+  .qs-head h2{margin-top:6px}
+  .qs-link{font-weight:700;color:var(--crimson);white-space:nowrap}
+  .acard{display:flex;flex-direction:column}
+
+  /* tool routing */
+  .tools-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+  /* how-to-choose grid */
   .choose{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}
   .fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
   .fcard .fic{width:46px;height:46px;border-radius:12px;background:rgba(173,44,77,.1);display:grid;place-items:center;font-size:22px;margin-bottom:14px}
@@ -275,13 +453,29 @@ const journey = [
 
   /* catalog controls */
   .catalog-controls{margin-bottom:30px}
-  .searchbox{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;color:var(--muted);font-size:15px;box-shadow:var(--shadow);max-width:560px;margin:0 auto 18px}
-  .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+  .searchbox{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;color:var(--muted);font-size:15px;box-shadow:var(--shadow);margin:0 0 18px}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
   .chip{font-size:14px;font-weight:600;padding:8px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:default}
   .chip.active{background:var(--grad);color:#fff;border-color:transparent}
 
+  /* starter "Start here" section */
+  .starter{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-2);padding:24px;margin-bottom:40px}
+  .starter-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  .starter-eyebrow{color:var(--crimson);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+  .starter-head h3{font-size:20px;font-weight:800}
+  .starter-lead{font-size:15px;color:var(--muted);max-width:44rem;line-height:1.6;margin:12px 0 18px}
+  .see-all{display:inline-flex;margin-top:16px;color:var(--crimson);font-weight:800;text-decoration:underline;text-underline-offset:4px}
+
+  /* subgroup sections */
+  .subgroup{margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border);scroll-margin-top:6rem}
+  .subgroup:last-of-type{border-bottom:none}
+  .subgroup-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .subgroup-head h3{font-size:22px;font-weight:800}
+  .subgroup-count{font-size:14px;color:var(--muted);font-weight:500}
+  .subgroup-desc{font-size:15px;color:var(--muted);max-width:42rem;margin:6px 0 20px}
+
   /* program cards */
-  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:38px}
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
   @media(max-width:980px){.pgrid{grid-template-columns:1fr 1fr}}
   @media(max-width:680px){.pgrid{grid-template-columns:1fr}}
   .pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .18s,box-shadow .2s}
@@ -289,13 +483,12 @@ const journey = [
   .pcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
   .ptags{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .cat-pill{color:#fff;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700}
-  .cat--c{background:var(--crimson)}.cat--g{background:var(--gold-dark)}.cat--b{background:var(--blue)}.cat--gr{background:var(--green)}
+  .cat--c{background:var(--crimson)}.cat--g{background:var(--gold-dark)}.cat--b{background:var(--blue)}.cat--gr{background:var(--green)}.cat--m{background:#3a3a3a}
   .fund-pill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(74,155,79,.12);color:var(--green)}
   .picon{font-size:26px}
   .pcard h3{font-size:18px;font-weight:700;margin-bottom:10px}
   .pmeta{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted);margin-bottom:8px}
-  .prange{font-size:14px;color:var(--text);margin-bottom:6px}
-  .prange b{color:var(--crimson)}
+  .prange-inline b{color:var(--crimson)}
   .pdisc{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.45}
   .pskills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
   .stag{background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:6px;font-size:13px}
@@ -303,9 +496,7 @@ const journey = [
   .ppartner{font-size:13px;color:var(--muted)}
   .pacts{display:flex;flex-wrap:wrap;gap:8px}
 
-  .catalog-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-  .catalog-foot{text-align:center;margin-top:20px;font-size:13px;color:var(--muted);max-width:640px;margin-left:auto;margin-right:auto}
-
-  .acard{display:flex;flex-direction:column}
+  .catalog-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+  .catalog-foot{text-align:center;margin-top:28px;font-size:13px;color:var(--muted);max-width:640px;margin-left:auto;margin-right:auto}
 </style>
 </Layout>

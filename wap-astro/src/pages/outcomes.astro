@@ -1,12 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-// Truth-lock: this is a transparency page. We do NOT invent placement counts,
-// percentages, retention figures, or named testimonials. The live Next page
-// pulls these from internal placement records at request time. For this static
-// spike, the data slots render as "awaiting published data" placeholders so the
-// page stays visually complete without fabricating outcomes.
-const sections = [
+// Truth-lock: this is a transparency page. The live Next page pulls placement
+// counts, follow-up signal rates, and PII-stripped story cards from internal
+// placement records at request time (getPublicPlacementOutcomes / socialProof).
+// For this static spike we do NOT fabricate any number, rate, or testimonial:
+// the data slots render as "awaiting published data" placeholders so the page
+// stays visually complete and structurally identical to the real page while
+// remaining honest about having no live records to show.
+
+// Real breakdown sections, in the same order the Next page renders them
+// (by program → by funding source → by retention status).
+const breakdowns = [
   { id: 'outcomes-by-program', title: 'By program (where recorded)' },
   { id: 'outcomes-by-funding', title: 'By funding source (where recorded)' },
   { id: 'outcomes-by-retention', title: 'Retention status (where recorded)' },
@@ -29,85 +34,71 @@ const sections = [
       </p>
     </div>
 
-    <!-- BIG STAT CARD (truthful: shows methodology, not a fabricated number) -->
+    <!-- BIG STAT CARD (truth-lock: no live records, so the count is published per cohort) -->
     <div class="statcard">
       <div class="num">—</div>
       <div class="lab">Members with a placement on file</div>
       <div class="asof">Published per cohort as records are verified</div>
       <div class="signal">
-        Follow-up signal rate: <strong>—</strong> reported with an approximate 95% interval
-        (Wilson score) once enough placements are on file. We publish the interval, not just the
-        point estimate — small samples get wide intervals on purpose.
+        Follow-up signal rate: <strong>—</strong> (— of —) — approximate 95% interval
+        published once enough placements are on file (Wilson score).
       </div>
     </div>
   </div>
 </div></section>
 
-<!-- METHODOLOGY NOTE -->
-<section class="band"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">How we count</span>
-    <h2>Verified records, <span class="grad-text">honest math</span></h2>
-    <p>We're a nonprofit — so we don't inflate outcomes. Every figure traces back to a real placement record, with the methodology shown.</p>
-  </div>
-  <div class="tri">
-    <div class="acard"><div class="ic ic--c">📄</div><h3>From real records</h3><p>Counts are pulled from internal placement records. No seeded, illustrative, or projected outcomes are shown on this page.</p></div>
-    <div class="acard"><div class="ic ic--b">📐</div><h3>Wilson intervals</h3><p>Rates are reported with an approximate 95% Wilson-score interval. Small samples produce wide intervals — we show that rather than hide it.</p></div>
-    <div class="acard"><div class="ic ic--gr">🛡️</div><h3>PII-stripped</h3><p>Any placement stories are stripped of personal information. We never attach invented names or results to a member.</p></div>
-  </div>
-</div></section>
-
 <!-- VERIFIED PLACEMENT STORIES (static, PII-stripped representation) -->
-<section class="band band--surface"><div class="wrap">
+<section class="band" aria-labelledby="placement-stories"><div class="wrap">
   <div class="sec-head">
-    <span class="eyebrow">Verified placement stories</span>
-    <h2>Pulled from <span class="grad-text">live placement records</span></h2>
-    <p>PII-stripped cards drawn from real placement records. No seeded or illustrative outcomes are shown — cards appear here only as cohorts complete.</p>
+    <h2 id="placement-stories">Verified placement stories</h2>
+    <p>PII-stripped cards pulled from live placement records. No seeded or illustrative outcomes are shown.</p>
   </div>
   <div class="stories">
     <article class="scard scard--empty">
-      <span class="tag"><span class="chk">✓</span> Verified placement</span>
+      <span class="tag">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+        Verified placement
+      </span>
       <h3>Job title from record</h3>
-      <p class="meta">Program · month / year</p>
+      <p class="meta">Program not specified · month / year</p>
     </article>
     <article class="scard scard--empty">
-      <span class="tag"><span class="chk">✓</span> Verified placement</span>
+      <span class="tag">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+        Verified placement
+      </span>
       <h3>Job title from record</h3>
-      <p class="meta">Program · month / year</p>
+      <p class="meta">Program not specified · month / year</p>
     </article>
     <article class="scard scard--empty">
-      <span class="tag"><span class="chk">✓</span> Verified placement</span>
+      <span class="tag">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+        Verified placement
+      </span>
       <h3>Job title from record</h3>
-      <p class="meta">Program · month / year</p>
+      <p class="meta">Program not specified · month / year</p>
     </article>
   </div>
-  <p class="truth">Verified placement stories appear here as cohorts complete. See the outcomes methodology before any figure is used externally.</p>
+  <p class="method">Story cards appear here as cohorts complete. See the admin outcomes methodology before using any claim externally.</p>
 </div></section>
 
-<!-- AGGREGATE BREAKDOWNS -->
-<section class="band"><div class="wrap">
-  <div class="sec-head">
-    <span class="eyebrow">Aggregate breakdowns</span>
-    <h2>Where the numbers <span class="grad-text">come from</span></h2>
-    <p>As placements are recorded, counts populate below — by program, by funding source, and by retention status.</p>
-  </div>
-  <div class="bgrid">
-    {sections.map((s) => (
-      <div class="bcard" aria-labelledby={s.id}>
-        <h3 id={s.id}>{s.title}</h3>
-        <ul class="blist">
-          <li class="brow"><span>Awaiting published data</span><strong>—</strong></li>
-          <li class="brow"><span>Awaiting published data</span><strong>—</strong></li>
-          <li class="brow"><span>Unspecified</span><strong>—</strong></li>
-        </ul>
-      </div>
-    ))}
-  </div>
-</div></section>
+<!-- AGGREGATE BREAKDOWNS: by program → by funding → by retention -->
+{breakdowns.map((s) => (
+  <section class="band band--tight" aria-labelledby={s.id}><div class="wrap">
+    <div class="sec-head sec-head--sm">
+      <h2 id={s.id}>{s.title}</h2>
+    </div>
+    <ul class="blist">
+      <li class="brow"><span>Awaiting published data</span><strong>—</strong></li>
+      <li class="brow"><span>Awaiting published data</span><strong>—</strong></li>
+      <li class="brow"><span>Unspecified</span><strong>—</strong></li>
+    </ul>
+  </div></section>
+))}
 
 <!-- CLOSING CTA -->
-<section class="band"><div class="wrap"><div class="cta">
-  <h2>Ready to start your own pathway?</h2>
+<section class="band" aria-labelledby="outcomes-cta"><div class="wrap"><div class="cta">
+  <h2 id="outcomes-cta">Ready to start your own pathway?</h2>
   <p>Apply in about 5 minutes — no cost for qualifying members. A real team reviews it and follows up in 1 to 2 business days.</p>
   <div class="acts">
     <a class="btn btn--light" href="/apply">Start your application</a>
@@ -134,19 +125,20 @@ const sections = [
   .scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
   .scard--empty{border-style:dashed;background:var(--surface-2)}
   .scard .tag{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(74,155,79,.12);color:var(--green)}
-  .scard .tag .chk{width:18px;height:18px;border-radius:5px;background:rgba(74,155,79,.18);display:grid;place-items:center;font-size:11px}
+  .scard .tag svg{display:block}
   .scard h3{font-size:19px;font-weight:700;margin:14px 0 6px;color:var(--muted)}
   .scard .meta{color:var(--muted);font-size:14px}
+  .method{margin-top:20px;font-size:13px;color:var(--muted)}
   @media(max-width:880px){.stories{grid-template-columns:1fr}}
 
-  .bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-  .bcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow)}
-  .bcard h3{font-size:17px;font-weight:700;margin-bottom:14px}
-  .blist{list-style:none;display:flex;flex-direction:column;gap:2px}
-  .brow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:15px}
+  .band--tight{padding-top:0}
+  .sec-head--sm{margin-bottom:18px}
+  .sec-head--sm h2{font-size:clamp(22px,3vw,30px)}
+  .blist{list-style:none;display:flex;flex-direction:column;gap:2px;max-width:720px}
+  .brow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);font-size:15px}
   .brow:last-child{border-bottom:none}
   .brow span{color:var(--muted)}
   .brow strong{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--text)}
-  @media(max-width:880px){.bgrid{grid-template-columns:1fr}}
 </style>
 </Layout>
+</output>

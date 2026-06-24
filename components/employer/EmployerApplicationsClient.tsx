@@ -6,8 +6,18 @@ import type { JobPostingApplicationStatus } from '@prisma/client';
 import EmployerApplicationChatClient from '@/components/portal/EmployerApplicationChatClient';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
 import DataTable from '@/components/portal/ui/DataTable';
+import { StatusTag, type KitTone } from '@/components/portal/kit';
 import { employerApplicationsListHref, type EmployerApplicationsSort } from '@/lib/employer/employerApplicationsListQuery';
 import { employerJobPostingApplicationStatusLabel } from '@/lib/employer/jobPostingApplicationStatus';
+
+const STATUS_TONE: Record<string, KitTone> = {
+  pending: 'muted',
+  reviewing: 'warn',
+  interview: 'info',
+  offered: 'info',
+  hired: 'ok',
+  rejected: 'alert',
+};
 
 export type AppMsg = {
   id: string;
@@ -380,10 +390,10 @@ export default function EmployerApplicationsClient({
                   id={`employer-chat-${app.id}`}
                   className="employer-applications-chat-shell"
                   style={{
-                    border: '1px solid var(--outline-variant)',
+                    border: '1px solid var(--wa-border)',
                     borderRadius: '0.875rem',
                     overflow: 'hidden',
-                    background: 'var(--surface-container-lowest)',
+                    background: 'var(--wa-surface)',
                     minHeight: '28rem',
                   }}
                 >
@@ -396,7 +406,7 @@ export default function EmployerApplicationsClient({
                 </div>
               );
             }}
-            subRowTdStyle={{ padding: '0 0 1rem', verticalAlign: 'top', borderBottom: '1px solid var(--outline-variant)' }}
+            subRowTdStyle={{ padding: '0 0 1rem', verticalAlign: 'top', borderBottom: '1px solid var(--wa-border)' }}
             columns={[
               {
                 key: 'candidate',
@@ -471,19 +481,24 @@ export default function EmployerApplicationsClient({
                 cell: (app) => {
                   const studentName = app.student.fullName?.trim() || app.student.email;
                   return (
-                    <select
-                      className="employer-app-status-select"
-                      value={app.status}
-                      disabled={busyId === app.id}
-                      onChange={(e) => void patchStatus(app.id, e.target.value)}
-                      aria-label={`Pipeline stage for ${studentName}`}
-                    >
-                      {STATUSES.map((s) => (
-                        <option key={s} value={s}>
-                          {employerJobPostingApplicationStatusLabel(s)}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="employer-applications-status-cell">
+                      <StatusTag tone={STATUS_TONE[app.status] ?? 'muted'}>
+                        {employerJobPostingApplicationStatusLabel(app.status)}
+                      </StatusTag>
+                      <select
+                        className="employer-app-status-select"
+                        value={app.status}
+                        disabled={busyId === app.id}
+                        onChange={(e) => void patchStatus(app.id, e.target.value)}
+                        aria-label={`Pipeline stage for ${studentName}`}
+                      >
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s}>
+                            {employerJobPostingApplicationStatusLabel(s)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   );
                 },
               },

@@ -1,0 +1,150 @@
+/*
+ * Route-scoped kit reskin for /employer/applications.
+ * Purely visual: maps the load-bearing employer-applications-* classes
+ * (defined globally in css/portal.css) onto the portal kit token layer
+ * (--wa-* tokens, dense surface). No class is renamed; JS selectors and
+ * sticky/selection/expand behavior are untouched.
+ */
+
+/* Toolbar / surface frame */
+.employer-applications-kit .employer-applications-toolbar {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  box-shadow: var(--wa-shadow);
+}
+
+.employer-applications-kit .employer-applications-toolbar__eyebrow {
+  color: var(--wa-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Filter chips */
+.employer-applications-kit .employer-applications-filter-chip {
+  border: 1px solid var(--wa-border);
+  background: var(--wa-surface-2);
+  color: var(--wa-muted);
+  border-radius: 9999px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.employer-applications-kit .employer-applications-filter-chip:hover {
+  color: var(--wa-text);
+  border-color: var(--wa-accent);
+}
+.employer-applications-kit .employer-applications-filter-chip.is-active {
+  background: var(--wa-accent);
+  border-color: var(--wa-accent);
+  color: #fff;
+}
+
+/* Sort toggle */
+.employer-applications-kit .employer-applications-sort-toggle {
+  border: 1px solid var(--wa-border);
+  background: var(--wa-surface-2);
+  border-radius: 9999px;
+}
+.employer-applications-kit .employer-applications-sort-toggle__btn {
+  color: var(--wa-muted);
+  border-radius: 9999px;
+}
+.employer-applications-kit .employer-applications-sort-toggle__btn.is-active {
+  background: var(--wa-accent);
+  color: #fff;
+}
+
+.employer-applications-kit .employer-applications-toolbar__hint {
+  color: var(--wa-muted);
+}
+.employer-applications-kit .employer-applications-toolbar__hint-icon {
+  color: var(--wa-info);
+}
+
+/* Bulk action bar */
+.employer-applications-kit .employer-applications-bulk-bar {
+  background: var(--wa-accent-soft);
+  border: 1px solid var(--wa-accent);
+  border-radius: var(--wa-radius-sm);
+}
+.employer-applications-kit .employer-applications-bulk-bar__count {
+  background: var(--wa-accent);
+  color: #fff;
+}
+.employer-applications-kit .employer-applications-bulk-bar__label {
+  color: var(--wa-text);
+}
+.employer-applications-kit .employer-applications-bulk-bar__select {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  color: var(--wa-text);
+  border-radius: var(--wa-radius-sm);
+}
+
+/* Table shell */
+.employer-applications-kit .employer-applications-shell {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  box-shadow: var(--wa-shadow);
+}
+
+/* Candidate avatar */
+.employer-applications-kit .employer-applications-candidate-cell__avatar {
+  background: linear-gradient(135deg, var(--wa-accent-dark), var(--wa-accent));
+  color: #fff;
+}
+.employer-applications-kit .employer-applications-candidate-cell__name {
+  color: var(--wa-text);
+}
+.employer-applications-kit .employer-applications-candidate-cell__name:hover {
+  color: var(--wa-accent);
+}
+.employer-applications-kit .employer-applications-candidate-cell__email,
+.employer-applications-kit .employer-applications-applied-meta {
+  color: var(--wa-muted);
+}
+
+/* Job link */
+.employer-applications-kit .employer-applications-job-link {
+  color: var(--wa-text);
+}
+.employer-applications-kit .employer-applications-job-link:hover {
+  color: var(--wa-accent);
+}
+
+/* Row status select */
+.employer-applications-kit .employer-app-status-select {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  color: var(--wa-text);
+  border-radius: var(--wa-radius-sm);
+}
+
+/* Message button */
+.employer-applications-kit .employer-applications-msg-btn {
+  background: var(--wa-surface-2);
+  border: 1px solid var(--wa-border);
+  color: var(--wa-text);
+  border-radius: 9999px;
+}
+.employer-applications-kit .employer-applications-msg-btn:hover {
+  border-color: var(--wa-accent);
+  color: var(--wa-accent);
+}
+.employer-applications-kit .employer-applications-msg-btn.is-open {
+  background: var(--wa-accent);
+  border-color: var(--wa-accent);
+  color: #fff;
+}
+
+.employer-applications-kit .employer-apps-error {
+  color: var(--wa-accent-dark);
+}
+
+/* Read-only status pill sits beside the editable select */
+.employer-applications-status-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

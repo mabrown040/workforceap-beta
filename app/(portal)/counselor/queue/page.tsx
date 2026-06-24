@@ -11,6 +11,7 @@ import {
   previewMessageBody,
 } from '@/lib/counselor/workQueue';
 import { getTranslations } from 'next-intl/server';
+import { DesignSurface, QueueRow, SectionHeader, type QueueTone } from '@/components/portal/kit';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,47 +91,25 @@ export default async function CounselorWorkQueuePage() {
             secondaryAction={{ label: t('backToDashboard'), href: '/counselor' }}
           />
         ) : (
-          <>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '1rem',
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: '0.875rem',
-                  color: 'var(--color-on-surface-variant)',
-                  fontWeight: 600,
-                }}
-              >
-                {t('workQueueMembersAwaiting', { count: rows.length })}
-              </p>
-              <Link
-                href="/counselor/messages"
-                style={{
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  color: 'var(--color-accent)',
-                }}
-              >
-                {t('openMessages')} →
-              </Link>
-            </div>
-
-            <ul
-              style={{
-                listStyle: 'none',
-                margin: 0,
-                padding: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.625rem',
-              }}
-            >
+          <DesignSurface surface="dense">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <SectionHeader
+                title={t('workQueue')}
+                goal={t('workQueueMembersAwaiting', { count: rows.length })}
+                action={
+                  <Link
+                    href="/counselor/messages"
+                    style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      color: 'var(--color-accent)',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    {t('openMessages')} →
+                  </Link>
+                }
+              />
               {rows.map((row) => {
                 const initials = row.memberName
                   .split(' ')
@@ -139,117 +118,40 @@ export default async function CounselorWorkQueuePage() {
                   .slice(0, 2)
                   .join('')
                   .toUpperCase();
-                const overdueColor =
-                  row.hoursWaiting >= 72
-                    ? 'var(--color-error)'
-                    : row.hoursWaiting >= 48
-                      ? 'var(--color-orange, var(--color-accent))'
-                      : 'var(--color-accent)';
+                const tone: QueueTone =
+                  row.hoursWaiting >= 72 ? 'red' : row.hoursWaiting >= 48 ? 'yellow' : 'blue';
+                const preview = previewMessageBody(row.lastMessageBody) || '(empty message)';
                 return (
-                  <li key={row.threadId}>
-                    <Link
-                      href={`/counselor/messages?studentId=${row.memberId}`}
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      <div
-                        className="portal-card portal-card--flat portal-card--padded-sm"
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '1rem',
-                          transition: 'background-color 0.15s',
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: '2.75rem',
-                            height: '2.75rem',
-                            borderRadius: '0.75rem',
-                            background:
-                              'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.875rem',
-                            fontWeight: 700,
-                            color: '#fff',
-                            flexShrink: 0,
-                          }}
-                          aria-hidden="true"
-                        >
+                  <Link
+                    key={row.threadId}
+                    href={`/counselor/messages?studentId=${row.memberId}`}
+                    style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                  >
+                    <QueueRow
+                      tone={tone}
+                      icon={
+                        <span style={{ fontSize: 13, fontWeight: 700 }} aria-hidden="true">
                           {initials || '?'}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'baseline',
-                              gap: '0.75rem',
-                              justifyContent: 'space-between',
-                              marginBottom: '0.25rem',
-                            }}
-                          >
-                            <h3
-                              style={{
-                                fontWeight: 700,
-                                fontSize: '0.9375rem',
-                                color: 'var(--color-on-surface)',
-                                margin: 0,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {row.memberName}
-                            </h3>
-                            <span
-                              style={{
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
-                                color: overdueColor,
-                                whiteSpace: 'nowrap',
-                                flexShrink: 0,
-                              }}
-                            >
-                              {formatTimeWaiting(row.hoursWaiting)}
-                            </span>
-                          </div>
-                          <p
-                            style={{
-                              margin: 0,
-                              fontSize: '0.8125rem',
-                              color: 'var(--color-on-surface-variant)',
-                              lineHeight: 1.45,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                            }}
-                          >
-                            {previewMessageBody(row.lastMessageBody) || '(empty message)'}
-                          </p>
-                        </div>
-                        <span
-                          className="material-symbols-outlined"
-                          style={{
-                            color: 'var(--color-on-surface-variant)',
-                            opacity: 0.35,
-                            fontSize: '1rem',
-                            alignSelf: 'center',
-                            flexShrink: 0,
-                          }}
-                          aria-hidden="true"
-                        >
-                          chevron_right
                         </span>
-                      </div>
-                    </Link>
-                  </li>
+                      }
+                      title={row.memberName}
+                      meta={`${formatTimeWaiting(row.hoursWaiting)} · ${preview}`}
+                      flag={tone === 'red' ? 'Urgent' : tone === 'yellow' ? 'Watch' : undefined}
+                      action={
+                        <Link
+                          href={`/counselor/messages?studentId=${row.memberId}`}
+                          className="btn btn-sm btn-secondary"
+                          style={{ fontSize: 11, textDecoration: 'none' }}
+                        >
+                          View
+                        </Link>
+                      }
+                    />
+                  </Link>
                 );
               })}
-            </ul>
-          </>
+            </div>
+          </DesignSurface>
         )}
       </section>
 

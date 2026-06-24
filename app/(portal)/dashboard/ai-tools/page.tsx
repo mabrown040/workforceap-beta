@@ -9,6 +9,7 @@ import PortalCard from '@/components/portal/ui/PortalCard';
 import QueryToast from '@/components/portal/QueryToast';
 import { AI_TOOLKIT_EXTRA_SECTIONS } from '@/lib/portal/aiToolsHub';
 import JourneyStageGuide from '@/components/portal/JourneyStageGuide';
+import { FeatureTile, DesignSurface } from '@/components/portal/kit';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -157,37 +158,37 @@ export default async function AIToolsPage() {
           </PortalCard>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-          {AI_TOOLKIT_EXTRA_SECTIONS.map((section) => (
-            <PortalCard key={section.title} className="portal-card--flat">
-              <div style={{ marginBottom: '0.875rem' }}>
-                <h3 style={{ margin: '0 0 0.25rem', fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                  {section.title}
-                </h3>
+        <DesignSurface surface="warm">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {AI_TOOLKIT_EXTRA_SECTIONS.map((section) => (
+              <div key={section.title}>
+                <div style={{ marginBottom: '0.875rem' }}>
+                  <h3 style={{ margin: '0 0 0.25rem', fontSize: '1rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                    {section.title}
+                  </h3>
+                </div>
+                <div className="wa-grid wa-grid-cols-1 sm:wa-grid-cols-2 lg:wa-grid-cols-3 wa-gap-4">
+                  {section.tools.map((tool, idx) => (
+                    <FeatureTile
+                      key={tool.href}
+                      href={tool.href}
+                      title={tool.label}
+                      tone={idx % 2 === 0 ? 'crimson' : 'gold'}
+                      icon={
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ fontSize: '1.4rem', fontVariationSettings: "'FILL' 1" }}
+                        >
+                          {tool.icon}
+                        </span>
+                      }
+                    />
+                  ))}
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
-                {section.tools.map((tool) => (
-                  <Link
-                    key={tool.href}
-                    href={tool.href}
-                    className="portal-quick-action-item"
-                    style={{ textDecoration: 'none', padding: '0.75rem 0.875rem', flex: '1 1 160px', maxWidth: '220px' }}
-                  >
-                    <div className="portal-quick-action-item__icon">
-                      <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', fontVariationSettings: "'FILL' 1" }}>{tool.icon}</span>
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p className="portal-quick-action-item__label" style={{ whiteSpace: 'normal', lineHeight: 1.35, overflowWrap: 'break-word' }}>
-                        {tool.label}
-                      </p>
-                    </div>
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.9rem', color: 'var(--color-on-surface-variant)', opacity: 0.35, flexShrink: 0, marginTop: '0.15rem' }}>chevron_right</span>
-                  </Link>
-                ))}
-              </div>
-            </PortalCard>
-          ))}
-        </div>
+            ))}
+          </div>
+        </DesignSurface>
       </section>
 
       <div className="wa-block md:wa-hidden">      </div>

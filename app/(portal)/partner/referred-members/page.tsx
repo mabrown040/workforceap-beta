@@ -5,11 +5,10 @@ import { unlinkedPartnerHref } from '@/lib/auth/portalGuards';
 import { buildPageMetadataAsync } from '@/app/seo';
 import PartnerInviteMemberButton from '@/components/portal/PartnerInviteMemberButton';
 import PageHeader from '@/components/portal/PageHeader';
-import PartnerMembersList from '@/components/portal/PartnerMembersList';
 import { getPartnerForUser } from '@/lib/auth/roles';
 import { getUser } from '@/lib/auth/server';
 import { loadPartnerReferralBundle, toPartnerMembersListRows } from '@/lib/partner/referralBundle';
-import PartnerReferredMembersMobile from '@/components/partner/PartnerReferredMembersMobile';
+import PartnerReferredMembersKit from '@/components/portal/kit/pages/PartnerReferredMembersKit';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import { getTranslations } from 'next-intl/server';
 
@@ -68,14 +67,7 @@ export default async function PartnerReferredMembersPage() {
           </div>
         }
       />
-      <div className="wa-block md:wa-hidden" style={{ paddingBottom: '6rem' }}>
-        <PartnerReferredMembersMobile rows={rows} />
-
-      </div>
-
-      <div className="wa-hidden md:wa-block">
-        <PartnerMembersList members={rows} />
-      </div>
+      <PartnerReferredMembersKit rows={rows} />
     </PortalPageFrame>
   );
 }

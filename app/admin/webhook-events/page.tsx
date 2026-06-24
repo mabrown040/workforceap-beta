@@ -146,49 +146,9 @@ export default async function AdminWebhookEventsPage({ searchParams }: Props) {
         subtitle="Incoming webhook monitor — failures, retries, and delivery status"
       />
 
-      {/* Stats row */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: 'var(--space-4)',
-          marginBottom: 'var(--space-6)',
-        }}
-      >
-        {[
-          { label: '7d Total', value: stats.total.toLocaleString(), icon: 'timeline', color: 'var(--color-accent)' },
-          { label: 'Success', value: (stats.byStatus.success ?? 0).toLocaleString(), icon: 'check_circle', color: 'var(--color-green)' },
-          { label: 'Failed', value: (stats.byStatus.failed ?? 0).toLocaleString(), icon: 'error', color: 'var(--color-red)' },
-          { label: 'Retrying', value: (stats.byStatus.retrying ?? 0).toLocaleString(), icon: 'refresh', color: 'var(--color-blue)' },
-          { label: 'Dead Letter', value: (stats.byStatus.dead_letter ?? 0).toLocaleString(), icon: 'report', color: 'var(--color-orange)' },
-        ].map((s) => (
-          <div
-            key={s.label}
-            style={{
-              background: 'var(--surface-container)',
-              borderRadius: 'var(--radius-xl)',
-              padding: 'var(--space-5)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-4)',
-            }}
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{ fontSize: '1.5rem', color: s.color, '--ms-fill': 1 }}
-            >
-              {s.icon}
-            </span>
-            <div>
-              <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-on-surface-variant)' }}>{s.label}</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>{s.value}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
       <WebhookEventsClient
         events={serialized}
+        stats={{ total: stats.total, byStatus: stats.byStatus }}
         page={safePage}
         totalPages={totalPages}
         pageSize={PAGE_SIZE}

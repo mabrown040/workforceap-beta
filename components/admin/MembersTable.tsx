@@ -10,6 +10,7 @@ import BulkUpdateModal from './BulkUpdateModal';
 import { formatPhone } from '@/lib/formatPhone';
 import type { HealthStatus } from '@/lib/admin/healthScore';
 import DataTable from '@/components/portal/ui/DataTable';
+import { DesignSurface, KpiStrip, type KpiItem } from '@/components/portal/kit';
 
 function formatMemberDate(value: string | Date | null | undefined): string | null {
   if (value == null) return null;
@@ -398,6 +399,21 @@ export default function MembersTable({
     (startDate ? 1 : 0) +
     (endDate ? 1 : 0);
 
+  // KPI strip is presentation-only: derived entirely from values already in
+  // scope (server `totalCount` + the client-`filtered` rows). No new query.
+  // Only `totalCount` is a true table-wide aggregate; the rest describe the
+  // current (filtered) view, mirroring the "shown / of total" count line.
+  const kpiItems: KpiItem[] = useMemo(() => {
+    const attentionInView = filtered.filter((m) => needsAttention(m)).length;
+    const inactiveInView = filtered.filter((m) => m.healthStatus === 'red').length;
+    return [
+      { label: 'Members', value: totalCount.toLocaleString(), color: 'text' },
+      { label: 'Shown', value: filtered.length.toLocaleString(), color: 'info' },
+      { label: 'Needs attention', value: attentionInView.toLocaleString(), color: 'accent' },
+      { label: 'Inactive', value: inactiveInView.toLocaleString(), color: 'accent' },
+    ];
+  }, [filtered, totalCount]);
+
   const selectedInCurrentView = useMemo(
     () => filtered.filter((m) => selectedIds.has(m.id)).length,
     [filtered, selectedIds],
@@ -527,6 +543,12 @@ export default function MembersTable({
 
   return (
     <div className="admin-members-table-root">
+      <div className="admin-members-kpis" style={{ marginBottom: '1rem' }}>
+        <DesignSurface surface="dense">
+          <KpiStrip items={kpiItems} cols={4} />
+        </DesignSurface>
+      </div>
+
       <div className="admin-members-toolbar">
         <div className="admin-members-toolbar__primary">
           <label className="admin-members-search-label">

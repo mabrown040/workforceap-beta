@@ -3,7 +3,15 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-import DataTable from '@/components/portal/ui/DataTable';
+import {
+  DesignSurface,
+  KpiStrip,
+  DataTable,
+  StatusTag,
+  type Column,
+  type KpiItem,
+  type KitTone,
+} from '@/components/portal/kit';
 
 interface WebhookEvent {
   id: string;
@@ -21,12 +29,39 @@ interface WebhookEvent {
   updatedAt: string;
 }
 
-const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
-  success: { bg: 'rgba(34,197,94,0.1)', color: '#16a34a' },
-  failed: { bg: 'rgba(239,68,68,0.1)', color: '#dc2626' },
-  retrying: { bg: 'rgba(59,130,246,0.1)', color: '#2563eb' },
-  dead_letter: { bg: 'rgba(249,115,22,0.1)', color: '#ea580c' },
-};
+interface WebhookStats {
+  total: number;
+  byStatus: {
+    success?: number;
+    failed?: number;
+    retrying?: number;
+    dead_letter?: number;
+    [key: string]: number | undefined;
+  };
+}
+
+// status → kit tone: success green, failed crimson, retrying blue, dead_letter
+// orange/gold, fallback gray. Preserves the prior STATUS_STYLES semantics.
+function toneFor(status: string): KitTone {
+  switch (status) {
+    case 'success':
+      return 'ok';
+    case 'failed':
+      return 'alert';
+    case 'retrying':
+      return 'info';
+    case 'dead_letter':
+      return 'warn';
+    default:
+      return 'muted';
+  }
+}
+
+// Tag CSS is uppercase; replace underscores so 'dead_letter' still reads as
+// "DEAD LETTER" rather than "DEAD_LETTER" (prior view used capitalize).
+function labelize(status: string): string {
+  return status.replace(/_/g, ' ');
+}
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -55,6 +90,7 @@ function buildHref(
 
 export default function WebhookEventsClient({
   events,
+  stats,
   page,
   totalPages,
   pageSize,
@@ -68,6 +104,7 @@ export default function WebhookEventsClient({
   statuses,
 }: {
   events: WebhookEvent[];
+  stats: WebhookStats;
   page: number;
   totalPages: number;
   pageSize: number;
@@ -97,8 +134,111 @@ export default function WebhookEventsClient({
   const start = totalMatching === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, totalMatching);
 
+  const kpis: KpiItem[] = [
+    { label: '7d Total', value: stats.total.toLocaleString(), color: 'accent' },
+    { label: 'Success', value: (stats.byStatus.success ?? 0).toLocaleString(), color: 'success' },
+    { label: 'Failed', value: (stats.byStatus.failed ?? 0).toLocaleString(), color: 'text' },
+    { label: 'Retrying', value: (stats.byStatus.retrying ?? 0).toLocaleString(), color: 'info' },
+    { label: 'Dead Letter', value: (stats.byStatus.dead_letter ?? 0).toLocaleString(), color: 'gold' },
+  ];
+
+  const toggleExpand = (e: WebhookEvent) => {
+    if (e.errorMessage) setExpandedId(expandedId === e.id ? null : e.id);
+  };
+
+  const errorPre = (msg: string) => (
+    <pre
+      style={{
+        marginTop: '0.5rem',
+        padding: '0.5rem',
+        borderRadius: 'var(--radius-sm)',
+        background: 'var(--surface-container-highest)',
+        fontSize: '0.75rem',
+        overflow: 'auto',
+        maxHeight: '200px',
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+        color: '#dc2626',
+      }}
+    >
+      {msg}
+    </pre>
+  );
+
+  const columns: Column<WebhookEvent>[] = [
+    {
+      key: 'time',
+      header: 'Time',
+      render: (e) => (
+        <span style={{ whiteSpace: 'nowrap', color: 'var(--wa-muted)' }}>{formatTime(e.createdAt)}</span>
+      ),
+    },
+    {
+      key: 'source',
+      header: 'Source',
+      render: (e) => <span style={{ fontWeight: 700 }}>{e.source}</span>,
+    },
+    {
+      key: 'eventType',
+      header: 'Event',
+      render: (e) => <span style={{ color: 'var(--wa-muted)' }}>{e.eventType ?? '—'}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (e) => <StatusTag tone={toneFor(e.status)}>{labelize(e.status)}</StatusTag>,
+    },
+    {
+      key: 'payload',
+      header: 'Payload',
+      render: (e) => (
+        <span style={{ whiteSpace: 'nowrap', color: 'var(--wa-muted)' }}>{formatBytes(e.payloadSize)}</span>
+      ),
+    },
+    {
+      key: 'processing',
+      header: 'Time',
+      render: (e) => (
+        <span style={{ whiteSpace: 'nowrap', color: 'var(--wa-muted)' }}>
+          {e.processingTimeMs ? `${e.processingTimeMs}ms` : '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'retry',
+      header: 'Retry',
+      render: (e) => (
+        <span style={{ whiteSpace: 'nowrap', color: 'var(--wa-muted)' }}>
+          {e.retryCount > 0 ? `${e.retryCount}` : '—'}
+          {e.nextRetryAt ? ` · ${formatTime(e.nextRetryAt)}` : ''}
+        </span>
+      ),
+    },
+    {
+      key: 'details',
+      header: '',
+      align: 'right',
+      render: (e) =>
+        e.errorMessage ? (
+          <span
+            className="material-symbols-outlined"
+            style={{ fontSize: '1.125rem', color: 'var(--wa-muted)' }}
+            aria-hidden="true"
+          >
+            {expandedId === e.id ? 'expand_less' : 'expand_more'}
+          </span>
+        ) : (
+          '—'
+        ),
+    },
+  ];
+
   return (
-    <div>
+    <DesignSurface surface="dense">
+      <div className="wa-mb-5">
+        <KpiStrip items={kpis} cols={5} />
+      </div>
+
       {/* Filters — GET form resets to page 1 */}
       <form
         action="/admin/webhook-events"
@@ -283,184 +423,54 @@ export default function WebhookEventsClient({
         </div>
       </div>
 
-      {/* Desktop table */}
-      <div className="wa-hidden md:wa-block" style={{ overflowX: 'auto' }}>
-        <DataTable
-          density="compact"
-          variant="portal"
-          scrollX={false}
-          rows={events}
-          rowKey={(e) => e.id}
-          getRowProps={(e) => ({
-            style: {
-              cursor: e.errorMessage ? 'pointer' : 'default',
-            },
-            onClick: () => {
-              if (e.errorMessage) setExpandedId(expandedId === e.id ? null : e.id);
-            },
-          })}
-          emptyState={
+      <DataTable<WebhookEvent>
+        columns={columns}
+        rows={events}
+        rowKey={(e) => e.id}
+        minWidth={760}
+        mobile="cards"
+        onRowClick={toggleExpand}
+        emptyTitle="No webhook events"
+        emptyDescription="No events match your filters."
+        cardRender={(e) => (
+          <div className="wa-kit-card wa-kit-card--sm">
             <div
               style={{
-                padding: '2rem',
-                textAlign: 'center',
-                color: 'var(--color-on-surface-variant)',
-                fontSize: 'var(--font-size-sm)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                gap: 10,
+                marginBottom: '0.375rem',
               }}
             >
-              No webhook events match your filters.
+              <span style={{ fontWeight: 700 }}>{e.source}</span>
+              <span style={{ flexShrink: 0 }}>
+                <StatusTag tone={toneFor(e.status)}>{labelize(e.status)}</StatusTag>
+              </span>
             </div>
-          }
-          columns={[
-            {
-              key: 'time',
-              header: 'Time',
-              cell: (e) => (
-                <span style={{ whiteSpace: 'nowrap', color: 'var(--color-on-surface-variant)' }}>{formatTime(e.createdAt)}</span>
-              ),
-            },
-            {
-              key: 'source',
-              header: 'Source',
-              cell: (e) => <span style={{ fontWeight: 500 }}>{e.source}</span>,
-            },
-            {
-              key: 'eventType',
-              header: 'Event',
-              cell: (e) => (
-                <span style={{ color: 'var(--color-on-surface-variant)' }}>{e.eventType ?? '—'}</span>
-              ),
-            },
-            {
-              key: 'status',
-              header: 'Status',
-              cell: (e) => {
-                const style = STATUS_STYLES[e.status] ?? { bg: 'rgba(100,116,139,0.1)', color: '#64748b' };
-                return (
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      padding: '0.125rem 0.5rem',
-                      borderRadius: 'var(--radius-sm)',
-                      background: style.bg,
-                      color: style.color,
-                      fontSize: '0.8125rem',
-                      fontWeight: 600,
-                      textTransform: 'capitalize',
-                    }}
-                  >
-                    {e.status}
-                  </span>
-                );
-              },
-            },
-            {
-              key: 'payload',
-              header: 'Payload',
-              cell: (e) => (
-                <span style={{ whiteSpace: 'nowrap', color: 'var(--color-on-surface-variant)' }}>{formatBytes(e.payloadSize)}</span>
-              ),
-            },
-            {
-              key: 'processing',
-              header: 'Time',
-              cell: (e) => (
-                <span style={{ whiteSpace: 'nowrap', color: 'var(--color-on-surface-variant)' }}>
-                  {e.processingTimeMs ? `${e.processingTimeMs}ms` : '—'}
-                </span>
-              ),
-            },
-            {
-              key: 'retry',
-              header: 'Retry',
-              cell: (e) => (
-                <span style={{ whiteSpace: 'nowrap', color: 'var(--color-on-surface-variant)' }}>
-                  {e.retryCount > 0 ? `${e.retryCount}` : '—'}
-                  {e.nextRetryAt ? ` · ${formatTime(e.nextRetryAt)}` : ''}
-                </span>
-              ),
-            },
-            {
-              key: 'details',
-              header: '',
-              cell: (e) =>
-                e.errorMessage ? (
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)' }} aria-hidden="true">
-                    {expandedId === e.id ? 'expand_less' : 'expand_more'}
-                  </span>
-                ) : (
-                  '—'
-                ),
-            },
-          ]}
-        />
-      </div>
-
-      {/* Mobile card list */}
-      <div className="md:wa-hidden wa-flex wa-flex-col" style={{ gap: '0.625rem' }}>
-        {events.map((e) => {
-          const style = STATUS_STYLES[e.status] ?? { bg: 'rgba(100,116,139,0.1)', color: '#64748b' };
-          return (
-            <div
-              key={e.id}
-              style={{
-                background: 'var(--surface-container)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '0.875rem 1rem',
-              }}
-              onClick={() => e.errorMessage && setExpandedId(expandedId === e.id ? null : e.id)}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.375rem' }}>
-                <span style={{ fontWeight: 500 }}>{e.source}</span>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    padding: '0.125rem 0.5rem',
-                    borderRadius: 'var(--radius-sm)',
-                    background: style.bg,
-                    color: style.color,
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    textTransform: 'capitalize',
-                  }}
-                >
-                  {e.status}
-                </span>
-              </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                {e.eventType ?? '—'} · {formatBytes(e.payloadSize)} · {e.processingTimeMs ? `${e.processingTimeMs}ms` : '—'}
-              </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                {formatTime(e.createdAt)}
-                {e.retryCount > 0 ? ` · Retry ${e.retryCount}` : ''}
-              </div>
-              {expandedId === e.id && e.errorMessage && (
-                <pre
-                  style={{
-                    marginTop: '0.5rem',
-                    padding: '0.5rem',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'var(--surface-container-highest)',
-                    fontSize: '0.75rem',
-                    overflow: 'auto',
-                    maxHeight: '200px',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    color: '#dc2626',
-                  }}
-                >
-                  {e.errorMessage}
-                </pre>
-              )}
+            <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)' }}>
+              {e.eventType ?? '—'} · {formatBytes(e.payloadSize)} · {e.processingTimeMs ? `${e.processingTimeMs}ms` : '—'}
             </div>
-          );
-        })}
-        {events.length === 0 && (
-          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
-            No webhook events match your filters.
+            <div style={{ fontSize: '0.75rem', color: 'var(--wa-muted)' }}>
+              {formatTime(e.createdAt)}
+              {e.retryCount > 0 ? ` · Retry ${e.retryCount}` : ''}
+            </div>
+            {expandedId === e.id && e.errorMessage ? errorPre(e.errorMessage) : null}
           </div>
         )}
-      </div>
-    </div>
+      />
+
+      {/* Desktop inline error detail for the expanded row (kit DataTable has no
+          inline expansion row). Hidden on mobile where cardRender shows it. */}
+      {(() => {
+        const expanded = events.find((e) => e.id === expandedId && e.errorMessage);
+        if (!expanded || !expanded.errorMessage) return null;
+        return (
+          <div className="wa-hidden lg:wa-block" style={{ marginTop: '0.5rem' }}>
+            {errorPre(expanded.errorMessage)}
+          </div>
+        );
+      })()}
+    </DesignSurface>
   );
 }

@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { StatusTag, FormField } from '@/components/portal/kit';
+import type { KitTone } from '@/components/portal/kit';
 
 type AttentionMember = {
   memberId: string;
@@ -38,6 +40,13 @@ const TIER_ORDER: Record<AttentionMember['riskTier'], number> = {
   medium: 1,
   low: 2,
   watch: 3,
+};
+
+const RISK_TONE: Record<AttentionMember['riskTier'], KitTone> = {
+  high: 'alert',
+  medium: 'warn',
+  low: 'info',
+  watch: 'muted',
 };
 
 export default function PartnerAttentionClient({ initialTier = 'high' as TierFilter }) {
@@ -188,67 +197,167 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
     }
   };
 
+  const inputStyle: React.CSSProperties = {
+    marginTop: 4,
+    width: '100%',
+    fontSize: 14,
+    border: '1px solid var(--wa-border)',
+    borderRadius: 'var(--wa-radius-sm)',
+    padding: '10px 12px',
+    outline: 'none',
+    background: 'var(--wa-surface)',
+    color: 'var(--wa-text)',
+  };
+
+  const btnOutlineStyle: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.3rem',
+    fontSize: 13,
+    fontWeight: 600,
+    padding: '0.4rem 0.75rem',
+    borderRadius: 'var(--wa-radius-sm)',
+    border: '1px solid var(--wa-border)',
+    background: 'var(--wa-surface)',
+    color: 'var(--wa-text)',
+    cursor: 'pointer',
+    textDecoration: 'none',
+  };
+
   return (
-    <div className="partner-attention-console">
-      <section className="partner-panel partner-attention-queue" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '0.35rem' }}>Who needs you right now</h2>
-        <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+    <div className="wa-flex wa-flex-col wa-gap-6">
+      <section className="wa-kit-card">
+        <h2 className="wa-text-lg wa-font-bold" style={{ marginBottom: '0.35rem' }}>
+          Who needs you right now
+        </h2>
+        <p className="wa-text-sm" style={{ color: 'var(--wa-muted)', marginBottom: '1rem' }}>
           Sorted with highest urgency first — quiet days show how long it has been since the member updated their profile. Assign owners
           and log outreach so nothing slips through the cracks.
         </p>
-        <div className="partner-tier-filters" role="tablist" aria-label="Risk tier">
-          {(['all', 'high', 'medium', 'low', 'watch'] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              className={`partner-tier-filter${tierFilter === t ? ' is-active' : ''}`}
-              onClick={() => pushTierRoute(t)}
-              role="tab"
-              aria-selected={tierFilter === t}
-            >
-              <span className="partner-tier-filter-inner">
+        <div
+          role="tablist"
+          aria-label="Risk tier"
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 6,
+            padding: 4,
+            marginBottom: '1rem',
+            background: 'var(--wa-bg)',
+            border: '1px solid var(--wa-border)',
+            borderRadius: 'var(--wa-radius-sm)',
+          }}
+        >
+          {(['all', 'high', 'medium', 'low', 'watch'] as const).map((t) => {
+            const active = tierFilter === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                className="wa-kit-focus"
+                onClick={() => pushTierRoute(t)}
+                role="tab"
+                aria-selected={active}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '0.35rem 0.7rem',
+                  borderRadius: 'var(--wa-radius-sm)',
+                  border: '1px solid transparent',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  textTransform: 'capitalize',
+                  cursor: 'pointer',
+                  background: active ? 'var(--wa-surface)' : 'transparent',
+                  color: active ? 'var(--wa-accent)' : 'var(--wa-muted)',
+                  boxShadow: active ? 'var(--wa-shadow)' : 'none',
+                }}
+              >
                 {t === 'all' ? 'All' : t}
                 {tierCounts ? (
-                  <span className="partner-tier-filter-count">{t === 'all' ? tierCounts.all : tierCounts[t]}</span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: '1px 7px',
+                      borderRadius: 999,
+                      background: active ? 'var(--wa-accent-soft)' : 'var(--wa-border)',
+                      color: active ? 'var(--wa-accent)' : 'var(--wa-muted)',
+                    }}
+                  >
+                    {t === 'all' ? tierCounts.all : tierCounts[t]}
+                  </span>
                 ) : null}
-              </span>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
         {loadError ? (
-          <div role="alert" className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '0.75rem' }}>{loadError}</p>
-            <button type="button" className="btn btn-outline btn-sm" onClick={() => void reload()}>
+          <div role="alert" className="wa-kit-card wa-kit-card--sm">
+            <p className="wa-text-sm" style={{ color: 'var(--wa-muted)', marginBottom: '0.75rem' }}>
+              {loadError}
+            </p>
+            <button type="button" className="wa-kit-focus" style={btnOutlineStyle} onClick={() => void reload()}>
               Retry
             </button>
           </div>
         ) : !rows ? (
-          <p>Loading…</p>
+          <p className="wa-text-sm" style={{ color: 'var(--wa-muted)' }}>
+            Loading…
+          </p>
         ) : filtered.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No members in this filter. Try “All” or check back later.</p>
+          <p className="wa-text-sm" style={{ color: 'var(--wa-muted)' }}>
+            No members in this filter. Try “All” or check back later.
+          </p>
         ) : (
-          <ul className="partner-attention-list">
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {filtered.map((m) => (
-              <li key={m.memberId} className={`partner-attention-row tier-${m.riskTier}`}>
-                <div className="partner-attention-main">
-                  <span className={`partner-risk-pill tier-${m.riskTier}`}>{m.riskTier}</span>
-                  <Link href={`/partner/referred-members/${m.memberId}`} className="partner-attention-name">
-                    {m.fullName}
-                  </Link>
-                  <div className="partner-attention-meta">
+              <li
+                key={m.memberId}
+                className="wa-kit-card wa-kit-card--sm"
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 16,
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <div style={{ minWidth: 0, flex: '1 1 18rem', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <StatusTag tone={RISK_TONE[m.riskTier]}>{m.riskTier}</StatusTag>
+                    <Link
+                      href={`/partner/referred-members/${m.memberId}`}
+                      className="wa-font-semibold"
+                      style={{ color: 'var(--wa-text)', textDecoration: 'none' }}
+                    >
+                      {m.fullName}
+                    </Link>
+                  </div>
+                  <div className="wa-text-xs" style={{ color: 'var(--wa-muted)' }}>
                     {m.stageLabel} · {m.programTitle} · quiet {m.staleDays}d
                   </div>
-                  <div className="partner-attention-next">
+                  <div className="wa-text-sm" style={{ color: 'var(--wa-text)' }}>
                     <strong>Next:</strong> {m.nextBestAction}
                   </div>
-                  <div className="partner-attention-owners">
+                  <div className="wa-text-xs" style={{ color: 'var(--wa-muted)' }}>
                     <span>Owner: {m.assignedToName ?? '—'}</span>
                     <span> · Last touch: {m.lastTouchName ?? '—'}</span>
                   </div>
                 </div>
-                <div className="partner-attention-side">
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                    alignItems: 'stretch',
+                    flex: '0 1 auto',
+                  }}
+                >
                   <select
-                    className="partner-assign-select"
+                    className="wa-kit-focus"
                     aria-label={`Assign owner for ${m.fullName}`}
                     value={m.assignedPartnerUserId ?? ''}
                     disabled={assignBusy === m.memberId || !team}
@@ -256,6 +365,7 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
                       const v = e.target.value;
                       void assign(m.memberId, v === '' ? null : v);
                     }}
+                    style={inputStyle}
                   >
                     <option value="">Unassigned</option>
                     {(team ?? []).map((u) => (
@@ -264,17 +374,29 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
                       </option>
                     ))}
                   </select>
-                  <button type="button" className="btn btn-outline btn-sm" onClick={() => setMemberId(m.memberId)}>
-                    Log outreach
-                  </button>
-                  <a
-                    href={`/partner/messages?memberId=${m.memberId}`}
-                    className="btn btn-outline btn-sm"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
-                    Message
-                  </a>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      type="button"
+                      className="wa-kit-focus"
+                      style={{ ...btnOutlineStyle, flex: 1 }}
+                      onClick={() => setMemberId(m.memberId)}
+                    >
+                      Log outreach
+                    </button>
+                    <a
+                      href={`/partner/messages?memberId=${m.memberId}`}
+                      className="wa-kit-focus"
+                      style={{ ...btnOutlineStyle, flex: 1 }}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: '0.875rem', fontVariationSettings: "'FILL' 1" }}
+                      >
+                        forum
+                      </span>
+                      Message
+                    </a>
+                  </div>
                 </div>
               </li>
             ))}
@@ -282,17 +404,24 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
         )}
       </section>
 
-      <section className="partner-panel" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Log outreach</h2>
-        {message ? <p role="status">{message}</p> : null}
-        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: 480 }}>
-          <label>
+      <section className="wa-kit-card">
+        <h2 className="wa-text-lg wa-font-bold" style={{ marginBottom: '0.75rem' }}>
+          Log outreach
+        </h2>
+        {message ? (
+          <p role="status" className="wa-text-sm" style={{ color: 'var(--wa-accent)', marginBottom: '0.5rem' }}>
+            {message}
+          </p>
+        ) : null}
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', maxWidth: 480 }}>
+          <div>
             <span className="sr-only">Member</span>
             <select
+              className="wa-kit-focus"
               value={memberId}
               onChange={(e) => setMemberId(e.target.value)}
               required
-              style={{ width: '100%', padding: '0.5rem' }}
+              style={inputStyle}
             >
               <option value="">Select member…</option>
               {(allMembers ?? []).map((m) => (
@@ -301,56 +430,81 @@ export default function PartnerAttentionClient({ initialTier = 'high' as TierFil
                 </option>
               ))}
             </select>
-          </label>
-          <label>
-            Channel
+          </div>
+          <FormField label="Channel">
             <select
               value={channel}
               onChange={(e) => setChannel(e.target.value as typeof channel)}
-              style={{ width: '100%', padding: '0.5rem' }}
+              style={inputStyle}
             >
               <option value="email">Email</option>
               <option value="call">Call</option>
               <option value="text">Text</option>
               <option value="other">Other</option>
             </select>
-          </label>
-          <label>
-            Note
+          </FormField>
+          <FormField label="Note">
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
-              style={{ width: '100%', padding: '0.5rem' }}
               required
+              style={inputStyle}
             />
-          </label>
-          <button type="submit" className="btn btn-primary" disabled={saving}>
+          </FormField>
+          <button
+            type="submit"
+            className="wa-kit-focus"
+            disabled={saving}
+            style={{
+              alignSelf: 'flex-start',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 14,
+              fontWeight: 600,
+              padding: '0.55rem 1rem',
+              borderRadius: 'var(--wa-radius-sm)',
+              border: '1px solid transparent',
+              background: 'var(--wa-accent)',
+              color: 'var(--wa-on-accent)',
+              cursor: saving ? 'default' : 'pointer',
+              opacity: saving ? 0.7 : 1,
+            }}
+          >
             {saving ? 'Saving…' : 'Save log'}
           </button>
         </form>
       </section>
 
-      <section className="partner-panel" style={{ padding: '1.25rem' }}>
-        <h2 style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>Recent outreach</h2>
+      <section className="wa-kit-card">
+        <h2 className="wa-text-lg wa-font-bold" style={{ marginBottom: '0.75rem' }}>
+          Recent outreach
+        </h2>
         {!logs ? (
-          <p>Loading…</p>
+          <p className="wa-text-sm" style={{ color: 'var(--wa-muted)' }}>
+            Loading…
+          </p>
         ) : logs.length === 0 ? (
-          <p style={{ color: 'var(--color-on-surface-variant)' }}>No logs yet.</p>
+          <p className="wa-text-sm" style={{ color: 'var(--wa-muted)' }}>
+            No logs yet.
+          </p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {logs.map((l) => (
               <li
                 key={l.id}
+                className="wa-text-sm"
                 style={{
                   padding: '0.65rem 0',
-                  borderBottom: '1px solid var(--color-border)',
-                  fontSize: '0.9rem',
+                  borderBottom: '1px solid var(--wa-border)',
                 }}
               >
                 <strong>{l.memberName}</strong> · {l.channel} · {new Date(l.createdAt).toLocaleString()}
-                <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem' }}>{l.note}</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-variant)' }}>By {l.createdByName}</div>
+                <div style={{ color: 'var(--wa-muted)', marginTop: '0.25rem' }}>{l.note}</div>
+                <div className="wa-text-xs" style={{ color: 'var(--wa-muted)' }}>
+                  By {l.createdByName}
+                </div>
               </li>
             ))}
           </ul>

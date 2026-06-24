@@ -7,6 +7,7 @@ import { getUser } from '@/lib/auth/server';
 import { prisma } from '@/lib/db/prisma';
 import PageHeader from '@/components/portal/PageHeader';
 import SkillMissionPanel from '@/components/portal/SkillMissionPanel';
+import { DesignSurface } from '@/components/portal/kit';
 import { loadSkillMissionSummary } from '@/lib/member/skillMissions';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -47,7 +48,7 @@ export default async function SkillMissionsPage() {
   });
 
   return (
-    <div className="portal-main-content">
+    <DesignSurface surface="warm" className="portal-main-content">
       <PageHeader
         title="Skill Missions"
         subtitle="Prove what you learned — every passed mission earns a resume bullet and an interview-ready STAR story."
@@ -58,20 +59,20 @@ export default async function SkillMissionsPage() {
         <SkillMissionPanel summary={summary} />
       ) : (
         <div
-          className="content-card"
+          className="wa-kit-card"
           style={{ maxWidth: '560px', textAlign: 'center', padding: '2.5rem 1.5rem' }}
         >
           <Target
             size={40}
             aria-hidden="true"
-            style={{ color: 'var(--color-accent)', margin: '0 auto 0.75rem', display: 'block' }}
+            style={{ color: 'var(--wa-accent)', margin: '0 auto 0.75rem', display: 'block' }}
           />
-          <h2 className="portal-section-title" style={{ marginBottom: '0.5rem' }}>
+          <h2 className="wa-text-2xl wa-font-extrabold" style={{ marginBottom: '0.5rem', letterSpacing: '-0.03em' }}>
             Your missions unlock with a program
           </h2>
           <p
             style={{
-              color: 'var(--color-on-surface-variant)',
+              color: 'var(--wa-muted)',
               lineHeight: 1.6,
               marginBottom: '1.25rem',
             }}
@@ -90,6 +91,6 @@ export default async function SkillMissionsPage() {
           </Link>
         </div>
       )}
-    </div>
+    </DesignSurface>
   );
 }

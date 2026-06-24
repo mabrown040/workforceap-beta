@@ -12,11 +12,13 @@ import EmployerApplicationsPager from '@/components/employer/EmployerApplication
 import MobileApplicationsClient from '@/components/employer/MobileApplicationsClient';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
+import { DesignSurface } from '@/components/portal/kit';
 import {
   parseEmployerApplicationStatusFilter,
   parseEmployerApplicationsSort,
 } from '@/lib/employer/employerApplicationsListQuery';
 import { getTranslations } from 'next-intl/server';
+import './employerApplicationsKit.css';
 
 const PAGE_SIZE = 25;
 
@@ -92,39 +94,50 @@ export default async function EmployerApplicationsPage({
         }
         breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('applicants') }]}
       />
-      {totalCount === 0 && !statusFilter ? (
-        // True empty state: no applications at all and no filter applied.
-        // (When a filter is active and matches zero rows, fall through to
-        // EmployerApplicationsClient so users keep their filter chips and
-        // "Show all applicants" reset.)
-        <div className="portal-card portal-card--flat" style={{ padding: '2.5rem', textAlign: 'center' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--outline-variant)', display: 'block', marginBottom: '1rem' }}>inbox</span>
-          <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{t('noApplicationsYet')}</h3>
-          <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.5rem' }}>{t('postRoleToStartReceiving')}</p>
-          <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--color-accent)', color: '#fff', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
-            {t('postAJob')}
-          </Link>
-        </div>
-      ) : (
-        <>
-          {/* ── Mobile Applications View (≤640px) ── */}
-          <div className="wa-block md:wa-hidden wa-pb-24">
-            <MobileApplicationsClient initialRows={initialRows} />
-            <div className="wa-px-4">
+      <DesignSurface surface="dense" className="employer-applications-kit">
+        {totalCount === 0 && !statusFilter ? (
+          // True empty state: no applications at all and no filter applied.
+          // (When a filter is active and matches zero rows, fall through to
+          // EmployerApplicationsClient so users keep their filter chips and
+          // "Show all applicants" reset.)
+          <div
+            style={{
+              padding: '2.5rem',
+              textAlign: 'center',
+              background: 'var(--wa-surface)',
+              border: '1px solid var(--wa-border)',
+              borderRadius: 'var(--wa-radius-sm)',
+              boxShadow: 'var(--wa-shadow)',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--wa-muted)', display: 'block', marginBottom: '1rem' }}>inbox</span>
+            <h3 style={{ fontWeight: 700, fontSize: '1.125rem', marginBottom: '0.5rem', color: 'var(--wa-text)' }}>{t('noApplicationsYet')}</h3>
+            <p style={{ color: 'var(--wa-muted)', marginBottom: '1.5rem' }}>{t('postRoleToStartReceiving')}</p>
+            <Link href="/employer/jobs/new" style={{ padding: '0.625rem 1.25rem', background: 'var(--wa-accent)', color: '#fff', borderRadius: 'var(--wa-radius-sm)', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none' }}>
+              {t('postAJob')}
+            </Link>
+          </div>
+        ) : (
+          <>
+            {/* ── Mobile Applications View (≤640px) ── */}
+            <div className="wa-block md:wa-hidden wa-pb-24">
+              <MobileApplicationsClient initialRows={initialRows} />
+              <div className="wa-px-4">
+                <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
+              </div>
+            </div>
+            {/* ── Desktop View ── */}
+            <div className="wa-hidden md:wa-block">
+              <EmployerApplicationsClient
+                initialRows={initialRows}
+                activeStatusFilter={statusFilter}
+                activeSort={sortOrder}
+              />
               <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
             </div>
-          </div>
-          {/* ── Desktop View ── */}
-          <div className="wa-hidden md:wa-block">
-            <EmployerApplicationsClient
-              initialRows={initialRows}
-              activeStatusFilter={statusFilter}
-              activeSort={sortOrder}
-            />
-            <EmployerApplicationsPager page={page} totalPages={totalPages} status={statusFilter} sort={sortOrder} />
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </DesignSurface>
     </PortalPageFrame>
   );
 }

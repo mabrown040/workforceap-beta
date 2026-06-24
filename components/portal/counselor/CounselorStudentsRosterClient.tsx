@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useMemo, useState, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import PortalEmptyState from '@/components/portal/PortalEmptyState';
-import StatusBadge from '@/components/portal/StatusBadge';
+import type { BadgeVariant } from '@/components/portal/StatusBadge';
+import { DataTable, StatusTag, Avatar, ProgressBar, type Column, type KitTone } from '@/components/portal/kit';
 import { counselorStudentStatusBadge, counselorStudentStatusBadgeVariant } from '@/lib/counselor/memberStatus';
 import { computeTrainingProgress, type LiveTrainingProgressSummary } from '@/lib/member/trainingProgress';
 
@@ -43,26 +44,30 @@ const FILTER_CHIPS: { key: Exclude<FilterKey, null>; label: string; accent: stri
   { key: 'pending-application', label: 'Pending Application', accent: 'var(--color-gold)', accentBg: 'color-mix(in srgb, var(--color-gold) 14%, transparent)' },
 ];
 
-const RISK_BADGE_STYLES: Record<'CRITICAL' | 'HIGH' | 'MEDIUM', { label: string; bg: string; color: string; border: string }> = {
-  CRITICAL: {
-    label: 'Critical',
-    bg: 'color-mix(in srgb, #dc2626 14%, transparent)',
-    color: '#b91c1c',
-    border: 'color-mix(in srgb, #dc2626 35%, transparent)',
-  },
-  HIGH: {
-    label: 'High',
-    bg: 'color-mix(in srgb, #ea580c 14%, transparent)',
-    color: '#c2410c',
-    border: 'color-mix(in srgb, #ea580c 35%, transparent)',
-  },
-  MEDIUM: {
-    label: 'Medium',
-    bg: 'color-mix(in srgb, #ca8a04 18%, transparent)',
-    color: '#a16207',
-    border: 'color-mix(in srgb, #ca8a04 40%, transparent)',
-  },
+const RISK_BADGE_META: Record<'CRITICAL' | 'HIGH' | 'MEDIUM', { label: string; tone: KitTone }> = {
+  CRITICAL: { label: 'Critical', tone: 'alert' },
+  HIGH: { label: 'High', tone: 'alert' },
+  MEDIUM: { label: 'Medium', tone: 'warn' },
 };
+
+/** Map the legacy StatusBadge BadgeVariant to the kit's 5-value tone enum. */
+function badgeVariantToTone(variant: BadgeVariant): KitTone {
+  switch (variant) {
+    case 'success':
+      return 'ok';
+    case 'warning':
+      return 'warn';
+    case 'error':
+      return 'alert';
+    case 'info':
+      return 'info';
+    case 'accent':
+      return 'info';
+    case 'neutral':
+    default:
+      return 'muted';
+  }
+}
 
 function formatLastActivity(iso: string): string {
   const d = new Date(iso);
@@ -78,26 +83,10 @@ function formatLastActivity(iso: string): string {
 
 function CounselorRosterRiskBadge({ level }: { level: RiskLevel }) {
   if (level === 'LOW') return null;
-  const s = RISK_BADGE_STYLES[level];
+  const s = RISK_BADGE_META[level];
   return (
-    <span
-      title={`Risk: ${s.label}`}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        padding: '0.15rem 0.5rem',
-        borderRadius: '9999px',
-        fontSize: '10px',
-        fontWeight: 800,
-        textTransform: 'uppercase',
-        letterSpacing: '0.06em',
-        background: s.bg,
-        color: s.color,
-        border: `1px solid ${s.border}`,
-        flexShrink: 0,
-      }}
-    >
-      {s.label}
+    <span title={`Risk: ${s.label}`} style={{ display: 'inline-flex', flexShrink: 0 }}>
+      <StatusTag tone={s.tone}>{s.label}</StatusTag>
     </span>
   );
 }
@@ -408,6 +397,136 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
           ? 'All assigned members have completed or had their applications reviewed.'
           : 'Everyone is below the medium risk threshold, or alerts have not run yet.';
 
+  const desktopColumns: Column<CounselorRosterClientRow>[] = [
+    {
+      key: 'member',
+      header: 'Member',
+      render: (a) => {
+        const program = a.enrolledProgram ?? a.programInterest ?? '—';
+        return (
+          <Link
+            href={`/counselor/students/${a.memberId}`}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none', minWidth: 0 }}
+          >
+            <Avatar initials={getInitials(a.fullName ?? 'U')} size={32} />
+            <span style={{ minWidth: 0 }}>
+              <span className="wa-truncate" style={{ display: 'block', fontWeight: 600, color: 'var(--wa-text)' }}>
+                {a.fullName}
+              </span>
+              <span
+                className="wa-truncate"
+                style={{
+                  display: 'block',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  color: 'var(--wa-accent)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                {program}
+              </span>
+            </span>
+          </Link>
+        );
+      },
+    },
+    {
+      key: 'progress',
+      header: 'Progress',
+      render: (a) => {
+        const enrolledSlug = a.enrolledProgram ?? null;
+        const progress = computeTrainingProgress(enrolledSlug, null, a.memberProgramProgress);
+        const trainingProgressPct = progress.totalCourses > 0 ? progress.pct : null;
+        if (trainingProgressPct === null) {
+          return (
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--wa-muted)', whiteSpace: 'nowrap' }}>
+              {enrolledSlug ? 'Progress unavailable' : 'Not enrolled'}
+            </span>
+          );
+        }
+        const progressColor = a.riskScore != null && a.riskScore >= RISK_MEDIUM_OR_ABOVE ? 'accent' : 'success';
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 120 }}>
+            <div style={{ flex: 1 }}>
+              <ProgressBar pct={trainingProgressPct} color={progressColor} aria-label="Training progress" />
+            </div>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--wa-muted)' }}>{trainingProgressPct}%</span>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'lastActivity',
+      header: 'Last activity',
+      render: (a) => (
+        <span style={{ fontSize: '0.8rem', color: 'var(--wa-muted)', whiteSpace: 'nowrap' }}>
+          {formatLastActivity(a.lastActivityAt)}
+        </span>
+      ),
+    },
+    {
+      key: 'risk',
+      header: 'Risk',
+      render: (a) => <CounselorRosterRiskBadge level={a.riskLevel} />,
+    },
+    {
+      key: 'wioa',
+      header: 'WIOA',
+      render: (a) => {
+        const wioa = wioaBadgeProps(a.wioaReviewStatus);
+        return (
+          <span title={wioa.tooltip}>
+            <StatusTag tone={badgeVariantToTone(wioa.variant)}>{wioa.label}</StatusTag>
+          </span>
+        );
+      },
+    },
+    {
+      key: 'email',
+      header: 'Email',
+      render: (a) => (
+        <span className="wa-truncate" style={{ display: 'block', fontSize: '0.85rem', color: 'var(--wa-muted)' }}>
+          {a.email}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (a) => {
+        const statusBadge = counselorStudentStatusBadge({
+          enrolledProgram: a.enrolledProgram,
+          assessmentScorePct: a.assessmentScorePct,
+        });
+        const statusVariant = counselorStudentStatusBadgeVariant({
+          enrolledProgram: a.enrolledProgram,
+          assessmentScorePct: a.assessmentScorePct,
+        });
+        return <StatusTag tone={badgeVariantToTone(statusVariant)}>{statusBadge.label}</StatusTag>;
+      },
+    },
+    {
+      key: 'action',
+      header: '',
+      align: 'right',
+      render: (a) => {
+        const showMessage = a.riskScore != null && a.riskScore >= RISK_MEDIUM_OR_ABOVE;
+        if (!showMessage) return null;
+        return (
+          <Link
+            href={`/counselor/students/${a.memberId}#counselor-member-messages`}
+            className="btn btn-primary btn-sm"
+            style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            Message
+          </Link>
+        );
+      },
+    },
+  ];
+
   return (
     <>
       {/* Mobile */}
@@ -454,40 +573,26 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
               });
               const wioa = wioaBadgeProps(a.wioaReviewStatus);
               const showMessage = a.riskScore != null && a.riskScore >= RISK_MEDIUM_OR_ABOVE;
+              const progressColor = a.riskScore != null && a.riskScore >= RISK_MEDIUM_OR_ABOVE ? 'accent' : 'success';
               return (
                 <div
                   key={a.assignmentId}
-                  className="portal-kpi-card"
+                  className="wa-kit-card wa-kit-card--sm"
                   style={{
-                    padding: '1rem',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.875rem',
-                    border: '1px solid var(--outline-variant)',
                   }}
                 >
                   <Link
                     href={`/counselor/students/${a.memberId}`}
                     style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.875rem', flex: 1, minWidth: 0 }}
                   >
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: '0.625rem',
-                        background: 'var(--color-accent)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      <span style={{ color: '#fff', fontWeight: 800, fontSize: '0.875rem' }}>{initials}</span>
-                    </div>
+                    <Avatar initials={initials} size={44} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p
                         className="wa-truncate"
-                        style={{ fontWeight: 700, color: 'var(--color-on-surface)', fontSize: '0.9rem', margin: '0 0 0.125rem' }}
+                        style={{ fontWeight: 700, color: 'var(--wa-text)', fontSize: '0.9rem', margin: '0 0 0.125rem' }}
                       >
                         {a.fullName}
                       </p>
@@ -496,7 +601,7 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
                         style={{
                           fontSize: '10px',
                           fontWeight: 700,
-                          color: 'var(--color-accent)',
+                          color: 'var(--wa-accent)',
                           textTransform: 'uppercase',
                           letterSpacing: '0.08em',
                           margin: '0 0 0.375rem',
@@ -504,46 +609,31 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
                       >
                         {program}
                       </p>
-                      <p style={{ margin: '0 0 0.25rem', fontSize: '11px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+                      <p style={{ margin: '0 0 0.25rem', fontSize: '11px', fontWeight: 600, color: 'var(--wa-muted)' }}>
                         Last activity: {formatLastActivity(a.lastActivityAt)}
                       </p>
                       {trainingProgressPct === null ? (
-                        <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
+                        <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, color: 'var(--wa-muted)' }}>
                           {enrolledSlug ? 'Training progress unavailable' : 'Not enrolled'}
                         </p>
                       ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div
-                            style={{
-                              flex: 1,
-                              height: 4,
-                              background: 'var(--surface-container)',
-                              borderRadius: '9999px',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            <div
-                              style={{
-                                height: '100%',
-                                width: `${trainingProgressPct}%`,
-                                background: 'var(--color-accent)',
-                                borderRadius: '9999px',
-                              }}
-                            />
+                          <div style={{ flex: 1 }}>
+                            <ProgressBar pct={trainingProgressPct} color={progressColor} aria-label="Training progress" />
                           </div>
-                          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+                          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--wa-muted)' }}>
                             {trainingProgressPct}%
                           </span>
                         </div>
                       )}
                       <div style={{ marginTop: '0.375rem', display: 'flex', flexWrap: 'wrap', gap: '0.35rem', alignItems: 'center' }} title={wioa.tooltip}>
-                        <StatusBadge label={wioa.label} variant={wioa.variant} />
+                        <StatusTag tone={badgeVariantToTone(wioa.variant)}>{wioa.label}</StatusTag>
                         <CounselorRosterRiskBadge level={a.riskLevel} />
                       </div>
                     </div>
                   </Link>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.375rem', flexShrink: 0 }}>
-                    <StatusBadge label={statusBadge.label} variant={statusVariant} />
+                    <StatusTag tone={badgeVariantToTone(statusVariant)}>{statusBadge.label}</StatusTag>
                     {showMessage ? (
                       <Link
                         href={`/counselor/students/${a.memberId}#counselor-member-messages`}
@@ -555,7 +645,7 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
                       </Link>
                     ) : null}
                     <Link href={`/counselor/students/${a.memberId}`} aria-label={`Open ${a.fullName ?? 'member'}`}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--outline-variant)', fontSize: '18px' }} aria-hidden>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--wa-muted)', fontSize: '18px' }} aria-hidden>
                         chevron_right
                       </span>
                     </Link>
@@ -579,53 +669,15 @@ export default function CounselorStudentsRosterClient({ rows, filterMeta, initia
             primaryAction={{ label: 'Clear filter', href: pathname ?? '/counselor/students' }}
           />
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.5rem' }}>
-            {visible.map((a) => {
-              const wioa = wioaBadgeProps(a.wioaReviewStatus);
-              const showMessage = a.riskScore != null && a.riskScore >= RISK_MEDIUM_OR_ABOVE;
-              return (
-                <li key={a.assignmentId}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      width: '100%',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      flexWrap: 'wrap',
-                      padding: '0.75rem 1rem',
-                      borderRadius: '0.75rem',
-                      border: '1px solid var(--outline-variant)',
-                      background: 'var(--surface-container-lowest)',
-                    }}
-                  >
-                    <Link href={`/counselor/students/${a.memberId}`} style={{ fontWeight: 600, flex: '1 1 160px', minWidth: 0 }}>
-                      {a.fullName}
-                    </Link>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', whiteSpace: 'nowrap' }}>
-                        Last: {formatLastActivity(a.lastActivityAt)}
-                      </span>
-                      <CounselorRosterRiskBadge level={a.riskLevel} />
-                      <span title={wioa.tooltip}>
-                        <StatusBadge label={wioa.label} variant={wioa.variant} />
-                      </span>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)' }}>{a.email}</span>
-                      {showMessage ? (
-                        <Link
-                          href={`/counselor/students/${a.memberId}#counselor-member-messages`}
-                          className="btn btn-primary btn-sm"
-                          style={{ flexShrink: 0 }}
-                        >
-                          Message
-                        </Link>
-                      ) : null}
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <DataTable<CounselorRosterClientRow>
+            columns={desktopColumns}
+            rows={visible}
+            rowKey={(r) => r.assignmentId}
+            minWidth={760}
+            mobile="scroll"
+            emptyTitle={emptyTitle}
+            emptyDescription={emptyDescription}
+          />
         )}
       </div>
     </>

@@ -2,7 +2,17 @@
 
 import { useState, useCallback } from 'react';
 import EmployerApplicationChatClient from '@/components/portal/EmployerApplicationChatClient';
+import { StatusTag, type KitTone } from '@/components/portal/kit';
 import type { AppMsg, EmployerApplicationRow } from './EmployerApplicationsClient';
+
+const STATUS_TONE: Record<string, KitTone> = {
+  pending: 'muted',
+  reviewing: 'warn',
+  interview: 'info',
+  offered: 'info',
+  hired: 'ok',
+  rejected: 'alert',
+};
 
 const STATUS_CHIP_FILTERS = [
   { label: 'All', value: 'all' },
@@ -22,16 +32,6 @@ const STATUS_ACTIONS: Record<string, string[]> = {
   hired: [],
   rejected: [],
 };
-
-function statusColor(status: string): { bg: string; color: string } {
-  if (status === 'hired') return { bg: '#dcfce7', color: '#166534' };
-  if (status === 'rejected') return { bg: '#fee2e2', color: '#991b1b' };
-  if (status === 'pending') return { bg: '#fff1f2', color: 'var(--color-accent)' };
-  if (status === 'reviewing') return { bg: '#fef3c7', color: '#92400e' };
-  if (status === 'interview') return { bg: '#dbeafe', color: '#1e3a8a' };
-  if (status === 'offered') return { bg: '#f3e8ff', color: '#6b21a8' };
-  return { bg: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' };
-}
 
 function statusLabel(status: string): string {
   const map: Record<string, string> = {
@@ -140,8 +140,8 @@ export default function MobileApplicationsClient({
               onClick={() => setFilter(f.value)}
               className="text-xs font-semibold transition-colors"
               style={Object.assign(
-                { flexShrink: 0, padding: '0.375rem 1rem', borderRadius: '9999px' },
-                active ? { background: 'var(--color-accent)', color: '#ffffff' } : { background: 'var(--surface-container)', color: 'var(--color-on-surface-variant)' }
+                { flexShrink: 0, padding: '0.375rem 1rem', borderRadius: '9999px', border: '1px solid var(--wa-border)' },
+                active ? { background: 'var(--wa-accent)', color: '#ffffff', borderColor: 'var(--wa-accent)' } : { background: 'var(--wa-surface-2)', color: 'var(--wa-muted)' }
               )}
             >
               {f.label}
@@ -157,23 +157,22 @@ export default function MobileApplicationsClient({
       {/* Applicant cards */}
       <div style={{ padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {visible.length === 0 ? (
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'center' }}>
-            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--outline-variant)' }} aria-hidden="true">inbox</span>
-            <p className="text-sm" style={{ color: 'var(--color-on-surface-variant)' }}>No applications found.</p>
+          <div style={{ background: 'var(--wa-surface)', border: '1px solid var(--wa-border)', borderRadius: 'var(--wa-radius-sm)', padding: '1.5rem', textAlign: 'center' }}>
+            <span className="material-symbols-outlined text-3xl block mb-2" style={{ color: 'var(--wa-muted)' }} aria-hidden="true">inbox</span>
+            <p className="text-sm" style={{ color: 'var(--wa-muted)' }}>No applications found.</p>
           </div>
         ) : (
           visible.map((app) => {
             const isExpanded = expandedId === app.id;
             const isChatOpen = openChatId === app.id;
             const isChatLoading = chatLoadingId === app.id;
-            const sc = statusColor(app.status);
             const nextStatuses = STATUS_ACTIONS[app.status] ?? [];
             const studentName = app.student.fullName?.trim() || app.student.email;
 
             return (
               <div
                 key={app.id}
-                style={{ borderRadius: '0.75rem', overflow: 'hidden', background: '#ffffff', boxShadow: '0 4px 24px -2px rgba(28,27,27,0.06)' }}
+                style={{ borderRadius: 'var(--wa-radius-sm)', overflow: 'hidden', background: 'var(--wa-surface)', border: '1px solid var(--wa-border)', boxShadow: 'var(--wa-shadow)' }}
               >
                 {/* Card header — tap to expand */}
                 <button type="button"
@@ -187,31 +186,30 @@ export default function MobileApplicationsClient({
                   }}
                 >
                   {/* Avatar */}
-                  <div style={{ width: '3rem', height: '3rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, var(--color-accent-dark), var(--color-accent))', color: '#fff', fontWeight: 700, fontSize: '0.9375rem' }}>
+                  <div style={{ width: '3rem', height: '3rem', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, var(--wa-accent-dark), var(--wa-accent))', color: '#fff', fontWeight: 700, fontSize: '0.9375rem' }}>
                     {initials(app.student.fullName)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      <h4 className="font-bold text-sm truncate" style={{ color: 'var(--color-on-surface)' }}>
+                      <h4 className="font-bold text-sm truncate" style={{ color: 'var(--wa-text)' }}>
                         {studentName}
                       </h4>
-                      <span
-                        className="px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-tighter flex-shrink-0"
-                        style={{ background: sc.bg, color: sc.color, whiteSpace: 'nowrap' }}
-                      >
-                        {statusLabel(app.status)}
+                      <span className="flex-shrink-0">
+                        <StatusTag tone={STATUS_TONE[app.status] ?? 'muted'}>
+                          {statusLabel(app.status)}
+                        </StatusTag>
                       </span>
                     </div>
-                    <p className="text-xs font-semibold uppercase tracking-wider truncate mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>
+                    <p className="text-xs font-semibold uppercase tracking-wider truncate mt-0.5" style={{ color: 'var(--wa-muted)' }}>
                       {app.job.title}
                     </p>
-                    <p className="text-[10px] mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>
+                    <p className="text-[10px] mt-1" style={{ color: 'var(--wa-muted)' }}>
                       Applied {new Date(app.appliedAt).toLocaleDateString()}
                     </p>
                   </div>
                   <span
                     className="material-symbols-outlined text-[18px] flex-shrink-0 mt-1 transition-transform"
-                    style={{ color: 'var(--color-accent)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    style={{ color: 'var(--wa-accent)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
                    aria-hidden="true">
                     expand_more
                   </span>
@@ -219,10 +217,10 @@ export default function MobileApplicationsClient({
 
                 {/* Expandable detail */}
                 {isExpanded && (
-                  <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--surface-container)' }}>
+                  <div className="px-4 pb-4 border-t" style={{ borderColor: 'var(--wa-border)' }}>
                     <div className="pt-4 mb-4">
-                      <p className="text-[10px] uppercase tracking-widest font-bold mb-1" style={{ color: 'var(--color-on-surface-variant)' }}>Email</p>
-                      <p className="text-sm font-semibold" style={{ color: 'var(--color-on-surface)' }}>{app.student.email}</p>
+                      <p className="text-[10px] uppercase tracking-widest font-bold mb-1" style={{ color: 'var(--wa-muted)' }}>Email</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--wa-text)' }}>{app.student.email}</p>
                     </div>
 
                     {/* Action buttons */}
@@ -239,10 +237,10 @@ export default function MobileApplicationsClient({
                           gap: '0.375rem',
                           padding: '0.75rem',
                           borderRadius: '0.75rem',
-                          border: 'none',
                           cursor: isChatLoading ? 'default' : 'pointer',
-                          background: isChatOpen ? 'rgba(173,44,77,0.12)' : 'rgba(173,44,77,0.08)',
-                          color: 'var(--color-accent)',
+                          background: 'var(--wa-accent-soft)',
+                          color: 'var(--wa-accent)',
+                          border: isChatOpen ? '1px solid var(--wa-accent)' : '1px solid transparent',
                         }}
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: '1rem', fontVariationSettings: "'FILL' 1" }}>forum</span>
@@ -261,8 +259,8 @@ export default function MobileApplicationsClient({
                               className="w-full py-3 rounded-xl font-bold text-sm active:scale-[0.98] transition-all disabled:opacity-50"
                               style={
                                 isReject
-                                  ? { background: '#ffdad6', color: '#93000a' }
-                                  : { background: 'var(--color-accent)', color: '#ffffff' }
+                                  ? { background: 'var(--wa-accent-soft)', color: 'var(--wa-accent-dark)' }
+                                  : { background: 'var(--wa-accent)', color: '#ffffff' }
                               }
                             >
                               {busyId === app.id ? '…' : statusLabel(s)}
@@ -273,11 +271,11 @@ export default function MobileApplicationsClient({
                     )}
                   </div>
                     {nextStatuses.length === 0 && !isChatOpen && (
-                      <p className="text-xs text-center" style={{ color: 'var(--color-on-surface-variant)' }}>No further actions available.</p>
+                      <p className="text-xs text-center" style={{ color: 'var(--wa-muted)' }}>No further actions available.</p>
                     )}
 
                     {isChatOpen && chatMessages[app.id] && (
-                      <div style={{ marginTop: '1rem', border: '1px solid #ebe7e7', borderRadius: '0.875rem', overflow: 'hidden', background: '#fff', minHeight: '24rem' }}>
+                      <div style={{ marginTop: '1rem', border: '1px solid var(--wa-border)', borderRadius: '0.875rem', overflow: 'hidden', background: 'var(--wa-surface)', minHeight: '24rem' }}>
                         <EmployerApplicationChatClient
                           applicationId={app.id}
                           studentName={studentName}

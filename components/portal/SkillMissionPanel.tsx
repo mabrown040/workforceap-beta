@@ -3,6 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SkillMissionChallenge from './SkillMissionChallenge';
+import {
+  SectionHeader,
+  StatTile,
+  StatusTag,
+  ProgressBar,
+} from './kit';
 
 // ── Local type copies (server-only lib not importable here) ──────────────────
 
@@ -80,11 +86,8 @@ function formatPassedDate(date: Date | null): string {
 function LockedCard({ mission }: { mission: SkillMissionSummaryItem }) {
   return (
     <article
+      className="wa-kit-card wa-kit-card--sm"
       style={{
-        borderRadius: '0.9rem',
-        border: '1px solid var(--outline-variant)',
-        background: 'var(--surface-container)',
-        padding: '0.95rem 1rem',
         opacity: 0.62,
         display: 'flex',
         alignItems: 'flex-start',
@@ -93,12 +96,12 @@ function LockedCard({ mission }: { mission: SkillMissionSummaryItem }) {
     >
       <span style={{ fontSize: '1.4rem', lineHeight: 1, flexShrink: 0 }}>🔒</span>
       <div>
-        <h4 style={{ margin: '0 0 0.2rem', fontSize: '0.97rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+        <h4 style={{ margin: '0 0 0.3rem', fontSize: '0.97rem', fontWeight: 700, color: 'var(--wa-text)' }}>
           {mission.missionName}
         </h4>
-        <p style={{ margin: 0, fontSize: '0.83rem', color: 'var(--color-on-surface-variant)' }}>
-          Complete <strong>{mission.courseTitle}</strong> to unlock
-        </p>
+        <StatusTag tone="muted">
+          Complete {mission.courseTitle} to unlock
+        </StatusTag>
       </div>
     </article>
   );
@@ -113,13 +116,8 @@ function ReadyCard({
 }) {
   return (
     <article
-      style={{
-        borderRadius: '0.9rem',
-        border: '2px solid var(--color-accent)',
-        background: 'color-mix(in srgb, var(--color-accent) 5%, var(--surface-container-low))',
-        padding: '1rem 1.1rem',
-        boxShadow: '0 8px 24px -12px color-mix(in srgb, var(--color-accent) 30%, transparent)',
-      }}
+      className="wa-kit-card"
+      style={{ borderColor: 'var(--wa-accent)', borderWidth: 2 }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
         <div>
@@ -130,54 +128,28 @@ function ReadyCard({
               fontWeight: 700,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: 'var(--color-accent)',
+              color: 'var(--wa-accent)',
               marginBottom: '0.3rem',
             }}
           >
             Mission Ready
           </span>
-          <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-on-surface)' }}>
+          <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--wa-text)' }}>
             {mission.missionName}
           </h4>
-          <p style={{ margin: '0.2rem 0 0', fontSize: '0.86rem', color: 'var(--color-on-surface-variant)' }}>
+          <p style={{ margin: '0.2rem 0 0', fontSize: '0.86rem', color: 'var(--wa-muted)' }}>
             {mission.missionTagline}
           </p>
         </div>
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.25rem',
-            padding: '0.25rem 0.55rem',
-            borderRadius: '9999px',
-            background: 'var(--surface-container-high)',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            color: 'var(--color-on-surface-variant)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          ~{mission.estimatedMinutes} min
-        </span>
+        <StatusTag tone="info">~{mission.estimatedMinutes} min</StatusTag>
       </div>
 
       {mission.skillLabels.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.75rem' }}>
           {mission.skillLabels.slice(0, 4).map((s) => (
-            <span
-              key={s}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                padding: '0.15rem 0.45rem',
-                borderRadius: '9999px',
-                background: 'var(--surface-container-high)',
-                fontSize: '0.74rem',
-                color: 'var(--color-on-surface-variant)',
-              }}
-            >
+            <StatusTag key={s} tone="muted">
               {s}
-            </span>
+            </StatusTag>
           ))}
         </div>
       )}
@@ -197,24 +169,17 @@ function ReadyCard({
 function PassedCard({ mission }: { mission: SkillMissionSummaryItem }) {
   const result = mission.latestResult;
   return (
-    <article
-      style={{
-        borderRadius: '0.9rem',
-        border: '1px solid rgba(74,155,79,0.28)',
-        background: 'rgba(74,155,79,0.06)',
-        padding: '0.95rem 1rem',
-      }}
-    >
+    <article className="wa-kit-card wa-kit-card--sm">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.45rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '1.15rem', lineHeight: 1 }}>✅</span>
           <div>
-            <h4 style={{ margin: 0, fontSize: '0.97rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+            <h4 style={{ margin: 0, fontSize: '0.97rem', fontWeight: 700, color: 'var(--wa-text)' }}>
               {mission.missionName}
             </h4>
-            <p style={{ margin: '0.1rem 0 0', fontSize: '0.78rem', color: '#3d8b41' }}>
-              {formatPassedDate(mission.completedAt)}
-            </p>
+            <div style={{ marginTop: '0.25rem' }}>
+              <StatusTag tone="ok">{formatPassedDate(mission.completedAt)}</StatusTag>
+            </div>
           </div>
         </div>
       </div>
@@ -222,28 +187,15 @@ function PassedCard({ mission }: { mission: SkillMissionSummaryItem }) {
       {result && result.skillsUnlocked.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.5rem' }}>
           {result.skillsUnlocked.map((s) => (
-            <span
-              key={s}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                padding: '0.15rem 0.45rem',
-                borderRadius: '9999px',
-                background: 'rgba(74,155,79,0.12)',
-                border: '1px solid rgba(74,155,79,0.2)',
-                fontSize: '0.73rem',
-                fontWeight: 600,
-                color: '#256b2a',
-              }}
-            >
+            <StatusTag key={s} tone="ok">
               {s}
-            </span>
+            </StatusTag>
           ))}
         </div>
       )}
 
       {result && result.resumeBullet && (
-        <p style={{ margin: '0.25rem 0 0.45rem', fontSize: '0.82rem', fontStyle: 'italic', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+        <p style={{ margin: '0.25rem 0 0.45rem', fontSize: '0.82rem', fontStyle: 'italic', color: 'var(--wa-muted)', lineHeight: 1.5 }}>
           "{result.resumeBullet}"
         </p>
       )}
@@ -251,7 +203,7 @@ function PassedCard({ mission }: { mission: SkillMissionSummaryItem }) {
       {mission.aiToolResultId && (
         <a
           href="/dashboard/ai-tools/resume-studio"
-          style={{ fontSize: '0.78rem', color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 600 }}
+          style={{ fontSize: '0.78rem', color: 'var(--wa-accent)', textDecoration: 'none', fontWeight: 600 }}
         >
           View in Resume Studio →
         </a>
@@ -274,29 +226,15 @@ function RetryCard({
 
   return (
     <article
-      style={{
-        borderRadius: '0.9rem',
-        border: '2px solid rgba(194,120,0,0.45)',
-        background: 'rgba(194,120,0,0.06)',
-        padding: '0.95rem 1rem',
-      }}
+      className="wa-kit-card wa-kit-card--sm"
+      style={{ borderColor: 'var(--wa-gold)', borderWidth: 2 }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
         <div>
-          <span
-            style={{
-              display: 'inline-block',
-              fontSize: '0.68rem',
-              fontWeight: 700,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: '#8a5a00',
-              marginBottom: '0.25rem',
-            }}
-          >
-            Review needed
-          </span>
-          <h4 style={{ margin: 0, fontSize: '0.97rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>
+          <div style={{ marginBottom: '0.3rem' }}>
+            <StatusTag tone="warn">Review needed</StatusTag>
+          </div>
+          <h4 style={{ margin: 0, fontSize: '0.97rem', fontWeight: 700, color: 'var(--wa-text)' }}>
             {mission.missionName}
           </h4>
         </div>
@@ -304,7 +242,7 @@ function RetryCard({
       </div>
 
       {preview && (
-        <p style={{ margin: '0 0 0.65rem', fontSize: '0.83rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
+        <p style={{ margin: '0 0 0.65rem', fontSize: '0.83rem', color: 'var(--wa-muted)', lineHeight: 1.5 }}>
           {preview}
         </p>
       )}
@@ -313,7 +251,7 @@ function RetryCard({
         type="button"
         className="btn btn-primary"
         onClick={onRetry}
-        style={{ fontSize: '0.85rem', background: '#8a5a00', borderColor: '#8a5a00' }}
+        style={{ fontSize: '0.85rem', background: 'var(--wa-gold)', borderColor: 'var(--wa-gold)' }}
       >
         Retry Mission →
       </button>
@@ -336,36 +274,13 @@ export default function SkillMissionPanel({ summary }: { summary: SkillMissionSu
 
   return (
     <>
-      <section
-        style={{
-          background: 'var(--surface-container-low)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '1.25rem',
-          border: '1px solid var(--outline-variant)',
-          marginBottom: '1.5rem',
-        }}
-      >
+      <section className="wa-kit-card" style={{ marginBottom: '1.5rem' }}>
         {/* Header */}
-        <div style={{ marginBottom: '1rem' }}>
-          <p
-            style={{
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: 'var(--color-accent)',
-              margin: '0 0 0.3rem',
-            }}
-          >
-            Skill Missions
-          </p>
-          <h3 style={{ margin: '0 0 0.3rem', fontSize: '1.15rem', fontWeight: 800 }}>
-            Your Career Proof Journey
-          </h3>
-          <p style={{ margin: 0, fontSize: '0.87rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.55 }}>
-            Turn your training into employer-ready evidence — one mission at a time.
-          </p>
-        </div>
+        <SectionHeader
+          kicker="Skill Missions"
+          title="Your Career Proof Journey"
+          goal="Turn your training into employer-ready evidence — one mission at a time."
+        />
 
         {/* Stats row */}
         <div
@@ -377,93 +292,48 @@ export default function SkillMissionPanel({ summary }: { summary: SkillMissionSu
             marginBottom: '0.9rem',
           }}
         >
-          {/* Career readiness big number */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'baseline',
-              gap: '0.3rem',
-              padding: '0.45rem 0.85rem',
-              borderRadius: '0.7rem',
-              background: 'color-mix(in srgb, var(--color-accent) 8%, var(--surface-container))',
-              border: '1px solid color-mix(in srgb, var(--color-accent) 18%, transparent)',
-            }}
-          >
-            <span style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--color-accent)', lineHeight: 1 }}>
-              {summary.careerReadinessPct}%
-            </span>
-            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>
-              missions passed
-            </span>
+          {/* Career readiness */}
+          <div style={{ minWidth: '9rem' }}>
+            <StatTile
+              label="missions passed"
+              value={`${summary.careerReadinessPct}%`}
+              color="accent"
+            />
+            <div style={{ marginTop: '0.5rem' }}>
+              <ProgressBar pct={summary.careerReadinessPct} color="accent" aria-label="Missions passed" />
+            </div>
           </div>
 
           {/* Passed count */}
-          <span className="training-status-chip training-status-chip--complete">
-            {summary.passedCount} passed
-          </span>
+          <StatusTag tone="ok">{summary.passedCount} passed</StatusTag>
 
           {/* Ready count */}
           {summary.readyCount > 0 && (
-            <span className="training-status-chip training-status-chip--progress">
-              {summary.readyCount} ready
-            </span>
+            <StatusTag tone="info">{summary.readyCount} ready</StatusTag>
           )}
 
           {/* Retry count */}
           {summary.retryCount > 0 && (
-            <span className="training-status-chip training-status-chip--pending">
-              {summary.retryCount} to retry
-            </span>
+            <StatusTag tone="warn">{summary.retryCount} to retry</StatusTag>
           )}
 
           {/* Streak badge */}
           {summary.streak > 0 && (
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.2rem',
-                padding: '0.25rem 0.6rem',
-                borderRadius: '9999px',
-                background: 'rgba(230,120,0,0.12)',
-                border: '1px solid rgba(230,120,0,0.25)',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                color: '#8a4a00',
-              }}
-            >
-              🔥 {summary.streak} streak
-            </span>
+            <StatusTag tone="warn">🔥 {summary.streak} streak</StatusTag>
           )}
         </div>
 
         {/* Demonstrated skills chips */}
         {summary.demonstratedSkills.length > 0 && (
           <div style={{ marginBottom: '1rem' }}>
-            <p style={{ margin: '0 0 0.4rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-on-surface-variant)' }}>
+            <p style={{ margin: '0 0 0.4rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--wa-muted)' }}>
               Skills you&apos;ve demonstrated
             </p>
-            <div
-              style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}
-            >
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
               {summary.demonstratedSkills.slice(0, 10).map((skill) => (
-                <span
-                  key={skill}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '0.2rem 0.55rem',
-                    borderRadius: '9999px',
-                    background: 'rgba(74,155,79,0.1)',
-                    border: '1px solid rgba(74,155,79,0.2)',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: '#256b2a',
-                    animation: 'fadeIn 0.4s ease both',
-                  }}
-                >
+                <StatusTag key={skill} tone="ok">
                   {skill}
-                </span>
+                </StatusTag>
               ))}
             </div>
           </div>
@@ -515,13 +385,6 @@ export default function SkillMissionPanel({ summary }: { summary: SkillMissionSu
           onComplete={handleComplete}
         />
       )}
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(4px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </>
   );
 }

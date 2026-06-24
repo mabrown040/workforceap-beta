@@ -6,6 +6,7 @@ import { getUser } from '@/lib/auth/server';
 import { isAdmin } from '@/lib/auth/roles';
 import PortalPageFrame from '@/components/portal/PortalPageFrame';
 import PageHeader from '@/components/portal/PageHeader';
+import { DesignSurface, SectionHeader } from '@/components/portal/kit';
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadataAsync({
@@ -70,7 +71,8 @@ export default async function AdminWhatWorkforceApDoesPage() {
   if (!hasAdmin) redirect('/dashboard');
 
   return (
-    <PortalPageFrame>
+    <DesignSurface surface="dense">
+      <PortalPageFrame>
       <PageHeader
         title="What WorkforceAP does"
         subtitle="Private admin explainer you can use in meetings, partner calls, and internal walkthroughs."
@@ -92,10 +94,9 @@ export default async function AdminWhatWorkforceApDoesPage() {
 
       <section style={{ padding: '0 1.5rem 1.25rem' }}>
         <div
-          className="portal-card"
+          className="wa-kit-card wa-kit-card--gradient-crimson"
           style={{
             padding: '1.5rem',
-            background: 'linear-gradient(135deg, rgba(122,31,54,0.18), rgba(17,24,39,0.96))',
             border: '1px solid rgba(244,114,182,0.18)',
           }}
         >
@@ -114,15 +115,15 @@ export default async function AdminWhatWorkforceApDoesPage() {
 
       <section style={{ padding: '0 1.5rem 1.5rem' }}>
         <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
-          <a href="#personas" className="portal-card portal-card--flat" style={{ padding: '1rem 1.1rem', textDecoration: 'none', color: 'inherit' }}>
+          <a href="#personas" className="wa-kit-card wa-kit-card--tinted wa-kit-card--hover" style={{ padding: '1rem 1.1rem', textDecoration: 'none', color: 'inherit' }}>
             <div style={{ fontWeight: 700 }}>Overview</div>
             <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.3rem' }}>Who it serves and why it exists.</div>
           </a>
-          <a href="#ai-layer" className="portal-card portal-card--flat" style={{ padding: '1rem 1.1rem', textDecoration: 'none', color: 'inherit' }}>
+          <a href="#ai-layer" className="wa-kit-card wa-kit-card--tinted wa-kit-card--hover" style={{ padding: '1rem 1.1rem', textDecoration: 'none', color: 'inherit' }}>
             <div style={{ fontWeight: 700 }}>AI layer</div>
             <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.3rem' }}>Where automation helps and where humans stay in control.</div>
           </a>
-          <a href="#admin-flow" className="portal-card portal-card--flat" style={{ padding: '1rem 1.1rem', textDecoration: 'none', color: 'inherit' }}>
+          <a href="#admin-flow" className="wa-kit-card wa-kit-card--tinted wa-kit-card--hover" style={{ padding: '1rem 1.1rem', textDecoration: 'none', color: 'inherit' }}>
             <div style={{ fontWeight: 700 }}>Admin flow</div>
             <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.3rem' }}>How the system works in the background.</div>
           </a>
@@ -130,15 +131,10 @@ export default async function AdminWhatWorkforceApDoesPage() {
       </section>
 
       <section id="personas" style={{ padding: '0 1.5rem 1.5rem' }}>
-        <div style={{ marginBottom: '0.9rem' }}>
-          <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Who WorkforceAP serves</h2>
-          <p style={{ margin: '0.4rem 0 0', color: 'var(--color-on-surface-variant)' }}>
-            One platform, three operating views.
-          </p>
-        </div>
+        <SectionHeader title="Who WorkforceAP serves" goal="One platform, three operating views." />
         <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
           {personaCards.map((card) => (
-            <article key={card.title} className="portal-card" style={{ padding: '1.2rem' }}>
+            <article key={card.title} className="wa-kit-card" style={{ padding: '1.2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.75rem' }}>
                 <span className="material-symbols-outlined" aria-hidden style={{ color: 'var(--color-accent)' }}>{card.icon}</span>
                 <h3 style={{ margin: 0, fontSize: '1.05rem' }}>{card.title}</h3>
@@ -152,8 +148,8 @@ export default async function AdminWhatWorkforceApDoesPage() {
       </section>
 
       <section style={{ padding: '0 1.5rem 1.5rem' }}>
-        <div className="portal-card" style={{ padding: '1.25rem' }}>
-          <h2 style={{ marginTop: 0, fontSize: '1.25rem' }}>What makes it useful</h2>
+        <div className="wa-kit-card" style={{ padding: '1.25rem' }}>
+          <SectionHeader title="What makes it useful" />
           <div style={{ display: 'grid', gap: '0.9rem', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))' }}>
             {[
               ['One record of the journey', 'Applications, training, placements, and follow-up live together.'],
@@ -161,7 +157,7 @@ export default async function AdminWhatWorkforceApDoesPage() {
               ['Better employer coordination', 'Demand signals and candidate readiness are visible in the same workflow.'],
               ['Clearer outcome reporting', 'Leaders can explain what is happening and what is working with less manual assembly.'],
             ].map(([title, copy]) => (
-              <div key={title} className="portal-card portal-card--flat" style={{ padding: '1rem' }}>
+              <div key={title} className="wa-kit-card wa-kit-card--tinted" style={{ padding: '1rem' }}>
                 <div style={{ fontWeight: 700, marginBottom: '0.4rem' }}>{title}</div>
                 <div style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{copy}</div>
               </div>
@@ -171,15 +167,14 @@ export default async function AdminWhatWorkforceApDoesPage() {
       </section>
 
       <section id="ai-layer" style={{ padding: '0 1.5rem 1.5rem' }}>
-        <div className="portal-card" style={{ padding: '1.25rem' }}>
-          <h2 style={{ marginTop: 0, fontSize: '1.25rem' }}>AI tools and value add</h2>
-          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginTop: 0 }}>
-            AI should speed up the work, improve consistency, and surface better next steps. Staff still own judgment,
-            approvals, relationships, and high-trust decisions.
-          </p>
+        <div className="wa-kit-card" style={{ padding: '1.25rem' }}>
+          <SectionHeader
+            title="AI tools and value add"
+            goal="AI should speed up the work, improve consistency, and surface better next steps. Staff still own judgment, approvals, relationships, and high-trust decisions."
+          />
           <div style={{ display: 'grid', gap: '0.75rem' }}>
             {aiTools.map(([title, copy]) => (
-              <div key={title} className="portal-card portal-card--flat" style={{ padding: '0.95rem 1rem' }}>
+              <div key={title} className="wa-kit-card wa-kit-card--tinted" style={{ padding: '0.95rem 1rem' }}>
                 <div style={{ fontWeight: 700 }}>{title}</div>
                 <div style={{ color: 'var(--color-on-surface-variant)', marginTop: '0.25rem', lineHeight: 1.6 }}>{copy}</div>
               </div>
@@ -189,11 +184,11 @@ export default async function AdminWhatWorkforceApDoesPage() {
       </section>
 
       <section id="admin-flow" style={{ padding: '0 1.5rem 1.5rem' }}>
-        <div className="portal-card" style={{ padding: '1.25rem' }}>
-          <h2 style={{ marginTop: 0, fontSize: '1.25rem' }}>How it flows in the background</h2>
+        <div className="wa-kit-card" style={{ padding: '1.25rem' }}>
+          <SectionHeader title="How it flows in the background" />
           <div style={{ display: 'grid', gap: '0.85rem' }}>
             {adminFlows.map((step, index) => (
-              <div key={step} className="portal-card portal-card--flat" style={{ padding: '0.95rem 1rem', display: 'flex', gap: '0.9rem', alignItems: 'flex-start' }}>
+              <div key={step} className="wa-kit-card wa-kit-card--tinted" style={{ padding: '0.95rem 1rem', display: 'flex', gap: '0.9rem', alignItems: 'flex-start' }}>
                 <div style={{ minWidth: 28, height: 28, borderRadius: 999, background: 'var(--color-accent)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: '0.85rem' }}>
                   {index + 1}
                 </div>
@@ -205,7 +200,7 @@ export default async function AdminWhatWorkforceApDoesPage() {
       </section>
 
       <section style={{ padding: '0 1.5rem 1.75rem' }}>
-        <div className="portal-card" style={{ padding: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="wa-kit-card" style={{ padding: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Use this in the meeting</h2>
             <p style={{ margin: '0.35rem 0 0', color: 'var(--color-on-surface-variant)' }}>
@@ -218,6 +213,7 @@ export default async function AdminWhatWorkforceApDoesPage() {
           </div>
         </div>
       </section>
-    </PortalPageFrame>
+      </PortalPageFrame>
+    </DesignSurface>
   );
 }

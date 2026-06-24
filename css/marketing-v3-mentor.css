@@ -99,6 +99,13 @@
   justify-content: center;
   margin-top: 30px;
 }
+/* a11y: the hero CTA sits on the dark crimson→plum tile, where the global
+   accent-colored focus ring has poor contrast. Boost it with a white halo
+   (mirrors the .wa-tile--hero / .wa-cta treatment in marketing-v3.css). */
+.wa-v3 .wa-mentor-hero-actions a:focus-visible {
+  outline-color: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.35);
+}
 
 /* ── Benefits section (centered head + value-card grid) ── */
 .wa-v3 .wa-mentor-band {

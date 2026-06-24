@@ -372,6 +372,36 @@
   gap: 12px;
 }
 
+/* ── Dark-mode guard for the catalog re-theme ──
+   The blend (.wa-v3) tokens are authored light-only and are NOT remapped under
+   html.dark (that lives in the shared css/marketing-v3.css and is out of scope
+   for this page). The page-unique catalog re-theme above pins .program-card and
+   friends to the light --wa-surface / --wa-border tokens, while the catalog's
+   own text uses the dark-aware Material tokens (--color-on-surface etc). Under
+   html.dark that produces near-white text on a white card. This block remaps
+   only the --wa-* surface/border/bg tokens the catalog re-theme consumes to the
+   dark Material scale, so the cards go dark and the already-dark text stays
+   readable. The hero / quick-start / factor / journey cards hardcode #fff and
+   are unaffected (they remain self-consistent light islands).
+   Scoped to the catalog wrapper so the light hero blend is untouched. */
+html.dark .wa-v3 .programs-page-catalog-anchor {
+  --wa-surface: var(--surface-container);
+  --wa-bg: var(--surface-container-low);
+  --wa-border: var(--outline-variant);
+  --wa-text: var(--color-on-surface);
+  --wa-muted: var(--color-on-surface-variant);
+}
+html.dark .wa-v3 .programs-page-catalog-anchor .program-catalog-search-input {
+  background: var(--surface-container);
+  color: var(--color-on-surface);
+}
+html.dark .wa-v3 .programs-page-catalog-anchor .filter-chip:not(.active),
+html.dark .wa-v3 .programs-page-catalog-anchor .program-card-skill-tag,
+html.dark .wa-v3 .programs-page-catalog-anchor .program-card-skills span {
+  background: var(--surface-container) !important;
+  color: var(--color-on-surface) !important;
+}
+
 /* ── Mobile browse nav (sticky category chips) → blend chips ──
    Scoped to the same breakpoint the nav is visible at, so the blend palette
    only applies where the component renders. */

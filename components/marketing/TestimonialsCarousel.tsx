@@ -67,7 +67,7 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
           <div className="wa-story-card__top">
             <Quote className="w-5 h-5 wa-story-card__quote" aria-hidden="true" />
             {testimonial.rating && (
-              <div className="wa-story-card__stars">
+              <div className="wa-story-card__stars" aria-hidden="true">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}

@@ -83,11 +83,12 @@ export default function MentorApplyForm() {
               { label: 'LinkedIn URL', key: 'linkedinUrl', type: 'url', required: false },
             ].map(({ label, key, type, required }) => (
               <div className="wa-mfield" key={key}>
-                <label>
+                <label htmlFor={`mentor-${key}`}>
                   {label}
                   {required && ' *'}
                 </label>
                 <input
+                  id={`mentor-${key}`}
                   type={type}
                   required={required}
                   value={(form as Record<string, unknown>)[key] as string}
@@ -97,8 +98,9 @@ export default function MentorApplyForm() {
             ))}
 
             <div className="wa-mfield">
-              <label>Industry *</label>
+              <label htmlFor="mentor-industry">Industry *</label>
               <select
+                id="mentor-industry"
                 required
                 value={form.industry}
                 onChange={(e) => setForm((f) => ({ ...f, industry: e.target.value }))}
@@ -113,8 +115,9 @@ export default function MentorApplyForm() {
             </div>
 
             <div className="wa-mfield">
-              <label>Bio *</label>
+              <label htmlFor="mentor-bio">Bio *</label>
               <textarea
+                id="mentor-bio"
                 required
                 rows={4}
                 value={form.bio}
@@ -124,8 +127,9 @@ export default function MentorApplyForm() {
             </div>
 
             <div className="wa-mfield wa-mfield--hours">
-              <label>Hours Available per Month *</label>
+              <label htmlFor="mentor-availableHours">Hours Available per Month *</label>
               <input
+                id="mentor-availableHours"
                 type="number"
                 min={1}
                 max={40}

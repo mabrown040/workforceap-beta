@@ -144,9 +144,10 @@ export default function CareersInterestForm() {
             autoComplete="given-name"
             required
             aria-invalid={fieldErrors.first_name ? 'true' : undefined}
+            aria-describedby={fieldErrors.first_name ? `${formId}-first-error` : undefined}
           />
           {fieldErrors.first_name && (
-            <p className="wa-field-error">{getFieldErrorMessage('first_name', fieldErrors.first_name)}</p>
+            <p id={`${formId}-first-error`} className="wa-field-error">{getFieldErrorMessage('first_name', fieldErrors.first_name)}</p>
           )}
         </div>
         <div className="wa-field">
@@ -160,9 +161,10 @@ export default function CareersInterestForm() {
             autoComplete="family-name"
             required
             aria-invalid={fieldErrors.last_name ? 'true' : undefined}
+            aria-describedby={fieldErrors.last_name ? `${formId}-last-error` : undefined}
           />
           {fieldErrors.last_name && (
-            <p className="wa-field-error">{getFieldErrorMessage('last_name', fieldErrors.last_name)}</p>
+            <p id={`${formId}-last-error`} className="wa-field-error">{getFieldErrorMessage('last_name', fieldErrors.last_name)}</p>
           )}
         </div>
       </div>
@@ -178,9 +180,10 @@ export default function CareersInterestForm() {
           autoComplete="email"
           required
           aria-invalid={fieldErrors.email ? 'true' : undefined}
+          aria-describedby={fieldErrors.email ? `${formId}-email-error` : undefined}
         />
         {fieldErrors.email && (
-          <p className="wa-field-error">{getFieldErrorMessage('email', fieldErrors.email)}</p>
+          <p id={`${formId}-email-error`} className="wa-field-error">{getFieldErrorMessage('email', fieldErrors.email)}</p>
         )}
       </div>
 
@@ -205,10 +208,11 @@ export default function CareersInterestForm() {
           rows={5}
           required
           aria-invalid={fieldErrors.message ? 'true' : undefined}
+          aria-describedby={fieldErrors.message ? `${formId}-message-error` : undefined}
           placeholder={t('messagePlaceholder')}
         />
         {fieldErrors.message && (
-          <p className="wa-field-error">{getFieldErrorMessage('message', fieldErrors.message)}</p>
+          <p id={`${formId}-message-error`} className="wa-field-error">{getFieldErrorMessage('message', fieldErrors.message)}</p>
         )}
       </div>
 

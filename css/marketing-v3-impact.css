@@ -401,3 +401,8 @@
 .wa-v3 .wa-iband--dark .wa-funder-card p {
   color: #cdbcc6;
 }
+/* a11y: the brand-accent eyebrow drops to ~2.2:1 on the dark funder card; use
+   the same gold the hero eyebrow uses on dark (≈12.7:1) so it stays AA. */
+.wa-v3 .wa-iband--dark .wa-funder-card .wa-eyebrow {
+  color: var(--wa-gold-soft);
+}

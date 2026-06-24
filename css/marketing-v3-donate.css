@@ -93,6 +93,13 @@
 .wa-v3 .wa-dhero .wa-btn--outline:hover {
   background: rgba(255, 255, 255, 0.22);
 }
+/* The hero sits on a dark crimson photo; the global crimson focus outline is
+   low-contrast there. Match the home hero's treatment: light outline + white
+   ring so keyboard focus is visible on both hero CTAs. */
+.wa-v3 .wa-dhero .wa-btn:focus-visible {
+  outline-color: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.35);
+}
 
 /* suggested-amount cards (4-up) */
 .wa-v3 .wa-agrid {

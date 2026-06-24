@@ -106,6 +106,13 @@
 .wa-v3 .wwd-hero .wa-btn--onaccent:hover {
   background: rgba(255, 255, 255, 0.22);
 }
+/* a11y: the global white-halo focus enhancement only targets .wa-tile--hero /
+   .wa-cta / .wa-nav. This page's photo hero is .wwd-hero, so add the same halo
+   here so the crimson outline stays visible against the dark hero photo. */
+.wa-v3 .wwd-hero a:focus-visible {
+  outline-color: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.45);
+}
 
 /* ── Find your path band ── */
 .wa-v3 .wwd-findpath {

@@ -248,7 +248,12 @@ export default async function PrivacyPage() {
                 communicated under Section 12.
               </p>
 
-              <div className="wa-table-wrap">
+              <div
+                className="wa-table-wrap"
+                role="region"
+                aria-label="Sub-processors table (scrollable)"
+                tabIndex={0}
+              >
                 <table aria-label="Sub-processors that process WorkforceAP member data">
                   <caption>
                     Sub-processors that process WorkforceAP member data, including what is shared, the purpose, and links to each vendor&apos;s DPA or privacy policy.

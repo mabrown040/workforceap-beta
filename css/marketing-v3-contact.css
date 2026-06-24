@@ -261,7 +261,18 @@
   color: var(--wa-accent);
   font-weight: 600;
 }
-.wa-v3 .wa-info-card a.wa-link:hover {
+.wa-v3 .wa-info-card a.wa-link:hover,
+.wa-v3 .wa-info-card a.wa-link:focus-visible {
+  text-decoration: underline;
+}
+
+/* phone link: inherits muted card color; give it a visible hover/focus affordance */
+.wa-v3 .wa-info-card a.wa-phone-link {
+  color: inherit;
+  text-decoration: none;
+}
+.wa-v3 .wa-info-card a.wa-phone-link:hover,
+.wa-v3 .wa-info-card a.wa-phone-link:focus-visible {
   text-decoration: underline;
 }
 

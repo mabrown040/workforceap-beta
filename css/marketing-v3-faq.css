@@ -269,11 +269,16 @@
 }
 .wa-v3 .wa-emp-banner p {
   font-size: 13px;
-  color: var(--wa-muted);
+  /* darker than --wa-muted so 13px body text clears WCAG AA (>=4.5:1)
+     against the strongest point of the crimson tint gradient */
+  color: #5a5650;
 }
 .wa-v3 .wa-emp-banner a {
   color: var(--wa-accent);
   font-weight: 700;
+}
+.wa-v3 .wa-emp-banner a:hover {
+  text-decoration: underline;
 }
 
 /* accordion */
@@ -308,6 +313,9 @@
   text-align: left;
   font-family: inherit;
 }
+.wa-v3 .wa-qa-summary:hover {
+  background: var(--wa-accent-soft);
+}
 .wa-v3 .wa-qa-summary .wa-chev {
   flex-shrink: 0;
   color: var(--wa-muted);
@@ -330,6 +338,9 @@
   color: var(--wa-accent);
   font-weight: 700;
   font-size: 14px;
+}
+.wa-v3 .wa-qa .wa-qa-body a.wa-link:hover {
+  text-decoration: underline;
 }
 
 /* bottom CTA */

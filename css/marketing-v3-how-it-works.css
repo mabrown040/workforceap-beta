@@ -64,7 +64,9 @@
   margin-top: 18px;
   font-weight: 700;
   font-size: 15px;
-  color: var(--wa-info);
+  /* Darker than --wa-info (#2b7bb9) so the link text clears WCAG AA 4.5:1
+     against the box's #fff → --wa-info-soft gradient (token alone was 4.12:1). */
+  color: #236ca3;
   display: inline-flex;
   gap: 6px;
   align-items: center;

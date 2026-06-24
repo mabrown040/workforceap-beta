@@ -110,7 +110,7 @@ export default async function ContactPage({
                   </div>
                   <h3>{t('card3Title')}</h3>
                   <p className="wa-mono">
-                    <a href="tel:+15127771808" style={{ color: 'inherit' }}>
+                    <a className="wa-phone-link" href="tel:+15127771808">
                       (512) 777-1808
                     </a>
                   </p>

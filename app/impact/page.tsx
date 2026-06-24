@@ -189,7 +189,9 @@ export default async function ImpactPage() {
     const unpublished = value === '—';
     return (
       <div className="wa-stat-card">
-        <p className={unpublished ? 'wa-sv wa-empty' : 'wa-sv'}>{value}</p>
+        <p className={unpublished ? 'wa-sv wa-empty' : 'wa-sv'} aria-hidden={unpublished || undefined}>
+          {value}
+        </p>
         <div className="wa-sl">{label}</div>
         {unpublished ? <span className="wa-pill">{statNotPublishedHint}</span> : null}
       </div>
@@ -235,13 +237,11 @@ export default async function ImpactPage() {
       </header>
 
       {/* COHORT METRICS */}
-      <section className="wa-iband" aria-labelledby="impact-cohort-preview-heading">
+      <section className="wa-iband" aria-label={t('metricsPreviewHeading')}>
         <div className="wa-wrap">
           {!hasLiveData ? (
             <div className="wa-preview-panel">
-              <p id="impact-cohort-preview-heading" className="wa-preview-heading">
-                {t('metricsPreviewHeading')}
-              </p>
+              <p className="wa-preview-heading">{t('metricsPreviewHeading')}</p>
               <div className="wa-stat-grid">
                 <StatCardV3 value={completionValue} label={completionLabel} />
                 <StatCardV3 value={placementValue} label={placementLabel} />

@@ -104,6 +104,10 @@
   color: var(--wa-accent);
   font-weight: 600;
   text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.wa-v3 .wa-terms-note a:hover {
+  color: var(--wa-accent-dark);
 }
 
 /* Document card */

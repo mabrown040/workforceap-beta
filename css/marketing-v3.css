@@ -35,6 +35,10 @@
   background: var(--wa-bg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  /* This blend is authored light-only; the surrounding marketing chrome can be
+     dark (html.dark). Anchor color-scheme to light so UA-rendered controls
+     (e.g. the language <select>) stay legible against this page's light tiles. */
+  color-scheme: light;
 }
 
 .wa-v3 *,
@@ -445,12 +449,15 @@
   font-family: var(--font-display), var(--font-inter), sans-serif;
   font-weight: 800;
   font-size: 19px;
-  color: #9b938c;
+  /* a11y: was #9b938c (2.76:1 on --wa-bg) — failed WCAG AA even for large text.
+     --wa-muted (#6e6a66) clears 4.5:1 while keeping the desaturated wordmark look. */
+  color: var(--wa-muted);
   letter-spacing: -0.01em;
 }
 .wa-v3 .wa-creds .wa-row .wa-creds-extra {
   font-size: 15px;
-  color: #b4aca6;
+  /* a11y: was #b4aca6 (2.04:1 on --wa-bg) — failed WCAG AA for normal text. */
+  color: var(--wa-muted);
 }
 
 /* generic band */

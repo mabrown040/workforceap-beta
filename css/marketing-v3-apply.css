@@ -138,11 +138,26 @@
   border-color: #fff;
 }
 .wa-v3 .wa-help-card .wa-btn--gold {
-  background: var(--wa-gold);
+  /* AA fix: white text on --wa-gold (#a47f38) is only 3.7:1; 15px/700 is
+     below WCAG large-text size, so it must clear 4.5:1. --wa-gold-aa (#916f30)
+     is 4.65:1 and still distinct from the --wa-gold-dark hover. */
+  background: var(--wa-gold-aa, #916f30);
   color: #fff;
 }
 .wa-v3 .wa-help-card .wa-btn--gold:hover {
   background: var(--wa-gold-dark);
+}
+
+/* a11y: on the dark crimson hero, the shared accent-colored focus ring sits
+   accent-on-accent (≈1:1) on the CTA buttons and is effectively invisible.
+   Add a high-contrast white ring for the hero CTAs/links (mirrors the shared
+   .wa-tile--hero treatment, which these elements don't otherwise match). */
+.wa-v3 .wa-apply-hero a:focus-visible,
+.wa-v3 .wa-apply-hero button:focus-visible,
+.wa-v3 .paid-apply-hero a:focus-visible,
+.wa-v3 .paid-apply-hero button:focus-visible {
+  outline-color: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.55);
 }
 
 /* ── GRID: sidebar + main form ── */
@@ -217,6 +232,9 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--wa-muted);
+  /* allow long i18n step labels to wrap instead of overflowing the flex row */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .wa-v3 .wa-prog-list li.is-active .wa-prog-lbl {
   font-weight: 700;
@@ -342,6 +360,11 @@
   border: 1px solid var(--wa-border);
   border-radius: var(--wa-radius);
   padding: 26px;
+}
+.wa-v3 .wa-supp-card > div {
+  /* let long card titles/body wrap rather than overflow the flex row */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .wa-v3 .wa-supp-card .wa-sic {
   width: 46px;
@@ -476,7 +499,8 @@
 
 /* gold + outline button variants used in the apply hero help card */
 .wa-v3 .wa-btn--gold {
-  background: var(--wa-gold);
+  /* AA: see note above — default uses the darker --wa-gold-aa (4.65:1 w/ #fff). */
+  background: var(--wa-gold-aa, #916f30);
   color: #fff;
 }
 .wa-v3 .wa-btn--gold:hover {
@@ -656,6 +680,11 @@
   border: 1px solid var(--wa-border);
   background: var(--wa-surface);
   box-shadow: var(--wa-shadow);
+}
+.wa-v3 .paid-apply-proof__card > div {
+  /* allow long i18n proof copy to wrap inside the flex row */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .wa-v3 .paid-apply-proof__badge-icon {
   font-size: 1.5rem;

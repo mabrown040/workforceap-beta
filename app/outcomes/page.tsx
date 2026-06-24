@@ -102,10 +102,10 @@ export default async function PublicOutcomesPage() {
 
       {/* BY PROGRAM */}
       {programRows.length > 0 ? (
-        <section className="wa-band" style={{ paddingTop: 0 }}>
+        <section className="wa-band" style={{ paddingTop: 0 }} aria-labelledby="outcomes-by-program">
           <div className="wa-wrap">
             <div className="wa-sec-head wa-sec-head--sm">
-              <h2>{t('byProgram')}</h2>
+              <h2 id="outcomes-by-program">{t('byProgram')}</h2>
             </div>
             <ul className="wa-blist">
               {programRows.map((row) => {
@@ -126,10 +126,10 @@ export default async function PublicOutcomesPage() {
 
       {/* BY FUNDING */}
       {fundingRows.length > 0 ? (
-        <section className="wa-band" style={{ paddingTop: 0 }}>
+        <section className="wa-band" style={{ paddingTop: 0 }} aria-labelledby="outcomes-by-funding">
           <div className="wa-wrap">
             <div className="wa-sec-head wa-sec-head--sm">
-              <h2>{t('byFunding')}</h2>
+              <h2 id="outcomes-by-funding">{t('byFunding')}</h2>
             </div>
             <ul className="wa-blist">
               {fundingRows.map((row) => (
@@ -145,10 +145,10 @@ export default async function PublicOutcomesPage() {
 
       {/* BY RETENTION */}
       {retentionRows.length > 0 ? (
-        <section className="wa-band" style={{ paddingTop: 0 }}>
+        <section className="wa-band" style={{ paddingTop: 0 }} aria-labelledby="outcomes-by-retention">
           <div className="wa-wrap">
             <div className="wa-sec-head wa-sec-head--sm">
-              <h2>{t('byRetention')}</h2>
+              <h2 id="outcomes-by-retention">{t('byRetention')}</h2>
             </div>
             <ul className="wa-blist">
               {retentionRows.map((row) => (
@@ -163,10 +163,10 @@ export default async function PublicOutcomesPage() {
       ) : null}
 
       {/* ===== CLOSING CTA: convert transparency readers into applicants (approved mockup) ===== */}
-      <section className="wa-band">
+      <section className="wa-band" aria-labelledby="outcomes-cta">
         <div className="wa-wrap">
           <div className="wa-cta">
-            <h2>{t('ctaTitle')}</h2>
+            <h2 id="outcomes-cta">{t('ctaTitle')}</h2>
             <p>{t('ctaCopy')}</p>
             <div className="wa-acts">
               <LocalizedLink href="/apply" className="wa-btn wa-btn--light">

@@ -112,11 +112,13 @@
 .wa-v3 .wa-scard h3 {
   font-size: 18px;
   margin-bottom: 8px;
+  overflow-wrap: anywhere;
 }
 .wa-v3 .wa-scard .wa-meta {
   font-size: 14px;
   color: var(--wa-muted);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 .wa-v3 .wa-method {
   margin-top: 16px;
@@ -146,6 +148,8 @@
 }
 .wa-v3 .wa-brow span {
   font-weight: 500;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .wa-v3 .wa-brow strong {
   font-family: var(--font-display), var(--font-inter), sans-serif;

@@ -163,7 +163,7 @@ export default function BlogListingClient({
           <span className="blog-updates-ic" aria-hidden="true">
             <Mail size={28} />
           </span>
-          <h3 className="blog-updates-card__title">Want updates?</h3>
+          <h2 className="blog-updates-card__title">Want updates?</h2>
           <p className="blog-updates-card__text">
             Ask to be notified about new articles and program news — our team responds within a few business days.
           </p>
@@ -175,7 +175,7 @@ export default function BlogListingClient({
         {/* Bottom CTA */}
         <div className="blog-listing-bottom-cta">
           <BookOpen size={44} className="blog-cta-ic" aria-hidden="true" />
-          <h3>Ready to take the next step?</h3>
+          <h2>Ready to take the next step?</h2>
           <p>
             WorkforceAP offers no-cost career training paths for <LocalizedLink href="/apply" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</LocalizedLink> — with guided tools, advisor support, and employer-aligned credentials.
           </p>

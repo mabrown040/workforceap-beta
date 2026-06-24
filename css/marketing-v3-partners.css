@@ -10,13 +10,16 @@
 
 /* gold primary button (mockup hero CTA = .btn--gold); shared file only ships
    primary / ghost / light / translucent, so the gold variant lives here. */
+/* a11y: gold #a47f38 on #fff text is only 3.70:1 (fails AA 4.5:1 for the 15px
+   700-weight button label). Use the darker gold token (#7d5f26 = 5.94:1) as the
+   resting background; hover goes a shade deeper so the state stays distinct. */
 .wa-v3 .wa-btn--gold {
-  background: var(--wa-gold);
+  background: var(--wa-gold-dark);
   color: #fff;
-  box-shadow: 0 12px 30px -12px rgba(164, 127, 56, 0.6);
+  box-shadow: 0 12px 30px -12px rgba(125, 95, 38, 0.6);
 }
 .wa-v3 .wa-btn--gold:hover {
-  background: var(--wa-gold-dark);
+  background: #67501f;
 }
 
 /* gold eyebrow + gold section-head accent (partners leans gold) */
@@ -69,8 +72,10 @@
 .wa-v3 .wa-pcard .wa-go--gold {
   color: var(--wa-gold-dark);
 }
+/* a11y: hover must not drop below 4.5:1. The lighter --wa-gold (#a47f38) is only
+   3.70:1, so deepen on hover instead of lightening. */
 .wa-v3 .wa-pcard .wa-go--gold:hover {
-  color: var(--wa-gold);
+  color: #67501f;
 }
 
 /* "how it works" steps use a gold numeral on partners */

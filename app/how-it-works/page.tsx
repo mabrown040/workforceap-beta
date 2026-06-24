@@ -358,7 +358,9 @@ export default async function HowItWorksPage() {
           <LocalizedLink
             href="/apply"
             style={{
-              background: 'var(--wa-gold)',
+              // --wa-gold (#a47f38) gave white-on-gold only 3.7:1; --wa-gold-dark
+              // (#7d5f26) clears WCAG AA 4.5:1 (5.94:1) for this 18px button label.
+              background: 'var(--wa-gold-dark)',
               color: '#fff',
               padding: '1.25rem 2.5rem',
               borderRadius: 'var(--radius-xl)',

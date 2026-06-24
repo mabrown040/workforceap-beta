@@ -161,14 +161,7 @@ const STEPS = [
   .paid-hero__help a{color:#fff;font-weight:700;text-decoration:underline}
   .paid-hero__pilot{margin-top:22px;display:flex}
 
-  /* depth buttons (on dark) */
-  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 28px;
-    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
-  .dbtn:hover{transform:translateY(-2px)}
-  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
-    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
-  .dbtn--solid span{transition:transform .2s}
-  .dbtn--solid:hover span{transform:translateX(4px)}
+  /* depth buttons (on dark) — canonical .dbtn/.dbtn--solid live in blend.css */
   .paid-hero__cta{margin-top:26px}
 
   .pilot-tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);border-radius:999px;padding:7px 16px;backdrop-filter:blur(8px)}
@@ -198,7 +191,7 @@ const STEPS = [
   }
 
   /* ---------------- LIGHT FORM BAND ---------------- */
-  .paid-form-section{padding:64px 0}
+  .paid-form-section{padding:var(--sec-pad) 0}
   .paid-form-wrap{max-width:760px;margin:0 auto}
 
   /* Mobile trust bar + step nav (shown on small screens) */

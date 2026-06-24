@@ -265,3 +265,30 @@
   .langswitch a{font-size:12px;font-weight:700;color:var(--muted);padding:5px 8px;border-radius:7px;line-height:1}
   .langswitch a:hover{color:var(--text)}
   .langswitch a[aria-current=true]{background:var(--crimson);color:#fff}
+
+  /* ============================================================
+     COHESION LAYER — single source of truth for buttons + section
+     rhythm. Pages must NOT redefine these in scoped <style>.
+     ============================================================ */
+  :root{ --sec-pad: clamp(60px, 7vw, 92px); }
+
+  /* one button geometry for ALL families (depth/band/light) */
+  .dbtn, .bbtn{
+    display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;
+    padding:15px 28px;border-radius:14px;border:1px solid transparent;cursor:pointer;
+    text-decoration:none;line-height:1;transition:transform .15s,box-shadow .2s,background .2s;
+  }
+  .dbtn:hover,.bbtn:hover{transform:translateY(-2px)}
+  .dbtn:active,.bbtn:active{transform:translateY(0) scale(.985)}
+  /* depth (on dark crimson stages) */
+  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);box-shadow:0 12px 30px -10px rgba(0,0,0,.4)}
+  .dbtn--solid span{transition:transform .2s}
+  .dbtn--solid:hover span{transform:translateX(4px)}
+  .dbtn--glass{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.34);backdrop-filter:blur(8px)}
+  .dbtn--glass:hover{background:rgba(255,255,255,.22)}
+  /* band (on crimson CTA bands) */
+  .bbtn--gold{background:linear-gradient(135deg,#cda44e,#9a7733);color:#fff;box-shadow:0 12px 30px -10px rgba(164,127,56,.55)}
+  .bbtn--outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+  .bbtn--outline:hover{background:rgba(255,255,255,.12)}
+  /* shared content-section vertical rhythm helper */
+  .sec-pad{padding-top:var(--sec-pad);padding-bottom:var(--sec-pad)}

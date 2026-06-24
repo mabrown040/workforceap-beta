@@ -252,7 +252,7 @@ const leadConsultants = [
   .quote-card blockquote::after{content:'\201D';color:#f3d28f}
 
   /* ---------------- ALTERNATING LIGHT BANDS ---------------- */
-  .band{width:100%;padding:88px 0}
+  .band{width:100%;padding:var(--sec-pad) 0}
   .band--bg{background:var(--bg);color:var(--text)}
   .band--surface{background:var(--surface);color:var(--text)}
 
@@ -298,13 +298,6 @@ const leadConsultants = [
 
   .acts{display:flex;gap:14px;flex-wrap:wrap}
   .acts--center{justify-content:center}
-  .bbtn{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:18px 34px;border-radius:14px;
-    border:2px solid transparent;transition:transform .15s,box-shadow .2s,background .2s,color .2s}
-  .bbtn:hover{transform:translateY(-3px)}
-  .bbtn--gold{background:linear-gradient(135deg,#e9c879,#a47f38);color:#3a2a08;box-shadow:0 16px 38px -12px rgba(164,127,56,.7)}
-  .bbtn--gold:hover{box-shadow:0 22px 50px -12px rgba(164,127,56,.8)}
-  .bbtn--outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
-  .bbtn--outline:hover{background:#fff;color:var(--accent-dark);border-color:#fff}
 
   /* ---------------- RESPONSIVE ---------------- */
   @media (prefers-reduced-motion: no-preference){

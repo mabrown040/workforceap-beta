@@ -93,13 +93,6 @@ import InterestProfilerQuiz from '../components/InterestProfilerQuiz.tsx';
   .ip-hero__help{margin-top:18px;font-size:14px;color:rgba(255,255,255,.86)}
   .ip-hero__help a{color:#fff;font-weight:700;text-decoration:underline}
 
-  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 28px;
-    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
-  .dbtn:hover{transform:translateY(-2px)}
-  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
-    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
-  .dbtn--solid span{transition:transform .2s}
-  .dbtn--solid:hover span{transform:translateX(4px)}
   .ip-hero__cta{margin-top:26px}
 
   .hero-glass{position:relative;z-index:2;border-radius:22px;padding:26px;
@@ -125,7 +118,7 @@ import InterestProfilerQuiz from '../components/InterestProfilerQuiz.tsx';
   }
 
   /* ---------------- LIGHT QUIZ BAND ---------------- */
-  .ip-quiz-section{padding:56px 0 72px}
+  .ip-quiz-section{padding:var(--sec-pad) 0}
   .ip-quiz-wrap{max-width:720px;margin:0 auto}
   .ip-kicker{font-size:13px;font-weight:700;color:var(--gold-dark);background:rgba(164,127,56,.1);border:1px solid rgba(164,127,56,.22);border-radius:999px;padding:8px 16px;display:inline-block;margin-bottom:18px}
 

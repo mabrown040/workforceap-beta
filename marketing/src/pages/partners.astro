@@ -358,15 +358,6 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
 
   .acts{display:flex;gap:14px;flex-wrap:wrap}
   .acts--center{justify-content:center}
-  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 28px;
-    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
-  .dbtn:hover{transform:translateY(-2px)}
-  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
-    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
-  .dbtn--solid span{transition:transform .2s}
-  .dbtn--solid:hover span{transform:translateX(4px)}
-  .dbtn--glass{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.32);backdrop-filter:blur(8px)}
-  .dbtn--glass:hover{background:rgba(255,255,255,.2)}
 
   /* ---------------- TRANSLUCENT GLASS HERO CARD ---------------- */
   .hero-card{position:relative;border-radius:22px;padding:26px;
@@ -404,7 +395,7 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
   .creds .lane{font-size:14px;font-weight:600;color:#4a4440;opacity:.85;max-width:14em;text-align:center;line-height:1.4}
 
   /* ---------------- ALTERNATING LIGHT BANDS ---------------- */
-  .band{padding:88px 0}
+  .band{padding:var(--sec-pad) 0}
   .band--cream{background:var(--bg);color:var(--text)}
   .band--surface{background:var(--surface);color:var(--text)}
 
@@ -503,14 +494,6 @@ const monthly = ['Select…', '1–5', '6–15', '16–30', '30+'];
   .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:92px 24px 100px;max-width:var(--max)}
   .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,62px);line-height:1;letter-spacing:-.03em;margin-bottom:16px}
   .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:38em;margin:0 auto 30px;line-height:1.5}
-
-  .bbtn{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:18px 34px;border-radius:14px;
-    border:2px solid transparent;transition:transform .15s,box-shadow .2s,background .2s,color .2s}
-  .bbtn:hover{transform:translateY(-3px)}
-  .bbtn--gold{background:linear-gradient(135deg,#e9c879,#a47f38);color:#3a2a08;box-shadow:0 16px 38px -12px rgba(164,127,56,.7)}
-  .bbtn--gold:hover{box-shadow:0 22px 50px -12px rgba(164,127,56,.8)}
-  .bbtn--outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
-  .bbtn--outline:hover{background:#fff;color:var(--accent-dark);border-color:#fff}
 
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:900px){

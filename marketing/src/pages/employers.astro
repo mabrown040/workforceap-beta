@@ -334,15 +334,6 @@ const placementFee = '2,500';
 
   .acts{display:flex;gap:14px;flex-wrap:wrap}
   .acts--center{justify-content:center}
-  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 28px;
-    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
-  .dbtn:hover{transform:translateY(-2px)}
-  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
-    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
-  .dbtn--solid span{transition:transform .2s}
-  .dbtn--solid:hover span{transform:translateX(4px)}
-  .dbtn--glass{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.32);backdrop-filter:blur(8px)}
-  .dbtn--glass:hover{background:rgba(255,255,255,.2)}
 
   .proof{display:flex;gap:30px;flex-wrap:wrap;margin-top:38px}
   .proof-i{display:flex;flex-direction:column;gap:2px}
@@ -380,7 +371,7 @@ const placementFee = '2,500';
   }
 
   /* ---------------- ALTERNATING LIGHT BANDS ---------------- */
-  .band{padding:72px 0}
+  .band{padding:var(--sec-pad) 0}
   .band--cream{background:var(--bg);color:var(--text)}
   .band--surface{background:var(--surface);color:var(--text)}
   .empx .band + .band{border-top:1px solid color-mix(in srgb,var(--border) 60%,transparent)}
@@ -466,12 +457,6 @@ const placementFee = '2,500';
   .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,5vw,58px);line-height:1;letter-spacing:-.03em;margin-bottom:16px}
   .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:38em;margin:0 auto 30px;line-height:1.5}
 
-  .bbtn{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:18px 34px;border-radius:14px;
-    border:2px solid transparent;transition:transform .15s,box-shadow .2s,background .2s,color .2s}
-  .bbtn:hover{transform:translateY(-3px)}
-  .bbtn--gold{background:linear-gradient(135deg,#e9c879,#a47f38);color:#3a2a08;box-shadow:0 16px 38px -12px rgba(164,127,56,.7)}
-  .bbtn--gold:hover{box-shadow:0 22px 50px -12px rgba(164,127,56,.8)}
-
   /* intake form */
   .emp-intake{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:start;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px;box-shadow:var(--shadow-lg)}
   .emp-intake__head h2{font-family:'Plus Jakarta Sans';font-size:clamp(26px,3vw,34px);font-weight:800;margin-bottom:14px}
@@ -499,7 +484,6 @@ const placementFee = '2,500';
     .emp-pricing{padding:28px}
   }
   @media(max-width:560px){
-    .band{padding:56px 0}
     .facts.emp-trust__stats{grid-template-columns:1fr}
     .acts .dbtn,.acts .bbtn{width:100%;justify-content:center}
   }

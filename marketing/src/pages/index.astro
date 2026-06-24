@@ -245,18 +245,9 @@ import Layout from '../layouts/Layout.astro';
 
   .acts{display:flex;gap:14px;flex-wrap:wrap}
   .acts--center{justify-content:center}
-  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 28px;
-    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
-  .dbtn:hover{transform:translateY(-2px)}
-  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
-    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
-  .dbtn--solid span{transition:transform .2s}
-  .dbtn--solid:hover span{transform:translateX(4px)}
-  .dbtn--glass{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.32);backdrop-filter:blur(8px)}
-  .dbtn--glass:hover{background:rgba(255,255,255,.2)}
 
   /* mission statement band (light, directly below hero) */
-  .mission{background:var(--surface);border-bottom:1px solid var(--border);padding:60px 0}
+  .mission{background:var(--surface);border-bottom:1px solid var(--border);padding:var(--sec-pad) 0}
   .mission .wrap{max-width:920px;text-align:center}
   .mission-eyebrow{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--crimson);margin-bottom:18px}
   .mission-lead{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:clamp(20px,2.5vw,28px);line-height:1.45;color:var(--text);letter-spacing:-.01em}
@@ -338,7 +329,7 @@ import Layout from '../layouts/Layout.astro';
       linear-gradient(180deg,rgba(45,8,22,.78) 0%,rgba(109,20,55,.62) 40%,rgba(140,15,55,.7) 100%),
       linear-gradient(115deg,rgba(173,44,77,.7) 0%,rgba(109,20,55,.5) 100%);
   }
-  .imm-band__inner{position:relative;z-index:2;color:#fff;padding:94px 24px 100px;max-width:var(--max)}
+  .imm-band__inner{position:relative;z-index:2;color:#fff;padding:var(--sec-pad) 24px;max-width:var(--max)}
   .imm-head{text-align:center;max-width:720px;margin:0 auto 52px}
   .imm-eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
     color:#f3d28f;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);padding:7px 15px;border-radius:999px;margin-bottom:18px}
@@ -363,7 +354,7 @@ import Layout from '../layouts/Layout.astro';
   @media(max-width:520px){.imm-journey{grid-template-columns:1fr}}
 
   /* ---------------- BOLD ALTERNATING BLOCKS ---------------- */
-  .blk{width:100%;padding:96px 0}
+  .blk{width:100%;padding:var(--sec-pad) 0}
   .blk--crimson{background:var(--grad);color:#fff}
   .blk--cream{background:var(--bg);color:var(--text)}
   .gold{color:#e9c879}
@@ -410,15 +401,6 @@ import Layout from '../layouts/Layout.astro';
   .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,66px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}
   .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:38em;margin:0 auto 30px;line-height:1.5}
 
-  /* big assertive buttons (bold) */
-  .bbtn{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:18px 34px;border-radius:14px;
-    border:2px solid transparent;transition:transform .15s,box-shadow .2s,background .2s,color .2s}
-  .bbtn:hover{transform:translateY(-3px)}
-  .bbtn--gold{background:linear-gradient(135deg,#e9c879,#a47f38);color:#3a2a08;box-shadow:0 16px 38px -12px rgba(164,127,56,.7)}
-  .bbtn--gold:hover{box-shadow:0 22px 50px -12px rgba(164,127,56,.8)}
-  .bbtn--outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
-  .bbtn--outline:hover{background:#fff;color:var(--accent-dark);border-color:#fff}
-
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:880px){
     .stage{padding:72px 0 90px}
@@ -429,7 +411,7 @@ import Layout from '../layouts/Layout.astro';
     .facts{grid-template-columns:1fr 1fr;gap:36px}
   }
   @media(max-width:560px){
-    .blk{padding:64px 0}
+    .blk{padding:var(--sec-pad) 0}
     .card--back{transform:rotate(-2deg)}
     .card--mid{transform:rotate(1deg)}
     .card--front{transform:rotate(0)}

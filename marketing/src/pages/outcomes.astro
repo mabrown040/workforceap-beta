@@ -182,7 +182,7 @@ const breakdowns = [
   .statcard .signal strong{color:#fff}
 
   /* ---------------- LIGHT ALTERNATING BLOCKS ---------------- */
-  .blk{width:100%;padding:84px 0}
+  .blk{width:100%;padding:var(--sec-pad) 0}
   .blk--surface{background:var(--surface);color:var(--text)}
   .blk--cream{background:var(--bg);color:var(--text)}
 
@@ -235,15 +235,6 @@ const breakdowns = [
   .acts{display:flex;gap:14px;flex-wrap:wrap}
   .acts--center{justify-content:center}
 
-  /* big assertive buttons (bold) */
-  .bbtn{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:18px 34px;border-radius:14px;
-    border:2px solid transparent;transition:transform .15s,box-shadow .2s,background .2s,color .2s}
-  .bbtn:hover{transform:translateY(-3px)}
-  .bbtn--gold{background:linear-gradient(135deg,#e9c879,#a47f38);color:#3a2a08;box-shadow:0 16px 38px -12px rgba(164,127,56,.7)}
-  .bbtn--gold:hover{box-shadow:0 22px 50px -12px rgba(164,127,56,.8)}
-  .bbtn--outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
-  .bbtn--outline:hover{background:#fff;color:var(--accent-dark);border-color:#fff}
-
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:880px){
     .stage{padding:64px 0 76px}
@@ -251,7 +242,6 @@ const breakdowns = [
     .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
   }
   @media(max-width:560px){
-    .blk{padding:60px 0}
     .acts .bbtn{width:100%;justify-content:center}
   }
 </style>

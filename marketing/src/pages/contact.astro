@@ -199,7 +199,7 @@ import Layout from '../layouts/Layout.astro';
   .stage-inner .sub{font-size:19px;line-height:1.6;color:rgba(255,255,255,.85);max-width:46em;margin:22px auto 0}
 
   /* ---------------- LIGHT BLOCK ---------------- */
-  .blk{width:100%;padding:84px 0}
+  .blk{width:100%;padding:var(--sec-pad) 0}
   .blk--cream{background:var(--bg);color:var(--text)}
 
   .cgrid{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:start}
@@ -266,9 +266,6 @@ import Layout from '../layouts/Layout.astro';
   @media(max-width:880px){
     .stage{padding:64px 0 70px}
     .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
-  }
-  @media(max-width:560px){
-    .blk{padding:60px 0}
   }
 </style>
 </Layout>

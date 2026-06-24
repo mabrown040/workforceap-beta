@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
-import ThemeToggle from '@/components/theme/ThemeToggle';
 import LanguageToggle from '@/components/portal/LanguageToggle';
 import { useTranslations } from 'next-intl';
 import LocalizedLink from '@/components/LocalizedLink';
@@ -542,15 +541,14 @@ export default function MainNav() {
           <li className="nav-theme-mobile-item" key="theme-toggle-mobile">
             <div className="nav-theme-mobile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <LanguageToggle />
-              <ThemeToggle variant="marketing" />
             </div>
           </li>
         </ul>
 
-        {/* Desktop-only theme toggle + language */}
+        {/* Desktop-only language (dark mode is a portal-only feature — the public
+            marketing site is light-locked, so no theme toggle here). */}
         <div className="nav-theme-slot-desktop" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <LanguageToggle />
-          <ThemeToggle variant="marketing" />
         </div>
       </div>
     </nav>

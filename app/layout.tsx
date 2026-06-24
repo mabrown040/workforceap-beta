@@ -10,6 +10,7 @@ import JsonLd from '@/components/JsonLd';
 import ConditionalMarketingNav from '@/components/ConditionalMarketingNav';
 import OrgBrandingStyle from '@/components/platform/OrgBrandingStyle';
 import ThemeInitScript from '@/components/theme/ThemeInitScript';
+import ThemeRouteSync from '@/components/theme/ThemeRouteSync';
 import UtmCapture from '@/components/marketing/UtmCapture';
 import { Suspense } from 'react';
 import { getRequestOrgBranding } from '@/lib/platform/defaultOrgTheme';
@@ -218,6 +219,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </Script>
       </head>
       <body className="marketing-touch-target">
+        <ThemeRouteSync />
         <OrgBrandingStyle branding={orgBranding} />
         <a href="#main-content" className="skip-link">
           Skip to main content

@@ -1,0 +1,20 @@
+---
+/**
+ * Card — a surface card with an optional icon, title, body, and link.
+ * Props:
+ *   title (required), body?, icon? (emoji or text), tone? 'crimson'|'gold'|'blue'|'green'
+ *   href?, cta? (link label shown at the bottom)
+ * Extra content can be passed as children (rendered under the body).
+ */
+interface Props { title: string; body?: string; icon?: string; tone?: 'crimson'|'gold'|'blue'|'green'; href?: string; cta?: string }
+const { title, body, icon, tone = 'crimson', href, cta } = Astro.props;
+const toneClass = { crimson: 'ic--c', gold: 'ic--g', blue: 'ic--b', green: 'ic--gr' }[tone];
+const Tag = href && !cta ? 'a' : 'div';
+---
+<Tag class="acard" href={href && !cta ? href : undefined}>
+  {icon && <div class:list={["ic", toneClass]}>{icon}</div>}
+  <h3>{title}</h3>
+  {body && <p>{body}</p>}
+  <slot />
+  {cta && href && <a href={href}>{cta} →</a>}
+</Tag>

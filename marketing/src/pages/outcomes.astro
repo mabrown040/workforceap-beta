@@ -1,0 +1,260 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// Truth-lock: this is a transparency page. The live Next page pulls placement
+// counts, follow-up signal rates, and PII-stripped story cards from internal
+// placement records at request time (getPublicPlacementOutcomes / socialProof).
+// For this static spike we do NOT fabricate any number, rate, or testimonial:
+// the data slots render as "awaiting published data" placeholders so the page
+// stays visually complete and structurally identical to the real page while
+// remaining honest about having no live records to show.
+
+// Real breakdown sections, in the same order the Next page renders them
+// (by program → by funding source → by retention status).
+const breakdowns = [
+  { id: 'outcomes-by-program', title: 'By program (where recorded)' },
+  { id: 'outcomes-by-funding', title: 'By funding source (where recorded)' },
+  { id: 'outcomes-by-retention', title: 'Retention status (where recorded)' },
+];
+---
+<Layout
+  title="Outcomes snapshot — WorkforceAP"
+  description="Aggregate placement counts from WorkforceAP internal records — no guaranteed outcomes; funded access for qualifying members."
+>
+<div class="depth-outcomes">
+
+  <!-- ============================================================
+       HERO — DEPTH STAGE (shorter): deep radial crimson→plum band,
+       gold/crimson/white glow auras, luminosity-masked photo,
+       white text + gold pill, translucent glass stat card.
+       ============================================================ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-grid">
+      <div class="olead">
+        <span class="pill"><span class="pill__star">★</span>Transparency</span>
+        <h1>Placement outcomes <span class="shimmer">(aggregate)</span></h1>
+        <p class="ointro">
+          These counts come from internal placement records — not a promise of future results.
+          Programs may be available at no upfront cost for qualifying members through WorkforceAP
+          and partner-backed pathways. <a href="/programs">Browse programs</a>.
+        </p>
+      </div>
+
+      <!-- BIG STAT CARD (truth-lock: no live records, so the count is published per cohort) -->
+      <div class="statcard">
+        <div class="num">—</div>
+        <div class="lab">Members with a placement on file</div>
+        <div class="asof">Published per cohort as records are verified</div>
+        <div class="signal">
+          Follow-up signal rate: <strong>—</strong> (— of —) — approximate 95% interval
+          published once enough placements are on file (Wilson score).
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VERIFIED PLACEMENT STORIES (static, PII-stripped representation) -->
+  <section class="blk blk--surface" aria-labelledby="placement-stories"><div class="wrap">
+    <div class="sec-head">
+      <span class="kick">Transparency</span>
+      <h2 id="placement-stories">Verified placement stories</h2>
+      <p>PII-stripped cards pulled from live placement records. No seeded or illustrative outcomes are shown.</p>
+    </div>
+    <div class="stories">
+      <article class="scard scard--empty">
+        <span class="tag">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+          Verified placement
+        </span>
+        <h3>Job title from record</h3>
+        <p class="meta">Program not specified · month / year</p>
+      </article>
+      <article class="scard scard--empty">
+        <span class="tag">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+          Verified placement
+        </span>
+        <h3>Job title from record</h3>
+        <p class="meta">Program not specified · month / year</p>
+      </article>
+      <article class="scard scard--empty">
+        <span class="tag">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+          Verified placement
+        </span>
+        <h3>Job title from record</h3>
+        <p class="meta">Program not specified · month / year</p>
+      </article>
+    </div>
+    <p class="method">Story cards appear here as cohorts complete. See the admin outcomes methodology before using any claim externally.</p>
+  </div></section>
+
+  <!-- AGGREGATE BREAKDOWNS: by program → by funding → by retention -->
+  <section class="blk blk--cream"><div class="wrap">
+    <div class="breakdown-grid">
+      {breakdowns.map((s) => (
+        <div class="bcard" aria-labelledby={s.id}>
+          <div class="sec-head sec-head--sm">
+            <h2 id={s.id}>{s.title}</h2>
+          </div>
+          <ul class="blist">
+            <li class="brow"><span>Awaiting published data</span><strong>—</strong></li>
+            <li class="brow"><span>Awaiting published data</span><strong>—</strong></li>
+            <li class="brow"><span>Unspecified</span><strong>—</strong></li>
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div></section>
+
+  <!-- CLOSING CTA — BOLD full-bleed crimson, photo luminosity -->
+  <section class="close" aria-labelledby="outcomes-cta">
+    <div class="close__media" aria-hidden="true"></div>
+    <div class="close__veil" aria-hidden="true"></div>
+    <div class="close__inner wrap">
+      <h2 id="outcomes-cta">Ready to start your own pathway?</h2>
+      <p>Apply in about 5 minutes — no cost for qualifying members. A real team reviews it and follows up in 1 to 2 business days.</p>
+      <div class="acts acts--center">
+        <a class="bbtn bbtn--gold" href="/apply">Start your application</a>
+        <a class="bbtn bbtn--outline" href="/programs">Browse programs</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     OUTCOMES — DEPTH-LED restyle to match the new home.
+     shorter depth stage hero → light story band → light breakdown
+     band with glass/elevated cards → bold full-bleed closing CTA.
+     =================================================================== */
+  .depth-outcomes{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE (shorter) ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:84px 0 96px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center;position:relative;z-index:2}
+
+  /* glow auras — gold + crimson + white */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-180px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:440px;height:440px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:360px;height:360px;top:24%;left:44%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  /* luminosity-masked real photo bleeding in from the right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .olead h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.2vw,62px);
+    line-height:1.04;letter-spacing:-.03em;margin:20px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .ointro{font-size:19px;line-height:1.55;color:rgba(255,255,255,.84);max-width:34em;margin:22px 0 0}
+  .ointro a{color:#f3d28f;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+
+  /* translucent glass stat card */
+  .statcard{position:relative;border-radius:22px;padding:34px;color:#fff;overflow:hidden;
+    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset}
+  .statcard .num{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(56px,9vw,84px);line-height:1;color:#f3d28f}
+  .statcard .lab{font-weight:700;font-size:17px;margin-top:6px}
+  .statcard .asof{color:rgba(255,255,255,.78);font-size:13px;margin-top:6px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .statcard .signal{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.22);font-size:14px;color:rgba(255,255,255,.9)}
+  .statcard .signal strong{color:#fff}
+
+  /* ---------------- LIGHT ALTERNATING BLOCKS ---------------- */
+  .blk{width:100%;padding:84px 0}
+  .blk--surface{background:var(--surface);color:var(--text)}
+  .blk--cream{background:var(--bg);color:var(--text)}
+
+  .sec-head{margin-bottom:40px}
+  .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--crimson);margin-bottom:16px}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,48px);line-height:1.02;letter-spacing:-.02em}
+  .sec-head p{margin-top:14px;color:var(--muted);font-size:17px;line-height:1.55;max-width:46em}
+
+  /* story cards (elevated) */
+  .stories{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);
+    border-top:6px solid var(--green);transition:transform .2s,box-shadow .25s}
+  .scard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .scard--empty{border-top-style:solid;border-style:solid;border-top-color:var(--green);background:var(--surface-2)}
+  .scard--empty:not(:hover){border-color:var(--border);border-top-color:var(--green)}
+  .scard .tag{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(74,155,79,.12);color:var(--green)}
+  .scard .tag svg{display:block}
+  .scard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:19px;font-weight:700;margin:14px 0 6px;color:var(--muted)}
+  .scard .meta{color:var(--muted);font-size:14px}
+  .method{margin-top:24px;font-size:13px;color:var(--muted);max-width:720px;
+    background:var(--surface-2);border:1px dashed var(--border);border-radius:14px;padding:16px 20px}
+  @media(max-width:880px){.stories{grid-template-columns:1fr}}
+
+  /* breakdown cards (elevated, in a light band) */
+  .breakdown-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .bcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px 28px;box-shadow:var(--shadow);
+    border-top:6px solid var(--crimson)}
+  .bcard:nth-child(2){border-top-color:var(--blue)}
+  .bcard:nth-child(3){border-top-color:var(--gold)}
+  .sec-head--sm{margin-bottom:14px}
+  .sec-head--sm h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(20px,2.4vw,26px);letter-spacing:-.01em}
+  .blist{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}
+  .brow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);font-size:15px}
+  .brow:last-child{border-bottom:none}
+  .brow span{color:var(--muted)}
+  .brow strong{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:var(--text)}
+  @media(max-width:880px){.breakdown-grid{grid-template-columns:1fr}}
+
+  /* ---------------- BOLD FULL-BLEED CLOSING CTA ---------------- */
+  .close{
+    position:relative;overflow:hidden;
+    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
+  }
+  .close__media{position:absolute;inset:0;background:url('https://www.workforceap.org/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:92px 24px 100px;max-width:var(--max)}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5.5vw,62px);line-height:.98;letter-spacing:-.03em;margin-bottom:18px}
+  .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:38em;margin:0 auto 30px;line-height:1.5}
+  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .acts--center{justify-content:center}
+
+  /* big assertive buttons (bold) */
+  .bbtn{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:18px 34px;border-radius:14px;
+    border:2px solid transparent;transition:transform .15s,box-shadow .2s,background .2s,color .2s}
+  .bbtn:hover{transform:translateY(-3px)}
+  .bbtn--gold{background:linear-gradient(135deg,#e9c879,#a47f38);color:#3a2a08;box-shadow:0 16px 38px -12px rgba(164,127,56,.7)}
+  .bbtn--gold:hover{box-shadow:0 22px 50px -12px rgba(164,127,56,.8)}
+  .bbtn--outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+  .bbtn--outline:hover{background:#fff;color:var(--accent-dark);border-color:#fff}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 76px}
+    .stage-grid{grid-template-columns:1fr;gap:40px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+  }
+  @media(max-width:560px){
+    .blk{padding:60px 0}
+    .acts .bbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>
+</parameter>
+</invoke>

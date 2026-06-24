@@ -1,0 +1,16 @@
+---
+/**
+ * Pill — the gold badge. Pass the text as a child.
+ *   <Pill>Employer-recognized certificates</Pill>
+ * Props: tone: 'gold' | 'crimson' (default gold)
+ */
+interface Props { tone?: 'gold' | 'crimson' }
+const { tone = 'gold' } = Astro.props;
+---
+<span class:list={["ui-pill", `ui-pill--${tone}`]}><slot /></span>
+<style>
+  .ui-pill{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-weight:800;font-size:12px;letter-spacing:.02em;line-height:1;padding:8px 16px;border-radius:999px;color:#fff}
+  .ui-pill--gold{background:linear-gradient(135deg,#cda44e,#9a7733);box-shadow:0 8px 22px -8px rgba(164,127,56,.6)}
+  .ui-pill--crimson{background:var(--crimson)}
+  .ui-pill::before{content:"★";font-size:11px;opacity:.95}
+</style>

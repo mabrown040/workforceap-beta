@@ -1,0 +1,273 @@
+---
+import Layout from '../layouts/Layout.astro';
+import EligibilityForm from '../components/EligibilityForm.tsx';
+
+const BARRIER_OPTIONS = [
+  'Need in-demand occupation or certificate training',
+  'No barrier right now',
+  'Employment gap',
+  'Limited work history',
+  'SNAP / TANF / Food Stamps / WIC',
+  'Background / justice involvement',
+  'Disability or health barrier',
+  'Housing instability',
+  'Other barrier',
+];
+
+const STEPS = [
+  { n: 1, label: 'Eligibility' },
+  { n: 2, label: 'Programs' },
+  { n: 3, label: 'Account' },
+];
+---
+<Layout
+  title="Start Your Application — WorkforceAP"
+  description="No-cost IT training — start with a quick eligibility check. WorkforceAP is a 501(c)(3) nonprofit. About 5 minutes; an advisor follows up after you apply."
+>
+<!-- PAID HERO — DEPTH STAGE (shorter inner-page crimson band) -->
+<section class="paid-hero stage" aria-labelledby="paid-apply-hero-heading">
+  <div class="aura aura--1" aria-hidden="true"></div>
+  <div class="aura aura--2" aria-hidden="true"></div>
+  <div class="aura aura--3" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="wrap stage-grid">
+    <div class="paid-hero__inner">
+      <span class="pill"><span class="pill__star">★</span>501(c)(3) nonprofit · advisor follow-up after you apply</span>
+      <h1 id="paid-apply-hero-heading" class="paid-hero__heading">No-cost IT training — start with a quick eligibility check.</h1>
+      <p class="paid-hero__subhead">About 5 minutes · 501(c)(3) nonprofit · advisor follow-up after you apply</p>
+      <p class="paid-hero__help">Questions? Call <a href="tel:+15127771808">(512) 777-1808</a></p>
+      <a class="dbtn dbtn--solid paid-hero__cta" href="#paid-apply-eligibility">Start eligibility check <span>→</span></a>
+      <div class="paid-hero__pilot">
+        <span class="pilot-tag" title="Pilot Program — limited spots available"><span class="pilot-dot" aria-hidden="true"></span>Pilot Program</span>
+      </div>
+    </div>
+
+    <!-- depth glass card -->
+    <aside class="hero-glass" aria-hidden="true">
+      <div class="hg-head">
+        <div class="hg-ic">✓</div>
+        <div>
+          <b>Application reviewed</b>
+          <span>A real team follows up after you apply.</span>
+        </div>
+      </div>
+      <div class="hg-meter">
+        <span>Cost to qualifying members</span>
+        <strong>$0</strong>
+      </div>
+      <div class="hg-chips">
+        <span>~5 min</span>
+        <span>No cost</span>
+        <span>501(c)(3)</span>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- FORM SECTION -->
+<section id="paid-apply-eligibility" class="band band--surface paid-form-section" aria-label="Eligibility application form"><div class="wrap paid-form-wrap">
+
+  <!-- Mobile trust bar -->
+  <div class="mtrust" role="note" aria-label="Trust and support information">
+    <p class="mtrust__cues">
+      <span class="mtrust__cue"><span class="mtrust__check" aria-hidden="true">✓</span>At no cost to members</span>
+      <span class="mtrust__sep" aria-hidden="true">·</span>
+      <span class="mtrust__cue"><span class="mtrust__check" aria-hidden="true">✓</span>501(c)(3) nonprofit</span>
+    </p>
+    <p class="mtrust__support">Questions? Call <a href="tel:+15127771808" class="mtrust__phone">(512) 777-1808</a></p>
+  </div>
+
+  <!-- Mobile step nav -->
+  <nav class="mstep" aria-label="Application Progress">
+    <p class="mstep__summary">Step 1 of 3 · About 5 min</p>
+    <ol class="mstep__list">
+      {STEPS.map((s) => (
+        <li class={`mstep__item${s.n === 1 ? ' mstep__item--active' : ''}`} aria-current={s.n === 1 ? 'step' : undefined}>
+          <span class="mstep__index" aria-hidden="true">{s.n}</span>
+          <span class="mstep__label">{s.label}</span>
+        </li>
+      ))}
+    </ol>
+  </nav>
+
+  <!-- Form kicker -->
+  <p class="paid-form-kicker" role="note">Eligibility check only · advisor follow-up after you apply</p>
+
+  <!-- Proof block -->
+  <div class="paid-proof" role="note">
+    <span class="paid-proof__icon" aria-hidden="true">🛡️</span>
+    <div>
+      <h2 class="paid-proof__title">501(c)(3) nonprofit · EIN 41-2612389</h2>
+      <p class="paid-proof__body">We review your application, follow up to discuss next steps, and help you understand funding fit before you commit.</p>
+      <div class="paid-proof__actions">
+        <a class="btn btn--ghost" href="/contact?topic=application">Contact an advisor</a>
+        <a class="btn btn--primary" href="tel:+15127771808">Call (512) 777-1808</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trust strip (prelaunch placeholder line) -->
+  <section class="trust-strip" aria-label="Program outcomes">
+    <p class="trust-strip__line">Training-aligned candidates · counselor-supported readiness · no-cost to members</p>
+  </section>
+
+  <!-- Eligibility check — LIVE React island (hydrated on view via client:visible) -->
+  <div class="apply-flow" data-variant="paid">
+    <EligibilityForm client:visible />
+  </div>
+</div></section>
+
+<style>
+  /* ===================================================================
+     APPLY — DEPTH-LED restyle. Shorter crimson depth-stage hero with
+     glow auras + luminosity-masked photo + gold pill + glass card,
+     over a light form band that keeps the React island intact.
+     =================================================================== */
+
+  /* ---------------- DEPTH HERO STAGE (shorter inner-page band) ---------------- */
+  .paid-hero.stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 130% at 82% -20%, #b8334f 0%, var(--accent-dark) 44%, var(--plum) 76%, #4a0e26 100%);
+    color:#fff;padding:64px 0 72px;text-align:left;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:52px;align-items:center;position:relative;z-index:2}
+
+  /* glow auras — gold + crimson + white */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:460px;height:460px;top:-150px;right:-110px;background:radial-gradient(circle,rgba(196,154,72,.5),transparent 68%)}
+  .aura--2{width:420px;height:420px;bottom:-190px;left:-130px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:340px;height:340px;top:24%;left:46%;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 70%)}
+
+  /* luminosity-masked real photo bleeding in from the right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);opacity:.17}
+
+  .paid-hero__inner{max-width:none;position:relative;z-index:2}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.2;padding:9px 17px;border-radius:999px;margin-bottom:20px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  @media(max-width:520px){.pill{white-space:normal;text-align:left}}
+
+  .paid-hero__heading{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(30px,5vw,48px);font-weight:800;line-height:1.05;letter-spacing:-.025em}
+  .paid-hero__subhead{margin-top:16px;font-size:clamp(16px,2.2vw,19px);color:rgba(255,255,255,.86);line-height:1.5;max-width:32em}
+  .paid-hero__help{margin-top:18px;font-size:14px;color:rgba(255,255,255,.86)}
+  .paid-hero__help a{color:#fff;font-weight:700;text-decoration:underline}
+  .paid-hero__pilot{margin-top:22px;display:flex}
+
+  /* depth buttons (on dark) */
+  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 28px;
+    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
+  .dbtn:hover{transform:translateY(-2px)}
+  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
+    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
+  .dbtn--solid span{transition:transform .2s}
+  .dbtn--solid:hover span{transform:translateX(4px)}
+  .paid-hero__cta{margin-top:26px}
+
+  .pilot-tag{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);border-radius:999px;padding:7px 16px;backdrop-filter:blur(8px)}
+  .pilot-dot{width:8px;height:8px;border-radius:50%;background:#7ee08a;box-shadow:0 0 0 3px rgba(126,224,138,.28)}
+
+  /* depth glass card */
+  .hero-glass{position:relative;z-index:2;border-radius:22px;padding:26px;
+    background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .hg-head{display:flex;align-items:flex-start;gap:13px;margin-bottom:18px}
+  .hg-ic{flex-shrink:0;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+    background:rgba(74,155,79,.32);border:1px solid rgba(120,220,130,.4);color:#caffce;font-weight:800;font-size:17px}
+  .hg-head b{display:block;font-weight:700;font-size:15px}
+  .hg-head span{font-size:13px;color:rgba(255,255,255,.78)}
+  .hg-meter{display:flex;align-items:baseline;justify-content:space-between;padding:14px 16px;border-radius:13px;
+    background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.12);margin-bottom:14px}
+  .hg-meter span{font-size:13px;color:rgba(255,255,255,.8)}
+  .hg-meter strong{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:26px;color:#f3d28f}
+  .hg-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .hg-chips span{font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+
+  @media(max-width:880px){
+    .stage-grid{grid-template-columns:1fr;gap:36px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+    .hero-glass{max-width:420px}
+  }
+
+  /* ---------------- LIGHT FORM BAND ---------------- */
+  .paid-form-section{padding:64px 0}
+  .paid-form-wrap{max-width:760px;margin:0 auto}
+
+  /* Mobile trust bar + step nav (shown on small screens) */
+  .mtrust,.mstep{display:none}
+  @media(max-width:768px){
+    .mtrust{display:block;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:12px 16px;margin-bottom:14px;text-align:center}
+    .mtrust__cues{font-size:13px;font-weight:600;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
+    .mtrust__check{color:var(--green);font-weight:800;margin-right:4px}
+    .mtrust__sep{color:var(--muted)}
+    .mtrust__support{font-size:13px;color:var(--muted);margin-top:6px}
+    .mtrust__phone{color:var(--crimson);font-weight:700}
+    .mstep{display:block;margin-bottom:16px}
+    .mstep__summary{font-size:13px;font-weight:700;color:var(--muted);text-align:center;margin-bottom:8px}
+    .mstep__list{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .mstep__item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--muted);text-align:center}
+    .mstep__index{width:26px;height:26px;border-radius:8px;background:var(--border);display:grid;place-items:center;font-weight:800}
+    .mstep__item--active{color:var(--text)}
+    .mstep__item--active .mstep__index{background:var(--grad);color:#fff}
+  }
+
+  .paid-form-kicker{font-size:13px;font-weight:700;color:var(--gold-dark);background:rgba(164,127,56,.1);border:1px solid rgba(164,127,56,.22);border-radius:999px;padding:8px 16px;display:inline-block;margin-bottom:18px}
+
+  /* Proof block — elevated card on light */
+  .paid-proof{display:flex;gap:16px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);border-top:5px solid var(--crimson);padding:24px;box-shadow:var(--shadow-lg);margin-bottom:18px}
+  .paid-proof__icon{font-size:28px;line-height:1;flex-shrink:0}
+  .paid-proof__title{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;margin-bottom:6px}
+  .paid-proof__body{color:var(--muted);font-size:15px;line-height:1.5;margin-bottom:14px}
+  .paid-proof__actions{display:flex;gap:12px;flex-wrap:wrap}
+  .paid-proof__actions .btn{font-size:14px;padding:9px 16px}
+
+  /* Trust strip */
+  .trust-strip{text-align:center;margin-bottom:22px}
+  .trust-strip__line{font-size:14px;font-weight:600;color:var(--muted)}
+
+  /* Eligibility form (island styling preserved) */
+  .apply-step-content{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow)}
+  .apply-step-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;margin-bottom:10px}
+  .apply-step-desc{color:var(--muted);font-size:16px;margin-bottom:24px}
+
+  .funding-questions{display:flex;flex-direction:column;gap:18px;margin-bottom:22px}
+  .fset{border:1px solid var(--border);border-radius:16px;padding:20px;background:var(--surface-2)}
+  .fset legend{font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--crimson);padding:0 8px}
+  .fset .q{font-size:15px;margin-bottom:14px;color:var(--text)}
+  .radio-row{display:flex;gap:12px}
+  .radio-card{flex:1;display:flex;align-items:center;gap:10px;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);font-weight:600;font-size:15px;cursor:default}
+  .radio-card .radio-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);flex-shrink:0}
+  .radio-card input{display:none}
+
+  .apply-block{margin-bottom:22px}
+  .apply-block__title{font-size:17px;font-weight:800;margin:6px 0 16px}
+  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:560px){.fgrid{grid-template-columns:1fr}}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field--full{grid-column:1 / -1}
+  .field label{font-size:13px;font-weight:700;color:var(--text)}
+  .field input,.field select{padding:12px 14px;border:1.5px solid var(--border);border-radius:11px;background:var(--surface);font-size:15px;font-family:inherit;color:var(--text)}
+  .field input::placeholder{color:#b7b0aa}
+  .field .hint{font-size:12px;color:var(--muted);line-height:1.4}
+
+  .barriers{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  @media(max-width:560px){.barriers{grid-template-columns:1fr}}
+  .barrier{display:flex;align-items:center;gap:10px;padding:6px 8px;font-size:14px;color:var(--text);cursor:default}
+  .barrier input{width:16px;height:16px;accent-color:var(--crimson)}
+
+  .apply-actions{margin-top:8px}
+  .cta-full{width:100%;justify-content:center}
+  .consent{font-size:12px;color:var(--muted);margin:16px 0 0;line-height:1.5}
+  .consent a{color:inherit;text-decoration:underline}
+  .autosave{font-size:13px;color:var(--muted);margin-top:10px}
+  .continue-hint{font-size:13px;color:var(--muted);margin-top:10px;line-height:1.5}
+</style>
+</Layout>

@@ -1,0 +1,16 @@
+---
+/**
+ * Section — a vertical band. Use it to wrap every block of the page.
+ * Props:
+ *   surface: boolean — white background instead of the default cream (alternate bands)
+ *   id: string — optional anchor id
+ *   narrow: boolean — tighter max-width for prose
+ */
+interface Props { surface?: boolean; id?: string; narrow?: boolean }
+const { surface = false, id, narrow = false } = Astro.props;
+---
+<section class:list={["band", surface && "band--surface"]} id={id}>
+  <div class="wrap" style={narrow ? "max-width:820px" : undefined}>
+    <slot />
+  </div>
+</section>

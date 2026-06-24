@@ -1,0 +1,127 @@
+---
+import '../styles/blend.css';
+import { useT, LOCALES, LOCALE_LABELS } from '../i18n/t';
+export interface Props {
+  title?: string;
+  description?: string;
+  lang?: string;
+}
+const {
+  title = 'WorkforceAP — Employer-aligned training & career support',
+  description = 'WorkforceAP is a 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to qualifying members.',
+  lang = 'en',
+} = Astro.props;
+const t = useT(lang);
+// Localized chrome labels (real nav.* translations); hrefs stay canonical (EN
+// inner routes exist; localized routing is demoed on the home in this spike).
+const nav = [
+  { href: '/programs', label: t('nav.programs') },
+  { href: '/how-it-works', label: t('nav.howItWorks') },
+  { href: '/employers', label: t('nav.employers') },
+  { href: '/partners', label: t('nav.partners') },
+  { href: '/about', label: t('nav.aboutUs') },
+  { href: '/contact', label: t('nav.contactUs') },
+];
+const langHref = (l: string) => (l === 'en' ? '/' : `/${l}`);
+// Comprehensive mobile menu (ties every route together for small screens)
+const mobileNav = [
+  { href: '/programs', label: 'Programs' },
+  { href: '/find-your-path', label: 'Find your path' },
+  { href: '/how-it-works', label: 'How it works' },
+  { href: '/what-we-do', label: 'What we do' },
+  { href: '/employers', label: 'For employers' },
+  { href: '/partners', label: 'Partners' },
+  { href: '/about', label: 'About' },
+  { href: '/leadership', label: 'Leadership' },
+  { href: '/impact', label: 'Impact' },
+  { href: '/outcomes', label: 'Outcomes' },
+  { href: '/faq', label: 'FAQ' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/login', label: 'Sign in' },
+];
+const path = Astro.url.pathname;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <input class="navtoggle" type="checkbox" id="navtoggle" aria-hidden="true" />
+  <label class="hamburger" for="navtoggle" aria-label="Toggle menu"><span></span><span></span><span></span></label>
+  <nav class="top">
+    <div class="wrap row">
+      <a class="brand" href="/"><span class="mark">▲</span>Workforce<b>AP</b></a>
+      <div class="navlinks">
+        {nav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+      </div>
+      <div class="navactions">
+        <div class="langswitch" role="group" aria-label="Language">
+          {LOCALES.map((l) => (
+            <a href={langHref(l)} aria-current={l === lang ? 'true' : undefined}>{l.toUpperCase()}</a>
+          ))}
+        </div>
+        <a class="signin" href="/login" style="color:var(--muted);font-weight:600;font-size:15px">{t('cta.logIn')}</a>
+        <a class="btn btn--primary" style="padding:10px 20px;font-size:15px" href="/apply">{t('cta.applyNow')}</a>
+      </div>
+    </div>
+  </nav>
+  <nav class="mobilemenu" aria-label="Mobile">
+    {mobileNav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
+    <a class="btn btn--primary" href="/apply">Apply now</a>
+  </nav>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer><div class="wrap">
+    <div class="fgrid">
+      <div class="fbrand">
+        <a class="brand" href="/"><span class="mark">▲</span>Workforce<b>AP</b></a>
+        <p>A 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to qualifying members.</p>
+      </div>
+      <div><h4>Explore</h4><ul><li><a href="/programs">Programs</a></li><li><a href="/how-it-works">How it works</a></li><li><a href="/find-your-path">Find your path</a></li><li><a href="/outcomes">Outcomes</a></li></ul></div>
+      <div><h4>Get involved</h4><ul><li><a href="/apply">Apply</a></li><li><a href="/employers">For employers</a></li><li><a href="/partners">Partners</a></li><li><a href="/donate">Donate</a></li></ul></div>
+      <div><h4>Organization</h4><ul><li><a href="/about">About</a></li><li><a href="/leadership">Leadership</a></li><li><a href="/careers">Careers</a></li><li><a href="/contact">Contact</a></li></ul></div>
+    </div>
+    <div class="fbottom">
+      <span>© 2026 WorkforceAP · A national 501(c)(3) nonprofit. Available nationwide.</span>
+      <span style="display:flex;gap:18px"><a href="/privacy" style="color:inherit">Privacy</a><a href="/terms" style="color:inherit">Terms</a><a href="/accessibility" style="color:inherit">Accessibility</a></span>
+    </div>
+  </div></footer>
+
+  <script is:inline>
+    // Progressive enhancement: nav depth-on-scroll + scroll-reveal.
+    // The page is fully functional without JS (Astro stays zero-JS-by-default;
+    // this is a tiny enhancement, reduced-motion respected by the CSS).
+    (function () {
+      var nav = document.querySelector('nav.top');
+      var onScroll = function () { if (nav) nav.classList.toggle('scrolled', window.scrollY > 20); };
+      window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduce && 'IntersectionObserver' in window) {
+        var targets = document.querySelectorAll(
+          'main section .sec-head, main .tool, main .stepcard, main .acard, main .panel, main .cta, main .facts, main .creds .row'
+        );
+        targets.forEach(function (el, i) {
+          el.setAttribute('data-reveal', '');
+          el.style.transitionDelay = (Math.min(i % 4, 3) * 70) + 'ms';
+        });
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+        targets.forEach(function (el) { io.observe(el); });
+      }
+    })();
+  </script>
+</body>
+</html>

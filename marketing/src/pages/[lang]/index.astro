@@ -1,0 +1,15 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Home from '../../components/Home.astro';
+import { NON_DEFAULT_LOCALES, useT } from '../../i18n/t';
+
+export function getStaticPaths() {
+  return NON_DEFAULT_LOCALES.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const t = useT(lang as string);
+---
+<Layout lang={lang} title={`${t('marketing.home.heroTagline')} ${t('marketing.home.heroTaglineAccent')} — WorkforceAP`}>
+  <Home lang={lang as string} />
+</Layout>

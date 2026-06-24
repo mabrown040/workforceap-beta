@@ -1,0 +1,417 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const quick = [
+  {
+    q: 'How much do WorkforceAP programs cost?',
+    a: 'Programs are offered no cost for qualifying members. WorkforceAP helps you understand the funding path, eligibility, and next step before you commit.',
+    cta: 'Browse programs',
+    href: '/programs',
+  },
+  {
+    q: 'Do I need prior tech experience?',
+    a: 'No. Many members start from zero. If computers still feel new, there are beginner-safe options designed to help you build confidence first.',
+    cta: 'Find your path',
+    href: '/find-your-path',
+  },
+  {
+    q: 'What happens after I apply?',
+    a: 'WorkforceAP reviews your goals, confirms fit, and follows up with next steps. That can include intake guidance, documentation review, or program-specific support.',
+    cta: 'Start application',
+    href: '/apply',
+  },
+  {
+    q: 'How long do programs take?',
+    a: 'Most programs take about 3–5 months at roughly 10 hours per week. Digital Literacy is shorter and works well as an on-ramp if you need a gentler start.',
+    cta: 'See program timelines',
+    href: '/programs',
+  },
+];
+
+type FaqItem = { q: string; a: string; link?: { text: string; href: string } };
+type Category = { key: string; icon: string; items: FaqItem[] };
+
+const categories: Category[] = [
+  {
+    key: 'General Questions',
+    icon: '❓',
+    items: [
+      { q: 'What is Workforce Advancement Project (WorkforceAP)?', a: 'Workforce Advancement Project (WorkforceAP) is a national nonprofit and 501(c)(3) that helps members explore career training, industry credentials, and next-step support. Programs are offered through WorkforceAP and partner-backed pathways.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
+      { q: 'Is it really no-cost to members?', a: 'Programs are available at no cost to members. Exact eligibility and funding path can vary by program and situation, and WorkforceAP will walk you through the right next step during intake.', link: { text: 'View Programs', href: '/programs' } },
+      { q: 'Who qualifies?', a: "Eligibility depends on the program, funding path, location, and your situation. If you're unsure, start with the application and WorkforceAP can help you understand the best next step.", link: { text: 'Start the application', href: '/apply' } },
+      { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. Everything is designed so you can participate while working, parenting, or managing other commitments.', link: { text: 'View Programs', href: '/programs' } },
+      { q: 'Can I talk to someone before I apply?', a: 'Yes. If you have questions or want to talk through whether this is a good fit, reach out. WorkforceAP can help you understand your options before you commit to anything.', link: { text: 'Contact Us', href: '/contact' } },
+    ],
+  },
+  {
+    key: 'Applying & Eligibility',
+    icon: '📝',
+    items: [
+      { q: "What if I'm not technical?", a: "That's exactly who we built this for. Our programs start from zero — no coding background, no IT history, no prior tech experience required. We've helped career-changers, people re-entering the workforce, and adults who've never worked in tech land roles in IT, cybersecurity, and data analytics. What matters most is your commitment to showing up and finishing.", link: { text: 'Take the Career Quiz', href: '/find-your-path' } },
+      { q: "What if I'm starting over?", a: 'Starting over is one of the most common reasons people come to us. Whether you left a job, got laid off, are leaving a difficult situation, or are just ready for a different path — we work with you from where you are now. Your advisor will help you pick the right program, set a realistic pace, and stay on track through the whole process.', link: { text: 'Find Your Path', href: '/find-your-path' } },
+      { q: 'What are the eligibility requirements?', a: 'Requirements vary by pathway and funding source. WorkforceAP reviews your goals, location, readiness, and any funding options that may apply, then helps you understand the right next step.', link: { text: 'View All Programs', href: '/programs' } },
+      { q: 'What happens after I apply?', a: 'After you apply, WorkforceAP reviews your information, follows up if more context is needed, and helps you understand the next step for your pathway. That may include a conversation, documentation review, or program guidance.', link: { text: 'Start Your Application', href: '/apply' } },
+      { q: 'Is there an application fee?', a: 'No. There is no application fee. We review your goals, confirm fit, and share next steps. Applying does not cost anything, and qualifying pathways are offered at no cost to members.' },
+      { q: 'When do programs start?', a: 'Program timing depends on the pathway, partner schedule, and available cohorts. WorkforceAP will help you understand what is currently open and what the next available start looks like.', link: { text: 'See How It Works', href: '/how-it-works' } },
+    ],
+  },
+  {
+    key: 'Cost & Funding',
+    icon: '💳',
+    items: [
+      { q: 'How much does the program cost?', a: 'Our programs are available at no cost to members. There are no hidden fees, textbook costs, or application charges. This is made possible through grants, employer partnerships, and community funding.', link: { text: 'View Programs', href: '/programs' } },
+      { q: "What does 'qualifying' mean?", a: 'It means eligibility is reviewed based on the pathway, funding source, and your situation. If you are not sure, apply and WorkforceAP can help clarify your options.', link: { text: 'Start the application', href: '/apply' } },
+      { q: 'Do I need to pay anything back?', a: 'No. This is not a loan. Training is funded through grants and partnerships. WorkforceAP does not use income-sharing agreements (ISAs) or member loans for these pathways.', link: { text: 'Read Success Stories', href: '/blog' } },
+      { q: 'Are certification exam fees included?', a: 'Certification support can vary by program and funding path. WorkforceAP can explain what is included for the pathway you are considering.', link: { text: 'View Programs', href: '/programs' } },
+    ],
+  },
+  {
+    key: 'Programs & Training',
+    icon: '🎓',
+    items: [
+      { q: 'How long do programs take?', a: 'Most programs take 3–5 months at roughly 10 hours per week. Digital Literacy is shorter at about 6 weeks and roughly 30 total hours. All programs are designed to be completed while working part-time or managing family responsibilities.', link: { text: 'View Program Details', href: '/programs' } },
+      { q: 'Is this online?', a: 'Yes. All training is delivered virtually — you can participate from home, a library, or anywhere with a reliable internet connection. You do not need to commute, relocate, or take time off work to attend. Some programs include optional in-person events and local career fairs if you want them.', link: { text: 'See Available Programs', href: '/programs' } },
+      { q: 'Do I need a laptop?', a: 'You need access to a computer and reliable internet to participate. If you do not have a laptop, apply anyway. WorkforceAP can talk through available support options, including laptop help when a pathway or funding source allows it.', link: { text: 'Learn About Support', href: '/what-we-do' } },
+      { q: 'What certifications will I earn?', a: "You'll earn industry-recognized certificates from partners like Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials employers hire against.", link: { text: 'View Certification Paths', href: '/salary-guide' } },
+      { q: 'What if I fail a certification exam?', a: 'Many certification providers allow retakes. We work with you to prepare for exams and, when available, support retake options. Your advisor can help you understand the specific retake policy for your program.', link: { text: 'See How It Works', href: '/how-it-works' } },
+    ],
+  },
+  {
+    key: 'Job Placement',
+    icon: '💼',
+    items: [
+      { q: 'Do you help members find jobs?', a: 'Yes. WorkforceAP provides support like resume help, interview prep, career guidance, and employer-facing support as members move toward job readiness.', link: { text: 'Explore Career Outcomes', href: '/salary-guide' } },
+      { q: 'What kind of jobs will I qualify for?', a: 'Entry-level to mid-level roles in IT, cybersecurity, data analytics, project management, healthcare, and skilled trades. Starting salaries range from $38K to $145K depending on the program.', link: { text: 'See Salary Guide', href: '/salary-guide' } },
+      { q: 'How soon after completing the program can I get hired?', a: 'Hiring timelines vary by market, role, location, and the path you choose. Many members begin preparing and applying during training so they are ready for the next step as they finish.', link: { text: 'Read Career Tips', href: '/blog' } },
+    ],
+  },
+  {
+    key: 'For Members',
+    icon: '🧑',
+    items: [
+      { q: 'What support do I get during training?', a: 'You receive a dedicated advisor, access to our member portal with career readiness tools (resume help, interview practice), and job-search guidance as you move toward job readiness.', link: { text: 'Learn About Our Mission', href: '/what-we-do' } },
+      { q: 'Is there a counselor or advisor assigned to me?', a: 'Yes. Each member is assigned an advisor who supports you from intake through training and job-search preparation. Your advisor helps with program pacing, career goals, and connecting you to resources.', link: { text: 'Meet the Team', href: '/leadership' } },
+      { q: 'Can I work while enrolled?', a: 'Yes. Programs are designed to be flexible for working adults. Most programs are paced for about 10 hours per week, and Digital Literacy is lighter at roughly 5 hours per week.', link: { text: 'Check Program Flexibility', href: '/programs' } },
+      { q: 'What if I fall behind?', a: "Your advisor will work with you to adjust your pace. We're invested in your completion — not just your enrollment. Life happens, and we'll help you get back on track.", link: { text: 'Meet the Team', href: '/leadership' } },
+      { q: 'Is this too good to be true?', a: "We get it. Training at no cost to members can feel hard to trust at first. We're funded by grants, employer partnerships, and community support. Our success metric is your employment, not collecting fees from members.", link: { text: 'Meet the Team', href: '/leadership' } },
+    ],
+  },
+  {
+    key: 'For Employers',
+    icon: '🏢',
+    items: [
+      { q: 'How do employer partnerships work?', a: 'We train and support candidates in high-demand fields, and we help employers connect with members whose training paths align with their hiring needs. Partnership structures can vary based on role type, timing, and employer needs.', link: { text: 'Partner With Us', href: '/partners' } },
+      { q: 'What certifications do your graduates hold?', a: "Graduates earn industry-recognized certifications from Google, IBM, Microsoft, Amazon, and CompTIA. These are the same credentials you'd see on any qualified candidate's resume.", link: { text: 'View Programs', href: '/programs' } },
+      { q: 'Can I refer someone from my community?', a: 'Yes. We serve communities nationwide. Refer anyone who could benefit — we intake, assess, and connect them with the right program. No harm in applying.', link: { text: 'Refer Someone', href: '/partners' } },
+      { q: 'Is this legitimate?', a: 'Yes. WorkforceAP is a nonprofit and 501(c)(3) with public-facing leadership, real contact paths, and partner-backed training pathways. If you want to talk through fit or partnership questions, our team can help.', link: { text: 'Partner With Us', href: '/partners' } },
+    ],
+  },
+];
+
+// Sidebar grouping mirrors the live Next page (FAQContent sidebarGroups).
+const sidebarGroups = [
+  { label: 'General Questions', keys: ['General Questions', 'Applying & Eligibility', 'Cost & Funding'] },
+  { label: 'For Members', keys: ['Programs & Training', 'Job Placement', 'For Members'] },
+  { label: 'For Employers', keys: ['For Employers'] },
+];
+
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+---
+<Layout
+  title="FAQ — WorkforceAP"
+  description="Answers about applying, eligibility, certifications, and job placement. For applicants, parents, partners, and anyone with questions."
+>
+<div class="faqx">
+
+  <!-- ============================================================
+       HERO — DEPTH STAGE (shorter): crimson→plum depth band,
+       glow auras, luminosity-masked photo, gold pill + glass card.
+       ============================================================ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-grid">
+      <div class="lede">
+        <span class="pill"><span class="pill__star">★</span>Knowledge Base</span>
+        <h1>How can we help you <span class="shimmer">bridge the gap?</span></h1>
+        <p class="sub">Answers that address your concerns, whether you're applying, supporting someone who is, or deciding if WorkforceAP is right for you.</p>
+      </div>
+
+      <div class="hero-glass">
+        <div class="hg-ic" aria-hidden="true">💬</div>
+        <p class="hg-h">Still need support?</p>
+        <p class="hg-p">Reach out and WorkforceAP can help you figure out the right next step.</p>
+        <a class="dbtn dbtn--solid" href="/contact">Contact Us <span>→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUICK ANSWERS -->
+  <section class="band band--surface"><div class="wrap">
+    <div class="sec-head">
+      <span class="kick">Quick answers</span>
+      <h2>Start with the questions people ask most.</h2>
+    </div>
+    <div class="quick-grid">
+      {quick.map((item) => (
+        <a class="qcard" href={item.href}>
+          <h3>{item.q}</h3>
+          <p>{item.a}</p>
+          <span class="qgo">{item.cta} →</span>
+        </a>
+      ))}
+    </div>
+  </div></section>
+
+  <!-- FULL FAQ -->
+  <section class="band band--bg"><div class="wrap">
+    <div class="faq-layout">
+      <!-- Sidebar (static visual representation of the category nav) -->
+      <aside class="faq-sidebar">
+        <nav>
+          {sidebarGroups.map((group) => (
+            <div class="side-group">
+              <p class="side-lab">{group.label}</p>
+              {group.keys.map((key) => {
+                const cat = categories.find((c) => c.key === key)!;
+                return (
+                  <a class="cat-link" href={`#${slugify(cat.key)}`}>
+                    <span class="cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}
+                  </a>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+
+        <div class="support-card">
+          <div class="support-ic" aria-hidden="true">🎧</div>
+          <p class="support-h">Still need support?</p>
+          <p>Reach out and WorkforceAP can help you figure out the right next step.</p>
+          <a class="btn btn--primary" href="/contact">Contact Us</a>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <div class="faq-main">
+        {categories.map((cat) => (
+          <div class="faq-cat" id={slugify(cat.key)}>
+            {cat.key === 'For Employers' && (
+              <div class="emp-banner">
+                <span class="emp-ic" aria-hidden="true">🏅</span>
+                <div>
+                  <p class="emp-h">Employer Partnership Inquiries</p>
+                  <p>Looking to hire certified talent? <a href="/partners">Learn about our partnership model →</a></p>
+                </div>
+              </div>
+            )}
+            <h2 class="faq-cat-head"><span class="faq-cat-ic" aria-hidden="true">{cat.icon}</span>{cat.key}</h2>
+            <div class="faq-list">
+              {cat.items.map((item) => (
+                <details class="faq-item">
+                  <summary>
+                    <span class="faq-q">{item.q}</span>
+                    <span class="faq-chevron" aria-hidden="true">+</span>
+                  </summary>
+                  <div class="faq-a">
+                    <p>{item.a}</p>
+                    {item.link && <a href={item.link.href}>{item.link.text} →</a>}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div></section>
+
+  <!-- ============================================================
+       CLOSING CTA — crimson depth band: "Didn't find your answer?"
+       ============================================================ -->
+  <section class="close">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="grain grain--close"></div>
+    <div class="wrap close-grid">
+      <div class="faq-bottom-copy">
+        <span class="pill pill--solid"><span class="pill__star">★</span>We’re here to help</span>
+        <h2>Didn’t find your answer?</h2>
+        <p>Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.</p>
+        <div class="acts">
+          <a class="dbtn dbtn--solid" href="/contact">Contact Us <span>→</span></a>
+          <a class="dbtn dbtn--glass" href="/apply">Apply Now</a>
+        </div>
+      </div>
+      <div class="close-glass">
+        <div class="cg-ic" aria-hidden="true">💬</div>
+        <div class="cg-lab">We’re here to help</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     FAQX — DEPTH-LED fusion.
+     shorter depth stage hero → light quick-answer cards →
+     light sidebar + accordion body → crimson depth closing CTA.
+     =================================================================== */
+  .faqx{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE (shorter) ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 130% at 82% -20%, #b8334f 0%, var(--accent-dark) 44%, var(--plum) 76%, #4a0e26 100%);
+    color:#fff;padding:84px 0 92px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:54px;align-items:center;position:relative;z-index:2}
+
+  /* glow auras */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:480px;height:480px;top:-150px;right:-110px;background:radial-gradient(circle,rgba(196,154,72,.5),transparent 68%)}
+  .aura--2{width:440px;height:440px;bottom:-190px;left:-130px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:360px;height:360px;top:24%;left:46%;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
+
+  /* luminosity-masked photo bleeding from right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('https://www.workforceap.org/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 42%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 42%,#000 100%);opacity:.16}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  .pill--solid{margin-bottom:22px}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.4vw,64px);
+    line-height:1.03;letter-spacing:-.03em;margin:20px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.84);max-width:34em;margin:20px 0 0}
+
+  /* hero glass card */
+  .hero-glass{position:relative;border-radius:22px;padding:30px 28px;
+    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .hg-ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);margin-bottom:16px}
+  .hg-h{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;margin-bottom:8px}
+  .hg-p{font-size:15px;line-height:1.55;color:rgba(255,255,255,.82);margin-bottom:20px}
+
+  /* depth buttons */
+  .dbtn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:14px 26px;
+    border-radius:14px;border:1px solid transparent;transition:transform .16s,box-shadow .22s,background .22s}
+  .dbtn:hover{transform:translateY(-2px)}
+  .dbtn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--accent-dark);
+    box-shadow:0 18px 44px -14px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.6) inset}
+  .dbtn--solid span{transition:transform .2s}
+  .dbtn--solid:hover span{transform:translateX(4px)}
+  .dbtn--glass{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.32);backdrop-filter:blur(8px)}
+  .dbtn--glass:hover{background:rgba(255,255,255,.2)}
+
+  /* ---------------- LIGHT BANDS ---------------- */
+  .band{padding:80px 0}
+  .band--surface{background:var(--surface);border-bottom:1px solid var(--border)}
+  .band--bg{background:var(--bg)}
+  .sec-head{margin-bottom:42px}
+  .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
+  .sec-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(28px,3.6vw,44px);line-height:1.04;letter-spacing:-.02em}
+
+  /* quick-answer cards */
+  .quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+  .qcard{display:block;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:30px 28px;box-shadow:var(--shadow);
+    border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .qcard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .qcard h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:19px;margin-bottom:12px;letter-spacing:-.01em}
+  .qcard p{color:var(--muted);font-size:15px;line-height:1.55}
+  .qcard:nth-child(2){border-top-color:var(--blue)}
+  .qcard:nth-child(3){border-top-color:var(--gold)}
+  .qcard:nth-child(4){border-top-color:var(--green)}
+  .qgo{display:inline-block;margin-top:16px;font-weight:800;color:var(--crimson)}
+
+  /* layout: sidebar + content */
+  .faq-layout{display:grid;grid-template-columns:260px 1fr;gap:40px;align-items:start}
+  .faq-sidebar{position:sticky;top:96px;display:flex;flex-direction:column;gap:24px}
+  .side-group{margin-bottom:8px}
+  .side-lab{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .cat-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-weight:600;font-size:15px;color:var(--text);transition:background .15s,color .15s}
+  .cat-link:hover{background:rgba(173,44,77,.08);color:var(--crimson)}
+  .cat-ic{width:24px;text-align:center;font-size:16px}
+  .support-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:22px;text-align:left;border-top:5px solid var(--gold)}
+  .support-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:rgba(173,44,77,.1);margin-bottom:12px}
+  .support-h{font-weight:800;font-size:17px;margin-bottom:6px}
+  .support-card p{color:var(--muted);font-size:14px;margin-bottom:14px}
+  .support-card .btn{justify-content:center;width:100%;font-size:15px;padding:12px 18px}
+
+  .faq-main{display:flex;flex-direction:column;gap:40px}
+  .emp-banner{display:flex;gap:16px;align-items:flex-start;background:rgba(164,127,56,.1);border:1px solid rgba(164,127,56,.28);border-radius:16px;padding:18px 20px;margin-bottom:8px}
+  .emp-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:rgba(164,127,56,.18);flex-shrink:0}
+  .emp-h{font-weight:800;font-size:17px;margin-bottom:4px}
+  .emp-banner p{color:var(--muted);font-size:15px}
+  .emp-banner a{font-weight:700;color:var(--crimson)}
+  .faq-cat-head{display:flex;align-items:center;gap:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;margin-bottom:16px;scroll-margin-top:96px;letter-spacing:-.01em}
+  .faq-cat-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:rgba(173,44,77,.1)}
+  .faq-cat:nth-child(even) .faq-cat-ic{background:rgba(164,127,56,.14)}
+
+  .faq-list{display:flex;flex-direction:column;gap:12px}
+  .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;transition:border-color .2s,box-shadow .2s}
+  .faq-item[open]{border-color:rgba(173,44,77,.35);box-shadow:var(--shadow-lg)}
+  .faq-item summary{display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;padding:20px 22px;list-style:none;font-weight:700;font-size:17px}
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-item summary:hover .faq-q{color:var(--crimson)}
+  .faq-q{flex:1}
+  .faq-chevron{flex-shrink:0;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:20px;font-weight:700;color:var(--crimson);background:rgba(173,44,77,.08);transition:transform .2s}
+  .faq-item[open] .faq-chevron{transform:rotate(45deg)}
+  .faq-a{padding:0 22px 22px}
+  .faq-a p{color:var(--muted);font-size:16px;margin-bottom:12px}
+  .faq-a a{font-weight:700;color:var(--crimson)}
+
+  /* ---------------- CLOSING CTA — CRIMSON DEPTH ---------------- */
+  .close{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(130% 130% at 18% -20%, #b8334f 0%, var(--accent-dark) 46%, var(--plum) 78%, #4a0e26 100%);
+    color:#fff;padding:88px 0;
+  }
+  .grain--close{
+    -webkit-mask-image:linear-gradient(270deg,transparent 0%,transparent 44%,#000 100%);
+    mask-image:linear-gradient(270deg,transparent 0%,transparent 44%,#000 100%);opacity:.14}
+  .close-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:center}
+  .faq-bottom-copy h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,52px);line-height:1.0;letter-spacing:-.02em;margin-bottom:14px}
+  .faq-bottom-copy p{color:rgba(255,255,255,.86);font-size:18px;line-height:1.55;margin-bottom:24px;max-width:48ch}
+  .close .acts{display:flex;gap:14px;flex-wrap:wrap}
+
+  .close-glass{display:grid;place-items:center;gap:16px;
+    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    border-radius:22px;padding:48px;width:100%;text-align:center;
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset}
+  .cg-ic{font-size:52px}
+  .cg-lab{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9)}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:900px){
+    .stage{padding:64px 0 72px}
+    .stage-grid{grid-template-columns:1fr;gap:42px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+    .quick-grid{grid-template-columns:1fr}
+    .faq-layout{grid-template-columns:1fr}
+    .faq-sidebar{position:static}
+    .close-grid{grid-template-columns:1fr}
+    .grain--close{-webkit-mask-image:none;mask-image:none;opacity:.1}
+  }
+  @media(max-width:560px){
+    .band{padding:60px 0}
+    .faq-item summary{font-size:16px;padding:16px 18px}
+    .faq-a{padding:0 18px 18px}
+    .close .acts .dbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>

@@ -81,18 +81,24 @@ export default async function EmployerApplicationsPage({
   }));
 
   const t = await getTranslations('employer');
+  // The shared `applicants` key is intentionally lowercase for mid-sentence count
+  // usage ("5 applicants"); capitalize only the first letter for use as a page title.
+  const applicantsTitle = (() => {
+    const w = t('applicants');
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  })();
 
   return (
     <PortalPageFrame>
       <PageHeader
-        title={statusFilter ? `${t('applicants')} — ${t('filtered')} (${totalCount})` : `${t('applicants')} (${totalCount})`}
+        title={statusFilter ? `${applicantsTitle} — ${t('filtered')} (${totalCount})` : `${applicantsTitle} (${totalCount})`}
         subtitle={
           <>
             <span className="wa-block md:wa-hidden">{t('reviewCandidatesMobile')}</span>
             <span className="wa-hidden md:wa-block">{t('reviewCandidatesDesktop')}</span>
           </>
         }
-        breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: t('applicants') }]}
+        breadcrumbs={[{ label: t('employerPortal'), href: '/employer' }, { label: applicantsTitle }]}
       />
       <DesignSurface surface="dense" className="employer-applications-kit">
         {totalCount === 0 && !statusFilter ? (

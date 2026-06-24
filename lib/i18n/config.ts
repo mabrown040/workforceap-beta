@@ -21,14 +21,14 @@ export function isRtlLocale(locale: AppLocale): boolean {
 }
 
 /** Public paths that use /{locale}/… URLs (redirect if prefix missing). */
+// NOTE: pure-content marketing leaf routes (/, /about, /what-we-do,
+// /how-it-works, /faq, /contact, /impact, /outcomes, /donate, /privacy, /terms,
+// /accessibility) are now served by the Astro marketing site (static, at root)
+// and intentionally NOT listed here, so the middleware does not /{locale}/-
+// redirect them. Routes below stay Next-owned (dynamic / not yet migrated).
 export const LOCALEABLE_PATH_PREFIXES: readonly string[] = [
-  '/',
   '/programs',
   '/apply',
-  '/contact',
-  '/faq',
-  '/what-we-do',
-  '/how-it-works',
   '/leadership',
   '/employers',
   '/partners',
@@ -37,9 +37,6 @@ export const LOCALEABLE_PATH_PREFIXES: readonly string[] = [
   '/program-comparison',
   '/salary-guide',
   '/wioa-qualification',
-  '/terms',
-  '/privacy',
-  '/accessibility',
   '/login',
   '/mentor',
   '/signup',
@@ -47,16 +44,11 @@ export const LOCALEABLE_PATH_PREFIXES: readonly string[] = [
   '/reset-password',
   '/invite',
   '/partner-signup',
-  '/impact',
-  '/outcomes',
   '/careers',
-  '/donate',
   '/lp',
-  '/about',
 ];
 
 export function isLocaleableMarketingPath(pathname: string): boolean {
-  if (pathname === '/') return true;
   for (const prefix of LOCALEABLE_PATH_PREFIXES) {
     if (prefix === '/') continue;
     if (pathname === prefix || pathname.startsWith(`${prefix}/`)) return true;

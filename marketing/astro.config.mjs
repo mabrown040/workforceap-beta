@@ -2,11 +2,10 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 
 export default defineConfig({
-  // Phase 1 de-risk: build the marketing site under /m and emit straight into
-  // the Next app's public/ so one Vercel build serves both. Phase 1b drops the
-  // base and takes over the real marketing routes.
-  base: '/m',
-  outDir: '../public/m',
+  // Phase 1b: Astro builds at root (clean URLs); the Vercel buildCommand copies
+  // dist/* into the Next app's public/ so static marketing routes serve at root
+  // while Next owns the dynamic routes. (outDir stays the default ./dist —
+  // never point it at public/, Astro cleans its outDir on build.)
   integrations: [react()],
   i18n: {
     defaultLocale: 'en',

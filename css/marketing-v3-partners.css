@@ -250,6 +250,85 @@
   font-weight: 700;
 }
 
+/* signup form (PartnerSignupForm) — ported from mockup .form.
+   Scoped to .wa-v3 .wa-form so the component's base styles are untouched
+   wherever else they might appear. */
+.wa-v3 .wa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.wa-v3 .wa-form .form-group {
+  display: block;
+  margin: 0;
+}
+.wa-v3 .wa-form label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--wa-text);
+  display: block;
+  margin-bottom: 6px;
+}
+.wa-v3 .wa-form input,
+.wa-v3 .wa-form select,
+.wa-v3 .wa-form textarea {
+  width: 100%;
+  font-family: var(--font-inter), -apple-system, sans-serif;
+  font-size: 15px;
+  padding: 13px 15px;
+  border: 1.5px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  background: var(--wa-bg);
+  color: var(--wa-text);
+}
+.wa-v3 .wa-form textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+.wa-v3 .wa-form input:focus,
+.wa-v3 .wa-form select:focus,
+.wa-v3 .wa-form textarea:focus {
+  outline: none;
+  border-color: var(--wa-gold);
+}
+.wa-v3 .wa-form input:disabled,
+.wa-v3 .wa-form select:disabled,
+.wa-v3 .wa-form textarea:disabled,
+.wa-v3 .wa-form .wa-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.wa-v3 .wa-form .wa-btn:disabled:hover {
+  transform: none;
+}
+.wa-v3 .wa-form .wa-form-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-form .wa-btn--gold {
+  justify-content: center;
+  width: 100%;
+  margin-top: 6px;
+}
+.wa-v3 .wa-form .wa-fineprint {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--wa-muted);
+  text-align: center;
+}
+.wa-v3 .wa-form .wa-form-error {
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 0.25rem;
+  background: var(--wa-accent-soft, #fdf2f4);
+  border: 1px solid #f3d9df;
+  border-radius: var(--wa-radius-sm);
+  color: var(--wa-accent-dark, #8c0f37);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 /* live outcomes snapshot card */
 .wa-v3 .wa-snapshot {
   background: #fff;

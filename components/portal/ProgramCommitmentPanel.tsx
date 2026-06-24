@@ -25,7 +25,7 @@ export default function ProgramCommitmentPanel({
   const isCompact = variant === 'compact';
   return (
     <section
-      className={className}
+      className={`wap-commit${isCompact ? ' wap-commit--compact' : ''}${className ? ` ${className}` : ''}`}
       style={{
         borderRadius: '1rem',
         border: '1px solid var(--outline-variant)',
@@ -36,27 +36,28 @@ export default function ProgramCommitmentPanel({
     >
       <h2
         id="wap-commitment-heading"
-        className="portal-section-heading"
+        className="portal-section-heading wap-commit__heading"
         style={{ fontSize: isCompact ? '0.95rem' : '1.05rem', marginBottom: '0.75rem' }}
       >
         What we will — and will not — promise
       </h2>
-      <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.55 }}>
+      <p className="wap-commit__intro" style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.55 }}>
         WorkforceAP provides <strong>career and employment assistance</strong>: training, tools, and staff support to improve
         your odds. We are transparent so partners and members can set expectations together.
       </p>
       <div
+        className="wap-commit__grid"
         style={{
           display: 'grid',
           gridTemplateColumns: isCompact ? '1fr' : 'repeat(2, minmax(0, 1fr))',
           gap: '1rem',
         }}
       >
-        <div style={{ background: 'var(--surface-container-lowest)', borderRadius: '0.75rem', padding: '1rem' }}>
-          <h3 style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
+        <div className="wap-commit__card wap-commit__card--will" style={{ background: 'var(--surface-container-lowest)', borderRadius: '0.75rem', padding: '1rem' }}>
+          <h3 className="wap-commit__label wap-commit__label--will" style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
             We will
           </h3>
-          <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.875rem', lineHeight: 1.55, color: 'var(--color-on-surface)' }}>
+          <ul className="wap-commit__list" style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.875rem', lineHeight: 1.55, color: 'var(--color-on-surface)' }}>
             {WILL_DO.map((line) => (
               <li key={line} style={{ marginBottom: '0.35rem' }}>
                 {line}
@@ -64,11 +65,11 @@ export default function ProgramCommitmentPanel({
             ))}
           </ul>
         </div>
-        <div style={{ background: 'var(--surface-container-lowest)', borderRadius: '0.75rem', padding: '1rem' }}>
-          <h3 style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' } as CSSProperties}>
+        <div className="wap-commit__card wap-commit__card--wont" style={{ background: 'var(--surface-container-lowest)', borderRadius: '0.75rem', padding: '1rem' }}>
+          <h3 className="wap-commit__label wap-commit__label--wont" style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-on-surface-variant)', margin: '0 0 0.5rem' } as CSSProperties}>
             We will not
           </h3>
-          <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.875rem', lineHeight: 1.55, color: 'var(--color-on-surface)' }}>
+          <ul className="wap-commit__list" style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.875rem', lineHeight: 1.55, color: 'var(--color-on-surface)' }}>
             {WILL_NOT.map((line) => (
               <li key={line} style={{ marginBottom: '0.35rem' }}>
                 {line}

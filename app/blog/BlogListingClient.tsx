@@ -140,18 +140,18 @@ export default function BlogListingClient({
                 : 'No posts match this filter.'}
             </p>
             {posts.length > 0 && filter !== null && (
-              <button type="button" className="btn btn-muted blog-empty-state__clear" onClick={() => setFilter(null)}>
+              <button type="button" className="wa-btn wa-btn--ghost blog-empty-state__clear" onClick={() => setFilter(null)}>
                 Show all posts
               </button>
             )}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-              <LocalizedLink href="/programs" className="btn btn-primary">
+              <LocalizedLink href="/programs" className="wa-btn wa-btn--primary">
                 Browse programs
               </LocalizedLink>
-              <LocalizedLink href="/apply" className="btn btn-muted">
+              <LocalizedLink href="/apply" className="wa-btn wa-btn--ghost">
                 Apply
               </LocalizedLink>
-              <LocalizedLink href="/faq" className="btn btn-outline">
+              <LocalizedLink href="/faq" className="wa-btn wa-btn--ghost">
                 Read FAQ
               </LocalizedLink>
             </div>

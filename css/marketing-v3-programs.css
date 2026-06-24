@@ -246,11 +246,141 @@
   color: var(--wa-accent);
 }
 .wa-v3 .program-card {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
   border-radius: var(--wa-radius);
-  border-color: var(--wa-border);
   box-shadow: var(--wa-shadow);
+  padding: 26px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+/* Blend cards drop the old heavy colored left bar; the category color lives in
+   the icon tile + category pill (which the component already renders). A thin
+   accent line keeps category identity without the dated rail. */
+.wa-v3 .program-card::before {
+  display: none;
+}
+.wa-v3 .program-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--wa-radius) var(--wa-radius) 0 0;
+  background: var(--wa-cat-accent, var(--wa-accent));
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
 }
 .wa-v3 .program-card:hover {
+  transform: translateY(-4px);
   box-shadow: var(--wa-shadow-lg);
   border-color: #f0cdd5;
+}
+.wa-v3 .program-card:hover::after {
+  opacity: 1;
+}
+
+/* Catalog program icon tile → soft blend square (matches mockup .pcard .ic) */
+.wa-v3 .program-card .program-card-icon,
+.wa-v3 .program-card-skills span {
+  border-radius: 13px;
+}
+
+/* Skill chips → blend surface pills */
+.wa-v3 .program-card-skill-tag,
+.wa-v3 .program-card-skills span {
+  background: var(--wa-bg) !important;
+  border: 1px solid var(--wa-border) !important;
+  border-radius: 999px !important;
+  color: var(--wa-text) !important;
+  font-weight: 500;
+}
+
+/* Courses accordion → blend surface */
+.wa-v3 .program-card-details,
+.wa-v3 .program-card details {
+  background: var(--wa-bg);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+}
+.wa-v3 .program-card details summary,
+.wa-v3 .program-card-courses-summary {
+  color: var(--wa-accent);
+}
+.wa-v3 .program-card details summary:hover,
+.wa-v3 .program-card details[open] summary {
+  color: var(--wa-accent-dark);
+}
+
+/* Salary chip + accent text aligned to blend palette */
+.wa-v3 .program-card-salary {
+  background: rgba(74, 155, 79, 0.1);
+  border: 1px solid rgba(74, 155, 79, 0.18);
+  border-radius: 999px;
+}
+
+/* Partner / footer meta text */
+.wa-v3 .program-card-partner {
+  color: var(--wa-muted) !important;
+}
+
+/* Programs grid spacing matches blend pgrid */
+.wa-v3 .programs-grid {
+  gap: 20px;
+}
+
+/* Catalog section heading → blend display scale */
+.wa-v3 .program-catalog-intro h2 {
+  font-size: clamp(28px, 3.6vw, 46px);
+  color: var(--wa-text);
+}
+.wa-v3 .program-catalog-lead {
+  color: var(--wa-muted);
+}
+
+/* Subgroup section dividers + headings on blend palette */
+.wa-v3 .programs-subgroup-section {
+  border-bottom: 1px solid var(--wa-border) !important;
+}
+.wa-v3 .programs-subgroup-heading h3,
+.wa-v3 .programs-starter-heading-row h3 {
+  color: var(--wa-text);
+}
+.wa-v3 .programs-subgroup-count,
+.wa-v3 .programs-subgroup-section > p {
+  color: var(--wa-muted);
+}
+
+/* "Start here" eyebrow → blend accent eyebrow */
+.wa-v3 .programs-starter-section .text-label-upper {
+  color: var(--wa-accent) !important;
+}
+
+/* Bottom action row spacing matches blend button group */
+.wa-v3 .programs-bottom-actions {
+  gap: 12px;
+}
+
+/* ── Mobile browse nav (sticky category chips) → blend chips ──
+   Scoped to the same breakpoint the nav is visible at, so the blend palette
+   only applies where the component renders. */
+@media (max-width: 767px) {
+  .wa-v3 .programs-mobile-browse {
+    background: rgba(247, 244, 241, 0.92);
+    border-bottom: 1px solid var(--wa-border);
+    backdrop-filter: blur(10px);
+  }
+  .wa-v3 .programs-mobile-browse__chip {
+    background: #fff;
+    border: 1px solid var(--wa-border);
+    color: var(--wa-muted);
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .wa-v3 .programs-mobile-browse__chip:hover,
+  .wa-v3 .programs-mobile-browse__chip:focus-visible {
+    border-color: var(--wa-accent);
+    color: var(--wa-accent);
+  }
 }

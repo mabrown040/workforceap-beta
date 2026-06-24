@@ -344,3 +344,72 @@
 .wa-v3 .hiw-commitment .wa-wrap {
   max-width: 760px;
 }
+
+/*
+ * ProgramCommitmentPanel — blend reskin.
+ * This component is SHARED (also used on /dashboard/program/start and
+ * /apply/confirmation, neither of which is under .wa-v3). The component keeps
+ * its original inline styles for those usages; every rule below is scoped under
+ * .wa-v3 and uses !important only to override the component's inline styles on
+ * the blend marketing page. Presentation only — markup/copy/behavior unchanged.
+ */
+.wa-v3 .wap-commit {
+  border-radius: var(--wa-radius) !important;
+  border: 1px solid var(--wa-border) !important;
+  background: var(--wa-surface) !important;
+  padding: clamp(26px, 3vw, 36px) !important;
+  box-shadow: var(--wa-shadow-lg);
+}
+.wa-v3 .wap-commit__heading {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--wa-text);
+  font-size: clamp(20px, 2.4vw, 26px) !important;
+  margin-bottom: 12px !important;
+}
+.wa-v3 .wap-commit__intro {
+  font-size: 16px !important;
+  color: var(--wa-muted) !important;
+  line-height: 1.6;
+  margin-bottom: 22px !important;
+}
+.wa-v3 .wap-commit__intro strong {
+  color: var(--wa-text);
+}
+.wa-v3 .wap-commit__grid {
+  gap: 18px !important;
+}
+.wa-v3 .wap-commit__card {
+  background: var(--wa-bg) !important;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm) !important;
+  padding: 22px !important;
+}
+.wa-v3 .wap-commit__card--will {
+  border-color: #f3d9df;
+  background: var(--wa-accent-soft) !important;
+}
+.wa-v3 .wap-commit__card--wont {
+  border-color: #efe2c4;
+  background: var(--wa-gold-soft) !important;
+}
+.wa-v3 .wap-commit__label {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+}
+.wa-v3 .wap-commit__label--will {
+  color: var(--wa-accent) !important;
+}
+.wa-v3 .wap-commit__label--wont {
+  color: var(--wa-gold-dark) !important;
+}
+.wa-v3 .wap-commit__list {
+  color: var(--wa-text) !important;
+  font-size: 14.5px !important;
+  line-height: 1.55 !important;
+}
+.wa-v3 .wap-commit__list li {
+  margin-bottom: 8px !important;
+}

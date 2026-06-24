@@ -477,3 +477,366 @@
 .wa-v3 .wa-btn--gold:hover {
   background: var(--wa-gold-dark);
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * PAID APPLY VARIANT — blend reskin (presentation only).
+ *
+ * Ported from the inline <style> block formerly in PaidApplyVariant.tsx onto
+ * the blend token system (--wa-*). Every selector is scoped under `.wa-v3`.
+ * Behavior, markup, i18n keys, handlers and the client/server boundary are
+ * unchanged. The paid landing keeps its legacy `paid-apply-*` class names so
+ * the React tree is untouched; only the look is re-pointed at the blend.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.wa-v3.paid-apply-landing {
+  font-family: var(--font-inter), -apple-system, sans-serif;
+  background: var(--wa-bg);
+  min-height: 100vh;
+  padding-bottom: calc(48px + 4.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* HERO — crimson→plum gradient w/ subtle grid overlay (matches mockup) */
+.wa-v3 .paid-apply-hero {
+  position: relative;
+  overflow: hidden;
+  padding: calc(var(--wa-nav-h, 68px) + clamp(28px, 5vw, 64px)) 24px clamp(52px, 6vw, 88px);
+  text-align: center;
+  color: #fff;
+  background:
+    radial-gradient(120% 120% at 85% 0%, rgba(164, 127, 56, 0.3), transparent 55%),
+    linear-gradient(170deg, rgba(173, 44, 77, 0.96), rgba(58, 19, 38, 0.97) 60%, rgba(140, 15, 55, 0.97) 100%);
+}
+.wa-v3 .paid-apply-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  pointer-events: none;
+}
+.wa-v3 .paid-apply-hero__inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--wa-max);
+  margin: 0 auto;
+}
+.wa-v3 .paid-apply-hero__heading {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-size: clamp(34px, 5vw, 58px);
+  max-width: 720px;
+  margin: 0 auto 18px;
+}
+.wa-v3 .paid-apply-hero__subhead {
+  max-width: 660px;
+  margin: 0 auto;
+  font-size: clamp(15px, 1.1vw, 17px);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.88);
+}
+.wa-v3 .paid-apply-hero__help-compact {
+  display: none;
+  margin: 18px auto 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.wa-v3 .paid-apply-hero__help-compact__link {
+  color: var(--wa-gold-soft);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.wa-v3 .paid-apply-hero__cta {
+  margin-top: 24px;
+  min-width: min(100%, 320px);
+  justify-content: center;
+}
+.wa-v3 .paid-apply-hero__pilot {
+  margin-top: 14px;
+}
+
+/* CTA buttons: re-point the shared `.btn .btn-primary` onto the blend pill look.
+   Markup/handlers/preset classes are unchanged — only the visual is overridden. */
+.wa-v3 .paid-apply-hero__cta,
+.wa-v3 .paid-apply-sticky-cta__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 999px;
+  padding: 14px 26px;
+  border: 1.5px solid transparent;
+  background: var(--wa-accent);
+  color: #fff;
+  box-shadow: 0 12px 30px -12px rgba(173, 44, 77, 0.6);
+  transition: transform 0.18s, box-shadow 0.18s, background 0.18s, color 0.18s;
+}
+.wa-v3 .paid-apply-hero__cta:hover,
+.wa-v3 .paid-apply-sticky-cta__button:hover {
+  transform: translateY(-2px);
+  background: var(--wa-accent-dark);
+}
+
+/* FORM SECTION — card surface mirroring the mockup's .main-form */
+.wa-v3 .paid-apply-form-section {
+  display: flex;
+  flex-direction: column;
+  max-width: 660px;
+  margin: clamp(40px, 5vw, 64px) auto 0;
+  padding: clamp(28px, 3vw, 40px);
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  box-shadow: var(--wa-shadow-lg);
+}
+.wa-v3 .paid-apply-form-kicker {
+  display: none;
+  margin: 0 0 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--wa-muted);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* TRUST STRIP (TrustStrip variant="apply") → blend trust-pill row */
+.wa-v3 .paid-apply-form-section .trust-strip--apply {
+  margin: 0 0 22px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}
+.wa-v3 .paid-apply-form-section .trust-strip--apply .trust-strip__line {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 7px 13px;
+  text-align: left;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--wa-text);
+  background: var(--wa-bg);
+  border: 1px solid var(--wa-border);
+  border-radius: 999px;
+}
+
+/* PROOF BLOCK (PaidApplyProofBlock) → blend supplemental card */
+.wa-v3 .paid-apply-proof {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.wa-v3 .paid-apply-proof__card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 26px;
+  border-radius: var(--wa-radius);
+  border: 1px solid var(--wa-border);
+  background: var(--wa-surface);
+  box-shadow: var(--wa-shadow);
+}
+.wa-v3 .paid-apply-proof__badge-icon {
+  font-size: 1.5rem;
+  color: var(--wa-success);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.wa-v3 .paid-apply-proof__title {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+  font-size: 17px;
+  color: var(--wa-text);
+}
+.wa-v3 .paid-apply-proof__body {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--wa-muted);
+}
+.wa-v3 .paid-apply-proof__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+/* Re-point the proof CTAs (.btn .btn-outline / .btn .btn-primary) onto blend pills */
+.wa-v3 .paid-apply-proof__help-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 999px;
+  padding: 12px 22px;
+  border: 1.5px solid transparent;
+  transition: transform 0.18s, box-shadow 0.18s, background 0.18s, color 0.18s;
+}
+.wa-v3 .paid-apply-proof__help-link:hover {
+  transform: translateY(-2px);
+}
+.wa-v3 a.paid-apply-proof__help-link.btn-outline {
+  background: #fff;
+  border-color: var(--wa-border);
+  color: var(--wa-text);
+}
+.wa-v3 a.paid-apply-proof__help-link.btn-outline:hover {
+  border-color: var(--wa-accent);
+  color: var(--wa-accent);
+}
+.wa-v3 a.paid-apply-proof__help-link.btn-primary {
+  background: var(--wa-accent);
+  color: #fff;
+  box-shadow: 0 12px 30px -12px rgba(173, 44, 77, 0.6);
+}
+.wa-v3 a.paid-apply-proof__help-link.btn-primary:hover {
+  background: var(--wa-accent-dark);
+}
+
+/* ELIGIBILITY FORM (ApplyEligibilityClient, .apply-flow--paid) layout carry-overs */
+.wa-v3 .apply-flow--paid .apply-step1-actions__primary {
+  width: 100%;
+}
+.wa-v3 .apply-flow--paid .apply-personal-grid {
+  grid-template-columns: 1fr;
+}
+
+/* STICKY MOBILE CTA */
+.wa-v3 .paid-apply-sticky-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid var(--wa-border);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+}
+.wa-v3 .paid-apply-sticky-cta__button {
+  width: 100%;
+  max-width: 660px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* MOBILE STEP NAV (ApplyMobileStepNav) → blend tokens */
+.wa-v3 .paid-apply-form-section .apply-mobile-step-nav__summary {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wa-muted);
+}
+.wa-v3 .paid-apply-form-section .apply-mobile-step-nav__item {
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  background: var(--wa-surface);
+}
+.wa-v3 .paid-apply-form-section .apply-mobile-step-nav__item--active {
+  border-color: var(--wa-accent);
+  background: var(--wa-accent-soft);
+}
+.wa-v3 .paid-apply-form-section .apply-mobile-step-nav__index {
+  background: var(--wa-bg);
+  color: var(--wa-muted);
+}
+.wa-v3 .paid-apply-form-section .apply-mobile-step-nav__item--active .apply-mobile-step-nav__index {
+  background: var(--wa-accent);
+  color: #fff;
+}
+.wa-v3 .paid-apply-form-section .apply-mobile-step-nav__icon,
+.wa-v3 .paid-apply-form-section .apply-mobile-step-nav__label {
+  color: var(--wa-muted);
+}
+.wa-v3 .paid-apply-form-section .apply-mobile-step-nav__item--active .apply-mobile-step-nav__icon,
+.wa-v3 .paid-apply-form-section .apply-mobile-step-nav__item--active .apply-mobile-step-nav__label {
+  color: var(--wa-text);
+}
+
+/* MOBILE TRUST BAR (ApplyMobileTrustBar) → blend tokens */
+.wa-v3 .paid-apply-form-section .apply-mobile-trust-bar {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  color: var(--wa-muted);
+}
+.wa-v3 .paid-apply-form-section .apply-mobile-trust-bar__check {
+  color: var(--wa-success);
+}
+.wa-v3 .paid-apply-form-section .apply-mobile-trust-bar__phone {
+  color: var(--wa-gold-dark);
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .wa-v3 .paid-apply-hero {
+    padding: calc(var(--wa-nav-h, 68px) + clamp(20px, 5vw, 36px)) 16px clamp(32px, 6vw, 48px);
+  }
+  .wa-v3 .paid-apply-hero__help-compact {
+    display: block;
+    max-width: 560px;
+    margin: 18px auto 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.88);
+  }
+  /* Form entry trust bar + kicker carry nonprofit/no-cost/time — drop hero repeat */
+  .wa-v3 .paid-apply-hero__subhead {
+    display: none;
+  }
+  .wa-v3 .paid-apply-form-section {
+    margin-top: 32px;
+    padding: 24px 16px calc(40px + 4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  .wa-v3 .paid-apply-form-section .apply-mobile-trust-bar {
+    order: 0;
+  }
+  .wa-v3 .paid-apply-form-section .apply-mobile-step-nav {
+    order: 1;
+  }
+  .wa-v3 .paid-apply-form-kicker {
+    display: block;
+    order: 2;
+  }
+  /* Form first on mobile — proof card stays below the fold until after eligibility */
+  .wa-v3 .paid-apply-form-section .trust-strip--apply {
+    order: 2;
+    margin-bottom: 16px;
+  }
+  .wa-v3 .paid-apply-form-section .apply-flow--paid {
+    order: 3;
+  }
+  .wa-v3 .paid-apply-form-section .paid-apply-proof {
+    order: 4;
+    margin-top: 24px;
+    margin-bottom: 0;
+  }
+  .wa-v3 .apply-flow--paid .apply-step1-actions {
+    scroll-margin-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  .wa-v3 #paid-apply-eligibility {
+    scroll-margin-top: calc(var(--wa-nav-h, 68px) + 16px);
+  }
+}

@@ -135,6 +135,39 @@
   color: var(--wa-accent-dark);
 }
 
+/* success state — blend success surface */
+.wa-v3 .contact-form-success {
+  padding: 2rem;
+  background: rgba(74, 155, 79, 0.1);
+  border: 1px solid rgba(74, 155, 79, 0.3);
+  border-radius: var(--wa-radius);
+  text-align: center;
+}
+.wa-v3 .contact-form-success-title {
+  font-weight: 700;
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  color: var(--wa-success);
+  margin-bottom: 0.5rem;
+}
+.wa-v3 .contact-form-success-body {
+  color: var(--wa-muted);
+  margin: 0;
+}
+
+/* form-level error banner — blend accent-soft surface */
+.wa-v3 .contact-form .contact-form-error {
+  padding: 14px 16px;
+  margin-bottom: 1rem;
+  background: var(--wa-accent-soft);
+  border: 1px solid #f3d9df;
+  border-radius: var(--wa-radius-sm);
+  color: var(--wa-accent-dark);
+  font-size: 0.9rem;
+}
+.wa-v3 .contact-form .contact-form-error p {
+  margin: 0 0 0.75rem;
+}
+
 /* footnote */
 .wa-v3 .contact-form .contact-form-footnote {
   margin-top: 14px;

@@ -12,7 +12,6 @@ import {
   trackCtaExperimentClick,
   trackCtaExperimentExposure,
 } from '@/lib/analytics/events';
-import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 
 type Props = {
   controlLabel: string;
@@ -73,10 +72,12 @@ export default function EmployersHeroCtaExperiment({
   }, [override, pathname]);
 
   const label = variant === 'variant_a' ? variantALabel : controlLabel;
-  const classes = [
-    onDark ? marketingButtonPresets.heroPrimary() : marketingButtonPresets.formSubmitPrimary(),
-    className,
-  ]
+  // Blend (.wa-v3) look: emit the shared `.wa-btn` pill. The caller passes the
+  // intended variant class (e.g. `wa-btn wa-btn--light`); fall back to the
+  // accent primary so the CTA always renders styled even without a className.
+  // `onDark` is retained for API compatibility / future scrim tuning.
+  void onDark;
+  const classes = ['wa-btn', className || 'wa-btn--primary']
     .filter(Boolean)
     .join(' ');
 

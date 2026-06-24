@@ -171,7 +171,7 @@
   .wa-v3 .wa-emp-outcomes__grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .wa-v3 .wa-emp-outcomes__grid .employer-case-study-card:first-child {
+  .wa-v3 .wa-emp-outcomes__grid .wa-emp-card:first-child {
     grid-column: 1 / -1;
   }
 }
@@ -179,9 +179,148 @@
   .wa-v3 .wa-emp-outcomes__grid {
     grid-template-columns: repeat(3, 1fr);
   }
-  .wa-v3 .wa-emp-outcomes__grid .employer-case-study-card:first-child {
+  .wa-v3 .wa-emp-outcomes__grid .wa-emp-card:first-child {
     grid-column: auto;
   }
+}
+
+/* ── Case study card (blend .wa-pcard look + crimson accent variant) ── */
+.wa-v3 .wa-emp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  height: 100%;
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(1.25rem, 4vw, 2rem);
+  box-shadow: var(--wa-shadow);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.wa-v3 .wa-emp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--wa-shadow-lg);
+  border-color: #f0cdd5;
+}
+.wa-v3 .wa-emp-card--accent {
+  background: linear-gradient(150deg, var(--wa-accent), var(--wa-plum));
+  border-color: transparent;
+  color: #fff;
+}
+.wa-v3 .wa-emp-card--accent:hover {
+  border-color: transparent;
+}
+.wa-v3 .wa-emp-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.wa-v3 .wa-emp-card__scenario {
+  align-self: flex-start;
+  display: inline-flex;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  color: var(--wa-muted);
+  border: 1px solid var(--wa-border);
+  background: var(--wa-bg);
+}
+.wa-v3 .wa-emp-card--accent .wa-emp-card__scenario {
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+}
+.wa-v3 .wa-emp-card__label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-emp-card--accent .wa-emp-card__label {
+  color: rgba(255, 255, 255, 0.9);
+}
+.wa-v3 .wa-emp-card__meta {
+  font-size: 0.8125rem;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-emp-card--accent .wa-emp-card__meta {
+  color: rgba(255, 255, 255, 0.75);
+}
+.wa-v3 .wa-emp-card__role {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--wa-text);
+}
+.wa-v3 .wa-emp-card--accent .wa-emp-card__role {
+  color: rgba(255, 255, 255, 0.85);
+}
+.wa-v3 .wa-emp-card__quote {
+  margin: 0;
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--wa-muted);
+  font-style: italic;
+  border-left: 2px solid var(--wa-accent);
+  padding-left: 1rem;
+}
+.wa-v3 .wa-emp-card__quote--plain {
+  font-style: normal;
+  border-left: 0;
+  padding-left: 0;
+}
+.wa-v3 .wa-emp-card--accent .wa-emp-card__quote {
+  color: rgba(255, 255, 255, 0.9);
+  border-left-color: rgba(255, 255, 255, 0.35);
+}
+.wa-v3 .wa-emp-card__attr {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+.wa-v3 .wa-emp-card__avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  background: color-mix(in srgb, var(--wa-accent) 12%, #fff);
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-emp-card--accent .wa-emp-card__avatar {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+.wa-v3 .wa-emp-card__attr-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.wa-v3 .wa-emp-card__attr-name {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--wa-text);
+}
+.wa-v3 .wa-emp-card--accent .wa-emp-card__attr-name {
+  color: #fff;
+}
+.wa-v3 .wa-emp-card__attr-title {
+  font-size: 0.8125rem;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-emp-card--accent .wa-emp-card__attr-title {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* ── Pricing card ── */
@@ -363,5 +502,111 @@
   text-align: center;
   font-size: 16px;
   line-height: 1.6;
+  color: var(--wa-muted);
+}
+
+/* ── Intake form (blend card + fields) ── */
+.wa-v3 .wa-emp-form-card {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  box-shadow: var(--wa-shadow-lg);
+  padding: clamp(1.5rem, 4vw, 2rem);
+}
+.wa-v3 .wa-emp-form__note {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--wa-radius-sm);
+  background: var(--wa-accent-soft);
+  border: 1px solid #f3d9df;
+}
+.wa-v3 .wa-emp-form__note-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--wa-text);
+}
+.wa-v3 .wa-emp-form__note-copy {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-emp-form__error {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--wa-radius-sm);
+  background: #fdecec;
+  border: 1px solid #f3c2c2;
+  color: #b3261e;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.wa-v3 .wa-emp-form .form-group {
+  margin-bottom: 1.1rem;
+}
+.wa-v3 .wa-emp-form .form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--wa-text);
+  line-height: 1.4;
+}
+.wa-v3 .wa-emp-form input,
+.wa-v3 .wa-emp-form select,
+.wa-v3 .wa-emp-form textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--wa-text);
+  background: var(--wa-bg);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  padding: 0.75rem 0.9rem;
+  line-height: 1.5;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+}
+.wa-v3 .wa-emp-form textarea {
+  resize: vertical;
+  min-height: 7rem;
+}
+.wa-v3 .wa-emp-form input:hover,
+.wa-v3 .wa-emp-form select:hover,
+.wa-v3 .wa-emp-form textarea:hover {
+  border-color: #d9cfc8;
+}
+.wa-v3 .wa-emp-form input:focus,
+.wa-v3 .wa-emp-form select:focus,
+.wa-v3 .wa-emp-form textarea:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--wa-accent);
+  box-shadow: 0 0 0 3px rgba(173, 44, 77, 0.14);
+}
+.wa-v3 .wa-emp-form input:disabled,
+.wa-v3 .wa-emp-form select:disabled,
+.wa-v3 .wa-emp-form textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.wa-v3 .wa-emp-form .employer-contact-turnstile {
+  margin-bottom: 1.1rem;
+}
+.wa-v3 .wa-emp-form .wa-emp-form__submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+.wa-v3 .wa-emp-form .wa-emp-form__submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+.wa-v3 .wa-emp-form__footnote {
+  text-align: center;
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
   color: var(--wa-muted);
 }

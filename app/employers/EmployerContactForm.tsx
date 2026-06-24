@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
-import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 
 const Turnstile = dynamic(() => import('@marsidev/react-turnstile').then((m) => m.Turnstile), { ssr: false });
 
@@ -138,41 +137,18 @@ export default function EmployerContactForm() {
   }
 
   return (
-    <div
-      style={{
-        background: 'var(--surface-container)',
-        borderRadius: 'var(--radius-xl)',
-        padding: '2rem',
-      }}
-    >
-    <form className="contact-form employer-contact-form" onSubmit={handleSubmit} id="employer-contact-form">
-      <div
-        style={{
-          marginBottom: '1.25rem',
-          padding: '1rem 1.1rem',
-          borderRadius: 'var(--radius-md)',
-          background: 'var(--surface-container-high)',
-          border: '1px solid var(--outline-variant)',
-        }}
-      >
-        <p style={{ margin: 0, color: 'var(--color-on-surface)', fontSize: '0.95rem', fontWeight: 700, lineHeight: 1.5 }}>
+    <div className="wa-emp-form-card">
+    <form className="contact-form employer-contact-form wa-emp-form" onSubmit={handleSubmit} id="employer-contact-form">
+      <div className="wa-emp-form__note">
+        <p className="wa-emp-form__note-title">
           Employer intake for hiring managers, talent leaders, and program owners.
         </p>
-        <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+        <p className="wa-emp-form__note-copy">
           Share your hiring intent, role needs, expected volume, and timeline. We review submissions within 1–2 business days and route you to the right partnership path.
         </p>
       </div>
       {status === 'error' && errorMsg && (
-        <div
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: 'var(--radius-sm)',
-            color: '#c00',
-            fontSize: '0.9rem',
-          }}
-        >
+        <div className="wa-emp-form__error" role="alert">
           {errorMsg}
         </div>
       )}
@@ -251,12 +227,12 @@ export default function EmployerContactForm() {
       ) : null}
       <button
         type="submit"
-        className={marketingButtonPresets.formSubmitPrimary('btn-full-width')}
+        className="wa-btn wa-btn--primary wa-emp-form__submit"
         disabled={status === 'sending'}
       >
         {status === 'sending' ? 'Sending…' : 'Submit employer intake'}
       </button>
-      <p style={{ textAlign: 'center', marginTop: '1rem', color: 'var(--color-on-surface-variant)', fontSize: '.85rem' }}>
+      <p className="wa-emp-form__footnote">
         We respond within 1–2 business days.
       </p>
     </form>

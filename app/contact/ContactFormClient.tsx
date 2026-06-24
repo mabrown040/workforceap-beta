@@ -148,21 +148,9 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
 
   if (status === 'success') {
     return (
-      <div
-        role="status"
-        aria-live="polite"
-        style={{
-          padding: '2rem',
-          background: 'rgba(74, 155, 79, 0.1)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid rgba(74, 155, 79, 0.3)',
-          textAlign: 'center',
-        }}
-      >
-        <p style={{ fontWeight: 600, color: 'var(--color-accent)', marginBottom: '0.5rem' }}>
-          Message sent successfully
-        </p>
-        <p style={{ color: 'var(--color-on-surface-variant)' }}>
+      <div role="status" aria-live="polite" className="contact-form-success">
+        <p className="contact-form-success-title">Message sent successfully</p>
+        <p className="contact-form-success-body">
           A WorkforceAP team member will get back to you within 1–2 business days.
         </p>
       </div>
@@ -175,20 +163,8 @@ export default function ContactFormClient({ initialTopic = '' }: { initialTopic?
   return (
     <form className="contact-form" onSubmit={handleSubmit} noValidate>
       {showFormError && (
-        <div
-          id={errorId}
-          role="alert"
-          aria-live="assertive"
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: 'var(--radius-sm)',
-            color: '#c00',
-            fontSize: '0.9rem',
-          }}
-        >
-          <p style={{ margin: '0 0 0.75rem' }}>{errorMsg}</p>
+        <div id={errorId} role="alert" aria-live="assertive" className="contact-form-error">
+          <p>{errorMsg}</p>
           <button
             type="button"
             className={marketingSecondaryButtonClasses({ radius: 'sm' })}

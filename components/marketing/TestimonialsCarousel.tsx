@@ -3,7 +3,6 @@ import { Prisma, TestimonialStatus } from '@prisma/client';
 import Image from 'next/image';
 import { Quote, Star } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
-import { InfoCard } from '@/components/marketing/ui';
 import { getProgramBySlug } from '@/lib/content/programs';
 
 type PublishedTestimonial = Prisma.TestimonialGetPayload<{
@@ -49,11 +48,10 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
 
   if (testimonials.length === 0) {
     return (
-      <InfoCard
-        variant="bordered"
-        title={t('testimonialsEmptyTitle')}
-        description={t('testimonialsEmptyDesc')}
-      />
+      <div className="wa-info-card">
+        <h3>{t('testimonialsEmptyTitle')}</h3>
+        <p>{t('testimonialsEmptyDesc')}</p>
+      </div>
     );
   }
 
@@ -65,23 +63,11 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
           : null;
 
         return (
-        <div
-          key={testimonial.id}
-          style={{
-            background: 'var(--surface-container-lowest)',
-            border: '1px solid var(--outline-variant)',
-            borderRadius: '0.75rem',
-            padding: '1.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.875rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Quote className="w-5 h-5" style={{ color: 'var(--color-accent)', opacity: 0.6 }} />
+        <div key={testimonial.id} className="wa-story-card">
+          <div className="wa-story-card__top">
+            <Quote className="w-5 h-5 wa-story-card__quote" aria-hidden="true" />
             {testimonial.rating && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.125rem', marginLeft: 'auto' }}>
+              <div className="wa-story-card__stars">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
@@ -96,18 +82,9 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
             )}
           </div>
 
-          <p
-            style={{
-              fontSize: '0.9375rem',
-              lineHeight: 1.6,
-              color: 'var(--color-on-surface)',
-              flex: 1,
-            }}
-          >
-            {testimonial.content}
-          </p>
+          <p className="wa-story-card__quote-text">{testimonial.content}</p>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: 'auto' }}>
+          <div className="wa-story-card__author">
             {testimonial.photoUrl ? (
               <Image
                 src={testimonial.photoUrl}
@@ -115,37 +92,17 @@ export default async function TestimonialsCarousel({ limit = 6 }: { limit?: numb
                 width={40}
                 height={40}
                 unoptimized
-                style={{
-                  width: '2.5rem',
-                  height: '2.5rem',
-                  borderRadius: '9999px',
-                  objectFit: 'cover',
-                }}
+                className="wa-story-card__avatar"
               />
             ) : (
-              <div
-                style={{
-                  width: '2.5rem',
-                  height: '2.5rem',
-                  borderRadius: '9999px',
-                  background: 'var(--color-light, #f8f5f3)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.875rem',
-                  fontWeight: 700,
-                  color: 'var(--color-on-surface-variant)',
-                }}
-              >
+              <div className="wa-story-card__avatar wa-story-card__avatar--initial" aria-hidden="true">
                 {testimonial.member.fullName?.charAt(0).toUpperCase() ?? 'M'}
               </div>
             )}
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.875rem' }}>{testimonial.member.fullName}</div>
+              <div className="wa-story-card__name">{testimonial.member.fullName}</div>
               {enrolledProgramTitle ? (
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-variant)' }}>
-                  {enrolledProgramTitle}
-                </div>
+                <div className="wa-story-card__program">{enrolledProgramTitle}</div>
               ) : null}
             </div>
           </div>

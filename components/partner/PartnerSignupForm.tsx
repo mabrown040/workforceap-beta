@@ -96,19 +96,9 @@ export default function PartnerSignupForm() {
   }
 
   return (
-    <form className="contact-form partner-signup-form" onSubmit={handleSubmit}>
+    <form className="contact-form partner-signup-form wa-form" onSubmit={handleSubmit}>
       {status === 'error' && errorMsg ? (
-        <div
-          style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            background: '#fee',
-            borderRadius: 'var(--radius-sm)',
-            color: '#c00',
-            fontSize: '0.9rem',
-          }}
-          role="alert"
-        >
+        <div className="wa-form-error" role="alert">
           {errorMsg}
         </div>
       ) : null}
@@ -170,7 +160,7 @@ export default function PartnerSignupForm() {
           disabled={status === 'sending'}
           autoComplete="new-password"
         />
-        <small style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.8rem' }}>
+        <small className="wa-form-hint">
           Must be at least 8 characters
         </small>
       </div>
@@ -188,11 +178,11 @@ export default function PartnerSignupForm() {
         />
       </div>
 
-      <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1rem' }} disabled={status === 'sending'}>
+      <button type="submit" className="wa-btn wa-btn--gold" disabled={status === 'sending'}>
         {status === 'sending' ? 'Creating your account…' : 'Create partner account'}
       </button>
 
-      <p style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', textAlign: 'center' }}>
+      <p className="wa-fineprint">
         By signing up, you agree to our Terms of Service and Privacy Policy.
       </p>
     </form>

@@ -109,7 +109,11 @@ function ProgramCard({ program }: { program: Program }) {
   const displayPartner = getProgramDisplayPartner(program);
 
   return (
-    <div className="program-card" data-category={program.category} style={{ borderLeft: `4px solid ${borderColor}` }}>
+    <div
+      className="program-card"
+      data-category={program.category}
+      style={{ ['--wa-cat-accent' as string]: borderColor }}
+    >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
           <span style={{ background: program.categoryColor, color: 'white', padding: '.3rem .75rem', borderRadius: '50px', fontSize: '.75rem', fontWeight: 600 }}>{program.categoryLabel}</span>
@@ -191,10 +195,10 @@ function ProgramCard({ program }: { program: Program }) {
       >
         <span style={{ fontSize: '.8rem', color: 'var(--color-on-surface-variant)' }}>Partner: {displayPartner}</span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem' }}>
-          <LocalizedLink href={`/programs/${program.slug}`} className="btn btn-outline" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
+          <LocalizedLink href={`/programs/${program.slug}`} className="wa-btn wa-btn--ghost" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             View Program
           </LocalizedLink>
-          <LocalizedLink href={`/apply?program=${program.slug}`} className="btn btn-primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
+          <LocalizedLink href={`/apply?program=${program.slug}`} className="wa-btn wa-btn--primary" style={{ padding: '.5rem 1rem', fontSize: '.85rem' }}>
             Get Started →
           </LocalizedLink>
         </div>
@@ -295,7 +299,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                     Not sure which one fits? Start with these three.
                   </h3>
                 </div>
-                <LocalizedLink href="/career-quiz" className="btn btn-primary">Take the 2-minute quiz</LocalizedLink>
+                <LocalizedLink href="/career-quiz" className="wa-btn wa-btn--primary">Take the 2-minute quiz</LocalizedLink>
               </div>
               <p style={{ fontSize: '0.95rem', color: 'var(--color-on-surface-variant)', maxWidth: '44rem', lineHeight: 1.6, margin: '0.75rem 0 1rem' }}>
                 These are the safest first choices for members who are new, want the fastest job path, or prefer a business-friendly route.
@@ -390,10 +394,10 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
                 .programs-starter-section { margin-left: -0.25rem; margin-right: -0.25rem; }
                 .programs-quiz-sticky { display: flex; position: sticky; bottom: 0.75rem; z-index: 20; margin: 1.25rem 0 0; justify-content: center; }
                 .programs-quiz-sticky a { box-shadow: 0 10px 30px rgba(0,0,0,0.22); width: min(100%, 24rem); justify-content: center; }
-                .program-card .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+                .program-card .wa-btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
                 .program-card-footer { flex-direction: column; align-items: stretch; }
                 .program-card-footer > div { flex-direction: column; }
-                .program-card-footer .btn { width: 100%; text-align: center; }
+                .program-card-footer .wa-btn { width: 100%; text-align: center; }
               }
             `}</style>
           </div>
@@ -416,7 +420,7 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
             </p>
             <button
               type="button"
-              className="btn btn-outline"
+              className="wa-btn wa-btn--ghost"
               onClick={() => {
                 setSearchQuery('');
                 setActiveSubgroup('all');
@@ -432,14 +436,14 @@ export default function ProgramsContent({ sectionId = 'program-catalog' }: { sec
           ))}
         </div>
         )}
-        <div className="programs-quiz-sticky"><LocalizedLink href="/career-quiz" className="btn btn-primary">Not sure? Take the 2-minute quiz</LocalizedLink></div>
+        <div className="programs-quiz-sticky"><LocalizedLink href="/career-quiz" className="wa-btn wa-btn--primary">Not sure? Take the 2-minute quiz</LocalizedLink></div>
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '.85rem', color: 'var(--color-on-surface-variant)', maxWidth: '640px', marginLeft: 'auto', marginRight: 'auto' }}>
           Bands are grounded in Lightcast/BLS-style data (Jan 2026). Your offer still depends on proof, role, and employer.
         </p>
         <div className="programs-bottom-actions">
-          <LocalizedLink href="/career-quiz" className="btn btn-primary">Find Your Path — Take the Quiz</LocalizedLink>
-          <LocalizedLink href="/program-comparison" className="btn btn-outline">Compare Programs</LocalizedLink>
-          <LocalizedLink href="/salary-guide" className="btn btn-ghost">View Salary Guide</LocalizedLink>
+          <LocalizedLink href="/career-quiz" className="wa-btn wa-btn--primary">Find Your Path — Take the Quiz</LocalizedLink>
+          <LocalizedLink href="/program-comparison" className="wa-btn wa-btn--ghost">Compare Programs</LocalizedLink>
+          <LocalizedLink href="/salary-guide" className="wa-btn wa-btn--ghost">View Salary Guide</LocalizedLink>
         </div>
       </div>
     </section>

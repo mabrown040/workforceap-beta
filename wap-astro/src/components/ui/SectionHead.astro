@@ -1,0 +1,14 @@
+---
+/**
+ * SectionHead — centered eyebrow + heading + optional subtitle for a section.
+ * Props: eyebrow?, title (required), titleAccent? (rendered in the gradient),
+ *        subtitle?
+ */
+interface Props { eyebrow?: string; title: string; titleAccent?: string; subtitle?: string }
+const { eyebrow, title, titleAccent, subtitle } = Astro.props;
+---
+<div class="sec-head">
+  {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+  <h2>{title}{titleAccent && <> <span class="grad-text">{titleAccent}</span></>}</h2>
+  {subtitle && <p>{subtitle}</p>}
+</div>

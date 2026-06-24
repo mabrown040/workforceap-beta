@@ -84,10 +84,11 @@
   .step .t span{font-size:13px;color:rgba(255,255,255,.8)}
   .step .pill{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.22)}
   .panel .note{position:relative;margin-top:14px;font-size:13px;color:rgba(255,255,255,.82)}
-  /* gold ribbon across the top of the panel — full-width so it never clips
-     (the panel has overflow:hidden for its photo); reads clearly gold */
-  .floatbadge{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,#cda44e,#9a7733);color:#fff;font-weight:800;font-size:12.5px;letter-spacing:.02em;line-height:1.2;padding:10px 18px;text-align:center;border-radius:var(--radius) var(--radius) 0 0;box-shadow:0 6px 18px -8px rgba(164,127,56,.7)}
-  .floatbadge::before{content:"★";font-size:12px;opacity:.95}
+  /* gold PILL, centered at the panel top — inside the bounds so the panel's
+     overflow:hidden never clips it (the old top-right negative-offset pill got
+     cut off, worst on mobile). Pill shape, clearly gold. */
+  .floatbadge{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:2;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;max-width:calc(100% - 32px);background:linear-gradient(135deg,#cda44e,#9a7733);color:#fff;font-weight:800;font-size:12px;letter-spacing:.02em;line-height:1;padding:8px 16px;border-radius:999px;box-shadow:0 8px 22px -8px rgba(164,127,56,.7)}
+  .floatbadge::before{content:"★";font-size:11px;opacity:.95}
 
   /* section scaffolding */
   section.band{padding:68px 0}

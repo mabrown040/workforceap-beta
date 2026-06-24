@@ -88,7 +88,7 @@ export default function ProgramComparisonPage() {
             </div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>No Cost for Qualifying Members</h3>
             <p style={{ opacity: 0.9, lineHeight: 1.7, fontSize: '0.95rem', margin: 0 }}>
-              WorkforceAP programs are offered at no cost for qualifying members. Training is available through WorkforceAP and partner-backed pathways.
+              WorkforceAP programs are offered at no cost for members who qualify through scholarship/grant funded membership. Training is available through WorkforceAP and partner-backed pathways.
             </p>
             <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <LocalizedLink href="/salary-guide" className="btn btn-small" style={{ background: 'white', color: 'var(--color-accent)', fontWeight: 700 }}>

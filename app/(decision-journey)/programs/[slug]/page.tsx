@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const certClause = externalPartners.includes(displayPartner)
     ? ` Earn your ${displayPartner}-recognized certification.`
     : '';
-  const description = `Training in ${displayTitle} offered at no cost for qualifying members. ${program.duration}.${certClause} Starting salary ${salaryRange}. Funded pathways available. Apply today.`;
+  const description = `Training in ${displayTitle} offered at no cost for members who qualify through scholarship/grant funded membership. ${program.duration}.${certClause} Starting salary ${salaryRange}. Funded pathways available. Apply today.`;
   const pageTitle = `${displayTitle} Training & Certification`;
   return buildPageMetadataAsync({
     title: pageTitle,

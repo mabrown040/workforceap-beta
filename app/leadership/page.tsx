@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import LeadershipContent from './LeadershipContent';
-import { PageSection, QuoteCard, SplitHero } from '@/components/marketing/ui';
-import './leadership.css';
 import { getTranslations } from 'next-intl/server';
+import '../../css/marketing-v3-leadership.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('marketing.leadership');
@@ -15,36 +15,60 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+const HERO_IMAGE_SRC = '/images/hero-people.webp';
+
 export default async function LeadershipPage() {
   const t = await getTranslations('marketing.leadership');
 
   return (
-    <div className="inner-page">
-      {/* ── Hero Section ── */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 768px) {
-          .split-hero-grid { grid-template-columns: 1fr !important; }
-        }
-      `}} />
-      <PageSection padding="lg">
-        <SplitHero
-          eyebrow={t('heroLabel')}
-          headline={
-            <>
-              {t('heroHeadline1')}{' '}
-              <span className="marketing-text-gradient-aa">{t('heroHeadlineAccent')}</span>
-            </>
-          }
-          subheadline={t('governanceBody')}
-          sidebar={
-            <QuoteCard
-              icon={<span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }} aria-hidden="true">verified</span>}
-              label={t('established')}
-              quote={t('quote')}
-            />
-          }
-        />
-      </PageSection>
+    <div className="wa-v3">
+      {/* ── Split hero ── */}
+      <header className="wa-lead-hero">
+        <div className="wa-wrap">
+          <div className="wa-lead-hero-grid">
+            <div className="wa-lead-hero-main">
+              <div className="wa-lead-hero-photo" aria-hidden="true">
+                <Image
+                  src={HERO_IMAGE_SRC}
+                  alt=""
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 60vw"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                />
+              </div>
+              <span className="wa-eyebrow">{t('heroLabel')}</span>
+              <h1>
+                {t('heroHeadline1')}{' '}
+                <span className="wa-accent">{t('heroHeadlineAccent')}</span>
+              </h1>
+              <p>{t('governanceBody')}</p>
+            </div>
+
+            <aside className="wa-quote-card">
+              <div className="wa-qhead">
+                <span className="wa-qbadge" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M9 12l2 2 4-4" />
+                    <circle cx="12" cy="12" r="9" />
+                  </svg>
+                </span>
+                <span className="wa-qlabel">{t('established')}</span>
+              </div>
+              <blockquote>{t('quote')}</blockquote>
+            </aside>
+          </div>
+        </div>
+      </header>
 
       <LeadershipContent />
       <Footer />

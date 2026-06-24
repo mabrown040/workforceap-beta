@@ -1,0 +1,370 @@
+/*
+ * marketing-v3-what-we-do.css — page-unique blend styles for /what-we-do.
+ *
+ * EVERY selector is scoped under `.wa-v3` so it cannot collide with the global
+ * marketing stylesheet or other pages. Shared blend classes (.wa-band,
+ * .wa-sec-head, .wa-btn, .wa-cta, etc.) live in css/marketing-v3.css and are
+ * reused here — this file only carries the structures unique to this page:
+ * the photo hero, the find-your-path band, the legacy split, the impact bento,
+ * and the numbered values grid. Ported from docs/mockups/wa-v3-what-we-do.html.
+ */
+
+/* ── Photo hero (crimson→plum gradient over a real next/image photo) ── */
+.wa-v3 .wwd-hero {
+  position: relative;
+  min-height: 88vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+.wa-v3 .wwd-hero__photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.wa-v3 .wwd-hero__photo img {
+  object-fit: cover;
+  object-position: center;
+}
+.wa-v3 .wwd-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 42%),
+    linear-gradient(135deg, rgba(18, 20, 22, 0.94) 0%, rgba(18, 20, 22, 0.72) 45%, rgba(173, 44, 77, 0.45) 100%);
+  pointer-events: none;
+}
+.wa-v3 .wwd-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  -webkit-mask: radial-gradient(120% 80% at 82% 8%, #000, transparent 70%);
+  mask: radial-gradient(120% 80% at 82% 8%, #000, transparent 70%);
+  pointer-events: none;
+}
+.wa-v3 .wwd-hero .wa-wrap {
+  position: relative;
+  z-index: 2;
+  padding-top: 88px;
+  padding-bottom: 88px;
+}
+.wa-v3 .wwd-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffe082;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.wa-v3 .wwd-hero h1 {
+  font-size: clamp(40px, 5.5vw, 72px);
+  font-weight: 800;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+  color: #fff;
+  max-width: 14ch;
+  margin-bottom: 24px;
+  text-shadow: 0 2px 32px rgba(0, 0, 0, 0.55);
+}
+.wa-v3 .wwd-hero h1 .wa-accent {
+  color: #ffb2bc;
+}
+.wa-v3 .wwd-hero__lede {
+  font-size: clamp(17px, 1.4vw, 20px);
+  color: rgba(255, 255, 255, 0.94);
+  max-width: 44ch;
+  line-height: 1.6;
+  margin-bottom: 34px;
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.5);
+}
+.wa-v3 .wwd-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.wa-v3 .wwd-hero .wa-btn--onaccent {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.wa-v3 .wwd-hero .wa-btn--onaccent:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Find your path band ── */
+.wa-v3 .wwd-findpath {
+  text-align: center;
+  padding: 44px 24px;
+  background: var(--wa-surface);
+  border-bottom: 1px solid var(--wa-border);
+}
+.wa-v3 .wwd-findpath p {
+  font-size: 18px;
+  color: var(--wa-muted);
+  margin: 0 0 18px;
+}
+.wa-v3 .wwd-findpath__acts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ── Legacy split ── */
+.wa-v3 .wwd-legacy {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .wa-v3 .wwd-legacy {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wwd-legacy__portrait {
+  position: relative;
+  max-width: 420px;
+}
+@media (max-width: 900px) {
+  .wa-v3 .wwd-legacy__portrait {
+    margin: 0 auto;
+  }
+}
+.wa-v3 .wwd-legacy__img {
+  position: relative;
+  border-radius: var(--wa-radius);
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  background: var(--wa-accent-soft);
+}
+.wa-v3 .wwd-legacy__img img {
+  object-fit: cover;
+  object-position: center;
+}
+.wa-v3 .wwd-legacy__badge {
+  position: absolute;
+  bottom: -22px;
+  right: -18px;
+  z-index: 2;
+  background: var(--wa-accent);
+  color: #fff;
+  padding: 22px 28px;
+  border-radius: var(--wa-radius-sm);
+  box-shadow: var(--wa-shadow-lg);
+}
+.wa-v3 .wwd-legacy__badge .wa-k {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+}
+.wa-v3 .wwd-legacy__badge .wa-s {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.92;
+  margin-top: 4px;
+}
+.wa-v3 .wwd-legacy__text h2 {
+  font-size: clamp(28px, 3.6vw, 46px);
+}
+.wa-v3 .wwd-legacy__text h2 .wa-accent {
+  color: var(--wa-accent);
+}
+.wa-v3 .wwd-legacy__text blockquote {
+  border-left: 3px solid var(--wa-accent);
+  padding-left: 22px;
+  margin: 24px 0;
+  color: var(--wa-muted);
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.7;
+}
+.wa-v3 .wwd-legacy__text .wwd-legacy__body {
+  color: var(--wa-muted);
+  line-height: 1.75;
+  margin-bottom: 24px;
+}
+.wa-v3 .wwd-legacy__text .wwd-legacy__body strong {
+  color: var(--wa-text);
+}
+.wa-v3 .wwd-legacy__chip {
+  padding: 22px 24px;
+  background: var(--wa-gold-soft);
+  border-radius: var(--wa-radius-sm);
+  border-left: 3px solid var(--wa-gold);
+  max-width: 420px;
+}
+.wa-v3 .wwd-legacy__chip .wa-k {
+  color: var(--wa-gold-dark);
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.wa-v3 .wwd-legacy__chip .wa-s {
+  font-size: 13px;
+  color: var(--wa-muted);
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+/* ── Impact bento ── */
+.wa-v3 .wwd-bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(180px, auto);
+  gap: 18px;
+}
+.wa-v3 .wwd-bcard {
+  border-radius: var(--wa-radius);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  box-shadow: var(--wa-shadow);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  overflow: hidden;
+}
+.wa-v3 .wwd-bcard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--wa-shadow-lg);
+  border-color: #f0cdd5;
+}
+.wa-v3 .wwd-bcard h3 {
+  font-size: 21px;
+  color: var(--wa-text);
+}
+.wa-v3 .wwd-bcard p {
+  font-size: 14.5px;
+  color: var(--wa-muted);
+  line-height: 1.7;
+}
+.wa-v3 .wwd-bcard .wwd-ic {
+  color: var(--wa-accent);
+}
+.wa-v3 .wwd-bcard--feature {
+  grid-column: span 4;
+  grid-row: span 2;
+  background: linear-gradient(150deg, var(--wa-accent), var(--wa-plum));
+  color: #fff;
+  border: none;
+  position: relative;
+}
+.wa-v3 .wwd-bcard--feature::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(110% 90% at 85% 5%, rgba(164, 127, 56, 0.3), transparent 55%);
+  pointer-events: none;
+}
+.wa-v3 .wwd-bcard--feature h3 {
+  color: #fff;
+  font-size: 24px;
+  position: relative;
+}
+.wa-v3 .wwd-bcard--feature p {
+  color: rgba(255, 255, 255, 0.85);
+  position: relative;
+}
+.wa-v3 .wwd-bcard--feature .wwd-ic {
+  color: rgba(255, 255, 255, 0.92);
+  position: relative;
+}
+.wa-v3 .wwd-bcard--wide {
+  grid-column: span 8;
+}
+.wa-v3 .wwd-bcard--half {
+  grid-column: span 4;
+}
+@media (max-width: 900px) {
+  .wa-v3 .wwd-bento > div {
+    grid-column: span 12 !important;
+    grid-row: span 1 !important;
+  }
+}
+
+/* ── Numbered values grid ── */
+.wa-v3 .wwd-vgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 900px) {
+  .wa-v3 .wwd-vgrid {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wwd-vcard {
+  position: relative;
+  overflow: hidden;
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: 34px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.wa-v3 .wwd-vcard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--wa-shadow-lg);
+}
+.wa-v3 .wwd-vcard .wwd-ghost {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-size: 128px;
+  font-weight: 800;
+  color: var(--wa-accent);
+  opacity: 0.06;
+  line-height: 1;
+  pointer-events: none;
+}
+.wa-v3 .wwd-vcard .wwd-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wa-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.wa-v3 .wwd-vcard h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+.wa-v3 .wwd-vcard p {
+  font-size: 15px;
+  color: var(--wa-muted);
+  line-height: 1.7;
+}
+
+/* ── CTA actions: translucent secondary on crimson ── */
+.wa-v3 .wa-cta .wa-btn--onaccent {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.wa-v3 .wa-cta .wa-btn--onaccent:hover {
+  background: rgba(255, 255, 255, 0.22);
+}

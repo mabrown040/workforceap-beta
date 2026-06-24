@@ -33,81 +33,43 @@ export default function BlogListingClient({
 
   return (
     <section className="blog-page-section">
-      <div
-        style={{
-          maxWidth: '1100px',
-          margin: '0 auto',
-          padding: 'clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem) 2rem',
-        }}
-      >
+      <div className="blog-wrap">
         {/* Quick Resources */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
-            gap: '1rem',
-            marginBottom: '2.5rem',
-          }}
-        >
-          <LocalizedLink
-            href="/programs"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              padding: '1.25rem',
-              background: 'var(--surface-container)',
-              borderRadius: '12px',
-              textDecoration: 'none',
-              color: 'var(--color-on-surface)',
-            }}
-          >
-            <GraduationCap size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600 }}>{hasPosts ? 'Explore Programs' : 'Start with Programs'}</div>
-              <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
+        <div className="blog-quick">
+          <LocalizedLink href="/programs" className="blog-qcard">
+            <span className="blog-qic" aria-hidden="true">
+              <GraduationCap size={26} />
+            </span>
+            <span className="blog-qtext">
+              <span className="blog-qt">{hasPosts ? 'Explore Programs' : 'Start with Programs'}</span>
+              <span className="blog-qs">
                 {WORKFORCEAP_PROGRAM_CATALOG_SIZE} career training options
-              </div>
-            </div>
-            <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5, flexShrink: 0 }} />
+              </span>
+            </span>
+            <span className="blog-qarr" aria-hidden="true">
+              <ArrowRight size={20} />
+            </span>
           </LocalizedLink>
-          <LocalizedLink
-            href="/faq"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              padding: '1.25rem',
-              background: 'var(--surface-container)',
-              borderRadius: '12px',
-              textDecoration: 'none',
-              color: 'var(--color-on-surface)',
-            }}
-          >
-            <HelpCircle size={28} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: 600 }}>{hasPosts ? 'Read FAQ' : 'Get Answers Fast'}</div>
-              <div style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)' }}>
-                Common questions answered
-              </div>
-            </div>
-            <ArrowRight size={20} style={{ marginLeft: 'auto', opacity: 0.5, flexShrink: 0 }} />
+          <LocalizedLink href="/faq" className="blog-qcard">
+            <span className="blog-qic" aria-hidden="true">
+              <HelpCircle size={26} />
+            </span>
+            <span className="blog-qtext">
+              <span className="blog-qt">{hasPosts ? 'Read FAQ' : 'Get Answers Fast'}</span>
+              <span className="blog-qs">Common questions answered</span>
+            </span>
+            <span className="blog-qarr" aria-hidden="true">
+              <ArrowRight size={20} />
+            </span>
           </LocalizedLink>
         </div>
 
         {categories.length > 0 && (
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '0.5rem',
-              marginBottom: '2rem',
-            }}
-          >
+          <div className="blog-chips-row" role="group" aria-label="Filter posts by category">
             <button
               type="button"
               onClick={() => setFilter(null)}
-              className="blog-filter-chip"
+              className="blog-fchip"
               data-active={filter === null ? 'true' : 'false'}
             >
               All
@@ -117,7 +79,7 @@ export default function BlogListingClient({
                 key={cat}
                 type="button"
                 onClick={() => setFilter(cat)}
-                className="blog-filter-chip"
+                className="blog-fchip"
                 data-active={filter === cat ? 'true' : 'false'}
               >
                 {cat}
@@ -126,7 +88,7 @@ export default function BlogListingClient({
           </div>
         )}
 
-        <div className="blog-listing-grid">
+        <div className="blog-grid">
           {filtered.map((post) => {
             const cardSrc = blogListingCardImage(post.heroImage, post.coverImage, post.category, post.slug);
             const cardAlt = blogListingCardAlt({
@@ -137,9 +99,9 @@ export default function BlogListingClient({
               slug: post.slug,
             });
             return (
-              <article key={post.id} className="blog-card">
-                <LocalizedLink href={`/blog/${post.slug}`} className="blog-card-link">
-                  <div className="blog-card-cover">
+              <article key={post.id} className="blog-bcard">
+                <LocalizedLink href={`/blog/${post.slug}`} className="blog-bcard-link">
+                  <span className="blog-bcover">
                     <Image
                       src={cardSrc}
                       alt={cardAlt}
@@ -148,17 +110,22 @@ export default function BlogListingClient({
                       sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
-                    {post.category && <span className="blog-card-category">{post.category}</span>}
-                  </div>
-                  <h2 className="blog-card-title">{post.title}</h2>
-                  {post.excerpt && <p className="blog-card-excerpt">{post.excerpt}</p>}
-                  <div className="blog-card-meta">
-                    {post.authorName}
-                    {post.publishedAt && (
-                      <> · {formatPublishedDate(post.publishedAt)}</>
-                    )}
-                  </div>
-                  <span className="blog-card-cta">{post.title ? `Read more: ${post.title}` : 'Read more'}</span>
+                    {post.category && <span className="blog-bcat">{post.category}</span>}
+                  </span>
+                  <span className="blog-bbody">
+                    <span className="blog-btitle">{post.title}</span>
+                    {post.excerpt && <span className="blog-bexc">{post.excerpt}</span>}
+                    <span className="blog-bmeta">
+                      {post.authorName}
+                      {post.publishedAt && (
+                        <> · {formatPublishedDate(post.publishedAt)}</>
+                      )}
+                    </span>
+                    <span className="blog-bcta">
+                      {post.title ? `Read more: ${post.title}` : 'Read more'}
+                      <ArrowRight size={16} aria-hidden="true" />
+                    </span>
+                  </span>
                 </LocalizedLink>
               </article>
             );
@@ -193,31 +160,33 @@ export default function BlogListingClient({
 
         {/* Updates via contact — functional path */}
         <div className="blog-updates-card">
-          <Mail size={28} style={{ color: 'var(--color-accent)', marginBottom: '0.75rem' }} aria-hidden />
+          <span className="blog-updates-ic" aria-hidden="true">
+            <Mail size={28} />
+          </span>
           <h3 className="blog-updates-card__title">Want updates?</h3>
           <p className="blog-updates-card__text">
             Ask to be notified about new articles and program news — our team responds within a few business days.
           </p>
-          <LocalizedLink href="/contact" className="btn btn-primary">
+          <LocalizedLink href="/contact" className="wa-btn wa-btn--primary">
             Contact us for updates
           </LocalizedLink>
         </div>
 
         {/* Bottom CTA */}
         <div className="blog-listing-bottom-cta">
-          <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.95 }} aria-hidden />
+          <BookOpen size={44} className="blog-cta-ic" aria-hidden="true" />
           <h3>Ready to take the next step?</h3>
           <p>
             WorkforceAP offers no-cost career training paths for <LocalizedLink href="/apply" style={{ color: 'inherit', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>qualifying members</LocalizedLink> — with guided tools, advisor support, and employer-aligned credentials.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <LocalizedLink href="/find-your-path" className="btn blog-listing-bottom-cta__secondary">
+          <div className="blog-cta-acts">
+            <LocalizedLink href="/find-your-path" className="wa-btn blog-listing-bottom-cta__secondary">
               Find Your Path
             </LocalizedLink>
-            <LocalizedLink href="/programs" className="btn blog-listing-bottom-cta__ghost">
+            <LocalizedLink href="/programs" className="wa-btn blog-listing-bottom-cta__ghost">
               Explore Programs
             </LocalizedLink>
-            <LocalizedLink href="/apply" className="btn blog-listing-bottom-cta__ghost">
+            <LocalizedLink href="/apply" className="wa-btn blog-listing-bottom-cta__ghost">
               Apply Now
             </LocalizedLink>
           </div>

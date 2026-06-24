@@ -1,3 +1,4 @@
+import '@/css/marketing-v3-employers.css';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import LocalizedLink from '@/components/LocalizedLink';
@@ -8,12 +9,6 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import EmployerContactForm from './EmployerContactForm';
 import EmployersHeroCtaExperiment from '@/components/marketing/employers/EmployersHeroCtaExperiment';
 import EmployerCaseStudyCard from '@/components/marketing/EmployerCaseStudyCard';
-import {
-  HeroSection,
-  PageSection,
-  ProcessStep,
-  SectionHeader,
-} from '@/components/marketing/ui';
 import { EMPLOYER_CASE_STUDIES } from '@/lib/content/employer-case-studies';
 import { loadRealEmployerCaseStudies } from '@/lib/content/employer-case-studies-real';
 import { getUser } from '@/lib/auth/server';
@@ -132,55 +127,71 @@ export default async function EmployersPage() {
         : t('trustAriaLabelPlaceholder');
 
   return (
-    <div className="inner-page employers-landing">
-      {/* ── Hero: single primary CTA ── */}
-      <HeroSection
-        className="employers-hero"
-        backgroundImage="/images/hero-people.webp"
-        priority
-        minHeight="min(100vh, 52rem)"
-        overlayGradient="linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.78) 50%, rgba(173,44,77,0.22) 100%)"
-        eyebrow={
-          <span className="employers-landing__eyebrow">
-            <span className="material-symbols-outlined" aria-hidden="true">
-              {heroEyebrowIcon}
-            </span>
-            {t('heroEyebrow')}
-          </span>
-        }
-        headline={
-          <h1 className="employers-landing__headline">
-            {t('heroHeadline')}{' '}
-            <span className="employers-landing__headline-accent">{t('heroHeadlineAccent')}</span>
-          </h1>
-        }
-        subheadline={
-          <p className="employers-landing__subhead">{t('heroSubhead')}</p>
-        }
-      >
-        <div className="employers-landing__hero-cta">
-          <EmployersHeroCtaExperiment
-            controlLabel={t('primaryCta')}
-            variantALabel={t('primaryCtaVariantA')}
-            href={hiringPartnerCtaHref}
-            external={hiringPartnerCtaExternal}
-            onDark
-          />
+    <div className="wa-v3 inner-page employers-landing">
+      {/* ── Bento hero: real next/image photo behind crimson→plum gradient ── */}
+      <header className="wa-hero wa-emp-hero">
+        <div className="wa-wrap">
+          <div className="wa-bento">
+            <div className="wa-tile wa-tile--hero">
+              <div className="wa-hero-photo" aria-hidden="true">
+                <Image
+                  src="/images/hero-people.webp"
+                  alt=""
+                  fill
+                  priority
+                  fetchPriority="high"
+                  sizes="100vw"
+                  quality={85}
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                />
+              </div>
+
+              <span className="wa-eyebrow wa-emp-eyebrow">
+                {heroEyebrowIcon === 'verified' ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M12 2l2.4 1.8 3 .2.9 2.9 2.3 1.9-1 2.8 1 2.8-2.3 1.9-.9 2.9-3 .2L12 22l-2.4-1.8-3-.2-.9-2.9L3.4 15l1-2.8-1-2.8 2.3-1.9.9-2.9 3-.2z" />
+                    <path d="M9 12l2 2 4-4" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M9 11l3 3L20 6" />
+                    <path d="M20 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h7" />
+                  </svg>
+                )}
+                {t('heroEyebrow')}
+              </span>
+
+              <h1>
+                {t('heroHeadline')}
+                <br />
+                <span className="wa-accent">{t('heroHeadlineAccent')}</span>
+              </h1>
+              <p>{t('heroSubhead')}</p>
+
+              <div className="wa-hero-actions">
+                <EmployersHeroCtaExperiment
+                  controlLabel={t('primaryCta')}
+                  variantALabel={t('primaryCtaVariantA')}
+                  href={hiringPartnerCtaHref}
+                  external={hiringPartnerCtaExternal}
+                  onDark
+                  className="wa-btn wa-btn--light"
+                />
+              </div>
+            </div>
+          </div>
         </div>
-      </HeroSection>
+      </header>
 
       {/* ── Trust strip ── */}
-      <section
-        className="employers-trust"
-        aria-label={trustAriaLabel}
-      >
-        <div className="container employers-trust__inner">
+      <section className="wa-emp-trust" aria-label={trustAriaLabel}>
+        <div className="wa-wrap">
           {showLogos ? (
-            <div className="employers-trust__logos">
-              <p className="employers-trust__logos-label">
+            <>
+              <p className="wa-emp-trust__label">
                 {showLogosOnly ? t('trustLogosOnlyLabel') : t('trustLogosLabel')}
               </p>
-              <ul className="employers-trust__logo-list">
+              <ul className="wa-emp-trust__logos">
                 {trust.logos.map((logo) => (
                   <li key={logo.companyName}>
                     {logo.logoUrl ? (
@@ -189,134 +200,161 @@ export default async function EmployersPage() {
                         alt={logo.companyName}
                         width={120}
                         height={40}
-                        className="employers-trust__logo-img"
+                        className="wa-emp-trust__logo-img"
                       />
                     ) : (
-                      <span className="employers-trust__logo-text">{logo.companyName}</span>
+                      <span className="wa-emp-trust__logo-text">{logo.companyName}</span>
                     )}
                   </li>
                 ))}
               </ul>
-            </div>
+            </>
           ) : null}
           {showPlaceholderStats ? (
-            <p className="employers-trust__placeholder-heading">{t('trustPlaceholderHeading')}</p>
+            <p className="wa-emp-trust__label">{t('trustPlaceholderHeading')}</p>
           ) : null}
           {showVerifiedStats || showPlaceholderStats ? (
             <div
-              className={`employers-trust__stats${showVerifiedStats ? '' : ' employers-trust__stats--placeholder'}${showLogos ? ' employers-trust__stats--with-logos' : ''}`}
+              className={`wa-emp-trust__stats${showVerifiedStats ? '' : ' wa-emp-trust__stats--placeholder'}${showLogos ? ' wa-emp-trust__stats--with-logos' : ''}`}
             >
-              {trustStatsToShow.map((stat, index) => (
-                <div key={stat.label} className="employers-trust__stat-group">
-                  {index > 0 ? <div className="employers-trust__stat-divider" aria-hidden="true" /> : null}
-                  <div className="employers-trust__stat">
-                    <span className="employers-trust__stat-value">{stat.value}</span>
-                    <span className="employers-trust__stat-label">{stat.label}</span>
-                  </div>
+              {trustStatsToShow.map((stat) => (
+                <div key={stat.label} className="wa-emp-trust__stat">
+                  <span className="wa-emp-trust__stat-value">{stat.value}</span>
+                  <span className="wa-emp-trust__stat-label">{stat.label}</span>
                 </div>
               ))}
             </div>
           ) : null}
           {showVerifiedStats ? (
             <>
-              <p className="employers-trust__as-of">{trust.asOfLabel}</p>
-              <p className="employers-trust__verified-note">{t('trustVerifiedNote')}</p>
+              <p className="wa-emp-trust__asof">{trust.asOfLabel}</p>
+              <p className="wa-emp-trust__note">{t('trustVerifiedNote')}</p>
             </>
           ) : (
-            <p className="employers-trust__as-of">
+            <p className="wa-emp-trust__asof">
               {showLogosOnly ? t('trustLogosOnlyNote') : t('trustPlaceholderNote')}
             </p>
           )}
-          <p className="employers-trust__impact-link-wrap">
-            <LocalizedLink href="/impact" className="employers-trust__impact-link">
-              {t('trustImpactLink')}
-            </LocalizedLink>
+          <p className="wa-emp-trust__impact">
+            <LocalizedLink href="/impact">{t('trustImpactLink')}</LocalizedLink>
           </p>
         </div>
       </section>
 
       {/* ── How it works (3 steps) ── */}
-      <PageSection padding="lg" className="employers-process">
-        <SectionHeader title={t('howTitle')} subtitle={t('howSubtitle')} />
-        <div className="employers-process__grid">
-          <ProcessStep
-            step="1"
-            icon="assignment"
-            title={t('howStep1Title')}
-            description={t('howStep1Desc')}
-          />
-          <ProcessStep
-            step="2"
-            icon="school"
-            title={t('howStep2Title')}
-            description={t('howStep2Desc')}
-          />
-          <ProcessStep
-            step="3"
-            icon="person_check"
-            title={t('howStep3Title')}
-            description={t('howStep3Desc')}
-          />
-        </div>
-      </PageSection>
-
-      {/* ── Outcomes: mini case studies ── */}
-      <PageSection padding="lg" className="employers-outcomes">
-        <SectionHeader
-          title={usingVerifiedCaseStudies ? t('outcomesTitleVerified') : t('outcomesTitle')}
-          subtitle={usingVerifiedCaseStudies ? t('outcomesSubtitleVerified') : t('outcomesSubtitle')}
-        />
-        <div className="employers-outcomes__grid">
-          {caseStudies.map((study, i) => (
-            <EmployerCaseStudyCard
-              key={study.company}
-              study={study}
-              variant={i === 0 ? 'accent' : 'default'}
-              scenarioLabel={caseStudyScenarioLabel}
-            />
-          ))}
-        </div>
-        {t(outcomesDisclaimerKey) ? (
-          <p className="employers-outcomes__disclaimer">{t(outcomesDisclaimerKey)}</p>
-        ) : null}
-      </PageSection>
-
-      {/* ── Pricing: one model ── */}
-      <PageSection padding="lg" className="employers-pricing">
-        <div className="employers-pricing__card">
-          <span className="material-symbols-outlined employers-pricing__icon" aria-hidden="true">
-            payments
-          </span>
-          <h2 className="employers-pricing__title">{t('pricingTitle')}</h2>
-          <p className="employers-pricing__lead">{t('pricingLead', { fee: placementFee })}</p>
-          <ul className="employers-pricing__list">
-            <li>{t('pricingPoint1')}</li>
-            <li>{t('pricingPoint2')}</li>
-            <li>{t('pricingPoint3')}</li>
-          </ul>
-          <div className="employers-pricing__partner-plan">
-            <p className="employers-pricing__partner-plan-eyebrow">{t('partnerPlanEyebrow')}</p>
-            <h3 className="employers-pricing__partner-plan-title">{t('partnerPlanTitle')}</h3>
-            <p className="employers-pricing__partner-plan-copy">
-              {t('partnerPlanCopy', { fee: placementFee })}
-            </p>
-            <ul className="employers-pricing__partner-plan-list">
-              <li>{t('partnerPlanPoint1')}</li>
-              <li>{t('partnerPlanPoint2')}</li>
-              <li>{t('partnerPlanPoint3')}</li>
-            </ul>
+      <section className="wa-band">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">{t('howTitle')}</span>
+            <h2>{t('howTitle')}</h2>
+            <p>{t('howSubtitle')}</p>
+          </div>
+          <div className="wa-steps">
+            <div className="wa-step">
+              <div className="wa-n">1</div>
+              <h3>{t('howStep1Title')}</h3>
+              <p>{t('howStep1Desc')}</p>
+            </div>
+            <div className="wa-step">
+              <div className="wa-n">2</div>
+              <h3>{t('howStep2Title')}</h3>
+              <p>{t('howStep2Desc')}</p>
+            </div>
+            <div className="wa-step">
+              <div className="wa-n">3</div>
+              <h3>{t('howStep3Title')}</h3>
+              <p>{t('howStep3Desc')}</p>
+            </div>
           </div>
         </div>
-      </PageSection>
+      </section>
+
+      {/* ── Outcomes: mini case studies ── */}
+      <section className="wa-band wa-band--surface">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">
+              {usingVerifiedCaseStudies ? t('outcomesTitleVerified') : t('outcomesTitle')}
+            </span>
+            <h2>{usingVerifiedCaseStudies ? t('outcomesTitleVerified') : t('outcomesTitle')}</h2>
+            <p>{usingVerifiedCaseStudies ? t('outcomesSubtitleVerified') : t('outcomesSubtitle')}</p>
+          </div>
+          <div className="wa-emp-outcomes__grid">
+            {caseStudies.map((study, i) => (
+              <EmployerCaseStudyCard
+                key={study.company}
+                study={study}
+                variant={i === 0 ? 'accent' : 'default'}
+                scenarioLabel={caseStudyScenarioLabel}
+              />
+            ))}
+          </div>
+          {t(outcomesDisclaimerKey) ? (
+            <p className="wa-emp-outcomes__disclaimer">{t(outcomesDisclaimerKey)}</p>
+          ) : null}
+        </div>
+      </section>
+
+      {/* ── Pricing: one model ── */}
+      <section className="wa-band">
+        <div className="wa-wrap">
+          <div className="wa-emp-pricing__card">
+            <div className="wa-emp-pricing__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M14.5 9.5a2.5 2.5 0 0 0-2.5-1.5c-1.4 0-2.5.8-2.5 2s1.1 1.7 2.5 2 2.5.9 2.5 2-1.1 2-2.5 2a2.5 2.5 0 0 1-2.5-1.5" />
+                <path d="M12 6.5V8M12 16v1.5" />
+              </svg>
+            </div>
+            <h2 className="wa-emp-pricing__title">{t('pricingTitle')}</h2>
+            <p className="wa-emp-pricing__lead">{t('pricingLead', { fee: placementFee })}</p>
+            <ul className="wa-emp-pricing__list">
+              {[t('pricingPoint1'), t('pricingPoint2'), t('pricingPoint3')].map((point) => (
+                <li key={point}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M8.5 12.5l2.5 2.5 4.5-5" />
+                  </svg>
+                  {point}
+                </li>
+              ))}
+            </ul>
+            <div className="wa-emp-pricing__partner">
+              <p className="wa-emp-pricing__partner-eyebrow">{t('partnerPlanEyebrow')}</p>
+              <h3 className="wa-emp-pricing__partner-title">{t('partnerPlanTitle')}</h3>
+              <p className="wa-emp-pricing__partner-copy">{t('partnerPlanCopy', { fee: placementFee })}</p>
+              <ul className="wa-emp-pricing__partner-list">
+                {[t('partnerPlanPoint1'), t('partnerPlanPoint2'), t('partnerPlanPoint3')].map((point) => (
+                  <li key={point}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M5 12h14" />
+                      <path d="M13 6l6 6-6 6" />
+                    </svg>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── FAQ ── */}
-      <section className="employers-faq">
-        <div className="container employers-faq__inner">
-          <SectionHeader title={t('faqTitle')} />
-          <div className="faq-list">
+      <section className="wa-band wa-band--surface">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">{t('faqTitle')}</span>
+            <h2>{t('faqTitle')}</h2>
+          </div>
+          <div className="wa-emp-faq">
             {[1, 2, 3, 4, 5, 6].map((n) => (
-              <details key={n} className="faq-item">
-                <summary>{t(`faq${n}Q` as 'faq1Q')}</summary>
+              <details key={n}>
+                <summary>
+                  {t(`faq${n}Q` as 'faq1Q')}
+                  <svg className="wa-emp-faq__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </summary>
                 <p>{t(`faq${n}A` as 'faq1A')}</p>
               </details>
             ))}
@@ -325,469 +363,34 @@ export default async function EmployersPage() {
       </section>
 
       {/* ── Final CTA (same as hero) ── */}
-      <section className="employers-final-cta" aria-label={t('finalCtaAriaLabel')}>
-        <div className="container employers-final-cta__inner">
-          <h2 className="employers-final-cta__title">{t('finalCtaTitle')}</h2>
-          <p className="employers-final-cta__copy">{t('finalCtaCopy')}</p>
-          <EmployersHeroCtaExperiment
-            controlLabel={t('primaryCta')}
-            variantALabel={t('primaryCtaVariantA')}
-            href={hiringPartnerCtaHref}
-            external={hiringPartnerCtaExternal}
-          />
+      <section className="wa-band" aria-label={t('finalCtaAriaLabel')}>
+        <div className="wa-wrap">
+          <div className="wa-cta wa-emp-cta">
+            <h2>{t('finalCtaTitle')}</h2>
+            <p>{t('finalCtaCopy')}</p>
+            <div className="wa-acts">
+              <EmployersHeroCtaExperiment
+                controlLabel={t('primaryCta')}
+                variantALabel={t('primaryCtaVariantA')}
+                href={hiringPartnerCtaHref}
+                external={hiringPartnerCtaExternal}
+                className="wa-btn wa-btn--light"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ── Intake fallback (no extra CTA buttons) ── */}
-      <section id="employer-intake" className="employers-intake" aria-label={t('intakeAriaLabel')}>
-        <div className="container employers-intake__inner">
-          <h2 className="employers-intake__title">{t('intakeTitle')}</h2>
-          <p className="employers-intake__copy">{t('intakeCopy')}</p>
-          <EmployerContactForm />
+      <section id="employer-intake" className="wa-band wa-band--surface" aria-label={t('intakeAriaLabel')}>
+        <div className="wa-wrap">
+          <div className="wa-emp-intake__inner">
+            <h2 className="wa-emp-intake__title">{t('intakeTitle')}</h2>
+            <p className="wa-emp-intake__copy">{t('intakeCopy')}</p>
+            <EmployerContactForm />
+          </div>
         </div>
       </section>
-
-      <style>{`
-        .employers-landing__eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.35rem;
-          padding: 0.375rem 1rem;
-          border-radius: var(--radius-full);
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: var(--glass-blur);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          color: var(--color-gold);
-          font-size: 0.75rem;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-        .employers-landing__eyebrow .material-symbols-outlined {
-          font-size: 0.875rem;
-        }
-        .employers-landing__headline {
-          font-size: clamp(2rem, 6vw, 4.5rem);
-          font-weight: 800;
-          line-height: 0.95;
-          letter-spacing: -0.03em;
-          color: var(--color-white);
-          max-width: 48rem;
-          margin: 0;
-        }
-        .employers-landing__headline-accent {
-          color: var(--color-accent);
-        }
-        .employers-landing__subhead {
-          font-size: clamp(1rem, 2.5vw, 1.25rem);
-          color: rgba(255, 255, 255, 0.75);
-          line-height: 1.6;
-          margin: 0;
-        }
-        .employers-landing__hero-cta {
-          margin-top: 2rem;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-
-        .employers-trust {
-          padding: 2rem 0;
-          background: var(--surface-container-low);
-          border-bottom: 1px solid var(--outline-variant);
-        }
-        .employers-trust__inner {
-          max-width: var(--max-width, 80rem);
-          margin: 0 auto;
-          padding: 0 clamp(1rem, 4vw, 2rem);
-        }
-        .employers-trust__logos-label {
-          margin: 0 0 1rem;
-          text-align: center;
-          font-size: 0.7rem;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: var(--color-on-surface-variant);
-        }
-        .employers-trust__placeholder-heading {
-          margin: 0 0 1rem;
-          text-align: center;
-          font-size: 0.7rem;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: var(--color-on-surface-variant);
-        }
-        .employers-trust__logo-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          justify-content: center;
-          gap: 1.25rem 2rem;
-        }
-        .employers-trust__logo-img {
-          height: auto;
-          max-height: 2.5rem;
-          width: auto;
-          max-width: 7.5rem;
-          object-fit: contain;
-          filter: grayscale(1);
-          opacity: 0.85;
-        }
-        .employers-trust__logo-text {
-          font-size: 0.875rem;
-          font-weight: 700;
-          color: var(--color-on-surface-variant);
-        }
-        .employers-trust__stats {
-          display: flex;
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1.25rem;
-        }
-        .employers-trust__stats--with-logos {
-          margin-top: 1.5rem;
-          padding-top: 1.5rem;
-          border-top: 1px solid var(--outline-variant);
-        }
-        .employers-trust__stat-group {
-          display: contents;
-        }
-        .employers-trust__stat {
-          text-align: center;
-          padding: 0.5rem 0;
-        }
-        .employers-trust__stat-value {
-          display: block;
-          font-size: clamp(1.75rem, 5vw, 2.5rem);
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          color: var(--color-on-surface);
-          line-height: 1.1;
-        }
-        .employers-trust__stat-label {
-          display: block;
-          margin-top: 0.35rem;
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: var(--color-on-surface-variant);
-          line-height: 1.4;
-        }
-        .employers-trust__stat-divider {
-          display: none;
-        }
-        .employers-trust__stats--placeholder {
-          padding: clamp(1rem, 3vw, 1.25rem);
-          background: var(--surface-container-lowest);
-          border: 1px solid var(--outline-variant);
-          border-radius: var(--radius-md);
-        }
-        .employers-trust__stats--placeholder .employers-trust__stat-value {
-          font-size: clamp(1rem, 3vw, 1.25rem);
-          font-weight: 700;
-          letter-spacing: 0;
-          color: var(--color-on-surface);
-          line-height: 1.35;
-        }
-        .employers-trust__stats--placeholder .employers-trust__stat-label {
-          font-size: 0.75rem;
-          font-weight: 500;
-        }
-        .employers-trust__as-of {
-          margin: 1.25rem 0 0;
-          text-align: center;
-          font-size: 0.75rem;
-          color: var(--color-on-surface-variant);
-          opacity: 0.85;
-        }
-        .employers-trust__verified-note {
-          margin: 0.5rem auto 0;
-          max-width: 36rem;
-          text-align: center;
-          font-size: 0.75rem;
-          color: var(--color-on-surface-variant);
-          line-height: 1.5;
-        }
-        .employers-trust__impact-link-wrap {
-          margin: 0.75rem 0 0;
-          text-align: center;
-        }
-        .employers-trust__impact-link {
-          font-size: 0.8125rem;
-          font-weight: 600;
-          color: var(--color-accent);
-          text-decoration: none;
-        }
-        .employers-trust__impact-link:hover {
-          text-decoration: underline;
-        }
-
-        .employers-process {
-          background: var(--surface-container-lowest);
-        }
-        .employers-process__grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 2rem;
-        }
-
-        .employers-outcomes {
-          background: var(--surface-container-low);
-        }
-        .employers-outcomes__grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 1.25rem;
-        }
-        .employers-outcomes__disclaimer {
-          margin: 1.25rem 0 0;
-          max-width: 42rem;
-          font-size: 0.8125rem;
-          line-height: 1.6;
-          color: var(--color-on-surface-variant);
-        }
-
-        .employers-pricing__card {
-          max-width: 40rem;
-          margin: 0 auto;
-          padding: clamp(1.5rem, 4vw, 2.5rem);
-          background: var(--surface-container-lowest);
-          border: 1px solid var(--outline-variant);
-          border-radius: var(--radius-xl);
-          text-align: center;
-        }
-        .employers-pricing__icon {
-          font-size: 2.5rem;
-          color: var(--color-accent);
-          margin-bottom: 0.75rem;
-        }
-        .employers-pricing__title {
-          font-size: clamp(1.5rem, 3vw, 2rem);
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          margin: 0 0 0.75rem;
-          color: var(--color-on-surface);
-        }
-        .employers-pricing__lead {
-          margin: 0 0 1.25rem;
-          font-size: 1rem;
-          line-height: 1.6;
-          color: var(--color-on-surface-variant);
-        }
-        .employers-pricing__list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          text-align: left;
-          display: grid;
-          gap: 0.65rem;
-        }
-        .employers-pricing__list li {
-          display: flex;
-          align-items: flex-start;
-          gap: 0.5rem;
-          font-size: 0.9375rem;
-          line-height: 1.5;
-          color: var(--color-on-surface);
-        }
-        .employers-pricing__list li::before {
-          content: 'check_circle';
-          font-family: 'Material Symbols Outlined';
-          font-size: 1.125rem;
-          color: var(--color-accent);
-          flex-shrink: 0;
-          margin-top: 0.1rem;
-        }
-        .employers-pricing__partner-plan {
-          margin-top: 1.5rem;
-          padding-top: 1.5rem;
-          border-top: 1px solid var(--outline-variant);
-          text-align: left;
-        }
-        .employers-pricing__partner-plan-eyebrow {
-          margin: 0 0 0.4rem;
-          font-size: 0.72rem;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: var(--color-accent);
-        }
-        .employers-pricing__partner-plan-title {
-          margin: 0 0 0.5rem;
-          font-size: 1.125rem;
-          font-weight: 800;
-          color: var(--color-on-surface);
-        }
-        .employers-pricing__partner-plan-copy {
-          margin: 0 0 0.85rem;
-          font-size: 0.9375rem;
-          line-height: 1.6;
-          color: var(--color-on-surface-variant);
-        }
-        .employers-pricing__partner-plan-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          display: grid;
-          gap: 0.55rem;
-        }
-        .employers-pricing__partner-plan-list li {
-          display: flex;
-          align-items: flex-start;
-          gap: 0.5rem;
-          font-size: 0.875rem;
-          line-height: 1.5;
-          color: var(--color-on-surface);
-        }
-        .employers-pricing__partner-plan-list li::before {
-          content: 'arrow_forward';
-          font-family: 'Material Symbols Outlined';
-          font-size: 1rem;
-          color: var(--color-accent);
-          flex-shrink: 0;
-          margin-top: 0.05rem;
-        }
-
-        .employers-faq {
-          padding: clamp(3rem, 6vw, 4.5rem) 0;
-          background: var(--surface-container-lowest);
-        }
-        .employers-faq__inner {
-          max-width: var(--max-width, 80rem);
-          margin: 0 auto;
-          padding: 0 clamp(1rem, 4vw, 2rem);
-        }
-
-        .employers-final-cta {
-          padding: clamp(3rem, 6vw, 5rem) 0;
-          background: linear-gradient(
-            135deg,
-            var(--color-accent) 0%,
-            var(--color-accent-dark, #8b1c3a) 100%
-          );
-        }
-        .employers-final-cta__inner {
-          max-width: 36rem;
-          margin: 0 auto;
-          padding: 0 clamp(1rem, 4vw, 2rem);
-          text-align: center;
-        }
-        .employers-final-cta__title {
-          font-size: clamp(1.75rem, 4vw, 2.5rem);
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          color: #fff;
-          margin: 0 0 0.75rem;
-          line-height: 1.1;
-        }
-        .employers-final-cta__copy {
-          margin: 0 0 1.5rem;
-          font-size: 1.05rem;
-          line-height: 1.6;
-          color: rgba(255, 255, 255, 0.9);
-        }
-
-        .employers-intake {
-          padding: clamp(3rem, 6vw, 5rem) 0;
-          background: var(--surface-container-low);
-        }
-        .employers-intake__inner {
-          max-width: 40rem;
-          margin: 0 auto;
-          padding: 0 clamp(1rem, 4vw, 2rem);
-        }
-        .employers-intake__title {
-          font-size: clamp(1.5rem, 3vw, 2rem);
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          margin: 0 0 0.75rem;
-          color: var(--color-on-surface);
-        }
-        .employers-intake__copy {
-          margin: 0 0 1.5rem;
-          font-size: 1rem;
-          line-height: 1.6;
-          color: var(--color-on-surface-variant);
-        }
-
-        @media (min-width: 640px) {
-          .employers-trust__stats {
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 0;
-          }
-          .employers-trust__stat-group {
-            display: flex;
-            flex: 1 1 0;
-            align-items: center;
-            min-width: 0;
-          }
-          .employers-trust__stat {
-            flex: 1 1 0;
-            min-width: 0;
-            padding: 0 1rem;
-          }
-          .employers-trust__stat-divider {
-            display: block;
-            width: 1px;
-            align-self: stretch;
-            min-height: 3rem;
-            background: var(--outline-variant);
-            flex-shrink: 0;
-          }
-          .employers-outcomes__grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-          .employers-outcomes__grid .employer-case-study-card:first-child {
-            grid-column: 1 / -1;
-          }
-        }
-
-        @media (min-width: 768px) {
-          .employers-process__grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2.5rem;
-          }
-        }
-
-        @media (min-width: 1024px) {
-          .employers-outcomes__grid {
-            grid-template-columns: repeat(3, 1fr);
-          }
-          .employers-outcomes__grid .employer-case-study-card:first-child {
-            grid-column: auto;
-          }
-        }
-
-        @media (max-width: 639px) {
-          .employers-landing__hero-cta .btn,
-          .employers-final-cta__inner .btn {
-            width: 100%;
-            justify-content: center;
-          }
-          .employers-faq .faq-item summary {
-            min-height: 2.75rem;
-            display: flex;
-            align-items: center;
-          }
-          .employers-trust__stats--placeholder .employers-trust__stat {
-            padding: 0.75rem 0;
-          }
-          .employers-trust__stats--placeholder .employers-trust__stat-divider {
-            display: block;
-            width: 100%;
-            height: 1px;
-            min-height: 0;
-            background: transparent;
-            margin: 0.25rem 0;
-          }
-        }
-      `}</style>
 
       <MobileBottomNav />
       <Footer />

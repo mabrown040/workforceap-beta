@@ -1,0 +1,256 @@
+/*
+ * marketing-v3-programs.css — page-unique blend styles for /programs.
+ *
+ * EVERY selector is scoped under `.wa-v3` so this file cannot collide with the
+ * global stylesheets. Shared blend classes (.wa-hero, .wa-btn, .wa-band,
+ * .wa-sec-head, .wa-pcard, .wa-step, .wa-cta, .wa-creds, .wa-trust, tokens,
+ * focus-visible, reduced-motion) come from css/marketing-v3.css and are reused
+ * as-is. This file only adds what is unique to the Programs page.
+ *
+ * Ported from docs/mockups/wa-v3-programs.html. No behavior is defined here —
+ * the interactive catalog (search/filter) keeps its functional classes
+ * (.program-card, .program-filters, .filter-chip, .program-catalog-search-*)
+ * and is only re-themed to the blend palette below.
+ */
+
+/* ── Hero tile (mirrors the home blend hero, with a photo behind) ── */
+.wa-v3 .wa-prog-hero-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.95fr;
+  gap: 18px;
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .wa-v3 .wa-prog-hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wa-prog-hero-photo {
+  border-radius: var(--wa-radius);
+  overflow: hidden;
+  position: relative;
+  min-height: 280px;
+  border: 1px solid var(--wa-border);
+  box-shadow: var(--wa-shadow-lg);
+}
+.wa-v3 .wa-prog-hero-photo img {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ── Tool routing chips row ── */
+.wa-v3 .wa-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+.wa-v3 .wa-tools .wa-btn .wa-tool-ic {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ── Quick-start lanes (qcards) ── */
+.wa-v3 .wa-qs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 880px) {
+  .wa-v3 .wa-qs {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wa-qcard {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.wa-v3 .wa-qcard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--wa-shadow-lg);
+  border-color: #f0cdd5;
+}
+.wa-v3 .wa-qcard .wa-eb {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-qcard h3 {
+  font-size: 21px;
+}
+.wa-v3 .wa-qcard p {
+  font-size: 15px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-qcard .wa-go {
+  margin-top: auto;
+  padding-top: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--wa-accent);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.wa-v3 .wa-qs-foot {
+  margin-top: 24px;
+  font-size: 15px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-qs-foot a {
+  color: var(--wa-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.wa-v3 .wa-qs-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.wa-v3 .wa-qs-head .wa-qs-link {
+  color: var(--wa-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ── How to choose (factor cards) ── */
+.wa-v3 .wa-choose {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+@media (max-width: 880px) {
+  .wa-v3 .wa-choose {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .wa-v3 .wa-choose {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wa-fcard {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  padding: 22px;
+}
+.wa-v3 .wa-fcard .wa-ic {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-fcard h3 {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+.wa-v3 .wa-fcard p {
+  font-size: 14px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-choose-foot {
+  margin-top: 28px;
+  font-size: 15px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-choose-foot a {
+  color: var(--wa-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Journey steps (4 across; reuses the .wa-step blend card) ── */
+.wa-v3 .wa-prog-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+@media (max-width: 880px) {
+  .wa-v3 .wa-prog-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .wa-v3 .wa-prog-steps {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wa-cta .wa-fine {
+  margin-top: 18px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CATALOG re-theme (presentation only — markup/behavior unchanged).
+   The interactive catalog keeps its functional class names; here we
+   align its chrome to the blend palette inside the .wa-v3 scope.
+   ═══════════════════════════════════════════════════════════════ */
+.wa-v3 .program-catalog-search-input {
+  border-radius: 999px;
+  border: 1px solid var(--wa-border);
+  background: #fff;
+  box-shadow: var(--wa-shadow);
+  padding: 12px 18px;
+  font-size: 15px;
+}
+.wa-v3 .program-catalog-search-input:focus {
+  border-color: var(--wa-accent);
+  box-shadow: 0 0 0 3px rgba(173, 44, 77, 0.15);
+}
+.wa-v3 .filter-chip {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  color: var(--wa-muted);
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.wa-v3 .filter-chip:not(.active):hover {
+  border-color: var(--wa-accent);
+  color: var(--wa-accent);
+  background: #fff;
+}
+.wa-v3 .filter-chip.active {
+  background: var(--wa-accent);
+  border-color: var(--wa-accent);
+  color: #fff;
+}
+.wa-v3 .programs-starter-section {
+  border-radius: var(--wa-radius);
+  border-color: var(--wa-border);
+  background: var(--wa-bg);
+}
+.wa-v3 .programs-see-all-link {
+  color: var(--wa-accent);
+}
+.wa-v3 .program-card {
+  border-radius: var(--wa-radius);
+  border-color: var(--wa-border);
+  box-shadow: var(--wa-shadow);
+}
+.wa-v3 .program-card:hover {
+  box-shadow: var(--wa-shadow-lg);
+  border-color: #f0cdd5;
+}

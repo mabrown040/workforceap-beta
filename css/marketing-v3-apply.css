@@ -1,0 +1,479 @@
+/*
+ * marketing-v3-apply.css — page-unique "Blend (Depth × Warm)" reskin for /apply.
+ *
+ * EVERY selector is scoped under `.wa-v3` so this file cannot collide with the
+ * global `css/marketing.css`. Shared blend primitives (.wa-btn, tokens, nav,
+ * focus-visible, reduced-motion) live in css/marketing-v3.css — this file only
+ * adds the apply-page layout (hero, sidebar/form grid, supplemental cards) and
+ * its responsive behavior. Ported from docs/mockups/wa-v3-apply.html.
+ *
+ * Presentation only — no copy, no behavior. Imported at the top of
+ * app/apply/page.tsx.
+ */
+
+/* ── HERO — crimson→plum gradient ── */
+.wa-v3 .wa-apply-hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  color: #fff;
+  padding: calc(var(--wa-nav-h, 68px) + clamp(28px, 5vw, 64px)) 24px clamp(52px, 6vw, 88px);
+  background:
+    radial-gradient(120% 120% at 85% 0%, rgba(164, 127, 56, 0.3), transparent 55%),
+    linear-gradient(170deg, rgba(173, 44, 77, 0.96), rgba(58, 19, 38, 0.97) 60%, rgba(140, 15, 55, 0.97) 100%);
+}
+.wa-v3 .wa-apply-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  pointer-events: none;
+}
+.wa-v3 .wa-apply-hero > * {
+  position: relative;
+  z-index: 1;
+}
+.wa-v3 .wa-apply-hero__inner {
+  max-width: var(--wa-max);
+  margin: 0 auto;
+}
+.wa-v3 .wa-hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+}
+.wa-v3 .wa-apply-hero h1 {
+  font-size: clamp(34px, 5vw, 58px);
+  margin: 20px 0 0;
+}
+.wa-v3 .wa-hero-social {
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+.wa-v3 .wa-hero-pilot {
+  margin-top: 14px;
+}
+.wa-v3 .wa-hero-desc {
+  max-width: 660px;
+  margin: 18px auto 0;
+  font-size: clamp(15px, 1.1vw, 17px);
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.65;
+}
+.wa-v3 .wa-hero-desc strong {
+  color: var(--wa-gold-soft);
+  font-weight: 700;
+}
+.wa-v3 .wa-hero-help-compact {
+  margin: 18px auto 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  display: none;
+}
+.wa-v3 .wa-hero-help-compact a {
+  color: var(--wa-gold-soft);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.wa-v3 .wa-hero-start-cta {
+  margin: 24px auto 0;
+  display: none;
+}
+
+/* hero help card (desktop) */
+.wa-v3 .wa-help-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 660px;
+  margin: 30px auto 0;
+  padding: 22px 24px;
+  border-radius: var(--wa-radius-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  text-align: left;
+}
+.wa-v3 .wa-help-card .wa-ht {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+}
+.wa-v3 .wa-help-card .wa-hb {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.86);
+  margin: 0;
+}
+.wa-v3 .wa-help-card .wa-ha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.wa-v3 .wa-help-card .wa-btn--outline {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.34);
+  color: #fff;
+}
+.wa-v3 .wa-help-card .wa-btn--outline:hover {
+  border-color: #fff;
+}
+.wa-v3 .wa-help-card .wa-btn--gold {
+  background: var(--wa-gold);
+  color: #fff;
+}
+.wa-v3 .wa-help-card .wa-btn--gold:hover {
+  background: var(--wa-gold-dark);
+}
+
+/* ── GRID: sidebar + main form ── */
+.wa-v3 .wa-apply-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  max-width: var(--wa-max);
+  margin: 0 auto;
+  padding: clamp(40px, 5vw, 64px) 24px;
+}
+.wa-v3 .wa-apply-sidebar {
+  position: sticky;
+  top: 90px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.wa-v3 .wa-side-card {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: 26px;
+  box-shadow: var(--wa-shadow);
+}
+.wa-v3 .wa-side-card > h2 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--wa-muted);
+  margin-bottom: 18px;
+}
+.wa-v3 .wa-prog-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.wa-v3 .wa-prog-list li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--wa-border);
+}
+.wa-v3 .wa-prog-list li:last-child {
+  border-bottom: none;
+}
+.wa-v3 .wa-prog-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-prog-list li.is-active .wa-prog-num {
+  background: var(--wa-accent);
+  color: #fff;
+}
+.wa-v3 .wa-prog-lbl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-prog-list li.is-active .wa-prog-lbl {
+  font-weight: 700;
+  color: var(--wa-text);
+}
+.wa-v3 .wa-prog-lbl .wa-pic {
+  color: var(--wa-muted);
+  flex-shrink: 0;
+}
+.wa-v3 .wa-prog-list li.is-active .wa-prog-lbl .wa-pic {
+  color: var(--wa-accent);
+}
+
+/* next-steps card (details) */
+.wa-v3 .wa-next-card > summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  list-style-position: outside;
+}
+.wa-v3 .wa-next-card__body {
+  margin-top: 14px;
+}
+.wa-v3 .wa-next-card__body h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--wa-text);
+  margin-bottom: 12px;
+}
+.wa-v3 .wa-next-card__body ol {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 13.5px;
+  color: var(--wa-muted);
+  line-height: 1.5;
+}
+.wa-v3 .wa-next-card__call {
+  font-size: 13.5px;
+  color: var(--wa-muted);
+  margin-top: 14px;
+}
+.wa-v3 .wa-next-card__call a {
+  color: var(--wa-gold-dark);
+  font-weight: 700;
+}
+
+/* main form area */
+.wa-v3 .wa-main-form {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(28px, 3vw, 40px);
+  box-shadow: var(--wa-shadow-lg);
+}
+.wa-v3 .wa-form-kicker {
+  font-size: 13px;
+  color: var(--wa-muted);
+  margin-bottom: 18px;
+}
+
+/* docs checklist (details) */
+.wa-v3 .wa-docs {
+  margin-top: 26px;
+  border-top: 1px solid var(--wa-border);
+  padding-top: 22px;
+}
+.wa-v3 .wa-docs > summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--wa-text);
+  list-style-position: outside;
+  padding-left: 4px;
+}
+.wa-v3 .wa-docs > summary::-webkit-details-marker {
+  color: var(--wa-success);
+}
+.wa-v3 .wa-docs__body {
+  margin-top: 14px;
+}
+.wa-v3 .wa-docs__body h2 {
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+.wa-v3 .wa-docs__lead,
+.wa-v3 .wa-docs__note {
+  font-size: 13.5px;
+  color: var(--wa-muted);
+  line-height: 1.55;
+  margin: 0 0 12px;
+}
+.wa-v3 .wa-docs__body ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 13.5px;
+  color: var(--wa-muted);
+  line-height: 1.5;
+}
+.wa-v3 .wa-docs__note {
+  margin: 12px 0 0;
+}
+
+/* ── supplemental cards ── */
+.wa-v3 .wa-supp-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: var(--wa-max);
+  margin: 0 auto;
+  padding: 0 24px clamp(48px, 6vw, 80px);
+}
+.wa-v3 .wa-supp-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: 26px;
+}
+.wa-v3 .wa-supp-card .wa-sic {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.wa-v3 .wa-supp-card .wa-sic--accent {
+  background: var(--wa-accent-soft);
+  color: var(--wa-success);
+}
+.wa-v3 .wa-supp-card .wa-sic--info {
+  background: var(--wa-info-soft);
+  color: var(--wa-info);
+}
+.wa-v3 .wa-supp-card h3 {
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+.wa-v3 .wa-supp-card p {
+  font-size: 13.5px;
+  color: var(--wa-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+.wa-v3 .wa-supp-card p a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* ── sticky mobile CTA ── */
+.wa-v3 .wa-apply-sticky-cta {
+  display: none;
+}
+
+/* ── RESPONSIVE: form-first on mobile ── */
+@media (max-width: 768px) {
+  .wa-v3 .wa-hero-social,
+  .wa-v3 .wa-hero-desc,
+  .wa-v3 .wa-help-card {
+    display: none;
+  }
+  .wa-v3 .wa-hero-help-compact {
+    display: block;
+  }
+  .wa-v3 .wa-hero-start-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .wa-v3 .wa-apply-grid {
+    grid-template-columns: 1fr;
+    padding: 32px 16px;
+    gap: 18px;
+  }
+  .wa-v3 .wa-main-form {
+    order: -1;
+  }
+  .wa-v3 .wa-apply-sidebar {
+    position: static;
+    order: 1;
+  }
+  .wa-v3 .wa-apply-sidebar .wa-prog-card {
+    display: none;
+  }
+  .wa-v3 .wa-supp-row {
+    grid-template-columns: 1fr;
+    padding-inline: 16px;
+  }
+  .wa-v3 .wa-supp-row .wa-supp-card:nth-child(2) {
+    display: none;
+  }
+  .wa-v3 .wa-apply-page {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+  .wa-v3 .wa-apply-sticky-cta {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid var(--wa-border);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(8px);
+  }
+  .wa-v3 .wa-apply-sticky-cta .wa-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* desktop: details panels always expanded, summary hidden, heading visible
+   (matches original .apply-sidebar-next-steps / .apply-docs-checklist behavior) */
+@media (min-width: 769px) {
+  .wa-v3 .wa-next-card > summary,
+  .wa-v3 .wa-docs > summary {
+    display: none;
+  }
+  .wa-v3 .wa-next-card .wa-next-card__body,
+  .wa-v3 .wa-docs .wa-docs__body {
+    display: block;
+    margin-top: 0;
+  }
+}
+
+/* mobile: summary acts as the disclosure control; heading hidden as redundant */
+@media (max-width: 768px) {
+  .wa-v3 .wa-next-card > summary,
+  .wa-v3 .wa-docs > summary {
+    display: list-item;
+    min-height: 44px;
+    padding: 4px 0;
+  }
+  .wa-v3 .wa-next-card__body h3,
+  .wa-v3 .wa-docs__body h2 {
+    display: none;
+  }
+  .wa-v3 .wa-docs > summary::-webkit-details-marker {
+    color: var(--wa-success);
+  }
+}
+
+/* gold + outline button variants used in the apply hero help card */
+.wa-v3 .wa-btn--gold {
+  background: var(--wa-gold);
+  color: #fff;
+}
+.wa-v3 .wa-btn--gold:hover {
+  background: var(--wa-gold-dark);
+}

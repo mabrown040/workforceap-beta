@@ -1,10 +1,10 @@
+import '@/css/marketing-v3-programs.css';
 import type { Metadata } from 'next';
 import LocalizedLink from '@/components/LocalizedLink';
 import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import ProgramsContent from './ProgramsContent';
 import ProgramsMobileBrowseNav from '@/components/marketing/ProgramsMobileBrowseNav';
-import { CTABand, JourneyStep, SplitHero } from '@/components/marketing/ui';
 import { WORKFORCEAP_PROGRAM_CATALOG_SIZE } from '@/lib/content/programs';
 import { getTranslations } from 'next-intl/server';
 
@@ -20,146 +20,98 @@ export default async function ProgramsPage() {
   const t = await getTranslations('marketing.programs');
 
   return (
-    <div className="inner-page programs-page marketing-stack marketing-stack--enter">
+    <div className="wa-v3 inner-page programs-page marketing-stack marketing-stack--enter">
       {/* ══════════════════════════════════════════════
-          MOBILE LAYOUT ≤640px — Stitch-aligned
+          HERO — blend crimson→plum tile + photo
           ══════════════════════════════════════════════ */}
-      {/* ── Hero Section ── */}
-      <section className="content-section" style={{ paddingBottom: 0 }}>
-        <div className="container" style={{ maxWidth: 1200 }}>
-          <SplitHero
-            eyebrow={t("heroTitle")}
-            headline={
-              <>
-                {t("headlineMain")}{" "}
-                <span style={{ color: "var(--color-accent)", fontStyle: "italic" }}>{t("headlineAccent")}</span>
-              </>
-            }
-            subheadline={
-              <>
-                <p style={{ fontSize: "1.125rem", color: "var(--color-on-surface-variant)", marginBottom: "1.25rem", lineHeight: 1.65 }}>
-                  {t("heroDesc")}
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "center" }}>
-                  <LocalizedLink href="#programs-quick-start" className="btn btn-primary">
-                    {t("heroCta1")}
-                  </LocalizedLink>
-                  <LocalizedLink href="/find-your-path" className="btn btn-outline">
-                    {t("heroCta2")}
-                  </LocalizedLink>
-                </div>
-              </>
-            }
-            sidebar={
-              <div className="programs-hero-right" style={{ gridColumn: "8 / -1", position: "relative" }}>
-                <div
-                  style={{
-                    borderRadius: "var(--radius-xl)",
-                    overflow: "hidden",
-                    position: "relative",
-                    aspectRatio: "4 / 3",
-                  }}
-                >
-                  <Image
-                    src="/images/hero-people.webp"
-                    alt="WorkforceAP members collaborating on training"
-                    fill
-                    sizes="(min-width: 1024px) 500px, 100vw"
-                    style={{ objectFit: "cover" }}
-                    priority
-                  />
-                </div>
+      <header className="wa-hero">
+        <div className="wa-wrap">
+          <div className="wa-prog-hero-grid">
+            <div className="wa-tile wa-tile--hero">
+              <span className="wa-ribbon">{t('heroTitle')}</span>
+              <h1>
+                {t('headlineMain')}{' '}
+                <span className="wa-accent">{t('headlineAccent')}</span>
+              </h1>
+              <p>{t('heroDesc')}</p>
+              <div className="wa-hero-actions">
+                <LocalizedLink href="#programs-quick-start" className="wa-btn wa-btn--light">
+                  {t('heroCta1')}
+                </LocalizedLink>
+                <LocalizedLink href="/find-your-path" className="wa-btn wa-btn--translucent">
+                  {t('heroCta2')}
+                </LocalizedLink>
               </div>
-            }
-          />
+            </div>
+            <div className="wa-prog-hero-photo programs-hero-right">
+              <Image
+                src="/images/hero-people.webp"
+                alt="WorkforceAP members collaborating on training"
+                fill
+                sizes="(min-width: 1024px) 500px, 100vw"
+                style={{ objectFit: 'cover' }}
+                priority
+              />
+            </div>
+          </div>
         </div>
-      </section>
+      </header>
 
       {/* Mobile: sticky category chips sit directly under the hero so members can
           jump to the catalog without scrolling past quick-start cards first. */}
       <ProgramsMobileBrowseNav />
 
-      <section id="programs-quick-start" className="programs-quick-start" style={{ padding: '2rem 0 0' }}>
-        <div className="container" style={{ maxWidth: 1200 }}>
-          <div
-            style={{
-              background: 'var(--surface-container-low)',
-              borderRadius: 'var(--radius-xl)',
-              padding: '1.5rem',
-              border: '1px solid var(--outline-variant)',
-            }}
-          >
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div>
-                <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>
-                  {t('quickStart')}
-                </p>
-                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: 0 }}>
-                  {t('quickStartBody')}
-                </h2>
-              </div>
-              <LocalizedLink href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
-                {t('notSure')}
-              </LocalizedLink>
+      {/* ══════════════════════════════════════════════
+          QUICK START — lanes that fit you best
+          ══════════════════════════════════════════════ */}
+      <section id="programs-quick-start" className="wa-band wa-band--surface programs-quick-start">
+        <div className="wa-wrap">
+          <div className="wa-sec-head wa-qs-head">
+            <div>
+              <span className="wa-eyebrow">{t('quickStart')}</span>
+              <h2>{t('quickStartBody')}</h2>
             </div>
+            <LocalizedLink href="/find-your-path" className="wa-qs-link">
+              {t('notSure')}
+            </LocalizedLink>
+          </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '1rem',
-              }}
-            >
-              {[
-                {
-                  eyebrow: t('quickStartCard1Eyebrow'),
-                  title: t('quickStartCard1Title'),
-                  desc: t('quickStartCard1Desc'),
-                  href: '/programs/digital-literacy-empowerment-class',
-                  cta: t('quickStartCard1Cta'),
-                },
-                {
-                  eyebrow: t('quickStartCard2Eyebrow'),
-                  title: t('quickStartCard2Title'),
-                  desc: t('quickStartCard2Desc'),
-                  href: '/programs/it-support-professional-certificate-ibm',
-                  cta: t('quickStartCard2Cta'),
-                },
-                {
-                  eyebrow: t('quickStartCard3Eyebrow'),
-                  title: t('quickStartCard3Title'),
-                  desc: t('quickStartCard3Desc'),
-                  href: '/programs/project-management-professional-certificate-microsoft',
-                  cta: t('quickStartCard3Cta'),
-                },
-              ].map((item) => (
-                <LocalizedLink
-                  key={item.title}
-                  href={item.href}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.75rem',
-                    padding: '1rem',
-                    borderRadius: 'var(--radius-lg)',
-                    background: 'var(--surface-container-high)',
-                    border: '1px solid var(--outline-variant)',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    minHeight: '100%',
-                  }}
-                >
-                  <div>
-                    <p className="text-label-upper" style={{ color: 'var(--color-accent)', margin: '0 0 0.5rem' }}>{item.eyebrow}</p>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-on-surface)', margin: '0 0 0.5rem' }}>{item.title}</h3>
-                    <p style={{ fontSize: '0.9rem', lineHeight: 1.55, color: 'var(--color-on-surface-variant)', margin: 0 }}>{item.desc}</p>
-                  </div>
-                  <span style={{ marginTop: 'auto', color: 'var(--color-accent)', fontWeight: 700 }}>
-                    {item.cta} →
-                  </span>
-                </LocalizedLink>
-              ))}
-            </div>
+          <div className="wa-qs">
+            {[
+              {
+                eyebrow: t('quickStartCard1Eyebrow'),
+                title: t('quickStartCard1Title'),
+                desc: t('quickStartCard1Desc'),
+                href: '/programs/digital-literacy-empowerment-class',
+                cta: t('quickStartCard1Cta'),
+              },
+              {
+                eyebrow: t('quickStartCard2Eyebrow'),
+                title: t('quickStartCard2Title'),
+                desc: t('quickStartCard2Desc'),
+                href: '/programs/it-support-professional-certificate-ibm',
+                cta: t('quickStartCard2Cta'),
+              },
+              {
+                eyebrow: t('quickStartCard3Eyebrow'),
+                title: t('quickStartCard3Title'),
+                desc: t('quickStartCard3Desc'),
+                href: '/programs/project-management-professional-certificate-microsoft',
+                cta: t('quickStartCard3Cta'),
+              },
+            ].map((item) => (
+              <LocalizedLink key={item.title} href={item.href} className="wa-qcard">
+                <span className="wa-eb">{item.eyebrow}</span>
+                <h3>{item.title}</h3>
+                <p>{item.desc}</p>
+                <span className="wa-go">
+                  {item.cta}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </span>
+              </LocalizedLink>
+            ))}
           </div>
         </div>
       </section>
@@ -169,130 +121,108 @@ export default async function ProgramsPage() {
           ══════════════════════════════════════════════ */}
       <div className="programs-page-desktop-only">
 
-      {/* ── Tool Routing ── */}
-      <section style={{ padding: '3rem 0 0' }}>
-        <div className="container" style={{ maxWidth: 1200 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
-            <LocalizedLink
-              href="/find-your-path"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.625rem',
-                padding: '0.875rem 1.5rem',
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--color-accent)',
-                color: 'var(--color-white, #fff)',
-                fontWeight: 700,
-                fontSize: '0.9375rem',
-                textDecoration: 'none',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">psychology</span>
-              {t('notSure')}
-            </LocalizedLink>
-            <LocalizedLink
-              href="/program-comparison"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.625rem',
-                padding: '0.875rem 1.5rem',
-                borderRadius: 'var(--radius-md)',
-                border: '2px solid var(--color-accent)',
-                color: 'var(--color-accent)',
-                fontWeight: 700,
-                fontSize: '0.9375rem',
-                textDecoration: 'none',
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">compare_arrows</span>
-              {t('toolChipCompare')}
-            </LocalizedLink>
-            <LocalizedLink
-              href="/salary-guide"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.625rem',
-                padding: '0.875rem 1.5rem',
-                borderRadius: 'var(--radius-md)',
-                border: '2px solid var(--outline-variant)',
-                color: 'var(--color-on-surface)',
-                fontWeight: 600,
-                fontSize: '0.9375rem',
-                textDecoration: 'none',
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }} aria-hidden="true">payments</span>
-              {t('toolChipSalary')}
-            </LocalizedLink>
+        {/* ── Tool routing ── */}
+        <section className="wa-band" style={{ paddingBottom: 0 }}>
+          <div className="wa-wrap">
+            <div className="wa-tools">
+              <LocalizedLink href="/find-your-path" className="wa-btn wa-btn--primary">
+                <svg className="wa-tool-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" />
+                </svg>
+                {t('notSure')}
+              </LocalizedLink>
+              <LocalizedLink href="/program-comparison" className="wa-btn wa-btn--ghost">
+                <svg className="wa-tool-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M7 8l-4 4 4 4M17 8l4 4-4 4M14 4l-4 16" />
+                </svg>
+                {t('toolChipCompare')}
+              </LocalizedLink>
+              <LocalizedLink href="/salary-guide" className="wa-btn wa-btn--ghost">
+                <svg className="wa-tool-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v10M9.5 9.2a2.2 2.2 0 0 1 2.5-1.2c1.2.2 1.8 1 1.8 1.8 0 1.8-3.6 1.3-3.6 3.1 0 .9.7 1.6 1.8 1.8a2.2 2.2 0 0 0 2.5-1.2" />
+                </svg>
+                {t('toolChipSalary')}
+              </LocalizedLink>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── How to Choose ── */}
-      <section style={{ padding: '3rem 0 0' }}>
-        <div className="container" style={{ maxWidth: 1200 }}>
-          <div
-            style={{
-              background: 'var(--surface-container-low)',
-              borderRadius: 'var(--radius-xl)',
-              padding: '2.5rem 3rem',
-            }}
-          >
-            <h2
-              style={{
-                fontSize: '1.375rem',
-                fontWeight: 800,
-                color: 'var(--color-on-surface)',
-                marginBottom: '0.5rem',
-              }}
-            >
-              {t('howToChoose')}
-            </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.75rem', maxWidth: '44rem' }}>
-              {t('howToChooseDesc')}
-            </p>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                gap: '1.25rem',
-              }}
-            >
+        {/* ── How to choose ── */}
+        <section className="wa-band">
+          <div className="wa-wrap">
+            <div className="wa-sec-head">
+              <span className="wa-eyebrow">{t('howToChoose')}</span>
+              <h2>{t('howToChoose')}</h2>
+              <p>{t('howToChooseDesc')}</p>
+            </div>
+            <div className="wa-choose">
               {[
-                { icon: 'interests', label: t('howToChooseFactor1Label'), desc: t('howToChooseFactor1Desc') },
-                { icon: 'devices', label: t('howToChooseFactor2Label'), desc: t('howToChooseFactor2Desc') },
-                { icon: 'schedule', label: t('howToChooseFactor3Label'), desc: t('howToChooseFactor3Desc') },
-                { icon: 'work', label: t('howToChooseFactor4Label'), desc: t('howToChooseFactor4Desc') },
-                { icon: 'trending_up', label: t('howToChooseFactor5Label'), desc: t('howToChooseFactor5Desc') },
+                {
+                  label: t('howToChooseFactor1Label'),
+                  desc: t('howToChooseFactor1Desc'),
+                  icon: (
+                    <path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z" />
+                  ),
+                },
+                {
+                  label: t('howToChooseFactor2Label'),
+                  desc: t('howToChooseFactor2Desc'),
+                  icon: (
+                    <>
+                      <rect x="5" y="2" width="14" height="20" rx="2" />
+                      <path d="M11 18h2" />
+                    </>
+                  ),
+                },
+                {
+                  label: t('howToChooseFactor3Label'),
+                  desc: t('howToChooseFactor3Desc'),
+                  icon: (
+                    <>
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 7v5l3 2" />
+                    </>
+                  ),
+                },
+                {
+                  label: t('howToChooseFactor4Label'),
+                  desc: t('howToChooseFactor4Desc'),
+                  icon: (
+                    <path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.5 5.7 21l2.3-7.1-6-4.5h7.6z" />
+                  ),
+                },
+                {
+                  label: t('howToChooseFactor5Label'),
+                  desc: t('howToChooseFactor5Desc'),
+                  icon: (
+                    <>
+                      <path d="M3 17l6-6 4 4 7-8" />
+                      <path d="M21 7v5h-5" />
+                    </>
+                  ),
+                },
               ].map((item) => (
-                <div key={item.label} style={{ display: 'flex', gap: '0.875rem', alignItems: 'flex-start' }}>
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ color: 'var(--color-accent)', fontSize: '1.5rem', flexShrink: 0, marginTop: '0.125rem' }}
-                    aria-hidden="true"
-                  >
-                    {item.icon}
-                  </span>
-                  <div>
-                    <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-on-surface)', margin: '0 0 0.25rem' }}>{item.label}</p>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', margin: 0, lineHeight: 1.5 }}>{item.desc}</p>
+                <div key={item.label} className="wa-fcard">
+                  <div className="wa-ic">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      {item.icon}
+                    </svg>
                   </div>
+                  <h3>{item.label}</h3>
+                  <p>{item.desc}</p>
                 </div>
               ))}
             </div>
-            <p style={{ marginTop: '1.75rem', fontSize: '0.9rem', color: 'var(--color-on-surface-variant)' }}>
+            <p className="wa-choose-foot">
               {t('howToChooseFootnotePrefix')}{' '}
-              <LocalizedLink href="/find-your-path" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: '3px' }}>
+              <LocalizedLink href="/find-your-path">
                 {t('howToChooseFootnoteLink')}
               </LocalizedLink>
             </p>
           </div>
-        </div>
-      </section>
+        </section>
 
       </div>{/* end how-to-choose */}
 
@@ -303,100 +233,67 @@ export default async function ProgramsPage() {
 
       <div>
 
-      {/* ── Journey Section — 4-step flow ── */}
-      <section className="bg-surface-container-low" style={{ padding: '6rem 0' }}>
-        <div className="container" style={{ maxWidth: 1200 }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              {t('fromEnrollment')}
-            </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '32rem', margin: '0 auto' }}>
-              {t('journeyIntro')}
-            </p>
+        {/* ══════════════════════════════════════════════
+            JOURNEY — 4-step flow (blend step cards)
+            ══════════════════════════════════════════════ */}
+        <section className="wa-band wa-band--surface">
+          <div className="wa-wrap">
+            <div className="wa-sec-head" style={{ maxWidth: '660px' }}>
+              <span className="wa-eyebrow">{t('fromEnrollment')}</span>
+              <h2>{t('fromEnrollment')}</h2>
+              <p>{t('journeyIntro')}</p>
+            </div>
+            <div className="wa-prog-steps programs-journey-grid">
+              {[
+                { num: '1', title: t('journeyStep1Title'), desc: t('journeyStep1Desc') },
+                { num: '2', title: t('journeyStep2Title'), desc: t('journeyStep2Desc') },
+                { num: '3', title: t('journeyStep3Title'), desc: t('journeyStep3Desc') },
+                { num: '4', title: t('journeyStep4Title'), desc: t('journeyStep4Desc') },
+              ].map((step) => (
+                <div key={step.num} className="wa-step">
+                  <div className="wa-n">{step.num}</div>
+                  <h3>{step.title}</h3>
+                  <p>{step.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '2rem',
-              position: 'relative',
-            }}
-            className="programs-journey-grid"
-          >
-            {[
-              { num: '01', icon: 'assessment', title: t('journeyStep1Title'), desc: t('journeyStep1Desc') },
-              { num: '02', icon: 'workspace_premium', title: t('journeyStep2Title'), desc: t('journeyStep2Desc') },
-              { num: '03', icon: 'trending_up', title: t('journeyStep3Title'), desc: t('journeyStep3Desc') },
-              { num: '04', icon: 'handshake', title: t('journeyStep4Title'), desc: t('journeyStep4Desc') },
-            ].map((step) => (
-              <JourneyStep
-                key={step.num}
-                number={step.num}
-                icon={step.icon}
-                title={step.title}
-                description={step.desc}
-              />
-            ))}
+        </section>
+
+        {/* ══════════════════════════════════════════════
+            CTA — crimson→plum band
+            ══════════════════════════════════════════════ */}
+        <section className="wa-band" style={{ paddingTop: 0 }}>
+          <div className="wa-wrap">
+            <div className="wa-cta">
+              <h2>{t('ctaHeadline')}</h2>
+              <p>{t('ctaSubheadline')}</p>
+              <div className="wa-acts">
+                <LocalizedLink href="/apply" className="wa-btn wa-btn--light">
+                  {t('ctaPrimary')}
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </LocalizedLink>
+                <LocalizedLink href="/find-your-path" className="wa-btn wa-btn--translucent">
+                  {t('ctaSecondary')}
+                </LocalizedLink>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── CTA Section ── */}
-      <CTABand
-        variant="dark"
-        headline={t('ctaHeadline')}
-        subheadline={t('ctaSubheadline')}
-        primaryAction={
-          <LocalizedLink
-            href="/apply"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: 'var(--color-white)',
-              color: 'var(--color-accent)',
-              padding: '1rem 2rem',
-              borderRadius: 'var(--radius-md)',
-              fontWeight: 700,
-              textDecoration: 'none',
-            }}
-          >
-            {t('ctaPrimary')}
-            <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">arrow_forward</span>
-          </LocalizedLink>
-        }
-        secondaryAction={
-          <LocalizedLink
-            href="/find-your-path"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              color: 'var(--color-white)',
-              padding: '1rem 2rem',
-              borderRadius: 'var(--radius-md)',
-              fontWeight: 700,
-              textDecoration: 'none',
-              border: '2px solid var(--color-white)',
-            }}
-          >
-            {t('ctaSecondary')}
-          </LocalizedLink>
-        }
-      />
-
-      {/* Responsive styles (layout toggle lives at top of page) */}
-      <style>{`
-        @media (max-width: 1023px) {
-          .programs-hero-left { grid-column: 1 / -1 !important; }
-          .programs-hero-right { grid-column: 1 / -1 !important; }
-          .programs-hero-right > div { aspect-ratio: 16 / 9 !important; max-height: 320px; }
-          .programs-journey-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (max-width: 767px) {
-          .programs-journey-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
+        {/* Responsive styles (layout toggle lives at top of page) */}
+        <style>{`
+          @media (max-width: 1023px) {
+            .programs-hero-left { grid-column: 1 / -1 !important; }
+            .programs-hero-right { grid-column: 1 / -1 !important; }
+            .programs-journey-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          }
+          @media (max-width: 767px) {
+            .programs-journey-grid { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
 
       </div>{/* end responsive wrapper */}
 

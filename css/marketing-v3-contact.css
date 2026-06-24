@@ -1,0 +1,297 @@
+/*
+ * marketing-v3-contact.css — page-unique blend styles for /contact.
+ *
+ * EVERY selector is scoped under `.wa-v3` so it cannot collide with global
+ * marketing styles or other pages. Imported at the top of app/contact/page.tsx.
+ * Shared blend classes (.wa-btn, tokens, focus-visible, reduced-motion, etc.)
+ * live in css/marketing-v3.css and are NOT duplicated here.
+ *
+ * Ported 1:1 (presentation only) from docs/mockups/wa-v3-contact.html.
+ */
+
+/* ===== PAGE HERO ===== */
+.wa-v3 .wa-contact-hero {
+  padding: clamp(40px, 6vw, 72px) 0 clamp(36px, 4vw, 52px);
+}
+.wa-v3 .wa-contact-hero .wa-eyebrow {
+  margin-bottom: 14px;
+  display: block;
+}
+.wa-v3 .wa-contact-hero h1 {
+  font-size: clamp(34px, 5vw, 58px);
+  max-width: 16ch;
+}
+.wa-v3 .wa-contact-hero h1 .wa-accent {
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-contact-hero p {
+  margin-top: 18px;
+  font-size: clamp(15px, 1.2vw, 18px);
+  color: var(--wa-muted);
+  max-width: 64ch;
+}
+
+/* ===== CONTACT GRID ===== */
+.wa-v3 .wa-contact-section {
+  padding-bottom: clamp(36px, 4vw, 52px);
+}
+.wa-v3 .wa-contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.85fr);
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 1023px) {
+  .wa-v3 .wa-contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* form panel */
+.wa-v3 .wa-panel {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(20px, 3vw, 38px);
+  box-shadow: var(--wa-shadow-lg);
+}
+.wa-v3 .wa-panel h2 {
+  font-size: 24px;
+  margin-bottom: 22px;
+}
+
+/* ===== FORM (styles target ContactFormClient's existing classnames) ===== */
+.wa-v3 .contact-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 560px) {
+  .wa-v3 .contact-form .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .contact-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+.wa-v3 .contact-form .form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 7px;
+  color: var(--wa-text);
+}
+.wa-v3 .contact-form .form-group input,
+.wa-v3 .contact-form .form-group select,
+.wa-v3 .contact-form .form-group textarea {
+  font-family: var(--font-inter), -apple-system, sans-serif;
+  font-size: 15px;
+  color: var(--wa-text);
+  background: var(--wa-bg);
+  border: 1.5px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  padding: 12px 14px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.wa-v3 .contact-form .form-group input:focus,
+.wa-v3 .contact-form .form-group select:focus,
+.wa-v3 .contact-form .form-group textarea:focus {
+  outline: none;
+  border-color: var(--wa-accent);
+  box-shadow: 0 0 0 3px rgba(173, 44, 77, 0.12);
+}
+.wa-v3 .contact-form .form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* checkbox row */
+.wa-v3 .contact-form .contact-form-checkbox-row {
+  margin-bottom: 18px;
+}
+.wa-v3 .contact-form .contact-checkbox-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--wa-text);
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+}
+.wa-v3 .contact-form .contact-checkbox-input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--wa-accent);
+  flex: none;
+}
+
+/* inline field errors */
+.wa-v3 .contact-form .contact-form-field-error {
+  margin: 7px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wa-accent-dark);
+}
+
+/* footnote */
+.wa-v3 .contact-form .contact-form-footnote {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--wa-muted);
+  text-align: center;
+}
+
+/* submit button — reskin the shared button output to the blend primary pill */
+.wa-v3 .contact-form button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 999px;
+  padding: 14px 26px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  background: var(--wa-accent);
+  color: #fff;
+  box-shadow: 0 12px 30px -12px rgba(173, 44, 77, 0.6);
+  transition: transform 0.18s, box-shadow 0.18s, background 0.18s, color 0.18s;
+}
+.wa-v3 .contact-form button[type="submit"]:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--wa-accent-dark);
+}
+.wa-v3 .contact-form button[type="submit"]:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ===== CONTACT INFO CARDS ===== */
+.wa-v3 .wa-info-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.wa-v3 .wa-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 560px) {
+  .wa-v3 .wa-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wa-info-card {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wa-v3 .wa-info-card .wa-ic {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-info-card--gold .wa-ic {
+  background: rgba(255, 187, 0, 0.14);
+  color: var(--wa-gold-dark);
+}
+.wa-v3 .wa-info-card h3 {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.wa-v3 .wa-info-card p {
+  font-size: 14px;
+  color: var(--wa-muted);
+  margin: 0;
+}
+.wa-v3 .wa-info-card .wa-mono {
+  font-family: var(--font-inter), monospace;
+  font-variant-numeric: tabular-nums;
+}
+.wa-v3 .wa-info-card a.wa-link {
+  color: var(--wa-accent);
+  font-weight: 600;
+}
+.wa-v3 .wa-info-card a.wa-link:hover {
+  text-decoration: underline;
+}
+
+/* austin card */
+.wa-v3 .wa-austin-card {
+  background: linear-gradient(150deg, var(--wa-accent-soft), #fff);
+  border: 1px solid #f3d9df;
+  border-radius: var(--wa-radius);
+  padding: 24px;
+}
+.wa-v3 .wa-austin-card .wa-eyebrow {
+  display: block;
+  margin-bottom: 8px;
+}
+.wa-v3 .wa-austin-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.wa-v3 .wa-austin-card p {
+  font-size: 14px;
+  color: var(--wa-muted);
+}
+
+/* ===== QUOTE BAND ===== */
+.wa-v3 .wa-quote-band {
+  padding: clamp(40px, 5vw, 64px) 0;
+  border-top: 1px solid rgba(88, 65, 68, 0.1);
+}
+.wa-v3 .wa-quote-card {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(26px, 4vw, 44px);
+  box-shadow: var(--wa-shadow-lg);
+  max-width: 820px;
+  margin: 0 auto;
+  text-align: center;
+}
+.wa-v3 .wa-quote-card .wa-qmark {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+}
+.wa-v3 .wa-quote-card blockquote {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 700;
+  font-size: clamp(18px, 2.4vw, 26px);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  color: var(--wa-text);
+  margin: 0;
+}
+.wa-v3 .wa-quote-card .wa-by {
+  margin-top: 18px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wa-muted);
+}

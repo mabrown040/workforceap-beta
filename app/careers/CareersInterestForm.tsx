@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 import { trackLeadFormEvent } from '@/lib/analytics/events';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { marketingButtonPresets } from '@/lib/marketing/buttonClasses';
 import {
   type CareersLeadErrorCode,
   type CareersLeadFieldKey,
@@ -97,31 +96,12 @@ export default function CareersInterestForm() {
 
   if (status === 'success') {
     return (
-      <div
-        role="status"
-        style={{
-          padding: '1.5rem',
-          borderRadius: '0.875rem',
-          background: 'rgba(46, 125, 50, 0.12)',
-          border: '1px solid rgba(46, 125, 50, 0.35)',
-          color: 'var(--color-on-surface)',
-        }}
-      >
-        <p style={{ margin: 0, fontWeight: 700 }}>{t('successTitle')}</p>
-        <p style={{ margin: '0.5rem 0 0', color: 'var(--color-on-surface-variant)' }}>{t('successBody')}</p>
+      <div role="status" className="wa-form-success">
+        <p className="wa-form-success-title">{t('successTitle')}</p>
+        <p className="wa-form-success-body">{t('successBody')}</p>
       </div>
     );
   }
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '0.75rem 1rem',
-    borderRadius: '0.5rem',
-    border: '1px solid var(--outline-variant, #584144)',
-    background: 'var(--surface-container-lowest, #fff)',
-    color: 'var(--color-on-surface)',
-    fontSize: '1rem',
-  };
 
   function getFieldErrorMessage(field: CareersLeadFieldKey, code: CareersLeadErrorCode): string {
     switch (field) {
@@ -141,42 +121,21 @@ export default function CareersInterestForm() {
   return (
     <form onSubmit={handleSubmit} noValidate aria-describedby={errorMsg ? errorId : undefined}>
       {roleTitle ? (
-        <div
-          role="status"
-          style={{
-            marginBottom: '1rem',
-            padding: '0.75rem 1rem',
-            borderRadius: '0.5rem',
-            background: 'rgba(173, 44, 77, 0.08)',
-            color: 'var(--color-on-surface)',
-            fontSize: '0.9rem',
-          }}
-        >
+        <div role="status" className="wa-form-applying">
           <strong>{t('applyingForLabel')}</strong> {roleTitle}
         </div>
       ) : null}
 
       {errorMsg && (
-        <div
-          id={errorId}
-          role="alert"
-          style={{
-            marginBottom: '1rem',
-            padding: '0.75rem 1rem',
-            borderRadius: '0.5rem',
-            background: 'rgba(173, 44, 77, 0.12)',
-            color: 'var(--color-on-surface)',
-            fontSize: '0.875rem',
-          }}
-        >
+        <div id={errorId} role="alert" className="wa-form-alert">
           {errorMsg}
         </div>
       )}
 
-      <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
-        <div>
-          <label htmlFor={`${formId}-first`} style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600 }}>
-            {tForm('firstName')} <span aria-hidden="true">*</span>
+      <div className="wa-frow">
+        <div className="wa-field">
+          <label htmlFor={`${formId}-first`}>
+            {tForm('firstName')} <span className="wa-req" aria-hidden="true">*</span>
           </label>
           <input
             id={`${formId}-first`}
@@ -184,18 +143,15 @@ export default function CareersInterestForm() {
             type="text"
             autoComplete="given-name"
             required
-            style={inputStyle}
             aria-invalid={fieldErrors.first_name ? 'true' : undefined}
           />
           {fieldErrors.first_name && (
-            <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>
-              {getFieldErrorMessage('first_name', fieldErrors.first_name)}
-            </p>
+            <p className="wa-field-error">{getFieldErrorMessage('first_name', fieldErrors.first_name)}</p>
           )}
         </div>
-        <div>
-          <label htmlFor={`${formId}-last`} style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600 }}>
-            {tForm('lastName')} <span aria-hidden="true">*</span>
+        <div className="wa-field">
+          <label htmlFor={`${formId}-last`}>
+            {tForm('lastName')} <span className="wa-req" aria-hidden="true">*</span>
           </label>
           <input
             id={`${formId}-last`}
@@ -203,20 +159,17 @@ export default function CareersInterestForm() {
             type="text"
             autoComplete="family-name"
             required
-            style={inputStyle}
             aria-invalid={fieldErrors.last_name ? 'true' : undefined}
           />
           {fieldErrors.last_name && (
-            <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>
-              {getFieldErrorMessage('last_name', fieldErrors.last_name)}
-            </p>
+            <p className="wa-field-error">{getFieldErrorMessage('last_name', fieldErrors.last_name)}</p>
           )}
         </div>
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <label htmlFor={`${formId}-email`} style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600 }}>
-          {tForm('email')} <span aria-hidden="true">*</span>
+      <div className="wa-field">
+        <label htmlFor={`${formId}-email`}>
+          {tForm('email')} <span className="wa-req" aria-hidden="true">*</span>
         </label>
         <input
           id={`${formId}-email`}
@@ -224,21 +177,16 @@ export default function CareersInterestForm() {
           type="email"
           autoComplete="email"
           required
-          style={inputStyle}
           aria-invalid={fieldErrors.email ? 'true' : undefined}
         />
         {fieldErrors.email && (
-          <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>
-            {getFieldErrorMessage('email', fieldErrors.email)}
-          </p>
+          <p className="wa-field-error">{getFieldErrorMessage('email', fieldErrors.email)}</p>
         )}
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <label htmlFor={`${formId}-interest`} style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600 }}>
-          {t('interestLabel')}
-        </label>
-        <select id={`${formId}-interest`} name="interest_area" defaultValue="" style={inputStyle}>
+      <div className="wa-field">
+        <label htmlFor={`${formId}-interest`}>{t('interestLabel')}</label>
+        <select id={`${formId}-interest`} name="interest_area" defaultValue="">
           {INTEREST_AREAS.map(({ value, labelKey }) => (
             <option key={value || 'empty'} value={value}>
               {t(labelKey)}
@@ -247,38 +195,30 @@ export default function CareersInterestForm() {
         </select>
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <label htmlFor={`${formId}-message`} style={{ display: 'block', marginBottom: '0.35rem', fontWeight: 600 }}>
-          {t('messageLabel')} <span aria-hidden="true">*</span>
+      <div className="wa-field">
+        <label htmlFor={`${formId}-message`}>
+          {t('messageLabel')} <span className="wa-req" aria-hidden="true">*</span>
         </label>
         <textarea
           id={`${formId}-message`}
           name="message"
           rows={5}
           required
-          style={{ ...inputStyle, resize: 'vertical' }}
           aria-invalid={fieldErrors.message ? 'true' : undefined}
           placeholder={t('messagePlaceholder')}
         />
         {fieldErrors.message && (
-          <p style={{ margin: '0.35rem 0 0', fontSize: '0.8rem', color: 'var(--color-accent)' }}>
-            {getFieldErrorMessage('message', fieldErrors.message)}
-          </p>
+          <p className="wa-field-error">{getFieldErrorMessage('message', fieldErrors.message)}</p>
         )}
       </div>
 
       {CAPTCHA_ENABLED && TURNSTILE_SITE_KEY && (
-        <div style={{ marginTop: '1rem' }}>
+        <div className="wa-field">
           <Turnstile siteKey={TURNSTILE_SITE_KEY} onSuccess={setTurnstileToken} onExpire={() => setTurnstileToken(null)} />
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={status === 'sending'}
-        className={marketingButtonPresets.heroPrimary()}
-        style={{ marginTop: '1.25rem', width: '100%' }}
-      >
+      <button type="submit" disabled={status === 'sending'} className="wa-btn wa-btn--primary">
         {status === 'sending' ? tCommon('sending') : t('submit')}
       </button>
     </form>

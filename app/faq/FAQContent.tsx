@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import LocalizedLink from '@/components/LocalizedLink';
 import { FAQ_CATEGORIES as categories, FAQ_DATA as faqData, type FaqCategoryKey } from '@/lib/content/faqData';
 
@@ -9,6 +9,60 @@ const sidebarGroups = [
   { label: 'For Members', keys: ['Programs & Training', 'Job Placement', 'For Members'] },
   { label: 'For Employers', keys: ['For Employers'] },
 ];
+
+// Inline SVG icons per category (no icon-font dependency; matches approved mockup).
+const CATEGORY_ICONS: Record<FaqCategoryKey, ReactNode> = {
+  'General Questions': (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .8-1 1.7M12 17h.01" />
+    </>
+  ),
+  'Applying & Eligibility': (
+    <>
+      <path d="M9 11l2 2 4-4" />
+      <circle cx="12" cy="12" r="9" />
+    </>
+  ),
+  'Cost & Funding': (
+    <>
+      <rect x="2" y="6" width="20" height="12" rx="2" />
+      <circle cx="12" cy="12" r="2.5" />
+    </>
+  ),
+  'Programs & Training': (
+    <>
+      <path d="M22 10L12 5 2 10l10 5 10-5z" />
+      <path d="M6 12v5c0 1 3 2 6 2s6-1 6-2v-5" />
+    </>
+  ),
+  'Job Placement': (
+    <>
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </>
+  ),
+  'For Members': (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+    </>
+  ),
+  'For Employers': (
+    <>
+      <path d="M3 21h18M5 21V8l7-4 7 4v13" />
+      <path d="M9 21v-5h6v5" />
+    </>
+  ),
+};
+
+function CategoryIcon({ category, size }: { category: FaqCategoryKey; size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      {CATEGORY_ICONS[category]}
+    </svg>
+  );
+}
 
 export default function FAQContent() {
   const [activeCategory, setActiveCategory] = useState<FaqCategoryKey>('General Questions');
@@ -24,28 +78,15 @@ export default function FAQContent() {
   };
 
   return (
-    <section className="content-section">
-      <div className="container" style={{ maxWidth: 1200 }}>
-
-        {/* Editorial 2-col grid */}
-        <div className="faq-layout-grid" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '3rem', alignItems: 'flex-start' }}>
-
+    <section className="wa-faq-band">
+      <div className="wa-wrap">
+        <div className="wa-faq-layout">
           {/* ── Sidebar Nav ── */}
-          <aside className="faq-sidebar" style={{ position: 'sticky', top: 'calc(var(--main-nav-layout-height) + 1rem)' }}>
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <aside className="wa-faq-sidebar">
+            <nav>
               {sidebarGroups.map((group) => (
-                <div key={group.label} style={{ marginBottom: '1rem' }}>
-                  <p style={{
-                    fontSize: '0.625rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.15em',
-                    color: 'var(--color-on-surface-variant)',
-                    marginBottom: '0.5rem',
-                    paddingLeft: '0.75rem',
-                  }}>
-                    {group.label}
-                  </p>
+                <div key={group.label} className="wa-side-group">
+                  <p className="wa-lab">{group.label}</p>
                   {group.keys.map((key) => {
                     const cat = categories.find((c) => c.key === key);
                     if (!cat) return null;
@@ -55,24 +96,10 @@ export default function FAQContent() {
                         key={key}
                         type="button"
                         onClick={() => setActiveCategory(cat.key)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.625rem',
-                          width: '100%',
-                          padding: '0.625rem 0.75rem',
-                          border: 'none',
-                          borderRadius: '0.5rem',
-                          background: isActive ? 'rgba(173,44,77,0.1)' : 'transparent',
-                          color: isActive ? 'var(--color-accent)' : 'var(--color-on-surface-variant)',
-                          fontWeight: isActive ? 600 : 500,
-                          fontSize: '0.875rem',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          transition: 'background-color 0.15s, color 0.15s',
-                        }}
+                        className={`wa-cat-btn${isActive ? ' is-active' : ''}`}
+                        aria-pressed={isActive}
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: '1.125rem' }} aria-hidden="true">{cat.icon}</span>
+                        <CategoryIcon category={cat.key} size={18} />
                         {key}
                       </button>
                     );
@@ -82,29 +109,16 @@ export default function FAQContent() {
             </nav>
 
             {/* Still need support? card */}
-            <div style={{
-              marginTop: '1rem',
-              padding: '1.25rem',
-              background: 'var(--surface-container-low)',
-              borderRadius: '0.75rem',
-              border: '1px solid var(--outline-variant)',
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: 'var(--color-accent)', marginBottom: '0.5rem', display: 'block' }} aria-hidden="true">support_agent</span>
-              <p style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-on-surface)', marginBottom: '0.375rem' }}>Still need support?</p>
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginBottom: '1rem', lineHeight: 1.5 }}>
-                Reach out and WorkforceAP can help you figure out the right next step.
-              </p>
-              <LocalizedLink href="/contact" style={{
-                display: 'block',
-                textAlign: 'center',
-                padding: '0.5rem',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                borderRadius: '0.5rem',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                textDecoration: 'none',
-              }}>
+            <div className="wa-support-card">
+              <div className="wa-sic">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+                  <path d="M21 19a2 2 0 0 1-2 2h-1v-7h3zM3 19a2 2 0 0 0 2 2h1v-7H3z" />
+                </svg>
+              </div>
+              <p className="wa-h">Still need support?</p>
+              <p>Reach out and WorkforceAP can help you figure out the right next step.</p>
+              <LocalizedLink href="/contact" className="wa-btn wa-btn--primary">
                 Contact Us
               </LocalizedLink>
             </div>
@@ -114,103 +128,66 @@ export default function FAQContent() {
           <div>
             {/* For Employers accent banner */}
             {activeCategory === 'For Employers' && (
-              <div style={{
-                padding: '1.25rem 1.5rem',
-                marginBottom: '1.5rem',
-                borderRadius: '0.75rem',
-                background: 'linear-gradient(135deg, rgba(173,44,77,0.12) 0%, rgba(173,44,77,0.04) 100%)',
-                border: '1px solid rgba(173,44,77,0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '1.5rem', color: 'var(--color-accent)' }} aria-hidden="true">handshake</span>
+              <div className="wa-emp-banner">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M8 11l3 3 5-6" />
+                  <path d="M5 12a7 7 0 0 1 14 0" />
+                  <path d="M3 12l2 8h14l2-8" />
+                </svg>
                 <div>
-                  <p style={{ fontWeight: 600, color: 'var(--color-on-surface)', fontSize: '0.95rem' }}>Employer Partnership Inquiries</p>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)' }}>
-                    Looking to hire certified talent? <LocalizedLink href="/partners" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>Learn about our partnership model &rarr;</LocalizedLink>
+                  <p className="wa-h">Employer Partnership Inquiries</p>
+                  <p>
+                    Looking to hire certified talent?{' '}
+                    <LocalizedLink href="/partners">Learn about our partnership model &rarr;</LocalizedLink>
                   </p>
                 </div>
               </div>
             )}
 
             {/* Section heading */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)' }} aria-hidden="true">
-                  {categories.find((c) => c.key === activeCategory)?.icon ?? 'help_outline'}
-                </span>
-                {activeCategory}
-              </h2>
+            <div className="wa-panel-head">
+              <span className="wa-pic">
+                <CategoryIcon category={activeCategory} size={26} />
+              </span>
+              <h2>{activeCategory}</h2>
             </div>
 
             {/* Accordion items */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="wa-acc">
               {faqData[activeCategory]?.map((item) => {
                 const isOpen = openItems.has(item.q);
                 return (
-                  <div
-                    key={item.q}
-                    style={{
-                      background: 'var(--surface-container-low)',
-                      borderRadius: '0.75rem',
-                      overflow: 'hidden',
-                      border: '1px solid var(--outline-variant)',
-                      transition: 'border-color 0.15s',
-                    }}
-                  >
+                  <div key={item.q} className={`wa-qa${isOpen ? ' is-open' : ''}`}>
                     <button
                       type="button"
                       onClick={() => toggleItem(item.q)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        width: '100%',
-                        padding: '1.25rem 1.5rem',
-                        border: 'none',
-                        background: 'transparent',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        color: 'var(--color-on-surface)',
-                        fontWeight: 600,
-                        fontSize: '1rem',
-                        gap: '1rem',
-                      }}
+                      className="wa-qa-summary"
+                      aria-expanded={isOpen}
                     >
                       <span>{item.q}</span>
-                      <span
-                        className="material-symbols-outlined"
-                        style={{
-                          fontSize: '1.25rem',
-                          color: 'var(--color-on-surface-variant)',
-                          transition: 'transform 0.25s',
-                          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                          flexShrink: 0,
-                        }}
-                       aria-hidden="true">
-                        expand_more
-                      </span>
+                      <svg
+                        className="wa-chev"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden="true"
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
                     </button>
                     {isOpen && (
-                      <div style={{ padding: '0 1.5rem 1.25rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
+                      <div className="wa-qa-body">
                         <p>{item.a}</p>
                         {item.link && (
-                          <p style={{ marginTop: '1rem' }}>
-                            <LocalizedLink
-                              href={item.link.href}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                color: 'var(--color-accent)',
-                                fontWeight: 600,
-                                textDecoration: 'none',
-                                fontSize: '0.875rem',
-                              }}
-                            >
+                          <p>
+                            <LocalizedLink href={item.link.href} className="wa-link">
                               {item.link.text}
-                              <span className="material-symbols-outlined" style={{ fontSize: '1rem' }} aria-hidden="true">arrow_forward</span>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                                <path d="M5 12h14M13 6l6 6-6 6" />
+                              </svg>
                             </LocalizedLink>
                           </p>
                         )}
@@ -224,73 +201,32 @@ export default function FAQContent() {
         </div>
 
         {/* ── Bottom CTA: "Didn't find your answer?" ── */}
-        <div style={{
-          marginTop: '4rem',
-          padding: '3rem',
-          borderRadius: '1rem',
-          background: 'var(--surface-container-low)',
-          border: '1px solid var(--outline-variant)',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '2rem',
-          alignItems: 'center',
-        }} className="faq-bottom-cta-grid">
+        <div className="wa-faq-bottom-cta">
           <div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.75rem' }}>
-              Didn&rsquo;t find your answer?
-            </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.6, marginBottom: '1.5rem', maxWidth: '28rem' }}>
-              Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.
+            <h2>Didn&rsquo;t find your answer?</h2>
+            <p>
+              Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next
+              steps.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <LocalizedLink href="/contact" style={{
-                padding: '0.75rem 1.5rem',
-                background: 'var(--color-accent)',
-                color: '#fff',
-                borderRadius: '0.5rem',
-                fontWeight: 700,
-                fontSize: '0.875rem',
-                textDecoration: 'none',
-              }}>
+            <div className="wa-acts">
+              <LocalizedLink href="/contact" className="wa-btn wa-btn--primary">
                 Contact Us
               </LocalizedLink>
-              <LocalizedLink href="/apply" style={{
-                padding: '0.75rem 1.5rem',
-                background: 'var(--surface-container-high)',
-                color: 'var(--color-accent)',
-                borderRadius: '0.5rem',
-                fontWeight: 700,
-                fontSize: '0.875rem',
-                textDecoration: 'none',
-              }}>
+              <LocalizedLink href="/apply" className="wa-btn wa-btn--ghost">
                 Apply Now
               </LocalizedLink>
             </div>
           </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'var(--surface-container)',
-            borderRadius: '0.75rem',
-            aspectRatio: '4/3',
-          }}>
-            <div style={{ textAlign: 'center', color: 'var(--color-on-surface-variant)' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '3rem', display: 'block', marginBottom: '0.5rem', opacity: 0.3 }} aria-hidden="true">forum</span>
-              <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>We&rsquo;re here to help</p>
+          <div className="wa-cta-art">
+            <div className="wa-inner">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <div className="wa-lab">We&rsquo;re here to help</div>
             </div>
           </div>
         </div>
-
       </div>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media (max-width: 768px) {
-          .faq-layout-grid { grid-template-columns: 1fr !important; }
-          .faq-sidebar { position: static !important; }
-          .faq-bottom-cta-grid { grid-template-columns: 1fr !important; }
-        }
-      `}} />
     </section>
   );
 }

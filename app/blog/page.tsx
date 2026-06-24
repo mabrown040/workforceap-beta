@@ -1,3 +1,4 @@
+import '@/css/marketing-v3-blog.css';
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import { prisma } from '@/lib/db/prisma';
@@ -57,7 +58,7 @@ export default async function BlogPage() {
   const hasPosts = posts.length > 0;
 
   return (
-    <div className="inner-page blog-page">
+    <div className="wa-v3 inner-page blog-page">
       <PageHero
         className="blog-page-hero"
         title={hasPosts ? t('blog') : t('careerResources')}

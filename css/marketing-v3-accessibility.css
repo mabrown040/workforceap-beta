@@ -1,0 +1,168 @@
+/*
+ * marketing-v3-accessibility.css — page-unique blend styles for /accessibility.
+ *
+ * EVERY selector is scoped under `.wa-v3` so this file cannot collide with the
+ * global `css/marketing.css` or with `css/marketing-v3.css`. Ported from
+ * docs/mockups/wa-v3-accessibility.html. Shared blend classes (.wa-btn,
+ * .wa-eyebrow, .wa-wrap, tokens, focus-visible, reduced-motion) come from
+ * css/marketing-v3.css and are reused here.
+ */
+
+/* PAGE HERO: accessibility header over crimson→plum gradient + photo */
+.wa-v3 .wa-a11y-hero {
+  padding: clamp(40px, 6vw, 72px) 0 clamp(36px, 5vw, 56px);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+}
+.wa-v3 .wa-a11y-hero .wa-a11y-hero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.wa-v3 .wa-a11y-hero .wa-a11y-hero-photo img {
+  object-fit: cover;
+  object-position: center;
+}
+.wa-v3 .wa-a11y-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(120% 120% at 85% 0%, rgba(164, 127, 56, 0.3), transparent 55%),
+    linear-gradient(150deg, rgba(173, 44, 77, 0.92), rgba(58, 19, 38, 0.94) 92%);
+  pointer-events: none;
+}
+.wa-v3 .wa-a11y-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  pointer-events: none;
+}
+.wa-v3 .wa-a11y-hero .wa-wrap {
+  position: relative;
+  z-index: 2;
+}
+.wa-v3 .wa-a11y-hero .wa-eyebrow {
+  color: var(--wa-gold-soft);
+}
+.wa-v3 .wa-a11y-hero h1 {
+  font-size: clamp(32px, 4.4vw, 54px);
+  margin: 14px 0 0;
+  max-width: 18ch;
+}
+.wa-v3 .wa-a11y-hero p {
+  color: rgba(255, 255, 255, 0.88);
+  margin-top: 18px;
+  max-width: 62ch;
+  font-size: clamp(15px, 1.1vw, 17px);
+}
+.wa-v3 .wa-a11y-hero .wa-reviewed {
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* CONTENT: stacked statement cards */
+.wa-v3 .wa-a11y-content {
+  padding: clamp(36px, 5vw, 64px) 0 clamp(56px, 7vw, 90px);
+}
+.wa-v3 .wa-a11y-stack {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.wa-v3 .wa-a11y-card {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(24px, 3vw, 34px);
+  box-shadow: var(--wa-shadow);
+}
+.wa-v3 .wa-a11y-card .wa-a11y-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.wa-v3 .wa-a11y-card .wa-ic {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.wa-v3 .wa-a11y-card h2 {
+  font-size: clamp(20px, 2.2vw, 25px);
+  letter-spacing: -0.02em;
+}
+.wa-v3 .wa-a11y-card p {
+  color: var(--wa-muted);
+  line-height: 1.75;
+  margin-bottom: 0.85rem;
+}
+.wa-v3 .wa-a11y-card p:last-child {
+  margin-bottom: 0;
+}
+.wa-v3 .wa-a11y-card ul {
+  color: var(--wa-muted);
+  line-height: 1.8;
+  padding-left: 1.25rem;
+  margin: 0;
+}
+.wa-v3 .wa-a11y-card ul li {
+  margin-bottom: 0.55rem;
+}
+.wa-v3 .wa-a11y-card ul li:last-child {
+  margin-bottom: 0;
+}
+.wa-v3 .wa-a11y-card a {
+  color: var(--wa-accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.wa-v3 .wa-a11y-card a:hover {
+  color: var(--wa-accent-dark);
+}
+
+/* contact list (icon-free, label + value rows) */
+.wa-v3 .wa-a11y-contact {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0;
+}
+.wa-v3 .wa-a11y-contact li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  color: var(--wa-text);
+  font-weight: 500;
+}
+.wa-v3 .wa-a11y-contact .wa-lab {
+  color: var(--wa-muted);
+  font-weight: 600;
+  min-width: 64px;
+}
+
+/* status icon tints */
+.wa-v3 .wa-ic--success {
+  background: var(--wa-info-soft);
+  color: var(--wa-success);
+}

@@ -1,0 +1,417 @@
+/*
+ * marketing-v3-faq.css — page-unique blend styles for /faq.
+ *
+ * EVERY selector is scoped under `.wa-v3` so this file cannot collide with the
+ * global `css/marketing.css` or with `css/marketing-v3.css`. Ported 1:1 from
+ * docs/mockups/wa-v3-faq.html. Shared blend classes (.wa-btn, .wa-eyebrow,
+ * tokens, focus-visible, reduced-motion) come from css/marketing-v3.css and
+ * are reused here.
+ */
+
+/* FAQ knowledge-base hero (compact, warm canvas + photo overlay) */
+.wa-v3 .wa-faq-hero {
+  padding: clamp(40px, 6vw, 72px) 0 clamp(36px, 5vw, 56px);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+}
+.wa-v3 .wa-faq-hero .wa-faq-hero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.wa-v3 .wa-faq-hero .wa-faq-hero-photo img {
+  object-fit: cover;
+  object-position: center;
+}
+.wa-v3 .wa-faq-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(120% 120% at 90% 0%, rgba(164, 127, 56, 0.2), transparent 55%),
+    linear-gradient(150deg, rgba(173, 44, 77, 0.92), rgba(58, 19, 38, 0.94) 92%);
+  pointer-events: none;
+}
+.wa-v3 .wa-faq-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask: radial-gradient(120% 80% at 85% 10%, #000, transparent 70%);
+  mask: radial-gradient(120% 80% at 85% 10%, #000, transparent 70%);
+  pointer-events: none;
+}
+.wa-v3 .wa-faq-hero .wa-wrap {
+  position: relative;
+  z-index: 2;
+}
+.wa-v3 .wa-kb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 13px;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  margin-bottom: 18px;
+}
+.wa-v3 .wa-faq-hero h1 {
+  font-size: clamp(34px, 5vw, 58px);
+  max-width: 18ch;
+}
+.wa-v3 .wa-faq-hero h1 .wa-accent {
+  color: var(--wa-gold-soft);
+}
+.wa-v3 .wa-faq-hero p {
+  color: rgba(255, 255, 255, 0.88);
+  margin-top: 16px;
+  max-width: 46ch;
+  font-size: clamp(15px, 1.1vw, 17px);
+  font-weight: 400;
+}
+
+/* generic band spacing for this page */
+.wa-v3 .wa-faq-band {
+  padding: clamp(48px, 6vw, 80px) 0;
+}
+
+/* QUICK ANSWERS card (overlaps the hero) */
+.wa-v3 .wa-quick {
+  margin-top: -32px;
+  position: relative;
+  z-index: 5;
+}
+.wa-v3 .wa-quick-card {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  box-shadow: var(--wa-shadow-lg);
+  padding: clamp(22px, 3vw, 34px);
+}
+.wa-v3 .wa-quick-card .wa-faq-sec-head {
+  margin-bottom: 22px;
+}
+.wa-v3 .wa-quick-card .wa-faq-sec-head h2 {
+  font-size: clamp(20px, 2.4vw, 26px);
+  margin-top: 6px;
+}
+.wa-v3 .wa-qgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.wa-v3 .wa-qcard {
+  background: var(--wa-bg);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.wa-v3 .wa-qcard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--wa-shadow-lg);
+  border-color: #f0cdd5;
+}
+.wa-v3 .wa-qcard h3 {
+  font-size: 16px;
+}
+.wa-v3 .wa-qcard p {
+  font-size: 14px;
+  color: var(--wa-muted);
+  flex: 1;
+}
+.wa-v3 .wa-qcard .wa-go {
+  margin-top: 4px;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--wa-accent);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* FAQ EDITORIAL LAYOUT */
+.wa-v3 .wa-faq-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 40px;
+  align-items: flex-start;
+}
+.wa-v3 .wa-faq-sidebar {
+  position: sticky;
+  top: 88px;
+}
+.wa-v3 .wa-side-group {
+  margin-bottom: 18px;
+}
+.wa-v3 .wa-side-group .wa-lab {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--wa-muted);
+  margin-bottom: 8px;
+  padding-left: 12px;
+}
+.wa-v3 .wa-cat-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--wa-muted);
+  font-family: var(--font-inter), -apple-system, sans-serif;
+  font-weight: 500;
+  font-size: 14.5px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s, color 0.15s;
+}
+.wa-v3 .wa-cat-btn:hover {
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-cat-btn svg {
+  flex-shrink: 0;
+}
+.wa-v3 .wa-cat-btn.is-active {
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent);
+  font-weight: 700;
+}
+
+.wa-v3 .wa-support-card {
+  margin-top: 14px;
+  padding: 20px;
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+}
+.wa-v3 .wa-support-card .wa-sic {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent);
+  margin-bottom: 10px;
+}
+.wa-v3 .wa-support-card .wa-h {
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--wa-text);
+  margin-bottom: 6px;
+}
+.wa-v3 .wa-support-card p {
+  font-size: 13px;
+  color: var(--wa-muted);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.wa-v3 .wa-support-card .wa-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 10px;
+  font-size: 13px;
+}
+
+.wa-v3 .wa-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.wa-v3 .wa-panel-head .wa-pic {
+  color: var(--wa-accent);
+  display: flex;
+}
+.wa-v3 .wa-panel-head h2 {
+  font-size: clamp(22px, 2.6vw, 28px);
+}
+
+.wa-v3 .wa-emp-banner {
+  padding: 18px 22px;
+  margin-bottom: 22px;
+  border-radius: var(--wa-radius-sm);
+  background: linear-gradient(135deg, rgba(173, 44, 77, 0.12) 0%, rgba(173, 44, 77, 0.04) 100%);
+  border: 1px solid rgba(173, 44, 77, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.wa-v3 .wa-emp-banner svg {
+  color: var(--wa-accent);
+  flex-shrink: 0;
+}
+.wa-v3 .wa-emp-banner .wa-h {
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--wa-text);
+}
+.wa-v3 .wa-emp-banner p {
+  font-size: 13px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-emp-banner a {
+  color: var(--wa-accent);
+  font-weight: 700;
+}
+
+/* accordion */
+.wa-v3 .wa-acc {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wa-v3 .wa-qa {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.wa-v3 .wa-qa.is-open {
+  border-color: #f0cdd5;
+}
+.wa-v3 .wa-qa-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 18px 22px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--wa-text);
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+}
+.wa-v3 .wa-qa-summary .wa-chev {
+  flex-shrink: 0;
+  color: var(--wa-muted);
+  transition: transform 0.25s;
+}
+.wa-v3 .wa-qa.is-open .wa-qa-summary .wa-chev {
+  transform: rotate(180deg);
+}
+.wa-v3 .wa-qa .wa-qa-body {
+  padding: 0 22px 20px;
+  color: var(--wa-muted);
+  line-height: 1.7;
+  font-size: 15px;
+}
+.wa-v3 .wa-qa .wa-qa-body a.wa-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  color: var(--wa-accent);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* bottom CTA */
+.wa-v3 .wa-faq-bottom-cta {
+  margin-top: 60px;
+  border-radius: 28px;
+  background: linear-gradient(150deg, #fff, var(--wa-accent-soft));
+  border: 1px solid #f3d9df;
+  padding: clamp(28px, 4vw, 48px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+.wa-v3 .wa-faq-bottom-cta h2 {
+  font-size: clamp(24px, 3vw, 32px);
+  margin-bottom: 12px;
+}
+.wa-v3 .wa-faq-bottom-cta > div > p {
+  color: var(--wa-muted);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 30ch;
+}
+.wa-v3 .wa-faq-bottom-cta .wa-acts {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.wa-v3 .wa-cta-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  aspect-ratio: 4/3;
+  background-image:
+    radial-gradient(100% 100% at 80% 0%, rgba(164, 127, 56, 0.12), transparent 55%),
+    linear-gradient(150deg, #fff, var(--wa-bg));
+}
+.wa-v3 .wa-cta-art .wa-inner {
+  text-align: center;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-cta-art .wa-inner svg {
+  margin: 0 auto 12px;
+  color: var(--wa-accent);
+  opacity: 0.7;
+}
+.wa-v3 .wa-cta-art .wa-inner .wa-lab {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 880px) {
+  .wa-v3 .wa-faq-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .wa-v3 .wa-faq-sidebar {
+    position: static;
+  }
+  .wa-v3 .wa-faq-sidebar nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .wa-v3 .wa-side-group {
+    margin-bottom: 0;
+    width: 100%;
+  }
+  .wa-v3 .wa-cat-btn {
+    width: auto;
+    border: 1px solid var(--wa-border);
+  }
+  .wa-v3 .wa-faq-bottom-cta {
+    grid-template-columns: 1fr;
+  }
+  .wa-v3 .wa-cta-art {
+    order: -1;
+  }
+}

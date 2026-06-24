@@ -1,0 +1,265 @@
+/*
+ * marketing-v3-careers.css — page-unique blend styles for /careers.
+ *
+ * EVERY selector is scoped under `.wa-v3` (the page's top-level element carries
+ * `className="wa-v3"`). Shared blend classes live in css/marketing-v3.css and are
+ * NOT redefined here. Ported 1:1 from docs/mockups/wa-v3-careers.html for the
+ * sections that are unique to this page (full-bleed photo hero, open-role cards,
+ * empty-roles state, interest form card + fields).
+ */
+
+/* ===== Full-bleed crimson→plum photo hero ===== */
+.wa-v3 .wa-careers-hero {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  isolation: isolate;
+}
+.wa-v3 .wa-careers-hero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.wa-v3 .wa-careers-hero-photo img {
+  object-fit: cover;
+  object-position: center;
+}
+.wa-v3 .wa-careers-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(120% 120% at 85% 0%, rgba(164, 127, 56, 0.3), transparent 55%),
+    linear-gradient(135deg, rgba(18, 20, 22, 0.94) 0%, rgba(18, 20, 22, 0.78) 45%, rgba(173, 44, 77, 0.55) 80%, rgba(58, 19, 38, 0.92) 100%);
+  pointer-events: none;
+}
+.wa-v3 .wa-careers-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  pointer-events: none;
+}
+.wa-v3 .wa-careers-hero-in {
+  position: relative;
+  z-index: 2;
+  padding: clamp(56px, 9vw, 120px) 0;
+  max-width: 760px;
+}
+.wa-v3 .wa-careers-hero-in h1 {
+  font-size: clamp(36px, 5.2vw, 62px);
+  max-width: 18ch;
+  margin: 20px 0 0;
+}
+.wa-v3 .wa-careers-hero-in p {
+  color: rgba(255, 255, 255, 0.88);
+  margin-top: 18px;
+  max-width: 52ch;
+  font-size: clamp(15px, 1.2vw, 18px);
+}
+.wa-v3 .wa-careers-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+/* ===== Open roles ===== */
+.wa-v3 .wa-roles {
+  display: grid;
+  gap: 18px;
+}
+.wa-v3 .wa-role-card {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(22px, 3vw, 34px);
+}
+.wa-v3 .wa-role-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.wa-v3 .wa-role-head h3 {
+  font-size: 22px;
+}
+.wa-v3 .wa-role-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.wa-v3 .wa-tag {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(173, 44, 77, 0.12);
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-role-loc {
+  font-size: 14px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-role-desc {
+  font-size: 15px;
+  color: var(--wa-muted);
+  line-height: 1.65;
+}
+.wa-v3 .wa-role-desc p {
+  margin: 0 0 0.75rem;
+}
+.wa-v3 .wa-role-desc p:last-child {
+  margin-bottom: 0;
+}
+.wa-v3 .wa-role-desc ul {
+  margin: 0.5rem 0 0.75rem;
+  padding-left: 1.25rem;
+}
+.wa-v3 .wa-role-desc strong {
+  color: var(--wa-text);
+}
+.wa-v3 .wa-role-card .wa-btn {
+  margin-top: 18px;
+}
+
+/* ===== Empty roles state ===== */
+.wa-v3 .wa-empty-roles {
+  background: linear-gradient(150deg, #fff, var(--wa-accent-soft));
+  border: 1px solid #f3d9df;
+  border-radius: var(--wa-radius);
+  padding: clamp(28px, 4vw, 44px);
+  text-align: center;
+}
+.wa-v3 .wa-empty-roles .wa-ic {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #f3d9df;
+  color: var(--wa-accent);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+}
+.wa-v3 .wa-empty-roles p {
+  font-size: 16px;
+  color: var(--wa-muted);
+  max-width: 48ch;
+  margin: 0 auto;
+}
+
+/* ===== Interest form card + fields ===== */
+.wa-v3 .wa-form-card {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  box-shadow: var(--wa-shadow-lg);
+  padding: clamp(24px, 3.5vw, 40px);
+  max-width: 720px;
+}
+.wa-v3 .wa-frow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 560px) {
+  .wa-v3 .wa-frow {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wa-field {
+  margin-top: 16px;
+}
+.wa-v3 .wa-field:first-child {
+  margin-top: 0;
+}
+.wa-v3 .wa-frow .wa-field {
+  margin-top: 0;
+}
+.wa-v3 .wa-field label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: 600;
+  font-size: 14.5px;
+}
+.wa-v3 .wa-field .wa-req {
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-field input,
+.wa-v3 .wa-field select,
+.wa-v3 .wa-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #d8d0cb;
+  background: #fff;
+  color: var(--wa-text);
+  font-family: var(--font-inter), -apple-system, sans-serif;
+  font-size: 15px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.wa-v3 .wa-field input:focus,
+.wa-v3 .wa-field select:focus,
+.wa-v3 .wa-field textarea:focus {
+  outline: none;
+  border-color: var(--wa-accent);
+  box-shadow: 0 0 0 3px rgba(173, 44, 77, 0.15);
+}
+.wa-v3 .wa-field textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+.wa-v3 .wa-field-error {
+  margin: 7px 0 0;
+  font-size: 13px;
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-form-card .wa-btn {
+  margin-top: 22px;
+  width: 100%;
+  justify-content: center;
+}
+.wa-v3 .wa-form-applying {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(173, 44, 77, 0.08);
+  color: var(--wa-text);
+  font-size: 14.5px;
+}
+.wa-v3 .wa-form-alert {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(173, 44, 77, 0.12);
+  color: var(--wa-text);
+  font-size: 14px;
+}
+.wa-v3 .wa-form-success {
+  padding: 24px;
+  border-radius: var(--wa-radius-sm);
+  background: rgba(74, 155, 79, 0.12);
+  border: 1px solid rgba(74, 155, 79, 0.35);
+  color: var(--wa-text);
+}
+.wa-v3 .wa-form-success-title {
+  margin: 0;
+  font-weight: 700;
+}
+.wa-v3 .wa-form-success-body {
+  margin: 8px 0 0;
+  color: var(--wa-muted);
+}

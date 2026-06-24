@@ -1,0 +1,346 @@
+/*
+ * marketing-v3-how-it-works.css — page-unique "Blend" styles for /how-it-works.
+ *
+ * Every selector is scoped under `.wa-v3` so it cannot collide with global CSS
+ * or other pages. Shared blend classes live in css/marketing-v3.css (do not
+ * edit that file). This file only adds the selectors that are specific to the
+ * How It Works mockup (docs/mockups/wa-v3-how-it-works.html): the hero intro,
+ * "who can apply" box, vertical journey phases, training program grid, and the
+ * two-up support feature cards.
+ */
+
+/* HERO intro (warm canvas, no fabricated marketing claims) */
+.wa-v3 .hiw-hero {
+  padding: clamp(40px, 6vw, 72px) 0 clamp(32px, 4vw, 56px);
+}
+.wa-v3 .hiw-hero h1 {
+  font-size: clamp(36px, 5vw, 60px);
+  margin-top: 16px;
+  max-width: 18ch;
+}
+.wa-v3 .hiw-hero h1 .wa-accent {
+  color: var(--wa-accent);
+}
+.wa-v3 .hiw-hero .hiw-lede {
+  margin-top: 18px;
+  max-width: 56ch;
+  font-size: clamp(16px, 1.2vw, 19px);
+  color: var(--wa-muted);
+}
+.wa-v3 .hiw-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+/* WHO CAN APPLY box */
+.wa-v3 .hiw-applybox {
+  margin-top: 36px;
+  background: linear-gradient(150deg, #fff, var(--wa-info-soft));
+  border: 1px solid #d8e6f1;
+  border-radius: 28px;
+  padding: clamp(28px, 4vw, 44px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 28px;
+  align-items: center;
+}
+@media (max-width: 780px) {
+  .wa-v3 .hiw-applybox {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .hiw-applybox h2 {
+  font-size: clamp(22px, 3vw, 32px);
+  margin-top: 10px;
+}
+.wa-v3 .hiw-applybox p {
+  margin-top: 14px;
+  font-size: 16px;
+  color: var(--wa-muted);
+}
+.wa-v3 .hiw-applybox .hiw-wioa {
+  margin-top: 18px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--wa-info);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.wa-v3 .hiw-applybox .hiw-wioa:hover {
+  color: #1b5783;
+}
+.wa-v3 .hiw-applybox .hiw-badge {
+  width: clamp(120px, 18vw, 168px);
+  height: clamp(120px, 18vw, 168px);
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--wa-info), #1b5783);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  box-shadow: var(--wa-shadow-lg);
+  justify-self: center;
+}
+
+/* JOURNEY PHASES (vertical rail) */
+.wa-v3 .hiw-phase {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 28px;
+  align-items: start;
+  position: relative;
+  padding-bottom: 48px;
+}
+.wa-v3 .hiw-phase:last-of-type {
+  padding-bottom: 0;
+}
+.wa-v3 .hiw-phase .hiw-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.wa-v3 .hiw-phase .hiw-pnum {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  flex: none;
+}
+.wa-v3 .hiw-phase .hiw-line {
+  flex: 1;
+  width: 2px;
+  background: var(--wa-border);
+  margin: 14px 0 -48px;
+}
+.wa-v3 .hiw-phase:last-of-type .hiw-line {
+  display: none;
+}
+.wa-v3 .hiw-phase .hiw-body {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(24px, 3vw, 34px);
+  box-shadow: var(--wa-shadow);
+}
+.wa-v3 .hiw-phase .hiw-plabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wa-muted);
+}
+.wa-v3 .hiw-phase .hiw-ptitle {
+  font-size: clamp(22px, 2.4vw, 30px);
+  margin: 6px 0 4px;
+}
+.wa-v3 .hiw-phase .hiw-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 22px;
+}
+.wa-v3 .hiw-phase .hiw-si {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.wa-v3 .hiw-phase .hiw-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  margin-top: 1px;
+}
+.wa-v3 .hiw-phase .hiw-st {
+  font-weight: 700;
+  font-size: 15.5px;
+}
+.wa-v3 .hiw-phase .hiw-sdesc {
+  font-size: 14.5px;
+  color: var(--wa-muted);
+  margin-top: 4px;
+}
+.wa-v3 .hiw-phase .hiw-swhy {
+  font-size: 14px;
+  color: var(--wa-muted);
+  margin-top: 4px;
+}
+.wa-v3 .hiw-phase .hiw-swhy b {
+  color: var(--wa-text);
+  font-weight: 700;
+}
+/* per-phase color (p1 accent, p2 info, p3 gold) */
+.wa-v3 .hiw-p1 .hiw-pnum,
+.wa-v3 .hiw-p1 .hiw-dot {
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent);
+}
+.wa-v3 .hiw-p2 .hiw-pnum,
+.wa-v3 .hiw-p2 .hiw-dot {
+  background: var(--wa-info-soft);
+  color: var(--wa-info);
+}
+.wa-v3 .hiw-p3 .hiw-pnum,
+.wa-v3 .hiw-p3 .hiw-dot {
+  background: var(--wa-gold-soft);
+  color: var(--wa-gold-dark);
+}
+@media (max-width: 620px) {
+  .wa-v3 .hiw-phase {
+    grid-template-columns: 1fr;
+  }
+  .wa-v3 .hiw-phase .hiw-rail {
+    flex-direction: row;
+    gap: 14px;
+    width: 100%;
+  }
+  .wa-v3 .hiw-phase .hiw-line {
+    display: none;
+  }
+}
+
+/* embedded overview video inside a journey step */
+.wa-v3 .hiw-video {
+  margin: 14px 0 4px;
+}
+.wa-v3 .hiw-video-frame {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: var(--wa-radius-sm);
+  background: #111;
+}
+.wa-v3 .hiw-video-frame iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.wa-v3 .hiw-video-cap {
+  font-size: 13px;
+  color: var(--wa-muted);
+  margin-top: 8px;
+}
+
+/* SUPPORT FEATURE ROW (two-up cards) */
+.wa-v3 .hiw-feat {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 880px) {
+  .wa-v3 .hiw-feat {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .hiw-fcard {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(26px, 3vw, 36px);
+}
+.wa-v3 .hiw-fcard .wa-ic {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+}
+.wa-v3 .hiw-fcard h3 {
+  font-size: 21px;
+  margin-bottom: 8px;
+}
+.wa-v3 .hiw-fcard p {
+  font-size: 15px;
+  color: var(--wa-muted);
+}
+.wa-v3 .hiw-fcard ul {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wa-v3 .hiw-fcard ul li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 14.5px;
+}
+.wa-v3 .hiw-fcard ul li svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--wa-success);
+}
+.wa-v3 .hiw-bgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+@media (max-width: 520px) {
+  .wa-v3 .hiw-bgrid {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .hiw-bgrid .hiw-b {
+  background: var(--wa-bg);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  padding: 16px;
+}
+.wa-v3 .hiw-bgrid .hiw-b .hiw-lab {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wa-muted);
+}
+.wa-v3 .hiw-bgrid .hiw-b .hiw-v {
+  font-weight: 700;
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+/* post-timeline CTA (prevents dead-end after long scroll) */
+.wa-v3 .hiw-midcta {
+  margin-top: 36px;
+  text-align: center;
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(28px, 4vw, 40px);
+  box-shadow: var(--wa-shadow);
+}
+.wa-v3 .hiw-midcta p {
+  color: var(--wa-muted);
+  margin-bottom: 18px;
+  font-size: 16px;
+}
+.wa-v3 .hiw-midcta .hiw-midcta-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* program commitment panel wrapper keeps comfortable width on warm canvas */
+.wa-v3 .hiw-commitment {
+  padding: clamp(8px, 2vw, 24px) 0 clamp(40px, 6vw, 72px);
+}
+.wa-v3 .hiw-commitment .wa-wrap {
+  max-width: 760px;
+}

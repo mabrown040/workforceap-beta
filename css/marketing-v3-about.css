@@ -1,0 +1,45 @@
+/*
+ * marketing-v3-about.css — page-unique blend styles for /about.
+ *
+ * Shared blend classes live in css/marketing-v3.css (do NOT edit that file).
+ * This file ONLY adds the about page's unique pieces: the mission "split"
+ * layout (prose column + Austin photo tile). EVERY selector is scoped under
+ * `.wa-v3` so it cannot collide with global styles. Imported at the top of
+ * app/about/page.tsx.
+ */
+
+/* mission split: prose column + photo tile */
+.wa-v3 .wa-split {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 28px;
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .wa-v3 .wa-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wa-v3 .wa-prose h2 {
+  font-size: clamp(26px, 3.4vw, 40px);
+  margin-top: 12px;
+}
+.wa-v3 .wa-prose p {
+  margin-top: 16px;
+  font-size: 17px;
+  color: var(--wa-muted);
+  max-width: 54ch;
+}
+
+.wa-v3 .wa-photo-tile {
+  border-radius: var(--wa-radius);
+  min-height: 340px;
+  border: 1px solid var(--wa-border);
+  box-shadow: var(--wa-shadow-lg);
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(58, 19, 38, 0) 40%, rgba(58, 19, 38, 0.55) 100%),
+    url("/images/austin-skyline.webp") center / cover no-repeat;
+}

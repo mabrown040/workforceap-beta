@@ -1,0 +1,332 @@
+/*
+ * marketing-v3-impact.css — page-unique blend styles for /impact.
+ *
+ * EVERY selector is scoped under `.wa-v3` so this file cannot collide with the
+ * global marketing CSS or the shared `css/marketing-v3.css`. Ported 1:1 from
+ * docs/mockups/wa-v3-impact.html. Shared blend primitives (nav, buttons, band,
+ * sec-head, info-card, etc.) live in css/marketing-v3.css and are reused here.
+ */
+
+/* IMPACT HERO band */
+.wa-v3 .wa-impact-hero {
+  background:
+    radial-gradient(120% 120% at 85% 0%, rgba(164, 127, 56, 0.3), transparent 55%),
+    linear-gradient(150deg, rgba(173, 44, 77, 0.9), rgba(58, 19, 38, 0.94) 92%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(56px, 7vw, 92px) 0 clamp(48px, 6vw, 72px);
+}
+.wa-v3 .wa-impact-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  pointer-events: none;
+}
+.wa-v3 .wa-impact-hero .wa-wrap {
+  position: relative;
+  z-index: 1;
+}
+.wa-v3 .wa-impact-hero .wa-eyebrow {
+  color: var(--wa-gold-soft);
+}
+.wa-v3 .wa-impact-hero h1 {
+  font-size: clamp(32px, 4.6vw, 56px);
+  margin: 14px 0 0;
+  max-width: 18ch;
+}
+.wa-v3 .wa-impact-hero .wa-lede {
+  color: rgba(255, 255, 255, 0.86);
+  margin-top: 16px;
+  max-width: 60ch;
+  font-size: clamp(15px, 1.1vw, 18px);
+}
+
+/* hero metric tile */
+.wa-v3 .wa-hero-metric {
+  margin-top: 34px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-left: 4px solid var(--wa-gold-soft);
+  border-radius: var(--wa-radius);
+  padding: clamp(22px, 3vw, 34px);
+  backdrop-filter: blur(6px);
+  max-width: 560px;
+}
+.wa-v3 .wa-hero-metric .wa-v {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  font-size: clamp(44px, 6vw, 64px);
+  line-height: 1;
+  color: #fff;
+  margin: 0;
+}
+.wa-v3 .wa-hero-metric .wa-v.wa-empty {
+  color: rgba(255, 255, 255, 0.55);
+}
+.wa-v3 .wa-hero-metric .wa-lbl {
+  font-weight: 700;
+  font-size: 18px;
+  margin: 10px 0 0;
+}
+.wa-v3 .wa-hero-metric .wa-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 6px 0 0;
+  line-height: 1.55;
+}
+.wa-v3 .wa-hero-metric .wa-as-of {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.62);
+  margin: 8px 0 0;
+}
+
+/* impact-page bands: narrower padding than the homepage .wa-band */
+.wa-v3 .wa-iband {
+  padding: clamp(48px, 6vw, 84px) 0;
+}
+.wa-v3 .wa-iband--surface {
+  background: #fff;
+  border-top: 1px solid var(--wa-border);
+  border-bottom: 1px solid var(--wa-border);
+}
+.wa-v3 .wa-iband--dark {
+  background: var(--wa-plum);
+  color: #f3e9ed;
+}
+.wa-v3 .wa-iband--dark .wa-sec-head h2 {
+  color: #fff;
+}
+.wa-v3 .wa-iband--dark .wa-sec-head p {
+  color: #cdbcc6;
+}
+
+/* section heads sized for impact page */
+.wa-v3 .wa-impact-head {
+  max-width: 760px;
+  margin-bottom: 34px;
+}
+.wa-v3 .wa-impact-head h2 {
+  font-size: clamp(26px, 3.4vw, 42px);
+  margin-top: 10px;
+}
+.wa-v3 .wa-impact-head p {
+  margin-top: 14px;
+  font-size: 16px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-narrow {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* preview panel + stat cards */
+.wa-v3 .wa-preview-panel {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(20px, 3vw, 30px);
+  box-shadow: var(--wa-shadow);
+}
+.wa-v3 .wa-preview-heading {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wa-muted);
+  margin: 0 0 18px;
+}
+.wa-v3 .wa-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .wa-v3 .wa-stat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+.wa-v3 .wa-stat-card {
+  background: var(--wa-bg);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  padding: 22px;
+  position: relative;
+}
+.wa-v3 .wa-stat-card .wa-sv {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  font-size: 38px;
+  line-height: 1;
+  color: var(--wa-accent);
+  margin: 0;
+}
+.wa-v3 .wa-stat-card .wa-sv.wa-empty {
+  color: #bcb4ae;
+}
+.wa-v3 .wa-stat-card .wa-sl {
+  font-weight: 600;
+  font-size: 14.5px;
+  margin: 10px 0 0;
+  line-height: 1.4;
+}
+.wa-v3 .wa-stat-card .wa-footnote {
+  display: block;
+  margin-top: 8px;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--wa-muted);
+  line-height: 1.45;
+}
+.wa-v3 .wa-stat-card .wa-pill {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wa-gold-dark);
+  background: var(--wa-gold-soft);
+  border: 1px solid #efe2c4;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+.wa-v3 .wa-methodology {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: var(--wa-muted);
+  max-width: 46rem;
+  line-height: 1.6;
+}
+.wa-v3 .wa-section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--wa-accent);
+}
+.wa-v3 .wa-section-link:hover {
+  text-decoration: underline;
+}
+
+/* info card (empty states) */
+.wa-v3 .wa-info-card {
+  background: var(--wa-surface);
+  border: 1px dashed var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(22px, 3vw, 30px);
+}
+.wa-v3 .wa-info-card .wa-eyebrow {
+  display: block;
+  margin-bottom: 8px;
+}
+.wa-v3 .wa-info-card h3 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+.wa-v3 .wa-info-card p {
+  font-size: 15px;
+  color: var(--wa-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+.wa-v3 .wa-iband--dark .wa-info-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.wa-v3 .wa-iband--dark .wa-info-card h3 {
+  color: #fff;
+}
+.wa-v3 .wa-iband--dark .wa-info-card p {
+  color: #cdbcc6;
+}
+
+/* programs table — wraps the shared DataTable, restyled to the blend look.
+   DataTable supplies inline cell padding/borders; these rules add the card
+   chrome, header typography, and right-alignment from the mockup. */
+.wa-v3 .wa-ptable-wrap {
+  background: var(--wa-surface);
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  overflow: hidden;
+}
+.wa-v3 .wa-ptable-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.wa-v3 .wa-ptable-wrap th,
+.wa-v3 .wa-ptable-wrap td {
+  font-size: 14.5px;
+}
+.wa-v3 .wa-ptable-wrap th {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wa-muted);
+  font-weight: 700;
+}
+
+/* member stories grid (TestimonialsCarousel server component) */
+.wa-v3 .testimonials-carousel__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+@media (min-width: 640px) {
+  .wa-v3 .testimonials-carousel__grid {
+    grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
+  }
+}
+
+/* funders card */
+.wa-v3 .wa-funder-card {
+  background: linear-gradient(150deg, #fff, var(--wa-accent-soft));
+  border: 1px solid #f3d9df;
+  border-radius: var(--wa-radius);
+  padding: clamp(26px, 4vw, 40px);
+}
+.wa-v3 .wa-funder-card .wa-eyebrow {
+  display: block;
+  margin-bottom: 10px;
+}
+.wa-v3 .wa-funder-card h3 {
+  font-size: clamp(22px, 2.6vw, 30px);
+  margin: 0;
+}
+.wa-v3 .wa-funder-card p {
+  font-size: 16px;
+  color: var(--wa-muted);
+  margin: 12px 0 0;
+  max-width: 54ch;
+  line-height: 1.65;
+}
+.wa-v3 .wa-funder-actions {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+@media (max-width: 639px) {
+  .wa-v3 .wa-funder-actions {
+    flex-direction: column;
+  }
+  .wa-v3 .wa-funder-actions .wa-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+.wa-v3 .wa-iband--dark .wa-funder-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.wa-v3 .wa-iband--dark .wa-funder-card p {
+  color: #cdbcc6;
+}

@@ -18,150 +18,67 @@ function portraitStyleFor(slug: string) {
     : { objectFit: 'cover' as const };
 }
 
+function ArrowIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
 export default function LeadershipContent() {
   return (
     <>
       {/* ── Executive Council ── */}
-      <section className="content-section">
-        <div className="container" style={{ maxWidth: 1400 }}>
-          <div style={{ marginBottom: '3rem' }}>
-            <span
-              className="text-label-upper"
-              style={{
-                color: 'var(--color-accent)',
-                fontSize: '0.7rem',
-                letterSpacing: '0.1em',
-                display: 'block',
-                marginBottom: '0.75rem',
-              }}
-            >
-              Executive Council
-            </span>
-            <h2
-              className="text-display-sm"
-              style={{ color: 'var(--color-on-surface)', margin: 0 }}
-            >
-              Operational Leadership
-            </h2>
+      <section className="wa-band">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">Executive Council</span>
+            <h2>Operational Leadership</h2>
           </div>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '2rem',
-            }}
-          >
+          <div className="wa-exec-grid">
             {executives.map((leader, index) => (
               <LocalizedLink
                 key={leader.slug}
                 href={`/leadership/${leader.slug}`}
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                className="wa-exec-card"
               >
-                <article
-                  className="portal-card portal-card--flat"
-                  style={{
-                    background: 'var(--surface-container)',
-                    borderRadius: 'var(--radius-xl, 1rem)',
-                    overflow: 'hidden',
-                    transition: 'background 0.2s ease, transform 0.2s ease',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--surface-container-high)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--surface-container)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <div
-                    className="leadership-exec-photo"
-                    style={{
-                      aspectRatio: '3/4',
-                      maxHeight: 320,
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <Image
-                      src={leader.image}
-                      alt={leader.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      priority={index === 0}
-                      style={portraitStyleFor(leader.slug)}
-                    />
-                    {leader.founder && (
-                      <span
-                        style={{
-                          position: 'absolute',
-                          top: '1rem',
-                          left: '1rem',
-                          background: 'var(--color-accent)',
-                          color: '#fff',
-                          fontSize: '0.65rem',
-                          letterSpacing: '0.08em',
-                          textTransform: 'uppercase',
-                          fontWeight: 600,
-                          padding: '0.25rem 0.65rem',
-                          borderRadius: 'var(--radius-full)',
-                        }}
-                      >
-                        Founder
-                      </span>
-                    )}
-                  </div>
+                <div className="wa-exec-photo">
+                  <Image
+                    src={leader.image}
+                    alt={leader.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority={index === 0}
+                    style={portraitStyleFor(leader.slug)}
+                  />
+                  {leader.founder && <span className="wa-founder">Founder</span>}
+                </div>
 
-                  <div style={{ padding: '1.5rem 1.75rem 2rem' }}>
-                    <span
-                      className="text-label-upper"
-                      style={{
-                        color: 'var(--color-accent)',
-                        fontSize: '0.65rem',
-                        letterSpacing: '0.08em',
-                        display: 'block',
-                        marginBottom: '0.5rem',
-                      }}
-                    >
-                      {leader.role}
-                    </span>
-                    <h3
-                      style={{
-                        color: 'var(--color-on-surface)',
-                        fontSize: '1.35rem',
-                        fontWeight: 600,
-                        margin: '0 0 0.35rem',
-                      }}
-                    >
-                      {leader.name}
-                    </h3>
-                    {leader.missionRelevance && (
-                      <p
-                        className="leader-mission-callout"
-                        style={{
-                          fontSize: '0.8rem',
-                          fontWeight: 500,
-                          marginBottom: '0.75rem',
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {leader.missionRelevance}
-                      </p>
-                    )}
-                    <p
-                      style={{
-                        color: 'var(--color-on-surface-variant)',
-                        fontSize: '0.875rem',
-                        lineHeight: 1.65,
-                        margin: 0,
-                      }}
-                    >
-                      {leader.cardBio}
-                    </p>
-                  </div>
-                </article>
+                <div className="wa-exec-body">
+                  <span className="wa-role">{leader.role}</span>
+                  <h3>{leader.name}</h3>
+                  {leader.missionRelevance && (
+                    <p className="wa-mission">{leader.missionRelevance}</p>
+                  )}
+                  <p className="wa-bio">{leader.cardBio}</p>
+                  <span className="wa-go">
+                    View profile
+                    <ArrowIcon size={16} />
+                  </span>
+                </div>
               </LocalizedLink>
             ))}
           </div>
@@ -169,148 +86,42 @@ export default function LeadershipContent() {
       </section>
 
       {/* ── Board of Trustees ── */}
-      <section
-        className="content-section"
-        style={{ background: 'var(--surface-container-low)' }}
-      >
-        <div className="container" style={{ maxWidth: 1400 }}>
-          <div style={{ marginBottom: '3rem' }}>
-            <span
-              className="text-label-upper"
-              style={{
-                color: 'var(--color-accent)',
-                fontSize: '0.7rem',
-                letterSpacing: '0.1em',
-                display: 'block',
-                marginBottom: '0.75rem',
-              }}
-            >
-              Board of Trustees
-            </span>
-            <h2
-              className="text-display-sm"
-              style={{ color: 'var(--color-on-surface)', margin: 0 }}
-            >
-              Strategic Governance
-            </h2>
+      <section className="wa-band wa-band--alt">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">Board of Trustees</span>
+            <h2>Strategic Governance</h2>
           </div>
 
-          <div className="leadership-board-equal">
+          <div className="wa-board-grid">
             {boardMembers.map((leader) => (
               <LocalizedLink
                 key={leader.slug}
                 href={`/leadership/${leader.slug}`}
-                style={{
-                  textDecoration: 'none',
-                  color: 'inherit',
-                }}
+                className="wa-board-card"
               >
-                <article
-                  className="leadership-board-card leadership-board-card-equal"
-                  style={{
-                    background: 'var(--surface-container-lowest)',
-                    borderRadius: 'var(--radius-xl, 1rem)',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    gap: '1rem',
-                    padding: '2rem 1.5rem',
-                    height: '100%',
-                    transition: 'background 0.2s ease, transform 0.2s ease',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--surface-container)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--surface-container-lowest)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <div
-                    className="leadership-board-photo"
-                    style={{
-                      width: 176,
-                      height: 176,
-                      borderRadius: '50%',
-                      overflow: 'hidden',
-                      flexShrink: 0,
-                      position: 'relative',
-                    }}
-                  >
-                    <Image
-                      src={leader.image}
-                      alt={leader.name}
-                      fill
-                      sizes="176px"
-                      style={portraitStyleFor(leader.slug)}
-                    />
-                  </div>
+                <div className="wa-board-photo">
+                  <Image
+                    src={leader.image}
+                    alt={leader.name}
+                    fill
+                    sizes="176px"
+                    style={portraitStyleFor(leader.slug)}
+                  />
+                </div>
 
-                  <div className="leadership-board-body" style={{ flex: 1, minWidth: 0 }}>
-                    <span
-                      className="text-label-upper"
-                      style={{
-                        color: 'var(--color-accent)',
-                        fontSize: '0.65rem',
-                        letterSpacing: '0.1em',
-                        display: 'block',
-                        marginBottom: '0.35rem',
-                      }}
-                    >
-                      {leader.role}
-                    </span>
-                    <h3
-                      style={{
-                        color: 'var(--color-on-surface)',
-                        fontSize: '1.2rem',
-                        fontWeight: 600,
-                        margin: '0 0 0.5rem',
-                      }}
-                    >
-                      {leader.name}
-                    </h3>
-                    {leader.missionRelevance && (
-                      <p
-                        className="leader-mission-callout"
-                        style={{
-                          fontSize: '0.78rem',
-                          fontWeight: 500,
-                          marginBottom: '0.5rem',
-                          lineHeight: 1.5,
-                          textAlign: 'left',
-                        }}
-                      >
-                        {leader.missionRelevance}
-                      </p>
-                    )}
-                    <p
-                      style={{
-                        color: 'var(--color-on-surface-variant)',
-                        fontSize: '0.88rem',
-                        lineHeight: 1.6,
-                        margin: 0,
-                        textAlign: 'left',
-                      }}
-                    >
-                      {leader.cardBio}
-                    </p>
-                  </div>
+                <div className="wa-board-body">
+                  <span className="wa-role">{leader.role}</span>
+                  <h3>{leader.name}</h3>
+                  {leader.missionRelevance && (
+                    <p className="wa-mission">{leader.missionRelevance}</p>
+                  )}
+                  <p className="wa-bio">{leader.cardBio}</p>
+                </div>
 
-                  <span
-                    className="material-symbols-outlined"
-                    style={{
-                      color: 'var(--color-accent)',
-                      opacity: 0.7,
-                      fontSize: '1.25rem',
-                    }}
-                   aria-hidden="true">
-                    arrow_forward
-                  </span>
-                </article>
+                <span className="wa-go">
+                  <ArrowIcon size={20} />
+                </span>
               </LocalizedLink>
             ))}
           </div>
@@ -319,156 +130,60 @@ export default function LeadershipContent() {
 
       {/* ── Lead Consultant (bottom, before CTA) ── */}
       {leadConsultants.length > 0 ? (
-        <section className="content-section">
-          <div className="container" style={{ maxWidth: 1400 }}>
-            <div style={{ marginBottom: '3rem' }}>
-              <span
-                className="text-label-upper"
-                style={{
-                  color: 'var(--color-accent)',
-                  fontSize: '0.7rem',
-                  letterSpacing: '0.1em',
-                  display: 'block',
-                  marginBottom: '0.75rem',
-                }}
-              >
-                Advisory
-              </span>
-              <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', margin: 0 }}>
-                Lead Consultant
-              </h2>
+        <section className="wa-band">
+          <div className="wa-wrap">
+            <div className="wa-sec-head">
+              <span className="wa-eyebrow">Advisory</span>
+              <h2>Lead Consultant</h2>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '2rem',
-                alignItems: 'stretch',
-              }}
-            >
+            <div className="wa-consult-grid">
               {leadConsultants.map((leader) => (
                 <LocalizedLink
                   key={leader.slug}
                   href={`/leadership/${leader.slug}`}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  className="wa-consult-card"
                 >
-                  <article
-                    className="portal-card portal-card--flat"
-                    style={{
-                      background: 'var(--surface-container-lowest)',
-                      borderRadius: 'var(--radius-xl, 1rem)',
-                      overflow: 'hidden',
-                      height: '100%',
-                      transition: 'background 0.2s ease, transform 0.2s ease',
-                      cursor: 'pointer',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--surface-container)';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'var(--surface-container-lowest)';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
-                  >
-                    {leader.image && leader.image.trim().length > 0 ? (
-                      <div
-                        style={{
-                          aspectRatio: '16/10',
-                          position: 'relative',
-                          overflow: 'hidden',
-                          maxHeight: 260,
-                        }}
-                      >
-                        <Image
-                          src={leader.image}
-                          alt={leader.name}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 480px"
-                          style={{ objectFit: 'cover' }}
-                        />
-                      </div>
-                    ) : (
-                      <div
-                        aria-hidden
-                        style={{
-                          padding: '1.75rem 1.75rem 0',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.75rem',
-                        }}
-                      >
-                        <span
-                          className="material-symbols-outlined"
-                          style={{
-                            fontSize: '2.25rem',
-                            color: 'var(--color-accent)',
-                            opacity: 0.85,
-                          }}
-                         aria-hidden="true">
-                          support_agent
-                        </span>
-                        <span
-                          style={{
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            letterSpacing: '0.06em',
-                            textTransform: 'uppercase',
-                            color: 'var(--color-on-surface-variant)',
-                          }}
-                        >
-                          WorkforceAP leadership
-                        </span>
-                      </div>
-                    )}
-                    <div style={{ padding: '1.5rem 1.75rem 2rem' }}>
-                      <span
-                        className="text-label-upper"
-                        style={{
-                          color: 'var(--color-accent)',
-                          fontSize: '0.65rem',
-                          letterSpacing: '0.08em',
-                          display: 'block',
-                          marginBottom: '0.5rem',
-                        }}
-                      >
-                        {leader.role}
-                      </span>
-                      <h3
-                        style={{
-                          color: 'var(--color-on-surface)',
-                          fontSize: '1.25rem',
-                          fontWeight: 600,
-                          margin: '0 0 0.5rem',
-                        }}
-                      >
-                        {leader.name}
-                      </h3>
-                      {leader.missionRelevance ? (
-                        <p
-                          className="leader-mission-callout"
-                          style={{
-                            fontSize: '0.8rem',
-                            fontWeight: 500,
-                            marginBottom: '0.75rem',
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          {leader.missionRelevance}
-                        </p>
-                      ) : null}
-                      <p
-                        style={{
-                          color: 'var(--color-on-surface-variant)',
-                          fontSize: '0.875rem',
-                          lineHeight: 1.65,
-                          margin: 0,
-                        }}
-                      >
-                        {leader.cardBio}
-                      </p>
+                  {leader.image && leader.image.trim().length > 0 ? (
+                    <div className="wa-consult-photo">
+                      <Image
+                        src={leader.image}
+                        alt={leader.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 480px"
+                        style={{ objectFit: 'cover' }}
+                      />
                     </div>
-                  </article>
+                  ) : (
+                    <div className="wa-consult-fallback" aria-hidden>
+                      <span className="wa-fallback-ic">
+                        <svg
+                          width="36"
+                          height="36"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M3 18v-1a4 4 0 0 1 4-4h2" />
+                          <path d="M21 18v-1a4 4 0 0 0-4-4h-2" />
+                          <circle cx="12" cy="7" r="4" />
+                          <path d="M12 11v3" />
+                        </svg>
+                      </span>
+                      <span className="wa-fallback-lab">WorkforceAP leadership</span>
+                    </div>
+                  )}
+                  <div className="wa-consult-body">
+                    <span className="wa-role">{leader.role}</span>
+                    <h3>{leader.name}</h3>
+                    {leader.missionRelevance ? (
+                      <p className="wa-mission">{leader.missionRelevance}</p>
+                    ) : null}
+                    <p className="wa-bio">{leader.cardBio}</p>
+                  </div>
                 </LocalizedLink>
               ))}
             </div>
@@ -477,97 +192,66 @@ export default function LeadershipContent() {
       ) : null}
 
       {/* ── CTA Section ── */}
-      <section className="content-section">
-        <div className="container" style={{ maxWidth: 1400 }}>
-          <div
-            style={{
-              background:
-                'linear-gradient(135deg, var(--color-accent), var(--color-accent-light, #c0446b))',
-              borderRadius: 'var(--radius-xl, 1rem)',
-              padding: '4rem 3rem',
-              textAlign: 'center',
-              color: '#fff',
-            }}
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: '2.5rem',
-                marginBottom: '1rem',
-                opacity: 0.85,
-                display: 'block',
-              }}
-             aria-hidden="true">
-              group_add
+      <section className="wa-band wa-band--alt">
+        <div className="wa-wrap">
+          <div className="wa-cta">
+            <span className="wa-cta-ic" aria-hidden="true">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <line x1="19" y1="8" x2="19" y2="14" />
+                <line x1="22" y1="11" x2="16" y2="11" />
+              </svg>
             </span>
-            <h2
-              className="text-display-sm"
-              style={{ color: '#fff', margin: '0 0 1rem' }}
-            >
-              Join the Mission
-            </h2>
-            <p
-              style={{
-                fontSize: '1.05rem',
-                maxWidth: '38rem',
-                margin: '0 auto 2rem',
-                opacity: 0.9,
-                lineHeight: 1.7,
-              }}
-            >
+            <h2>Join the Mission</h2>
+            <p>
               Whether you want to partner, volunteer, serve on the board, or
               support workforce development nationwide &mdash; we want to hear
               from you.
             </p>
-            <div
-              style={{
-                display: 'flex',
-                gap: '1rem',
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-              }}
-            >
-              <LocalizedLink
-                href="/contact"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  background: '#fff',
-                  color: 'var(--color-accent)',
-                  padding: '0.85rem 2rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontWeight: 600,
-                  fontSize: '0.95rem',
-                  textDecoration: 'none',
-                  transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }} aria-hidden="true">
-                  mail
-                </span>
+            <div className="wa-acts">
+              <LocalizedLink href="/contact" className="wa-btn wa-btn--light">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="m22 7-10 5L2 7" />
+                </svg>
                 Get in Touch
               </LocalizedLink>
-              <LocalizedLink
-                href="/programs"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  background: 'rgba(255,255,255,0.15)',
-                  color: '#fff',
-                  padding: '0.85rem 2rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontWeight: 600,
-                  fontSize: '0.95rem',
-                  textDecoration: 'none',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  transition: 'background 0.15s ease',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }} aria-hidden="true">
-                  school
-                </span>
+              <LocalizedLink href="/programs" className="wa-btn wa-btn--translucent">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                  <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                </svg>
                 View Programs
               </LocalizedLink>
             </div>

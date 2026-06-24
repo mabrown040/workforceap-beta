@@ -1,0 +1,200 @@
+/*
+ * marketing-v3-donate.css — page-unique blend styles for /donate.
+ *
+ * EVERY selector is scoped under `.wa-v3` so it cannot collide with the global
+ * marketing css or other pages. Shared blend classes (.wa-band, .wa-sec-head,
+ * .wa-btn, .wa-pcard, .wa-ic*, focus/reduced-motion, tokens) live in
+ * css/marketing-v3.css and are reused here. Only donate-specific layout lives
+ * in this file. Ported from docs/mockups/wa-v3-donate.html.
+ */
+
+/* full-bleed hero (donate uses a single photo hero, not the home bento) */
+.wa-v3 .wa-dhero {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  isolation: isolate;
+  padding: clamp(56px, 9vw, 104px) 0;
+}
+.wa-v3 .wa-dhero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.wa-v3 .wa-dhero-photo img {
+  object-fit: cover;
+  object-position: center;
+}
+.wa-v3 .wa-dhero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(120% 120% at 85% 0%, rgba(164, 127, 56, 0.3), transparent 55%),
+    linear-gradient(135deg, rgba(18, 20, 22, 0.94) 0%, rgba(18, 20, 22, 0.76) 52%, rgba(173, 44, 77, 0.85) 100%);
+  pointer-events: none;
+}
+.wa-v3 .wa-dhero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  pointer-events: none;
+}
+.wa-v3 .wa-dhero .wa-dhero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 760px;
+}
+.wa-v3 .wa-dhero .wa-ribbon {
+  display: inline-block;
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--wa-gold-soft);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+}
+.wa-v3 .wa-dhero h1 {
+  font-size: clamp(38px, 6vw, 68px);
+  margin: 22px 0 0;
+  letter-spacing: -0.03em;
+  max-width: 14ch;
+  text-wrap: balance;
+}
+.wa-v3 .wa-dhero p {
+  color: rgba(245, 245, 248, 0.9);
+  margin-top: 18px;
+  max-width: 46ch;
+  font-size: clamp(15px, 1.2vw, 19px);
+  line-height: 1.7;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+}
+.wa-v3 .wa-dhero .wa-hero-actions {
+  margin-top: 30px;
+}
+.wa-v3 .wa-dhero .wa-btn--outline {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+.wa-v3 .wa-dhero .wa-btn--outline:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* suggested-amount cards (4-up) */
+.wa-v3 .wa-agrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+@media (max-width: 980px) {
+  .wa-v3 .wa-agrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 540px) {
+  .wa-v3 .wa-agrid {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wa-amtcard {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: 26px;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.wa-v3 .wa-amtcard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--wa-shadow-lg);
+  border-color: #f0cdd5;
+}
+.wa-v3 .wa-amtcard .wa-amt {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  font-size: 30px;
+  color: var(--wa-accent);
+  letter-spacing: -0.02em;
+}
+.wa-v3 .wa-amtcard h3 {
+  font-size: 17px;
+  margin: 12px 0 6px;
+}
+.wa-v3 .wa-amtcard p {
+  font-size: 14.5px;
+  color: var(--wa-muted);
+  line-height: 1.6;
+}
+
+/* donation contact card */
+.wa-v3 .wa-contact {
+  background: linear-gradient(150deg, #fff, var(--wa-accent-soft));
+  border: 1px solid #f3d9df;
+  border-radius: 28px;
+  padding: clamp(28px, 4vw, 44px);
+  margin-top: 24px;
+}
+.wa-v3 .wa-contact h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+.wa-v3 .wa-contact p {
+  font-size: 16px;
+  color: var(--wa-muted);
+  line-height: 1.7;
+  margin-bottom: 12px;
+  max-width: 60ch;
+}
+.wa-v3 .wa-contact a.wa-link {
+  color: var(--wa-accent);
+  font-weight: 700;
+}
+.wa-v3 .wa-contact a.wa-link--plain {
+  color: inherit;
+  font-weight: 700;
+}
+.wa-v3 .wa-contact .wa-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* 501(c)(3) quote */
+.wa-v3 .wa-quote {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-left: 4px solid var(--wa-accent);
+  border-radius: var(--wa-radius);
+  padding: clamp(28px, 4vw, 40px);
+  max-width: 860px;
+}
+.wa-v3 .wa-quote .wa-lab {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wa-accent);
+  margin-bottom: 12px;
+}
+.wa-v3 .wa-quote p {
+  font-size: 18px;
+  color: var(--wa-text);
+  line-height: 1.7;
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}

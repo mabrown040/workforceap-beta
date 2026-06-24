@@ -1,0 +1,357 @@
+/*
+ * marketing-v3-partners.css — page-unique blend styles for /partners.
+ *
+ * EVERY selector is scoped under `.wa-v3` so it cannot collide with global CSS.
+ * Shared blend classes (.wa-btn, .wa-band, .wa-sec-head, .wa-pcard, .wa-acard,
+ * .wa-step, .wa-tri, .wa-cta, .wa-creds, tokens, focus-visible, reduced-motion)
+ * live in css/marketing-v3.css and are reused as-is. Only partners-specific
+ * additions belong here. Ported from docs/mockups/wa-v3-partners.html.
+ */
+
+/* gold primary button (mockup hero CTA = .btn--gold); shared file only ships
+   primary / ghost / light / translucent, so the gold variant lives here. */
+.wa-v3 .wa-btn--gold {
+  background: var(--wa-gold);
+  color: #fff;
+  box-shadow: 0 12px 30px -12px rgba(164, 127, 56, 0.6);
+}
+.wa-v3 .wa-btn--gold:hover {
+  background: var(--wa-gold-dark);
+}
+
+/* gold eyebrow + gold section-head accent (partners leans gold) */
+.wa-v3 .wa-eyebrow--gold {
+  color: var(--wa-gold-dark);
+}
+.wa-v3 .wa-sec-head h2 .wa-accent {
+  color: var(--wa-gold-dark);
+}
+
+/* partners hero is a focused single tile, not the home bento split */
+.wa-v3 .wa-p-hero {
+  padding: clamp(40px, 6vw, 72px) 0 clamp(48px, 6vw, 80px);
+}
+.wa-v3 .wa-p-hero .wa-tile--hero {
+  grid-row: auto;
+  min-height: clamp(360px, 46vw, 480px);
+}
+.wa-v3 .wa-p-hero .wa-tile--hero h1 {
+  max-width: 16ch;
+}
+
+/* pathways grid: 4 cards, 2-up on desktop (home uses 3-up .wa-pgrid) */
+.wa-v3 .wa-pgrid--two {
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (max-width: 780px) {
+  .wa-v3 .wa-pgrid--two {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wa-pcard .wa-typetag {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wa-gold-dark);
+}
+.wa-v3 .wa-pcard .wa-who {
+  font-size: 13.5px;
+  color: var(--wa-muted);
+  font-weight: 600;
+}
+.wa-v3 .wa-pcard .wa-why {
+  font-size: 15px;
+  color: var(--wa-muted);
+  line-height: 1.6;
+  flex: 1;
+}
+.wa-v3 .wa-pcard .wa-go--gold {
+  color: var(--wa-gold-dark);
+}
+.wa-v3 .wa-pcard .wa-go--gold:hover {
+  color: var(--wa-gold);
+}
+
+/* "how it works" steps use a gold numeral on partners */
+.wa-v3 .wa-step .wa-n--gold {
+  background: var(--wa-gold-soft);
+  color: var(--wa-gold-dark);
+}
+.wa-v3 .wa-steps--centered .wa-step {
+  text-align: center;
+}
+.wa-v3 .wa-steps--centered .wa-step .wa-n {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* why-partners value grid (2-up icon rows) */
+.wa-v3 .wa-vgrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+@media (max-width: 780px) {
+  .wa-v3 .wa-vgrid {
+    grid-template-columns: 1fr;
+  }
+}
+.wa-v3 .wa-vcard {
+  display: flex;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: 26px;
+}
+.wa-v3 .wa-vcard .wa-ic {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--wa-gold-soft);
+  color: var(--wa-gold-dark);
+}
+.wa-v3 .wa-vcard h3 {
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+.wa-v3 .wa-vcard p {
+  font-size: 14.5px;
+  color: var(--wa-muted);
+}
+
+/* acard icons on partners are gold tiles */
+.wa-v3 .wa-acard .wa-ic--gold {
+  background: var(--wa-gold-soft);
+  color: var(--wa-gold-dark);
+}
+
+/* demo / walkthrough strip */
+.wa-v3 .wa-demo {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(24px, 4vw, 36px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+.wa-v3 .wa-demo .wa-demo-ic {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--wa-gold-soft);
+  color: var(--wa-gold-dark);
+}
+.wa-v3 .wa-demo .wa-demo-body {
+  flex: 1;
+  min-width: 220px;
+}
+.wa-v3 .wa-demo .wa-demo-body h2 {
+  font-size: clamp(20px, 2.4vw, 24px);
+  margin: 6px 0;
+}
+.wa-v3 .wa-demo .wa-demo-body p {
+  font-size: 15px;
+  color: var(--wa-muted);
+  margin: 0;
+}
+
+/* FAQ accordion (partners) */
+.wa-v3 .wa-faq {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wa-v3 .wa-faq details {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  padding: 4px 22px;
+  transition: border-color 0.2s;
+}
+.wa-v3 .wa-faq details[open] {
+  border-color: #efe2c4;
+}
+.wa-v3 .wa-faq summary {
+  list-style: none;
+  cursor: pointer;
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 700;
+  font-size: 16.5px;
+  padding: 16px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.wa-v3 .wa-faq summary::-webkit-details-marker {
+  display: none;
+}
+.wa-v3 .wa-faq summary .wa-pl {
+  flex: none;
+  color: var(--wa-gold);
+  transition: transform 0.2s;
+}
+.wa-v3 .wa-faq details[open] summary .wa-pl {
+  transform: rotate(45deg);
+}
+.wa-v3 .wa-faq details p {
+  padding: 0 0 18px;
+  font-size: 15px;
+  color: var(--wa-muted);
+  line-height: 1.6;
+}
+
+/* signup section: copy column + form column */
+.wa-v3 .wa-signup {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: 28px;
+  padding: clamp(28px, 4vw, 48px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+  box-shadow: var(--wa-shadow-lg);
+}
+@media (max-width: 780px) {
+  .wa-v3 .wa-signup {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+.wa-v3 .wa-signup h2 {
+  font-size: clamp(24px, 3vw, 34px);
+}
+.wa-v3 .wa-signup .wa-sub {
+  margin-top: 14px;
+  font-size: 16px;
+  color: var(--wa-muted);
+  line-height: 1.6;
+}
+.wa-v3 .wa-signup .wa-alt {
+  margin-top: 22px;
+  font-size: 14px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-signup .wa-alt a {
+  color: var(--wa-gold-dark);
+  font-weight: 700;
+}
+
+/* live outcomes snapshot card */
+.wa-v3 .wa-snapshot {
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius);
+  padding: clamp(24px, 4vw, 36px);
+  box-shadow: var(--wa-shadow);
+}
+.wa-v3 .wa-snapshot h2 {
+  font-size: clamp(22px, 3vw, 30px);
+  margin: 6px 0 12px;
+}
+.wa-v3 .wa-snapshot .wa-snapshot-lede {
+  font-size: 15px;
+  color: var(--wa-muted);
+  line-height: 1.65;
+  margin: 0 0 18px;
+}
+.wa-v3 .wa-snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 16px;
+}
+.wa-v3 .wa-snapshot-grid .wa-stat .wa-k {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  color: var(--wa-accent);
+  line-height: 1.1;
+}
+.wa-v3 .wa-snapshot-grid .wa-stat .wa-s {
+  font-size: 13px;
+  color: var(--wa-muted);
+}
+.wa-v3 .wa-snapshot .wa-snapshot-note {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: var(--wa-muted);
+  line-height: 1.5;
+}
+
+/* platform split: text column + image column */
+.wa-v3 .wa-split {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 40px;
+  align-items: center;
+}
+@media (max-width: 880px) {
+  .wa-v3 .wa-split {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+.wa-v3 .wa-feat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.wa-v3 .wa-feat-row {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+}
+.wa-v3 .wa-feat-row .wa-ic {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: var(--wa-gold-soft);
+  color: var(--wa-gold-dark);
+}
+.wa-v3 .wa-feat-row h3 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.wa-v3 .wa-feat-row p {
+  font-size: 14.5px;
+  color: var(--wa-muted);
+  line-height: 1.6;
+}
+.wa-v3 .wa-split-fig {
+  margin: 0;
+  border-radius: var(--wa-radius);
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: var(--wa-surface);
+  position: relative;
+  border: 1px solid var(--wa-border);
+}
+
+/* secondary inline text link (referral CTA inside pcard) */
+.wa-v3 .wa-go {
+  margin-top: auto;
+  font-weight: 700;
+  font-size: 14px;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}

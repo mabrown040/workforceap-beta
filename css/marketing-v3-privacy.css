@@ -1,0 +1,190 @@
+/*
+ * marketing-v3-privacy.css — page-unique blend styles for /privacy.
+ *
+ * EVERY selector is scoped under `.wa-v3` so it cannot collide with global
+ * marketing styles or other pages. Imported at the top of app/privacy/page.tsx.
+ * Shared blend classes (.wa-btn, tokens, focus-visible, reduced-motion, etc.)
+ * live in css/marketing-v3.css and are NOT duplicated here.
+ *
+ * Ported 1:1 (presentation only) from docs/mockups/wa-v3-privacy.html.
+ */
+
+/* ===== PAGE HERO — crimson→plum gradient with grid overlay ===== */
+.wa-v3 .wa-phero {
+  background:
+    radial-gradient(120% 120% at 85% 0%, rgba(164, 127, 56, 0.3), transparent 55%),
+    linear-gradient(150deg, rgba(173, 44, 77, 0.9), rgba(58, 19, 38, 0.94) 92%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(48px, 6vw, 84px) 0;
+}
+.wa-v3 .wa-phero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 38px 38px;
+  -webkit-mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  mask: radial-gradient(120% 80% at 80% 10%, #000, transparent 70%);
+  pointer-events: none;
+}
+.wa-v3 .wa-phero .wa-inner {
+  position: relative;
+  max-width: 860px;
+}
+.wa-v3 .wa-phero .wa-ribbon {
+  align-self: flex-start;
+}
+.wa-v3 .wa-phero h1 {
+  font-size: clamp(34px, 5vw, 58px);
+  margin: 18px 0 0;
+}
+.wa-v3 .wa-phero .wa-sub {
+  color: rgba(255, 255, 255, 0.86);
+  margin-top: 14px;
+  font-size: clamp(15px, 1.1vw, 17px);
+}
+
+/* ===== CONTENT ===== */
+.wa-v3 .wa-content {
+  padding: clamp(44px, 6vw, 76px) 0;
+}
+.wa-v3 .wa-doc {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* english-only locale notice */
+.wa-v3 .wa-notice {
+  background: var(--wa-info-soft);
+  border: 1px solid #d3e3f1;
+  border-radius: var(--wa-radius-sm);
+  padding: 14px 18px;
+  margin-bottom: 26px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #234;
+}
+.wa-v3 .wa-notice a {
+  color: var(--wa-accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* prose body */
+.wa-v3 .markdown-body {
+  line-height: 1.75;
+  font-size: 16px;
+  color: #2a2724;
+}
+.wa-v3 .markdown-body p {
+  margin: 0 0 16px;
+}
+.wa-v3 .markdown-body h2 {
+  font-size: clamp(22px, 2.6vw, 30px);
+  margin: 42px 0 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--wa-border);
+  letter-spacing: -0.025em;
+}
+.wa-v3 .markdown-body h2:first-of-type {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+.wa-v3 .markdown-body h3 {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  margin: 26px 0 8px;
+  color: var(--wa-accent-dark);
+}
+.wa-v3 .markdown-body ul {
+  margin: 0 0 18px;
+  padding-left: 22px;
+}
+.wa-v3 .markdown-body li {
+  margin: 0 0 8px;
+}
+.wa-v3 .markdown-body a {
+  color: var(--wa-accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.wa-v3 .markdown-body a:hover {
+  color: var(--wa-accent-dark);
+}
+.wa-v3 .markdown-body strong {
+  font-weight: 700;
+  color: var(--wa-text);
+}
+
+/* sub-processor table */
+.wa-v3 .wa-table-wrap {
+  overflow-x: auto;
+  margin: 18px 0 24px;
+  border: 1px solid var(--wa-border);
+  border-radius: var(--wa-radius-sm);
+  background: #fff;
+}
+.wa-v3 .wa-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.wa-v3 .wa-table-wrap caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.wa-v3 .wa-table-wrap th,
+.wa-v3 .wa-table-wrap td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--wa-border);
+  vertical-align: top;
+  text-align: left;
+}
+.wa-v3 .wa-table-wrap thead th {
+  font-weight: 700;
+  background: var(--wa-accent-soft);
+  color: var(--wa-accent-dark);
+  border-bottom: 2px solid #f3d9df;
+  font-family: var(--font-display), var(--font-inter), sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+}
+.wa-v3 .wa-table-wrap tbody th {
+  font-weight: 700;
+  color: var(--wa-text);
+  white-space: nowrap;
+}
+.wa-v3 .wa-table-wrap tbody tr:last-child th,
+.wa-v3 .wa-table-wrap tbody tr:last-child td {
+  border-bottom: none;
+}
+.wa-v3 .wa-table-wrap tbody tr:hover {
+  background: #faf7f4;
+}
+
+/* contact block */
+.wa-v3 .wa-contact-block {
+  background: linear-gradient(150deg, #fff, var(--wa-accent-soft));
+  border: 1px solid #f3d9df;
+  border-radius: var(--wa-radius);
+  padding: 24px 28px;
+  margin-top: 8px;
+}
+.wa-v3 .wa-contact-block p {
+  margin: 0;
+}

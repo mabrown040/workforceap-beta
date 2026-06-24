@@ -1,10 +1,11 @@
+import '@/css/marketing-v3-donate.css';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import LocalizedLink from '@/components/LocalizedLink';
-import { HeroSection, InfoCard, PageSection, SectionHeader, QuoteCard } from '@/components/marketing/ui';
-import { marketingButtonPresets, marketingPrimaryButtonClasses, marketingSecondaryButtonClasses } from '@/lib/marketing/buttonClasses';
+import { MARKETING_FULL_BLEED_HERO_SIZES } from '@/lib/marketing/heroImage';
 
 const DONATION_EMAIL = 'info@workforceap.org';
 const DONATION_PHONE = '(512) 777-1808';
@@ -46,207 +47,223 @@ export default function DonatePage() {
     {
       title: 'Individual giving',
       description: 'If you want to help one member keep moving toward a better job, this is the fastest way to support the mission.',
+      iconClass: 'wa-ic--accent',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+      ),
     },
     {
       title: 'Corporate or organizational giving',
       description: 'For sponsorships, matching gifts, workforce partnerships, or larger commitments, email us and we will coordinate the right path.',
+      iconClass: 'wa-ic--info',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M3 21h18M5 21V8l7-5 7 5v13" />
+          <path d="M9 21v-6h6v6" />
+        </svg>
+      ),
     },
     {
       title: 'Alternative payment methods',
       description: 'Credit card, Cash App, and additional payment rails are being finalized. For now, email us and we will route your donation manually.',
+      iconClass: 'wa-ic--gold',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <rect x="2" y="5" width="20" height="14" rx="2" />
+          <path d="M2 10h20" />
+        </svg>
+      ),
+    },
+  ];
+
+  const fundsCards = [
+    {
+      title: 'Training access',
+      description: 'Support the systems, guidance, and coordination that help qualified members start and stay in career training.',
+      iconClass: 'wa-ic--info',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M22 10L12 5 2 10l10 5 10-5z" />
+          <path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5" />
+        </svg>
+      ),
+    },
+    {
+      title: 'Career readiness',
+      description: 'Help fund resume support, interview prep, accountability, and the human follow-through that keeps members moving.',
+      iconClass: 'wa-ic--accent',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M14 2v6h6M9 13l2 2 4-4" />
+        </svg>
+      ),
+    },
+    {
+      title: 'Employer-connected outcomes',
+      description: 'Support the employer outreach, operations, and placement work that turn training into hiring opportunities.',
+      iconClass: 'wa-ic--gold',
+      icon: (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <rect x="3" y="7" width="18" height="13" rx="2" />
+          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        </svg>
+      ),
     },
   ];
 
   return (
-    <div className="inner-page donate-page">
-      <HeroSection
-        backgroundImage="/images/hero-people.webp"
-        priority
-        minHeight="min(100vh, 42rem)"
-        overlayGradient="linear-gradient(135deg, rgba(18,20,22,0.94) 0%, rgba(18,20,22,0.76) 52%, rgba(173,44,77,0.26) 100%)"
-        eyebrow={
-          <span
-            style={{
-              display: 'inline-block',
-              padding: '0.375rem 0.9rem',
-              borderRadius: '999px',
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              color: 'var(--color-gold)',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Support WorkforceAP
-          </span>
-        }
-        headline={
-          <h1
-            style={{
-              margin: 0,
-              color: 'var(--color-white)',
-              lineHeight: 1.02,
-              letterSpacing: '-0.03em',
-              fontSize: 'clamp(2.4rem, 7vw, 4.75rem)',
-              maxWidth: '14ch',
-              textWrap: 'balance',
-            }}
-          >
-            Fund real training, real support, and real job outcomes
-          </h1>
-        }
-        subheadline={
-          <p
-            style={{
-              margin: 0,
-              maxWidth: '42rem',
-              color: 'rgba(245, 245, 248, 0.9)',
-              fontSize: 'clamp(1rem, 1.25vw, 1.2rem)',
-              lineHeight: 1.7,
-              textShadow: '0 1px 2px rgba(0,0,0,0.22)',
-            }}
-          >
-            Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work.
-          </p>
-        }
-      >
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.5rem' }}>
-          <a
-            href={`mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`}
-            className={marketingButtonPresets.heroPrimary()}
-            style={{ display: 'inline-flex' }}
-          >
-            Start a donation by email
-          </a>
-          <LocalizedLink
-            href="/contact?topic=partnership"
-            className={marketingButtonPresets.heroSecondaryOnDark()}
-            style={{ display: 'inline-flex' }}
-          >
-            Talk about corporate giving
-          </LocalizedLink>
-        </div>
-      </HeroSection>
-
-      <PageSection>
-        <SectionHeader
-          eyebrow="What your donation funds"
-          title="Donations support the work around access, training, and placement"
-          subtitle="WorkforceAP is building a workforce engine for people who need a real shot at a better job. Donations help fund the member support and operational work that makes that possible."
-          align="left"
-        />
-        <div
-          style={{
-            display: 'grid',
-            gap: '1rem',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            marginTop: '1.5rem',
-          }}
-        >
-          <InfoCard
-            title="Training access"
-            description="Support the systems, guidance, and coordination that help qualified members start and stay in career training."
-            variant="bordered"
-          />
-          <InfoCard
-            title="Career readiness"
-            description="Help fund resume support, interview prep, accountability, and the human follow-through that keeps members moving."
-            variant="bordered"
-          />
-          <InfoCard
-            title="Employer-connected outcomes"
-            description="Support the employer outreach, operations, and placement work that turn training into hiring opportunities."
-            variant="bordered"
+    <div className="wa-v3 inner-page donate-page">
+      {/* ===== HERO: real next/image photo behind crimson gradient ===== */}
+      <header className="wa-dhero">
+        <div className="wa-dhero-photo" aria-hidden="true">
+          <Image
+            src="/images/hero-people.webp"
+            alt=""
+            fill
+            priority
+            fetchPriority="high"
+            sizes={MARKETING_FULL_BLEED_HERO_SIZES}
+            quality={85}
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
           />
         </div>
-      </PageSection>
-
-      <PageSection style={{ borderTop: '1px solid rgba(88,65,68,0.1)' }}>
-        <SectionHeader
-          eyebrow="Suggested amounts"
-          title="Simple giving suggestions"
-          subtitle="These are guidance points to make giving easier. If you want to give at another level, email us and we will make it work."
-          align="left"
-        />
-        <div
-          style={{
-            display: 'grid',
-            gap: '1rem',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            marginTop: '1.5rem',
-          }}
-        >
-          {suggestedAmounts.map((item) => (
-            <article key={item.amount} className="portal-card portal-card--flat" style={{ padding: '1.5rem' }}>
-              <p style={{ margin: 0, color: 'var(--color-accent)', fontWeight: 800, fontSize: '1.75rem' }}>{item.amount}</p>
-              <h3 style={{ margin: '0.6rem 0 0.5rem', fontSize: '1.1rem', color: 'var(--color-on-surface)' }}>{item.title}</h3>
-              <p style={{ margin: 0, color: 'var(--color-on-surface-variant)', lineHeight: 1.65 }}>{item.description}</p>
-            </article>
-          ))}
-        </div>
-      </PageSection>
-
-      <PageSection style={{ borderTop: '1px solid rgba(88,65,68,0.1)' }}>
-        <SectionHeader
-          eyebrow="How to give right now"
-          title="Email us to start the donation"
-          subtitle="Public payment rails are being finalized. Until card, Cash App, and other donation methods are live, email us and we will coordinate the donation manually."
-          align="left"
-        />
-        <div
-          style={{
-            display: 'grid',
-            gap: '1rem',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            marginTop: '1.5rem',
-          }}
-        >
-          {givingOptions.map((item) => (
-            <InfoCard key={item.title} title={item.title} description={item.description} variant="bordered" />
-          ))}
-        </div>
-
-        <div className="portal-card portal-card--flat" style={{ marginTop: '1.5rem', padding: 'clamp(1.25rem, 3vw, 2rem)' }}>
-          <h3 style={{ marginTop: 0, color: 'var(--color-on-surface)' }}>Donation contact</h3>
-          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
-            Email{' '}
-            <a href={`mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`} style={{ color: 'var(--color-accent)', fontWeight: 700 }}>
-              {DONATION_EMAIL}
-            </a>{' '}
-            and tell us whether you are giving as an individual, company, foundation, or other organization.
-          </p>
-          <p style={{ color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
-            If you want to talk first, call <a href="tel:+15127771808" style={{ color: 'inherit' }}>{DONATION_PHONE}</a>.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem' }}>
-            <a
-              href={`mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`}
-              className={marketingPrimaryButtonClasses()}
-              style={{ display: 'inline-flex' }}
-            >
-              Email about donating
-            </a>
-            <LocalizedLink
-              href="/contact?topic=partnership"
-              className={marketingSecondaryButtonClasses()}
-              style={{ display: 'inline-flex' }}
-            >
-              Contact the team
-            </LocalizedLink>
+        <div className="wa-wrap">
+          <div className="wa-dhero-inner">
+            <span className="wa-ribbon">Support WorkforceAP</span>
+            <h1>Fund real training, real support, and real job outcomes</h1>
+            <p>
+              Your donation helps low-income adults access training, career support, and employer-connected pathways that
+              move people toward work.
+            </p>
+            <div className="wa-hero-actions">
+              <a
+                href={`mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`}
+                className="wa-btn wa-btn--light"
+              >
+                Start a donation by email
+              </a>
+              <LocalizedLink href="/contact?topic=partnership" className="wa-btn wa-btn--outline">
+                Talk about corporate giving
+              </LocalizedLink>
+            </div>
           </div>
         </div>
-      </PageSection>
+      </header>
 
-      <PageSection style={{ borderTop: '1px solid rgba(88,65,68,0.1)' }}>
-        <QuoteCard
-          label="Workforce Advancement Project"
-          quote="Workforce Advancement Project is a 501(c)(3) nonprofit. EIN: 41-2612389. Contributions are intended to support WorkforceAP's mission and may be tax-deductible to the extent allowed by law."
-        />
-      </PageSection>
+      {/* ===== WHAT YOUR DONATION FUNDS ===== */}
+      <section className="wa-band">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">What your donation funds</span>
+            <h2>Donations support the work around access, training, and placement</h2>
+            <p>
+              WorkforceAP is building a workforce engine for people who need a real shot at a better job. Donations help
+              fund the member support and operational work that makes that possible.
+            </p>
+          </div>
+          <div className="wa-pgrid">
+            {fundsCards.map((card) => (
+              <article key={card.title} className="wa-pcard">
+                <div className={`wa-ic ${card.iconClass}`}>{card.icon}</div>
+                <h3>{card.title}</h3>
+                <p>{card.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SUGGESTED AMOUNTS ===== */}
+      <section className="wa-band wa-band--surface">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">Suggested amounts</span>
+            <h2>Simple giving suggestions</h2>
+            <p>
+              These are guidance points to make giving easier. If you want to give at another level, email us and we will
+              make it work.
+            </p>
+          </div>
+          <div className="wa-agrid">
+            {suggestedAmounts.map((item) => (
+              <article key={item.amount} className="wa-amtcard">
+                <div className="wa-amt">{item.amount}</div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== HOW TO GIVE RIGHT NOW ===== */}
+      <section className="wa-band">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">How to give right now</span>
+            <h2>Email us to start the donation</h2>
+            <p>
+              Public payment rails are being finalized. Until card, Cash App, and other donation methods are live, email
+              us and we will coordinate the donation manually.
+            </p>
+          </div>
+          <div className="wa-pgrid">
+            {givingOptions.map((item) => (
+              <article key={item.title} className="wa-pcard">
+                <div className={`wa-ic ${item.iconClass}`}>{item.icon}</div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="wa-contact">
+            <h3>Donation contact</h3>
+            <p>
+              Email{' '}
+              <a href={`mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`} className="wa-link">
+                {DONATION_EMAIL}
+              </a>{' '}
+              and tell us whether you are giving as an individual, company, foundation, or other organization.
+            </p>
+            <p>
+              If you want to talk first, call{' '}
+              <a href="tel:+15127771808" className="wa-link--plain">
+                {DONATION_PHONE}
+              </a>
+              .
+            </p>
+            <div className="wa-acts">
+              <a
+                href={`mailto:${DONATION_EMAIL}?subject=WorkforceAP%20donation%20inquiry`}
+                className="wa-btn wa-btn--primary"
+              >
+                Email about donating
+              </a>
+              <LocalizedLink href="/contact?topic=partnership" className="wa-btn wa-btn--ghost">
+                Contact the team
+              </LocalizedLink>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== 501(c)(3) QUOTE ===== */}
+      <section className="wa-band wa-band--trust">
+        <div className="wa-wrap">
+          <div className="wa-quote">
+            <div className="wa-lab">Workforce Advancement Project</div>
+            <p>
+              Workforce Advancement Project is a 501(c)(3) nonprofit. EIN: 41-2612389. Contributions are intended to
+              support WorkforceAP&apos;s mission and may be tax-deductible to the extent allowed by law.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <Footer />
       <MobileBottomNav />

@@ -1,3 +1,4 @@
+import '@/css/marketing-v3-how-it-works.css';
 import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import LocalizedLink from '@/components/LocalizedLink';
@@ -57,6 +58,90 @@ const PHASES = (t: (key: string) => string) => [
   },
 ];
 
+// Inline SVG icons (no emoji, no icon font) — presentation only.
+function CheckIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
+}
+
+function StepDot() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
+}
+
+function PeopleIcon() {
+  return (
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11" />
+    </svg>
+  );
+}
+
+function ArrowIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function LaptopIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  );
+}
+
+const TRAINING_ICONS = [
+  // Program cost coverage (gold)
+  (
+    <svg key="t1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c0 1 2 2 6 2s6-1 6-2v-5" />
+    </svg>
+  ),
+  // Peer networks (accent)
+  (
+    <svg key="t2" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <circle cx="9" cy="7" r="3" />
+      <path d="M2 21c0-3 3-5 7-5M16 5a3 3 0 0 1 0 6M22 21c0-2-1-3-3-4" />
+    </svg>
+  ),
+  // Direct pipeline (info)
+  (
+    <svg key="t3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+  ),
+  // Soft-skill coaching (gold)
+  (
+    <svg key="t4" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M12 2a5 5 0 0 0-5 5c0 2 1 3 2 4l-1 6h8l-1-6c1-1 2-2 2-4a5 5 0 0 0-5-5z" />
+    </svg>
+  ),
+];
+
+const TRAINING_IC_CLASS = ['wa-ic--gold', 'wa-ic--accent', 'wa-ic--info', 'wa-ic--gold'];
+
 export default async function HowItWorksPage() {
   const t = await getTranslations('marketing.howItWorks');
   let overviewVideoEmbed: string | null = null;
@@ -73,277 +158,183 @@ export default async function HowItWorksPage() {
     }
   }
 
+  const trainingCards = [
+    { title: t('training1Title'), desc: t('training1Desc') },
+    { title: t('training2Title'), desc: t('training2Desc') },
+    { title: t('training3Title'), desc: t('training3Desc') },
+    { title: t('training4Title'), desc: t('training4Desc') },
+  ];
+
   return (
-    <div className="inner-page">
-      {/* Hero Section */}
-      <section className="content-section" style={{ paddingBottom: 0 }}>
-        <div className="container" style={{ maxWidth: 1200 }}>
-          <div className="editorial-grid">
-            <div style={{ gridColumn: 'span 12' }} className="hiw-hero-left">
-              <span
-                className="text-label-upper"
-                style={{
-                  display: 'inline-block',
-                  padding: '0.25rem 0.75rem',
-                  background: 'var(--color-gold)',
-                  color: 'var(--color-on-surface)',
-                  borderRadius: 'var(--radius-full)',
-                  marginBottom: '1.5rem',
-                }}
-              >
-                {t('heroEyebrow')}
-              </span>
-              <h1 className="text-display-lg" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem', lineHeight: 0.95 }}>
-                {t('heroHeadline')}{' '}
-                <span style={{ color: 'var(--color-accent)' }}>{t('heroHeadlineAccent')}</span>
-              </h1>
-              <p style={{ fontSize: '1.125rem', color: 'var(--color-on-surface-variant)', maxWidth: '36rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                {t('heroCopy')}
-              </p>
-              <div style={{ marginBottom: '2.5rem', padding: '1.125rem 1.5rem', background: 'var(--surface-container)', borderRadius: 'var(--radius-lg)', borderLeft: '3px solid var(--color-accent)', maxWidth: '36rem' }}>
-                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '0.5rem' }}>{t('whoCanApplyTitle')}</p>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.65, margin: 0 }}>
-                  {t('whoCanApplyBody')}{' '}
-                  <LocalizedLink href="/apply" style={{ color: 'var(--color-accent)', fontWeight: 600, textDecoration: 'none' }}>
-                    {t('wioaLink')}
-                  </LocalizedLink>
-                </p>
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
-                <LocalizedLink
-                  href="/find-your-path"
-                  style={{
-                    display: 'inline-block',
-                    background: 'var(--color-accent)',
-                    color: '#fff',
-                    padding: '1rem 2rem',
-                    borderRadius: 'var(--radius-lg)',
-                    fontWeight: 700,
-                    fontSize: '1.15rem',
-                    textDecoration: 'none',
-                  }}
-                >
-                  {t('heroCta1')}
-                </LocalizedLink>
-                <LocalizedLink
-                  href="/apply"
-                  style={{
-                    display: 'inline-block',
-                    background: 'var(--surface-container-high)',
-                    color: 'var(--color-on-surface)',
-                    padding: '1rem 2rem',
-                    borderRadius: 'var(--radius-lg)',
-                    fontWeight: 700,
-                    fontSize: '1.1rem',
-                    textDecoration: 'none',
-                  }}
-                >
-                  {t('heroCta2')}
-                </LocalizedLink>
-                <LocalizedLink
-                  href="/programs"
-                  style={{
-                    display: 'inline-block',
-                    background: 'transparent',
-                    color: 'var(--color-accent)',
-                    padding: '1rem 2rem',
-                    borderRadius: 'var(--radius-lg)',
-                    fontWeight: 700,
-                    fontSize: '1.1rem',
-                    textDecoration: 'none',
-                    border: '2px solid var(--color-accent)',
-                  }}
-                >
-                  {t('heroCta3')}
-                </LocalizedLink>
-              </div>
+    <div className="wa-v3">
+      {/* Hero / intro */}
+      <header className="hiw-hero">
+        <div className="wa-wrap">
+          <span className="wa-eyebrow">{t('heroEyebrow')}</span>
+          <h1>
+            {t('heroHeadline')} <span className="wa-accent">{t('heroHeadlineAccent')}</span>
+          </h1>
+          <p className="hiw-lede">{t('heroCopy')}</p>
+          <div className="hiw-hero-actions">
+            <LocalizedLink href="/find-your-path" className="wa-btn wa-btn--primary">
+              {t('heroCta1')}
+            </LocalizedLink>
+            <LocalizedLink href="/apply" className="wa-btn wa-btn--ghost">
+              {t('heroCta2')}
+            </LocalizedLink>
+            <LocalizedLink href="/programs" className="wa-btn wa-btn--ghost">
+              {t('heroCta3')}
+            </LocalizedLink>
+          </div>
+
+          {/* Who can apply */}
+          <div className="hiw-applybox">
+            <div>
+              <span className="wa-eyebrow">{t('heroEyebrow')}</span>
+              <h2>{t('whoCanApplyTitle')}</h2>
+              <p>{t('whoCanApplyBody')}</p>
+              <LocalizedLink href="/apply" className="hiw-wioa">
+                {t('wioaLink')}
+                <ArrowIcon />
+              </LocalizedLink>
+            </div>
+            <div className="hiw-badge" aria-hidden="true">
+              <PeopleIcon />
             </div>
           </div>
         </div>
-      </section>
+      </header>
 
       {/* The Journey: member milestones (same steps as homepage) */}
-      <section className="bg-surface-container-low" style={{ padding: '6rem 0', overflow: 'hidden' }}>
-        <div className="container" style={{ maxWidth: 1200 }}>
-          <div style={{ marginBottom: '4rem' }}>
-            <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1rem' }}>
-              {t('journeyTitle')}
-            </h2>
-            <p style={{ color: 'var(--color-on-surface-variant)', maxWidth: '42rem' }}>
-              {t('journeySubtitle')}
-            </p>
+      <section className="wa-band wa-band--surface" id="journey">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">{t('heroEyebrow')}</span>
+            <h2>{t('journeyTitle')}</h2>
+            <p>{t('journeySubtitle')}</p>
           </div>
 
-          {PHASES(t).map((phase, phaseIdx) => (
-            <div key={phase.id} style={{ marginBottom: phaseIdx < PHASES(t).length - 1 ? '4rem' : 0 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderBottom: '1px solid rgba(88,65,68,0.1)', paddingBottom: '1rem', marginBottom: '2rem' }}>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-on-surface)' }}>{phase.title}</h3>
-                <span className="text-label-upper" style={{ color: 'var(--color-accent)' }}>{phase.label}</span>
+          {PHASES(t).map((phase) => (
+            <div key={phase.id} className={`hiw-phase hiw-p${phase.id}`}>
+              <div className="hiw-rail">
+                <div className="hiw-pnum">{phase.id}</div>
+                <div className="hiw-line" aria-hidden="true" />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))', gap: '1.5rem' }}>
-                {phase.steps.map((step) => {
-                  const isHighlight = step.num === 1 || step.num === 7 || step.num === 9 || step.num === 10;
-                  return (
-                    <div
-                      key={step.num}
-                      className="portal-card portal-card--flat"
-                      style={{
-                        padding: '1.5rem',
-                        ...(isHighlight ? { borderLeft: `4px solid var(--color-accent)` } : {}),
-                      }}
-                    >
-                      <h4 style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--color-on-surface)' }}>{step.title}</h4>
-                      {step.num === 2 && overviewVideoEmbed ? (
-                        <div style={{ margin: '1rem 0' }}>
-                          <div
-                            style={{
-                              position: 'relative',
-                              paddingBottom: '56.25%',
-                              height: 0,
-                              overflow: 'hidden',
-                              borderRadius: 'var(--radius-md)',
-                              background: '#111',
-                            }}
-                          >
-                            <iframe
-                              title="Overview — counselor introduction"
-                              src={overviewVideoEmbed}
-                              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
+              <div className="hiw-body">
+                <div className="hiw-plabel">{phase.label}</div>
+                <h3 className="hiw-ptitle">{phase.title}</h3>
+                <div className="hiw-steps">
+                  {phase.steps.map((step) => (
+                    <div key={step.num} className="hiw-si">
+                      <span className="hiw-dot">
+                        <StepDot />
+                      </span>
+                      <div>
+                        <div className="hiw-st">{step.title}</div>
+                        {step.num === 2 && overviewVideoEmbed ? (
+                          <div className="hiw-video">
+                            <div className="hiw-video-frame">
+                              <iframe
+                                title="Overview — counselor introduction"
+                                src={overviewVideoEmbed}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </div>
+                            <p className="hiw-video-cap">{t('videoCaption')}</p>
                           </div>
-                          <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', marginTop: '0.5rem' }}>
-                            {t('videoCaption')}
-                          </p>
-                        </div>
-                      ) : null}
-                      <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{step.desc}</p>
-                      {step.why && (
-                        <p style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-variant)', marginTop: '0.75rem', fontStyle: 'italic', opacity: 0.8 }}>
-                          {t('whyPrefix')} {step.why}
-                        </p>
-                      )}
+                        ) : null}
+                        <div className="hiw-sdesc">{step.desc}</div>
+                        {step.why && (
+                          <div className="hiw-swhy">
+                            <b>{t('whyPrefix')}</b> {step.why}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             </div>
           ))}
 
           {/* Post-timeline CTA — prevent dead-end after long scroll */}
-          <div style={{ marginTop: '3rem', textAlign: 'center', padding: '2.5rem', background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)' }}>
-            <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '1.25rem', fontSize: '1rem' }}>
-              {t('ctaBody')}
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-              <LocalizedLink href="/apply" className="btn btn-primary">{t('ctaApply')}</LocalizedLink>
-              <LocalizedLink href="/find-your-path" className="btn btn-muted">{t('heroCta1')}</LocalizedLink>
+          <div className="hiw-midcta">
+            <p>{t('ctaBody')}</p>
+            <div className="hiw-midcta-acts">
+              <LocalizedLink href="/apply" className="wa-btn wa-btn--primary">
+                {t('ctaApply')}
+              </LocalizedLink>
+              <LocalizedLink href="/find-your-path" className="wa-btn wa-btn--ghost">
+                {t('heroCta1')}
+              </LocalizedLink>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Benefits Grid */}
-      <section className="content-section">
-        <div className="container" style={{ maxWidth: 1200 }}>
-          <div className="editorial-grid" style={{ gap: '1.5rem' }}>
-            {/* Loaner Laptop */}
-            <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-wide">
-              <div className="portal-card portal-card--elevated" style={{ padding: '3rem', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ maxWidth: 'min(42rem, 100%)' }}>
-                  <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '1.5rem' }}>{t('laptopTitle')}</h2>
-                  <p style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem', lineHeight: 1.7 }}>
-                    {t('laptopBody')}
-                  </p>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                      {t('laptopItem1')}
-                    </li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                      {t('laptopItem2')}
-                    </li>
-                    <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 500, color: 'var(--color-on-surface)' }}>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', '--ms-fill': 1 }}>check_circle</span>
-                      {t('laptopItem3')}
-                    </li>
-                  </ul>
-                </div>
+      {/* Career Training Benefits */}
+      <section className="wa-band">
+        <div className="wa-wrap">
+          <div className="wa-sec-head">
+            <span className="wa-eyebrow">{t('trainingTitle')}</span>
+            <h2>{t('trainingTitle')}</h2>
+          </div>
+          <div className="wa-pgrid">
+            {trainingCards.map((card, i) => (
+              <div key={i} className="wa-pcard">
+                <div className={`wa-ic ${TRAINING_IC_CLASS[i]}`}>{TRAINING_ICONS[i]}</div>
+                <h3>{card.title}</h3>
+                <p className="wa-area">{card.desc}</p>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* 150-Day Support */}
-            <div style={{ gridColumn: 'span 12' }} className="hiw-benefit-accent">
-              <div style={{ background: 'var(--color-accent)', borderRadius: 'var(--radius-xl)', padding: '3rem', color: '#fff', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                <div>
-                  <div style={{ width: '4rem', height: '4rem', background: 'rgba(255,255,255,0.2)', borderRadius: 'var(--radius-xl)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '2rem', '--ms-fill': 1 }}>calendar_today</span>
-                  </div>
-                  <h2 className="text-display-sm" style={{ marginBottom: '1rem' }}>{t('support150Title')}</h2>
-                  <p style={{ color: 'rgba(255,203,209,0.9)', lineHeight: 1.7, maxWidth: '36rem' }}>
-                    {t('support150Body')}
-                  </p>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                    <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{t('benefit01Label')}</p>
-                    <p style={{ fontWeight: 500 }}>{t('benefit01Text')}</p>
-                  </div>
-                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                    <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{t('benefit02Label')}</p>
-                    <p style={{ fontWeight: 500 }}>{t('benefit02Text')}</p>
-                  </div>
-                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                    <p className="text-label-upper" style={{ opacity: 0.7, marginBottom: '0.25rem', fontSize: '0.65rem' }}>{t('benefit03Label')}</p>
-                    <p style={{ fontWeight: 500 }}>{t('benefit03Text')}</p>
-                  </div>
-                </div>
+      {/* Support features: Loaner laptop + 150-day */}
+      <section className="wa-band wa-band--surface">
+        <div className="wa-wrap">
+          <div className="hiw-feat">
+            <div className="hiw-fcard">
+              <div className="wa-ic wa-ic--info">
+                <LaptopIcon />
               </div>
+              <h3>{t('laptopTitle')}</h3>
+              <p>{t('laptopBody')}</p>
+              <ul>
+                <li>
+                  <CheckIcon />
+                  {t('laptopItem1')}
+                </li>
+                <li>
+                  <CheckIcon />
+                  {t('laptopItem2')}
+                </li>
+                <li>
+                  <CheckIcon />
+                  {t('laptopItem3')}
+                </li>
+              </ul>
             </div>
-
-            {/* Career Training Benefits */}
-            <div style={{ gridColumn: 'span 12' }}>
-              <div className="portal-card portal-card--flat" style={{ padding: '3rem' }}>
-                <h2 className="text-display-sm" style={{ color: 'var(--color-on-surface)', marginBottom: '2rem' }}>{t('trainingTitle')}</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>school</span>
-                      </div>
-                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training1Title')}</h4>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training1Desc')}</p>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>groups</span>
-                      </div>
-                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training2Title')}</h4>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training2Desc')}</p>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>work</span>
-                      </div>
-                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training3Title')}</h4>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training3Desc')}</p>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ padding: '0.5rem', background: 'var(--color-gold)', borderRadius: 'var(--radius-lg)' }}>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--color-on-surface)', fontSize: '1.25rem', '--ms-fill': 1 }}>psychology</span>
-                      </div>
-                      <h4 style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>{t('training4Title')}</h4>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{t('training4Desc')}</p>
-                  </div>
+            <div className="hiw-fcard">
+              <div className="wa-ic wa-ic--accent">
+                <CalendarIcon />
+              </div>
+              <h3>{t('support150Title')}</h3>
+              <p>{t('support150Body')}</p>
+              <div className="hiw-bgrid">
+                <div className="hiw-b">
+                  <div className="hiw-lab">{t('benefit01Label')}</div>
+                  <div className="hiw-v">{t('benefit01Text')}</div>
+                </div>
+                <div className="hiw-b">
+                  <div className="hiw-lab">{t('benefit02Label')}</div>
+                  <div className="hiw-v">{t('benefit02Text')}</div>
+                </div>
+                <div className="hiw-b">
+                  <div className="hiw-lab">{t('benefit03Label')}</div>
+                  <div className="hiw-v">{t('benefit03Text')}</div>
                 </div>
               </div>
             </div>
@@ -351,8 +342,9 @@ export default async function HowItWorksPage() {
         </div>
       </section>
 
-      <section className="content-section" style={{ padding: '2rem 1rem 1rem' }}>
-        <div className="container" style={{ maxWidth: 760 }}>
+      {/* Program commitment panel (behavior preserved) */}
+      <section className="hiw-commitment">
+        <div className="wa-wrap">
           <ProgramCommitmentPanel />
         </div>
       </section>
@@ -395,14 +387,6 @@ export default async function HowItWorksPage() {
           </LocalizedLink>
         }
       />
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .hiw-hero-left { grid-column: 1 / 8 !important; }
-          .hiw-benefit-wide { grid-column: 1 / 9 !important; }
-          .hiw-benefit-accent { grid-column: 9 / 13 !important; }
-        }
-      `}</style>
 
       <MobileBottomNav />
       <Footer />

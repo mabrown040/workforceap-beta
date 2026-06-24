@@ -1,3 +1,4 @@
+import '@/css/marketing-v3-apply.css';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import ApplyMobileStepNav from '@/components/apply/ApplyMobileStepNav';

@@ -1,0 +1,512 @@
+/**
+ * Plain program data for the Astro marketing site (no Next/server deps).
+ *
+ * Source of truth: lib/content/programs.ts (PROGRAMS), lib/content/programDescriptions.ts,
+ * lib/content/programExtras.ts, lib/content/programSalaryOutcomes.ts.
+ * Copy is VERBATIM (truth-lock). Slugs, titles, durations, salary strings,
+ * partners, funding sources, skills, course names, descriptions, and extras
+ * are reproduced exactly as in the Next app so the static [slug] pages match.
+ *
+ * The Next data module imports Coursera catalog + cache helpers (server-only),
+ * so the plain data is mirrored here rather than imported.
+ */
+
+export type LanguageSupportLevel = 'full' | 'subtitles' | 'ai-subtitles' | 'none';
+export interface LanguageSupport {
+  es: LanguageSupportLevel;
+  pt: LanguageSupportLevel;
+  fr: LanguageSupportLevel;
+}
+
+export interface ProgramCourse {
+  slug: string;
+  name: string;
+  estimatedHours: number;
+}
+
+export interface ProgramExtra {
+  bestFor: string;
+  jobOutcomes: string[];
+  difficulty?: 1 | 2 | 3;
+  rampNote?: string;
+}
+
+export interface Program {
+  slug: string;
+  title: string;
+  category: string;
+  categoryLabel: string;
+  categoryColor: string;
+  icon: string;
+  duration: string;
+  salary: string;
+  skills: string[];
+  courses: ProgramCourse[];
+  partner: string;
+  fundingSource?: string;
+  languagesSupported?: LanguageSupport;
+  /** Resolved 2–3 sentence description (slug override or category fallback). */
+  description: string;
+  /** Decision-quality extras (best-for, job outcomes, difficulty, ramp). */
+  extra?: ProgramExtra;
+}
+
+// ── External partners whose credential gets a "<Partner> certified" badge ──
+// (matches externalPartners in the Next detail page)
+const EXTERNAL_PARTNERS = ['Google', 'IBM', 'Amazon Web Services', 'Microsoft', 'CompTIA'];
+
+export function partnerBadge(program: Program): string {
+  return EXTERNAL_PARTNERS.includes(program.partner)
+    ? `${program.partner} certified`
+    : program.partner;
+}
+
+// ── Salary parsing (verbatim from programSalaryOutcomes.ts) ──
+export function salaryRangeDisplay(program: Program): string {
+  const m = program.salary.match(/\$(\d+)K\s*[-–]\s*\$(\d+)K/i);
+  if (m) return `$${parseInt(m[1], 10)}K–$${parseInt(m[2], 10)}K`;
+  return program.salary.replace(/^Starting salary:\s*/i, '').trim();
+}
+
+const DIGITAL_LITERACY_PROGRAM_DURATION = '6 weeks, 5 hrs/week (30 hours total)';
+
+// Helper to build course objects from verbatim course-name lists, matching the
+// Next slug scheme `${slug}-course-${i+1}` and default estimated hours.
+function courses(slug: string, names: string[], hours = 10): ProgramCourse[] {
+  return names.map((name, i) => ({ slug: `${slug}-course-${i + 1}`, name, estimatedHours: hours }));
+}
+
+export const PROGRAMS: Program[] = [
+  {
+    slug: 'digital-literacy-empowerment-class',
+    title: 'Digital Literacy Empowerment Class',
+    category: 'digital-literacy',
+    categoryLabel: 'Digital Literacy',
+    categoryColor: '#666',
+    icon: '💻',
+    duration: DIGITAL_LITERACY_PROGRAM_DURATION,
+    salary: 'Starting salary: $38K-$52K',
+    skills: ['Digital literacy', 'Email', 'Financial literacy', 'Online safety'],
+    courses: courses('digital-literacy-empowerment-class', ['Orientation & Informational Session', 'Device Distribution & Setup + Browser & Search Engines', 'Introduction to Emails & Advanced Email Techniques', 'Avoiding Online Scams + Introduction to Financial Literacy', 'PCC Portal & Connect ATX Navigation', 'Graduation, Exit Surveys & ETP Forms'], 5),
+    partner: 'Grant',
+    fundingSource: 'Grant',
+    languagesSupported: { es: 'none', pt: 'none', fr: 'none' },
+    description: 'This program is built for members who are new to computers, smartphones, or the internet — no prior tech experience needed. In six weeks you will build the everyday digital skills that employers expect: setting up and using email, navigating the web safely, managing online accounts, and understanding basic financial tools. Members who complete this program are ready for office support, customer service, and administrative roles. If you are already comfortable with email and basic software, Cybersecurity or IT Support may be a stronger next step. Not sure where you stand? The pathfinder quiz can help you choose.',
+    extra: {
+      bestFor: 'Members who are new to computers and the internet — no tech background required. If you already use email and browse the web daily, a program like IT Support or Cybersecurity may be a stronger fit.',
+      jobOutcomes: ['Office Support Specialist', 'Customer Service Representative', 'Administrative Assistant'],
+      difficulty: 1,
+      rampNote: 'No tech background required. Six weeks, beginner pace. Start here if technology feels unfamiliar.',
+    },
+  },
+  {
+    slug: 'it-support-professional-certificate-ibm',
+    title: 'IT Support Professional Certificate (IBM)',
+    category: 'it-cyber',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryColor: '#ad2c4d',
+    icon: '💻',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $55K-$72K',
+    skills: ['Help desk', 'Hardware', 'Software', 'Customer service'],
+    courses: courses('it-support-professional-certificate-ibm', ['Introduction to Technical Support', 'Introduction to Hardware and Operating Systems', 'Introduction to Software, Programming, and Databases', 'Introduction to Networking and Storage', 'Introduction to Cybersecurity Essentials', 'Introduction to Cloud Computing', 'Technical Support Case Studies and Capstone Project']),
+    partner: 'IBM',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'ai-subtitles', pt: 'full', fr: 'ai-subtitles' },
+    description: 'Prepare for a career in IT support, networking, or cybersecurity with hands-on training and an industry-recognized certification. Our programs cover hardware, software, and security fundamentals employers look for.',
+    extra: {
+      bestFor: 'First IT credential. Help desk, hardware, customer support.',
+      jobOutcomes: ['IT Support Specialist', 'Help Desk Technician', 'Technical Support'],
+    },
+  },
+  {
+    slug: 'it-support-and-entry-level-cyber-security-certificate',
+    title: 'IT Support and Entry-level Cyber Security Certificate',
+    category: 'it-cyber-entry',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryColor: '#ad2c4d',
+    icon: '🛡️',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $60K-$88K',
+    skills: ['Help desk', 'Networking', 'Security fundamentals', 'Incident response'],
+    courses: courses('it-support-and-entry-level-cyber-security-certificate', ['IT Support Foundations', 'Computer Hardware and Operating Systems', 'Networking Fundamentals', 'Cybersecurity Essentials', 'Entry-Level Security Operations', 'Career Preparation for IT and Cybersecurity']),
+    partner: 'IBM / CompTIA',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'ai-subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'This program prepares you for an in-demand career with industry-recognized training and certification.',
+  },
+  {
+    slug: 'ai-professional-developer-certificate-ibm',
+    title: 'AI and Software Development Professional Certificate (IBM)',
+    category: 'ai-software',
+    categoryLabel: 'AI & Software Dev',
+    categoryColor: '#8b4a9b',
+    icon: '🤖',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $85K-$135K',
+    skills: ['Python', 'AI/ML', 'Generative AI', 'Flask'],
+    courses: courses('ai-professional-developer-certificate-ibm', ['Introduction to Software Engineering', 'Introduction to Artificial Intelligence (AI)', 'Generative AI: Introduction and Applications', 'Generative AI: Prompt Engineering Basics', 'Introduction to HTML, CSS, & JavaScript', 'Python for Data Science, AI & Development', 'Developing AI Applications with Python and Flask', 'Building Generative AI-Powered Applications with Python', 'Generative AI: Elevate your Software Development Career', 'Software Developer Career Guide and Interview Preparation']),
+    partner: 'IBM',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'ai-subtitles', pt: 'full', fr: 'none' },
+    description: "Learn the tools, languages, and frameworks powering today's AI-driven software industry. From Python and machine learning to full-stack development, these programs prepare you for in-demand tech roles.",
+    extra: {
+      bestFor: 'Career changers with some coding interest. Best if you can invest 3–5 months consistently.',
+      jobOutcomes: ['AI / ML Engineer', 'Software Developer', 'Applications Engineer'],
+      difficulty: 3,
+      rampNote: 'Intermediate track. Best if you enjoy problem-solving, structured learning, and tech.',
+    },
+  },
+  {
+    slug: 'project-management-professional-certificate-microsoft',
+    title: 'Project Management Professional Certificate (Microsoft)',
+    category: 'business',
+    categoryLabel: 'Business',
+    categoryColor: '#a47f38',
+    icon: '💼',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $82K-$112K',
+    skills: ['Agile', 'Scrum', 'MS Project', 'Risk management'],
+    courses: courses('project-management-professional-certificate-microsoft', ['Project Management Foundations', 'Initiating and Planning Projects', 'Project Scheduling and Cost Management', 'Managing Project Risks, Changes and Stakeholders', 'Project Leadership, Communication and Stakeholder Management', 'Agile Project Management', 'Microsoft Project & Power BI for Project Managers', 'Project Management Capstone']),
+    partner: 'Microsoft',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'full', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'This program is built for organizers, coordinators, and career changers who want a structured path into project-based work. Over three to five months you will learn project planning, stakeholder communication, Agile methods, scheduling, budgeting, and the delivery habits employers expect. Members who complete this track move into project coordinator, operations, and junior project management roles across tech, healthcare, logistics, and business teams.',
+    extra: {
+      bestFor: 'Organizers and coordinators. Agile, Scrum — transferable across industries.',
+      jobOutcomes: ['Project Coordinator', 'Project Manager', 'Scrum Master'],
+      difficulty: 2,
+      rampNote: 'No tech background required. Strong for career changers from any field.',
+    },
+  },
+  {
+    slug: 'data-analytics-professional-certificate-google',
+    title: 'Data Analytics Professional Certificate (Google)',
+    category: 'cloud-data',
+    categoryLabel: 'Cloud & Data',
+    categoryColor: '#2b7bb9',
+    icon: '📊',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $72K-$102K',
+    skills: ['Spreadsheets', 'SQL', 'R', 'Tableau', 'Data viz'],
+    courses: courses('data-analytics-professional-certificate-google', ['Foundations: Data, Data, Everywhere', 'Ask Questions to Make Data-Driven Decisions', 'Prepare Data for Exploration', 'Process Data from Dirty to Clean', 'Analyze Data to Answer Questions', 'Share Data Through the Art of Visualization', 'Data Analysis with R Programming', 'Google Data Analytics Capstone']),
+    partner: 'Google',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'full', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'This program is a strong fit for members who like patterns, numbers, and practical problem-solving. Over three to five months you will move from spreadsheets into SQL, data cleaning, dashboards, and visualization so you can explain what the numbers mean, not just collect them. Members who complete this track are preparing for data analyst, reporting, and business analyst roles where clear thinking and communication matter as much as technical skill.',
+    extra: {
+      bestFor: 'Data-minded learners. Spreadsheets to SQL to visualization.',
+      jobOutcomes: ['Data Analyst', 'Business Analyst', 'Marketing Analyst'],
+      difficulty: 2,
+      rampNote: 'Spreadsheets first, then SQL and R. No prior data experience required.',
+    },
+  },
+  {
+    slug: 'data-science-professional-certificate-ibm',
+    title: 'Data Science Professional Certificate (IBM)',
+    category: 'cloud-data',
+    categoryLabel: 'Cloud & Data',
+    categoryColor: '#2b7bb9',
+    icon: '📊',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $88K-$130K',
+    skills: ['Python', 'SQL', 'Machine Learning', 'Jupyter'],
+    courses: courses('data-science-professional-certificate-ibm', ['What is Data Science?', 'Tools for Data Science', 'Data Science Methodology', 'Python for Data Science, AI & Development', 'Python Project for Data Science', 'Databases and SQL for Data Science with Python', 'Data Analysis with Python', 'Data Visualization with Python', 'Machine Learning with Python', 'Applied Data Science Capstone']),
+    partner: 'IBM',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'ai-subtitles', pt: 'full', fr: 'ai-subtitles' },
+    description: 'This program is for members who want to go beyond reporting and into deeper analytical and technical work. Over three to five months you will build Python, SQL, machine learning, and notebook-based workflow skills that support modern data teams. It is a higher-ramp pathway, but it opens doors to data science, machine learning support, and advanced analytics roles for members willing to stay consistent.',
+    extra: {
+      bestFor: 'Strong interest in data + programming. Python, ML, Jupyter.',
+      jobOutcomes: ['Data Scientist', 'ML Engineer', 'Analytics Engineer'],
+      difficulty: 3,
+      rampNote: 'Involves Python and machine learning — best with some coding comfort.',
+    },
+  },
+  {
+    slug: 'aws-cloud-technology-amazon',
+    title: 'AWS Cloud Technology Certificate',
+    category: 'cloud-data',
+    categoryLabel: 'Cloud & Data',
+    categoryColor: '#2b7bb9',
+    icon: '☁️',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $95K-$145K',
+    skills: ['AWS', 'Cloud architecture', 'DevOps', 'Python'],
+    courses: courses('aws-cloud-technology-amazon', ['Introduction to Information Technology and AWS Cloud', 'Providing Technical Support for AWS Workloads', 'Developing Applications in Python on AWS', 'Skills for Working as an AWS Cloud Consultant', 'DevOps on AWS and Project Management', 'Automation in the AWS Cloud', 'Data Analytics and Databases on AWS', 'Capstone: Following the AWS Well Architected Framework']),
+    partner: 'Amazon Web Services',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'ai-subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'Build skills in cloud architecture, data analytics, and DevOps. These programs connect you with certifications from Google, IBM, and Amazon that employers hire against.',
+    extra: {
+      bestFor: 'Tech-curious learners ready for cloud. Strong demand, higher salary ceiling.',
+      jobOutcomes: ['Cloud Engineer', 'Solutions Architect', 'DevOps Engineer'],
+      difficulty: 3,
+      rampNote: 'Assumes comfort with computers. Higher ceiling, steeper ramp.',
+    },
+  },
+  {
+    slug: 'medical-billing-and-coding-certificate',
+    title: 'Medical Billing and Coding Professional Certificate',
+    category: 'healthcare',
+    categoryLabel: 'Healthcare',
+    categoryColor: '#4a9b4f',
+    icon: '🩺',
+    duration: '4-6 months, 10 hrs/week',
+    salary: 'Starting salary: $45K-$62K',
+    skills: ['Medical billing', 'Medical coding', 'Medical terminology', 'Revenue cycle', 'Patient records'],
+    courses: courses('medical-billing-and-coding-certificate', ['Medical Terminology, Anatomy, and Physiology Fundamentals', 'Medical Billing and Coding Essentials', 'Medical Billing: Code and Claim Cleanly', 'Medical Billing: Code, Claim, Collect', 'Medical Coding for Max Reimbursement', 'The Billing and Collection Process', 'Reconciliation, Billing, and Collections Optimization', 'Revenue Cycle, Billing, and Coding', 'Register Patients & Validate Data', 'Introduction to Certified Professional Biller', 'Medical Records: Protect Patient Privacy', 'Medical Administrative Assistants and Office Procedures', 'Health Information Technology Fundamentals', 'Foundations of Telehealth'], 14),
+    partner: 'Coursera',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'ai-subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'Prepare for medical coding and health information roles. Learn EHR systems, HIPAA compliance, and coding fundamentals employers use in healthcare administration.',
+  },
+  {
+    slug: 'it-automation-with-python-google',
+    title: 'IT Automation with Python Certificate (Google)',
+    category: 'it-cyber',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryColor: '#ad2c4d',
+    icon: '💻',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $78K-$98K',
+    skills: ['Python', 'Git', 'Bash', 'APIs', 'IT automation'],
+    courses: courses('it-automation-with-python-google', ['Crash Course on Python', 'Using Python to Interact with the Operating System', 'Introduction to Git and GitHub', 'Troubleshooting and Debugging Techniques', 'Configuration Management and the Cloud', 'Automating Real-World Tasks with Python']),
+    partner: 'Google',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'full', pt: 'full', fr: 'ai-subtitles' },
+    description: 'Prepare for a career in IT support, networking, or cybersecurity with hands-on training and an industry-recognized certification. Our programs cover hardware, software, and security fundamentals employers look for.',
+    extra: {
+      bestFor: 'Automation and scripting. Builds on basic IT or Python knowledge.',
+      jobOutcomes: ['IT Automation Specialist', 'DevOps Engineer', 'Systems Engineer'],
+      difficulty: 2,
+      rampNote: 'Some Python comfort helps. Good next step after IT Support or A+.',
+    },
+  },
+  {
+    slug: 'comptia-a-professional-certificate',
+    title: 'CompTIA A+ Professional Certificate',
+    category: 'it-cyber',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryColor: '#ad2c4d',
+    icon: '🛡️',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $55K-$78K',
+    skills: ['Hardware', 'Networking', 'Security', 'OS'],
+    courses: courses('comptia-a-professional-certificate', ['IT Fundamentals and Hardware Essentials', 'Networking, Peripherals, and Wireless Technologies', 'Advanced Networking, Virtualization, and IT Security', 'Foundations of Computer Hardware and Storage', 'Operating Systems and Networking Fundamentals', 'Advanced Networking, Security, and IT Operations', 'Practice Exams for CompTIA A+ Core 1 & Core 2']),
+    partner: 'CompTIA',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'Prepare for a career in IT support, networking, or cybersecurity with hands-on training and an industry-recognized certification. Our programs cover hardware, software, and security fundamentals employers look for.',
+    extra: {
+      bestFor: 'First certification in IT. Entry point to help desk, support, and networking.',
+      jobOutcomes: ['IT Support Specialist', 'Help Desk Technician', 'Desktop Support'],
+      difficulty: 2,
+      rampNote: 'Good first IT credential. Builds from basics.',
+    },
+  },
+  {
+    slug: 'comptia-network-professional-certificate',
+    title: 'CompTIA Network+ Professional Certificate',
+    category: 'it-cyber',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryColor: '#ad2c4d',
+    icon: '🛡️',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $60K-$88K',
+    skills: ['Networking', 'TCP/IP', 'Cisco', 'Wireless'],
+    courses: courses('comptia-network-professional-certificate', ['Introduction to Networking', 'Networking Fundamentals', 'Introduction to Contemporary Operating Systems and Hardware', 'Introduction to Networking and Storage', 'Basics of Cisco Networking', 'CCNA Foundations', 'TCP/IP and Advanced Topics', 'Operating Systems and Networking Fundamentals', 'Network Foundations and Addressing']),
+    partner: 'CompTIA',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'ai-subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'Prepare for a career in IT support, networking, or cybersecurity with hands-on training and an industry-recognized certification. Our programs cover hardware, software, and security fundamentals employers look for.',
+    extra: {
+      bestFor: 'Building on A+ or networking interest. Next step after IT fundamentals.',
+      jobOutcomes: ['Network Administrator', 'Network Technician', 'Systems Administrator'],
+      difficulty: 2,
+      rampNote: 'Builds on IT basics. Best taken after A+ or equivalent experience.',
+    },
+  },
+  {
+    slug: 'comptia-security-professional-certificate',
+    title: 'CompTIA Security+ Professional Certificate',
+    category: 'it-cyber',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryColor: '#ad2c4d',
+    icon: '🛡️',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $72K-$108K',
+    skills: ['Network security', 'Risk management', 'Cryptography'],
+    courses: courses('comptia-security-professional-certificate', ['Network Security', 'Introduction to Network Security', 'System and Network Security', 'Computer Networks and Network Security']),
+    partner: 'CompTIA',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'ai-subtitles', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'Prepare for a career in IT support, networking, or cybersecurity with hands-on training and an industry-recognized certification. Our programs cover hardware, software, and security fundamentals employers look for.',
+    extra: {
+      bestFor: 'Moving into security. Builds on networking knowledge.',
+      jobOutcomes: ['Security Analyst', 'Security Administrator', 'Compliance Analyst'],
+      difficulty: 2,
+      rampNote: 'Assumes networking fundamentals. Strong credential for security roles.',
+    },
+  },
+  {
+    slug: 'cybersecurity-professional-certificate-google',
+    title: 'Cyber Security and Networking Professional Certificate (Network+, Sec+)',
+    category: 'it-cyber',
+    categoryLabel: 'IT & Cybersecurity',
+    categoryColor: '#ad2c4d',
+    icon: '🛡️',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $75K-$112K',
+    skills: ['Linux', 'SQL', 'Python', 'Incident response'],
+    courses: courses('cybersecurity-professional-certificate-google', ['Foundations of Cybersecurity', 'Play It Safe: Manage Security Risks', 'Connect and Protect: Networks and Network Security', 'Tools of the Trade: Linux and SQL', 'Assets, Threats, and Vulnerabilities', 'Sound the Alarm: Detection and Response', 'Automate Cybersecurity Tasks with Python', 'Put It to Work: Prepare for Cybersecurity Jobs']),
+    partner: 'Google',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'full', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'This program is designed for members who are serious about entering the security field and are ready to commit three to five months of focused effort. You will build hands-on skills in Linux, SQL, Python scripting, network security, and incident response — the exact toolkit that Security Operations Center (SOC) roles require. The Google Cybersecurity Certificate is widely recognized and signals job-readiness to employers. Members who succeed here typically start as Cybersecurity Analysts, SOC Analysts, or Security Operations Specialists earning $75K–$112K. If you have never used a computer for work before, we recommend starting with Digital Literacy or IT Support first to build a foundation. Ready to move forward? Apply now or use the comparison tool to see how this program stacks up against other IT tracks.',
+    extra: {
+      bestFor: 'Career changers ready to enter the security field. You do not need a security background, but comfort with computers helps — members new to technology entirely should complete Digital Literacy or IT Support first.',
+      jobOutcomes: ['Cybersecurity Analyst', 'SOC Analyst', 'Security Operations Specialist'],
+      difficulty: 3,
+      rampNote: 'Assumes basic computer comfort. Strong employer demand and higher salary ceiling than most entry tracks.',
+    },
+  },
+  {
+    slug: 'digital-marketing-e-commerce-google',
+    title: 'Digital Marketing & E-Commerce (Google)',
+    category: 'business',
+    categoryLabel: 'Business',
+    categoryColor: '#a47f38',
+    icon: '💼',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $62K-$78K',
+    skills: ['SEO', 'SEM', 'Email marketing', 'Analytics'],
+    courses: courses('digital-marketing-e-commerce-google', ['Foundations of Digital Marketing and E-commerce', 'Attract and Engage Customers with Digital Marketing', 'From Likes to Leads: Interact with Customers Online', 'Think Outside the Inbox: Email Marketing', 'Assess for Success: Marketing Analytics and Measurement', 'Make the Sale: Build, Launch, and Manage E-commerce Stores', 'Satisfaction Guaranteed: Develop Customer Loyalty Online']),
+    partner: 'Google',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'full', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'This program fits members who enjoy communication, campaigns, customer behavior, and online business. Over three to five months you will build practical skills in SEO, email marketing, analytics, paid channels, and e-commerce workflows that employers use every day. Members who complete this track are preparing for digital marketing, e-commerce, and growth-support roles where execution and measurement both matter.',
+    extra: {
+      bestFor: 'Creative, marketing-minded. SEO, analytics, e-commerce.',
+      jobOutcomes: ['Digital Marketing Specialist', 'E-commerce Coordinator', 'Marketing Analyst'],
+      difficulty: 1,
+      rampNote: 'Beginner-friendly. Good fit if you enjoy content, creative, or social media work.',
+    },
+  },
+  {
+    slug: 'ux-design-professional-certificate-google',
+    title: 'UX Design Professional Certificate (Google)',
+    category: 'business',
+    categoryLabel: 'Business',
+    categoryColor: '#a47f38',
+    icon: '💼',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $88K-$120K',
+    skills: ['User research', 'Wireframing', 'Figma', 'Prototyping'],
+    courses: courses('ux-design-professional-certificate-google', ['Foundations of User Experience (UX) Design', 'Start the UX Design Process: Empathize, Define, and Ideate', 'Build Wireframes and Low-Fidelity Prototypes', 'Conduct UX Research and Test Early Concepts', 'Create High-Fidelity Designs and Prototypes in Figma', 'Responsive Web Design in Adobe XD', 'Design a User Experience for Social Good & Prepare for Jobs']),
+    partner: 'Google',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'full', pt: 'ai-subtitles', fr: 'ai-subtitles' },
+    description: 'This program is for members who care about how products feel, flow, and solve real user problems. Over three to five months you will learn user research, wireframing, prototyping, and interface design in a way that builds both creative confidence and structured process. Members who complete this track are preparing for UX, UI, and product design support roles where empathy, communication, and portfolio work all matter.',
+    extra: {
+      bestFor: 'Design-minded, user-focused. Figma, prototyping, research.',
+      jobOutcomes: ['UX Designer', 'UI Designer', 'Product Designer'],
+      difficulty: 2,
+      rampNote: 'No design background needed. Builds from research to high-fidelity Figma prototypes.',
+    },
+  },
+  {
+    slug: 'health-information-technology-mchit',
+    title: 'Medical Billing, Coding, and Health Information Technology',
+    category: 'healthcare',
+    categoryLabel: 'Healthcare',
+    categoryColor: '#4a9b4f',
+    icon: '❤️',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $52K-$72K',
+    skills: ['Medical coding', 'EHR', 'HIPAA', 'ICD-10'],
+    courses: courses('health-information-technology-mchit', ['Introduction to Health Information Technology', 'Medical Terminology and Anatomy', 'Health Information Management', 'Electronic Health Records (EHR)', 'Healthcare Law, Ethics & HIPAA', 'Medical Billing & Coding: ICD-10 and CPT', 'Revenue Cycle Management', 'Capstone: HIT Practice Simulation']),
+    partner: 'Healthcare Career Pathway',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'none', pt: 'none', fr: 'none' },
+    description: 'This program is the right fit for members drawn to healthcare administration — people who want to work in a clinical setting without a clinical role. Over three to five months you will learn medical coding (ICD-10 and CPT), electronic health records (EHR), HIPAA compliance, and revenue cycle management. These are the skills hospitals, clinics, and billing offices hire for directly. Members who complete this program move into roles as Medical Coders, Health Information Technicians, and Billing Specialists earning $52K–$72K. If you are newer to healthcare concepts, this program starts from fundamentals — no prior medical background is needed. If you are deciding between Health IT and a tech track, the pathfinder quiz or our program comparison tool can help clarify which direction fits your goals.',
+    extra: {
+      bestFor: 'Members drawn to healthcare who want an administrative role rather than a clinical one. No prior medical background needed — this program starts from fundamentals. If your interest is more in tech than healthcare, an IT or data track may be a better path.',
+      jobOutcomes: ['Medical Coder', 'Health Information Technician', 'Billing Specialist'],
+      difficulty: 2,
+      rampNote: 'Starts from healthcare fundamentals. No prior clinical experience required.',
+    },
+  },
+  {
+    slug: 'certified-production-technician-cpt',
+    title: 'Certified Production Technician (CPT)',
+    category: 'manufacturing',
+    categoryLabel: 'Manufacturing',
+    categoryColor: '#1a1a1a',
+    icon: '🏭',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $48K-$70K',
+    skills: ['Safety', 'Quality practices', 'Manufacturing processes', 'Maintenance awareness'],
+    courses: courses('certified-production-technician-cpt', ['Introduction to Manufacturing', 'Blueprint Reading and Technical Drawing', 'Machining and CNC Operations', 'Welding Fundamentals', 'Quality Control and Inspection', 'Safety and OSHA Compliance', 'Lean Manufacturing Principles', 'Production Technology Capstone']),
+    partner: 'MSSC / NAM',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'none', pt: 'none', fr: 'none' },
+    description: 'This program is for members who want a direct path into production and advanced manufacturing environments. You will build practical knowledge in safety, quality control, machining concepts, and shop-floor processes that employers expect in technician roles. Members who complete this track are preparing for production technician, machine operator, and quality-focused roles where reliability and process discipline matter.',
+    extra: {
+      bestFor: 'Hands-on learners. CNC, manufacturing, quality control.',
+      jobOutcomes: ['Manufacturing Technician', 'CNC Operator', 'Quality Inspector'],
+      difficulty: 2,
+      rampNote: 'Hands-on pathway focused on production, safety, and shop-floor fundamentals.',
+    },
+  },
+  {
+    slug: 'certified-logistics-technician-clt',
+    title: 'Certified Logistics Technician (CLT)',
+    category: 'manufacturing',
+    categoryLabel: 'Manufacturing',
+    categoryColor: '#1a1a1a',
+    icon: '🏭',
+    duration: '3-5 months, 10 hrs/week',
+    salary: 'Starting salary: $55K-$78K',
+    skills: ['Logistics fundamentals', 'Safety', 'Inventory', 'Material handling', 'Transportation'],
+    courses: courses('certified-logistics-technician-clt', ['Introduction to Supply Chain Management', 'Inventory Management and Control', 'Transportation and Distribution', 'Warehouse Operations', 'Procurement and Vendor Management', 'Supply Chain Technology and SAP', 'Global Supply Chain and Trade', 'CLT Certification Preparation']),
+    partner: 'MSSC / NAM',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'none', pt: 'none', fr: 'none' },
+    description: 'This program fits members who like operations, inventory, movement, and keeping systems organized. You will build skills in supply chain flow, warehouse operations, transportation, and logistics technology that support real employer demand across distribution and manufacturing. Members who complete this track are preparing for logistics coordinator, inventory, warehouse, and supply chain support roles.',
+    extra: {
+      bestFor: 'Supply chain, inventory, logistics. SAP and operations.',
+      jobOutcomes: ['Logistics Coordinator', 'Supply Chain Analyst', 'Inventory Manager'],
+      difficulty: 2,
+      rampNote: 'Good fit if you like process, movement, inventory systems, and operations work.',
+    },
+  },
+  {
+    slug: 'core-construction-training-certificate',
+    title: 'Core Construction',
+    category: 'manufacturing',
+    categoryLabel: 'Construction & Trades',
+    categoryColor: '#1a1a1a',
+    icon: '🏗️',
+    duration: '5 hours per section',
+    salary: 'Starting salary: $48K-$68K',
+    skills: ['OSHA-10', 'Blueprint reading', 'Construction fundamentals'],
+    courses: courses('core-construction-training-certificate', ['Introduction to Construction Industry', 'Blueprint Reading and Construction Math', 'Construction Safety and OSHA-10', 'Hand and Power Tools', 'Concrete and Masonry Fundamentals', 'Carpentry and Framing Basics', 'Electrical and Plumbing Basics', 'Construction Readiness Capstone']),
+    partner: 'OSHA-10 / Grant',
+    fundingSource: 'WIOA',
+    languagesSupported: { es: 'none', pt: 'none', fr: 'none' },
+    description: 'This program is designed for members who want an on-ramp into construction and skilled-trades work. You will build readiness in jobsite safety, OSHA-10 concepts, blueprint reading, tools, and construction fundamentals so you can step into entry-level roles with more confidence. Members who complete this track are preparing for construction labor, apprenticeship, and site-support roles where safety and consistency come first.',
+    extra: {
+      bestFor: 'Construction industry entry. OSHA-10, blueprint reading, safety.',
+      jobOutcomes: ['Construction Laborer', 'Apprentice', 'Site Coordinator'],
+      difficulty: 1,
+      rampNote: 'Shorter construction-readiness track focused on safety, tools, and jobsite basics.',
+    },
+  },
+];
+
+export function getProgramBySlug(slug: string): Program | undefined {
+  return PROGRAMS.find((p) => p.slug === slug);
+}
+
+export const WORKFORCEAP_PROGRAM_CATALOG_SIZE = PROGRAMS.length;

@@ -1,0 +1,497 @@
+/**
+ * Board & leadership data — mirrored VERBATIM from the Next source
+ * (workforceap/lib/content/leadership.ts). Names, roles, bios, stats, and
+ * mission-relevance lines are the organization's real published content —
+ * not fabricated. Plain TS (no Next/server deps) so it imports cleanly into
+ * the Astro marketing site.
+ */
+
+export type LeaderBioBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'heading'; text: string }
+  | { type: 'bullets'; items: string[] };
+
+export type LeaderStat = {
+  label: string;
+  value: string;
+};
+
+/** Highlight card in biography column (detail page) */
+export type LeaderSpotlightCard = {
+  icon: string;
+  title: string;
+  body: string;
+  variant?: 'default' | 'accent';
+};
+
+export type LeaderPartnerTile = { icon: string; name: string; desc: string };
+export type LeaderAchievementTile = { icon: string; title: string; desc: string };
+
+export type LeaderSection = 'executive' | 'board' | 'consultant';
+
+export type Leader = {
+  slug: string;
+  name: string;
+  role: string;
+  title: string;
+  /** Public path to headshot, or empty string if none yet */
+  image: string;
+  founder: boolean;
+  linkedin: string;
+  /** Optional grouping for /leadership layout (defaults inferred from role when omitted). */
+  section?: LeaderSection;
+  /** Short scannable excerpt for the card */
+  cardBio: string;
+  /** One line: why this leader makes WorkforceAP credible (mission, employer trust, community, outcomes) */
+  missionRelevance?: string;
+  bioBlocks: LeaderBioBlock[];
+  stats: LeaderStat[];
+  /** Hero ribbon (defaults from role if omitted) */
+  heroBadge?: string;
+  /** Portrait-adjacent pull quote (defaults to missionRelevance) */
+  heroQuote?: string;
+  spotlightCards?: LeaderSpotlightCard[];
+  partnerTiles?: LeaderPartnerTile[];
+  achievementTiles?: LeaderAchievementTile[];
+};
+
+export const LEADERS: Leader[] = [
+  {
+    slug: 'michael-brown',
+    name: 'Michael A. Brown, PMP, ChE',
+    role: 'Executive Director, CEO',
+    title: 'Executive Director & Chief Executive Officer',
+    image: '/images/michael-brown.webp',
+    founder: true,
+    linkedin: 'https://www.linkedin.com/in/michaelabrownpmp/',
+    cardBio:
+      'Michael Brown, PMP, ChE (Chemical Engineering, Texas A&M University), is a highly accomplished engineer and business executive with a distinguished career spanning several decades. WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a recurring Vision given to Michael Brown by God for serving His people. He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader with the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
+    missionRelevance:
+      '25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — and a recurring Vision given to Michael Brown by God for serving His people — the barrier-breaking experience that built WorkforceAP.',
+    bioBlocks: [
+      {
+        type: 'paragraph',
+        text:
+          'Michael Brown, PMP, ChE (Chemical Engineering, Texas A&M University), is a highly accomplished engineer and business executive with a distinguished career spanning several decades.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and recurring Vision given to Michael Brown by God for serving His people.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader with the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'Throughout his career, Michael has successfully delivered transformative results by leveraging his comprehensive knowledge of business systems and a disciplined approach to strategic marketing and operational processes. His leadership has yielded significant growth and profitability for organizations, with a proven ability to forge successful partnerships across government, nonprofit, faith, and private-sector partners alike.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'Beyond his professional endeavors, Michael is deeply committed to community engagement and personal values. A devoted husband of 35 years and proud father of two adult children, his dedication to service is reflected in his active membership with 100 Black Men of Austin, his lifelong brotherhood with Alpha Phi Alpha Fraternity, service with Concordia High School and Job Seekers Network boards, and his role as an Elder at Celebration Church.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          "Michael's diverse expertise encompasses operations management, business development, sales, account management, staffing, and employee training. His ability to integrate sound business acumen with a technical understanding of project management has driven the implementation of highly effective systems that optimize performance, efficiency, and profitability.",
+      },
+      {
+        type: 'paragraph',
+        text:
+          'He leads WorkforceAP with a practical, member-first philosophy: clear next steps, real employer alignment, and support systems that help people move from uncertainty into work. His proven track record of delivering exceptional outcomes underscores his reputation as a trusted business partner and industry leader.',
+      },
+    ],
+    stats: [
+      { label: 'Family', value: '35 years married' },
+      { label: 'Community', value: '100 Black Men of Austin' },
+      { label: 'Fraternity', value: 'Alpha Phi Alpha Fraternity' },
+      { label: 'Faith', value: 'Elder at Celebration Church' },
+    ],
+    heroBadge: 'Founder & Executive Leadership',
+    heroQuote:
+      'Committed to bridging the gap between potential and opportunity through practical workforce pathways.',
+    spotlightCards: [
+      {
+        icon: 'account_balance',
+        title: 'Civic Roots',
+        body: 'Deep community ties through 100 Black Men of Austin, Alpha Phi Alpha Fraternity, and decades of public-service leadership across Central Texas.',
+      },
+      {
+        icon: 'groups',
+        title: "Founder's Lens",
+        body: 'A practical workforce builder who translates community needs into clear training pathways and partner-backed support.',
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'handshake', name: 'Goodwill Central Texas', desc: 'Career & Technical Academy' },
+      { icon: 'account_balance', name: 'Texas Workforce Commission', desc: 'State Career Schools' },
+      { icon: 'location_city', name: 'Workforce Solutions', desc: 'Capital Area workforce board partner' },
+      { icon: 'public', name: 'ReWork America Alliance', desc: 'National workforce coalition partner' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'payments',
+        title: '$15M+ Funding Directed',
+        desc: 'Raised and directed grants, contracts, and partnerships for workforce development across multiple organizations.',
+      },
+    ],
+  },
+  {
+    slug: 'adriane-brown',
+    name: 'Adriane Brown',
+    role: 'Chief Operating Officer',
+    title: 'Chief Operating Officer',
+    image: '/images/adriane-brown.jpg',
+    founder: false,
+    linkedin: 'https://www.linkedin.com/in/adriane-brown/',
+    cardBio:
+      'Texas A&M grad. IBM, Accenture — built statewide tech systems for Texas. Co-led Brown & Associates to national reach. Microsoft Project Management certificate. Women\'s Ministry Leader, Celebration Church.',
+    missionRelevance:
+      "Operations leader who scales workforce programs. Brings systems rigor so every member gets the support they need — from intake through placement.",
+    bioBlocks: [
+      {
+        type: 'paragraph',
+        text:
+          'Adriane Brown is a strategic business and operations leader with more than 25 years of experience driving organizational growth, operational excellence, and large-scale initiative execution. A graduate of Texas A&M University with a Bachelor of Business Administration in Management Information Systems, she began her career with IBM and Accenture, contributing to the development of statewide technology systems for the State of Texas, including tax and child support platforms.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'Adriane later co-led the growth of multiple enterprises under the Brown & Associates family of companies, helping scale operations to national reach. She brings deep expertise in business development, infrastructure organization, client relations, systems restructuring, compliance readiness, and performance optimization.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'As Business/Client Relations Manager for a State of Texas TWC Career School, Adriane played a key role in strategic planning, audit preparation, intake process redesign, and student performance tracking—ensuring operational efficiency and measurable results. In 2025, she completed the Microsoft Project Management Certificate, further strengthening her ability to lead complex initiatives using structured methodologies and best practices.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          "In addition to her business development work, Adriane serves as a Women's Ministry Leader at Celebration Church and is co-author of Women of Distinction and Grace. Known for her disciplined execution, collaborative leadership style, and results-driven mindset, Adriane partners with organizations to build scalable systems, elevate performance, and position teams for sustainable, long-term growth.",
+      },
+    ],
+    stats: [
+      { label: 'Experience', value: '25+ years' },
+      { label: 'Education', value: 'Texas A&M Graduate' },
+      { label: 'Certificate', value: 'Microsoft Project Management (2025)' },
+      { label: 'Faith', value: "Women's Ministry Leader" },
+    ],
+    heroBadge: 'Operational Leadership',
+    spotlightCards: [
+      {
+        icon: 'hub',
+        title: 'Systems at scale',
+        body: 'IBM and Accenture — statewide technology for Texas. Co-led growth of Brown & Associates to national reach. Deep experience in compliance, intake redesign, and student performance tracking.',
+      },
+      {
+        icon: 'church',
+        title: 'Faith & mentorship',
+        body: "Women's Ministry Leader at Celebration Church. Co-author of Women of Distinction and Grace — disciplined execution with heart for people.",
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'computer', name: 'IBM & Accenture', desc: 'Statewide systems for Texas agencies' },
+      { icon: 'account_balance', name: 'Texas Workforce Commission', desc: 'Career school strategy & operations' },
+      { icon: 'workspace_premium', name: 'Microsoft', desc: 'Project Management Certificate (2025)' },
+      { icon: 'groups', name: 'Brown & Associates', desc: 'Scaled family of companies nationally' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'trending_up',
+        title: 'Operational transformation',
+        desc: 'Intake redesign, audit readiness, and performance tracking for TWC-aligned career schools.',
+      },
+      {
+        icon: 'menu_book',
+        title: 'Women of Distinction and Grace',
+        desc: 'Co-authored resource elevating women in leadership and service.',
+      },
+    ],
+  },
+  {
+    slug: 'lakecia-gunter',
+    name: 'Lakecia Gunter',
+    role: 'Board Member',
+    title: 'Board Member',
+    image: '/images/lakecia-gunter.jpg',
+    founder: false,
+    linkedin: 'https://www.linkedin.com/in/lakecia-gunter/',
+    cardBio:
+      "CTO, Global Partner Solutions at Microsoft. 25 years in tech. SUCCESS Magazine Women of Influence 2023. MS Electrical Engineering, Georgia Tech. Board Director, IDEX Corporation.",
+    missionRelevance:
+      "Employer-side credibility. Our employer partners are the rooms she helps shape — Microsoft, enterprise partners, and the tech pathways our graduates walk into.",
+    bioBlocks: [
+      {
+        type: 'paragraph',
+        text:
+          'Lakecia Gunter is a 25-year tech industry veteran, leading Chief Technology Officer, and sought-after expert on New Business Strategy, Growth, and Technical Innovation, Global Partner Sales, and Artificial Intelligence. Known for her personal drive and technical leadership, Lakecia has worked in both the U.S. Federal Government and global Fortune 50 companies—including early years as a digital logic designer, program manager at the Department of Defense, then as Chief of Staff to the CEO of Intel—and now as Chief Technology Officer, Global Partner Solutions at Microsoft.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'In 2023, Lakecia was honored as a Finalist in SUCCESS Magazine\'s 2023 Women of Influence, along with 49 other celebrated women, for their "remarkable achievements, innovation, and impact on their communities and industries—and the personal and professional lives of others." #VoicesofToday #VisionariesofTomorrow',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'A nationally recognized, award-winning engineer and speaker, Lakecia is a people-first leader, who seeks to strengthen organizational cultures and develop current and aspiring engineers and leaders. She is widely-regarded as a visionary with proven ability to build relationships with stakeholders to achieve business goals, develop business strategies that translate into action, and identify market trends and paradigm shifts to deliver revenue growth and bring value to end-users.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'A life-long advocate for women, Lakecia recently reached out to broader audiences as Founder and Podcast Host of "ROAR with Lakecia Gunter", her weekly dose of inspirational stories, candid insights, and breakthrough resources that put women on the path to achieve more in work and life.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'Lakecia currently serves on the Board of Directors at IDEX Corporation. She recently attended Stanford Directors\' College - Corporate Board Program. She earned a MS Electrical Engineering from Georgia Institute of Technology, and her BS Computer Engineering at the University of South Florida. She launched her career in high school in Florida at a local KFC franchise, where a local couple spotted her leadership potential. She never forgot their generosity. It informs her desire to help others achieve their highest potential every day.',
+      },
+    ],
+    stats: [
+      { label: 'Industry', value: '25 years in tech' },
+      { label: 'Role', value: 'CTO at Microsoft' },
+      { label: 'Recognition', value: 'SUCCESS Magazine Women of Influence 2023' },
+      { label: 'Governance', value: 'Board Director, IDEX Corporation' },
+    ],
+    heroBadge: 'Board of Trustees',
+    spotlightCards: [
+      {
+        icon: 'memory',
+        title: 'From chips to the C-suite',
+        body: 'Path from digital logic design and DoD program management to Chief of Staff to the Intel CEO — now CTO, Global Partner Solutions at Microsoft.',
+      },
+      {
+        icon: 'mic',
+        title: 'ROAR',
+        body: 'Founder and podcast host of “ROAR with Lakecia Gunter” — inspirational stories and practical tools for women advancing in work and life.',
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'window', name: 'Microsoft', desc: 'CTO, Global Partner Solutions' },
+      { icon: 'memory', name: 'Intel', desc: 'Chief of Staff to the CEO' },
+      { icon: 'shield', name: 'U.S. Federal / DoD', desc: 'Early-career engineering & programs' },
+      { icon: 'corporate_fare', name: 'IDEX Corporation', desc: 'Board of Directors' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'stars',
+        title: 'SUCCESS Women of Influence',
+        desc: '2023 finalist for achievements in innovation, community, and industry impact.',
+      },
+      {
+        icon: 'school',
+        title: 'Stanford Directors’ College',
+        desc: 'Corporate board governance program graduate.',
+      },
+    ],
+  },
+  {
+    slug: 'brandon-frye',
+    name: 'Brandon Frye',
+    role: 'Board Member',
+    title: 'Board Member',
+    image: '/images/brandon-frye.jpg',
+    founder: false,
+    linkedin: 'https://www.linkedin.com/in/brandon-frye-3238871/',
+    cardBio:
+      'Co-founded Interstate Connections — Austin Business Journal "Fastest Growing Private Company." CFO, The Business Bible. Texas Alliance for Life board. Former Chairman, Concordia High School.',
+    missionRelevance:
+      "Highly respected entrepreneur that influences direction and resources. Built a Fastest Growing Company; board leadership strengthens community pipelines and employer connections.",
+    bioBlocks: [
+      {
+        type: 'paragraph',
+        text:
+          'Brandon Frye is a seasoned entrepreneur and business operator with extensive experience in founding, investing in, and leading high-growth companies. His expertise spans strategic business development, service integration, due diligence, and operational execution, with a proven track record of driving revenue and solving complex business challenges.',
+      },
+      { type: 'heading', text: 'Professional Highlights' },
+      {
+        type: 'bullets',
+        items: [
+          'Entrepreneurial Success: Co-founded and helped lead Interstate Connections, earning the distinction of "Fastest Growing Private Company" from the Austin Business Journal.',
+          'Current Leadership: Serves as the CFO of The Business Bible and is a partner in Landgraf Wagyu Ranch and Austin Pole Vault.',
+          'Investment Portfolio: Actively invests in diverse business opportunities, with a primary focus on the real estate sector.',
+        ],
+      },
+      { type: 'heading', text: 'Board Service & Community Leadership' },
+      {
+        type: 'paragraph',
+        text:
+          'Beyond his professional endeavors, Brandon is deeply involved in community leadership and governance:',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Texas Alliance for Life: Board of Directors and Chairman of the Strategic Budget and Finance Committee.',
+          'Twent20 Faith: Former member of the Board of Directors.',
+          'Concordia High School: Former Chairman of the Board of Directors.',
+        ],
+      },
+      { type: 'heading', text: 'Personal Life' },
+      {
+        type: 'paragraph',
+        text:
+          'A lifelong athlete, Brandon has completed over 20 triathlons, including Ironman Arizona and Ironman Florida, as well as the New York City Marathon and the Leadville 100 Mountain Bike Challenge. He currently resides in Austin, Texas, with his wife of twenty-nine years and their three daughters.',
+      },
+    ],
+    stats: [
+      { label: 'Entrepreneurship', value: 'Co-founded Interstate Connections (Fastest Growing Private Co)' },
+      { label: 'Leadership', value: 'CFO of The Business Bible' },
+      { label: 'Athletics', value: '20+ triathlons completed' },
+      { label: 'Endurance', value: 'Ironman Arizona & Florida finisher' },
+    ],
+    heroBadge: 'Board of Trustees',
+    spotlightCards: [
+      {
+        icon: 'rocket_launch',
+        title: 'Built to scale',
+        body: 'Co-founded Interstate Connections — recognized as a Fastest Growing Private Company by the Austin Business Journal.',
+      },
+      {
+        icon: 'gavel',
+        title: 'Governance & community',
+        body: 'Texas Alliance for Life board and Strategic Budget chair; former Concordia High School board chair; invests with focus on real estate.',
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'bolt', name: 'Interstate Connections', desc: 'Austin Business Journal Fastest Growing Company' },
+      { icon: 'menu_book', name: 'The Business Bible', desc: 'CFO — financial leadership' },
+      { icon: 'favorite', name: 'Texas Alliance for Life', desc: 'Board of Directors' },
+      { icon: 'fitness_center', name: 'Endurance sports', desc: 'Ironman, NYC Marathon, Leadville 100 MTB' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'landscape',
+        title: 'Landgraf Wagyu Ranch',
+        desc: 'Partner in ranching and Austin-area business ventures.',
+      },
+      {
+        icon: 'emoji_events',
+        title: '20+ triathlons',
+        desc: 'Including Ironman Arizona, Ironman Florida, and the New York City Marathon.',
+      },
+    ],
+  },
+  {
+    slug: 'derrick-fishback',
+    name: 'Col. Derrick Fishback',
+    role: 'Board Member (Ret.)',
+    title: 'Board Member',
+    image: '/images/derrick-fishback.jpg',
+    founder: false,
+    linkedin: 'https://www.linkedin.com/in/derrick-fishback/',
+    cardBio:
+      "Col. U.S. Army (Ret.). Commanded 1,800+ personnel. Led cloud transformation at AWS, IBM, Dell. Two master's degrees; Harvard, Geneva, London, Erasmus. Board President, Jazz Society of Pensacola.",
+    missionRelevance:
+      "30 years Army + Fortune 500 tech. The employer trust that opens doors — AWS, IBM, Dell — plus the discipline that turns training into outcomes.",
+    bioBlocks: [
+      {
+        type: 'paragraph',
+        text:
+          'Derrick Fishback is a transformational leader with nearly three decades of U.S. Army service complemented by leadership and consulting roles in Fortune 500 companies.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'He has commanded organizations of 1,800 personnel, managed multimillion-dollar budgets, and driven complex, globally coordinated initiatives. His military career includes pivotal leadership and advisory assignments with Joint U.S. Military and NATO forces during the Ukrainian crisis, Ebola pandemic, and Syrian refugee crisis—developing civil-military frameworks that remain operational standards today. Notably his civil engagement programs have impacted over 24 countries globally.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'He also served in Afghanistan during Operation Enduring Freedom, contributing to mission-critical operations in challenging environments. Derrick holds two master\'s degrees—one from the University of Maryland and another from the U.S. Army War College—along with graduate certificates from Harvard University, the University of Geneva (Switzerland), the University of London, and Erasmus University (Netherlands), all reflecting a deep commitment to strategic thinking and global perspectives.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'In the technology sector, Derrick led cloud transformation and AI/ML initiatives as Engagement Manager at Amazon Web Services and delivered enterprise solutions at IBM and Dell. He excels at bridging technical innovation with strategic vision, translating complex capabilities into measurable business outcomes and organizational growth.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'Beyond his military and corporate achievements, Derrick brings nonprofit governance experience as Board President of the Jazz Society of Pensacola and Board Member of the Pensacola Symphony Orchestra. His leadership advances organizational sustainability, stakeholder engagement, and cultural impact.',
+      },
+    ],
+    stats: [
+      { label: 'Military', value: '30 years U.S. Army service' },
+      { label: 'Command', value: 'Commanded 1,800+ personnel' },
+      { label: 'Education', value: "2 Master's degrees" },
+      { label: 'Nonprofit', value: 'Board President, Jazz Society of Pensacola' },
+    ],
+    heroBadge: 'Board of Trustees',
+    spotlightCards: [
+      {
+        icon: 'military_tech',
+        title: 'Command & global crises',
+        body: 'Nearly three decades in the U.S. Army — commanded 1,800+ personnel; civil-military programs spanning 24+ countries including Ukraine, Ebola, and Syrian refugee response.',
+      },
+      {
+        icon: 'cloud',
+        title: 'Cloud & AI in industry',
+        body: 'Engagement Manager at AWS; enterprise delivery at IBM and Dell — bridging technical innovation to measurable business outcomes.',
+        variant: 'accent',
+      },
+    ],
+    partnerTiles: [
+      { icon: 'cloud', name: 'Amazon Web Services', desc: 'Cloud transformation & AI/ML initiatives' },
+      { icon: 'computer', name: 'IBM & Dell', desc: 'Enterprise solutions and delivery' },
+      { icon: 'public', name: 'NATO & joint forces', desc: 'Civil-military frameworks — Ukraine, global crises' },
+      { icon: 'piano', name: 'Jazz Society of Pensacola', desc: 'Board President — cultural impact' },
+    ],
+    achievementTiles: [
+      {
+        icon: 'school',
+        title: 'Global executive education',
+        desc: "Master's degrees plus graduate study at Harvard, Geneva, London, and Erasmus — strategic and international perspective.",
+      },
+      {
+        icon: 'shield',
+        title: 'Afghanistan & allied operations',
+        desc: 'Operation Enduring Freedom and mission-critical leadership in contested environments.',
+      },
+    ],
+  },
+  {
+    slug: 'michael-brown-ii',
+    name: 'Michael Brown II',
+    role: 'Lead Consultant',
+    title: 'Lead Consultant',
+    image: '/images/michael-brown-ii.webp',
+    founder: false,
+    linkedin: '',
+    section: 'consultant',
+    cardBio:
+      'Consultant to Workforce Advancement Project on program design, employer alignment, and scaling high-touch career services for underserved communities.',
+    missionRelevance:
+      'Bridges strategy and delivery — helping WorkforceAP turn training partnerships into measurable placement and retention outcomes.',
+    bioBlocks: [
+      {
+        type: 'paragraph',
+        text:
+          'Michael Brown II serves as Lead Consultant to Workforce Advancement Project, advising on curriculum alignment, partner engagement, and how we scale personalized support without losing accountability to members and employers.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'His work focuses on connecting program operations to labor-market demand — so certificates and credentials translate into interviews, offers, and careers that last.',
+      },
+    ],
+    stats: [
+      { label: 'Focus', value: 'Program & partner alignment' },
+      { label: 'Outcome', value: 'Placement-ready talent pipelines' },
+    ],
+    heroBadge: 'Lead Consultant',
+    heroQuote:
+      'Strategy only matters when it shows up in a member’s next opportunity.',
+  },
+];
+
+export function getLeaderBySlug(slug: string): Leader | undefined {
+  return LEADERS.find((l) => l.slug === slug);
+}

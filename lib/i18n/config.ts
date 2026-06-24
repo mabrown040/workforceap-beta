@@ -27,10 +27,7 @@ export function isRtlLocale(locale: AppLocale): boolean {
 // and intentionally NOT listed here, so the middleware does not /{locale}/-
 // redirect them. Routes below stay Next-owned (dynamic / not yet migrated).
 export const LOCALEABLE_PATH_PREFIXES: readonly string[] = [
-  '/programs',
   '/apply',
-  '/leadership',
-  '/blog',
   '/program-comparison',
   '/salary-guide',
   '/wioa-qualification',

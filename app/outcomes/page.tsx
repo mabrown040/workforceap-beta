@@ -162,6 +162,24 @@ export default async function PublicOutcomesPage() {
         </section>
       ) : null}
 
+      {/* ===== CLOSING CTA: convert transparency readers into applicants (approved mockup) ===== */}
+      <section className="wa-band">
+        <div className="wa-wrap">
+          <div className="wa-cta">
+            <h2>{t('ctaTitle')}</h2>
+            <p>{t('ctaCopy')}</p>
+            <div className="wa-acts">
+              <LocalizedLink href="/apply" className="wa-btn wa-btn--light">
+                {t('ctaApply')}
+              </LocalizedLink>
+              <LocalizedLink href="/programs" className="wa-btn wa-btn--translucent">
+                {t('browsePrograms')}
+              </LocalizedLink>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Footer />
       <MobileBottomNav />
     </div>

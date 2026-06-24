@@ -375,7 +375,8 @@
 }
 
 /* ── sticky mobile CTA ── */
-.wa-v3 .wa-apply-sticky-cta {
+.wa-v3 .wa-apply-sticky-cta,
+.wa-v3 .apply-organic-sticky-cta {
   display: none;
 }
 
@@ -419,7 +420,8 @@
   .wa-v3 .wa-apply-page {
     padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
-  .wa-v3 .wa-apply-sticky-cta {
+  .wa-v3 .wa-apply-sticky-cta,
+  .wa-v3 .apply-organic-sticky-cta {
     display: block;
     position: fixed;
     left: 0;
@@ -432,8 +434,11 @@
     box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(8px);
   }
-  .wa-v3 .wa-apply-sticky-cta .wa-btn {
+  .wa-v3 .wa-apply-sticky-cta .wa-btn,
+  .wa-v3 .apply-organic-sticky-cta__button {
     width: 100%;
+    max-width: var(--wa-max);
+    margin: 0 auto;
     justify-content: center;
   }
 }

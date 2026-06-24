@@ -1937,7 +1937,10 @@
       "byProgram": "By program (where recorded)",
       "byFunding": "By funding source (where recorded)",
       "byRetention": "Retention status (where recorded)",
-      "unspecified": "Unspecified"
+      "unspecified": "Unspecified",
+      "ctaTitle": "Ready to start your own pathway?",
+      "ctaCopy": "Apply in about 5 minutes — no cost for qualifying members. A real team reviews it and follows up in 1 to 2 business days.",
+      "ctaApply": "Start your application"
     },
     "impact": {
       "title": "Our Impact",
@@ -2142,7 +2145,11 @@
       "title": "About WorkforceAP",
       "description": "WorkforceAP has spent 25+ years bridging the gap between education and industry, connecting skilled individuals with meaningful employment opportunities.",
       "heading": "About WorkforceAP",
-      "subheading": "Advancing careers through employer-aligned training and career support."
+      "subheading": "Advancing careers through employer-aligned training and career support.",
+      "ctaTitle": "Your next step starts with one application.",
+      "ctaCopy": "Apply in about 5 minutes — no cost for qualifying members. A real team reviews it and follows up in 1 to 2 business days.",
+      "ctaApply": "Start your application",
+      "ctaFind": "Find Your Path"
     }
   },
   "findYourPath": {

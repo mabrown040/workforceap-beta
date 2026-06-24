@@ -88,7 +88,7 @@ export default async function WhatWeDoPage() {
       <section className="wwd-findpath">
         <p>{t('findPathPrompt')}</p>
         <div className="wwd-findpath__acts">
-          <a href="/find-your-path" className="wa-btn wa-btn--primary">{t('findPathCta')}</a>
+          <LocalizedLink href="/find-your-path" className="wa-btn wa-btn--primary">{t('findPathCta')}</LocalizedLink>
           <LocalizedLink href="/apply" className="wa-btn wa-btn--ghost">Check WIOA Options</LocalizedLink>
         </div>
       </section>

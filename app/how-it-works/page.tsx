@@ -358,8 +358,8 @@ export default async function HowItWorksPage() {
           <LocalizedLink
             href="/apply"
             style={{
-              background: 'var(--color-gold)',
-              color: 'var(--color-on-surface)',
+              background: 'var(--wa-gold)',
+              color: '#fff',
               padding: '1.25rem 2.5rem',
               borderRadius: 'var(--radius-xl)',
               fontWeight: 900,

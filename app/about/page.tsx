@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { buildPageMetadataAsync } from '@/app/seo';
 import Footer from '@/components/Footer';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import LocalizedLink from '@/components/LocalizedLink';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -48,6 +49,24 @@ export default async function AboutPage() {
               </p>
             </div>
             <div className="wa-photo-tile" aria-hidden="true" />
+          </div>
+        </div>
+      </section>
+
+      {/* ===== CLOSING CTA: convert mission readers into applicants (approved mockup) ===== */}
+      <section className="wa-band">
+        <div className="wa-wrap">
+          <div className="wa-cta">
+            <h2>{t('ctaTitle')}</h2>
+            <p>{t('ctaCopy')}</p>
+            <div className="wa-acts">
+              <LocalizedLink href="/apply" className="wa-btn wa-btn--light">
+                {t('ctaApply')}
+              </LocalizedLink>
+              <LocalizedLink href="/find-your-path" className="wa-btn wa-btn--translucent">
+                {t('ctaFind')}
+              </LocalizedLink>
+            </div>
           </div>
         </div>
       </section>

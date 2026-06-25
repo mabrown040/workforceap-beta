@@ -225,10 +225,10 @@ const starterPrograms = starterSlugs
 
 // Filter chips (real labels + counts from ProgramsContent.tsx)
 const filterChips = [
-  { label: `All programs (${catalogSize})`, active: true },
+  { label: `All programs (${catalogSize})`, cat: 'all', active: true },
   ...subgroups
     .filter((s) => s.programs.length > 0)
-    .map((s) => ({ label: `${s.id === 'digital-literacy' ? 'Digital Literacy' : s.id === 'it-support' ? 'IT Support' : s.id === 'database' ? 'Database' : s.id === 'programming' ? 'Programming' : s.id === 'web-programming' ? 'Web' : s.id === 'leadership' ? 'Leadership' : s.id === 'medical' ? 'Medical' : s.id === 'manufacturing-logistics' ? 'Mfg & Logistics' : s.id === 'construction' ? 'Construction' : 'Other'} (${s.programs.length})`, active: false })),
+    .map((s) => ({ label: `${s.id === 'digital-literacy' ? 'Digital Literacy' : s.id === 'it-support' ? 'IT Support' : s.id === 'database' ? 'Database' : s.id === 'programming' ? 'Programming' : s.id === 'web-programming' ? 'Web' : s.id === 'leadership' ? 'Leadership' : s.id === 'medical' ? 'Medical' : s.id === 'manufacturing-logistics' ? 'Mfg & Logistics' : s.id === 'construction' ? 'Construction' : 'Other'} (${s.programs.length})`, cat: s.id, active: false })),
 ];
 ---
 <Layout
@@ -329,18 +329,19 @@ const filterChips = [
     <p>Search by name, skill, partner, or topic — or browse by category.</p>
   </div>
 
-  <!-- Static search + filter chips (visual representation only) -->
+  <!-- Live search + category filter (progressive enhancement; works once JS loads) -->
   <div class="catalog-controls">
-    <div class="searchbox" aria-hidden="true">
+    <label class="searchbox" for="prog-search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <span>Search programs by name, skill, partner, or topic…</span>
-    </div>
-    <div class="chips">
+      <input id="prog-search" type="search" autocomplete="off" placeholder="Search programs by name, skill, partner, or topic…" aria-label="Search programs" />
+    </label>
+    <div class="chips" role="group" aria-label="Filter programs by category">
       {filterChips.map((c) => (
-        <span class={c.active ? 'chip active' : 'chip'}>{c.label}</span>
+        <button type="button" class={c.active ? 'chip active' : 'chip'} data-cat={c.cat} aria-pressed={c.active ? 'true' : 'false'}>{c.label}</button>
       ))}
     </div>
   </div>
+  <p class="no-results" hidden>No programs match your search. <button type="button" class="linkbtn" id="clear-filters">Clear filters</button></p>
 
   <!-- Start here — three safest first choices (real starter framing) -->
   <section class="starter">
@@ -382,7 +383,7 @@ const filterChips = [
   <!-- All programs, grouped by real subgroup (fully expanded) -->
   <div id="all-programs"></div>
   {subgroups.map((sg) => (
-    <section class="subgroup" id={`subgroup-${sg.id}`}>
+    <section class="subgroup" id={`subgroup-${sg.id}`} data-cat={sg.id}>
       <div class="subgroup-head">
         <h3>{sg.label}</h3>
         <span class="subgroup-count">{sg.programs.length} program{sg.programs.length !== 1 ? 's' : ''}</span>
@@ -390,7 +391,7 @@ const filterChips = [
       <p class="subgroup-desc">{sg.description}</p>
       <div class="pgrid">
         {sg.programs.map((p) => (
-          <div class="pcard">
+          <div class="pcard" data-cat={sg.id} data-text={`${p.title} ${p.skills.join(' ')} ${p.partner} ${p.category}`.toLowerCase()}>
             <div class="pcard-top">
               <div class="ptags">
                 <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
@@ -422,6 +423,63 @@ const filterChips = [
     <a class="btn btn--ghost" href="/salary-guide">View Salary Guide</a>
   </div>
 </div></section>
+
+<script is:inline>
+  // Live program search + category filter (progressive enhancement).
+  (function () {
+    var input = document.getElementById('prog-search');
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.chips .chip'));
+    var sections = Array.prototype.slice.call(document.querySelectorAll('#all-programs ~ .subgroup, .subgroup[data-cat]'));
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.subgroup[data-cat] .pcard'));
+    var starter = document.querySelector('.starter');
+    var seeAll = document.querySelector('.see-all');
+    var noResults = document.querySelector('.no-results');
+    var clearBtn = document.getElementById('clear-filters');
+    if (!input || !cards.length) return;
+    var activeCat = 'all';
+
+    function apply() {
+      var q = (input.value || '').trim().toLowerCase();
+      var filtering = q !== '' || activeCat !== 'all';
+      var shown = 0;
+      cards.forEach(function (card) {
+        var okCat = activeCat === 'all' || card.getAttribute('data-cat') === activeCat;
+        var okText = !q || (card.getAttribute('data-text') || '').indexOf(q) !== -1;
+        var vis = okCat && okText;
+        card.hidden = !vis;
+        if (vis) shown++;
+      });
+      sections.forEach(function (sec) {
+        var any = sec.querySelector('.pcard:not([hidden])');
+        sec.hidden = !any;
+      });
+      if (starter) starter.hidden = filtering;
+      if (seeAll) seeAll.hidden = filtering;
+      if (noResults) noResults.hidden = shown !== 0;
+    }
+
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        activeCat = chip.getAttribute('data-cat') || 'all';
+        chips.forEach(function (c) {
+          var on = c === chip;
+          c.classList.toggle('active', on);
+          c.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        apply();
+      });
+    });
+    input.addEventListener('input', apply);
+    if (clearBtn) clearBtn.addEventListener('click', function () {
+      input.value = ''; activeCat = 'all';
+      chips.forEach(function (c) {
+        var on = c.getAttribute('data-cat') === 'all';
+        c.classList.toggle('active', on); c.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      apply(); input.focus();
+    });
+  })();
+</script>
 
 <!-- ══════════════════════════════════════════════ JOURNEY — 4-step flow ══════════════════════════════════════════════ -->
 <section class="band band--surface"><div class="wrap">
@@ -556,10 +614,17 @@ const filterChips = [
 
   /* catalog controls */
   .catalog-controls{margin-bottom:30px}
-  .searchbox{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;color:var(--muted);font-size:15px;box-shadow:var(--shadow);margin:0 0 18px}
+  .searchbox{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;color:var(--muted);box-shadow:var(--shadow);margin:0 0 18px;cursor:text}
+  .searchbox:focus-within{border-color:var(--crimson);box-shadow:0 0 0 3px rgba(173,44,77,.1)}
+  .searchbox input{flex:1;min-width:0;border:0;background:transparent;outline:none;font:inherit;font-size:15px;color:var(--text)}
+  .searchbox input::placeholder{color:var(--muted)}
   .chips{display:flex;flex-wrap:wrap;gap:10px}
-  .chip{font-size:14px;font-weight:600;padding:8px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:default}
+  .chip{font-size:14px;font-weight:600;padding:8px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+  .chip:hover{border-color:var(--crimson);color:var(--crimson)}
   .chip.active{background:var(--grad);color:#fff;border-color:transparent}
+  .chip.active:hover{color:#fff}
+  .no-results{margin:0 0 24px;color:var(--muted);font-size:15px}
+  .linkbtn{background:none;border:0;color:var(--crimson);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;padding:0}
 
   /* starter "Start here" section */
   .starter{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-2);padding:24px;margin-bottom:40px}

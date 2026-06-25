@@ -28,8 +28,6 @@ export function isRtlLocale(locale: AppLocale): boolean {
 // redirect them. Routes below stay Next-owned (dynamic / not yet migrated).
 export const LOCALEABLE_PATH_PREFIXES: readonly string[] = [
   '/apply',
-  '/program-comparison',
-  '/salary-guide',
   '/wioa-qualification',
   '/login',
   '/signup',

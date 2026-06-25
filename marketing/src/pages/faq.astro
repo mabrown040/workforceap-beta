@@ -239,8 +239,8 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     <div class="grain grain--close"></div>
     <div class="wrap close-grid">
       <div class="faq-bottom-copy">
-        <span class="pill pill--solid"><span class="pill__star"><Icon name="star" /></span>We’re here to help</span>
-        <h2>Didn’t find your answer?</h2>
+        <span class="pill pill--solid"><span class="pill__star"><Icon name="star" /></span>We're here to help</span>
+        <h2>Didn't find your answer?</h2>
         <p>Our team is here to help. Reach out directly if you want help understanding programs, eligibility, or next steps.</p>
         <div class="acts">
           <a class="dbtn dbtn--solid" href="/contact">Contact Us <span>→</span></a>
@@ -249,7 +249,7 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
       </div>
       <div class="close-glass">
         <div class="cg-ic" aria-hidden="true"><Icon name="message" size={44} /></div>
-        <div class="cg-lab">We’re here to help</div>
+        <div class="cg-lab">We're here to help</div>
       </div>
     </div>
   </section>
@@ -385,6 +385,10 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').repla
     box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset}
   .cg-ic{font-size:52px}
   .cg-lab{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9)}
+
+  /* a11y: white focus ring on the crimson depth bands so the global
+     crimson :focus-visible outline (blend.css) is never crimson-on-crimson */
+  .stage :focus-visible,.close :focus-visible{outline-color:#fff}
 
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:900px){

@@ -27,7 +27,7 @@ import Layout from '../layouts/Layout.astro';
 
       <!-- translucent glass: members served metric -->
       <div class="glass-metric">
-        <p class="hm-v empty" aria-label="Not published yet">—</p>
+        <p class="hm-v empty" aria-hidden="true">—</p>
         <p class="hm-lbl">Member metrics not published yet</p>
         <p class="hm-desc">Member counts and cohort rates publish here as verified member and employer activity is recorded—not before.</p>
         <a class="dbtn dbtn--glass" href="/employers">Become a hiring partner <span aria-hidden="true">→</span></a>
@@ -146,7 +146,7 @@ import Layout from '../layouts/Layout.astro';
      closing crimson depth CTA. Truth-lock: every "—" and "Not published
      yet" string preserved verbatim.
      =================================================================== */
-  .impact-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+  .impact-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18);overflow-x:clip}
 
   /* ---------------- SHORTER DEPTH HERO STAGE ---------------- */
   .stage{

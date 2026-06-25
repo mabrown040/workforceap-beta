@@ -196,6 +196,11 @@ const givingOptions = [
     <div class="close__media" aria-hidden="true"></div>
     <div class="close__veil" aria-hidden="true"></div>
     <div class="close__inner wrap">
+      <h2 class="close__h2">Ready to move a member forward?</h2>
+      <div class="acts acts--center">
+        <a class="bbtn bbtn--gold" href={MAILTO}>Start a donation by email</a>
+        <a class="bbtn bbtn--outline" href="/contact?topic=partnership">Talk about corporate giving</a>
+      </div>
       <div class="quote">
         <div class="lab">Workforce Advancement Project</div>
         <p>Workforce Advancement Project is a 501(c)(3) nonprofit. EIN: 41-2612389. Contributions are intended to support WorkforceAP&apos;s mission and may be tax-deductible to the extent allowed by law.</p>
@@ -336,7 +341,10 @@ const givingOptions = [
   .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
   .close__veil{position:absolute;inset:0;
     background:linear-gradient(120deg,rgba(173,44,77,.93) 0%,rgba(140,15,55,.91) 50%,rgba(109,20,55,.93) 100%)}
-  .close__inner{position:relative;z-index:2;color:#fff;padding:84px 24px 88px;max-width:var(--max)}
+  .close__inner{position:relative;z-index:2;color:#fff;padding:84px 24px 88px;max-width:var(--max);text-align:center}
+  .close__h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,5vw,58px);line-height:1;letter-spacing:-.03em;margin-bottom:22px}
+  .acts--center{justify-content:center;margin-bottom:32px}
+  .close .bbtn:focus-visible{outline:2px solid #fff;outline-offset:3px}
 
   .quote{max-width:840px;margin:0 auto;text-align:center;
     background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius);
@@ -354,6 +362,7 @@ const givingOptions = [
   }
   @media(max-width:560px){
     .acts .dbtn{width:100%;justify-content:center}
+    .acts .bbtn{width:100%;justify-content:center}
   }
 </style>
 </Layout>

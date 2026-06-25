@@ -42,8 +42,9 @@ import Layout from '../layouts/Layout.astro';
        MISSION — light band, bold prose block + depth photo card.
        ============================================================ -->
   <section class="band band--surface"><div class="wrap">
-    <div class="head">
+    <div class="head sec-head">
       <span class="kick">Our mission</span>
+      <h2>Bridging education and industry</h2>
     </div>
     <div class="about-split">
       <div class="about-prose">
@@ -126,7 +127,7 @@ import Layout from '../layouts/Layout.astro';
   .glass-stat{position:relative;border-radius:22px;padding:28px;
     background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
     box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
-  .gs-row{display:flex;align-items:center;justify-content:space-between}
+  .gs-row{margin-bottom:0}
   .gs-row small{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.72);font-weight:700}
   .gs-big{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:24px;margin:10px 0 22px;letter-spacing:-.01em}
   .gs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -146,7 +147,7 @@ import Layout from '../layouts/Layout.astro';
     min-height:340px;border-radius:var(--radius);box-shadow:var(--shadow-lg);
     background:
       linear-gradient(135deg,rgba(173,44,77,.55),rgba(91,33,98,.55)),
-      url('https://www.workforceap.org/images/austin-skyline.webp') center/cover no-repeat;
+      url('/images/hero-people.webp') center/cover no-repeat;
   }
 
   /* ---------------- BOLD FULL-BLEED CLOSING CTA ---------------- */

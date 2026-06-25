@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 
 // Truth-lock: this is a transparency page. The live Next page pulls placement
 // counts, follow-up signal rates, and PII-stripped story cards from internal
@@ -36,7 +37,7 @@ const breakdowns = [
 
     <div class="wrap stage-grid">
       <div class="olead">
-        <span class="pill"><span class="pill__star">★</span>Transparency</span>
+        <span class="pill"><span class="pill__star" aria-hidden="true">★</span>Transparency</span>
         <h1>Placement outcomes <span class="shimmer">(aggregate)</span></h1>
         <p class="ointro">
           These counts come from internal placement records — not a promise of future results.
@@ -68,7 +69,7 @@ const breakdowns = [
     <div class="stories">
       <article class="scard scard--empty">
         <span class="tag">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+          <Icon name="check" size={13} />
           Awaiting verified placement
         </span>
         <h3>Job title from record</h3>
@@ -76,7 +77,7 @@ const breakdowns = [
       </article>
       <article class="scard scard--empty">
         <span class="tag">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+          <Icon name="check" size={13} />
           Awaiting verified placement
         </span>
         <h3>Job title from record</h3>
@@ -84,7 +85,7 @@ const breakdowns = [
       </article>
       <article class="scard scard--empty">
         <span class="tag">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+          <Icon name="check" size={13} />
           Awaiting verified placement
         </span>
         <h3>Job title from record</h3>
@@ -201,7 +202,7 @@ const breakdowns = [
   .scard .tag{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(74,155,79,.12);color:var(--green)}
   .scard .tag svg{display:block}
   .scard--empty .tag{background:var(--surface-2);color:var(--muted)}
-  .scard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:19px;font-weight:700;margin:14px 0 6px;color:var(--text);opacity:.55}
+  .scard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:19px;font-weight:700;margin:14px 0 6px;color:var(--muted)}
   .scard .meta{color:var(--muted);font-size:14px}
   .method{margin-top:24px;font-size:13px;color:var(--muted);max-width:720px;
     background:var(--surface-2);border:1px dashed var(--border);border-radius:14px;padding:16px 20px}

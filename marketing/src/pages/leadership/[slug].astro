@@ -249,8 +249,8 @@ const initials = initialsFor(leader.name);
     -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);
     mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);opacity:.16}
 
-  .back{display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.9);font-size:13px;font-weight:700;letter-spacing:.02em;margin-bottom:20px}
-  .back:hover{color:#fff}
+  .back{display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.9);font-size:13px;font-weight:700;letter-spacing:.02em;padding:6px 2px;margin:-6px 0 14px -2px}
+  .back:hover{color:#fff;text-decoration:underline}
 
   .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
     background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
@@ -273,8 +273,9 @@ const initials = initialsFor(leader.name);
 
   .linkedin{display:inline-flex;align-items:center;gap:9px;margin-top:26px;
     background:#fff;color:var(--accent-dark);font-weight:800;font-size:14.5px;
-    padding:11px 20px;border-radius:999px;box-shadow:0 14px 34px -12px rgba(0,0,0,.5)}
+    padding:11px 20px;min-height:44px;box-sizing:border-box;border-radius:999px;box-shadow:0 14px 34px -12px rgba(0,0,0,.5)}
   .linkedin:hover{transform:translateY(-1px)}
+  .linkedin:active{transform:translateY(0) scale(.985)}
 
   /* portrait + glass pull-quote companion */
   .portrait-col{display:flex;flex-direction:column;gap:20px;align-items:center}
@@ -346,7 +347,7 @@ const initials = initialsFor(leader.name);
   .tile p{font-size:15px;line-height:1.55;color:var(--muted)}
 
   /* ---------------- STATS ---------------- */
-  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;justify-content:center;max-width:fit-content;margin:0 auto}
   @media(max-width:880px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
   .stat{background:var(--bg);border:1px solid var(--border);border-radius:18px;padding:26px 22px;text-align:center}

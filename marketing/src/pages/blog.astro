@@ -91,7 +91,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
               <h2 class="post-title">{p.title}</h2>
               <p class="post-excerpt">{p.excerpt}</p>
               <div class="post-meta">{p.authorName} · {p.date}</div>
-              <span class="post-cta">Read more: {p.title} →</span>
+              <span class="post-cta" aria-hidden="true">Read more: {p.title} →</span>
             </a>
           </article>
         ))}
@@ -174,7 +174,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
     background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
     box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
   .hcard-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-  .hcard-ic{font-size:28px}
+  .hcard-ic{display:inline-flex}
   .dot-live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;
     background:rgba(74,155,79,.32);border:1px solid rgba(120,220,130,.4);padding:4px 10px;border-radius:999px}
   .dot-live::before{content:"";width:7px;height:7px;border-radius:50%;background:#7fe389;box-shadow:0 0 8px #7fe389}
@@ -199,7 +199,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
   }
   .qcard:nth-child(2){border-top-color:var(--gold)}
   .qcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:rgba(173,44,77,.3)}
-  .qcard .ic{width:50px;height:50px;border-radius:13px;display:grid;place-items:center;font-size:24px;flex-shrink:0}
+  .qcard .ic{width:50px;height:50px;border-radius:13px;display:grid;place-items:center;flex-shrink:0}
   .qcard .ic--c{background:rgba(173,44,77,.12)}
   .qcard .ic--g{background:rgba(164,127,56,.14)}
   .qtext{flex:1;display:flex;flex-direction:column;gap:3px}
@@ -234,7 +234,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
     padding:40px 28px;box-shadow:var(--shadow);border-top:5px solid var(--gold);
   }
   .updates-ic{width:60px;height:60px;border-radius:16px;margin:0 auto 16px;
-    background:rgba(164,127,56,.14);color:var(--gold-dark);display:grid;place-items:center;font-size:28px}
+    background:rgba(164,127,56,.14);color:var(--gold-dark);display:grid;place-items:center}
   .updates-card h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:800;margin-bottom:10px}
   .updates-card p{color:var(--muted);font-size:16px;max-width:36em;margin:0 auto 22px}
 

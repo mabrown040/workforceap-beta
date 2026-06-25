@@ -1,85 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import { LEADERS } from '../data/leadership';
 
-// Real leadership data mirrored VERBATIM from the Next source (lib/content/leadership.ts).
-// Names, roles, bios, and mission-relevance lines are the organization's real published
-// content — not fabricated.
-const executives = [
-  {
-    slug: 'michael-brown',
-    name: 'Michael A. Brown, PMP, ChE',
-    role: 'Executive Director, CEO',
-    founder: true,
-    initials: 'MB',
-    image: '/images/michael-brown.webp',
-    missionRelevance:
-      '25+ years delivering workforce training through public, nonprofit, faith, and employer partnerships — and a recurring Vision given to Michael Brown by God for serving His people — the barrier-breaking experience that built WorkforceAP.',
-    cardBio:
-      'Michael Brown, PMP, ChE (Chemical Engineering, Texas A&M University), is a highly accomplished engineer and business executive with a distinguished career spanning several decades. WorkforceAP is a 501(c)(3) nonprofit built in Austin on 25+ years of workforce development experience and a recurring Vision given to Michael Brown by God for serving His people. He brings deep expertise in workforce development, occupational training and education, business development, project management, and community development, consistently driving organizational excellence across the public and private sectors. As the former owner of Consulting Solutions.Net and a key leader with the Texas Workforce Commission, Workforce Solutions, the City of Austin, ReWork America Alliance, Goodwill Central Texas, the Austin Area Urban League, Apprentice Now, Austin Urban Technology Movement, Universal Tech Movement, and African American Youth Harvest Foundation, Michael has repeatedly demonstrated his ability to grow mission-driven programs through thoughtful strategic planning, operational innovation, and continuous improvement.',
-  },
-  {
-    slug: 'adriane-brown',
-    name: 'Adriane Brown',
-    role: 'Chief Operating Officer',
-    founder: false,
-    initials: 'AB',
-    image: '/images/adriane-brown.jpg',
-    missionRelevance:
-      'Operations leader who scales workforce programs. Brings systems rigor so every member gets the support they need — from intake through placement.',
-    cardBio:
-      "Texas A&M grad. IBM, Accenture — built statewide tech systems for Texas. Co-led Brown & Associates to national reach. Microsoft Project Management certificate. Women's Ministry Leader, Celebration Church.",
-  },
-];
-
-const boardMembers = [
-  {
-    slug: 'lakecia-gunter',
-    name: 'Lakecia Gunter',
-    role: 'Board Member',
-    initials: 'LG',
-    image: '/images/lakecia-gunter.jpg',
-    missionRelevance:
-      'Employer-side credibility. Our employer partners are the rooms she helps shape — Microsoft, enterprise partners, and the tech pathways our graduates walk into.',
-    cardBio:
-      'CTO, Global Partner Solutions at Microsoft. 25 years in tech. SUCCESS Magazine Women of Influence 2023. MS Electrical Engineering, Georgia Tech. Board Director, IDEX Corporation.',
-  },
-  {
-    slug: 'brandon-frye',
-    name: 'Brandon Frye',
-    role: 'Board Member',
-    initials: 'BF',
-    image: '/images/brandon-frye.jpg',
-    missionRelevance:
-      'Highly respected entrepreneur that influences direction and resources. Built a Fastest Growing Company; board leadership strengthens community pipelines and employer connections.',
-    cardBio:
-      'Co-founded Interstate Connections — Austin Business Journal "Fastest Growing Private Company." CFO, The Business Bible. Texas Alliance for Life board. Former Chairman, Concordia High School.',
-  },
-  {
-    slug: 'derrick-fishback',
-    name: 'Col. Derrick Fishback',
-    role: 'Board Member (Ret.)',
-    initials: 'DF',
-    image: '/images/derrick-fishback.jpg',
-    missionRelevance:
-      '30 years Army + Fortune 500 tech. The employer trust that opens doors — AWS, IBM, Dell — plus the discipline that turns training into outcomes.',
-    cardBio:
-      "Col. U.S. Army (Ret.). Commanded 1,800+ personnel. Led cloud transformation at AWS, IBM, Dell. Two master's degrees; Harvard, Geneva, London, Erasmus. Board President, Jazz Society of Pensacola.",
-  },
-];
-
-const leadConsultants = [
-  {
-    slug: 'michael-brown-ii',
-    name: 'Michael Brown II',
-    role: 'Lead Consultant',
-    initials: 'M2',
-    image: '/images/michael-brown-ii.webp',
-    missionRelevance:
-      'Bridges strategy and delivery — helping WorkforceAP turn training partnerships into measurable placement and retention outcomes.',
-    cardBio:
-      'Consultant to Workforce Advancement Project on program design, employer alignment, and scaling high-touch career services for underserved communities.',
-  },
-];
+// Leadership content is the single source of truth in src/data/leadership.ts
+// (the LEADERS array, also used by /leadership/[slug].astro). Derive the three
+// listing groups here so names/roles/bios never drift from the canonical data.
+const executives = LEADERS.filter((l) => ['michael-brown', 'adriane-brown'].includes(l.slug));
+const boardMembers = LEADERS.filter((l) => l.role.startsWith('Board'));
+const leadConsultants = LEADERS.filter((l) => l.section === 'consultant' || l.role === 'Lead Consultant');
 ---
 <Layout
   title="Board & Leadership — WorkforceAP"
@@ -100,7 +29,7 @@ const leadConsultants = [
 
     <div class="wrap stage-grid">
       <div class="lede">
-        <span class="pill"><span class="pill__star" aria-hidden="true">★</span>Our Leadership</span>
+        <span class="pill"><span class="pill__star" aria-hidden="true"><Icon name="star" size={12} /></span>Our Leadership</span>
         <h1>Stewards of the <span class="shimmer">Future Workforce.</span></h1>
         <p class="sub">Our governance team combines decades of workforce development leadership, employer-side tech credibility, military and operations discipline, and deep community roots — connecting workforce training to real outcomes across the nation.</p>
       </div>
@@ -108,7 +37,7 @@ const leadConsultants = [
       <aside class="quote-card">
         <div class="qhead">
           <span class="qbadge" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+            <Icon name="check-circle" size={18} />
           </span>
           <span class="qlabel">Established 2025</span>
         </div>
@@ -125,7 +54,7 @@ const leadConsultants = [
     </div>
     <div class="tri lead-exec">
       {executives.map((leader) => (
-        <a class="acard person" href={`/leadership/${leader.slug}`}>
+        <a class="acard person" href={`/leadership/${leader.slug}`} aria-label={`View profile of ${leader.name}`}>
           <div class="portrait">
             {leader.image
               ? <img class="portrait-img" src={leader.image} alt={`Portrait of ${leader.name.replace(/,.*$/, '')}`} width="176" height="176" loading="lazy" />
@@ -136,7 +65,7 @@ const leadConsultants = [
           <h3>{leader.name}</h3>
           <p class="mission">{leader.missionRelevance}</p>
           <p>{leader.cardBio}</p>
-          <span class="go">View profile →</span>
+          <span class="go">View profile <span aria-hidden="true">→</span></span>
         </a>
       ))}
     </div>
@@ -150,7 +79,7 @@ const leadConsultants = [
     </div>
     <div class="tri">
       {boardMembers.map((leader) => (
-        <a class="acard person" href={`/leadership/${leader.slug}`}>
+        <a class="acard person" href={`/leadership/${leader.slug}`} aria-label={`View profile of ${leader.name}`}>
           <div class="portrait">
             {leader.image
               ? <img class="portrait-img" src={leader.image} alt={`Portrait of ${leader.name.replace(/,.*$/, '')}`} width="176" height="176" loading="lazy" />
@@ -160,7 +89,7 @@ const leadConsultants = [
           <h3>{leader.name}</h3>
           <p class="mission">{leader.missionRelevance}</p>
           <p>{leader.cardBio}</p>
-          <span class="go">View profile →</span>
+          <span class="go">View profile <span aria-hidden="true">→</span></span>
         </a>
       ))}
     </div>
@@ -174,7 +103,7 @@ const leadConsultants = [
     </div>
     <div class="tri">
       {leadConsultants.map((leader) => (
-        <a class="acard person" href={`/leadership/${leader.slug}`}>
+        <a class="acard person" href={`/leadership/${leader.slug}`} aria-label={`View profile of ${leader.name}`}>
           <div class="portrait">
             {leader.image
               ? <img class="portrait-img" src={leader.image} alt={`Portrait of ${leader.name.replace(/,.*$/, '')}`} width="176" height="176" loading="lazy" />
@@ -184,7 +113,7 @@ const leadConsultants = [
           <h3>{leader.name}</h3>
           <p class="mission">{leader.missionRelevance}</p>
           <p>{leader.cardBio}</p>
-          <span class="go">View profile →</span>
+          <span class="go">View profile <span aria-hidden="true">→</span></span>
         </a>
       ))}
     </div>

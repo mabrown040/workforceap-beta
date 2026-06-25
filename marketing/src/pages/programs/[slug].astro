@@ -238,7 +238,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
       <div class="scard">
         <div class="smeta">
           <span><Icon name="clock" size={16} /> {program.duration}</span>
-          <span class="ssalary">{program.salary}</span>
+          <span class="ssalary">Starting {range}</span>
         </div>
         <span class="spartner">{badge}</span>
         <a class="btn btn--primary sapply" href={`/apply?program=${program.slug}`}>Apply Now</a>
@@ -350,7 +350,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
   /* career outcome roles */
   .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
   .role{padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
-  .role-ic{display:block;font-size:20px;margin-bottom:8px}
+  .role-ic{display:block;margin-bottom:8px}
   .role p{margin:0;font-weight:700;font-size:15px;color:var(--text)}
   .roles-note{margin-top:16px;font-size:13px;color:var(--muted);line-height:1.6}
 

@@ -74,6 +74,14 @@ const path = Astro.url.pathname;
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
   <slot name="head" />
+  <style is:global>
+    /* token modifiers for chrome elements that live only in Layout.astro
+       (kept here so blend.css is untouched; mirrors .btn / .fbottom rules) */
+    .btn--nav{padding:12px 20px;font-size:15px;min-height:44px}
+    .flegal{display:flex;gap:18px}
+    .flegal a{color:var(--muted)}
+    .flegal a:hover{color:var(--crimson)}
+  </style>
 </head>
 <body>
   <input class="navtoggle" type="checkbox" id="navtoggle" aria-hidden="true" />
@@ -100,7 +108,7 @@ const path = Astro.url.pathname;
             {signInMenu.map((s) => <a href={s.href}>{s.label}</a>)}
           </div>
         </div>
-        <a class="btn btn--primary" style="padding:12px 20px;font-size:15px" href="/apply">Apply now</a>
+        <a class="btn btn--primary btn--nav" href="/apply">Apply now</a>
       </div>
     </div>
   </nav>
@@ -140,7 +148,7 @@ const path = Astro.url.pathname;
     </div>
     <div class="fbottom">
       <span>© 2026 WorkforceAP · A national 501(c)(3) nonprofit. Available nationwide.</span>
-      <span style="display:flex;gap:18px"><a href="/privacy" style="color:inherit">Privacy</a><a href="/terms" style="color:inherit">Terms</a><a href="/accessibility" style="color:inherit">Accessibility</a></span>
+      <span class="flegal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/accessibility">Accessibility</a></span>
     </div>
   </div></footer>
 

@@ -89,10 +89,10 @@ const PHASES = [
 ];
 
 const trainingCards = [
-  { ic: 'graduation-cap', cls: 'ic--g', title: 'Program Cost Coverage', desc: 'Approved certification tracks and technical bootcamps are funded through grants and partnerships.' },
-  { ic: 'handshake', cls: 'ic--c', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
-  { ic: 'trending-up', cls: 'ic--b', title: 'Direct Pipeline', desc: 'Support connecting to openings shared through our employer network and placement efforts.' },
-  { ic: 'lightbulb', cls: 'ic--g', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
+  { ic: 'graduation-cap', cls: 'ic--c', title: 'Program Cost Coverage', desc: 'Approved certification tracks and technical bootcamps are funded through grants and partnerships.' },
+  { ic: 'handshake', cls: 'ic--b', title: 'Peer Networks', desc: 'Access to an exclusive community of members and alumni for mentorship and networking.' },
+  { ic: 'trending-up', cls: 'ic--g', title: 'Direct Pipeline', desc: 'Support connecting to openings shared through our employer network and placement efforts.' },
+  { ic: 'lightbulb', cls: 'ic--gr', title: 'Soft Skill Coaching', desc: 'Dedicated sessions on leadership, communication, and emotional intelligence.' },
 ];
 
 // Program commitment panel — mirrored from components/portal/ProgramCommitmentPanel.tsx
@@ -110,7 +110,7 @@ const WILL_NOT = [
 ---
 <Layout
   title="How It Works — WorkforceAP"
-  description="Your path from application through certification and job placement — organized into three phases so you always know what we're focusing on together."
+  description="Your path from application through certification and job placement — organized into three phases so you always know what we’re focusing on together."
 >
 <div class="hiw">
 
@@ -139,7 +139,7 @@ const WILL_NOT = [
 
       <!-- Who can apply — translucent glass card -->
       <div class="applyglass">
-        <span class="ag-eyebrow"><span class="ag-dot"></span>Member Experience</span>
+        <span class="ag-eyebrow"><span class="ag-dot"></span>Who Can Apply</span>
         <h2>Who can apply</h2>
         <p>WorkforceAP is designed for adults who face barriers to employment — including low-income individuals, people with employment gaps, those with limited or no formal work history, justice-involved individuals, dislocated workers, veterans, and adult learners seeking a career change. WIOA eligibility can unlock additional funding.</p>
         <a class="wioa" href="/apply">Check WIOA options →</a>
@@ -150,7 +150,7 @@ const WILL_NOT = [
   <!-- THE JOURNEY — light band, glass/elevated step cards -->
   <section class="band band--surface" id="journey"><div class="wrap">
     <div class="sec-head">
-      <span class="kick kick--crimson">Member Experience</span>
+      <span class="kick kick--crimson">The Journey</span>
       <h2>What Happens After You <span class="grad-text">Apply</span></h2>
       <p>Three phases — get oriented, train and earn credentials, then move into work with people beside you the whole way.</p>
     </div>
@@ -182,7 +182,7 @@ const WILL_NOT = [
 
     <!-- Mid-page CTA — avoid dead-end after the timeline -->
     <div class="midcta">
-      <p>The application takes about ten minutes. It's a conversation, not an exam — and there's no application fee.</p>
+      <p>About ten minutes, no application fee — a conversation, not an exam.</p>
       <div class="acts">
         <a class="btn btn--primary" href="/apply">Apply For Next Cohort</a>
         <a class="btn btn--ghost" href="/find-your-path">Find your career</a>
@@ -196,7 +196,7 @@ const WILL_NOT = [
       <span class="kick kick--crimson">Career Training Benefits</span>
       <h2>Career Training <span class="grad-text">Benefits</span></h2>
     </div>
-    <div class="tri" style="grid-template-columns:repeat(4,1fr)">
+    <div class="tri">
       {trainingCards.map((card) => (
         <div class="acard">
           <div class={`ic ${card.cls}`}><Icon name={card.ic} /></div>
@@ -213,7 +213,7 @@ const WILL_NOT = [
       <div class="fcard">
         <div class="ic ic--b"><Icon name="laptop" /></div>
         <h3>Loaner Laptop Program</h3>
-        <p>Access to technology shouldn't be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.</p>
+        <p>Access to technology shouldn’t be a barrier to education. We provide high-performance laptops to members who need them for the duration of their training program.</p>
         <ul>
           <li><span class="chk"><Icon name="check" size={14} /></span> Pre-configured with all necessary software</li>
           <li><span class="chk"><Icon name="check" size={14} /></span> Technical support included</li>
@@ -223,7 +223,7 @@ const WILL_NOT = [
       <div class="fcard">
         <div class="ic ic--g"><Icon name="calendar" /></div>
         <h3>150-Day Post-Hire Support</h3>
-        <p>We don't just find you a job; we help you keep it. Our support continues for five months after your start date.</p>
+        <p>We don’t just find you a job; we help you keep it. Our support continues for five months after your start date.</p>
         <div class="bgrid">
           <div class="bcell"><div class="blab">Benefit 01</div><div class="bval">Monthly Check-ins</div></div>
           <div class="bcell"><div class="blab">Benefit 02</div><div class="bval">Conflict Resolution</div></div>
@@ -261,7 +261,7 @@ const WILL_NOT = [
     <div class="close__veil" aria-hidden="true"></div>
     <div class="close__inner wrap">
       <h2>Ready to take the first step?</h2>
-      <p>The application takes about ten minutes. It's a conversation, not an exam — and there's no application fee.</p>
+      <p>The application takes about ten minutes. It’s a conversation, not an exam — and there’s no application fee.</p>
       <div class="acts acts--center">
         <a class="bbtn bbtn--gold" href="/apply">Apply For Next Cohort</a>
         <a class="bbtn bbtn--outline" href="/contact">Speak with an Advisor</a>
@@ -325,7 +325,7 @@ const WILL_NOT = [
   .ag-dot{width:8px;height:8px;border-radius:50%;background:#f3d28f;box-shadow:0 0 10px #f3d28f}
   .applyglass h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:800;margin:12px 0 12px}
   .applyglass p{color:rgba(255,255,255,.85);font-size:15.5px;line-height:1.6}
-  .wioa{display:inline-flex;margin-top:16px;font-weight:800;color:#f3d28f}
+  .wioa{display:inline-flex;margin-top:16px;font-weight:800;color:#f3d28f;padding:8px 2px;min-height:44px;align-items:center}
 
   /* ---------------- LIGHT BANDS ---------------- */
   .band{padding:var(--sec-pad) 0}
@@ -364,7 +364,7 @@ const WILL_NOT = [
   .midcta .acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
   /* Training benefit cards */
-  .tri{display:grid;gap:24px}
+  .tri{display:grid;gap:24px;grid-template-columns:repeat(4,1fr)}
   .acard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px 26px;box-shadow:var(--shadow);
     border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
   .acard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
@@ -377,8 +377,9 @@ const WILL_NOT = [
   .ic--g{background:rgba(164,127,56,.12)}
   .ic--c{background:rgba(173,44,77,.1)}
   .ic--b{background:rgba(45,90,160,.1)}
-  @media(max-width:880px){.tri{grid-template-columns:1fr 1fr !important}}
-  @media(max-width:560px){.tri{grid-template-columns:1fr !important}}
+  .ic--gr{background:rgba(74,155,79,.12)}
+  @media(max-width:880px){.tri{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.tri{grid-template-columns:1fr}}
 
   /* Support features */
   .feat{display:grid;grid-template-columns:1fr 1fr;gap:22px}
@@ -432,6 +433,9 @@ const WILL_NOT = [
   @media(max-width:560px){
     .acts .bbtn{width:100%;justify-content:center}
   }
+
+  /* Scoped focus ring — white over crimson/plum where the global crimson ring vanishes */
+  .stage .dbtn:focus-visible,.close .bbtn:focus-visible{outline-color:#fff;outline-offset:3px}
 </style>
 </Layout>
 </content>

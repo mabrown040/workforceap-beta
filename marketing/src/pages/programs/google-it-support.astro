@@ -65,9 +65,9 @@ const finalTitle = 'Want to see if Google IT Support is your path?';
 const finalBody =
   'Check career fit first, then move into the application only if the pathway makes sense.';
 
-const metaTitle = 'Google IT Support Certificate Training — No-Cost Career Path';
+const metaTitle = 'Google IT Support Certificate Training — No Cost for Qualifying Members';
 const metaDescription =
-  'Explore WorkforceAP’s no-cost Google IT Support career pathway, check fit without an account, and start a soft application handoff when you are ready.';
+  'Explore WorkforceAP’s Google IT Support career pathway — no cost for members who qualify through WIOA / workforce-development funding. Check fit without an account and start a soft application handoff when you are ready.';
 
 // JSON-LD — preserved from the Next route (truth-locked $0 wording).
 const jsonLd = {
@@ -159,7 +159,7 @@ const jsonLd = {
   <!-- ══════════════════════════════ CURRICULUM + HANDOFF ══════════════════════════════ -->
   <section class="band"><div class="wrap split split--curric">
     <div>
-      <span class="eyebrow">{curriculumTitle}</span>
+      <span class="kick"><Icon name="book-open" size={13} /> {curriculumTitle}</span>
       <h2 class="lh-tight">What you will <span class="grad-text">build toward</span></h2>
       <div class="curric">
         {curriculumItems.map((item, i) => (
@@ -175,8 +175,8 @@ const jsonLd = {
       <h2>{handoffTitle}</h2>
       <p>{handoffBody}</p>
       <div class="acts">
-        <a class="dbtn dbtn--solid" href={FIT_HREF}>{fitCta} <span>→</span></a>
-        <a class="dbtn dbtn--glass dbtn--dark" href={APPLY_HREF}>{applyCta}</a>
+        <a class="btn btn--primary" href={FIT_HREF}>{fitCta} <span>→</span></a>
+        <a class="btn btn--ghost" href={APPLY_HREF}>{applyCta}</a>
       </div>
     </div>
   </div></section>
@@ -255,7 +255,6 @@ const jsonLd = {
   .band{padding:var(--sec-pad) 0}
   .band--surface{background:var(--surface)}
 
-  .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
   .kick{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
     color:var(--crimson);background:rgba(173,44,77,.1);padding:7px 13px;border-radius:999px;margin-bottom:16px}
   .kick--light{color:#f3d28f;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18)}
@@ -300,7 +299,6 @@ const jsonLd = {
   .handoff-card .fit-ic{background:rgba(173,44,77,.1);color:var(--crimson);width:48px;height:48px}
   .handoff-card h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(24px,3.2vw,32px);line-height:1.1;letter-spacing:-.02em;margin-bottom:14px}
   .handoff-card p{color:var(--muted);font-size:16px;line-height:1.65;margin-bottom:26px}
-  .dbtn--dark{color:var(--text);border-color:var(--border)}
 
   .grad-text{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 

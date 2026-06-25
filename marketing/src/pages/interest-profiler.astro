@@ -48,7 +48,7 @@ import Icon from '../components/Icon.astro';
 <!-- QUIZ SECTION -->
 <section id="ip-quiz" class="band band--surface ip-quiz-section" aria-label="Interest Profiler quiz">
   <div class="wrap ip-quiz-wrap">
-    <p class="ip-kicker" role="note">U.S. Department of Labor O*NET Interest Profiler™ · 30 activities</p>
+    <p class="ip-kicker">U.S. Department of Labor O*NET Interest Profiler™ · 30 activities</p>
     <div class="ip-island">
       <InterestProfilerQuiz client:visible />
     </div>
@@ -154,7 +154,7 @@ import Icon from '../components/Icon.astro';
   .ip-island :global(.ipq-fieldset){border:0;padding:0;margin:0 0 18px}
   .ip-island :global(.ipq-legend){font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;padding:0}
   .ip-island :global(.ipq-opts){display:flex;flex-direction:column;gap:9px}
-  .ip-island :global(.ipq-opt){display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;
+  .ip-island :global(.ipq-opt){position:relative;display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;
     border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:15px;
     transition:border-color .15s,background .15s,box-shadow .15s}
   .ip-island :global(.ipq-opt:hover){border-color:var(--crimson)}

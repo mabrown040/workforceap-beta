@@ -105,7 +105,7 @@ const factors = [
       </div>
     ))}
   </div>
-  <p class="truth">Still unsure? <a href="/find-your-path">The 5-minute pathfinder ranks your top-fit tracks.</a></p>
+  <p class="cmp-truth">Still unsure? <a href="/find-your-path">The 5-minute pathfinder ranks your top-fit tracks.</a></p>
 </div></section>
 
 <!-- ══════════════════════════════ RECOMMENDED STARTING POINTS ══════════════════════════════ -->
@@ -180,7 +180,7 @@ const factors = [
                 </td>
                 <td data-label="Certificate">{t.certs}</td>
                 <td data-label="Apply" class="cmp-act">
-                  <a class="btn btn--ghost" style="padding:8px 14px;font-size:13px;min-height:0" href={`/apply?program=${t.slug}`}>Apply</a>
+                  <a class="btn btn--ghost" style="padding:11px 16px;font-size:13px" href={`/apply?program=${t.slug}`}>Apply</a>
                 </td>
               </tr>
             ))}
@@ -210,8 +210,8 @@ const factors = [
       <h3>No cost for qualifying members</h3>
       <p>WorkforceAP programs are offered at no cost for members who qualify through scholarship/grant funded membership. Training is available through WorkforceAP and partner-backed pathways.</p>
       <div class="help-acts">
-        <a class="btn" style="background:#fff;color:var(--crimson);font-weight:800" href="/salary-guide">View salary guide</a>
-        <a class="btn" style="border:1px solid rgba(255,255,255,.4);color:#fff" href="/apply">Apply now</a>
+        <a class="btn btn--light" href="/salary-guide">View salary guide</a>
+        <a class="btn btn--translucent" href="/apply">Apply now</a>
       </div>
     </div>
   </div>
@@ -312,9 +312,9 @@ const factors = [
   @media(max-width:880px){.choose{grid-template-columns:1fr 1fr}}
   @media(max-width:520px){.choose{grid-template-columns:1fr}}
 
-  .truth{max-width:720px;margin:36px auto 0;text-align:center;color:var(--muted);font-size:14px;
+  .cmp-truth{max-width:720px;margin:36px auto 0;text-align:center;color:var(--muted);font-size:14px;
     background:var(--surface-2);border:1px dashed var(--border);border-radius:14px;padding:18px 22px}
-  .truth a{color:var(--crimson);font-weight:800}
+  .cmp-truth a{color:var(--crimson);font-weight:800}
 
   /* recommended starters */
   .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}

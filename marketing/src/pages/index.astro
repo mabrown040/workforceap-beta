@@ -318,6 +318,15 @@ import Layout from '../layouts/Layout.astro';
     @keyframes mix3-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
   }
 
+  /* MOBILE: the absolute/rotated overlap clips on narrow screens, so un-stack
+     into a clean vertical flow — every card fully visible, nothing cut off.
+     The layered rotated deck stays on desktop where there's room. */
+  @media(max-width:880px){
+    .deck{position:static;min-height:0;display:flex;flex-direction:column;gap:16px;animation:none;margin-top:4px}
+    .card{position:static;left:auto;right:auto}
+    .card--back,.card--mid,.card--front{top:auto;transform:none}
+  }
+
   /* ---------------- CREDS BAND ---------------- */
   .creds-band{background:var(--surface);border-top:3px solid var(--gold);border-bottom:1px solid var(--border);padding:34px 0}
   .creds-lab{text-align:center;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px}

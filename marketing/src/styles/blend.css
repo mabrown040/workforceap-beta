@@ -63,10 +63,18 @@
   .navdrop-menu a[aria-current=page]{color:var(--crimson)}
   /* mobile drawer: sign-in group */
   .mobilemenu-head{margin-top:18px;padding:6px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .mobilemenu .mobilemenu-sub{padding:11px 6px 11px 18px;font-size:16px;color:var(--muted)}
+  .mobilemenu .mobilemenu-sub{display:block;padding:11px 6px 11px 18px;font-size:16px;color:var(--muted)}
   .mobilemenu .mobilemenu-sub[aria-current=page]{color:var(--crimson)}
-  .mob-group{border-top:1px solid var(--border);margin-top:8px;padding-top:2px}
-  .mob-group .mobilemenu-head{margin-top:10px}
+  /* collapsible mobile sub-dropdowns (native <details>, zero-JS) */
+  .mob-acc{border-top:1px solid var(--border)}
+  .mob-acc summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 6px;font-size:18px;font-weight:600;color:var(--text);cursor:pointer;list-style:none}
+  .mob-acc summary::-webkit-details-marker{display:none}
+  .mob-acc summary::marker{content:""}
+  .mob-chev{flex-shrink:0;opacity:.6;transition:transform .2s}
+  .mob-acc[open] summary .mob-chev{transform:rotate(180deg)}
+  .mob-acc[open] summary{color:var(--crimson)}
+  .mob-acc__body{padding:0 0 10px}
+  .mob-acc__body .mobilemenu-sub{border-bottom:0}
   /* pure-CSS hamburger (no JS — keeps Astro's zero-JS ethos) */
   .navtoggle{display:none}
   .hamburger{display:none;position:fixed;right:24px;top:14px;z-index:51;width:44px;height:44px;border:1px solid var(--border);border-radius:11px;background:var(--surface);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px}

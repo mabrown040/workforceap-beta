@@ -106,17 +106,21 @@ const path = Astro.url.pathname;
   </nav>
   <nav class="mobilemenu" aria-label="Mobile">
     {nav.map((n) => n.children ? (
-      <div class="mob-group">
-        <p class="mobilemenu-head">{n.label}</p>
-        {n.children.map((c) => <a class="mobilemenu-sub" href={c.href} aria-current={path === c.href ? 'page' : undefined}>{c.label}</a>)}
-      </div>
+      <details class="mob-acc">
+        <summary>{n.label}<svg class="mob-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="mob-acc__body">
+          {n.children.map((c) => <a class="mobilemenu-sub" href={c.href} aria-current={path === c.href ? 'page' : undefined}>{c.label}</a>)}
+        </div>
+      </details>
     ) : (
       <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>
     ))}
-    <div class="mob-group">
-      <p class="mobilemenu-head">Sign in</p>
-      {signInMenu.map((s) => <a class="mobilemenu-sub" href={s.href}>{s.label}</a>)}
-    </div>
+    <details class="mob-acc">
+      <summary>Sign in<svg class="mob-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <div class="mob-acc__body">
+        {signInMenu.map((s) => <a class="mobilemenu-sub" href={s.href}>{s.label}</a>)}
+      </div>
+    </details>
     <a class="btn btn--primary" href="/apply">Apply now</a>
   </nav>
 

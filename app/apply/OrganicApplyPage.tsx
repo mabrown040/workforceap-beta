@@ -191,10 +191,10 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
       <p style={sPage.heroFallbackTitle}>{t('helpTitle')}</p>
       <p style={sPage.heroFallbackText}>{t('helpBody')}</p>
       <div style={sPage.heroFallbackActions}>
-        <LocalizedLink href="/contact" className="btn btn-outline" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
+        <LocalizedLink href="/contact" className="btn btn-outline mdx-btn mdx-btn--glass" style={{ color: 'var(--color-white)', borderColor: 'rgba(255,255,255,0.3)' }}>
           {t('helpCta1')}
         </LocalizedLink>
-        <a href="tel:+15127771808" className="btn btn-primary" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
+        <a href="tel:+15127771808" className="btn btn-primary mdx-btn mdx-btn--solid" style={{ background: 'var(--color-gold)', color: 'var(--color-on-surface)' }}>
           {t('helpCta2')}
         </a>
       </div>
@@ -202,14 +202,14 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
   );
 
   return (
-    <div className="apply-page-organic" style={sPage.wrapper}>
+    <div className="apply-page-organic mdx" style={sPage.wrapper}>
       {/* ── Hero ── */}
-      <section className="apply-hero" style={sPage.hero}>
-        <div style={sPage.heroLabel}>
+      <section className="apply-hero mdx-stage" style={sPage.hero}>
+        <span className="mdx-pill" style={sPage.heroLabel}>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }} aria-hidden="true">assured_workload</span>
           {t('heroLabel')}
-        </div>
-        <h1 style={sPage.heroHeading}>{t('heroHeading')}</h1>
+        </span>
+        <h1 style={sPage.heroHeading}><span className="mdx-grad-accent">{t('heroHeading')}</span></h1>
         <p className="apply-hero-social" style={{ ...sPage.heroDesc, marginBottom: 'var(--space-2)' }}>{t('applySocialProof')}</p>
         {/* Pilot status — honest about limited availability */}
         <div style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
@@ -224,7 +224,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           {t('questionsCall')}{' '}
           <a href="tel:+15127771808" className="apply-hero-help-compact__link">(512) 777-1808</a>
         </p>
-        <a href="#apply-form-start" className="btn btn-primary apply-hero-start-cta">
+        <a href="#apply-form-start" className="btn btn-primary apply-hero-start-cta mdx-btn mdx-btn--solid">
           {t('startYourApplication')}
         </a>
         <div className="apply-hero-help-desktop">{helpCard}</div>
@@ -235,8 +235,8 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
         {/* Sidebar (4-col) */}
         <aside className="apply-sidebar" aria-label="Application steps" style={sPage.sidebar}>
           {/* Progress steps */}
-          <div className="apply-sidebar-progress" style={sPage.sidebarSteps}>
-            <h2 style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}>
+          <div className="apply-sidebar-progress mdx-card" style={sPage.sidebarSteps}>
+            <h2 className="mdx-eyebrow" style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-on-surface-variant)', marginBottom: 'var(--space-4)' }}>
               {t('applicationProgress')}
             </h2>
             <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -267,7 +267,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
           </div>
 
           {/* Info card — collapsible on mobile to reduce post-form scroll */}
-          <details className="apply-sidebar-next-steps" style={sPage.infoCard}>
+          <details className="apply-sidebar-next-steps mdx-card" style={sPage.infoCard}>
             <summary className="apply-sidebar-next-steps__summary">{t('whatHappensNext')}</summary>
             <div className="apply-sidebar-next-steps__body">
               <h3 className="apply-sidebar-next-steps__heading">{t('whatHappensNext')}</h3>
@@ -338,7 +338,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
 
       {/* ── Supplemental cards ── */}
       <div className="apply-supp-row" role="region" aria-label="Program information" style={sPage.suppRow}>
-        <div style={sPage.suppCard}>
+        <div className="mdx-card" style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-green)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">lock</span>
           <div>
             <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard1Title')}</h3>
@@ -347,7 +347,7 @@ export default async function OrganicApplyPage({ program: programParam }: Organi
             </p>
           </div>
         </div>
-        <div style={sPage.suppCard}>
+        <div className="mdx-card" style={sPage.suppCard}>
           <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-blue)', flexShrink: 0, marginTop: 2 }} aria-hidden="true">bolt</span>
           <div>
             <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: 'var(--space-1)' }}>{t('suppCard2Title')}</h3>

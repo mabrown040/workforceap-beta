@@ -20,30 +20,32 @@ const tracks = getProgramComparisonTracks();
 export default function ProgramComparisonPage() {
   return (
     <div
-      className="inner-page marketing-stack marketing-stack--enter"
+      className="inner-page marketing-stack marketing-stack--enter mdx"
       style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}
     >
       <section style={{ padding: 'clamp(2rem, 5vw, 5rem) 1.25rem 2.5rem', maxWidth: '1400px', margin: '0 auto' }}>
-        <div style={{ maxWidth: '720px' }}>
-          <span className="marketing-pill-chip-accent" style={{ marginBottom: '1rem' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">compare_arrows</span>
-            Program Comparison
-          </span>
-          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>
-            Which program fits your goals?
-          </h1>
-          <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.05rem', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-            Compare programs side-by-side on the factors that matter: time commitment, difficulty, skill area, job direction, and salary potential.
-            Pick 2–4 tracks to see tradeoffs at a glance.
-          </p>
-          <ExperimentedCtaLink
-            experiment="program_compare_quiz_cta"
-            variants={[
-              { id: 'control', label: 'Not sure? Take the 5-minute pathfinder quiz', className: 'btn btn-primary', href: '/find-your-path' },
-              { id: 'outcome_copy', label: 'See your top-fit track in 5 minutes', className: 'btn btn-primary', href: '/find-your-path' },
-            ]}
-          />
-        </div>
+        <section className="mdx-stage">
+          <div style={{ maxWidth: '720px' }}>
+            <span className="mdx-pill">
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">compare_arrows</span>
+              Program Comparison
+            </span>
+            <h1>
+              Which program fits your <span className="mdx-grad-accent">goals</span>?
+            </h1>
+            <p>
+              Compare programs side-by-side on the factors that matter: time commitment, difficulty, skill area, job direction, and salary potential.
+              Pick 2–4 tracks to see tradeoffs at a glance.
+            </p>
+            <ExperimentedCtaLink
+              experiment="program_compare_quiz_cta"
+              variants={[
+                { id: 'control', label: 'Not sure? Take the 5-minute pathfinder quiz', className: 'mdx-btn mdx-btn--solid', href: '/find-your-path' },
+                { id: 'outcome_copy', label: 'See your top-fit track in 5 minutes', className: 'mdx-btn mdx-btn--solid', href: '/find-your-path' },
+              ]}
+            />
+          </div>
+        </section>
       </section>
 
       <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.25rem 3rem' }}>
@@ -60,9 +62,7 @@ export default function ProgramComparisonPage() {
 
       <section style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 1.25rem 4rem' }}>
         <div className="program-comparison-bottom-grid" style={{ display: 'grid', gap: '1.5rem' }}>
-          <div style={{
-            background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
-            padding: '2rem', border: '1px solid var(--surface-container-highest)',
+          <div className="mdx-card" style={{
             display: 'flex', flexDirection: 'column', gap: '1rem',
           }}>
             <div style={{ width: '3rem', height: '3rem', borderRadius: 'var(--radius-lg)', background: 'rgba(173,44,77,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-accent)' }}>
@@ -73,8 +73,8 @@ export default function ProgramComparisonPage() {
               Our career advisors can help you map a custom program sequence based on your background, goals, and timeline. No cost, no obligation.
             </p>
             <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <LocalizedLink href="/find-your-path" className="btn btn-primary btn-small">Take the Quiz</LocalizedLink>
-              <LocalizedLink href="/programs" className="btn btn-outline btn-small">Explore Programs</LocalizedLink>
+              <LocalizedLink href="/find-your-path" className="mdx-btn mdx-btn--primary">Take the Quiz</LocalizedLink>
+              <LocalizedLink href="/programs" className="mdx-btn mdx-btn--ghost">Explore Programs</LocalizedLink>
             </div>
           </div>
 

@@ -315,13 +315,12 @@ import Icon from '../components/Icon.astro';
     @keyframes mix3-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
   }
 
-  /* MOBILE: the absolute/rotated overlap clips on narrow screens, so un-stack
-     into a clean vertical flow — every card fully visible, nothing cut off.
-     The layered rotated deck stays on desktop where there's room. */
+  /* MOBILE: hide the decorative glass deck so the hero stays compact — its
+     content (credentials, the apply→hired pathway, the $0 proof) already
+     appears in the sections right below (cert band, How it works, hero proof).
+     The layered deck stays on desktop where there's room beside the headline. */
   @media(max-width:880px){
-    .deck{position:static;min-height:0;display:flex;flex-direction:column;gap:16px;animation:none;margin-top:4px}
-    .card{position:static;left:auto;right:auto}
-    .card--back,.card--mid,.card--front{top:auto;transform:none}
+    .deck{display:none}
   }
 
   /* ---------------- CREDS BAND ---------------- */
@@ -422,9 +421,8 @@ import Icon from '../components/Icon.astro';
 
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:880px){
-    .stage{padding:72px 0 90px}
-    .stage-grid{grid-template-columns:1fr;gap:80px}
-    .deck{min-height:420px;margin-top:8px}
+    .stage{padding:64px 0 48px}
+    .stage-grid{grid-template-columns:1fr;gap:0}
     .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
     .tri{grid-template-columns:1fr}
     .facts{grid-template-columns:1fr 1fr;gap:36px}

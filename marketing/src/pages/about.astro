@@ -28,7 +28,6 @@ import Layout from '../layouts/Layout.astro';
       <div class="glass-stat">
         <div class="gs-row">
           <small>Why we exist</small>
-          <span class="dot-live">Live</span>
         </div>
         <div class="gs-big">Bridging education &amp; industry</div>
         <div class="gs-grid">
@@ -129,9 +128,6 @@ import Layout from '../layouts/Layout.astro';
     box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
   .gs-row{display:flex;align-items:center;justify-content:space-between}
   .gs-row small{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.72);font-weight:700}
-  .dot-live{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;
-    background:rgba(74,155,79,.32);border:1px solid rgba(120,220,130,.4);padding:4px 10px;border-radius:999px}
-  .dot-live::before{content:"";width:7px;height:7px;border-radius:50%;background:#7fe389;box-shadow:0 0 8px #7fe389}
   .gs-big{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:24px;margin:10px 0 22px;letter-spacing:-.01em}
   .gs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
   .gs-i{display:flex;flex-direction:column;gap:4px}
@@ -167,6 +163,9 @@ import Layout from '../layouts/Layout.astro';
 
   .acts{display:flex;gap:14px;flex-wrap:wrap}
   .acts--center{justify-content:center}
+
+  /* a11y: white focus ring on the crimson CTA band (crimson ring would be invisible here) */
+  .close .bbtn:focus-visible{outline:2px solid #fff;outline-offset:3px}
 
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:880px){

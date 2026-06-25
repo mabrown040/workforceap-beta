@@ -227,11 +227,11 @@ const placementFee = '2,500';
           </div>
           <div class="form-group">
             <label for="employer-company">Company name *</label>
-            <input id="employer-company" type="text" name="company" />
+            <input id="employer-company" type="text" name="company" aria-required="true" />
           </div>
           <div class="form-group">
             <label for="employer-contact-name">Contact name *</label>
-            <input id="employer-contact-name" type="text" name="contact_name" />
+            <input id="employer-contact-name" type="text" name="contact_name" aria-required="true" />
           </div>
           <div class="form-group">
             <label for="employer-role-title">Role / title</label>
@@ -239,7 +239,7 @@ const placementFee = '2,500';
           </div>
           <div class="form-group">
             <label for="employer-email">Email *</label>
-            <input id="employer-email" type="email" name="email" />
+            <input id="employer-email" type="email" name="email" aria-required="true" />
           </div>
           <div class="form-group">
             <label for="employer-phone">Phone</label>
@@ -247,7 +247,7 @@ const placementFee = '2,500';
           </div>
           <div class="form-group">
             <label for="employer-open-roles">How many roles do you expect to hire in the next 6 months? *</label>
-            <select id="employer-open-roles" name="open_roles" class="form-control">
+            <select id="employer-open-roles" name="open_roles" class="form-control" aria-required="true">
               <option value="">Select…</option>
               <option value="1">1</option>
               <option value="2-3">2–3</option>
@@ -258,7 +258,7 @@ const placementFee = '2,500';
           </div>
           <div class="form-group">
             <label for="employer-hiring-timeline">When do you expect to hire? *</label>
-            <select id="employer-hiring-timeline" name="hiring_timeline" class="form-control">
+            <select id="employer-hiring-timeline" name="hiring_timeline" class="form-control" aria-required="true">
               <option value="">Select…</option>
               <option value="immediately">Immediately</option>
               <option value="30-60_days">30–60 days</option>
@@ -269,7 +269,7 @@ const placementFee = '2,500';
           </div>
           <div class="form-group">
             <label for="employer-interest-use-case">What best describes your hiring use case? *</label>
-            <select id="employer-interest-use-case" name="interest_use_case" class="form-control">
+            <select id="employer-interest-use-case" name="interest_use_case" class="form-control" aria-required="true">
               <option value="">Select…</option>
               <option value="direct_hiring">Direct hiring</option>
               <option value="pipeline_building">Pipeline building</option>
@@ -280,7 +280,7 @@ const placementFee = '2,500';
           </div>
           <div class="form-group">
             <label for="employer-roles-hiring">What roles are you hiring for? *</label>
-            <textarea id="employer-roles-hiring" name="roles_hiring" rows="4" placeholder="Include titles, locations, full-time or contract, must-have skills, and timeline…"></textarea>
+            <textarea id="employer-roles-hiring" name="roles_hiring" rows="4" aria-required="true" placeholder="Include titles, locations, full-time or contract, must-have skills, and timeline…"></textarea>
           </div>
           <button type="button" class="btn btn--primary emp-form__submit">Submit employer intake</button>
           <p class="emp-form__footnote">We respond within 1–2 business days.</p>
@@ -469,6 +469,7 @@ const placementFee = '2,500';
   .emp-form label{font-size:13px;font-weight:700;color:var(--text)}
   .emp-form input,.emp-form textarea,.emp-form select{font-family:inherit;font-size:15px;font-weight:400;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2);color:var(--text);resize:vertical}
   .emp-form input:focus,.emp-form textarea:focus,.emp-form select:focus{outline:none;border-color:var(--crimson)}
+  .emp-form input:focus-visible,.emp-form textarea:focus-visible,.emp-form select:focus-visible{outline:2px solid var(--crimson);outline-offset:2px}
   .emp-form__submit{align-self:flex-start;margin-top:4px}
   .emp-form__footnote{color:var(--muted);font-size:13px}
 

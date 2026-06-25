@@ -532,7 +532,7 @@ export default function FindYourPathQuiz() {
 
     return (
       <div className="fyp-results">
-        <span className="fyp-kicker">Your career match results</span>
+        <span className="fyp-kicker">Quiz complete</span>
         <h2 className="fyp-results__title">Your career match results</h2>
         <p className="fyp-results__sub">{getTopFitSummary(resultAnswers)}</p>
 
@@ -573,7 +573,7 @@ export default function FindYourPathQuiz() {
                 <a className="btn btn--primary fyp-card__cta" href={getApplyHref(program.slug)}>
                   Apply for this path →
                 </a>
-                <a className="fyp-card__detail" href={`/programs`}>
+                <a className="fyp-card__detail" href={`/programs/${program.slug}`}>
                   View full program details →
                 </a>
               </div>

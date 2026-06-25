@@ -192,6 +192,7 @@ export default function CareerQuiz() {
               key={v}
               type="button"
               className="cq-opt"
+              aria-label={`${SCALE_LABELS[v]} — for: ${q.prompt}`}
               onClick={() => answer(v)}
             >
               {SCALE_LABELS[v]}

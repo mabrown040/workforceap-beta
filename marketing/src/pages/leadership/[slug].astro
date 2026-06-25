@@ -248,7 +248,7 @@ const initials = initialsFor(leader.name);
     -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);
     mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);opacity:.16}
 
-  .back{display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.78);font-size:13px;font-weight:700;letter-spacing:.02em;margin-bottom:20px}
+  .back{display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.9);font-size:13px;font-weight:700;letter-spacing:.02em;margin-bottom:20px}
   .back:hover{color:#fff}
 
   .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
@@ -260,7 +260,7 @@ const initials = initialsFor(leader.name);
 
   .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(36px,5vw,60px);
     line-height:1.04;letter-spacing:-.03em;margin:20px 0 0}
-  .creds{font-weight:700;color:#f3d28f}
+  .creds{font-weight:700;color:#f3d28f;white-space:nowrap}
   .lede .role{font-size:18px;font-weight:700;color:#f3d28f;margin:12px 0 0;letter-spacing:.01em}
   .lede .sub{font-size:18px;line-height:1.55;color:rgba(255,255,255,.84);max-width:34em;margin:16px 0 0}
 
@@ -363,11 +363,6 @@ const initials = initialsFor(leader.name);
 
   .acts{display:flex;gap:14px;flex-wrap:wrap}
   .acts--center{justify-content:center}
-  .bbtn{display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;padding:14px 28px;border-radius:999px}
-  .bbtn--gold{background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;box-shadow:0 14px 34px -12px rgba(164,127,56,.7)}
-  .bbtn--gold:hover{transform:translateY(-2px)}
-  .bbtn--outline{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.4)}
-  .bbtn--outline:hover{background:rgba(255,255,255,.2)}
 
   /* ---------------- RESPONSIVE ---------------- */
   @media (prefers-reduced-motion: no-preference){

@@ -44,7 +44,7 @@ const mobileNav = [
 const path = Astro.url.pathname;
 ---
 <!DOCTYPE html>
-<html lang="en">
+<html lang={lang}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -59,7 +59,7 @@ const path = Astro.url.pathname;
   <label class="hamburger" for="navtoggle" aria-label="Toggle menu"><span></span><span></span><span></span></label>
   <nav class="top">
     <div class="wrap row">
-      <a class="brand" href="/"><span class="mark">▲</span>Workforce<b>AP</b></a>
+      <a class="brand" href="/"><span class="mark" aria-hidden="true">▲</span>Workforce<b>AP</b></a>
       <div class="navlinks">
         {nav.map((n) => <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>)}
       </div>
@@ -70,7 +70,7 @@ const path = Astro.url.pathname;
           ))}
         </div>
         <a class="signin" href="/login" style="color:var(--muted);font-weight:600;font-size:15px">{t('cta.logIn')}</a>
-        <a class="btn btn--primary" style="padding:10px 20px;font-size:15px" href="/apply">{t('cta.applyNow')}</a>
+        <a class="btn btn--primary" style="padding:12px 20px;font-size:15px" href="/apply">{t('cta.applyNow')}</a>
       </div>
     </div>
   </nav>
@@ -91,7 +91,7 @@ const path = Astro.url.pathname;
   <footer><div class="wrap">
     <div class="fgrid">
       <div class="fbrand">
-        <a class="brand" href="/"><span class="mark">▲</span>Workforce<b>AP</b></a>
+        <a class="brand" href="/"><span class="mark" aria-hidden="true">▲</span>Workforce<b>AP</b></a>
         <p>A 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to members who qualify through scholarship/grant funded membership.</p>
       </div>
       <div><h4>Explore</h4><ul><li><a href="/programs">Programs</a></li><li><a href="/how-it-works">How it works</a></li><li><a href="/find-your-path">Find your path</a></li><li><a href="/outcomes">Outcomes</a></li></ul></div>

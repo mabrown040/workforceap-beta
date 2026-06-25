@@ -204,7 +204,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
           <h2 class="card-h">Roles this program prepares you for</h2>
           <div class="roles">
             {extra.jobOutcomes.map((role) => (
-              <div class="role"><span class="role-ic" aria-hidden="true"><Icon name="briefcase" /></span><p>{role}</p></div>
+              <div class="role"><span class="role-ic" aria-hidden="true"><Icon name="briefcase" size={20} /></span><p>{role}</p></div>
             ))}
           </div>
           <p class="roles-note">Salary range: {range}. Actual wages depend on employer, location, and experience.</p>
@@ -376,6 +376,7 @@ const metaDescription = `Training in ${display} offered at no cost for members w
   @media(max-width:900px){.sidebar{position:static}}
   .scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
   .smeta{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted);margin-bottom:10px}
+  .smeta span{display:inline-flex;align-items:center;gap:6px}
   .ssalary{color:var(--crimson);font-weight:700;font-size:16px}
   .spartner{display:inline-block;font-size:13px;font-weight:700;color:var(--gold-dark);background:rgba(164,127,56,.1);border:1px solid rgba(164,127,56,.22);padding:5px 12px;border-radius:999px}
   .sapply{width:100%;justify-content:center;margin-top:16px}

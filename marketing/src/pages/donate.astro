@@ -10,13 +10,13 @@ const fundsCards = [
   {
     title: 'Training access',
     description: 'Support the systems, guidance, and coordination that help qualified members start and stay in career training.',
-    ic: 'ic--b',
+    ic: 'ic--c',
     icon: 'graduation-cap',
   },
   {
     title: 'Career readiness',
     description: 'Help fund resume support, interview prep, accountability, and the human follow-through that keeps members moving.',
-    ic: 'ic--c',
+    ic: 'ic--b',
     icon: 'clipboard',
   },
   {
@@ -94,7 +94,7 @@ const givingOptions = [
         <h1>Fund real training, real support,<br><span class="shimmer">and real job outcomes</span></h1>
         <p class="sub">Your donation helps low-income adults access training, career support, and employer-connected pathways that move people toward work.</p>
         <div class="acts">
-          <a class="dbtn dbtn--solid" href={MAILTO}>Start a donation by email <span>→</span></a>
+          <a class="dbtn dbtn--solid" href={MAILTO}>Start a donation by email <span aria-hidden="true">→</span></a>
           <a class="dbtn dbtn--glass" href="/contact?topic=partnership">Talk about corporate giving</a>
         </div>
         <div class="trustline">
@@ -111,7 +111,7 @@ const givingOptions = [
           <div class="phead">
             <div><small>Where it goes</small><div class="big">Access · readiness · outcomes</div></div>
             <div class="ring">
-              <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/></svg>
+              <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false" style="transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/></svg>
             </div>
           </div>
           <div class="step"><div class="n">1</div><div class="t"><b>Training access</b><span>Start and stay in career training</span></div></div>
@@ -211,7 +211,7 @@ const givingOptions = [
      Shorter depth stage hero → alternating light bands with elevated
      cards → closing crimson CTA band.
      =================================================================== */
-  .donate-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+  .donate-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18);overflow-x:hidden}
 
   /* ---------------- DEPTH HERO STAGE (shorter) ---------------- */
   .stage{

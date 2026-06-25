@@ -42,7 +42,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
       <!-- glass status card -->
       <div class="hcard">
         <div class="hcard-row">
-          <span class="hcard-ic" aria-hidden="true"><Icon name="newspaper" /></span>
+          <span class="hcard-ic" aria-hidden="true"><Icon name="newspaper" size={28} /></span>
           <span class="dot-live">Latest articles</span>
         </div>
         <div class="hcard-big">{posts.length} articles published</div>
@@ -85,7 +85,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
           <article class="post-card">
             <a class="post-link" href={`/blog/${p.slug}`}>
               <div class="post-cover">
-                <img src={p.hero.src} alt={p.hero.alt} width="280" height="160" loading="lazy" />
+                <img src={p.hero.src} alt={p.hero.alt} width="1600" height="900" loading="lazy" />
                 {p.category && <span class="post-cat">{p.category}</span>}
               </div>
               <h2 class="post-title">{p.title}</h2>
@@ -99,7 +99,7 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
 
       <!-- Updates via contact -->
       <div class="updates-card">
-        <span class="updates-ic" aria-hidden="true"><Icon name="mail" /></span>
+        <span class="updates-ic" aria-hidden="true"><Icon name="mail" size={28} /></span>
         <h2>Want updates?</h2>
         <p>
           Ask to be notified about new articles and program news — our team responds
@@ -250,10 +250,6 @@ const cards = posts.map((p) => ({ ...p, hero: resolveHeroImage(p), date: formatP
 
   .acts{display:flex;gap:14px;flex-wrap:wrap}
   .acts--center{justify-content:center}
-  .bbtn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:16px;padding:14px 26px;border-radius:14px;border:1px solid transparent;transition:transform .15s,box-shadow .2s}
-  .bbtn:hover{transform:translateY(-2px)}
-  .bbtn--gold{background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;box-shadow:0 10px 30px -8px rgba(164,127,56,.6)}
-  .bbtn--outline{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4)}
 
   /* ---------------- RESPONSIVE ---------------- */
   @media(max-width:880px){

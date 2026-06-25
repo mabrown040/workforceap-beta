@@ -248,7 +248,7 @@ const filterChips = [
     <div class="lede">
       <span class="pill"><span class="pill__star"><Icon name="star" size={11} /></span>Career training programs</span>
       <h1>Find the right program <span class="shimmer">for your goals</span></h1>
-      <p class="sub">Explore career training programs offered no cost for qualifying members, with certifications from IBM, Google, AWS, Microsoft, and CompTIA.</p>
+      <p class="sub">Explore career training programs offered at no cost to qualifying members, with certifications from IBM, Google, AWS, Microsoft, and CompTIA.</p>
       <div class="acts">
         <a class="dbtn dbtn--solid" href="#programs-quick-start">Quick start <span>→</span></a>
         <a class="dbtn dbtn--glass" href="/find-your-path">Find your path</a>
@@ -313,7 +313,7 @@ const filterChips = [
   <div class="choose">
     {factors.map((f) => (
       <div class="fcard">
-        <div class="fic"><Icon name={f.icon} /></div>
+        <div class="fic"><Icon name={f.icon} size={22} /></div>
         <h3>{f.label}</h3>
         <p>{f.desc}</p>
       </div>
@@ -331,7 +331,7 @@ const filterChips = [
 
   <!-- Static search + filter chips (visual representation only) -->
   <div class="catalog-controls">
-    <div class="searchbox">
+    <div class="searchbox" aria-hidden="true">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <span>Search programs by name, skill, partner, or topic…</span>
     </div>
@@ -360,7 +360,7 @@ const filterChips = [
               <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
               <span class="fund-pill">{p.funding}</span>
             </div>
-            <span class="picon">{p.icon}</span>
+            <span class="picon"><Icon name={p.icon} size={26} /></span>
           </div>
           <h3>{p.title}</h3>
           <div class="pmeta"><span><Icon name="clock" size={16} /> {p.duration}</span><span class="prange-inline">Starting range: <b>{p.salary}</b></span></div>
@@ -369,8 +369,8 @@ const filterChips = [
           <div class="pcard-foot">
             <span class="ppartner">Partner: {p.partner}</span>
             <div class="pacts">
-              <a class="btn btn--ghost" style="padding:8px 16px;font-size:14px" href={`/programs/${p.slug}`}>View Program</a>
-              <a class="btn btn--primary" style="padding:8px 16px;font-size:14px" href={`/apply?program=${p.slug}`}>Get Started →</a>
+              <a class="btn btn--ghost" style="padding:12px 16px;font-size:14px;min-height:44px" href={`/programs/${p.slug}`}>View Program</a>
+              <a class="btn btn--primary" style="padding:12px 16px;font-size:14px;min-height:44px" href={`/apply?program=${p.slug}`}>Get Started →</a>
             </div>
           </div>
         </div>
@@ -396,7 +396,7 @@ const filterChips = [
                 <span class={`cat-pill cat--${p.cat}`}>{p.category}</span>
                 <span class="fund-pill">{p.funding}</span>
               </div>
-              <span class="picon"><Icon name={p.icon} /></span>
+              <span class="picon"><Icon name={p.icon} size={26} /></span>
             </div>
             <h3>{p.title}</h3>
             <div class="pmeta"><span><Icon name="clock" size={16} /> {p.duration}</span><span class="prange-inline">Starting range: <b>{p.salary}</b></span></div>
@@ -405,8 +405,8 @@ const filterChips = [
             <div class="pcard-foot">
               <span class="ppartner">Partner: {p.partner}</span>
               <div class="pacts">
-                <a class="btn btn--ghost" style="padding:8px 16px;font-size:14px" href={`/programs/${p.slug}`}>View Program</a>
-                <a class="btn btn--primary" style="padding:8px 16px;font-size:14px" href={`/apply?program=${p.slug}`}>Get Started →</a>
+                <a class="btn btn--ghost" style="padding:12px 16px;font-size:14px;min-height:44px" href={`/programs/${p.slug}`}>View Program</a>
+                <a class="btn btn--primary" style="padding:12px 16px;font-size:14px;min-height:44px" href={`/apply?program=${p.slug}`}>Get Started →</a>
               </div>
             </div>
           </div>
@@ -589,7 +589,7 @@ const filterChips = [
   .cat--c{background:var(--crimson)}.cat--g{background:var(--gold-dark)}.cat--b{background:var(--blue)}.cat--gr{background:var(--green)}.cat--m{background:#3a3a3a}
   .fund-pill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(74,155,79,.12);color:var(--green)}
   .picon{font-size:26px}
-  .pcard h3{font-size:18px;font-weight:700;margin-bottom:10px;min-height:2.4em}
+  .pcard h3{font-size:18px;font-weight:700;margin-bottom:10px;min-height:3.6em}
   .pmeta{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted);margin-bottom:8px}
   .prange-inline b{color:var(--crimson)}
   .pdisc{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.45}

@@ -1,0 +1,271 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Contact Us — WorkforceAP"
+  description="Contact Workforce Advancement Project for program questions, enrollment support, and partnership opportunities."
+>
+<div class="depth">
+
+  <!-- ============================================================
+       HERO — SHORTER DEPTH STAGE: crimson→plum depth band with
+       glow auras, luminosity-masked photo, gold pill, intro.
+       ============================================================ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-inner">
+      <span class="pill"><span class="pill__star">★</span>Get in Touch</span>
+      <h1>We're here for <span class="shimmer">members, employers, and partners</span> alike.</h1>
+      <p class="sub">
+        Whether you're a current or prospective member with program questions, an employer looking to hire or build a pipeline, a community partner exploring a referral relationship, or a donor interested in supporting training offered at no cost to members who qualify through scholarship/grant funded membership, reach out and a WorkforceAP team member will respond within 1–2 business days.
+      </p>
+    </div>
+  </section>
+
+  <!-- CONTACT GRID — light band -->
+  <section class="blk blk--cream">
+    <div class="wrap">
+      <div class="cgrid">
+        <!-- LEFT: form (static visual) -->
+        <div class="formpanel">
+          <h2>Send Us a Message</h2>
+          <form class="cform" onsubmit="return false">
+            <div class="frow">
+              <div class="fgroup">
+                <label for="first_name">First Name <span aria-hidden="true">*</span></label>
+                <input id="first_name" type="text" name="first_name" autocomplete="given-name" />
+              </div>
+              <div class="fgroup">
+                <label for="last_name">Last Name <span aria-hidden="true">*</span></label>
+                <input id="last_name" type="text" name="last_name" autocomplete="family-name" />
+              </div>
+            </div>
+            <div class="fgroup">
+              <label for="email">Email Address <span aria-hidden="true">*</span></label>
+              <input id="email" type="email" name="email" autocomplete="email" />
+            </div>
+            <div class="fgroup">
+              <label for="phone">Phone Number</label>
+              <input id="phone" type="tel" name="phone" autocomplete="tel" />
+            </div>
+            <div class="fgroup">
+              <label class="cbox">
+                <input type="checkbox" name="sms_preferred" value="true" />
+                <span>I'd prefer to be contacted by text message</span>
+              </label>
+            </div>
+            <div class="fgroup">
+              <label for="topic">What can we help with? <span aria-hidden="true">*</span></label>
+              <select id="topic" name="topic">
+                <option value="">Select a topic…</option>
+                <option>Program information</option>
+                <option>Eligibility or training at no cost to members who qualify through scholarship/grant funded membership</option>
+                <option>Application help</option>
+                <option>Schedule a tour</option>
+                <option>Partnership or sponsorship</option>
+                <option>Media or press inquiry</option>
+                <option>Accessibility issue</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="fgroup">
+              <label for="message">Your Message <span aria-hidden="true">*</span></label>
+              <textarea id="message" name="message" rows="5"></textarea>
+            </div>
+            <button type="submit" class="btn btn--primary" style="width:100%;justify-content:center">Send Message</button>
+            <p class="footnote">A WorkforceAP team member responds within 1–2 business days.</p>
+          </form>
+        </div>
+
+        <!-- RIGHT: info tiles + austin card -->
+        <div class="infostack">
+          <div class="cardgrid">
+            <div class="infocard">
+              <div class="ic ic--c" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+              </div>
+              <h3>Our Location</h3>
+              <p>Built in Austin.<br>Available nationwide.</p>
+            </div>
+
+            <div class="infocard">
+              <div class="ic ic--b" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="M3 7l9 6 9-6" />
+                </svg>
+              </div>
+              <h3>Email</h3>
+              <p><a class="ilink" href="mailto:info@workforceap.org">info@workforceap.org</a></p>
+            </div>
+
+            <div class="infocard infocard--gold">
+              <div class="ic ic--g" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" />
+                </svg>
+              </div>
+              <h3>Phone</h3>
+              <p class="mono"><a class="ilink" href="tel:+15127771808">(512) 777-1808</a></p>
+              <p class="hours">Mon–Fri, 9:00 AM – 5:00 PM CT</p>
+            </div>
+
+            <div class="infocard">
+              <div class="ic ic--gr" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
+              </div>
+              <h3>Response Time</h3>
+              <p>We reply within 1–2 business days for most inquiries.</p>
+            </div>
+          </div>
+
+          <div class="austincard">
+            <span class="austin-eyebrow"><span class="austin-dot"></span>Austin-based team</span>
+            <h3>Built in Austin, supporting members nationwide</h3>
+            <p>We work from Austin, Texas and support members, partners, and employers across the country. Use the form, email, or phone to reach the right WorkforceAP team member. We coordinate with partner organizations, but counselors and partner organizations are not the same thing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE BAND — closing crimson depth CTA -->
+  <section class="close">
+    <div class="close__media" aria-hidden="true"></div>
+    <div class="close__veil" aria-hidden="true"></div>
+    <div class="close__inner wrap">
+      <div class="qmark" aria-hidden="true">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7 7h4v4c0 3-2 5-4 5v-2c1 0 2-1 2-3H7V7zm8 0h4v4c0 3-2 5-4 5v-2c1 0 2-1 2-3h-2V7z" />
+        </svg>
+      </div>
+      <blockquote>We believe everyone deserves a clear path to a meaningful career. That starts with being available and responsive to the people we serve.</blockquote>
+      <div class="by">Workforce Advancement Project Team</div>
+    </div>
+  </section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     CONTACT — DEPTH aesthetic.
+     shorter depth stage hero → light contact grid w/ elevated cards →
+     closing crimson depth quote band.
+     =================================================================== */
+  .depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- SHORTER DEPTH HERO STAGE ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:78px 0 84px;
+  }
+  .stage-inner{position:relative;z-index:2;text-align:center;max-width:820px;margin:0 auto}
+
+  /* glow auras — gold + crimson + white */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-180px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-220px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:380px;height:380px;top:20%;left:46%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  /* luminosity-masked real photo bleeding in from the right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 42%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 42%,#000 100%);opacity:.16}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .stage-inner h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,5vw,56px);
+    line-height:1.04;letter-spacing:-.025em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stage-inner .sub{font-size:19px;line-height:1.6;color:rgba(255,255,255,.85);max-width:46em;margin:22px auto 0}
+
+  /* ---------------- LIGHT BLOCK ---------------- */
+  .blk{width:100%;padding:var(--sec-pad) 0}
+  .blk--cream{background:var(--bg);color:var(--text)}
+
+  .cgrid{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:start}
+  @media(max-width:880px){.cgrid{grid-template-columns:1fr;gap:28px}}
+
+  /* form panel — elevated card */
+  .formpanel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-lg, var(--shadow));border-top:6px solid var(--crimson)}
+  .formpanel h2{font-family:'Plus Jakarta Sans';font-weight:800;font-size:26px;margin-bottom:22px}
+  .cform{display:flex;flex-direction:column;gap:18px}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:480px){.frow{grid-template-columns:1fr}}
+  .fgroup{display:flex;flex-direction:column;gap:7px}
+  .fgroup label{font-size:14px;font-weight:600;color:var(--text)}
+  .fgroup label span[aria-hidden]{color:var(--crimson)}
+  .cform input[type=text],.cform input[type=email],.cform input[type=tel],.cform select,.cform textarea{
+    font-family:inherit;font-size:15px;color:var(--text);background:var(--surface-2);
+    border:1px solid var(--border);border-radius:12px;padding:12px 14px;width:100%;transition:border-color .15s,box-shadow .15s}
+  .cform input:focus,.cform select:focus,.cform textarea:focus{
+    outline:none;border-color:var(--crimson);box-shadow:0 0 0 3px rgba(173,44,77,.12)}
+  .cform textarea{resize:vertical;min-height:120px}
+  .cbox{flex-direction:row;align-items:center;gap:10px;font-weight:500!important;color:var(--muted)!important;cursor:pointer}
+  .cbox input{width:18px;height:18px;accent-color:var(--crimson);flex-shrink:0}
+  .footnote{font-size:13px;color:var(--muted);text-align:center;margin-top:2px}
+
+  /* info tiles */
+  .infostack{display:flex;flex-direction:column;gap:20px}
+  .cardgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:480px){.cardgrid{grid-template-columns:1fr}}
+  .infocard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s}
+  .infocard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg, var(--shadow))}
+  .infocard--gold{border-color:rgba(164,127,56,.35);background:linear-gradient(180deg,var(--surface),rgba(164,127,56,.05))}
+  .infocard .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px}
+  .infocard .ic--c{background:rgba(173,44,77,.12);color:var(--crimson)}
+  .infocard .ic--b{background:rgba(43,93,158,.12);color:var(--blue)}
+  .infocard .ic--g{background:rgba(164,127,56,.14);color:var(--gold-dark)}
+  .infocard .ic--gr{background:rgba(74,155,79,.14);color:var(--green)}
+  .infocard h3{font-size:17px;font-weight:700;margin-bottom:6px}
+  .infocard p{color:var(--muted);font-size:14px}
+  .infocard .mono{font-family:'Plus Jakarta Sans';font-weight:700;font-size:18px;color:var(--text);margin-bottom:2px}
+  .infocard .hours{font-size:13px;margin-top:6px}
+  .ilink{color:var(--crimson);font-weight:600}
+  .ilink:hover{text-decoration:underline}
+
+  .austincard{position:relative;overflow:hidden;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);border-left:6px solid var(--gold)}
+  .austin-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--crimson)}
+  .austin-dot{width:8px;height:8px;border-radius:50%;background:var(--crimson)}
+  .austincard h3{font-family:'Plus Jakarta Sans';font-weight:800;font-size:20px;margin:14px 0 10px}
+  .austincard p{color:var(--muted);font-size:15px;line-height:1.6}
+
+  /* ---------------- CLOSING CRIMSON DEPTH QUOTE BAND ---------------- */
+  .close{
+    position:relative;overflow:hidden;
+    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
+  }
+  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:80px 24px 84px;max-width:var(--max)}
+  .qmark{width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#f3d28f;display:grid;place-items:center;margin:0 auto 22px;backdrop-filter:blur(8px)}
+  .close__inner blockquote{max-width:760px;margin:0 auto;font-family:'Plus Jakarta Sans';font-weight:700;font-size:clamp(22px,3vw,32px);line-height:1.3;letter-spacing:-.015em;text-shadow:0 2px 30px rgba(45,8,22,.45)}
+  .close__inner .by{margin-top:20px;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#f3d28f}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 70px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+  }
+</style>
+</Layout>

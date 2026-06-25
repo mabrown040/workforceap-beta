@@ -88,7 +88,7 @@ export default function EmployerSignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F4F0]">
+    <div className="mdx min-h-screen bg-[#F5F4F0]">
       {/* Nav */}
       <nav className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -111,7 +111,7 @@ export default function EmployerSignupPage() {
 
       <main className="max-w-2xl mx-auto px-4 py-12">
         {success && !loading ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+          <div className="mdx-card p-8 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
@@ -122,21 +122,24 @@ export default function EmployerSignupPage() {
             </p>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#1B365D] text-white rounded-lg font-medium hover:bg-[#152a49] transition-colors"
+              className="mdx-btn mdx-btn--primary inline-flex items-center gap-2"
             >
               Go to Log In
             </Link>
           </div>
         ) : (
           <>
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your Employer Account</h1>
+            <section className="mdx-stage text-center mb-8">
+              <span className="mdx-pill">For Employers</span>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Create Your <span className="mdx-grad-accent">Employer</span> Account
+              </h1>
               <p className="text-gray-600">
                 Start a pipeline subscription to access training-aligned candidates. $499/mo Growth tier. Cancel anytime.
               </p>
-            </div>
+            </section>
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-8 space-y-6">
+            <form onSubmit={handleSubmit} className="mdx-card p-8 space-y-6">
               {error && (
                 <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -146,7 +149,7 @@ export default function EmployerSignupPage() {
 
               {/* Company Info */}
               <div className="space-y-4">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Company Information</h2>
+                <h2 className="mdx-eyebrow">Company Information</h2>
                 <div>
                   <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
                     Company Name <span className="text-red-500">*</span>
@@ -198,7 +201,7 @@ export default function EmployerSignupPage() {
 
               {/* Contact Info */}
               <div className="space-y-4">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Contact Information</h2>
+                <h2 className="mdx-eyebrow">Contact Information</h2>
                 <div>
                   <label htmlFor="contactName" className="block text-sm font-medium text-gray-700 mb-1">
                     Your Name <span className="text-red-500">*</span>
@@ -246,7 +249,7 @@ export default function EmployerSignupPage() {
 
               {/* Password */}
               <div className="space-y-4">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Account Security</h2>
+                <h2 className="mdx-eyebrow">Account Security</h2>
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                     Password <span className="text-red-500">*</span>
@@ -326,7 +329,7 @@ export default function EmployerSignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1B365D] text-white rounded-lg font-medium hover:bg-[#152a49] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="mdx-btn mdx-btn--solid w-full flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>

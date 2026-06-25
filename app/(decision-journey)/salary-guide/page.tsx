@@ -144,17 +144,18 @@ export default function SalaryGuidePage() {
   const guideStats = salaryGuideSummaryStats(salaryRows);
 
   return (
+    <div className="mdx">
     <div
       className="inner-page salary-guide-page marketing-stack marketing-stack--enter"
       style={{ background: 'var(--color-background-dark)', color: 'var(--color-on-surface)' }}
     >
         {/* ===== Hero ===== */}
-        <section style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
-          <span className="marketing-pill-chip-accent" style={{ marginBottom: '1rem' }}>
+        <section className="mdx-stage" style={{ padding: '5rem 2rem 3rem', maxWidth: '1400px', margin: '0 auto' }}>
+          <span className="mdx-pill" style={{ marginBottom: '1rem' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }} aria-hidden="true">analytics</span>
             Salary Intelligence
           </span>
-          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>Program Salary Guide</h1>
+          <h1 className="text-display-lg" style={{ marginBottom: '1rem' }}>Program <span className="mdx-grad-accent">Salary Guide</span></h1>
           <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '1.125rem', lineHeight: 1.7, maxWidth: '640px' }}>
             Starting salary ranges for all 20 programs — the same numbers shown on each program page. Salary matters, but so does fit, time commitment, support available, and how steep the skill ramp is. Use this guide to weigh all of it.
           </p>
@@ -166,14 +167,13 @@ export default function SalaryGuidePage() {
             display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem',
           }}>
             {/* Featured AI/ML salary chart card (8-col) */}
-            <div style={{
-              background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
-              padding: '2rem', border: '1px solid var(--surface-container-highest)',
+            <div className="mdx-card" style={{
+              padding: '2rem',
               position: 'relative', overflow: 'hidden',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
                 <div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Featured</span>
+                  <span className="mdx-eyebrow">Featured</span>
                   <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginTop: '0.25rem' }}>AI / Machine Learning Salary Bands</h3>
                 </div>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-accent)', fontSize: '1.5rem' }} aria-hidden="true">smart_toy</span>
@@ -201,9 +201,8 @@ export default function SalaryGuidePage() {
             {/* Side stats column */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {/* Cost of Living stat */}
-              <div style={{
-                background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
-                padding: '1.5rem', border: '1px solid var(--surface-container-highest)',
+              <div className="mdx-card" style={{
+                padding: '1.5rem',
                 flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
               }}>
                 <span className="material-symbols-outlined marketing-chip-text--gold" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }} aria-hidden="true">apartment</span>
@@ -234,8 +233,8 @@ export default function SalaryGuidePage() {
               Salary is one factor. The right program fits your timeline, readiness, and tech comfort — not just the top of the range. Higher bands usually mean a steeper ramp.
             </p>
             <div className="salary-guide-fit-links" style={{ marginTop: '1rem' }}>
-              <LocalizedLink href="/find-your-path" className="btn btn-primary btn-sm">Find your best-fit programs (2-min quiz)</LocalizedLink>
-              <LocalizedLink href="/program-comparison" className="btn btn-outline btn-sm">Compare programs</LocalizedLink>
+              <LocalizedLink href="/find-your-path" className="mdx-btn mdx-btn--primary btn-sm">Find your best-fit programs (2-min quiz)</LocalizedLink>
+              <LocalizedLink href="/program-comparison" className="mdx-btn mdx-btn--ghost btn-sm">Compare programs</LocalizedLink>
             </div>
           </div>
 
@@ -317,10 +316,8 @@ export default function SalaryGuidePage() {
               display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem',
             }}>
               {GROWTH_PHASES.map((phase) => (
-                <div key={phase.num} style={{
-                  background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
+                <div key={phase.num} className="mdx-card" style={{
                   padding: '1.75rem', position: 'relative', overflow: 'hidden',
-                  border: '1px solid var(--surface-container-highest)',
                 }}>
                   <span style={{
                     position: 'absolute', top: '-0.25rem', right: '0.5rem',
@@ -329,7 +326,7 @@ export default function SalaryGuidePage() {
                     pointerEvents: 'none', userSelect: 'none',
                   }}>{phase.num}</span>
                   <div style={{ position: 'relative', zIndex: 1 }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--color-accent)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Phase {phase.num}</span>
+                    <span className="mdx-eyebrow">Phase {phase.num}</span>
                     <h4 style={{ fontWeight: 700, marginTop: '0.5rem', marginBottom: '0.5rem' }}>{phase.title}</h4>
                     <p style={{ fontSize: '0.85rem', color: 'var(--color-on-surface-variant)', lineHeight: 1.6 }}>{phase.desc}</p>
                   </div>
@@ -339,17 +336,15 @@ export default function SalaryGuidePage() {
           </div>
 
           {/* ===== Download CTA ===== */}
-          <div style={{
-            background: 'var(--surface-container)', borderRadius: 'var(--radius-xl)',
+          <div className="mdx-card" style={{
             padding: '2.5rem', textAlign: 'center', marginBottom: '2rem',
-            border: '1px solid var(--surface-container-highest)',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: '2rem', color: 'var(--color-accent)', marginBottom: '0.75rem', display: 'block' }} aria-hidden="true">download</span>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Ready to take the next step?</h3>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Apply with no application fee — every member gets a career advisor, resume support, interview prep, and employer introductions. No cost to members, no obligation.
+              Apply with no application fee — every member gets a career advisor, resume support, interview prep, and employer introductions. No cost to members who qualify through scholarship/grant funded membership, no obligation.
             </p>
-            <LocalizedLink href="/apply" className="btn btn-primary">
+            <LocalizedLink href="/apply" className="mdx-btn mdx-btn--primary">
               Apply Now
             </LocalizedLink>
           </div>
@@ -363,14 +358,15 @@ export default function SalaryGuidePage() {
             <h3 className="salary-guide-cta-title">What to do next</h3>
             <p className="salary-guide-cta-desc">Now that you have the numbers, bring in the other factors. Take the quiz to find programs that fit your timeline and experience level, or browse all programs and compare side-by-side. When you are ready — apply.</p>
             <div className="salary-guide-cta-buttons">
-              <LocalizedLink href="/career-quiz" className="btn btn-outline salary-guide-cta-btn">Find Your Path</LocalizedLink>
-              <LocalizedLink href="/programs" className="btn btn-outline salary-guide-cta-btn">Explore Programs</LocalizedLink>
-              <LocalizedLink href="/program-comparison" className="btn btn-outline salary-guide-cta-btn">Compare Programs</LocalizedLink>
-              <LocalizedLink href="/apply" className="btn btn-primary btn-large salary-guide-cta-btn">Apply Now</LocalizedLink>
+              <LocalizedLink href="/career-quiz" className="mdx-btn mdx-btn--ghost salary-guide-cta-btn">Find Your Path</LocalizedLink>
+              <LocalizedLink href="/programs" className="mdx-btn mdx-btn--ghost salary-guide-cta-btn">Explore Programs</LocalizedLink>
+              <LocalizedLink href="/program-comparison" className="mdx-btn mdx-btn--ghost salary-guide-cta-btn">Compare Programs</LocalizedLink>
+              <LocalizedLink href="/apply" className="mdx-btn mdx-btn--primary btn-large salary-guide-cta-btn">Apply Now</LocalizedLink>
             </div>
           </div>
         </section>
 
+    </div>
     </div>
   );
 }

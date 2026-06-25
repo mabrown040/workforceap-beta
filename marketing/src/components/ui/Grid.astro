@@ -1,0 +1,17 @@
+---
+/**
+ * Grid — responsive column grid for cards. Put <Card/>s inside.
+ * Props: cols: 2 | 3 | 4 (default 3). Collapses to 1 column on mobile.
+ */
+interface Props { cols?: 2 | 3 | 4 }
+const { cols = 3 } = Astro.props;
+---
+<div class="ui-grid" data-cols={cols}><slot /></div>
+<style>
+  .ui-grid{display:grid;gap:22px}
+  .ui-grid[data-cols="2"]{grid-template-columns:repeat(2,1fr)}
+  .ui-grid[data-cols="3"]{grid-template-columns:repeat(3,1fr)}
+  .ui-grid[data-cols="4"]{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:880px){.ui-grid[data-cols]{grid-template-columns:1fr}}
+  @media(min-width:881px) and (max-width:1024px){.ui-grid[data-cols="3"],.ui-grid[data-cols="4"]{grid-template-columns:repeat(2,1fr)}}
+</style>

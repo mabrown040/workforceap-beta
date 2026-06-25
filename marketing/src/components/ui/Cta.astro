@@ -1,0 +1,17 @@
+---
+/**
+ * Cta — the crimson closing call-to-action band.
+ * Props: title (required), copy?, primary {href,label}?, secondary {href,label}?
+ */
+interface Link { href: string; label: string }
+interface Props { title: string; copy?: string; primary?: Link; secondary?: Link }
+const { title, copy, primary, secondary } = Astro.props;
+---
+<section class="band"><div class="wrap"><div class="cta">
+  <h2>{title}</h2>
+  {copy && <p>{copy}</p>}
+  <div class="acts">
+    {primary && <a class="btn btn--light" href={primary.href}>{primary.label}</a>}
+    {secondary && <a class="btn btn--translucent" href={secondary.href}>{secondary.label}</a>}
+  </div>
+</div></div></section>

@@ -26,6 +26,7 @@ import { prisma } from '@/lib/db/prisma';
 import { resolveOrgFromRequest } from '@/lib/tenant/resolveOrgFromRequest';
 import '@/css/main.css';
 import '@/css/marketing.css';
+import '@/css/marketing-depth.css';
 import '@/css/language-toggle.css';
 import '@/css/marketing-a11y.css';
 import DeferredRootChrome from '@/components/DeferredRootChrome';

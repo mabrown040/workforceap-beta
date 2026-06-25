@@ -1,0 +1,47 @@
+/* ============================================================
+   marketing-depth.css — depth design atoms for the Next pages that
+   STAY Next (/apply, /program-comparison, /salary-guide, kept child
+   routes), so they match the Astro depth marketing front. Prefixed
+   .mdx-* to avoid clashing with the legacy main.css class names.
+   ============================================================ */
+.mdx{
+  --mdx-crimson:#ad2c4d; --mdx-accent-dark:#8c0f37; --mdx-plum:#6d1437;
+  --mdx-gold:#a47f38; --mdx-gold-dark:#7d5f26;
+  --mdx-bg:#f7f4f1; --mdx-surface:#fff; --mdx-text:#1a1414; --mdx-muted:#6e6a66; --mdx-border:#ece5e0;
+  --mdx-grad:linear-gradient(135deg,#ad2c4d 0%,#8c0f37 52%,#6d1437 100%);
+  --mdx-grad-text:linear-gradient(100deg,#ad2c4d,#a47f38);
+}
+
+/* depth stage hero (compact, for inner Next pages) */
+.mdx-stage{position:relative;background:var(--mdx-grad);border-radius:24px;overflow:hidden;color:#fff;
+  padding:48px 32px;margin:8px 0 28px;box-shadow:0 24px 70px -24px rgba(109,20,55,.3)}
+.mdx-stage::after{content:"";position:absolute;inset:0;
+  background:url('/images/hero-people.webp') center/cover;opacity:.12;mix-blend-mode:luminosity}
+.mdx-stage > *{position:relative}
+.mdx-pill{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-weight:800;font-size:12px;
+  letter-spacing:.02em;padding:8px 16px;border-radius:999px;background:linear-gradient(135deg,#cda44e,#9a7733);color:#fff}
+.mdx-pill::before{content:"★";font-size:11px;opacity:.95}
+.mdx-stage h1,.mdx-stage h2{font-family:'Plus Jakarta Sans','Inter',system-ui,sans-serif;font-weight:800;
+  letter-spacing:-.02em;line-height:1.08;font-size:clamp(30px,4.4vw,52px);margin:16px 0 12px}
+.mdx-stage p{color:rgba(255,255,255,.9);font-size:18px;max-width:40em}
+.mdx-stage .mdx-grad-accent{background:linear-gradient(100deg,#fff,#f2cf86);-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent}
+
+/* buttons */
+.mdx-btn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:16px;padding:15px 28px;
+  border-radius:14px;border:1px solid transparent;cursor:pointer;text-decoration:none;line-height:1;
+  transition:transform .15s,box-shadow .2s,background .2s}
+.mdx-btn:hover{transform:translateY(-2px)}
+.mdx-btn--solid{background:linear-gradient(135deg,#fff,#fbeede);color:var(--mdx-accent-dark);box-shadow:0 12px 30px -10px rgba(0,0,0,.4)}
+.mdx-btn--glass{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.34);backdrop-filter:blur(8px)}
+.mdx-btn--primary{background:var(--mdx-grad);color:#fff;box-shadow:0 12px 32px -10px rgba(173,44,77,.55)}
+.mdx-btn--ghost{background:var(--mdx-surface);border-color:var(--mdx-border);color:var(--mdx-text)}
+.mdx-btn--ghost:hover{border-color:var(--mdx-crimson);color:var(--mdx-crimson)}
+
+/* surface cards + sections */
+.mdx-card{background:var(--mdx-surface);border:1px solid var(--mdx-border);border-radius:18px;padding:24px;
+  box-shadow:0 1px 2px rgba(28,20,20,.04),0 12px 40px -12px rgba(109,20,55,.12);transition:transform .2s,box-shadow .25s}
+.mdx-card:hover{transform:translateY(-3px);box-shadow:0 24px 70px -24px rgba(109,20,55,.28)}
+.mdx-eyebrow{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--mdx-crimson);background:rgba(173,44,77,.08);border:1px solid rgba(173,44,77,.18);padding:7px 14px;border-radius:999px}
+.mdx-section{padding:clamp(40px,6vw,72px) 0}

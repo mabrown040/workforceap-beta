@@ -1,0 +1,278 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Public impact — WorkforceAP"
+  description="WorkforceAP impact reporting—verified metrics publish here as member and employer activity is recorded."
+>
+<div class="impact-depth">
+
+  <!-- ============================================================
+       HERO — SHORTER DEPTH STAGE: crimson→plum depth band with
+       glow auras, luminosity-masked photo, gold pill, white text,
+       and a translucent glass "members served" metric card.
+       ============================================================ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-grid">
+      <div class="lede">
+        <span class="pill"><span class="pill__dot"></span>Impact reporting</span>
+        <h1>Measured progress,<br><span class="shimmer">published carefully</span></h1>
+        <p class="sub">Metrics appear here once there is enough verified data to share publicly—figures stay blank until then.</p>
+      </div>
+
+      <!-- translucent glass: members served metric -->
+      <div class="glass-metric">
+        <p class="hm-v empty" aria-label="Not published yet">—</p>
+        <p class="hm-lbl">Member metrics not published yet</p>
+        <p class="hm-desc">Member counts and cohort rates publish here as verified member and employer activity is recorded—not before.</p>
+        <a class="dbtn dbtn--glass" href="/employers">Become a hiring partner <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- COHORT METRICS -->
+  <section class="band band--surface" aria-label="Cohort metrics we publish when verified"><div class="wrap">
+    <div class="preview-panel">
+      <p class="preview-heading">Cohort metrics we publish when verified</p>
+      <div class="facts stat-grid">
+        <div class="stat-card">
+          <p class="sv empty" aria-hidden="true">—</p>
+          <div class="sl">Completion rate (enrolled cohort)<span class="footnote">Published once enrolled program cohorts have recorded activity.</span></div>
+          <span class="pill-flag">Not published yet</span>
+        </div>
+        <div class="stat-card">
+          <p class="sv empty" aria-hidden="true">—</p>
+          <div class="sl">Placement rate (enrolled cohort)<span class="footnote">Published once enrolled program cohorts have recorded activity.</span></div>
+          <span class="pill-flag">Not published yet</span>
+        </div>
+        <div class="stat-card">
+          <p class="sv empty" aria-hidden="true">—</p>
+          <div class="sl">Avg. salary increase<span class="footnote">Reported after placement follow-ups; insufficient paired data to show an average yet.</span></div>
+          <span class="pill-flag">Not published yet</span>
+        </div>
+      </div>
+      <p class="methodology">Dash (—) means a metric is not published yet. Rates use enrolled program cohorts; salary averages use paired offer and follow-up wages where both are on file.</p>
+    </div>
+  </div></section>
+
+  <!-- PROGRAMS -->
+  <section class="band band--bg" aria-label="Programs"><div class="wrap">
+    <div class="sec-head impact-head">
+      <span class="kick kick--crimson">Per program</span>
+      <h2>Programs</h2>
+      <p>Per-program breakdowns publish here once enrolled cohorts have recorded activity.</p>
+    </div>
+    <div class="ptable-wrap">
+      <table class="ptable">
+        <thead>
+          <tr>
+            <th scope="col">Program</th>
+            <th scope="col" class="num">Enrolled</th>
+            <th scope="col" class="num">Completed</th>
+            <th scope="col" class="num hide-sm">Avg. time to complete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="4" class="empty-row">
+              <strong>Program cohorts not recorded yet</strong>
+              <span>No enrolled program cohorts recorded yet.</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div></section>
+
+  <!-- EMPLOYERS -->
+  <section class="band band--surface" aria-label="Employers"><div class="wrap">
+    <div class="sec-head impact-head">
+      <span class="kick kick--blue">Hiring partners</span>
+      <h2>Employers</h2>
+      <p>Employer counts and pipeline activity publish here once records are on file.</p>
+    </div>
+    <div class="info-card">
+      <h3>Employer metrics not published yet</h3>
+      <p>Partnership counts, job posts, and placement records appear here once active employer activity is on file.</p>
+    </div>
+    <p class="methodology methodology--left">Counts reflect registered employer accounts on file—not verified hiring outcomes unless noted.</p>
+    <a class="section-link" href="/employers">Become a hiring partner <span aria-hidden="true">→</span></a>
+  </div></section>
+
+  <!-- MEMBER STORIES -->
+  <section class="band band--bg" aria-label="Member stories"><div class="wrap">
+    <div class="sec-head impact-head">
+      <span class="kick kick--gold">Voices</span>
+      <h2>Member stories</h2>
+      <p>Consented member stories appear only after staff review.</p>
+    </div>
+    <div class="info-card">
+      <h3>No member stories published yet</h3>
+      <p>WorkforceAP shows member stories only after consent and staff review.</p>
+    </div>
+  </div></section>
+
+  <!-- FUNDERS — closing crimson depth CTA -->
+  <section class="close" aria-label="Funders">
+    <div class="close__media" aria-hidden="true"></div>
+    <div class="close__veil" aria-hidden="true"></div>
+    <div class="close__inner wrap narrow">
+      <div class="sec-head impact-head impact-head--center">
+        <h2>Funders</h2>
+      </div>
+      <div class="funder-card">
+        <span class="funder-eyebrow">Nonprofit model</span>
+        <h3>Grant-funded access</h3>
+        <p>WorkforceAP is a 501(c)(3) nonprofit. Funded by grants and partners, no-cost for members who qualify through scholarship/grant funded membership.</p>
+        <div class="funder-actions">
+          <a class="dbtn dbtn--glass" href="/outcomes">Placement outcomes detail</a>
+          <a class="dbtn dbtn--solid" href="/apply">Apply</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     IMPACT — DEPTH aesthetic, light theme. Shorter crimson depth stage
+     hero + glass metric → alternating light bands with elevated cards →
+     closing crimson depth CTA. Truth-lock: every "—" and "Not published
+     yet" string preserved verbatim.
+     =================================================================== */
+  .impact-depth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- SHORTER DEPTH HERO STAGE ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 130% at 82% -20%, #b8334f 0%, var(--accent-dark) 44%, var(--plum) 76%, #4a0e26 100%);
+    color:#fff;padding:74px 0 86px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:54px;align-items:center;position:relative;z-index:2}
+
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:480px;height:480px;top:-160px;right:-110px;background:radial-gradient(circle,rgba(196,154,72,.5),transparent 68%)}
+  .aura--2{width:420px;height:420px;bottom:-200px;left:-130px;background:radial-gradient(circle,rgba(173,44,77,.58),transparent 70%)}
+  .aura--3{width:340px;height:340px;top:24%;left:44%;background:radial-gradient(circle,rgba(255,255,255,.15),transparent 70%)}
+
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 40%,#000 100%);opacity:.18}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:8px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__dot{width:7px;height:7px;border-radius:50%;background:#3a2c10}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(36px,5vw,60px);
+    line-height:1.04;letter-spacing:-.03em;margin:20px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.82);max-width:32em;margin:20px 0 0}
+
+  /* translucent glass metric card in hero */
+  .glass-metric{position:relative;z-index:2;border-radius:22px;padding:34px 30px;text-align:center;color:#fff;
+    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset}
+  .hm-v{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(48px,8vw,72px);line-height:1}
+  .hm-v.empty{color:rgba(255,255,255,.34)}
+  .hm-lbl{font-weight:700;font-size:17px;margin-top:14px}
+  .hm-desc{color:rgba(255,255,255,.78);font-size:15px;margin-top:8px;max-width:30em;margin-left:auto;margin-right:auto}
+  .glass-metric .dbtn{margin-top:20px}
+
+  /* ---------------- LIGHT BANDS ---------------- */
+  .band{padding:var(--sec-pad) 0}
+  .band--bg{background:var(--bg)}
+  .band--surface{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+
+  .sec-head{margin:0 0 36px;max-width:none}
+  .kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
+  .kick--crimson{color:var(--crimson)}
+  .kick--blue{color:var(--blue)}
+  .kick--gold{color:var(--gold-dark)}
+  .impact-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(30px,4.4vw,52px);line-height:1;letter-spacing:-.02em;margin:0 0 12px}
+  .impact-head p{font-size:18px;color:var(--muted);line-height:1.55;max-width:46em}
+  .impact-head--center{text-align:center}
+  .impact-head--center p{margin:0 auto}
+
+  /* cohort preview */
+  .preview-panel{max-width:980px;margin:0 auto}
+  .preview-heading{text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(22px,3vw,32px);letter-spacing:-.01em;margin-bottom:36px}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch}
+  .stat-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 26px;box-shadow:var(--shadow);text-align:center;display:flex;flex-direction:column;align-items:center;border-top:6px solid var(--gold);transition:transform .2s,box-shadow .25s}
+  .band--surface .stat-card{background:var(--surface-2)}
+  .stat-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .stat-card .sv{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(34px,4.5vw,48px);line-height:1;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat-card .sv.empty{color:var(--border);-webkit-text-fill-color:var(--border);background:none}
+  .stat-card .sl{font-weight:700;font-size:15px;margin-top:14px}
+  .stat-card .footnote{display:block;font-weight:400;font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .pill-flag{margin-top:16px;font-size:12px;font-weight:700;letter-spacing:.02em;padding:6px 13px;border-radius:999px;background:rgba(164,127,56,.14);color:var(--gold-dark)}
+
+  .methodology{max-width:780px;margin:30px auto 0;text-align:center;color:var(--muted);font-size:14px;line-height:1.6;
+    background:var(--surface-2);border:1px dashed var(--border);border-radius:14px;padding:16px 20px}
+  .methodology--left{text-align:left;margin-left:0;margin-right:0}
+
+  /* programs table */
+  .ptable-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .ptable{width:100%;border-collapse:collapse;font-size:15px}
+  .ptable thead th{text-align:left;padding:16px 22px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface-2);border-bottom:1px solid var(--border)}
+  .ptable th.num{text-align:right}
+  .ptable .empty-row{padding:44px 22px;text-align:center;color:var(--muted)}
+  .ptable .empty-row strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+  .ptable .empty-row span{font-size:14px}
+  @media(max-width:640px){.ptable .hide-sm{display:none}}
+
+  /* info cards */
+  .info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);border-left:5px solid var(--crimson)}
+  .band--bg .info-card{border-left-color:var(--gold)}
+  .info-card h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px}
+  .info-card p{color:var(--muted);font-size:15px;max-width:50em;line-height:1.55}
+
+  .section-link{display:inline-flex;align-items:center;gap:7px;margin-top:18px;font-weight:800;color:var(--crimson)}
+  .section-link span{transition:transform .2s}
+  .section-link:hover{color:var(--accent-dark)}
+  .section-link:hover span{transform:translateX(4px)}
+
+  /* ---------------- CLOSING CRIMSON DEPTH CTA ---------------- */
+  .close{
+    position:relative;overflow:hidden;
+    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;
+  }
+  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.93) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;padding:84px 24px 92px}
+  .close .impact-head h2{color:#fff;text-shadow:0 2px 40px rgba(45,8,22,.5)}
+  .narrow{max-width:760px}
+
+  .funder-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);border-radius:var(--radius);
+    padding:42px 36px;backdrop-filter:blur(16px);box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.18) inset;
+    text-align:center;color:#fff}
+  .funder-eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    color:#f3d28f;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.24);padding:7px 15px;border-radius:999px;margin-bottom:18px}
+  .funder-card h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(24px,3vw,34px);font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+  .funder-card p{color:rgba(255,255,255,.9);font-size:17px;max-width:36em;margin:0 auto 26px;line-height:1.55}
+  .funder-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:60px 0 72px}
+    .stage-grid{grid-template-columns:1fr;gap:44px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+    .stat-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    .funder-actions .dbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>

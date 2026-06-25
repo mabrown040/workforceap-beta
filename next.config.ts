@@ -190,8 +190,7 @@ const nextConfig: NextConfig = {
       },
 
       // Public marketing route aliases restored after responsive merge
-      { source: '/about', destination: '/en/about', permanent: true },
-      { source: '/about/', destination: '/en/about', permanent: true },
+      // (/about now served by the Astro marketing site at root — no locale redirect)
       { source: '/services', destination: '/what-we-do', permanent: true },
       { source: '/services/', destination: '/what-we-do', permanent: true },
       { source: '/confirmation', destination: '/apply/confirmation', permanent: false },
@@ -206,8 +205,6 @@ const nextConfig: NextConfig = {
       { source: '/salary-guide.html', destination: '/salary-guide', permanent: true },
       { source: '/program-comparison.html', destination: '/program-comparison', permanent: true },
 
-      { source: '/find-your-path', destination: '/career-quiz', permanent: true },
-      { source: '/:locale(en|es|fr|pt)/find-your-path', destination: '/:locale/career-quiz', permanent: true },
 
       // Programs quiz redirect (fix for broken internal link)
       { source: '/programs/quiz', destination: '/career-quiz', permanent: true },

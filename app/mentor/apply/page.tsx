@@ -12,5 +12,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function MentorApplyPage() {
-  return <MentorApplyForm />;
+  return (
+    <div className="mdx">
+      <section className="mdx-stage">
+        <span className="mdx-pill">Become a Mentor</span>
+        <h1>
+          Mentor with <span className="mdx-grad-accent">WorkforceAP</span>
+        </h1>
+        <p>
+          Help members build careers in technology, healthcare, manufacturing, and more.
+        </p>
+      </section>
+      <MentorApplyForm />
+    </div>
+  );
 }

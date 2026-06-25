@@ -1,0 +1,68 @@
+---
+import { useT } from '../i18n/t';
+import Icon from './Icon.astro';
+interface Props { lang?: string }
+const { lang = 'en' } = Astro.props;
+const t = useT(lang);
+const p = lang === 'en' ? '' : `/${lang}`; // locale-prefixed internal links
+---
+<!-- HERO -->
+<section class="hero"><div class="wrap grid">
+  <div>
+    <span class="eyebrow"><span class="dot"></span>{t('marketing.home.programsEyebrow')} · 501(c)(3)</span>
+    <h1>{t('marketing.home.heroTagline')}<br><span class="grad-text">{t('marketing.home.heroTaglineAccent')}</span></h1>
+    <p class="sub">{t('marketing.home.memberPromiseTitle')} — {t('marketing.home.trustYears')}.</p>
+    <div class="cta">
+      <a class="btn btn--primary" href={`${p}/apply`}>{t('marketing.home.ctaApply')} →</a>
+      <a class="btn btn--ghost" href={`${p}/how-it-works`}>{t('cta.learnMore') || 'See how it works'}</a>
+    </div>
+    <div class="trustline">
+      <span><b>25+</b> {t('nav.aboutUs')}</span><span class="sep"></span>
+      <span><b>$0</b> {t('marketing.home.memberPromiseTitleAccent')}</span>
+    </div>
+  </div>
+  <div style="position:relative">
+    <div class="panel">
+      <div class="floatbadge">{t('marketing.home.credBarLabel')}</div>
+      <div class="phead">
+        <div><small>{t('marketing.home.journeyTitle')}</small><div class="big">{t('marketing.home.heroTagline')}</div></div>
+        <div class="ring">
+          <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="88" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="step"><div class="n">1</div><div class="t"><b>{t('marketing.home.heroStep1')}</b></div><span class="pill">~5 min</span></div>
+      <div class="step"><div class="n">2</div><div class="t"><b>{t('marketing.home.programsTitle')}</b></div></div>
+      <div class="step active"><div class="n">3</div><div class="t"><b>{t('marketing.home.credBarLabel')}</b><span>IBM · Google · Microsoft · AWS · CompTIA</span></div></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- CERT PARTNERS -->
+<div class="creds"><div class="wrap" style="display:block">
+  <div class="row" style="display:flex"><div class="lab">{t('marketing.home.credBarLabel')}</div>
+    <span class="logo">IBM</span><span class="logo">Google</span><span class="logo">Microsoft</span><span class="logo">AWS</span><span class="logo">CompTIA</span><span class="extra">+ CPT &amp; CLT</span>
+  </div>
+</div></div>
+
+<!-- PROGRAMS / NETWORK headings (real translated keys) -->
+<section class="band band--surface"><div class="wrap">
+  <div class="sec-head">
+    <span class="eyebrow">{t('marketing.home.programsEyebrow')}</span>
+    <h2>{t('marketing.home.programsTitle')}</h2>
+  </div>
+  <div class="tri">
+    <div class="acard"><div class="ic ic--c"><Icon name="users" /></div><h3>{t('nav.programs')}</h3><p>{t('marketing.home.memberPromiseTitle')}</p><a href={`${p}/programs`}>{t('nav.programs')} →</a></div>
+    <div class="acard"><div class="ic ic--b"><Icon name="building" /></div><h3>{t('nav.employers')}</h3><p>{t('marketing.home.networkTitle')}</p><a href={`${p}/employers`}>{t('nav.employers')} →</a></div>
+    <div class="acard"><div class="ic ic--gr"><Icon name="building" /></div><h3>{t('nav.partners')}</h3><p>{t('marketing.home.networkTitle')}</p><a href={`${p}/partners`}>{t('nav.partners')} →</a></div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="band"><div class="wrap"><div class="cta">
+  <h2>{t('marketing.home.ctaTitle')}</h2>
+  <p>{t('marketing.home.ctaCopy')}</p>
+  <div class="acts">
+    <a class="btn btn--light" href={`${p}/apply`}>{t('marketing.home.ctaApply')}</a>
+    <a class="btn btn--translucent" href={`${p}/find-your-path`}>{t('marketing.home.ctaFind')}</a>
+  </div>
+</div></div></section>

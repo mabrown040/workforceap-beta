@@ -42,3 +42,39 @@ node_modules
 
 # audit-sweep dev scripts (never commit)
 patch_batch*.py
+
+# Astro marketing (Phase 1 merge)
+marketing/node_modules/
+marketing/dist/
+marketing/.astro/
+marketing/.vercel/
+
+# Astro marketing generated output (built into public/ by vercel buildCommand)
+/public/index.html
+/public/_astro/
+/public/es/
+/public/fr/
+/public/pt/
+/public/about/
+/public/what-we-do/
+/public/how-it-works/
+/public/faq/
+/public/contact/
+/public/impact/
+/public/outcomes/
+/public/donate/
+/public/privacy/
+/public/terms/
+/public/accessibility/
+/public/programs/
+/public/blog/
+/public/leadership/
+/public/employers/
+/public/partners/
+/public/careers/
+/public/mentor/
+/public/find-your-path/
+/public/career-quiz/
+/public/interest-profiler/
+/public/apply/
+/public/m/

@@ -1347,7 +1347,7 @@
       "memberCardCount": "20 high demand occupational and professional certificates",
       "readyToApply": "Ready to apply? Start your application →",
       "networkTitle": "A Network Built for Success",
-      "heroBody1": "Workforce Advancement Project (WorkforceAP) is a 501(c)(3) nonprofit that equips individuals, nonprofits, counselors, and community advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance to help secure meaningful employment, build lasting careers, and a better life no cost to the member who qualify through scholarship/grant funded membership.",
+      "heroBody1": "Workforce Advancement Project (WorkforceAP) is a 501(c)(3) nonprofit that equips individuals, nonprofits, counselors, and community advisors with workforce readiness tools, occupational training and professional certificates, and AI-powered resume, interview, and job placement assistance to help secure meaningful employment, build lasting careers, and a better life no cost to the member.",
       "heroBody2": "Start with Find Your Path, see programs that fit, and get advisor guidance, resume help, and job-search support.",
       "heroStep1": "Start your application (about 5 minutes)",
       "heroStep2": "See programs that match your goals",
@@ -1937,7 +1937,10 @@
       "byProgram": "By program (where recorded)",
       "byFunding": "By funding source (where recorded)",
       "byRetention": "Retention status (where recorded)",
-      "unspecified": "Unspecified"
+      "unspecified": "Unspecified",
+      "ctaTitle": "Ready to start your own pathway?",
+      "ctaCopy": "Apply in about 5 minutes — no cost for members who qualify through scholarship/grant funded membership. A real team reviews it and follows up in 1 to 2 business days.",
+      "ctaApply": "Start your application"
     },
     "impact": {
       "title": "Our Impact",
@@ -2142,7 +2145,11 @@
       "title": "About WorkforceAP",
       "description": "WorkforceAP has spent 25+ years bridging the gap between education and industry, connecting skilled individuals with meaningful employment opportunities.",
       "heading": "About WorkforceAP",
-      "subheading": "Advancing careers through employer-aligned training and career support."
+      "subheading": "Advancing careers through employer-aligned training and career support.",
+      "ctaTitle": "Your next step starts with one application.",
+      "ctaCopy": "Apply in about 5 minutes — no cost for members who qualify through scholarship/grant funded membership. A real team reviews it and follows up in 1 to 2 business days.",
+      "ctaApply": "Start your application",
+      "ctaFind": "Find Your Path"
     }
   },
   "findYourPath": {

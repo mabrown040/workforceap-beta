@@ -1,0 +1,493 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+
+// Illustrative role examples — NOT verified testimonials or placement guarantees.
+// Mirrors EMPLOYER_CASE_STUDIES in the Next source (lib/content/employer-case-studies.ts).
+const caseStudies = [
+  {
+    company: 'Example: IT services partner',
+    industry: 'IT Services',
+    location: 'Central Texas',
+    role_filled: 'Helpdesk + junior network support',
+    quote:
+      'WorkforceAP members complete structured training in IT support, hardware, operating systems, and networking before interview introductions. Typical roles include helpdesk technician, junior network support, and technical support specialist.',
+  },
+  {
+    company: 'Example: Operations hiring partner',
+    industry: 'Logistics',
+    location: 'Texas',
+    role_filled: 'Dispatch + operations coordinator',
+    quote:
+      'Members are screened for scheduling fit, communication skills, and readiness before introduction. Typical roles include dispatch coordinator, inventory clerk, and operations support.',
+  },
+  {
+    company: 'Example: Healthcare support partner',
+    industry: 'Healthcare',
+    location: 'Texas',
+    role_filled: 'IT support + patient coordination',
+    quote:
+      'Health Information Technology and IT Support pathways prepare members for administrative healthcare IT roles and patient coordination positions. Members complete HIPAA-aware training and medical coding fundamentals.',
+  },
+];
+
+// Legacy contingent placement fee display (NEXT_PUBLIC_EMPLOYER_PLACEMENT_FEE fallback).
+const placementFee = '2,500';
+---
+<Layout
+  title="Employer Pipeline Subscription"
+  description="Subscribe to a pipeline of training-aligned WorkforceAP members. $499/mo Growth tier. No per-placement fees. Cancel anytime."
+>
+<div class="empx">
+
+  <!-- ============================================================
+       HERO — DEPTH STAGE: deep radial crimson→plum band, glow auras,
+       luminosity-masked photo, gold pill, translucent glass pipeline card.
+       ============================================================ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-grid">
+      <div class="lede">
+        <span class="pill"><span class="pill__star"><Icon name="star" size={14} /></span>Employer hiring partners</span>
+        <h1>Build your talent pipeline<br><span class="shimmer">with a monthly subscription</span></h1>
+        <p class="sub">Subscribe to a pipeline of training-aligned candidates. No per-placement fees. Cancel anytime. Roles in IT support, operations, and healthcare pathways.</p>
+        <div class="acts">
+          <a class="dbtn dbtn--solid" href="/employers/signup">Start Pipeline Subscription — $499/mo <span>→</span></a>
+          <a class="dbtn dbtn--glass" href="#employer-intake">Talk with us about pipeline hiring</a>
+        </div>
+        <div class="proof">
+          <div class="proof-i"><b>$499/mo</b><span>Growth tier</span></div>
+          <div class="proof-i"><b>No fees</b><span>per-placement fees</span></div>
+          <div class="proof-i"><b>Cancel</b><span>anytime</span></div>
+        </div>
+      </div>
+
+      <!-- translucent glass pipeline card -->
+      <div class="deck">
+        <div class="gcard">
+          <div class="floatbadge"><Icon name="star" size={11} />Training-aligned candidates</div>
+          <div class="phead">
+            <div><small>Your pipeline</small><div class="big">From roles to hires</div></div>
+            <div class="ring">
+              <svg viewBox="0 0 100 100" style="transform:rotate(-90deg)"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="9"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="88" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+          <div class="gstep"><div class="n">1</div><div class="t"><b>Tell us your roles</b><span>Titles, skills, locations — 20-minute call</span></div><span class="gchip">~20 min</span></div>
+          <div class="gstep"><div class="n">2</div><div class="t"><b>We train &amp; match</b><span>Structured training &amp; readiness review</span></div></div>
+          <div class="gstep gstep--active"><div class="n">3</div><div class="t"><b>You interview &amp; hire</b><span>Offers on your timeline, onboarding support</span></div><span class="gchip">Goal</span></div>
+          <p class="gnote">Hire and wage figures come from placement records on file — not projections or targets.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST STRIP (placeholder / model-overview state — no live verified data published) -->
+  <section class="band band--cream" aria-label="Hiring partner model overview"><div class="wrap">
+    <p class="emp-trust__label">What hiring partners can expect</p>
+    <div class="facts emp-trust__stats">
+      <div class="efact"><div class="k k--sm">Train candidates aligned to your open job roles</div><p>Candidate sourcing</p></div>
+      <div class="efact"><div class="k k--sm">Train candidates ready for hire</div><p>Readiness review</p></div>
+      <div class="efact"><div class="k k--sm">At the Ready employee training benefit program</div><p>Contingent pricing</p></div>
+      <div class="efact"><div class="k k--sm">Introduction of qualified candidates to your team</div><p>Talent introduction</p></div>
+    </div>
+    <p class="emp-trust__asof">Placement metrics update as verified outcomes are confirmed.</p>
+    <p class="emp-trust__impact"><a href="/impact">View published impact metrics</a></p>
+  </div></section>
+
+  <!-- HOW IT WORKS -->
+  <section class="band band--surface"><div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">How it works</span>
+      <h2>How <span class="grad-text">it works</span></h2>
+      <p>Three steps from role requirements to qualified candidate introductions.</p>
+    </div>
+    <div class="steps">
+      <div class="stepcard"><div class="num">01</div><h3>Tell us your roles</h3><p>Share titles, skills, locations, and hiring needs on a 20-minute call or via intake. No job-board fees to get started.</p></div>
+      <div class="stepcard"><div class="num">02</div><h3>We train + match</h3><p>WorkforceAP prepares candidates through structured training, certifications where applicable, and readiness review aligned to your requirements.</p></div>
+      <div class="stepcard"><div class="num">03</div><h3>You interview &amp; hire</h3><p>You run interviews and make offers on your timeline. We support onboarding so hires stick.</p></div>
+    </div>
+  </div></section>
+
+  <!-- OUTCOMES / ROLES WE SUPPORT (illustrative role examples) -->
+  <section class="band band--cream"><div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Roles we support</span>
+      <h2>Roles <span class="grad-text">we support</span></h2>
+      <p>Examples of roles where WorkforceAP can help screen for training fit, readiness, and support needs.</p>
+    </div>
+    <div class="emp-outcomes">
+      {caseStudies.map((study, i) => (
+        <article class={`emp-card${i === 0 ? ' emp-card--accent' : ''}`} aria-label={`Example scenario: ${study.company}`}>
+          <header class="emp-card__head">
+            <span class="emp-card__scenario">Example scenario</span>
+            <span class="emp-card__label">{study.company} · {study.industry}</span>
+            <span class="emp-card__meta">{study.location}</span>
+          </header>
+          <p class="emp-card__role">{study.role_filled}</p>
+          <p class="emp-card__quote">{study.quote}</p>
+        </article>
+      ))}
+    </div>
+    <p class="emp-outcomes__disclaimer">Illustrative role examples only—not verified employer testimonials or placement guarantees. Verified partner stories publish here after consent and review.</p>
+  </div></section>
+
+  <!-- PRICING -->
+  <section class="band band--surface"><div class="wrap">
+    <div class="emp-pricing">
+      <div class="emp-pricing__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M14.5 9.5a2.5 2.5 0 0 0-2.5-1.5c-1.4 0-2.5.8-2.5 2s1.1 1.7 2.5 2 2.5.9 2.5 2-1.1 2-2.5 2a2.5 2.5 0 0 1-2.5-1.5"/>
+          <path d="M12 6.5V8M12 16v1.5"/>
+        </svg>
+      </div>
+      <h2 class="emp-pricing__title">Pipeline subscription</h2>
+      <p class="emp-pricing__lead">One flat monthly fee. Unlimited candidate introductions. No per-placement charges.</p>
+      <ul class="emp-pricing__list">
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>
+          Growth tier: $499/mo — up to 5 active role pipelines with featured listings and analytics.
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>
+          Enterprise tier: $999/mo — unlimited pipelines, priority matching, and dedicated support.
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>
+          Cancel anytime. Upgrade or downgrade as your hiring needs change.
+        </li>
+      </ul>
+      <div class="emp-pricing__partner">
+        <p class="emp-pricing__partner-eyebrow">Legacy option</p>
+        <h3 class="emp-pricing__partner-title">Contingent placement fee</h3>
+        <p class="emp-pricing__partner-copy">For existing partners only: contingent placement fee structure at {placementFee} per verified hire. No new contingent agreements being signed. All new employer relationships start on pipeline subscription.</p>
+        <ul class="emp-pricing__partner-list">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            Available only to employers with an existing placement agreement on file.
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            Contact sales to discuss transitioning to pipeline subscription.
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            Replacement support terms apply per existing agreement.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- FAQ -->
+  <section class="band band--cream"><div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Employer FAQ</span>
+      <h2>Employer <span class="grad-text">FAQ</span></h2>
+    </div>
+    <div class="emp-faq">
+      <details><summary>How long does onboarding take?<span class="chev"><Icon name="chevron-down" size={18} /></span></summary><p>Most hiring partners complete onboarding in one 20-minute call plus a short intake. Candidate timing depends on role requirements, available training pathways, and member readiness.</p></details>
+      <details><summary>How are candidates vetted?<span class="chev"><Icon name="chevron-down" size={18} /></span></summary><p>Members complete structured training, industry certifications where applicable, advisor check-ins, and readiness review before we introduce them to your roles.</p></details>
+      <details><summary>What happens if a hire does not work out?<span class="chev"><Icon name="chevron-down" size={18} /></span></summary><p>If a placed hire does not pass your agreed probation window, we review the role fit and next candidate options with you under the terms in your hiring partner agreement.</p></details>
+      <details><summary>What are the payment terms?<span class="chev"><Icon name="chevron-down" size={18} /></span></summary><p>Pipeline subscription is billed monthly via Stripe. Growth tier is $499/mo for up to 5 active role pipelines. Enterprise tier is $999/mo for unlimited pipelines. No per-placement fees. Cancel anytime.</p></details>
+      <details><summary>Do you require exclusivity?<span class="chev"><Icon name="chevron-down" size={18} /></span></summary><p>No. You can keep using your existing ATS and agencies. We ask for clear role definitions and timely feedback on candidates we send.</p></details>
+      <details><summary>What geographic areas do you cover?<span class="chev"><Icon name="chevron-down" size={18} /></span></summary><p>We partner with employers nationwide, with strongest density in Texas and remote-friendly roles. Share your locations on the intro call and we will confirm fit.</p></details>
+    </div>
+  </div></section>
+
+  <!-- FINAL CTA — closing crimson depth band -->
+  <section class="close" aria-label="Schedule a hiring partner call">
+    <div class="close__media" aria-hidden="true"></div>
+    <div class="close__veil" aria-hidden="true"></div>
+    <div class="close__inner wrap">
+      <h2>Ready to build your talent pipeline?</h2>
+      <p>Start a pipeline subscription today. $499/mo Growth tier. No per-placement fees. Cancel anytime.</p>
+      <div class="acts acts--center">
+        <a class="bbtn bbtn--gold" href="/employers/signup">Start Pipeline Subscription — $499/mo</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMPLOYER INTAKE (static visual representation of the real form) -->
+  <section id="employer-intake" class="band band--surface" aria-label="Employer intake form"><div class="wrap">
+    <div class="emp-intake">
+      <div class="emp-intake__head">
+        <h2>Prefer email over scheduling?</h2>
+        <p>Submit intake details and we will follow up within 1–2 business days. This form is an email alternative — use the button above to start a pipeline subscription.</p>
+      </div>
+      <div class="emp-form-card">
+        <form class="emp-form" aria-label="Employer intake (visual only)">
+          <div class="emp-form__note">
+            <p class="emp-form__note-title">Employer intake for hiring managers, talent leaders, and program owners.</p>
+            <p class="emp-form__note-copy">Share your hiring intent, role needs, expected volume, and timeline. We review submissions within 1–2 business days and route you to the right partnership path.</p>
+          </div>
+          <div class="form-group">
+            <label for="employer-company">Company name *</label>
+            <input id="employer-company" type="text" name="company" />
+          </div>
+          <div class="form-group">
+            <label for="employer-contact-name">Contact name *</label>
+            <input id="employer-contact-name" type="text" name="contact_name" />
+          </div>
+          <div class="form-group">
+            <label for="employer-role-title">Role / title</label>
+            <input id="employer-role-title" type="text" name="role_title" placeholder="e.g. Director of Talent" />
+          </div>
+          <div class="form-group">
+            <label for="employer-email">Email *</label>
+            <input id="employer-email" type="email" name="email" />
+          </div>
+          <div class="form-group">
+            <label for="employer-phone">Phone</label>
+            <input id="employer-phone" type="tel" name="phone" />
+          </div>
+          <div class="form-group">
+            <label for="employer-open-roles">How many roles do you expect to hire in the next 6 months? *</label>
+            <select id="employer-open-roles" name="open_roles" class="form-control">
+              <option value="">Select…</option>
+              <option value="1">1</option>
+              <option value="2-3">2–3</option>
+              <option value="4-5">4–5</option>
+              <option value="6-10">6–10</option>
+              <option value="10+">10+</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="employer-hiring-timeline">When do you expect to hire? *</label>
+            <select id="employer-hiring-timeline" name="hiring_timeline" class="form-control">
+              <option value="">Select…</option>
+              <option value="immediately">Immediately</option>
+              <option value="30-60_days">30–60 days</option>
+              <option value="60-90_days">60–90 days</option>
+              <option value="3-6_months">3–6 months</option>
+              <option value="planning">Planning ahead</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="employer-interest-use-case">What best describes your hiring use case? *</label>
+            <select id="employer-interest-use-case" name="interest_use_case" class="form-control">
+              <option value="">Select…</option>
+              <option value="direct_hiring">Direct hiring</option>
+              <option value="pipeline_building">Pipeline building</option>
+              <option value="internship_apprenticeship">Internship / apprenticeship</option>
+              <option value="upskilling">Upskilling current staff</option>
+              <option value="partnership">Long-term talent partnership</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="employer-roles-hiring">What roles are you hiring for? *</label>
+            <textarea id="employer-roles-hiring" name="roles_hiring" rows="4" placeholder="Include titles, locations, full-time or contract, must-have skills, and timeline…"></textarea>
+          </div>
+          <button type="button" class="btn btn--primary emp-form__submit">Submit employer intake</button>
+          <p class="emp-form__footnote">We respond within 1–2 business days.</p>
+        </form>
+      </div>
+    </div>
+  </div></section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     EMPLOYERS — DEPTH-LED restyle (matches the new home aesthetic).
+     depth stage hero w/ glass pipeline card → alternating light bands
+     w/ elevated cards → closing crimson depth CTA.
+     =================================================================== */
+  .empx{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:88px 0 104px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;position:relative;z-index:2}
+
+  /* glow auras — gold + crimson + white */
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-160px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:380px;height:380px;top:30%;left:42%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  /* luminosity-masked real photo bleeding in from the right */
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+
+  /* gold PILL — fully visible, never clipped */
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{font-size:11px;opacity:.95}
+  @media(max-width:460px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.4vw,64px);
+    line-height:1.03;letter-spacing:-.03em;margin:22px 0 0}
+  .shimmer{background:linear-gradient(100deg,#fff 10%,#f3d28f 50%,#fff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lede .sub{font-size:20px;line-height:1.55;color:rgba(255,255,255,.82);max-width:34em;margin:22px 0 30px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .acts--center{justify-content:center}
+
+  .proof{display:flex;gap:30px;flex-wrap:wrap;margin-top:38px}
+  .proof-i{display:flex;flex-direction:column;gap:2px}
+  .proof-i b{font-family:'Plus Jakarta Sans';font-weight:800;font-size:24px;letter-spacing:-.02em}
+  .proof-i span{font-size:13px;color:rgba(255,255,255,.7);max-width:13em}
+
+  /* ---------------- GLASS PIPELINE CARD ---------------- */
+  .deck{position:relative}
+  .gcard{position:relative;border-radius:22px;padding:52px 26px 26px;
+    background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff;overflow:hidden}
+  /* gold pill at the top — inside bounds so overflow never clips it */
+  .floatbadge{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:2;display:inline-flex;align-items:center;gap:6px;
+    white-space:nowrap;max-width:calc(100% - 32px);background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;
+    font-weight:800;font-size:12px;letter-spacing:.02em;line-height:1;padding:8px 16px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .phead{position:relative;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .phead small{color:rgba(255,255,255,.78);font-size:13px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  .phead .big{font-family:'Plus Jakarta Sans';font-weight:800;font-size:26px}
+  .ring{width:64px;height:64px;position:relative;flex-shrink:0}
+  .gstep{position:relative;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;
+    background:rgba(255,255,255,.1);margin-bottom:10px;border:1px solid rgba(255,255,255,.16)}
+  .gstep--active{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4)}
+  .gstep .n{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.22);display:grid;place-items:center;font-weight:800;flex-shrink:0}
+  .gstep .t{flex:1}
+  .gstep .t b{display:block;font-weight:700}
+  .gstep .t span{font-size:13px;color:rgba(255,255,255,.8)}
+  .gchip{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.22)}
+  .gnote{position:relative;margin-top:14px;font-size:13px;color:rgba(255,255,255,.82)}
+
+  @media (prefers-reduced-motion: no-preference){
+    .deck{animation:empx-float 8s ease-in-out infinite}
+    @keyframes empx-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  }
+
+  /* ---------------- ALTERNATING LIGHT BANDS ---------------- */
+  .band{padding:var(--sec-pad) 0}
+  .band--cream{background:var(--bg);color:var(--text)}
+  .band--surface{background:var(--surface);color:var(--text)}
+  .empx .band + .band{border-top:1px solid color-mix(in srgb,var(--border) 60%,transparent)}
+
+  /* trust strip */
+  .emp-trust__label{text-align:center;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:24px}
+  .facts.emp-trust__stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;max-width:none}
+  .efact{background:var(--surface);border:1px solid var(--border);border-top:4px solid var(--crimson);border-radius:18px;padding:24px 20px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s}
+  .efact:nth-child(2){border-top-color:var(--blue)}
+  .efact:nth-child(3){border-top-color:var(--gold)}
+  .efact:nth-child(4){border-top-color:var(--green)}
+  .efact:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .emp-trust__stats .k--sm{font-family:'Plus Jakarta Sans';font-weight:800;font-size:clamp(15px,1.5vw,18px);line-height:1.3}
+  .efact p{color:var(--muted);font-size:14px;margin-top:10px;font-weight:700}
+  .emp-trust__asof{text-align:center;color:var(--muted);font-size:13px;margin-top:24px}
+  .emp-trust__impact{text-align:center;margin-top:8px}
+  .emp-trust__impact a{color:var(--crimson);font-weight:700;font-size:14px;text-decoration:none}
+  .emp-trust__impact a:hover{text-decoration:underline}
+
+  /* section head + steps (use global look, scoped) */
+  .sec-head{text-align:center;max-width:640px;margin:0 auto 44px}
+  .sec-head h2{font-family:'Plus Jakarta Sans';font-size:clamp(32px,4.2vw,50px);font-weight:800;line-height:1.04;margin:14px 0}
+  .sec-head p{color:var(--muted);font-size:19px;line-height:1.55}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .stepcard{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow);
+    border-top:6px solid var(--crimson);transition:transform .2s,box-shadow .25s}
+  .stepcard:nth-child(2){border-top-color:var(--blue)}
+  .stepcard:nth-child(3){border-top-color:var(--gold)}
+  .stepcard:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .stepcard .num{width:54px;height:54px;border-radius:15px;background:rgba(173,44,77,.1);color:var(--crimson);display:grid;place-items:center;font-family:'Plus Jakarta Sans';font-weight:800;font-size:21px;margin-bottom:18px}
+  .stepcard:nth-child(2) .num{background:rgba(43,123,185,.12);color:var(--blue)}
+  .stepcard:nth-child(3) .num{background:rgba(164,127,56,.14);color:var(--gold-dark)}
+  .stepcard h3{font-family:'Plus Jakarta Sans';font-size:18px;font-weight:800;margin-bottom:8px}
+  .stepcard p{color:var(--muted);font-size:15px}
+
+  /* outcomes / role-example cards */
+  .emp-outcomes{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .emp-card{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .25s}
+  .emp-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .emp-card--accent{border-color:var(--crimson);background:linear-gradient(180deg,color-mix(in srgb,var(--crimson) 6%,var(--surface)),var(--surface))}
+  .emp-card__head{display:flex;flex-direction:column;gap:6px}
+  .emp-card__scenario{align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--crimson);background:color-mix(in srgb,var(--crimson) 12%,transparent);padding:4px 10px;border-radius:999px}
+  .emp-card__label{font-weight:800;font-size:16px}
+  .emp-card__meta{color:var(--muted);font-size:13px}
+  .emp-card__role{font-weight:700;font-size:15px;color:var(--text)}
+  .emp-card__quote{color:var(--muted);font-size:14px;line-height:1.6;margin:0}
+  .emp-outcomes__disclaimer{margin-top:24px;text-align:center;color:var(--muted);font-size:13px;max-width:760px;margin-left:auto;margin-right:auto;
+    background:var(--surface-2);border:1px dashed var(--border);border-radius:14px;padding:16px 20px}
+
+  /* pricing single card — elevated */
+  .emp-pricing{max-width:680px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-top:6px solid var(--gold);border-radius:var(--radius);padding:44px;box-shadow:var(--shadow-lg);text-align:center}
+  .emp-pricing__icon{width:56px;height:56px;margin:0 auto 18px;color:var(--crimson)}
+  .emp-pricing__icon svg{width:100%;height:100%}
+  .emp-pricing__title{font-family:'Plus Jakarta Sans';font-size:clamp(26px,3vw,34px);font-weight:800;margin-bottom:10px}
+  .emp-pricing__lead{color:var(--muted);font-size:17px;margin-bottom:24px}
+  .emp-pricing__list{list-style:none;display:flex;flex-direction:column;gap:14px;text-align:left;max-width:560px;margin:0 auto}
+  .emp-pricing__list li,.emp-pricing__partner-list li{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.5}
+  .emp-pricing__list svg{width:22px;height:22px;flex-shrink:0;color:var(--crimson);margin-top:1px}
+  .emp-pricing__partner{margin-top:32px;padding-top:28px;border-top:1px solid var(--border);text-align:left}
+  .emp-pricing__partner-eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .emp-pricing__partner-title{font-family:'Plus Jakarta Sans';font-size:20px;font-weight:800;margin:6px 0 10px}
+  .emp-pricing__partner-copy{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:16px}
+  .emp-pricing__partner-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .emp-pricing__partner-list svg{width:18px;height:18px;flex-shrink:0;color:var(--muted);margin-top:2px}
+
+  /* FAQ accordion */
+  .emp-faq{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .emp-faq details{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:0 20px;box-shadow:var(--shadow)}
+  .emp-faq summary{display:flex;align-items:center;justify-content:space-between;gap:14px;list-style:none;cursor:pointer;font-weight:700;font-size:16px;padding:18px 0}
+  .emp-faq summary::-webkit-details-marker{display:none}
+  .emp-faq .chev{color:var(--crimson);transition:transform .2s;display:inline-flex;flex-shrink:0}
+  .emp-faq details[open] summary .chev{transform:rotate(180deg)}
+  .emp-faq p{color:var(--muted);font-size:15px;padding:0 0 20px}
+
+  /* ---------------- CLOSING CRIMSON DEPTH CTA ---------------- */
+  .close{position:relative;overflow:hidden;
+    width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw}
+  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,5vw,58px);line-height:1;letter-spacing:-.03em;margin-bottom:16px}
+  .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:38em;margin:0 auto 30px;line-height:1.5}
+
+  /* intake form */
+  .emp-intake{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:start;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px;box-shadow:var(--shadow-lg)}
+  .emp-intake__head h2{font-family:'Plus Jakarta Sans';font-size:clamp(26px,3vw,34px);font-weight:800;margin-bottom:14px}
+  .emp-intake__head p{color:var(--muted);font-size:16px}
+  .emp-form{display:flex;flex-direction:column;gap:16px}
+  .emp-form__note{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .emp-form__note-title{font-weight:700;font-size:14px;margin-bottom:6px}
+  .emp-form__note-copy{color:var(--muted);font-size:13px;line-height:1.5}
+  .emp-form .form-group{display:flex;flex-direction:column;gap:7px}
+  .emp-form label{font-size:13px;font-weight:700;color:var(--text)}
+  .emp-form input,.emp-form textarea,.emp-form select{font-family:inherit;font-size:15px;font-weight:400;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2);color:var(--text);resize:vertical}
+  .emp-form input:focus,.emp-form textarea:focus,.emp-form select:focus{outline:none;border-color:var(--crimson)}
+  .emp-form__submit{align-self:flex-start;margin-top:4px}
+  .emp-form__footnote{color:var(--muted);font-size:13px}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 80px}
+    .stage-grid{grid-template-columns:1fr;gap:48px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+    .facts.emp-trust__stats{grid-template-columns:1fr 1fr}
+    .steps{grid-template-columns:1fr}
+    .emp-outcomes{grid-template-columns:1fr}
+    .emp-intake{grid-template-columns:1fr;padding:28px}
+    .emp-pricing{padding:28px}
+  }
+  @media(max-width:560px){
+    .facts.emp-trust__stats{grid-template-columns:1fr}
+    .acts .dbtn,.acts .bbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>
+</content>
+</invoke>

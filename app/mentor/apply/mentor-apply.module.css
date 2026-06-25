@@ -1,0 +1,119 @@
+/* Scoped depth styles for the mentor application form.
+   Lives only under app/mentor/apply/. Pairs with the shared .mdx-*
+   atoms in css/marketing-depth.css; only adds form-field specifics
+   the shared atoms don't cover. */
+
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 20px 64px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mdx-crimson, #ad2c4d);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--mdx-accent-dark, #8c0f37);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.4rem;
+  color: var(--mdx-text, #1a1414);
+}
+
+.req {
+  color: var(--mdx-crimson, #ad2c4d);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  border: 1px solid var(--mdx-border, #ece5e0);
+  border-radius: 12px;
+  padding: 0.7rem 0.95rem;
+  font-size: 0.95rem;
+  background: var(--mdx-surface, #fff);
+  color: var(--mdx-text, #1a1414);
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--mdx-crimson, #ad2c4d);
+  box-shadow: 0 0 0 3px rgba(173, 44, 77, 0.14);
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.hours {
+  width: 110px;
+}
+
+.submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.successWrap {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 8px 20px 64px;
+}
+
+.successCard {
+  text-align: center;
+}
+
+.successIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(173, 44, 77, 0.1);
+  color: var(--mdx-crimson, #ad2c4d);
+}
+
+.successCard h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.6rem;
+  color: var(--mdx-text, #1a1414);
+}
+
+.successCard p {
+  color: var(--mdx-muted, #6e6a66);
+  margin-bottom: 1.5rem;
+}

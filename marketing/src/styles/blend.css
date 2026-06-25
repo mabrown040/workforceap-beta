@@ -37,6 +37,10 @@
   .brand{display:flex;align-items:center;gap:11px;font-family:'Plus Jakarta Sans';font-weight:800;font-size:20px}
   .brand .mark{width:38px;height:38px;border-radius:11px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:18px}
   .brand b{color:var(--crimson)}
+  /* real brand lockup (from the original site) */
+  .brand-logo{height:46px;width:auto;display:block}
+  .brand--footer .brand-logo{height:54px}
+  @media(max-width:880px){.brand-logo{height:40px}}
   .navlinks{display:flex;gap:30px}
   .navlinks a{color:var(--muted);font-size:15px;font-weight:600}
   .navlinks a:hover{color:var(--text)}

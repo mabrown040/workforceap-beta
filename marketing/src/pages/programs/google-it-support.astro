@@ -1,0 +1,327 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+
+// ── CTA hrefs — preserved verbatim from the Next route (query params intact) ──
+// app/programs/google-it-support/page.tsx
+//   GOOGLE_IT_PRIMARY_HANDOFF_PROGRAM_SLUG = 'it-support-professional-certificate-ibm'
+//   GOOGLE_IT_LANDING_SLUG = 'google-it-support'
+const HANDOFF_PROGRAM = 'it-support-professional-certificate-ibm';
+const LANDING_SLUG = 'google-it-support';
+const APPLY_HREF = `/apply?source=organic_google_it_support&program=${HANDOFF_PROGRAM}&intent=enroll`;
+const FIT_HREF = `/career-quiz?source=organic_google_it_support&program=${LANDING_SLUG}`;
+const WIOA_HREF = `/wioa-qualification?source=organic_google_it_support&program=${LANDING_SLUG}`;
+
+// ── Copy mirrored verbatim from the Next page COPY.en (no fabrication) ──
+const eyebrow = 'Google IT Support career pathway';
+const title = 'Train for IT support roles without taking on tuition debt.';
+const subtitle =
+  'A public, no-account-needed landing page for adults comparing Google IT Support, help desk, and entry-level technical support training through WorkforceAP.';
+const fitCta = 'Check my career fit';
+const applyCta = 'Start soft application';
+const noAccount =
+  'No account required for the fit check. Create an account only when you are ready to save an application.';
+
+// Honest-outcomes panel — live metrics are suppressed until reliable, so we
+// faithfully render the fallback (no fabricated stats).
+const proofTitle = 'Honest outcomes, shown only when reliable';
+const proofFallback =
+  'Live program metrics are suppressed until WorkforceAP has enough verified enrollment, completion, and placement data for this pathway.';
+const proofMethodology =
+  'Methodology: enrollments can show once live; rates require minimum sample thresholds.';
+
+const wioaTitle = 'Could this be $0 for you?';
+const wioaBody =
+  'Many WorkforceAP members qualify through WIOA or workforce-development funding. Use this quick self-check before you apply; it is not a legal eligibility determination.';
+const wioaBullets = [
+  'You live in Texas or can participate with a partner workforce program.',
+  'You are unemployed, underemployed, low-income, or facing a barrier to work.',
+  'You can spend about 5–10 hours per week on online training and job-readiness support.',
+];
+const wioaCta = 'Check WIOA / $0 fit';
+
+const fitTitle = 'Is IT support a fit?';
+const fitBody =
+  'This pathway is best for people who like solving practical problems, helping users, and building confidence with computers, networks, operating systems, and troubleshooting.';
+const fitCards = [
+  { head: 'Good fit if', body: 'You are patient with people, curious about why devices fail, and willing to document each step.', icon: 'check-circle' },
+  { head: 'May need a bridge if', body: 'You do not yet have reliable device access or basic computer confidence — Digital Literacy can come first.', icon: 'sprout' },
+  { head: 'Next roles', body: 'Help desk technician, desktop support, technical support specialist, junior IT support.', icon: 'briefcase' },
+];
+
+const curriculumTitle = 'What you will build toward';
+const curriculumItems = [
+  'Technical support fundamentals and ticket-handling habits',
+  'Computer hardware, operating systems, and basic networking',
+  'Security basics, escalation, customer communication, and documentation',
+  'Resume, interview, and job-search support before employer introductions',
+];
+
+const handoffTitle = 'A soft handoff, not a hard sell';
+const handoffBody =
+  'Start with the public fit check. If the pathway looks right, the application asks for the details a counselor needs, then hands off to account creation so you can save progress and enroll.';
+
+const finalTitle = 'Want to see if Google IT Support is your path?';
+const finalBody =
+  'Check career fit first, then move into the application only if the pathway makes sense.';
+
+const metaTitle = 'Google IT Support Certificate Training — No-Cost Career Path';
+const metaDescription =
+  'Explore WorkforceAP’s no-cost Google IT Support career pathway, check fit without an account, and start a soft application handoff when you are ready.';
+
+// JSON-LD — preserved from the Next route (truth-locked $0 wording).
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOccupationalProgram',
+  name: 'Google IT Support career pathway',
+  description: metaDescription,
+  provider: {
+    '@type': 'Organization',
+    name: 'Workforce Advancement Project',
+    url: 'https://www.workforceap.org',
+  },
+  educationalProgramMode: 'online',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+    description: 'No cost for qualifying members through WIOA and workforce development funding.',
+  },
+  url: 'https://www.workforceap.org/programs/google-it-support',
+};
+---
+<Layout title={metaTitle} description={metaDescription}>
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+<div class="gitdepth">
+
+  <!-- ══════════════════════════════ HERO — DEPTH STAGE ══════════════════════════════ -->
+  <section class="stage">
+    <div class="aura aura--1"></div>
+    <div class="aura aura--2"></div>
+    <div class="aura aura--3"></div>
+    <div class="grain"></div>
+
+    <div class="wrap stage-grid">
+      <div class="lede">
+        <span class="pill"><span class="pill__star"><Icon name="sparkle" size={11} /></span>{eyebrow}</span>
+        <h1>{title}</h1>
+        <p class="sub">{subtitle}</p>
+        <div class="acts">
+          <a class="dbtn dbtn--solid" href={FIT_HREF}>{fitCta} <span>→</span></a>
+          <a class="dbtn dbtn--glass" href={APPLY_HREF}>{applyCta}</a>
+        </div>
+        <p class="noaccount">{noAccount}</p>
+      </div>
+
+      <!-- glass honest-outcomes card -->
+      <div class="hero-glass">
+        <div class="hg-head">
+          <span class="hg-ic"><Icon name="award" size={18} /></span>
+          <h2>{proofTitle}</h2>
+        </div>
+        <p class="hg-fallback">{proofFallback}</p>
+        <p class="hg-method">{proofMethodology}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════ $0 / WIOA + FIT ══════════════════════════════ -->
+  <section class="band band--surface"><div class="wrap split">
+    <div class="wioa-card">
+      <span class="kick"><Icon name="check-circle" size={13} /> Funding self-check</span>
+      <h2>{wioaTitle}</h2>
+      <p>{wioaBody}</p>
+      <ul class="checklist">
+        {wioaBullets.map((item) => (
+          <li><span class="cmark"><Icon name="check" size={14} /></span><span>{item}</span></li>
+        ))}
+      </ul>
+      <a class="dbtn dbtn--solid" href={WIOA_HREF}>{wioaCta} <span>→</span></a>
+    </div>
+
+    <div class="fit-card">
+      <span class="kick kick--light"><Icon name="target" size={13} /> Self-assessment</span>
+      <h2>{fitTitle}</h2>
+      <p>{fitBody}</p>
+      <div class="fit-grid">
+        {fitCards.map((c) => (
+          <article class="fit-item">
+            <span class="fit-ic"><Icon name={c.icon} size={20} /></span>
+            <h3>{c.head}</h3>
+            <p>{c.body}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div></section>
+
+  <!-- ══════════════════════════════ CURRICULUM + HANDOFF ══════════════════════════════ -->
+  <section class="band"><div class="wrap split split--curric">
+    <div>
+      <span class="eyebrow">{curriculumTitle}</span>
+      <h2 class="lh-tight">What you will <span class="grad-text">build toward</span></h2>
+      <div class="curric">
+        {curriculumItems.map((item, i) => (
+          <div class="curric-row">
+            <div class="curric-num">0{i + 1}</div>
+            <p>{item}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="handoff-card">
+      <span class="fit-ic"><Icon name="handshake" size={22} /></span>
+      <h2>{handoffTitle}</h2>
+      <p>{handoffBody}</p>
+      <div class="acts">
+        <a class="dbtn dbtn--solid" href={FIT_HREF}>{fitCta} <span>→</span></a>
+        <a class="dbtn dbtn--glass dbtn--dark" href={APPLY_HREF}>{applyCta}</a>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- ══════════════════════════════ CLOSING CTA — DEPTH crimson band ══════════════════════════════ -->
+  <section class="close">
+    <div class="close__media" aria-hidden="true"></div>
+    <div class="close__veil" aria-hidden="true"></div>
+    <div class="close__inner wrap">
+      <span class="pill pill--solid"><span class="pill__star"><Icon name="calendar" size={11} /></span>No account needed to check your fit</span>
+      <h2>{finalTitle}</h2>
+      <p>{finalBody}</p>
+      <div class="acts acts--center">
+        <a class="bbtn bbtn--gold" href={FIT_HREF}>{fitCta} →</a>
+        <a class="bbtn bbtn--outline" href={APPLY_HREF}>{applyCta}</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<style>
+  /* ===================================================================
+     GOOGLE IT SUPPORT LANDING — DEPTH aesthetic (matches programs.astro).
+     depth stage hero + glass card → light alternating bands →
+     depth crimson closing CTA.
+     =================================================================== */
+  .gitdepth{--glass:rgba(255,255,255,.10);--glass-line:rgba(255,255,255,.18)}
+
+  /* ---------------- DEPTH HERO STAGE ---------------- */
+  .stage{
+    position:relative;overflow:hidden;isolation:isolate;
+    background:radial-gradient(140% 120% at 80% -10%, #b8334f 0%, var(--accent-dark) 42%, var(--plum) 74%, #4a0e26 100%);
+    color:#fff;padding:84px 0 92px;
+  }
+  .stage-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:56px;align-items:center;position:relative;z-index:2}
+
+  .aura{position:absolute;border-radius:50%;filter:blur(70px);z-index:0;pointer-events:none}
+  .aura--1{width:520px;height:520px;top:-170px;right:-120px;background:radial-gradient(circle,rgba(196,154,72,.55),transparent 68%)}
+  .aura--2{width:460px;height:460px;bottom:-200px;left:-140px;background:radial-gradient(circle,rgba(173,44,77,.6),transparent 70%)}
+  .aura--3{width:360px;height:360px;top:24%;left:44%;background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+
+  .grain{position:absolute;inset:0;z-index:1;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url('/images/hero-people.webp');background-size:cover;background-position:center;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 38%,#000 100%);opacity:.18}
+
+  .pill{display:inline-flex;align-items:center;gap:7px;max-width:100%;white-space:nowrap;
+    background:linear-gradient(135deg,#e3bd6a,#a47f38);color:#3a2c10;font-weight:800;font-size:12.5px;
+    letter-spacing:.02em;line-height:1.1;padding:9px 17px;border-radius:999px;
+    box-shadow:0 10px 28px -8px rgba(164,127,56,.6),0 1px 0 rgba(255,255,255,.4) inset}
+  .pill__star{display:inline-flex;font-size:11px;opacity:.95}
+  @media(max-width:430px){.pill{white-space:normal;text-align:left}}
+
+  .lede h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(36px,5.2vw,60px);
+    line-height:1.05;letter-spacing:-.03em;margin:22px 0 0}
+  .lede .sub{font-size:19px;line-height:1.55;color:rgba(255,255,255,.82);max-width:34em;margin:22px 0 28px}
+
+  .acts{display:flex;gap:14px;flex-wrap:wrap}
+  .acts--center{justify-content:center}
+  .noaccount{margin-top:18px;font-size:14px;color:rgba(255,255,255,.7);max-width:34em}
+
+  /* hero glass honest-outcomes card */
+  .hero-glass{position:relative;border-radius:22px;padding:28px;
+    background:rgba(255,255,255,.13);border:1px solid var(--glass-line);backdrop-filter:blur(18px);
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.22) inset;color:#fff}
+  .hg-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .hg-ic{display:inline-flex;width:38px;height:38px;border-radius:11px;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);color:#f3d28f;flex:none}
+  .hg-head h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;line-height:1.2}
+  .hg-fallback{font-size:15px;line-height:1.6;color:rgba(255,255,255,.9);
+    background:rgba(0,0,0,.2);border:1px dashed rgba(255,255,255,.25);border-radius:14px;padding:16px 18px}
+  .hg-method{margin-top:14px;font-size:12px;color:rgba(255,255,255,.62);line-height:1.5}
+
+  /* ---------------- LIGHT BODY BANDS ---------------- */
+  .band{padding:var(--sec-pad) 0}
+  .band--surface{background:var(--surface)}
+
+  .eyebrow{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson);margin-bottom:14px}
+  .kick{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--crimson);background:rgba(173,44,77,.1);padding:7px 13px;border-radius:999px;margin-bottom:16px}
+  .kick--light{color:#f3d28f;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18)}
+  .lh-tight{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(28px,4vw,42px);line-height:1.06;letter-spacing:-.02em;margin-bottom:24px}
+
+  /* two-column split */
+  .split{display:grid;grid-template-columns:0.9fr 1.1fr;gap:32px;align-items:stretch}
+  .split--curric{grid-template-columns:1.05fr .95fr;align-items:start}
+  @media(max-width:920px){.split,.split--curric{grid-template-columns:1fr;gap:28px}}
+
+  /* WIOA / $0 card */
+  .wioa-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow)}
+  .wioa-card h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(26px,3.4vw,36px);line-height:1.08;letter-spacing:-.02em;margin-bottom:14px}
+  .wioa-card p{color:var(--muted);font-size:16px;line-height:1.6;margin-bottom:22px}
+  .checklist{list-style:none;margin:0 0 26px;padding:0;display:flex;flex-direction:column;gap:13px}
+  .checklist li{display:flex;gap:12px;align-items:flex-start;color:var(--text);font-size:15.5px;line-height:1.5}
+  .cmark{display:inline-flex;flex:none;width:24px;height:24px;border-radius:999px;align-items:center;justify-content:center;
+    background:rgba(74,155,79,.14);color:var(--green);margin-top:1px}
+
+  /* fit card (dark) */
+  .fit-card{background:radial-gradient(120% 130% at 85% 0%,#2a0d1c 0%,#1a1414 60%,#120d0d 100%);
+    border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:34px;color:#fff;box-shadow:var(--shadow-lg)}
+  .fit-card h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(26px,3.4vw,36px);line-height:1.08;letter-spacing:-.02em;margin-bottom:14px}
+  .fit-card>p{color:rgba(255,255,255,.78);font-size:16px;line-height:1.6;margin-bottom:26px;max-width:42em}
+  .fit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:680px){.fit-grid{grid-template-columns:1fr}}
+  .fit-item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px}
+  .fit-ic{display:inline-flex;width:42px;height:42px;border-radius:12px;align-items:center;justify-content:center;
+    background:rgba(196,154,72,.2);color:#f3d28f;margin-bottom:14px}
+  .fit-item h3{font-size:15px;font-weight:800;color:#f3d28f;margin-bottom:8px}
+  .fit-item p{font-size:14px;line-height:1.55;color:rgba(255,255,255,.78)}
+
+  /* curriculum rows */
+  .curric{display:flex;flex-direction:column;gap:14px}
+  .curric-row{display:flex;gap:18px;align-items:center;background:var(--surface);border:1px solid var(--border);
+    border-radius:14px;padding:18px 22px;box-shadow:var(--shadow);border-left:5px solid var(--crimson)}
+  .curric-num{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:var(--crimson);flex:none;line-height:1}
+  .curric-row p{font-size:16.5px;font-weight:600;line-height:1.45}
+
+  /* handoff card */
+  .handoff-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:34px;box-shadow:var(--shadow);align-self:start}
+  .handoff-card .fit-ic{background:rgba(173,44,77,.1);color:var(--crimson);width:48px;height:48px}
+  .handoff-card h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(24px,3.2vw,32px);line-height:1.1;letter-spacing:-.02em;margin-bottom:14px}
+  .handoff-card p{color:var(--muted);font-size:16px;line-height:1.65;margin-bottom:26px}
+  .dbtn--dark{color:var(--text);border-color:var(--border)}
+
+  .grad-text{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* ---------------- DEPTH CLOSING CTA (full-bleed crimson) ---------------- */
+  .close{position:relative;overflow:hidden;width:100vw;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw}
+  .close__media{position:absolute;inset:0;background:url('/images/hero-people.webp') center 40%/cover no-repeat}
+  .close__veil{position:absolute;inset:0;
+    background:linear-gradient(120deg,rgba(173,44,77,.92) 0%,rgba(140,15,55,.9) 50%,rgba(109,20,55,.92) 100%)}
+  .close__inner{position:relative;z-index:2;color:#fff;text-align:center;padding:88px 24px 96px;max-width:var(--max)}
+  .pill--solid{margin-bottom:24px}
+  .close__inner h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(32px,5.2vw,60px);line-height:1.0;letter-spacing:-.03em;margin-bottom:18px}
+  .close__inner p{font-size:clamp(17px,2.2vw,21px);color:rgba(255,255,255,.92);max-width:38em;margin:0 auto 30px;line-height:1.5}
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media(max-width:880px){
+    .stage{padding:64px 0 76px}
+    .stage-grid{grid-template-columns:1fr;gap:44px}
+    .grain{-webkit-mask-image:none;mask-image:none;opacity:.12}
+  }
+  @media(max-width:560px){
+    .acts .bbtn{width:100%;justify-content:center}
+  }
+</style>
+</Layout>

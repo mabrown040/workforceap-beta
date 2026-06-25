@@ -73,13 +73,14 @@ const path = Astro.url.pathname;
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <slot name="head" />
 </head>
 <body>
   <input class="navtoggle" type="checkbox" id="navtoggle" aria-hidden="true" />
   <label class="hamburger" for="navtoggle" aria-label="Toggle menu"><span></span><span></span><span></span></label>
   <nav class="top">
     <div class="wrap row">
-      <a class="brand" href="/"><span class="mark" aria-hidden="true">▲</span>Workforce<b>AP</b></a>
+      <a class="brand" href="/" aria-label="Workforce Advancement Project — home"><img class="brand-logo" src="/images/wap_logo.png" alt="Workforce Advancement Project" width="210" height="107" /></a>
       <div class="navlinks">
         {nav.map((n) => n.children ? (
           <div class="navdrop">
@@ -117,7 +118,7 @@ const path = Astro.url.pathname;
   <footer><div class="wrap">
     <div class="fgrid">
       <div class="fbrand">
-        <a class="brand" href="/"><span class="mark" aria-hidden="true">▲</span>Workforce<b>AP</b></a>
+        <a class="brand brand--footer" href="/" aria-label="Workforce Advancement Project — home"><img class="brand-logo" src="/images/wap_logo.png" alt="Workforce Advancement Project" width="210" height="107" /></a>
         <p>A 501(c)(3) nonprofit providing employer-aligned training, professional certificates, and career support at no cost to members who qualify through scholarship/grant funded membership.</p>
       </div>
       <div><h4>Explore</h4><ul><li><a href="/programs">Programs</a></li><li><a href="/how-it-works">How it works</a></li><li><a href="/find-your-path">Find your path</a></li><li><a href="/outcomes">Outcomes</a></li></ul></div>

@@ -11,6 +11,7 @@ import ProgramCommitmentPanel from '@/components/portal/ProgramCommitmentPanel';
 import { getUser } from '@/lib/auth/server';
 
 import { getTranslations } from 'next-intl/server';
+import '../apply-funnel-depth.css';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('apply');
@@ -78,8 +79,8 @@ export default async function ApplyConfirmationPage() {
   const whatYouCanDoNow = isAuthenticated ? whatYouCanDoSignedIn : whatYouCanDoGuest;
 
   return (
-    <div className="inner-page">
-      <section className="content-section" style={{ paddingBottom: '2rem' }}>
+    <div className="inner-page mdx afd-page">
+      <section className="content-section" style={{ paddingTop: 'calc(var(--nav-height-default, 80px) + 1.5rem)', paddingBottom: '2rem' }}>
         <div className="container" style={{ maxWidth: 980 }}>
           <div className="apply-confirmation-shell" style={{ maxWidth: '720px', margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
@@ -118,11 +119,10 @@ export default async function ApplyConfirmationPage() {
 
             {isAuthenticated ? (
               <div
+                className="mdx-card"
                 style={{
                   background: 'linear-gradient(135deg, rgba(173, 44, 77, 0.08), rgba(173, 44, 77, 0.02))',
                   border: '1px solid rgba(173, 44, 77, 0.25)',
-                  borderRadius: '8px',
-                  padding: '1.35rem',
                   marginBottom: '1.5rem',
                 }}
               >
@@ -134,10 +134,10 @@ export default async function ApplyConfirmationPage() {
                   {t('confirmationSignedInBody')}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}>
-                  <LocalizedLink href="/dashboard" className="btn btn-primary">
+                  <LocalizedLink href="/dashboard" className="btn btn-primary mdx-btn mdx-btn--primary">
                     {t('confirmationOpenDashboard')}
                   </LocalizedLink>
-                  <LocalizedLink href="/apply/status" className="btn btn-outline">
+                  <LocalizedLink href="/apply/status" className="btn btn-outline mdx-btn mdx-btn--ghost">
                     {t('confirmationCheckStatusShort')}
                   </LocalizedLink>
                 </div>
@@ -163,7 +163,7 @@ export default async function ApplyConfirmationPage() {
               </Suspense>
             )}
 
-            <section style={{ background: 'var(--surface-container-low)', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+            <section className="mdx-card" style={{ marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '0.875rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 1.25rem' }}>
                 {t('confirmationTimelineHeading')}
               </h2>
@@ -182,7 +182,7 @@ export default async function ApplyConfirmationPage() {
               </div>
             </section>
 
-            <section style={{ background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+            <section className="mdx-card" style={{ marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '0.875rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--color-accent)', margin: '0 0 1rem' }}>
                 {t('confirmationTrustHeading')}
               </h2>
@@ -206,7 +206,7 @@ export default async function ApplyConfirmationPage() {
             </div>
 
             <div className="apply-confirmation-info-grid" style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ background: 'var(--surface-container)', borderRadius: '0.875rem', padding: '1.25rem' }}>
+              <div className="mdx-card">
                 <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>{t('confirmationWhatNowHeading')}</h2>
                 <ul style={{ margin: 0, paddingLeft: 0, listStyle: 'none', color: 'var(--color-on-surface-variant)', lineHeight: 1.7 }}>
                   {whatYouCanDoNow.map((item) => (
@@ -220,7 +220,7 @@ export default async function ApplyConfirmationPage() {
                 </ul>
               </div>
 
-              <div style={{ background: 'var(--surface-container-low)', borderRadius: '0.875rem', padding: '1.25rem' }}>
+              <div className="mdx-card">
                 <h2 style={{ margin: '0 0 0.75rem', fontSize: '1rem', color: 'var(--color-on-surface)' }}>{t('confirmationHelpHeading')}</h2>
                 <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.7 }}>
                   {t('confirmationHelpBody')}{' '}
@@ -240,13 +240,13 @@ export default async function ApplyConfirmationPage() {
             </section>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-              <LocalizedLink href="/apply/status" className="btn btn-primary">
+              <LocalizedLink href="/apply/status" className="btn btn-primary mdx-btn mdx-btn--primary">
                 {t('confirmationCtaStatus')}
               </LocalizedLink>
-              <LocalizedLink href="/programs" className="btn btn-outline">
+              <LocalizedLink href="/programs" className="btn btn-outline mdx-btn mdx-btn--ghost">
                 {t('confirmationCtaPrograms')}
               </LocalizedLink>
-              <LocalizedLink href="/" className="btn btn-muted">
+              <LocalizedLink href="/" className="btn btn-muted mdx-btn mdx-btn--ghost">
                 {t('confirmationCtaHome')}
               </LocalizedLink>
             </div>

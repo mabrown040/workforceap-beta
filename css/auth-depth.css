@@ -1,0 +1,206 @@
+/* ============================================================
+   auth-depth.css — light-locked "depth" reskin for the (auth)
+   route group (login, signup, forgot/reset password, MFA setup +
+   verify). Scoped entirely to the .auth-depth wrapper added by
+   app/(auth)/layout.tsx so it never leaks into the portal.
+
+   GOAL 1 — LIGHT LOCK: the portal token layer (css/portal-tokens.css)
+   flips --surface-* / --color-on-* to dark under html.dark or
+   [data-theme="dark"]. We REDEFINE those same custom properties on
+   the .auth-depth subtree so the auth experience is always light,
+   regardless of the user's dark-mode preference. This is pure CSS
+   (cascade-driven), so there is NO post-paint <html> class flip and
+   therefore NO dark→light flash.
+
+   GOAL 2 — crimson depth feel: light form surface (#fff / #1a1414
+   text), crimson accents, gold primary button — matching the
+   marketing .mdx-stage / .mdx-btn--primary language.
+
+   VISUAL ONLY. No selector here changes layout structure, focus
+   behaviour, or any handler — it only retargets colour/shadow/shape.
+   ============================================================ */
+
+.auth-depth {
+  /* — WorkforceAP DEPTH tokens (crimson nonprofit) — */
+  --ad-crimson: #ad2c4d;
+  --ad-accent-dark: #8c0f37;
+  --ad-plum: #6d1437;
+  --ad-gold: #a47f38;
+  --ad-gold-dark: #7d5f26;
+  --ad-bg: #f7f4f1;
+  --ad-surface: #fff;
+  --ad-text: #1a1414;
+  --ad-muted: #6e6a66;
+  --ad-border: #ece5e0;
+  --ad-grad: linear-gradient(135deg, #ad2c4d 0%, #8c0f37 52%, #6d1437 100%);
+  --ad-gold-grad: linear-gradient(135deg, #c79a45 0%, #a47f38 55%, #7d5f26 100%);
+
+  /* ── LIGHT LOCK ──────────────────────────────────────────────
+     Re-pin every neutral/surface token the auth components read.
+     Because these are set on .auth-depth (a descendant of <html>),
+     they win over html.dark / [data-theme="dark"] for this subtree
+     without any JS. Brand hues stay crimson/gold. */
+  --color-white: #ffffff;
+  --color-primary: var(--ad-crimson);
+  --color-on-primary: #ffffff;
+  --color-accent: var(--ad-crimson);
+  --color-accent-dark: var(--ad-accent-dark);
+  --color-on-accent: #ffffff;
+  --color-gold: var(--ad-gold);
+  --color-green: #4a9b4f;
+  --color-error: #dc2626;
+
+  --color-on-surface: var(--ad-text);
+  --color-on-surface-variant: var(--ad-muted);
+  --surface-container-lowest: var(--ad-bg);
+  --surface-container-low: var(--ad-surface);
+  --surface-container: var(--ad-surface);
+  --surface-container-high: #f3eee9;
+  --outline-variant: var(--ad-border);
+
+  /* portal-tokens bridge aliases (kit components) — keep light too */
+  --wa-bg: var(--ad-bg);
+  --wa-surface: var(--ad-surface);
+  --wa-surface-2: #f3eee9;
+  --wa-text: var(--ad-text);
+  --wa-muted: var(--ad-muted);
+  --wa-border: var(--ad-border);
+  --wa-accent: var(--ad-crimson);
+  --wa-accent-dark: var(--ad-accent-dark);
+  --wa-gold: var(--ad-gold);
+
+  /* legacy main.css helpers used by forgot/reset pages */
+  --text-secondary: var(--ad-muted);
+
+  background: var(--ad-bg);
+  color: var(--ad-text);
+}
+
+/* Belt-and-braces: even if a parent toggles dark mode AFTER hydration,
+   the subtree stays light because the redeclaration lives on the wrapper
+   itself, and we also restate it under the dark selectors at equal reach. */
+html.dark .auth-depth,
+[data-theme='dark'] .auth-depth {
+  --color-on-surface: var(--ad-text);
+  --color-on-surface-variant: var(--ad-muted);
+  --surface-container-lowest: var(--ad-bg);
+  --surface-container-low: var(--ad-surface);
+  --surface-container: var(--ad-surface);
+  --surface-container-high: #f3eee9;
+  --outline-variant: var(--ad-border);
+  --wa-bg: var(--ad-bg);
+  --wa-surface: var(--ad-surface);
+  --wa-surface-2: #f3eee9;
+  --wa-text: var(--ad-text);
+  --wa-muted: var(--ad-muted);
+  --wa-border: var(--ad-border);
+}
+
+/* ── Crimson depth polish for the form-side card ───────────────── */
+.auth-depth input,
+.auth-depth select,
+.auth-depth textarea {
+  background: var(--ad-surface) !important;
+  color: var(--ad-text) !important;
+  border-color: var(--ad-border) !important;
+}
+.auth-depth input::placeholder,
+.auth-depth textarea::placeholder {
+  color: #a8a19b;
+}
+.auth-depth input:focus,
+.auth-depth select:focus,
+.auth-depth textarea:focus,
+.auth-depth .login-field:focus {
+  outline: 2px solid var(--ad-crimson);
+  outline-offset: 2px;
+  border-color: var(--ad-crimson) !important;
+  box-shadow: 0 0 0 4px rgba(173, 44, 77, 0.12);
+}
+
+/* ============================================================
+   LEGACY-CLASS auth pages (forgot-password, reset-password, and the
+   error/success states) render through main.css's .inner-page /
+   .page-hero / .apply-form chrome. Give them the depth look while
+   staying scoped to .auth-depth so the public site is untouched.
+   ============================================================ */
+.auth-depth .inner-page {
+  background: var(--ad-bg);
+  color: var(--ad-text);
+  min-height: 100vh;
+}
+
+/* Crimson "stage" hero, echoing marketing .mdx-stage */
+.auth-depth .page-hero {
+  position: relative;
+  background: var(--ad-grad);
+  color: #fff;
+  border-radius: 0 0 28px 28px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px -28px rgba(109, 20, 55, 0.32);
+}
+.auth-depth .page-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/images/hero-people.webp') center / cover;
+  opacity: 0.12;
+  mix-blend-mode: luminosity;
+  pointer-events: none;
+}
+.auth-depth .page-hero-content {
+  position: relative;
+  z-index: 1;
+}
+.auth-depth .page-hero h1 {
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+.auth-depth .page-hero p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Light surface card for the legacy .apply-form */
+.auth-depth .apply-form {
+  background: var(--ad-surface);
+  border: 1px solid var(--ad-border);
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 1px 2px rgba(28, 20, 20, 0.04),
+    0 16px 48px -16px rgba(109, 20, 55, 0.16);
+}
+.auth-depth .apply-form label,
+.auth-depth .form-group label {
+  color: var(--ad-text);
+  font-weight: 600;
+}
+
+/* Gold primary button — matches marketing .mdx-btn--primary energy
+   (crimson) but uses the gold treatment requested for the auth CTA;
+   crimson hero CTAs (.btn on the page-hero) read as glass on crimson. */
+.auth-depth .btn-primary {
+  background: var(--ad-gold-grad);
+  color: #fff;
+  border: none;
+  box-shadow: 0 12px 30px -12px rgba(124, 92, 38, 0.5);
+}
+.auth-depth .btn-primary:hover {
+  background: linear-gradient(135deg, #d2a64c 0%, #b08a3e 55%, #8a692b 100%);
+}
+/* CTAs that sit ON the crimson hero get the glass/solid-light read */
+.auth-depth .page-hero .btn-primary {
+  background: linear-gradient(135deg, #fff, #fbeede);
+  color: var(--ad-accent-dark);
+}
+.auth-depth .page-hero .btn-primary:hover {
+  background: #fff;
+}
+
+/* Inline crimson link recolour for the legacy pages */
+.auth-depth .apply-form a,
+.auth-depth .page-hero-content a:not(.btn) {
+  color: var(--ad-crimson);
+}
+.auth-depth .page-hero-content a:not(.btn) {
+  color: #fbeede;
+}

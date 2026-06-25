@@ -64,7 +64,7 @@ The 8-course curriculum includes hands-on labs, portfolio projects, and exam pre
     title: "From Warehouse to IT Support: Marcus's Story",
     category: 'Success Stories',
     heroImage:
-      '/images/blog/1523240795612-9a054b0db644.jpg&auto=format&fit=crop',
+      '/images/blog/1523240795612-9a054b0db644.jpg',
     excerpt:
       "He spent 12 years in logistics. Six months later, he's a certified IT technician with a new career trajectory.",
     authorName: 'WorkforceAP Team',

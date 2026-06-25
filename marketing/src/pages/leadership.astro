@@ -151,8 +151,10 @@ const leadConsultants = [
     <div class="tri">
       {boardMembers.map((leader) => (
         <a class="acard person" href={`/leadership/${leader.slug}`}>
-          <div class="portrait" aria-hidden="true">
-            <span class="initials">{leader.initials}</span>
+          <div class="portrait">
+            {leader.image
+              ? <img class="portrait-img" src={leader.image} alt={`Portrait of ${leader.name.replace(/,.*$/, '')}`} width="176" height="176" loading="lazy" />
+              : <span class="initials" aria-hidden="true">{leader.initials}</span>}
           </div>
           <span class="role">{leader.role}</span>
           <h3>{leader.name}</h3>
@@ -173,8 +175,10 @@ const leadConsultants = [
     <div class="tri">
       {leadConsultants.map((leader) => (
         <a class="acard person" href={`/leadership/${leader.slug}`}>
-          <div class="portrait" aria-hidden="true">
-            <span class="initials">{leader.initials}</span>
+          <div class="portrait">
+            {leader.image
+              ? <img class="portrait-img" src={leader.image} alt={`Portrait of ${leader.name.replace(/,.*$/, '')}`} width="176" height="176" loading="lazy" />
+              : <span class="initials" aria-hidden="true">{leader.initials}</span>}
           </div>
           <span class="role">{leader.role}</span>
           <h3>{leader.name}</h3>
